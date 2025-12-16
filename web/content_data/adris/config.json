@@ -1,0 +1,52 @@
+{
+  "id": "adris",
+  "name": "Veterinaria Adris",
+  "contact": {
+    "whatsapp_number": "595981123456",
+    "phone_display": "+595 981 123 456",
+    "email": "contacto@veteadris.com",
+    "address": "Av. Santa Teresa 1234, Asunción",
+    "google_maps_id": "embed_code_adris"
+  },
+  "settings": {
+    "currency": "PYG",
+    "emergency_24h": true,
+    "modules": {
+      "toxic_checker": true,
+      "age_calculator": true
+    }
+  },
+  "branding": {
+    "logo_url": "/branding/adris/logo.png",
+    "logo_width": 150,
+    "logo_height": 40,
+    "favicon_url": "/branding/adris/favicon.ico",
+    "hero_image_url": "/branding/adris/hero-bg.jpg",
+    "og_image_url": "/branding/adris/og-image.jpg"
+  },
+  "ui_labels": {
+    "nav": {
+      "home": "Inicio",
+      "services": "Servicios",
+      "about": "Nosotros",
+      "book_btn": "Agendar"
+    },
+    "footer": {
+      "rights": "Todos los derechos reservados."
+    },
+    "home": {
+      "visit_us": "Visítanos"
+    },
+    "services": {
+      "online_badge": "Reservable Online",
+      "description_label": "Descripción:",
+      "includes_label": "Incluye:",
+      "table_variant": "Variante / Tipo",
+      "table_price": "Precio",
+      "book_floating_btn": "Agendar Turno"
+    },
+    "about": {
+      "team_title": "Nuestro Equipo"
+    }
+  }
+}

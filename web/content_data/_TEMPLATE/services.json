@@ -1,0 +1,26 @@
+{
+  "meta": {
+    "title": "Nuestros Servicios",
+    "subtitle": "Descripción general de los servicios."
+  },
+  "services": [
+    {
+      "id": "consultation",
+      "visible": true,
+      "category": "medical",
+      "title": "Servicio Ejemplo",
+      "icon": "stethoscope",
+      "summary": "Resumen corto.",
+      "details": {
+        "description": "Descripción larga del servicio.",
+        "duration_minutes": 30,
+        "includes": ["Incluye 1", "Incluye 2"]
+      },
+      "variants": [
+        { "name": "Opción 1", "price_display": "100.000 Gs", "price_value": 100000 },
+        { "name": "Opción 2", "price_display": "Consultar", "price_value": 0 }
+      ],
+      "booking": { "online_enabled": true, "emergency_available": false }
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "colors": {
+    "primary": {
+      "main": "#2F5233",
+      "light": "#4E7C54",
+      "dark": "#1A331D",
+      "contrast": "#ffffff"
+    },
+    "secondary": {
+      "main": "#F0C808",
+      "light": "#F5D74D",
+      "dark": "#B39506",
+      "contrast": "#1A331D"
+    },
+    "background": {
+      "default": "#FAFBFC",
+      "paper": "#FFFFFF",
+      "subtle": "#F2F4F6",
+      "dark": "#1e293b"
+    },
+    "text": {
+      "primary": "#1F2937",
+      "secondary": "#4B5563",
+      "muted": "#9CA3AF",
+      "invert": "#FFFFFF"
+    },
+    "status": {
+      "success": "#10B981",
+      "warning": "#F59E0B",
+      "error": "#EF4444"
+    }
+  },
+  "gradients": {
+    "hero": "linear-gradient(135deg, #2F5233 0%, #1A331D 100%)",
+    "primary": "linear-gradient(135deg, #4E7C54 0%, #2F5233 100%)",
+    "accent": "linear-gradient(135deg, #F0C808 0%, #F5D74D 100%)"
+  },
+  "fonts": {
+    "heading": "Montserrat, sans-serif",
+    "body": "Inter, sans-serif"
+  },
+  "ui": {
+    "border_radius": "16px",
+    "shadow_sm": "0 1px 2px 0 rgb(0 0 0 / 0.05)",
+    "shadow_md": "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
+    "shadow_lg": "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)"
+  }
+}

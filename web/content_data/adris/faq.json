@@ -1,0 +1,18 @@
+[
+  {
+    "question": "¿Atienden urgencias de madrugada?",
+    "answer": "Sí, contamos con veterinario de guardia las 24 horas. Solo debes llamar a nuestro número de urgencias o presionar el botón de 'Emergencia' en la web."
+  },
+  {
+    "question": "¿Cómo funciona el Carnet Digital?",
+    "answer": "Es automático. Cada vacuna que aplicamos en Veterinaria Adris se sube a tu perfil. Si tienes vacunas de otros lugares, puedes subir una foto y nosotros la verificamos."
+  },
+  {
+    "question": "¿Hacen envíos de balanceados?",
+    "answer": "Sí, hacemos delivery sin costo en el barrio Santa Teresa y alrededores para compras superiores a 150.000 Gs."
+  },
+  {
+    "question": "¿Aceptan seguros de mascotas?",
+    "answer": "Trabajamos con 'Mascota Segura' y 'PetPlan'. Presentando tu credencial tienes cobertura directa."
+  }
+]

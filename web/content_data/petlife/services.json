@@ -1,0 +1,87 @@
+{
+  "meta": {
+    "title": "Estudios y Procedimientos",
+    "subtitle": "Tarifario de servicios médicos."
+  },
+  "services": [
+    {
+      "id": "imaging",
+      "visible": true,
+      "category": "diagnostics",
+      "title": "Diagnóstico por Imágenes",
+      "icon": "image",
+      "summary": "Imágenes digitales de alta resolución.",
+      "details": {
+          "description": "Informe entregado digitalmente en 24hs.",
+          "duration_minutes": 30,
+          "includes": []
+      },
+      "variants": [
+          {
+              "name": "Radiografía Digital (1 Placa)",
+              "price_display": "120.000 Gs",
+              "price_value": 120000
+          },
+          {
+              "name": "Radiografía (Par Radiológico)",
+              "price_display": "180.000 Gs",
+              "price_value": 180000
+          },
+          {
+              "name": "Ecografía Abdominal Completa",
+              "price_display": "150.000 Gs",
+              "price_value": 150000
+          },
+          {
+              "name": "Ecografía Gestacional",
+              "price_display": "140.000 Gs",
+              "price_value": 140000
+          },
+          {
+              "name": "Ecocardiografía Doppler",
+              "price_display": "250.000 Gs",
+              "price_value": 250000,
+              "description": "Realizado por especialista cardiólogo."
+          }
+      ],
+      "booking": {
+        "online_enabled": true
+      }
+    },
+    {
+      "id": "hospital",
+      "visible": true,
+      "category": "hospital",
+      "title": "Internación y Cuidados",
+      "icon": "bed",
+      "summary": "Valores por día de internación.",
+      "details": {
+          "description": "No incluye medicación descartable.",
+          "duration_minutes": 0,
+          "includes": ["Monitoreo", "Alimentación"]
+      },
+      "variants": [
+          {
+              "name": "Día de Internación (Sala Común)",
+              "price_display": "200.000 Gs",
+              "price_value": 200000
+          },
+          {
+              "name": "Día de Internación (Infectocontagiosos)",
+              "price_display": "300.000 Gs",
+              "price_value": 300000,
+              "description": "Aislamiento estricto."
+          },
+          {
+              "name": "Fluidoterapia Ambulatoria (Suero)",
+              "price_display": "80.000 Gs",
+              "price_value": 80000,
+              "description": "Por sesión de 2-3 horas."
+          }
+      ],
+      "booking": {
+        "online_enabled": false
+      }
+    }
+  ]
+}

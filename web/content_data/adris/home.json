@@ -1,0 +1,45 @@
+{
+  "hero": {
+    "headline": "Cuidado Experto, Amor Incondicional.",
+    "subhead": "La mejor clínica veterinaria de Asunción. Nos dedicamos a cuidar a tu mascota como si fuera nuestra.",
+    "cta_primary": "Agendar Turno",
+    "cta_secondary": "Ver Servicios"
+  },
+  "features": [
+    {
+      "icon": "heart-pulse",
+      "title": "Clínica General",
+      "text": "Atención integral para el día a día."
+    },
+    {
+      "icon": "shield-check",
+      "title": "Vacunas Certificadas",
+      "text": "Historial 100% digital y seguro."
+    },
+    {
+      "icon": "clock",
+      "title": "Urgencias 24hs",
+      "text": "Siempre abiertos para casos críticos."
+    }
+  ],
+  "promo_banner": {
+    "enabled": true,
+    "text": "¡10% de Descuento en tu primer baño!",
+    "link": "#"
+  },
+  "interactive_tools_section": {
+    "title": "¿Dudas Rápidas?",
+    "subtitle": "Usa nuestras herramientas gratuitas mientras esperas.",
+    "toxic_food_cta": "Verificador de Alimentos",
+    "age_calc_cta": "Calculadora de Edad"
+  },
+  "testimonials_section": {
+    "enabled": true,
+    "title": "Lo que dicen nuestros clientes",
+    "subtitle": "Historias reales de mascotas felices."
+  },
+  "seo": {
+    "meta_title": "Veterinaria Adris - Urgencias 24hs en Asunción",
+    "meta_description": "Clínica veterinaria líder en Santa Teresa. Vacunación, Cirugía y Carnet Digital. Atención con amor para perros y gatos."
+  }
+}

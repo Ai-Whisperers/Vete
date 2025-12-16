@@ -1,0 +1,19 @@
+{
+  "id": "petlife",
+  "name": "PetLife Center",
+  "contact": {
+    "whatsapp_number": "595971999888",
+    "phone_display": "+595 971 999 888",
+    "email": "info@petlife.com.py",
+    "address": "Ruta 2 Km 14, San Lorenzo",
+    "google_maps_id": "embed_code_petlife"
+  },
+  "settings": {
+    "currency": "PYG",
+    "emergency_24h": false,
+    "modules": {
+        "toxic_checker": false,
+        "age_calculator": true
+    }
+  }
+}

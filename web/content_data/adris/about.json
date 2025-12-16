@@ -1,0 +1,18 @@
+{
+  "intro": {
+    "title": "Nuestra Historia",
+    "text": "Veterinaria Adris nació del amor por los animales. Fundada en 2015, nos hemos convertido en un referente en Asunción..."
+  },
+  "team": [
+    {
+      "name": "Dra. Adriana",
+      "role": "Directora Médica",
+      "bio": "Especialista en pequeños animales con 14 años de experiencia."
+    },
+    {
+      "name": "Dr. Jorge",
+      "role": "Cirujano",
+      "bio": "Experto en traumatología."
+    }
+  ]
+}

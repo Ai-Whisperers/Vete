@@ -1,9 +1,90 @@
 'use client'
 
+import { useState, useEffect, useMemo } from 'react'
 import * as Icons from 'lucide-react'
 import Image from 'next/image'
 import { StatusButtons } from './status-buttons'
 import { statusConfig, formatAppointmentTime } from '@/lib/types/appointments'
+import { cn } from '@/lib/utils'
+
+// Calculate time difference in minutes
+function getMinutesDiff(fromDate: string): number {
+  const from = new Date(fromDate)
+  const now = new Date()
+  return Math.floor((now.getTime() - from.getTime()) / (1000 * 60))
+}
+
+// Format waiting time for display
+function formatWaitingTime(minutes: number): string {
+  if (minutes < 1) return 'Recién llegó'
+  if (minutes < 60) return `${minutes} min`
+  const hours = Math.floor(minutes / 60)
+  const mins = minutes % 60
+  if (mins === 0) return `${hours}h`
+  return `${hours}h ${mins}m`
+}
+
+// Get urgency level based on wait time
+function getWaitUrgency(minutes: number): 'normal' | 'warning' | 'urgent' {
+  if (minutes >= 45) return 'urgent'
+  if (minutes >= 20) return 'warning'
+  return 'normal'
+}
+
+// Waiting time indicator component
+function WaitingTimeIndicator({ checkedInAt }: { checkedInAt: string }) {
+  const [minutes, setMinutes] = useState(() => getMinutesDiff(checkedInAt))
+
+  // Update every minute
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setMinutes(getMinutesDiff(checkedInAt))
+    }, 60000) // Update every minute
+
+    return () => clearInterval(interval)
+  }, [checkedInAt])
+
+  const urgency = getWaitUrgency(minutes)
+  const urgencyStyles = {
+    normal: 'bg-blue-50 text-blue-700 border-blue-200',
+    warning: 'bg-yellow-50 text-yellow-700 border-yellow-200',
+    urgent: 'bg-red-50 text-red-700 border-red-200 animate-pulse',
+  }
+
+  return (
+    <div
+      className={cn(
+        'flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border',
+        urgencyStyles[urgency]
+      )}
+      title={`En espera desde ${new Date(checkedInAt).toLocaleTimeString('es-PY', { hour: '2-digit', minute: '2-digit' })}`}
+    >
+      <Icons.Timer className="w-3.5 h-3.5" />
+      <span>{formatWaitingTime(minutes)}</span>
+    </div>
+  )
+}
+
+// Estimated wait time calculation for queue position
+function EstimatedWaitBadge({ position, avgServiceTime = 15 }: { position: number; avgServiceTime?: number }) {
+  const estimatedMinutes = position * avgServiceTime
+
+  if (estimatedMinutes === 0) {
+    return (
+      <span className="text-xs text-green-600 font-medium flex items-center gap-1">
+        <Icons.Zap className="w-3 h-3" />
+        Siguiente
+      </span>
+    )
+  }
+
+  return (
+    <span className="text-xs text-[var(--text-secondary)] flex items-center gap-1">
+      <Icons.Clock className="w-3 h-3" />
+      ~{formatWaitingTime(estimatedMinutes)} de espera
+    </span>
+  )
+}
 
 interface Pet {
   id: string
@@ -51,6 +132,29 @@ export function AppointmentQueue({ appointments, clinic }: AppointmentQueueProps
   const waiting = appointments.filter(a => ['pending', 'confirmed'].includes(a.status))
   const completed = appointments.filter(a => ['completed', 'no_show', 'cancelled'].includes(a.status))
 
+  // Calculate wait time stats for checked-in patients
+  const waitStats = useMemo(() => {
+    if (checkedIn.length === 0) return null
+
+    const waitTimes = checkedIn
+      .filter(a => a.checked_in_at)
+      .map(a => getMinutesDiff(a.checked_in_at!))
+
+    if (waitTimes.length === 0) return null
+
+    const avg = Math.round(waitTimes.reduce((a, b) => a + b, 0) / waitTimes.length)
+    const max = Math.max(...waitTimes)
+    const longestWaiting = checkedIn.reduce((longest, apt) => {
+      if (!apt.checked_in_at) return longest
+      if (!longest) return apt
+      return getMinutesDiff(apt.checked_in_at) > getMinutesDiff(longest.checked_in_at!)
+        ? apt
+        : longest
+    }, null as Appointment | null)
+
+    return { avg, max, longestWaiting }
+  }, [checkedIn])
+
   return (
     <div className="space-y-6">
       {/* In Progress Section */}
@@ -72,14 +176,40 @@ export function AppointmentQueue({ appointments, clinic }: AppointmentQueueProps
       {/* Checked In Section */}
       {checkedIn.length > 0 && (
         <section aria-labelledby="checked-in-heading">
-          <div className="flex items-center gap-2 mb-3">
-            <div className="w-2 h-2 rounded-full bg-yellow-500" aria-hidden="true" />
-            <h2 id="checked-in-heading" className="font-bold text-[var(--text-primary)]">Cola de Espera</h2>
-            <span className="text-sm text-[var(--text-secondary)]" aria-label={`${checkedIn.length} citas en espera`}>({checkedIn.length})</span>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-3">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-yellow-500" aria-hidden="true" />
+              <h2 id="checked-in-heading" className="font-bold text-[var(--text-primary)]">Cola de Espera</h2>
+              <span className="text-sm text-[var(--text-secondary)]" aria-label={`${checkedIn.length} citas en espera`}>({checkedIn.length})</span>
+            </div>
+            {waitStats && (
+              <div className="flex items-center gap-3 text-xs ml-0 sm:ml-auto">
+                <span className="text-[var(--text-secondary)] flex items-center gap-1">
+                  <Icons.BarChart3 className="w-3 h-3" />
+                  Prom: <span className="font-bold text-[var(--text-primary)]">{formatWaitingTime(waitStats.avg)}</span>
+                </span>
+                {waitStats.max >= 20 && (
+                  <span className={cn(
+                    'flex items-center gap-1',
+                    waitStats.max >= 45 ? 'text-red-600' : 'text-yellow-600'
+                  )}>
+                    <Icons.AlertTriangle className="w-3 h-3" />
+                    Máx: <span className="font-bold">{formatWaitingTime(waitStats.max)}</span>
+                  </span>
+                )}
+              </div>
+            )}
           </div>
           <div className="space-y-3" role="list">
-            {checkedIn.map(apt => (
-              <AppointmentRow key={apt.id} appointment={apt} clinic={clinic} highlight="yellow" />
+            {checkedIn.map((apt, index) => (
+              <AppointmentRow
+                key={apt.id}
+                appointment={apt}
+                clinic={clinic}
+                highlight="yellow"
+                showWaitTime
+                queuePosition={index}
+              />
             ))}
           </div>
         </section>
@@ -124,12 +254,16 @@ function AppointmentRow({
   appointment,
   clinic,
   highlight,
-  faded
+  faded,
+  queuePosition,
+  showWaitTime = false,
 }: {
   appointment: Appointment
   clinic: string
   highlight?: 'purple' | 'yellow'
   faded?: boolean
+  queuePosition?: number
+  showWaitTime?: boolean
 }) {
   const status = statusConfig[appointment.status] || statusConfig.pending
   const SpeciesIcon = speciesIcons[appointment.pets?.species] || speciesIcons.default
@@ -197,6 +331,19 @@ function AppointmentRow({
             </a>
           )}
         </div>
+
+        {/* Waiting Time / Queue Position */}
+        {showWaitTime && appointment.checked_in_at && (
+          <div className="shrink-0">
+            <WaitingTimeIndicator checkedInAt={appointment.checked_in_at} />
+          </div>
+        )}
+
+        {queuePosition !== undefined && (
+          <div className="shrink-0">
+            <EstimatedWaitBadge position={queuePosition} />
+          </div>
+        )}
 
         {/* Status Badge */}
         <div className="shrink-0">

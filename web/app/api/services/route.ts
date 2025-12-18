@@ -1,7 +1,9 @@
 import { createClient } from '@/lib/supabase/server';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { withAuth } from '@/lib/api/with-auth';
+import { apiError, apiSuccess } from '@/lib/api/errors';
 
-// GET /api/services - List services for a clinic
+// GET /api/services - List services for a clinic (public)
 export async function GET(request: Request) {
   const supabase = await createClient();
 
@@ -11,7 +13,7 @@ export async function GET(request: Request) {
   const active = searchParams.get('active') !== 'false'; // Default to active only
 
   if (!clinic) {
-    return NextResponse.json({ error: 'Falta parámetro clinic' }, { status: 400 });
+    return apiError('MISSING_FIELDS', 400, { details: { field: 'clinic' } });
   }
 
   try {
@@ -37,59 +39,47 @@ export async function GET(request: Request) {
     return NextResponse.json(services);
   } catch (e) {
     console.error('Error loading services:', e);
-    return NextResponse.json({ error: 'Error al cargar servicios' }, { status: 500 });
+    return apiError('DATABASE_ERROR', 500);
   }
 }
 
 // POST /api/services - Create service (staff only)
-export async function POST(request: Request) {
-  const supabase = await createClient();
+export const POST = withAuth(
+  async ({ profile, supabase, request }) => {
+    try {
+      const body = await request.json();
+      const { name, description, category, base_price, duration_minutes, is_active } = body;
 
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
-  }
+      if (!name || !category || base_price === undefined) {
+        return apiError('MISSING_FIELDS', 400, {
+          details: { required: ['name', 'category', 'base_price'] }
+        });
+      }
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('tenant_id, role')
-    .eq('id', user.id)
-    .single();
+      const { data: service, error } = await supabase
+        .from('services')
+        .insert({
+          tenant_id: profile.tenant_id,
+          name,
+          description,
+          category,
+          base_price,
+          duration_minutes: duration_minutes || 30,
+          is_active: is_active !== false
+        })
+        .select()
+        .single();
 
-  if (!profile || !['vet', 'admin'].includes(profile.role)) {
-    return NextResponse.json({ error: 'Solo el personal puede crear servicios' }, { status: 403 });
-  }
+      if (error) throw error;
 
-  try {
-    const body = await request.json();
-    const { name, description, category, base_price, duration_minutes, is_active } = body;
+      const { logAudit } = await import('@/lib/audit');
+      await logAudit('CREATE_SERVICE', `services/${service.id}`, { name, category, base_price });
 
-    if (!name || !category || base_price === undefined) {
-      return NextResponse.json({ error: 'name, category y base_price son requeridos' }, { status: 400 });
+      return apiSuccess(service, 'Servicio creado exitosamente', 201);
+    } catch (e) {
+      console.error('Error creating service:', e);
+      return apiError('DATABASE_ERROR', 500);
     }
-
-    const { data: service, error } = await supabase
-      .from('services')
-      .insert({
-        tenant_id: profile.tenant_id,
-        name,
-        description,
-        category,
-        base_price,
-        duration_minutes: duration_minutes || 30,
-        is_active: is_active !== false
-      })
-      .select()
-      .single();
-
-    if (error) throw error;
-
-    const { logAudit } = await import('@/lib/audit');
-    await logAudit('CREATE_SERVICE', `services/${service.id}`, { name, category, base_price });
-
-    return NextResponse.json(service, { status: 201 });
-  } catch (e) {
-    console.error('Error creating service:', e);
-    return NextResponse.json({ error: 'Error al crear servicio' }, { status: 500 });
-  }
-}
+  },
+  { roles: ['vet', 'admin'] }
+);

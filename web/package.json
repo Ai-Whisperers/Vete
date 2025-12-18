@@ -40,7 +40,13 @@
     "test:db:seed": "node scripts/seed-test-db.js",
     "test:db:setup": "npm run test:db:reset && npm run test:db:seed",
     "sync:images": "npx tsx scripts/sync-clinic-images.ts",
-    "sync:images:watch": "npx tsx scripts/sync-clinic-images.ts --watch"
+    "sync:images:watch": "npx tsx scripts/sync-clinic-images.ts --watch",
+    "db:setup": "node db/setup-db.mjs full",
+    "db:schema": "node db/setup-db.mjs schema",
+    "db:seeds": "node db/setup-db.mjs seeds",
+    "db:clean": "node db/setup-db.mjs clean",
+    "db:fixes": "node db/setup-db.mjs fixes",
+    "reset-dev": "powershell -ExecutionPolicy Bypass -File reset-dev.ps1"
   },
   "dependencies": {
     "@react-pdf/renderer": "^4.3.1",

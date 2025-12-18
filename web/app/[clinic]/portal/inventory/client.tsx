@@ -1,6 +1,6 @@
 "use client";
-import { useState, useEffect } from 'react';
-import { Download, Upload, FileSpreadsheet, AlertCircle, CheckCircle2, Loader2, Package, TrendingUp, Info, Tag, Search, Edit2 } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Download, Upload, FileSpreadsheet, AlertCircle, CheckCircle2, Loader2, Package, TrendingUp, Info, Tag, Search, Edit2, ChevronDown, ExternalLink, FileDown } from 'lucide-react';
 import { useParams } from 'next/navigation';
 
 export default function InventoryClient() {

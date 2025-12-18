@@ -11,7 +11,8 @@ export default function SignupPage({ params }: { params: Promise<{ clinic: strin
   const { clinic } = use(params);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const returnTo = searchParams.get('returnTo') || `/${clinic}/portal/dashboard`;
+  // Support both 'redirect' (standardized) and 'returnTo' (legacy) parameters
+  const redirectTo = searchParams.get('redirect') ?? searchParams.get('returnTo') ?? `/${clinic}/portal/dashboard`;
   const [state, formAction, isPending] = useActionState(signup, null);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
@@ -23,14 +24,14 @@ export default function SignupPage({ params }: { params: Promise<{ clinic: strin
 
       if (session?.user) {
         // User is already authenticated, redirect to dashboard
-        router.replace(returnTo);
+        router.replace(redirectTo);
       } else {
         setIsCheckingAuth(false);
       }
     };
 
     checkAuth();
-  }, [router, returnTo]);
+  }, [router, redirectTo]);
 
   // Show loading while checking authentication
   if (isCheckingAuth) {
@@ -58,7 +59,7 @@ export default function SignupPage({ params }: { params: Promise<{ clinic: strin
             Revisa tu bandeja de entrada y spam.
         </p>
         <Link
-            href={`/${clinic}/portal/login${returnTo !== `/${clinic}/portal/dashboard` ? `?returnTo=${encodeURIComponent(returnTo)}` : ''}`}
+            href={`/${clinic}/portal/login${redirectTo !== `/${clinic}/portal/dashboard` ? `?redirect=${encodeURIComponent(redirectTo)}` : ''}`}
             className="block mt-8 text-[var(--primary)] font-bold hover:underline"
         >
             Volver al Login
@@ -81,7 +82,7 @@ export default function SignupPage({ params }: { params: Promise<{ clinic: strin
 
         <form action={formAction} className="space-y-4">
             <input type="hidden" name="clinic" value={clinic} />
-            <input type="hidden" name="returnTo" value={returnTo} />
+            <input type="hidden" name="redirect" value={redirectTo} />
             
             <div>
                 <label htmlFor="fullName" className="block text-sm font-bold text-[var(--text-secondary)] mb-1">Nombre Completo</label>
@@ -148,7 +149,7 @@ export default function SignupPage({ params }: { params: Promise<{ clinic: strin
             <p className="text-sm text-gray-500">
                 ¿Ya tienes cuenta?{' '}
                 <Link
-                    href={`/${clinic}/portal/login${returnTo !== `/${clinic}/portal/dashboard` ? `?returnTo=${encodeURIComponent(returnTo)}` : ''}`}
+                    href={`/${clinic}/portal/login${redirectTo !== `/${clinic}/portal/dashboard` ? `?redirect=${encodeURIComponent(redirectTo)}` : ''}`}
                     className="font-bold text-[var(--primary)] hover:underline"
                 >
                     Inicia Sesión

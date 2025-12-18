@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useParams } from "next/navigation";
 import { ServiceCard } from "./service-card";
-import { Search } from "lucide-react";
+import { Search, X, SlidersHorizontal } from "lucide-react";
 import { ClinicConfig } from "@/lib/clinics";
+import { CategoryFilter, extractCategories } from "./category-filter";
+import { EmptyStateNoSearchResults } from "@/components/ui/empty-state";
 
 interface ServiceVariant {
   name: string;
@@ -17,6 +19,7 @@ interface Service {
   title: string;
   summary?: string;
   icon?: string;
+  category?: string;
   details?: {
     description?: string;
     includes?: string[];
@@ -32,40 +35,124 @@ interface ServicesGridProps {
 export function ServicesGrid({ services, config }: ServicesGridProps) {
   const { clinic } = useParams() as { clinic: string };
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [showFilters, setShowFilters] = useState(true);
 
-  const filteredServices = services.filter((service) => {
-    const term = searchTerm.toLowerCase();
-    
-    // Check Title
-    if (service.title.toLowerCase().includes(term)) return true;
-    
-    // Check Summary/Description
-    if (service.summary?.toLowerCase().includes(term)) return true;
-    if (service.details?.description?.toLowerCase().includes(term)) return true;
+  // Extract categories and counts from services
+  const { categories, counts } = useMemo(
+    () => extractCategories(services),
+    [services]
+  );
 
-    // Check Includes List
-    if (service.details?.includes?.some((item: string) => item.toLowerCase().includes(term))) return true;
+  const filteredServices = useMemo(() => {
+    return services.filter((service) => {
+      // Category filter
+      if (selectedCategory !== "all" && service.category !== selectedCategory) {
+        return false;
+      }
 
-    // Check Variants (Sub-services)
-    if (service.variants?.some((variant: ServiceVariant) => variant.name.toLowerCase().includes(term))) return true;
+      // Search filter
+      if (searchTerm) {
+        const term = searchTerm.toLowerCase();
 
-    return false;
-  });
+        // Check Title
+        if (service.title.toLowerCase().includes(term)) return true;
+
+        // Check Summary/Description
+        if (service.summary?.toLowerCase().includes(term)) return true;
+        if (service.details?.description?.toLowerCase().includes(term)) return true;
+
+        // Check Includes List
+        if (service.details?.includes?.some((item: string) => item.toLowerCase().includes(term))) return true;
+
+        // Check Variants (Sub-services)
+        if (service.variants?.some((variant: ServiceVariant) => variant.name.toLowerCase().includes(term))) return true;
+
+        return false;
+      }
+
+      return true;
+    });
+  }, [services, searchTerm, selectedCategory]);
+
+  const clearFilters = (): void => {
+    setSearchTerm("");
+    setSelectedCategory("all");
+  };
+
+  const hasActiveFilters = searchTerm || selectedCategory !== "all";
 
   return (
-    <div className="space-y-12">
-      {/* Search Bar */}
-      <div className="max-w-xl mx-auto relative mb-12">
-        <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-gray-400">
-          <Search className="w-5 h-5" />
+    <div className="space-y-6">
+      {/* Search and Filter Controls */}
+      <div className="space-y-4">
+        {/* Search Bar */}
+        <div className="flex gap-3">
+          <div className="flex-1 relative">
+            <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-gray-400">
+              <Search className="w-5 h-5" />
+            </div>
+            <input
+              type="text"
+              placeholder="Buscar servicios (ej: Vacunas, Consulta...)"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-12 pr-12 py-3 sm:py-4 min-h-[48px] rounded-full bg-white border border-gray-200 shadow-lg focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent outline-none transition-all text-base text-[var(--text-primary)]"
+            />
+            {searchTerm && (
+              <button
+                onClick={() => setSearchTerm("")}
+                className="absolute inset-y-0 right-4 flex items-center text-gray-400 hover:text-gray-600"
+                aria-label="Limpiar búsqueda"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            )}
+          </div>
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className={`flex items-center gap-2 px-4 py-3 min-h-[48px] rounded-full font-bold text-sm transition-all ${
+              showFilters
+                ? "bg-[var(--primary)] text-white shadow-lg"
+                : "bg-white text-gray-600 border border-gray-200 hover:border-[var(--primary)]"
+            }`}
+            aria-expanded={showFilters}
+            aria-label="Mostrar filtros"
+          >
+            <SlidersHorizontal className="w-5 h-5" />
+            <span className="hidden sm:inline">Filtros</span>
+          </button>
         </div>
-        <input
-          type="text"
-          placeholder="Buscar servicios (ej: Vacunas, Consulta...)"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pl-12 pr-6 py-3 sm:py-4 min-h-[48px] rounded-full bg-white border border-gray-200 shadow-xl focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent outline-none transition-all text-base sm:text-lg text-[var(--text-primary)]"
-        />
+
+        {/* Category Filter */}
+        {showFilters && categories.length > 1 && (
+          <div className="animate-in slide-in-from-top-2 duration-200">
+            <CategoryFilter
+              categories={categories}
+              selectedCategory={selectedCategory}
+              onCategoryChange={setSelectedCategory}
+              serviceCounts={counts}
+              variant="chips"
+              className="justify-center"
+            />
+          </div>
+        )}
+
+        {/* Active Filters Summary */}
+        {hasActiveFilters && (
+          <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
+            <span>
+              Mostrando {filteredServices.length} de {services.length} servicios
+            </span>
+            <button
+              onClick={clearFilters}
+              className="text-[var(--primary)] font-bold hover:underline flex items-center gap-1"
+            >
+              <X className="w-4 h-4" />
+              Limpiar filtros
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Grid */}
@@ -76,15 +163,11 @@ export function ServicesGrid({ services, config }: ServicesGridProps) {
           ))}
         </div>
       ) : (
-        <div className="text-center py-20 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
-          <p className="text-xl text-gray-500 font-medium">No se encontraron servicios que coincidan con &quot;{searchTerm}&quot;.</p>
-          <button
-            onClick={() => setSearchTerm("")}
-            className="mt-4 text-[var(--primary)] font-bold hover:underline min-h-[44px] px-4 py-2"
-          >
-            Ver todos los servicios
-          </button>
-        </div>
+        <EmptyStateNoSearchResults
+          query={searchTerm || selectedCategory}
+          onClear={clearFilters}
+          className="py-20 bg-gray-50 rounded-2xl border border-dashed border-gray-200"
+        />
       )}
     </div>
   );

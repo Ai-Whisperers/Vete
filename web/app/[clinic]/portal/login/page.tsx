@@ -6,12 +6,14 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import * as Icons from "lucide-react";
 import { login } from "@/app/auth/actions";
 import { createClient } from "@/lib/supabase/client";
+import { PasswordInput } from "@/components/ui/password-input";
 
 export default function LoginPage({ params }: { params: Promise<{ clinic: string }> }) {
   const { clinic } = use(params);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const returnTo = searchParams.get('returnTo') || `/${clinic}/portal/dashboard`;
+  // Support both 'redirect' (standardized) and 'returnTo' (legacy) parameters
+  const redirectTo = searchParams.get('redirect') ?? searchParams.get('returnTo') ?? `/${clinic}/portal/dashboard`;
   const [state, formAction, isPending] = useActionState(login, null);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
@@ -23,21 +25,21 @@ export default function LoginPage({ params }: { params: Promise<{ clinic: string
 
       if (session?.user) {
         // User is already authenticated, redirect to dashboard
-        router.replace(returnTo);
+        router.replace(redirectTo);
       } else {
         setIsCheckingAuth(false);
       }
     };
 
     checkAuth();
-  }, [router, returnTo]);
+  }, [router, redirectTo]);
 
   const handleGoogleLogin = async () => {
     const supabase = createClient();
     await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-            redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(returnTo)}`
+            redirectTo: `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(redirectTo)}`
         }
     });
   };
@@ -91,7 +93,7 @@ export default function LoginPage({ params }: { params: Promise<{ clinic: string
 
             <form action={formAction} className="space-y-4">
                 <input type="hidden" name="clinic" value={clinic} />
-                <input type="hidden" name="returnTo" value={returnTo} />
+                <input type="hidden" name="redirect" value={redirectTo} />
                 <div>
                    <label htmlFor="email" className="block text-sm font-bold text-[var(--text-secondary)] mb-1">Email</label>
                    <input
@@ -105,13 +107,12 @@ export default function LoginPage({ params }: { params: Promise<{ clinic: string
                 </div>
                 <div>
                    <label htmlFor="password" className="block text-sm font-bold text-[var(--text-secondary)] mb-1">Contraseña</label>
-                   <input
+                   <PasswordInput
                         id="password"
                         name="password"
                         required
-                        type="password"
                         placeholder="••••••••"
-                        className="w-full px-4 py-3 min-h-[48px] rounded-xl border border-gray-200 focus:border-[var(--primary)] focus:border-2 outline-none transition-all"
+                        error={!!state?.error}
                     />
                 </div>
 
@@ -145,7 +146,7 @@ export default function LoginPage({ params }: { params: Promise<{ clinic: string
             <p className="text-sm text-gray-500">
                 ¿No tienes cuenta?{' '}
                 <Link
-                    href={`/${clinic}/portal/signup${returnTo !== `/${clinic}/portal/dashboard` ? `?returnTo=${encodeURIComponent(returnTo)}` : ''}`}
+                    href={`/${clinic}/portal/signup${redirectTo !== `/${clinic}/portal/dashboard` ? `?redirect=${encodeURIComponent(redirectTo)}` : ''}`}
                     className="font-bold text-[var(--primary)] hover:underline"
                 >
                     Regístrate

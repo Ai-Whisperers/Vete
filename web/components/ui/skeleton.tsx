@@ -127,6 +127,143 @@ function SkeletonTable({ rows = 5, columns = 4, className }: { rows?: number; co
   );
 }
 
+function SkeletonStatCard({ className }: { className?: string }): React.ReactElement {
+  return (
+    <div className={clsx("bg-white rounded-xl border border-gray-100 p-4 space-y-3", className)}>
+      <div className="flex items-center justify-between">
+        <Skeleton className="h-4 w-24" />
+        <Skeleton className="h-8 w-8 rounded-lg" />
+      </div>
+      <Skeleton className="h-8 w-16" />
+      <Skeleton className="h-3 w-20" />
+    </div>
+  );
+}
+
+function SkeletonAppointmentCard({ className }: { className?: string }): React.ReactElement {
+  return (
+    <div className={clsx("bg-white rounded-xl border border-gray-100 p-4 flex items-center gap-4", className)}>
+      <Skeleton className="w-12 h-12 rounded-xl flex-shrink-0" />
+      <div className="flex-1 space-y-2">
+        <Skeleton className="h-4 w-32" />
+        <Skeleton className="h-3 w-48" />
+      </div>
+      <Skeleton className="h-6 w-20 rounded-full" />
+    </div>
+  );
+}
+
+function SkeletonInvoiceRow({ className }: { className?: string }): React.ReactElement {
+  return (
+    <div className={clsx("bg-white rounded-xl border border-gray-100 p-4 flex items-center gap-4", className)}>
+      <div className="flex-1 space-y-2">
+        <div className="flex items-center gap-3">
+          <Skeleton className="h-5 w-24" />
+          <Skeleton className="h-5 w-16 rounded-full" />
+        </div>
+        <Skeleton className="h-4 w-40" />
+      </div>
+      <div className="text-right space-y-2">
+        <Skeleton className="h-5 w-20" />
+        <Skeleton className="h-4 w-24" />
+      </div>
+    </div>
+  );
+}
+
+function SkeletonAvatar({ size = "md", className }: { size?: "sm" | "md" | "lg" | "xl"; className?: string }): React.ReactElement {
+  const sizeClasses = {
+    sm: "w-8 h-8",
+    md: "w-10 h-10",
+    lg: "w-12 h-12",
+    xl: "w-16 h-16",
+  };
+
+  return <Skeleton variant="circular" className={clsx(sizeClasses[size], className)} />;
+}
+
+function SkeletonButton({ size = "md", className }: { size?: "sm" | "md" | "lg"; className?: string }): React.ReactElement {
+  const sizeClasses = {
+    sm: "h-8 w-20",
+    md: "h-10 w-28",
+    lg: "h-12 w-36",
+  };
+
+  return <Skeleton variant="rounded" className={clsx(sizeClasses[size], className)} />;
+}
+
+function SkeletonDashboard({ className }: { className?: string }): React.ReactElement {
+  return (
+    <div className={clsx("space-y-6", className)}>
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="space-y-2">
+          <Skeleton className="h-8 w-48" />
+          <Skeleton className="h-4 w-32" />
+        </div>
+        <div className="flex gap-2">
+          <SkeletonButton size="md" />
+          <SkeletonButton size="md" />
+        </div>
+      </div>
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <SkeletonStatCard />
+        <SkeletonStatCard />
+        <SkeletonStatCard />
+        <SkeletonStatCard />
+      </div>
+
+      {/* Main Content */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 space-y-4">
+          <Skeleton className="h-6 w-32" />
+          <SkeletonAppointmentCard />
+          <SkeletonAppointmentCard />
+          <SkeletonAppointmentCard />
+        </div>
+        <div className="space-y-4">
+          <Skeleton className="h-6 w-28" />
+          <SkeletonCard />
+          <SkeletonCard />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SkeletonForm({ fields = 4, className }: { fields?: number; className?: string }): React.ReactElement {
+  return (
+    <div className={clsx("space-y-6", className)}>
+      {Array.from({ length: fields }).map((_, i) => (
+        <div key={i} className="space-y-2">
+          <Skeleton className="h-4 w-24" />
+          <Skeleton className="h-12 w-full" variant="rounded" />
+        </div>
+      ))}
+      <Skeleton className="h-12 w-full" variant="rounded" />
+    </div>
+  );
+}
+
+function SkeletonList({ items = 5, className }: { items?: number; className?: string }): React.ReactElement {
+  return (
+    <div className={clsx("space-y-3", className)}>
+      {Array.from({ length: items }).map((_, i) => (
+        <div key={i} className="flex items-center gap-4 p-4 bg-white rounded-xl border border-gray-100">
+          <Skeleton variant="circular" className="w-10 h-10" />
+          <div className="flex-1 space-y-2">
+            <Skeleton className="h-4 w-3/4" />
+            <Skeleton className="h-3 w-1/2" />
+          </div>
+          <Skeleton className="h-8 w-8 rounded-lg" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export {
   Skeleton,
   SkeletonText,
@@ -134,4 +271,12 @@ export {
   SkeletonProductCard,
   SkeletonPetCard,
   SkeletonTable,
+  SkeletonStatCard,
+  SkeletonAppointmentCard,
+  SkeletonInvoiceRow,
+  SkeletonAvatar,
+  SkeletonButton,
+  SkeletonDashboard,
+  SkeletonForm,
+  SkeletonList,
 };

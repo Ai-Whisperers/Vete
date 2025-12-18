@@ -8,8 +8,8 @@ import type { User as SupabaseUser } from "@supabase/supabase-js";
 
 interface AuthGateProps {
   clinic: string;
-  /** Current path to return to after login */
-  returnTo: string;
+  /** Current path to redirect to after login */
+  redirect: string;
   /** WhatsApp number for direct contact option */
   whatsappNumber?: string;
   /** Title shown when not authenticated */
@@ -32,7 +32,7 @@ const ICONS = {
 
 export function AuthGate({
   clinic,
-  returnTo,
+  redirect: redirectTo,
   whatsappNumber,
   title = "Inicia sesión para continuar",
   description = "Necesitas una cuenta para acceder a esta función.",
@@ -89,7 +89,7 @@ export function AuthGate({
 
   // Not authenticated - show gate
   const Icon = ICONS[icon];
-  const encodedReturnTo = encodeURIComponent(returnTo);
+  const encodedRedirect = encodeURIComponent(redirectTo);
 
   return (
     <div className="min-h-[60vh] flex flex-col items-center justify-center px-4 py-12">
@@ -106,14 +106,14 @@ export function AuthGate({
         {/* Actions */}
         <div className="p-6 space-y-4">
           <Link
-            href={`/${clinic}/portal/signup?returnTo=${encodedReturnTo}`}
+            href={`/${clinic}/portal/signup?redirect=${encodedRedirect}`}
             className="block w-full py-4 px-6 bg-[var(--primary)] text-white font-bold rounded-xl text-center hover:opacity-90 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5"
           >
             Crear Cuenta Gratis
           </Link>
 
           <Link
-            href={`/${clinic}/portal/login?returnTo=${encodedReturnTo}`}
+            href={`/${clinic}/portal/login?redirect=${encodedRedirect}`}
             className="block w-full py-4 px-6 bg-gray-100 text-gray-700 font-bold rounded-xl text-center hover:bg-gray-200 transition-all"
           >
             Ya tengo cuenta

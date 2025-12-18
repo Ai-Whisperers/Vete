@@ -1,15 +1,25 @@
 "use client";
 
-import React from 'react';
-import { ShoppingBag, Zap } from 'lucide-react';
+import React, { useMemo } from 'react';
+import { ShoppingBag, Zap, Stethoscope, PawPrint, Calendar, CheckCircle } from 'lucide-react';
 import { useBookingState, formatPrice } from './useBookingState';
 import { ServiceSelection } from './ServiceSelection';
 import { PetSelection } from './PetSelection';
 import { DateTimeSelection } from './DateTimeSelection';
 import { Confirmation } from './Confirmation';
 import { SuccessScreen } from './SuccessScreen';
+import { ProgressStepper, type Step } from '@/components/ui/progress-stepper';
 import type { ClinicConfig, User, Pet } from './types';
-import { PROGRESS } from './types';
+
+// Step configuration for the progress stepper
+const BOOKING_STEPS: Step[] = [
+    { id: 'service', label: 'Servicio', description: 'Elige el servicio', icon: <Stethoscope className="w-4 h-4" /> },
+    { id: 'pet', label: 'Paciente', description: 'Selecciona tu mascota', icon: <PawPrint className="w-4 h-4" /> },
+    { id: 'datetime', label: 'Fecha', description: 'Elige horario', icon: <Calendar className="w-4 h-4" /> },
+    { id: 'confirm', label: 'Confirmar', description: 'Revisa y confirma', icon: <CheckCircle className="w-4 h-4" /> },
+];
+
+const STEP_ORDER = ['service', 'pet', 'datetime', 'confirm'] as const;
 
 interface BookingWizardProps {
     clinic: ClinicConfig | any; // Allow ClinicData from getClinicData
@@ -41,6 +51,19 @@ export default function BookingWizard({
         submitBooking,
     } = useBookingState(clinic, userPets, initialService);
 
+    // Calculate current step index for progress stepper
+    const currentStepIndex = useMemo(() => {
+        return STEP_ORDER.indexOf(step as typeof STEP_ORDER[number]);
+    }, [step]);
+
+    // Handle step navigation from progress stepper clicks
+    const handleStepClick = (stepIndex: number): void => {
+        const targetStep = STEP_ORDER[stepIndex];
+        if (targetStep) {
+            setStep(targetStep);
+        }
+    };
+
     // Show success screen after booking
     if (step === 'success') {
         return (
@@ -55,20 +78,15 @@ export default function BookingWizard({
 
     return (
         <div className="max-w-6xl mx-auto py-12 px-4">
-            {/* Progress Bar */}
-            <div className="mb-8 sm:mb-12 max-w-2xl mx-auto">
-                <div className="flex justify-between text-[10px] sm:text-xs font-black text-gray-400 uppercase tracking-[0.15em] sm:tracking-[0.2em] mb-3 px-1">
-                    <span>Servicio</span>
-                    <span>Paciente</span>
-                    <span>Fecha</span>
-                    <span>Confirmar</span>
-                </div>
-                <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                    <div
-                        className="h-full bg-[var(--primary)] transition-all duration-700 ease-out"
-                        style={{ width: `${PROGRESS[step]}%` }}
-                    />
-                </div>
+            {/* Progress Stepper */}
+            <div className="mb-8 sm:mb-12 max-w-3xl mx-auto">
+                <ProgressStepper
+                    steps={BOOKING_STEPS}
+                    currentStep={currentStepIndex}
+                    variant="default"
+                    onStepClick={handleStepClick}
+                    className="px-4"
+                />
             </div>
 
             <div className="grid lg:grid-cols-[1fr_350px] gap-12 items-start">

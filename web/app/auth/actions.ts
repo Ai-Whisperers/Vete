@@ -46,7 +46,8 @@ export async function login(prevState: ActionState | null, formData: FormData): 
     email: formData.get("email") as string,
     password: formData.get("password") as string,
     clinic: formData.get("clinic") as string,
-    returnTo: formData.get("returnTo") as string,
+    // Support both 'redirect' (standardized) and 'returnTo' (legacy)
+    redirect: (formData.get("redirect") ?? formData.get("returnTo")) as string,
   };
 
   const { error } = await supabase.auth.signInWithPassword({
@@ -62,8 +63,8 @@ export async function login(prevState: ActionState | null, formData: FormData): 
     return { error: error.message };
   }
 
-  // Use returnTo if provided, otherwise default to dashboard
-  const redirectPath = data.returnTo || `/${data.clinic}/portal/dashboard`;
+  // Use redirect if provided, otherwise default to dashboard
+  const redirectPath = data.redirect || `/${data.clinic}/portal/dashboard`;
 
   revalidatePath(`/${data.clinic}/portal`, "layout");
   redirect(redirectPath);
@@ -142,7 +143,7 @@ export async function loginWithGoogle(clinic: string) {
   const { data, error } = await supabase.auth.signInWithOAuth({
      provider: 'google',
      options: {
-        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/callback?next=/${clinic}/portal/dashboard`
+        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/callback?redirect=/${clinic}/portal/dashboard`
      }
   });
 

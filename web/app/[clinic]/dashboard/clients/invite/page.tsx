@@ -23,7 +23,7 @@ export default async function InviteClientPage({ params }: Props) {
 
   // Check authentication
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect(`/${clinic}/portal/login?returnTo=/${clinic}/dashboard/clients/invite`)
+  if (!user) redirect(`/${clinic}/portal/login?redirect=/${clinic}/dashboard/clients/invite`)
 
   // Check staff role
   const { data: profile } = await supabase

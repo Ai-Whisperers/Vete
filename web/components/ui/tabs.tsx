@@ -1,0 +1,329 @@
+"use client";
+
+import { useState, createContext, useContext, useRef, useEffect, type ReactNode } from "react";
+import { cn } from "@/lib/utils";
+import * as Icons from "lucide-react";
+
+// Tab context for compound component pattern
+interface TabsContextValue {
+  activeTab: string;
+  setActiveTab: (id: string) => void;
+  variant: "underline" | "pills" | "cards" | "minimal";
+  size: "sm" | "md" | "lg";
+}
+
+const TabsContext = createContext<TabsContextValue | null>(null);
+
+function useTabsContext(): TabsContextValue {
+  const context = useContext(TabsContext);
+  if (!context) {
+    throw new Error("Tab components must be used within a Tabs provider");
+  }
+  return context;
+}
+
+// Main Tabs Container
+interface TabsProps {
+  defaultTab: string;
+  variant?: "underline" | "pills" | "cards" | "minimal";
+  size?: "sm" | "md" | "lg";
+  onChange?: (tabId: string) => void;
+  className?: string;
+  children: ReactNode;
+}
+
+export function Tabs({
+  defaultTab,
+  variant = "underline",
+  size = "md",
+  onChange,
+  className,
+  children,
+}: TabsProps): React.ReactElement {
+  const [activeTab, setActiveTab] = useState(defaultTab);
+
+  const handleTabChange = (id: string): void => {
+    setActiveTab(id);
+    onChange?.(id);
+  };
+
+  return (
+    <TabsContext.Provider value={{ activeTab, setActiveTab: handleTabChange, variant, size }}>
+      <div className={cn("w-full", className)}>{children}</div>
+    </TabsContext.Provider>
+  );
+}
+
+// Tab List (container for tab triggers)
+interface TabListProps {
+  className?: string;
+  children: ReactNode;
+  scrollable?: boolean;
+}
+
+export function TabList({ className, children, scrollable = false }: TabListProps): React.ReactElement {
+  const { variant } = useTabsContext();
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const variantStyles = {
+    underline: "border-b border-gray-200",
+    pills: "bg-gray-100 p-1 rounded-xl",
+    cards: "gap-2",
+    minimal: "",
+  };
+
+  return (
+    <div
+      ref={scrollRef}
+      role="tablist"
+      className={cn(
+        "flex",
+        variantStyles[variant],
+        scrollable && "overflow-x-auto scrollbar-hide snap-x snap-mandatory",
+        className
+      )}
+    >
+      {children}
+    </div>
+  );
+}
+
+// Individual Tab Trigger
+interface TabTriggerProps {
+  id: string;
+  icon?: keyof typeof Icons;
+  count?: number;
+  disabled?: boolean;
+  className?: string;
+  children: ReactNode;
+}
+
+export function TabTrigger({
+  id,
+  icon,
+  count,
+  disabled = false,
+  className,
+  children,
+}: TabTriggerProps): React.ReactElement {
+  const { activeTab, setActiveTab, variant, size } = useTabsContext();
+  const isActive = activeTab === id;
+
+  const IconComponent = icon ? (Icons[icon] as React.ComponentType<{ className?: string }>) : null;
+
+  const sizeStyles = {
+    sm: { padding: "px-3 py-1.5", text: "text-xs", icon: "w-3.5 h-3.5", gap: "gap-1.5" },
+    md: { padding: "px-4 py-2.5", text: "text-sm", icon: "w-4 h-4", gap: "gap-2" },
+    lg: { padding: "px-6 py-3", text: "text-base", icon: "w-5 h-5", gap: "gap-2.5" },
+  };
+
+  const variantStyles = {
+    underline: {
+      base: "border-b-2 -mb-px transition-colors",
+      active: "border-[var(--primary)] text-[var(--primary)]",
+      inactive: "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300",
+    },
+    pills: {
+      base: "rounded-lg transition-all",
+      active: "bg-white text-[var(--text-primary)] shadow-sm",
+      inactive: "text-gray-500 hover:text-gray-700",
+    },
+    cards: {
+      base: "rounded-xl border transition-all",
+      active: "bg-white border-[var(--primary)] text-[var(--primary)] shadow-md",
+      inactive: "bg-gray-50 border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-white",
+    },
+    minimal: {
+      base: "transition-colors",
+      active: "text-[var(--primary)] font-bold",
+      inactive: "text-gray-500 hover:text-gray-700",
+    },
+  };
+
+  const styles = variantStyles[variant];
+  const sizes = sizeStyles[size];
+
+  return (
+    <button
+      role="tab"
+      aria-selected={isActive}
+      aria-controls={`panel-${id}`}
+      id={`tab-${id}`}
+      disabled={disabled}
+      onClick={() => !disabled && setActiveTab(id)}
+      className={cn(
+        "flex items-center font-bold whitespace-nowrap min-h-[44px] snap-start",
+        sizes.padding,
+        sizes.text,
+        sizes.gap,
+        styles.base,
+        isActive ? styles.active : styles.inactive,
+        disabled && "opacity-50 cursor-not-allowed",
+        className
+      )}
+    >
+      {IconComponent && <IconComponent className={sizes.icon} />}
+      <span>{children}</span>
+      {count !== undefined && (
+        <span
+          className={cn(
+            "px-1.5 py-0.5 rounded-full text-xs font-bold min-w-[20px] text-center",
+            isActive
+              ? "bg-[var(--primary)]/10 text-[var(--primary)]"
+              : "bg-gray-200 text-gray-500"
+          )}
+        >
+          {count}
+        </span>
+      )}
+    </button>
+  );
+}
+
+// Tab Panel (content container)
+interface TabPanelProps {
+  id: string;
+  className?: string;
+  children: ReactNode;
+}
+
+export function TabPanel({ id, className, children }: TabPanelProps): React.ReactElement | null {
+  const { activeTab } = useTabsContext();
+  const isActive = activeTab === id;
+
+  if (!isActive) return null;
+
+  return (
+    <div
+      role="tabpanel"
+      id={`panel-${id}`}
+      aria-labelledby={`tab-${id}`}
+      className={cn("animate-in fade-in-0 duration-200", className)}
+    >
+      {children}
+    </div>
+  );
+}
+
+// ============================================
+// Pet Profile Specific Tab Components
+// ============================================
+
+interface PetProfileTab {
+  id: string;
+  label: string;
+  icon: keyof typeof Icons;
+  count?: number;
+}
+
+const DEFAULT_PET_TABS: PetProfileTab[] = [
+  { id: "timeline", label: "Historial", icon: "Activity" },
+  { id: "vaccines", label: "Vacunas", icon: "Syringe" },
+  { id: "prescriptions", label: "Recetas", icon: "Pill" },
+  { id: "lab", label: "Laboratorio", icon: "FlaskConical" },
+  { id: "attachments", label: "Archivos", icon: "Paperclip" },
+];
+
+interface PetProfileTabsProps {
+  tabs?: PetProfileTab[];
+  defaultTab?: string;
+  counts?: Record<string, number>;
+  variant?: "underline" | "pills" | "cards";
+  className?: string;
+  children: ReactNode;
+}
+
+export function PetProfileTabs({
+  tabs = DEFAULT_PET_TABS,
+  defaultTab,
+  counts = {},
+  variant = "pills",
+  className,
+  children,
+}: PetProfileTabsProps): React.ReactElement {
+  const activeTabs = tabs.filter((tab) => counts[tab.id] === undefined || counts[tab.id] > 0);
+  const firstTab = defaultTab || activeTabs[0]?.id || "timeline";
+
+  return (
+    <Tabs defaultTab={firstTab} variant={variant} className={className}>
+      <TabList scrollable className="mb-6">
+        {activeTabs.map((tab) => (
+          <TabTrigger
+            key={tab.id}
+            id={tab.id}
+            icon={tab.icon}
+            count={counts[tab.id]}
+          >
+            {tab.label}
+          </TabTrigger>
+        ))}
+      </TabList>
+      {children}
+    </Tabs>
+  );
+}
+
+// Convenience export for tab panels
+export { TabPanel as PetTabPanel };
+
+// ============================================
+// Dashboard Specific Tabs
+// ============================================
+
+interface DashboardTab {
+  id: string;
+  label: string;
+  icon: keyof typeof Icons;
+  badge?: string | number;
+  badgeVariant?: "default" | "warning" | "error" | "success";
+}
+
+interface DashboardTabsProps {
+  tabs: DashboardTab[];
+  defaultTab?: string;
+  onChange?: (tabId: string) => void;
+  className?: string;
+  children: ReactNode;
+}
+
+export function DashboardTabs({
+  tabs,
+  defaultTab,
+  onChange,
+  className,
+  children,
+}: DashboardTabsProps): React.ReactElement {
+  const firstTab = defaultTab || tabs[0]?.id;
+
+  return (
+    <Tabs defaultTab={firstTab} variant="underline" size="lg" onChange={onChange} className={className}>
+      <TabList className="mb-6 gap-4">
+        {tabs.map((tab) => {
+          const IconComponent = Icons[tab.icon] as React.ComponentType<{ className?: string }>;
+          return (
+            <TabTrigger key={tab.id} id={tab.id} className="relative">
+              <span className="flex items-center gap-2">
+                {IconComponent && <IconComponent className="w-5 h-5" />}
+                {tab.label}
+              </span>
+              {tab.badge !== undefined && (
+                <span
+                  className={cn(
+                    "absolute -top-1 -right-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold min-w-[18px] text-center",
+                    tab.badgeVariant === "warning" && "bg-yellow-100 text-yellow-700",
+                    tab.badgeVariant === "error" && "bg-red-100 text-red-700",
+                    tab.badgeVariant === "success" && "bg-green-100 text-green-700",
+                    (!tab.badgeVariant || tab.badgeVariant === "default") && "bg-gray-100 text-gray-700"
+                  )}
+                >
+                  {tab.badge}
+                </span>
+              )}
+            </TabTrigger>
+          );
+        })}
+      </TabList>
+      {children}
+    </Tabs>
+  );
+}

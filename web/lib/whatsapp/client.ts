@@ -51,11 +51,12 @@ export async function sendWhatsAppMessage({ to, body, mediaUrl }: SendWhatsAppPa
       sid: message.sid,
       status: message.status,
     }
-  } catch (error: any) {
+  } catch (error) {
+    // TICKET-TYPE-004: Proper error handling without any
     console.error('WhatsApp send error:', error)
     return {
       success: false,
-      error: error.message || 'Error al enviar mensaje',
+      error: error instanceof Error ? error.message : 'Error al enviar mensaje',
     }
   }
 }

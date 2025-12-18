@@ -5,8 +5,26 @@ import { ServiceCard } from "./service-card";
 import { Search } from "lucide-react";
 import { ClinicConfig } from "@/lib/clinics";
 
+interface ServiceVariant {
+  name: string;
+  description?: string;
+  price_display?: string;
+}
+
+interface Service {
+  id: string;
+  title: string;
+  summary?: string;
+  icon?: string;
+  details?: {
+    description?: string;
+    includes?: string[];
+  };
+  variants?: ServiceVariant[];
+}
+
 interface ServicesGridProps {
-  services: any[];
+  services: Service[];
   config: ClinicConfig;
 }
 
@@ -27,7 +45,7 @@ export function ServicesGrid({ services, config }: ServicesGridProps) {
     if (service.details?.includes?.some((item: string) => item.toLowerCase().includes(term))) return true;
 
     // Check Variants (Sub-services)
-    if (service.variants?.some((variant: any) => variant.name.toLowerCase().includes(term))) return true;
+    if (service.variants?.some((variant: ServiceVariant) => variant.name.toLowerCase().includes(term))) return true;
 
     return false;
   });

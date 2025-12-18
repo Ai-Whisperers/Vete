@@ -380,8 +380,16 @@ export async function deleteTemplate(templateId: string): Promise<{ success: boo
   }
 }
 
+// TICKET-TYPE-004: Define proper type for client data
+interface ClientProfile {
+  id: string;
+  full_name: string | null;
+  phone: string | null;
+  tenant_id: string;
+}
+
 // Find client by phone number
-export async function findClientByPhone(phone: string): Promise<{ data: any } | { error: string }> {
+export async function findClientByPhone(phone: string): Promise<{ data: ClientProfile | null } | { error: string }> {
   const supabase = await createClient()
 
   const { data: { user } } = await supabase.auth.getUser()

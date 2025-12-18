@@ -1,6 +1,13 @@
 "use server";
 
-export async function sendEmail(prevState: any, formData: FormData) {
+// TICKET-TYPE-002: Define proper state interface for server actions
+interface ActionState {
+  error?: string;
+  success?: boolean;
+  message?: string;
+}
+
+export async function sendEmail(prevState: ActionState | null, formData: FormData): Promise<ActionState> {
   const rawFormData = {
     name: formData.get("name"),
     phone: formData.get("phone"),

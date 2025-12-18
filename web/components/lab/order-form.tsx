@@ -32,6 +32,12 @@ interface LabOrderFormProps {
   onCancel?: () => void
 }
 
+// TICKET-FORM-002: Replace alert() with proper error state
+interface FormError {
+  message: string
+  type: 'validation' | 'server'
+}
+
 const categories = [
   { value: 'hematology', label: 'Hematología' },
   { value: 'chemistry', label: 'Química Sanguínea' },
@@ -49,6 +55,8 @@ export function LabOrderForm({ onSuccess, onCancel }: LabOrderFormProps) {
   const [panels, setPanels] = useState<Panel[]>([])
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
+  // TICKET-FORM-002: Replace alert() with proper error state
+  const [formError, setFormError] = useState<FormError | null>(null)
 
   // Form state
   const [selectedPetId, setSelectedPetId] = useState('')
@@ -156,9 +164,11 @@ export function LabOrderForm({ onSuccess, onCancel }: LabOrderFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    // TICKET-FORM-002: Clear previous errors and use state instead of alert()
+    setFormError(null)
 
     if (!selectedPetId || selectedTests.size === 0) {
-      alert('Selecciona una mascota y al menos una prueba')
+      setFormError({ message: 'Selecciona una mascota y al menos una prueba', type: 'validation' })
       return
     }
 
@@ -178,13 +188,19 @@ export function LabOrderForm({ onSuccess, onCancel }: LabOrderFormProps) {
         })
       })
 
-      if (!response.ok) throw new Error('Error al crear orden')
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || 'Error al crear orden')
+      }
 
       const data = await response.json()
       onSuccess?.(data.id)
     } catch (error) {
       console.error('Error creating lab order:', error)
-      alert('Error al crear la orden de laboratorio')
+      setFormError({
+        message: error instanceof Error ? error.message : 'Error al crear la orden de laboratorio',
+        type: 'server'
+      })
     } finally {
       setSubmitting(false)
     }
@@ -383,6 +399,30 @@ export function LabOrderForm({ onSuccess, onCancel }: LabOrderFormProps) {
           className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent resize-none"
         />
       </div>
+
+      {/* TICKET-FORM-002, TICKET-A11Y-004: Error Display with accessibility */}
+      {formError && (
+        <div
+          role="alert"
+          aria-live="assertive"
+          className={`p-4 rounded-xl border flex items-center gap-3 ${
+            formError.type === 'validation'
+              ? 'bg-amber-50 border-amber-200 text-amber-700'
+              : 'bg-red-50 border-red-200 text-red-700'
+          }`}
+        >
+          <Icons.AlertCircle className="w-5 h-5 flex-shrink-0" aria-hidden="true" />
+          <p className="font-medium">{formError.message}</p>
+          <button
+            type="button"
+            onClick={() => setFormError(null)}
+            className="ml-auto hover:opacity-70"
+            aria-label="Cerrar mensaje de error"
+          >
+            <Icons.X className="w-4 h-4" aria-hidden="true" />
+          </button>
+        </div>
+      )}
 
       {/* Action Buttons */}
       <div className="flex items-center justify-end gap-4 pt-4 border-t">

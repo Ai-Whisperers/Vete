@@ -35,7 +35,8 @@ export async function POST(request: Request) {
 
         return NextResponse.json({ hasReaction: false });
 
-    } catch (e: any) {
-        return NextResponse.json({ error: e.message }, { status: 500 });
+    } catch (e) {
+        // TICKET-TYPE-004: Proper error handling without any
+        return NextResponse.json({ error: e instanceof Error ? e.message : 'Error desconocido' }, { status: 500 });
     }
 }

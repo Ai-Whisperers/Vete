@@ -14,40 +14,84 @@ import {
   UtensilsCrossed,
   Pill,
   Sparkles,
-  Heart
+  Heart,
+  AlertCircle,
+  Loader2
 } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { ProductCard } from '@/components/store/product-card';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import { clsx } from 'clsx';
+import { ClinicConfig } from '@/lib/clinics';
 
-export default function StorePageClient({ config }: { readonly config: any }) {
+interface Product {
+  id: string;
+  name: string;
+  description: string;
+  category: string;
+  price: number;
+  stock: number;
+  image_url?: string;
+  discount_price?: number;
+}
+
+interface StorePageClientProps {
+  readonly config: ClinicConfig;
+  readonly heroImage?: string | null;
+}
+
+export default function StorePageClient({ config, heroImage }: StorePageClientProps) {
   const { clinic } = useParams() as { clinic: string };
   const labels = config.ui_labels?.store || {};
 
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch(`/api/store/products?clinic=${clinic}`).then(async (res) => {
-      if (res.ok) {
+    const fetchProducts = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const res = await fetch(`/api/store/products?clinic=${clinic}`);
+        if (!res.ok) {
+          throw new Error(`Error ${res.status}: ${res.statusText}`);
+        }
         const data = await res.json();
         setProducts(data);
+      } catch (err) {
+        console.error('Failed to fetch products:', err);
+        setError('No se pudieron cargar los productos. Por favor intenta de nuevo.');
+      } finally {
+        setLoading(false);
       }
-    });
+    };
+
+    fetchProducts();
   }, [clinic]);
 
-  const filtered = products.filter((p) => {
-    const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase()) || p.description.toLowerCase().includes(search.toLowerCase());
-    const matchesCategory = category ? p.category === category : true;
-    return matchesSearch && matchesCategory;
-  });
+  // Debounced search using useMemo
+  const debouncedSearch = useMemo(() => search.toLowerCase(), [search]);
 
-  const categories = Array.from(new Set(products.map((p) => p.category))).filter(Boolean);
+  const filtered = useMemo(() => {
+    return products.filter((p) => {
+      const matchesSearch = p.name.toLowerCase().includes(debouncedSearch) ||
+        (p.description?.toLowerCase().includes(debouncedSearch) ?? false);
+      const matchesCategory = category ? p.category === category : true;
+      return matchesSearch && matchesCategory;
+    });
+  }, [products, debouncedSearch, category]);
+
+  const categories = useMemo(() =>
+    Array.from(new Set(products.map((p) => p.category))).filter(Boolean) as string[],
+    [products]
+  );
 
   // Category icons mapping
-  const categoryIcons: Record<string, any> = {
+  const categoryIcons: Record<string, React.ComponentType<{ className?: string }>> = {
     'Alimentos': UtensilsCrossed,
     'Medicamentos': Pill,
     'Accesorios': Package,
@@ -56,6 +100,37 @@ export default function StorePageClient({ config }: { readonly config: any }) {
   };
 
   if (!clinic) return null;
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[var(--bg-subtle)] flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 text-[var(--primary)] animate-spin mx-auto mb-4" />
+          <p className="text-[var(--text-secondary)]">Cargando productos...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-[var(--bg-subtle)] flex items-center justify-center px-4">
+        <div className="text-center max-w-md">
+          <AlertCircle className="w-16 h-16 text-red-400 mx-auto mb-4" />
+          <h2 className="text-xl font-bold text-[var(--text-primary)] mb-2">Error al cargar</h2>
+          <p className="text-[var(--text-secondary)] mb-6">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-6 py-3 bg-[var(--primary)] text-white font-bold rounded-xl hover:bg-[var(--primary-dark)] transition-colors"
+          >
+            Reintentar
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[var(--bg-subtle)] pb-20">
@@ -87,14 +162,22 @@ export default function StorePageClient({ config }: { readonly config: any }) {
 
       {/* Hero Section - Improved with better text contrast */}
       <div className="relative overflow-hidden">
-        {/* Background with gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)] via-[var(--primary-dark)] to-[var(--primary)]" />
-
-        {/* Pattern overlay */}
-        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 20% 50%, white 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
-
-        {/* Decorative shapes */}
-        <div className="absolute right-0 top-0 bottom-0 w-1/2 bg-white/5" style={{ clipPath: 'polygon(30% 0, 100% 0, 100% 100%, 0 100%)' }} />
+        {/* Background - Image or Gradient */}
+        {heroImage ? (
+          <>
+            <div
+              className="absolute inset-0 bg-cover bg-center"
+              style={{ backgroundImage: `url('${heroImage}')` }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-[var(--primary)]/90 via-[var(--primary)]/70 to-[var(--primary)]/50" />
+          </>
+        ) : (
+          <>
+            <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)] via-[var(--primary-dark)] to-[var(--primary)]" />
+            <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 20% 50%, white 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+            <div className="absolute right-0 top-0 bottom-0 w-1/2 bg-white/5" style={{ clipPath: 'polygon(30% 0, 100% 0, 100% 100%, 0 100%)' }} />
+          </>
+        )}
 
         <div className="container mx-auto px-4 py-12 md:py-16 relative z-10">
           <div className="flex flex-col md:flex-row items-center justify-between gap-8">
@@ -161,7 +244,7 @@ export default function StorePageClient({ config }: { readonly config: any }) {
                   {labels.all_categories || "Todas"}
                 </button>
 
-                {categories.map((c: any) => {
+                {categories.map((c) => {
                   const IconComponent = categoryIcons[c] || Package;
                   return (
                     <button
@@ -241,7 +324,7 @@ export default function StorePageClient({ config }: { readonly config: any }) {
                 <div className="mt-10 pt-8 border-t border-gray-100">
                   <p className="text-sm text-[var(--text-muted)] mb-4">Explora otras categorías:</p>
                   <div className="flex flex-wrap justify-center gap-2">
-                    {categories.slice(0, 4).map((c: any) => (
+                    {categories.slice(0, 4).map((c) => (
                       <button
                         key={c}
                         onClick={() => setCategory(c)}
@@ -255,7 +338,7 @@ export default function StorePageClient({ config }: { readonly config: any }) {
               </div>
             ) : (
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
-                {filtered.map((product: any) => (
+                {filtered.map((product) => (
                   <ProductCard key={product.id} product={product} config={config} />
                 ))}
               </div>

@@ -109,6 +109,22 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'No tienes acceso a esta mascota' }, { status: 403 });
     }
 
+    // TICKET-BIZ-007: Check balance before allowing negative points
+    if (points < 0) {
+        const { data: transactions } = await supabase
+            .from('loyalty_transactions')
+            .select('points')
+            .eq('pet_id', petId);
+
+        const currentBalance = transactions?.reduce((sum, t) => sum + t.points, 0) || 0;
+
+        if (currentBalance + points < 0) {
+            return NextResponse.json({
+                error: `Saldo insuficiente. Balance actual: ${currentBalance} puntos`
+            }, { status: 400 });
+        }
+    }
+
     const { data, error } = await supabase
         .from('loyalty_transactions')
         .insert({

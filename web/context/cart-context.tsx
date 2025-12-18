@@ -12,6 +12,7 @@ export interface CartItem {
   quantity: number;
   image_url?: string;
   description?: string;
+  stock?: number; // Available stock for validation
 }
 
 // (Removed AddToCartButtonProps interface; it belongs in its own component file)

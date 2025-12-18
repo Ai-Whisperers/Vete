@@ -38,3 +38,17 @@ mcp_settings.json
 # Logs
 *.log
 npm-debug.log*
+deployment.log
+
+# Python
+__pycache__/
+*.py[cod]
+.mypy_cache/
+.venv/
+
+# Build info
+tsconfig.tsbuildinfo
+
+# Test artifacts
+test_pet_id.txt
+*.tmp

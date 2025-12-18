@@ -17,8 +17,12 @@ export default async function TeamPage({ params }: { params: Promise<{ clinic: s
     const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
     if (profile?.role !== 'admin') redirect(`/${clinic}/portal/dashboard`);
 
-    // 3. Fetch Invites
-    const { data: invites } = await supabase.from('clinic_invites').select('*').order('created_at', { ascending: false });
+    // 3. Fetch Invites - IMPORTANT: Filter by tenant_id for security
+    const { data: invites } = await supabase
+        .from('clinic_invites')
+        .select('*')
+        .eq('tenant_id', clinic)
+        .order('created_at', { ascending: false });
 
     return (
         <div className="max-w-2xl mx-auto py-12 px-4">

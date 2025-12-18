@@ -1,6 +1,16 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 
+interface ClaimItem {
+  service_date?: string;
+  service_code?: string;
+  description: string;
+  quantity: number;
+  unit_price: number;
+  invoice_item_id?: string;
+  service_id?: string;
+}
+
 // GET /api/insurance/claims - List insurance claims
 export async function GET(request: NextRequest) {
   const supabase = await createClient();
@@ -146,7 +156,7 @@ export async function POST(request: NextRequest) {
     let claimedAmount = 0;
 
     if (items && Array.isArray(items)) {
-      items.forEach((item: any) => {
+      items.forEach((item: ClaimItem) => {
         const itemTotal = item.quantity * item.unit_price;
         totalCharges += itemTotal;
         claimedAmount += itemTotal;
@@ -179,7 +189,7 @@ export async function POST(request: NextRequest) {
 
     // Create claim items
     if (items && Array.isArray(items) && items.length > 0) {
-      const claimItems = items.map((item: any) => ({
+      const claimItems = items.map((item: ClaimItem) => ({
         claim_id: claim.id,
         service_date: item.service_date || date_of_service,
         service_code: item.service_code,

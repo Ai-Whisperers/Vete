@@ -20,6 +20,37 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { LostFoundWidget } from "@/components/safety/lost-found-widget";
 
+interface ClinicStats {
+  pets: number;
+  pending_vaccines: number;
+  upcoming_appointments: number;
+}
+
+interface Appointment {
+  id: string;
+  start_time: string;
+  status: string;
+  reason: string;
+  pets: { name: string } | null;
+}
+
+interface Vaccine {
+  id: string;
+  name: string;
+  status: 'verified' | 'pending' | 'rejected';
+  administered_date: string;
+}
+
+interface Pet {
+  id: string;
+  name: string;
+  species: 'dog' | 'cat';
+  breed: string | null;
+  weight_kg: number | null;
+  photo_url: string | null;
+  vaccines: Vaccine[] | null;
+}
+
 export default async function DashboardPage({ params, searchParams }: { 
     params: Promise<{ clinic: string }>,
     searchParams: Promise<{ query?: string }> 
@@ -50,12 +81,12 @@ export default async function DashboardPage({ params, searchParams }: {
   const isAdmin = role === 'admin';
 
   // 1. Fetch Stats (RPC) - Only for Staff
-    let stats: any = null;
-    let myAppointments: any[] = [];
+    let stats: ClinicStats | null = null;
+    let myAppointments: Appointment[] = [];
 
     if (isStaff) {
         const { data } = await supabase.rpc('get_clinic_stats', { clinic_id: clinic });
-        stats = data;
+        stats = data as ClinicStats | null;
     } else {
         // Fetch Owner's upcoming appointments
         const { data } = await supabase
@@ -65,7 +96,7 @@ export default async function DashboardPage({ params, searchParams }: {
             .gte('start_time', new Date().toISOString())
             .order('start_time', { ascending: true })
             .limit(5);
-        myAppointments = data || [];
+        myAppointments = (data || []) as Appointment[];
     }
 
   // 2. Build Query
@@ -192,11 +223,11 @@ export default async function DashboardPage({ params, searchParams }: {
         {!isStaff && myAppointments.length > 0 && (
             <div className="mb-8">
                 <h2 className="text-lg font-bold text-[var(--text-primary)] mb-4 flex items-center gap-2">
-                    <Icons.Calendar className="w-5 h-5 text-[var(--primary)]" />
+                    <Calendar className="w-5 h-5 text-[var(--primary)]" />
                     {data.config.ui_labels?.portal?.appointment_widget?.title}
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {myAppointments.map((apt: any) => (
+                    {myAppointments.map((apt) => (
                         <div key={apt.id} className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between">
                             <div className="flex items-center gap-4">
                                 <div className="bg-[var(--primary)]/10 text-[var(--primary)] w-12 h-12 rounded-xl flex flex-col items-center justify-center text-xs font-bold leading-none">
@@ -270,7 +301,7 @@ export default async function DashboardPage({ params, searchParams }: {
                             <p className="text-sm text-gray-400 italic">{data.config.ui_labels?.portal?.empty_states?.no_vaccines}</p>
                         ) : (
                             <div className="space-y-3">
-                                {pet.vaccines.map((v: any) => (
+                                {pet.vaccines.map((v: Vaccine) => (
                                     <div key={v.id} className="flex items-center justify-between p-3 rounded-xl bg-gray-50 border border-gray-100">
                                         <div>
                                             <div className="flex items-center gap-2">

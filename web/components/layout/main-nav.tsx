@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { ClinicConfig } from "@/lib/clinics";
@@ -9,6 +9,16 @@ import { Menu, X, ShoppingCart, LogOut, Home, Briefcase, Users, Store, User, Cal
 import { NotificationBell } from "./notification-bell";
 import { createClient } from "@/lib/supabase/client";
 import { useCart } from "@/context/cart-context";
+import type { User as SupabaseUser } from "@supabase/supabase-js";
+
+interface UserProfile {
+  id: string;
+  tenant_id: string;
+  role: 'owner' | 'vet' | 'admin';
+  full_name: string | null;
+  email: string | null;
+  phone: string | null;
+}
 
 interface MainNavProps {
   clinic: string;
@@ -19,41 +29,78 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
   const pathname = usePathname();
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
-  const [user, setUser] = useState<any>(null);
-  const [profile, setProfile] = useState<any>(null);
+  const [user, setUser] = useState<SupabaseUser | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [logoutError, setLogoutError] = useState<string | null>(null);
   const { itemCount } = useCart();
-  const supabase = createClient();
 
-  const handleLogout = async () => {
+  // Memoize supabase client to prevent recreation on each render
+  const supabase = useMemo(() => createClient(), []);
+
+  // Ref for focus trap in mobile menu
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
+
+  const handleLogout = useCallback(async () => {
     setIsLoggingOut(true);
+    setLogoutError(null);
     try {
-      await supabase.auth.signOut();
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        throw error;
+      }
       setUser(null);
       setProfile(null);
       router.push(`/${clinic}/portal/login`);
       router.refresh();
     } catch (error) {
       console.error("Logout error:", error);
+      setLogoutError("Error al cerrar sesión. Intente de nuevo.");
+      // Auto-clear error after 5 seconds
+      setTimeout(() => setLogoutError(null), 5000);
     } finally {
       setIsLoggingOut(false);
     }
-  };
+  }, [supabase, clinic, router]);
 
   useEffect(() => {
+    const fetchProfile = async (userId: string): Promise<UserProfile | null> => {
+      try {
+        const { data: prof, error } = await supabase
+          .from('profiles')
+          .select('id, tenant_id, role, full_name, email, phone')
+          .eq('id', userId)
+          .single();
+
+        if (error) {
+          console.error("Error fetching profile:", error);
+          return null;
+        }
+        return prof as UserProfile;
+      } catch (err) {
+        console.error("Unexpected error fetching profile:", err);
+        return null;
+      }
+    };
+
     const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        setUser(session.user);
-        const { data: prof } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .single();
-        setProfile(prof);
-      } else {
-        setUser(null);
-        setProfile(null);
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) {
+          console.error("Error getting session:", error);
+          return;
+        }
+
+        if (session?.user) {
+          setUser(session.user);
+          const prof = await fetchProfile(session.user.id);
+          setProfile(prof);
+        } else {
+          setUser(null);
+          setProfile(null);
+        }
+      } catch (err) {
+        console.error("Unexpected error checking user:", err);
       }
     };
 
@@ -62,11 +109,7 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (session?.user) {
         setUser(session.user);
-        const { data: prof } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .single();
+        const prof = await fetchProfile(session.user.id);
         setProfile(prof);
       } else {
         setUser(null);
@@ -75,7 +118,7 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [supabase]);
 
   // Close mobile menu when route changes
   useEffect(() => {
@@ -167,34 +210,42 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
             ></span>
         </Link>
         
-        {/* Notification Bell */}
+        {/* Notification Bell - Only for logged in users */}
         {user && <NotificationBell clinic={clinic} />}
 
-        {/* Cart Icon */}
-        {user && (
-            <Link
-                href={`/${clinic}/cart`}
-                className="relative p-2 text-[var(--text-secondary)] hover:text-[var(--primary)] transition-colors"
-            >
-                <ShoppingCart className="w-6 h-6" />
-                {itemCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">
-                        {itemCount}
-                    </span>
-                )}
-            </Link>
-        )}
+        {/* Cart Icon - Always visible for all users */}
+        <Link
+            href={`/${clinic}/cart`}
+            className="relative p-2 text-[var(--text-secondary)] hover:text-[var(--primary)] transition-colors"
+            aria-label={itemCount > 0 ? `Carrito de compras (${itemCount} ${itemCount === 1 ? 'artículo' : 'artículos'})` : 'Carrito de compras'}
+        >
+            <ShoppingCart className="w-6 h-6" aria-hidden="true" />
+            {itemCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-[var(--status-error,#dc2626)] text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full" aria-hidden="true">
+                    {itemCount}
+                </span>
+            )}
+        </Link>
 
         {/* Logout Button */}
         {user && (
-            <button
-                onClick={handleLogout}
-                disabled={isLoggingOut}
-                className="p-2 text-[var(--text-secondary)] hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
-                title="Cerrar sesión"
-            >
-                <LogOut className="w-5 h-5" />
-            </button>
+            <div className="relative">
+              <button
+                  onClick={handleLogout}
+                  disabled={isLoggingOut}
+                  className="p-2 text-[var(--text-secondary)] hover:text-[var(--status-error,#dc2626)] hover:bg-[var(--status-error-bg,#fef2f2)] rounded-lg transition-colors disabled:opacity-50"
+                  title="Cerrar sesión"
+                  aria-label="Cerrar sesión"
+              >
+                  <LogOut className="w-5 h-5" />
+              </button>
+              {/* Error toast for logout */}
+              {logoutError && (
+                <div className="absolute top-full right-0 mt-2 px-4 py-2 bg-[var(--status-error,#ef4444)] text-white text-sm font-medium rounded-lg shadow-lg whitespace-nowrap z-50" role="alert">
+                  {logoutError}
+                </div>
+              )}
+            </div>
         )}
 
       </nav>
@@ -203,19 +254,19 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
       <div className="flex md:hidden items-center gap-4">
           {user && <NotificationBell clinic={clinic} />}
 
-          {user && (
-            <Link
-                href={`/${clinic}/cart`}
-                className="relative p-2 text-[var(--primary)]"
-            >
-                <ShoppingCart className="w-6 h-6" />
-                {itemCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">
-                        {itemCount}
-                    </span>
-                )}
-            </Link>
-          )}
+          {/* Mobile cart - Always visible */}
+          <Link
+              href={`/${clinic}/cart`}
+              className="relative p-2 text-[var(--primary)]"
+              aria-label={itemCount > 0 ? `Carrito de compras (${itemCount} ${itemCount === 1 ? 'artículo' : 'artículos'})` : 'Carrito de compras'}
+          >
+              <ShoppingCart className="w-6 h-6" aria-hidden="true" />
+              {itemCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-[var(--status-error,#dc2626)] text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full" aria-hidden="true">
+                      {itemCount}
+                  </span>
+              )}
+          </Link>
 
           <button
             className="p-2 text-[var(--primary)] z-50 relative"
@@ -240,11 +291,15 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
             />
             {/* Drawer */}
             <motion.div
+              ref={mobileMenuRef}
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
               className="fixed top-0 right-0 h-full w-[80%] max-w-sm bg-[var(--bg-default)] shadow-2xl z-40 md:hidden border-l border-[var(--primary)]/10 flex flex-col pt-20 overflow-y-auto"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Menú de navegación"
             >
                {/* User Profile Section */}
                {user && profile && (
@@ -287,7 +342,7 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
                          className={`flex items-center gap-4 py-3 px-4 rounded-xl transition-colors ${
                            isActive(item.href, item.exact)
                              ? "bg-[var(--primary)]/10 text-[var(--primary)]"
-                             : "text-[var(--text-secondary)] hover:bg-gray-50"
+                             : "text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
                          }`}
                        >
                          <Icon className="w-5 h-5" />
@@ -305,7 +360,7 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
                      className={`flex items-center gap-4 py-3 px-4 rounded-xl transition-colors ${
                        isActive(`/${clinic}/portal/dashboard`)
                          ? "bg-[var(--primary)]/10 text-[var(--primary)]"
-                         : "text-[var(--text-secondary)] hover:bg-gray-50"
+                         : "text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
                      }`}
                    >
                      <PawPrint className="w-5 h-5" />
@@ -321,7 +376,7 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
                          className={`flex items-center gap-4 py-3 px-4 rounded-xl transition-colors ${
                            isActive(`/${clinic}/portal/profile`)
                              ? "bg-[var(--primary)]/10 text-[var(--primary)]"
-                             : "text-[var(--text-secondary)] hover:bg-gray-50"
+                             : "text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
                          }`}
                        >
                          <User className="w-5 h-5" />
@@ -332,7 +387,7 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
                          className={`flex items-center gap-4 py-3 px-4 rounded-xl transition-colors ${
                            isActive(`/${clinic}/portal/settings`)
                              ? "bg-[var(--primary)]/10 text-[var(--primary)]"
-                             : "text-[var(--text-secondary)] hover:bg-gray-50"
+                             : "text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
                          }`}
                        >
                          <Settings className="w-5 h-5" />
@@ -347,7 +402,7 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
                    <button
                      onClick={handleLogout}
                      disabled={isLoggingOut}
-                     className="flex items-center gap-4 py-3 px-4 rounded-xl transition-colors text-red-500 hover:bg-red-50 w-full text-left mt-2 disabled:opacity-50"
+                     className="flex items-center gap-4 py-3 px-4 rounded-xl transition-colors text-[var(--status-error,#ef4444)] hover:bg-[var(--status-error-bg,#fef2f2)] w-full text-left mt-2 disabled:opacity-50"
                    >
                      <LogOut className="w-5 h-5" />
                      <span className="font-bold">Cerrar sesión</span>
@@ -356,11 +411,11 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
                </div>
 
                {/* Emergency & Footer */}
-               <div className="mt-auto px-6 py-6 bg-gray-50 border-t border-gray-100">
+               <div className="mt-auto px-6 py-6 bg-[var(--bg-subtle)] border-t border-[var(--border,#e5e7eb)]">
                  {config.settings?.emergency_24h && (
                    <a
                      href={`tel:${config.contact?.whatsapp_number}`}
-                     className="flex items-center justify-center gap-2 w-full py-3 mb-4 bg-red-500 text-white font-bold rounded-xl"
+                     className="flex items-center justify-center gap-2 w-full py-3 mb-4 bg-[var(--status-error,#ef4444)] text-white font-bold rounded-xl"
                    >
                      <Phone className="w-4 h-4" />
                      {config.ui_labels?.nav.emergency_btn || 'Urgencias 24hs'}

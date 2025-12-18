@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import {
     Syringe,
     Stethoscope,
@@ -89,6 +89,13 @@ interface BookableService {
     color: string;
 }
 
+interface Pet {
+    id: string;
+    name: string;
+    species: string;
+    breed: string;
+}
+
 interface BookingWizardProps {
     clinic: {
         config: {
@@ -97,8 +104,8 @@ interface BookingWizardProps {
         };
         services?: ServiceFromJSON[];
     };
-    user: any;
-    userPets: any[];
+    user: { id: string; email: string };
+    userPets: Pet[];
     initialService?: string;
 }
 
@@ -111,6 +118,12 @@ const PROGRESS = {
     'confirm': 90,
     'success': 100
 };
+
+// TICKET-PERF-003: Move static arrays outside component to prevent recreation on every render
+const TIME_SLOTS = [
+    '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
+    '14:00', '14:30', '15:00', '15:30', '16:00', '16:30'
+] as const;
 
 /**
  * Parse price string (e.g., "50.000" or "50000") to number
@@ -144,6 +157,16 @@ function transformServices(jsonServices: ServiceFromJSON[]): BookableService[] {
         }));
 }
 
+/**
+ * Format date for input value (YYYY-MM-DD) using local timezone
+ */
+function getLocalDateString(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
 export default function BookingWizard({ clinic, user, userPets, initialService }: BookingWizardProps) {
     const router = useRouter();
     const [step, setStep] = useState<Step>(initialService ? 'pet' : 'service');
@@ -156,22 +179,27 @@ export default function BookingWizard({ clinic, user, userPets, initialService }
     });
 
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submitError, setSubmitError] = useState<string | null>(null);
 
-    // Transform clinic services from JSON to bookable format
-    const services: BookableService[] = clinic.services
-        ? transformServices(clinic.services)
-        : [];
+    // TICKET-PERF-003: Wrap transformServices in useMemo to prevent recalculation on every render
+    const services = useMemo<BookableService[]>(() =>
+        clinic.services ? transformServices(clinic.services) : [],
+        [clinic.services]
+    );
 
-    const timeSlots = [
-        '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
-        '14:00', '14:30', '15:00', '15:30', '16:00', '16:30'
-    ];
-
-    const currentService = services.find(s => s.id === selection.serviceId);
-    const currentPet = userPets.find(p => p.id === selection.petId);
+    // TICKET-PERF-003: Use constant reference for time slots and memoize derived values
+    const currentService = useMemo(() =>
+        services.find(s => s.id === selection.serviceId),
+        [services, selection.serviceId]
+    );
+    const currentPet = useMemo(() =>
+        userPets.find(p => p.id === selection.petId),
+        [userPets, selection.petId]
+    );
 
     const handleSubmit = async () => {
         setIsSubmitting(true);
+        setSubmitError(null);
         try {
              const res = await fetch('/api/booking', {
                 method: 'POST',
@@ -186,10 +214,10 @@ export default function BookingWizard({ clinic, user, userPets, initialService }
                  setStep('success');
              } else {
                  const err = await res.json();
-                 alert(`Error: ${err.error || 'No se pudo procesar la reserva'}`);
+                 setSubmitError(err.error || 'No se pudo procesar la reserva');
              }
         } catch (e) {
-            alert('Error de conexión con el servidor.');
+            setSubmitError('Error de conexión con el servidor. Por favor intenta de nuevo.');
         } finally {
             setIsSubmitting(false);
         }
@@ -349,10 +377,11 @@ export default function BookingWizard({ clinic, user, userPets, initialService }
                             <div className="grid md:grid-cols-2 gap-12">
                                 <div>
                                     <label className="block text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-4">Selecciona el día</label>
-                                    <input 
-                                        type="date" 
+                                    <input
+                                        type="date"
                                         className="w-full p-5 bg-gray-50 border-none rounded-3xl font-black text-gray-700 focus:ring-4 focus:ring-[var(--primary)]/20 transition-all outline-none text-lg"
-                                        min={new Date().toISOString().split('T')[0]}
+                                        min={getLocalDateString(new Date())}
+                                        value={selection.date}
                                         onChange={(e) => setSelection({...selection, date: e.target.value})}
                                     />
                                     <div className="mt-6 p-6 bg-[var(--primary)]/5 rounded-3xl border border-[var(--primary)]/10">
@@ -365,7 +394,7 @@ export default function BookingWizard({ clinic, user, userPets, initialService }
                                 <div>
                                     <label className="block text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-4">Horarios disponibles</label>
                                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                                        {timeSlots.map(t => (
+                                        {TIME_SLOTS.map(t => (
                                             <button
                                                 key={t}
                                                 disabled={!selection.date}
@@ -450,10 +479,24 @@ export default function BookingWizard({ clinic, user, userPets, initialService }
                                 ></textarea>
                             </div>
 
+                            {/* Error display - TICKET-A11Y-004: Added role="alert" for screen readers */}
+                            {submitError && (
+                                <div
+                                    role="alert"
+                                    aria-live="assertive"
+                                    className="mb-6 p-4 bg-red-50 border border-red-200 rounded-2xl"
+                                >
+                                    <div className="flex items-center gap-3 text-red-700">
+                                        <AlertCircle className="w-5 h-5 flex-shrink-0" aria-hidden="true" />
+                                        <p className="font-medium">{submitError}</p>
+                                    </div>
+                                </div>
+                            )}
+
                             <div className="flex justify-end">
-                                <button 
-                                    onClick={handleSubmit} 
-                                    disabled={isSubmitting} 
+                                <button
+                                    onClick={handleSubmit}
+                                    disabled={isSubmitting}
                                     className="px-12 py-6 bg-[var(--primary)] text-white font-black text-xl rounded-[2rem] shadow-2xl shadow-[var(--primary)]/40 hover:scale-105 transition-all flex items-center gap-4 disabled:opacity-50"
                                 >
                                     {isSubmitting ? <Loader2 className="animate-spin w-6 h-6" /> : (

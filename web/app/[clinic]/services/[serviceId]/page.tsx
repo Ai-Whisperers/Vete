@@ -1,18 +1,44 @@
-
-import { getClinicData } from '@/lib/clinics';
+import { getClinicData, ClinicData } from '@/lib/clinics';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import Link from 'next/link';
 import * as Icons from 'lucide-react';
 import { DynamicIcon } from '@/components/ui/dynamic-icon';
 
+interface ServiceVariant {
+  name: string;
+  description?: string;
+  price_display: string;
+}
+
+interface ServiceDetails {
+  description: string;
+  includes?: string[];
+}
+
+interface Service {
+  id: string;
+  title: string;
+  summary: string;
+  icon: string;
+  image?: string;
+  details: ServiceDetails;
+  variants?: ServiceVariant[];
+  booking?: {
+    online_enabled?: boolean;
+  };
+}
+
 // Helper to find service by slug/id
-async function getService(clinicSlug: string, serviceId: string) {
+async function getService(clinicSlug: string, serviceId: string): Promise<{ service: Service; data: ClinicData } | null> {
   const data = await getClinicData(clinicSlug);
   if (!data) return null;
-  
-  const service = data.services.services.find((s: any) => s.id === serviceId);
-  return { service, data }; // Return full data too for config/theme access
+
+  const services = data.services?.services as Service[] | undefined;
+  const service = services?.find((s) => s.id === serviceId);
+  if (!service) return null;
+
+  return { service, data };
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ clinic: string; serviceId: string }> }): Promise<Metadata> {
@@ -40,23 +66,36 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
 
   return (
     <div className="min-h-screen bg-[var(--bg-default)] pb-20">
-      
+
       {/* HERO HEADER */}
       <div className="relative py-20 lg:py-28 overflow-hidden">
-        <div className="absolute inset-0 z-0" style={{ background: 'var(--gradient-primary)' }} />
-        <div className="absolute inset-0 z-0 opacity-10 mix-blend-overlay" 
-             style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '32px 32px' }} 
-        />
-        
+        {/* Background - Image or Gradient */}
+        {service.image ? (
+          <>
+            <div
+              className="absolute inset-0 z-0 bg-cover bg-center"
+              style={{ backgroundImage: `url('${service.image}')` }}
+            />
+            <div className="absolute inset-0 z-0 bg-gradient-to-r from-black/70 via-black/50 to-black/30" />
+          </>
+        ) : (
+          <>
+            <div className="absolute inset-0 z-0" style={{ background: 'var(--gradient-primary)' }} />
+            <div className="absolute inset-0 z-0 opacity-10 mix-blend-overlay"
+                 style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '32px 32px' }}
+            />
+          </>
+        )}
+
         <div className="container relative z-10 px-4 md:px-6">
-            <Link 
-                href={`/${clinic}/services`} 
+            <Link
+                href={`/${clinic}/services`}
                 className="inline-flex items-center text-white/80 hover:text-white mb-8 transition-colors text-sm font-bold uppercase tracking-wider"
             >
                 <Icons.ArrowLeft className="w-4 h-4 mr-2" />
                 Volver a Servicios
             </Link>
-            
+
             <div className="flex flex-col md:flex-row gap-8 items-start md:items-center">
                 <div className="p-6 rounded-3xl bg-white/10 backdrop-blur-md border border-white/20 text-white shadow-lg">
                     <DynamicIcon name={service.icon} className="w-12 h-12" />
@@ -94,7 +133,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                             {config.ui_labels?.services.includes_label || '¿Qué incluye?'}
                         </h3>
                         <div className="grid sm:grid-cols-2 gap-4">
-                            {service.details.includes.map((item: string, idx: number) => (
+                            {service.details.includes.map((item, idx) => (
                                 <div key={idx} className="flex items-start gap-3 p-3 rounded-lg bg-[var(--bg-subtle)]">
                                     <Icons.CheckCircle2 className="w-5 h-5 text-[var(--primary)] shrink-0 mt-0.5" />
                                     <span className="text-[var(--text-secondary)] font-medium">{item}</span>
@@ -119,7 +158,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                              </tr>
                          </thead>
                          <tbody className="divide-y divide-gray-100">
-                             {service.variants?.map((variant: any, idx: number) => (
+                             {service.variants?.map((variant, idx) => (
                                  <tr key={idx} className="hover:bg-gray-50 transition-colors">
                                      <td className="px-6 py-4">
                                          <div className="font-bold text-[var(--text-primary)] text-lg">{variant.name}</div>

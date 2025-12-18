@@ -6,6 +6,34 @@
   --background: #ffffff;
   --foreground: #171717;
 
+  /* Base colors (overridden by clinic themes) */
+  --bg-default: #ffffff;
+  --bg-paper: #ffffff;
+  --bg-subtle: #f9fafb;
+  --bg-inverse: #1f2937;
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
+  --text-muted: #9ca3af;
+  --text-inverse: #ffffff;
+  --border: #e5e7eb;
+  --border-light: #f3f4f6;
+  --border-strong: #d1d5db;
+
+  /* Status colors */
+  --status-success: #22c55e;
+  --status-success-bg: #dcfce7;
+  --status-success-dark: #15803d;
+  --status-warning: #eab308;
+  --status-warning-bg: #fef3c7;
+  --status-warning-dark: #ca8a04;
+  --status-error: #ef4444;
+  --status-error-bg: #fee2e2;
+  --status-error-light: #fca5a5;
+  --status-error-dark: #dc2626;
+  --status-info: #3b82f6;
+  --status-info-bg: #dbeafe;
+  --status-info-dark: #2563eb;
+
   /* Spacing system */
   --section-spacing: 6rem;
   --section-spacing-sm: 4rem;
@@ -245,5 +273,81 @@
     50% { opacity: 1; transform: scale(1.05); }
     70% { transform: scale(0.9); }
     100% { transform: scale(1); }
+  }
+}
+
+/* TICKET-CODE-002: Respect prefers-reduced-motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* TICKET-CODE-003: Print styles for better document printing */
+@media print {
+  /* Hide non-essential UI elements */
+  nav,
+  footer,
+  .no-print,
+  .notification-bell,
+  button[aria-label="Toggle Menu"],
+  .mobile-menu {
+    display: none !important;
+  }
+
+  /* Show print-only elements */
+  .print-only {
+    display: block !important;
+  }
+
+  /* Optimize typography for print */
+  body {
+    font-size: 12pt;
+    line-height: 1.4;
+    color: black;
+    background: white;
+  }
+
+  /* Remove link underlines except for actual URLs */
+  a {
+    text-decoration: none;
+    color: black;
+  }
+
+  /* Prevent page breaks inside critical elements */
+  h1, h2, h3, h4, h5, h6,
+  img, figure,
+  table, pre, blockquote {
+    page-break-inside: avoid;
+  }
+
+  /* Keep headings with their content */
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid;
+  }
+
+  /* Ensure images fit on page */
+  img {
+    max-width: 100% !important;
+  }
+
+  /* Remove shadows and backgrounds for cleaner print */
+  .card,
+  .glass {
+    box-shadow: none !important;
+    background: white !important;
+  }
+
+  /* Optimize invoice and prescription layouts */
+  .invoice-container,
+  .prescription-container {
+    width: 100%;
+    margin: 0;
+    padding: 0;
   }
 }

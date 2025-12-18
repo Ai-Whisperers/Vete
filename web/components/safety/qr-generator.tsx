@@ -31,8 +31,9 @@ export function QRGenerator({ petId, petName }: QRGeneratorProps) {
             setQrCode(data.qrCode);
             setShowModal(true);
             showToast('Código QR generado exitosamente');
-        } catch (e: any) {
-            showToast(e.message || 'Error al generar código QR');
+        } catch (e) {
+            // TICKET-TYPE-004: Proper error handling without any
+            showToast(e instanceof Error ? e.message : 'Error al generar código QR');
         } finally {
             setIsGenerating(false);
         }

@@ -125,9 +125,10 @@ export async function POST(
             }
         });
 
-    } catch (e: any) {
+    } catch (e) {
         console.error('QR generation error:', e);
-        return NextResponse.json({ error: e.message || 'Internal server error' }, { status: 500 });
+        const message = e instanceof Error ? e.message : 'Error interno del servidor';
+        return NextResponse.json({ error: message }, { status: 500 });
     }
 }
 
@@ -139,6 +140,36 @@ export async function GET(
     try {
         const { id: petId } = await params;
         const supabase = await createClient();
+
+        // TICKET-SEC-001: Add authentication check
+        const { data: { user }, error: authError } = await supabase.auth.getUser();
+        if (authError || !user) {
+            return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+        }
+
+        // Verify pet access (owner or staff of same tenant)
+        const { data: pet } = await supabase
+            .from('pets')
+            .select('owner_id, tenant_id')
+            .eq('id', petId)
+            .single();
+
+        if (!pet) {
+            return NextResponse.json({ error: 'Mascota no encontrada' }, { status: 404 });
+        }
+
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('role, tenant_id')
+            .eq('id', user.id)
+            .single();
+
+        const isOwner = pet.owner_id === user.id;
+        const isStaff = profile && ['vet', 'admin'].includes(profile.role) && profile.tenant_id === pet.tenant_id;
+
+        if (!isOwner && !isStaff) {
+            return NextResponse.json({ error: 'Acceso denegado' }, { status: 403 });
+        }
 
         const { data: qrCode, error } = await supabase
             .from('pet_qr_codes')
@@ -153,7 +184,8 @@ export async function GET(
 
         return NextResponse.json({ qrCode });
 
-    } catch (e: any) {
-        return NextResponse.json({ error: e.message }, { status: 500 });
+    } catch (e) {
+        const message = e instanceof Error ? e.message : 'Error interno del servidor';
+        return NextResponse.json({ error: message }, { status: 500 });
     }
 }

@@ -117,7 +117,8 @@ export async function PATCH(request: Request, { params }: RouteParams) {
   try {
     const body = await request.json();
     const allowedFields = ['status', 'priority', 'assigned_to', 'subject'];
-    const updates: any = {};
+    // TICKET-TYPE-004: Use proper interface instead of any
+    const updates: { status?: string; priority?: string; assigned_to?: string; subject?: string; closed_at?: string } = {};
 
     allowedFields.forEach(field => {
       if (body[field] !== undefined) updates[field] = body[field];

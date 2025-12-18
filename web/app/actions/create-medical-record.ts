@@ -4,7 +4,13 @@ import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-export async function createMedicalRecord(prevState: any, formData: FormData) {
+// TICKET-TYPE-002: Define proper state interface for server actions
+interface ActionState {
+  error?: string;
+  success?: boolean;
+}
+
+export async function createMedicalRecord(prevState: ActionState | null, formData: FormData): Promise<ActionState> {
   const supabase = await createClient();
 
   // 1. Auth Check
@@ -46,9 +52,10 @@ export async function createMedicalRecord(prevState: any, formData: FormData) {
 
       if (error) throw error;
 
-  } catch (error: any) {
+  } catch (error) {
       console.error("Create Record Error:", error);
-      return { error: error.message || "Error al guardar registro" };
+      const message = error instanceof Error ? error.message : "Error al guardar registro";
+      return { error: message };
   }
 
   revalidatePath(`/${clinic}/portal/pets/${petId}`);

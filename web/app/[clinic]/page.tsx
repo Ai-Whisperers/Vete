@@ -5,10 +5,18 @@ import Link from 'next/link';
 import * as Icons from 'lucide-react';
 import { AppointmentForm } from '@/components/forms/appointment-form';
 
-// Dynamic Icon Component
+// Dynamic Icon Component - safely handles icon name lookup
 const DynamicIcon = ({ name, className }: { name: string; className?: string }) => {
-  // @ts-ignore - Dynamic access to Lucide icons
-  const Icon = Icons[name.charAt(0).toUpperCase() + name.slice(1).replace(/-([a-z])/g, (g) => g[1].toUpperCase())] || Icons.HelpCircle;
+  if (!name || typeof name !== 'string') {
+    return <Icons.HelpCircle className={className} />;
+  }
+
+  // Convert kebab-case to PascalCase for Lucide icon lookup
+  const iconName = name
+    .charAt(0).toUpperCase() +
+    name.slice(1).replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
+
+  const Icon = (Icons as Record<string, React.ComponentType<{ className?: string }>>)[iconName] || Icons.HelpCircle;
   return <Icon className={className} />;
 };
 
@@ -115,7 +123,7 @@ export default async function ClinicHomePage({ params }: { params: Promise<{ cli
           </div>
 
           <div className="grid gap-6 md:gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {home.features.map((feature: any, idx: number) => (
+            {(home.features ?? []).map((feature: { icon: string; title: string; text: string }, idx: number) => (
               <div
                 key={idx}
                 className="group relative overflow-hidden rounded-2xl bg-white p-6 md:p-8 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] transition-all duration-300 hover:-translate-y-2 border border-gray-100"
@@ -191,7 +199,7 @@ export default async function ClinicHomePage({ params }: { params: Promise<{ cli
 
             {/* Testimonials Grid - Show 3 max on desktop */}
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-              {data.testimonials.slice(0, 6).map((t: any, idx: number) => (
+              {(data.testimonials ?? []).slice(0, 6).map((t: { id: string; rating: number; text: string; author: string; source: string }, idx: number) => (
                 <div
                   key={t.id}
                   className="group bg-white p-6 md:p-8 rounded-2xl shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] transition-all duration-300 hover:-translate-y-1 border border-gray-100 relative"

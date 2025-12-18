@@ -112,8 +112,9 @@ export default function PreAuthForm({ petId, policyId, onSuccess }: PreAuthFormP
       if (onSuccess) {
         onSuccess(preAuth.id);
       }
-    } catch (error: any) {
-      showToast(error.message);
+    } catch (error) {
+      // TICKET-TYPE-004: Proper error handling without any
+      showToast(error instanceof Error ? error.message : 'Error desconocido');
     } finally {
       setLoading(false);
     }

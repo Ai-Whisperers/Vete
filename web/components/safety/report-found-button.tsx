@@ -35,8 +35,9 @@ export function ReportFoundButton({ petId }: { petId: string }) {
             } else {
                 throw new Error(res.error);
             }
-        } catch (e: any) {
-            showToast('Error al reportar');
+        } catch (e) {
+            // TICKET-TYPE-004: Proper error handling without any
+            showToast(e instanceof Error ? e.message : 'Error al reportar');
         } finally {
             setIsReporting(false);
         }

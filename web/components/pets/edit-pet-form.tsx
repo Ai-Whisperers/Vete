@@ -1,10 +1,11 @@
 'use client'
 
-import React, { useState, useTransition } from 'react'
+import React, { useState, useTransition, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import * as Icons from 'lucide-react'
+import { Loader2, AlertCircle } from 'lucide-react'
 import { updatePet } from '@/app/actions/pets'
 import { DeletePetButton } from './delete-pet-button'
+import { PhotoUpload } from './photo-upload'
 
 interface Pet {
   id: string
@@ -34,22 +35,18 @@ export function EditPetForm({ pet, clinic }: Props): React.ReactElement {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
-  const [preview, setPreview] = useState<string | null>(pet.photo_url || null)
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [removePhoto, setRemovePhoto] = useState(false)
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    const file = e.target.files?.[0]
-    if (file) {
-      const url = URL.createObjectURL(file)
-      setPreview(url)
-      setRemovePhoto(false)
-    }
-  }
+  const handleFileSelect = useCallback((file: File): void => {
+    setSelectedFile(file)
+    setRemovePhoto(false)
+  }, [])
 
-  const handleRemovePhoto = (): void => {
-    setPreview(null)
+  const handleFileRemove = useCallback((): void => {
+    setSelectedFile(null)
     setRemovePhoto(true)
-  }
+  }, [])
 
   async function handleSubmit(formData: FormData): Promise<void> {
     setError(null)
@@ -59,6 +56,9 @@ export function EditPetForm({ pet, clinic }: Props): React.ReactElement {
       formData.append('existing_photo_url', pet.photo_url || '')
       if (removePhoto) {
         formData.append('remove_photo', 'true')
+      }
+      if (selectedFile) {
+        formData.set('photo', selectedFile)
       }
 
       const result = await updatePet(pet.id, formData)
@@ -76,45 +76,16 @@ export function EditPetForm({ pet, clinic }: Props): React.ReactElement {
     <div className="bg-white rounded-3xl shadow-xl border border-gray-100 p-8">
       <form action={handleSubmit} className="space-y-6">
         {/* Photo Upload */}
-        <div className="flex justify-center">
-          <div className="relative group">
-            <div
-              className={`w-32 h-32 rounded-full flex items-center justify-center overflow-hidden border-4 ${
-                preview ? 'border-[var(--primary)]' : 'border-gray-100 bg-gray-50'
-              }`}
-            >
-              {preview ? (
-                <img src={preview} alt={pet.name} className="w-full h-full object-cover" />
-              ) : (
-                <Icons.Camera className="w-10 h-10 text-gray-300" />
-              )}
-            </div>
-            <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-              <span className="text-white font-bold text-xs ring-2 ring-white px-2 py-1 rounded-full">
-                Cambiar
-              </span>
-            </div>
-            <input
-              name="photo"
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              className="absolute inset-0 opacity-0 cursor-pointer"
-            />
-          </div>
-        </div>
-        {preview && (
-          <button
-            type="button"
-            onClick={handleRemovePhoto}
-            className="w-full text-center text-sm text-red-500 hover:text-red-700 font-medium"
-          >
-            Eliminar foto
-          </button>
-        )}
-        {!preview && (
-          <p className="text-center text-xs text-gray-400">Toca para subir una foto</p>
-        )}
+        <PhotoUpload
+          name="photo"
+          currentPhotoUrl={pet.photo_url || undefined}
+          onFileSelect={handleFileSelect}
+          onFileRemove={handleFileRemove}
+          placeholder="Subir foto"
+          shape="circle"
+          size={128}
+          maxSizeMB={5}
+        />
 
         <div className="grid grid-cols-2 gap-4">
           <div>
@@ -329,8 +300,8 @@ export function EditPetForm({ pet, clinic }: Props): React.ReactElement {
         </div>
 
         {error && (
-          <div className="p-3 bg-red-50 text-red-600 text-sm rounded-lg flex items-center gap-2">
-            <Icons.AlertCircle className="w-4 h-4" />
+          <div role="alert" className="p-3 bg-red-50 text-red-600 text-sm rounded-lg flex items-center gap-2">
+            <AlertCircle className="w-4 h-4" aria-hidden="true" />
             {error}
           </div>
         )}
@@ -342,7 +313,7 @@ export function EditPetForm({ pet, clinic }: Props): React.ReactElement {
             className="flex-1 bg-[var(--primary)] text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-1 active:scale-95 transition-all flex justify-center items-center gap-2"
           >
             {isPending ? (
-              <Icons.Loader2 className="animate-spin w-5 h-5" />
+              <Loader2 className="animate-spin w-5 h-5" />
             ) : (
               'Guardar Cambios'
             )}

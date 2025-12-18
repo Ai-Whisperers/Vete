@@ -24,26 +24,89 @@ interface GrowthChartProps {
     patientRecords: WeightRecord[];
 }
 
+// Breed size classifications for fallback
+const BREED_SIZE_MAP: Record<string, string> = {
+    // Small breeds
+    'Chihuahua': 'Small Dog',
+    'Yorkshire': 'Small Dog',
+    'Pomeranian': 'Small Dog',
+    'Maltese': 'Small Dog',
+    'Shih Tzu': 'Small Dog',
+    // Medium breeds
+    'Beagle': 'Medium Dog',
+    'Bulldog': 'Medium Dog',
+    'Cocker': 'Medium Dog',
+    'Border Collie': 'Medium Dog',
+    // Large breeds
+    'Labrador': 'Large Dog',
+    'Retriever': 'Large Dog',
+    'Golden Retriever': 'Large Dog',
+    'German Shepherd': 'Large Dog',
+    'Rottweiler': 'Large Dog',
+    // Giant breeds
+    'Great Dane': 'Giant Dog',
+    'Mastiff': 'Giant Dog',
+    'Saint Bernard': 'Giant Dog',
+};
+
+function getBreedFallback(breed: string): { searchBreed: string; isExact: boolean } {
+    // First try exact match
+    if (breed in BREED_SIZE_MAP) {
+        return { searchBreed: breed, isExact: true };
+    }
+
+    // Try to find a partial match in the breed name
+    for (const [key, size] of Object.entries(BREED_SIZE_MAP)) {
+        if (breed.toLowerCase().includes(key.toLowerCase())) {
+            return { searchBreed: size, isExact: false };
+        }
+    }
+
+    // Default to Medium Dog if no match found
+    return { searchBreed: 'Medium Dog', isExact: false };
+}
+
 export function GrowthChart({ breed, gender, patientRecords }: GrowthChartProps) {
     const [standardData, setStandardData] = useState<GrowthStandard[]>([]);
     const [loading, setLoading] = useState(true);
+    const [usingFallback, setUsingFallback] = useState(false);
+    const [actualBreedUsed, setActualBreedUsed] = useState<string>('');
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchStandard = async () => {
-             // Fallback to "Medium Dog" if purebred data missing, just for demo
-             const searchBreed = breed.includes('Retriever') ? 'Medium Dog' : 'Medium Dog'; 
-             
-             try {
-                const res = await fetch(`/api/growth_standards?breed=${encodeURIComponent(searchBreed)}&gender=${gender}`);
-                if (res.ok) {
-                    const data = await res.json();
-                    setStandardData(data);
+            setLoading(true);
+            setError(null);
+
+            // Determine which breed to search for
+            const { searchBreed, isExact } = getBreedFallback(breed);
+            setActualBreedUsed(searchBreed);
+            setUsingFallback(!isExact);
+
+            try {
+                // First try with the exact breed
+                let res = await fetch(`/api/growth_standards?breed=${encodeURIComponent(breed)}&gender=${gender}`);
+                let data = res.ok ? await res.json() : [];
+
+                // If no data, try with the fallback breed
+                if (!data || data.length === 0) {
+                    res = await fetch(`/api/growth_standards?breed=${encodeURIComponent(searchBreed)}&gender=${gender}`);
+                    if (res.ok) {
+                        data = await res.json();
+                        setUsingFallback(true);
+                    }
+                } else {
+                    setUsingFallback(false);
+                    setActualBreedUsed(breed);
                 }
-             } catch(e) {
-                console.error(e);
-             } finally {
+
+                setStandardData(data || []);
+            } catch (e) {
+                console.error('Failed to fetch growth standards:', e);
+                setError('No se pudieron cargar los datos de crecimiento estándar.');
+            } finally {
                 setLoading(false);
-             }
+            }
         };
         fetchStandard();
     }, [breed, gender]);
@@ -70,19 +133,52 @@ export function GrowthChart({ breed, gender, patientRecords }: GrowthChartProps)
         });
     }
 
-    if (loading) return <div className="h-64 flex items-center justify-center text-gray-400">Cargando gráfico...</div>;
+    if (loading) {
+        return (
+            <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm h-64 flex items-center justify-center">
+                <div className="text-center">
+                    <Icons.Loader2 className="w-8 h-8 text-[var(--primary)] animate-spin mx-auto mb-2" />
+                    <p className="text-gray-400">Cargando gráfico...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                <div className="flex items-center gap-3 text-red-500">
+                    <Icons.AlertCircle className="w-5 h-5" />
+                    <p>{error}</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex justify-between items-center mb-4">
                 <div>
                     <h3 className="font-bold text-[var(--text-primary)] flex items-center gap-2">
                         <Icons.TrendingUp className="w-5 h-5 text-[var(--primary)]" />
                         Curva de Crecimiento
                     </h3>
-                    <p className="text-sm text-gray-500">Comparativa vs Estándar ({breed})</p>
+                    <p className="text-sm text-gray-500">Comparativa vs Estándar ({actualBreedUsed || breed})</p>
                 </div>
             </div>
+
+            {/* Warning if using fallback data */}
+            {usingFallback && (
+                <div className="bg-amber-50 border border-amber-200 p-3 rounded-lg mb-4">
+                    <div className="flex gap-2 text-sm">
+                        <Icons.AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+                        <p className="text-amber-700">
+                            No hay datos específicos para "{breed}". Usando datos de referencia para {actualBreedUsed}.
+                            Los valores pueden no ser exactos para esta raza.
+                        </p>
+                    </div>
+                </div>
+            )}
 
             <div className="h-[300px] w-full">
                 <ResponsiveContainer width="100%" height="100%">

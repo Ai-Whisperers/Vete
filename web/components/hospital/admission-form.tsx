@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { Search, X, AlertCircle } from 'lucide-react';
+import { Search, X, AlertCircle, XCircle } from 'lucide-react';
 
 interface Pet {
   id: string;
@@ -37,6 +37,8 @@ export default function AdmissionForm({ onSuccess, onCancel }: AdmissionFormProp
   const [pets, setPets] = useState<Pet[]>([]);
   const [kennels, setKennels] = useState<Kennel[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
+  // TICKET-FORM-002: Replace alert() with proper error state
+  const [formError, setFormError] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     pet_id: '',
@@ -127,6 +129,8 @@ export default function AdmissionForm({ onSuccess, onCancel }: AdmissionFormProp
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     setLoading(true);
+    // TICKET-FORM-002: Clear previous errors
+    setFormError(null);
 
     try {
       const response = await fetch('/api/hospitalizations', {
@@ -143,7 +147,8 @@ export default function AdmissionForm({ onSuccess, onCancel }: AdmissionFormProp
       onSuccess();
     } catch (error) {
       console.error('Error creating hospitalization:', error);
-      alert(error instanceof Error ? error.message : 'Error al crear hospitalización');
+      // TICKET-FORM-002: Use error state instead of alert()
+      setFormError(error instanceof Error ? error.message : 'Error al crear hospitalización');
     } finally {
       setLoading(false);
     }
@@ -174,6 +179,28 @@ export default function AdmissionForm({ onSuccess, onCancel }: AdmissionFormProp
           <X className="h-5 w-5" />
         </button>
       </div>
+
+      {/* TICKET-FORM-002, TICKET-A11Y-004: Error Display with accessibility */}
+      {formError && (
+        <div
+          role="alert"
+          aria-live="assertive"
+          className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg"
+        >
+          <div className="flex items-center gap-3 text-red-700">
+            <XCircle className="w-5 h-5 flex-shrink-0" aria-hidden="true" />
+            <p className="font-medium">{formError}</p>
+            <button
+              type="button"
+              onClick={() => setFormError(null)}
+              className="ml-auto hover:opacity-70"
+              aria-label="Cerrar mensaje de error"
+            >
+              <X className="w-4 h-4" aria-hidden="true" />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Progress Steps */}
       <div className="flex items-center gap-4 mb-8">

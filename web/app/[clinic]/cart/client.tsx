@@ -3,21 +3,29 @@ import { useParams } from 'next/navigation';
 import { useAuthRedirect } from '@/hooks/useAuthRedirect';
 import { useCart } from '@/context/cart-context';
 import Link from 'next/link';
-import { ShoppingBag, X, ArrowRight, Trash2, ArrowLeft, ShieldCheck, Plus, Minus, Tag } from 'lucide-react';
+import { ShoppingBag, X, ArrowRight, Trash2, ArrowLeft, ShieldCheck, Plus, Minus, Tag, AlertCircle } from 'lucide-react';
 import LoyaltyRedemption from '@/components/commerce/loyalty-redemption';
 import { createClient } from '@/lib/supabase/client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
+import { ClinicConfig } from '@/lib/clinics';
+import type { User } from '@supabase/supabase-js';
 
 interface CartPageClientProps {
-  readonly config: any;
+  readonly config: ClinicConfig;
 }
+
+// Maximum quantity per item to prevent abuse
+const MAX_QUANTITY_PER_ITEM = 99;
 
 export default function CartPageClient({ config }: CartPageClientProps) {
   const { clinic } = useParams() as { clinic: string };
   const { user, loading } = useAuthRedirect();
   const { items, clearCart, total, removeItem, updateQuantity, discount } = useCart();
-  const [profile, setProfile] = useState<any>(null);
-  const supabase = createClient();
+  const [profile, setProfile] = useState<User | null>(null);
+  const [quantityWarning, setQuantityWarning] = useState<string | null>(null);
+
+  // Memoize supabase client
+  const supabase = useMemo(() => createClient(), []);
 
   useEffect(() => {
     if (user) {
@@ -28,6 +36,30 @@ export default function CartPageClient({ config }: CartPageClientProps) {
   const finalTotal = Math.max(0, total - discount);
   const labels = config.ui_labels?.cart || {};
   const currency = config.settings?.currency || 'PYG';
+
+  // Safe quantity update with validation
+  const handleQuantityUpdate = useCallback((itemId: string, delta: number) => {
+    const item = items.find(i => i.id === itemId);
+    if (!item) return;
+
+    const newQuantity = item.quantity + delta;
+
+    // Validate against maximum
+    if (newQuantity > MAX_QUANTITY_PER_ITEM) {
+      setQuantityWarning(`Máximo ${MAX_QUANTITY_PER_ITEM} unidades por producto`);
+      setTimeout(() => setQuantityWarning(null), 3000);
+      return;
+    }
+
+    // Validate against stock if available
+    if (item.stock !== undefined && newQuantity > item.stock) {
+      setQuantityWarning(`Solo hay ${item.stock} unidades disponibles`);
+      setTimeout(() => setQuantityWarning(null), 3000);
+      return;
+    }
+
+    updateQuantity(itemId, delta);
+  }, [items, updateQuantity]);
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -75,6 +107,14 @@ export default function CartPageClient({ config }: CartPageClientProps) {
                     </button>
                 </div>
 
+                {/* Quantity warning toast */}
+                {quantityWarning && (
+                  <div className="mb-4 mx-4 p-3 bg-amber-50 border border-amber-200 rounded-xl flex items-center gap-2 text-amber-700 text-sm font-medium animate-in slide-in-from-top">
+                    <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                    {quantityWarning}
+                  </div>
+                )}
+
                 <div className="space-y-3">
                     {items.map((item) => (
                         <div key={`${item.type}-${item.id}`} className="flex items-center gap-4 sm:gap-6 bg-white p-4 sm:p-5 rounded-3xl shadow-sm border border-gray-50 hover:border-gray-100 hover:shadow-md transition-all group">
@@ -110,16 +150,20 @@ export default function CartPageClient({ config }: CartPageClientProps) {
 
                                      {/* Quantity Control */}
                                      <div className="flex items-center gap-3 bg-gray-50 p-1.5 rounded-xl border border-gray-100">
-                                        <button 
-                                            onClick={() => updateQuantity(item.id, -1)}
-                                            className="w-8 h-8 flex items-center justify-center bg-white text-gray-500 rounded-lg shadow-sm hover:text-red-500 active:scale-90 transition-all"
+                                        <button
+                                            onClick={() => handleQuantityUpdate(item.id, -1)}
+                                            className="w-8 h-8 flex items-center justify-center bg-white text-gray-500 rounded-lg shadow-sm hover:text-red-500 active:scale-90 transition-all disabled:opacity-50"
+                                            disabled={item.quantity <= 1}
+                                            aria-label="Reducir cantidad"
                                         >
                                             <Minus className="w-4 h-4" />
                                         </button>
                                         <span className="w-6 text-center font-bold text-gray-700 text-sm">{item.quantity}</span>
-                                        <button 
-                                            onClick={() => updateQuantity(item.id, 1)}
-                                            className="w-8 h-8 flex items-center justify-center bg-white text-gray-500 rounded-lg shadow-sm hover:text-[var(--primary)] active:scale-90 transition-all"
+                                        <button
+                                            onClick={() => handleQuantityUpdate(item.id, 1)}
+                                            className="w-8 h-8 flex items-center justify-center bg-white text-gray-500 rounded-lg shadow-sm hover:text-[var(--primary)] active:scale-90 transition-all disabled:opacity-50"
+                                            disabled={item.quantity >= MAX_QUANTITY_PER_ITEM || (item.stock !== undefined && item.quantity >= item.stock)}
+                                            aria-label="Aumentar cantidad"
                                         >
                                             <Plus className="w-4 h-4" />
                                         </button>

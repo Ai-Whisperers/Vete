@@ -93,8 +93,8 @@ export default function SignupPage({ params }: { params: Promise<{ clinic: strin
             </div>
             
             {state?.error && (
-                <div className="p-3 bg-red-50 text-red-600 text-sm rounded-lg flex items-center gap-2">
-                    <Icons.AlertCircle className="w-4 h-4" />
+                <div role="alert" className="p-3 bg-red-50 text-red-600 text-sm rounded-lg flex items-center gap-2">
+                    <Icons.AlertCircle className="w-4 h-4" aria-hidden="true" />
                     {state.error}
                 </div>
             )}

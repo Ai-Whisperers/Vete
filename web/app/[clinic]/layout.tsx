@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { MainNav } from '@/components/layout/main-nav';
 import { ToastProvider } from '@/components/ui/Toast';
 import { CartProvider } from '@/context/cart-context';
+import { CommandPaletteProvider } from '@/components/search/command-palette-provider';
 import { Facebook, Instagram, Youtube, MapPin, Phone, Mail, Clock, MessageCircle } from 'lucide-react';
 
 // Generate metadata dynamically
@@ -48,8 +49,9 @@ export default async function ClinicLayout({
   return (
     <ToastProvider>
       <CartProvider>
-        <div className="min-h-screen font-sans bg-[var(--bg-default)] text-[var(--text-main)] font-body flex flex-col">
-          <ClinicThemeProvider theme={data.theme} />
+        <CommandPaletteProvider>
+          <div className="min-h-screen font-sans bg-[var(--bg-default)] text-[var(--text-main)] font-body flex flex-col">
+            <ClinicThemeProvider theme={data.theme} />
 
           {/* Skip Link for Accessibility */}
           <a href="#main-content" className="skip-link">
@@ -313,7 +315,8 @@ export default async function ClinicLayout({
               </div>
             </div>
           </footer>
-        </div>
+          </div>
+        </CommandPaletteProvider>
       </CartProvider>
     </ToastProvider>
   );

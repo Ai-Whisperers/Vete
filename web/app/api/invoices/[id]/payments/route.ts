@@ -5,7 +5,7 @@ interface RouteParams {
   params: Promise<{ id: string }>;
 }
 
-// POST /api/invoices/[id]/payments - Record a payment
+// TICKET-BIZ-005: POST /api/invoices/[id]/payments - Record a payment (atomic)
 export async function POST(request: Request, { params }: RouteParams) {
   const { id: invoiceId } = await params;
   const supabase = await createClient();
@@ -26,86 +26,50 @@ export async function POST(request: Request, { params }: RouteParams) {
   }
 
   try {
-    // Get invoice
-    const { data: invoice, error: invoiceError } = await supabase
-      .from('invoices')
-      .select('id, status, total, amount_paid, amount_due, tenant_id')
-      .eq('id', invoiceId)
-      .eq('tenant_id', profile.tenant_id)
-      .single();
-
-    if (invoiceError || !invoice) {
-      return NextResponse.json({ error: 'Factura no encontrada' }, { status: 404 });
-    }
-
-    if (invoice.status === 'void') {
-      return NextResponse.json({ error: 'No se puede pagar una factura anulada' }, { status: 400 });
-    }
-
-    if (invoice.status === 'paid') {
-      return NextResponse.json({ error: 'Esta factura ya está pagada' }, { status: 400 });
-    }
-
     const body = await request.json();
     const { amount, payment_method, reference_number, notes } = body;
 
-    if (!amount || amount <= 0) {
-      return NextResponse.json({ error: 'El monto debe ser mayor a 0' }, { status: 400 });
+    // Basic validation before calling RPC
+    if (!amount || typeof amount !== 'number') {
+      return NextResponse.json({ error: 'Monto inválido' }, { status: 400 });
     }
 
-    if (amount > invoice.amount_due) {
-      return NextResponse.json({
-        error: `El monto excede el saldo pendiente (${invoice.amount_due})`
-      }, { status: 400 });
+    // Use atomic RPC function to prevent race conditions
+    // The function handles row locking, validation, and atomic updates
+    const { data: result, error: rpcError } = await supabase.rpc('record_invoice_payment', {
+      p_invoice_id: invoiceId,
+      p_tenant_id: profile.tenant_id,
+      p_amount: amount,
+      p_payment_method: payment_method || 'cash',
+      p_reference_number: reference_number || null,
+      p_notes: notes || null,
+      p_received_by: user.id
+    });
+
+    if (rpcError) {
+      console.error('RPC error:', rpcError);
+      return NextResponse.json({ error: 'Error al procesar pago' }, { status: 500 });
     }
 
-    // Create payment record
-    const { data: payment, error: paymentError } = await supabase
-      .from('payments')
-      .insert({
-        tenant_id: profile.tenant_id,
-        invoice_id: invoiceId,
-        amount,
-        payment_method: payment_method || 'cash',
-        reference_number,
-        notes,
-        received_by: user.id,
-        paid_at: new Date().toISOString()
-      })
-      .select()
-      .single();
-
-    if (paymentError) throw paymentError;
-
-    // Update invoice totals
-    const newAmountPaid = invoice.amount_paid + amount;
-    const newAmountDue = invoice.total - newAmountPaid;
-    const newStatus = newAmountDue <= 0 ? 'paid' : 'partial';
-
-    await supabase
-      .from('invoices')
-      .update({
-        amount_paid: newAmountPaid,
-        amount_due: newAmountDue,
-        status: newStatus,
-        paid_at: newStatus === 'paid' ? new Date().toISOString() : null
-      })
-      .eq('id', invoiceId);
+    // RPC returns JSONB with success flag
+    if (!result.success) {
+      return NextResponse.json({ error: result.error }, { status: 400 });
+    }
 
     // Audit log
     const { logAudit } = await import('@/lib/audit');
-    await logAudit('RECORD_PAYMENT', `invoices/${invoiceId}/payments/${payment.id}`, {
+    await logAudit('RECORD_PAYMENT', `invoices/${invoiceId}/payments/${result.payment_id}`, {
       amount,
-      payment_method,
-      new_status: newStatus
+      payment_method: payment_method || 'cash',
+      new_status: result.status
     });
 
     return NextResponse.json({
-      payment,
+      payment: { id: result.payment_id },
       invoice: {
-        amount_paid: newAmountPaid,
-        amount_due: newAmountDue,
-        status: newStatus
+        amount_paid: result.amount_paid,
+        amount_due: result.amount_due,
+        status: result.status
       }
     }, { status: 201 });
   } catch (e) {

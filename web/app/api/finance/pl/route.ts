@@ -1,6 +1,11 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 
+// TICKET-TYPE-005: Type definition for expense breakdown
+interface ExpenseBreakdown {
+    [category: string]: number;
+}
+
 export async function GET(request: Request) {
     const supabase = await createClient();
 
@@ -71,8 +76,8 @@ export async function GET(request: Request) {
     
     const totalExpenses = expensesData?.reduce((acc, curr) => acc + Number(curr.amount), 0) || 0;
     
-    // Breakdown by category
-    const expenseBreakdown = expensesData?.reduce((acc: any, curr) => {
+    // Breakdown by category - TICKET-TYPE-005: Use proper type
+    const expenseBreakdown = expensesData?.reduce<ExpenseBreakdown>((acc, curr) => {
         acc[curr.category] = (acc[curr.category] || 0) + Number(curr.amount);
         return acc;
     }, {}) || {};

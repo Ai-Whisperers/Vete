@@ -99,10 +99,10 @@
     "enabled": true,
     "title": "Marcas que Trabajamos",
     "logos": [
-      { "name": "Royal Canin", "image": "/brands/royal-canin.png" },
-      { "name": "Pro Plan", "image": "/brands/pro-plan.png" },
-      { "name": "Hill's", "image": "/brands/hills.png" },
-      { "name": "Bravecto", "image": "/brands/bravecto.png" }
+      { "name": "Royal Canin", "image": "/branding/adris/images/brands/royal-canin.png" },
+      { "name": "Pro Plan", "image": "/branding/adris/images/brands/pro-plan.png" },
+      { "name": "Hill's", "image": "/branding/adris/images/brands/hills.png" },
+      { "name": "Bravecto", "image": "/branding/adris/images/brands/bravecto.png" }
     ]
   },
   "cta_section": {

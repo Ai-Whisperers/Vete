@@ -19,21 +19,44 @@ export async function POST(req: NextRequest) {
         return new NextResponse('Forbidden', { status: 403 });
     }
 
+    // TICKET-SEC-009: File validation constants
+    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+    const ALLOWED_EXCEL_TYPES = [
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'application/vnd.ms-excel',
+        'text/csv'
+    ];
+    const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+    const MAX_ROWS = 1000; // Prevent DoS via huge spreadsheets
+
     try {
-        let rpcData: any[] = [];
+        let rpcData: Record<string, unknown>[] = [];
         const contentType = req.headers.get('content-type') || '';
 
         if (contentType.includes('application/json')) {
             const body = await req.json();
             rpcData = body.rows || [];
+
+            // TICKET-SEC-009: Validate row count for JSON import
+            if (rpcData.length > MAX_ROWS) {
+                return NextResponse.json({ error: `Máximo ${MAX_ROWS} filas permitidas` }, { status: 400 });
+            }
         } else {
             const formData = await req.formData();
             const type = formData.get('type') as string;
-            
+
             if (type === 'image') {
                 const file = formData.get('file') as File;
                 const sku = formData.get('sku') as string;
-                if (!file || !sku) return new NextResponse('Missing data', { status: 400 });
+                if (!file || !sku) return NextResponse.json({ error: 'Datos faltantes' }, { status: 400 });
+
+                // TICKET-SEC-009: Validate image file
+                if (file.size > MAX_FILE_SIZE) {
+                    return NextResponse.json({ error: 'Archivo demasiado grande (máx 5MB)' }, { status: 400 });
+                }
+                if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+                    return NextResponse.json({ error: 'Tipo de imagen no permitido. Use JPG, PNG o WebP' }, { status: 400 });
+                }
 
                 const bytes = await file.arrayBuffer();
                 const fileExt = file.name.split('.').pop();
@@ -64,13 +87,26 @@ export async function POST(req: NextRequest) {
             }
 
             const file = formData.get('file') as File;
-            if (!file) return new NextResponse('Missing file', { status: 400 });
+            if (!file) return NextResponse.json({ error: 'Archivo faltante' }, { status: 400 });
+
+            // TICKET-SEC-009: Validate spreadsheet file
+            if (file.size > MAX_FILE_SIZE) {
+                return NextResponse.json({ error: 'Archivo demasiado grande (máx 5MB)' }, { status: 400 });
+            }
+            if (!ALLOWED_EXCEL_TYPES.includes(file.type)) {
+                return NextResponse.json({ error: 'Tipo de archivo no permitido. Use Excel (.xlsx) o CSV' }, { status: 400 });
+            }
 
             const bytes = await file.arrayBuffer();
             const workbook = XLSX.read(bytes, { type: 'array' });
             const sheetName = workbook.SheetNames[0];
             const sheet = workbook.Sheets[sheetName];
-            const rows = XLSX.utils.sheet_to_json(sheet) as any[];
+            const rows = XLSX.utils.sheet_to_json(sheet) as Record<string, unknown>[];
+
+            // TICKET-SEC-009: Validate row count
+            if (rows.length > MAX_ROWS) {
+                return NextResponse.json({ error: `Máximo ${MAX_ROWS} filas permitidas` }, { status: 400 });
+            }
 
             // Map rows to RPC format
             rpcData = rows.map(row => ({
@@ -99,7 +135,8 @@ export async function POST(req: NextRequest) {
             errors: rpcResult.errors
         });
 
-    } catch (e: any) {
-        return new NextResponse(e.message, { status: 500 });
+    } catch (e) {
+        const message = e instanceof Error ? e.message : 'Error interno del servidor';
+        return NextResponse.json({ error: message }, { status: 500 });
     }
 }

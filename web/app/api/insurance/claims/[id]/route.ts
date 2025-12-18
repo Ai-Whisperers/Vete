@@ -120,7 +120,23 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     }
 
     // Build update object
-    const updates: any = {};
+    // TICKET-TYPE-004: Use proper interface instead of any
+    interface ClaimUpdates {
+      status?: string;
+      provider_claim_number?: string;
+      approved_amount?: number;
+      paid_amount?: number;
+      denial_reason?: string;
+      denial_code?: string;
+      internal_notes?: string;
+      provider_notes?: string;
+      submission_method?: string;
+      confirmation_number?: string;
+      payment_method?: string;
+      payment_reference?: string;
+      processed_by?: string;
+    }
+    const updates: ClaimUpdates = {};
     if (status !== undefined) updates.status = status;
     if (provider_claim_number !== undefined) updates.provider_claim_number = provider_claim_number;
     if (approved_amount !== undefined) updates.approved_amount = approved_amount;

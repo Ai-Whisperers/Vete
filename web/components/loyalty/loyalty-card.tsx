@@ -3,10 +3,17 @@
 import { useEffect, useState } from 'react';
 import { Gift, Star } from 'lucide-react';
 
+// TICKET-TYPE-003: Define proper types for component props
+interface ClinicConfig {
+    config?: {
+        name?: string;
+    };
+}
+
 interface LoyaltyCardProps {
     petId: string;
     petName: string;
-    clinicConfig: any;
+    clinicConfig: ClinicConfig;
 }
 
 export function LoyaltyCard({ petId, petName, clinicConfig }: LoyaltyCardProps) {

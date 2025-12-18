@@ -2,12 +2,15 @@
 
 import { useActionState, use } from "react";
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import * as Icons from "lucide-react";
-import { login, loginWithGoogle } from "@/app/auth/actions";
+import { login } from "@/app/auth/actions";
 import { createClient } from "@/lib/supabase/client";
 
 export default function LoginPage({ params }: { params: Promise<{ clinic: string }> }) {
   const { clinic } = use(params);
+  const searchParams = useSearchParams();
+  const returnTo = searchParams.get('returnTo') || `/${clinic}/portal/dashboard`;
   const [state, formAction, isPending] = useActionState(login, null);
 
   const handleGoogleLogin = async () => {
@@ -15,7 +18,7 @@ export default function LoginPage({ params }: { params: Promise<{ clinic: string
     await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-            redirectTo: `${window.location.origin}/auth/callback?next=/${clinic}/portal/dashboard`
+            redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(returnTo)}`
         }
     });
   };

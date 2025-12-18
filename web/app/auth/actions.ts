@@ -4,7 +4,14 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
-export async function login(prevState: any, formData: FormData) {
+// TICKET-TYPE-002: Define proper state interface for server actions
+interface ActionState {
+  error?: string;
+  success?: boolean;
+  message?: string;
+}
+
+export async function login(prevState: ActionState | null, formData: FormData): Promise<ActionState> {
   const supabase = await createClient();
 
   const data = {
@@ -26,27 +33,50 @@ export async function login(prevState: any, formData: FormData) {
   redirect(`/${data.clinic}/portal/dashboard`);
 }
 
-export async function signup(prevState: any, formData: FormData) {
+export async function signup(prevState: ActionState | null, formData: FormData): Promise<ActionState> {
+  // TICKET-FORM-003: Server-side validation
+  const email = formData.get("email") as string;
+  const password = formData.get("password") as string;
+  const fullName = formData.get("fullName") as string;
+  const clinic = formData.get("clinic") as string;
+
+  // Validate email format
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!email || !emailRegex.test(email)) {
+    return { error: "Email inválido" };
+  }
+
+  // Validate password strength
+  if (!password || password.length < 8) {
+    return { error: "La contraseña debe tener al menos 8 caracteres" };
+  }
+
+  // Validate full name
+  if (!fullName || fullName.trim().length < 2) {
+    return { error: "Nombre completo es requerido (mínimo 2 caracteres)" };
+  }
+
+  if (fullName.length > 100) {
+    return { error: "Nombre demasiado largo (máximo 100 caracteres)" };
+  }
+
   const supabase = await createClient();
 
-  const data = {
-    email: formData.get("email") as string,
-    password: formData.get("password") as string,
-    fullName: formData.get("fullName") as string,
-    clinic: formData.get("clinic") as string,
-  };
-
   const { error } = await supabase.auth.signUp({
-    email: data.email,
-    password: data.password,
+    email: email.toLowerCase().trim(),
+    password,
     options: {
       data: {
-        full_name: data.fullName,
+        full_name: fullName.trim(),
       },
     },
   });
 
   if (error) {
+    // Translate common Supabase errors to Spanish
+    if (error.message.includes('already registered')) {
+      return { error: "Este email ya está registrado" };
+    }
     return { error: error.message };
   }
 
@@ -82,7 +112,7 @@ export async function loginWithGoogle(clinic: string) {
   }
 }
 
-export async function requestPasswordReset(prevState: any, formData: FormData) {
+export async function requestPasswordReset(prevState: ActionState | null, formData: FormData): Promise<ActionState> {
   const email = formData.get('email') as string;
   const clinic = formData.get('clinic') as string;
 
@@ -105,7 +135,7 @@ export async function requestPasswordReset(prevState: any, formData: FormData) {
   return { success: true };
 }
 
-export async function updatePassword(prevState: any, formData: FormData) {
+export async function updatePassword(prevState: ActionState | null, formData: FormData): Promise<ActionState> {
   const password = formData.get('password') as string;
   const confirmPassword = formData.get('confirmPassword') as string;
 

@@ -1,10 +1,11 @@
 
 import { createClient } from '@/lib/supabase/server';
 
+// TICKET-TYPE-004: Use Record<string, unknown> instead of any for flexible object
 export async function logAudit(
     action: string,
     resource: string,
-    details: any = {}
+    details: Record<string, unknown> = {}
 ) {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();

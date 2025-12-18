@@ -1,4 +1,0 @@
-ID: 41141f77-2b35-49af-9bd0-8ef54d5ad97a
-Name: Firulais
-Owner: Juan Perez
-URL: http://localhost:3000/scan/41141f77-2b35-49af-9bd0-8ef54d5ad97a

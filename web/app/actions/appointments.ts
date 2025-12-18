@@ -174,8 +174,23 @@ export async function rescheduleAppointment(
   const durationMs = originalEnd.getTime() - originalStart.getTime()
   const newEndDateTime = new Date(newDateTime.getTime() + durationMs)
 
-  // 7. TODO: Check slot availability (for now, we allow overlaps)
-  // This would integrate with a more complete booking system
+  // 7. TICKET-TODO-003: Check slot availability - prevent overlapping appointments
+  const newStartTimeStr = newDateTime.toTimeString().slice(0, 5) // HH:MM
+  const newEndTimeStr = newEndDateTime.toTimeString().slice(0, 5) // HH:MM
+
+  const { data: existingAppointments } = await supabase
+    .from('appointments')
+    .select('id, start_time, end_time')
+    .eq('tenant_id', appointment.tenant_id)
+    .eq('appointment_date', newDate)
+    .not('status', 'in', '("cancelled","no_show")')
+    .neq('id', appointmentId) // Exclude current appointment being rescheduled
+    .lt('start_time', newEndTimeStr)   // existing starts before new ends
+    .gt('end_time', newStartTimeStr)   // existing ends after new starts
+
+  if (existingAppointments && existingAppointments.length > 0) {
+    return { error: 'El horario seleccionado no está disponible. Por favor elige otro.' }
+  }
 
   // 8. Update appointment
   const { error: updateError } = await supabase

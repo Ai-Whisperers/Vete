@@ -3,12 +3,18 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import * as Icons from "lucide-react";
-import Link from "next/link"; // Corrected import for Link
+import Link from "next/link";
 
 type PetType = "dog" | "cat";
 type DogSize = "small" | "medium" | "large";
 
-export function AgeCalculator({ config }: { config: any }) {
+interface AgeCalculatorConfig {
+  contact: {
+    whatsapp_number?: string;
+  };
+}
+
+export function AgeCalculator({ config }: { config: AgeCalculatorConfig }) {
   const [petType, setPetType] = useState<PetType>("dog");
   const [dogSize, setDogSize] = useState<DogSize>("medium");
   const [age, setAge] = useState<number | "">("");
@@ -168,7 +174,12 @@ export function AgeCalculator({ config }: { config: any }) {
                   
                   {(() => {
                     const stage = getLifeStage(humanAge);
-                    const StatusIcon = Icons[stage.icon as keyof typeof Icons] as any || Icons.Heart;
+                    const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+                      Zap: Icons.Zap,
+                      ShieldCheck: Icons.ShieldCheck,
+                      Heart: Icons.Heart
+                    };
+                    const StatusIcon = iconMap[stage.icon] || Icons.Heart;
                     return (
                         <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full font-bold ${stage.color}`}>
                             <StatusIcon className="w-5 h-5" />

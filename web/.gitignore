@@ -42,3 +42,16 @@ next-env.d.ts
 
 .vercel
 .env*.local
+
+# Test artifacts
+test_pet_id.txt
+/test-results/
+/playwright-report/
+
+# Windows
+nul
+Thumbs.db
+
+# Logs
+deployment.log
+*.log

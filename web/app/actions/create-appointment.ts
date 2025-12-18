@@ -12,7 +12,12 @@ const schema = z.object({
   notes: z.string().optional(),
 })
 
-export async function createAppointment(prevState: any, formData: FormData) {
+interface ActionState {
+  error?: string;
+  success?: boolean;
+}
+
+export async function createAppointment(prevState: ActionState | null, formData: FormData): Promise<ActionState> {
   const supabase = await createClient()
   
   // 1. Auth Check

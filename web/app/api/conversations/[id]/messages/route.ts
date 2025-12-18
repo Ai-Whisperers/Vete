@@ -79,7 +79,8 @@ export async function POST(request: Request, { params }: RouteParams) {
     if (msgError) throw msgError;
 
     // Update conversation
-    const updateData: any = {
+    // TICKET-TYPE-004: Use proper interface instead of any
+    const updateData: { last_message_at: string } = {
       last_message_at: new Date().toISOString()
     };
 

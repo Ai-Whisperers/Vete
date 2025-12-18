@@ -1,4 +1,4 @@
-import { getClinicData } from '@/lib/clinics';
+import { getClinicData, getClinicImageUrl } from '@/lib/clinics';
 import { notFound } from 'next/navigation';
 import StorePageClient from '@/app/[clinic]/store/client';
 
@@ -17,5 +17,8 @@ export default async function StorePage({ params }: { params: Promise<{ clinic: 
 
   if (!data) notFound();
 
-  return <StorePageClient config={data.config} />;
+  // Get store hero image from images manifest
+  const storeHeroImage = getClinicImageUrl(data.images, 'hero', 'store');
+
+  return <StorePageClient config={data.config} heroImage={storeHeroImage} />;
 }

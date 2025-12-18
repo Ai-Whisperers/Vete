@@ -57,8 +57,8 @@ export function NotificationBell({ clinic }: Readonly<NotificationBellProps>) {
       const data = await response.json();
       setNotifications(data.notifications || []);
       setUnreadCount(data.unreadCount || 0);
-    } catch (error) {
-      console.error("Error fetching notifications:", error);
+    } catch {
+      // Error fetching notifications - silently fail and show empty state
     } finally {
       setIsLoading(false);
     }
@@ -89,8 +89,8 @@ export function NotificationBell({ clinic }: Readonly<NotificationBellProps>) {
         )
       );
       setUnreadCount((prev) => Math.max(0, prev - notificationIds.length));
-    } catch (error) {
-      console.error("Error marking notifications as read:", error);
+    } catch {
+      // Error marking as read - silently fail
     }
   };
 
@@ -150,7 +150,7 @@ export function NotificationBell({ clinic }: Readonly<NotificationBellProps>) {
       >
         <Bell className="w-6 h-6" />
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold min-w-[20px] h-5 px-1 flex items-center justify-center rounded-full">
+          <span className="absolute -top-1 -right-1 bg-[var(--status-error,#dc2626)] text-white text-xs font-bold min-w-[20px] h-5 px-1 flex items-center justify-center rounded-full">
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         )}
@@ -164,7 +164,7 @@ export function NotificationBell({ clinic }: Readonly<NotificationBellProps>) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.95 }}
             transition={{ duration: 0.15 }}
-            className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-3xl shadow-xl border border-gray-100 z-50 overflow-hidden"
+            className="absolute right-0 mt-2 w-80 sm:w-96 bg-[var(--bg-paper)] rounded-3xl shadow-xl border border-[var(--border-light,#f3f4f6)] z-50 overflow-hidden"
           >
             {/* Header */}
             <div className="bg-[var(--primary)] text-white px-6 py-4">
@@ -182,12 +182,12 @@ export function NotificationBell({ clinic }: Readonly<NotificationBellProps>) {
                   No tienes notificaciones
                 </div>
               ) : (
-                <ul className="divide-y divide-gray-100">
+                <ul className="divide-y divide-[var(--border-light,#f3f4f6)]">
                   {recentNotifications.map((notification) => (
                     <li
                       key={notification.id}
-                      className={`px-6 py-4 hover:bg-gray-50 transition-colors ${
-                        notification.status === "queued" ? "bg-blue-50/50" : ""
+                      className={`px-6 py-4 hover:bg-[var(--bg-subtle)] transition-colors ${
+                        notification.status === "queued" ? "bg-[var(--status-info-bg,#dbeafe)]/50" : ""
                       }`}
                     >
                       <div className="flex flex-col gap-1">
@@ -200,7 +200,7 @@ export function NotificationBell({ clinic }: Readonly<NotificationBellProps>) {
                                 .replace(/\b\w/g, (l) => l.toUpperCase())}
                           </h4>
                           {notification.status === "queued" && (
-                            <span className="flex-shrink-0 w-2 h-2 bg-blue-500 rounded-full mt-1"></span>
+                            <span className="flex-shrink-0 w-2 h-2 bg-[var(--status-info,#3b82f6)] rounded-full mt-1"></span>
                           )}
                         </div>
 
@@ -222,11 +222,11 @@ export function NotificationBell({ clinic }: Readonly<NotificationBellProps>) {
 
             {/* Footer - "Ver todas" link */}
             {recentNotifications.length > 0 && (
-              <div className="border-t border-gray-100 bg-gray-50">
+              <div className="border-t border-[var(--border-light,#f3f4f6)] bg-[var(--bg-subtle)]">
                 <Link
                   href={`/${clinic}/portal/notifications`}
                   onClick={() => setIsOpen(false)}
-                  className="block px-6 py-3 text-center text-sm font-semibold text-[var(--primary)] hover:bg-gray-100 transition-colors"
+                  className="block px-6 py-3 text-center text-sm font-semibold text-[var(--primary)] hover:bg-[var(--bg-subtle)] transition-colors"
                 >
                   Ver todas
                 </Link>

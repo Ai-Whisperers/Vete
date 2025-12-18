@@ -2,6 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import * as XLSX from 'xlsx';
 
+interface ProductFromDB {
+  sku: string;
+  name: string;
+  description: string | null;
+  base_price: number;
+  store_categories: { name: string } | null;
+  store_inventory: { stock_quantity: number; weighted_average_cost: number | null } | null;
+}
+
 export async function GET(req: NextRequest) {
     const supabase = await createClient();
     
@@ -23,7 +32,8 @@ export async function GET(req: NextRequest) {
     const type = searchParams.get('type') || 'catalog'; // 'template' or 'catalog'
 
     // 2. Prepare Data
-    let data: any[] = [];
+    // TICKET-TYPE-004: Use Record<string, unknown> for flexible export data
+    let data: Record<string, unknown>[] = [];
 
     if (type === 'template') {
         data = [{
@@ -52,7 +62,7 @@ export async function GET(req: NextRequest) {
 
         if (error) return new NextResponse(error.message, { status: 500 });
 
-        data = products.map((p: any) => ({
+        data = (products as ProductFromDB[]).map((p) => ({
             'Operation (Optional)': 'Purchase | Price Update | Stock Removal',
             'SKU': p.sku,
             'Name': p.name,

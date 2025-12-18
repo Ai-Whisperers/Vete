@@ -55,7 +55,8 @@ export async function GET(req: NextRequest) {
             totalValue
         });
 
-    } catch (e: any) {
-        return new NextResponse(e.message, { status: 500 });
+    } catch (e) {
+        // TICKET-TYPE-004: Proper error handling without any
+        return new NextResponse(e instanceof Error ? e.message : 'Error desconocido', { status: 500 });
     }
 }

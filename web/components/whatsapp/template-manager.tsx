@@ -206,8 +206,8 @@ export function TemplateManager({ templates, clinic }: TemplateManagerProps) {
 
             {/* Error */}
             {error && (
-              <div className="flex items-center gap-2 p-3 bg-red-50 text-red-600 rounded-lg text-sm">
-                <Icons.AlertCircle className="w-4 h-4" />
+              <div role="alert" className="flex items-center gap-2 p-3 bg-red-50 text-red-600 rounded-lg text-sm">
+                <Icons.AlertCircle className="w-4 h-4" aria-hidden="true" />
                 {error}
               </div>
             )}

@@ -1,6 +1,16 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 
+interface InvoiceItem {
+  service_id?: string;
+  product_id?: string;
+  description: string;
+  quantity: number;
+  unit_price: number;
+  discount_percent?: number;
+  line_total?: number;
+}
+
 // GET /api/invoices - List invoices for a clinic
 export async function GET(request: Request) {
   const supabase = await createClient();
@@ -135,10 +145,12 @@ export async function POST(request: Request) {
     const { data: invoiceNumber } = await supabase
       .rpc('generate_invoice_number', { p_tenant_id: profile.tenant_id });
 
-    // Calculate totals
+    // TICKET-BIZ-006: Calculate totals with proper rounding to avoid floating point issues
     let subtotal = 0;
-    const processedItems = items.map((item: any) => {
-      const lineTotal = item.quantity * item.unit_price * (1 - (item.discount_percent || 0) / 100);
+    const processedItems = items.map((item: InvoiceItem) => {
+      const discount = item.discount_percent || 0;
+      // Round each line total to 2 decimal places
+      const lineTotal = Math.round(item.quantity * item.unit_price * (1 - discount / 100) * 100) / 100;
       subtotal += lineTotal;
       return {
         ...item,
@@ -146,9 +158,13 @@ export async function POST(request: Request) {
       };
     });
 
+    // Round subtotal to ensure precision
+    subtotal = Math.round(subtotal * 100) / 100;
+
     const taxRate = body.tax_rate || 10; // Default 10% IVA
-    const taxAmount = subtotal * (taxRate / 100);
-    const total = subtotal + taxAmount;
+    // Round tax amount to 2 decimal places
+    const taxAmount = Math.round(subtotal * taxRate) / 100;
+    const total = Math.round((subtotal + taxAmount) * 100) / 100;
 
     // Create invoice
     const { data: invoice, error: invoiceError } = await supabase
@@ -175,7 +191,7 @@ export async function POST(request: Request) {
     if (invoiceError) throw invoiceError;
 
     // Create invoice items
-    const invoiceItems = processedItems.map((item: any) => ({
+    const invoiceItems = processedItems.map((item: InvoiceItem) => ({
       invoice_id: invoice.id,
       service_id: item.service_id || null,
       product_id: item.product_id || null,

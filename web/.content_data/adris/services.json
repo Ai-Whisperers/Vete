@@ -11,6 +11,7 @@
       "title": "Consultas Médicas",
       "icon": "stethoscope",
       "summary": "Atención primaria y de especialidad.",
+      "image": "/branding/adris/images/services/consultation.jpg",
       "details": {
         "description": "Evaluación física completa por profesionales capacitados.",
         "duration_minutes": 30,
@@ -33,6 +34,7 @@
       "title": "Vacunación y Prevención",
       "icon": "shield-check",
       "summary": "Inmunización certificada y control de parásitos.",
+      "image": "/branding/adris/images/services/vaccination.jpg",
       "details": {
         "description": "Biológicos de primera calidad con Carnet Digital.",
         "duration_minutes": 20,
@@ -55,6 +57,7 @@
       "title": "Especialidades Médicas",
       "icon": "activity",
       "summary": "Cardio, Onco, Neuro, Oftalmo y más.",
+      "image": "/branding/adris/images/services/consultation.jpg",
       "details": {
         "description": "Atención por especialistas certificados.",
         "duration_minutes": 45,
@@ -79,6 +82,7 @@
       "title": "Diagnóstico Avanzado",
       "icon": "microscope",
       "summary": "Laboratorio, Imágenes y Genética.",
+      "image": "/branding/adris/images/services/imaging.jpg",
       "details": {
           "description": "Tecnología de última generación para diagnósticos precisos.",
           "duration_minutes": 30,
@@ -104,6 +108,7 @@
         "title": "Cirugía y Anestesia",
         "icon": "scalpel",
         "summary": "Desde rutina hasta alta complejidad.",
+      "image": "/branding/adris/images/services/surgery.jpg",
         "details": {
             "description": "Quirófano inteligente con anestesia sevofluorane.",
             "duration_minutes": 0,
@@ -125,6 +130,7 @@
       "title": "Internación y Cuidados Críticos",
       "icon": "pulse",
       "summary": "UCI y monitoreo 24/7.",
+      "image": "/branding/adris/images/services/hospitalization.jpg",
       "details": {
         "description": "Cuidado intensivo para pacientes graves.",
         "duration_minutes": 1440,
@@ -144,6 +150,7 @@
       "title": "Bienestar y Rehabilitación",
       "icon": "sun",
       "summary": "Fisioterapia y medicina integrativa.",
+      "image": "/branding/adris/images/services/senior-care.jpg",
       "details": {
         "description": "Recuperación funcional y terapias naturales.",
         "duration_minutes": 45,
@@ -165,6 +172,7 @@
       "title": "Spa & Grooming de Lujo",
       "icon": "scissors",
       "summary": "Estética premium.",
+      "image": "/branding/adris/images/services/grooming-bath.jpg",
       "details": {
         "description": "Productos importados y trato Fear-Free.",
         "duration_minutes": 60,
@@ -185,6 +193,7 @@
       "title": "Servicios Premium & Hotel",
       "icon": "star",
       "summary": "Comodidad máxima para vos y tu mascota.",
+      "image": "/branding/adris/images/services/travel-docs.jpg",
       "details": {
           "description": "Soluciones exclusivas.",
           "duration_minutes": 0,
@@ -205,6 +214,7 @@
       "title": "Trámites",
       "icon": "file-text",
       "summary": "Documentación oficial.",
+      "image": "/branding/adris/images/services/travel-docs.jpg",
       "details": {
           "description": "Gestión de papeles.",
           "duration_minutes": 20,

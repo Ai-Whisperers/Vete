@@ -1,29 +1,35 @@
-import { createClient } from '@/lib/supabase/server';
+/**
+ * Booking API Routes
+ * Refactored with auth middleware and Zod validation
+ */
+
 import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@/lib/supabase/server';
+import { withAuth, type AuthContext } from '@/lib/api/with-auth';
+import { apiError, apiSuccess, API_ERRORS } from '@/lib/api/errors';
+import { createAppointmentSchema, updateAppointmentSchema, appointmentQuerySchema } from '@/lib/schemas/appointment';
 
-export async function GET(request: NextRequest) {
-  const supabase = await createClient();
+// GET /api/booking - List appointments
+export const GET = withAuth(async (ctx: AuthContext, { params: _ }: { params: Promise<unknown> }) => {
+  const { user, profile, supabase, request } = ctx;
 
-  // Authentication check
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-  if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+  const searchParams = new URL(request.url).searchParams;
+
+  // Validate query params
+  const queryResult = appointmentQuerySchema.safeParse({
+    clinic: searchParams.get('clinic'),
+    status: searchParams.get('status'),
+    date_from: searchParams.get('date_from'),
+    date_to: searchParams.get('date_to'),
+    page: searchParams.get('page'),
+    limit: searchParams.get('limit'),
+  });
+
+  if (!queryResult.success) {
+    return apiError('VALIDATION_ERROR', 400, queryResult.error.flatten().fieldErrors);
   }
 
-  // Get user profile
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('clinic_id:tenant_id, role')
-    .eq('id', user.id)
-    .single();
-
-  if (!profile) {
-    return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 });
-  }
-
-  const { searchParams } = new URL(request.url);
-  const clinicSlug = searchParams.get('clinic');
-  const status = searchParams.get('status');
+  const { clinic, status, date_from, date_to, page, limit } = queryResult.data;
 
   // Build query based on role
   let query = supabase
@@ -32,111 +38,143 @@ export async function GET(request: NextRequest) {
       *,
       pet:pets(id, name, species, owner_id),
       service:services(id, name, price)
-    `);
+    `, { count: 'exact' });
 
   if (['vet', 'admin'].includes(profile.role)) {
     // Staff sees all clinic appointments
-    if (clinicSlug) {
-      query = query.eq('clinic_slug', clinicSlug);
+    if (clinic) {
+      query = query.eq('tenant_id', clinic);
     }
   } else {
     // Owners see only their pets' appointments
     query = query.eq('pet.owner_id', user.id);
   }
 
+  // Apply filters
   if (status) {
     query = query.eq('status', status);
   }
+  if (date_from) {
+    query = query.gte('appointment_date', date_from);
+  }
+  if (date_to) {
+    query = query.lte('appointment_date', date_to);
+  }
 
-  const { data, error } = await query.order('appointment_date', { ascending: true });
+  // Pagination
+  const from = page * limit;
+  const to = from + limit - 1;
+  query = query.range(from, to).order('appointment_date', { ascending: true });
+
+  const { data, error, count } = await query;
 
   if (error) {
-    console.error('[API] booking GET error:', error);
-    return NextResponse.json({ error: 'Error al obtener citas' }, { status: 500 });
+    return apiError('DATABASE_ERROR', 500);
   }
 
-  return NextResponse.json(data);
-}
+  return apiSuccess({
+    items: data,
+    total: count ?? 0,
+    page,
+    limit,
+  });
+});
 
-export async function POST(request: NextRequest) {
-  const supabase = await createClient();
+// POST /api/booking - Create appointment
+export const POST = withAuth(async (ctx: AuthContext) => {
+  const { user, profile, supabase, request } = ctx;
 
-  // Authentication check
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-  if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado. Por favor inicia sesión.' }, { status: 401 });
-  }
-
-  // Get user profile
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('clinic_id:tenant_id, role')
-    .eq('id', user.id)
-    .single();
-
-  if (!profile) {
-    return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 });
-  }
-
-  // Parse body
-  let body;
+  // Parse and validate body
+  let body: unknown;
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: 'JSON inválido' }, { status: 400 });
+    return apiError('INVALID_JSON', 400);
   }
 
-  const { clinic_slug, petId, serviceId, date, time_slot, notes } = body;
-
-  // Validate required fields
-  if (!petId || !serviceId || !date || !time_slot) {
-    return NextResponse.json({ error: 'Faltan campos requeridos: petId, serviceId, date, time_slot' }, { status: 400 });
+  const result = createAppointmentSchema.safeParse(body);
+  if (!result.success) {
+    return apiError('VALIDATION_ERROR', 400, result.error.flatten().fieldErrors);
   }
+
+  const { clinic_slug, pet_id, service_id, appointment_date, time_slot, notes } = result.data;
 
   // Verify pet ownership or staff access
   const { data: pet } = await supabase
     .from('pets')
     .select('id, owner_id, tenant_id')
-    .eq('id', petId)
+    .eq('id', pet_id)
     .single();
 
   if (!pet) {
-    return NextResponse.json({ error: 'Mascota no encontrada' }, { status: 404 });
+    return NextResponse.json({ ...API_ERRORS.NOT_FOUND, message: 'Mascota no encontrada' }, { status: 404 });
   }
 
   const isOwner = pet.owner_id === user.id;
   const isStaff = ['vet', 'admin'].includes(profile.role);
 
   if (!isOwner && !isStaff) {
-    return NextResponse.json({ error: 'No tienes permiso para agendar citas para esta mascota' }, { status: 403 });
+    return apiError('FORBIDDEN', 403);
   }
 
   // Use clinic from pet's tenant if not provided
   const effectiveClinic = clinic_slug || pet.tenant_id;
 
-  // Check for conflicting appointments
+  // Validate date is not in the past
+  const appointmentDateObj = new Date(appointment_date);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  if (appointmentDateObj < today) {
+    return NextResponse.json(
+      { error: 'No se puede agendar citas en fechas pasadas', code: 'PAST_DATE' },
+      { status: 400 }
+    );
+  }
+
+  // Fetch service duration for end_time calculation
+  const { data: service } = await supabase
+    .from('services')
+    .select('duration_minutes')
+    .eq('id', service_id)
+    .single();
+
+  const durationMinutes = service?.duration_minutes || 30;
+
+  // Calculate end_time based on service duration
+  const [hours, minutes] = time_slot.split(':').map(Number);
+  const startMinutes = hours * 60 + minutes;
+  const endMinutes = startMinutes + durationMinutes;
+  const endHours = Math.floor(endMinutes / 60);
+  const endMins = endMinutes % 60;
+  const endTime = `${String(endHours).padStart(2, '0')}:${String(endMins).padStart(2, '0')}`;
+
+  // Check for overlapping appointments
   const { data: existingAppointments } = await supabase
     .from('appointments')
-    .select('id')
-    .eq('clinic_slug', effectiveClinic)
-    .eq('appointment_date', date)
-    .eq('start_time', time_slot)
-    .neq('status', 'cancelled');
+    .select('id, start_time, end_time')
+    .eq('tenant_id', effectiveClinic)
+    .eq('appointment_date', appointment_date)
+    .not('status', 'in', '("cancelled","no_show")')
+    .lt('start_time', endTime)
+    .gt('end_time', time_slot);
 
   if (existingAppointments && existingAppointments.length > 0) {
-    return NextResponse.json({ error: 'Este horario ya está ocupado' }, { status: 409 });
+    return NextResponse.json(
+      { error: 'Este horario se sobrepone con otra cita existente', code: 'TIME_CONFLICT' },
+      { status: 409 }
+    );
   }
 
   // Insert appointment
   const { data, error } = await supabase
     .from('appointments')
     .insert({
-      clinic_slug: effectiveClinic,
-      pet_id: petId,
-      service_id: serviceId,
-      appointment_date: date,
+      tenant_id: effectiveClinic,
+      pet_id,
+      service_id,
+      appointment_date,
       start_time: time_slot,
-      end_time: time_slot, // TODO: Calculate based on service duration
+      end_time: endTime,
       notes: notes || null,
       status: 'scheduled',
       created_by: user.id,
@@ -145,46 +183,30 @@ export async function POST(request: NextRequest) {
     .single();
 
   if (error) {
-    console.error('[API] booking POST error:', error);
-    return NextResponse.json({ error: 'Error al crear la cita' }, { status: 500 });
+    return apiError('DATABASE_ERROR', 500);
   }
 
-  return NextResponse.json(data, { status: 201 });
-}
+  return apiSuccess(data, 'Cita creada exitosamente', 201);
+});
 
-export async function PUT(request: NextRequest) {
-  const supabase = await createClient();
+// PUT /api/booking - Update appointment
+export const PUT = withAuth(async (ctx: AuthContext) => {
+  const { user, profile, supabase, request } = ctx;
 
-  // Authentication check
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-  if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
-  }
-
-  // Get user profile
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('clinic_id:tenant_id, role')
-    .eq('id', user.id)
-    .single();
-
-  if (!profile) {
-    return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 });
-  }
-
-  // Parse body
-  let body;
+  // Parse and validate body
+  let body: unknown;
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: 'JSON inválido' }, { status: 400 });
+    return apiError('INVALID_JSON', 400);
   }
 
-  const { id, status, date, time_slot, notes } = body;
-
-  if (!id) {
-    return NextResponse.json({ error: 'ID de cita es requerido' }, { status: 400 });
+  const result = updateAppointmentSchema.safeParse(body);
+  if (!result.success) {
+    return apiError('VALIDATION_ERROR', 400, result.error.flatten().fieldErrors);
   }
+
+  const { id, status, appointment_date, time_slot, notes } = result.data;
 
   // Get existing appointment
   const { data: existing } = await supabase
@@ -194,7 +216,7 @@ export async function PUT(request: NextRequest) {
     .single();
 
   if (!existing) {
-    return NextResponse.json({ error: 'Cita no encontrada' }, { status: 404 });
+    return NextResponse.json({ ...API_ERRORS.NOT_FOUND, message: 'Cita no encontrada' }, { status: 404 });
   }
 
   // Verify access
@@ -203,21 +225,61 @@ export async function PUT(request: NextRequest) {
   const isStaff = ['vet', 'admin'].includes(profile.role);
 
   if (!isOwner && !isStaff) {
-    return NextResponse.json({ error: 'No tienes permiso para modificar esta cita' }, { status: 403 });
+    return apiError('FORBIDDEN', 403);
   }
 
   // Owners can only cancel, staff can update anything
   if (!isStaff && status && status !== 'cancelled') {
-    return NextResponse.json({ error: 'Solo puedes cancelar tu cita' }, { status: 403 });
+    return NextResponse.json(
+      { error: 'Solo puedes cancelar tu cita', code: 'OWNER_CANCEL_ONLY' },
+      { status: 403 }
+    );
+  }
+
+  // Validate status transitions
+  if (status && existing.status !== status) {
+    const VALID_TRANSITIONS: Record<string, string[]> = {
+      'scheduled': ['confirmed', 'cancelled'],
+      'pending': ['confirmed', 'cancelled'],
+      'confirmed': ['checked_in', 'cancelled', 'no_show'],
+      'checked_in': ['in_progress', 'no_show'],
+      'in_progress': ['completed', 'no_show'],
+      'completed': [],
+      'cancelled': [],
+      'no_show': []
+    };
+
+    const allowed = VALID_TRANSITIONS[existing.status] || [];
+    if (!allowed.includes(status)) {
+      return NextResponse.json(
+        { error: `No se puede cambiar de "${existing.status}" a "${status}"`, code: 'INVALID_TRANSITION' },
+        { status: 400 }
+      );
+    }
   }
 
   // Build update object
   const updates: Record<string, unknown> = { updated_at: new Date().toISOString() };
   if (status) updates.status = status;
-  if (date) updates.appointment_date = date;
+  if (appointment_date) updates.appointment_date = appointment_date;
+
+  // Calculate proper end_time when rescheduling
   if (time_slot) {
     updates.start_time = time_slot;
-    updates.end_time = time_slot;
+
+    const { data: service } = await supabase
+      .from('services')
+      .select('duration_minutes')
+      .eq('id', existing.service_id)
+      .single();
+
+    const duration = service?.duration_minutes || 30;
+    const [hours, minutes] = time_slot.split(':').map(Number);
+    const startMins = hours * 60 + minutes;
+    const endMins = startMins + duration;
+    const endHours = Math.floor(endMins / 60);
+    const endMinutes = endMins % 60;
+    updates.end_time = `${String(endHours).padStart(2, '0')}:${String(endMinutes).padStart(2, '0')}`;
   }
   if (notes !== undefined) updates.notes = notes;
 
@@ -229,38 +291,24 @@ export async function PUT(request: NextRequest) {
     .single();
 
   if (error) {
-    console.error('[API] booking PUT error:', error);
-    return NextResponse.json({ error: 'Error al actualizar la cita' }, { status: 500 });
+    return apiError('DATABASE_ERROR', 500);
   }
 
-  return NextResponse.json(data);
-}
+  return apiSuccess(data, 'Cita actualizada');
+});
 
-export async function DELETE(request: NextRequest) {
-  const supabase = await createClient();
-
-  // Authentication check
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-  if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
-  }
-
-  // Get user profile - only staff can hard delete
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('clinic_id:tenant_id, role')
-    .eq('id', user.id)
-    .single();
-
-  if (!profile || !['admin'].includes(profile.role)) {
-    return NextResponse.json({ error: 'Solo administradores pueden eliminar citas' }, { status: 403 });
-  }
+// DELETE /api/booking - Delete appointment (admin only)
+export const DELETE = withAuth(async (ctx: AuthContext) => {
+  const { supabase, request } = ctx;
 
   const { searchParams } = new URL(request.url);
   const id = searchParams.get('id');
 
   if (!id) {
-    return NextResponse.json({ error: 'ID de cita es requerido' }, { status: 400 });
+    return NextResponse.json(
+      { error: 'ID de cita es requerido', code: 'MISSING_ID' },
+      { status: 400 }
+    );
   }
 
   const { error } = await supabase
@@ -269,9 +317,8 @@ export async function DELETE(request: NextRequest) {
     .eq('id', id);
 
   if (error) {
-    console.error('[API] booking DELETE error:', error);
-    return NextResponse.json({ error: 'Error al eliminar la cita' }, { status: 500 });
+    return apiError('DATABASE_ERROR', 500);
   }
 
   return new NextResponse(null, { status: 204 });
-}
+}, { roles: ['admin'] }); // Only admins can delete

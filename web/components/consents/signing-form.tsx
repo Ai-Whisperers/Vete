@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useRef, useEffect } from 'react';
-import { X, Edit3, Type, RotateCcw, Check } from 'lucide-react';
+import { useState, useRef, useEffect, useMemo } from 'react';
+import { X, Edit3, Type, RotateCcw, Check, AlertCircle } from 'lucide-react';
+import DOMPurify from 'dompurify'; // TICKET-ERR-003: XSS protection
 
 interface TemplateField {
   id: string;
@@ -75,6 +76,8 @@ export default function SigningForm({
   const [isDrawing, setIsDrawing] = useState(false);
   const [isWitnessDrawing, setIsWitnessDrawing] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  // TICKET-FORM-002: Replace alert() with proper error state
+  const [formError, setFormError] = useState<string | null>(null);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const witnessCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -198,20 +201,21 @@ export default function SigningForm({
     return content;
   };
 
-  const handleFieldChange = (fieldName: string, value: any): void => {
+  // TICKET-TYPE-004: Use union type instead of any for field values
+  const handleFieldChange = (fieldName: string, value: string | number | boolean | null): void => {
     setFieldValues((prev) => ({
       ...prev,
       [fieldName]: value
     }));
   };
 
-  const validateForm = (): boolean => {
+  // TICKET-FORM-002: Return error string instead of using alert()
+  const validateForm = (): string | null => {
     // Validate required custom fields
     if (template.fields) {
       for (const field of template.fields) {
         if (field.is_required && !fieldValues[field.field_name]) {
-          alert(`El campo "${field.field_label}" es requerido`);
-          return false;
+          return `El campo "${field.field_label}" es requerido`;
         }
       }
     }
@@ -219,38 +223,38 @@ export default function SigningForm({
     // Validate signature
     const signatureData = getSignatureData();
     if (!signatureData) {
-      alert('Debe proporcionar una firma');
-      return false;
+      return 'Debe proporcionar una firma';
     }
 
     // Validate witness signature if required
     if (template.requires_witness) {
       const witnessSignatureData = getSignatureData(true);
       if (!witnessSignatureData) {
-        alert('Se requiere firma del testigo');
-        return false;
+        return 'Se requiere firma del testigo';
       }
       if (!witnessName.trim()) {
-        alert('Debe ingresar el nombre del testigo');
-        return false;
+        return 'Debe ingresar el nombre del testigo';
       }
     }
 
     // Validate ID verification if required
     if (template.requires_id_verification) {
       if (!idVerificationType || !idVerificationNumber) {
-        alert('Se requiere verificación de identidad');
-        return false;
+        return 'Se requiere verificación de identidad';
       }
     }
 
-    return true;
+    return null; // No errors
   };
 
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
+    // TICKET-FORM-002: Clear previous errors and use error state
+    setFormError(null);
 
-    if (!validateForm()) {
+    const validationError = validateForm();
+    if (validationError) {
+      setFormError(validationError);
       return;
     }
 
@@ -278,7 +282,8 @@ export default function SigningForm({
       await onSubmit(data);
     } catch (error) {
       console.error('Error submitting consent:', error);
-      alert('Error al enviar el consentimiento');
+      // TICKET-FORM-002: Use error state instead of alert()
+      setFormError(error instanceof Error ? error.message : 'Error al enviar el consentimiento');
     } finally {
       setSubmitting(false);
     }
@@ -286,6 +291,28 @@ export default function SigningForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {/* TICKET-FORM-002, TICKET-A11Y-004: Error Display with accessibility */}
+      {formError && (
+        <div
+          role="alert"
+          aria-live="assertive"
+          className="p-4 bg-red-50 border border-red-200 rounded-lg"
+        >
+          <div className="flex items-center gap-3 text-red-700">
+            <AlertCircle className="w-5 h-5 flex-shrink-0" aria-hidden="true" />
+            <p className="font-medium">{formError}</p>
+            <button
+              type="button"
+              onClick={() => setFormError(null)}
+              className="ml-auto hover:opacity-70"
+              aria-label="Cerrar mensaje de error"
+            >
+              <X className="w-4 h-4" aria-hidden="true" />
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Custom Fields */}
       {template.fields && template.fields.length > 0 && (
         <div className="bg-[var(--bg-paper)] rounded-lg border border-[var(--primary)]/20 p-6">
@@ -366,9 +393,10 @@ export default function SigningForm({
         <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4">
           Documento de consentimiento
         </h3>
+        {/* TICKET-ERR-003: Sanitize HTML content to prevent XSS attacks */}
         <div
           className="prose max-w-none text-[var(--text-primary)]"
-          dangerouslySetInnerHTML={{ __html: renderContent() }}
+          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(renderContent()) }}
         />
       </div>
 

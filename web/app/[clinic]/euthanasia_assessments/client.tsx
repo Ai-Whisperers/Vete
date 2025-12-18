@@ -124,8 +124,9 @@ export default function EuthanasiaAssessmentClient({
                 const err = await response.json();
                 throw new Error(err.error || "Failed to save");
             }
-        } catch (error: any) {
-            showToast(error.message || "No se pudo guardar la evaluación");
+        } catch (error) {
+            // TICKET-TYPE-004: Proper error handling without any
+            showToast(error instanceof Error ? error.message : "No se pudo guardar la evaluación");
         } finally {
             setIsSaving(false);
         }

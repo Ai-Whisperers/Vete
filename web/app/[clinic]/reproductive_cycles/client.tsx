@@ -132,7 +132,7 @@ export default function ReproductiveCyclesClient({ clinic }: { clinic: string })
                 <div className="container mx-auto px-4 h-20 flex items-center justify-between">
                     <div className="flex items-center gap-4">
                         <Link href={`/${clinic}/portal/dashboard`} className="p-2 rounded-xl hover:bg-gray-100 transition-colors">
-                            <Icons.ArrowLeft className="w-5 h-5 text-gray-500" />
+                            <ArrowLeft className="w-5 h-5 text-gray-500" />
                         </Link>
                         <div>
                             <h1 className="text-2xl font-black text-[var(--text-primary)]">Monitor Reproductivo</h1>
@@ -170,7 +170,7 @@ export default function ReproductiveCyclesClient({ clinic }: { clinic: string })
                                         {isCurrentlyActive(cycles[0].cycle_start, cycles[0].cycle_end) ? (
                                             <div className="text-center py-6">
                                                 <div className="w-20 h-20 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
-                                                    <Icons.Heart className="w-10 h-10 fill-current" />
+                                                    <Heart className="w-10 h-10 fill-current" />
                                                 </div>
                                                 <h4 className="text-2xl font-black text-red-600 mb-1">Celo Activo</h4>
                                                 <p className="text-sm text-gray-500">Termina aprox. el {new Date(cycles[0].cycle_end).toLocaleDateString()}</p>
@@ -178,7 +178,7 @@ export default function ReproductiveCyclesClient({ clinic }: { clinic: string })
                                         ) : (
                                             <div className="text-center py-6">
                                                 <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                                                    <Icons.CheckCircle2 className="w-10 h-10" />
+                                                    <CheckCircle2 className="w-10 h-10" />
                                                 </div>
                                                 <h4 className="text-2xl font-black text-gray-800 mb-1">Inactiva</h4>
                                                 <p className="text-sm text-gray-500 leading-relaxed px-4">Próximo celo estimado para:</p>
@@ -190,7 +190,7 @@ export default function ReproductiveCyclesClient({ clinic }: { clinic: string })
                                     </>
                                 ) : (
                                     <div className="text-center py-6 text-gray-400">
-                                        <Icons.Calendar className="w-12 h-12 mx-auto mb-4 opacity-20" />
+                                        <Calendar className="w-12 h-12 mx-auto mb-4 opacity-20" />
                                         <p className="text-sm font-medium">Sin datos históricos para predecir.</p>
                                     </div>
                                 )}
@@ -244,7 +244,7 @@ export default function ReproductiveCyclesClient({ clinic }: { clinic: string })
                         <div className="lg:col-span-2 space-y-6">
                             <div className="bg-white rounded-[40px] p-10 shadow-xl border border-gray-100">
                                 <h3 className="text-xl font-black text-gray-900 mb-8 flex items-center gap-3">
-                                    <Icons.List className="w-6 h-6 text-purple-500" />
+                                    <List className="w-6 h-6 text-purple-500" />
                                     Historial de Ciclos
                                 </h3>
 
@@ -275,14 +275,14 @@ export default function ReproductiveCyclesClient({ clinic }: { clinic: string })
                                                         onClick={() => handleDelete(c.id)}
                                                         className="p-2 text-gray-300 hover:text-red-500 transition-colors"
                                                     >
-                                                        <Icons.Trash2 className="w-5 h-5" />
+                                                        <Trash2 className="w-5 h-5" />
                                                     </button>
                                                 </div>
                                             </div>
                                         </div>
                                     )) : (
                                         <div className="text-center py-20 bg-gray-50 rounded-[40px] border-2 border-dashed border-gray-200">
-                                            <Icons.Search className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                                            <Search className="w-12 h-12 text-gray-300 mx-auto mb-4" />
                                             <p className="text-gray-500 font-medium">No hay ciclos registrados para este paciente.</p>
                                         </div>
                                     )}
@@ -293,7 +293,7 @@ export default function ReproductiveCyclesClient({ clinic }: { clinic: string })
                 ) : (
                     <div className="text-center py-40">
                          <div className="w-24 h-24 bg-purple-50 text-purple-200 rounded-[40px] flex items-center justify-center mx-auto mb-8">
-                            <Icons.Dog className="w-12 h-12" />
+                            <Dog className="w-12 h-12" />
                         </div>
                         <h2 className="text-3xl font-black text-gray-900 mb-4">Monitor de Reproducción</h2>
                         <p className="text-gray-500 max-w-sm mx-auto font-medium">

@@ -148,8 +148,9 @@ export default function ClaimDetailPage({ params }: ClaimDetailPageProps) {
 
       const data = await response.json();
       setClaim(data);
-    } catch (error: any) {
-      showToast(error.message);
+    } catch (error) {
+      // TICKET-TYPE-004: Proper error handling without any
+      showToast(error instanceof Error ? error.message : 'Error desconocido');
     } finally {
       setLoading(false);
     }
@@ -170,8 +171,9 @@ export default function ClaimDetailPage({ params }: ClaimDetailPageProps) {
       showToast('Estado actualizado');
       loadClaim(claimId);
       setShowStatusModal(false);
-    } catch (error: any) {
-      showToast(error.message);
+    } catch (error) {
+      // TICKET-TYPE-004: Proper error handling without any
+      showToast(error instanceof Error ? error.message : 'Error desconocido');
     }
   };
 
@@ -195,8 +197,9 @@ export default function ClaimDetailPage({ params }: ClaimDetailPageProps) {
       setNewNote('');
       setShowNoteModal(false);
       loadClaim(claimId);
-    } catch (error: any) {
-      showToast(error.message);
+    } catch (error) {
+      // TICKET-TYPE-004: Proper error handling without any
+      showToast(error instanceof Error ? error.message : 'Error desconocido');
     }
   };
 

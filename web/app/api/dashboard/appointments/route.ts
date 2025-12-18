@@ -1,6 +1,18 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 
+// TICKET-TYPE-005: Type definitions for appointment analytics
+interface DailyStats {
+  total: number;
+  completed: number;
+  cancelled: number;
+  no_show: number;
+}
+
+interface GroupedAppointments {
+  [date: string]: DailyStats;
+}
+
 // GET /api/dashboard/appointments - Get appointment analytics
 export async function GET(request: Request) {
   const supabase = await createClient();
@@ -52,8 +64,8 @@ export async function GET(request: Request) {
         .gte('start_time', startDate.toISOString())
         .order('start_time', { ascending: true });
 
-      // Group by date
-      const grouped = appointments?.reduce((acc: any, apt) => {
+      // Group by date - TICKET-TYPE-005: Use proper types instead of any
+      const grouped = appointments?.reduce<GroupedAppointments>((acc, apt) => {
         const date = apt.start_time.split('T')[0];
         if (!acc[date]) {
           acc[date] = { total: 0, completed: 0, cancelled: 0, no_show: 0 };
@@ -65,7 +77,7 @@ export async function GET(request: Request) {
         return acc;
       }, {});
 
-      const result = Object.entries(grouped || {}).map(([date, stats]: [string, any]) => ({
+      const result = Object.entries(grouped || {}).map(([date, stats]) => ({
         period_start: date,
         total_appointments: stats.total,
         completed: stats.completed,

@@ -4,8 +4,30 @@ import { PDFDownloadLink } from '@react-pdf/renderer';
 import { PrescriptionPDF } from './prescription-pdf';
 import * as Icons from 'lucide-react';
 
+// TICKET-TYPE-003: Define proper types for prescription data
+interface PrescriptionData {
+    petName: string;
+    species?: string;
+    breed?: string;
+    ownerName: string;
+    clinicName?: string;
+    clinicAddress?: string;
+    clinicPhone?: string;
+    vetName: string;
+    vetLicense?: string;
+    date: string;
+    drugs: Array<{
+        name: string;
+        dosage: string;
+        frequency: string;
+        duration: string;
+        instructions?: string;
+    }>;
+    notes?: string;
+}
+
 interface PrescriptionDownloadButtonProps {
-    data: any;
+    data: PrescriptionData;
     fileName: string;
 }
 

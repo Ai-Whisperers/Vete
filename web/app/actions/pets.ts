@@ -102,15 +102,16 @@ export async function updatePet(
       .from('pets')
       .upload(fileName, photo)
 
+    // TICKET-ERR-001: Return error instead of silently continuing
     if (uploadError) {
       console.error('Upload error:', uploadError)
-      // Continue without updating photo
-    } else {
-      const { data: { publicUrl } } = supabase.storage
-        .from('pets')
-        .getPublicUrl(fileName)
-      photoUrl = publicUrl
+      return { error: 'No se pudo subir la foto. Por favor intente de nuevo.' }
     }
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('pets')
+      .getPublicUrl(fileName)
+    photoUrl = publicUrl
   }
 
   // Handle photo removal

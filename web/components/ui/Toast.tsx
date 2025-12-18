@@ -29,7 +29,7 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
     <ToastContext.Provider value={contextValue}>
       {children}
       {visible && (
-        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded shadow-lg transition-opacity duration-300 opacity-90">
+        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 bg-[var(--bg-inverse,#1f2937)] text-[var(--text-inverse,#ffffff)] px-4 py-2 rounded-lg shadow-lg transition-opacity duration-300 opacity-90" role="alert">
           {toast}
         </div>
       )}

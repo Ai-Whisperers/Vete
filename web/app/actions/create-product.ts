@@ -4,7 +4,13 @@ import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-export async function createProduct(prevState: any, formData: FormData) {
+// TICKET-TYPE-002: Define proper state interface for server actions
+interface ActionState {
+  error?: string;
+  success?: boolean;
+}
+
+export async function createProduct(prevState: ActionState | null, formData: FormData): Promise<ActionState> {
   const supabase =  await createClient();
 
   // 1. Auth Check
@@ -64,9 +70,10 @@ export async function createProduct(prevState: any, formData: FormData) {
 
       if (error) throw error;
 
-  } catch (error: any) {
+  } catch (error) {
       console.error("Create Product Error:", error);
-      return { error: error.message || "Error al crear producto" };
+      const message = error instanceof Error ? error.message : "Error al crear producto";
+      return { error: message };
   }
 
   revalidatePath(`/${clinic}/portal/products`);

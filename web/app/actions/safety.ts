@@ -23,8 +23,9 @@ export async function reportFoundPet(petId: string, location?: string, contact?:
         
         revalidatePath(`/scan/${petId}`);
         return { success: true };
-    } catch (e: any) {
+    } catch (e) {
         console.error('Error reporting found pet:', e);
-        return { success: false, error: e.message };
+        // TICKET-TYPE-004: Proper error handling without any
+        return { success: false, error: e instanceof Error ? e.message : 'Error desconocido' };
     }
 }

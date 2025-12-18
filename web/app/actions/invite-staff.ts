@@ -3,7 +3,12 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 
-export async function inviteStaff(prevState: any, formData: FormData) {
+interface ActionState {
+  error?: string;
+  success?: boolean;
+}
+
+export async function inviteStaff(prevState: ActionState | null, formData: FormData): Promise<ActionState> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -52,7 +57,34 @@ export async function inviteStaff(prevState: any, formData: FormData) {
 
 export async function removeInvite(email: string, clinic: string) {
     const supabase = await createClient();
-    // Auth checks omitted for brevity but should exist (RLS handles it technically)
-    await supabase.from("clinic_invites").delete().eq('email', email);
+
+    // TICKET-SEC-006: Add proper authorization checks
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+        throw new Error('No autorizado');
+    }
+
+    // Verify user is admin of the target clinic
+    const { data: profile } = await supabase
+        .from('profiles')
+        .select('tenant_id, role')
+        .eq('id', user.id)
+        .single();
+
+    if (!profile || profile.role !== 'admin') {
+        throw new Error('Solo administradores pueden eliminar invitaciones');
+    }
+
+    if (profile.tenant_id !== clinic) {
+        throw new Error('No tienes acceso a esta clínica');
+    }
+
+    // Delete invite with tenant filter for extra safety
+    await supabase
+        .from("clinic_invites")
+        .delete()
+        .eq('email', email)
+        .eq('tenant_id', clinic);
+
     revalidatePath(`/${clinic}/portal/team`);
 }

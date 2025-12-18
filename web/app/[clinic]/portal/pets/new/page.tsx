@@ -1,30 +1,21 @@
 "use client";
 
 import { useActionState } from "react";
-import * as Icons from "lucide-react";
+import { ArrowLeft, Loader2, AlertCircle } from "lucide-react";
 import { createPet } from "@/app/actions/create-pet";
-import { useState } from "react";
-import Link from "next/link"; // Added Link import
+import Link from "next/link";
 import { useParams } from "next/navigation";
+import { PhotoUpload } from "@/components/pets/photo-upload";
 
 export default function NewPetPage() {
   const { clinic } = useParams();
   const [state, formAction, isPending] = useActionState(createPet, null);
-  const [preview, setPreview] = useState<string | null>(null);
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-        const url = URL.createObjectURL(file);
-        setPreview(url);
-    }
-  };
 
   return (
     <div className="max-w-xl mx-auto">
         <div className="flex items-center gap-4 mb-8">
-            <Link href={`/${clinic}/portal/dashboard`} className="p-2 rounded-xl hover:bg-white transition-colors">
-                <Icons.ArrowLeft className="w-6 h-6 text-[var(--text-secondary)]" />
+            <Link href={`/${clinic}/portal/dashboard`} className="p-2 rounded-xl hover:bg-white transition-colors" aria-label="Volver al dashboard">
+                <ArrowLeft className="w-6 h-6 text-[var(--text-secondary)]" />
             </Link>
             <h1 className="text-3xl font-black font-heading text-[var(--text-primary)]">Nueva Mascota</h1>
         </div>
@@ -34,28 +25,13 @@ export default function NewPetPage() {
                 <input type="hidden" name="clinic" value={clinic} />
 
                 {/* Photo Upload */}
-                <div className="flex justify-center">
-                    <div className="relative group cursor-pointer">
-                        <div className={`w-32 h-32 rounded-full flex items-center justify-center overflow-hidden border-4 ${preview ? 'border-[var(--primary)]' : 'border-gray-100 bg-gray-50'}`}>
-                            {preview ? (
-                                <img src={preview} className="w-full h-full object-cover" />
-                            ) : (
-                                <Icons.Camera className="w-10 h-10 text-gray-300" />
-                            )}
-                        </div>
-                        <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                            <span className="text-white font-bold text-xs ring-2 ring-white px-2 py-1 rounded-full">Cambiar</span>
-                        </div>
-                        <input 
-                            name="photo"
-                            type="file" 
-                            accept="image/*"
-                            onChange={handleImageChange}
-                            className="absolute inset-0 opacity-0 cursor-pointer"
-                        />
-                    </div>
-                </div>
-                <p className="text-center text-xs text-gray-400">Toca para subir una foto</p>
+                <PhotoUpload
+                    name="photo"
+                    placeholder="Subir foto"
+                    shape="circle"
+                    size={128}
+                    maxSizeMB={5}
+                />
 
                 <div className="grid grid-cols-2 gap-4">
                     <div>
@@ -92,10 +68,12 @@ export default function NewPetPage() {
                     </div>
                     <div>
                         <label className="block text-sm font-bold text-[var(--text-secondary)] mb-1">Peso (kg)</label>
-                        <input 
+                        <input
                             name="weight"
-                            type="number" 
+                            type="number"
                             step="0.1"
+                            min="0"
+                            max="500"
                             placeholder="0.0"
                             className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[var(--primary)] outline-none"
                         />
@@ -193,8 +171,8 @@ export default function NewPetPage() {
                 </div>
 
                 {state?.error && (
-                    <div className="p-3 bg-red-50 text-red-600 text-sm rounded-lg flex items-center gap-2">
-                        <Icons.AlertCircle className="w-4 h-4" />
+                    <div role="alert" className="p-3 bg-red-50 text-red-600 text-sm rounded-lg flex items-center gap-2">
+                        <AlertCircle className="w-4 h-4" aria-hidden="true" />
                         {state.error}
                     </div>
                 )}
@@ -204,7 +182,7 @@ export default function NewPetPage() {
                     disabled={isPending}
                     className="w-full bg-[var(--primary)] text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-1 active:scale-95 transition-all flex justify-center items-center gap-2"
                 >
-                    {isPending ? <Icons.Loader2 className="animate-spin w-5 h-5"/> : "Guardar Mascota"}
+                    {isPending ? <Loader2 className="animate-spin w-5 h-5"/> : "Guardar Mascota"}
                 </button>
             </form>
         </div>

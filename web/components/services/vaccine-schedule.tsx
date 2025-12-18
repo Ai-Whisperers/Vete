@@ -5,8 +5,28 @@ import * as Icons from "lucide-react";
 
 type Species = "dog" | "cat";
 
+interface VaccineScheduleItem {
+  n: number;
+  age: string;
+  vaccines?: string[];
+  note?: string;
+}
+
+interface VaccineScheduleConfig {
+  title?: string;
+  subtitle?: string;
+  dog_label?: string;
+  cat_label?: string;
+  important_label?: string;
+  important_text?: string;
+  data?: {
+    dog: VaccineScheduleItem[];
+    cat: VaccineScheduleItem[];
+  };
+}
+
 interface VaccineScheduleProps {
-  config?: any; // Allow flexibility or strict typing if preferred
+  config?: VaccineScheduleConfig;
 }
 
 export function VaccineSchedule({ config }: VaccineScheduleProps) {
@@ -62,7 +82,7 @@ export function VaccineSchedule({ config }: VaccineScheduleProps) {
 
       <div className="p-6">
         <div className="space-y-6">
-            {schedules[species]?.map((item: any, idx: number) => (
+            {schedules[species]?.map((item: VaccineScheduleItem, idx: number) => (
                 <div key={idx} className="flex gap-4 group">
                     <div className="flex flex-col items-center">
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${

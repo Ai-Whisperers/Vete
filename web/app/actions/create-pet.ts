@@ -4,7 +4,12 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 
-export async function createPet(prevState: any, formData: FormData) {
+interface ActionState {
+  error?: string;
+  success?: boolean;
+}
+
+export async function createPet(prevState: ActionState | null, formData: FormData): Promise<ActionState> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 

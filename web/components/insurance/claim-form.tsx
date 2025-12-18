@@ -151,7 +151,8 @@ export default function ClaimForm({ petId, invoiceId, onSuccess }: ClaimFormProp
     setItems(items.filter((_, i) => i !== index));
   };
 
-  const updateItem = (index: number, field: keyof ClaimItem, value: any) => {
+  // TICKET-TYPE-004: Use union type instead of any
+  const updateItem = (index: number, field: keyof ClaimItem, value: string | number | undefined) => {
     const updated = [...items];
     updated[index] = { ...updated[index], [field]: value };
     setItems(updated);
@@ -196,8 +197,9 @@ export default function ClaimForm({ petId, invoiceId, onSuccess }: ClaimFormProp
       if (onSuccess) {
         onSuccess(claim.id);
       }
-    } catch (error: any) {
-      showToast(error.message);
+    } catch (error) {
+      // TICKET-TYPE-004: Proper error handling without any
+      showToast(error instanceof Error ? error.message : 'Error desconocido');
     } finally {
       setLoading(false);
     }

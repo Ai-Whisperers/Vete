@@ -68,6 +68,21 @@ export async function createMedicalRecord(formData: FormData) {
     throw new Error('Solo el personal veterinario puede crear registros médicos.');
   }
 
+  // TICKET-SEC-007: Verify pet belongs to the same tenant
+  const { data: pet } = await supabase
+    .from('pets')
+    .select('tenant_id')
+    .eq('id', petId)
+    .single();
+
+  if (!pet) {
+    throw new Error('Mascota no encontrada.');
+  }
+
+  if (pet.tenant_id !== profile.tenant_id) {
+    throw new Error('No tienes acceso a esta mascota.');
+  }
+
   // Insert Record
   const { error } = await supabase.from('medical_records').insert({
     pet_id: petId,

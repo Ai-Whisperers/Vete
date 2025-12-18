@@ -4,9 +4,42 @@ import Link from 'next/link';
 import { Check, ArrowRight } from 'lucide-react';
 import { AddToCartButton } from '../cart/add-to-cart-button';
 
+// TICKET-TYPE-003: Define proper types for component props
+interface ServiceVariant {
+  name: string;
+  price?: number;
+  price_display?: string;
+  description?: string;
+}
+
+interface Service {
+  id: string;
+  title: string;
+  summary?: string;
+  icon?: string;
+  image?: string;
+  visible?: boolean;
+  booking?: {
+    online_enabled?: boolean;
+  };
+  details?: {
+    description?: string;
+    includes?: string[];
+  };
+  variants?: ServiceVariant[];
+}
+
+interface ServiceCardConfig {
+  ui_labels?: {
+    services?: {
+      includes_label?: string;
+    };
+  };
+}
+
 interface ServiceCardProps {
-  readonly service: any;
-  readonly config: any;
+  readonly service: Service;
+  readonly config: ServiceCardConfig;
 }
 
 export const ServiceCard = ({ service, config }: ServiceCardProps) => {
@@ -29,21 +62,45 @@ export const ServiceCard = ({ service, config }: ServiceCardProps) => {
   if (!service.visible) return null;
 
   return (
-    <div className="bg-white rounded-[var(--radius)] shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-lg)] transition-all duration-300 hover:-translate-y-1 border border-gray-100 overflow-hidden flex flex-col h-full group relative">
+    <div className="bg-[var(--bg-paper)] rounded-[var(--radius)] shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-lg)] transition-all duration-300 hover:-translate-y-1 border border-[var(--border-light,#f3f4f6)] overflow-hidden flex flex-col h-full group relative">
       <Link href={`./services/${service.id}`} className="absolute inset-0 z-10" aria-label={`Ver detalles de ${service.title}`} />
-      
+
+      {/* Card Image */}
+      {service.image && (
+        <div className="h-40 relative overflow-hidden">
+          <img
+            src={service.image}
+            alt={service.title}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+          {/* Icon overlay on image */}
+          <div className="absolute bottom-3 left-3 w-10 h-10 rounded-xl bg-white/90 backdrop-blur-sm text-[var(--primary)] grid place-items-center shadow-lg">
+            <DynamicIcon name={service.icon} className="w-5 h-5" />
+          </div>
+          {service.booking?.online_enabled && (
+            <span className="absolute top-3 right-3 inline-flex items-center rounded-full bg-white/90 backdrop-blur-sm px-2.5 py-1 text-xs font-bold text-[var(--status-success,#15803d)] shadow-lg">
+              Online
+            </span>
+          )}
+        </div>
+      )}
+
       {/* Card Header */}
       <div className="p-6 pb-2">
-        <div className="flex justify-between items-start mb-4">
-            <div className="w-12 h-12 rounded-xl bg-[var(--bg-subtle)] text-[var(--primary)] grid place-items-center group-hover:bg-[var(--primary)] group-hover:text-white transition-colors duration-300">
-                <DynamicIcon name={service.icon} className="w-6 h-6" />
-            </div>
-            {service.booking?.online_enabled && (
-                <span className="inline-flex items-center rounded-full bg-green-50 px-2.5 py-1 text-xs font-bold text-green-700 ring-1 ring-inset ring-green-600/20">
-                    Online
-                </span>
-            )}
-        </div>
+        {/* Only show icon row if no image */}
+        {!service.image && (
+          <div className="flex justify-between items-start mb-4">
+              <div className="w-12 h-12 rounded-xl bg-[var(--bg-subtle)] text-[var(--primary)] grid place-items-center group-hover:bg-[var(--primary)] group-hover:text-white transition-colors duration-300">
+                  <DynamicIcon name={service.icon} className="w-6 h-6" />
+              </div>
+              {service.booking?.online_enabled && (
+                  <span className="inline-flex items-center rounded-full bg-[var(--status-success-bg,#dcfce7)] px-2.5 py-1 text-xs font-bold text-[var(--status-success,#15803d)] ring-1 ring-inset ring-[var(--status-success,#22c55e)]/20">
+                      Online
+                  </span>
+              )}
+          </div>
+        )}
         <h3 className="text-2xl font-bold text-[var(--text-primary)] font-heading mb-2 leading-tight group-hover:text-[var(--primary)] transition-colors">
             {service.title}
         </h3>
@@ -61,15 +118,15 @@ export const ServiceCard = ({ service, config }: ServiceCardProps) => {
                 {config.ui_labels?.services.includes_label || 'Incluye'}
             </span>
             <ul className="space-y-1.5">
-                {service.details.includes.slice(0, 3).map((item: string, i: number) => (
+                {service.details?.includes?.slice(0, 3).map((item: string, i: number) => (
                     <li key={item} className="text-sm text-[var(--text-muted)] flex items-start gap-2">
                          <Check className="w-4 h-4 text-[var(--primary)] shrink-0 mt-0.5" />
                          <span className="line-clamp-1">{item}</span>
                     </li>
                 ))}
-                {service.details.includes.length > 3 && (
+                {(service.details?.includes?.length || 0) > 3 && (
                     <li className="text-xs text-[var(--primary)] font-medium pl-6">
-                        + {service.details.includes.length - 3} más...
+                        + {(service.details?.includes?.length || 0) - 3} más...
                     </li>
                 )}
             </ul>
@@ -78,7 +135,7 @@ export const ServiceCard = ({ service, config }: ServiceCardProps) => {
       </div>
 
       {/* Card Footer - Price & Action */}
-      <div className="p-6 pt-4 mt-auto border-t border-gray-50 bg-gray-50/30 relative z-20">
+      <div className="p-6 pt-4 mt-auto border-t border-[var(--border-light,#f9fafb)] bg-[var(--bg-subtle)]/30 relative z-20">
         <div className="flex items-end justify-between gap-2">
              <div className="flex flex-col">
                 <span className="text-xs text-[var(--text-muted)] font-medium">Desde</span>

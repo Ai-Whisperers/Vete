@@ -46,9 +46,9 @@ export function StatsCards({ clinic }: StatsCardsProps) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {[...Array(4)].map((_, i) => (
-          <div key={i} className="animate-pulse bg-white rounded-xl p-6 shadow-sm">
-            <div className="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
-            <div className="h-8 bg-gray-200 rounded w-1/3"></div>
+          <div key={i} className="animate-pulse bg-[var(--bg-paper)] rounded-xl p-6 shadow-sm">
+            <div className="h-4 bg-[var(--bg-subtle)] rounded w-1/2 mb-4"></div>
+            <div className="h-8 bg-[var(--bg-subtle)] rounded w-1/3"></div>
           </div>
         ))}
       </div>
@@ -60,21 +60,21 @@ export function StatsCards({ clinic }: StatsCardsProps) {
       title: 'Mascotas Registradas',
       value: stats?.total_pets || 0,
       icon: Users,
-      color: 'bg-blue-500',
+      color: 'bg-[var(--status-info,#3b82f6)]',
       change: stats?.pets_change
     },
     {
       title: 'Citas Hoy',
       value: stats?.appointments_today || 0,
       icon: Calendar,
-      color: 'bg-green-500',
+      color: 'bg-[var(--status-success,#22c55e)]',
       change: stats?.appointments_change
     },
     {
       title: 'Vacunas Pendientes',
       value: stats?.pending_vaccines || 0,
       icon: Syringe,
-      color: 'bg-yellow-500',
+      color: 'bg-[var(--status-warning,#eab308)]',
       alert: (stats?.pending_vaccines || 0) > 10
     },
     {
@@ -84,7 +84,7 @@ export function StatsCards({ clinic }: StatsCardsProps) {
         ? `Gs. ${stats.pending_amount.toLocaleString()}`
         : undefined,
       icon: Receipt,
-      color: 'bg-purple-500'
+      color: 'bg-[var(--primary)]'
     }
   ];
 
@@ -95,27 +95,27 @@ export function StatsCards({ clinic }: StatsCardsProps) {
         return (
           <div
             key={i}
-            className={`bg-white rounded-xl p-6 shadow-sm border-l-4 ${
-              card.alert ? 'border-red-500' : 'border-transparent'
+            className={`bg-[var(--bg-paper)] rounded-xl p-6 shadow-sm border-l-4 ${
+              card.alert ? 'border-[var(--status-error,#ef4444)]' : 'border-transparent'
             } hover:shadow-md transition-shadow`}
           >
             <div className="flex justify-between items-start mb-4">
-              <span className="text-gray-500 text-sm font-medium">{card.title}</span>
+              <span className="text-[var(--text-muted)] text-sm font-medium">{card.title}</span>
               <div className={`${card.color} p-2 rounded-lg`}>
                 <Icon className="w-5 h-5 text-white" />
               </div>
             </div>
             <div className="flex items-end justify-between">
               <div>
-                <p className="text-3xl font-bold text-gray-900">{card.value}</p>
+                <p className="text-3xl font-bold text-[var(--text-primary)]">{card.value}</p>
                 {card.subvalue && (
-                  <p className="text-sm text-gray-500 mt-1">{card.subvalue}</p>
+                  <p className="text-sm text-[var(--text-muted)] mt-1">{card.subvalue}</p>
                 )}
               </div>
               {card.change !== undefined && (
                 <div
                   className={`flex items-center text-sm ${
-                    card.change >= 0 ? 'text-green-600' : 'text-red-600'
+                    card.change >= 0 ? 'text-[var(--status-success,#16a34a)]' : 'text-[var(--status-error,#dc2626)]'
                   }`}
                 >
                   {card.change >= 0 ? (

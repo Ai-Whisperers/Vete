@@ -42,26 +42,60 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
     const supabase = await createClient();
+
+    // TICKET-SEC-005: Auth check first
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+        return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    }
+
+    // Get user profile with tenant
+    const { data: profile } = await supabase
+        .from('profiles')
+        .select('tenant_id, role')
+        .eq('id', user.id)
+        .single();
+
+    if (!profile || !['vet', 'admin'].includes(profile.role)) {
+        return NextResponse.json({ error: 'Solo el personal puede registrar gastos' }, { status: 403 });
+    }
+
     const body = await request.json();
-    
-    // Auth check
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    // TICKET-SEC-005: Explicitly destructure allowed fields - don't spread body
+    const { amount, category, description, date, vendor, notes, receipt_url } = body;
+
+    // Validate required fields
+    if (!amount || !category || !date) {
+        return NextResponse.json({ error: 'Monto, categoría y fecha son requeridos' }, { status: 400 });
+    }
+
+    // Validate amount is positive number
+    if (typeof amount !== 'number' || amount <= 0) {
+        return NextResponse.json({ error: 'El monto debe ser un número positivo' }, { status: 400 });
+    }
 
     const { data, error } = await supabase
         .from('expenses')
         .insert({
-            ...body,
+            clinic_id: profile.tenant_id, // Server-controlled tenant_id
+            amount,
+            category,
+            description: description || null,
+            date,
+            vendor: vendor || null,
+            notes: notes || null,
+            receipt_url: receipt_url || null,
             created_by: user.id
         })
         .select()
         .single();
-    
+
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-    
+
     // Audit Log
     const { logAudit } = await import('@/lib/audit');
-    await logAudit('CREATE_EXPENSE', `expenses/${data.id}`, { amount: body.amount, category: body.category });
+    await logAudit('CREATE_EXPENSE', `expenses/${data.id}`, { amount, category });
 
     return NextResponse.json(data);
 }

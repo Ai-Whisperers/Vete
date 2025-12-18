@@ -51,14 +51,14 @@
     }
   },
   "branding": {
-    "logo_url": "/branding/adris/logo.png",
-    "logo_dark_url": "/branding/adris/logo-dark.png",
+    "logo_url": "/branding/adris/images/logo.png",
+    "logo_dark_url": "/branding/adris/images/logo-dark.png",
     "logo_width": 150,
     "logo_height": 56,
-    "favicon_url": "/branding/adris/favicon.ico",
-    "hero_image_url": "/branding/adris/hero-bg.jpg",
-    "og_image_url": "/branding/adris/og-image.jpg",
-    "apple_touch_icon": "/branding/adris/apple-touch-icon.png"
+    "favicon_url": "/branding/adris/images/favicon.ico",
+    "hero_image_url": "/branding/adris/images/hero-bg.jpg",
+    "og_image_url": "/branding/adris/images/og-image.jpg",
+    "apple_touch_icon": "/branding/adris/images/apple-touch-icon.png"
   },
   "ui_labels": {
     "nav": {

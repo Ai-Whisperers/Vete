@@ -1,7 +1,8 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
+import { useEffect } from "react";
+import Link from "next/link";
+import { AlertTriangle, Home, RefreshCw, MessageCircle } from "lucide-react";
 
 interface ErrorProps {
   error: Error & { digest?: string };
@@ -9,41 +10,46 @@ interface ErrorProps {
 }
 
 /**
- * Clinic-specific error boundary - uses theme variables
+ * Clinic-scoped error boundary - catches runtime errors within clinic pages
+ * Uses clinic theme variables for consistent branding
  */
 export default function ClinicError({ error, reset }: ErrorProps) {
   useEffect(() => {
-    // Log the error to an error reporting service
-    console.error('Clinic page error:', error);
+    // Log error to console in development
+    console.error("Clinic page error:", error);
   }, [error]);
 
   return (
-    <div className="min-h-[60vh] flex flex-col items-center justify-center px-4 py-16">
-      <div className="text-center max-w-md">
-        {/* Error Illustration */}
-        <div className="mb-8">
-          <div className="w-32 h-32 mx-auto bg-red-50 rounded-full flex items-center justify-center animate-pulse">
-            <AlertTriangle className="w-16 h-16 text-red-400" />
+    <div className="min-h-screen bg-[var(--bg-default)] flex items-center justify-center px-4">
+      <div className="max-w-lg w-full text-center">
+        {/* Error Icon */}
+        <div className="relative mb-8">
+          <div className="w-32 h-32 mx-auto bg-gradient-to-br from-red-400 to-red-500 rounded-full flex items-center justify-center shadow-xl shadow-red-200">
+            <AlertTriangle className="w-16 h-16 text-white" />
           </div>
+          <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-24 h-3 bg-black/10 rounded-full blur-sm" />
         </div>
 
-        {/* Error Info */}
-        <h1 className="text-2xl font-black text-[var(--text-primary)] mb-4">
-          ¡Algo salió mal!
+        {/* Message */}
+        <h1 className="text-3xl font-bold text-[var(--text-primary)] mb-3">
+          Algo salió mal
         </h1>
-        <p className="text-[var(--text-secondary)] mb-8 leading-relaxed">
-          Lo sentimos, ocurrió un error inesperado. Por favor, intenta de nuevo o contacta con nosotros si el problema persiste.
+        <p className="text-[var(--text-secondary)] mb-8 max-w-md mx-auto">
+          Lo sentimos, ocurrió un error inesperado.
+          Puedes intentar recargar la página o volver al inicio.
         </p>
 
-        {/* Error Details (Development only) */}
-        {process.env.NODE_ENV === 'development' && (
-          <div className="mb-8 p-4 bg-red-50 rounded-xl text-left border border-red-100">
-            <p className="text-xs font-bold text-red-600 mb-1">Error:</p>
-            <p className="text-xs font-mono text-red-500 break-all">
+        {/* Error Details (development only) */}
+        {process.env.NODE_ENV === "development" && error.message && (
+          <div className="mb-8 p-4 bg-red-50 border border-red-200 rounded-xl text-left">
+            <p className="text-xs font-bold text-red-700 mb-1 uppercase tracking-wider">
+              Error Details
+            </p>
+            <p className="text-sm text-red-600 font-mono break-all">
               {error.message}
             </p>
             {error.digest && (
-              <p className="text-xs font-mono text-red-400 mt-2">
+              <p className="text-xs text-red-500 mt-2">
                 Digest: {error.digest}
               </p>
             )}
@@ -54,35 +60,35 @@ export default function ClinicError({ error, reset }: ErrorProps) {
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <button
             onClick={reset}
-            className="inline-flex items-center justify-center px-6 py-3 bg-[var(--primary)] text-white font-bold rounded-xl hover:opacity-90 transition-opacity shadow-lg"
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-[var(--primary)] text-white font-bold rounded-xl hover:opacity-90 transition-opacity shadow-lg shadow-[var(--primary)]/20"
           >
-            <RefreshCw className="w-5 h-5 mr-2" />
-            Reintentar
+            <RefreshCw className="w-5 h-5" />
+            Intentar de nuevo
           </button>
-          <a
-            href="./"
-            className="inline-flex items-center justify-center px-6 py-3 border-2 border-[var(--primary)] text-[var(--primary)] font-bold rounded-xl hover:bg-[var(--primary)] hover:text-white transition-colors"
+          <Link
+            href="../"
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white text-[var(--text-primary)] font-bold rounded-xl hover:bg-gray-50 transition-colors border border-gray-200"
           >
-            <Home className="w-5 h-5 mr-2" />
-            Volver al inicio
-          </a>
+            <Home className="w-5 h-5" />
+            Ir al Inicio
+          </Link>
         </div>
 
-        {/* Contact Support */}
-        <p className="mt-8 text-sm text-[var(--text-muted)]">
-          ¿Necesitas ayuda?{' '}
+        {/* Help Text */}
+        <div className="mt-12 p-4 bg-[var(--primary)]/5 rounded-xl border border-[var(--primary)]/10">
+          <p className="text-sm text-[var(--text-secondary)] mb-3">
+            Si el problema persiste, no dudes en contactarnos.
+          </p>
           <a
-            href="#"
-            className="text-[var(--primary)] font-bold hover:underline"
-            onClick={(e) => {
-              e.preventDefault();
-              // This could open WhatsApp or contact modal
-              window.history.back();
-            }}
+            href="https://wa.me/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 text-sm font-bold text-[var(--primary)] hover:underline"
           >
-            Contáctanos
+            <MessageCircle className="w-4 h-4" />
+            Contactar por WhatsApp
           </a>
-        </p>
+        </div>
       </div>
     </div>
   );

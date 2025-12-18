@@ -1,17 +1,30 @@
 "use client";
 
-import { useActionState, useState } from "react";
-import * as Icons from "lucide-react";
+import { useActionState, useState, useCallback } from "react";
+import {
+  ArrowLeft,
+  AlertTriangle,
+  Loader2,
+  Check,
+  X,
+  Trash2,
+  Camera,
+  AlertCircle,
+  FileText,
+  Upload
+} from "lucide-react";
 import { createVaccine } from "@/app/actions/create-vaccine";
-import { validateImageQuality } from "@/lib/image-validation";
+import { validateImageQuality, validateImageFile } from "@/lib/image-validation";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 
 export default function NewVaccinePage() {
   const params = useParams();
   const [state, formAction, isPending] = useActionState(createVaccine, null);
-  
+
   const [photos, setPhotos] = useState<{ file: File, preview: string, status: 'validating' | 'valid' | 'invalid', error?: string }[]>([]);
+  const [certificate, setCertificate] = useState<{ file: File, name: string } | null>(null);
+  const [certificateError, setCertificateError] = useState<string | null>(null);
   
   const handlePhotoSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -54,6 +67,34 @@ export default function NewVaccinePage() {
 
     const [reactionWarning, setReactionWarning] = useState<{ severity: string; date: string } | null>(null);
 
+    const handleCertificateSelect = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      setCertificateError(null);
+
+      // Validate file type (PDF or images)
+      const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+      if (!allowedTypes.includes(file.type)) {
+        setCertificateError('Formato no permitido. Usa PDF, JPG, PNG o WebP.');
+        return;
+      }
+
+      // Validate file size (max 10MB for certificates)
+      const maxSizeMB = 10;
+      if (file.size > maxSizeMB * 1024 * 1024) {
+        setCertificateError(`El archivo es muy grande. Máximo ${maxSizeMB}MB.`);
+        return;
+      }
+
+      setCertificate({ file, name: file.name });
+    }, []);
+
+    const removeCertificate = useCallback(() => {
+      setCertificate(null);
+      setCertificateError(null);
+    }, []);
+
     const checkReaction = async (brand: string) => {
         if (!brand || brand.length < 3) return;
         try {
@@ -81,7 +122,7 @@ export default function NewVaccinePage() {
     <div className="max-w-xl mx-auto">
         {reactionWarning && (
             <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3 animate-in fade-in slide-in-from-top-2">
-                <Icons.AlertTriangle className="w-6 h-6 text-red-600 shrink-0" />
+                <AlertTriangle className="w-6 h-6 text-red-600 shrink-0" aria-hidden="true" />
                 <div>
                     <h4 className="font-bold text-red-700">¡Advertencia de Reacción Previa!</h4>
                     <p className="text-sm text-red-600 mt-1">
@@ -93,8 +134,8 @@ export default function NewVaccinePage() {
         )}
 
         <div className="flex items-center gap-4 mb-8">
-            <Link href={`/${params.clinic}/portal/dashboard`} className="p-2 rounded-xl hover:bg-white transition-colors">
-                <Icons.ArrowLeft className="w-6 h-6 text-[var(--text-secondary)]" />
+            <Link href={`/${params.clinic}/portal/dashboard`} className="p-2 rounded-xl hover:bg-white transition-colors" aria-label="Volver al dashboard">
+                <ArrowLeft className="w-6 h-6 text-[var(--text-secondary)]" />
             </Link>
             <h1 className="text-3xl font-black font-heading text-[var(--text-primary)]">Nueva Vacuna</h1>
         </div>
@@ -111,14 +152,14 @@ export default function NewVaccinePage() {
                         {photos.map((photo, idx) => (
                             <div key={photo.preview} className={`relative aspect-square rounded-2xl overflow-hidden border-2 group ${photo.status === 'invalid' ? 'border-red-500' : 'border-gray-200'}`}>
                                 <img src={photo.preview} alt="Vista previa de vacuna" className="w-full h-full object-cover" />
-                                
+
                                 {/* Status Overlay */}
                                 <div className="absolute inset-x-0 bottom-0 bg-black/60 p-2 text-center backdrop-blur-sm">
-                                    {photo.status === 'validating' && <span className="text-xs text-white flex items-center justify-center gap-1"><Icons.Loader2 className="w-3 h-3 animate-spin"/> Procesando...</span>}
-                                    {photo.status === 'valid' && <span className="text-xs text-green-400 font-bold flex items-center justify-center gap-1"><Icons.Check className="w-3 h-3"/> Lista</span>}
-                                    {photo.status === 'invalid' && <span className="text-xs text-red-400 font-bold flex items-center justify-center gap-1"><Icons.X className="w-3 h-3"/> Rechazada</span>}
+                                    {photo.status === 'validating' && <span className="text-xs text-white flex items-center justify-center gap-1"><Loader2 className="w-3 h-3 animate-spin" aria-hidden="true" /> Procesando...</span>}
+                                    {photo.status === 'valid' && <span className="text-xs text-green-400 font-bold flex items-center justify-center gap-1"><Check className="w-3 h-3" aria-hidden="true" /> Lista</span>}
+                                    {photo.status === 'invalid' && <span className="text-xs text-red-400 font-bold flex items-center justify-center gap-1"><X className="w-3 h-3" aria-hidden="true" /> Rechazada</span>}
                                 </div>
-                                
+
                                 {/* Error Message */}
                                 {photo.error && (
                                      <div className="absolute inset-0 flex items-center justify-center bg-black/80 p-4 text-center">
@@ -126,22 +167,22 @@ export default function NewVaccinePage() {
                                      </div>
                                 )}
 
-                                <button type="button" onClick={() => removePhoto(idx)} className="absolute top-2 right-2 bg-white/90 p-1 rounded-full text-red-500 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <Icons.Trash2 className="w-4 h-4" />
+                                <button type="button" onClick={() => removePhoto(idx)} aria-label={`Eliminar foto ${idx + 1}`} className="absolute top-2 right-2 bg-white/90 p-1 rounded-full text-red-500 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <Trash2 className="w-4 h-4" />
                                 </button>
                             </div>
                         ))}
 
                         {/* Upload Button */}
                         <label className="aspect-square rounded-2xl border-2 border-dashed border-[var(--primary)]/30 bg-[var(--primary)]/5 flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-[var(--primary)]/10 transition-colors">
-                            <Icons.Camera className="w-8 h-8 text-[var(--primary)]" />
+                            <Camera className="w-8 h-8 text-[var(--primary)]" aria-hidden="true" />
                             <span className="text-xs font-bold text-[var(--primary)]">Agregar Foto</span>
-                            <input 
-                                type="file" 
-                                multiple 
-                                accept="image/*" 
-                                onChange={handlePhotoSelect} 
-                                className="hidden" 
+                            <input
+                                type="file"
+                                multiple
+                                accept="image/*"
+                                onChange={handlePhotoSelect}
+                                className="hidden"
                             />
                         </label>
                     </div>
@@ -185,13 +226,75 @@ export default function NewVaccinePage() {
                     
                     <div>
                         <label htmlFor="batch" className="block text-sm font-bold text-[var(--text-secondary)] mb-1">Lote / Serie (Opcional)</label>
-                        <input 
+                        <input
                             id="batch"
                             name="batch"
-                            type="text" 
+                            type="text"
                             placeholder="Ej: A-12345"
                             className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[var(--primary)] outline-none"
                         />
+                    </div>
+                </div>
+
+                {/* Certificate Upload Section */}
+                <div className="space-y-4 pt-4 border-t border-gray-100">
+                    <div>
+                        <label className="block text-sm font-bold text-[var(--text-secondary)] mb-2">
+                            Certificado de Vacunación (Opcional)
+                        </label>
+                        <p className="text-xs text-gray-400 mb-3">
+                            Sube el certificado oficial en PDF o imagen. Útil para viajes internacionales.
+                        </p>
+
+                        {certificate ? (
+                            <div className="flex items-center gap-3 p-4 bg-green-50 border border-green-200 rounded-xl">
+                                <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
+                                    <FileText className="w-5 h-5 text-green-600" aria-hidden="true" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-medium text-green-700 truncate">{certificate.name}</p>
+                                    <p className="text-xs text-green-600">
+                                        {(certificate.file.size / 1024 / 1024).toFixed(2)} MB
+                                    </p>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={removeCertificate}
+                                    aria-label="Eliminar certificado"
+                                    className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                                >
+                                    <Trash2 className="w-4 h-4" />
+                                </button>
+                            </div>
+                        ) : (
+                            <label className="flex flex-col items-center justify-center gap-3 p-6 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-[var(--primary)]/50 hover:bg-gray-50 transition-colors">
+                                <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
+                                    <Upload className="w-6 h-6 text-gray-400" aria-hidden="true" />
+                                </div>
+                                <div className="text-center">
+                                    <span className="text-sm font-medium text-[var(--text-primary)]">
+                                        Subir certificado
+                                    </span>
+                                    <p className="text-xs text-gray-400 mt-1">
+                                        PDF, JPG, PNG o WebP • Max 10MB
+                                    </p>
+                                </div>
+                                <input
+                                    type="file"
+                                    name="certificate"
+                                    accept=".pdf,image/jpeg,image/png,image/gif,image/webp"
+                                    onChange={handleCertificateSelect}
+                                    className="hidden"
+                                />
+                            </label>
+                        )}
+
+                        {certificateError && (
+                            <div role="alert" className="mt-2 p-2 bg-red-50 text-red-600 text-xs rounded-lg flex items-center gap-2">
+                                <AlertCircle className="w-3 h-3 flex-shrink-0" aria-hidden="true" />
+                                {certificateError}
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -218,8 +321,8 @@ export default function NewVaccinePage() {
                 */}
                 
                 {state?.error && (
-                    <div className="p-3 bg-red-50 text-red-600 text-sm rounded-lg flex items-center gap-2">
-                        <Icons.AlertCircle className="w-4 h-4" />
+                    <div role="alert" className="p-3 bg-red-50 text-red-600 text-sm rounded-lg flex items-center gap-2">
+                        <AlertCircle className="w-4 h-4" aria-hidden="true" />
                         {state.error}
                     </div>
                 )}
@@ -229,7 +332,7 @@ export default function NewVaccinePage() {
                     disabled={isPending || !isReady}
                     className="w-full bg-[var(--primary)] text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-1 active:scale-95 transition-all flex justify-center items-center gap-2 disabled:opacity-50 disabled:grayscale disabled:pointer-events-none"
                 >
-                    {isPending ? <Icons.Loader2 className="animate-spin w-5 h-5"/> : "Guardar en Libreta"}
+                    {isPending ? <Loader2 className="animate-spin w-5 h-5" /> : "Guardar en Libreta"}
                 </button>
                 
                 {!isReady && photos.length > 0 && (

@@ -1,6 +1,28 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 
+interface CampaignItem {
+  product_id: string;
+  discount_type: 'percentage' | 'fixed';
+  discount_value: number;
+}
+
+interface Campaign {
+  id: string;
+  store_campaign_items: CampaignItem[];
+}
+
+interface ProductFromDB {
+  id: string;
+  sku: string;
+  name: string;
+  description: string | null;
+  image_url: string | null;
+  base_price: number;
+  store_categories: { name: string } | null;
+  store_inventory: { stock_quantity: number } | null;
+}
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const clinic = searchParams.get('clinic');
@@ -47,17 +69,17 @@ export async function GET(request: Request) {
 
     // 3. Map campaign discounts to products
     const discountMap = new Map<string, { type: string, value: number }>();
-    campaigns?.forEach(camp => {
-        camp.store_campaign_items.forEach((item: any) => {
+    (campaigns as Campaign[] | null)?.forEach(camp => {
+        camp.store_campaign_items.forEach((item: CampaignItem) => {
             discountMap.set(item.product_id, { type: item.discount_type, value: item.discount_value });
         });
     });
 
     // 4. Process products
-    const processed = products.map((p: any) => {
+    const processed = (products as ProductFromDB[]).map((p) => {
         const discount = discountMap.get(p.id);
         let currentPrice = p.base_price;
-        let originalPrice = null;
+        let originalPrice: number | null = null;
 
         if (discount) {
             originalPrice = p.base_price;

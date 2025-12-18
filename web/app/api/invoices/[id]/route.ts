@@ -5,6 +5,15 @@ interface RouteParams {
   params: Promise<{ id: string }>;
 }
 
+interface InvoiceItem {
+  service_id?: string;
+  product_id?: string;
+  description: string;
+  quantity: number;
+  unit_price: number;
+  discount_percent?: number;
+}
+
 // GET /api/invoices/[id] - Get single invoice
 export async function GET(request: Request, { params }: RouteParams) {
   const { id } = await params;
@@ -100,7 +109,8 @@ export async function PATCH(request: Request, { params }: RouteParams) {
       const body = await request.json();
       // For non-draft, only allow status changes and notes
       const allowedFields = ['status', 'notes'];
-      const updates: any = {};
+      // TICKET-TYPE-004: Use proper interface instead of any
+      const updates: { status?: string; notes?: string } = {};
       allowedFields.forEach(field => {
         if (body[field] !== undefined) updates[field] = body[field];
       });
@@ -148,7 +158,7 @@ export async function PATCH(request: Request, { params }: RouteParams) {
 
       // Insert new items
       let subtotal = 0;
-      const newItems = items.map((item: any) => {
+      const newItems = items.map((item: InvoiceItem) => {
         const lineTotal = item.quantity * item.unit_price * (1 - (item.discount_percent || 0) / 100);
         subtotal += lineTotal;
         return {

@@ -119,8 +119,9 @@ export default function InventoryClient() {
             document.body.appendChild(a);
             a.click();
             a.remove();
-        } catch (e: any) {
-            setError(e.message);
+        } catch (e) {
+            // TICKET-TYPE-004: Proper error handling without any
+            setError(e instanceof Error ? e.message : 'Error desconocido');
         }
     };
 
@@ -149,8 +150,9 @@ export default function InventoryClient() {
             const data = await res.json();
             setResult(data);
             fetchStats(); // Update stats after import
-        } catch (e: any) {
-            setError(e.message);
+        } catch (e) {
+            // TICKET-TYPE-004: Proper error handling without any
+            setError(e instanceof Error ? e.message : 'Error desconocido');
         } finally {
             setIsUploading(false);
         }

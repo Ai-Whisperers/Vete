@@ -1,6 +1,21 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 
+// TICKET-TYPE-005: Type definitions for revenue analytics
+interface PaymentsByMethod {
+  [method: string]: number;
+}
+
+interface MonthlyRevenue {
+  total: number;
+  count: number;
+  by_method: PaymentsByMethod;
+}
+
+interface GroupedPayments {
+  [month: string]: MonthlyRevenue;
+}
+
 // GET /api/dashboard/revenue - Get revenue analytics
 export async function GET(request: Request) {
   const supabase = await createClient();
@@ -44,8 +59,8 @@ export async function GET(request: Request) {
         .gte('paid_at', startDate.toISOString())
         .order('paid_at', { ascending: true });
 
-      // Group by month
-      const grouped = payments?.reduce((acc: any, payment) => {
+      // Group by month - TICKET-TYPE-005: Use proper types instead of any
+      const grouped = payments?.reduce<GroupedPayments>((acc, payment) => {
         const month = payment.paid_at.substring(0, 7); // YYYY-MM
         if (!acc[month]) {
           acc[month] = { total: 0, count: 0, by_method: {} };
@@ -57,7 +72,7 @@ export async function GET(request: Request) {
         return acc;
       }, {});
 
-      const result = Object.entries(grouped || {}).map(([month, data]: [string, any]) => ({
+      const result = Object.entries(grouped || {}).map(([month, data]) => ({
         period_month: month,
         total_revenue: data.total,
         transaction_count: data.count,

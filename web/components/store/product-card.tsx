@@ -4,9 +4,42 @@ import { Image } from 'lucide-react';
 import { AddToCartButton } from '../cart/add-to-cart-button';
 import { useState } from 'react';
 
+interface Product {
+  id: string;
+  name: string;
+  description?: string;
+  category?: string;
+  price: number;
+  // Support both formats: API uses discount_price/image_url, legacy uses originalPrice/image
+  originalPrice?: number;
+  discount_price?: number;
+  image?: string;
+  image_url?: string;
+  stock: number;
+  hasDiscount?: boolean;
+}
+
+interface ProductCardConfig {
+  ui_labels?: {
+    store?: {
+      product_card?: {
+        add?: string;
+        added?: string;
+      };
+      [key: string]: unknown;
+    };
+    [key: string]: unknown;
+  };
+  settings?: {
+    currency?: string;
+    [key: string]: unknown;
+  };
+  [key: string]: unknown;
+}
+
 interface ProductCardProps {
-  readonly product: any;
-  readonly config: any;
+  readonly product: Product;
+  readonly config: ProductCardConfig;
 }
 
 export function ProductCard({ product, config }: ProductCardProps) {
@@ -14,11 +47,16 @@ export function ProductCard({ product, config }: ProductCardProps) {
   const labels = config.ui_labels?.store?.product_card || { add: "Agregar", added: "Agregado" };
   const currency = config.settings?.currency || 'PYG';
 
+  // Normalize product properties - support both API format and legacy format
+  const productImage = product.image || product.image_url;
+  const productOriginalPrice = product.originalPrice || product.discount_price;
+  const hasDiscount = product.hasDiscount ?? (productOriginalPrice != null && productOriginalPrice > product.price);
+
   return (
     <div className="bg-white rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden group flex flex-col h-full">
         <div className="h-64 overflow-hidden relative bg-white flex items-center justify-center p-4">
-            {product.image ? (
-                <img src={product.image} alt={product.name} className="object-contain w-full h-full group-hover:scale-110 transition-transform duration-500" />
+            {productImage ? (
+                <img src={productImage} alt={product.name} className="object-contain w-full h-full group-hover:scale-110 transition-transform duration-500" />
             ) : (
                 <div className="w-full h-full bg-gray-50 flex items-center justify-center text-gray-300">
                     <Image className="w-12 h-12" />
@@ -30,7 +68,7 @@ export function ProductCard({ product, config }: ProductCardProps) {
                 <span className="bg-white/90 backdrop-blur-sm text-gray-800 text-[10px] font-black px-2.5 py-1 rounded-lg uppercase tracking-wider shadow-sm border border-gray-100 italic">
                     {product.category}
                 </span>
-                {product.hasDiscount && (
+                {hasDiscount && (
                     <span className="bg-red-600 text-white text-[10px] font-black px-2.5 py-1 rounded-lg uppercase tracking-wider shadow-md animate-pulse">
                         ¡Oferta!
                     </span>
@@ -75,9 +113,9 @@ export function ProductCard({ product, config }: ProductCardProps) {
             </p>
             
             <div className="flex flex-col gap-0.5 pt-4 border-t border-gray-100 mt-auto">
-                {product.originalPrice && (
+                {productOriginalPrice && hasDiscount && (
                     <span className="text-sm text-gray-400 line-through font-medium">
-                        {new Intl.NumberFormat('es-PY', { style: 'currency', currency: currency, maximumSignificantDigits: 3 }).format(product.originalPrice)}
+                        {new Intl.NumberFormat('es-PY', { style: 'currency', currency: currency, maximumSignificantDigits: 3 }).format(productOriginalPrice)}
                     </span>
                 )}
                 <div className="flex items-center justify-between">
@@ -93,7 +131,7 @@ export function ProductCard({ product, config }: ProductCardProps) {
                                 price: product.price || 0,
                                 type: 'product',
                                 description: product.description,
-                                image_url: product.image
+                                image_url: productImage
                             }}
                             quantity={quantity}
                             iconOnly

@@ -31,13 +31,15 @@ async function runUpdate() {
             try {
                 await client.query(sql);
                 console.log(`✅ Success: ${file}`);
-            } catch (e: any) {
+            } catch (e) {
+                // TICKET-TYPE-004: Proper error handling for PostgreSQL errors
+                const pgError = e as { message?: string; code?: string; position?: string };
                 console.error(`❌ Failed: ${file}`);
-                console.error(`   Error: ${e.message}`);
-                console.error(`   Code: ${e.code}`);
-                if (e.position) {
-                    console.error(`   Position: ${e.position}`);
-                    const pos = parseInt(e.position, 10);
+                console.error(`   Error: ${pgError.message || 'Unknown error'}`);
+                console.error(`   Code: ${pgError.code || 'Unknown'}`);
+                if (pgError.position) {
+                    console.error(`   Position: ${pgError.position}`);
+                    const pos = parseInt(pgError.position, 10);
                     const start = Math.max(0, pos - 100);
                     const end = Math.min(sql.length, pos + 100);
                     console.error(`   Context: ...${sql.substring(start, end)}...`);

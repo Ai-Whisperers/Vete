@@ -5,7 +5,7 @@ interface RouteParams {
   params: Promise<{ id: string }>;
 }
 
-// POST /api/invoices/[id]/refund - Process a refund
+// TICKET-BIZ-005: POST /api/invoices/[id]/refund - Process a refund (atomic)
 export async function POST(request: Request, { params }: RouteParams) {
   const { id: invoiceId } = await params;
   const supabase = await createClient();
@@ -27,91 +27,53 @@ export async function POST(request: Request, { params }: RouteParams) {
   }
 
   try {
-    // Get invoice
-    const { data: invoice, error: invoiceError } = await supabase
-      .from('invoices')
-      .select('id, status, total, amount_paid, tenant_id, invoice_number')
-      .eq('id', invoiceId)
-      .eq('tenant_id', profile.tenant_id)
-      .single();
-
-    if (invoiceError || !invoice) {
-      return NextResponse.json({ error: 'Factura no encontrada' }, { status: 404 });
-    }
-
-    if (invoice.amount_paid <= 0) {
-      return NextResponse.json({ error: 'No hay pagos para reembolsar' }, { status: 400 });
-    }
-
     const body = await request.json();
     const { amount, reason, payment_id } = body;
 
-    if (!amount || amount <= 0) {
-      return NextResponse.json({ error: 'El monto debe ser mayor a 0' }, { status: 400 });
+    // Basic validation before calling RPC
+    if (!amount || typeof amount !== 'number') {
+      return NextResponse.json({ error: 'Monto inválido' }, { status: 400 });
     }
 
-    if (amount > invoice.amount_paid) {
-      return NextResponse.json({
-        error: `El monto excede lo pagado (${invoice.amount_paid})`
-      }, { status: 400 });
-    }
-
-    if (!reason) {
+    if (!reason || typeof reason !== 'string') {
       return NextResponse.json({ error: 'Se requiere una razón para el reembolso' }, { status: 400 });
     }
 
-    // Create refund record
-    const { data: refund, error: refundError } = await supabase
-      .from('refunds')
-      .insert({
-        tenant_id: profile.tenant_id,
-        invoice_id: invoiceId,
-        payment_id: payment_id || null,
-        amount,
-        reason,
-        refunded_by: user.id,
-        refunded_at: new Date().toISOString()
-      })
-      .select()
-      .single();
+    // Use atomic RPC function to prevent race conditions
+    // The function handles row locking, validation, and atomic updates
+    const { data: result, error: rpcError } = await supabase.rpc('process_invoice_refund', {
+      p_invoice_id: invoiceId,
+      p_tenant_id: profile.tenant_id,
+      p_amount: amount,
+      p_reason: reason,
+      p_payment_id: payment_id || null,
+      p_processed_by: user.id
+    });
 
-    if (refundError) throw refundError;
-
-    // Update invoice totals
-    const newAmountPaid = invoice.amount_paid - amount;
-    const newAmountDue = invoice.total - newAmountPaid;
-    let newStatus = invoice.status;
-
-    if (newAmountPaid <= 0) {
-      newStatus = 'refunded';
-    } else if (newAmountDue > 0) {
-      newStatus = 'partial';
+    if (rpcError) {
+      console.error('RPC error:', rpcError);
+      return NextResponse.json({ error: 'Error al procesar reembolso' }, { status: 500 });
     }
 
-    await supabase
-      .from('invoices')
-      .update({
-        amount_paid: newAmountPaid,
-        amount_due: newAmountDue,
-        status: newStatus
-      })
-      .eq('id', invoiceId);
+    // RPC returns JSONB with success flag
+    if (!result.success) {
+      return NextResponse.json({ error: result.error }, { status: 400 });
+    }
 
     // Audit log
     const { logAudit } = await import('@/lib/audit');
-    await logAudit('PROCESS_REFUND', `invoices/${invoiceId}/refunds/${refund.id}`, {
+    await logAudit('PROCESS_REFUND', `invoices/${invoiceId}/refunds/${result.refund_id}`, {
       amount,
       reason,
-      invoice_number: invoice.invoice_number,
-      new_status: newStatus
+      new_status: result.status
     });
 
     return NextResponse.json({
-      refund,
+      refund: { id: result.refund_id },
       invoice: {
-        amount_paid: newAmountPaid,
-        amount_due: newAmountDue,
-        status: newStatus
+        amount_paid: result.amount_paid,
+        amount_due: result.amount_due,
+        status: result.status
       }
     }, { status: 201 });
   } catch (e) {

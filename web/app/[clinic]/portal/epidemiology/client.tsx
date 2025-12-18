@@ -111,7 +111,7 @@ export default function EpidemiologyPage({ params }: { params: { clinic: string 
                         onClick={downloadCSV}
                         className="bg-green-100 text-green-700 hover:bg-green-200 px-4 py-2 rounded-xl font-bold flex items-center gap-2 transition-colors"
                     >
-                        <Icons.Download className="w-5 h-5" />
+                        <Download className="w-5 h-5" />
                         Exportar CSV
                     </button>
                 </div>
@@ -125,7 +125,7 @@ export default function EpidemiologyPage({ params }: { params: { clinic: string 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm relative overflow-hidden">
                             <div className="absolute top-0 right-0 p-4 opacity-10">
-                                <Icons.Activity className="w-24 h-24 text-[var(--primary)]" />
+                                <Activity className="w-24 h-24 text-[var(--primary)]" />
                             </div>
                             <h3 className="text-gray-500 font-bold uppercase text-xs tracking-wider mb-2">Total Casos Registrados (90d)</h3>
                             <p className="text-4xl font-black text-[var(--primary)]">
@@ -134,7 +134,7 @@ export default function EpidemiologyPage({ params }: { params: { clinic: string 
                         </div>
                         <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm relative overflow-hidden">
                             <div className="absolute top-0 right-0 p-4 opacity-10">
-                                <Icons.MapPin className="w-24 h-24 text-red-500" />
+                                <MapPin className="w-24 h-24 text-red-500" />
                             </div>
                             <h3 className="text-gray-500 font-bold uppercase text-xs tracking-wider mb-2">Zona Crítica</h3>
                             <p className="text-2xl font-black text-gray-900 truncate">
@@ -144,7 +144,7 @@ export default function EpidemiologyPage({ params }: { params: { clinic: string 
                         </div>
                         <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm relative overflow-hidden">
                             <div className="absolute top-0 right-0 p-4 opacity-10">
-                                <Icons.AlertTriangle className="w-24 h-24 text-amber-500" />
+                                <AlertTriangle className="w-24 h-24 text-amber-500" />
                             </div>
                             <h3 className="text-gray-500 font-bold uppercase text-xs tracking-wider mb-2">Principal Diagnóstico</h3>
                             <p className="text-2xl font-black text-gray-900 truncate">
@@ -159,7 +159,7 @@ export default function EpidemiologyPage({ params }: { params: { clinic: string 
                         {/* Top Diagnoses Chart */}
                         <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
                             <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2">
-                                <Icons.BarChart2 className="w-5 h-5 text-gray-400" />
+                                <BarChart2 className="w-5 h-5 text-gray-400" />
                                 Diagnósticos Más Frecuentes
                             </h3>
                             <div className="h-64">
@@ -185,7 +185,7 @@ export default function EpidemiologyPage({ params }: { params: { clinic: string 
                         {/* Top Locations Chart */}
                         <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
                             <h3 className="font-bold text-gray-900 mb-6 flex items-center gap-2">
-                                <Icons.Map className="w-5 h-5 text-gray-400" />
+                                <Map className="w-5 h-5 text-gray-400" />
                                 Zonas con Mayor Incidencia
                             </h3>
                             <div className="h-64">

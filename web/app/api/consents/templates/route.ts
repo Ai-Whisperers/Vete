@@ -1,6 +1,15 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 
+interface ConsentField {
+  field_name: string;
+  field_type: string;
+  field_label: string;
+  is_required?: boolean;
+  field_options?: string[] | null;
+  display_order?: number;
+}
+
 export async function GET(request: NextRequest): Promise<NextResponse> {
   const supabase = await createClient();
 
@@ -126,7 +135,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   // Insert fields if provided
   if (fields && Array.isArray(fields) && fields.length > 0) {
-    const fieldsToInsert = fields.map((field: any) => ({
+    const fieldsToInsert = fields.map((field: ConsentField) => ({
       template_id: data.id,
       field_name: field.field_name,
       field_type: field.field_type,

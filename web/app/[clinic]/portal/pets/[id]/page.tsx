@@ -11,7 +11,22 @@ export default async function PetProfilePage({ params }: { params: Promise<{ cli
   const supabase = await createClient();
   const { clinic, id } = await params;
 
-  // 1. Fetch Pet Details
+  // 1. Auth check first
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect(`/${clinic}/portal/login`);
+
+  // 2. Fetch User Profile to verify tenant access
+  const { data: userProfile } = await supabase
+    .from('profiles')
+    .select('role, tenant_id')
+    .eq('id', user.id)
+    .single();
+
+  if (!userProfile) {
+    redirect(`/${clinic}/portal/login`);
+  }
+
+  // 3. Fetch Pet Details with tenant_id verification
   const { data: pet } = await supabase
     .from('pets')
     .select(`
@@ -23,18 +38,22 @@ export default async function PetProfilePage({ params }: { params: Promise<{ cli
       profiles:owner_id (full_name, email, phone)
     `)
     .eq('id', id)
+    .eq('tenant_id', clinic)  // Security: Ensure pet belongs to this clinic
     .single();
 
   if (!pet) {
     notFound();
   }
 
-  // 2. Fetch User Role
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect(`/${clinic}/portal/login`);
+  // 4. Verify user has access to this pet (owner or staff)
+  const isStaff = userProfile.role === 'vet' || userProfile.role === 'admin';
+  const isOwner = pet.owner_id === user.id;
 
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
-  const isStaff = profile?.role === 'vet' || profile?.role === 'admin';
+  if (!isStaff && !isOwner) {
+    // User doesn't have permission to view this pet
+    notFound();
+  }
+
 
   // Sort Records by Date (Newest first)
   const records = pet.medical_records?.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()) || [];

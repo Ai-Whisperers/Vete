@@ -70,8 +70,24 @@ export default async function StaffAppointmentsPage({ params, searchParams }: Pr
 
   const { data: appointments, error } = await query
 
+  // Show error state if query failed
   if (error) {
     console.error('Error fetching appointments:', error)
+    return (
+      <div className="p-6 max-w-7xl mx-auto">
+        <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
+          <Icons.AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
+          <h3 className="text-lg font-bold text-red-800 mb-2">Error al cargar citas</h3>
+          <p className="text-red-600 mb-4">No se pudieron cargar las citas. Por favor intenta de nuevo.</p>
+          <a
+            href={`/${clinic}/dashboard/appointments`}
+            className="inline-block px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors"
+          >
+            Reintentar
+          </a>
+        </div>
+      </div>
+    )
   }
 
   // Transform pets data (Supabase returns arrays from joins)

@@ -1,115 +1,112 @@
-import { XCircle, Clock, DollarSign, Users, TrendingDown, Search } from 'lucide-react';
+'use client';
+
+import { Search, DollarSign, Clock, TrendingDown, ArrowDown, AlertTriangle } from 'lucide-react';
 
 const problems = [
   {
     icon: Search,
-    title: 'Invisibles en Google',
-    description: 'Cuando alguien busca "veterinaria cerca de mí", tu clínica no aparece. Los clientes encuentran a tu competencia primero.',
+    title: 'Invisibles Online',
+    description: 'Cuando buscan "veterinaria cerca", tu clinica no aparece. Los clientes van a la competencia.',
     stat: '90%',
-    statLabel: 'de dueños buscan veterinarias online'
+    statLabel: 'buscan online primero',
+    color: '#EF4444'
   },
   {
     icon: DollarSign,
-    title: 'Sitios Web Carísimos',
-    description: 'Cotizaste un sitio web y te pidieron 5-15 millones de guaraníes. Más hosting mensual. Más cada cambio que necesites hacer.',
+    title: 'Sitios Web Carisimos',
+    description: 'Un sitio web propio cuesta Gs 10-15 millones. Mas hosting. Mas mantenimiento. Inaccesible.',
     stat: '₲10M+',
-    statLabel: 'costo típico de desarrollo'
+    statLabel: 'costo tipico',
+    color: '#F97316'
   },
   {
     icon: Clock,
-    title: 'Citas por Teléfono',
-    description: 'Seguís atendiendo llamadas para agendar turnos. Mientras tanto, las cadenas grandes permiten reservas online 24/7.',
-    stat: '3-5',
-    statLabel: 'llamadas perdidas por día'
+    title: 'Citas por Telefono',
+    description: 'Atendiendo llamadas todo el dia mientras las cadenas grandes tienen reservas online 24/7.',
+    stat: '5+',
+    statLabel: 'llamadas perdidas/dia',
+    color: '#FBBF24'
   },
   {
     icon: TrendingDown,
-    title: 'Sin Historial Digital',
-    description: 'Los dueños quieren ver las vacunas de su mascota online. No pueden. Se van a una clínica que sí lo ofrece.',
+    title: 'Perdiendo Clientes',
+    description: 'Los duenos quieren ver vacunas online. Historial digital. Si no lo ofreces, se van.',
     stat: '40%',
-    statLabel: 'esperan acceso digital'
+    statLabel: 'esperan acceso digital',
+    color: '#EF4444'
   },
-  {
-    icon: Users,
-    title: 'Competencia Desleal',
-    description: 'Las franquicias veterinarias tienen presupuesto para marketing digital. Vos no. Cada año pierdes más mercado.',
-    stat: '2x',
-    statLabel: 'crecimiento de cadenas vs independientes'
-  },
-  {
-    icon: XCircle,
-    title: 'Tecnología Complicada',
-    description: 'No sos programador. No tenés tiempo de aprender WordPress. Y contratar a alguien es caro e inseguro.',
-    stat: '80%',
-    statLabel: 'de vets sin conocimientos técnicos'
-  }
 ];
 
 export function ProblemSection() {
   return (
-    <section className="py-20 md:py-28 bg-[#0F172A] relative overflow-hidden">
-      {/* Subtle gradient accent */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#2DCEA3]/30 to-transparent" />
+    <section className="py-16 md:py-24 bg-gradient-to-b from-[#0F172A] to-[#0D1424] relative overflow-hidden">
+      {/* Top accent line */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
 
       <div className="container mx-auto px-4 md:px-6">
-        {/* Section Header */}
-        <div className="text-center mb-16">
-          <span className="inline-block text-red-400 font-bold tracking-widest uppercase text-sm mb-3">
-            El Problema
-          </span>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-white mb-6">
-            Las veterinarias independientes{' '}
-            <span className="text-red-400">están perdiendo terreno</span>
+        {/* Section Header - More concise */}
+        <div className="text-center mb-12 md:mb-16">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-500/10 border border-red-500/20 mb-4">
+            <AlertTriangle className="w-4 h-4 text-red-400" />
+            <span className="text-red-400 text-sm font-bold">El Problema</span>
+          </div>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-white mb-4 md:mb-6 leading-tight">
+            Las veterinarias independientes
+            <span className="block text-red-400">estan perdiendo terreno</span>
           </h2>
-          <p className="text-white/60 max-w-3xl mx-auto text-lg">
-            Mientras las grandes cadenas veterinarias invierten en tecnología y marketing digital,
-            las clínicas independientes en Paraguay siguen operando como hace 20 años.
-            <span className="text-white font-medium"> Eso tiene que cambiar.</span>
+          <p className="text-white/60 max-w-2xl mx-auto text-sm md:text-base lg:text-lg">
+            Las grandes cadenas invierten en tecnologia. Las clinicas independientes siguen igual.
           </p>
         </div>
 
-        {/* Problem Cards */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Problem Cards - 2x2 grid, cleaner design */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 max-w-4xl mx-auto mb-10 md:mb-14">
           {problems.map((problem, idx) => (
             <div
               key={idx}
-              className="group relative p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-red-400/30 transition-all duration-300"
+              className="group relative p-5 md:p-6 rounded-2xl bg-white/[0.03] border border-white/10 hover:border-white/20 hover:bg-white/[0.05] transition-all duration-300"
             >
-              {/* Stat badge */}
-              <div className="absolute -top-3 right-4">
-                <div className="px-3 py-1 rounded-full bg-red-500/20 border border-red-500/30">
-                  <span className="text-red-400 font-bold text-sm">{problem.stat}</span>
+              {/* Top row: Icon + Stat */}
+              <div className="flex items-start justify-between mb-4">
+                <div
+                  className="w-11 h-11 md:w-12 md:h-12 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110"
+                  style={{ backgroundColor: `${problem.color}15` }}
+                >
+                  <problem.icon className="w-5 h-5 md:w-6 md:h-6" style={{ color: problem.color }} />
+                </div>
+                <div className="text-right">
+                  <div className="text-xl md:text-2xl font-black" style={{ color: problem.color }}>
+                    {problem.stat}
+                  </div>
+                  <div className="text-[10px] md:text-xs text-white/40">{problem.statLabel}</div>
                 </div>
               </div>
 
-              {/* Icon */}
-              <div className="w-12 h-12 rounded-xl bg-red-500/10 flex items-center justify-center mb-4 group-hover:bg-red-500/20 transition-colors">
-                <problem.icon className="w-6 h-6 text-red-400" />
-              </div>
-
               {/* Content */}
-              <h3 className="text-lg font-bold text-white mb-2">
+              <h3 className="text-base md:text-lg font-bold text-white mb-2">
                 {problem.title}
               </h3>
-              <p className="text-white/50 text-sm leading-relaxed mb-3">
+              <p className="text-white/50 text-sm leading-relaxed">
                 {problem.description}
-              </p>
-              <p className="text-red-400/70 text-xs font-medium">
-                {problem.statLabel}
               </p>
             </div>
           ))}
         </div>
 
-        {/* Bottom urgency message */}
-        <div className="mt-12 text-center">
-          <div className="inline-flex items-center gap-3 px-6 py-4 rounded-2xl bg-red-500/10 border border-red-500/20">
-            <TrendingDown className="w-5 h-5 text-red-400" />
+        {/* Urgency callout - Simpler */}
+        <div className="text-center">
+          <div className="inline-flex flex-col items-center gap-3 px-6 py-4 rounded-2xl bg-gradient-to-r from-red-500/10 to-orange-500/10 border border-red-500/20">
             <p className="text-white/80 text-sm md:text-base">
               <span className="font-bold text-red-400">Cada mes sin presencia digital</span>{' '}
-              son clientes que van a tu competencia y no vuelven.
+              = clientes que van a la competencia
             </p>
           </div>
+        </div>
+
+        {/* Transition to solution */}
+        <div className="flex flex-col items-center mt-12 md:mt-16">
+          <p className="text-white/40 text-sm mb-3">Pero hay una solucion</p>
+          <ArrowDown className="w-5 h-5 text-[#2DCEA3] animate-bounce" />
         </div>
       </div>
     </section>

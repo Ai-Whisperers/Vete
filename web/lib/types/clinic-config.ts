@@ -419,6 +419,8 @@ export interface ClinicSettings {
   delivery_minimum?: number;
   delivery_zones?: string[];
   modules: ModuleSettings;
+  /** Google Sheets template URL for inventory import (format: https://docs.google.com/spreadsheets/d/{ID}/copy) */
+  inventory_template_google_sheet_url?: string | null;
 }
 
 export interface BrandingAssets {

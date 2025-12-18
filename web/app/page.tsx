@@ -18,7 +18,9 @@ import {
   ComparisonTable,
   TrustBadges,
   ROICalculator,
-  FloatingWhatsApp
+  FloatingWhatsApp,
+  PricingQuiz,
+  TrialOffer
 } from '@/components/landing';
 
 export const metadata: Metadata = {
@@ -80,11 +82,17 @@ export default function LandingPage() {
       {/* Pet Owner Journey: How it works for B2C */}
       <OwnerJourney />
 
+      {/* Pricing Quiz: Find the right plan */}
+      <PricingQuiz />
+
+      {/* Pricing: Tiered plans for every clinic */}
+      <PricingSection />
+
+      {/* Trial Offer: 3 months free */}
+      <TrialOffer />
+
       {/* ROI Calculator: Is it worth it? */}
       <ROICalculator />
-
-      {/* Pricing: Simple and transparent */}
-      <PricingSection />
 
       {/* Trust Badges: Security and tech */}
       <TrustBadges />

@@ -1,6 +1,6 @@
 "use client";
 
-import { DynamicIcon } from "@/components/ui/dynamic-icon";
+import { DynamicIcon } from "@/lib/icons";
 import Link from "next/link";
 import { Check, ArrowRight, Calendar } from "lucide-react";
 import type { Service } from "@/lib/types/services";

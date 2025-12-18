@@ -10,7 +10,7 @@ export { PricingSection } from './pricing-section';
 export { FAQSection } from './faq-section';
 export { CTASection } from './cta-section';
 
-// New sections
+// Client showcase and network
 export { ClientShowcase } from './client-showcase';
 export { NetworkMap } from './network-map';
 export { OwnerJourney } from './owner-journey';
@@ -19,3 +19,7 @@ export { ComparisonTable } from './comparison-table';
 export { TrustBadges } from './trust-badges';
 export { ROICalculator } from './roi-calculator';
 export { FloatingWhatsApp } from './floating-whatsapp';
+
+// Pricing components
+export { PricingQuiz } from './pricing-quiz';
+export { TrialOffer } from './trial-offer';

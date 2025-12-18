@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import * as Icons from "lucide-react";
-import { DynamicIcon } from "@/components/ui/dynamic-icon";
+import { DynamicIcon } from "@/lib/icons";
 import { PetSelector } from "./pet-selector";
 import { useCart } from "@/context/cart-context";
 import {

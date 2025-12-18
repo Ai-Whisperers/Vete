@@ -14,7 +14,8 @@
     "modules": {
       "toxic_checker": true,
       "age_calculator": true
-    }
+    },
+    "inventory_template_google_sheet_url": null
   },
   "branding": {
     "logo_url": "",

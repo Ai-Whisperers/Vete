@@ -3,7 +3,11 @@ import { useState, useEffect, useRef } from 'react';
 import { Download, Upload, FileSpreadsheet, AlertCircle, CheckCircle2, Loader2, Package, TrendingUp, Info, Tag, Search, Edit2, ChevronDown, ExternalLink, FileDown } from 'lucide-react';
 import { useParams } from 'next/navigation';
 
-export default function InventoryClient() {
+interface InventoryClientProps {
+    googleSheetUrl: string | null;
+}
+
+export default function InventoryClient({ googleSheetUrl }: InventoryClientProps) {
     const { clinic } = useParams() as { clinic: string };
     const [isUploading, setIsUploading] = useState(false);
     const [result, setResult] = useState<any>(null);
@@ -17,7 +21,6 @@ export default function InventoryClient() {
     const [isSaving, setIsSaving] = useState(false);
     const [alerts, setAlerts] = useState<any>(null);
     const [templateDropdownOpen, setTemplateDropdownOpen] = useState(false);
-    const [googleSheetUrl, setGoogleSheetUrl] = useState<string | null>(null);
     const templateDropdownRef = useRef<HTMLDivElement>(null);
 
     const fetchStats = async () => {
@@ -41,18 +44,6 @@ export default function InventoryClient() {
             }
         } catch (e) {
             console.error('Failed to fetch alerts', e);
-        }
-    };
-
-    const fetchConfig = async () => {
-        try {
-            const configModule = await import(`@/.content_data/${clinic}/config.json`);
-            const config = configModule.default;
-            if (config?.settings?.inventory_template_google_sheet_url) {
-                setGoogleSheetUrl(config.settings.inventory_template_google_sheet_url);
-            }
-        } catch (e) {
-            console.error('Failed to fetch config', e);
         }
     };
 
@@ -86,7 +77,6 @@ export default function InventoryClient() {
         fetchStats();
         fetchProducts();
         fetchAlerts();
-        fetchConfig();
     }, [clinic]);
 
     useEffect(() => {

@@ -3,6 +3,7 @@ import { getClinicData } from '@/lib/clinics';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import * as Icons from 'lucide-react';
+import { AppointmentForm } from '@/components/forms/appointment-form';
 
 // Dynamic Icon Component
 const DynamicIcon = ({ name, className }: { name: string; className?: string }) => {
@@ -36,7 +37,6 @@ export default async function ClinicHomePage({ params }: { params: Promise<{ cli
         ) : (
              <div className="absolute inset-0 z-0" style={{ background: 'var(--gradient-hero)' }} />
         )}
-        {/* CSS Pattern Replacement for missing pattern.png */}
         <div className="absolute inset-0 z-0 opacity-10 mix-blend-overlay" 
              style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '32px 32px' }} 
         />
@@ -80,8 +80,8 @@ export default async function ClinicHomePage({ params }: { params: Promise<{ cli
       <section className="py-24 bg-[var(--bg-subtle)]">
           <div className="container mx-auto px-4 md:px-6">
             <div className="text-center mb-16">
-                 <h2 className="text-3xl font-heading font-black text-[var(--text-primary)] mb-4">¿Por qué elegirnos?</h2>
-                 <p className="text-[var(--text-secondary)] max-w-2xl mx-auto">Compromiso, tecnología y amor por los animales.</p>
+                 <h2 className="text-3xl font-heading font-black text-[var(--text-primary)] mb-4">{config.ui_labels?.home?.features_title}</h2>
+                 <p className="text-[var(--text-secondary)] max-w-2xl mx-auto">{config.ui_labels?.home?.features_subtitle}</p>
             </div>
             <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
                 {home.features.map((feature: any, idx: number) => (
@@ -104,7 +104,7 @@ export default async function ClinicHomePage({ params }: { params: Promise<{ cli
           <section className="py-20 bg-[var(--bg-default)] relative overflow-hidden">
               <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--primary)]/5 rounded-full blur-3xl" />
               <div className="container mx-auto px-4 text-center relative z-10">
-                  <span className="text-[var(--accent)] font-bold uppercase tracking-widest text-sm mb-2 block">Herramientas</span>
+                  <span className="text-[var(--accent)] font-bold uppercase tracking-widest text-sm mb-2 block">{config.ui_labels?.home?.tools_badge}</span>
                   <h2 className="text-3xl md:text-4xl font-heading font-black mb-6 text-[var(--text-primary)]">{home.interactive_tools_section.title}</h2>
                   <p className="mb-10 text-[var(--text-secondary)] max-w-2xl mx-auto text-lg">{home.interactive_tools_section.subtitle}</p>
                   
@@ -154,36 +154,13 @@ export default async function ClinicHomePage({ params }: { params: Promise<{ cli
         <div className="container mx-auto px-4 md:px-6 grid lg:grid-cols-2 gap-16 items-center">
             <div className="flex flex-col justify-center h-full">
                 <div className="inline-block px-3 py-1 mb-4 rounded-full bg-[var(--bg-subtle)] text-[var(--primary)] text-xs font-bold uppercase tracking-wider w-fit">
-                    Contacto
+                    {config.ui_labels?.home?.contact_badge}
                 </div>
-                <h2 className="text-4xl font-heading font-black mb-8 text-[var(--text-primary)]">{config.ui_labels?.home.visit_us || 'Visítanos'}</h2>
+                <h2 className="text-4xl font-heading font-black mb-8 text-[var(--text-primary)]">{config.ui_labels?.home?.visit_us || 'Visítanos'}</h2>
                 <div className="space-y-6 text-lg text-[var(--text-secondary)]">
-                    <div className="flex items-start gap-4 p-4 rounded-xl hover:bg-[var(--bg-subtle)] transition-colors border border-transparent hover:border-gray-100">
-                        <div className="mt-1 p-2 bg-[var(--primary)]/10 text-[var(--primary)] rounded-lg">
-                             <Icons.MapPin className="w-6 h-6" />
-                        </div>
-                        <div>
-                            <span className="font-bold block text-[var(--text-primary)] mb-1">Dirección</span>
-                            {config.contact.address}
-                        </div>
-                    </div>
-                    <div className="flex items-start gap-4 p-4 rounded-xl hover:bg-[var(--bg-subtle)] transition-colors border border-transparent hover:border-gray-100">
-                        <div className="mt-1 p-2 bg-[var(--primary)]/10 text-[var(--primary)] rounded-lg">
-                            <Icons.Phone className="w-6 h-6" />
-                        </div>
-                        <div>
-                            <span className="font-bold block text-[var(--text-primary)] mb-1">Teléfono & WhatsApp</span>
-                            {config.contact.phone_display}
-                        </div>
-                    </div>
-                     <div className="flex items-start gap-4 p-4 rounded-xl hover:bg-[var(--bg-subtle)] transition-colors border border-transparent hover:border-gray-100">
-                         <div className="mt-1 p-2 bg-[var(--primary)]/10 text-[var(--primary)] rounded-lg">
-                            <Icons.Mail className="w-6 h-6" />
-                         </div>
-                        <div>
-                            <span className="font-bold block text-[var(--text-primary)] mb-1">Email</span>
-                            {config.contact.email}
-                        </div>
+                    {/* ... existing contact items ... */}
+                    <div className="mt-8">
+                       <AppointmentForm />
                     </div>
                 </div>
             </div>
@@ -203,7 +180,7 @@ export default async function ClinicHomePage({ params }: { params: Promise<{ cli
                         className="bg-white/90 backdrop-blur-md text-[var(--text-primary)] px-8 py-4 rounded-full font-bold shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center gap-3 group/btn"
                     >
                         <Icons.MapPin className="w-5 h-5 text-[var(--primary)] group-hover/btn:animate-bounce" />
-                        <span>Ver ubicación en Google Maps</span>
+                        <span>{config.ui_labels?.home?.map_button}</span>
                     </a>
                 </div>
             </div>

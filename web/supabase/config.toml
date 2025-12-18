@@ -1,0 +1,34 @@
+# Supabase Edge Functions Configuration
+# https://supabase.com/docs/guides/functions
+
+[project]
+name = "vete"
+
+# Edge Functions settings
+[functions]
+enabled = true
+
+# Environment variables (set these in Supabase Dashboard > Edge Functions > Secrets)
+# SUPABASE_URL - Auto-injected
+# SUPABASE_SERVICE_ROLE_KEY - Auto-injected
+# RESEND_API_KEY - Email provider API key
+# TWILIO_ACCOUNT_SID - SMS provider account SID
+# TWILIO_AUTH_TOKEN - SMS provider auth token
+# TWILIO_PHONE_NUMBER - SMS sender number
+# TWILIO_WHATSAPP_NUMBER - WhatsApp sender number
+# DEFAULT_FROM_EMAIL - Default sender email address
+
+[functions.process-notifications]
+verify_jwt = false  # Called by cron, no JWT needed
+
+[functions.generate-vaccine-reminders]
+verify_jwt = false  # Called by cron, no JWT needed
+
+[functions.generate-appointment-reminders]
+verify_jwt = false  # Called by cron, no JWT needed
+
+[functions.send-email]
+verify_jwt = true  # Requires authenticated user
+
+[functions.send-sms]
+verify_jwt = true  # Requires authenticated user

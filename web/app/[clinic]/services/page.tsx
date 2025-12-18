@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import * as Icons from 'lucide-react';
 import { ServicesGrid } from '@/components/services/services-grid';
+import { VaccineSchedule } from '@/components/services/vaccine-schedule';
 
 export async function generateMetadata({ params }: { params: Promise<{ clinic: string }> }): Promise<Metadata> {
   const { clinic } = await params;
@@ -29,7 +30,9 @@ export default async function ServicesPage({ params }: { params: Promise<{ clini
       {/* HEADER */}
       <div className="relative pt-32 pb-40 text-center overflow-hidden">
         <div className="absolute inset-0 z-0" style={{ background: 'var(--gradient-primary)' }} />
-        <div className="absolute inset-0 bg-[url('/pattern.png')] opacity-10 z-0 mix-blend-overlay" />
+        <div className="absolute inset-0 z-0 opacity-10 mix-blend-overlay" 
+             style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '32px 32px' }} 
+        />
         
         <div className="container relative z-10 px-4">
             <h1 className="text-4xl md:text-6xl font-black font-heading text-white mb-6 drop-shadow-md">
@@ -42,7 +45,14 @@ export default async function ServicesPage({ params }: { params: Promise<{ clini
       </div>
 
       <div className="container px-4 md:px-6 -mt-10 relative z-20 mx-auto">
-        <ServicesGrid services={services.services} config={config} />
+        <div className="grid lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2">
+                <ServicesGrid services={services.services} config={config} />
+            </div>
+            <div>
+                 <VaccineSchedule config={config.ui_labels?.services.vaccine_schedule} />
+            </div>
+        </div>
       </div>
 
        {/* Floating CTA */}
@@ -54,7 +64,7 @@ export default async function ServicesPage({ params }: { params: Promise<{ clini
                 style={{ backgroundColor: '#25D366' }} // WhatsApp Brand Color Override
             >
                 <Icons.MessageCircle className="w-6 h-6" />
-                {config.ui_labels?.services.book_floating_btn || 'Agendar Turno'}
+                {config.ui_labels?.services?.book_floating_btn || 'Agendar Turno'}
             </a>
        </div>
 

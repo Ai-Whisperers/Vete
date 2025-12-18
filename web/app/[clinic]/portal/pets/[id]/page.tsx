@@ -1,0 +1,387 @@
+import { createClient } from '@/lib/supabase/server';
+import { notFound, redirect } from 'next/navigation';
+import Link from 'next/link';
+import * as Icons from 'lucide-react';
+import { LoyaltyCard } from '@/components/loyalty/loyalty-card';
+import { getClinicData } from '@/lib/clinics';
+import { GrowthChart } from '@/components/clinical/growth-chart';
+import { QRGenerator } from '@/components/safety/qr-generator';
+
+export default async function PetProfilePage({ params }: { params: Promise<{ clinic: string; id: string }> }) {
+  const supabase = await createClient();
+  const { clinic, id } = await params;
+
+  // 1. Fetch Pet Details
+  const { data: pet } = await supabase
+    .from('pets')
+    .select(`
+      *,
+      vaccines (*),
+      medical_records (*),
+      prescriptions (*),
+      vaccine_reactions (*),
+      profiles:owner_id (full_name, email, phone)
+    `)
+    .eq('id', id)
+    .single();
+
+  if (!pet) {
+    notFound();
+  }
+
+  // 2. Fetch User Role
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect(`/${clinic}/portal/login`);
+
+  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
+  const isStaff = profile?.role === 'vet' || profile?.role === 'admin';
+
+  // Sort Records by Date (Newest first)
+  const records = pet.medical_records?.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()) || [];
+  const vaccines = pet.vaccines?.sort((a: any, b: any) => new Date(b.administered_date).getTime() - new Date(a.administered_date).getTime()) || [];
+  const prescriptions = pet.prescriptions?.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()) || [];
+
+  const timelineItems = [
+      ...records.map((r: any) => ({ ...r, timelineType: 'record' })),
+      ...prescriptions.map((p: any) => ({ ...p, timelineType: 'prescription', title: 'Receta Médica' }))
+  ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+  // Calculate Weight History for Growth Chart
+  const weightHistory = records
+    .filter((r: any) => r.vitals?.weight)
+    .map((r: any) => {
+        const recordDate = new Date(r.created_at);
+        const birthDate = pet.birth_date ? new Date(pet.birth_date) : null;
+        let age_weeks = undefined;
+        if (birthDate) {
+            age_weeks = Math.floor((recordDate.getTime() - birthDate.getTime()) / (1000 * 60 * 60 * 24 * 7));
+        }
+        return {
+            date: r.created_at,
+            weight_kg: Number(r.vitals.weight),
+            age_weeks
+        };
+    });
+
+  return (
+    <div className="max-w-5xl mx-auto space-y-8 pb-20">
+      {/* Vaccine Reaction Alerts */}
+      {pet.vaccine_reactions && pet.vaccine_reactions.length > 0 && (
+          <div className="bg-red-50 border-2 border-red-200 p-6 rounded-3xl flex items-start gap-4 animate-pulse">
+              <div className="bg-red-500 p-3 rounded-2xl text-white">
+                  <Icons.AlertTriangle className="w-8 h-8" />
+              </div>
+              <div className="flex-1">
+                  <h3 className="text-xl font-black text-red-900">¡Alerta de Reacción Alérgica!</h3>
+                  <p className="text-red-700 font-medium leading-relaxed">
+                      Este paciente ha presentado reacciones adversas en aplicaciones previas:
+                  </p>
+                  <ul className="mt-2 space-y-1">
+                      {pet.vaccine_reactions.map((r: any) => (
+                          <li key={r.id} className="text-red-700 font-black flex items-center gap-2">
+                              • {r.reaction_detail} <span className="text-xs opacity-50 font-medium">({new Date(r.occurred_at).toLocaleDateString()})</span>
+                          </li>
+                      ))}
+                  </ul>
+                  <p className="mt-3 text-red-900 font-black uppercase text-xs tracking-widest">
+                      Extremar precauciones antes de cualquier nueva aplicación.
+                  </p>
+              </div>
+          </div>
+      )}
+
+      {/* 1. Header Profile Card */}
+      <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden relative">
+        <div className="h-32 bg-[var(--primary)]/10 w-full absolute top-0 left-0 z-0"></div>
+        <div className="relative z-10 px-8 pt-12 pb-8 flex flex-col md:flex-row items-start md:items-end gap-6">
+           
+           {/* Avatar */}
+           <div className="w-32 h-32 rounded-full border-4 border-white shadow-lg bg-white flex items-center justify-center shrink-0">
+              {pet.photo_url ? (
+                <img src={pet.photo_url} alt={pet.name} className="w-full h-full rounded-full object-cover" />
+              ) : (
+                <Icons.PawPrint className="w-16 h-16 text-gray-300" />
+              )}
+           </div>
+
+           {/* Info */}
+           <div className="flex-1">
+              <h1 className="text-4xl font-black text-[var(--text-primary)] mb-1">{pet.name}</h1>
+              <div className="flex flex-wrap items-center gap-3 text-[var(--text-secondary)] font-medium mb-4">
+                 <span className="flex items-center gap-1 uppercase text-sm tracking-wider bg-gray-100 px-3 py-1 rounded-full">
+                    {pet.species === 'dog' ? <Icons.Dog className="w-4 h-4"/> : <Icons.Cat className="w-4 h-4"/>}
+                    {pet.breed || 'Mestizo'}
+                 </span>
+                 <span className="flex items-center gap-1 text-sm bg-gray-100 px-3 py-1 rounded-full capitalize">
+                    {pet.sex === 'male' ? 'Macho' : pet.sex === 'female' ? 'Hembra' : 'Sexo desc.'}
+                    {pet.is_neutered && ' (Castrado)'}
+                 </span>
+                 {pet.color && (
+                    <span className="flex items-center gap-1 text-sm bg-gray-100 px-3 py-1 rounded-full">
+                        <Icons.Palette className="w-4 h-4"/> {pet.color}
+                    </span>
+                 )}
+                 <span className="flex items-center gap-1 text-sm bg-gray-100 px-3 py-1 rounded-full">
+                    <Icons.Weight className="w-4 h-4"/> {pet.weight_kg} kg
+                 </span>
+                 {pet.microchip_id && (
+                    <span className="flex items-center gap-1 text-sm bg-blue-50 text-blue-700 px-3 py-1 rounded-full border border-blue-100">
+                        <Icons.QrCode className="w-4 h-4"/> {pet.microchip_id}
+                    </span>
+                 )}
+              </div>
+
+              {/* Owner Info (Staff Only) */}
+              {isStaff && pet.profiles && (
+                  <div className="flex items-center gap-4 text-sm text-gray-500 bg-gray-50 p-3 rounded-xl border border-gray-100 inline-flex">
+                      <div className="flex items-center gap-2">
+                          <Icons.User className="w-4 h-4"/> <span className="font-bold">{pet.profiles.full_name}</span>
+                      </div>
+                      <div className="w-px h-4 bg-gray-300"></div>
+                      <div className="flex items-center gap-2">
+                          <Icons.Phone className="w-4 h-4"/> <span>{pet.profiles.phone || 'Sin télefono'}</span>
+                      </div>
+                  </div>
+              )}
+           </div>
+
+           {/* Actions */}
+           <div className="flex gap-3 flex-wrap">
+              <Link href={`/${clinic}/portal/pets/${id}/edit`} className="bg-white border border-gray-200 text-gray-600 px-4 py-2 rounded-xl font-bold shadow-sm hover:bg-gray-50 flex items-center gap-2">
+                  <Icons.Edit2 className="w-4 h-4"/> Editar
+              </Link>
+              <QRGenerator petId={id} petName={pet.name} />
+           </div>
+        </div>
+      </div>
+
+      <div className="grid md:grid-cols-3 gap-8">
+          
+          {/* LEFT COL: Medical History Timeline */}
+          <div className="md:col-span-2 space-y-6">
+              <div className="flex items-center justify-between">
+                  <h2 className="text-2xl font-black text-[var(--text-primary)] flex items-center gap-2">
+                      <Icons.Activity className="w-6 h-6 text-[var(--primary)]" />
+                      Historial Médico
+                  </h2>
+                  {isStaff && (
+                      <div className="flex gap-2">
+                        <Link 
+                            href={`/${clinic}/portal/prescriptions/new?pet_id=${id}`}
+                            className="bg-purple-100 text-purple-700 px-4 py-2 rounded-xl font-bold hover:bg-purple-200 flex items-center gap-2 text-sm transition-colors"
+                        >
+                            <Icons.Pill className="w-4 h-4" /> Nueva Receta
+                        </Link>
+                        <Link 
+                            href={`/${clinic}/portal/pets/${id}/records/new`}
+                            className="bg-[var(--primary)] text-white px-4 py-2 rounded-xl font-bold shadow-md hover:shadow-lg flex items-center gap-2 text-sm"
+                        >
+                            <Icons.Plus className="w-4 h-4" /> Nueva Consulta
+                        </Link>
+                      </div>
+                  )}
+              </div>
+
+              <div className="relative border-l-2 border-dashed border-gray-200 ml-4 space-y-8 pb-8">
+                  {timelineItems.length === 0 ? (
+                      <div className="ml-8 p-6 bg-gray-50 rounded-2xl border border-gray-100 text-center">
+                          <p className="text-gray-500 italic">No hay registros médicos aún.</p>
+                      </div>
+                  ) : (
+                    timelineItems.map((item: any) => (
+                        <div key={item.id} className="ml-8 relative">
+                            {/* Timeline Node */}
+                            <div className={`absolute -left-[41px] top-0 w-5 h-5 rounded-full border-4 border-white shadow-sm ${
+                                item.timelineType === 'prescription' ? 'bg-purple-500' :
+                                item.type === 'surgery' ? 'bg-red-500' : 
+                                item.type === 'consultation' ? 'bg-blue-500' : 'bg-green-500'
+                            }`}></div>
+
+                            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                                <div className="flex justify-between items-start mb-2">
+                                    <h3 className="font-bold text-lg text-[var(--text-primary)] flex items-center gap-2">
+                                        {item.timelineType === 'prescription' && <Icons.Pill className="w-5 h-5 text-purple-500" />}
+                                        {item.title}
+                                    </h3>
+                                    <span className={`text-xs font-bold uppercase tracking-wider px-2 py-1 rounded ${
+                                        item.timelineType === 'prescription' 
+                                            ? 'bg-purple-50 text-purple-600' 
+                                            : 'bg-gray-100 text-gray-400'
+                                    }`}>
+                                        {item.timelineType === 'prescription' ? 'Receta' : item.type}
+                                    </span>
+                                </div>
+                                
+                                <p className="text-sm text-gray-500 mb-4 flex items-center gap-2">
+                                    <Icons.Calendar className="w-4 h-4" /> 
+                                    {new Date(item.created_at).toLocaleDateString('es-ES', {  year: 'numeric', month: 'long', day: 'numeric' })}
+                                </p>
+
+                                {item.diagnosis && (
+                                    <div className="mb-3">
+                                        <span className="text-xs font-bold text-gray-400 uppercase">Diagnóstico</span>
+                                        <p className="text-gray-800 font-medium">{item.diagnosis}</p>
+                                    </div>
+                                )}
+
+                                {/* Vitals Display (Records only) */}
+                                {item.timelineType === 'record' && item.vitals && (item.vitals.weight || item.vitals.temp || item.vitals.hr || item.vitals.rr) && (
+                                    <div className="mb-4 bg-blue-50/50 p-3 rounded-xl border border-blue-100/50">
+                                        <span className="text-xs font-bold text-blue-400 uppercase mb-2 block">Signos Vitales</span>
+                                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
+                                            {item.vitals.weight && <div><span className="text-gray-400 text-xs">Peso</span> <p className="font-bold text-gray-700">{item.vitals.weight} kg</p></div>}
+                                            {item.vitals.temp && <div><span className="text-gray-400 text-xs">Temp</span> <p className="font-bold text-gray-700">{item.vitals.temp}°C</p></div>}
+                                            {item.vitals.hr && <div><span className="text-gray-400 text-xs">FC</span> <p className="font-bold text-gray-700">{item.vitals.hr} lpm</p></div>}
+                                            {item.vitals.rr && <div><span className="text-gray-400 text-xs">FR</span> <p className="font-bold text-gray-700">{item.vitals.rr} rpm</p></div>}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Drugs Display (Prescriptions only) */}
+                                {item.timelineType === 'prescription' && item.drugs && (
+                                    <div className="mb-4 space-y-2">
+                                        {item.drugs.map((drug: any, idx: number) => (
+                                            <div key={idx} className="bg-purple-50/30 p-2 rounded-lg border border-purple-100/50 text-sm">
+                                                <p className="font-bold text-purple-900">{drug.name}</p>
+                                                <p className="text-xs text-purple-700">{drug.dose} - <span className="italic">{drug.instructions}</span></p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+
+                                {item.notes && (
+                                    <div className="bg-gray-50 p-3 rounded-xl text-sm text-gray-600 italic mb-4">
+                                        "{item.notes}"
+                                    </div>
+                                )}
+
+                                {/* Actions */}
+                                <div className="flex gap-2">
+                                    {item.timelineType === 'prescription' && (
+                                        <button className="flex items-center gap-2 px-3 py-2 bg-purple-600 rounded-lg text-xs font-bold text-white hover:bg-purple-700 transition-colors">
+                                            <Icons.Download className="w-3 h-3" /> Ver PDF
+                                        </button>
+                                    )}
+                                    {item.attachments && item.attachments.map((url: string, idx: number) => (
+                                        <a 
+                                            key={idx} 
+                                            href={url} 
+                                            target="_blank" 
+                                            rel="noopener noreferrer"
+                                            className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg text-xs font-bold text-gray-600 hover:bg-gray-200 transition-colors"
+                                        >
+                                            <Icons.Paperclip className="w-3 h-3" />
+                                            Adjunto {idx + 1}
+                                        </a>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    ))
+                  )}
+              </div>
+          </div>
+
+
+          {/* RIGHT COL: Vaccines & Quick Info */}
+          <div className="space-y-6">
+              
+
+              {/* Growth Chart */}
+              <GrowthChart 
+                breed={pet.breed || 'Mestizo'} 
+                gender={pet.sex as any} 
+                patientRecords={weightHistory} 
+              />
+
+              {/* Loyalty Card */}
+              <LoyaltyCard 
+                petId={id} 
+                petName={pet.name} 
+                clinicConfig={await getClinicData(clinic)} 
+              />
+
+              {/* Bio & Health Card */}
+              <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+                  <h3 className="font-bold text-lg text-[var(--text-primary)] mb-4 flex items-center gap-2">
+                       <Icons.Info className="w-5 h-5 text-blue-500" /> Bio & Salud
+                  </h3>
+                  <div className="space-y-4">
+                      {pet.temperament && (
+                          <div>
+                              <span className="text-xs font-bold text-gray-400 uppercase">Temperamento</span>
+                              <p className="font-medium capitalize text-gray-700">{pet.temperament}</p>
+                          </div>
+                      )}
+                      
+                      {pet.allergies && (
+                          <div>
+                              <span className="text-xs font-bold text-red-400 uppercase">Alergias</span>
+                              <p className="font-medium text-red-600 bg-red-50 px-2 py-1 rounded-lg inline-block">{pet.allergies}</p>
+                          </div>
+                      )}
+
+                      {pet.existing_conditions && (
+                          <div>
+                              <span className="text-xs font-bold text-gray-400 uppercase">Condiciones</span>
+                              <p className="text-sm text-gray-600 italic">{pet.existing_conditions}</p>
+                          </div>
+                      )}
+
+                      {!pet.temperament && !pet.allergies && !pet.existing_conditions && (
+                          <p className="text-sm text-gray-400">Sin datos adicionales.</p>
+                      )}
+                  </div>
+              </div>
+
+              {/* Vaccines Card */}
+              <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+                  <div className="flex items-center justify-between mb-4">
+                      <h3 className="font-bold text-lg text-[var(--text-primary)] flex items-center gap-2">
+                          <Icons.Syringe className="w-5 h-5 text-purple-500" /> Vacunas
+                      </h3>
+                      <Link href={`/${clinic}/portal/pets/${id}/vaccines/new`} className="text-sm text-[var(--primary)] font-bold hover:underline">
+                          + Agregar
+                      </Link>
+                  </div>
+                  
+                  <div className="space-y-3">
+                      {vaccines.map((v: any) => (
+                          <div key={v.id} className="flex items-center justify-between p-3 rounded-xl bg-gray-50 border border-gray-100">
+                             <div>
+                                 <p className="font-bold text-sm text-[var(--text-primary)]">{v.name}</p>
+                                 <p className="text-xs text-gray-500">{new Date(v.administered_date).toLocaleDateString()}</p>
+                             </div>
+                             {v.status === 'verified' ? (
+                                <Icons.CheckCircle2 className="w-4 h-4 text-green-500" />
+                             ) : (
+                                <Icons.Clock className="w-4 h-4 text-yellow-500" />
+                             )}
+                          </div>
+                      ))}
+                      {vaccines.length === 0 && <p className="text-sm text-gray-400">Sin vacunas.</p>}
+                  </div>
+              </div>
+
+              {/* Diet Card */}
+               <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+                  <h3 className="font-bold text-lg text-[var(--text-primary)] mb-4 flex items-center gap-2">
+                      <Icons.Bone className="w-5 h-5 text-orange-500" /> Alimentación
+                  </h3>
+                  {pet.diet_category ? (
+                      <div>
+                          <span className="inline-block bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-xs font-bold uppercase mb-2">
+                              {pet.diet_category}
+                          </span>
+                          <p className="text-sm text-gray-600">{pet.diet_notes || 'Sin detalles'}</p>
+                      </div>
+                  ) : (
+                      <p className="text-sm text-gray-400">No especificada.</p>
+                  )}
+              </div>
+
+          </div>
+      </div>
+    </div>
+  );
+}

@@ -1,0 +1,157 @@
+'use client'
+
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import * as Icons from 'lucide-react'
+import {
+  checkInAppointment,
+  startAppointment,
+  completeAppointment,
+  markNoShow,
+  cancelAppointment
+} from '@/app/actions/appointments'
+
+interface StatusButtonsProps {
+  appointmentId: string
+  currentStatus: string
+  clinic: string
+}
+
+export function StatusButtons({ appointmentId, currentStatus, clinic }: StatusButtonsProps) {
+  const [loading, setLoading] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
+
+  const handleAction = async (action: () => Promise<{ success?: boolean; error?: string }>, actionName: string) => {
+    setLoading(actionName)
+    setError(null)
+
+    try {
+      const result = await action()
+      if (result.error) {
+        setError(result.error)
+      } else {
+        router.refresh()
+      }
+    } catch (e) {
+      setError('Error al procesar la acción')
+    } finally {
+      setLoading(null)
+    }
+  }
+
+  const buttonBaseClass = "p-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+
+  // Determine which buttons to show based on current status
+  switch (currentStatus) {
+    case 'pending':
+    case 'confirmed':
+      return (
+        <div className="flex items-center gap-2">
+          {/* Check-in Button */}
+          <button
+            onClick={() => handleAction(() => checkInAppointment(appointmentId), 'checkin')}
+            disabled={loading !== null}
+            className={`${buttonBaseClass} bg-yellow-100 text-yellow-700 hover:bg-yellow-200`}
+            title="Registrar llegada"
+          >
+            {loading === 'checkin' ? (
+              <Icons.Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Icons.UserCheck className="w-4 h-4" />
+            )}
+          </button>
+
+          {/* No-show Button */}
+          <button
+            onClick={() => handleAction(() => markNoShow(appointmentId), 'noshow')}
+            disabled={loading !== null}
+            className={`${buttonBaseClass} bg-orange-100 text-orange-700 hover:bg-orange-200`}
+            title="Marcar como no presentado"
+          >
+            {loading === 'noshow' ? (
+              <Icons.Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Icons.UserX className="w-4 h-4" />
+            )}
+          </button>
+
+          {/* Cancel Button */}
+          <button
+            onClick={() => handleAction(() => cancelAppointment(appointmentId), 'cancel')}
+            disabled={loading !== null}
+            className={`${buttonBaseClass} bg-red-100 text-red-700 hover:bg-red-200`}
+            title="Cancelar cita"
+          >
+            {loading === 'cancel' ? (
+              <Icons.Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Icons.X className="w-4 h-4" />
+            )}
+          </button>
+
+          {error && <span className="text-xs text-red-500">{error}</span>}
+        </div>
+      )
+
+    case 'checked_in':
+      return (
+        <div className="flex items-center gap-2">
+          {/* Start Consultation Button */}
+          <button
+            onClick={() => handleAction(() => startAppointment(appointmentId), 'start')}
+            disabled={loading !== null}
+            className={`${buttonBaseClass} bg-purple-100 text-purple-700 hover:bg-purple-200`}
+            title="Iniciar consulta"
+          >
+            {loading === 'start' ? (
+              <Icons.Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Icons.Stethoscope className="w-4 h-4" />
+            )}
+          </button>
+
+          {/* Complete directly (skip in_progress) */}
+          <button
+            onClick={() => handleAction(() => completeAppointment(appointmentId), 'complete')}
+            disabled={loading !== null}
+            className={`${buttonBaseClass} bg-green-100 text-green-700 hover:bg-green-200`}
+            title="Completar"
+          >
+            {loading === 'complete' ? (
+              <Icons.Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Icons.CheckCircle className="w-4 h-4" />
+            )}
+          </button>
+
+          {error && <span className="text-xs text-red-500">{error}</span>}
+        </div>
+      )
+
+    case 'in_progress':
+      return (
+        <div className="flex items-center gap-2">
+          {/* Complete Button */}
+          <button
+            onClick={() => handleAction(() => completeAppointment(appointmentId), 'complete')}
+            disabled={loading !== null}
+            className={`${buttonBaseClass} bg-green-100 text-green-700 hover:bg-green-200`}
+            title="Completar consulta"
+          >
+            {loading === 'complete' ? (
+              <Icons.Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Icons.CheckCircle className="w-4 h-4" />
+            )}
+          </button>
+
+          {error && <span className="text-xs text-red-500">{error}</span>}
+        </div>
+      )
+
+    default:
+      // No actions for completed, cancelled, no_show
+      return null
+  }
+}

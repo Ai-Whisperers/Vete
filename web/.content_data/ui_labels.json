@@ -1,0 +1,119 @@
+{
+  "nav": {
+    "home": "Inicio",
+    "services": "Servicios",
+    "about": "Nosotros",
+    "store": "Tienda",
+    "owners_zone": "Zona de Dueños",
+    "login_profile": "LogIn / Mi Perfil",
+    "dashboard": "Inicio",
+    "profile": "Mi Perfil",
+    "back": "Volver"
+  },
+  "portal": {
+    "dashboard": {
+      "staff_title": "Portal Veterinario",
+      "owner_title": "Mis Mascotas",
+      "welcome": "Bienvenido, {name}",
+      "stats": {
+        "patients": "Pacientes Totales",
+        "vaccines": "Vacunas Pendientes",
+        "upcoming_appointments": "Citas Futuras"
+      }
+    },
+    "empty_states": {
+      "no_pets": "No tienes mascotas registradas",
+      "no_pets_desc": "Agrega tu primera mascota para llevar su control.",
+      "add_pet_btn": "Registrar Mascota",
+      "no_vaccines": "Sin vacunas registradas."
+    },
+    "pet_card": {
+      "weight": "Peso",
+      "chip": "Chip",
+      "vaccines": "Vacunas",
+      "add_vaccine": "Agregar Vacuna",
+      "download_pdf": "Descargar PDF"
+    },
+    "appointment_widget": {
+      "title": "Mis Próximas Citas",
+      "status": {
+        "confirmed": "Confirmada",
+        "pending": "Pendiente"
+      }
+    }
+  },
+  "home": {
+    "features_title": "¿Por qué elegirnos?",
+    "features_subtitle": "Compromiso, tecnología y amor por los animales.",
+    "tools_badge": "Herramientas",
+    "contact_badge": "Contacto",
+    "map_button": "Ver ubicación en Google Maps"
+  },
+  "about": {
+    "team_title": "Nuestro Equipo",
+    "intro_badge": "Nuestra Historia"
+  },
+  "services": {
+    "meta_title": "Nuestros Servicios",
+    "book_floating_btn": "Agendar Turno",
+    "vaccine_schedule": {
+        "title": "Calendario de Vacunación (Paraguay)",
+        "subtitle": "Cronograma oficial recomendado por SENACSA.",
+        "dog_label": "Perros",
+        "cat_label": "Gatos",
+        "important_label": "Importante:",
+        "important_text": "Este es un esquema estándar. El veterinario puede ajustarlo según la salud y el estilo de vida de tu mascota.",
+        "data": {
+            "dog": [
+                { "age": "45 días (6 semanas)", "n": 1, "vaccines": ["Puppy DP (Moquillo, Parvo)"], "note": "Primera dosis crítica." },
+                { "age": "3 meses (12 semanas)", "n": 2, "vaccines": ["Séxtuple / Polivalente", "Antirrábica (Obligatoria)"], "note": "Ley Nacional en Paraguay." },
+                { "age": "4 meses (16 semanas)", "n": 3, "vaccines": ["Refuerzo Séxtuple"], "note": "Cierres del esquema." },
+                { "age": "Anual", "n": 4, "vaccines": ["Séxtuple", "Antirrábica"], "note": "Refuerzo cada 12 meses toda la vida." },
+                { "age": "Opcional", "n": 5, "vaccines": ["Tos de las Perreras", "Leishmaniasis"], "note": "Recomendado en zonas endémicas." }
+            ],
+            "cat": [
+                { "age": "2 meses (8 semanas)", "n": 1, "vaccines": ["Triple Felina"], "note": "Panleucopenia, Rinotraqueitis, Calicivirus" },
+                { "age": "3 meses (12 semanas)", "n": 2, "vaccines": ["Refuerzo Triple Felina", "Antirrábica"], "note": "Ley Nacional." },
+                { "age": "4 meses (16 semanas)", "n": 3, "vaccines": ["Leucemia Felina (Test previo)"], "note": "Para gatos que salen al exterior." },
+                { "age": "Anual", "n": 4, "vaccines": ["Triple Felina", "Antirrábica"], "note": "Refuerzo de por vida." }
+            ]
+        }
+    }
+  },
+  "common": {
+    "actions": {
+      "save": "Guardar",
+      "cancel": "Cancelar",
+      "edit": "Editar"
+    }
+  },
+  "store": {
+    "title": "Tienda",
+    "back_home": "Volver al Inicio",
+    "hero_title": "Lo mejor para tu mascota",
+    "hero_subtitle": "Encuentra alimentos, accesorios y medicamentos recomendados por nuestros veterinarios.",
+    "search_placeholder": "Buscar productos...",
+    "all_categories": "Todas las categorías",
+    "empty_state": "No hay productos disponibles.",
+    "product_card": {
+      "add": "Agregar",
+      "added": "Agregado"
+    }
+  },
+  "cart": {
+    "title": "Carrito",
+    "empty": "Tu carrito está vacío.",
+    "item_service": "Servicio",
+    "item_product": "Producto",
+    "clear_btn": "Vaciar carrito",
+    "total_label": "Total:",
+    "checkout_btn": "Preparar pedido"
+  },
+  "checkout": {
+    "title": "Resumen del Pedido",
+    "empty": "No hay items en el carrito.",
+    "print_btn": "Imprimir",
+    "whatsapp_btn": "Pedir por WhatsApp",
+    "back_cart": "Volver al carrito"
+  }
+}

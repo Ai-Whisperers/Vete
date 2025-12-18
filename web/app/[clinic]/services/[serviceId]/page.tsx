@@ -60,7 +60,9 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
       {/* HERO HEADER */}
       <div className="relative py-20 lg:py-28 overflow-hidden">
         <div className="absolute inset-0 z-0" style={{ background: 'var(--gradient-primary)' }} />
-        <div className="absolute inset-0 bg-[url('/pattern.png')] opacity-10 z-0 mix-blend-overlay" />
+        <div className="absolute inset-0 z-0 opacity-10 mix-blend-overlay" 
+             style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '32px 32px' }} 
+        />
         
         <div className="container relative z-10 px-4 md:px-6">
             <Link 
@@ -166,29 +168,28 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
                     Reserva tu turno para <span className="font-bold">{service.title}</span> vía WhatsApp.
                 </p>
 
+                {service.booking?.online_enabled && (
+                     <Link 
+                        href={`/${clinic}/book?service=${service.id}`}
+                        className="flex w-full items-center justify-center gap-2 bg-[var(--primary)] hover:brightness-110 text-white font-bold py-4 px-6 rounded-xl shadow-lg transition-transform hover:-translate-y-1 mb-4"
+                     >
+                        <Icons.Calendar className="w-5 h-5" />
+                        Reservar Online
+                     </Link>
+                )}
+
                 <a 
                     href={`https://wa.me/${config.contact.whatsapp_number}?text=Hola, quisiera agendar un turno para: ${service.title}`}
                     target="_blank"
-                    className="flex w-full items-center justify-center gap-2 bg-[var(--status-success)] hover:brightness-110 text-white font-bold py-4 px-6 rounded-xl shadow-lg transition-transform hover:-translate-y-1 mb-4"
-                    style={{ backgroundColor: '#25D366' }}
+                    className={`flex w-full items-center justify-center gap-2 font-bold py-4 px-6 rounded-xl transition-transform hover:-translate-y-1 mb-4 ${
+                        service.booking?.online_enabled 
+                        ? 'bg-white border-2 border-[#25D366] text-[#25D366] hover:bg-green-50'
+                        : 'bg-[#25D366] text-white hover:brightness-110 shadow-lg'
+                    }`}
                 >
                     <Icons.MessageCircle className="w-5 h-5" />
-                    Agendar por WhatsApp
+                    Consultar por WhatsApp
                 </a>
-
-                <div className="text-center">
-                    <p className="text-xs text-[var(--text-muted)] mb-2">O llámanos al</p>
-                    <a href={`tel:${config.contact.phone_display}`} className="text-[var(--primary)] font-bold hover:underline">
-                        {config.contact.phone_display}
-                    </a>
-                </div>
-
-                {service.booking?.online_enabled && (
-                     <div className="mt-6 pt-6 border-t border-gray-100 flex items-center justify-center gap-2 text-green-700 text-sm font-bold bg-green-50 p-3 rounded-lg">
-                        <Icons.Check className="w-4 h-4" />
-                        Disponible para reserva online
-                     </div>
-                )}
             </div>
 
         </div>

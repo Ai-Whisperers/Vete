@@ -1,0 +1,286 @@
+import { getClinicData } from '@/lib/clinics'
+import { createClient } from '@/lib/supabase/server'
+import { notFound } from 'next/navigation'
+import {
+  Bell,
+  Syringe,
+  Calendar,
+  FileText,
+  DollarSign,
+  Cake,
+  ClipboardList,
+  AlertCircle,
+  CheckCircle,
+  XCircle,
+  MessageSquare,
+  Activity,
+  Check,
+} from 'lucide-react'
+
+interface Props {
+  params: Promise<{ clinic: string }>
+}
+
+interface Notification {
+  id: string
+  type: string
+  subject: string
+  body: string
+  created_at: string
+  read: boolean
+}
+
+export async function generateStaticParams() {
+  return [{ clinic: 'adris' }, { clinic: 'petlife' }]
+}
+
+// Map notification types to icons and colors
+function getNotificationIcon(type: string) {
+  const iconMap: Record<string, { Icon: any; color: string }> = {
+    vaccine_reminder: { Icon: Syringe, color: 'text-blue-600' },
+    vaccine_overdue: { Icon: AlertCircle, color: 'text-red-600' },
+    appointment_reminder: { Icon: Calendar, color: 'text-purple-600' },
+    appointment_confirmation: { Icon: CheckCircle, color: 'text-green-600' },
+    appointment_cancelled: { Icon: XCircle, color: 'text-red-600' },
+    invoice_sent: { Icon: FileText, color: 'text-gray-600' },
+    payment_received: { Icon: DollarSign, color: 'text-green-600' },
+    payment_overdue: { Icon: DollarSign, color: 'text-red-600' },
+    birthday: { Icon: Cake, color: 'text-pink-600' },
+    follow_up: { Icon: ClipboardList, color: 'text-orange-600' },
+    lab_results_ready: { Icon: Activity, color: 'text-blue-600' },
+    hospitalization_update: { Icon: Activity, color: 'text-purple-600' },
+    custom: { Icon: MessageSquare, color: 'text-gray-600' },
+  }
+
+  return iconMap[type] || { Icon: Bell, color: 'text-gray-600' }
+}
+
+// Format relative time in Spanish
+function formatRelativeTime(dateString: string): string {
+  const date = new Date(dateString)
+  const now = new Date()
+  const diffMs = now.getTime() - date.getTime()
+  const diffMins = Math.floor(diffMs / 60000)
+  const diffHours = Math.floor(diffMs / 3600000)
+  const diffDays = Math.floor(diffMs / 86400000)
+
+  if (diffMins < 1) return 'Justo ahora'
+  if (diffMins < 60) return `Hace ${diffMins} min`
+  if (diffHours < 24) return `Hace ${diffHours}h`
+  if (diffDays < 7) return `Hace ${diffDays}d`
+
+  return date.toLocaleDateString('es-PY', {
+    day: 'numeric',
+    month: 'short',
+  })
+}
+
+// Group notifications by date
+function groupNotificationsByDate(notifications: Notification[]) {
+  const now = new Date()
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  const yesterday = new Date(today)
+  yesterday.setDate(yesterday.getDate() - 1)
+  const weekAgo = new Date(today)
+  weekAgo.setDate(weekAgo.getDate() - 7)
+
+  const groups: Record<string, Notification[]> = {
+    Hoy: [],
+    Ayer: [],
+    'Esta semana': [],
+    Anteriores: [],
+  }
+
+  notifications.forEach((notification) => {
+    const notifDate = new Date(notification.created_at)
+    const notifDateOnly = new Date(
+      notifDate.getFullYear(),
+      notifDate.getMonth(),
+      notifDate.getDate()
+    )
+
+    if (notifDateOnly.getTime() === today.getTime()) {
+      groups.Hoy.push(notification)
+    } else if (notifDateOnly.getTime() === yesterday.getTime()) {
+      groups.Ayer.push(notification)
+    } else if (notifDateOnly >= weekAgo) {
+      groups['Esta semana'].push(notification)
+    } else {
+      groups.Anteriores.push(notification)
+    }
+  })
+
+  return groups
+}
+
+export default async function NotificationsPage({ params }: Props) {
+  const { clinic } = await params
+  const clinicData = await getClinicData(clinic)
+
+  if (!clinicData) {
+    notFound()
+  }
+
+  const supabase = await createClient()
+
+  // Get authenticated user
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
+
+  if (authError || !user) {
+    notFound()
+  }
+
+  // Fetch notifications for this user
+  const { data: notifications, error } = await supabase
+    .from('notifications')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    console.error('Error fetching notifications:', error)
+  }
+
+  const notificationsList = (notifications || []) as Notification[]
+  const groupedNotifications = groupNotificationsByDate(notificationsList)
+  const hasNotifications = notificationsList.length > 0
+  const unreadCount = notificationsList.filter((n) => !n.read).length
+
+  return (
+    <div className="container mx-auto px-4 py-8 max-w-4xl">
+      {/* Header */}
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-2">
+          <h1 className="text-3xl font-bold text-[var(--text-primary)]">
+            Notificaciones
+          </h1>
+          {unreadCount > 0 && (
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-[var(--primary)] text-white">
+              {unreadCount} {unreadCount === 1 ? 'nueva' : 'nuevas'}
+            </span>
+          )}
+        </div>
+        <p className="text-[var(--text-secondary)]">
+          Mantente al día con las actualizaciones de tus mascotas
+        </p>
+      </div>
+
+      {/* Mark all as read button */}
+      {unreadCount > 0 && (
+        <div className="mb-6">
+          <form action="/api/notifications/mark-all-read" method="POST">
+            <button
+              type="submit"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-[var(--primary)] bg-[var(--primary)]/10 hover:bg-[var(--primary)]/20 transition-colors"
+            >
+              <Check className="w-4 h-4" />
+              Marcar todas como leídas
+            </button>
+          </form>
+        </div>
+      )}
+
+      {/* Empty state */}
+      {!hasNotifications && (
+        <div className="flex flex-col items-center justify-center py-16 px-4">
+          <div className="w-20 h-20 rounded-full bg-[var(--bg-muted)] flex items-center justify-center mb-6">
+            <Bell className="w-10 h-10 text-[var(--text-tertiary)]" />
+          </div>
+          <h2 className="text-xl font-semibold text-[var(--text-primary)] mb-2">
+            No tienes notificaciones
+          </h2>
+          <p className="text-[var(--text-secondary)] text-center max-w-md">
+            Aquí aparecerán recordatorios de vacunas, confirmaciones de citas y
+            otras actualizaciones importantes
+          </p>
+        </div>
+      )}
+
+      {/* Notifications grouped by date */}
+      {hasNotifications && (
+        <div className="space-y-8">
+          {Object.entries(groupedNotifications).map(([groupName, groupNotifs]) => {
+            if (groupNotifs.length === 0) return null
+
+            return (
+              <div key={groupName}>
+                <h2 className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wide mb-3">
+                  {groupName}
+                </h2>
+                <div className="space-y-3">
+                  {groupNotifs.map((notification) => {
+                    const { Icon, color } = getNotificationIcon(notification.type)
+
+                    return (
+                      <div
+                        key={notification.id}
+                        className={`rounded-xl shadow-sm border transition-all hover:shadow-md ${
+                          notification.read
+                            ? 'bg-white border-[var(--border-light)]'
+                            : 'bg-[var(--primary)]/5 border-[var(--primary)]/20'
+                        }`}
+                      >
+                        <div className="p-4">
+                          <div className="flex gap-4">
+                            {/* Icon */}
+                            <div
+                              className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${
+                                notification.read
+                                  ? 'bg-[var(--bg-muted)]'
+                                  : 'bg-white'
+                              }`}
+                            >
+                              <Icon className={`w-5 h-5 ${color}`} />
+                            </div>
+
+                            {/* Content */}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-start justify-between gap-3 mb-1">
+                                <h3
+                                  className={`font-semibold ${
+                                    notification.read
+                                      ? 'text-[var(--text-primary)]'
+                                      : 'text-[var(--primary)]'
+                                  }`}
+                                >
+                                  {notification.subject}
+                                </h3>
+                                {!notification.read && (
+                                  <span className="flex-shrink-0 w-2 h-2 rounded-full bg-[var(--primary)]" />
+                                )}
+                              </div>
+
+                              <p className="text-sm text-[var(--text-secondary)] mb-2">
+                                {notification.body}
+                              </p>
+
+                              <p className="text-xs text-[var(--text-tertiary)]">
+                                {formatRelativeTime(notification.created_at)}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+
+      {/* Footer info */}
+      {hasNotifications && (
+        <div className="mt-12 p-4 rounded-lg bg-[var(--bg-muted)] border border-[var(--border-light)]">
+          <p className="text-sm text-[var(--text-secondary)] text-center">
+            Las notificaciones se conservan durante 90 días
+          </p>
+        </div>
+      )}
+    </div>
+  )
+}

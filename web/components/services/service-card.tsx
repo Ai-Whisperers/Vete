@@ -1,10 +1,12 @@
+
 import { DynamicIcon } from '@/components/ui/dynamic-icon';
 import Link from 'next/link';
-import * as Icons from 'lucide-react';
+import { Check, ArrowRight } from 'lucide-react';
+import { AddToCartButton } from '../cart/add-to-cart-button';
 
 interface ServiceCardProps {
-  service: any;
-  config: any;
+  readonly service: any;
+  readonly config: any;
 }
 
 export const ServiceCard = ({ service, config }: ServiceCardProps) => {
@@ -60,8 +62,8 @@ export const ServiceCard = ({ service, config }: ServiceCardProps) => {
             </span>
             <ul className="space-y-1.5">
                 {service.details.includes.slice(0, 3).map((item: string, i: number) => (
-                    <li key={i} className="text-sm text-[var(--text-muted)] flex items-start gap-2">
-                         <Icons.Check className="w-4 h-4 text-[var(--primary)] shrink-0 mt-0.5" />
+                    <li key={item} className="text-sm text-[var(--text-muted)] flex items-start gap-2">
+                         <Check className="w-4 h-4 text-[var(--primary)] shrink-0 mt-0.5" />
                          <span className="line-clamp-1">{item}</span>
                     </li>
                 ))}
@@ -85,14 +87,24 @@ export const ServiceCard = ({ service, config }: ServiceCardProps) => {
                 </span>
              </div>
              
-             {/* This button just looks clickable, the actual link covers the card. But if we want direct external action (WhatsApp), we need z-20. 
-                 However, usually "View Details" is better for the card click. 
-                 Let's make the arrow button go to details too.
-             */}
-             <div 
-                className="rounded-full bg-[var(--bg-subtle)] text-[var(--primary)] p-3 group-hover:bg-[var(--primary)] group-hover:text-white transition-colors shadow-sm"
-             >
-                 <Icons.ArrowRight className="w-5 h-5" />
+             <div className="flex gap-2">
+                 <AddToCartButton 
+                    item={{
+                        id: service.id,
+                        name: service.title,
+                        price: service.variants?.[0]?.price || 0,
+                        type: 'service',
+                        description: service.summary
+                    }}
+                    iconOnly
+                    className="z-30 relative"
+                 />
+                 
+                 <div 
+                    className="rounded-xl bg-[var(--bg-subtle)] text-[var(--primary)] p-3 group-hover:bg-[var(--primary)] group-hover:text-white transition-colors shadow-sm"
+                 >
+                     <ArrowRight className="w-5 h-5" />
+                 </div>
              </div>
         </div>
       </div>

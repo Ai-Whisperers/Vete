@@ -1,0 +1,167 @@
+'use client'
+
+import { useState, useEffect, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
+import * as Icons from 'lucide-react'
+import { ConversationList } from './conversation-list'
+import { ConversationHeader } from './conversation-header'
+import { MessageThread } from './message-thread'
+import { MessageInput } from './message-input'
+import { TemplateSelector } from './template-selector'
+import { sendMessage, getMessages, getTemplates } from '@/app/actions/whatsapp'
+import type { Conversation, WhatsAppMessage, WhatsAppTemplate } from '@/lib/types/whatsapp'
+
+interface InboxProps {
+  conversations: Conversation[]
+  clinic: string
+}
+
+export function Inbox({ conversations, clinic }: InboxProps) {
+  const router = useRouter()
+  const [selectedPhone, setSelectedPhone] = useState<string | null>(null)
+  const [messages, setMessages] = useState<WhatsAppMessage[]>([])
+  const [loading, setLoading] = useState(false)
+  const [templates, setTemplates] = useState<WhatsAppTemplate[]>([])
+  const [showTemplates, setShowTemplates] = useState(false)
+
+  // Get selected conversation details
+  const selectedConversation = conversations.find(
+    (c) => c.phone_number === selectedPhone
+  )
+
+  // Load messages for selected conversation
+  const loadMessages = useCallback(async () => {
+    if (!selectedPhone) return
+
+    setLoading(true)
+    const result = await getMessages(clinic, selectedPhone)
+    if (result.success && result.data) {
+      setMessages(result.data)
+    }
+    setLoading(false)
+  }, [clinic, selectedPhone])
+
+  // Load templates
+  const loadTemplates = useCallback(async () => {
+    const result = await getTemplates(clinic)
+    if (result.success && result.data) {
+      setTemplates(result.data)
+    }
+  }, [clinic])
+
+  useEffect(() => {
+    loadMessages()
+  }, [loadMessages])
+
+  useEffect(() => {
+    loadTemplates()
+  }, [loadTemplates])
+
+  const handleSendMessage = async (content: string) => {
+    if (!selectedPhone) return
+
+    const formData = new FormData()
+    formData.append('phone', selectedPhone)
+    formData.append('message', content)
+    if (selectedConversation?.client_id) {
+      formData.append('clientId', selectedConversation.client_id)
+    }
+    formData.append('conversationType', 'general')
+
+    const result = await sendMessage(formData)
+
+    if (result.success) {
+      // Reload messages
+      loadMessages()
+      router.refresh()
+    } else {
+      alert(result.error || 'Error al enviar mensaje')
+    }
+  }
+
+  const handleTemplateSelect = async (
+    template: WhatsAppTemplate,
+    variables: Record<string, string>
+  ) => {
+    // Replace variables in content
+    let content = template.content
+    Object.entries(variables).forEach(([key, value]) => {
+      content = content.replace(new RegExp(`{{${key}}}`, 'g'), value)
+    })
+
+    await handleSendMessage(content)
+  }
+
+  return (
+    <div className="h-[calc(100vh-200px)] min-h-[500px] flex bg-white rounded-xl border border-gray-100 overflow-hidden">
+      {/* Conversation list */}
+      <div className={`w-full md:w-80 border-r border-gray-100 flex flex-col ${
+        selectedPhone ? 'hidden md:flex' : ''
+      }`}>
+        <div className="p-4 border-b border-gray-100">
+          <h2 className="font-bold text-[var(--text-primary)]">Conversaciones</h2>
+          <p className="text-sm text-[var(--text-secondary)]">
+            {conversations.length} chat{conversations.length !== 1 ? 's' : ''}
+          </p>
+        </div>
+
+        <div className="flex-1 overflow-y-auto">
+          <ConversationList
+            conversations={conversations}
+            selectedPhone={selectedPhone}
+            onSelect={setSelectedPhone}
+          />
+        </div>
+      </div>
+
+      {/* Message area */}
+      <div className={`flex-1 flex flex-col ${
+        !selectedPhone ? 'hidden md:flex' : ''
+      }`}>
+        {selectedPhone ? (
+          <>
+            <ConversationHeader
+              phoneNumber={selectedPhone}
+              clientName={selectedConversation?.client_name}
+              clientId={selectedConversation?.client_id}
+              petName={undefined}
+              petId={undefined}
+              clinic={clinic}
+              onClose={() => setSelectedPhone(null)}
+            />
+
+            {loading ? (
+              <div className="flex-1 flex items-center justify-center">
+                <Icons.Loader2 className="w-8 h-8 animate-spin text-[var(--primary)]" />
+              </div>
+            ) : (
+              <MessageThread messages={messages} />
+            )}
+
+            <MessageInput
+              onSend={handleSendMessage}
+              onTemplateClick={() => setShowTemplates(true)}
+              disabled={loading}
+            />
+          </>
+        ) : (
+          <div className="flex-1 flex flex-col items-center justify-center text-[var(--text-secondary)]">
+            <Icons.MessageSquare className="w-16 h-16 text-gray-200 mb-4" />
+            <p className="text-lg font-medium">Selecciona una conversación</p>
+            <p className="text-sm">o inicia un nuevo chat</p>
+          </div>
+        )}
+      </div>
+
+      {/* Template selector */}
+      <TemplateSelector
+        isOpen={showTemplates}
+        onClose={() => setShowTemplates(false)}
+        onSelect={handleTemplateSelect}
+        templates={templates}
+        clientName={selectedConversation?.client_name}
+        petName={undefined}
+      />
+    </div>
+  )
+}

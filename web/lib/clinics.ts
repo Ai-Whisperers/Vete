@@ -1,6 +1,7 @@
 
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
+import merge from 'lodash.merge';
 
 // Define the shape of our data based on the JSON files
 export interface ClinicTheme {
@@ -46,30 +47,15 @@ export interface ClinicConfig {
       age_calculator: boolean;
     };
   };
-  ui_labels?: {
-    nav: {
-      home: string;
-      services: string;
-      about: string;
-      book_btn: string;
-    };
-    footer: {
-      rights: string;
-    };
-    home: {
-      visit_us: string;
-    };
-    services: {
-      online_badge: string;
-      description_label: string;
-      includes_label: string;
-      table_variant: string;
-      table_price: string;
-      book_floating_btn: string;
-    };
-    about: {
-      team_title: string;
-    };
+  ui_labels: {
+    nav?: any;
+    footer?: any;
+    home?: any;
+    services?: any;
+    about?: any;
+    portal?: any;
+    common?: any;
+    [key: string]: any; // Allow flexibility
   };
   branding?: {
     logo_url?: string;
@@ -92,7 +78,7 @@ export interface ClinicData {
   legal?: any;
 }
 
-const CONTENT_DIR = path.join(process.cwd(), 'content_data');
+const CONTENT_DIR = path.join(process.cwd(), '.content_data');
 
 export async function getClinicData(slug: string): Promise<ClinicData | null> {
   const clinicDir = path.join(CONTENT_DIR, slug);
@@ -121,9 +107,24 @@ export async function getClinicData(slug: string): Promise<ClinicData | null> {
   const faq = readJson('faq.json');
   const legal = readJson('legal.json');
 
+  // Load global UI labels
+  const globalUiLabelsPath = path.join(CONTENT_DIR, 'ui_labels.json');
+  let ui_labels = {};
+  if (fs.existsSync(globalUiLabelsPath)) {
+    ui_labels = JSON.parse(fs.readFileSync(globalUiLabelsPath, 'utf8'));
+  }
+
   if (!config || !theme) {
     return null; // Essential data missing
   }
+
+  // Allow clinic specific override (deep merge)
+  if (config.ui_labels) {
+      merge(ui_labels, config.ui_labels);
+  }
+  
+  // Ensure config has the merged ui_labels
+  config.ui_labels = ui_labels;
 
   return {
     config,
@@ -140,6 +141,7 @@ export async function getClinicData(slug: string): Promise<ClinicData | null> {
 export async function getAllClinics(): Promise<string[]> {
     if (!fs.existsSync(CONTENT_DIR)) return [];
     return fs.readdirSync(CONTENT_DIR).filter(file => {
-        return fs.statSync(path.join(CONTENT_DIR, file)).isDirectory();
+        // Exclude template folders (prefixed with _) and only include valid clinic directories
+        return fs.statSync(path.join(CONTENT_DIR, file)).isDirectory() && !file.startsWith('_');
     });
 }

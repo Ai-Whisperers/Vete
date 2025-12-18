@@ -1,0 +1,109 @@
+import { createClient } from '@/lib/supabase/server'
+import { redirect } from 'next/navigation'
+import Link from 'next/link'
+import * as Icons from 'lucide-react'
+import { Inbox } from '@/components/whatsapp/inbox'
+import { getConversations } from '@/app/actions/whatsapp'
+
+interface Props {
+  params: Promise<{ clinic: string }>
+}
+
+export default async function WhatsAppPage({ params }: Props) {
+  const { clinic } = await params
+  const supabase = await createClient()
+
+  // Auth check
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    redirect(`/${clinic}/portal/login`)
+  }
+
+  // Staff check
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role, tenant_id')
+    .eq('id', user.id)
+    .single()
+
+  if (!profile || !['vet', 'admin'].includes(profile.role) || profile.tenant_id !== clinic) {
+    redirect(`/${clinic}/portal/dashboard`)
+  }
+
+  // Fetch conversations
+  const result = await getConversations(clinic)
+  const conversations = result.success && result.data ? result.data : []
+
+  // Stats
+  const totalConversations = conversations.length
+  const unreadCount = conversations.reduce((sum, c) => sum + c.unread_count, 0)
+
+  return (
+    <div className="p-6 max-w-7xl mx-auto">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-[var(--text-primary)]">
+            WhatsApp
+          </h1>
+          <p className="text-[var(--text-secondary)]">
+            Mensajería con clientes
+          </p>
+        </div>
+
+        <div className="flex gap-3">
+          <Link
+            href={`/${clinic}/dashboard/whatsapp/templates`}
+            className="inline-flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg
+                       text-[var(--text-primary)] hover:bg-gray-50"
+          >
+            <Icons.FileText className="w-4 h-4" />
+            Plantillas
+          </Link>
+        </div>
+      </div>
+
+      {/* Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div className="bg-white rounded-xl p-4 border border-gray-100">
+          <div className="flex items-center gap-2 text-blue-600 mb-1">
+            <Icons.MessageSquare className="w-4 h-4" />
+            <span className="text-xs font-medium">Conversaciones</span>
+          </div>
+          <p className="text-2xl font-bold text-[var(--text-primary)]">
+            {totalConversations}
+          </p>
+        </div>
+
+        <div className="bg-white rounded-xl p-4 border border-gray-100">
+          <div className="flex items-center gap-2 text-green-600 mb-1">
+            <Icons.Bell className="w-4 h-4" />
+            <span className="text-xs font-medium">Sin Leer</span>
+          </div>
+          <p className="text-2xl font-bold text-[var(--text-primary)]">
+            {unreadCount}
+          </p>
+        </div>
+
+        <div className="bg-white rounded-xl p-4 border border-gray-100">
+          <div className="flex items-center gap-2 text-purple-600 mb-1">
+            <Icons.Send className="w-4 h-4" />
+            <span className="text-xs font-medium">Enviados Hoy</span>
+          </div>
+          <p className="text-2xl font-bold text-[var(--text-primary)]">-</p>
+        </div>
+
+        <div className="bg-white rounded-xl p-4 border border-gray-100">
+          <div className="flex items-center gap-2 text-orange-600 mb-1">
+            <Icons.AlertCircle className="w-4 h-4" />
+            <span className="text-xs font-medium">Fallidos</span>
+          </div>
+          <p className="text-2xl font-bold text-[var(--text-primary)]">-</p>
+        </div>
+      </div>
+
+      {/* Inbox */}
+      <Inbox conversations={conversations} clinic={clinic} />
+    </div>
+  )
+}

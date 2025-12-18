@@ -18,7 +18,7 @@ export default async function AboutPage({ params }: { params: Promise<{ clinic: 
           <div className="absolute inset-0 z-0 opacity-5" style={{ background: 'var(--gradient-hero)' }} /> {/* Subtle tint */}
           
           <div className="container relative z-10 max-w-4xl mx-auto">
-              <span className="text-[var(--primary)] font-bold tracking-widest uppercase text-sm mb-4 block animate-fade-in">Nuestra Historia</span>
+              <span className="text-[var(--primary)] font-bold tracking-widest uppercase text-sm mb-4 block animate-fade-in">{data.config.ui_labels?.about?.intro_badge || 'Nuestra Historia'}</span>
               <h1 className="text-4xl md:text-5xl font-black font-heading mb-8 text-[var(--text-primary)] leading-tight">{about.intro.title}</h1>
               <div className="prose prose-lg mx-auto text-[var(--text-secondary)] leading-relaxed">
                   <p>{about.intro.text}</p>
@@ -32,7 +32,7 @@ export default async function AboutPage({ params }: { params: Promise<{ clinic: 
           
           <div className="container px-4 md:px-6">
               <div className="text-center mb-16">
-                   <h2 className="text-3xl font-black font-heading text-[var(--text-primary)] mb-4">{data.config.ui_labels?.about.team_title || 'Nuestro Equipo'}</h2>
+                   <h2 className="text-3xl font-black font-heading text-[var(--text-primary)] mb-4">{data.config.ui_labels?.about?.team_title || 'Nuestro Equipo'}</h2>
                    <div className="h-1 w-20 bg-[var(--accent)] mx-auto rounded-full" />
               </div>
               

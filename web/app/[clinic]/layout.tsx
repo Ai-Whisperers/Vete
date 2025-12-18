@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { MainNav } from '@/components/layout/main-nav';
 import { ToastProvider } from '@/components/ui/Toast';
 import { CartProvider } from '@/context/cart-context';
-import { Facebook, Instagram, Youtube, MapPin, Phone, Mail, Clock } from 'lucide-react';
+import { Facebook, Instagram, Youtube, MapPin, Phone, Mail, Clock, MessageCircle } from 'lucide-react';
 
 // Generate metadata dynamically
 export async function generateMetadata({ params }: { params: Promise<{ clinic: string }> }): Promise<Metadata> {
@@ -145,6 +145,30 @@ export default async function ClinicLayout({
                         <Youtube className="w-5 h-5" />
                       </a>
                     )}
+                    {config.social?.tiktok && (
+                      <a
+                        href={config.social.tiktok}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-[var(--primary)] transition-colors"
+                        aria-label="TikTok"
+                      >
+                        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-1-.05A6.33 6.33 0 005 20.1a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-1-.1z" />
+                        </svg>
+                      </a>
+                    )}
+                    {config.contact?.whatsapp_number && (
+                      <a
+                        href={`https://wa.me/${config.contact.whatsapp_number}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center hover:bg-green-600 transition-colors"
+                        aria-label="WhatsApp"
+                      >
+                        <MessageCircle className="w-5 h-5" />
+                      </a>
+                    )}
                   </div>
                 </div>
 
@@ -241,8 +265,38 @@ export default async function ClinicLayout({
 
               </div>
 
+              {/* Newsletter Section */}
+              <div className="mt-12 p-8 rounded-2xl bg-gradient-to-r from-[var(--primary)]/20 to-[var(--accent)]/20 border border-white/10">
+                <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                  <div className="text-center md:text-left">
+                    <h4 className="font-bold text-white text-lg mb-1">
+                      {footerLabels.newsletter_title || 'Suscríbete a nuestro boletín'}
+                    </h4>
+                    <p className="text-gray-400 text-sm">
+                      Recibe tips de cuidado, ofertas exclusivas y novedades.
+                    </p>
+                  </div>
+                  <form className="flex gap-2 w-full md:w-auto" action={`/api/newsletter`} method="POST">
+                    <input type="hidden" name="clinic" value={clinic} />
+                    <input
+                      type="email"
+                      name="email"
+                      placeholder={footerLabels.newsletter_placeholder || 'Tu email'}
+                      required
+                      className="flex-1 md:w-64 px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
+                    />
+                    <button
+                      type="submit"
+                      className="px-6 py-3 bg-[var(--primary)] text-white font-bold rounded-xl hover:opacity-90 transition-opacity whitespace-nowrap"
+                    >
+                      {footerLabels.newsletter_button || 'Enviar'}
+                    </button>
+                  </form>
+                </div>
+              </div>
+
               {/* Bottom Bar */}
-              <div className="mt-12 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
+              <div className="mt-8 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
                 <p className="text-gray-500 text-sm text-center md:text-left">
                   © {new Date().getFullYear()} {config.name}. {footerLabels.rights || 'Todos los derechos reservados.'}
                 </p>

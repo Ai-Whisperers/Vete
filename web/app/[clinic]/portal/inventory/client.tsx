@@ -16,6 +16,9 @@ export default function InventoryClient() {
     const [editValues, setEditValues] = useState({ price: 0, stock: 0 });
     const [isSaving, setIsSaving] = useState(false);
     const [alerts, setAlerts] = useState<any>(null);
+    const [templateDropdownOpen, setTemplateDropdownOpen] = useState(false);
+    const [googleSheetUrl, setGoogleSheetUrl] = useState<string | null>(null);
+    const templateDropdownRef = useRef<HTMLDivElement>(null);
 
     const fetchStats = async () => {
         try {
@@ -41,6 +44,29 @@ export default function InventoryClient() {
         }
     };
 
+    const fetchConfig = async () => {
+        try {
+            const configModule = await import(`@/.content_data/${clinic}/config.json`);
+            const config = configModule.default;
+            if (config?.settings?.inventory_template_google_sheet_url) {
+                setGoogleSheetUrl(config.settings.inventory_template_google_sheet_url);
+            }
+        } catch (e) {
+            console.error('Failed to fetch config', e);
+        }
+    };
+
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (templateDropdownRef.current && !templateDropdownRef.current.contains(event.target as Node)) {
+                setTemplateDropdownOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
     const fetchProducts = async (query = '') => {
         setIsLoadingProducts(true);
         try {
@@ -60,6 +86,7 @@ export default function InventoryClient() {
         fetchStats();
         fetchProducts();
         fetchAlerts();
+        fetchConfig();
     }, [clinic]);
 
     useEffect(() => {

@@ -11,6 +11,7 @@ import {
   CalendarPlus,
   Users,
   UserPlus,
+  PawPrint,
   FileText,
   FilePlus,
   Bed,
@@ -76,6 +77,7 @@ export function DashboardSidebar({ clinic, clinicName }: DashboardSidebarProps):
       defaultOpen: true,
       items: [
         { icon: Users, label: "Clientes", href: `/${clinic}/dashboard/clients` },
+        { icon: PawPrint, label: "Pacientes", href: `/${clinic}/dashboard/patients` },
         { icon: UserPlus, label: "Invitar Cliente", href: `/${clinic}/dashboard/clients/invite` },
       ],
     },

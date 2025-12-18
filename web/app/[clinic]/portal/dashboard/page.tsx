@@ -21,6 +21,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { LostFoundWidget } from "@/components/safety/lost-found-widget";
+import { TodayScheduleWidget } from "@/components/dashboard/today-schedule-widget";
 
 interface ClinicStats {
   pets: number;
@@ -34,6 +35,25 @@ interface Appointment {
   status: string;
   reason: string;
   pets: { name: string } | null;
+}
+
+interface TodayAppointment {
+  id: string;
+  start_time: string;
+  end_time: string;
+  status: string;
+  reason: string;
+  pets: {
+    id: string;
+    name: string;
+    species: string;
+    photo_url?: string | null;
+    owner?: {
+      id: string;
+      full_name: string;
+      phone?: string | null;
+    };
+  } | null;
 }
 
 interface Vaccine {
@@ -105,10 +125,51 @@ export default async function DashboardPage({ params, searchParams }: {
   // 1. Fetch Stats (RPC) - Only for Staff
     let stats: ClinicStats | null = null;
     let myAppointments: Appointment[] = [];
+    let todayAppointments: TodayAppointment[] = [];
 
     if (isStaff) {
         const { data } = await supabase.rpc('get_clinic_stats', { clinic_id: clinic });
         stats = data as ClinicStats | null;
+
+        // Fetch today's appointments for staff
+        const today = new Date().toISOString().split('T')[0];
+        const { data: todayData } = await supabase
+            .from('appointments')
+            .select(`
+                id,
+                start_time,
+                end_time,
+                status,
+                reason,
+                pets (
+                    id,
+                    name,
+                    species,
+                    photo_url,
+                    owner:profiles!pets_owner_id_fkey (
+                        id,
+                        full_name,
+                        phone
+                    )
+                )
+            `)
+            .eq('tenant_id', clinic)
+            .gte('start_time', `${today}T00:00:00`)
+            .lt('start_time', `${today}T23:59:59`)
+            .order('start_time', { ascending: true });
+
+        // Transform pets data (Supabase returns arrays from joins)
+        todayAppointments = (todayData || []).map(apt => {
+            const pets = Array.isArray(apt.pets) ? apt.pets[0] : apt.pets;
+            const owner = pets?.owner ? (Array.isArray(pets.owner) ? pets.owner[0] : pets.owner) : undefined;
+            return {
+                ...apt,
+                pets: pets ? {
+                    ...pets,
+                    owner
+                } : null
+            };
+        }) as TodayAppointment[];
     } else {
         // Fetch Owner's upcoming appointments
         const { data } = await supabase
@@ -245,12 +306,17 @@ export default async function DashboardPage({ params, searchParams }: {
                     <p className="text-xs uppercase text-gray-400 font-bold mb-1">{data.config.ui_labels?.portal?.dashboard?.stats?.upcoming_appointments}</p>
                     <p className="text-2xl font-black text-blue-500">{stats.upcoming_appointments}</p>
                 </div>
-                
+
                 {/* Lost & Found Widget */}
                 <div className="md:col-span-3 lg:col-span-3 h-full">
                     <LostFoundWidget />
                 </div>
             </div>
+        )}
+
+        {/* Today's Schedule (Staff Only) */}
+        {isStaff && (
+            <TodayScheduleWidget appointments={todayAppointments} clinic={clinic} />
         )}
 
         {/* Empty State */}

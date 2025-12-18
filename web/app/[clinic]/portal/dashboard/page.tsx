@@ -39,7 +39,7 @@ export default async function DashboardPage({ params, searchParams }: {
     let myAppointments: any[] = [];
 
     if (isStaff) {
-        const { data } = await supabase.rpc('get_clinic_stats', { clinic_id: 'adris' });
+        const { data } = await supabase.rpc('get_clinic_stats', { clinic_id: clinic });
         stats = data;
     } else {
         // Fetch Owner's upcoming appointments
@@ -164,9 +164,12 @@ export default async function DashboardPage({ params, searchParams }: {
                 </div>
                 <h3 className="text-xl font-bold text-gray-600">{data.config.ui_labels?.portal?.empty_states?.no_pets}</h3>
                 <p className="text-gray-500 mb-6">{data.config.ui_labels?.portal?.empty_states?.no_pets_desc}</p>
-                <button className="bg-[var(--primary)] text-white px-6 py-3 rounded-xl font-bold shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all">
+                <Link
+                    href={`/${clinic}/portal/pets/new`}
+                    className="bg-[var(--primary)] text-white px-6 py-3 rounded-xl font-bold shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all inline-block"
+                >
                     {data.config.ui_labels?.portal?.empty_states?.add_pet_btn}
-                </button>
+                </Link>
             </div>
         )}
 

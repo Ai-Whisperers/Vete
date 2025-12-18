@@ -1,0 +1,192 @@
+import { createClient } from '@/lib/supabase/server';
+import { NextRequest, NextResponse } from 'next/server';
+import crypto from 'crypto';
+
+export async function POST(request: NextRequest): Promise<NextResponse> {
+  const supabase = await createClient();
+
+  // Authentication check
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) {
+    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+  }
+
+  // Get user profile
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('clinic_id:tenant_id, role')
+    .eq('id', user.id)
+    .single();
+
+  if (!profile) {
+    return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 });
+  }
+
+  if (!['vet', 'admin'].includes(profile.role)) {
+    return NextResponse.json({ error: 'Solo personal autorizado puede enviar solicitudes de firma' }, { status: 403 });
+  }
+
+  // Parse body
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: 'JSON inválido' }, { status: 400 });
+  }
+
+  const {
+    template_id,
+    pet_id,
+    owner_id,
+    delivery_method,
+    recipient_email,
+    recipient_phone,
+    expires_in_hours
+  } = body;
+
+  // Validate required fields
+  if (!template_id || !pet_id || !owner_id || !delivery_method) {
+    return NextResponse.json({
+      error: 'template_id, pet_id, owner_id y delivery_method son requeridos'
+    }, { status: 400 });
+  }
+
+  if (delivery_method === 'email' && !recipient_email) {
+    return NextResponse.json({ error: 'recipient_email es requerido para envío por email' }, { status: 400 });
+  }
+
+  if (delivery_method === 'sms' && !recipient_phone) {
+    return NextResponse.json({ error: 'recipient_phone es requerido para envío por SMS' }, { status: 400 });
+  }
+
+  // Verify pet belongs to staff's clinic
+  const { data: pet } = await supabase
+    .from('pets')
+    .select('id, tenant_id, owner_id, name')
+    .eq('id', pet_id)
+    .single();
+
+  if (!pet) {
+    return NextResponse.json({ error: 'Mascota no encontrada' }, { status: 404 });
+  }
+
+  if (pet.tenant_id !== profile.clinic_id) {
+    return NextResponse.json({ error: 'No tienes acceso a esta mascota' }, { status: 403 });
+  }
+
+  // Verify owner
+  if (pet.owner_id !== owner_id) {
+    return NextResponse.json({ error: 'El dueño no coincide con la mascota' }, { status: 400 });
+  }
+
+  // Get owner info
+  const { data: owner } = await supabase
+    .from('profiles')
+    .select('id, full_name, email, phone')
+    .eq('id', owner_id)
+    .single();
+
+  if (!owner) {
+    return NextResponse.json({ error: 'Dueño no encontrado' }, { status: 404 });
+  }
+
+  // Get template info
+  const { data: template } = await supabase
+    .from('consent_templates')
+    .select('id, name, category')
+    .eq('id', template_id)
+    .single();
+
+  if (!template) {
+    return NextResponse.json({ error: 'Plantilla no encontrada' }, { status: 404 });
+  }
+
+  // Generate unique token
+  const token = crypto.randomBytes(32).toString('hex');
+
+  // Calculate expiry date
+  const expiresAt = new Date();
+  expiresAt.setHours(expiresAt.getHours() + (expires_in_hours || 48));
+
+  // Create consent request
+  const { data, error } = await supabase
+    .from('consent_requests')
+    .insert({
+      template_id,
+      pet_id,
+      owner_id,
+      requested_by_id: user.id,
+      token,
+      delivery_method,
+      recipient_email: recipient_email || owner.email,
+      recipient_phone: recipient_phone || owner.phone,
+      expires_at: expiresAt.toISOString(),
+      status: 'pending'
+    })
+    .select()
+    .single();
+
+  if (error) {
+    console.error('[API] consent requests POST error:', error);
+    return NextResponse.json({ error: 'Error al crear solicitud de consentimiento' }, { status: 500 });
+  }
+
+  // Generate signing link
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const signingLink = `${baseUrl}/consent/${token}`;
+
+  // TODO: Send email or SMS with signing link
+  // For now, just return the link
+  console.log(`[Consent Request] Sending ${delivery_method} to ${recipient_email || recipient_phone}`);
+  console.log(`[Consent Request] Signing link: ${signingLink}`);
+
+  return NextResponse.json({
+    ...data,
+    signing_link: signingLink
+  }, { status: 201 });
+}
+
+export async function GET(request: NextRequest): Promise<NextResponse> {
+  const supabase = await createClient();
+
+  // Authentication check
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) {
+    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+  }
+
+  // Get user profile
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('clinic_id:tenant_id, role')
+    .eq('id', user.id)
+    .single();
+
+  if (!profile) {
+    return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 });
+  }
+
+  if (!['vet', 'admin'].includes(profile.role)) {
+    return NextResponse.json({ error: 'Solo personal autorizado puede ver solicitudes' }, { status: 403 });
+  }
+
+  // Get consent requests
+  const { data, error } = await supabase
+    .from('consent_requests')
+    .select(`
+      *,
+      pet:pets!inner(id, name, tenant_id),
+      owner:profiles!owner_id(id, full_name, email),
+      template:consent_templates!template_id(id, name, category),
+      requested_by:profiles!requested_by_id(id, full_name)
+    `)
+    .eq('pet.tenant_id', profile.clinic_id)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('[API] consent requests GET error:', error);
+    return NextResponse.json({ error: 'Error al obtener solicitudes' }, { status: 500 });
+  }
+
+  return NextResponse.json(data);
+}

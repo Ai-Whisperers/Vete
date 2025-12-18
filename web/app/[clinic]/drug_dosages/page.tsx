@@ -1,5 +1,9 @@
 "use client";
+
 import { useEffect, useState } from 'react';
+
+// Prevent static generation - this page requires runtime data
+export const dynamic = 'force-dynamic';
 
 interface DrugDosage {
   id: string;

@@ -1,11 +1,102 @@
 "use client";
 
 import { useState } from 'react';
-import * as Icons from 'lucide-react';
+import {
+    Syringe,
+    Stethoscope,
+    Scissors,
+    UserCircle,
+    Activity,
+    Heart,
+    Microscope,
+    Sparkles,
+    FileText,
+    Building2,
+    Leaf,
+    PawPrint,
+    Check,
+    Download,
+    Layers,
+    ArrowLeft,
+    ArrowRight,
+    ChevronRight,
+    Dog,
+    Info,
+    AlertCircle,
+    Calendar,
+    Clock,
+    Loader2,
+    ShoppingBag,
+    Zap,
+    type LucideIcon
+} from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
+// Icon mapping from string names to Lucide components
+const ICON_MAP: Record<string, LucideIcon> = {
+    Syringe,
+    Stethoscope,
+    Scissors,
+    UserCircle,
+    Activity,
+    Heart,
+    Microscope,
+    Sparkles,
+    FileText,
+    Building2,
+    Leaf,
+    PawPrint,
+};
+
+// Color mapping by service category
+const CATEGORY_COLORS: Record<string, string> = {
+    clinical: 'bg-green-50 text-green-600',
+    preventive: 'bg-blue-50 text-blue-600',
+    specialty: 'bg-amber-50 text-amber-600',
+    diagnostics: 'bg-purple-50 text-purple-600',
+    surgery: 'bg-rose-50 text-rose-600',
+    hospital: 'bg-red-50 text-red-600',
+    holistic: 'bg-emerald-50 text-emerald-600',
+    grooming: 'bg-pink-50 text-pink-600',
+    luxury: 'bg-yellow-50 text-yellow-600',
+    documents: 'bg-slate-50 text-slate-600',
+};
+
+interface ServiceFromJSON {
+    id: string;
+    title: string;
+    category?: string;
+    icon?: string;
+    description?: string;
+    booking?: {
+        online_enabled?: boolean;
+        duration_minutes?: number;
+        price_from?: string;
+    };
+    variants?: Array<{
+        name: string;
+        price: string;
+        duration?: string;
+    }>;
+}
+
+interface BookableService {
+    id: string;
+    name: string;
+    icon: LucideIcon;
+    duration: number;
+    price: number;
+    color: string;
+}
+
 interface BookingWizardProps {
-    clinic: any;
+    clinic: {
+        config: {
+            id: string;
+            name: string;
+        };
+        services?: ServiceFromJSON[];
+    };
     user: any;
     userPets: any[];
     initialService?: string;
@@ -21,6 +112,38 @@ const PROGRESS = {
     'success': 100
 };
 
+/**
+ * Parse price string (e.g., "50.000" or "50000") to number
+ */
+function parsePrice(priceStr: string | undefined): number {
+    if (!priceStr) return 0;
+    // Remove dots used as thousand separators, then parse
+    return parseInt(priceStr.replace(/\./g, ''), 10) || 0;
+}
+
+/**
+ * Format price number for display (e.g., 50000 -> "50.000")
+ */
+function formatPrice(price: number): string {
+    return price.toLocaleString('es-PY');
+}
+
+/**
+ * Transform JSON services to bookable services format
+ */
+function transformServices(jsonServices: ServiceFromJSON[]): BookableService[] {
+    return jsonServices
+        .filter(s => s.booking?.online_enabled === true)
+        .map(s => ({
+            id: s.id,
+            name: s.title,
+            icon: ICON_MAP[s.icon || ''] || PawPrint,
+            duration: s.booking?.duration_minutes || 30,
+            price: parsePrice(s.booking?.price_from),
+            color: CATEGORY_COLORS[s.category || ''] || 'bg-gray-50 text-gray-600',
+        }));
+}
+
 export default function BookingWizard({ clinic, user, userPets, initialService }: BookingWizardProps) {
     const router = useRouter();
     const [step, setStep] = useState<Step>(initialService ? 'pet' : 'service');
@@ -34,14 +157,10 @@ export default function BookingWizard({ clinic, user, userPets, initialService }
 
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // Services (Expanded for premium feel)
-    const services = [
-        { id: 'vaccination', name: 'Vacunación', icon: Icons.Syringe, duration: 15, price: 25, color: 'bg-blue-50 text-blue-600' },
-        { id: 'consultation', name: 'Consulta General', icon: Icons.Stethoscope, duration: 30, price: 40, color: 'bg-green-50 text-green-600' },
-        { id: 'grooming', name: 'Baño y Corte', icon: Icons.Scissors, duration: 60, price: 50, color: 'bg-purple-50 text-purple-600' },
-        { id: 'specialist', name: 'Especialista', icon: Icons.UserCircle, duration: 45, price: 80, color: 'bg-amber-50 text-amber-600' },
-        { id: 'internal', name: 'Medicina Interna', icon: Icons.Activity, duration: 40, price: 60, color: 'bg-rose-50 text-rose-600' },
-    ];
+    // Transform clinic services from JSON to bookable format
+    const services: BookableService[] = clinic.services
+        ? transformServices(clinic.services)
+        : [];
 
     const timeSlots = [
         '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
@@ -80,7 +199,7 @@ export default function BookingWizard({ clinic, user, userPets, initialService }
         return (
             <div className="max-w-2xl mx-auto mt-20 p-12 bg-white rounded-[3rem] shadow-2xl border border-gray-100 text-center animate-in zoom-in-95 duration-500">
                 <div className="w-24 h-24 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-8 text-green-600 relative">
-                    <Icons.Check className="w-12 h-12 relative z-10" />
+                    <Check className="w-12 h-12 relative z-10" />
                     <div className="absolute inset-0 bg-green-400 opacity-20 rounded-full animate-ping"></div>
                 </div>
                 <h2 className="text-4xl font-black text-gray-900 mb-4">¡Todo listo!</h2>
@@ -95,7 +214,7 @@ export default function BookingWizard({ clinic, user, userPets, initialService }
                         Volver al Inicio
                     </button>
                     <button className="px-10 py-5 bg-gray-100 text-gray-600 font-bold rounded-2xl hover:bg-gray-200 transition-all flex items-center justify-center gap-2">
-                        <Icons.Download className="w-5 h-5" /> Descargar Ticket
+                        <Download className="w-5 h-5" /> Descargar Ticket
                     </button>
                 </div>
             </div>
@@ -130,34 +249,42 @@ export default function BookingWizard({ clinic, user, userPets, initialService }
                         <div className="relative z-10 animate-in slide-in-from-right-8 duration-500">
                             <div className="flex items-center gap-4 mb-10">
                                 <div className="w-12 h-12 bg-[var(--primary)]/10 text-[var(--primary)] rounded-2xl flex items-center justify-center">
-                                    <Icons.Layers className="w-6 h-6" />
+                                    <Layers className="w-6 h-6" />
                                 </div>
                                 <h2 className="text-3xl font-black text-gray-900">¿Qué servicio necesitas?</h2>
                             </div>
                             
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {services.map(s => (
-                                    <button 
-                                        key={s.id}
-                                        onClick={() => {
-                                            setSelection({...selection, serviceId: s.id});
-                                            setStep('pet');
-                                        }}
-                                        className="p-6 bg-white border border-gray-100 rounded-[2rem] hover:border-[var(--primary)] hover:shadow-xl hover:-translate-y-1 transition-all text-left group flex items-start gap-4"
-                                    >
-                                        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 ${s.color} transition-transform group-hover:scale-110`}>
-                                            <s.icon className="w-7 h-7" />
-                                        </div>
-                                        <div className="flex-1">
-                                            <h3 className="font-black text-gray-900 text-lg mb-1">{s.name}</h3>
-                                            <p className="text-sm text-gray-500 font-medium mb-2 opacity-60">Duración: {s.duration} min</p>
-                                            <div className="flex items-center justify-between">
-                                                <span className="text-[var(--primary)] font-black">Desde ${s.price}</span>
-                                                <Icons.ArrowRight className="w-4 h-4 text-gray-300 group-hover:translate-x-1 group-hover:text-[var(--primary)] transition-all" />
+                                {services.length > 0 ? (
+                                    services.map(s => (
+                                        <button
+                                            key={s.id}
+                                            onClick={() => {
+                                                setSelection({...selection, serviceId: s.id});
+                                                setStep('pet');
+                                            }}
+                                            className="p-6 bg-white border border-gray-100 rounded-[2rem] hover:border-[var(--primary)] hover:shadow-xl hover:-translate-y-1 transition-all text-left group flex items-start gap-4"
+                                        >
+                                            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 ${s.color} transition-transform group-hover:scale-110`}>
+                                                <s.icon className="w-7 h-7" />
                                             </div>
-                                        </div>
-                                    </button>
-                                ))}
+                                            <div className="flex-1">
+                                                <h3 className="font-black text-gray-900 text-lg mb-1">{s.name}</h3>
+                                                <p className="text-sm text-gray-500 font-medium mb-2 opacity-60">Duración: {s.duration} min</p>
+                                                <div className="flex items-center justify-between">
+                                                    <span className="text-[var(--primary)] font-black">Desde ₲{formatPrice(s.price)}</span>
+                                                    <ArrowRight className="w-4 h-4 text-gray-300 group-hover:translate-x-1 group-hover:text-[var(--primary)] transition-all" />
+                                                </div>
+                                            </div>
+                                        </button>
+                                    ))
+                                ) : (
+                                    <div className="col-span-2 text-center py-20 bg-gray-50 rounded-[2.5rem] border-2 border-dashed border-gray-200">
+                                        <Layers className="w-16 h-16 text-gray-200 mx-auto mb-6" />
+                                        <p className="text-gray-500 mb-4 font-bold text-lg">No hay servicios disponibles para reservar online.</p>
+                                        <p className="text-gray-400 text-sm">Comunícate directamente con la clínica para agendar tu cita.</p>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     )}
@@ -167,7 +294,7 @@ export default function BookingWizard({ clinic, user, userPets, initialService }
                         <div className="relative z-10 animate-in slide-in-from-right-8 duration-500">
                             <div className="flex items-center gap-4 mb-10">
                                 <button onClick={() => setStep('service')} className="p-3 bg-gray-50 text-gray-400 rounded-2xl hover:bg-gray-100 transition-all">
-                                    <Icons.ArrowLeft className="w-5 h-5" />
+                                    <ArrowLeft className="w-5 h-5" />
                                 </button>
                                 <h2 className="text-3xl font-black text-gray-900">¿Para quién es la cita?</h2>
                             </div>
@@ -190,12 +317,12 @@ export default function BookingWizard({ clinic, user, userPets, initialService }
                                                 <h3 className="font-black text-gray-900 text-xl mb-1">{p.name}</h3>
                                                 <p className="text-sm text-gray-500 font-bold uppercase tracking-widest">{p.species} • {p.breed}</p>
                                             </div>
-                                            <Icons.ChevronRight className="w-6 h-6 text-gray-200 group-hover:text-[var(--primary)] group-hover:translate-x-1 transition-all" />
+                                            <ChevronRight className="w-6 h-6 text-gray-200 group-hover:text-[var(--primary)] group-hover:translate-x-1 transition-all" />
                                         </button>
                                     ))
                                 ) : (
                                     <div className="col-span-2 text-center py-20 bg-gray-50 rounded-[2.5rem] border-2 border-dashed border-gray-200">
-                                        <Icons.Dog className="w-16 h-16 text-gray-200 mx-auto mb-6" />
+                                        <Dog className="w-16 h-16 text-gray-200 mx-auto mb-6" />
                                         <p className="text-gray-500 mb-8 font-bold text-lg">No tienes mascotas registradas.</p>
                                         <button 
                                             onClick={() => router.push(`/${clinic.config.id}/portal/pets/new`)} 
@@ -214,7 +341,7 @@ export default function BookingWizard({ clinic, user, userPets, initialService }
                         <div className="relative z-10 animate-in slide-in-from-right-8 duration-500">
                              <div className="flex items-center gap-4 mb-10">
                                 <button onClick={() => setStep('pet')} className="p-3 bg-gray-50 text-gray-400 rounded-2xl hover:bg-gray-100 transition-all">
-                                    <Icons.ArrowLeft className="w-5 h-5" />
+                                    <ArrowLeft className="w-5 h-5" />
                                 </button>
                                 <h2 className="text-3xl font-black text-gray-900">Agenda tu visita</h2>
                             </div>
@@ -230,7 +357,7 @@ export default function BookingWizard({ clinic, user, userPets, initialService }
                                     />
                                     <div className="mt-6 p-6 bg-[var(--primary)]/5 rounded-3xl border border-[var(--primary)]/10">
                                         <p className="text-sm text-[var(--primary)] font-bold flex items-center gap-2">
-                                            <Icons.Info className="w-4 h-4" />
+                                            <Info className="w-4 h-4" />
                                             Reservando en {clinic.config.name}
                                         </p>
                                     </div>
@@ -258,7 +385,7 @@ export default function BookingWizard({ clinic, user, userPets, initialService }
 
                             <div className="mt-12 flex justify-between">
                                 <div className="text-xs text-gray-400 font-bold max-w-xs flex items-center gap-2 italic">
-                                     <Icons.AlertCircle className="w-4 h-4 shrink-0" />
+                                     <AlertCircle className="w-4 h-4 shrink-0" />
                                      Sujeto a confirmación por parte de la clínica.
                                 </div>
                                 <button 
@@ -277,7 +404,7 @@ export default function BookingWizard({ clinic, user, userPets, initialService }
                         <div className="relative z-10 animate-in slide-in-from-right-8 duration-500">
                              <div className="flex items-center gap-4 mb-10">
                                 <button onClick={() => setStep('datetime')} className="p-3 bg-gray-50 text-gray-400 rounded-2xl hover:bg-gray-100 transition-all">
-                                    <Icons.ArrowLeft className="w-5 h-5" />
+                                    <ArrowLeft className="w-5 h-5" />
                                 </button>
                                 <h2 className="text-3xl font-black text-gray-900">Confirmación Final</h2>
                             </div>
@@ -288,7 +415,7 @@ export default function BookingWizard({ clinic, user, userPets, initialService }
                                         <div>
                                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Servicio</p>
                                             <p className="text-xl font-black text-gray-900">{currentService?.name}</p>
-                                            <p className="text-sm text-[var(--primary)] font-bold italic">${currentService?.price}</p>
+                                            <p className="text-sm text-[var(--primary)] font-bold italic">₲{formatPrice(currentService?.price || 0)}</p>
                                         </div>
                                         <div>
                                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Paciente</p>
@@ -302,11 +429,11 @@ export default function BookingWizard({ clinic, user, userPets, initialService }
                                         <div>
                                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Fecha y Hora</p>
                                             <div className="text-xl font-black text-gray-900 flex items-center gap-2">
-                                                <Icons.Calendar className="w-5 h-5 text-[var(--primary)]" />
+                                                <Calendar className="w-5 h-5 text-[var(--primary)]" />
                                                 {selection.date}
                                             </div>
                                             <div className="text-xl font-black text-gray-900 flex items-center gap-2 mt-1">
-                                                <Icons.Clock className="w-5 h-5 text-[var(--primary)]" />
+                                                <Clock className="w-5 h-5 text-[var(--primary)]" />
                                                 {selection.time_slot}
                                             </div>
                                         </div>
@@ -329,8 +456,8 @@ export default function BookingWizard({ clinic, user, userPets, initialService }
                                     disabled={isSubmitting} 
                                     className="px-12 py-6 bg-[var(--primary)] text-white font-black text-xl rounded-[2rem] shadow-2xl shadow-[var(--primary)]/40 hover:scale-105 transition-all flex items-center gap-4 disabled:opacity-50"
                                 >
-                                    {isSubmitting ? <Icons.Loader2 className="animate-spin w-6 h-6" /> : (
-                                        <>Confirmar Cita <Icons.ArrowRight className="w-6 h-6" /></>
+                                    {isSubmitting ? <Loader2 className="animate-spin w-6 h-6" /> : (
+                                        <>Confirmar Cita <ArrowRight className="w-6 h-6" /></>
                                     )}
                                 </button>
                             </div>
@@ -342,7 +469,7 @@ export default function BookingWizard({ clinic, user, userPets, initialService }
                 <aside className="lg:sticky lg:top-12 space-y-6 animate-in slide-in-from-bottom-8 duration-700">
                     <div className="bg-white rounded-[2.5rem] p-8 shadow-2xl border border-gray-100">
                         <h4 className="font-black text-gray-900 mb-6 flex items-center gap-3">
-                            <Icons.ShoppingBag className="w-5 h-5 text-[var(--primary)]" /> Resumen
+                            <ShoppingBag className="w-5 h-5 text-[var(--primary)]" /> Resumen
                         </h4>
                         
                         <div className="space-y-6">
@@ -350,7 +477,7 @@ export default function BookingWizard({ clinic, user, userPets, initialService }
                                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Servicio</p>
                                 {selection.serviceId ? (
                                     <div className="flex items-center gap-3">
-                                        <div className="p-2 bg-white rounded-lg"><Icons.Zap className="w-4 h-4 text-[var(--primary)]" /></div>
+                                        <div className="p-2 bg-white rounded-lg"><Zap className="w-4 h-4 text-[var(--primary)]" /></div>
                                         <span className="font-bold text-gray-700">{currentService?.name}</span>
                                     </div>
                                 ) : <span className="text-sm italic text-gray-400 font-bold">Sin seleccionar</span>}
@@ -380,7 +507,7 @@ export default function BookingWizard({ clinic, user, userPets, initialService }
                         <div className="mt-8 pt-6 border-t border-gray-100">
                              <div className="flex justify-between items-end">
                                 <span className="text-xs font-black text-gray-400 uppercase tracking-widest">Total Estimado</span>
-                                <span className="text-2xl font-black text-gray-900">${currentService?.price || 0}</span>
+                                <span className="text-2xl font-black text-gray-900">₲{formatPrice(currentService?.price || 0)}</span>
                              </div>
                         </div>
                     </div>

@@ -1,9 +1,6 @@
-import { defineConfig } from "eslint/config";
-
-const eslintConfig = defineConfig([
+/** @type {import('eslint').Linter.Config[]} */
+export default [
   {
     ignores: ["**/*"],
   },
-]);
-
-export default eslintConfig;
+];

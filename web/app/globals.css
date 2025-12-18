@@ -20,6 +20,25 @@
   --transition-fast: 150ms;
   --transition-normal: 250ms;
   --transition-slow: 400ms;
+
+  /* Design System Tokens - Consistent Radius */
+  --radius-sm: 0.75rem;    /* 12px - badges, small buttons */
+  --radius-md: 1rem;       /* 16px - buttons, inputs */
+  --radius-lg: 1.5rem;     /* 24px - cards */
+  --radius-xl: 2rem;       /* 32px - modals, large cards */
+
+  /* shadcn/ui compatible variables */
+  --card: 0 0% 100%;
+  --card-foreground: 222.2 84% 4.9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222.2 84% 4.9%;
+  --muted: 210 40% 96.1%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --ring: 222.2 84% 4.9%;
 }
 
 @layer base {
@@ -186,4 +205,45 @@
   .stagger-4 { animation-delay: 0.4s; }
   .stagger-5 { animation-delay: 0.5s; }
   .stagger-6 { animation-delay: 0.6s; }
+
+  /* Skip to content link for accessibility (hidden until focused) */
+  .skip-link {
+    position: absolute;
+    left: -9999px;
+    z-index: 999;
+    padding: 0.75rem 1.5rem;
+    background: var(--primary, #2F5233);
+    color: white;
+    font-weight: 700;
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    transition: left var(--transition-fast);
+  }
+
+  .skip-link:focus {
+    left: 1rem;
+    top: 1rem;
+  }
+
+  /* Focus ring utility for custom components */
+  .focus-ring {
+    outline: none;
+  }
+
+  .focus-ring:focus-visible {
+    outline: 2px solid var(--primary, #2F5233);
+    outline-offset: 2px;
+  }
+
+  /* Bounce-in animation for floating elements */
+  .animate-bounce-in {
+    animation: bounceIn 0.5s ease-out;
+  }
+
+  @keyframes bounceIn {
+    0% { opacity: 0; transform: scale(0.3); }
+    50% { opacity: 1; transform: scale(1.05); }
+    70% { transform: scale(0.9); }
+    100% { transform: scale(1); }
+  }
 }

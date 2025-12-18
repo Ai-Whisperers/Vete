@@ -141,7 +141,13 @@ export async function getClinicData(slug: string): Promise<ClinicData | null> {
 export async function getAllClinics(): Promise<string[]> {
     if (!fs.existsSync(CONTENT_DIR)) return [];
     return fs.readdirSync(CONTENT_DIR).filter(file => {
-        // Exclude template folders (prefixed with _) and only include valid clinic directories
-        return fs.statSync(path.join(CONTENT_DIR, file)).isDirectory() && !file.startsWith('_');
+        // Exclude template folders (prefixed with _ or .), hidden files, and non-directories
+        if (file.startsWith('_') || file.startsWith('.')) return false;
+        const fullPath = path.join(CONTENT_DIR, file);
+        if (!fs.statSync(fullPath).isDirectory()) return false;
+        // Also verify it has required config files to be a valid clinic
+        const configPath = path.join(fullPath, 'config.json');
+        const themePath = path.join(fullPath, 'theme.json');
+        return fs.existsSync(configPath) && fs.existsSync(themePath);
     });
 }

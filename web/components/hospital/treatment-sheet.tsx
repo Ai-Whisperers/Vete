@@ -1,5 +1,6 @@
 "use client";
 
+import type { JSX } from 'react';
 import { useState } from 'react';
 import { Check, X, Clock, Pill, Syringe, Droplet, Activity, Plus } from 'lucide-react';
 
@@ -52,15 +53,15 @@ export default function TreatmentSheet({
   const getStatusColor = (status: string): string => {
     switch (status) {
       case 'scheduled':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-300';
+        return 'bg-[var(--status-warning-bg,#fef3c7)] text-[var(--status-warning-dark,#a16207)] border-[var(--status-warning,#eab308)]/30';
       case 'administered':
-        return 'bg-green-100 text-green-800 border-green-300';
+        return 'bg-[var(--status-success-bg,#dcfce7)] text-[var(--status-success,#16a34a)] border-[var(--status-success,#22c55e)]/30';
       case 'skipped':
-        return 'bg-red-100 text-red-800 border-red-300';
+        return 'bg-[var(--status-error-bg,#fee2e2)] text-[var(--status-error,#dc2626)] border-[var(--status-error,#ef4444)]/30';
       case 'delayed':
-        return 'bg-orange-100 text-orange-800 border-orange-300';
+        return 'bg-[var(--status-warning-bg,#fef3c7)] text-[var(--status-warning-dark,#a16207)] border-[var(--status-warning,#f59e0b)]/30';
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-300';
+        return 'bg-[var(--bg-subtle)] text-[var(--text-secondary)] border-[var(--border,#e5e7eb)]';
     }
   };
 
@@ -95,8 +96,7 @@ export default function TreatmentSheet({
 
       onTreatmentUpdate();
       setSelectedTreatment(null);
-    } catch (error) {
-      console.error('Error updating treatment:', error);
+    } catch {
       alert('Error al actualizar el tratamiento');
     } finally {
       setLoading(false);

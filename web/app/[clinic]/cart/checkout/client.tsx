@@ -5,6 +5,7 @@ import { useAuthRedirect } from '@/hooks/useAuthRedirect';
 import { useCart } from '@/context/cart-context';
 import Link from 'next/link';
 import { ShoppingBag, Printer, MessageCircle, Loader2, AlertCircle, CheckCircle } from 'lucide-react';
+import type { ClinicConfig } from '@/lib/clinics';
 
 // TICKET-BIZ-003: Proper checkout with stock validation
 
@@ -27,19 +28,7 @@ interface CheckoutResult {
 }
 
 interface CheckoutClientProps {
-  readonly config: {
-    id?: string;
-    name?: string;
-    ui_labels?: {
-      checkout?: Record<string, string>;
-    };
-    settings?: {
-      currency?: string;
-    };
-    contact?: {
-      whatsapp_number?: string;
-    };
-  };
+  readonly config: ClinicConfig;
 }
 
 export default function CheckoutClient({ config }: CheckoutClientProps) {

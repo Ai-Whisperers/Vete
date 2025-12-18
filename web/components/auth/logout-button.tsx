@@ -26,8 +26,8 @@ export function LogoutButton({
       await supabase.auth.signOut();
       router.push(`/${clinic}/portal/login`);
       router.refresh();
-    } catch (error) {
-      console.error("Logout error:", error);
+    } catch {
+      // Logout error - silently fail
     } finally {
       setIsLoading(false);
     }

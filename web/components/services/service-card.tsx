@@ -1,7 +1,7 @@
 
 import { DynamicIcon } from '@/components/ui/dynamic-icon';
 import Link from 'next/link';
-import { Check, ArrowRight } from 'lucide-react';
+import { Check, ArrowRight, Calendar, MessageCircle } from 'lucide-react';
 import { AddToCartButton } from '../cart/add-to-cart-button';
 
 // TICKET-TYPE-003: Define proper types for component props
@@ -30,34 +30,27 @@ interface Service {
 }
 
 interface ServiceCardConfig {
+  id?: string;
   ui_labels?: {
     services?: {
       includes_label?: string;
+      book_btn?: string;
     };
+  };
+  contact?: {
+    whatsapp_number?: string;
   };
 }
 
 interface ServiceCardProps {
   readonly service: Service;
   readonly config: ServiceCardConfig;
+  readonly clinic: string;
 }
 
-export const ServiceCard = ({ service, config }: ServiceCardProps) => {
-  // Use useParams to safely get the current clinic slug from the URL context
-  // This avoids passing 'clinic' prop deep down if not strictly necessary,
-  // but if 'config.id' or similar has the slug, we can use that too.
-  // Assuming the config object might NOT have the raw slug sometimes, but let's try to infer or pass it.
-  // A safer way is ensuring the parent passes the slug or we grab it from context.
-  
-  // Since 'config' usually comes from getClinicData, let's assume we can get the ID from the URL using params in a client/server component.
-  // However, this is a component that might be server rendered. 'useParams' works in Client Components. 
-  // Let's rely on a prop or assume the parent passes correct context. 
-  // Actually, 'Link' relative paths work well if we are already in [clinic].
-  // But to be safe, let's construct the path if we can.
-  // For now, let's use a relative link if possible or assume we are passing the clinic ID.
-  // Wait, the 'service' object doesn't have the clinic ID. 
-  // Let's update the layout to just use relative path `services/${id}` which appends to current.
-  // If we are at `/adris/services`, `id` makes it `/adris/services/id`.
+export const ServiceCard = ({ service, config, clinic }: ServiceCardProps) => {
+  const whatsappNumber = config.contact?.whatsapp_number;
+  const isBookable = service.booking?.online_enabled;
 
   if (!service.visible) return null;
 
@@ -136,16 +129,16 @@ export const ServiceCard = ({ service, config }: ServiceCardProps) => {
 
       {/* Card Footer - Price & Action */}
       <div className="p-6 pt-4 mt-auto border-t border-[var(--border-light,#f9fafb)] bg-[var(--bg-subtle)]/30 relative z-20">
-        <div className="flex items-end justify-between gap-2">
+        <div className="flex items-end justify-between gap-2 mb-3">
              <div className="flex flex-col">
                 <span className="text-xs text-[var(--text-muted)] font-medium">Desde</span>
                 <span className="text-xl font-black text-[var(--primary)]">
                     {service.variants?.[0]?.price_display || 'Consultar'}
                 </span>
              </div>
-             
+
              <div className="flex gap-2">
-                 <AddToCartButton 
+                 <AddToCartButton
                     item={{
                         id: service.id,
                         name: service.title,
@@ -156,16 +149,41 @@ export const ServiceCard = ({ service, config }: ServiceCardProps) => {
                     iconOnly
                     className="z-30 relative"
                  />
-                 
-                 <div 
+
+                 <div
                     className="rounded-xl bg-[var(--bg-subtle)] text-[var(--primary)] p-3 group-hover:bg-[var(--primary)] group-hover:text-white transition-colors shadow-sm"
                  >
                      <ArrowRight className="w-5 h-5" />
                  </div>
              </div>
         </div>
+
+        {/* Booking Buttons */}
+        <div className="flex gap-2">
+          {isBookable ? (
+            <Link
+              href={`/${clinic}/book?service=${service.id}`}
+              className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 bg-[var(--primary)] text-white font-bold rounded-xl hover:opacity-90 transition-all z-30 relative text-sm"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Calendar className="w-4 h-4" />
+              {config.ui_labels?.services?.book_btn || 'Reservar Online'}
+            </Link>
+          ) : whatsappNumber ? (
+            <a
+              href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Hola, me interesa el servicio: ${service.title}`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 bg-green-500 text-white font-bold rounded-xl hover:bg-green-600 transition-all z-30 relative text-sm"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <MessageCircle className="w-4 h-4" />
+              Consultar
+            </a>
+          ) : null}
+        </div>
       </div>
-    
+
     </div>
   );
 };

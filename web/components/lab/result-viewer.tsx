@@ -2,7 +2,21 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import * as Icons from 'lucide-react'
+import {
+  CheckCircle,
+  ArrowDown,
+  ArrowUp,
+  ArrowDownToLine,
+  ArrowUpToLine,
+  Minus,
+  TrendingUp,
+  TrendingDown,
+  Loader2,
+  FileText,
+  Download,
+  AlertTriangle,
+  Clock
+} from 'lucide-react'
 
 interface LabResult {
   id: string
@@ -87,8 +101,8 @@ export function ResultViewer({ orderId, petId, showHistory = true, onDownloadPdf
       })) || []
 
       setResults(formattedResults)
-    } catch (error) {
-      console.error('Error fetching results:', error)
+    } catch {
+      // Error fetching results - silently fail
     } finally {
       setLoading(false)
     }
@@ -132,40 +146,40 @@ export function ResultViewer({ orderId, petId, showHistory = true, onDownloadPdf
       })
 
       setHistoricalData(grouped)
-    } catch (error) {
-      console.error('Error fetching historical data:', error)
+    } catch {
+      // Error fetching historical data - silently fail
     }
   }
 
   const getFlagColor = (flag?: string): string => {
     switch (flag) {
       case 'normal':
-        return 'text-green-600 bg-green-50 border-green-200'
+        return 'text-[var(--status-success,#16a34a)] bg-[var(--status-success-bg,#dcfce7)] border-[var(--status-success,#22c55e)]/30'
       case 'low':
       case 'high':
-        return 'text-yellow-600 bg-yellow-50 border-yellow-200'
+        return 'text-[var(--status-warning-dark,#a16207)] bg-[var(--status-warning-bg,#fef3c7)] border-[var(--status-warning,#eab308)]/30'
       case 'critical_low':
       case 'critical_high':
-        return 'text-red-600 bg-red-50 border-red-200'
+        return 'text-[var(--status-error,#dc2626)] bg-[var(--status-error-bg,#fee2e2)] border-[var(--status-error,#ef4444)]/30'
       default:
-        return 'text-gray-600 bg-gray-50 border-gray-200'
+        return 'text-[var(--text-secondary)] bg-[var(--bg-subtle)] border-[var(--border,#e5e7eb)]'
     }
   }
 
   const getFlagIcon = (flag?: string) => {
     switch (flag) {
       case 'normal':
-        return <Icons.CheckCircle className="w-5 h-5" />
+        return <CheckCircle className="w-5 h-5" />
       case 'low':
-        return <Icons.ArrowDown className="w-5 h-5" />
+        return <ArrowDown className="w-5 h-5" />
       case 'high':
-        return <Icons.ArrowUp className="w-5 h-5" />
+        return <ArrowUp className="w-5 h-5" />
       case 'critical_low':
-        return <Icons.ArrowDownToLine className="w-5 h-5" />
+        return <ArrowDownToLine className="w-5 h-5" />
       case 'critical_high':
-        return <Icons.ArrowUpToLine className="w-5 h-5" />
+        return <ArrowUpToLine className="w-5 h-5" />
       default:
-        return <Icons.Minus className="w-5 h-5" />
+        return <Minus className="w-5 h-5" />
     }
   }
 
@@ -199,19 +213,19 @@ export function ResultViewer({ orderId, petId, showHistory = true, onDownloadPdf
 
     if (!isSignificant) {
       return (
-        <span className="text-xs text-gray-500 flex items-center gap-1">
-          <Icons.Minus className="w-3 h-3" />
+        <span className="text-xs text-[var(--text-secondary)] flex items-center gap-1">
+          <Minus className="w-3 h-3" />
           Estable
         </span>
       )
     }
 
     return (
-      <span className={`text-xs flex items-center gap-1 ${isIncreasing ? 'text-red-600' : 'text-blue-600'}`}>
+      <span className={`text-xs flex items-center gap-1 ${isIncreasing ? 'text-[var(--status-error,#dc2626)]' : 'text-[var(--status-info,#2563eb)]'}`}>
         {isIncreasing ? (
-          <Icons.TrendingUp className="w-3 h-3" />
+          <TrendingUp className="w-3 h-3" />
         ) : (
-          <Icons.TrendingDown className="w-3 h-3" />
+          <TrendingDown className="w-3 h-3" />
         )}
         {Math.abs(percentChange).toFixed(1)}%
       </span>
@@ -250,15 +264,15 @@ export function ResultViewer({ orderId, petId, showHistory = true, onDownloadPdf
   if (loading) {
     return (
       <div className="flex items-center justify-center p-12">
-        <Icons.Loader2 className="w-8 h-8 animate-spin text-[var(--primary)]" />
+        <Loader2 className="w-8 h-8 animate-spin text-[var(--primary)]" />
       </div>
     )
   }
 
   if (results.length === 0) {
     return (
-      <div className="text-center py-12 bg-gray-50 rounded-xl">
-        <Icons.FileText className="w-16 h-16 mx-auto mb-4 text-gray-400" />
+      <div className="text-center py-12 bg-[var(--bg-subtle)] rounded-xl">
+        <FileText className="w-16 h-16 mx-auto mb-4 text-[var(--text-secondary)]" />
         <p className="text-[var(--text-secondary)]">No hay resultados disponibles</p>
       </div>
     )
@@ -273,7 +287,7 @@ export function ResultViewer({ orderId, petId, showHistory = true, onDownloadPdf
             onClick={onDownloadPdf}
             className="flex items-center gap-2 px-4 py-2 bg-[var(--primary)] text-white rounded-lg font-medium hover:opacity-90 transition-opacity"
           >
-            <Icons.Download className="w-4 h-4" />
+            <Download className="w-4 h-4" />
             Descargar PDF
           </button>
         </div>
@@ -353,13 +367,13 @@ export function ResultViewer({ orderId, petId, showHistory = true, onDownloadPdf
                       )}
                       <td className="px-6 py-4">
                         {result.verified_at ? (
-                          <div className="flex items-center gap-2 text-sm text-green-600">
-                            <Icons.CheckCircle className="w-4 h-4" />
+                          <div className="flex items-center gap-2 text-sm text-[var(--status-success,#16a34a)]">
+                            <CheckCircle className="w-4 h-4" />
                             Sí
                           </div>
                         ) : (
-                          <div className="flex items-center gap-2 text-sm text-gray-400">
-                            <Icons.Clock className="w-4 h-4" />
+                          <div className="flex items-center gap-2 text-sm text-[var(--text-muted)]">
+                            <Clock className="w-4 h-4" />
                             Pendiente
                           </div>
                         )}
@@ -399,11 +413,11 @@ export function ResultViewer({ orderId, petId, showHistory = true, onDownloadPdf
 
       {/* Critical Values Warning */}
       {results.some(r => r.flag === 'critical_low' || r.flag === 'critical_high') && (
-        <div className="flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
-          <Icons.AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+        <div className="flex items-start gap-3 p-4 bg-[var(--status-error-bg,#fee2e2)] border border-[var(--status-error,#ef4444)]/30 rounded-xl">
+          <AlertTriangle className="w-5 h-5 text-[var(--status-error,#dc2626)] flex-shrink-0 mt-0.5" />
           <div>
-            <h4 className="font-semibold text-red-900 mb-1">Valores Críticos Detectados</h4>
-            <p className="text-sm text-red-700">
+            <h4 className="font-semibold text-[var(--status-error,#dc2626)] mb-1">Valores Críticos Detectados</h4>
+            <p className="text-sm text-[var(--status-error,#dc2626)]/80">
               Esta orden contiene valores críticos que requieren atención inmediata del veterinario.
             </p>
           </div>

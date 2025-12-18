@@ -41,6 +41,20 @@ def main():
         ("features", "certified-vaccines.jpg", "feat_certified_vaccines.jpg"),
         ("store", "category-food.jpg", "store_category_food.jpg"),
         ("store", "category-health.jpg", "store_category_health.jpg"),
+        ("store", "category-accessories.jpg", "store_category_accessories.jpg"),
+        ("store", "category-hygiene.jpg", "store_category_hygiene.jpg"),
+        ("testimonials", "pet-1.jpg", "test_pet_1.jpg"),
+        ("testimonials", "pet-2.jpg", "test_pet_2.jpg"),
+        ("testimonials", "pet-3.jpg", "test_pet_3.jpg"),
+        ("testimonials", "pet-4.jpg", "test_pet_4.jpg"),
+        ("testimonials", "pet-5.jpg", "test_pet_5.jpg"),
+        ("testimonials", "pet-6.jpg", "test_pet_6.jpg"),
+        ("patterns", "paw-pattern.png", "pattern_paws.png"),
+        ("patterns", "pet-silhouettes.png", "pattern_silhouettes.png"),
+        ("", "og-image.jpg", "branding_og.jpg"),
+        ("features", "delivery.jpg", "feat_delivery.jpg"),
+        ("tools", "age-calculator.jpg", "tool_age_calculator.jpg"),
+        ("services", "specialties.jpg", "services_specialties.jpg"),
     ]
 
     for sub, name, new_name in files_to_copy:

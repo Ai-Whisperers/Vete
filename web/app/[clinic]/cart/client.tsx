@@ -1,6 +1,5 @@
 "use client";
 import { useParams } from 'next/navigation';
-import { useAuthRedirect } from '@/hooks/useAuthRedirect';
 import { useCart } from '@/context/cart-context';
 import Link from 'next/link';
 import { ShoppingBag, X, ArrowRight, Trash2, ArrowLeft, ShieldCheck, Plus, Minus, Tag, AlertCircle } from 'lucide-react';
@@ -8,7 +7,8 @@ import LoyaltyRedemption from '@/components/commerce/loyalty-redemption';
 import { createClient } from '@/lib/supabase/client';
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import { ClinicConfig } from '@/lib/clinics';
-import type { User } from '@supabase/supabase-js';
+import type { User as SupabaseUser } from '@supabase/supabase-js';
+import { AuthGate } from '@/components/auth/auth-gate';
 
 interface CartPageClientProps {
   readonly config: ClinicConfig;
@@ -19,23 +19,37 @@ const MAX_QUANTITY_PER_ITEM = 99;
 
 export default function CartPageClient({ config }: CartPageClientProps) {
   const { clinic } = useParams() as { clinic: string };
-  const { user, loading } = useAuthRedirect();
   const { items, clearCart, total, removeItem, updateQuantity, discount } = useCart();
-  const [profile, setProfile] = useState<User | null>(null);
+  const [user, setUser] = useState<SupabaseUser | null>(null);
+  const [loading, setLoading] = useState(true);
   const [quantityWarning, setQuantityWarning] = useState<string | null>(null);
 
   // Memoize supabase client
   const supabase = useMemo(() => createClient(), []);
 
   useEffect(() => {
-    if (user) {
-        supabase.auth.getUser().then(({ data }) => setProfile(data.user));
-    }
-  }, [user, supabase]);
+    const checkUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user ?? null);
+      setLoading(false);
+    };
+
+    checkUser();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setUser(session?.user ?? null);
+        setLoading(false);
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, [supabase]);
 
   const finalTotal = Math.max(0, total - discount);
   const labels = config.ui_labels?.cart || {};
   const currency = config.settings?.currency || 'PYG';
+  const whatsappNumber = config.contact?.whatsapp_number;
 
   // Safe quantity update with validation
   const handleQuantityUpdate = useCallback((itemId: string, delta: number) => {
@@ -69,7 +83,36 @@ export default function CartPageClient({ config }: CartPageClientProps) {
         </div>
     </div>
   );
-  if (!user) return null;
+
+  // Cart preview for unauthenticated users
+  const cartPreview = items.length > 0 ? (
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
+      <div className="space-y-3">
+        {items.slice(0, 3).map((item) => (
+          <div key={item.id} className="flex items-center gap-3 text-sm">
+            <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+              {item.image_url ? (
+                <img src={item.image_url} alt={item.name} className="w-8 h-8 object-contain" />
+              ) : (
+                <ShoppingBag className="w-4 h-4 text-gray-400" />
+              )}
+            </div>
+            <span className="flex-1 truncate text-gray-700">{item.name}</span>
+            <span className="text-gray-500">x{item.quantity}</span>
+          </div>
+        ))}
+        {items.length > 3 && (
+          <p className="text-xs text-gray-400 text-center">+{items.length - 3} productos más</p>
+        )}
+        <div className="pt-3 border-t border-gray-100 flex justify-between font-bold">
+          <span>Total:</span>
+          <span className="text-[var(--primary)]">
+            {new Intl.NumberFormat('es-PY', { style: 'currency', currency: currency }).format(total)}
+          </span>
+        </div>
+      </div>
+    </div>
+  ) : null;
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
@@ -80,12 +123,21 @@ export default function CartPageClient({ config }: CartPageClientProps) {
                 <span className="hidden sm:inline">Tienda</span>
             </Link>
             <h1 className="text-xl font-bold text-gray-900">{labels.title || "Tu Carrito"}</h1>
-            <div className="w-20"></div> 
+            <div className="w-20"></div>
         </div>
       </div>
 
-      <div className="container mx-auto px-4">
-      {items.length === 0 ? (
+      <AuthGate
+        clinic={clinic}
+        returnTo={`/${clinic}/cart`}
+        whatsappNumber={whatsappNumber}
+        title="Inicia sesión para tu carrito"
+        description="Necesitas una cuenta para completar tu compra y acumular puntos de fidelidad."
+        icon="cart"
+        preview={cartPreview}
+      >
+        <div className="container mx-auto px-4">
+        {items.length === 0 ? (
         <div className="text-center py-24 bg-white rounded-[2rem] shadow-sm border border-gray-100 max-w-2xl mx-auto px-6">
              <div className="bg-gray-50 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-8">
                 <ShoppingBag className="w-10 h-10 text-gray-300" />
@@ -242,7 +294,8 @@ export default function CartPageClient({ config }: CartPageClientProps) {
             </div>
         </div>
       )}
-      </div>
+        </div>
+      </AuthGate>
     </div>
   );
 }

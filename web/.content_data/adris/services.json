@@ -57,7 +57,7 @@
       "title": "Especialidades Médicas",
       "icon": "activity",
       "summary": "Cardio, Onco, Neuro, Oftalmo y más.",
-      "image": "/branding/adris/images/services/consultation.jpg",
+      "image": "/branding/adris/images/services/specialties.jpg",
       "details": {
         "description": "Atención por especialistas certificados.",
         "duration_minutes": 45,
@@ -82,7 +82,7 @@
       "title": "Diagnóstico Avanzado",
       "icon": "microscope",
       "summary": "Laboratorio, Imágenes y Genética.",
-      "image": "/branding/adris/images/services/imaging.jpg",
+      "image": "/branding/adris/images/services/diagnostics.jpg",
       "details": {
           "description": "Tecnología de última generación para diagnósticos precisos.",
           "duration_minutes": 30,
@@ -193,7 +193,7 @@
       "title": "Servicios Premium & Hotel",
       "icon": "star",
       "summary": "Comodidad máxima para vos y tu mascota.",
-      "image": "/branding/adris/images/services/travel-docs.jpg",
+      "image": "/branding/adris/images/services/hotel.jpg",
       "details": {
           "description": "Soluciones exclusivas.",
           "duration_minutes": 0,

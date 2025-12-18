@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import * as Icons from 'lucide-react';
+import { CheckCircle, Loader2, Megaphone } from 'lucide-react';
 import { reportFoundPet } from '@/app/actions/safety';
 import { useToast } from '@/components/ui/Toast';
 
@@ -23,8 +23,8 @@ export function ReportFoundButton({ petId }: { petId: string }) {
                         navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 });
                     });
                     location = `${position.coords.latitude}, ${position.coords.longitude}`;
-                } catch (e) {
-                    console.log('Location access denied');
+                } catch {
+                    // Location access denied - continue without location
                 }
             }
 
@@ -45,8 +45,8 @@ export function ReportFoundButton({ petId }: { petId: string }) {
 
     if (reported) {
         return (
-            <div className="bg-green-100 text-green-800 p-4 rounded-xl text-center font-bold flex items-center justify-center gap-2">
-                <Icons.CheckCircle className="w-5 h-5" />
+            <div className="bg-[var(--status-success-bg,#dcfce7)] text-[var(--status-success,#16a34a)] p-4 rounded-xl text-center font-bold flex items-center justify-center gap-2">
+                <CheckCircle className="w-5 h-5" />
                 Reporte Enviado
             </div>
         );
@@ -56,9 +56,9 @@ export function ReportFoundButton({ petId }: { petId: string }) {
         <button
             onClick={handleReport}
             disabled={isReporting}
-            className="w-full mt-4 bg-orange-100 text-orange-700 py-3 rounded-xl font-bold hover:bg-orange-200 transition-colors flex items-center justify-center gap-2"
+            className="w-full mt-4 bg-[var(--status-warning-bg,#fef3c7)] text-[var(--status-warning-dark,#a16207)] py-3 rounded-xl font-bold hover:bg-[var(--status-warning,#eab308)]/20 transition-colors flex items-center justify-center gap-2"
         >
-            {isReporting ? <Icons.Loader2 className="w-5 h-5 animate-spin"/> : <Icons.Megaphone className="w-5 h-5"/>}
+            {isReporting ? <Loader2 className="w-5 h-5 animate-spin"/> : <Megaphone className="w-5 h-5"/>}
             Reportar como Encontrado
         </button>
     );

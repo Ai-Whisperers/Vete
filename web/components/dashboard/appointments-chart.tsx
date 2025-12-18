@@ -40,8 +40,8 @@ export function AppointmentsChart({ clinic }: AppointmentsChartProps) {
           const result = await res.json();
           setData(result);
         }
-      } catch (e) {
-        console.error('Error fetching appointment data:', e);
+      } catch {
+        // Error fetching appointment data - silently fail
       } finally {
         setLoading(false);
       }
@@ -60,10 +60,10 @@ export function AppointmentsChart({ clinic }: AppointmentsChartProps) {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-xl p-6 shadow-sm">
+      <div className="bg-[var(--bg-paper)] rounded-xl p-6 shadow-sm">
         <div className="animate-pulse">
-          <div className="h-6 bg-gray-200 rounded w-1/4 mb-4"></div>
-          <div className="h-64 bg-gray-100 rounded"></div>
+          <div className="h-6 bg-[var(--bg-subtle)] rounded w-1/4 mb-4"></div>
+          <div className="h-64 bg-[var(--border-light,#f3f4f6)] rounded"></div>
         </div>
       </div>
     );
@@ -75,21 +75,21 @@ export function AppointmentsChart({ clinic }: AppointmentsChartProps) {
   }));
 
   return (
-    <div className="bg-white rounded-xl p-6 shadow-sm">
+    <div className="bg-[var(--bg-paper)] rounded-xl p-6 shadow-sm">
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center gap-2">
-          <Calendar className="w-5 h-5 text-gray-500" />
-          <h3 className="font-semibold text-gray-900">Citas</h3>
+          <Calendar className="w-5 h-5 text-[var(--text-secondary)]" />
+          <h3 className="font-semibold text-[var(--text-primary)]">Citas</h3>
         </div>
-        <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
+        <div className="flex gap-1 bg-[var(--bg-subtle)] rounded-lg p-1">
           {(['day', 'week', 'month'] as const).map(p => (
             <button
               key={p}
               onClick={() => setPeriod(p)}
               className={`px-3 py-1 text-sm rounded-md transition-colors ${
                 period === p
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
+                  ? 'bg-[var(--bg-paper)] text-[var(--text-primary)] shadow-sm'
+                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`}
             >
               {p === 'day' ? 'Día' : p === 'week' ? 'Semana' : 'Mes'}
@@ -99,7 +99,7 @@ export function AppointmentsChart({ clinic }: AppointmentsChartProps) {
       </div>
 
       {data.length === 0 ? (
-        <div className="h-64 flex items-center justify-center text-gray-500">
+        <div className="h-64 flex items-center justify-center text-[var(--text-secondary)]">
           No hay datos de citas para mostrar
         </div>
       ) : (

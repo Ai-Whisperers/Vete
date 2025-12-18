@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import * as Icons from 'lucide-react';
+import { Search, Loader2 } from 'lucide-react';
 
 interface Drug {
     id: string;
@@ -40,8 +40,8 @@ export function DrugSearch({ onSelect, placeholder = "Buscar medicamento..." }: 
                         setResults(matches);
                         setIsOpen(true);
                      }
-                } catch(e) {
-                    console.error(e);
+                } catch {
+                    // Search error - silently fail
                 } finally {
                     setLoading(false);
                 }
@@ -56,31 +56,31 @@ export function DrugSearch({ onSelect, placeholder = "Buscar medicamento..." }: 
     return (
         <div className="relative">
              <div className="relative">
-                 <Icons.Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
                  <input
                     type="text"
-                    className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-[var(--primary)] outline-none"
+                    className="w-full pl-10 pr-4 py-2 bg-[var(--bg-paper)] border border-[var(--border,#e5e7eb)] rounded-lg focus:ring-2 focus:ring-[var(--primary)] outline-none"
                     placeholder={placeholder}
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                  />
-                 {loading && <Icons.Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-gray-400" />}
+                 {loading && <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-[var(--text-muted)]" />}
              </div>
-             
+
              {isOpen && results.length > 0 && (
-                 <div className="absolute z-50 w-full mt-1 bg-white rounded-lg shadow-xl border border-gray-100 max-h-60 overflow-y-auto">
+                 <div className="absolute z-50 w-full mt-1 bg-[var(--bg-paper)] rounded-lg shadow-xl border border-[var(--border-light,#f3f4f6)] max-h-60 overflow-y-auto">
                      {results.map(d => (
                          <button
                             key={d.id}
-                            className="w-full text-left px-4 py-2 hover:bg-gray-50 flex justify-between items-center text-sm"
+                            className="w-full text-left px-4 py-2 hover:bg-[var(--bg-subtle)] flex justify-between items-center text-sm"
                             onClick={() => {
                                 onSelect(d);
                                 setQuery('');
                                 setIsOpen(false);
                             }}
                          >
-                            <span className="font-bold text-gray-700">{d.name}</span>
-                            <span className="text-gray-400 text-xs">{d.concentration_mg_ml} mg/ml ({d.species})</span>
+                            <span className="font-bold text-[var(--text-secondary)]">{d.name}</span>
+                            <span className="text-[var(--text-muted)] text-xs">{d.concentration_mg_ml} mg/ml ({d.species})</span>
                          </button>
                      ))}
                  </div>

@@ -317,5 +317,11 @@
     "product": "/images/placeholders/product-placeholder.jpg",
     "team": "/images/placeholders/team-placeholder.jpg",
     "service": "/images/placeholders/service-placeholder.jpg"
+  },
+  "testimonials": {
+    "pet-1": "/branding/adris/images/testimonials/pet-1.jpg",
+    "pet-2": "/branding/adris/images/testimonials/pet-2.jpg",
+    "pet-5": "/branding/adris/images/testimonials/pet-5.jpg",
+    "pet-6": "/branding/adris/images/testimonials/pet-6.jpg"
   }
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from 'react';
-import * as Icons from 'lucide-react';
+import { Search, Loader2 } from 'lucide-react';
 
 interface Diagnosis {
     id: string;
@@ -33,8 +33,8 @@ export function DiagnosisSearch({ onSelect, placeholder = "Buscar diagnóstico..
                         setResults(data);
                         setIsOpen(true);
                     }
-                } catch (e) {
-                    console.error(e);
+                } catch {
+                    // Search error - silently fail
                 } finally {
                     setLoading(false);
                 }
@@ -50,44 +50,44 @@ export function DiagnosisSearch({ onSelect, placeholder = "Buscar diagnóstico..
     return (
         <div className="relative">
             <div className="relative">
-                 <Icons.Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
                  <input
                     type="text"
-                    className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent outline-none transition-all"
+                    className="w-full pl-10 pr-4 py-3 bg-[var(--bg-subtle)] border border-[var(--border,#e5e7eb)] rounded-xl focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent outline-none transition-all"
                     placeholder={placeholder}
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                  />
                  {loading && (
                     <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                        <Icons.Loader2 className="w-4 h-4 text-[var(--primary)] animate-spin" />
+                        <Loader2 className="w-4 h-4 text-[var(--primary)] animate-spin" />
                     </div>
                  )}
             </div>
 
             {isOpen && results.length > 0 && (
-                <div className="absolute z-50 w-full mt-2 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden max-h-60 overflow-y-auto">
+                <div className="absolute z-50 w-full mt-2 bg-[var(--bg-paper)] rounded-xl shadow-xl border border-[var(--border-light,#f3f4f6)] overflow-hidden max-h-60 overflow-y-auto">
                     {results.map((d) => (
                         <button
                             key={d.id}
-                            className="w-full text-left px-4 py-3 hover:bg-gray-50 border-b border-gray-50 last:border-0 flex justify-between items-center group"
+                            className="w-full text-left px-4 py-3 hover:bg-[var(--bg-subtle)] border-b border-[var(--border-light,#f3f4f6)] last:border-0 flex justify-between items-center group"
                             onClick={() => {
                                 onSelect(d);
                                 setQuery('');
                                 setIsOpen(false);
                             }}
                         >
-                            <span className="font-medium text-gray-700 group-hover:text-[var(--primary)] text-sm">{d.term}</span>
-                            <span className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded-full group-hover:bg-[var(--primary)]/10 group-hover:text-[var(--primary)]">
+                            <span className="font-medium text-[var(--text-secondary)] group-hover:text-[var(--primary)] text-sm">{d.term}</span>
+                            <span className="text-xs text-[var(--text-muted)] bg-[var(--bg-subtle)] px-2 py-1 rounded-full group-hover:bg-[var(--primary)]/10 group-hover:text-[var(--primary)]">
                                 {d.code}
                             </span>
                         </button>
                     ))}
                 </div>
             )}
-            
+
             {isOpen && results.length === 0 && !loading && (
-                 <div className="absolute z-50 w-full mt-2 bg-white rounded-xl shadow-xl border border-gray-100 p-4 text-center text-sm text-gray-500">
+                 <div className="absolute z-50 w-full mt-2 bg-[var(--bg-paper)] rounded-xl shadow-xl border border-[var(--border-light,#f3f4f6)] p-4 text-center text-sm text-[var(--text-secondary)]">
                     No se encontraron resultados
                  </div>
             )}

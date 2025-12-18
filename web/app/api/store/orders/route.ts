@@ -1,0 +1,305 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@/lib/supabase/server';
+
+// Order statuses
+const ORDER_STATUSES = ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded'] as const;
+type OrderStatus = (typeof ORDER_STATUSES)[number];
+
+interface OrderItem {
+  product_id: string;
+  variant_id?: string;
+  quantity: number;
+  unit_price: number;
+  discount_amount?: number;
+}
+
+interface CreateOrderInput {
+  clinic: string;
+  items: OrderItem[];
+  coupon_code?: string;
+  shipping_address?: {
+    street: string;
+    city: string;
+    state?: string;
+    postal_code?: string;
+    country?: string;
+    phone?: string;
+    notes?: string;
+  };
+  billing_address?: {
+    full_name: string;
+    ruc?: string;
+    email: string;
+    phone?: string;
+  };
+  shipping_method?: string;
+  payment_method?: string;
+  notes?: string;
+}
+
+// GET - Get user's orders
+export async function GET(request: NextRequest): Promise<NextResponse> {
+  const supabase = await createClient();
+
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) {
+    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+  }
+
+  const { searchParams } = new URL(request.url);
+  const clinic = searchParams.get('clinic');
+  const status = searchParams.get('status') as OrderStatus | null;
+  const page = parseInt(searchParams.get('page') || '1');
+  const limit = parseInt(searchParams.get('limit') || '10');
+  const offset = (page - 1) * limit;
+
+  if (!clinic) {
+    return NextResponse.json({ error: 'Falta parámetro clinic' }, { status: 400 });
+  }
+
+  try {
+    let query = supabase
+      .from('store_orders')
+      .select(`
+        *,
+        store_order_items(
+          id,
+          product_id,
+          variant_id,
+          product_name,
+          variant_name,
+          quantity,
+          unit_price,
+          discount_amount,
+          line_total,
+          store_products(id, name, image_url)
+        )
+      `, { count: 'exact' })
+      .eq('tenant_id', clinic)
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1);
+
+    if (status && ORDER_STATUSES.includes(status)) {
+      query = query.eq('status', status);
+    }
+
+    const { data: orders, error, count } = await query;
+
+    if (error) throw error;
+
+    return NextResponse.json({
+      orders: orders || [],
+      pagination: {
+        page,
+        limit,
+        total: count || 0,
+        pages: Math.ceil((count || 0) / limit),
+      },
+    });
+  } catch (e) {
+    console.error('Error fetching orders:', e);
+    return NextResponse.json({ error: 'Error al cargar pedidos' }, { status: 500 });
+  }
+}
+
+// POST - Create new order
+export async function POST(request: NextRequest): Promise<NextResponse> {
+  const supabase = await createClient();
+
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) {
+    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+  }
+
+  try {
+    const body: CreateOrderInput = await request.json();
+    const { clinic, items, coupon_code, shipping_address, billing_address, shipping_method, payment_method, notes } = body;
+
+    if (!clinic || !items || items.length === 0) {
+      return NextResponse.json({ error: 'Faltan parámetros requeridos' }, { status: 400 });
+    }
+
+    // Validate products and get current prices
+    const productIds = items.map(item => item.product_id);
+    const { data: products, error: productsError } = await supabase
+      .from('store_products')
+      .select(`
+        id,
+        name,
+        base_price,
+        is_prescription_required,
+        store_inventory(stock_quantity)
+      `)
+      .in('id', productIds)
+      .eq('tenant_id', clinic)
+      .eq('is_active', true);
+
+    if (productsError) throw productsError;
+
+    if (!products || products.length !== productIds.length) {
+      return NextResponse.json({ error: 'Uno o más productos no están disponibles' }, { status: 400 });
+    }
+
+    // Check stock availability
+    for (const item of items) {
+      const product = products.find(p => p.id === item.product_id);
+      if (!product) {
+        return NextResponse.json({ error: `Producto no encontrado: ${item.product_id}` }, { status: 400 });
+      }
+
+      const inventory = product.store_inventory as { stock_quantity: number } | null;
+      if (!inventory || inventory.stock_quantity < item.quantity) {
+        return NextResponse.json({
+          error: `Stock insuficiente para: ${product.name}`,
+          available: inventory?.stock_quantity || 0,
+        }, { status: 400 });
+      }
+
+      // Check prescription requirement
+      if (product.is_prescription_required) {
+        // TODO: Verify user has valid prescription for this product
+        // For now, just allow but mark the order for review
+      }
+    }
+
+    // Calculate totals
+    let subtotal = 0;
+    const orderItems = items.map(item => {
+      const product = products.find(p => p.id === item.product_id)!;
+      const unitPrice = item.unit_price || product.base_price;
+      const discount = item.discount_amount || 0;
+      const lineTotal = (unitPrice * item.quantity) - discount;
+      subtotal += lineTotal;
+
+      return {
+        product_id: item.product_id,
+        variant_id: item.variant_id || null,
+        product_name: product.name,
+        variant_name: null, // TODO: Get variant name if variant_id provided
+        quantity: item.quantity,
+        unit_price: unitPrice,
+        discount_amount: discount,
+        line_total: lineTotal,
+      };
+    });
+
+    // Apply coupon if provided
+    let couponDiscount = 0;
+    let couponId = null;
+    if (coupon_code) {
+      const { data: couponResult } = await supabase.rpc('validate_coupon', {
+        p_tenant_id: clinic,
+        p_code: coupon_code.toUpperCase(),
+        p_user_id: user.id,
+        p_cart_total: subtotal,
+      });
+
+      if (couponResult?.valid) {
+        couponDiscount = couponResult.calculated_discount || 0;
+        couponId = couponResult.coupon_id;
+      }
+    }
+
+    // Calculate shipping (simplified)
+    const shippingCost = subtotal >= 150000 ? 0 : 15000; // Free shipping over 150k
+
+    // Calculate tax (IVA 10%)
+    const taxRate = 10;
+    const taxAmount = Math.round((subtotal - couponDiscount) * taxRate / 100);
+
+    // Total
+    const total = subtotal - couponDiscount + shippingCost + taxAmount;
+
+    // Generate order number
+    const orderNumber = `ORD-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+
+    // Create order
+    const { data: order, error: orderError } = await supabase
+      .from('store_orders')
+      .insert({
+        tenant_id: clinic,
+        user_id: user.id,
+        order_number: orderNumber,
+        status: 'pending',
+        subtotal,
+        discount_amount: couponDiscount,
+        coupon_id: couponId,
+        coupon_code: coupon_code?.toUpperCase() || null,
+        shipping_cost: shippingCost,
+        tax_rate: taxRate,
+        tax_amount: taxAmount,
+        total,
+        shipping_address,
+        billing_address,
+        shipping_method: shipping_method || 'standard',
+        payment_method: payment_method || 'cash_on_delivery',
+        notes,
+      })
+      .select()
+      .single();
+
+    if (orderError) throw orderError;
+
+    // Create order items
+    const orderItemsWithOrderId = orderItems.map(item => ({
+      ...item,
+      order_id: order.id,
+      tenant_id: clinic,
+    }));
+
+    const { error: itemsError } = await supabase
+      .from('store_order_items')
+      .insert(orderItemsWithOrderId);
+
+    if (itemsError) throw itemsError;
+
+    // Update inventory (reserve stock)
+    for (const item of items) {
+      const { error: inventoryError } = await supabase.rpc('decrement_stock', {
+        p_product_id: item.product_id,
+        p_quantity: item.quantity,
+      });
+
+      if (inventoryError) {
+        console.error('Stock update error:', inventoryError);
+        // Don't fail the order, but log for manual review
+      }
+    }
+
+    // Record coupon usage if applied
+    if (couponId && couponDiscount > 0) {
+      await supabase.from('store_coupon_usage').insert({
+        coupon_id: couponId,
+        user_id: user.id,
+        tenant_id: clinic,
+        order_id: order.id,
+        discount_applied: couponDiscount,
+      });
+
+      // Update coupon used_count
+      await supabase.rpc('increment_coupon_usage', { p_coupon_id: couponId });
+    }
+
+    // Update product sales_count
+    for (const item of items) {
+      await supabase.rpc('increment_product_sales', {
+        p_product_id: item.product_id,
+        p_quantity: item.quantity,
+      });
+    }
+
+    return NextResponse.json({
+      success: true,
+      order: {
+        id: order.id,
+        order_number: order.order_number,
+        status: order.status,
+        total: order.total,
+      },
+    }, { status: 201 });
+  } catch (e) {
+    console.error('Error creating order:', e);
+    return NextResponse.json({ error: 'Error al crear pedido' }, { status: 500 });
+  }
+}

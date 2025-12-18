@@ -1,5 +1,6 @@
 "use client";
 
+import type { JSX } from 'react';
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { X, Edit3, Type, RotateCcw, Check, AlertCircle } from 'lucide-react';
 import DOMPurify from 'dompurify'; // TICKET-ERR-003: XSS protection

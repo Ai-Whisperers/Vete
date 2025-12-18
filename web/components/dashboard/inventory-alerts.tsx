@@ -36,8 +36,8 @@ export function InventoryAlerts({ clinic }: InventoryAlertsProps) {
           const data = await res.json();
           setAlerts(data);
         }
-      } catch (e) {
-        console.error('Error fetching inventory alerts:', e);
+      } catch {
+        // Error fetching inventory alerts - silently fail
       } finally {
         setLoading(false);
       }
@@ -51,12 +51,12 @@ export function InventoryAlerts({ clinic }: InventoryAlertsProps) {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-xl p-6 shadow-sm">
+      <div className="bg-[var(--bg-paper)] rounded-xl p-6 shadow-sm">
         <div className="animate-pulse">
-          <div className="h-6 bg-gray-200 rounded w-1/3 mb-4"></div>
+          <div className="h-6 bg-[var(--bg-subtle)] rounded w-1/3 mb-4"></div>
           <div className="space-y-3">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="h-12 bg-gray-100 rounded"></div>
+              <div key={i} className="h-12 bg-[var(--border-light,#f3f4f6)] rounded"></div>
             ))}
           </div>
         </div>
@@ -97,37 +97,37 @@ export function InventoryAlerts({ clinic }: InventoryAlertsProps) {
   const getAlertIcon = (type: string) => {
     switch (type) {
       case 'out_of_stock':
-        return <XCircle className="w-5 h-5 text-red-500" />;
+        return <XCircle className="w-5 h-5 text-[var(--status-error,#ef4444)]" />;
       case 'low_stock':
-        return <Package className="w-5 h-5 text-yellow-500" />;
+        return <Package className="w-5 h-5 text-[var(--status-warning,#eab308)]" />;
       case 'expiring':
-        return <Clock className="w-5 h-5 text-orange-500" />;
+        return <Clock className="w-5 h-5 text-[var(--status-warning,#f59e0b)]" />;
       default:
-        return <AlertTriangle className="w-5 h-5 text-gray-500" />;
+        return <AlertTriangle className="w-5 h-5 text-[var(--text-secondary)]" />;
     }
   };
 
   const getAlertBg = (type: string) => {
     switch (type) {
       case 'out_of_stock':
-        return 'bg-red-50 border-red-200';
+        return 'bg-[var(--status-error-bg,#fee2e2)] border-[var(--status-error,#ef4444)]/20';
       case 'low_stock':
-        return 'bg-yellow-50 border-yellow-200';
+        return 'bg-[var(--status-warning-bg,#fef3c7)] border-[var(--status-warning,#eab308)]/20';
       case 'expiring':
-        return 'bg-orange-50 border-orange-200';
+        return 'bg-[var(--status-warning-bg,#fef3c7)] border-[var(--status-warning,#f59e0b)]/20';
       default:
-        return 'bg-gray-50 border-gray-200';
+        return 'bg-[var(--bg-subtle)] border-[var(--border,#e5e7eb)]';
     }
   };
 
   return (
-    <div className="bg-white rounded-xl p-6 shadow-sm">
+    <div className="bg-[var(--bg-paper)] rounded-xl p-6 shadow-sm">
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center gap-2">
-          <AlertTriangle className="w-5 h-5 text-gray-500" />
-          <h3 className="font-semibold text-gray-900">Alertas de Inventario</h3>
+          <AlertTriangle className="w-5 h-5 text-[var(--text-secondary)]" />
+          <h3 className="font-semibold text-[var(--text-primary)]">Alertas de Inventario</h3>
           {totalAlerts > 0 && (
-            <span className="bg-red-100 text-red-700 text-xs font-medium px-2 py-0.5 rounded-full">
+            <span className="bg-[var(--status-error-bg,#fee2e2)] text-[var(--status-error,#dc2626)] text-xs font-medium px-2 py-0.5 rounded-full">
               {totalAlerts}
             </span>
           )}
@@ -135,7 +135,7 @@ export function InventoryAlerts({ clinic }: InventoryAlertsProps) {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 mb-4 border-b border-gray-100 pb-2">
+      <div className="flex gap-2 mb-4 border-b border-[var(--border-light,#f3f4f6)] pb-2">
         {[
           { key: 'all', label: 'Todas' },
           { key: 'low_stock', label: 'Stock bajo', count: (alerts?.low_stock?.length || 0) + (alerts?.out_of_stock?.length || 0) },
@@ -146,14 +146,14 @@ export function InventoryAlerts({ clinic }: InventoryAlertsProps) {
             onClick={() => setActiveTab(tab.key as typeof activeTab)}
             className={`px-3 py-1.5 text-sm rounded-lg transition-colors flex items-center gap-1.5 ${
               activeTab === tab.key
-                ? 'bg-gray-900 text-white'
-                : 'text-gray-600 hover:bg-gray-100'
+                ? 'bg-[var(--bg-inverse,#1f2937)] text-white'
+                : 'text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]'
             }`}
           >
             {tab.label}
             {tab.count !== undefined && tab.count > 0 && (
               <span className={`text-xs ${
-                activeTab === tab.key ? 'text-gray-300' : 'text-gray-400'
+                activeTab === tab.key ? 'text-[var(--text-muted)]' : 'text-[var(--text-muted)]'
               }`}>
                 ({tab.count})
               </span>
@@ -165,8 +165,8 @@ export function InventoryAlerts({ clinic }: InventoryAlertsProps) {
       {/* Alerts list */}
       <div className="space-y-2 max-h-80 overflow-y-auto">
         {getFilteredAlerts().length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
-            <Package className="w-12 h-12 mx-auto mb-2 text-gray-300" />
+          <div className="text-center py-8 text-[var(--text-secondary)]">
+            <Package className="w-12 h-12 mx-auto mb-2 text-[var(--border,#e5e7eb)]" />
             <p>No hay alertas de inventario</p>
           </div>
         ) : (
@@ -178,20 +178,20 @@ export function InventoryAlerts({ clinic }: InventoryAlertsProps) {
               <div className="flex items-center gap-3">
                 {getAlertIcon(alert.alert_type)}
                 <div>
-                  <p className="font-medium text-gray-900 text-sm">{alert.product_name}</p>
-                  <p className="text-xs text-gray-500">{alert.sku}</p>
+                  <p className="font-medium text-[var(--text-primary)] text-sm">{alert.product_name}</p>
+                  <p className="text-xs text-[var(--text-secondary)]">{alert.sku}</p>
                 </div>
               </div>
               <div className="text-right text-sm">
                 {alert.alert_type === 'expiring' && alert.expiry_date ? (
-                  <span className="text-orange-700 font-medium">
+                  <span className="text-[var(--status-warning-dark,#a16207)] font-medium">
                     {formatExpiry(alert.expiry_date)}
                   </span>
                 ) : (
                   <span className={
                     alert.alert_type === 'out_of_stock'
-                      ? 'text-red-700 font-medium'
-                      : 'text-yellow-700'
+                      ? 'text-[var(--status-error,#dc2626)] font-medium'
+                      : 'text-[var(--status-warning-dark,#a16207)]'
                   }>
                     {alert.current_stock === 0
                       ? 'Sin stock'

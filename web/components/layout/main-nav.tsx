@@ -53,8 +53,7 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
       setProfile(null);
       router.push(`/${clinic}/portal/login`);
       router.refresh();
-    } catch (error) {
-      console.error("Logout error:", error);
+    } catch {
       setLogoutError("Error al cerrar sesión. Intente de nuevo.");
       // Auto-clear error after 5 seconds
       setTimeout(() => setLogoutError(null), 5000);
@@ -73,12 +72,10 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
           .single();
 
         if (error) {
-          console.error("Error fetching profile:", error);
           return null;
         }
         return prof as UserProfile;
-      } catch (err) {
-        console.error("Unexpected error fetching profile:", err);
+      } catch {
         return null;
       }
     };
@@ -87,7 +84,6 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
         if (error) {
-          console.error("Error getting session:", error);
           return;
         }
 
@@ -99,8 +95,8 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
           setUser(null);
           setProfile(null);
         }
-      } catch (err) {
-        console.error("Unexpected error checking user:", err);
+      } catch {
+        // Error checking user - silently fail
       }
     };
 

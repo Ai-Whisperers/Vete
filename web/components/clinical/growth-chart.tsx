@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
-import * as Icons from 'lucide-react';
+import { AlertTriangle, TrendingUp, Info, Loader2, AlertCircle } from 'lucide-react';
 
 interface GrowthStandard {
     age_weeks: number;
@@ -101,8 +101,7 @@ export function GrowthChart({ breed, gender, patientRecords }: GrowthChartProps)
                 }
 
                 setStandardData(data || []);
-            } catch (e) {
-                console.error('Failed to fetch growth standards:', e);
+            } catch {
                 setError('No se pudieron cargar los datos de crecimiento estándar.');
             } finally {
                 setLoading(false);
@@ -137,7 +136,7 @@ export function GrowthChart({ breed, gender, patientRecords }: GrowthChartProps)
         return (
             <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm h-64 flex items-center justify-center">
                 <div className="text-center">
-                    <Icons.Loader2 className="w-8 h-8 text-[var(--primary)] animate-spin mx-auto mb-2" />
+                    <Loader2 className="w-8 h-8 text-[var(--primary)] animate-spin mx-auto mb-2" />
                     <p className="text-gray-400">Cargando gráfico...</p>
                 </div>
             </div>
@@ -148,7 +147,7 @@ export function GrowthChart({ breed, gender, patientRecords }: GrowthChartProps)
         return (
             <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
                 <div className="flex items-center gap-3 text-red-500">
-                    <Icons.AlertCircle className="w-5 h-5" />
+                    <AlertCircle className="w-5 h-5" />
                     <p>{error}</p>
                 </div>
             </div>
@@ -160,7 +159,7 @@ export function GrowthChart({ breed, gender, patientRecords }: GrowthChartProps)
             <div className="flex justify-between items-center mb-4">
                 <div>
                     <h3 className="font-bold text-[var(--text-primary)] flex items-center gap-2">
-                        <Icons.TrendingUp className="w-5 h-5 text-[var(--primary)]" />
+                        <TrendingUp className="w-5 h-5 text-[var(--primary)]" />
                         Curva de Crecimiento
                     </h3>
                     <p className="text-sm text-gray-500">Comparativa vs Estándar ({actualBreedUsed || breed})</p>
@@ -171,7 +170,7 @@ export function GrowthChart({ breed, gender, patientRecords }: GrowthChartProps)
             {usingFallback && (
                 <div className="bg-amber-50 border border-amber-200 p-3 rounded-lg mb-4">
                     <div className="flex gap-2 text-sm">
-                        <Icons.AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+                        <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
                         <p className="text-amber-700">
                             No hay datos específicos para "{breed}". Usando datos de referencia para {actualBreedUsed}.
                             Los valores pueden no ser exactos para esta raza.

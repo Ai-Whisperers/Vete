@@ -311,9 +311,9 @@ export default function NewConversationDialog({
               </p>
             </div>
 
-            {/* Error message */}
+            {/* Error message - TICKET-A11Y-004: Added role="alert" for screen readers */}
             {error && (
-              <div className="p-4 bg-red-50 border border-red-200 rounded-xl">
+              <div role="alert" aria-live="assertive" className="p-4 bg-red-50 border border-red-200 rounded-xl">
                 <p className="text-sm text-red-600">{error}</p>
               </div>
             )}

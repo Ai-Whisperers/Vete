@@ -28,8 +28,8 @@ export function LoyaltyCard({ petId, petName, clinicConfig }: LoyaltyCardProps) 
                 if (typeof data.balance === 'number') {
                     setBalance(data.balance);
                 }
-            } catch (e) {
-                console.error("Failed to fetch loyalty points", e);
+            } catch {
+                // Error fetching loyalty points - silently fail
             } finally {
                 setLoading(false);
             }
@@ -38,7 +38,7 @@ export function LoyaltyCard({ petId, petName, clinicConfig }: LoyaltyCardProps) 
         if (petId) fetchBalance();
     }, [petId]);
 
-    if (loading) return <div className="animate-pulse h-24 bg-gray-100 rounded-xl w-full"></div>;
+    if (loading) return <div className="animate-pulse h-24 bg-[var(--bg-subtle)] rounded-xl w-full"></div>;
 
     // Configurable tiers or next reward logic could go here
     const nextReward = 500;

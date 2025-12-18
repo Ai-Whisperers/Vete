@@ -9,6 +9,7 @@ import { ToastProvider } from '@/components/ui/Toast';
 import { CartProvider } from '@/context/cart-context';
 import { CommandPaletteProvider } from '@/components/search/command-palette-provider';
 import { Facebook, Instagram, Youtube, MapPin, Phone, Mail, Clock, MessageCircle } from 'lucide-react';
+import { FooterLogo } from '@/components/layout/footer-logo';
 
 // Generate metadata dynamically
 export async function generateMetadata({ params }: { params: Promise<{ clinic: string }> }): Promise<Metadata> {
@@ -97,19 +98,11 @@ export default async function ClinicLayout({
 
                 {/* Brand Column */}
                 <div className="lg:col-span-1">
-                  <Link href={`/${clinic}`} className="inline-block mb-6">
-                    {config.branding?.logo_dark_url ? (
-                      <img
-                        src={config.branding.logo_dark_url}
-                        alt={config.name}
-                        className="h-12 w-auto"
-                      />
-                    ) : (
-                      <span className="text-2xl font-heading font-black text-white">
-                        {config.name}
-                      </span>
-                    )}
-                  </Link>
+                  <FooterLogo 
+                    clinic={clinic}
+                    logoUrl={config.branding?.logo_dark_url}
+                    name={config.name}
+                  />
                   <p className="text-gray-400 text-sm leading-relaxed mb-6">
                     {config.tagline}
                   </p>

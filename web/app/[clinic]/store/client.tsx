@@ -1,168 +1,398 @@
-"use client";
+'use client';
+
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import {
   ArrowLeft,
   Search,
   ShoppingBag,
   Truck,
-  LayoutGrid,
-  Grid,
-  Package,
-  BadgePercent,
+  SlidersHorizontal,
+  Loader2,
+  AlertCircle,
   PackageSearch,
   RotateCcw,
-  UtensilsCrossed,
-  Pill,
-  Sparkles,
-  Heart,
-  AlertCircle,
-  Loader2
+  ChevronLeft,
+  ChevronRight,
+  BadgePercent,
+  X,
 } from 'lucide-react';
-import { useParams } from 'next/navigation';
-import { ProductCard } from '@/components/store/product-card';
-import { useEffect, useState, useMemo, useCallback } from 'react';
 import { clsx } from 'clsx';
-import { ClinicConfig } from '@/lib/clinics';
-
-interface Product {
-  id: string;
-  name: string;
-  description: string;
-  category: string;
-  price: number;
-  stock: number;
-  image_url?: string;
-  discount_price?: number;
-}
+import { createClient } from '@/lib/supabase/client';
+import type { User } from '@supabase/supabase-js';
+import type { ClinicConfig } from '@/lib/clinics';
+import type {
+  ProductFilters,
+  AvailableFilters,
+  StoreProductWithDetails,
+  SortOption,
+  ProductListResponse,
+  Species,
+  LifeStage,
+  BreedSize,
+  HealthCondition,
+} from '@/lib/types/store';
+import { SPECIES } from '@/lib/types/store';
+import FilterSidebar from '@/components/store/filters/filter-sidebar';
+import FilterDrawer from '@/components/store/filters/filter-drawer';
+import SortDropdown from '@/components/store/filters/sort-dropdown';
+import FilterChips from '@/components/store/filters/filter-chips';
+import EnhancedProductCard from '@/components/store/enhanced-product-card';
+import QuickViewModal from '@/components/store/quick-view-modal';
+import { useCart } from '@/context/cart-context';
 
 interface StorePageClientProps {
   readonly config: ClinicConfig;
   readonly heroImage?: string | null;
 }
 
+const DEFAULT_FILTERS: ProductFilters = {};
+
+const DEFAULT_AVAILABLE_FILTERS: AvailableFilters = {
+  categories: [],
+  subcategories: [],
+  brands: [],
+  species: SPECIES.map((s) => ({ value: s, label: s, count: 0 })),
+  life_stages: [],
+  breed_sizes: [],
+  health_conditions: [],
+  price_range: { min: 0, max: 1000000 },
+};
+
 export default function StorePageClient({ config, heroImage }: StorePageClientProps) {
   const { clinic } = useParams() as { clinic: string };
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const labels = config.ui_labels?.store || {};
+  const { items: cartItems } = useCart();
 
-  const [products, setProducts] = useState<Product[]>([]);
-  const [search, setSearch] = useState('');
-  const [category, setCategory] = useState('');
+  // State
+  const [products, setProducts] = useState<StoreProductWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [wishlistedIds, setWishlistedIds] = useState<Set<string>>(new Set());
 
+  // Filter state
+  const [filters, setFilters] = useState<ProductFilters>(DEFAULT_FILTERS);
+  const [pendingFilters, setPendingFilters] = useState<ProductFilters>(DEFAULT_FILTERS);
+  const [availableFilters, setAvailableFilters] = useState<AvailableFilters>(DEFAULT_AVAILABLE_FILTERS);
+  const [sort, setSort] = useState<SortOption>('relevance');
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalProducts, setTotalProducts] = useState(0);
+
+  // UI state
+  const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
+  const [searchInput, setSearchInput] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [quickViewProduct, setQuickViewProduct] = useState<StoreProductWithDetails | null>(null);
+
+  const cartItemCount = useMemo(() =>
+    cartItems.reduce((acc, item) => acc + item.quantity, 0),
+    [cartItems]
+  );
+
+  // Initialize filters from URL
   useEffect(() => {
-    const fetchProducts = async () => {
-      setLoading(true);
-      setError(null);
+    const initialFilters: ProductFilters = {};
 
-      try {
-        const res = await fetch(`/api/store/products?clinic=${clinic}`);
-        if (!res.ok) {
-          throw new Error(`Error ${res.status}: ${res.statusText}`);
+    const category = searchParams.get('category');
+    const brand = searchParams.get('brand');
+    const search = searchParams.get('q');
+    const species = searchParams.get('species');
+
+    if (category) initialFilters.category = category;
+    if (brand) initialFilters.brand = brand;
+    if (search) {
+      initialFilters.search = search;
+      setSearchInput(search);
+      setDebouncedSearch(search);
+    }
+    if (species) initialFilters.species = species.split(',') as Species[];
+
+    if (Object.keys(initialFilters).length > 0) {
+      setFilters(initialFilters);
+      setPendingFilters(initialFilters);
+    }
+  }, [searchParams]);
+
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchInput);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
+
+  // Fetch user and wishlist
+  useEffect(() => {
+    const supabase = createClient();
+
+    const fetchUserAndWishlist = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        setUser(session.user);
+
+        // Fetch wishlist
+        const { data: wishlist } = await supabase
+          .from('store_wishlists')
+          .select('product_id')
+          .eq('user_id', session.user.id)
+          .eq('tenant_id', clinic);
+
+        if (wishlist) {
+          setWishlistedIds(new Set(wishlist.map(w => w.product_id)));
         }
-        const data = await res.json();
-        setProducts(data);
-      } catch (err) {
-        console.error('Failed to fetch products:', err);
-        setError('No se pudieron cargar los productos. Por favor intenta de nuevo.');
-      } finally {
-        setLoading(false);
       }
     };
 
-    fetchProducts();
+    fetchUserAndWishlist();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (_event, session) => {
+        setUser(session?.user ?? null);
+        if (session?.user) {
+          const { data: wishlist } = await supabase
+            .from('store_wishlists')
+            .select('product_id')
+            .eq('user_id', session.user.id)
+            .eq('tenant_id', clinic);
+
+          if (wishlist) {
+            setWishlistedIds(new Set(wishlist.map(w => w.product_id)));
+          }
+        } else {
+          setWishlistedIds(new Set());
+        }
+      }
+    );
+
+    return () => subscription.unsubscribe();
   }, [clinic]);
 
-  // Debounced search using useMemo
-  const debouncedSearch = useMemo(() => search.toLowerCase(), [search]);
+  // Fetch products
+  const fetchProducts = useCallback(async () => {
+    setLoading(true);
+    setError(null);
 
-  const filtered = useMemo(() => {
-    return products.filter((p) => {
-      const matchesSearch = p.name.toLowerCase().includes(debouncedSearch) ||
-        (p.description?.toLowerCase().includes(debouncedSearch) ?? false);
-      const matchesCategory = category ? p.category === category : true;
-      return matchesSearch && matchesCategory;
+    try {
+      const params = new URLSearchParams();
+      params.set('clinic', clinic);
+      params.set('page', page.toString());
+      params.set('limit', '12');
+      params.set('sort', sort);
+
+      // Add search from debounced
+      if (debouncedSearch) {
+        params.set('search', debouncedSearch);
+      }
+
+      // Add filters
+      if (filters.category) params.set('category', filters.category);
+      if (filters.subcategory) params.set('subcategory', filters.subcategory);
+      if (filters.brand) params.set('brand', filters.brand);
+      if (filters.species?.length) params.set('species', filters.species.join(','));
+      if (filters.life_stages?.length) params.set('life_stages', filters.life_stages.join(','));
+      if (filters.breed_sizes?.length) params.set('breed_sizes', filters.breed_sizes.join(','));
+      if (filters.health_conditions?.length) params.set('health_conditions', filters.health_conditions.join(','));
+      if (filters.price_min !== undefined) params.set('price_min', filters.price_min.toString());
+      if (filters.price_max !== undefined) params.set('price_max', filters.price_max.toString());
+      if (filters.in_stock_only) params.set('in_stock_only', 'true');
+      if (filters.on_sale) params.set('on_sale', 'true');
+      if (filters.new_arrivals) params.set('new_arrivals', 'true');
+      if (filters.best_sellers) params.set('best_sellers', 'true');
+      if (filters.featured) params.set('featured', 'true');
+      if (filters.min_rating) params.set('min_rating', filters.min_rating.toString());
+
+      const res = await fetch(`/api/store/products?${params.toString()}`);
+      if (!res.ok) {
+        throw new Error(`Error ${res.status}: ${res.statusText}`);
+      }
+
+      const data: ProductListResponse = await res.json();
+
+      setProducts(data.products);
+      setTotalPages(data.pagination.pages);
+      setTotalProducts(data.pagination.total);
+      setAvailableFilters(data.filters.available);
+    } catch (err) {
+      console.error('Failed to fetch products:', err);
+      setError('No se pudieron cargar los productos. Por favor intenta de nuevo.');
+    } finally {
+      setLoading(false);
+    }
+  }, [clinic, page, sort, debouncedSearch, filters]);
+
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
+
+  // Handlers
+  const handleFiltersChange = useCallback((newFilters: ProductFilters) => {
+    setPendingFilters(newFilters);
+    // For desktop sidebar, apply immediately
+    setFilters(newFilters);
+    setPage(1);
+  }, []);
+
+  const handleClearFilters = useCallback(() => {
+    setFilters(DEFAULT_FILTERS);
+    setPendingFilters(DEFAULT_FILTERS);
+    setSearchInput('');
+    setDebouncedSearch('');
+    setPage(1);
+  }, []);
+
+  const handleRemoveFilter = useCallback((key: keyof ProductFilters, value?: string) => {
+    setFilters((prev) => {
+      const newFilters = { ...prev };
+
+      if (value && Array.isArray(prev[key])) {
+        const arrayValue = prev[key] as string[];
+        const filtered = arrayValue.filter(v => v !== value);
+        if (filtered.length > 0) {
+          (newFilters[key] as string[]) = filtered;
+        } else {
+          delete newFilters[key];
+        }
+      } else if (key === 'price_min') {
+        delete newFilters.price_min;
+        delete newFilters.price_max;
+      } else {
+        delete newFilters[key];
+      }
+
+      return newFilters;
     });
-  }, [products, debouncedSearch, category]);
+    setPendingFilters((prev) => {
+      const newFilters = { ...prev };
+      if (value && Array.isArray(prev[key])) {
+        const arrayValue = prev[key] as string[];
+        const filtered = arrayValue.filter(v => v !== value);
+        if (filtered.length > 0) {
+          (newFilters[key] as string[]) = filtered;
+        } else {
+          delete newFilters[key];
+        }
+      } else if (key === 'price_min') {
+        delete newFilters.price_min;
+        delete newFilters.price_max;
+      } else {
+        delete newFilters[key];
+      }
+      return newFilters;
+    });
+    setPage(1);
+  }, []);
 
-  const categories = useMemo(() =>
-    Array.from(new Set(products.map((p) => p.category))).filter(Boolean) as string[],
-    [products]
-  );
+  const handleApplyMobileFilters = useCallback(() => {
+    setFilters(pendingFilters);
+    setPage(1);
+  }, [pendingFilters]);
 
-  // Category icons mapping
-  const categoryIcons: Record<string, React.ComponentType<{ className?: string }>> = {
-    'Alimentos': UtensilsCrossed,
-    'Medicamentos': Pill,
-    'Accesorios': Package,
-    'Higiene': Sparkles,
-    'Juguetes': Heart,
+  const handleSortChange = useCallback((newSort: SortOption) => {
+    setSort(newSort);
+    setPage(1);
+  }, []);
+
+  const handleWishlistToggle = useCallback(async (productId: string) => {
+    if (!user) {
+      router.push(`/${clinic}/portal/signup`);
+      return;
+    }
+
+    const isWishlisted = wishlistedIds.has(productId);
+
+    try {
+      if (isWishlisted) {
+        await fetch(`/api/store/wishlist?product_id=${productId}`, {
+          method: 'DELETE',
+        });
+        setWishlistedIds(prev => {
+          const next = new Set(prev);
+          next.delete(productId);
+          return next;
+        });
+      } else {
+        await fetch('/api/store/wishlist', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ product_id: productId, clinic }),
+        });
+        setWishlistedIds(prev => new Set([...prev, productId]));
+      }
+    } catch (err) {
+      console.error('Wishlist error:', err);
+    }
+  }, [user, wishlistedIds, clinic, router]);
+
+  const handleQuickView = useCallback((product: StoreProductWithDetails) => {
+    setQuickViewProduct(product);
+  }, []);
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setDebouncedSearch(searchInput);
+    setPage(1);
   };
 
   if (!clinic) return null;
 
-  // Loading state
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[var(--bg-subtle)] flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-12 h-12 text-[var(--primary)] animate-spin mx-auto mb-4" />
-          <p className="text-[var(--text-secondary)]">Cargando productos...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Error state
-  if (error) {
-    return (
-      <div className="min-h-screen bg-[var(--bg-subtle)] flex items-center justify-center px-4">
-        <div className="text-center max-w-md">
-          <AlertCircle className="w-16 h-16 text-red-400 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-[var(--text-primary)] mb-2">Error al cargar</h2>
-          <p className="text-[var(--text-secondary)] mb-6">{error}</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="px-6 py-3 bg-[var(--primary)] text-white font-bold rounded-xl hover:bg-[var(--primary-dark)] transition-colors"
-          >
-            Reintentar
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-[var(--bg-subtle)] pb-20">
-      {/* Header - Improved */}
-      <div className="bg-white border-b border-gray-100 sticky top-0 z-10 shadow-sm">
+      {/* Header */}
+      <div className="bg-white border-b border-gray-100 sticky top-0 z-30 shadow-sm">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
-          <Link href={`/${clinic}`} className="flex items-center gap-2 font-bold text-[var(--primary)] hover:opacity-80 transition-opacity flex-shrink-0">
+          <Link
+            href={`/${clinic}`}
+            className="flex items-center gap-2 font-bold text-[var(--primary)] hover:opacity-80 transition-opacity flex-shrink-0"
+          >
             <ArrowLeft className="w-5 h-5" />
-            <span className="hidden sm:inline">{labels.back_home || "Volver"}</span>
+            <span className="hidden sm:inline">{labels.back_home || 'Volver'}</span>
           </Link>
 
           {/* Search - Desktop */}
-          <div className="relative hidden md:block flex-1 max-w-md">
+          <form onSubmit={handleSearchSubmit} className="relative hidden md:block flex-1 max-w-lg">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
               type="text"
-              placeholder={labels.search_placeholder || "Buscar productos..."}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              placeholder={labels.search_placeholder || 'Buscar productos...'}
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
               className="w-full pl-12 pr-4 py-2.5 bg-gray-100 border-none rounded-full text-sm focus:ring-2 focus:ring-[var(--primary)] outline-none transition-all"
             />
-          </div>
+            {searchInput && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchInput('');
+                  setDebouncedSearch('');
+                }}
+                className="absolute right-4 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-200 rounded-full"
+              >
+                <X className="w-4 h-4 text-gray-500" />
+              </button>
+            )}
+          </form>
 
-          <Link href={`/${clinic}/cart`} className="relative p-2 hover:bg-gray-100 rounded-full transition flex-shrink-0">
+          <Link
+            href={`/${clinic}/cart`}
+            className="relative p-2 hover:bg-gray-100 rounded-full transition flex-shrink-0"
+          >
             <ShoppingBag className="w-6 h-6 text-gray-700" />
+            {cartItemCount > 0 && (
+              <span className="absolute -top-1 -right-1 w-5 h-5 bg-[var(--primary)] text-white text-xs font-bold rounded-full flex items-center justify-center">
+                {cartItemCount}
+              </span>
+            )}
           </Link>
         </div>
       </div>
 
-      {/* Hero Section - Improved with better text contrast */}
+      {/* Hero Section */}
       <div className="relative overflow-hidden">
-        {/* Background - Image or Gradient */}
         {heroImage ? (
           <>
             <div
@@ -174,30 +404,39 @@ export default function StorePageClient({ config, heroImage }: StorePageClientPr
         ) : (
           <>
             <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)] via-[var(--primary-dark)] to-[var(--primary)]" />
-            <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 20% 50%, white 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
-            <div className="absolute right-0 top-0 bottom-0 w-1/2 bg-white/5" style={{ clipPath: 'polygon(30% 0, 100% 0, 100% 100%, 0 100%)' }} />
+            <div
+              className="absolute inset-0 opacity-10"
+              style={{
+                backgroundImage: 'radial-gradient(circle at 20% 50%, white 1px, transparent 1px)',
+                backgroundSize: '24px 24px',
+              }}
+            />
+            <div
+              className="absolute right-0 top-0 bottom-0 w-1/2 bg-white/5"
+              style={{ clipPath: 'polygon(30% 0, 100% 0, 100% 100%, 0 100%)' }}
+            />
           </>
         )}
 
-        <div className="container mx-auto px-4 py-12 md:py-16 relative z-10">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+        <div className="container mx-auto px-4 py-10 md:py-14 relative z-10">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="max-w-xl text-center md:text-left">
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 rounded-full text-white/90 text-sm font-medium mb-4">
                 <Truck className="w-4 h-4" />
                 Delivery Gratis +150.000 Gs
               </div>
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-white mb-4 leading-tight">
-                {labels.hero_title || "Lo Mejor para tu Mascota"}
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-white mb-3 leading-tight">
+                {labels.hero_title || 'Lo Mejor para tu Mascota'}
               </h1>
               <p className="text-white/90 text-base md:text-lg leading-relaxed">
-                {labels.hero_subtitle || "Encuentra alimentos premium, accesorios y medicamentos recomendados por nuestros veterinarios."}
+                {labels.hero_subtitle ||
+                  'Encuentra alimentos premium, accesorios y medicamentos recomendados por nuestros veterinarios.'}
               </p>
             </div>
 
-            {/* Decorative Icon */}
             <div className="hidden lg:flex items-center justify-center">
-              <div className="w-32 h-32 rounded-full bg-white/10 flex items-center justify-center">
-                <ShoppingBag className="w-16 h-16 text-white/40" />
+              <div className="w-28 h-28 rounded-full bg-white/10 flex items-center justify-center">
+                <ShoppingBag className="w-14 h-14 text-white/40" />
               </div>
             </div>
           </div>
@@ -205,147 +444,285 @@ export default function StorePageClient({ config, heroImage }: StorePageClientPr
       </div>
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-8 md:py-12">
+      <div className="container mx-auto px-4 py-6 md:py-10">
         {/* Mobile Search */}
-        <div className="block md:hidden mb-6">
+        <form onSubmit={handleSearchSubmit} className="block md:hidden mb-4">
           <div className="relative">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
               type="text"
-              placeholder={labels.search_placeholder || "Buscar productos..."}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-12 pr-4 py-3.5 bg-white border border-gray-200 rounded-2xl shadow-sm focus:ring-2 focus:ring-[var(--primary)] outline-none"
+              placeholder={labels.search_placeholder || 'Buscar productos...'}
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              className="w-full pl-12 pr-12 py-3.5 bg-white border border-gray-200 rounded-2xl shadow-sm focus:ring-2 focus:ring-[var(--primary)] outline-none"
             />
+            {searchInput && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchInput('');
+                  setDebouncedSearch('');
+                }}
+                className="absolute right-4 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 rounded-full"
+              >
+                <X className="w-4 h-4 text-gray-500" />
+              </button>
+            )}
           </div>
+        </form>
+
+        {/* Mobile Filter Button */}
+        <div className="flex items-center justify-between gap-4 mb-4 lg:hidden">
+          <button
+            onClick={() => setIsFilterDrawerOpen(true)}
+            className="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 rounded-lg shadow-sm hover:border-[var(--primary)] transition-colors"
+          >
+            <SlidersHorizontal className="w-4 h-4" />
+            <span className="font-medium">Filtros</span>
+            {Object.keys(filters).filter(k => k !== 'search' && filters[k as keyof ProductFilters]).length > 0 && (
+              <span className="w-5 h-5 bg-[var(--primary)] text-white text-xs font-bold rounded-full flex items-center justify-center">
+                {Object.keys(filters).filter(k => k !== 'search' && filters[k as keyof ProductFilters]).length}
+              </span>
+            )}
+          </button>
+
+          <SortDropdown value={sort} onChange={handleSortChange} />
         </div>
 
-        <div className="grid lg:grid-cols-[280px_1fr] gap-8 items-start">
-          {/* Sidebar */}
-          <div className="lg:sticky lg:top-24">
-            {/* Categories Card */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-              <h3 className="font-bold text-[var(--text-primary)] mb-4 flex items-center gap-2">
-                <LayoutGrid className="w-5 h-5 text-[var(--primary)]" />
-                Categorías
-              </h3>
-
-              <div className="space-y-2">
-                <button
-                  onClick={() => setCategory('')}
-                  className={clsx(
-                    "w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all text-left",
-                    category === ''
-                      ? "bg-[var(--primary)] text-white shadow-md"
-                      : "bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-                  )}
-                >
-                  <Grid className="w-5 h-5" />
-                  {labels.all_categories || "Todas"}
-                </button>
-
-                {categories.map((c) => {
-                  const IconComponent = categoryIcons[c] || Package;
-                  return (
-                    <button
-                      key={c}
-                      onClick={() => setCategory(c)}
-                      className={clsx(
-                        "w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all text-left",
-                        category === c
-                          ? "bg-[var(--primary)] text-white shadow-md"
-                          : "bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-                      )}
-                    >
-                      <IconComponent className="w-5 h-5" />
-                      {c}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Quick Info Card */}
-            <div className="mt-4 bg-gradient-to-br from-[var(--accent)]/10 to-[var(--accent)]/5 rounded-2xl p-6 border border-[var(--accent)]/20">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-xl bg-[var(--accent)]/20 flex items-center justify-center">
-                  <BadgePercent className="w-5 h-5 text-[var(--secondary-dark)]" />
-                </div>
-                <span className="font-bold text-[var(--text-primary)]">Ofertas</span>
-              </div>
-              <p className="text-sm text-[var(--text-secondary)]">
-                ¡10% de descuento en tu primera compra! Usa el código <span className="font-bold text-[var(--primary)]">PRIMERA10</span>
-              </p>
-            </div>
+        <div className="flex gap-8">
+          {/* Desktop Sidebar */}
+          <div className="hidden lg:block">
+            <FilterSidebar
+              filters={filters}
+              availableFilters={availableFilters}
+              onFiltersChange={handleFiltersChange}
+              onClearFilters={handleClearFilters}
+            />
           </div>
 
-          {/* Product Grid */}
-          <div>
-            {/* Header */}
-            <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
+          {/* Products Area */}
+          <div className="flex-1 min-w-0">
+            {/* Header with count and sort */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
               <div>
                 <h2 className="font-bold text-xl text-[var(--text-primary)]">
-                  {category || "Todos los productos"}
+                  {debouncedSearch
+                    ? `Resultados para "${debouncedSearch}"`
+                    : filters.category || 'Todos los productos'}
                 </h2>
-                {search && (
-                  <p className="text-sm text-[var(--text-muted)]">
-                    Resultados para "{search}"
-                  </p>
-                )}
+                <p className="text-sm text-[var(--text-muted)]">
+                  {totalProducts} producto{totalProducts !== 1 ? 's' : ''} encontrado{totalProducts !== 1 ? 's' : ''}
+                </p>
               </div>
-              <span className="text-sm text-[var(--text-muted)] font-medium bg-white px-4 py-2 rounded-full border border-gray-100 shadow-sm">
-                {filtered.length} productos
-              </span>
+
+              <div className="hidden lg:block">
+                <SortDropdown value={sort} onChange={handleSortChange} />
+              </div>
             </div>
 
-            {/* Empty State - Improved */}
-            {filtered.length === 0 ? (
+            {/* Active Filter Chips */}
+            <div className="mb-4">
+              <FilterChips
+                filters={filters}
+                availableFilters={availableFilters}
+                onRemoveFilter={handleRemoveFilter}
+                onClearAll={handleClearFilters}
+              />
+            </div>
+
+            {/* Loading State */}
+            {loading && (
+              <div className="flex items-center justify-center py-20">
+                <div className="text-center">
+                  <Loader2 className="w-10 h-10 text-[var(--primary)] animate-spin mx-auto mb-3" />
+                  <p className="text-[var(--text-secondary)]">Cargando productos...</p>
+                </div>
+              </div>
+            )}
+
+            {/* Error State */}
+            {error && !loading && (
+              <div className="flex items-center justify-center py-20">
+                <div className="text-center max-w-md">
+                  <AlertCircle className="w-16 h-16 text-red-400 mx-auto mb-4" />
+                  <h2 className="text-xl font-bold text-[var(--text-primary)] mb-2">Error al cargar</h2>
+                  <p className="text-[var(--text-secondary)] mb-6">{error}</p>
+                  <button
+                    onClick={() => fetchProducts()}
+                    className="px-6 py-3 bg-[var(--primary)] text-white font-bold rounded-xl hover:opacity-90 transition-opacity"
+                  >
+                    Reintentar
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Empty State */}
+            {!loading && !error && products.length === 0 && (
               <div className="bg-white rounded-2xl p-12 text-center border border-gray-100 shadow-sm">
                 <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gray-100 flex items-center justify-center">
                   <PackageSearch className="w-10 h-10 text-gray-400" />
                 </div>
-                <h3 className="text-xl font-bold text-[var(--text-primary)] mb-2">
-                  No encontramos productos
-                </h3>
+                <h3 className="text-xl font-bold text-[var(--text-primary)] mb-2">No encontramos productos</h3>
                 <p className="text-[var(--text-secondary)] mb-6 max-w-md mx-auto">
-                  {search
-                    ? `No hay productos que coincidan con "${search}"`
-                    : labels.empty_state || "No hay productos disponibles en esta categoría."}
+                  {debouncedSearch
+                    ? `No hay productos que coincidan con "${debouncedSearch}"`
+                    : 'No hay productos disponibles con los filtros seleccionados.'}
                 </p>
                 <button
-                  onClick={() => { setSearch(''); setCategory(''); }}
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--primary)] text-white font-bold rounded-xl hover:bg-[var(--primary-dark)] transition-colors"
+                  onClick={handleClearFilters}
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--primary)] text-white font-bold rounded-xl hover:opacity-90 transition-opacity"
                 >
                   <RotateCcw className="w-4 h-4" />
                   Limpiar filtros
                 </button>
 
-                {/* Suggestions */}
-                <div className="mt-10 pt-8 border-t border-gray-100">
-                  <p className="text-sm text-[var(--text-muted)] mb-4">Explora otras categorías:</p>
-                  <div className="flex flex-wrap justify-center gap-2">
-                    {categories.slice(0, 4).map((c) => (
-                      <button
-                        key={c}
-                        onClick={() => setCategory(c)}
-                        className="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium hover:bg-gray-200 transition-colors"
-                      >
-                        {c}
-                      </button>
-                    ))}
+                {availableFilters.categories.length > 0 && (
+                  <div className="mt-10 pt-8 border-t border-gray-100">
+                    <p className="text-sm text-[var(--text-muted)] mb-4">Explora categorías:</p>
+                    <div className="flex flex-wrap justify-center gap-2">
+                      {availableFilters.categories.slice(0, 4).map((cat) => (
+                        <button
+                          key={cat.id}
+                          onClick={() => handleFiltersChange({ ...filters, category: cat.slug })}
+                          className="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium hover:bg-gray-200 transition-colors"
+                        >
+                          {cat.name}
+                        </button>
+                      ))}
+                    </div>
                   </div>
+                )}
+              </div>
+            )}
+
+            {/* Product Grid */}
+            {!loading && !error && products.length > 0 && (
+              <>
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                  {products.map((product) => (
+                    <EnhancedProductCard
+                      key={product.id}
+                      product={product}
+                      clinic={clinic}
+                      currencySymbol="Gs"
+                      onQuickView={handleQuickView}
+                      showWishlist={true}
+                      isWishlisted={wishlistedIds.has(product.id)}
+                      onWishlistToggle={handleWishlistToggle}
+                    />
+                  ))}
                 </div>
-              </div>
-            ) : (
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
-                {filtered.map((product) => (
-                  <ProductCard key={product.id} product={product} config={config} />
-                ))}
-              </div>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-center gap-2 mt-8">
+                    <button
+                      onClick={() => setPage((p) => Math.max(1, p - 1))}
+                      disabled={page === 1}
+                      className={clsx(
+                        'flex items-center gap-1 px-4 py-2 rounded-lg font-medium transition-colors',
+                        page === 1
+                          ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                          : 'bg-white border border-gray-200 text-gray-700 hover:border-[var(--primary)]'
+                      )}
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                      Anterior
+                    </button>
+
+                    <div className="flex items-center gap-1">
+                      {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                        let pageNum: number;
+                        if (totalPages <= 5) {
+                          pageNum = i + 1;
+                        } else if (page <= 3) {
+                          pageNum = i + 1;
+                        } else if (page >= totalPages - 2) {
+                          pageNum = totalPages - 4 + i;
+                        } else {
+                          pageNum = page - 2 + i;
+                        }
+
+                        return (
+                          <button
+                            key={pageNum}
+                            onClick={() => setPage(pageNum)}
+                            className={clsx(
+                              'w-10 h-10 rounded-lg font-medium transition-colors',
+                              page === pageNum
+                                ? 'bg-[var(--primary)] text-white'
+                                : 'bg-white border border-gray-200 text-gray-700 hover:border-[var(--primary)]'
+                            )}
+                          >
+                            {pageNum}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    <button
+                      onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                      disabled={page === totalPages}
+                      className={clsx(
+                        'flex items-center gap-1 px-4 py-2 rounded-lg font-medium transition-colors',
+                        page === totalPages
+                          ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                          : 'bg-white border border-gray-200 text-gray-700 hover:border-[var(--primary)]'
+                      )}
+                    >
+                      Siguiente
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>
+
+        {/* Promo Banner */}
+        <div className="mt-10 bg-gradient-to-r from-[var(--accent)]/20 to-[var(--primary)]/10 rounded-2xl p-6 md:p-8 border border-[var(--accent)]/20">
+          <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6">
+            <div className="w-14 h-14 rounded-full bg-[var(--accent)]/30 flex items-center justify-center flex-shrink-0">
+              <BadgePercent className="w-7 h-7 text-[var(--secondary-dark)]" />
+            </div>
+            <div className="text-center md:text-left">
+              <h3 className="font-bold text-lg text-[var(--text-primary)] mb-1">
+                ¡10% de descuento en tu primera compra!
+              </h3>
+              <p className="text-[var(--text-secondary)]">
+                Usa el código <span className="font-bold text-[var(--primary)]">PRIMERA10</span> al finalizar tu compra
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
+
+      {/* Mobile Filter Drawer */}
+      <FilterDrawer
+        isOpen={isFilterDrawerOpen}
+        onClose={() => setIsFilterDrawerOpen(false)}
+        filters={pendingFilters}
+        availableFilters={availableFilters}
+        onFiltersChange={setPendingFilters}
+        onClearFilters={() => {
+          setPendingFilters(DEFAULT_FILTERS);
+        }}
+        onApply={handleApplyMobileFilters}
+        resultCount={totalProducts}
+      />
+
+      {/* Quick View Modal */}
+      {quickViewProduct && (
+        <QuickViewModal
+          product={quickViewProduct}
+          clinic={clinic}
+          isWishlisted={wishlistedIds.has(quickViewProduct.id)}
+          onWishlistToggle={handleWishlistToggle}
+          onClose={() => setQuickViewProduct(null)}
+        />
+      )}
     </div>
   );
 }

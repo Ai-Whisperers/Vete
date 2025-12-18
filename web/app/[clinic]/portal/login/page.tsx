@@ -60,6 +60,7 @@ export default function LoginPage({ params }: { params: Promise<{ clinic: string
 
             <form action={formAction} className="space-y-4">
                 <input type="hidden" name="clinic" value={clinic} />
+                <input type="hidden" name="returnTo" value={returnTo} />
                 <div>
                    <label htmlFor="email" className="block text-sm font-bold text-[var(--text-secondary)] mb-1">Email</label>
                    <input 
@@ -112,7 +113,10 @@ export default function LoginPage({ params }: { params: Promise<{ clinic: string
         <div className="mt-6 text-center">
             <p className="text-sm text-gray-500">
                 ¿No tienes cuenta?{' '}
-                <Link href={`/${clinic}/portal/signup`} className="font-bold text-[var(--primary)] hover:underline">
+                <Link
+                    href={`/${clinic}/portal/signup${returnTo !== `/${clinic}/portal/dashboard` ? `?returnTo=${encodeURIComponent(returnTo)}` : ''}`}
+                    className="font-bold text-[var(--primary)] hover:underline"
+                >
                     Regístrate
                 </Link>
             </p>

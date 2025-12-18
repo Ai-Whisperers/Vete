@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { TeamMemberCard } from '@/components/about/team-member-card';
 import { FacilitiesGallery } from '@/components/about/facilities-gallery';
+import { CertificationBadge } from '@/components/about/certification-badge';
 
 // Icon mapping for dynamic facility icons
 const FACILITY_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -178,7 +179,7 @@ export default async function AboutPage({ params }: { params: Promise<{ clinic: 
         <section className="section-padding bg-white relative">
           <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
           
-          <div className="container px-4 md:px-6">
+          <div className="container mx-auto px-4 md:px-6">
             <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
               {/* Mission */}
               {about.mission && (
@@ -225,7 +226,7 @@ export default async function AboutPage({ params }: { params: Promise<{ clinic: 
       {/* Timeline Section */}
       {about.timeline && about.timeline.length > 0 && (
         <section className="section-padding bg-[var(--bg-subtle)]">
-          <div className="container px-4 md:px-6">
+          <div className="container mx-auto px-4 md:px-6">
             <div className="text-center mb-12">
               <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--primary)]/10 text-[var(--primary)] font-bold tracking-widest uppercase text-sm mb-4">
                 <Calendar className="w-4 h-4" />
@@ -268,7 +269,7 @@ export default async function AboutPage({ params }: { params: Promise<{ clinic: 
       <section className="section-padding bg-white relative">
         <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
 
-        <div className="container px-4 md:px-6">
+        <div className="container mx-auto px-4 md:px-6">
           <div className="text-center mb-12 md:mb-16">
             <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--primary)]/10 text-[var(--primary)] font-bold tracking-widest uppercase text-sm mb-4">
               <Users className="w-4 h-4" />
@@ -302,7 +303,7 @@ export default async function AboutPage({ params }: { params: Promise<{ clinic: 
 
       {/* Values Section - Using JSON data */}
       <section className="section-padding bg-[var(--bg-subtle)]">
-        <div className="container px-4 md:px-6">
+        <div className="container mx-auto px-4 md:px-6">
           <div className="text-center mb-12">
             <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--primary)]/10 text-[var(--primary)] font-bold tracking-widest uppercase text-sm mb-4">
               <Heart className="w-4 h-4" />
@@ -367,7 +368,7 @@ export default async function AboutPage({ params }: { params: Promise<{ clinic: 
       {/* Facilities Section */}
       {about.facilities && (
         <section className="section-padding bg-white">
-          <div className="container px-4 md:px-6">
+          <div className="container mx-auto px-4 md:px-6">
             <div className="text-center mb-12 md:mb-16">
               <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--primary)]/10 text-[var(--primary)] font-bold tracking-widest uppercase text-sm mb-4">
                 <Building2 className="w-4 h-4" />
@@ -412,7 +413,7 @@ export default async function AboutPage({ params }: { params: Promise<{ clinic: 
       {/* Certifications Section */}
       {about.certifications && about.certifications.length > 0 && (
         <section className="section-padding bg-[var(--bg-subtle)]">
-          <div className="container px-4 md:px-6">
+          <div className="container mx-auto px-4 md:px-6">
             <div className="text-center mb-12">
               <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--primary)]/10 text-[var(--primary)] font-bold tracking-widest uppercase text-sm mb-4">
                 <BadgeCheck className="w-4 h-4" />
@@ -428,24 +429,12 @@ export default async function AboutPage({ params }: { params: Promise<{ clinic: 
 
             <div className="flex flex-wrap justify-center gap-6 md:gap-8 max-w-4xl mx-auto">
               {about.certifications.map((cert: { name: string; description: string; logo?: string }, idx: number) => (
-                <div key={idx} className="flex flex-col items-center p-6 bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow min-w-[180px] max-w-[220px]">
-                  <div className="w-16 h-16 mb-4 rounded-full bg-[var(--primary)]/10 flex items-center justify-center">
-                    {cert.logo ? (
-                      <img 
-                        src={cert.logo} 
-                        alt={cert.name}
-                        className="w-10 h-10 object-contain"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).style.display = 'none';
-                          (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
-                        }}
-                      />
-                    ) : null}
-                    <BadgeCheck className={`w-8 h-8 text-[var(--primary)] ${cert.logo ? 'hidden' : ''}`} />
-                  </div>
-                  <h3 className="font-bold text-[var(--text-primary)] text-center mb-1">{cert.name}</h3>
-                  <p className="text-xs text-[var(--text-muted)] text-center">{cert.description}</p>
-                </div>
+                <CertificationBadge
+                  key={idx}
+                  name={cert.name}
+                  description={cert.description}
+                  logo={cert.logo}
+                />
               ))}
             </div>
           </div>
@@ -458,7 +447,7 @@ export default async function AboutPage({ params }: { params: Promise<{ clinic: 
         <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
         <div className="absolute bottom-0 left-0 w-72 h-72 bg-white/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
         
-        <div className="container px-4 md:px-6 relative z-10">
+        <div className="container mx-auto px-4 md:px-6 relative z-10">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl md:text-4xl font-black font-heading text-white mb-4">
               ¿Listo para Conocernos?

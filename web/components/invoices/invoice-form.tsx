@@ -140,9 +140,10 @@ export function InvoiceForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {/* TICKET-A11Y-004: Added role="alert" for screen readers */}
       {error && (
-        <div className="p-4 bg-red-50 text-red-700 rounded-lg flex items-center gap-2">
-          <Icons.AlertCircle className="w-5 h-5 shrink-0" />
+        <div role="alert" aria-live="assertive" className="p-4 bg-red-50 text-red-700 rounded-lg flex items-center gap-2">
+          <Icons.AlertCircle className="w-5 h-5 shrink-0" aria-hidden="true" />
           {error}
         </div>
       )}

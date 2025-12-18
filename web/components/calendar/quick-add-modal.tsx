@@ -153,9 +153,8 @@ export function QuickAddModal({
       })
 
       onClose()
-    } catch (err) {
+    } catch {
       setError('Error al guardar la cita')
-      console.error('Quick add error:', err)
     } finally {
       setIsSaving(false)
     }
@@ -171,12 +170,12 @@ export function QuickAddModal({
 
       {/* Modal */}
       <div className="flex min-h-full items-center justify-center p-4">
-        <div className="relative w-full max-w-lg transform overflow-hidden rounded-lg bg-white shadow-xl transition-all">
+        <div className="relative w-full max-w-lg transform overflow-hidden rounded-lg bg-[var(--bg-paper)] shadow-xl transition-all">
           {/* Header */}
-          <div className="border-b border-gray-200 px-6 py-4">
+          <div className="border-b border-[var(--border-light,#f3f4f6)] px-6 py-4">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">
+                <h3 className="text-lg font-semibold text-[var(--text-primary)]">
                   Nueva Cita
                 </h3>
                 <p className="text-sm text-gray-500">
@@ -197,9 +196,9 @@ export function QuickAddModal({
           {/* Form */}
           <form onSubmit={handleSubmit}>
             <div className="px-6 py-4 space-y-4 max-h-[60vh] overflow-y-auto">
-              {/* Error message */}
+              {/* Error message - TICKET-A11Y-004: Added role="alert" for screen readers */}
               {error && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+                <div role="alert" aria-live="assertive" className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
                   {error}
                 </div>
               )}

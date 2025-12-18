@@ -2,11 +2,14 @@
 
 import { useActionState, use } from "react";
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import * as Icons from "lucide-react";
 import { signup } from "@/app/auth/actions";
 
 export default function SignupPage({ params }: { params: Promise<{ clinic: string }> }) {
   const { clinic } = use(params);
+  const searchParams = useSearchParams();
+  const returnTo = searchParams.get('returnTo') || `/${clinic}/portal/dashboard`;
   const [state, formAction, isPending] = useActionState(signup, null);
 
   if (state?.success) {
@@ -22,8 +25,8 @@ export default function SignupPage({ params }: { params: Promise<{ clinic: strin
         <p className="text-sm text-gray-500">
             Revisa tu bandeja de entrada y spam.
         </p>
-        <Link 
-            href={`/${clinic}/portal/login`}
+        <Link
+            href={`/${clinic}/portal/login${returnTo !== `/${clinic}/portal/dashboard` ? `?returnTo=${encodeURIComponent(returnTo)}` : ''}`}
             className="block mt-8 text-[var(--primary)] font-bold hover:underline"
         >
             Volver al Login
@@ -46,6 +49,7 @@ export default function SignupPage({ params }: { params: Promise<{ clinic: strin
 
         <form action={formAction} className="space-y-4">
             <input type="hidden" name="clinic" value={clinic} />
+            <input type="hidden" name="returnTo" value={returnTo} />
             
             <div>
                 <label htmlFor="fullName" className="block text-sm font-bold text-[var(--text-secondary)] mb-1">Nombre Completo</label>
@@ -111,7 +115,10 @@ export default function SignupPage({ params }: { params: Promise<{ clinic: strin
         <div className="mt-6 text-center">
             <p className="text-sm text-gray-500">
                 ¿Ya tienes cuenta?{' '}
-                <Link href={`/${clinic}/portal/login`} className="font-bold text-[var(--primary)] hover:underline">
+                <Link
+                    href={`/${clinic}/portal/login${returnTo !== `/${clinic}/portal/dashboard` ? `?returnTo=${encodeURIComponent(returnTo)}` : ''}`}
+                    className="font-bold text-[var(--primary)] hover:underline"
+                >
                     Inicia Sesión
                 </Link>
             </p>

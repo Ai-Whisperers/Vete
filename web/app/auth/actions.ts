@@ -18,6 +18,7 @@ export async function login(prevState: ActionState | null, formData: FormData): 
     email: formData.get("email") as string,
     password: formData.get("password") as string,
     clinic: formData.get("clinic") as string,
+    returnTo: formData.get("returnTo") as string,
   };
 
   const { error } = await supabase.auth.signInWithPassword({
@@ -26,11 +27,18 @@ export async function login(prevState: ActionState | null, formData: FormData): 
   });
 
   if (error) {
+    // Translate common Supabase errors to Spanish
+    if (error.message.includes('Invalid login')) {
+      return { error: "Email o contraseña incorrectos" };
+    }
     return { error: error.message };
   }
 
+  // Use returnTo if provided, otherwise default to dashboard
+  const redirectPath = data.returnTo || `/${data.clinic}/portal/dashboard`;
+
   revalidatePath(`/${data.clinic}/portal`, "layout");
-  redirect(`/${data.clinic}/portal/dashboard`);
+  redirect(redirectPath);
 }
 
 export async function signup(prevState: ActionState | null, formData: FormData): Promise<ActionState> {

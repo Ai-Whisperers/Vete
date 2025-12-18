@@ -117,8 +117,8 @@ export function OnboardingWizard({
       });
 
       setCurrentStep("complete");
-    } catch (error) {
-      console.error("Onboarding error:", error);
+    } catch {
+      // Onboarding error - silently fail
     } finally {
       setIsSubmitting(false);
     }
@@ -140,7 +140,7 @@ export function OnboardingWizard({
                   className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
                     index <= currentStepIndex
                       ? "bg-[var(--primary)] text-white"
-                      : "bg-gray-200 text-gray-400"
+                      : "bg-[var(--bg-subtle)] text-[var(--text-muted)]"
                   }`}
                 >
                   {index < currentStepIndex ? (

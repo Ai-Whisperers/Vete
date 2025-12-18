@@ -29,8 +29,8 @@ export function StatsCards({ clinic }: StatsCardsProps) {
           const data = await res.json();
           setStats(data);
         }
-      } catch (e) {
-        console.error('Error fetching stats:', e);
+      } catch {
+        // Error fetching stats - silently fail
       } finally {
         setLoading(false);
       }

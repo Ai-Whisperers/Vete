@@ -119,9 +119,8 @@ export function TimeOffRequestForm({
         end_half_day: endHalfDay,
         reason: reason || undefined,
       })
-    } catch (err) {
+    } catch {
       setError('Error al enviar la solicitud')
-      console.error('Time off request error:', err)
     } finally {
       setIsSaving(false)
     }
@@ -136,16 +135,16 @@ export function TimeOffRequestForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Error message */}
+      {/* Error message - TICKET-A11Y-004: Added role="alert" for screen readers */}
       {error && (
-        <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+        <div role="alert" aria-live="assertive" className="p-3 bg-[var(--status-error-bg,#fee2e2)] border border-[var(--status-error,#ef4444)]/20 rounded-lg text-sm text-[var(--status-error,#dc2626)]">
           {error}
         </div>
       )}
 
       {/* Type selection */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
           Tipo de ausencia *
         </label>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

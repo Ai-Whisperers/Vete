@@ -37,8 +37,8 @@ export function RevenueChart({ clinic }: RevenueChartProps) {
           const result = await res.json();
           setData(result.reverse()); // Oldest first for chart
         }
-      } catch (e) {
-        console.error('Error fetching revenue data:', e);
+      } catch {
+        // Error fetching revenue data - silently fail
       } finally {
         setLoading(false);
       }
@@ -49,10 +49,10 @@ export function RevenueChart({ clinic }: RevenueChartProps) {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-xl p-6 shadow-sm">
+      <div className="bg-[var(--bg-paper)] rounded-xl p-6 shadow-sm">
         <div className="animate-pulse">
-          <div className="h-6 bg-gray-200 rounded w-1/4 mb-4"></div>
-          <div className="h-64 bg-gray-100 rounded"></div>
+          <div className="h-6 bg-[var(--bg-subtle)] rounded w-1/4 mb-4"></div>
+          <div className="h-64 bg-[var(--border-light,#f3f4f6)] rounded"></div>
         </div>
       </div>
     );
@@ -84,18 +84,18 @@ export function RevenueChart({ clinic }: RevenueChartProps) {
   const colors = ['#8B5CF6', '#A78BFA', '#C4B5FD', '#DDD6FE', '#EDE9FE', '#F5F3FF'];
 
   return (
-    <div className="bg-white rounded-xl p-6 shadow-sm">
+    <div className="bg-[var(--bg-paper)] rounded-xl p-6 shadow-sm">
       <div className="flex justify-between items-start mb-6">
         <div className="flex items-center gap-2">
-          <DollarSign className="w-5 h-5 text-gray-500" />
-          <h3 className="font-semibold text-gray-900">Ingresos</h3>
+          <DollarSign className="w-5 h-5 text-[var(--text-secondary)]" />
+          <h3 className="font-semibold text-[var(--text-primary)]">Ingresos</h3>
         </div>
         <div className="text-right">
-          <p className="text-2xl font-bold text-gray-900">
+          <p className="text-2xl font-bold text-[var(--text-primary)]">
             Gs. {avgMonthly.toLocaleString('es-PY', { maximumFractionDigits: 0 })}
           </p>
           <div className={`flex items-center justify-end text-sm ${
-            growth >= 0 ? 'text-green-600' : 'text-red-600'
+            growth >= 0 ? 'text-[var(--status-success,#22c55e)]' : 'text-[var(--status-error,#ef4444)]'
           }`}>
             <TrendingUp className="w-4 h-4 mr-1" />
             {growth.toFixed(1)}% vs mes anterior
@@ -104,7 +104,7 @@ export function RevenueChart({ clinic }: RevenueChartProps) {
       </div>
 
       {data.length === 0 ? (
-        <div className="h-64 flex items-center justify-center text-gray-500">
+        <div className="h-64 flex items-center justify-center text-[var(--text-secondary)]">
           No hay datos de ingresos para mostrar
         </div>
       ) : (
@@ -149,22 +149,22 @@ export function RevenueChart({ clinic }: RevenueChartProps) {
       )}
 
       {/* Summary stats */}
-      <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t border-gray-100">
+      <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t border-[var(--border-light,#f3f4f6)]">
         <div className="text-center">
-          <p className="text-sm text-gray-500">Total período</p>
-          <p className="font-semibold text-gray-900">
+          <p className="text-sm text-[var(--text-secondary)]">Total período</p>
+          <p className="font-semibold text-[var(--text-primary)]">
             Gs. {totalRevenue.toLocaleString('es-PY', { maximumFractionDigits: 0 })}
           </p>
         </div>
         <div className="text-center">
-          <p className="text-sm text-gray-500">Transacciones</p>
-          <p className="font-semibold text-gray-900">
+          <p className="text-sm text-[var(--text-secondary)]">Transacciones</p>
+          <p className="font-semibold text-[var(--text-primary)]">
             {data.reduce((sum, d) => sum + d.transaction_count, 0)}
           </p>
         </div>
         <div className="text-center">
-          <p className="text-sm text-gray-500">Ticket promedio</p>
-          <p className="font-semibold text-gray-900">
+          <p className="text-sm text-[var(--text-secondary)]">Ticket promedio</p>
+          <p className="font-semibold text-[var(--text-primary)]">
             Gs. {(
               data.reduce((sum, d) => sum + parseFloat(String(d.avg_transaction)), 0) /
               (data.length || 1)

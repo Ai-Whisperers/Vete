@@ -1,5 +1,6 @@
 "use client";
 
+import type { JSX } from 'react';
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Search, X, AlertCircle, XCircle } from 'lucide-react';
@@ -68,8 +69,8 @@ export default function AdmissionForm({ onSuccess, onCancel }: AdmissionFormProp
       if (!response.ok) throw new Error('Error al cargar jaulas');
       const data = await response.json();
       setKennels(data);
-    } catch (error) {
-      console.error('Error fetching kennels:', error);
+    } catch {
+      // Error fetching kennels - silently fail
     }
   };
 
@@ -99,8 +100,8 @@ export default function AdmissionForm({ onSuccess, onCancel }: AdmissionFormProp
 
       if (error) throw error;
       setPets(data || []);
-    } catch (error) {
-      console.error('Error searching pets:', error);
+    } catch {
+      // Error searching pets - silently fail
     } finally {
       setSearchLoading(false);
     }
@@ -146,7 +147,6 @@ export default function AdmissionForm({ onSuccess, onCancel }: AdmissionFormProp
 
       onSuccess();
     } catch (error) {
-      console.error('Error creating hospitalization:', error);
       // TICKET-FORM-002: Use error state instead of alert()
       setFormError(error instanceof Error ? error.message : 'Error al crear hospitalización');
     } finally {

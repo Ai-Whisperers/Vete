@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useParams } from "next/navigation";
 import { ServiceCard } from "./service-card";
 import { Search } from "lucide-react";
 import { ClinicConfig } from "@/lib/clinics";
@@ -29,6 +30,7 @@ interface ServicesGridProps {
 }
 
 export function ServicesGrid({ services, config }: ServicesGridProps) {
+  const { clinic } = useParams() as { clinic: string };
   const [searchTerm, setSearchTerm] = useState("");
 
   const filteredServices = services.filter((service) => {
@@ -70,7 +72,7 @@ export function ServicesGrid({ services, config }: ServicesGridProps) {
       {filteredServices.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
           {filteredServices.map((service) => (
-            <ServiceCard key={service.id} service={service} config={config} />
+            <ServiceCard key={service.id} service={service} config={config} clinic={clinic} />
           ))}
         </div>
       ) : (

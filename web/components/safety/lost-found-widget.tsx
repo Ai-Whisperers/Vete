@@ -2,7 +2,7 @@
 
 import { createClient } from '@/lib/supabase/client';
 import { useEffect, useState } from 'react';
-import * as Icons from 'lucide-react';
+import { Check, Search, MapPin, Phone, AlertTriangle } from 'lucide-react';
 
 interface LostPet {
     id: string;
@@ -67,8 +67,8 @@ export function LostFoundWidget() {
 
                 if (error) throw error;
                 setLostPets(data as any || []);
-            } catch (e) {
-                console.error('Error fetching lost pets:', e);
+            } catch {
+                // Error fetching lost pets - silently fail
             } finally {
                 setLoading(false);
             }
@@ -77,25 +77,25 @@ export function LostFoundWidget() {
         fetchLostPets();
     }, []);
 
-    if (loading) return <div className="h-48 animate-pulse bg-gray-100 rounded-3xl" />;
+    if (loading) return <div className="h-48 animate-pulse bg-[var(--bg-subtle)] rounded-3xl" />;
 
     if (lostPets.length === 0) {
         return (
-            <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 h-full flex flex-col items-center justify-center text-center">
-                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-3">
-                    <Icons.Check className="w-6 h-6 text-green-600" />
+            <div className="bg-[var(--bg-paper)] p-6 rounded-3xl shadow-sm border border-[var(--border-light,#f3f4f6)] h-full flex flex-col items-center justify-center text-center">
+                <div className="w-12 h-12 bg-[var(--status-success-bg,#dcfce7)] rounded-full flex items-center justify-center mb-3">
+                    <Check className="w-6 h-6 text-[var(--status-success,#22c55e)]" />
                 </div>
-                <h3 className="font-bold text-gray-900">Sin Reportes</h3>
-                <p className="text-sm text-gray-500">No hay mascotas perdidas activas.</p>
+                <h3 className="font-bold text-[var(--text-primary)]">Sin Reportes</h3>
+                <p className="text-sm text-[var(--text-secondary)]">No hay mascotas perdidas activas.</p>
             </div>
         );
     }
 
     return (
-        <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 h-full">
+        <div className="bg-[var(--bg-paper)] p-6 rounded-3xl shadow-sm border border-[var(--border-light,#f3f4f6)] h-full">
             <div className="flex items-center justify-between mb-4">
-                <h3 className="font-black text-gray-900 flex items-center gap-2">
-                    <Icons.Search className="w-5 h-5 text-red-500" />
+                <h3 className="font-black text-[var(--text-primary)] flex items-center gap-2">
+                    <Search className="w-5 h-5 text-[var(--status-error,#ef4444)]" />
                     Mascotas Perdidas
                 </h3>
                 <span className="bg-red-100 text-red-700 px-2 py-1 rounded-full text-xs font-bold">

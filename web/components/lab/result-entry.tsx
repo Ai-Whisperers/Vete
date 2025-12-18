@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import * as Icons from 'lucide-react'
+import { Loader2, Save } from 'lucide-react'
 
 interface OrderItem {
   id: string
@@ -134,8 +134,8 @@ export function ResultEntry({ orderId, onSuccess, onCancel }: ResultEntryProps) 
       })
       setResults(initialResults)
 
-    } catch (error) {
-      console.error('Error fetching order items:', error)
+    } catch {
+      // Error fetching order items - silently fail
     } finally {
       setLoading(false)
     }
@@ -175,15 +175,15 @@ export function ResultEntry({ orderId, onSuccess, onCancel }: ResultEntryProps) 
   const getFlagColor = (flag?: ResultFlag): string => {
     switch (flag) {
       case 'normal':
-        return 'text-green-600 bg-green-50'
+        return 'text-[var(--status-success,#16a34a)] bg-[var(--status-success-bg,#dcfce7)]'
       case 'low':
       case 'high':
-        return 'text-yellow-600 bg-yellow-50'
+        return 'text-[var(--status-warning-dark,#a16207)] bg-[var(--status-warning-bg,#fef3c7)]'
       case 'critical_low':
       case 'critical_high':
-        return 'text-red-600 bg-red-50'
+        return 'text-[var(--status-error,#dc2626)] bg-[var(--status-error-bg,#fee2e2)]'
       default:
-        return 'text-gray-600 bg-gray-50'
+        return 'text-[var(--text-secondary)] bg-[var(--bg-subtle)]'
     }
   }
 
@@ -235,8 +235,7 @@ export function ResultEntry({ orderId, onSuccess, onCancel }: ResultEntryProps) 
       if (!response.ok) throw new Error('Error al guardar resultados')
 
       onSuccess?.()
-    } catch (error) {
-      console.error('Error saving results:', error)
+    } catch {
       alert('Error al guardar los resultados')
     } finally {
       setSubmitting(false)

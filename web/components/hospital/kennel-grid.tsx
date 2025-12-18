@@ -1,5 +1,6 @@
 "use client";
 
+import type { JSX } from 'react';
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { MapPin, Filter, Package, AlertCircle } from 'lucide-react';
@@ -52,8 +53,8 @@ export default function KennelGrid({ onKennelClick }: KennelGridProps): JSX.Elem
 
       const data = await response.json();
       setKennels(data);
-    } catch (error) {
-      console.error('Error fetching kennels:', error);
+    } catch {
+      // Error fetching kennels - silently fail
     } finally {
       setLoading(false);
     }
@@ -62,15 +63,15 @@ export default function KennelGrid({ onKennelClick }: KennelGridProps): JSX.Elem
   const getStatusColor = (status: string): string => {
     switch (status) {
       case 'available':
-        return 'bg-green-100 border-green-400 text-green-800';
+        return 'bg-[var(--status-success-bg,#dcfce7)] border-[var(--status-success,#22c55e)] text-[var(--status-success,#16a34a)]';
       case 'occupied':
-        return 'bg-blue-100 border-blue-400 text-blue-800';
+        return 'bg-[var(--status-info-bg,#dbeafe)] border-[var(--status-info,#3b82f6)] text-[var(--status-info,#1d4ed8)]';
       case 'cleaning':
-        return 'bg-yellow-100 border-yellow-400 text-yellow-800';
+        return 'bg-[var(--status-warning-bg,#fef3c7)] border-[var(--status-warning,#eab308)] text-[var(--status-warning-dark,#a16207)]';
       case 'maintenance':
-        return 'bg-red-100 border-red-400 text-red-800';
+        return 'bg-[var(--status-error-bg,#fee2e2)] border-[var(--status-error,#ef4444)] text-[var(--status-error,#dc2626)]';
       default:
-        return 'bg-gray-100 border-gray-400 text-gray-800';
+        return 'bg-[var(--bg-subtle)] border-[var(--border,#e5e7eb)] text-[var(--text-secondary)]';
     }
   };
 

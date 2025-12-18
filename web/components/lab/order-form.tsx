@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import * as Icons from 'lucide-react'
+import { Loader2, CheckCircle, AlertCircle, X } from 'lucide-react'
 
 interface Pet {
   id: string
@@ -111,8 +111,8 @@ export function LabOrderForm({ onSuccess, onCancel }: LabOrderFormProps) {
         category: p.category,
         tests: p.lab_test_panel_items as { test_id: string }[]
       })) || [])
-    } catch (error) {
-      console.error('Error fetching data:', error)
+    } catch {
+      // Error fetching data - silently fail
     } finally {
       setLoading(false)
     }
@@ -195,10 +195,9 @@ export function LabOrderForm({ onSuccess, onCancel }: LabOrderFormProps) {
 
       const data = await response.json()
       onSuccess?.(data.id)
-    } catch (error) {
-      console.error('Error creating lab order:', error)
+    } catch (err) {
       setFormError({
-        message: error instanceof Error ? error.message : 'Error al crear la orden de laboratorio',
+        message: err instanceof Error ? err.message : 'Error al crear la orden de laboratorio',
         type: 'server'
       })
     } finally {
@@ -209,7 +208,7 @@ export function LabOrderForm({ onSuccess, onCancel }: LabOrderFormProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center p-12">
-        <Icons.Loader2 className="w-8 h-8 animate-spin text-[var(--primary)]" />
+        <Loader2 className="w-8 h-8 animate-spin text-[var(--primary)]" />
       </div>
     )
   }
@@ -335,7 +334,7 @@ export function LabOrderForm({ onSuccess, onCancel }: LabOrderFormProps) {
                       </p>
                     </div>
                     {selectedPanels.has(panel.id) && (
-                      <Icons.CheckCircle className="w-6 h-6 text-[var(--primary)]" />
+                      <CheckCircle className="w-6 h-6 text-[var(--primary)]" />
                     )}
                   </div>
                 </div>
@@ -407,11 +406,11 @@ export function LabOrderForm({ onSuccess, onCancel }: LabOrderFormProps) {
           aria-live="assertive"
           className={`p-4 rounded-xl border flex items-center gap-3 ${
             formError.type === 'validation'
-              ? 'bg-amber-50 border-amber-200 text-amber-700'
-              : 'bg-red-50 border-red-200 text-red-700'
+              ? 'bg-[var(--status-warning-bg,#fef3c7)] border-[var(--status-warning,#eab308)]/30 text-[var(--status-warning-dark,#a16207)]'
+              : 'bg-[var(--status-error-bg,#fee2e2)] border-[var(--status-error,#ef4444)]/30 text-[var(--status-error,#dc2626)]'
           }`}
         >
-          <Icons.AlertCircle className="w-5 h-5 flex-shrink-0" aria-hidden="true" />
+          <AlertCircle className="w-5 h-5 flex-shrink-0" aria-hidden="true" />
           <p className="font-medium">{formError.message}</p>
           <button
             type="button"
@@ -419,7 +418,7 @@ export function LabOrderForm({ onSuccess, onCancel }: LabOrderFormProps) {
             className="ml-auto hover:opacity-70"
             aria-label="Cerrar mensaje de error"
           >
-            <Icons.X className="w-4 h-4" aria-hidden="true" />
+            <X className="w-4 h-4" aria-hidden="true" />
           </button>
         </div>
       )}
@@ -443,12 +442,12 @@ export function LabOrderForm({ onSuccess, onCancel }: LabOrderFormProps) {
         >
           {submitting ? (
             <>
-              <Icons.Loader2 className="w-5 h-5 animate-spin" />
+              <Loader2 className="w-5 h-5 animate-spin" />
               Creando...
             </>
           ) : (
             <>
-              <Icons.CheckCircle className="w-5 h-5" />
+              <CheckCircle className="w-5 h-5" />
               Crear Orden
             </>
           )}

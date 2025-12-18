@@ -33,8 +33,8 @@ export function UpcomingVaccines({ clinic }: UpcomingVaccinesProps) {
           const data = await res.json();
           setVaccines(data);
         }
-      } catch (e) {
-        console.error('Error fetching vaccine reminders:', e);
+      } catch {
+        // Error fetching vaccine reminders - silently fail
       } finally {
         setLoading(false);
       }
@@ -45,16 +45,16 @@ export function UpcomingVaccines({ clinic }: UpcomingVaccinesProps) {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-xl p-6 shadow-sm">
+      <div className="bg-[var(--bg-paper)] rounded-xl p-6 shadow-sm">
         <div className="animate-pulse">
-          <div className="h-6 bg-gray-200 rounded w-1/3 mb-4"></div>
+          <div className="h-6 bg-[var(--bg-subtle)] rounded w-1/3 mb-4"></div>
           <div className="space-y-3">
             {[...Array(4)].map((_, i) => (
               <div key={i} className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
+                <div className="w-10 h-10 bg-[var(--bg-subtle)] rounded-full"></div>
                 <div className="flex-1">
-                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-1"></div>
-                  <div className="h-3 bg-gray-100 rounded w-1/2"></div>
+                  <div className="h-4 bg-[var(--bg-subtle)] rounded w-3/4 mb-1"></div>
+                  <div className="h-3 bg-[var(--border-light,#f3f4f6)] rounded w-1/2"></div>
                 </div>
               </div>
             ))}
@@ -84,15 +84,15 @@ export function UpcomingVaccines({ clinic }: UpcomingVaccinesProps) {
   };
 
   return (
-    <div className="bg-white rounded-xl p-6 shadow-sm">
+    <div className="bg-[var(--bg-paper)] rounded-xl p-6 shadow-sm">
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center gap-2">
-          <Syringe className="w-5 h-5 text-gray-500" />
-          <h3 className="font-semibold text-gray-900">Vacunas Próximas</h3>
+          <Syringe className="w-5 h-5 text-[var(--text-secondary)]" />
+          <h3 className="font-semibold text-[var(--text-primary)]">Vacunas Próximas</h3>
         </div>
         <Link
           href={`/${clinic}/dashboard/vaccines`}
-          className="text-sm text-purple-600 hover:text-purple-700 flex items-center gap-1"
+          className="text-sm text-[var(--primary)] hover:text-[var(--primary-dark)] flex items-center gap-1"
         >
           Ver todas
           <ChevronRight className="w-4 h-4" />
@@ -100,8 +100,8 @@ export function UpcomingVaccines({ clinic }: UpcomingVaccinesProps) {
       </div>
 
       {vaccines.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
-          <Syringe className="w-12 h-12 mx-auto mb-2 text-gray-300" />
+        <div className="text-center py-8 text-[var(--text-secondary)]">
+          <Syringe className="w-12 h-12 mx-auto mb-2 text-[var(--border,#e5e7eb)]" />
           <p>No hay vacunas pendientes en los próximos 14 días</p>
         </div>
       ) : (
@@ -109,7 +109,7 @@ export function UpcomingVaccines({ clinic }: UpcomingVaccinesProps) {
           {/* Overdue section */}
           {overdue.length > 0 && (
             <>
-              <div className="text-xs font-medium text-red-600 uppercase tracking-wide py-2">
+              <div className="text-xs font-medium text-[var(--status-error,#ef4444)] uppercase tracking-wide py-2">
                 Vencidas ({overdue.length})
               </div>
               {overdue.slice(0, 3).map((vaccine, i) => (
@@ -127,7 +127,7 @@ export function UpcomingVaccines({ clinic }: UpcomingVaccinesProps) {
           {/* Upcoming section */}
           {upcoming.length > 0 && (
             <>
-              <div className="text-xs font-medium text-gray-500 uppercase tracking-wide py-2 mt-2">
+              <div className="text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wide py-2 mt-2">
                 Próximas ({upcoming.length})
               </div>
               {upcoming.slice(0, 5).map((vaccine, i) => (
@@ -146,9 +146,9 @@ export function UpcomingVaccines({ clinic }: UpcomingVaccinesProps) {
 
       {/* Quick action */}
       {vaccines.length > 0 && (
-        <div className="mt-4 pt-4 border-t border-gray-100">
+        <div className="mt-4 pt-4 border-t border-[var(--border-light,#f3f4f6)]">
           <button
-            className="w-full flex items-center justify-center gap-2 py-2 bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 transition-colors text-sm font-medium"
+            className="w-full flex items-center justify-center gap-2 py-2 bg-[var(--primary)]/10 text-[var(--primary)] rounded-lg hover:bg-[var(--primary)]/20 transition-colors text-sm font-medium"
             onClick={() => {
               // Could trigger bulk reminder sending
               alert('Función de recordatorios masivos próximamente');
@@ -177,7 +177,7 @@ function VaccineItem({
   return (
     <Link
       href={`/${clinic}/dashboard/pets/${vaccine.pet_id}`}
-      className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors group"
+      className="flex items-center gap-3 p-2 rounded-lg hover:bg-[var(--bg-subtle)] transition-colors group"
     >
       <div className="relative">
         {vaccine.pet_photo ? (
@@ -187,32 +187,32 @@ function VaccineItem({
             className="w-10 h-10 rounded-full object-cover"
           />
         ) : (
-          <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-sm font-medium">
+          <div className="w-10 h-10 rounded-full bg-[var(--bg-subtle)] flex items-center justify-center text-[var(--text-secondary)] text-sm font-medium">
             {vaccine.pet_name.charAt(0)}
           </div>
         )}
         {vaccine.is_overdue && (
-          <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
+          <div className="absolute -top-1 -right-1 w-4 h-4 bg-[var(--status-error,#ef4444)] rounded-full flex items-center justify-center">
             <span className="text-white text-xs">!</span>
           </div>
         )}
       </div>
       <div className="flex-1 min-w-0">
-        <p className="font-medium text-gray-900 text-sm truncate">
+        <p className="font-medium text-[var(--text-primary)] text-sm truncate">
           {vaccine.pet_name}
         </p>
-        <p className="text-xs text-gray-500 truncate">
+        <p className="text-xs text-[var(--text-secondary)] truncate">
           {vaccine.vaccine_name} • {vaccine.owner_name}
         </p>
       </div>
       <div className="text-right">
         <p className={`text-sm font-medium ${
-          vaccine.is_overdue ? 'text-red-600' : vaccine.days_until <= 3 ? 'text-orange-600' : 'text-gray-600'
+          vaccine.is_overdue ? 'text-[var(--status-error,#ef4444)]' : vaccine.days_until <= 3 ? 'text-[var(--status-warning,#f59e0b)]' : 'text-[var(--text-secondary)]'
         }`}>
           {formatDate(vaccine.due_date)}
         </p>
         <p className={`text-xs ${
-          vaccine.is_overdue ? 'text-red-500' : 'text-gray-400'
+          vaccine.is_overdue ? 'text-[var(--status-error,#ef4444)]' : 'text-[var(--text-muted)]'
         }`}>
           {getDaysLabel(vaccine.days_until, vaccine.is_overdue)}
         </p>

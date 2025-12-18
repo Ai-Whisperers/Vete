@@ -288,7 +288,7 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps): React.
           >
             {!query.trim() && (
               <div className="px-4 py-2">
-                <p className="text-xs font-medium text-gray-400 uppercase tracking-wider">
+                <p className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">
                   Acciones Rápidas
                 </p>
               </div>
@@ -296,9 +296,9 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps): React.
 
             {query.trim() && results.length === 0 && !loading && (
               <div className="px-4 py-8 text-center">
-                <Search className="w-12 h-12 text-gray-200 mx-auto mb-3" aria-hidden="true" />
-                <p className="text-gray-500 font-medium">No se encontraron resultados</p>
-                <p className="text-sm text-gray-400 mt-1">
+                <Search className="w-12 h-12 text-[var(--border,#e5e7eb)] mx-auto mb-3" aria-hidden="true" />
+                <p className="text-[var(--text-secondary)] font-medium">No se encontraron resultados</p>
+                <p className="text-sm text-[var(--text-muted)] mt-1">
                   Intenta con otro término de búsqueda
                 </p>
               </div>
@@ -315,14 +315,14 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps): React.
                 className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors ${
                   index === selectedIndex
                     ? "bg-[var(--primary)]/10 text-[var(--primary)]"
-                    : "hover:bg-gray-50"
+                    : "hover:bg-[var(--bg-subtle)]"
                 }`}
               >
                 <div
                   className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
                     index === selectedIndex
                       ? "bg-[var(--primary)] text-white"
-                      : "bg-gray-100 text-gray-500"
+                      : "bg-[var(--bg-subtle)] text-[var(--text-secondary)]"
                   }`}
                 >
                   {getIcon(item.icon, item.type === "pet" ? item.subtitle?.toLowerCase() : undefined)}
@@ -330,7 +330,7 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps): React.
                 <div className="flex-1 min-w-0">
                   <p className="font-medium truncate">{item.title}</p>
                   {item.subtitle && (
-                    <p className="text-sm text-gray-400 truncate">{item.subtitle}</p>
+                    <p className="text-sm text-[var(--text-muted)] truncate">{item.subtitle}</p>
                   )}
                 </div>
                 <ArrowRight
@@ -344,19 +344,19 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps): React.
           </div>
 
           {/* Footer */}
-          <div className="flex items-center justify-between px-4 py-3 border-t border-gray-100 bg-gray-50 text-xs text-gray-400">
+          <div className="flex items-center justify-between px-4 py-3 border-t border-[var(--border-light,#f3f4f6)] bg-[var(--bg-subtle)] text-xs text-[var(--text-muted)]">
             <div className="flex items-center gap-4">
               <span className="flex items-center gap-1">
-                <kbd className="px-1.5 py-0.5 bg-white border border-gray-200 rounded text-gray-500">↑</kbd>
-                <kbd className="px-1.5 py-0.5 bg-white border border-gray-200 rounded text-gray-500">↓</kbd>
+                <kbd className="px-1.5 py-0.5 bg-[var(--bg-paper)] border border-[var(--border,#e5e7eb)] rounded text-[var(--text-secondary)]">↑</kbd>
+                <kbd className="px-1.5 py-0.5 bg-[var(--bg-paper)] border border-[var(--border,#e5e7eb)] rounded text-[var(--text-secondary)]">↓</kbd>
                 <span className="ml-1">navegar</span>
               </span>
               <span className="flex items-center gap-1">
-                <kbd className="px-1.5 py-0.5 bg-white border border-gray-200 rounded text-gray-500">↵</kbd>
+                <kbd className="px-1.5 py-0.5 bg-[var(--bg-paper)] border border-[var(--border,#e5e7eb)] rounded text-[var(--text-secondary)]">↵</kbd>
                 <span className="ml-1">seleccionar</span>
               </span>
               <span className="flex items-center gap-1">
-                <kbd className="px-1.5 py-0.5 bg-white border border-gray-200 rounded text-gray-500">esc</kbd>
+                <kbd className="px-1.5 py-0.5 bg-[var(--bg-paper)] border border-[var(--border,#e5e7eb)] rounded text-[var(--text-secondary)]">esc</kbd>
                 <span className="ml-1">cerrar</span>
               </span>
             </div>

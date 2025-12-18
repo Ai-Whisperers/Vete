@@ -157,9 +157,10 @@ export function RescheduleDialog({
                 </div>
               </div>
 
+              {/* TICKET-A11Y-004: Added role="alert" for screen readers */}
               {error && (
-                <div className="p-4 bg-red-50 border border-red-100 rounded-xl flex items-center gap-3">
-                  <Icons.AlertCircle className="w-5 h-5 text-red-500 shrink-0" />
+                <div role="alert" aria-live="assertive" className="p-4 bg-red-50 border border-red-100 rounded-xl flex items-center gap-3">
+                  <Icons.AlertCircle className="w-5 h-5 text-red-500 shrink-0" aria-hidden="true" />
                   <p className="text-red-600 text-sm font-medium">{error}</p>
                 </div>
               )}

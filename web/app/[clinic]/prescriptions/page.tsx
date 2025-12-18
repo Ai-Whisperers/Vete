@@ -2,9 +2,9 @@
 import PrescriptionsClient from '@/app/[clinic]/prescriptions/client';
 
 export const generateMetadata = async () => ({
-  title: 'Prescriptions',
-  description: 'Manage prescriptions',
-  openGraph: { title: 'Prescriptions', description: 'Manage prescriptions' },
+  title: 'Recetas Médicas - Sistema Veterinario',
+  description: 'Gestión de recetas y prescripciones médicas veterinarias.',
+  openGraph: { title: 'Recetas Médicas', description: 'Sistema de prescripciones veterinarias' },
   twitter: { card: 'summary_large_image' },
 });
 

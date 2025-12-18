@@ -2,7 +2,7 @@
 import { getClinicData } from '@/lib/clinics';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
-import * as Icons from 'lucide-react';
+import { MessageCircle } from 'lucide-react';
 import { ServicesGrid } from '@/components/services/services-grid';
 import { VaccineSchedule } from '@/components/services/vaccine-schedule';
 
@@ -63,7 +63,7 @@ export default async function ServicesPage({ params }: { params: Promise<{ clini
                 className="flex items-center gap-3 bg-[var(--status-success)] hover:brightness-110 text-white font-bold py-4 px-8 rounded-full shadow-[var(--shadow-lg)] transition-all hover:-translate-y-1 hover:shadow-xl ring-4 ring-white/30 backdrop-blur-sm"
                 style={{ backgroundColor: '#25D366' }} // WhatsApp Brand Color Override
             >
-                <Icons.MessageCircle className="w-6 h-6" />
+                <MessageCircle className="w-6 h-6" />
                 {config.ui_labels?.services?.book_floating_btn || 'Agendar Turno'}
             </a>
        </div>

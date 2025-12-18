@@ -2,9 +2,9 @@
 import LoyaltyPointsClient from '@/app/[clinic]/loyalty_points/client';
 
 export const generateMetadata = async () => ({
-  title: 'Loyalty Points',
-  description: 'Manage loyalty points',
-  openGraph: { title: 'Loyalty Points', description: 'Manage loyalty points' },
+  title: 'Programa de Fidelidad - Puntos de Lealtad',
+  description: 'Gestiona los puntos de fidelidad de tus clientes. Recompensa su lealtad.',
+  openGraph: { title: 'Puntos de Fidelidad', description: 'Sistema de recompensas para clientes' },
   twitter: { card: 'summary_large_image' }
 });
 

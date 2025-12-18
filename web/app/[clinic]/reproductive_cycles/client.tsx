@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import * as Icons from 'lucide-react';
+import { ArrowLeft, Heart, CheckCircle2, Calendar, List, Trash2, Search, Dog } from 'lucide-react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { useToast } from '@/components/ui/Toast';

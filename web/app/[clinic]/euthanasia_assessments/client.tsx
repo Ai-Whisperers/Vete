@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import * as Icons from 'lucide-react';
+import { ArrowLeft, Activity, History, ChevronRight, Loader2, Save } from 'lucide-react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { useToast } from '@/components/ui/Toast';
@@ -138,7 +138,7 @@ export default function EuthanasiaAssessmentClient({
                 <div className="container mx-auto px-4 h-20 flex items-center justify-between">
                     <div className="flex items-center gap-4">
                         <Link href={`/${clinic}/portal/dashboard`} className="p-2 rounded-xl hover:bg-gray-100 transition-colors">
-                            <Icons.ArrowLeft className="w-5 h-5 text-gray-500" />
+                            <ArrowLeft className="w-5 h-5 text-gray-500" />
                         </Link>
                         <div>
                             <h1 className="text-2xl font-black text-[var(--text-primary)]">Escala HHHHHMM</h1>
@@ -229,7 +229,7 @@ export default function EuthanasiaAssessmentClient({
                         {history.length > 0 && (
                              <div className="bg-white rounded-[40px] p-10 shadow-xl shadow-gray-200/50 border border-gray-100">
                                 <h2 className="text-xl font-black text-gray-900 mb-6 flex items-center gap-3">
-                                    <Icons.History className="w-6 h-6 text-gray-400" />
+                                    <History className="w-6 h-6 text-gray-400" />
                                     Historial de Evaluaciones
                                 </h2>
                                 <div className="space-y-4">
@@ -246,7 +246,7 @@ export default function EuthanasiaAssessmentClient({
                                                     {new Date(h.assessed_at).toLocaleDateString(undefined, { dateStyle: 'long' })}
                                                 </p>
                                             </div>
-                                            <Icons.ChevronRight className="w-5 h-5 text-gray-300" />
+                                            <ChevronRight className="w-5 h-5 text-gray-300" />
                                         </div>
                                     ))}
                                 </div>
@@ -268,7 +268,7 @@ export default function EuthanasiaAssessmentClient({
 
                             <div className={`p-6 rounded-3xl mb-10 text-center ${status.bg} border border-${status.color.split('-')[1]}-100 transition-all duration-500`}>
                                 <div className={`w-12 h-12 rounded-2xl ${status.bg} flex items-center justify-center mx-auto mb-3 shadow-inner`}>
-                                    <Icons.Activity className={`w-6 h-6 ${status.color}`} />
+                                    <Activity className={`w-6 h-6 ${status.color}`} />
                                 </div>
                                 <p className={`text-lg font-black ${status.color} leading-snug`}>{status.text}</p>
                             </div>
@@ -279,9 +279,9 @@ export default function EuthanasiaAssessmentClient({
                                 className={`w-full py-5 bg-[var(--primary)] text-white font-black rounded-3xl shadow-xl shadow-[var(--primary)]/30 hover:shadow-2xl hover:-translate-y-1 transition-all flex justify-center items-center gap-3 disabled:opacity-50 disabled:translate-y-0 disabled:shadow-none`}
                             >
                                 {isSaving ? (
-                                    <Icons.Loader2 className="w-6 h-6 animate-spin" />
+                                    <Loader2 className="w-6 h-6 animate-spin" />
                                 ) : (
-                                    <Icons.Save className="w-6 h-6" />
+                                    <Save className="w-6 h-6" />
                                 )}
                                 {isSaving ? 'Guardando...' : 'Finalizar Evaluación'}
                             </button>

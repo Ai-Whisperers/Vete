@@ -1,6 +1,21 @@
 "use client";
 import Link from 'next/link';
-import * as Icons from 'lucide-react';
+import {
+  ArrowLeft,
+  Search,
+  ShoppingBag,
+  Truck,
+  LayoutGrid,
+  Grid,
+  Package,
+  BadgePercent,
+  PackageSearch,
+  RotateCcw,
+  UtensilsCrossed,
+  Pill,
+  Sparkles,
+  Heart
+} from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { ProductCard } from '@/components/store/product-card';
 import { useEffect, useState } from 'react';
@@ -33,11 +48,11 @@ export default function StorePageClient({ config }: { readonly config: any }) {
 
   // Category icons mapping
   const categoryIcons: Record<string, any> = {
-    'Alimentos': Icons.UtensilsCrossed,
-    'Medicamentos': Icons.Pill,
-    'Accesorios': Icons.Package,
-    'Higiene': Icons.Sparkles,
-    'Juguetes': Icons.Heart,
+    'Alimentos': UtensilsCrossed,
+    'Medicamentos': Pill,
+    'Accesorios': Package,
+    'Higiene': Sparkles,
+    'Juguetes': Heart,
   };
 
   if (!clinic) return null;
@@ -48,13 +63,13 @@ export default function StorePageClient({ config }: { readonly config: any }) {
       <div className="bg-white border-b border-gray-100 sticky top-0 z-10 shadow-sm">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
           <Link href={`/${clinic}`} className="flex items-center gap-2 font-bold text-[var(--primary)] hover:opacity-80 transition-opacity flex-shrink-0">
-            <Icons.ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="w-5 h-5" />
             <span className="hidden sm:inline">{labels.back_home || "Volver"}</span>
           </Link>
 
           {/* Search - Desktop */}
           <div className="relative hidden md:block flex-1 max-w-md">
-            <Icons.Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
               type="text"
               placeholder={labels.search_placeholder || "Buscar productos..."}
@@ -65,7 +80,7 @@ export default function StorePageClient({ config }: { readonly config: any }) {
           </div>
 
           <Link href={`/${clinic}/cart`} className="relative p-2 hover:bg-gray-100 rounded-full transition flex-shrink-0">
-            <Icons.ShoppingBag className="w-6 h-6 text-gray-700" />
+            <ShoppingBag className="w-6 h-6 text-gray-700" />
           </Link>
         </div>
       </div>
@@ -85,7 +100,7 @@ export default function StorePageClient({ config }: { readonly config: any }) {
           <div className="flex flex-col md:flex-row items-center justify-between gap-8">
             <div className="max-w-xl text-center md:text-left">
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 rounded-full text-white/90 text-sm font-medium mb-4">
-                <Icons.Truck className="w-4 h-4" />
+                <Truck className="w-4 h-4" />
                 Delivery Gratis +150.000 Gs
               </div>
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-white mb-4 leading-tight">
@@ -99,7 +114,7 @@ export default function StorePageClient({ config }: { readonly config: any }) {
             {/* Decorative Icon */}
             <div className="hidden lg:flex items-center justify-center">
               <div className="w-32 h-32 rounded-full bg-white/10 flex items-center justify-center">
-                <Icons.ShoppingBag className="w-16 h-16 text-white/40" />
+                <ShoppingBag className="w-16 h-16 text-white/40" />
               </div>
             </div>
           </div>
@@ -111,7 +126,7 @@ export default function StorePageClient({ config }: { readonly config: any }) {
         {/* Mobile Search */}
         <div className="block md:hidden mb-6">
           <div className="relative">
-            <Icons.Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
               type="text"
               placeholder={labels.search_placeholder || "Buscar productos..."}
@@ -128,7 +143,7 @@ export default function StorePageClient({ config }: { readonly config: any }) {
             {/* Categories Card */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
               <h3 className="font-bold text-[var(--text-primary)] mb-4 flex items-center gap-2">
-                <Icons.LayoutGrid className="w-5 h-5 text-[var(--primary)]" />
+                <LayoutGrid className="w-5 h-5 text-[var(--primary)]" />
                 Categorías
               </h3>
 
@@ -142,12 +157,12 @@ export default function StorePageClient({ config }: { readonly config: any }) {
                       : "bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-gray-900"
                   )}
                 >
-                  <Icons.Grid className="w-5 h-5" />
+                  <Grid className="w-5 h-5" />
                   {labels.all_categories || "Todas"}
                 </button>
 
                 {categories.map((c: any) => {
-                  const IconComponent = categoryIcons[c] || Icons.Package;
+                  const IconComponent = categoryIcons[c] || Package;
                   return (
                     <button
                       key={c}
@@ -171,7 +186,7 @@ export default function StorePageClient({ config }: { readonly config: any }) {
             <div className="mt-4 bg-gradient-to-br from-[var(--accent)]/10 to-[var(--accent)]/5 rounded-2xl p-6 border border-[var(--accent)]/20">
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-10 h-10 rounded-xl bg-[var(--accent)]/20 flex items-center justify-center">
-                  <Icons.BadgePercent className="w-5 h-5 text-[var(--secondary-dark)]" />
+                  <BadgePercent className="w-5 h-5 text-[var(--secondary-dark)]" />
                 </div>
                 <span className="font-bold text-[var(--text-primary)]">Ofertas</span>
               </div>
@@ -204,7 +219,7 @@ export default function StorePageClient({ config }: { readonly config: any }) {
             {filtered.length === 0 ? (
               <div className="bg-white rounded-2xl p-12 text-center border border-gray-100 shadow-sm">
                 <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gray-100 flex items-center justify-center">
-                  <Icons.PackageSearch className="w-10 h-10 text-gray-400" />
+                  <PackageSearch className="w-10 h-10 text-gray-400" />
                 </div>
                 <h3 className="text-xl font-bold text-[var(--text-primary)] mb-2">
                   No encontramos productos
@@ -218,7 +233,7 @@ export default function StorePageClient({ config }: { readonly config: any }) {
                   onClick={() => { setSearch(''); setCategory(''); }}
                   className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--primary)] text-white font-bold rounded-xl hover:bg-[var(--primary-dark)] transition-colors"
                 >
-                  <Icons.RotateCcw className="w-4 h-4" />
+                  <RotateCcw className="w-4 h-4" />
                   Limpiar filtros
                 </button>
 

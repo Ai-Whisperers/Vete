@@ -2,7 +2,7 @@
 
 import { createClient } from '@/lib/supabase/client';
 import { useEffect, useState } from 'react';
-import * as Icons from 'lucide-react';
+import { Download, Activity, MapPin, AlertTriangle, BarChart2, Map } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
 interface HeatmapPoint {

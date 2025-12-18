@@ -1,4 +1,19 @@
-import * as Icons from "lucide-react";
+import {
+  Users,
+  Calendar,
+  Package,
+  Globe,
+  Plus,
+  CalendarPlus,
+  Dog,
+  Cat,
+  PawPrint,
+  Syringe,
+  CheckCircle2,
+  Clock,
+  XCircle,
+  Download
+} from "lucide-react";
 import { getClinicData } from '@/lib/clinics';
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from "next/navigation";
@@ -102,31 +117,31 @@ export default async function DashboardPage({ params, searchParams }: {
 
                  {isAdmin && (
                     <Link href={`/${clinic}/portal/team`} className="flex items-center justify-center gap-2 text-[var(--text-secondary)] font-bold hover:bg-gray-100 px-4 py-3 rounded-xl transition-colors shrink-0" title="Equipo">
-                        <Icons.Users className="w-5 h-5" />
+                        <Users className="w-5 h-5" />
                     </Link>
                  )}
                  {isStaff ? (
                     <>
                         <Link href={`/${clinic}/portal/schedule`} className="flex items-center justify-center gap-2 text-[var(--text-secondary)] font-bold hover:bg-gray-100 px-4 py-3 rounded-xl transition-colors shrink-0" title="Agenda">
-                            <Icons.Calendar className="w-5 h-5" />
+                            <Calendar className="w-5 h-5" />
                         </Link>
                         <Link href={`/${clinic}/portal/products`} className="flex items-center justify-center gap-2 text-[var(--text-secondary)] font-bold hover:bg-gray-100 px-4 py-3 rounded-xl transition-colors shrink-0" title="Productos">
-                            <Icons.Package className="w-5 h-5" />
+                            <Package className="w-5 h-5" />
                         </Link>
                         <Link href={`/${clinic}/portal/dashboard/patients`} className="flex items-center justify-center gap-2 text-[var(--text-secondary)] font-bold hover:bg-gray-100 px-4 py-3 rounded-xl transition-colors shrink-0" title="Directorio Global">
-                            <Icons.Globe className="w-5 h-5" />
+                            <Globe className="w-5 h-5" />
                         </Link>
                          <Link href={`/${clinic}/portal/pets/new`} className="flex items-center justify-center gap-2 text-[var(--primary)] font-bold bg-[var(--primary)]/10 hover:bg-[var(--primary)] hover:text-white px-6 py-3 rounded-xl transition-all shrink-0">
-                            <Icons.Plus className="w-5 h-5" /> <span className="hidden md:inline">Nueva Mascota</span>
+                            <Plus className="w-5 h-5" /> <span className="hidden md:inline">Nueva Mascota</span>
                         </Link>
                     </>
                  ) : (
                     <>
                         <Link href={`/${clinic}/portal/appointments/new`} className="flex items-center justify-center gap-2 text-[var(--primary)] font-bold bg-[var(--primary)]/10 hover:bg-[var(--primary)] hover:text-white px-6 py-3 rounded-xl transition-all shrink-0">
-                            <Icons.CalendarPlus className="w-5 h-5" /> <span className="hidden md:inline">Agendar Cita</span>
+                            <CalendarPlus className="w-5 h-5" /> <span className="hidden md:inline">Agendar Cita</span>
                         </Link>
                         <Link href={`/${clinic}/portal/pets/new`} className="flex items-center justify-center gap-2 text-[var(--text-secondary)] font-bold hover:bg-gray-100 px-4 py-3 rounded-xl transition-colors shrink-0" title="Nueva Mascota">
-                             <Icons.Plus className="w-5 h-5" /> <span className="hidden md:inline">Nueva Mascota</span>
+                             <Plus className="w-5 h-5" /> <span className="hidden md:inline">Nueva Mascota</span>
                         </Link>
                     </>
                  )}
@@ -160,7 +175,7 @@ export default async function DashboardPage({ params, searchParams }: {
         {(!pets || pets.length === 0) && !query && (
             <div className="text-center py-16 bg-white rounded-3xl border border-dashed border-gray-300">
                 <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto text-gray-400 mb-4">
-                    <Icons.Dog className="w-10 h-10" />
+                    <Dog className="w-10 h-10" />
                 </div>
                 <h3 className="text-xl font-bold text-gray-600">{data.config.ui_labels?.portal?.empty_states?.no_pets}</h3>
                 <p className="text-gray-500 mb-6">{data.config.ui_labels?.portal?.empty_states?.no_pets_desc}</p>
@@ -218,7 +233,7 @@ export default async function DashboardPage({ params, searchParams }: {
                                 <img src={pet.photo_url} alt={pet.name} className="w-20 h-20 rounded-full object-cover border-4 border-white shadow-sm" />
                             ) : (
                                 <div className="w-20 h-20 rounded-full bg-white flex items-center justify-center border-4 border-white shadow-sm text-gray-300">
-                                    <Icons.PawPrint className="w-10 h-10" />
+                                    <PawPrint className="w-10 h-10" />
                                 </div>
                             )}
                         </Link>
@@ -227,7 +242,7 @@ export default async function DashboardPage({ params, searchParams }: {
                                 <h2 className="text-2xl font-black text-[var(--text-primary)]">{pet.name}</h2>
                             </Link>
                             <p className="text-[var(--text-secondary)] font-medium flex items-center gap-2 text-sm uppercase">
-                                {pet.species === 'dog' ? <Icons.Dog className="w-4 h-4" /> : <Icons.Cat className="w-4 h-4" />}
+                                {pet.species === 'dog' ? <Dog className="w-4 h-4" /> : <Cat className="w-4 h-4" />}
                                 {pet.breed || 'Mestizo'}
                             </p>
                         </div>
@@ -248,7 +263,7 @@ export default async function DashboardPage({ params, searchParams }: {
                     {/* Vaccines */}
                     <div className="p-6">
                         <h3 className="font-bold text-[var(--text-secondary)] mb-4 flex items-center gap-2 text-sm uppercase tracking-wider">
-                            <Icons.Syringe className="w-4 h-4" /> {data.config.ui_labels?.portal?.pet_card?.vaccines}
+                            <Syringe className="w-4 h-4" /> {data.config.ui_labels?.portal?.pet_card?.vaccines}
                         </h3>
                         
                         {!pet.vaccines || pet.vaccines.length === 0 ? (
@@ -263,17 +278,17 @@ export default async function DashboardPage({ params, searchParams }: {
                                                 {/* Status Badge */}
                                                 {v.status === 'verified' && (
                                                     <span className="bg-green-100 text-green-600 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
-                                                        <Icons.CheckCircle2 className="w-3 h-3"/> Oficial
+                                                        <CheckCircle2 className="w-3 h-3"/> Oficial
                                                     </span>
                                                 )}
                                                 {v.status === 'pending' && (
                                                     <span className="bg-yellow-100 text-yellow-600 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
-                                                        <Icons.Clock className="w-3 h-3"/> Revisión
+                                                        <Clock className="w-3 h-3"/> Revisión
                                                     </span>
                                                 )}
                                                 {v.status === 'rejected' && (
                                                     <span className="bg-red-100 text-red-600 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
-                                                        <Icons.XCircle className="w-3 h-3"/> Rechazada
+                                                        <XCircle className="w-3 h-3"/> Rechazada
                                                     </span>
                                                 )}
                                             </div>
@@ -289,11 +304,11 @@ export default async function DashboardPage({ params, searchParams }: {
                                 href={`/${clinic}/portal/pets/${pet.id}/vaccines/new`}
                                 className="w-full py-3 bg-[var(--primary)] text-white font-bold rounded-xl shadow-md hover:shadow-lg hover:-translate-y-1 transition-all flex justify-center items-center gap-2 text-sm"
                             >
-                                <Icons.Plus className="w-4 h-4" /> {data.config.ui_labels?.portal?.pet_card?.add_vaccine}
+                                <Plus className="w-4 h-4" /> {data.config.ui_labels?.portal?.pet_card?.add_vaccine}
                             </Link>
 
                             <button className="w-full py-3 border-2 border-dashed border-[var(--primary)] text-[var(--primary)] font-bold rounded-xl hover:bg-[var(--primary)]/5 transition-colors flex justify-center items-center gap-2 text-sm">
-                                 <Icons.Download className="w-4 h-4" /> {data.config.ui_labels?.portal?.pet_card?.download_pdf}
+                                 <Download className="w-4 h-4" /> {data.config.ui_labels?.portal?.pet_card?.download_pdf}
                             </button>
                         </div>
                     </div>

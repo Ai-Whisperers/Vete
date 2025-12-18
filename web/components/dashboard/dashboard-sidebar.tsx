@@ -8,30 +8,20 @@ import {
   LayoutDashboard,
   Calendar,
   CalendarClock,
-  CalendarPlus,
   Users,
-  UserPlus,
-  PawPrint,
   FileText,
-  FilePlus,
   Bed,
   FlaskConical,
-  FlaskConicalOff,
+  Syringe,
   Shield,
-  FileCheck,
   FileSignature,
   MessageSquare,
-  LayoutTemplate,
-  Stethoscope,
-  Pill,
-  LineChart,
-  Syringe,
-  Heart,
-  Baby,
+  Package,
+  Settings,
   ChevronDown,
   ChevronLeft,
-  Menu,
-  X,
+  Search,
+  Command,
   ArrowLeft,
   type LucideIcon,
 } from "lucide-react";
@@ -40,10 +30,12 @@ interface NavItem {
   icon: LucideIcon;
   label: string;
   href: string;
+  badge?: number;
 }
 
 interface NavSection {
   title: string;
+  icon: LucideIcon;
   items: NavItem[];
   defaultOpen?: boolean;
 }
@@ -51,93 +43,62 @@ interface NavSection {
 interface DashboardSidebarProps {
   clinic: string;
   clinicName: string;
+  onOpenCommandPalette?: () => void;
 }
 
-export function DashboardSidebar({ clinic, clinicName }: DashboardSidebarProps): React.ReactElement {
+export function DashboardSidebar({
+  clinic,
+  clinicName,
+  onOpenCommandPalette
+}: DashboardSidebarProps): React.ReactElement {
   const pathname = usePathname();
-  const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
 
-  // Define all navigation sections
+  // Reorganized into 5 main sections
   const sections: NavSection[] = [
     {
-      title: "Principal",
+      title: "Agenda",
+      icon: Calendar,
       defaultOpen: true,
       items: [
         { icon: LayoutDashboard, label: "Dashboard", href: `/${clinic}/dashboard` },
-        { icon: Calendar, label: "Citas Hoy", href: `/${clinic}/dashboard/appointments` },
-        { icon: CalendarPlus, label: "Nueva Cita", href: `/${clinic}/dashboard/appointments/new` },
         { icon: CalendarClock, label: "Calendario", href: `/${clinic}/dashboard/calendar` },
-        { icon: Syringe, label: "Control Vacunas", href: `/${clinic}/dashboard/vaccines` },
+        { icon: Calendar, label: "Citas Hoy", href: `/${clinic}/dashboard/appointments` },
+        { icon: Syringe, label: "Vacunas", href: `/${clinic}/dashboard/vaccines` },
+        { icon: Bed, label: "Hospital", href: `/${clinic}/dashboard/hospital` },
+        { icon: FlaskConical, label: "Laboratorio", href: `/${clinic}/dashboard/lab` },
       ],
     },
     {
       title: "Clientes",
+      icon: Users,
       defaultOpen: true,
       items: [
-        { icon: Users, label: "Clientes", href: `/${clinic}/dashboard/clients` },
-        { icon: PawPrint, label: "Pacientes", href: `/${clinic}/dashboard/patients` },
-        { icon: UserPlus, label: "Invitar Cliente", href: `/${clinic}/dashboard/clients/invite` },
+        { icon: Users, label: "Directorio", href: `/${clinic}/dashboard/clients` },
+        { icon: MessageSquare, label: "Mensajes", href: `/${clinic}/dashboard/whatsapp` },
+        { icon: FileSignature, label: "Consentimientos", href: `/${clinic}/dashboard/consents` },
       ],
     },
     {
-      title: "Facturación",
+      title: "Finanzas",
+      icon: FileText,
+      defaultOpen: false,
       items: [
         { icon: FileText, label: "Facturas", href: `/${clinic}/dashboard/invoices` },
-        { icon: FilePlus, label: "Nueva Factura", href: `/${clinic}/dashboard/invoices/new` },
-      ],
-    },
-    {
-      title: "Hospitalización",
-      items: [
-        { icon: Bed, label: "Pacientes", href: `/${clinic}/dashboard/hospital` },
-      ],
-    },
-    {
-      title: "Laboratorio",
-      items: [
-        { icon: FlaskConical, label: "Órdenes Lab", href: `/${clinic}/dashboard/lab` },
-        { icon: FlaskConicalOff, label: "Nueva Orden", href: `/${clinic}/dashboard/lab/new` },
-      ],
-    },
-    {
-      title: "Seguros",
-      items: [
+        { icon: Package, label: "Inventario", href: `/${clinic}/portal/inventory` },
         { icon: Shield, label: "Seguros", href: `/${clinic}/dashboard/insurance` },
-        { icon: FileCheck, label: "Pólizas", href: `/${clinic}/dashboard/insurance/policies` },
       ],
     },
     {
-      title: "Consentimientos",
+      title: "Configuración",
+      icon: Settings,
+      defaultOpen: false,
       items: [
-        { icon: FileSignature, label: "Consentimientos", href: `/${clinic}/dashboard/consents` },
-        { icon: LayoutTemplate, label: "Plantillas", href: `/${clinic}/dashboard/consents/templates` },
-      ],
-    },
-    {
-      title: "Comunicaciones",
-      items: [
-        { icon: MessageSquare, label: "WhatsApp", href: `/${clinic}/dashboard/whatsapp` },
-        { icon: LayoutTemplate, label: "Plantillas WA", href: `/${clinic}/dashboard/whatsapp/templates` },
-      ],
-    },
-    {
-      title: "Horarios",
-      items: [
-        { icon: CalendarClock, label: "Horarios Staff", href: `/${clinic}/dashboard/schedules` },
+        { icon: Users, label: "Equipo", href: `/${clinic}/portal/team` },
+        { icon: CalendarClock, label: "Horarios", href: `/${clinic}/dashboard/schedules` },
         { icon: Calendar, label: "Ausencias", href: `/${clinic}/dashboard/time-off` },
-      ],
-    },
-    {
-      title: "Herramientas Clínicas",
-      items: [
-        { icon: Stethoscope, label: "Códigos Diagnóstico", href: `/${clinic}/diagnosis_codes` },
-        { icon: Pill, label: "Dosis Fármacos", href: `/${clinic}/drug_dosages` },
-        { icon: LineChart, label: "Curvas Crecimiento", href: `/${clinic}/growth_charts` },
-        { icon: Syringe, label: "Reacciones Vacunas", href: `/${clinic}/vaccine_reactions` },
-        { icon: Heart, label: "Calidad de Vida", href: `/${clinic}/euthanasia_assessments` },
-        { icon: Baby, label: "Ciclos Reproductivos", href: `/${clinic}/reproductive_cycles` },
+        { icon: Settings, label: "Auditoría", href: `/${clinic}/portal/admin/audit` },
       ],
     },
   ];
@@ -152,24 +113,8 @@ export function DashboardSidebar({ clinic, clinicName }: DashboardSidebarProps):
       initialOpen[section.title] = section.defaultOpen || isCurrentSection;
     });
     setOpenSections(initialOpen);
-  }, []);
-
-  // Close mobile menu when route changes
-  useEffect(() => {
-    setIsMobileOpen(false);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
-
-  // Prevent scroll when mobile menu is open
-  useEffect(() => {
-    if (isMobileOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
-    return () => {
-      document.body.style.overflow = "unset";
-    };
-  }, [isMobileOpen]);
 
   const isActive = (href: string): boolean => pathname === href || pathname.startsWith(href + "/");
 
@@ -183,18 +128,22 @@ export function DashboardSidebar({ clinic, clinicName }: DashboardSidebarProps):
   const renderSection = (section: NavSection): React.ReactElement => {
     const isOpen = openSections[section.title] ?? section.defaultOpen ?? false;
     const hasActiveItem = section.items.some((item) => isActive(item.href));
+    const SectionIcon = section.icon;
 
     return (
-      <div key={section.title} className="mb-2">
+      <div key={section.title} className="mb-1">
         <button
           onClick={() => toggleSection(section.title)}
-          className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors rounded-lg ${
+          className={`w-full flex items-center justify-between px-3 py-2.5 text-sm font-semibold transition-colors rounded-xl ${
             hasActiveItem
-              ? "text-[var(--primary)] bg-[var(--primary)]/5"
-              : "text-gray-400 hover:text-gray-600 hover:bg-gray-50"
+              ? "text-[var(--primary)] bg-[var(--primary)]/10"
+              : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
           }`}
         >
-          <span className={isCollapsed ? "hidden" : ""}>{section.title}</span>
+          <div className="flex items-center gap-2">
+            <SectionIcon className={`w-4 h-4 ${isCollapsed ? "" : ""}`} />
+            <span className={isCollapsed ? "hidden" : ""}>{section.title}</span>
+          </div>
           <ChevronDown
             className={`w-4 h-4 transition-transform ${isOpen ? "rotate-180" : ""} ${
               isCollapsed ? "hidden" : ""
@@ -211,22 +160,31 @@ export function DashboardSidebar({ clinic, clinicName }: DashboardSidebarProps):
               transition={{ duration: 0.15 }}
               className="overflow-hidden"
             >
-              <div className="mt-1 space-y-1 pl-2">
+              <div className="mt-1 space-y-0.5 ml-3 pl-3 border-l-2 border-gray-100">
                 {section.items.map((item) => {
                   const Icon = item.icon;
+                  const active = isActive(item.href);
                   return (
                     <Link
                       key={item.href}
                       href={item.href}
-                      onClick={() => setIsMobileOpen(false)}
-                      className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                        isActive(item.href)
-                          ? "bg-[var(--primary)] text-white"
+                      className={`flex items-center justify-between gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+                        active
+                          ? "bg-[var(--primary)] text-white font-medium"
                           : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
                       }`}
                     >
-                      <Icon className="w-4 h-4 flex-shrink-0" />
-                      <span className="truncate">{item.label}</span>
+                      <div className="flex items-center gap-2">
+                        <Icon className="w-4 h-4 flex-shrink-0" />
+                        <span className="truncate">{item.label}</span>
+                      </div>
+                      {item.badge && item.badge > 0 && (
+                        <span className={`text-xs font-bold px-1.5 py-0.5 rounded-full ${
+                          active ? "bg-white/20" : "bg-red-100 text-red-600"
+                        }`}>
+                          {item.badge}
+                        </span>
+                      )}
                     </Link>
                   );
                 })}
@@ -238,9 +196,13 @@ export function DashboardSidebar({ clinic, clinicName }: DashboardSidebarProps):
     );
   };
 
-  const sidebarContent = (
-    <>
-      {/* Sidebar Header */}
+  return (
+    <aside
+      className={`hidden lg:flex flex-col bg-white border-r border-gray-200 h-screen sticky top-0 transition-all duration-200 ${
+        isCollapsed ? "w-16" : "w-64"
+      }`}
+    >
+      {/* Header */}
       <div className="flex items-center justify-between px-4 py-4 border-b border-gray-200">
         <Link
           href={`/${clinic}/portal/dashboard`}
@@ -251,18 +213,34 @@ export function DashboardSidebar({ clinic, clinicName }: DashboardSidebarProps):
         </Link>
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="hidden lg:flex p-2 rounded-lg text-gray-400 hover:bg-gray-100 transition-colors"
+          className="p-2 rounded-lg text-gray-400 hover:bg-gray-100 transition-colors"
           title={isCollapsed ? "Expandir" : "Colapsar"}
         >
           <ChevronLeft className={`w-5 h-5 transition-transform ${isCollapsed ? "rotate-180" : ""}`} />
         </button>
       </div>
 
-      {/* Clinic Name */}
+      {/* Clinic Name & Search */}
       {!isCollapsed && (
-        <div className="px-4 py-3 border-b border-gray-100">
-          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Dashboard Clínico</p>
-          <p className="font-bold text-gray-800 truncate">{clinicName}</p>
+        <div className="px-4 py-3 border-b border-gray-100 space-y-3">
+          <div>
+            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Clínica</p>
+            <p className="font-bold text-gray-800 truncate">{clinicName}</p>
+          </div>
+
+          {/* Command Palette Trigger */}
+          {onOpenCommandPalette && (
+            <button
+              onClick={onOpenCommandPalette}
+              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-500 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors"
+            >
+              <Search className="w-4 h-4" />
+              <span className="flex-1 text-left">Buscar...</span>
+              <kbd className="hidden sm:flex items-center gap-0.5 px-1.5 py-0.5 text-xs font-medium bg-white rounded border shadow-sm">
+                <Command className="w-3 h-3" />K
+              </kbd>
+            </button>
+          )}
         </div>
       )}
 
@@ -270,63 +248,38 @@ export function DashboardSidebar({ clinic, clinicName }: DashboardSidebarProps):
       <div className="flex-1 overflow-y-auto px-3 py-4">
         {sections.map(renderSection)}
       </div>
-    </>
-  );
 
-  return (
-    <>
-      {/* Mobile Toggle Button */}
-      <button
-        onClick={() => setIsMobileOpen(true)}
-        className="lg:hidden fixed bottom-6 right-6 z-40 w-14 h-14 bg-[var(--primary)] text-white rounded-full shadow-xl flex items-center justify-center hover:opacity-90 transition-opacity"
-        aria-label="Abrir menú"
-      >
-        <Menu className="w-6 h-6" />
-      </button>
-
-      {/* Mobile Drawer */}
-      <AnimatePresence>
-        {isMobileOpen && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsMobileOpen(false)}
-              className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-            />
-            <motion.aside
-              initial={{ x: "-100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "-100%" }}
-              transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed left-0 top-0 h-full w-72 bg-white z-50 lg:hidden flex flex-col shadow-xl"
+      {/* Footer - Clinical Tools Quick Access */}
+      {!isCollapsed && (
+        <div className="px-4 py-3 border-t border-gray-100">
+          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
+            Herramientas
+          </p>
+          <div className="flex flex-wrap gap-1">
+            <Link
+              href={`/${clinic}/drug_dosages`}
+              className="px-2 py-1 text-xs font-medium text-gray-500 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
+              title="Calculadora de dosis"
             >
-              <div className="flex items-center justify-between px-4 py-4 border-b border-gray-200">
-                <span className="font-bold text-gray-800">Menú Dashboard</span>
-                <button
-                  onClick={() => setIsMobileOpen(false)}
-                  className="p-2 rounded-lg text-gray-400 hover:bg-gray-100 transition-colors"
-                >
-                  <X className="w-6 h-6" />
-                </button>
-              </div>
-              <div className="flex-1 overflow-y-auto px-3 py-4">
-                {sections.map(renderSection)}
-              </div>
-            </motion.aside>
-          </>
-        )}
-      </AnimatePresence>
-
-      {/* Desktop Sidebar */}
-      <aside
-        className={`hidden lg:flex flex-col bg-white border-r border-gray-200 h-screen sticky top-0 transition-all duration-200 ${
-          isCollapsed ? "w-16" : "w-64"
-        }`}
-      >
-        {sidebarContent}
-      </aside>
-    </>
+              Dosis
+            </Link>
+            <Link
+              href={`/${clinic}/diagnosis_codes`}
+              className="px-2 py-1 text-xs font-medium text-gray-500 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
+              title="Códigos diagnóstico"
+            >
+              Diagnóstico
+            </Link>
+            <Link
+              href={`/${clinic}/growth_charts`}
+              className="px-2 py-1 text-xs font-medium text-gray-500 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
+              title="Curvas de crecimiento"
+            >
+              Crecimiento
+            </Link>
+          </div>
+        </div>
+      )}
+    </aside>
   );
 }

@@ -1,7 +1,7 @@
 import { getClinicData } from "@/lib/clinics";
 import { createClient } from "@/lib/supabase/server";
 import { redirect, notFound } from "next/navigation";
-import { DashboardSidebar } from "@/components/dashboard/dashboard-sidebar";
+import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 
 export default async function DashboardLayout({
   children,
@@ -40,16 +40,8 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="flex min-h-screen bg-[var(--bg-subtle)]">
-      {/* Sidebar */}
-      <DashboardSidebar clinic={clinic} clinicName={data.config.name} />
-
-      {/* Main Content */}
-      <main className="flex-1 overflow-auto">
-        <div className="container mx-auto px-4 md:px-6 py-6 md:py-8 max-w-7xl">
-          {children}
-        </div>
-      </main>
-    </div>
+    <DashboardShell clinic={clinic} clinicName={data.config.name}>
+      {children}
+    </DashboardShell>
   );
 }

@@ -2,12 +2,24 @@ import * as Icons from "lucide-react";
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { SuccessToast } from "./success-toast";
 
-export default async function ProductsPage({ params }: { 
-    params: Promise<{ clinic: string }>
-}) {
+interface ProductsPageProps {
+  params: Promise<{ clinic: string }>;
+  searchParams: Promise<{ success?: string }>;
+}
+
+export default async function ProductsPage({ params, searchParams }: ProductsPageProps): Promise<React.ReactElement> {
   const supabase = await createClient();
   const { clinic } = await params;
+  const { success } = await searchParams;
+
+  // Success messages
+  const successMessages: Record<string, string> = {
+    product_created: "Producto creado exitosamente",
+    product_updated: "Producto actualizado exitosamente",
+    product_deleted: "Producto eliminado exitosamente",
+  };
 
   // 1. Auth Check & Role
   const { data: { user } } = await supabase.auth.getUser();
@@ -42,6 +54,11 @@ export default async function ProductsPage({ params }: {
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
+        {/* Success Toast */}
+        {success && successMessages[success] && (
+          <SuccessToast message={successMessages[success]} />
+        )}
+
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
              <div>
@@ -101,9 +118,12 @@ export default async function ProductsPage({ params }: {
                         </div>
 
                         <div className="flex gap-2">
-                             <button className="flex-1 py-2 bg-gray-50 text-gray-600 font-bold rounded-xl text-sm hover:bg-gray-100 transition-colors">
+                             <Link
+                                href={`/${clinic}/portal/products/${product.id}`}
+                                className="flex-1 py-2 bg-gray-50 text-gray-600 font-bold rounded-xl text-sm hover:bg-gray-100 transition-colors text-center"
+                             >
                                 Editar
-                             </button>
+                             </Link>
                         </div>
                     </div>
                 </div>

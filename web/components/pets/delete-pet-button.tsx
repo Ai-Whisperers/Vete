@@ -23,7 +23,7 @@ export function DeletePetButton({ petId, petName, clinic }: Props): React.ReactE
     startTransition(async () => {
       const result = await deletePet(petId)
 
-      if (result.error) {
+      if (!result.success) {
         setError(result.error)
         setShowConfirm(false)
       } else {

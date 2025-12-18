@@ -53,7 +53,7 @@ export function DiagnosisSearch({ onSelect, placeholder = "Buscar diagnóstico..
                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
                  <input
                     type="text"
-                    className="w-full pl-10 pr-4 py-3 bg-[var(--bg-subtle)] border border-[var(--border,#e5e7eb)] rounded-xl focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent outline-none transition-all"
+                    className="w-full pl-10 pr-4 py-3 min-h-[44px] bg-[var(--bg-subtle)] border border-[var(--border,#e5e7eb)] rounded-xl focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent outline-none transition-all"
                     placeholder={placeholder}
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
@@ -70,7 +70,7 @@ export function DiagnosisSearch({ onSelect, placeholder = "Buscar diagnóstico..
                     {results.map((d) => (
                         <button
                             key={d.id}
-                            className="w-full text-left px-4 py-3 hover:bg-[var(--bg-subtle)] border-b border-[var(--border-light,#f3f4f6)] last:border-0 flex justify-between items-center group"
+                            className="w-full text-left px-4 py-3 min-h-[48px] hover:bg-[var(--bg-subtle)] border-b border-[var(--border-light,#f3f4f6)] last:border-0 flex justify-between items-center group"
                             onClick={() => {
                                 onSelect(d);
                                 setQuery('');

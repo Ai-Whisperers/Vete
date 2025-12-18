@@ -138,6 +138,16 @@ export const paymentMethodLabels: Record<PaymentMethod, string> = {
 }
 
 // Utility Functions
+
+/**
+ * Round currency amount to 2 decimal places to avoid floating point arithmetic errors
+ * @param amount - The amount to round
+ * @returns Rounded amount to 2 decimal places
+ */
+export function roundCurrency(amount: number): number {
+  return Math.round(amount * 100) / 100
+}
+
 export function formatCurrency(amount: number): string {
   return `Gs. ${amount.toLocaleString('es-PY')}`
 }
@@ -167,7 +177,8 @@ export function canVoidInvoice(status: InvoiceStatus | string): boolean {
 }
 
 export function calculateLineTotal(quantity: number, unitPrice: number, discountPercent: number = 0): number {
-  return quantity * unitPrice * (1 - discountPercent / 100)
+  // Round to 2 decimal places to avoid floating point errors
+  return roundCurrency(quantity * unitPrice * (1 - discountPercent / 100))
 }
 
 export function calculateInvoiceTotals(items: InvoiceItem[], taxRate: number = 10): {
@@ -175,9 +186,12 @@ export function calculateInvoiceTotals(items: InvoiceItem[], taxRate: number = 1
   taxAmount: number
   total: number
 } {
-  const subtotal = items.reduce((sum, item) => sum + item.line_total, 0)
-  const taxAmount = subtotal * (taxRate / 100)
-  const total = subtotal + taxAmount
+  // Sum all line totals with proper rounding
+  const subtotal = roundCurrency(items.reduce((sum, item) => sum + item.line_total, 0))
+  // Calculate tax with proper rounding
+  const taxAmount = roundCurrency(subtotal * (taxRate / 100))
+  // Calculate total with proper rounding
+  const total = roundCurrency(subtotal + taxAmount)
 
   return { subtotal, taxAmount, total }
 }

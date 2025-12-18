@@ -24,13 +24,13 @@ export default function LoginPage({ params }: { params: Promise<{ clinic: string
   };
 
   return (
-    <div className="max-w-md mx-auto mt-12 bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 p-8">
+    <div className="max-w-md mx-auto mt-4 sm:mt-8 md:mt-12 bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 p-6 sm:p-8">
         <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-[var(--primary)]/10 rounded-full flex items-center justify-center mx-auto text-[var(--primary)] mb-4">
-                <Icons.Lock className="w-8 h-8" />
+            <div className="w-14 h-14 sm:w-16 sm:h-16 bg-[var(--primary)]/10 rounded-full flex items-center justify-center mx-auto text-[var(--primary)] mb-4">
+                <Icons.Lock className="w-7 h-7 sm:w-8 sm:h-8" />
             </div>
-            
-            <h1 className="text-2xl font-black font-heading text-[var(--text-primary)]">Portal de Dueños</h1>
+
+            <h1 className="text-xl sm:text-2xl font-black font-heading text-[var(--text-primary)]">Portal de Dueños</h1>
             <p className="text-[var(--text-secondary)] mt-2">
                 Ingresa para ver la libreta de tus mascotas.
             </p>
@@ -38,9 +38,9 @@ export default function LoginPage({ params }: { params: Promise<{ clinic: string
 
         <div className="space-y-4">
             {/* Google Button */}
-            <button 
+            <button
                 onClick={handleGoogleLogin}
-                className="w-full bg-white border border-gray-300 text-gray-700 font-bold py-3 rounded-xl hover:bg-gray-50 transition-colors flex justify-center items-center gap-3 relative"
+                className="w-full bg-white border border-gray-300 text-gray-700 font-bold py-3 min-h-[48px] rounded-xl hover:bg-gray-50 transition-colors flex justify-center items-center gap-3 relative"
             >
                 {/* Google Icon SVG */}
                 <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -63,24 +63,24 @@ export default function LoginPage({ params }: { params: Promise<{ clinic: string
                 <input type="hidden" name="returnTo" value={returnTo} />
                 <div>
                    <label htmlFor="email" className="block text-sm font-bold text-[var(--text-secondary)] mb-1">Email</label>
-                   <input 
+                   <input
                         id="email"
                         name="email"
-                        required 
-                        type="email" 
+                        required
+                        type="email"
                         placeholder="tu@email.com"
-                        className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[var(--primary)] focus:border-2 outline-none transition-all"
+                        className="w-full px-4 py-3 min-h-[48px] rounded-xl border border-gray-200 focus:border-[var(--primary)] focus:border-2 outline-none transition-all"
                     />
                 </div>
                 <div>
                    <label htmlFor="password" className="block text-sm font-bold text-[var(--text-secondary)] mb-1">Contraseña</label>
-                   <input 
+                   <input
                         id="password"
                         name="password"
-                        required 
-                        type="password" 
+                        required
+                        type="password"
                         placeholder="••••••••"
-                        className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[var(--primary)] focus:border-2 outline-none transition-all"
+                        className="w-full px-4 py-3 min-h-[48px] rounded-xl border border-gray-200 focus:border-[var(--primary)] focus:border-2 outline-none transition-all"
                     />
                 </div>
 
@@ -94,7 +94,7 @@ export default function LoginPage({ params }: { params: Promise<{ clinic: string
                 <button
                     type="submit"
                     disabled={isPending}
-                    className="w-full bg-[var(--primary)] text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-1 active:scale-95 transition-all flex justify-center items-center gap-2 disabled:opacity-70 disabled:pointer-events-none"
+                    className="w-full bg-[var(--primary)] text-white font-bold py-4 min-h-[52px] rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-1 active:scale-95 transition-all flex justify-center items-center gap-2 disabled:opacity-70 disabled:pointer-events-none"
                 >
                     {isPending ? <Icons.Loader2 className="animate-spin w-5 h-5"/> : "Iniciar Sesión"}
                 </button>

@@ -59,7 +59,7 @@ export function DrugSearch({ onSelect, placeholder = "Buscar medicamento..." }: 
                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
                  <input
                     type="text"
-                    className="w-full pl-10 pr-4 py-2 bg-[var(--bg-paper)] border border-[var(--border,#e5e7eb)] rounded-lg focus:ring-2 focus:ring-[var(--primary)] outline-none"
+                    className="w-full pl-10 pr-4 py-3 min-h-[44px] bg-[var(--bg-paper)] border border-[var(--border,#e5e7eb)] rounded-lg focus:ring-2 focus:ring-[var(--primary)] outline-none"
                     placeholder={placeholder}
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
@@ -72,7 +72,7 @@ export function DrugSearch({ onSelect, placeholder = "Buscar medicamento..." }: 
                      {results.map(d => (
                          <button
                             key={d.id}
-                            className="w-full text-left px-4 py-2 hover:bg-[var(--bg-subtle)] flex justify-between items-center text-sm"
+                            className="w-full text-left px-4 py-3 min-h-[48px] hover:bg-[var(--bg-subtle)] flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 text-sm"
                             onClick={() => {
                                 onSelect(d);
                                 setQuery('');

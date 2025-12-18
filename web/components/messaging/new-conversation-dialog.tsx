@@ -73,8 +73,8 @@ export default function NewConversationDialog({
           const data = await response.json()
           setClients(data.clients || [])
         }
-      } catch (err) {
-        console.error('Error searching clients:', err)
+      } catch {
+        // Error searching clients - silently fail
       } finally {
         setSearchLoading(false)
       }
@@ -140,33 +140,33 @@ export default function NewConversationDialog({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 animate-fadeIn"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-black/50 animate-fadeIn"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose()
       }}
     >
       <div
-        className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden animate-scaleIn"
+        className="bg-white rounded-t-2xl sm:rounded-3xl shadow-2xl w-full sm:max-w-2xl max-h-[90vh] overflow-hidden animate-scaleIn"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-100">
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-100">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-[var(--primary)]/10 rounded-xl">
-              <MessageSquare className="w-6 h-6 text-[var(--primary)]" />
+            <div className="p-2 bg-[var(--primary)]/10 rounded-xl shrink-0">
+              <MessageSquare className="w-5 h-5 sm:w-6 sm:h-6 text-[var(--primary)]" />
             </div>
-            <div>
-              <h2 className="text-xl font-bold text-[var(--text-primary)]">
+            <div className="min-w-0">
+              <h2 className="text-lg sm:text-xl font-bold text-[var(--text-primary)] truncate">
                 Nueva Conversación
               </h2>
-              <p className="text-sm text-[var(--text-secondary)]">
+              <p className="text-xs sm:text-sm text-[var(--text-secondary)] truncate">
                 {isStaff ? 'Iniciar conversación con un cliente' : 'Enviar mensaje a la clínica'}
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
+            className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-gray-100 rounded-xl transition-colors"
             disabled={loading}
           >
             <X className="w-5 h-5 text-gray-500" />
@@ -174,8 +174,8 @@ export default function NewConversationDialog({
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 overflow-y-auto max-h-[calc(90vh-180px)]">
-          <div className="space-y-5">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 overflow-y-auto max-h-[calc(90vh-200px)] sm:max-h-[calc(90vh-180px)]">
+          <div className="space-y-4 sm:space-y-5">
             {/* Client selector (staff only) */}
             {isStaff && (
               <div>
@@ -226,14 +226,14 @@ export default function NewConversationDialog({
                     )}
                   </div>
                 ) : (
-                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
-                    <div className="flex items-center gap-3">
-                      <User className="w-5 h-5 text-gray-400" />
-                      <div>
-                        <p className="font-medium text-[var(--text-primary)]">
+                  <div className="flex items-center justify-between p-3 sm:p-4 bg-gray-50 rounded-xl">
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                      <User className="w-5 h-5 text-gray-400 shrink-0" />
+                      <div className="min-w-0">
+                        <p className="font-medium text-[var(--text-primary)] truncate">
                           {selectedClient.full_name}
                         </p>
-                        <p className="text-sm text-[var(--text-secondary)]">
+                        <p className="text-sm text-[var(--text-secondary)] truncate">
                           {selectedClient.email}
                         </p>
                       </div>
@@ -241,7 +241,7 @@ export default function NewConversationDialog({
                     <button
                       type="button"
                       onClick={() => setSelectedClient(null)}
-                      className="p-1 hover:bg-gray-200 rounded-lg transition-colors"
+                      className="p-2 min-h-[40px] min-w-[40px] flex items-center justify-center hover:bg-gray-200 rounded-lg transition-colors shrink-0"
                       disabled={loading}
                     >
                       <X className="w-4 h-4 text-gray-500" />
@@ -321,11 +321,11 @@ export default function NewConversationDialog({
         </form>
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-100">
+        <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-3 p-4 sm:p-6 border-t border-gray-100">
           <button
             type="button"
             onClick={onClose}
-            className="px-6 py-3 rounded-xl border border-gray-200 text-gray-700 font-medium hover:bg-gray-50 transition-colors"
+            className="px-6 py-3 min-h-[48px] rounded-xl border border-gray-200 text-gray-700 font-medium hover:bg-gray-50 transition-colors"
             disabled={loading}
           >
             Cancelar
@@ -333,7 +333,7 @@ export default function NewConversationDialog({
           <button
             onClick={handleSubmit}
             disabled={loading || !subject.trim() || !message.trim() || (isStaff && !selectedClient)}
-            className="px-6 py-3 bg-[var(--primary)] text-white rounded-xl font-medium hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="px-6 py-3 min-h-[48px] bg-[var(--primary)] text-white rounded-xl font-medium hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {loading ? (
               <>

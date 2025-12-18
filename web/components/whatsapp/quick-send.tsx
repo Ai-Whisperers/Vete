@@ -34,27 +34,34 @@ export function QuickSend({
   const handleSend = async () => {
     if (!phone.trim() || !message.trim()) return
 
+    // FORM-004: Prevent double-submit
+    if (sending) return
+
     setSending(true)
     setError(null)
 
-    const formData = new FormData()
-    formData.append('phone', phone)
-    formData.append('message', message)
-    if (clientId) formData.append('clientId', clientId)
-    if (petId) formData.append('petId', petId)
-    formData.append('conversationType', 'general')
+    try {
+      const formData = new FormData()
+      formData.append('phone', phone)
+      formData.append('message', message)
+      if (clientId) formData.append('clientId', clientId)
+      if (petId) formData.append('petId', petId)
+      formData.append('conversationType', 'general')
 
-    const result = await sendMessage(formData)
+      const result = await sendMessage(formData)
 
-    setSending(false)
-
-    if (result.success) {
-      setPhone('')
-      setMessage('')
-      onClose()
-      router.refresh()
-    } else {
-      setError(result.error || 'Error al enviar mensaje')
+      if (result.success) {
+        setPhone('')
+        setMessage('')
+        onClose()
+        router.refresh()
+      } else {
+        setError(result.error || 'Error al enviar mensaje')
+      }
+    } catch (error) {
+      setError('Error de conexión. Por favor intenta de nuevo.')
+    } finally {
+      setSending(false)
     }
   }
 

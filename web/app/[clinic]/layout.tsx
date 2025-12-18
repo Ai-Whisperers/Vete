@@ -8,6 +8,8 @@ import { MainNav } from '@/components/layout/main-nav';
 import { ToastProvider } from '@/components/ui/Toast';
 import { CartProvider } from '@/context/cart-context';
 import { CommandPaletteProvider } from '@/components/search/command-palette-provider';
+import { CartLayoutWrapper } from '@/components/cart/cart-layout-wrapper';
+import { createClient } from '@/lib/supabase/server';
 import { Facebook, Instagram, Youtube, MapPin, Phone, Mail, Clock, MessageCircle } from 'lucide-react';
 import { FooterLogo } from '@/components/layout/footer-logo';
 
@@ -46,6 +48,11 @@ export default async function ClinicLayout({
 
   const { config } = data;
   const footerLabels = config.ui_labels?.footer || {};
+
+  // Check if user is logged in for cart UI
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const isLoggedIn = !!user;
 
   return (
     <ToastProvider>
@@ -308,6 +315,9 @@ export default async function ClinicLayout({
               </div>
             </div>
           </footer>
+
+          {/* Cart UI (only for logged-in users) */}
+          <CartLayoutWrapper isLoggedIn={isLoggedIn} />
           </div>
         </CommandPaletteProvider>
       </CartProvider>

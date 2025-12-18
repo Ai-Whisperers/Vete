@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, useMemo } from "react";
+import type { PetSizeCategory } from "@/lib/utils/pet-size";
 
 export type CartItemType = "service" | "product";
 
@@ -13,9 +14,29 @@ export interface CartItem {
   image_url?: string;
   description?: string;
   stock?: number; // Available stock for validation
+
+  // Service-specific fields (optional)
+  pet_id?: string;
+  pet_name?: string;
+  pet_size?: PetSizeCategory;
+  service_id?: string;
+  variant_name?: string;
+  base_price?: number;
 }
 
 // (Removed AddToCartButtonProps interface; it belongs in its own component file)
+
+/**
+ * Generates a unique cart item ID
+ * For services with pets: service_id-pet_id-variant_name
+ * For products: product-id
+ */
+export function generateCartItemId(item: Omit<CartItem, "quantity" | "id"> & { id?: string }): string {
+  if (item.type === "service" && item.pet_id && item.service_id) {
+    return `${item.service_id}-${item.pet_id}-${item.variant_name || "default"}`;
+  }
+  return item.id || `unknown-${Date.now()}`;
+}
 
 interface CartContextType {
   items: CartItem[];
@@ -58,15 +79,19 @@ export function CartProvider({ children }: { readonly children: React.ReactNode 
 
   const addItem = (newItem: Omit<CartItem, "quantity">, quantity: number = 1) => {
     setItems((prev) => {
-      const existing = prev.find((i) => i.id === newItem.id && i.type === newItem.type);
+      // Generate unique ID for the item
+      const itemId = generateCartItemId(newItem);
+      const itemWithId = { ...newItem, id: itemId };
+
+      // Find existing item by id
+      const existing = prev.find((i) => i.id === itemId);
+
       if (existing) {
         return prev.map((i) =>
-          i.id === newItem.id && i.type === newItem.type
-            ? { ...i, quantity: i.quantity + quantity }
-            : i
+          i.id === itemId ? { ...i, quantity: i.quantity + quantity } : i
         );
       }
-      return [...prev, { ...newItem, quantity }];
+      return [...prev, { ...itemWithId, quantity }];
     });
   };
 

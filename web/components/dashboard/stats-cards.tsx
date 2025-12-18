@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { Users, Calendar, Syringe, Receipt, TrendingUp, TrendingDown } from 'lucide-react';
+import { DASHBOARD_ICONS } from '@/lib/icons';
 
 interface DashboardStats {
   total_pets: number;
@@ -59,21 +59,21 @@ export function StatsCards({ clinic }: StatsCardsProps) {
     {
       title: 'Mascotas Registradas',
       value: stats?.total_pets || 0,
-      icon: Users,
+      icon: DASHBOARD_ICONS.users,
       color: 'bg-[var(--status-info,#3b82f6)]',
       change: stats?.pets_change
     },
     {
       title: 'Citas Hoy',
       value: stats?.appointments_today || 0,
-      icon: Calendar,
+      icon: DASHBOARD_ICONS.calendar,
       color: 'bg-[var(--status-success,#22c55e)]',
       change: stats?.appointments_change
     },
     {
       title: 'Vacunas Pendientes',
       value: stats?.pending_vaccines || 0,
-      icon: Syringe,
+      icon: DASHBOARD_ICONS.syringe,
       color: 'bg-[var(--status-warning,#eab308)]',
       alert: (stats?.pending_vaccines || 0) > 10
     },
@@ -83,7 +83,7 @@ export function StatsCards({ clinic }: StatsCardsProps) {
       subvalue: stats?.pending_amount
         ? `Gs. ${stats.pending_amount.toLocaleString()}`
         : undefined,
-      icon: Receipt,
+      icon: DASHBOARD_ICONS.receipt,
       color: 'bg-[var(--primary)]'
     }
   ];
@@ -107,7 +107,7 @@ export function StatsCards({ clinic }: StatsCardsProps) {
             </div>
             <div className="flex items-end justify-between">
               <div>
-                <p className="text-3xl font-bold text-[var(--text-primary)]">{card.value}</p>
+                <p className="text-2xl sm:text-3xl font-bold text-[var(--text-primary)]">{card.value}</p>
                 {card.subvalue && (
                   <p className="text-sm text-[var(--text-muted)] mt-1">{card.subvalue}</p>
                 )}
@@ -119,9 +119,9 @@ export function StatsCards({ clinic }: StatsCardsProps) {
                   }`}
                 >
                   {card.change >= 0 ? (
-                    <TrendingUp className="w-4 h-4 mr-1" />
+                    <DASHBOARD_ICONS.trendingUp className="w-4 h-4 mr-1" />
                   ) : (
-                    <TrendingDown className="w-4 h-4 mr-1" />
+                    <DASHBOARD_ICONS.trendingDown className="w-4 h-4 mr-1" />
                   )}
                   {Math.abs(card.change)}%
                 </div>

@@ -273,13 +273,37 @@ export function Calendar({
           margin-bottom: 16px;
           flex-wrap: wrap;
           gap: 8px;
+          padding: 0 4px;
+        }
+        @media (max-width: 640px) {
+          .calendar-wrapper .rbc-toolbar {
+            flex-direction: column;
+            align-items: stretch;
+          }
+          .calendar-wrapper .rbc-toolbar-label {
+            order: -1;
+            text-align: center;
+            margin-bottom: 8px;
+            font-size: 1rem;
+          }
+          .calendar-wrapper .rbc-btn-group {
+            display: flex;
+            justify-content: center;
+          }
         }
         .calendar-wrapper .rbc-toolbar button {
           color: var(--text-primary, #374151);
           border-color: var(--border-color, #d1d5db);
-          padding: 6px 12px;
+          padding: 10px 16px;
+          min-height: 44px;
           font-size: 0.875rem;
           border-radius: 6px;
+        }
+        @media (max-width: 640px) {
+          .calendar-wrapper .rbc-toolbar button {
+            padding: 8px 12px;
+            font-size: 0.8125rem;
+          }
         }
         .calendar-wrapper .rbc-toolbar button:hover {
           background-color: var(--bg-hover, #f3f4f6);

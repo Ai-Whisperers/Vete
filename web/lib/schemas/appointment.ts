@@ -22,11 +22,13 @@ export type AppointmentStatus = (typeof APPOINTMENT_STATUSES)[number];
  * Schema for creating a new appointment
  */
 export const createAppointmentSchema = z.object({
+  clinic_slug: z.string().optional(),
   pet_id: uuidSchema,
   service_id: uuidSchema,
   appointment_date: futureDateSchema,
+  time_slot: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Formato de hora inválido (HH:MM)'),
+  vet_id: uuidSchema.optional(),
   notes: optionalString(500),
-  // clinic_slug is derived from auth context
 });
 
 export type CreateAppointmentInput = z.infer<typeof createAppointmentSchema>;
@@ -37,7 +39,9 @@ export type CreateAppointmentInput = z.infer<typeof createAppointmentSchema>;
 export const updateAppointmentSchema = z.object({
   id: uuidSchema,
   appointment_date: futureDateSchema.optional(),
+  time_slot: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Formato de hora inválido (HH:MM)').optional(),
   status: enumSchema(APPOINTMENT_STATUSES, 'Estado').optional(),
+  vet_id: uuidSchema.optional(),
   notes: optionalString(500),
 });
 

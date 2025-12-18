@@ -347,6 +347,9 @@ BEGIN
     REFRESH MATERIALIZED VIEW CONCURRENTLY mv_staff_performance;
     view_name := 'mv_staff_performance'; refreshed_at := NOW(); RETURN NEXT;
 
+    REFRESH MATERIALIZED VIEW CONCURRENTLY mv_client_summary;
+    view_name := 'mv_client_summary'; refreshed_at := NOW(); RETURN NEXT;
+
     RETURN;
 END;
 $$ LANGUAGE plpgsql;
@@ -357,6 +360,7 @@ RETURNS VOID AS $$
 BEGIN
     REFRESH MATERIALIZED VIEW CONCURRENTLY mv_clinic_dashboard_stats;
     REFRESH MATERIALIZED VIEW CONCURRENTLY mv_inventory_alerts;
+    REFRESH MATERIALIZED VIEW CONCURRENTLY mv_client_summary;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -376,7 +380,40 @@ CREATE INDEX IF NOT EXISTS idx_mv_refresh_log_view ON materialized_view_refresh_
 CREATE INDEX IF NOT EXISTS idx_mv_refresh_log_time ON materialized_view_refresh_log(refresh_started_at DESC);
 
 -- =============================================================================
--- L. GRANT ACCESS TO MATERIALIZED VIEWS
+-- L. CLIENT SUMMARY (for /api/clients optimization)
+-- =============================================================================
+
+CREATE MATERIALIZED VIEW IF NOT EXISTS mv_client_summary AS
+SELECT
+    pr.id AS client_id,
+    pr.tenant_id,
+    pr.full_name,
+    pr.email,
+    pr.phone,
+    pr.created_at,
+    COUNT(DISTINCT p.id) AS pet_count,
+    MAX(a.start_time) AS last_appointment_date,
+    COUNT(DISTINCT a.id) FILTER (WHERE a.status = 'completed') AS completed_appointments_count,
+    COUNT(DISTINCT a.id) FILTER (WHERE a.status = 'cancelled' OR a.status = 'no_show') AS missed_appointments_count,
+    SUM(COALESCE(inv.total_amount, 0)) FILTER (WHERE inv.status = 'paid') AS lifetime_value,
+    MAX(inv.created_at) AS last_invoice_date,
+    NOW() AS refreshed_at
+FROM profiles pr
+LEFT JOIN pets p ON p.owner_id = pr.id AND p.tenant_id = pr.tenant_id AND p.deleted_at IS NULL
+LEFT JOIN appointments a ON a.pet_id = p.id AND a.tenant_id = pr.tenant_id AND a.deleted_at IS NULL
+LEFT JOIN invoices inv ON inv.client_id = pr.id AND inv.tenant_id = pr.tenant_id AND inv.deleted_at IS NULL
+WHERE pr.role = 'owner'
+GROUP BY pr.id, pr.tenant_id, pr.full_name, pr.email, pr.phone, pr.created_at;
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_mv_client_summary_client ON mv_client_summary(client_id);
+CREATE INDEX IF NOT EXISTS idx_mv_client_summary_tenant ON mv_client_summary(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_mv_client_summary_name ON mv_client_summary(tenant_id, full_name);
+CREATE INDEX IF NOT EXISTS idx_mv_client_summary_email ON mv_client_summary(tenant_id, email);
+CREATE INDEX IF NOT EXISTS idx_mv_client_summary_pet_count ON mv_client_summary(tenant_id, pet_count);
+CREATE INDEX IF NOT EXISTS idx_mv_client_summary_last_appt ON mv_client_summary(tenant_id, last_appointment_date);
+
+-- =============================================================================
+-- M. GRANT ACCESS TO MATERIALIZED VIEWS
 -- =============================================================================
 
 GRANT SELECT ON mv_clinic_dashboard_stats TO authenticated;
@@ -389,6 +426,7 @@ GRANT SELECT ON mv_client_retention TO authenticated;
 GRANT SELECT ON mv_inventory_alerts TO authenticated;
 GRANT SELECT ON mv_disease_heatmap TO authenticated;
 GRANT SELECT ON mv_staff_performance TO authenticated;
+GRANT SELECT ON mv_client_summary TO authenticated;
 
 -- =============================================================================
 -- MATERIALIZED VIEWS COMPLETE

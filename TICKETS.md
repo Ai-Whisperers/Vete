@@ -1,8 +1,53 @@
 # VETE Platform - Comprehensive Bug & Issue Tickets
 
 > **Generated:** December 18, 2024
-> **Total Tickets:** 127
-> **Critical:** 18 | **High:** 42 | **Medium:** 47 | **Low:** 20
+> **Last Updated:** December 18, 2024 (Cleanup Pass)
+> **Total Tickets:** 127 | **Closed:** 21 | **Open:** 106
+> **Critical:** 18 (7 closed) | **High:** 42 (12 closed) | **Medium:** 47 (2 closed) | **Low:** 20
+
+---
+
+## Closed Tickets Summary
+
+The following tickets have been verified as **FIXED** in the codebase:
+
+### Security (7 Closed)
+- [x] **SEC-001**: QR Code endpoint authentication
+- [x] **SEC-002**: Diagnosis codes API authentication
+- [x] **SEC-005**: Expenses API tenant validation
+- [x] **SEC-006**: Remove invite authorization
+- [x] **SEC-007**: Medical records pet ownership
+- [x] **SEC-008**: Vaccine pet ownership check
+- [x] **SEC-009**: Inventory import file validation
+
+### Business Logic (5 Closed)
+- [x] **BIZ-005**: Invoice refund race condition (uses atomic RPC)
+- [x] **BIZ-007**: Loyalty points negative check
+- [x] **BIZ-008**: Vaccine status based on role
+- [x] **BIZ-009**: Vaccine date validation
+- [x] **BIZ-010**: Appointment status transitions
+
+### Type Safety (3 Closed)
+- [x] **TYPE-002**: Server actions missing types
+- [x] **TYPE-003**: Component props using any
+- [x] **TYPE-004**: Catch blocks using any
+
+### Form Validation (2 Closed)
+- [x] **FORM-002**: Lab order using alert()
+- [x] **FORM-003**: Missing signup validation
+
+### Performance (1 Closed)
+- [x] **PERF-003**: Missing useMemo in booking wizard
+
+### Error Handling (1 Closed)
+- [x] **ERR-003**: Consent form XSS risk (DOMPurify added)
+
+### Accessibility (2 Closed)
+- [x] **A11Y-004**: Error messages role="alert"
+
+### Design Decisions (Not Bugs)
+- **SEC-003**: Slots API intentionally public for booking flow
+- **SEC-004**: Services API intentionally public for website visitors
 
 ---
 
@@ -24,7 +69,8 @@
 
 ## 1. Critical Security Issues
 
-### TICKET-SEC-001: QR Code Endpoint Missing Authentication
+### ~~TICKET-SEC-001: QR Code Endpoint Missing Authentication~~ [CLOSED]
+**Status:** ✅ FIXED
 **Priority:** CRITICAL
 **Type:** Security Vulnerability
 **Affected Files:**

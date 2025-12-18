@@ -127,8 +127,8 @@ export default async function AboutPage({ params }: { params: Promise<{ clinic: 
         )}
 
         {/* Decorative shapes */}
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[var(--primary)]/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-[var(--accent)]/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+        <div className="absolute top-0 right-0 w-[200px] sm:w-[350px] lg:w-[500px] h-[200px] sm:h-[350px] lg:h-[500px] bg-[var(--primary)]/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+        <div className="absolute bottom-0 left-0 w-[150px] sm:w-[280px] lg:w-[400px] h-[150px] sm:h-[280px] lg:h-[400px] bg-[var(--accent)]/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
 
         <div className="container relative z-10 max-w-4xl mx-auto px-4 text-center">
           <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--primary)]/10 text-[var(--primary)] font-bold tracking-widest uppercase text-sm mb-6 backdrop-blur-sm">
@@ -154,21 +154,21 @@ export default async function AboutPage({ params }: { params: Promise<{ clinic: 
 
           {/* Stats row - configurable from config.stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mt-12 pt-12 border-t border-gray-200">
-            <div className="text-center p-4 bg-white/60 backdrop-blur-sm rounded-xl">
-              <p className="text-3xl md:text-4xl font-black text-[var(--primary)] mb-1">{stats.pets_served}</p>
-              <p className="text-sm text-[var(--text-muted)] font-medium">Mascotas Atendidas</p>
+            <div className="text-center p-3 sm:p-4 bg-white/60 backdrop-blur-sm rounded-xl">
+              <p className="text-2xl sm:text-3xl md:text-4xl font-black text-[var(--primary)] mb-1">{stats.pets_served}</p>
+              <p className="text-xs sm:text-sm text-[var(--text-muted)] font-medium">Mascotas Atendidas</p>
             </div>
-            <div className="text-center p-4 bg-white/60 backdrop-blur-sm rounded-xl">
-              <p className="text-3xl md:text-4xl font-black text-[var(--primary)] mb-1">{stats.years_experience}</p>
-              <p className="text-sm text-[var(--text-muted)] font-medium">Años de Experiencia</p>
+            <div className="text-center p-3 sm:p-4 bg-white/60 backdrop-blur-sm rounded-xl">
+              <p className="text-2xl sm:text-3xl md:text-4xl font-black text-[var(--primary)] mb-1">{stats.years_experience}</p>
+              <p className="text-xs sm:text-sm text-[var(--text-muted)] font-medium">Años de Experiencia</p>
             </div>
-            <div className="text-center p-4 bg-white/60 backdrop-blur-sm rounded-xl">
-              <p className="text-3xl md:text-4xl font-black text-[var(--primary)] mb-1">{stats.emergency_hours}</p>
-              <p className="text-sm text-[var(--text-muted)] font-medium">Atención Urgencias</p>
+            <div className="text-center p-3 sm:p-4 bg-white/60 backdrop-blur-sm rounded-xl">
+              <p className="text-2xl sm:text-3xl md:text-4xl font-black text-[var(--primary)] mb-1">{stats.emergency_hours}</p>
+              <p className="text-xs sm:text-sm text-[var(--text-muted)] font-medium">Atención Urgencias</p>
             </div>
-            <div className="text-center p-4 bg-white/60 backdrop-blur-sm rounded-xl">
-              <p className="text-3xl md:text-4xl font-black text-[var(--primary)] mb-1">{stats.rating}</p>
-              <p className="text-sm text-[var(--text-muted)] font-medium">Calificación Google</p>
+            <div className="text-center p-3 sm:p-4 bg-white/60 backdrop-blur-sm rounded-xl">
+              <p className="text-2xl sm:text-3xl md:text-4xl font-black text-[var(--primary)] mb-1">{stats.rating}</p>
+              <p className="text-xs sm:text-sm text-[var(--text-muted)] font-medium">Calificación Google</p>
             </div>
           </div>
         </div>
@@ -444,8 +444,8 @@ export default async function AboutPage({ params }: { params: Promise<{ clinic: 
       {/* CTA Section */}
       <section className="section-padding bg-gradient-to-br from-[var(--primary)] to-[var(--primary-dark)] relative overflow-hidden">
         {/* Decorative elements */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-        <div className="absolute bottom-0 left-0 w-72 h-72 bg-white/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+        <div className="absolute top-0 right-0 w-48 sm:w-72 lg:w-96 h-48 sm:h-72 lg:h-96 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+        <div className="absolute bottom-0 left-0 w-36 sm:w-56 lg:w-72 h-36 sm:h-56 lg:h-72 bg-white/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
         
         <div className="container mx-auto px-4 md:px-6 relative z-10">
           <div className="max-w-3xl mx-auto text-center">
@@ -467,7 +467,7 @@ export default async function AboutPage({ params }: { params: Promise<{ clinic: 
               </Link>
               
               <a
-                href={`tel:${config.contact?.phone?.replace(/\s/g, '') || ''}`}
+                href={`tel:${config.contact?.phone_display?.replace(/\s/g, '') || ''}`}
                 className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/10 text-white font-bold rounded-full hover:bg-white/20 transition-colors border border-white/30"
               >
                 <Phone className="w-5 h-5" />
@@ -483,7 +483,7 @@ export default async function AboutPage({ params }: { params: Promise<{ clinic: 
               </div>
               <div className="flex items-center gap-2">
                 <Phone className="w-5 h-5" />
-                <span>{config.contact?.phone || '+595 981 123 456'}</span>
+                <span>{config.contact?.phone_display || '+595 981 123 456'}</span>
               </div>
             </div>
           </div>

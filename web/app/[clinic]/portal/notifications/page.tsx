@@ -23,36 +23,55 @@ interface Props {
 
 interface Notification {
   id: string
-  type: string
-  subject: string
+  subject: string | null
   body: string
   created_at: string
-  read: boolean
+  status: "queued" | "delivered" | "read" | "failed"
+  read_at: string | null
 }
 
 export async function generateStaticParams() {
   return [{ clinic: 'adris' }, { clinic: 'petlife' }]
 }
 
-// Map notification types to icons and colors
-function getNotificationIcon(type: string) {
-  const iconMap: Record<string, { Icon: any; color: string }> = {
-    vaccine_reminder: { Icon: Syringe, color: 'text-blue-600' },
-    vaccine_overdue: { Icon: AlertCircle, color: 'text-red-600' },
-    appointment_reminder: { Icon: Calendar, color: 'text-purple-600' },
-    appointment_confirmation: { Icon: CheckCircle, color: 'text-green-600' },
-    appointment_cancelled: { Icon: XCircle, color: 'text-red-600' },
-    invoice_sent: { Icon: FileText, color: 'text-gray-600' },
-    payment_received: { Icon: DollarSign, color: 'text-green-600' },
-    payment_overdue: { Icon: DollarSign, color: 'text-red-600' },
-    birthday: { Icon: Cake, color: 'text-pink-600' },
-    follow_up: { Icon: ClipboardList, color: 'text-orange-600' },
-    lab_results_ready: { Icon: Activity, color: 'text-blue-600' },
-    hospitalization_update: { Icon: Activity, color: 'text-purple-600' },
-    custom: { Icon: MessageSquare, color: 'text-gray-600' },
+// Map notification subjects to icons and colors based on keywords
+function getNotificationIcon(subject: string | null) {
+  if (!subject) return { Icon: Bell, color: 'text-gray-600' }
+
+  const subjectLower = subject.toLowerCase()
+
+  if (subjectLower.includes('vacuna')) {
+    return subjectLower.includes('vencida')
+      ? { Icon: AlertCircle, color: 'text-red-600' }
+      : { Icon: Syringe, color: 'text-blue-600' }
+  }
+  if (subjectLower.includes('cita') || subjectLower.includes('appointment')) {
+    if (subjectLower.includes('cancelad')) return { Icon: XCircle, color: 'text-red-600' }
+    if (subjectLower.includes('confirmad')) return { Icon: CheckCircle, color: 'text-green-600' }
+    return { Icon: Calendar, color: 'text-purple-600' }
+  }
+  if (subjectLower.includes('factura') || subjectLower.includes('invoice')) {
+    return { Icon: FileText, color: 'text-gray-600' }
+  }
+  if (subjectLower.includes('pago') || subjectLower.includes('payment')) {
+    return subjectLower.includes('vencid') || subjectLower.includes('overdue')
+      ? { Icon: DollarSign, color: 'text-red-600' }
+      : { Icon: DollarSign, color: 'text-green-600' }
+  }
+  if (subjectLower.includes('cumpleaños') || subjectLower.includes('birthday')) {
+    return { Icon: Cake, color: 'text-pink-600' }
+  }
+  if (subjectLower.includes('seguimiento') || subjectLower.includes('follow')) {
+    return { Icon: ClipboardList, color: 'text-orange-600' }
+  }
+  if (subjectLower.includes('laboratorio') || subjectLower.includes('lab')) {
+    return { Icon: Activity, color: 'text-blue-600' }
+  }
+  if (subjectLower.includes('hospitalización') || subjectLower.includes('hospitalization')) {
+    return { Icon: Activity, color: 'text-purple-600' }
   }
 
-  return iconMap[type] || { Icon: Bell, color: 'text-gray-600' }
+  return { Icon: MessageSquare, color: 'text-gray-600' }
 }
 
 // Format relative time in Spanish
@@ -135,9 +154,10 @@ export default async function NotificationsPage({ params }: Props) {
 
   // Fetch notifications for this user
   const { data: notifications, error } = await supabase
-    .from('notifications')
+    .from('notification_queue')
     .select('*')
-    .eq('user_id', user.id)
+    .eq('client_id', user.id)
+    .eq('channel_type', 'in_app')
     .order('created_at', { ascending: false })
 
   if (error) {
@@ -147,7 +167,9 @@ export default async function NotificationsPage({ params }: Props) {
   const notificationsList = (notifications || []) as Notification[]
   const groupedNotifications = groupNotificationsByDate(notificationsList)
   const hasNotifications = notificationsList.length > 0
-  const unreadCount = notificationsList.filter((n) => !n.read).length
+  const unreadCount = notificationsList.filter(
+    (n) => n.status === 'queued' || n.status === 'delivered'
+  ).length
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
@@ -212,15 +234,18 @@ export default async function NotificationsPage({ params }: Props) {
                 </h2>
                 <div className="space-y-3">
                   {groupNotifs.map((notification) => {
-                    const { Icon, color } = getNotificationIcon(notification.type)
+                    const isUnread =
+                      notification.status === 'queued' ||
+                      notification.status === 'delivered'
+                    const { Icon, color } = getNotificationIcon(notification.subject)
 
                     return (
                       <div
                         key={notification.id}
                         className={`rounded-xl shadow-sm border transition-all hover:shadow-md ${
-                          notification.read
-                            ? 'bg-white border-[var(--border-light)]'
-                            : 'bg-[var(--primary)]/5 border-[var(--primary)]/20'
+                          isUnread
+                            ? 'bg-[var(--primary)]/5 border-[var(--primary)]/20'
+                            : 'bg-white border-[var(--border-light)]'
                         }`}
                       >
                         <div className="p-4">
@@ -228,9 +253,7 @@ export default async function NotificationsPage({ params }: Props) {
                             {/* Icon */}
                             <div
                               className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${
-                                notification.read
-                                  ? 'bg-[var(--bg-muted)]'
-                                  : 'bg-white'
+                                isUnread ? 'bg-white' : 'bg-[var(--bg-muted)]'
                               }`}
                             >
                               <Icon className={`w-5 h-5 ${color}`} />
@@ -240,20 +263,28 @@ export default async function NotificationsPage({ params }: Props) {
                             <div className="flex-1 min-w-0">
                               <div className="flex items-start justify-between gap-3 mb-1">
                                 <h3
-                                  className={`font-semibold ${
-                                    notification.read
-                                      ? 'text-[var(--text-primary)]'
-                                      : 'text-[var(--primary)]'
+                                  className={`${
+                                    isUnread ? 'font-bold' : 'font-semibold'
+                                  } ${
+                                    isUnread
+                                      ? 'text-[var(--primary)]'
+                                      : 'text-[var(--text-primary)]'
                                   }`}
                                 >
-                                  {notification.subject}
+                                  {notification.subject || 'Notificación'}
                                 </h3>
-                                {!notification.read && (
+                                {isUnread && (
                                   <span className="flex-shrink-0 w-2 h-2 rounded-full bg-[var(--primary)]" />
                                 )}
                               </div>
 
-                              <p className="text-sm text-[var(--text-secondary)] mb-2">
+                              <p
+                                className={`text-sm mb-2 ${
+                                  isUnread
+                                    ? 'text-[var(--text-primary)] font-medium'
+                                    : 'text-[var(--text-secondary)]'
+                                }`}
+                              >
                                 {notification.body}
                               </p>
 

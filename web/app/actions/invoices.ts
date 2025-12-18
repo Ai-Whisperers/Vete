@@ -2,6 +2,11 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { sendEmail as sendEmailClient } from '@/lib/email/client'
+import {
+  generateInvoiceEmail,
+  generateInvoiceEmailText,
+} from '@/lib/email/templates/invoice-email'
 import type {
   InvoiceFormData,
   RecordPaymentData,
@@ -85,11 +90,14 @@ export async function createInvoice(formData: InvoiceFormData): Promise<InvoiceR
       p_tenant_id: profile.tenant_id,
     })
 
-    // 6. Calculate totals
+    // 6. Calculate totals with proper rounding
+    const { roundCurrency } = await import('@/lib/types/invoicing')
+
     let subtotal = 0
     const processedItems = formData.items.map((item) => {
-      const lineTotal =
+      const lineTotal = roundCurrency(
         item.quantity * item.unit_price * (1 - (item.discount_percent || 0) / 100)
+      )
       subtotal += lineTotal
       return {
         ...item,
@@ -97,9 +105,11 @@ export async function createInvoice(formData: InvoiceFormData): Promise<InvoiceR
       }
     })
 
+    // Round all currency values to avoid floating point errors
+    subtotal = roundCurrency(subtotal)
     const taxRate = formData.tax_rate || 10 // Default 10% IVA
-    const taxAmount = subtotal * (taxRate / 100)
-    const total = subtotal + taxAmount
+    const taxAmount = roundCurrency(subtotal * (taxRate / 100))
+    const total = roundCurrency(subtotal + taxAmount)
 
     // 7. Create invoice
     const { data: invoice, error: invoiceError } = await supabase
@@ -233,11 +243,14 @@ export async function updateInvoice(
       return { error: 'Mascota no encontrada' }
     }
 
-    // 7. Calculate totals
+    // 7. Calculate totals with proper rounding
+    const { roundCurrency } = await import('@/lib/types/invoicing')
+
     let subtotal = 0
     const processedItems = formData.items.map((item) => {
-      const lineTotal =
+      const lineTotal = roundCurrency(
         item.quantity * item.unit_price * (1 - (item.discount_percent || 0) / 100)
+      )
       subtotal += lineTotal
       return {
         ...item,
@@ -245,9 +258,11 @@ export async function updateInvoice(
       }
     })
 
+    // Round all currency values to avoid floating point errors
+    subtotal = roundCurrency(subtotal)
     const taxRate = formData.tax_rate || 10 // Default 10% IVA
-    const taxAmount = subtotal * (taxRate / 100)
-    const total = subtotal + taxAmount
+    const taxAmount = roundCurrency(subtotal * (taxRate / 100))
+    const total = roundCurrency(subtotal + taxAmount)
 
     // 8. Update invoice
     const { data: invoice, error: invoiceError } = await supabase
@@ -428,17 +443,25 @@ export async function sendInvoice(
     return { error: 'Solo el personal puede enviar facturas' }
   }
 
-  // Get invoice with owner info
+  // Get invoice with complete details for email
   const { data: invoice, error: fetchError } = await supabase
     .from('invoices')
     .select(
       `
-      id, 
-      status, 
-      tenant_id, 
-      invoice_number,
+      *,
       pets(
-        owner:profiles!pets_owner_id_fkey(email, full_name)
+        id,
+        name,
+        species,
+        owner:profiles!pets_owner_id_fkey(id, email, full_name)
+      ),
+      invoice_items(
+        id,
+        description,
+        quantity,
+        unit_price,
+        discount_percent,
+        line_total
       )
     `
     )
@@ -453,6 +476,13 @@ export async function sendInvoice(
   if (!['draft', 'sent', 'partial', 'overdue'].includes(invoice.status)) {
     return { error: 'Esta factura no puede ser enviada' }
   }
+
+  // Get clinic/tenant info
+  const { data: tenant } = await supabase
+    .from('tenants')
+    .select('id, name')
+    .eq('id', profile.tenant_id)
+    .single()
 
   // Update status to sent
   const { error: updateError } = await supabase
@@ -469,11 +499,67 @@ export async function sendInvoice(
     return { error: 'Error al enviar la factura' }
   }
 
-  // TODO: Implement actual email sending
-  // If sendEmail is true, send email to owner
-  if (sendEmail) {
-    // This would integrate with an email service
-    console.log('Would send email to owner with message:', emailMessage)
+  // Send email to owner if requested
+  if (sendEmail && invoice.pets) {
+    const pet = Array.isArray(invoice.pets) ? invoice.pets[0] : invoice.pets
+    const owner = pet?.owner
+      ? Array.isArray(pet.owner)
+        ? pet.owner[0]
+        : pet.owner
+      : null
+
+    if (owner && owner.email) {
+      try {
+        // Generate invoice view URL (if applicable)
+        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+        const viewUrl = `${baseUrl}/${profile.tenant_id}/portal/invoices/${invoiceId}`
+
+        // Prepare email data
+        const emailData = {
+          clinicName: tenant?.name || profile.tenant_id,
+          ownerName: owner.full_name || 'Cliente',
+          petName: pet.name,
+          invoiceNumber: invoice.invoice_number,
+          invoiceDate: invoice.created_at,
+          dueDate: invoice.due_date,
+          subtotal: invoice.subtotal,
+          taxRate: invoice.tax_rate,
+          taxAmount: invoice.tax_amount,
+          total: invoice.total,
+          amountPaid: invoice.amount_paid,
+          amountDue: invoice.amount_due,
+          items: invoice.invoice_items || [],
+          notes: emailMessage || invoice.notes,
+          paymentInstructions:
+            'Efectivo, transferencia bancaria o tarjeta de crédito/débito.\nContacta con nosotros para coordinar el pago.',
+          viewUrl,
+        }
+
+        // Generate email HTML and text
+        const html = generateInvoiceEmail(emailData)
+        const text = generateInvoiceEmailText(emailData)
+
+        // Send email
+        const result = await sendEmailClient({
+          to: owner.email,
+          subject: `Factura ${invoice.invoice_number} - ${tenant?.name || profile.tenant_id}`,
+          html,
+          text,
+        })
+
+        if (!result.success) {
+          console.error('Failed to send invoice email:', result.error)
+          // Don't fail the whole operation if email fails
+        } else {
+          console.log('Invoice email sent successfully to:', owner.email)
+        }
+      } catch (emailError) {
+        console.error('Exception sending invoice email:', emailError)
+        // Don't fail the whole operation if email fails
+      }
+    } else {
+      console.warn('Cannot send email: owner email not found')
+    }
   }
 
   revalidatePath('/[clinic]/dashboard/invoices')
@@ -563,9 +649,10 @@ export async function recordPayment(
       return { error: 'Error al registrar el pago' }
     }
 
-    // Update invoice totals
-    const newAmountPaid = invoice.amount_paid + paymentData.amount
-    const newAmountDue = invoice.total - newAmountPaid
+    // Update invoice totals with proper rounding
+    const { roundCurrency } = await import('@/lib/types/invoicing')
+    const newAmountPaid = roundCurrency(invoice.amount_paid + paymentData.amount)
+    const newAmountDue = roundCurrency(invoice.total - newAmountPaid)
     const newStatus = newAmountDue <= 0 ? 'paid' : 'partial'
 
     const { error: updateError } = await supabase

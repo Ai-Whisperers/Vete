@@ -174,21 +174,27 @@ export async function rescheduleAppointment(
   const durationMs = originalEnd.getTime() - originalStart.getTime()
   const newEndDateTime = new Date(newDateTime.getTime() + durationMs)
 
-  // 7. TICKET-TODO-003: Check slot availability - prevent overlapping appointments
+  // 7. Check slot availability - prevent overlapping appointments using database function
   const newStartTimeStr = newDateTime.toTimeString().slice(0, 5) // HH:MM
   const newEndTimeStr = newEndDateTime.toTimeString().slice(0, 5) // HH:MM
 
-  const { data: existingAppointments } = await supabase
-    .from('appointments')
-    .select('id, start_time, end_time')
-    .eq('tenant_id', appointment.tenant_id)
-    .eq('appointment_date', newDate)
-    .not('status', 'in', '("cancelled","no_show")')
-    .neq('id', appointmentId) // Exclude current appointment being rescheduled
-    .lt('start_time', newEndTimeStr)   // existing starts before new ends
-    .gt('end_time', newStartTimeStr)   // existing ends after new starts
+  // Use the database function to check for overlaps
+  const { data: hasOverlap, error: overlapCheckError } = await supabase
+    .rpc('check_appointment_overlap', {
+      p_tenant_id: appointment.tenant_id,
+      p_date: newDate,
+      p_start_time: newStartTimeStr,
+      p_end_time: newEndTimeStr,
+      p_vet_id: null, // Check across all vets for now
+      p_exclude_id: appointmentId // Exclude current appointment being rescheduled
+    })
 
-  if (existingAppointments && existingAppointments.length > 0) {
+  if (overlapCheckError) {
+    console.error('Overlap check error:', overlapCheckError)
+    return { error: 'Error al verificar disponibilidad del horario' }
+  }
+
+  if (hasOverlap) {
     return { error: 'El horario seleccionado no está disponible. Por favor elige otro.' }
   }
 
@@ -612,4 +618,92 @@ export async function getStaffAppointments(
   })) || []
 
   return { data: transformedAppointments, error: null }
+}
+
+// =============================================================================
+// APPOINTMENT SLOT AVAILABILITY
+// =============================================================================
+
+interface AvailabilitySlot {
+  time: string
+  available: boolean
+}
+
+interface CheckSlotsParams {
+  clinicSlug: string
+  date: string
+  slotDurationMinutes?: number
+  workStart?: string
+  workEnd?: string
+  breakStart?: string
+  breakEnd?: string
+  vetId?: string
+}
+
+/**
+ * Check available appointment slots for a given date
+ * Uses the database function to properly check overlaps and respect working hours
+ */
+export async function checkAvailableSlots(
+  params: CheckSlotsParams
+): Promise<{ data: AvailabilitySlot[] | null; error: string | null }> {
+  const supabase = await createClient()
+
+  const {
+    clinicSlug,
+    date,
+    slotDurationMinutes = 30,
+    workStart = '08:00',
+    workEnd = '18:00',
+    breakStart = '12:00',
+    breakEnd = '14:00',
+    vetId
+  } = params
+
+  // Validate date format
+  const dateRegex = /^\d{4}-\d{2}-\d{2}$/
+  if (!dateRegex.test(date)) {
+    return { data: null, error: 'Formato de fecha inválido' }
+  }
+
+  // Validate time formats
+  const timeRegex = /^\d{2}:\d{2}$/
+  if (!timeRegex.test(workStart) || !timeRegex.test(workEnd) ||
+      !timeRegex.test(breakStart) || !timeRegex.test(breakEnd)) {
+    return { data: null, error: 'Formato de hora inválido' }
+  }
+
+  try {
+    // Call the database function to get available slots
+    const { data: slots, error } = await supabase
+      .rpc('get_available_slots', {
+        p_tenant_id: clinicSlug,
+        p_date: date,
+        p_slot_duration_minutes: slotDurationMinutes,
+        p_work_start: workStart,
+        p_work_end: workEnd,
+        p_break_start: breakStart,
+        p_break_end: breakEnd,
+        p_vet_id: vetId || null
+      })
+
+    if (error) {
+      console.error('Error fetching available slots:', error)
+      return { data: null, error: 'Error al obtener horarios disponibles' }
+    }
+
+    // Transform the response to match the expected format
+    const availableSlots: AvailabilitySlot[] = slots?.map((slot: {
+      slot_time: string
+      is_available: boolean
+    }) => ({
+      time: slot.slot_time,
+      available: slot.is_available
+    })) || []
+
+    return { data: availableSlots, error: null }
+  } catch (e) {
+    console.error('Unexpected error checking slots:', e)
+    return { data: null, error: 'Error inesperado al verificar disponibilidad' }
+  }
 }

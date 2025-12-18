@@ -26,21 +26,37 @@ export default async function BookingPage({ params, searchParams }: {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
-    // Fetch user's pets if logged in to speed up booking
-    let userPets: any[] = [];
-    if (user) {
-        const { data: pets } = await supabase
-            .from('pets')
-            .select('id, name, species')
-            .eq('owner_id', user.id);
-        if (pets) userPets = pets;
+    // Require authentication for booking
+    if (!user) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+                <div className="bg-white rounded-3xl shadow-xl p-8 max-w-md text-center">
+                    <h2 className="text-2xl font-black text-gray-900 mb-4">Autenticación Requerida</h2>
+                    <p className="text-gray-600 mb-6">Por favor inicia sesión para reservar una cita.</p>
+                    <a
+                        href={`/${clinic}/auth/login?redirect=/book`}
+                        className="px-8 py-4 bg-[var(--primary)] text-white font-bold rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all inline-block"
+                    >
+                        Iniciar Sesión
+                    </a>
+                </div>
+            </div>
+        );
     }
+
+    // Fetch user's pets if logged in to speed up booking
+    const { data: pets } = await supabase
+        .from('pets')
+        .select('id, name, species, breed')
+        .eq('owner_id', user.id);
+
+    const userPets = pets || [];
 
     return (
         <div className="min-h-screen bg-gray-50">
-            <BookingWizard 
-                clinic={data} 
-                user={user} 
+            <BookingWizard
+                clinic={data}
+                user={user}
                 userPets={userPets}
                 initialService={service}
             />

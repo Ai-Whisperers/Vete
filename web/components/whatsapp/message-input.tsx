@@ -53,14 +53,14 @@ export function MessageInput({
   }
 
   return (
-    <div className="bg-white border-t border-gray-100 p-3">
+    <div className="bg-white border-t border-gray-100 p-3 sm:p-4">
       <div className="flex items-end gap-2">
         {/* Template button */}
         {onTemplateClick && (
           <button
             onClick={onTemplateClick}
             disabled={disabled}
-            className="p-2 hover:bg-gray-100 rounded-lg disabled:opacity-50"
+            className="p-3 min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-gray-100 rounded-lg disabled:opacity-50"
             title="Usar plantilla"
           >
             <Icons.FileText className="w-5 h-5 text-[var(--text-secondary)]" />
@@ -77,11 +77,11 @@ export function MessageInput({
             placeholder={placeholder}
             disabled={disabled || sending}
             rows={1}
-            className="w-full px-4 py-2 bg-gray-100 rounded-2xl resize-none
+            className="w-full px-4 py-3 bg-gray-100 rounded-2xl resize-none
                        text-[var(--text-primary)] placeholder-[var(--text-secondary)]
                        focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50
-                       disabled:opacity-50"
-            style={{ minHeight: '40px', maxHeight: '120px' }}
+                       disabled:opacity-50 text-base"
+            style={{ minHeight: '48px', maxHeight: '120px' }}
           />
         </div>
 
@@ -89,7 +89,7 @@ export function MessageInput({
         <button
           onClick={handleSend}
           disabled={!message.trim() || disabled || sending}
-          className="p-2 bg-[var(--primary)] text-white rounded-full
+          className="p-3 min-h-[44px] min-w-[44px] flex items-center justify-center bg-[var(--primary)] text-white rounded-full
                      hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed
                      transition-opacity"
         >

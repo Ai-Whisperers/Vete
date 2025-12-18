@@ -28,7 +28,7 @@ export default async function ServicesPage({ params }: { params: Promise<{ clini
     <div className="bg-[var(--bg-default)] min-h-screen pb-24">
       
       {/* HEADER */}
-      <div className="relative pt-32 pb-40 text-center overflow-hidden">
+      <div className="relative pt-20 sm:pt-28 md:pt-32 pb-24 sm:pb-32 md:pb-40 text-center overflow-hidden">
         <div className="absolute inset-0 z-0" style={{ background: 'var(--gradient-primary)' }} />
         <div className="absolute inset-0 z-0 opacity-10 mix-blend-overlay" 
              style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '32px 32px' }} 
@@ -56,15 +56,16 @@ export default async function ServicesPage({ params }: { params: Promise<{ clini
       </div>
 
        {/* Floating CTA */}
-       <div className="fixed bottom-8 right-8 z-50 animate-bounce-in">
-            <a 
+       <div className="fixed bottom-4 sm:bottom-6 md:bottom-8 right-4 sm:right-6 md:right-8 z-50 animate-bounce-in">
+            <a
                 href={`https://wa.me/${config.contact.whatsapp_number}`}
                 target="_blank"
-                className="flex items-center gap-3 bg-[var(--status-success)] hover:brightness-110 text-white font-bold py-4 px-8 rounded-full shadow-[var(--shadow-lg)] transition-all hover:-translate-y-1 hover:shadow-xl ring-4 ring-white/30 backdrop-blur-sm"
+                className="flex items-center gap-2 sm:gap-3 bg-[var(--status-success)] hover:brightness-110 text-white font-bold py-3 sm:py-4 px-5 sm:px-8 min-h-[48px] rounded-full shadow-[var(--shadow-lg)] transition-all hover:-translate-y-1 hover:shadow-xl ring-4 ring-white/30 backdrop-blur-sm text-sm sm:text-base"
                 style={{ backgroundColor: '#25D366' }} // WhatsApp Brand Color Override
             >
-                <MessageCircle className="w-6 h-6" />
-                {config.ui_labels?.services?.book_floating_btn || 'Agendar Turno'}
+                <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6" />
+                <span className="hidden sm:inline">{config.ui_labels?.services?.book_floating_btn || 'Agendar Turno'}</span>
+                <span className="sm:hidden">WhatsApp</span>
             </a>
        </div>
 

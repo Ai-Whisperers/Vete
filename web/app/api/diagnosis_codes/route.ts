@@ -1,8 +1,8 @@
-
 import { createClient } from '@/lib/supabase/server';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { rateLimit } from '@/lib/rate-limit';
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
     const supabase = await createClient();
 
     // TICKET-SEC-002: Add authentication check - only staff can access diagnosis codes
@@ -20,6 +20,12 @@ export async function GET(request: Request) {
 
     if (!profile || !['vet', 'admin'].includes(profile.role)) {
         return NextResponse.json({ error: 'Solo el personal veterinario puede acceder a códigos de diagnóstico' }, { status: 403 });
+    }
+
+    // Apply rate limiting for search endpoints (30 requests per minute)
+    const rateLimitResult = await rateLimit(request, 'search', user.id);
+    if (!rateLimitResult.success) {
+        return rateLimitResult.response;
     }
 
     const { searchParams } = new URL(request.url);

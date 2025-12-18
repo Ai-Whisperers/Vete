@@ -3,138 +3,89 @@ import fs from 'node:fs';
 import path from 'node:path';
 import merge from 'lodash.merge';
 
-// Define the shape of our data based on the JSON files
-export interface ClinicTheme {
-  colors: {
-    primary: { main: string; light: string; dark: string; contrast: string };
-    secondary: { main: string; light: string; dark: string; contrast: string };
-    background: { default: string; paper: string; subtle: string; dark: string };
-    text: { primary: string; secondary: string; muted: string; invert: string };
-    status: { success: string; warning: string; error: string };
-  };
-  gradients: {
-    hero: string;
-    primary: string;
-    accent: string;
-  };
-  fonts: {
-    heading: string;
-    body: string;
-  };
-  ui: {
-    border_radius: string;
-    shadow_sm: string;
-    shadow_md: string;
-    shadow_lg: string;
-  };
-}
+// Import all types from the centralized types file
+export type {
+  // Config types
+  ClinicConfig,
+  ContactInfo,
+  SocialLinks,
+  HoursInfo,
+  ModuleSettings,
+  ClinicSettings,
+  BrandingAssets,
+  StatsInfo,
 
-export interface ClinicConfig {
-  id: string;
-  name: string;
-  tagline?: string;
-  contact: {
-    whatsapp_number: string;
-    phone_display: string;
-    email: string;
-    address: string;
-    google_maps_id: string;
-  };
-  settings: {
-    currency: string;
-    emergency_24h: boolean;
-    modules: {
-      toxic_checker: boolean;
-      age_calculator: boolean;
-    };
-  };
-  ui_labels: {
-    nav?: any;
-    footer?: any;
-    home?: any;
-    services?: any;
-    about?: any;
-    portal?: any;
-    common?: any;
-    store?: {
-      product_card?: {
-        add?: string;
-        added?: string;
-      };
-      [key: string]: any;
-    };
-    [key: string]: any; // Allow flexibility
-  };
-  branding?: {
-    logo_url?: string;
-    logo_dark_url?: string;
-    logo_width?: number;
-    logo_height?: number;
-    favicon_url?: string;
-    hero_image_url?: string;
-    og_image_url?: string;
-  };
-  social?: {
-    facebook?: string;
-    instagram?: string;
-    youtube?: string;
-    tiktok?: string;
-  };
-  stats?: {
-    pets_served?: string;
-    years_experience?: string;
-    emergency_hours?: string;
-    rating?: string;
-  };
-  hours?: {
-    weekdays?: string;
-    saturday?: string;
-    sunday?: string;
-  };
-}
+  // UI Labels types
+  UiLabels,
+  NavLabels,
+  FooterLabels,
+  HomeLabels,
+  ServicesLabels,
+  AboutLabels,
+  PortalLabels,
+  StoreLabels,
+  CartLabels,
+  CheckoutLabels,
+  BookingLabels,
+  CommonLabels,
+  AuthLabels,
+  ToolsLabels,
+  ErrorLabels,
 
-export interface ClinicImage {
-  src: string;
-  alt: string;
-  width: number;
-  height: number;
-}
+  // Home data types
+  HomeData,
+  HeroSection,
+  FeatureItem,
+  PromoBanner,
+  StatsSection,
+  InteractiveToolsSection,
+  ServicesPreview,
+  TestimonialsSection,
+  PartnersSection,
+  CtaSection,
+  SeoMetadata,
 
-export interface ClinicImages {
-  version: string;
-  basePath: string;
-  images: {
-    hero?: Record<string, ClinicImage>;
-    team?: Record<string, ClinicImage>;
-    facilities?: Record<string, ClinicImage>;
-    services?: Record<string, ClinicImage>;
-    features?: Record<string, ClinicImage>;
-    store?: Record<string, ClinicImage>;
-    tools?: Record<string, ClinicImage>;
-    patterns?: Record<string, ClinicImage>;
-    branding?: Record<string, ClinicImage>;
-    brands?: Record<string, ClinicImage>;
-    [category: string]: Record<string, ClinicImage> | string | undefined;
-  };
-  placeholders?: {
-    pet?: string;
-    product?: string;
-    team?: string;
-    service?: string;
-  };
-}
+  // Services data types
+  ServicesData,
+  Service,
+  ServiceVariant,
+  ServiceDetails,
+  ServiceBooking,
 
-export interface ClinicData {
-  config: ClinicConfig;
-  theme: ClinicTheme;
-  images?: ClinicImages;
-  home: any; // Typing these specifically would be better, but 'any' allows flexibility for now
-  services: any;
-  about: any;
-  testimonials?: any;
-  faq?: any;
-  legal?: any;
-}
+  // About data types
+  AboutData,
+  TeamMember,
+  ValueItem,
+  FacilitiesInfo,
+  Certification,
+  TimelineEvent,
+
+  // Testimonials types
+  TestimonialsData,
+  Testimonial,
+
+  // FAQ types
+  FaqData,
+  FaqItem,
+
+  // Legal types
+  LegalData,
+  PrivacyPolicy,
+  TermsOfService,
+  CookiePolicy,
+
+  // Theme types
+  ClinicTheme,
+
+  // Images types
+  ClinicImages,
+  ClinicImage,
+
+  // Complete clinic data
+  ClinicData,
+} from './types/clinic-config';
+
+import type { ClinicData } from './types/clinic-config';
 
 const CONTENT_DIR = path.join(process.cwd(), '.content_data');
 

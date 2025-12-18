@@ -18,8 +18,6 @@ export async function sendEmail(prevState: ActionState | null, formData: FormDat
   // Simulate network delay
   await new Promise((resolve) => setTimeout(resolve, 1500));
 
-  console.log("📧 EMULATED EMAIL SEND:", rawFormData);
-
   // In a real app, use Resend or Nodemailer here
   // await resend.emails.send({ ... })
 

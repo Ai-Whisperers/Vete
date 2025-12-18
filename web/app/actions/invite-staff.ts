@@ -2,18 +2,14 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { ActionResult } from "@/lib/types/action-result";
 
-interface ActionState {
-  error?: string;
-  success?: boolean;
-}
-
-export async function inviteStaff(prevState: ActionState | null, formData: FormData): Promise<ActionState> {
+export async function inviteStaff(prevState: ActionResult | null, formData: FormData): Promise<ActionResult> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
-    return { error: "Debes iniciar sesión." };
+    return { success: false, error: "Debes iniciar sesión." };
   }
 
   // Verify Admin Role and get tenant_id
@@ -24,11 +20,11 @@ export async function inviteStaff(prevState: ActionState | null, formData: FormD
     .single();
 
   if (profile?.role !== 'admin') {
-      return { error: "No tienes permisos de administrador." };
+      return { success: false, error: "No tienes permisos de administrador." };
   }
 
   if (!profile?.tenant_id) {
-      return { error: "No se encontró tu perfil de clínica." };
+      return { success: false, error: "No se encontró tu perfil de clínica." };
   }
 
   const email = formData.get("email") as string;
@@ -36,7 +32,7 @@ export async function inviteStaff(prevState: ActionState | null, formData: FormD
   const clinic = formData.get("clinic") as string;
 
   if (!email || !role) {
-      return { error: "Email y Cargo son requeridos." };
+      return { success: false, error: "Email y Cargo son requeridos." };
   }
 
   const { error } = await supabase.from("clinic_invites").insert({
@@ -47,8 +43,8 @@ export async function inviteStaff(prevState: ActionState | null, formData: FormD
 
   if (error) {
     console.error(error);
-    if (error.code === '23505') return { error: "Este correo ya está invitado." };
-    return { error: "Error al invitar." };
+    if (error.code === '23505') return { success: false, error: "Este correo ya está invitado." };
+    return { success: false, error: "Error al invitar." };
   }
 
   revalidatePath(`/${clinic}/portal/team`);

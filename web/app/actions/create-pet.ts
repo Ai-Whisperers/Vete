@@ -3,29 +3,21 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { ActionResult } from "@/lib/types/action-result";
 
-interface ActionState {
-  error?: string;
-  success?: boolean;
-}
-
-export async function createPet(prevState: ActionState | null, formData: FormData): Promise<ActionState> {
+export async function createPet(prevState: ActionResult | null, formData: FormData): Promise<ActionResult> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
-    return { error: "Debes iniciar sesión." };
+    return { success: false, error: "Debes iniciar sesión." };
   }
 
-  // Get user's tenant_id from their profile
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('tenant_id')
-    .eq('id', user.id)
-    .single();
+  // Get clinic from form (this comes from the URL parameter - where the pet is being registered)
+  const clinic = formData.get("clinic") as string;
 
-  if (!profile?.tenant_id) {
-    return { error: "No se encontró tu perfil de clínica." };
+  if (!clinic) {
+    return { success: false, error: "No se especificó la clínica." };
   }
 
   const name = formData.get("name") as string;
@@ -43,7 +35,6 @@ export async function createPet(prevState: ActionState | null, formData: FormDat
   const allergies = formData.get("allergies") as string | null;
   const existing_conditions = formData.get("existing_conditions") as string | null;
 
-  const clinic = formData.get("clinic") as string;
   const photo = formData.get("photo") as File;
 
   let photoUrl = null;
@@ -59,7 +50,7 @@ export async function createPet(prevState: ActionState | null, formData: FormDat
 
      if (uploadError) {
         console.error("Upload error:", uploadError);
-        // Continue without photo or return error depending on strictness
+        return { success: false, error: "No se pudo subir la foto. Por favor intente de nuevo." };
      } else {
         const { data: { publicUrl } } = supabase.storage
             .from('pets')
@@ -70,7 +61,7 @@ export async function createPet(prevState: ActionState | null, formData: FormDat
 
   const { error } = await supabase.from("pets").insert({
     owner_id: user.id,
-    tenant_id: profile.tenant_id,
+    tenant_id: clinic, // Pet is registered at the clinic from the URL
     name,
     species,
     breed,
@@ -90,7 +81,7 @@ export async function createPet(prevState: ActionState | null, formData: FormDat
   });
 
   if (error) {
-    return { error: error.message };
+    return { success: false, error: error.message };
   }
 
   revalidatePath(`/${clinic}/portal/dashboard`);

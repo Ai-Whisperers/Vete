@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
+import { ActionResult } from '@/lib/types/action-result'
 
 const updatePetSchema = z.object({
   name: z.string().min(1, 'El nombre es requerido').max(100).optional(),
@@ -21,20 +22,15 @@ const updatePetSchema = z.object({
   birth_date: z.string().nullable().optional(),
 })
 
-export interface UpdatePetResult {
-  success?: boolean
-  error?: string
-}
-
 export async function updatePet(
   petId: string,
   formData: FormData
-): Promise<UpdatePetResult> {
+): Promise<ActionResult> {
   const supabase = await createClient()
 
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) {
-    return { error: 'No autorizado' }
+    return { success: false, error: 'No autorizado' }
   }
 
   // Verify ownership or staff access
@@ -46,7 +42,7 @@ export async function updatePet(
     .single()
 
   if (!pet) {
-    return { error: 'Mascota no encontrada' }
+    return { success: false, error: 'Mascota no encontrada' }
   }
 
   const { data: profile } = await supabase
@@ -60,7 +56,7 @@ export async function updatePet(
   const sameTenant = profile?.tenant_id === pet.tenant_id
 
   if (!isOwner && !(isStaff && sameTenant)) {
-    return { error: 'No tienes permiso para editar esta mascota' }
+    return { success: false, error: 'No tienes permiso para editar esta mascota' }
   }
 
   // Get clinic for revalidation
@@ -87,7 +83,7 @@ export async function updatePet(
   const validation = updatePetSchema.safeParse(rawData)
   if (!validation.success) {
     const firstError = validation.error.issues?.[0]
-    return { error: firstError?.message || 'Error de validación' }
+    return { success: false, error: firstError?.message || 'Error de validación' }
   }
 
   // Handle photo upload if provided
@@ -102,10 +98,9 @@ export async function updatePet(
       .from('pets')
       .upload(fileName, photo)
 
-    // TICKET-ERR-001: Return error instead of silently continuing
     if (uploadError) {
       console.error('Upload error:', uploadError)
-      return { error: 'No se pudo subir la foto. Por favor intente de nuevo.' }
+      return { success: false, error: 'No se pudo subir la foto. Por favor intente de nuevo.' }
     }
 
     const { data: { publicUrl } } = supabase.storage
@@ -139,7 +134,7 @@ export async function updatePet(
     .eq('id', petId)
 
   if (error) {
-    return { error: 'Error al guardar los cambios' }
+    return { success: false, error: 'Error al guardar los cambios' }
   }
 
   if (clinic) {
@@ -150,17 +145,12 @@ export async function updatePet(
   return { success: true }
 }
 
-export interface DeletePetResult {
-  success?: boolean
-  error?: string
-}
-
-export async function deletePet(petId: string): Promise<DeletePetResult> {
+export async function deletePet(petId: string): Promise<ActionResult> {
   const supabase = await createClient()
 
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) {
-    return { error: 'No autorizado' }
+    return { success: false, error: 'No autorizado' }
   }
 
   // Verify ownership - only owners can delete their pets
@@ -172,11 +162,11 @@ export async function deletePet(petId: string): Promise<DeletePetResult> {
     .single()
 
   if (!pet) {
-    return { error: 'Mascota no encontrada' }
+    return { success: false, error: 'Mascota no encontrada' }
   }
 
   if (pet.owner_id !== user.id) {
-    return { error: 'Solo el dueño puede eliminar esta mascota' }
+    return { success: false, error: 'Solo el dueño puede eliminar esta mascota' }
   }
 
   // Soft delete
@@ -186,7 +176,7 @@ export async function deletePet(petId: string): Promise<DeletePetResult> {
     .eq('id', petId)
 
   if (error) {
-    return { error: 'Error al eliminar la mascota' }
+    return { success: false, error: 'Error al eliminar la mascota' }
   }
 
   return { success: true }

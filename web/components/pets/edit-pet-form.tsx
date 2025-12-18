@@ -35,12 +35,14 @@ export function EditPetForm({ pet, clinic }: Props): React.ReactElement {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
+  const [photoError, setPhotoError] = useState<string | null>(null)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [removePhoto, setRemovePhoto] = useState(false)
 
   const handleFileSelect = useCallback((file: File): void => {
     setSelectedFile(file)
     setRemovePhoto(false)
+    setPhotoError(null) // Clear photo error when new file is selected
   }, [])
 
   const handleFileRemove = useCallback((): void => {
@@ -50,6 +52,7 @@ export function EditPetForm({ pet, clinic }: Props): React.ReactElement {
 
   async function handleSubmit(formData: FormData): Promise<void> {
     setError(null)
+    setPhotoError(null)
 
     startTransition(async () => {
       formData.append('clinic', clinic)
@@ -63,8 +66,13 @@ export function EditPetForm({ pet, clinic }: Props): React.ReactElement {
 
       const result = await updatePet(pet.id, formData)
 
-      if (result.error) {
-        setError(result.error)
+      if (!result.success) {
+        // Distinguish between photo upload errors and general errors
+        if (result.error.includes('foto') || result.error.includes('subir')) {
+          setPhotoError(result.error)
+        } else {
+          setError(result.error)
+        }
       } else {
         router.push(`/${clinic}/portal/pets/${pet.id}`)
         router.refresh()
@@ -76,16 +84,24 @@ export function EditPetForm({ pet, clinic }: Props): React.ReactElement {
     <div className="bg-white rounded-3xl shadow-xl border border-gray-100 p-8">
       <form action={handleSubmit} className="space-y-6">
         {/* Photo Upload */}
-        <PhotoUpload
-          name="photo"
-          currentPhotoUrl={pet.photo_url || undefined}
-          onFileSelect={handleFileSelect}
-          onFileRemove={handleFileRemove}
-          placeholder="Subir foto"
-          shape="circle"
-          size={128}
-          maxSizeMB={5}
-        />
+        <div className="flex flex-col items-center gap-2">
+          <PhotoUpload
+            name="photo"
+            currentPhotoUrl={pet.photo_url || undefined}
+            onFileSelect={handleFileSelect}
+            onFileRemove={handleFileRemove}
+            placeholder="Subir foto"
+            shape="circle"
+            size={128}
+            maxSizeMB={5}
+          />
+          {photoError && (
+            <div role="alert" className="flex items-center gap-2 text-[var(--status-error,#ef4444)] text-xs font-medium bg-[var(--status-error-bg,#fee2e2)] px-3 py-2 rounded-lg max-w-md">
+              <AlertCircle className="w-4 h-4 flex-shrink-0" aria-hidden="true" />
+              <span>{photoError}</span>
+            </div>
+          )}
+        </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div>

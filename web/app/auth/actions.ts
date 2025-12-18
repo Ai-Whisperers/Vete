@@ -3,6 +3,9 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { headers } from "next/headers";
+import { rateLimit } from "@/lib/rate-limit";
+import { NextRequest } from "next/server";
 
 // TICKET-TYPE-002: Define proper state interface for server actions
 interface ActionState {
@@ -11,7 +14,32 @@ interface ActionState {
   message?: string;
 }
 
+/**
+ * Helper to create a mock NextRequest from headers for rate limiting
+ */
+async function createMockRequest(): Promise<NextRequest> {
+  const headersList = await headers();
+  const ip = headersList.get('x-forwarded-for') || headersList.get('x-real-ip') || 'unknown';
+
+  // Create a minimal NextRequest-like object for rate limiting
+  const url = `http://localhost${headersList.get('x-pathname') || '/'}`;
+  return new NextRequest(url, {
+    headers: new Headers({
+      'x-forwarded-for': ip,
+    }),
+  });
+}
+
 export async function login(prevState: ActionState | null, formData: FormData): Promise<ActionState> {
+  // Apply rate limiting (5 requests per minute for auth)
+  const request = await createMockRequest();
+  const rateLimitResult = await rateLimit(request, 'auth');
+
+  if (!rateLimitResult.success) {
+    const errorData = await rateLimitResult.response.json();
+    return { error: errorData.error };
+  }
+
   const supabase = await createClient();
 
   const data = {
@@ -42,6 +70,15 @@ export async function login(prevState: ActionState | null, formData: FormData): 
 }
 
 export async function signup(prevState: ActionState | null, formData: FormData): Promise<ActionState> {
+  // Apply rate limiting (5 requests per minute for auth)
+  const request = await createMockRequest();
+  const rateLimitResult = await rateLimit(request, 'auth');
+
+  if (!rateLimitResult.success) {
+    const errorData = await rateLimitResult.response.json();
+    return { error: errorData.error };
+  }
+
   // TICKET-FORM-003: Server-side validation
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
@@ -121,6 +158,15 @@ export async function loginWithGoogle(clinic: string) {
 }
 
 export async function requestPasswordReset(prevState: ActionState | null, formData: FormData): Promise<ActionState> {
+  // Apply rate limiting (5 requests per minute for auth)
+  const request = await createMockRequest();
+  const rateLimitResult = await rateLimit(request, 'auth');
+
+  if (!rateLimitResult.success) {
+    const errorData = await rateLimitResult.response.json();
+    return { error: errorData.error };
+  }
+
   const email = formData.get('email') as string;
   const clinic = formData.get('clinic') as string;
 

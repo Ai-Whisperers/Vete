@@ -8,11 +8,19 @@
 -- =============================================================================
 -- A. ENSURE TENANTS EXIST
 -- =============================================================================
+-- Note: For new tenants, use the setup_new_tenant() function instead:
+--   SELECT setup_new_tenant('clinic_id', 'Clinic Name');
+-- This will create the tenant with all default data (payment methods, services, categories, etc.)
 
+-- For demo purposes, we ensure tenants exist first
 INSERT INTO tenants (id, name) VALUES
     ('adris', 'Veterinaria Adris'),
     ('petlife', 'PetLife Center')
 ON CONFLICT (id) DO NOTHING;
+
+-- If using setup_new_tenant(), it would look like:
+-- SELECT setup_new_tenant('adris', 'Veterinaria Adris');
+-- SELECT setup_new_tenant('petlife', 'PetLife Center');
 
 -- =============================================================================
 -- B. UPDATE PROFILE ROLES (After users are created)

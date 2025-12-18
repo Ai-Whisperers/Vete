@@ -153,13 +153,16 @@ export async function PATCH(request: Request, { params }: RouteParams) {
 
     // Update items if provided
     if (items && Array.isArray(items)) {
+      // Import roundCurrency helper for consistent rounding
+      const { roundCurrency } = await import('@/lib/types/invoicing');
+
       // Delete existing items
       await supabase.from('invoice_items').delete().eq('invoice_id', id);
 
       // Insert new items
       let subtotal = 0;
       const newItems = items.map((item: InvoiceItem) => {
-        const lineTotal = item.quantity * item.unit_price * (1 - (item.discount_percent || 0) / 100);
+        const lineTotal = roundCurrency(item.quantity * item.unit_price * (1 - (item.discount_percent || 0) / 100));
         subtotal += lineTotal;
         return {
           invoice_id: id,
@@ -175,9 +178,11 @@ export async function PATCH(request: Request, { params }: RouteParams) {
 
       await supabase.from('invoice_items').insert(newItems);
 
-      // Recalculate totals
-      const taxAmount = subtotal * (updated.tax_rate / 100);
-      const total = subtotal + taxAmount;
+      // Recalculate totals with proper rounding
+      subtotal = roundCurrency(subtotal);
+      const taxAmount = roundCurrency(subtotal * (updated.tax_rate / 100));
+      const total = roundCurrency(subtotal + taxAmount);
+      const amountDue = roundCurrency(total - updated.amount_paid);
 
       await supabase
         .from('invoices')
@@ -185,7 +190,7 @@ export async function PATCH(request: Request, { params }: RouteParams) {
           subtotal,
           tax_amount: taxAmount,
           total,
-          amount_due: total - updated.amount_paid
+          amount_due: amountDue
         })
         .eq('id', id);
     }

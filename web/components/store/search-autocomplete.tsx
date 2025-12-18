@@ -75,8 +75,8 @@ export default function SearchAutocomplete({
         const data = await res.json();
         setSuggestions(data.suggestions || []);
       }
-    } catch (error) {
-      console.error('Search error:', error);
+    } catch {
+      // Search error - silently fail
     } finally {
       setLoading(false);
     }
@@ -232,7 +232,7 @@ export default function SearchAutocomplete({
           className={`w-full pl-12 pr-12 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent outline-none transition-all ${inputClassName}`}
         />
         {loading && (
-          <Loader2 className="absolute right-12 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 animate-spin" />
+          <Loader2 className="absolute right-14 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 animate-spin" />
         )}
         {query && (
           <button
@@ -242,7 +242,7 @@ export default function SearchAutocomplete({
               setSuggestions([]);
               inputRef.current?.focus();
             }}
-            className="absolute right-4 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 rounded-full"
+            className="absolute right-2 top-1/2 -translate-y-1/2 p-2 min-h-[40px] min-w-[40px] flex items-center justify-center hover:bg-gray-100 rounded-full"
           >
             <X className="w-4 h-4 text-gray-400" />
           </button>
@@ -262,7 +262,7 @@ export default function SearchAutocomplete({
                 <button
                   key={`${suggestion.type}-${suggestion.id || suggestion.name}-${index}`}
                   onClick={() => handleSuggestionClick(suggestion)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors ${
+                  className={`w-full flex items-center gap-3 px-4 py-4 min-h-[56px] text-left hover:bg-gray-50 transition-colors ${
                     selectedIndex === index ? 'bg-gray-50' : ''
                   }`}
                 >
@@ -387,7 +387,7 @@ export default function SearchAutocomplete({
                 <button
                   key={search}
                   onClick={() => handleSearch(search)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors ${
+                  className={`w-full flex items-center gap-3 px-4 py-4 min-h-[52px] text-left hover:bg-gray-50 transition-colors ${
                     selectedIndex === suggestions.length + index ? 'bg-gray-50' : ''
                   }`}
                 >

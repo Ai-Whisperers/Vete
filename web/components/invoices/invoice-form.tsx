@@ -83,6 +83,10 @@ export function InvoiceForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    // FORM-004: Prevent double-submit
+    if (loading) return
+
     setLoading(true)
     setError(null)
 
@@ -161,29 +165,33 @@ export function InvoiceForm({
 
           {/* Due Date */}
           <div>
-            <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">
+            <label htmlFor="due-date-field" className="block text-sm font-medium text-[var(--text-primary)] mb-1">
               Fecha de vencimiento
             </label>
             <input
+              id="due-date-field"
               type="date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
               disabled={loading}
+              aria-invalid={error && !dueDate ? "true" : "false"}
               className="w-full p-3 border border-gray-200 rounded-lg focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none"
             />
           </div>
 
           {/* Notes */}
           <div>
-            <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">
+            <label htmlFor="notes-field" className="block text-sm font-medium text-[var(--text-primary)] mb-1">
               Notas
             </label>
             <textarea
+              id="notes-field"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               disabled={loading}
               rows={3}
               placeholder="Notas adicionales para la factura..."
+              aria-invalid="false"
               className="w-full p-3 border border-gray-200 rounded-lg focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none resize-none"
             />
           </div>

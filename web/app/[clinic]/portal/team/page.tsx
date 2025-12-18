@@ -25,9 +25,9 @@ export default async function TeamPage({ params }: { params: Promise<{ clinic: s
         .order('created_at', { ascending: false });
 
     return (
-        <div className="max-w-2xl mx-auto py-12 px-4">
+        <div className="max-w-2xl mx-auto py-6 sm:py-8 md:py-12 px-4">
             <div className="flex items-center gap-4 mb-8">
-                <Link href={`/${clinic}/portal/dashboard`} className="p-2 rounded-xl hover:bg-white transition-colors">
+                <Link href={`/${clinic}/portal/dashboard`} className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl hover:bg-white transition-colors">
                     <Icons.ArrowLeft className="w-6 h-6 text-gray-500" />
                 </Link>
                 <div>
@@ -53,13 +53,13 @@ export default async function TeamPage({ params }: { params: Promise<{ clinic: s
                     <p className="text-center text-gray-400 py-8 italic">No hay invitaciones aún.</p>
                 ) : (
                     invites?.map((invite) => (
-                        <div key={invite.id} className="flex items-center justify-between bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
+                        <div key={invite.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
                             <div className="flex items-center gap-3">
-                                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-white ${invite.role === 'admin' ? 'bg-purple-500' : 'bg-blue-500'}`}>
+                                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-white flex-shrink-0 ${invite.role === 'admin' ? 'bg-purple-500' : 'bg-blue-500'}`}>
                                     {invite.role === 'admin' ? <Icons.Shield className="w-5 h-5" /> : <Icons.Stethoscope className="w-5 h-5" />}
                                 </div>
-                                <div>
-                                    <p className="font-bold text-[var(--text-primary)]">{invite.email}</p>
+                                <div className="min-w-0">
+                                    <p className="font-bold text-[var(--text-primary)] break-all">{invite.email}</p>
                                     <p className="text-xs text-gray-500 uppercase font-bold tracking-wider">{invite.role}</p>
                                 </div>
                             </div>
@@ -67,7 +67,7 @@ export default async function TeamPage({ params }: { params: Promise<{ clinic: s
                                 "use server";
                                 await removeInvite(invite.email, clinic);
                             }}>
-                                <button type="submit" className="text-red-400 hover:text-red-600 p-2 hover:bg-red-50 rounded-lg transition-colors">
+                                <button type="submit" className="text-red-400 hover:text-red-600 p-3 min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-red-50 rounded-lg transition-colors">
                                     <Icons.Trash2 className="w-5 h-5" />
                                 </button>
                             </form>

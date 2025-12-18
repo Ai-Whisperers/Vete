@@ -10,6 +10,8 @@
 -- =============================================================================
 -- 1. DROP MATERIALIZED VIEWS
 -- =============================================================================
+
+-- Core materialized views (from 31_materialized_views.sql)
 DROP MATERIALIZED VIEW IF EXISTS mv_clinic_dashboard_stats CASCADE;
 DROP MATERIALIZED VIEW IF EXISTS mv_pet_statistics CASCADE;
 DROP MATERIALIZED VIEW IF EXISTS mv_appointment_analytics CASCADE;
@@ -20,6 +22,15 @@ DROP MATERIALIZED VIEW IF EXISTS mv_client_retention CASCADE;
 DROP MATERIALIZED VIEW IF EXISTS mv_inventory_alerts CASCADE;
 DROP MATERIALIZED VIEW IF EXISTS mv_disease_heatmap CASCADE;
 DROP MATERIALIZED VIEW IF EXISTS mv_staff_performance CASCADE;
+DROP MATERIALIZED VIEW IF EXISTS mv_client_summary CASCADE;
+
+-- Enhanced materialized views (from 57_materialized_views.sql)
+DROP MATERIALIZED VIEW IF EXISTS mv_clinic_dashboard_stats_v2 CASCADE;
+DROP MATERIALIZED VIEW IF EXISTS mv_appointment_analytics_daily CASCADE;
+DROP MATERIALIZED VIEW IF EXISTS mv_inventory_alerts_detailed CASCADE;
+DROP MATERIALIZED VIEW IF EXISTS mv_pet_health_summary CASCADE;
+DROP MATERIALIZED VIEW IF EXISTS mv_revenue_by_service CASCADE;
+DROP MATERIALIZED VIEW IF EXISTS mv_client_lifetime_value CASCADE;
 
 -- =============================================================================
 -- 2. DROP REGULAR VIEWS
@@ -243,9 +254,14 @@ DROP FUNCTION IF EXISTS public.job_refresh_dashboard_views() CASCADE;
 DROP FUNCTION IF EXISTS public.job_refresh_materialized_views() CASCADE;
 DROP FUNCTION IF EXISTS public.run_scheduled_job(text, text) CASCADE;
 
--- Materialized View Functions (31)
+-- Materialized View Functions (31 + 57)
 DROP FUNCTION IF EXISTS public.refresh_dashboard_views() CASCADE;
 DROP FUNCTION IF EXISTS public.refresh_all_materialized_views() CASCADE;
+DROP FUNCTION IF EXISTS public.refresh_enhanced_materialized_views() CASCADE;
+DROP FUNCTION IF EXISTS public.refresh_critical_dashboard_views() CASCADE;
+DROP FUNCTION IF EXISTS public.refresh_all_views_complete() CASCADE;
+DROP FUNCTION IF EXISTS public.job_refresh_enhanced_views() CASCADE;
+DROP FUNCTION IF EXISTS public.job_refresh_critical_views() CASCADE;
 
 -- Enhanced Audit Functions (30)
 DROP FUNCTION IF EXISTS public.purge_expired_audit_logs() CASCADE;

@@ -40,7 +40,7 @@ export function StatusButtons({ appointmentId, currentStatus, clinic }: StatusBu
     }
   }
 
-  const buttonBaseClass = "p-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+  const buttonBaseClass = "p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
 
   // Determine which buttons to show based on current status
   switch (currentStatus) {

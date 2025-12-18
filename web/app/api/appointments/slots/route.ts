@@ -59,73 +59,35 @@ export async function GET(request: NextRequest) {
       breakEnd: '14:00'
     }
 
-    // Build query for existing appointments
-    let query = supabase
-      .from('appointments')
-      .select('start_time, end_time')
-      .eq('tenant_id', clinicSlug)
-      .gte('start_time', `${date}T00:00:00`)
-      .lt('start_time', `${date}T23:59:59`)
-      .not('status', 'in', '("cancelled","no_show")')
-
-    if (vetId) {
-      query = query.eq('vet_id', vetId)
-    }
-
-    const { data: existingAppointments, error } = await query
+    // Use the database function for more reliable overlap checking
+    const { data: slotsData, error } = await supabase
+      .rpc('get_available_slots', {
+        p_tenant_id: clinicSlug,
+        p_date: date,
+        p_slot_duration_minutes: slotDuration,
+        p_work_start: workingHours.start,
+        p_work_end: workingHours.end,
+        p_break_start: workingHours.breakStart,
+        p_break_end: workingHours.breakEnd,
+        p_vet_id: vetId || null
+      })
 
     if (error) {
-      console.error('Error fetching appointments:', error)
+      console.error('Error fetching available slots:', error)
       return NextResponse.json(
-        { error: 'Error al obtener citas' },
+        { error: 'Error al obtener horarios disponibles' },
         { status: 500 }
       )
     }
 
-    // Extract booked time ranges
-    const bookedRanges = existingAppointments?.map(apt => ({
-      start: new Date(apt.start_time).toTimeString().substring(0, 5),
-      end: new Date(apt.end_time).toTimeString().substring(0, 5)
+    // Transform database response to API format
+    const slots: TimeSlot[] = slotsData?.map((slot: {
+      slot_time: string
+      is_available: boolean
+    }) => ({
+      time: slot.slot_time,
+      available: slot.is_available
     })) || []
-
-    // Generate all possible slots
-    const slots: TimeSlot[] = []
-    let currentMinutes = timeToMinutes(workingHours.start)
-    const endMinutes = timeToMinutes(workingHours.end)
-    const breakStartMinutes = timeToMinutes(workingHours.breakStart)
-    const breakEndMinutes = timeToMinutes(workingHours.breakEnd)
-
-    while (currentMinutes + slotDuration <= endMinutes) {
-      const currentTime = minutesToTime(currentMinutes)
-      const slotEndMinutes = currentMinutes + slotDuration
-
-      // Skip if slot overlaps with break
-      const overlapsBreak =
-        (currentMinutes >= breakStartMinutes && currentMinutes < breakEndMinutes) ||
-        (slotEndMinutes > breakStartMinutes && slotEndMinutes <= breakEndMinutes) ||
-        (currentMinutes < breakStartMinutes && slotEndMinutes > breakEndMinutes)
-
-      if (!overlapsBreak) {
-        // Check if slot overlaps with any existing appointment
-        const slotEndTime = minutesToTime(slotEndMinutes)
-        const isBooked = bookedRanges.some(range => {
-          const rangeStart = timeToMinutes(range.start)
-          const rangeEnd = timeToMinutes(range.end)
-          return (
-            (currentMinutes >= rangeStart && currentMinutes < rangeEnd) ||
-            (slotEndMinutes > rangeStart && slotEndMinutes <= rangeEnd) ||
-            (currentMinutes <= rangeStart && slotEndMinutes >= rangeEnd)
-          )
-        })
-
-        slots.push({
-          time: currentTime,
-          available: !isBooked
-        })
-      }
-
-      currentMinutes += slotDuration
-    }
 
     return NextResponse.json({
       date,
@@ -140,15 +102,4 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     )
   }
-}
-
-function timeToMinutes(time: string): number {
-  const [hours, minutes] = time.split(':').map(Number)
-  return hours * 60 + minutes
-}
-
-function minutesToTime(minutes: number): string {
-  const hours = Math.floor(minutes / 60)
-  const mins = minutes % 60
-  return `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`
 }

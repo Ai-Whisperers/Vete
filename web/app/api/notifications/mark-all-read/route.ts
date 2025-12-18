@@ -15,12 +15,12 @@ export async function POST(request: NextRequest) {
     const { data, error } = await supabase
       .from("notification_queue")
       .update({
-        status: "delivered",
-        delivered_at: new Date().toISOString()
+        status: "read",
+        read_at: new Date().toISOString()
       })
       .eq("client_id", user.id)
       .eq("channel_type", "in_app")
-      .eq("status", "queued")
+      .in("status", ["queued", "delivered"])
       .select();
 
     if (error) {

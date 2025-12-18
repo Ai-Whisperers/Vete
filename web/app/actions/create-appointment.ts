@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
+import { ActionResult } from '@/lib/types/action-result'
 
 const schema = z.object({
   pet_id: z.string().uuid(),
@@ -12,18 +13,13 @@ const schema = z.object({
   notes: z.string().optional(),
 })
 
-interface ActionState {
-  error?: string;
-  success?: boolean;
-}
-
-export async function createAppointment(prevState: ActionState | null, formData: FormData): Promise<ActionState> {
+export async function createAppointment(prevState: ActionResult | null, formData: FormData): Promise<ActionResult> {
   const supabase = await createClient()
   
   // 1. Auth Check
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) {
-    return { error: 'Debes iniciar sesión' }
+    return { success: false, error: 'Debes iniciar sesión' }
   }
 
   // 2. Parse Data
@@ -36,7 +32,7 @@ export async function createAppointment(prevState: ActionState | null, formData:
 
   const validated = schema.safeParse(rawData)
   if (!validated.success) {
-    return { error: validated.error.issues[0].message }
+    return { success: false, error: validated.error.issues[0].message }
   }
 
   const { pet_id, start_time, reason, notes } = validated.data
@@ -48,9 +44,9 @@ export async function createAppointment(prevState: ActionState | null, formData:
     .select('id, owner_id, tenant_id')
     .eq('id', pet_id)
     .single()
-  
+
   if (!pet || pet.owner_id !== user.id) {
-     return { error: 'No tienes permisos sobre esta mascota' }
+     return { success: false, error: 'No tienes permisos sobre esta mascota' }
   }
 
   // 4. Calculate End Time (Default 30 mins)
@@ -71,7 +67,7 @@ export async function createAppointment(prevState: ActionState | null, formData:
 
   if (error) {
     console.error('Appointment Error:', error)
-    return { error: 'Error al agendar la cita. Intenta nuevamente.' }
+    return { success: false, error: 'Error al agendar la cita. Intenta nuevamente.' }
   }
 
   revalidatePath(`/${clinic}/portal/dashboard`)

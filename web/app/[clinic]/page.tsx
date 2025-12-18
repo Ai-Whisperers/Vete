@@ -152,8 +152,8 @@ export default async function ClinicHomePage({ params }: { params: Promise<{ cli
       {home.interactive_tools_section && (
         <section className="section-padding bg-white relative overflow-hidden">
           {/* Decorative blobs */}
-          <div className="absolute top-0 right-0 w-96 h-96 bg-[var(--primary)]/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-          <div className="absolute bottom-0 left-0 w-64 h-64 bg-[var(--accent)]/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+          <div className="absolute top-0 right-0 w-48 sm:w-72 lg:w-96 h-48 sm:h-72 lg:h-96 bg-[var(--primary)]/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+          <div className="absolute bottom-0 left-0 w-32 sm:w-48 lg:w-64 h-32 sm:h-48 lg:h-64 bg-[var(--accent)]/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
 
           <div className="container mx-auto px-4 text-center relative z-10">
             <span className="inline-block bg-[var(--accent)]/10 text-[var(--secondary-dark)] font-bold uppercase tracking-widest text-sm px-4 py-2 rounded-full mb-4">
@@ -302,7 +302,7 @@ export default async function ClinicHomePage({ params }: { params: Promise<{ cli
             </div>
 
             {/* Map Side */}
-            <div className="h-[500px] lg:h-full lg:min-h-[600px] w-full rounded-2xl shadow-xl overflow-hidden border border-gray-200 relative group">
+            <div className="h-[300px] sm:h-[400px] lg:h-full lg:min-h-[600px] w-full rounded-2xl shadow-xl overflow-hidden border border-gray-200 relative group">
               <div
                 className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
                 style={{ backgroundImage: `url('/branding/${clinic}/static-map.jpg')` }}

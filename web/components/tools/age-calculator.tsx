@@ -60,22 +60,22 @@ export function AgeCalculator({ config }: { config: AgeCalculatorConfig }) {
           <p className="text-white/90">Descubre la edad real de tu mascota en años humanos.</p>
         </div>
 
-        <div className="p-8 space-y-8">
+        <div className="p-4 sm:p-8 space-y-6 sm:space-y-8">
           {/* Step 1: Pet Type */}
           <div className="space-y-4">
             <label className="block text-sm font-bold text-[var(--text-secondary)] uppercase tracking-wider">
               1. ¿Qué mascota tienes?
             </label>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4">
               <button
                 onClick={() => setPetType("dog")}
-                className={`relative p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2 ${
+                className={`relative p-3 sm:p-4 min-h-[80px] rounded-xl border-2 transition-all flex flex-col items-center justify-center gap-2 ${
                   petType === "dog"
                     ? "border-[var(--primary)] bg-[var(--bg-subtle)] text-[var(--primary)]"
                     : "border-gray-100 hover:border-gray-200 text-gray-400"
                 }`}
               >
-                <Icons.Dog className="w-8 h-8" />
+                <Icons.Dog className="w-6 h-6 sm:w-8 sm:h-8" />
                 <span className="font-bold">Perro</span>
                 {petType === "dog" && (
                   <motion.div layoutId="check" className="absolute top-2 right-2">
@@ -85,13 +85,13 @@ export function AgeCalculator({ config }: { config: AgeCalculatorConfig }) {
               </button>
               <button
                 onClick={() => setPetType("cat")}
-                className={`relative p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2 ${
+                className={`relative p-3 sm:p-4 min-h-[80px] rounded-xl border-2 transition-all flex flex-col items-center justify-center gap-2 ${
                   petType === "cat"
                     ? "border-[var(--primary)] bg-[var(--bg-subtle)] text-[var(--primary)]"
                     : "border-gray-100 hover:border-gray-200 text-gray-400"
                 }`}
               >
-                <Icons.Cat className="w-8 h-8" />
+                <Icons.Cat className="w-6 h-6 sm:w-8 sm:h-8" />
                 <span className="font-bold">Gato</span>
                 {petType === "cat" && (
                   <motion.div layoutId="check" className="absolute top-2 right-2">
@@ -114,12 +114,12 @@ export function AgeCalculator({ config }: { config: AgeCalculatorConfig }) {
                 <label className="block text-sm font-bold text-[var(--text-secondary)] uppercase tracking-wider">
                   2. ¿De qué tamaño es?
                 </label>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                   {(["small", "medium", "large"] as const).map((size) => (
                     <button
                       key={size}
                       onClick={() => setDogSize(size)}
-                      className={`py-2 px-3 rounded-lg text-sm font-bold border transition-colors ${
+                      className={`py-3 px-3 min-h-[44px] rounded-lg text-sm font-bold border transition-colors ${
                         dogSize === size
                           ? "bg-[var(--primary)] text-white border-[var(--primary)]"
                           : "bg-white text-gray-500 border-gray-200 hover:border-gray-300"
@@ -138,20 +138,20 @@ export function AgeCalculator({ config }: { config: AgeCalculatorConfig }) {
             <label className="block text-sm font-bold text-[var(--text-secondary)] uppercase tracking-wider">
               {petType === "dog" ? "3" : "2"}. ¿Cuántos años tiene?
             </label>
-            <div className="flex gap-4">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
               <input
                 type="number"
                 value={age}
                 onChange={(e) => setAge(e.target.value ? Number(e.target.value) : "")}
                 placeholder="Ej: 5"
-                className="flex-1 text-4xl font-black p-4 rounded-xl border-2 border-gray-200 focus:border-[var(--primary)] focus:ring-4 focus:ring-[var(--primary)]/10 text-center outline-none transition-all"
+                className="flex-1 text-2xl sm:text-4xl font-black p-3 sm:p-4 min-h-[56px] rounded-xl border-2 border-gray-200 focus:border-[var(--primary)] focus:ring-4 focus:ring-[var(--primary)]/10 text-center outline-none transition-all"
                 min="0"
                 max="30"
               />
               <button
                 onClick={calculateAge}
                 disabled={age === ""}
-                className="bg-[var(--primary)] text-white font-bold px-8 py-4 rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-1 active:scale-95 transition-all disabled:opacity-50 disabled:pointer-events-none"
+                className="bg-[var(--primary)] text-white font-bold px-6 sm:px-8 py-3 sm:py-4 min-h-[48px] rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-1 active:scale-95 transition-all disabled:opacity-50 disabled:pointer-events-none"
               >
                 Calcular
               </button>
@@ -168,8 +168,8 @@ export function AgeCalculator({ config }: { config: AgeCalculatorConfig }) {
               >
                 <div className="text-center space-y-2">
                   <p className="text-[var(--text-secondary)] font-medium">En años humanos, tu mascota tiene:</p>
-                  <h3 className="text-6xl font-black text-[var(--primary)] mb-4">
-                    {humanAge} <span className="text-2xl text-gray-400">años</span>
+                  <h3 className="text-4xl sm:text-6xl font-black text-[var(--primary)] mb-4">
+                    {humanAge} <span className="text-xl sm:text-2xl text-gray-400">años</span>
                   </h3>
                   
                   {(() => {

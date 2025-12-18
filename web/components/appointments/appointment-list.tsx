@@ -54,12 +54,16 @@ export function AppointmentList({ upcoming, past, clinic }: AppointmentListProps
   return (
     <div>
       {/* Tabs */}
-      <div className="flex gap-2 mb-6 bg-gray-100 p-1 rounded-xl">
+      <div className="flex gap-2 mb-6 bg-gray-100 p-1 rounded-xl" role="tablist" aria-label="Filtros de citas">
         {tabs.map((tab) => {
           const Icon = tab.icon
           return (
             <button
               key={tab.id}
+              role="tab"
+              aria-selected={activeTab === tab.id}
+              aria-controls={`${tab.id}-panel`}
+              id={`${tab.id}-tab`}
               onClick={() => setActiveTab(tab.id)}
               className={`flex-1 px-4 py-3 rounded-lg font-bold text-sm transition-all flex items-center justify-center gap-2 ${
                 activeTab === tab.id
@@ -67,13 +71,13 @@ export function AppointmentList({ upcoming, past, clinic }: AppointmentListProps
                   : 'text-gray-500 hover:text-gray-700'
               }`}
             >
-              <Icon className="w-4 h-4" />
+              <Icon className="w-4 h-4" aria-hidden="true" />
               {tab.label}
               <span className={`px-2 py-0.5 rounded-full text-xs ${
                 activeTab === tab.id
                   ? 'bg-[var(--primary)]/10 text-[var(--primary)]'
                   : 'bg-gray-200 text-gray-500'
-              }`}>
+              }`} aria-hidden="true">
                 {tab.count}
               </span>
             </button>
@@ -82,20 +86,26 @@ export function AppointmentList({ upcoming, past, clinic }: AppointmentListProps
       </div>
 
       {/* Appointment List */}
-      {appointments.length > 0 ? (
-        <div className="space-y-4">
-          {appointments.map((appointment) => (
-            <AppointmentCard
-              key={appointment.id}
-              appointment={appointment}
-              clinic={clinic}
-              showActions={activeTab === 'upcoming'}
-            />
-          ))}
-        </div>
-      ) : (
-        <EmptyState tab={activeTab} clinic={clinic} />
-      )}
+      <div
+        role="tabpanel"
+        id={`${activeTab}-panel`}
+        aria-labelledby={`${activeTab}-tab`}
+      >
+        {appointments.length > 0 ? (
+          <div className="space-y-4">
+            {appointments.map((appointment) => (
+              <AppointmentCard
+                key={appointment.id}
+                appointment={appointment}
+                clinic={clinic}
+                showActions={activeTab === 'upcoming'}
+              />
+            ))}
+          </div>
+        ) : (
+          <EmptyState tab={activeTab} clinic={clinic} />
+        )}
+      </div>
     </div>
   )
 }

@@ -54,7 +54,7 @@ describe('Pet Server Actions', () => {
 
       const result = await updatePet('pet-123', formData)
 
-      expect(result).toEqual({ error: 'No autorizado' })
+      expect(result).toEqual({ success: false, error: 'No autorizado' })
     })
 
     it('should return error when pet is not found', async () => {
@@ -76,7 +76,7 @@ describe('Pet Server Actions', () => {
 
       const result = await updatePet('pet-123', formData)
 
-      expect(result).toEqual({ error: 'Mascota no encontrada' })
+      expect(result).toEqual({ success: false, error: 'Mascota no encontrada' })
     })
 
     it('should return error when user is not the owner', async () => {
@@ -113,7 +113,7 @@ describe('Pet Server Actions', () => {
 
       const result = await updatePet('pet-123', formData)
 
-      expect(result).toEqual({ error: 'No tienes permiso para editar esta mascota' })
+      expect(result).toEqual({ success: false, error: 'No tienes permiso para editar esta mascota' })
     })
 
     it('should successfully update pet when all validations pass', async () => {
@@ -197,7 +197,9 @@ describe('Pet Server Actions', () => {
       const result = await updatePet('pet-123', formData)
 
       // Should not return permission error (may fail on DB update in mock)
-      expect(result.error).not.toBe('No tienes permiso para editar esta mascota')
+      if (!result.success) {
+        expect(result.error).not.toBe('No tienes permiso para editar esta mascota')
+      }
     })
   })
 
@@ -210,7 +212,7 @@ describe('Pet Server Actions', () => {
 
       const result = await deletePet('pet-123')
 
-      expect(result).toEqual({ error: 'No autorizado' })
+      expect(result).toEqual({ success: false, error: 'No autorizado' })
     })
 
     it('should return error when pet is not found', async () => {
@@ -229,7 +231,7 @@ describe('Pet Server Actions', () => {
 
       const result = await deletePet('pet-123')
 
-      expect(result).toEqual({ error: 'Mascota no encontrada' })
+      expect(result).toEqual({ success: false, error: 'Mascota no encontrada' })
     })
 
     it('should return error when user is not the owner', async () => {
@@ -251,7 +253,7 @@ describe('Pet Server Actions', () => {
 
       const result = await deletePet('pet-123')
 
-      expect(result).toEqual({ error: 'Solo el dueño puede eliminar esta mascota' })
+      expect(result).toEqual({ success: false, error: 'Solo el dueño puede eliminar esta mascota' })
     })
 
     it('should soft delete pet when user is the owner', async () => {

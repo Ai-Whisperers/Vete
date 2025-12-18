@@ -40,6 +40,7 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
 
   // Ref for focus trap in mobile menu
   const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const mobileMenuTriggerRef = useRef<HTMLButtonElement>(null);
 
   const handleLogout = useCallback(async () => {
     setIsLoggingOut(true);
@@ -133,6 +134,53 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
     };
   }, [isOpen]);
 
+  // Focus trap for mobile menu
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const menuElement = mobileMenuRef.current;
+    if (!menuElement) return;
+
+    // Get all focusable elements
+    const focusableElements = menuElement.querySelectorAll<HTMLElement>(
+      'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    // Focus first element when menu opens
+    firstElement?.focus();
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Close menu on Escape
+      if (e.key === 'Escape') {
+        setIsOpen(false);
+        mobileMenuTriggerRef.current?.focus();
+        return;
+      }
+
+      // Focus trap
+      if (e.key === 'Tab') {
+        if (e.shiftKey) {
+          // Shift+Tab
+          if (document.activeElement === firstElement) {
+            e.preventDefault();
+            lastElement?.focus();
+          }
+        } else {
+          // Tab
+          if (document.activeElement === lastElement) {
+            e.preventDefault();
+            firstElement?.focus();
+          }
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen]);
+
   const navItems = [
     {
       label: config.ui_labels?.nav.home || "Inicio",
@@ -212,12 +260,12 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
         {/* Cart Icon - Always visible for all users */}
         <Link
             href={`/${clinic}/cart`}
-            className="relative p-2 text-[var(--text-secondary)] hover:text-[var(--primary)] transition-colors"
+            className="relative p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--primary)] transition-colors"
             aria-label={itemCount > 0 ? `Carrito de compras (${itemCount} ${itemCount === 1 ? 'artículo' : 'artículos'})` : 'Carrito de compras'}
         >
             <ShoppingCart className="w-6 h-6" aria-hidden="true" />
             {itemCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-[var(--status-error,#dc2626)] text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full" aria-hidden="true">
+                <span className="absolute top-0 right-0 bg-[var(--status-error,#dc2626)] text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full" aria-hidden="true">
                     {itemCount}
                 </span>
             )}
@@ -229,7 +277,7 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
               <button
                   onClick={handleLogout}
                   disabled={isLoggingOut}
-                  className="p-2 text-[var(--text-secondary)] hover:text-[var(--status-error,#dc2626)] hover:bg-[var(--status-error-bg,#fef2f2)] rounded-lg transition-colors disabled:opacity-50"
+                  className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--status-error,#dc2626)] hover:bg-[var(--status-error-bg,#fef2f2)] rounded-lg transition-colors disabled:opacity-50"
                   title="Cerrar sesión"
                   aria-label="Cerrar sesión"
               >
@@ -247,27 +295,29 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
       </nav>
 
       {/* Mobile Menu Button */}
-      <div className="flex md:hidden items-center gap-4">
+      <div className="flex md:hidden items-center gap-2">
           {user && <NotificationBell clinic={clinic} />}
 
           {/* Mobile cart - Always visible */}
           <Link
               href={`/${clinic}/cart`}
-              className="relative p-2 text-[var(--primary)]"
+              className="relative p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-[var(--primary)]"
               aria-label={itemCount > 0 ? `Carrito de compras (${itemCount} ${itemCount === 1 ? 'artículo' : 'artículos'})` : 'Carrito de compras'}
           >
               <ShoppingCart className="w-6 h-6" aria-hidden="true" />
               {itemCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-[var(--status-error,#dc2626)] text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full" aria-hidden="true">
+                  <span className="absolute top-1 right-1 bg-[var(--status-error,#dc2626)] text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full" aria-hidden="true">
                       {itemCount}
                   </span>
               )}
           </Link>
 
           <button
-            className="p-2 text-[var(--primary)] z-50 relative"
+            ref={mobileMenuTriggerRef}
+            className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-[var(--primary)] z-50 relative"
             onClick={() => setIsOpen(!isOpen)}
-            aria-label="Toggle Menu"
+            aria-label={isOpen ? "Cerrar menú" : "Abrir menú"}
+            aria-expanded={isOpen}
           >
             {isOpen ? <X size={28} /> : <Menu size={28} />}
           </button>
@@ -315,10 +365,10 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
                )}
 
                {/* CTA Button - Book Appointment */}
-               <div className="px-6 py-4">
+               <div className="px-4 sm:px-6 py-4">
                  <Link
                    href={`/${clinic}/book`}
-                   className="flex items-center justify-center gap-3 w-full py-4 bg-[var(--primary)] text-white font-bold rounded-xl shadow-lg hover:opacity-90 transition-opacity"
+                   className="flex items-center justify-center gap-3 w-full py-4 min-h-[52px] bg-[var(--primary)] text-white font-bold rounded-xl shadow-lg hover:opacity-90 transition-opacity"
                  >
                    <Calendar className="w-5 h-5" />
                    {config.ui_labels?.nav.book_btn || 'Agendar Cita'}
@@ -326,7 +376,7 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
                </div>
 
                {/* Navigation Links */}
-               <div className="flex-1 px-6">
+               <div className="flex-1 px-4 sm:px-6">
                  <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-3">Navegación</p>
                  <div className="flex flex-col gap-1">
                    {navItems.map((item) => {
@@ -335,7 +385,7 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
                        <Link
                          key={item.href}
                          href={item.href}
-                         className={`flex items-center gap-4 py-3 px-4 rounded-xl transition-colors ${
+                         className={`flex items-center gap-4 py-4 px-4 min-h-[48px] rounded-xl transition-colors ${
                            isActive(item.href, item.exact)
                              ? "bg-[var(--primary)]/10 text-[var(--primary)]"
                              : "text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
@@ -353,7 +403,7 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
                  <div className="flex flex-col gap-1">
                    <Link
                      href={user ? `/${clinic}/portal/dashboard` : `/${clinic}/portal/login`}
-                     className={`flex items-center gap-4 py-3 px-4 rounded-xl transition-colors ${
+                     className={`flex items-center gap-4 py-4 px-4 min-h-[48px] rounded-xl transition-colors ${
                        isActive(`/${clinic}/portal/dashboard`)
                          ? "bg-[var(--primary)]/10 text-[var(--primary)]"
                          : "text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
@@ -369,7 +419,7 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
                      <>
                        <Link
                          href={`/${clinic}/portal/profile`}
-                         className={`flex items-center gap-4 py-3 px-4 rounded-xl transition-colors ${
+                         className={`flex items-center gap-4 py-4 px-4 min-h-[48px] rounded-xl transition-colors ${
                            isActive(`/${clinic}/portal/profile`)
                              ? "bg-[var(--primary)]/10 text-[var(--primary)]"
                              : "text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
@@ -380,7 +430,7 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
                        </Link>
                        <Link
                          href={`/${clinic}/portal/settings`}
-                         className={`flex items-center gap-4 py-3 px-4 rounded-xl transition-colors ${
+                         className={`flex items-center gap-4 py-4 px-4 min-h-[48px] rounded-xl transition-colors ${
                            isActive(`/${clinic}/portal/settings`)
                              ? "bg-[var(--primary)]/10 text-[var(--primary)]"
                              : "text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
@@ -398,7 +448,7 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
                    <button
                      onClick={handleLogout}
                      disabled={isLoggingOut}
-                     className="flex items-center gap-4 py-3 px-4 rounded-xl transition-colors text-[var(--status-error,#ef4444)] hover:bg-[var(--status-error-bg,#fef2f2)] w-full text-left mt-2 disabled:opacity-50"
+                     className="flex items-center gap-4 py-4 px-4 min-h-[48px] rounded-xl transition-colors text-[var(--status-error,#ef4444)] hover:bg-[var(--status-error-bg,#fef2f2)] w-full text-left mt-2 disabled:opacity-50"
                    >
                      <LogOut className="w-5 h-5" />
                      <span className="font-bold">Cerrar sesión</span>
@@ -407,11 +457,11 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
                </div>
 
                {/* Emergency & Footer */}
-               <div className="mt-auto px-6 py-6 bg-[var(--bg-subtle)] border-t border-[var(--border,#e5e7eb)]">
+               <div className="mt-auto px-4 sm:px-6 py-6 bg-[var(--bg-subtle)] border-t border-[var(--border,#e5e7eb)]">
                  {config.settings?.emergency_24h && (
                    <a
                      href={`tel:${config.contact?.whatsapp_number}`}
-                     className="flex items-center justify-center gap-2 w-full py-3 mb-4 bg-[var(--status-error,#ef4444)] text-white font-bold rounded-xl"
+                     className="flex items-center justify-center gap-2 w-full py-4 min-h-[48px] mb-4 bg-[var(--status-error,#ef4444)] text-white font-bold rounded-xl"
                    >
                      <Phone className="w-4 h-4" />
                      {config.ui_labels?.nav.emergency_btn || 'Urgencias 24hs'}

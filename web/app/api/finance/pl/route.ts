@@ -1,9 +1,14 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 
-// TICKET-TYPE-005: Type definition for expense breakdown
+// TICKET-TYPE-005: Type definitions for P&L calculations
 interface ExpenseBreakdown {
     [category: string]: number;
+}
+
+interface ExpenseRecord {
+    amount: number;
+    category: string;
 }
 
 export async function GET(request: Request) {
@@ -73,11 +78,13 @@ export async function GET(request: Request) {
     if (end) expenseQuery = expenseQuery.lte('date', end);
 
     const { data: expensesData } = await expenseQuery;
-    
-    const totalExpenses = expensesData?.reduce((acc, curr) => acc + Number(curr.amount), 0) || 0;
-    
+
+    const totalExpenses = (expensesData as ExpenseRecord[] | null)?.reduce((acc, curr) =>
+        acc + Number(curr.amount), 0
+    ) || 0;
+
     // Breakdown by category - TICKET-TYPE-005: Use proper type
-    const expenseBreakdown = expensesData?.reduce<ExpenseBreakdown>((acc, curr) => {
+    const expenseBreakdown = (expensesData as ExpenseRecord[] | null)?.reduce<ExpenseBreakdown>((acc, curr) => {
         acc[curr.category] = (acc[curr.category] || 0) + Number(curr.amount);
         return acc;
     }, {}) || {};

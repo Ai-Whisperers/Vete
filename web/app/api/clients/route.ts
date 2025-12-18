@@ -55,6 +55,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<ClientsRes
   const limit = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') || '10', 10)));
   const sortField = searchParams.get('sort') || 'created_at';
   const sortOrder = searchParams.get('order') === 'asc' ? 'asc' : 'desc';
+  const useRealtime = searchParams.get('realtime') === 'true';
 
   // Validate sort field to prevent SQL injection
   const allowedSortFields = ['full_name', 'email', 'created_at', 'pet_count', 'last_appointment'];
@@ -63,106 +64,203 @@ export async function GET(request: NextRequest): Promise<NextResponse<ClientsRes
   const offset = (page - 1) * limit;
 
   try {
-    // 5. Build base query for clients (owners only, in this tenant)
-    let query = supabase
-      .from('profiles')
-      .select('id, full_name, email, phone, created_at', { count: 'exact' })
-      .eq('tenant_id', profile.tenant_id)
-      .eq('role', 'owner');
+    // Option 1: Use materialized view (fast, but may be slightly stale)
+    // Option 2: Use real-time aggregated query (slower, but always current)
 
-    // 6. Apply search filter if provided
-    if (search.trim()) {
-      query = query.or(`full_name.ilike.%${search}%,email.ilike.%${search}%,phone.ilike.%${search}%`);
+    if (!useRealtime) {
+      // ====================================================================
+      // OPTIMIZED PATH: Use materialized view (single query)
+      // ====================================================================
+
+      // Map API field names to materialized view column names
+      const sortFieldMap: Record<string, string> = {
+        'last_appointment': 'last_appointment_date',
+        'pet_count': 'pet_count',
+        'created_at': 'created_at',
+        'full_name': 'full_name',
+        'email': 'email'
+      };
+
+      const mvSortField = sortFieldMap[validSortField] || 'created_at';
+
+      // Build query on materialized view
+      let mvQuery = supabase
+        .from('mv_client_summary')
+        .select('client_id, full_name, email, phone, created_at, pet_count, last_appointment_date', { count: 'exact' })
+        .eq('tenant_id', profile.tenant_id);
+
+      // Apply search filter
+      if (search.trim()) {
+        mvQuery = mvQuery.or(`full_name.ilike.%${search}%,email.ilike.%${search}%,phone.ilike.%${search}%`);
+      }
+
+      // Get count first
+      const { count: totalCount } = await mvQuery;
+
+      // Apply sorting and pagination
+      mvQuery = mvQuery
+        .order(mvSortField, { ascending: sortOrder === 'asc' })
+        .range(offset, offset + limit - 1);
+
+      const { data: mvClients, error: mvError } = await mvQuery;
+
+      if (mvError) {
+        console.error('Error fetching from materialized view:', mvError);
+        // Fall through to real-time query below
+      } else if (mvClients) {
+        // Success! Map to expected format
+        const clients: Client[] = mvClients.map(c => ({
+          id: c.client_id,
+          full_name: c.full_name || '',
+          email: c.email || '',
+          phone: c.phone || null,
+          created_at: c.created_at,
+          pet_count: c.pet_count || 0,
+          last_appointment: c.last_appointment_date || null
+        }));
+
+        const total = totalCount || 0;
+        const totalPages = Math.ceil(total / limit);
+
+        return NextResponse.json({
+          clients,
+          pagination: { page, limit, total, totalPages }
+        });
+      }
     }
 
-    // 7. Get total count for pagination
-    const { count: totalCount, error: countError } = await query;
+    // ====================================================================
+    // REAL-TIME PATH: Use aggregated query with JOINs
+    // ====================================================================
+
+    // This is a fallback or when realtime=true is specified
+    // Uses a single aggregated query with proper JOINs
+
+    // First get total count
+    const { count: totalCount, error: countError } = await supabase
+      .from('profiles')
+      .select('id', { count: 'exact', head: true })
+      .eq('tenant_id', profile.tenant_id)
+      .eq('role', 'owner')
+      .or(search.trim() ? `full_name.ilike.%${search}%,email.ilike.%${search}%,phone.ilike.%${search}%` : '');
 
     if (countError) {
       console.error('Error counting clients:', countError);
       return NextResponse.json({ error: "Error al contar clientes" }, { status: 500 });
     }
 
-    // 8. Apply sorting and pagination
-    query = query.order(validSortField === 'pet_count' || validSortField === 'last_appointment' ? 'created_at' : validSortField, { ascending: sortOrder === 'asc' })
-      .range(offset, offset + limit - 1);
+    // Use RPC function for aggregated data (if available) or fallback to manual aggregation
+    // For now, we'll use a manual aggregation approach with a single query per client batch
 
-    const { data: clients, error: clientsError } = await query;
+    let baseQuery = supabase
+      .from('profiles')
+      .select('id, full_name, email, phone, created_at')
+      .eq('tenant_id', profile.tenant_id)
+      .eq('role', 'owner');
+
+    if (search.trim()) {
+      baseQuery = baseQuery.or(`full_name.ilike.%${search}%,email.ilike.%${search}%,phone.ilike.%${search}%`);
+    }
+
+    // For real-time, we can only sort by direct profile fields initially
+    if (!['pet_count', 'last_appointment'].includes(validSortField)) {
+      baseQuery = baseQuery.order(validSortField, { ascending: sortOrder === 'asc' });
+    } else {
+      baseQuery = baseQuery.order('created_at', { ascending: false });
+    }
+
+    baseQuery = baseQuery.range(offset, offset + limit - 1);
+
+    const { data: clients, error: clientsError } = await baseQuery;
 
     if (clientsError) {
       console.error('Error fetching clients:', clientsError);
       return NextResponse.json({ error: "Error al obtener clientes" }, { status: 500 });
     }
 
-    if (!clients) {
-      return NextResponse.json({ error: "No se encontraron clientes" }, { status: 404 });
-    }
-
-    // 9. For each client, get pet count and last appointment
-    const clientIds = clients.map(c => c.id);
-
-    // Get pet counts
-    const { data: petCounts, error: petCountsError } = await supabase
-      .from('pets')
-      .select('owner_id')
-      .in('owner_id', clientIds)
-      .eq('tenant_id', profile.tenant_id);
-
-    if (petCountsError) {
-      console.error('Error fetching pet counts:', petCountsError);
-    }
-
-    // Count pets per owner
-    const petCountMap = new Map<string, number>();
-    if (petCounts) {
-      petCounts.forEach(pet => {
-        const count = petCountMap.get(pet.owner_id) || 0;
-        petCountMap.set(pet.owner_id, count + 1);
-      });
-    }
-
-    // Get last appointments
-    const { data: appointments, error: appointmentsError } = await supabase
-      .from('appointments')
-      .select('pet_id, appointment_date')
-      .eq('tenant_id', profile.tenant_id)
-      .order('appointment_date', { ascending: false });
-
-    if (appointmentsError) {
-      console.error('Error fetching appointments:', appointmentsError);
-    }
-
-    // Get pets to map appointments to owners
-    const { data: pets, error: petsError } = await supabase
-      .from('pets')
-      .select('id, owner_id')
-      .in('owner_id', clientIds)
-      .eq('tenant_id', profile.tenant_id);
-
-    if (petsError) {
-      console.error('Error fetching pets:', petsError);
-    }
-
-    // Create pet to owner mapping
-    const petToOwnerMap = new Map<string, string>();
-    if (pets) {
-      pets.forEach(pet => {
-        petToOwnerMap.set(pet.id, pet.owner_id);
-      });
-    }
-
-    // Find last appointment per owner
-    const lastAppointmentMap = new Map<string, string>();
-    if (appointments && pets) {
-      appointments.forEach(appointment => {
-        const ownerId = petToOwnerMap.get(appointment.pet_id);
-        if (ownerId && !lastAppointmentMap.has(ownerId)) {
-          lastAppointmentMap.set(ownerId, appointment.appointment_date);
+    if (!clients || clients.length === 0) {
+      return NextResponse.json({
+        clients: [],
+        pagination: {
+          page,
+          limit,
+          total: totalCount || 0,
+          totalPages: Math.ceil((totalCount || 0) / limit)
         }
       });
     }
 
-    // 10. Combine data
+    // Get aggregated data in a single optimized query
+    const clientIds = clients.map(c => c.id);
+
+    // Single query to get pet counts using aggregation
+    const { data: petAggregates } = await supabase
+      .rpc('get_client_pet_counts', {
+        client_ids: clientIds,
+        p_tenant_id: profile.tenant_id
+      })
+      .catch(() => ({ data: null }));
+
+    // Single query to get last appointments using aggregation
+    const { data: apptAggregates } = await supabase
+      .rpc('get_client_last_appointments', {
+        client_ids: clientIds,
+        p_tenant_id: profile.tenant_id
+      })
+      .catch(() => ({ data: null }));
+
+    // If RPC functions don't exist, fall back to batch queries
+    const petCountMap = new Map<string, number>();
+    const lastAppointmentMap = new Map<string, string>();
+
+    if (petAggregates) {
+      petAggregates.forEach((row: any) => {
+        petCountMap.set(row.owner_id, row.pet_count);
+      });
+    } else {
+      // Fallback: batch query
+      const { data: petCounts } = await supabase
+        .from('pets')
+        .select('owner_id')
+        .in('owner_id', clientIds)
+        .eq('tenant_id', profile.tenant_id)
+        .is('deleted_at', null);
+
+      if (petCounts) {
+        petCounts.forEach(pet => {
+          const count = petCountMap.get(pet.owner_id) || 0;
+          petCountMap.set(pet.owner_id, count + 1);
+        });
+      }
+    }
+
+    if (apptAggregates) {
+      apptAggregates.forEach((row: any) => {
+        lastAppointmentMap.set(row.owner_id, row.last_appointment);
+      });
+    } else {
+      // Fallback: get appointments via pets
+      const { data: lastAppts } = await supabase
+        .from('appointments')
+        .select('pet_id, start_time, pets!inner(owner_id)')
+        .in('pets.owner_id', clientIds)
+        .eq('tenant_id', profile.tenant_id)
+        .is('deleted_at', null)
+        .order('start_time', { ascending: false });
+
+      if (lastAppts) {
+        const processedOwners = new Set<string>();
+        lastAppts.forEach((appt: any) => {
+          const ownerId = appt.pets?.owner_id;
+          if (ownerId && !processedOwners.has(ownerId)) {
+            lastAppointmentMap.set(ownerId, appt.start_time);
+            processedOwners.add(ownerId);
+          }
+        });
+      }
+    }
+
+    // Combine data
     let enrichedClients: Client[] = clients.map(client => ({
       id: client.id,
       full_name: client.full_name || '',
@@ -173,7 +271,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<ClientsRes
       last_appointment: lastAppointmentMap.get(client.id) || null
     }));
 
-    // 11. Apply sorting for pet_count and last_appointment (can't do in SQL easily)
+    // Apply sorting for aggregated fields
     if (validSortField === 'pet_count') {
       enrichedClients.sort((a, b) => {
         const diff = a.pet_count - b.pet_count;
@@ -189,21 +287,13 @@ export async function GET(request: NextRequest): Promise<NextResponse<ClientsRes
       });
     }
 
-    // 12. Calculate pagination info
     const total = totalCount || 0;
     const totalPages = Math.ceil(total / limit);
 
-    const response: ClientsResponse = {
+    return NextResponse.json({
       clients: enrichedClients,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages
-      }
-    };
-
-    return NextResponse.json(response);
+      pagination: { page, limit, total, totalPages }
+    });
 
   } catch (error) {
     console.error('Unexpected error in clients API:', error);

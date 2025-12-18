@@ -4,6 +4,13 @@ import { resolve } from 'path';
 
 export default defineConfig({
   plugins: [react()],
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, './'),
+      // Mock redis module for tests (optional dependency)
+      'redis': resolve(__dirname, './tests/__mocks__/redis.ts'),
+    },
+  },
   test: {
     globals: true,
     environment: 'jsdom',
@@ -20,9 +27,6 @@ export default defineConfig({
         '**/*.d.ts',
         '**/*.config.*',
       ],
-    },
-    alias: {
-      '@': resolve(__dirname, './'),
     },
     // Increase timeout for async operations
     testTimeout: 10000,

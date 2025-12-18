@@ -14,6 +14,7 @@ import {
   XCircle,
   Download
 } from "lucide-react";
+import Image from "next/image";
 import { getClinicData } from '@/lib/clinics';
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from "next/navigation";
@@ -100,26 +101,55 @@ export default async function DashboardPage({ params, searchParams }: {
     }
 
   // 2. Build Query
-  let petQuery = supabase
-    .from('pets')
-    .select(`
-        *,
-        vaccines (*)
-    `)
-    .order('created_at', { ascending: false });
+  let pets: Pet[] | null = null;
 
-  // 3. Apply Fuzzy Search (if query exists)
-  if (query) {
-      // requires pg_trgm extension and index on name
-      petQuery = petQuery.textSearch('name', query, {
-          type: 'websearch', // allows quotes "Max Power"
+  if (isStaff) {
+    // Staff sees ALL pets of owners connected to this clinic
+    // (owners who have any pet, appointment, or conversation with this clinic)
+    const { data: connectedOwnerIds } = await supabase
+      .rpc('get_connected_owner_ids', { p_clinic_id: clinic });
+
+    if (connectedOwnerIds && connectedOwnerIds.length > 0) {
+      let petQuery = supabase
+        .from('pets')
+        .select(`*, vaccines (*)`)
+        .in('owner_id', connectedOwnerIds)
+        .is('deleted_at', null)
+        .order('created_at', { ascending: false });
+
+      // Apply search if query exists
+      if (query) {
+        petQuery = petQuery.textSearch('name', query, {
+          type: 'websearch',
           config: 'english'
-      });
-      // NOTE: For 'owner email' search, we'd need to join profiles. 
-      // Keeping it simple with name search for now as 'pets' doesn't have owner email directly.
-  }
+        });
+      }
 
-  const { data: pets } = await petQuery;
+      const { data } = await petQuery;
+      pets = data as Pet[] | null;
+    } else {
+      pets = [];
+    }
+  } else {
+    // Owners see ALL their pets (regardless of which clinic registered them)
+    let petQuery = supabase
+      .from('pets')
+      .select(`*, vaccines (*)`)
+      .eq('owner_id', user.id)
+      .is('deleted_at', null)
+      .order('created_at', { ascending: false });
+
+    // Apply search if query exists
+    if (query) {
+      petQuery = petQuery.textSearch('name', query, {
+        type: 'websearch',
+        config: 'english'
+      });
+    }
+
+    const { data } = await petQuery;
+    pets = data as Pet[] | null;
+  }
 
   // Import dynamically to avoid server component issues if any
   const PetSearch = (await import('./PetSearch')).default;
@@ -261,7 +291,13 @@ export default async function DashboardPage({ params, searchParams }: {
                     <div className="p-6 flex items-center gap-4 bg-[var(--bg-subtle)]">
                         <Link href={`/${clinic}/portal/pets/${pet.id}`} className="shrink-0 relative group-hover:scale-105 transition-transform">
                             {pet.photo_url ? (
-                                <img src={pet.photo_url} alt={pet.name} className="w-20 h-20 rounded-full object-cover border-4 border-white shadow-sm" />
+                                <Image
+                                    src={pet.photo_url}
+                                    alt={pet.name}
+                                    width={80}
+                                    height={80}
+                                    className="w-20 h-20 rounded-full object-cover border-4 border-white shadow-sm"
+                                />
                             ) : (
                                 <div className="w-20 h-20 rounded-full bg-white flex items-center justify-center border-4 border-white shadow-sm text-gray-300">
                                     <PawPrint className="w-10 h-10" />

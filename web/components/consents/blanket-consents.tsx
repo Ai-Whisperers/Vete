@@ -59,23 +59,47 @@ export default function BlanketConsents({
   const [isDrawing, setIsDrawing] = useState(false);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const canvasContainerRef = useRef<HTMLDivElement>(null);
   const supabase = createClient();
+
+  // Resize canvas to match container
+  const resizeCanvas = (): void => {
+    const canvas = canvasRef.current;
+    const container = canvasContainerRef.current;
+    if (!canvas || !container) return;
+    const rect = container.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = rect.width * dpr;
+    canvas.height = Math.min(rect.width * 0.3, 150) * dpr;
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.scale(dpr, dpr);
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 2;
+      ctx.lineCap = 'round';
+    }
+  };
 
   useEffect(() => {
     fetchConsents();
   }, [petId, ownerId]);
 
   useEffect(() => {
-    if (canvasRef.current && signatureMode === 'draw') {
-      const canvas = canvasRef.current;
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        ctx.strokeStyle = '#000';
-        ctx.lineWidth = 2;
-        ctx.lineCap = 'round';
-      }
+    if (signatureMode === 'draw' && showAddModal) {
+      // Small delay to ensure modal is rendered
+      setTimeout(resizeCanvas, 100);
     }
-  }, [signatureMode]);
+  }, [signatureMode, showAddModal]);
+
+  useEffect(() => {
+    const handleResize = (): void => {
+      if (signatureMode === 'draw' && showAddModal) {
+        resizeCanvas();
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [signatureMode, showAddModal]);
 
   const fetchConsents = async (): Promise<void> => {
     try {
@@ -86,8 +110,8 @@ export default function BlanketConsents({
 
       const data = await response.json();
       setConsents(data);
-    } catch (error) {
-      console.error('Error fetching blanket consents:', error);
+    } catch {
+      // Error fetching blanket consents - silently fail
     } finally {
       setLoading(false);
     }
@@ -195,8 +219,7 @@ export default function BlanketConsents({
       if (onUpdate) {
         onUpdate();
       }
-    } catch (error) {
-      console.error('Error adding blanket consent:', error);
+    } catch {
       alert('Error al crear el consentimiento permanente');
     } finally {
       setSubmitting(false);
@@ -230,8 +253,7 @@ export default function BlanketConsents({
       if (onUpdate) {
         onUpdate();
       }
-    } catch (error) {
-      console.error('Error revoking blanket consent:', error);
+    } catch {
       alert('Error al revocar el consentimiento');
     }
   };
@@ -358,23 +380,23 @@ export default function BlanketConsents({
 
       {/* Add Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-[var(--bg-paper)] rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-[var(--bg-paper)] border-b border-[var(--primary)]/20 p-6">
-              <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-[var(--text-primary)]">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-2 sm:p-4">
+          <div className="bg-[var(--bg-paper)] rounded-lg w-full max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-[var(--bg-paper)] border-b border-[var(--primary)]/20 p-4 sm:p-6">
+              <div className="flex items-center justify-between gap-4">
+                <h2 className="text-lg sm:text-2xl font-bold text-[var(--text-primary)]">
                   Nuevo Consentimiento Permanente
                 </h2>
                 <button
                   onClick={() => setShowAddModal(false)}
-                  className="text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                  className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] p-2 -m-2 min-h-[44px] min-w-[44px] flex items-center justify-center"
                 >
                   <X className="w-6 h-6" />
                 </button>
               </div>
             </div>
 
-            <form onSubmit={handleAdd} className="p-6 space-y-6">
+            <form onSubmit={handleAdd} className="p-4 sm:p-6 space-y-4 sm:space-y-6">
               {/* Consent Type */}
               <div>
                 <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
@@ -477,23 +499,24 @@ export default function BlanketConsents({
 
                 {signatureMode === 'draw' ? (
                   <div className="space-y-2">
-                    <canvas
-                      ref={canvasRef}
-                      width={600}
-                      height={150}
-                      onMouseDown={startDrawing}
-                      onMouseMove={draw}
-                      onMouseUp={stopDrawing}
-                      onMouseLeave={stopDrawing}
-                      onTouchStart={startDrawing}
-                      onTouchMove={draw}
-                      onTouchEnd={stopDrawing}
-                      className="w-full border-2 border-dashed border-[var(--primary)]/20 rounded-lg cursor-crosshair bg-white"
-                    />
+                    <div ref={canvasContainerRef} className="w-full">
+                      <canvas
+                        ref={canvasRef}
+                        onMouseDown={startDrawing}
+                        onMouseMove={draw}
+                        onMouseUp={stopDrawing}
+                        onMouseLeave={stopDrawing}
+                        onTouchStart={(e) => { e.preventDefault(); startDrawing(e); }}
+                        onTouchMove={(e) => { e.preventDefault(); draw(e); }}
+                        onTouchEnd={stopDrawing}
+                        className="w-full border-2 border-dashed border-[var(--primary)]/20 rounded-lg cursor-crosshair bg-white touch-none"
+                        style={{ height: 'min(30vw, 150px)', minHeight: '100px' }}
+                      />
+                    </div>
                     <button
                       type="button"
                       onClick={clearSignature}
-                      className="flex items-center gap-2 px-4 py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] min-h-[44px]"
                     >
                       <RotateCcw className="w-4 h-4" />
                       Limpiar firma
@@ -512,19 +535,19 @@ export default function BlanketConsents({
               </div>
 
               {/* Actions */}
-              <div className="flex justify-end gap-4 pt-4 border-t border-[var(--primary)]/20">
+              <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4 border-t border-[var(--primary)]/20">
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
                   disabled={submitting}
-                  className="px-6 py-2 bg-[var(--bg-default)] text-[var(--text-primary)] rounded-lg hover:bg-[var(--primary)]/10 transition-colors border border-[var(--primary)]/20 disabled:opacity-50"
+                  className="px-4 sm:px-6 py-3 bg-[var(--bg-default)] text-[var(--text-primary)] rounded-lg hover:bg-[var(--primary)]/10 transition-colors border border-[var(--primary)]/20 disabled:opacity-50 min-h-[48px]"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="inline-flex items-center gap-2 px-6 py-2 bg-[var(--primary)] text-white rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
+                  className="inline-flex items-center justify-center gap-2 px-4 sm:px-6 py-3 bg-[var(--primary)] text-white rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 min-h-[48px]"
                 >
                   {submitting ? (
                     <>

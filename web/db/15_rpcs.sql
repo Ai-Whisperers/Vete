@@ -242,5 +242,59 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- =============================================================================
+-- G. GET_CLIENT_PET_COUNTS
+-- =============================================================================
+-- Returns pet counts for a batch of client IDs (optimized aggregation).
+
+CREATE OR REPLACE FUNCTION public.get_client_pet_counts(
+    client_ids UUID[],
+    p_tenant_id TEXT
+)
+RETURNS TABLE (
+    owner_id UUID,
+    pet_count BIGINT
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT
+        p.owner_id,
+        COUNT(*)::BIGINT AS pet_count
+    FROM pets p
+    WHERE p.owner_id = ANY(client_ids)
+      AND p.tenant_id = p_tenant_id
+      AND p.deleted_at IS NULL
+    GROUP BY p.owner_id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- =============================================================================
+-- H. GET_CLIENT_LAST_APPOINTMENTS
+-- =============================================================================
+-- Returns last appointment date for a batch of client IDs (optimized aggregation).
+
+CREATE OR REPLACE FUNCTION public.get_client_last_appointments(
+    client_ids UUID[],
+    p_tenant_id TEXT
+)
+RETURNS TABLE (
+    owner_id UUID,
+    last_appointment TIMESTAMPTZ
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT DISTINCT ON (p.owner_id)
+        p.owner_id,
+        a.start_time AS last_appointment
+    FROM appointments a
+    JOIN pets p ON a.pet_id = p.id
+    WHERE p.owner_id = ANY(client_ids)
+      AND a.tenant_id = p_tenant_id
+      AND a.deleted_at IS NULL
+      AND p.deleted_at IS NULL
+    ORDER BY p.owner_id, a.start_time DESC;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- =============================================================================
 -- RPCS COMPLETE
 -- =============================================================================

@@ -37,7 +37,7 @@ export function StatusFilter({ currentStatus, clinic, currentDate }: StatusFilte
     <select
       value={currentStatus}
       onChange={(e) => handleStatusChange(e.target.value)}
-      className="px-4 py-2 rounded-lg border border-gray-200 bg-white text-sm font-medium focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none cursor-pointer"
+      className="px-4 py-3 min-h-[44px] rounded-lg border border-gray-200 bg-white text-sm font-medium focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none cursor-pointer"
     >
       {statusOptions.map((option) => (
         <option key={option.value} value={option.value}>

@@ -99,15 +99,15 @@ export function AppointmentCard({
         </div>
 
         {/* Date and Time */}
-        <div className="flex items-center gap-4 mb-4 p-3 bg-gray-50 rounded-xl">
+        <div className="flex flex-wrap items-center gap-3 sm:gap-4 mb-4 p-3 bg-gray-50 rounded-xl">
           <div className="flex items-center gap-2 text-sm">
-            <Icons.Calendar className="w-4 h-4 text-[var(--primary)]" />
+            <Icons.Calendar className="w-4 h-4 text-[var(--primary)] shrink-0" />
             <span className={`font-medium ${isToday ? 'text-[var(--primary)] font-bold' : 'text-[var(--text-primary)]'}`}>
               {isToday ? 'Hoy' : formatAppointmentDate(appointment.start_time)}
             </span>
           </div>
           <div className="flex items-center gap-2 text-sm">
-            <Icons.Clock className="w-4 h-4 text-[var(--primary)]" />
+            <Icons.Clock className="w-4 h-4 text-[var(--primary)] shrink-0" />
             <span className="font-medium text-[var(--text-primary)]">
               {formatAppointmentTime(appointment.start_time)}
             </span>

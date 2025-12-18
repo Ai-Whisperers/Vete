@@ -82,30 +82,49 @@ export default function SigningForm({
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const witnessCanvasRef = useRef<HTMLCanvasElement>(null);
+  const canvasContainerRef = useRef<HTMLDivElement>(null);
+  const witnessCanvasContainerRef = useRef<HTMLDivElement>(null);
+
+  // Resize canvas to match container
+  const resizeCanvas = (canvas: HTMLCanvasElement | null, container: HTMLDivElement | null): void => {
+    if (!canvas || !container) return;
+    const rect = container.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = rect.width * dpr;
+    canvas.height = Math.min(rect.width * 0.35, 200) * dpr;
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.scale(dpr, dpr);
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 2;
+      ctx.lineCap = 'round';
+    }
+  };
 
   useEffect(() => {
-    if (canvasRef.current && signatureMode === 'draw') {
-      const canvas = canvasRef.current;
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        ctx.strokeStyle = '#000';
-        ctx.lineWidth = 2;
-        ctx.lineCap = 'round';
-      }
+    if (signatureMode === 'draw') {
+      resizeCanvas(canvasRef.current, canvasContainerRef.current);
     }
   }, [signatureMode]);
 
   useEffect(() => {
-    if (witnessCanvasRef.current && witnessSignatureMode === 'draw') {
-      const canvas = witnessCanvasRef.current;
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        ctx.strokeStyle = '#000';
-        ctx.lineWidth = 2;
-        ctx.lineCap = 'round';
-      }
+    if (witnessSignatureMode === 'draw') {
+      resizeCanvas(witnessCanvasRef.current, witnessCanvasContainerRef.current);
     }
   }, [witnessSignatureMode]);
+
+  useEffect(() => {
+    const handleResize = (): void => {
+      if (signatureMode === 'draw') {
+        resizeCanvas(canvasRef.current, canvasContainerRef.current);
+      }
+      if (witnessSignatureMode === 'draw') {
+        resizeCanvas(witnessCanvasRef.current, witnessCanvasContainerRef.current);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [signatureMode, witnessSignatureMode]);
 
   const startDrawing = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>, isWitness = false): void => {
     const canvas = isWitness ? witnessCanvasRef.current : canvasRef.current;
@@ -281,10 +300,9 @@ export default function SigningForm({
       }
 
       await onSubmit(data);
-    } catch (error) {
-      console.error('Error submitting consent:', error);
+    } catch (err) {
       // TICKET-FORM-002: Use error state instead of alert()
-      setFormError(error instanceof Error ? error.message : 'Error al enviar el consentimiento');
+      setFormError(err instanceof Error ? err.message : 'Error al enviar el consentimiento');
     } finally {
       setSubmitting(false);
     }
@@ -403,11 +421,11 @@ export default function SigningForm({
 
       {/* ID Verification */}
       {template.requires_id_verification && (
-        <div className="bg-[var(--bg-paper)] rounded-lg border border-[var(--primary)]/20 p-6">
-          <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4">
+        <div className="bg-[var(--bg-paper)] rounded-lg border border-[var(--primary)]/20 p-4 sm:p-6">
+          <h3 className="text-base sm:text-lg font-semibold text-[var(--text-primary)] mb-4">
             Verificación de identidad
           </h3>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
                 Tipo de documento <span className="text-red-600">*</span>
@@ -475,23 +493,24 @@ export default function SigningForm({
 
         {signatureMode === 'draw' ? (
           <div className="space-y-2">
-            <canvas
-              ref={canvasRef}
-              width={600}
-              height={200}
-              onMouseDown={(e) => startDrawing(e)}
-              onMouseMove={(e) => draw(e)}
-              onMouseUp={() => stopDrawing()}
-              onMouseLeave={() => stopDrawing()}
-              onTouchStart={(e) => startDrawing(e)}
-              onTouchMove={(e) => draw(e)}
-              onTouchEnd={() => stopDrawing()}
-              className="w-full border-2 border-dashed border-[var(--primary)]/20 rounded-lg cursor-crosshair bg-white"
-            />
+            <div ref={canvasContainerRef} className="w-full">
+              <canvas
+                ref={canvasRef}
+                onMouseDown={(e) => startDrawing(e)}
+                onMouseMove={(e) => draw(e)}
+                onMouseUp={() => stopDrawing()}
+                onMouseLeave={() => stopDrawing()}
+                onTouchStart={(e) => { e.preventDefault(); startDrawing(e); }}
+                onTouchMove={(e) => { e.preventDefault(); draw(e); }}
+                onTouchEnd={() => stopDrawing()}
+                className="w-full border-2 border-dashed border-[var(--primary)]/20 rounded-lg cursor-crosshair bg-white touch-none"
+                style={{ height: 'min(35vw, 200px)', minHeight: '120px' }}
+              />
+            </div>
             <button
               type="button"
               onClick={() => clearSignature()}
-              className="flex items-center gap-2 px-4 py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+              className="flex items-center gap-2 px-4 py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] min-h-[44px]"
             >
               <RotateCcw className="w-4 h-4" />
               Limpiar firma
@@ -558,23 +577,24 @@ export default function SigningForm({
 
           {witnessSignatureMode === 'draw' ? (
             <div className="space-y-2">
-              <canvas
-                ref={witnessCanvasRef}
-                width={600}
-                height={200}
-                onMouseDown={(e) => startDrawing(e, true)}
-                onMouseMove={(e) => draw(e, true)}
-                onMouseUp={() => stopDrawing(true)}
-                onMouseLeave={() => stopDrawing(true)}
-                onTouchStart={(e) => startDrawing(e, true)}
-                onTouchMove={(e) => draw(e, true)}
-                onTouchEnd={() => stopDrawing(true)}
-                className="w-full border-2 border-dashed border-[var(--primary)]/20 rounded-lg cursor-crosshair bg-white"
-              />
+              <div ref={witnessCanvasContainerRef} className="w-full">
+                <canvas
+                  ref={witnessCanvasRef}
+                  onMouseDown={(e) => startDrawing(e, true)}
+                  onMouseMove={(e) => draw(e, true)}
+                  onMouseUp={() => stopDrawing(true)}
+                  onMouseLeave={() => stopDrawing(true)}
+                  onTouchStart={(e) => { e.preventDefault(); startDrawing(e, true); }}
+                  onTouchMove={(e) => { e.preventDefault(); draw(e, true); }}
+                  onTouchEnd={() => stopDrawing(true)}
+                  className="w-full border-2 border-dashed border-[var(--primary)]/20 rounded-lg cursor-crosshair bg-white touch-none"
+                  style={{ height: 'min(35vw, 200px)', minHeight: '120px' }}
+                />
+              </div>
               <button
                 type="button"
                 onClick={() => clearSignature(true)}
-                className="flex items-center gap-2 px-4 py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                className="flex items-center gap-2 px-4 py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] min-h-[44px]"
               >
                 <RotateCcw className="w-4 h-4" />
                 Limpiar firma
@@ -594,12 +614,12 @@ export default function SigningForm({
       )}
 
       {/* Actions */}
-      <div className="flex justify-end gap-4">
+      <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 sm:gap-4">
         <button
           type="button"
           onClick={onCancel}
           disabled={submitting}
-          className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--bg-default)] text-[var(--text-primary)] rounded-lg hover:bg-[var(--primary)]/10 transition-colors border border-[var(--primary)]/20 disabled:opacity-50"
+          className="inline-flex items-center justify-center gap-2 px-4 sm:px-6 py-3 bg-[var(--bg-default)] text-[var(--text-primary)] rounded-lg hover:bg-[var(--primary)]/10 transition-colors border border-[var(--primary)]/20 disabled:opacity-50 min-h-[48px]"
         >
           <X className="w-4 h-4" />
           Cancelar
@@ -607,7 +627,7 @@ export default function SigningForm({
         <button
           type="submit"
           disabled={submitting}
-          className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--primary)] text-white rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
+          className="inline-flex items-center justify-center gap-2 px-4 sm:px-6 py-3 bg-[var(--primary)] text-white rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 min-h-[48px]"
         >
           {submitting ? (
             <>

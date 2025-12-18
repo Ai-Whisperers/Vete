@@ -33,14 +33,14 @@ export function InviteStaffForm({ clinic }: { clinic: string }) {
         </div>
       </div>
       
-      {state?.error && (
+      {state && !state.success && (
         <div role="alert" className="p-3 bg-red-50 text-red-600 text-sm rounded-lg flex items-center gap-2">
             <Icons.AlertCircle className="w-4 h-4" aria-hidden="true" />
             {state.error}
         </div>
       )}
-      
-      {state?.success && (
+
+      {state && state.success && (
         <div className="p-3 bg-green-50 text-green-600 text-sm rounded-lg flex items-center gap-2">
             <Icons.CheckCircle className="w-4 h-4" />
             Invitación enviada correctamente

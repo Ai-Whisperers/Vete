@@ -1,10 +1,12 @@
 "use client";
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useParams } from 'next/navigation';
 import { useAuthRedirect } from '@/hooks/useAuthRedirect';
 import { useCart } from '@/context/cart-context';
 import Link from 'next/link';
-import { ShoppingBag, Printer, MessageCircle, Loader2, AlertCircle, CheckCircle } from 'lucide-react';
+import { ShoppingBag, Printer, MessageCircle, Loader2, AlertCircle, CheckCircle, Stethoscope, Package, PawPrint, User, Minus, Plus, Trash2 } from 'lucide-react';
+import { SIZE_SHORT_LABELS, SIZE_LABELS, getSizeBadgeColor, formatPriceGs, type PetSizeCategory } from '@/lib/utils/pet-size';
+import { organizeCart } from '@/lib/utils/cart-utils';
 import type { ClinicConfig } from '@/lib/clinics';
 
 // TICKET-BIZ-003: Proper checkout with stock validation
@@ -34,7 +36,7 @@ interface CheckoutClientProps {
 export default function CheckoutClient({ config }: CheckoutClientProps) {
   const { clinic } = useParams() as { clinic: string };
   const { user, loading } = useAuthRedirect();
-  const { items, total, clearCart } = useCart();
+  const { items, total, clearCart, updateQuantity, removeItem } = useCart();
   const labels = config.ui_labels?.checkout || {};
   const currency = config.settings?.currency || 'PYG';
   const whatsappNumber = config.contact?.whatsapp_number;
@@ -43,6 +45,9 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
   const [checkoutResult, setCheckoutResult] = useState<CheckoutResult | null>(null);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [stockErrors, setStockErrors] = useState<StockError[]>([]);
+
+  // Organize cart by owner products and pet services
+  const organizedCart = useMemo(() => organizeCart(items), [items]);
 
   if (loading) return <div className="p-4">Loading...</div>;
   if (!user) return null;
@@ -62,7 +67,16 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
             name: item.name,
             price: item.price,
             type: item.type,
-            quantity: item.quantity
+            quantity: item.quantity,
+            // Include service-specific pet info
+            ...(item.type === 'service' && {
+              pet_id: item.pet_id,
+              pet_name: item.pet_name,
+              pet_size: item.pet_size,
+              service_id: item.service_id,
+              variant_name: item.variant_name,
+              base_price: item.base_price
+            })
           })),
           clinic
         })
@@ -98,13 +112,41 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
       : `Hola *${config.name}*, me gustaría realizar el siguiente pedido:\n\n`;
 
     if (!invoiceNumber) {
-      items.forEach(item => {
-        message += `• ${item.quantity}x ${item.name} (${item.type === 'service' ? 'Servicio' : 'Producto'})\n`;
-      });
+      // Use organized cart for cleaner message
+      if (organizedCart.products.length > 0) {
+        message += `*🛒 Productos:*\n`;
+        organizedCart.products.forEach(item => {
+          message += `• ${item.quantity}x ${item.name}\n`;
+        });
+        message += `\n`;
+      }
+
+      if (organizedCart.petGroups.length > 0) {
+        organizedCart.petGroups.forEach(group => {
+          message += `*🐾 Servicios para ${group.pet_name}:*\n`;
+          group.services.forEach(item => {
+            const serviceName = item.name.split(' - ')[0];
+            message += `• ${item.quantity}x ${serviceName}`;
+            if (item.variant_name) {
+              message += ` (${item.variant_name})`;
+            }
+            message += `\n`;
+          });
+          message += `\n`;
+        });
+      }
+
+      if (organizedCart.ungroupedServices.length > 0) {
+        message += `*📋 Otros Servicios:*\n`;
+        organizedCart.ungroupedServices.forEach(item => {
+          message += `• ${item.quantity}x ${item.name}\n`;
+        });
+        message += `\n`;
+      }
     }
 
     const formattedTotal = new Intl.NumberFormat('es-PY', { style: 'currency', currency: currency }).format(total);
-    message += `\n*Total: ${formattedTotal}*\n`;
+    message += `*Total: ${formattedTotal}*\n`;
     message += `\nMis datos: ${user.email}`;
 
     return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
@@ -190,27 +232,218 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
       {items.length === 0 ? (
         <p className="text-[var(--text-secondary)]">{labels.empty || "No hay items en el carrito."}</p>
       ) : (
-        <div className="space-y-4">
-          {items.map((item) => (
-            <div key={`${item.type}-${item.id}`} className="flex items-center justify-between bg-white p-4 rounded-xl shadow-sm">
-              <div className="flex items-center gap-4">
-                {item.image_url ? (
-                  <img src={item.image_url} alt={item.name} className="w-12 h-12 object-cover rounded" />
-                ) : (
-                  <ShoppingBag className="w-12 h-12 text-[var(--primary)]" />
-                )}
-                <div>
-                  <p className="font-medium text-[var(--text-primary)]">{item.name}</p>
-                  <p className="text-sm text-[var(--text-secondary)]">
-                    {item.type === 'service' ? 'Servicio' : 'Producto'} × {item.quantity}
+        <div className="space-y-6">
+          {/* Products Section (For the Owner) */}
+          {organizedCart.products.length > 0 && (
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+              {/* Header */}
+              <div className="flex items-center gap-3 p-5 bg-gradient-to-r from-gray-50 to-transparent border-b border-gray-100">
+                <div className="w-12 h-12 rounded-xl bg-[var(--bg-subtle)] flex items-center justify-center">
+                  <User className="w-6 h-6 text-[var(--text-secondary)]" />
+                </div>
+                <div className="flex-grow">
+                  <h3 className="text-lg font-bold text-[var(--text-primary)]">Productos para Ti</h3>
+                  <p className="text-sm text-[var(--text-muted)]">
+                    {organizedCart.products.length} producto{organizedCart.products.length !== 1 ? 's' : ''}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs text-[var(--text-muted)]">Subtotal</p>
+                  <p className="text-xl font-black text-[var(--primary)]">
+                    {formatPriceGs(organizedCart.productsSubtotal)}
                   </p>
                 </div>
               </div>
-              <span className="font-bold text-[var(--primary)]">
-                {new Intl.NumberFormat('es-PY', { style: 'currency', currency: currency }).format(item.price * item.quantity)}
-              </span>
+              {/* Items */}
+              <div className="divide-y divide-gray-100">
+                {organizedCart.products.map((item) => (
+                  <div key={item.id} className="flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors">
+                    {item.image_url ? (
+                      <img src={item.image_url} alt={item.name} className="w-16 h-16 object-cover rounded-xl" />
+                    ) : (
+                      <div className="w-16 h-16 bg-[var(--bg-subtle)] rounded-xl flex items-center justify-center">
+                        <Package className="w-7 h-7 text-gray-400" />
+                      </div>
+                    )}
+                    <div className="flex-grow min-w-0">
+                      <p className="font-bold text-[var(--text-primary)]">{item.name}</p>
+                      <p className="text-sm text-[var(--text-muted)]">{formatPriceGs(item.price)} c/u</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => item.quantity > 1 ? updateQuantity(item.id, item.quantity - 1) : removeItem(item.id)}
+                        className="w-8 h-8 rounded-lg border border-gray-200 hover:border-[var(--primary)] flex items-center justify-center"
+                      >
+                        <Minus className="w-4 h-4" />
+                      </button>
+                      <span className="w-8 text-center font-bold">{item.quantity}</span>
+                      <button
+                        type="button"
+                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                        className="w-8 h-8 rounded-lg border border-gray-200 hover:border-[var(--primary)] flex items-center justify-center"
+                      >
+                        <Plus className="w-4 h-4" />
+                      </button>
+                    </div>
+                    <div className="text-right w-28">
+                      <p className="text-lg font-black text-[var(--primary)]">
+                        {formatPriceGs(item.price * item.quantity)}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => removeItem(item.id)}
+                      className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg"
+                    >
+                      <Trash2 className="w-5 h-5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Services by Pet */}
+          {organizedCart.petGroups.map((group) => (
+            <div key={group.pet_id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+              {/* Pet Header */}
+              <div className="flex items-center gap-4 p-5 bg-gradient-to-r from-[var(--primary)]/10 via-[var(--primary)]/5 to-transparent border-b border-gray-100">
+                <div className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center border-2 border-white shadow-md">
+                  <PawPrint className="w-7 h-7 text-[var(--primary)]" />
+                </div>
+                <div className="flex-grow">
+                  <div className="flex items-center gap-3 mb-1">
+                    <h3 className="text-xl font-black text-[var(--text-primary)]">{group.pet_name}</h3>
+                    <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${getSizeBadgeColor(group.pet_size)}`}>
+                      {SIZE_SHORT_LABELS[group.pet_size]}
+                    </span>
+                  </div>
+                  <p className="text-sm text-[var(--text-muted)]">
+                    {SIZE_LABELS[group.pet_size]} • {group.services.length} servicio{group.services.length !== 1 ? 's' : ''}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs text-[var(--text-muted)]">Subtotal</p>
+                  <p className="text-2xl font-black text-[var(--primary)]">
+                    {formatPriceGs(group.subtotal)}
+                  </p>
+                </div>
+              </div>
+              {/* Services */}
+              <div className="divide-y divide-gray-100">
+                {group.services.map((item) => (
+                  <div key={item.id} className="flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors">
+                    <div className="w-1.5 h-12 bg-[var(--primary)]/30 rounded-full" />
+                    {item.image_url && (
+                      <img src={item.image_url} alt={item.name} className="w-12 h-12 rounded-lg object-cover" />
+                    )}
+                    <div className="flex-grow min-w-0">
+                      <p className="font-bold text-[var(--text-primary)]">
+                        {item.name.split(' - ')[0]}
+                      </p>
+                      {item.variant_name && (
+                        <p className="text-sm text-[var(--text-muted)]">{item.variant_name}</p>
+                      )}
+                      {item.base_price && item.base_price !== item.price && (
+                        <p className="text-xs text-amber-600 mt-1">
+                          Base: {formatPriceGs(item.base_price)} → Ajustado por tamaño
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => item.quantity > 1 ? updateQuantity(item.id, item.quantity - 1) : removeItem(item.id)}
+                        className="w-8 h-8 rounded-lg border border-gray-200 hover:border-[var(--primary)] flex items-center justify-center"
+                      >
+                        <Minus className="w-4 h-4" />
+                      </button>
+                      <span className="w-8 text-center font-bold">{item.quantity}</span>
+                      <button
+                        type="button"
+                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                        className="w-8 h-8 rounded-lg border border-gray-200 hover:border-[var(--primary)] flex items-center justify-center"
+                      >
+                        <Plus className="w-4 h-4" />
+                      </button>
+                    </div>
+                    <div className="text-right w-28">
+                      {item.quantity > 1 && (
+                        <p className="text-xs text-[var(--text-muted)]">{formatPriceGs(item.price)} c/u</p>
+                      )}
+                      <p className="text-lg font-black text-[var(--primary)]">
+                        {formatPriceGs(item.price * item.quantity)}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => removeItem(item.id)}
+                      className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg"
+                    >
+                      <Trash2 className="w-5 h-5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
           ))}
+
+          {/* Ungrouped Services */}
+          {organizedCart.ungroupedServices.length > 0 && (
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+              <div className="flex items-center gap-3 p-5 bg-gray-50 border-b border-gray-100">
+                <Stethoscope className="w-6 h-6 text-[var(--text-secondary)]" />
+                <h3 className="text-lg font-bold text-[var(--text-primary)]">Otros Servicios</h3>
+              </div>
+              <div className="divide-y divide-gray-100">
+                {organizedCart.ungroupedServices.map((item) => (
+                  <div key={item.id} className="flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors">
+                    {item.image_url ? (
+                      <img src={item.image_url} alt={item.name} className="w-14 h-14 object-cover rounded-lg" />
+                    ) : (
+                      <div className="w-14 h-14 bg-[var(--bg-subtle)] rounded-lg flex items-center justify-center">
+                        <Stethoscope className="w-6 h-6 text-[var(--primary)]" />
+                      </div>
+                    )}
+                    <div className="flex-grow">
+                      <p className="font-bold text-[var(--text-primary)]">{item.name}</p>
+                      <p className="text-sm text-[var(--text-muted)]">{formatPriceGs(item.price)} c/u</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => item.quantity > 1 ? updateQuantity(item.id, item.quantity - 1) : removeItem(item.id)}
+                        className="w-8 h-8 rounded-lg border border-gray-200 hover:border-[var(--primary)] flex items-center justify-center"
+                      >
+                        <Minus className="w-4 h-4" />
+                      </button>
+                      <span className="w-8 text-center font-bold">{item.quantity}</span>
+                      <button
+                        type="button"
+                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                        className="w-8 h-8 rounded-lg border border-gray-200 hover:border-[var(--primary)] flex items-center justify-center"
+                      >
+                        <Plus className="w-4 h-4" />
+                      </button>
+                    </div>
+                    <div className="text-right w-28">
+                      <p className="text-lg font-black text-[var(--primary)]">
+                        {formatPriceGs(item.price * item.quantity)}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => removeItem(item.id)}
+                      className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg"
+                    >
+                      <Trash2 className="w-5 h-5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="bg-white p-6 rounded-xl shadow-sm">
             <div className="flex justify-between items-center mb-4">

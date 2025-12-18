@@ -1,0 +1,431 @@
+/**
+ * Rate Limiting Utility
+ * Implements sliding window rate limiting with in-memory storage
+ * Optionally supports Redis for distributed environments
+ */
+
+import { NextRequest, NextResponse } from 'next/server';
+import type { ApiErrorResponse } from './api/errors';
+
+/**
+ * Rate limit configuration for different endpoint types
+ */
+export const RATE_LIMITS = {
+  auth: {
+    windowMs: 60 * 1000, // 1 minute
+    maxRequests: 5,
+    message: 'Demasiadas solicitudes. Intente de nuevo en',
+  },
+  search: {
+    windowMs: 60 * 1000, // 1 minute
+    maxRequests: 30,
+    message: 'Demasiadas búsquedas. Intente de nuevo en',
+  },
+  write: {
+    windowMs: 60 * 1000, // 1 minute
+    maxRequests: 20,
+    message: 'Demasiadas solicitudes. Intente de nuevo en',
+  },
+  default: {
+    windowMs: 60 * 1000, // 1 minute
+    maxRequests: 60,
+    message: 'Demasiadas solicitudes. Intente de nuevo en',
+  },
+} as const;
+
+export type RateLimitType = keyof typeof RATE_LIMITS;
+
+/**
+ * Request record with timestamps
+ */
+interface RequestRecord {
+  timestamps: number[];
+}
+
+/**
+ * In-memory store for rate limiting
+ * Maps identifier (IP or user ID) to request timestamps
+ */
+class RateLimitStore {
+  private store: Map<string, RequestRecord> = new Map();
+  private cleanupInterval: NodeJS.Timeout | null = null;
+
+  constructor() {
+    // Clean up old entries every 5 minutes
+    this.cleanupInterval = setInterval(() => {
+      this.cleanup();
+    }, 5 * 60 * 1000);
+  }
+
+  /**
+   * Get request timestamps for an identifier
+   */
+  get(identifier: string): number[] {
+    return this.store.get(identifier)?.timestamps || [];
+  }
+
+  /**
+   * Add a new request timestamp for an identifier
+   */
+  add(identifier: string, timestamp: number): void {
+    const record = this.store.get(identifier) || { timestamps: [] };
+    record.timestamps.push(timestamp);
+    this.store.set(identifier, record);
+  }
+
+  /**
+   * Remove old timestamps outside the window
+   */
+  prune(identifier: string, windowStart: number): void {
+    const record = this.store.get(identifier);
+    if (!record) return;
+
+    record.timestamps = record.timestamps.filter((ts) => ts > windowStart);
+
+    if (record.timestamps.length === 0) {
+      this.store.delete(identifier);
+    } else {
+      this.store.set(identifier, record);
+    }
+  }
+
+  /**
+   * Clean up old entries (older than 10 minutes)
+   */
+  private cleanup(): void {
+    const tenMinutesAgo = Date.now() - 10 * 60 * 1000;
+
+    const entriesToDelete: string[] = [];
+
+    this.store.forEach((record, identifier) => {
+      record.timestamps = record.timestamps.filter((ts) => ts > tenMinutesAgo);
+
+      if (record.timestamps.length === 0) {
+        entriesToDelete.push(identifier);
+      }
+    });
+
+    entriesToDelete.forEach((id) => this.store.delete(id));
+  }
+
+  /**
+   * Clear all entries (for testing)
+   */
+  clear(): void {
+    this.store.clear();
+  }
+
+  /**
+   * Cleanup on shutdown
+   */
+  destroy(): void {
+    if (this.cleanupInterval) {
+      clearInterval(this.cleanupInterval);
+      this.cleanupInterval = null;
+    }
+    this.clear();
+  }
+}
+
+/**
+ * Global in-memory store instance
+ */
+const inMemoryStore = new RateLimitStore();
+
+/**
+ * Redis-based store (if REDIS_URL is configured)
+ * Falls back to in-memory if Redis is not available
+ */
+class RedisStore {
+  private client: any = null; // Redis client type
+  private isConnected: boolean = false;
+
+  async connect(): Promise<void> {
+    if (this.isConnected) return;
+
+    // Only attempt Redis connection if URL is provided
+    const redisUrl = process.env.REDIS_URL;
+    if (!redisUrl) {
+      // Using in-memory rate limiting
+      return;
+    }
+
+    // Skip Redis in test environment
+    if (process.env.NODE_ENV === 'test') {
+      return;
+    }
+
+    try {
+      // Dynamically import Redis client if available
+      const redisModule = await import('redis' as string).catch(() => null);
+      if (!redisModule) {
+        return; // Redis not installed, use in-memory
+      }
+
+      const { createClient } = redisModule as { createClient: (config: any) => any };
+      this.client = createClient({ url: redisUrl });
+      await this.client.connect();
+      this.isConnected = true;
+      // Redis rate limiting enabled
+    } catch (error) {
+      console.error('Redis connection failed, falling back to in-memory store:', error);
+      this.isConnected = false;
+    }
+  }
+
+  async get(key: string): Promise<number[]> {
+    if (!this.isConnected || !this.client) {
+      return inMemoryStore.get(key);
+    }
+
+    try {
+      const data = await this.client.get(key);
+      return data ? JSON.parse(data) : [];
+    } catch (error) {
+      console.error('Redis get error:', error);
+      return inMemoryStore.get(key);
+    }
+  }
+
+  async add(key: string, timestamp: number, ttlSeconds: number): Promise<void> {
+    if (!this.isConnected || !this.client) {
+      inMemoryStore.add(key, timestamp);
+      return;
+    }
+
+    try {
+      const timestamps = await this.get(key);
+      timestamps.push(timestamp);
+      await this.client.setEx(key, ttlSeconds, JSON.stringify(timestamps));
+    } catch (error) {
+      console.error('Redis add error:', error);
+      inMemoryStore.add(key, timestamp);
+    }
+  }
+
+  async prune(key: string, windowStart: number, ttlSeconds: number): Promise<void> {
+    if (!this.isConnected || !this.client) {
+      inMemoryStore.prune(key, windowStart);
+      return;
+    }
+
+    try {
+      const timestamps = await this.get(key);
+      const filtered = timestamps.filter((ts) => ts > windowStart);
+
+      if (filtered.length === 0) {
+        await this.client.del(key);
+      } else {
+        await this.client.setEx(key, ttlSeconds, JSON.stringify(filtered));
+      }
+    } catch (error) {
+      console.error('Redis prune error:', error);
+      inMemoryStore.prune(key, windowStart);
+    }
+  }
+}
+
+const redisStore = new RedisStore();
+
+/**
+ * Get identifier for rate limiting
+ * Prefers user ID if authenticated, falls back to IP address
+ */
+function getIdentifier(request: NextRequest, userId?: string): string {
+  if (userId) {
+    return `user:${userId}`;
+  }
+
+  // Try to get real IP from various headers (considering proxies/load balancers)
+  const forwarded = request.headers.get('x-forwarded-for');
+  const realIp = request.headers.get('x-real-ip');
+  const ip = forwarded?.split(',')[0] || realIp || 'unknown';
+
+  return `ip:${ip}`;
+}
+
+/**
+ * Check if request exceeds rate limit using sliding window algorithm
+ *
+ * @param identifier - Unique identifier (user ID or IP)
+ * @param limitType - Type of rate limit to apply
+ * @returns Object with isLimited flag and retry-after seconds
+ */
+async function checkRateLimit(
+  identifier: string,
+  limitType: RateLimitType = 'default'
+): Promise<{ isLimited: boolean; retryAfter: number; remaining: number }> {
+  // Initialize Redis connection if not already done
+  await redisStore.connect();
+
+  const config = RATE_LIMITS[limitType];
+  const now = Date.now();
+  const windowStart = now - config.windowMs;
+
+  // Create a unique key for this identifier + limit type
+  const key = `ratelimit:${limitType}:${identifier}`;
+
+  // Get existing timestamps
+  const timestamps = await redisStore.get(key);
+
+  // Remove timestamps outside the current window
+  await redisStore.prune(key, windowStart, Math.ceil(config.windowMs / 1000));
+
+  // Get fresh timestamps after pruning
+  const currentTimestamps = await redisStore.get(key);
+
+  // Check if limit exceeded
+  if (currentTimestamps.length >= config.maxRequests) {
+    // Calculate retry-after based on oldest request in window
+    const oldestTimestamp = Math.min(...currentTimestamps);
+    const retryAfterMs = oldestTimestamp + config.windowMs - now;
+    const retryAfterSeconds = Math.ceil(retryAfterMs / 1000);
+
+    return {
+      isLimited: true,
+      retryAfter: Math.max(1, retryAfterSeconds),
+      remaining: 0,
+    };
+  }
+
+  // Add current request timestamp
+  await redisStore.add(key, now, Math.ceil(config.windowMs / 1000));
+
+  return {
+    isLimited: false,
+    retryAfter: 0,
+    remaining: Math.max(0, config.maxRequests - currentTimestamps.length - 1),
+  };
+}
+
+/**
+ * Rate limiting result
+ */
+export interface RateLimitResult {
+  success: true;
+  remaining: number;
+}
+
+export interface RateLimitError {
+  success: false;
+  response: NextResponse<ApiErrorResponse>;
+}
+
+/**
+ * Apply rate limiting to a request
+ *
+ * @param request - NextRequest object
+ * @param limitType - Type of rate limit to apply
+ * @param userId - Optional user ID for authenticated requests
+ * @returns Result object or error response
+ *
+ * @example
+ * ```typescript
+ * // In an API route
+ * const rateLimitResult = await rateLimit(request, 'auth');
+ * if (!rateLimitResult.success) {
+ *   return rateLimitResult.response;
+ * }
+ *
+ * // Continue with request handling...
+ * ```
+ */
+export async function rateLimit(
+  request: NextRequest,
+  limitType: RateLimitType = 'default',
+  userId?: string
+): Promise<RateLimitResult | RateLimitError> {
+  const identifier = getIdentifier(request, userId);
+  const { isLimited, retryAfter, remaining } = await checkRateLimit(identifier, limitType);
+
+  if (isLimited) {
+    const config = RATE_LIMITS[limitType];
+    return {
+      success: false,
+      response: NextResponse.json(
+        {
+          error: `${config.message} ${retryAfter} segundos.`,
+          code: 'RATE_LIMITED',
+          details: {
+            retryAfter,
+            limitType,
+            maxRequests: config.maxRequests,
+            windowMs: config.windowMs,
+          },
+        },
+        {
+          status: 429,
+          headers: {
+            'Retry-After': retryAfter.toString(),
+            'X-RateLimit-Limit': config.maxRequests.toString(),
+            'X-RateLimit-Remaining': '0',
+            'X-RateLimit-Reset': new Date(Date.now() + retryAfter * 1000).toISOString(),
+          },
+        }
+      ),
+    };
+  }
+
+  return {
+    success: true,
+    remaining,
+  };
+}
+
+/**
+ * Higher-order function to wrap API handlers with rate limiting
+ *
+ * @param handler - The API route handler
+ * @param limitType - Type of rate limit to apply
+ * @param getUserId - Optional function to extract user ID from request
+ * @returns Wrapped handler with rate limiting
+ *
+ * @example
+ * ```typescript
+ * export const POST = withRateLimit(
+ *   async (request) => {
+ *     // Your handler logic
+ *     return NextResponse.json({ success: true });
+ *   },
+ *   'write'
+ * );
+ * ```
+ */
+export function withRateLimit<T>(
+  handler: (request: NextRequest, ...args: any[]) => Promise<NextResponse<T>>,
+  limitType: RateLimitType = 'default',
+  getUserId?: (request: NextRequest) => Promise<string | undefined>
+): (request: NextRequest, ...args: any[]) => Promise<NextResponse<T | ApiErrorResponse>> {
+  return async (request: NextRequest, ...args: any[]) => {
+    // Get user ID if function provided
+    const userId = getUserId ? await getUserId(request) : undefined;
+
+    // Check rate limit
+    const rateLimitResult = await rateLimit(request, limitType, userId);
+
+    if (!rateLimitResult.success) {
+      return rateLimitResult.response as NextResponse<ApiErrorResponse>;
+    }
+
+    // Add rate limit headers to response
+    const response = await handler(request, ...args);
+
+    response.headers.set('X-RateLimit-Remaining', rateLimitResult.remaining.toString());
+
+    return response;
+  };
+}
+
+/**
+ * Clear all rate limit data (for testing)
+ */
+export function clearRateLimits(): void {
+  inMemoryStore.clear();
+}
+
+/**
+ * Cleanup resources on shutdown
+ */
+export function shutdown(): void {
+  inMemoryStore.destroy();
+}

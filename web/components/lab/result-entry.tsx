@@ -207,6 +207,9 @@ export function ResultEntry({ orderId, onSuccess, onCancel }: ResultEntryProps) 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
+    // FORM-004: Prevent double-submit
+    if (submitting) return
+
     const emptyResults = orderItems.filter(item => !results[item.id]?.value)
     if (emptyResults.length > 0) {
       const proceed = confirm(
@@ -216,6 +219,10 @@ export function ResultEntry({ orderId, onSuccess, onCancel }: ResultEntryProps) 
     }
 
     setSubmitting(true)
+
+    // FORM-004: Create AbortController for cancellation
+    const controller = new AbortController()
+
     try {
       const response = await fetch(`/api/lab-orders/${orderId}/results`, {
         method: 'POST',
@@ -229,14 +236,20 @@ export function ResultEntry({ orderId, onSuccess, onCancel }: ResultEntryProps) 
           })),
           specimen_quality: specimenQuality,
           specimen_issues: specimenIssues || null
-        })
+        }),
+        signal: controller.signal
       })
 
       if (!response.ok) throw new Error('Error al guardar resultados')
 
       onSuccess?.()
-    } catch {
-      alert('Error al guardar los resultados')
+    } catch (error) {
+      // Handle different error types
+      if (error instanceof Error && error.name === 'AbortError') {
+        alert('Solicitud cancelada')
+      } else {
+        alert('Error al guardar los resultados')
+      }
     } finally {
       setSubmitting(false)
     }
@@ -245,7 +258,7 @@ export function ResultEntry({ orderId, onSuccess, onCancel }: ResultEntryProps) 
   if (loading) {
     return (
       <div className="flex items-center justify-center p-12">
-        <Icons.Loader2 className="w-8 h-8 animate-spin text-[var(--primary)]" />
+        <Loader2 className="w-8 h-8 animate-spin text-[var(--primary)]" />
       </div>
     )
   }
@@ -257,7 +270,7 @@ export function ResultEntry({ orderId, onSuccess, onCancel }: ResultEntryProps) 
         <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-3">
           Calidad de la Muestra
         </h3>
-        <div className="grid grid-cols-3 gap-3 mb-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 mb-3">
           {[
             { value: 'acceptable', label: 'Aceptable', color: 'green' },
             { value: 'suboptimal', label: 'Subóptima', color: 'yellow' },
@@ -267,7 +280,7 @@ export function ResultEntry({ orderId, onSuccess, onCancel }: ResultEntryProps) 
               key={option.value}
               type="button"
               onClick={() => setSpecimenQuality(option.value)}
-              className={`p-3 rounded-lg border-2 font-medium transition-all ${
+              className={`p-3 min-h-[48px] rounded-lg border-2 font-medium transition-all ${
                 specimenQuality === option.value
                   ? `border-${option.color}-500 bg-${option.color}-50 text-${option.color}-700`
                   : 'border-gray-200 hover:border-gray-300'
@@ -371,13 +384,13 @@ export function ResultEntry({ orderId, onSuccess, onCancel }: ResultEntryProps) 
       </div>
 
       {/* Action Buttons */}
-      <div className="flex items-center justify-end gap-4 pt-4 border-t">
+      <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-3 sm:gap-4 pt-4 border-t">
         {onCancel && (
           <button
             type="button"
             onClick={onCancel}
             disabled={submitting}
-            className="px-6 py-3 border border-gray-300 text-[var(--text-primary)] rounded-xl font-medium hover:bg-gray-50 transition-colors disabled:opacity-50"
+            className="px-6 py-3 min-h-[48px] border border-gray-300 text-[var(--text-primary)] rounded-xl font-medium hover:bg-gray-50 transition-colors disabled:opacity-50"
           >
             Cancelar
           </button>
@@ -385,16 +398,16 @@ export function ResultEntry({ orderId, onSuccess, onCancel }: ResultEntryProps) 
         <button
           type="submit"
           disabled={submitting}
-          className="px-6 py-3 bg-[var(--primary)] text-white rounded-xl font-medium hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center gap-2"
+          className="px-6 py-3 min-h-[48px] bg-[var(--primary)] text-white rounded-xl font-medium hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
         >
           {submitting ? (
             <>
-              <Icons.Loader2 className="w-5 h-5 animate-spin" />
+              <Loader2 className="w-5 h-5 animate-spin" />
               Guardando...
             </>
           ) : (
             <>
-              <Icons.Save className="w-5 h-5" />
+              <Save className="w-5 h-5" />
               Guardar Resultados
             </>
           )}

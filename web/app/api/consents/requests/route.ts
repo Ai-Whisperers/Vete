@@ -1,6 +1,11 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
+import { sendEmail } from '@/lib/email/client';
+import {
+  generateConsentRequestEmail,
+  generateConsentRequestEmailText,
+} from '@/lib/email/templates/consent-request';
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const supabase = await createClient();
@@ -135,10 +140,58 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
   const signingLink = `${baseUrl}/consent/${token}`;
 
-  // TODO: Send email or SMS with signing link
-  // For now, just return the link
-  console.log(`[Consent Request] Sending ${delivery_method} to ${recipient_email || recipient_phone}`);
-  console.log(`[Consent Request] Signing link: ${signingLink}`);
+  // Get clinic/tenant info for email
+  const { data: tenant } = await supabase
+    .from('tenants')
+    .select('id, name')
+    .eq('id', profile.clinic_id)
+    .single();
+
+  // Get staff member name
+  const { data: staffProfile } = await supabase
+    .from('profiles')
+    .select('full_name')
+    .eq('id', user.id)
+    .single();
+
+  // Send email if delivery method is email
+  if (delivery_method === 'email' && (recipient_email || owner.email)) {
+    try {
+      const emailData = {
+        clinicName: tenant?.name || profile.clinic_id,
+        ownerName: owner.full_name || 'Cliente',
+        petName: pet.name,
+        consentType: template.name,
+        consentCategory: template.category,
+        signingLink,
+        expiresAt: expiresAt.toISOString(),
+        requestedBy: staffProfile?.full_name,
+      };
+
+      const html = generateConsentRequestEmail(emailData);
+      const text = generateConsentRequestEmailText(emailData);
+
+      const emailResult = await sendEmail({
+        to: recipient_email || owner.email,
+        subject: `Solicitud de Consentimiento - ${template.name}`,
+        html,
+        text,
+      });
+
+      if (!emailResult.success) {
+        console.error('[Consent Request] Failed to send email:', emailResult.error);
+        // Don't fail the whole operation if email fails
+      } else {
+        console.log('[Consent Request] Email sent successfully to:', recipient_email || owner.email);
+      }
+    } catch (emailError) {
+      console.error('[Consent Request] Exception sending email:', emailError);
+      // Don't fail the whole operation if email fails
+    }
+  } else if (delivery_method === 'sms') {
+    // SMS sending would be implemented here
+    console.log(`[Consent Request] SMS delivery not implemented. Link: ${signingLink}`);
+  }
 
   return NextResponse.json({
     ...data,

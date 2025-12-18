@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import * as Icons from 'lucide-react'
+import { Loader2, Download } from 'lucide-react'
 import {
   Document,
   Page,
@@ -268,8 +268,7 @@ export function InvoicePDFButton({ invoice, clinicName, variant = 'button' }: In
       link.click()
       document.body.removeChild(link)
       URL.revokeObjectURL(url)
-    } catch (error) {
-      console.error('Error generating PDF:', error)
+    } catch {
       alert('Error al generar PDF')
     } finally {
       setLoading(false)
@@ -281,13 +280,13 @@ export function InvoicePDFButton({ invoice, clinicName, variant = 'button' }: In
       <button
         onClick={handleDownload}
         disabled={loading}
-        className="p-2 rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-50"
+        className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-50"
         title="Descargar PDF"
       >
         {loading ? (
-          <Icons.Loader2 className="w-5 h-5 animate-spin text-[var(--text-secondary)]" />
+          <Loader2 className="w-5 h-5 animate-spin text-[var(--text-secondary)]" />
         ) : (
-          <Icons.Download className="w-5 h-5 text-[var(--text-secondary)]" />
+          <Download className="w-5 h-5 text-[var(--text-secondary)]" />
         )}
       </button>
     )
@@ -297,12 +296,12 @@ export function InvoicePDFButton({ invoice, clinicName, variant = 'button' }: In
     <button
       onClick={handleDownload}
       disabled={loading}
-      className="inline-flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg text-[var(--text-primary)] hover:bg-gray-50 disabled:opacity-50"
+      className="inline-flex items-center justify-center gap-2 px-4 py-3 min-h-[44px] border border-gray-200 rounded-lg text-[var(--text-primary)] hover:bg-gray-50 disabled:opacity-50"
     >
       {loading ? (
-        <Icons.Loader2 className="w-4 h-4 animate-spin" />
+        <Loader2 className="w-4 h-4 animate-spin" />
       ) : (
-        <Icons.Download className="w-4 h-4" />
+        <Download className="w-4 h-4" />
       )}
       Descargar PDF
     </button>

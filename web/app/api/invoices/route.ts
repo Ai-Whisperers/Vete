@@ -146,11 +146,14 @@ export async function POST(request: Request) {
       .rpc('generate_invoice_number', { p_tenant_id: profile.tenant_id });
 
     // TICKET-BIZ-006: Calculate totals with proper rounding to avoid floating point issues
+    // Import roundCurrency helper for consistent rounding
+    const { roundCurrency } = await import('@/lib/types/invoicing');
+
     let subtotal = 0;
     const processedItems = items.map((item: InvoiceItem) => {
       const discount = item.discount_percent || 0;
       // Round each line total to 2 decimal places
-      const lineTotal = Math.round(item.quantity * item.unit_price * (1 - discount / 100) * 100) / 100;
+      const lineTotal = roundCurrency(item.quantity * item.unit_price * (1 - discount / 100));
       subtotal += lineTotal;
       return {
         ...item,
@@ -159,12 +162,12 @@ export async function POST(request: Request) {
     });
 
     // Round subtotal to ensure precision
-    subtotal = Math.round(subtotal * 100) / 100;
+    subtotal = roundCurrency(subtotal);
 
     const taxRate = body.tax_rate || 10; // Default 10% IVA
     // Round tax amount to 2 decimal places
-    const taxAmount = Math.round(subtotal * taxRate) / 100;
-    const total = Math.round((subtotal + taxAmount) * 100) / 100;
+    const taxAmount = roundCurrency(subtotal * (taxRate / 100));
+    const total = roundCurrency(subtotal + taxAmount);
 
     // Create invoice
     const { data: invoice, error: invoiceError } = await supabase

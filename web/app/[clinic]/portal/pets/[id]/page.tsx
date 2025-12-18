@@ -6,6 +6,41 @@ import { LoyaltyCard } from '@/components/loyalty/loyalty-card';
 import { getClinicData } from '@/lib/clinics';
 import { GrowthChart } from '@/components/clinical/growth-chart';
 import { QRGenerator } from '@/components/safety/qr-generator';
+import type { MedicalRecord, Vaccine, Prescription } from '@/lib/types/database';
+
+interface VaccineReaction {
+  id: string;
+  reaction_detail: string;
+  occurred_at: string;
+}
+
+interface TimelineItem {
+  id: string;
+  created_at: string;
+  timelineType: 'record' | 'prescription';
+  title: string;
+  type?: string;
+  diagnosis?: string;
+  vitals?: {
+    weight?: number;
+    temp?: number;
+    hr?: number;
+    rr?: number;
+  };
+  drugs?: Array<{
+    name: string;
+    dose: string;
+    instructions: string;
+  }>;
+  notes?: string;
+  attachments?: string[];
+}
+
+interface WeightRecord {
+  date: string;
+  weight_kg: number;
+  age_weeks?: number;
+}
 
 export default async function PetProfilePage({ params }: { params: Promise<{ clinic: string; id: string }> }) {
   const supabase = await createClient();
@@ -56,19 +91,40 @@ export default async function PetProfilePage({ params }: { params: Promise<{ cli
 
 
   // Sort Records by Date (Newest first)
-  const records = pet.medical_records?.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()) || [];
-  const vaccines = pet.vaccines?.sort((a: any, b: any) => new Date(b.administered_date).getTime() - new Date(a.administered_date).getTime()) || [];
-  const prescriptions = pet.prescriptions?.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()) || [];
+  const records = (pet.medical_records as MedicalRecord[])?.sort((a, b) =>
+    new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  ) || [];
 
-  const timelineItems = [
-      ...records.map((r: any) => ({ ...r, timelineType: 'record' })),
-      ...prescriptions.map((p: any) => ({ ...p, timelineType: 'prescription', title: 'Receta Médica' }))
+  const vaccines = (pet.vaccines as Vaccine[])?.sort((a, b) =>
+    new Date(b.administered_date || 0).getTime() - new Date(a.administered_date || 0).getTime()
+  ) || [];
+
+  const prescriptions = (pet.prescriptions as Prescription[])?.sort((a, b) =>
+    new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  ) || [];
+
+  const timelineItems: TimelineItem[] = [
+      ...records.map((r): TimelineItem => ({
+        ...r,
+        timelineType: 'record',
+        vitals: r.vital_signs as TimelineItem['vitals']
+      })),
+      ...prescriptions.map((p): TimelineItem => ({
+        ...p,
+        timelineType: 'prescription',
+        title: 'Receta Médica',
+        drugs: [] // Prescriptions use different structure
+      }))
   ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
   // Calculate Weight History for Growth Chart
-  const weightHistory = records
-    .filter((r: any) => r.vitals?.weight)
-    .map((r: any) => {
+  const weightHistory: WeightRecord[] = records
+    .filter((r): r is MedicalRecord & { vital_signs: { weight: number } } =>
+      r.vital_signs !== null &&
+      typeof r.vital_signs === 'object' &&
+      'weight' in r.vital_signs
+    )
+    .map((r): WeightRecord => {
         const recordDate = new Date(r.created_at);
         const birthDate = pet.birth_date ? new Date(pet.birth_date) : null;
         let age_weeks = undefined;
@@ -77,7 +133,7 @@ export default async function PetProfilePage({ params }: { params: Promise<{ cli
         }
         return {
             date: r.created_at,
-            weight_kg: Number(r.vitals.weight),
+            weight_kg: Number(r.vital_signs.weight),
             age_weeks
         };
     });
@@ -96,7 +152,7 @@ export default async function PetProfilePage({ params }: { params: Promise<{ cli
                       Este paciente ha presentado reacciones adversas en aplicaciones previas:
                   </p>
                   <ul className="mt-2 space-y-1">
-                      {pet.vaccine_reactions.map((r: any) => (
+                      {(pet.vaccine_reactions as VaccineReaction[]).map((r) => (
                           <li key={r.id} className="text-red-700 font-black flex items-center gap-2">
                               • {r.reaction_detail} <span className="text-xs opacity-50 font-medium">({new Date(r.occurred_at).toLocaleDateString()})</span>
                           </li>
@@ -207,12 +263,12 @@ export default async function PetProfilePage({ params }: { params: Promise<{ cli
                           <p className="text-gray-500 italic">No hay registros médicos aún.</p>
                       </div>
                   ) : (
-                    timelineItems.map((item: any) => (
+                    timelineItems.map((item) => (
                         <div key={item.id} className="ml-8 relative">
                             {/* Timeline Node */}
                             <div className={`absolute -left-[41px] top-0 w-5 h-5 rounded-full border-4 border-white shadow-sm ${
                                 item.timelineType === 'prescription' ? 'bg-purple-500' :
-                                item.type === 'surgery' ? 'bg-red-500' : 
+                                item.type === 'surgery' ? 'bg-red-500' :
                                 item.type === 'consultation' ? 'bg-blue-500' : 'bg-green-500'
                             }`}></div>
 
@@ -223,16 +279,16 @@ export default async function PetProfilePage({ params }: { params: Promise<{ cli
                                         {item.title}
                                     </h3>
                                     <span className={`text-xs font-bold uppercase tracking-wider px-2 py-1 rounded ${
-                                        item.timelineType === 'prescription' 
-                                            ? 'bg-purple-50 text-purple-600' 
+                                        item.timelineType === 'prescription'
+                                            ? 'bg-purple-50 text-purple-600'
                                             : 'bg-gray-100 text-gray-400'
                                     }`}>
                                         {item.timelineType === 'prescription' ? 'Receta' : item.type}
                                     </span>
                                 </div>
-                                
+
                                 <p className="text-sm text-gray-500 mb-4 flex items-center gap-2">
-                                    <Icons.Calendar className="w-4 h-4" /> 
+                                    <Icons.Calendar className="w-4 h-4" />
                                     {new Date(item.created_at).toLocaleDateString('es-ES', {  year: 'numeric', month: 'long', day: 'numeric' })}
                                 </p>
 
@@ -257,9 +313,9 @@ export default async function PetProfilePage({ params }: { params: Promise<{ cli
                                 )}
 
                                 {/* Drugs Display (Prescriptions only) */}
-                                {item.timelineType === 'prescription' && item.drugs && (
+                                {item.timelineType === 'prescription' && item.drugs && item.drugs.length > 0 && (
                                     <div className="mb-4 space-y-2">
-                                        {item.drugs.map((drug: any, idx: number) => (
+                                        {item.drugs.map((drug, idx) => (
                                             <div key={idx} className="bg-purple-50/30 p-2 rounded-lg border border-purple-100/50 text-sm">
                                                 <p className="font-bold text-purple-900">{drug.name}</p>
                                                 <p className="text-xs text-purple-700">{drug.dose} - <span className="italic">{drug.instructions}</span></p>
@@ -281,11 +337,11 @@ export default async function PetProfilePage({ params }: { params: Promise<{ cli
                                             <Icons.Download className="w-3 h-3" /> Ver PDF
                                         </button>
                                     )}
-                                    {item.attachments && item.attachments.map((url: string, idx: number) => (
-                                        <a 
-                                            key={idx} 
-                                            href={url} 
-                                            target="_blank" 
+                                    {item.attachments && item.attachments.map((url, idx) => (
+                                        <a
+                                            key={idx}
+                                            href={url}
+                                            target="_blank"
                                             rel="noopener noreferrer"
                                             className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg text-xs font-bold text-gray-600 hover:bg-gray-200 transition-colors"
                                         >
@@ -365,11 +421,11 @@ export default async function PetProfilePage({ params }: { params: Promise<{ cli
                   </div>
                   
                   <div className="space-y-3">
-                      {vaccines.map((v: any) => (
+                      {vaccines.map((v) => (
                           <div key={v.id} className="flex items-center justify-between p-3 rounded-xl bg-gray-50 border border-gray-100">
                              <div>
                                  <p className="font-bold text-sm text-[var(--text-primary)]">{v.name}</p>
-                                 <p className="text-xs text-gray-500">{new Date(v.administered_date).toLocaleDateString()}</p>
+                                 <p className="text-xs text-gray-500">{v.administered_date ? new Date(v.administered_date).toLocaleDateString() : 'Sin fecha'}</p>
                              </div>
                              {v.status === 'verified' ? (
                                 <Icons.CheckCircle2 className="w-4 h-4 text-green-500" />

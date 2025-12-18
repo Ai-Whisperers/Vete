@@ -45,12 +45,13 @@ BEGIN
     AND tenant_id = p_tenant_id;
 
     -- Log the transaction
-    INSERT INTO inventory_transactions (
+    INSERT INTO store_inventory_transactions (
         tenant_id,
         product_id,
-        transaction_type,
+        type,
         quantity,
         notes,
+        performed_by,
         created_at
     ) VALUES (
         p_tenant_id,
@@ -58,6 +59,7 @@ BEGIN
         'sale',
         -p_quantity,
         'Checkout via store',
+        NULL,
         NOW()
     );
 

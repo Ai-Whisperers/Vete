@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
 
 /**
  * PATCH /api/notifications
- * Mark notifications as read (delivered)
+ * Mark notifications as read
  * Expects: { notificationIds: string[] }
  */
 export async function PATCH(request: NextRequest) {
@@ -85,13 +85,13 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    // 3. Update notifications to delivered status
+    // 3. Update notifications to read status
     // Only update notifications that belong to the current user
     const { data, error: updateError } = await supabase
       .from("notification_queue")
       .update({
-        status: "delivered",
-        delivered_at: new Date().toISOString(),
+        status: "read",
+        read_at: new Date().toISOString(),
       })
       .in("id", notificationIds)
       .eq("client_id", user.id) // Security: only update own notifications

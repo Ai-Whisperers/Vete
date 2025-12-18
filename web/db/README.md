@@ -1,6 +1,47 @@
 # Supabase Database Setup
 
-This directory contains the complete, refactored SQL scripts for setting up the Vete veterinary platform database in Supabase.
+This directory contains the complete SQL schema for the Vete multi-tenant veterinary platform.
+
+---
+
+## Quick Start
+
+```bash
+# Complete setup (schema + demo data + users)
+npx tsx web/scripts/db-setup.ts setup dev
+
+# Reset database (DESTRUCTIVE - deletes all data)
+npx tsx web/scripts/db-setup.ts reset dev
+
+# Create demo users only
+npx tsx web/scripts/db-setup.ts users
+
+# Validate current state
+npx tsx web/scripts/db-setup.ts validate
+
+# Show database info
+npx tsx web/scripts/db-setup.ts info
+```
+
+### Demo Accounts
+
+| Email | Password | Role | Tenant | Pets |
+|-------|----------|------|--------|------|
+| `owner@demo.com` | password123 | Pet Owner | adris | Firulais, Mishi, Luna |
+| `owner2@demo.com` | password123 | Pet Owner | adris | Thor, Max |
+| `vet@demo.com` | password123 | Veterinarian | adris | - |
+| `admin@demo.com` | password123 | Admin | adris | - |
+| `vet@petlife.com` | password123 | Veterinarian | petlife | - |
+
+### Testing After Setup
+
+1. Visit `http://localhost:3000/adris`
+2. Login as `owner@demo.com` / `password123`
+3. See 3 pets with vaccines and appointments
+4. Browse services, add to cart
+5. Complete checkout
+
+---
 
 ## File Structure
 
@@ -48,6 +89,12 @@ This directory contains the complete, refactored SQL scripts for setting up the 
 | `30_enhanced_audit.sql` | Enhanced audit logging with change tracking, security events, data access log |
 | `31_materialized_views.sql` | Pre-computed analytics: dashboard stats, appointment analytics, revenue, inventory alerts |
 | `32_scheduled_jobs.sql` | pg_cron jobs for automated maintenance, reminders, and data processing |
+
+### Tenant Management (50s)
+
+| File | Description |
+|------|-------------|
+| `54_tenant_setup.sql` | Tenant onboarding function and helper utilities |
 
 ### Data
 
@@ -100,10 +147,13 @@ psql $DATABASE_URL -f 30_enhanced_audit.sql
 psql $DATABASE_URL -f 31_materialized_views.sql
 psql $DATABASE_URL -f 32_scheduled_jobs.sql
 
-# 5. Create demo users via API
+# 5. Run tenant management features
+psql $DATABASE_URL -f 54_tenant_setup.sql
+
+# 6. Create demo users via API
 npx tsx web/scripts/create_users.ts
 
-# 6. Seed demo data
+# 7. Seed demo data
 psql $DATABASE_URL -f 20_seed_data.sql
 ```
 
@@ -191,6 +241,110 @@ Enabled for: `pets`, `vaccines`, `clinic_invites`, `medical_records`, `appointme
 | `mv_inventory_alerts` | Low stock and expiring products |
 | `mv_disease_heatmap` | Disease outbreak tracking |
 | `mv_staff_performance` | Staff productivity metrics |
+
+## Tenant Onboarding
+
+### Quick Start: Create a New Tenant
+
+The easiest way to onboard a new tenant is using the TypeScript script:
+
+```bash
+npx tsx web/scripts/setup-tenant.ts "myclinic" "My Veterinary Clinic"
+```
+
+This will:
+1. Create the tenant record
+2. Set up default payment methods (cash, credit card, debit card, bank transfer, mobile payment)
+3. Initialize invoice sequence with auto-generated prefix
+4. Create default services (consultations, vaccinations, surgeries, lab tests, grooming, dentistry, hospitalization)
+5. Set up default store categories (dog food, cat food, antiparasitics, accessories, hygiene, medications)
+6. Create default reminder templates (vaccine due, appointments, post-surgery follow-ups)
+
+### Manual Tenant Creation (SQL)
+
+You can also create tenants directly via SQL:
+
+```sql
+-- Create tenant with all default data
+SELECT setup_new_tenant('myclinic', 'My Veterinary Clinic');
+
+-- Check if tenant exists
+SELECT tenant_exists('myclinic');
+
+-- View tenant info and statistics
+SELECT * FROM get_tenant_info('myclinic');
+```
+
+### What Gets Created
+
+When you run `setup_new_tenant()`, the following data is automatically created:
+
+| Category | Items | Description |
+|----------|-------|-------------|
+| **Payment Methods** | 5 methods | Cash (default), Credit Card, Debit Card, Bank Transfer, Mobile Payment |
+| **Invoice Sequence** | 1 sequence | Auto-generated prefix based on tenant ID |
+| **Services** | 13 services | Consultations, vaccinations, surgeries, lab tests, imaging, grooming, dentistry, hospitalization |
+| **Store Categories** | 6 categories | Dog food, cat food, antiparasitics, accessories, hygiene, medications |
+| **Reminder Templates** | 3 templates | Vaccine reminders, appointment reminders, post-surgery follow-ups |
+
+### Complete Tenant Setup Checklist
+
+After creating a tenant with the SQL function, complete these additional steps:
+
+1. **Create Content Folder**
+   ```bash
+   # Copy template
+   cp -r web/.content_data/_TEMPLATE web/.content_data/myclinic
+   ```
+
+2. **Customize Config Files**
+   - Edit `web/.content_data/myclinic/config.json` (clinic name, contact info, modules)
+   - Edit `web/.content_data/myclinic/theme.json` (colors, fonts, gradients)
+   - Customize other JSON files as needed
+
+3. **Create Admin User**
+   - Create user via Supabase Auth or API
+   - Update profile with admin role:
+   ```sql
+   UPDATE profiles
+   SET role = 'admin', tenant_id = 'myclinic'
+   WHERE email = 'admin@myclinic.com';
+   ```
+
+4. **Deploy Static Routes**
+   - Add tenant to `generateStaticParams()` in pages:
+   ```typescript
+   export async function generateStaticParams() {
+     return [
+       { clinic: 'adris' },
+       { clinic: 'petlife' },
+       { clinic: 'myclinic' }  // Add new tenant
+     ]
+   }
+   ```
+
+5. **Test Access**
+   - Visit `https://yourdomain.com/myclinic`
+   - Log in with admin account
+   - Verify theme and content
+
+### Delete a Tenant (Caution!)
+
+**WARNING:** This permanently deletes ALL tenant data including users, pets, appointments, invoices, etc.
+
+```sql
+-- This is IRREVERSIBLE - use with extreme caution
+SELECT delete_tenant_cascade('myclinic');
+```
+
+### Tenant Management Functions
+
+| Function | Purpose | Example |
+|----------|---------|---------|
+| `setup_new_tenant(id, name)` | Create tenant with defaults | `SELECT setup_new_tenant('clinic', 'My Clinic');` |
+| `tenant_exists(id)` | Check if tenant exists | `SELECT tenant_exists('clinic');` |
+| `get_tenant_info(id)` | View tenant statistics | `SELECT * FROM get_tenant_info('clinic');` |
+| `delete_tenant_cascade(id)` | Delete tenant and all data | `SELECT delete_tenant_cascade('clinic');` |
 
 ## Demo Users
 
@@ -324,3 +478,63 @@ Always use `IF NOT EXISTS` / `IF EXISTS` for idempotent operations.
 ### pg_cron jobs not running
 - Ensure pg_cron extension is enabled in Supabase
 - Check job status: `SELECT * FROM cron.job WHERE jobname LIKE 'vete_%';`
+
+---
+
+## Comprehensive Test Data
+
+The `45_seed_comprehensive.sql` file creates complete test data for E2E testing:
+
+### Pets Created
+
+| Owner | Pet | Species | Breed | Vaccines | Notes |
+|-------|-----|---------|-------|----------|-------|
+| owner@demo.com | Firulais | Dog | Golden Retriever | Up to date | QR tag assigned |
+| owner@demo.com | Mishi | Cat | Siames | Partial | Needs leucemia |
+| owner@demo.com | Luna | Dog | Labrador | Up to date | Neutered |
+| owner2@demo.com | Thor | Dog | Bulldog Frances | Recent | Castrated |
+| owner2@demo.com | Max | Dog | Beagle | **OVERDUE** | Dermatitis treatment |
+
+### Appointments Created
+
+- Past completed appointments (7-14 days ago)
+- Today's appointments (confirmed)
+- Tomorrow's appointments
+- Next week appointments (pending)
+- Cancelled appointment (for history)
+
+### Store Products
+
+25+ products across categories:
+- Dog Food (4 products)
+- Cat Food (3 products)
+- Antiparasitics (5 products)
+- Accessories (4 products)
+- Hygiene (4 products)
+- Toys (3 products)
+- Snacks (2 products)
+
+All products have inventory with stock quantities for cart testing.
+
+### Medical History
+
+Each pet has realistic medical records:
+- Consultations
+- Vaccinations
+- Surgeries (Luna, Thor)
+- Lab exams (Mishi)
+- Treatment follow-ups (Max)
+
+---
+
+## Improvement Report
+
+See `DB_IMPROVEMENT_REPORT.md` for:
+- File renumbering recommendations (duplicate 55, 85)
+- Schema fixes needed
+- Test data improvements
+- Environment management guide
+
+---
+
+*Last updated: December 2024*

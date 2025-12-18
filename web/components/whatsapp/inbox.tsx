@@ -93,12 +93,12 @@ export function Inbox({ conversations, clinic }: InboxProps) {
   }
 
   return (
-    <div className="h-[calc(100vh-200px)] min-h-[500px] flex bg-white rounded-xl border border-gray-100 overflow-hidden">
+    <div className="h-[calc(100vh-120px)] sm:h-[calc(100vh-200px)] min-h-[400px] sm:min-h-[500px] flex bg-white rounded-xl border border-gray-100 overflow-hidden">
       {/* Conversation list */}
       <div className={`w-full md:w-80 border-r border-gray-100 flex flex-col ${
         selectedPhone ? 'hidden md:flex' : ''
       }`}>
-        <div className="p-4 border-b border-gray-100">
+        <div className="p-3 sm:p-4 border-b border-gray-100">
           <h2 className="font-bold text-[var(--text-primary)]">Conversaciones</h2>
           <p className="text-sm text-[var(--text-secondary)]">
             {conversations.length} chat{conversations.length !== 1 ? 's' : ''}

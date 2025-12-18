@@ -4,6 +4,8 @@ import type { JSX } from 'react';
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import { pdf } from '@react-pdf/renderer';
+import { ConsentPDF } from '@/components/consents/consent-pdf';
 import {
   FileText,
   Calendar,
@@ -144,9 +146,59 @@ export default function ConsentDetailPage(): JSX.Element {
     }
   };
 
-  const handleDownloadPDF = (): void => {
-    // TODO: Implement PDF generation
-    alert('Función de descarga de PDF próximamente');
+  const handleDownloadPDF = async (): Promise<void> => {
+    if (!consent) return;
+
+    try {
+      // Generate PDF blob
+      const blob = await pdf(
+        <ConsentPDF
+          clinicName={consent.template.name}
+          templateName={consent.template.name}
+          templateCategory={consent.template.category}
+          documentNumber={consent.id.substring(0, 8).toUpperCase()}
+          petName={consent.pet.name}
+          petSpecies={consent.pet.species}
+          petBreed={consent.pet.breed}
+          ownerName={consent.owner.full_name}
+          ownerEmail={consent.owner.email}
+          ownerPhone={consent.owner.phone || ''}
+          content={renderContent()}
+          fieldValues={consent.field_values}
+          signatureData={consent.signature_data}
+          signedAt={consent.signed_at}
+          witnessName={consent.witness_name || undefined}
+          witnessSignatureData={consent.witness_signature_data || undefined}
+          idVerificationType={consent.id_verification_type || undefined}
+          idVerificationNumber={consent.id_verification_number || undefined}
+          status={consent.status}
+        />
+      ).toBlob();
+
+      // Create download link
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `consentimiento-${consent.pet.name}-${new Date(consent.signed_at).toLocaleDateString('es-PY')}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      // Log download action
+      await fetch(`/api/consents/${consent.id}/audit`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          action: 'downloaded'
+        })
+      });
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Error al generar el PDF');
+    }
   };
 
   const handleSendEmail = async (): Promise<void> => {

@@ -94,7 +94,7 @@ export function DosageCalculator({ initialWeightKg, species }: { initialWeightKg
 
             <div className="space-y-4">
                 {/* Inputs */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label className="block text-xs font-bold text-[var(--text-muted)] uppercase mb-1">Peso (kg)</label>
                         <input
@@ -104,7 +104,7 @@ export function DosageCalculator({ initialWeightKg, species }: { initialWeightKg
                             max={MAX_SAFE_WEIGHT_KG}
                             value={weight}
                             onChange={(e) => setWeight(parseFloat(e.target.value) || 0)}
-                            className={`w-full p-2 bg-[var(--bg-subtle)] border rounded-lg focus:ring-[var(--primary)] ${weightWarning ? 'border-[var(--status-error-light,#fca5a5)]' : 'border-[var(--border,#e5e7eb)]'}`}
+                            className={`w-full p-3 min-h-[44px] bg-[var(--bg-subtle)] border rounded-lg focus:ring-[var(--primary)] ${weightWarning ? 'border-[var(--status-error-light,#fca5a5)]' : 'border-[var(--border,#e5e7eb)]'}`}
                         />
                         {weightWarning && (
                             <p className="text-xs text-[var(--status-error,#ef4444)] mt-1">{weightWarning}</p>
@@ -115,7 +115,7 @@ export function DosageCalculator({ initialWeightKg, species }: { initialWeightKg
                          <select
                             value={selectedDrugId}
                             onChange={(e) => setSelectedDrugId(e.target.value)}
-                            className="w-full p-2 bg-[var(--bg-subtle)] border border-[var(--border,#e5e7eb)] rounded-lg focus:ring-[var(--primary)] text-sm"
+                            className="w-full p-3 min-h-[44px] bg-[var(--bg-subtle)] border border-[var(--border,#e5e7eb)] rounded-lg focus:ring-[var(--primary)] text-sm"
                             disabled={loading}
                          >
                             <option value="">Seleccionar...</option>
@@ -150,7 +150,7 @@ export function DosageCalculator({ initialWeightKg, species }: { initialWeightKg
                     <div className="space-y-3">
                         <div className="bg-[var(--primary)] text-white p-4 rounded-xl text-center animate-in fade-in slide-in-from-bottom-2">
                             <div className="text-sm opacity-80 mb-1 font-medium">Administrar</div>
-                            <div className="text-3xl font-black mb-1">
+                            <div className="text-2xl sm:text-3xl font-black mb-1">
                                 {dose.minMl.toFixed(2)} - {dose.maxMl.toFixed(2)} ml
                             </div>
                             <div className="text-xs opacity-70">

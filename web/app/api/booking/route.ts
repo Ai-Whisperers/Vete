@@ -8,9 +8,15 @@ import { createClient } from '@/lib/supabase/server';
 import { withAuth, type AuthContext } from '@/lib/api/with-auth';
 import { apiError, apiSuccess, API_ERRORS } from '@/lib/api/errors';
 import { createAppointmentSchema, updateAppointmentSchema, appointmentQuerySchema } from '@/lib/schemas/appointment';
+import { rateLimit } from '@/lib/rate-limit';
 
 // GET /api/booking - List appointments
 export const GET = withAuth(async (ctx: AuthContext, { params: _ }: { params: Promise<unknown> }) => {
+  // Apply rate limiting for search endpoints (30 requests per minute)
+  const rateLimitResult = await rateLimit(ctx.request, 'search', ctx.user.id);
+  if (!rateLimitResult.success) {
+    return rateLimitResult.response;
+  }
   const { user, profile, supabase, request } = ctx;
 
   const searchParams = new URL(request.url).searchParams;
@@ -82,6 +88,12 @@ export const GET = withAuth(async (ctx: AuthContext, { params: _ }: { params: Pr
 
 // POST /api/booking - Create appointment
 export const POST = withAuth(async (ctx: AuthContext) => {
+  // Apply rate limiting for write endpoints (20 requests per minute)
+  const rateLimitResult = await rateLimit(ctx.request, 'write', ctx.user.id);
+  if (!rateLimitResult.success) {
+    return rateLimitResult.response;
+  }
+
   const { user, profile, supabase, request } = ctx;
 
   // Parse and validate body
@@ -97,7 +109,7 @@ export const POST = withAuth(async (ctx: AuthContext) => {
     return apiError('VALIDATION_ERROR', 400, result.error.flatten().fieldErrors);
   }
 
-  const { clinic_slug, pet_id, service_id, appointment_date, time_slot, notes } = result.data;
+  const { clinic_slug, pet_id, service_id, appointment_date, time_slot, vet_id, notes } = result.data;
 
   // Verify pet ownership or staff access
   const { data: pet } = await supabase
@@ -148,19 +160,31 @@ export const POST = withAuth(async (ctx: AuthContext) => {
   const endMins = endMinutes % 60;
   const endTime = `${String(endHours).padStart(2, '0')}:${String(endMins).padStart(2, '0')}`;
 
+  // Create full timestamp strings for overlap checking
+  const newStartTimestamp = `${appointment_date}T${time_slot}:00`;
+  const newEndTimestamp = `${appointment_date}T${endTime}:00`;
+
   // Check for overlapping appointments
-  const { data: existingAppointments } = await supabase
+  // An overlap occurs when: existing.start_time < new.end_time AND existing.end_time > new.start_time
+  let overlapQuery = supabase
     .from('appointments')
-    .select('id, start_time, end_time')
+    .select('id, start_time, end_time, vet_id')
     .eq('tenant_id', effectiveClinic)
     .eq('appointment_date', appointment_date)
     .not('status', 'in', '("cancelled","no_show")')
-    .lt('start_time', endTime)
-    .gt('end_time', time_slot);
+    .lt('start_time', newEndTimestamp)
+    .gt('end_time', newStartTimestamp);
+
+  // If a specific vet is assigned, check for that vet's availability
+  if (vet_id) {
+    overlapQuery = overlapQuery.eq('vet_id', vet_id);
+  }
+
+  const { data: existingAppointments } = await overlapQuery;
 
   if (existingAppointments && existingAppointments.length > 0) {
     return NextResponse.json(
-      { error: 'Este horario se sobrepone con otra cita existente', code: 'TIME_CONFLICT' },
+      { error: 'Este horario ya está ocupado', code: 'TIME_CONFLICT' },
       { status: 409 }
     );
   }
@@ -175,6 +199,7 @@ export const POST = withAuth(async (ctx: AuthContext) => {
       appointment_date,
       start_time: time_slot,
       end_time: endTime,
+      vet_id: vet_id || null,
       notes: notes || null,
       status: 'scheduled',
       created_by: user.id,
@@ -191,6 +216,12 @@ export const POST = withAuth(async (ctx: AuthContext) => {
 
 // PUT /api/booking - Update appointment
 export const PUT = withAuth(async (ctx: AuthContext) => {
+  // Apply rate limiting for write endpoints (20 requests per minute)
+  const rateLimitResult = await rateLimit(ctx.request, 'write', ctx.user.id);
+  if (!rateLimitResult.success) {
+    return rateLimitResult.response;
+  }
+
   const { user, profile, supabase, request } = ctx;
 
   // Parse and validate body
@@ -206,7 +237,7 @@ export const PUT = withAuth(async (ctx: AuthContext) => {
     return apiError('VALIDATION_ERROR', 400, result.error.flatten().fieldErrors);
   }
 
-  const { id, status, appointment_date, time_slot, notes } = result.data;
+  const { id, status, appointment_date, time_slot, vet_id, notes } = result.data;
 
   // Get existing appointment
   const { data: existing } = await supabase
@@ -262,6 +293,7 @@ export const PUT = withAuth(async (ctx: AuthContext) => {
   const updates: Record<string, unknown> = { updated_at: new Date().toISOString() };
   if (status) updates.status = status;
   if (appointment_date) updates.appointment_date = appointment_date;
+  if (vet_id !== undefined) updates.vet_id = vet_id;
 
   // Calculate proper end_time when rescheduling
   if (time_slot) {
@@ -280,6 +312,36 @@ export const PUT = withAuth(async (ctx: AuthContext) => {
     const endHours = Math.floor(endMins / 60);
     const endMinutes = endMins % 60;
     updates.end_time = `${String(endHours).padStart(2, '0')}:${String(endMinutes).padStart(2, '0')}`;
+
+    // Check for overlapping appointments when rescheduling
+    const rescheduleDate = appointment_date || existing.appointment_date;
+    const newStartTimestamp = `${rescheduleDate}T${time_slot}:00`;
+    const newEndTimestamp = `${rescheduleDate}T${updates.end_time}:00`;
+    const checkVetId = vet_id !== undefined ? vet_id : existing.vet_id;
+
+    let overlapQuery = supabase
+      .from('appointments')
+      .select('id, start_time, end_time, vet_id')
+      .eq('tenant_id', pet.tenant_id)
+      .eq('appointment_date', rescheduleDate)
+      .neq('id', id) // Exclude the current appointment
+      .not('status', 'in', '("cancelled","no_show")')
+      .lt('start_time', newEndTimestamp)
+      .gt('end_time', newStartTimestamp);
+
+    // If a specific vet is assigned, check for that vet's availability
+    if (checkVetId) {
+      overlapQuery = overlapQuery.eq('vet_id', checkVetId);
+    }
+
+    const { data: existingAppointments } = await overlapQuery;
+
+    if (existingAppointments && existingAppointments.length > 0) {
+      return NextResponse.json(
+        { error: 'Este horario ya está ocupado', code: 'TIME_CONFLICT' },
+        { status: 409 }
+      );
+    }
   }
   if (notes !== undefined) updates.notes = notes;
 

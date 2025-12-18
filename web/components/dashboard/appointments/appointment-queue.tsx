@@ -1,6 +1,7 @@
 'use client'
 
 import * as Icons from 'lucide-react'
+import Image from 'next/image'
 import { StatusButtons } from './status-buttons'
 import { statusConfig, formatAppointmentTime } from '@/lib/types/appointments'
 
@@ -54,13 +55,13 @@ export function AppointmentQueue({ appointments, clinic }: AppointmentQueueProps
     <div className="space-y-6">
       {/* In Progress Section */}
       {inProgress.length > 0 && (
-        <section>
+        <section aria-labelledby="in-progress-heading">
           <div className="flex items-center gap-2 mb-3">
-            <div className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
-            <h2 className="font-bold text-[var(--text-primary)]">En Consulta</h2>
-            <span className="text-sm text-[var(--text-secondary)]">({inProgress.length})</span>
+            <div className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" aria-hidden="true" />
+            <h2 id="in-progress-heading" className="font-bold text-[var(--text-primary)]">En Consulta</h2>
+            <span className="text-sm text-[var(--text-secondary)]" aria-label={`${inProgress.length} citas en consulta`}>({inProgress.length})</span>
           </div>
-          <div className="space-y-3">
+          <div className="space-y-3" role="list">
             {inProgress.map(apt => (
               <AppointmentRow key={apt.id} appointment={apt} clinic={clinic} highlight="purple" />
             ))}
@@ -70,13 +71,13 @@ export function AppointmentQueue({ appointments, clinic }: AppointmentQueueProps
 
       {/* Checked In Section */}
       {checkedIn.length > 0 && (
-        <section>
+        <section aria-labelledby="checked-in-heading">
           <div className="flex items-center gap-2 mb-3">
-            <div className="w-2 h-2 rounded-full bg-yellow-500" />
-            <h2 className="font-bold text-[var(--text-primary)]">Cola de Espera</h2>
-            <span className="text-sm text-[var(--text-secondary)]">({checkedIn.length})</span>
+            <div className="w-2 h-2 rounded-full bg-yellow-500" aria-hidden="true" />
+            <h2 id="checked-in-heading" className="font-bold text-[var(--text-primary)]">Cola de Espera</h2>
+            <span className="text-sm text-[var(--text-secondary)]" aria-label={`${checkedIn.length} citas en espera`}>({checkedIn.length})</span>
           </div>
-          <div className="space-y-3">
+          <div className="space-y-3" role="list">
             {checkedIn.map(apt => (
               <AppointmentRow key={apt.id} appointment={apt} clinic={clinic} highlight="yellow" />
             ))}
@@ -86,13 +87,13 @@ export function AppointmentQueue({ appointments, clinic }: AppointmentQueueProps
 
       {/* Waiting Section */}
       {waiting.length > 0 && (
-        <section>
+        <section aria-labelledby="waiting-heading">
           <div className="flex items-center gap-2 mb-3">
-            <div className="w-2 h-2 rounded-full bg-blue-500" />
-            <h2 className="font-bold text-[var(--text-primary)]">Próximas Citas</h2>
-            <span className="text-sm text-[var(--text-secondary)]">({waiting.length})</span>
+            <div className="w-2 h-2 rounded-full bg-blue-500" aria-hidden="true" />
+            <h2 id="waiting-heading" className="font-bold text-[var(--text-primary)]">Próximas Citas</h2>
+            <span className="text-sm text-[var(--text-secondary)]" aria-label={`${waiting.length} citas próximas`}>({waiting.length})</span>
           </div>
-          <div className="space-y-3">
+          <div className="space-y-3" role="list">
             {waiting.map(apt => (
               <AppointmentRow key={apt.id} appointment={apt} clinic={clinic} />
             ))}
@@ -102,13 +103,13 @@ export function AppointmentQueue({ appointments, clinic }: AppointmentQueueProps
 
       {/* Completed Section */}
       {completed.length > 0 && (
-        <section>
+        <section aria-labelledby="completed-heading">
           <div className="flex items-center gap-2 mb-3">
-            <div className="w-2 h-2 rounded-full bg-gray-400" />
-            <h2 className="font-bold text-[var(--text-primary)]">Finalizadas</h2>
-            <span className="text-sm text-[var(--text-secondary)]">({completed.length})</span>
+            <div className="w-2 h-2 rounded-full bg-gray-400" aria-hidden="true" />
+            <h2 id="completed-heading" className="font-bold text-[var(--text-primary)]">Finalizadas</h2>
+            <span className="text-sm text-[var(--text-secondary)]" aria-label={`${completed.length} citas finalizadas`}>({completed.length})</span>
           </div>
-          <div className="space-y-3">
+          <div className="space-y-3" role="list">
             {completed.map(apt => (
               <AppointmentRow key={apt.id} appointment={apt} clinic={clinic} faded />
             ))}
@@ -159,9 +160,11 @@ function AppointmentRow({
         <div className="flex items-center gap-3 flex-1">
           <div className="w-12 h-12 rounded-xl bg-[var(--primary)]/10 flex items-center justify-center overflow-hidden shrink-0">
             {appointment.pets?.photo_url ? (
-              <img
+              <Image
                 src={appointment.pets.photo_url}
                 alt={appointment.pets.name}
+                width={48}
+                height={48}
                 className="w-full h-full object-cover"
               />
             ) : (

@@ -31,7 +31,7 @@ export function ConversationList({ conversations, selectedPhone, onSelect }: Con
           <button
             key={conversation.phone_number}
             onClick={() => onSelect(conversation.phone_number)}
-            className={`w-full p-4 text-left hover:bg-gray-50 transition-colors ${
+            className={`w-full p-4 min-h-[60px] text-left hover:bg-gray-50 transition-colors ${
               isSelected ? 'bg-[var(--primary)]/5 border-l-4 border-[var(--primary)]' : ''
             }`}
           >

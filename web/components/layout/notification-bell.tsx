@@ -10,8 +10,9 @@ interface Notification {
   subject: string | null;
   body: string;
   notification_type: string;
-  status: "queued" | "delivered" | "failed";
+  status: "queued" | "delivered" | "read" | "failed";
   created_at: string;
+  read_at: string | null;
 }
 
 interface NotificationBellProps {
@@ -84,7 +85,7 @@ export function NotificationBell({ clinic }: Readonly<NotificationBellProps>) {
       setNotifications((prev) =>
         prev.map((notif) =>
           notificationIds.includes(notif.id)
-            ? { ...notif, status: "delivered" as const }
+            ? { ...notif, status: "read" as const, read_at: new Date().toISOString() }
             : notif
         )
       );
@@ -94,17 +95,39 @@ export function NotificationBell({ clinic }: Readonly<NotificationBellProps>) {
     }
   };
 
-  const handleDropdownToggle = async () => {
-    const newIsOpen = !isOpen;
-    setIsOpen(newIsOpen);
+  const markAllAsRead = async () => {
+    try {
+      const response = await fetch("/api/notifications/mark-all-read", {
+        method: "POST",
+      });
 
-    // Mark unread notifications as read when opening dropdown
-    if (newIsOpen && unreadCount > 0) {
-      const unreadIds = notifications
-        .filter((n) => n.status === "queued")
-        .map((n) => n.id);
-      await markAsRead(unreadIds);
+      if (!response.ok) {
+        throw new Error("Error al marcar todas las notificaciones como leídas");
+      }
+
+      // Update local state
+      setNotifications((prev) =>
+        prev.map((notif) =>
+          notif.status === "queued" || notif.status === "delivered"
+            ? { ...notif, status: "read" as const, read_at: new Date().toISOString() }
+            : notif
+        )
+      );
+      setUnreadCount(0);
+    } catch {
+      // Error marking all as read - silently fail
     }
+  };
+
+  const handleNotificationClick = async (notificationId: string, status: string) => {
+    // Mark as read if not already read
+    if (status !== "read") {
+      await markAsRead([notificationId]);
+    }
+  };
+
+  const handleDropdownToggle = () => {
+    setIsOpen(!isOpen);
   };
 
   const truncateText = (text: string, maxLength: number): string => {
@@ -168,7 +191,17 @@ export function NotificationBell({ clinic }: Readonly<NotificationBellProps>) {
           >
             {/* Header */}
             <div className="bg-[var(--primary)] text-white px-6 py-4">
-              <h3 className="font-bold text-lg">Notificaciones</h3>
+              <div className="flex items-center justify-between">
+                <h3 className="font-bold text-lg">Notificaciones</h3>
+                {unreadCount > 0 && (
+                  <button
+                    onClick={markAllAsRead}
+                    className="text-xs font-semibold bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg transition-colors"
+                  >
+                    Marcar todas como leídas
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* Notifications List */}
@@ -183,39 +216,43 @@ export function NotificationBell({ clinic }: Readonly<NotificationBellProps>) {
                 </div>
               ) : (
                 <ul className="divide-y divide-[var(--border-light,#f3f4f6)]">
-                  {recentNotifications.map((notification) => (
-                    <li
-                      key={notification.id}
-                      className={`px-6 py-4 hover:bg-[var(--bg-subtle)] transition-colors ${
-                        notification.status === "queued" ? "bg-[var(--status-info-bg,#dbeafe)]/50" : ""
-                      }`}
-                    >
-                      <div className="flex flex-col gap-1">
-                        {/* Subject or Type */}
-                        <div className="flex items-start justify-between gap-2">
-                          <h4 className="font-semibold text-sm text-[var(--text-primary)]">
-                            {notification.subject ||
-                              notification.notification_type
-                                .replace(/_/g, " ")
-                                .replace(/\b\w/g, (l) => l.toUpperCase())}
-                          </h4>
-                          {notification.status === "queued" && (
-                            <span className="flex-shrink-0 w-2 h-2 bg-[var(--status-info,#3b82f6)] rounded-full mt-1"></span>
-                          )}
+                  {recentNotifications.map((notification) => {
+                    const isUnread = notification.status === "queued" || notification.status === "delivered";
+                    return (
+                      <li
+                        key={notification.id}
+                        onClick={() => handleNotificationClick(notification.id, notification.status)}
+                        className={`px-6 py-4 hover:bg-[var(--bg-subtle)] transition-colors cursor-pointer ${
+                          isUnread ? "bg-[var(--primary)]/5" : ""
+                        }`}
+                      >
+                        <div className="flex flex-col gap-1">
+                          {/* Subject or Type */}
+                          <div className="flex items-start justify-between gap-2">
+                            <h4 className={`text-sm text-[var(--text-primary)] ${isUnread ? "font-bold" : "font-semibold"}`}>
+                              {notification.subject ||
+                                notification.notification_type
+                                  .replace(/_/g, " ")
+                                  .replace(/\b\w/g, (l) => l.toUpperCase())}
+                            </h4>
+                            {isUnread && (
+                              <span className="flex-shrink-0 w-2 h-2 bg-[var(--primary)] rounded-full mt-1"></span>
+                            )}
+                          </div>
+
+                          {/* Body Preview */}
+                          <p className={`text-sm ${isUnread ? "text-[var(--text-primary)] font-medium" : "text-[var(--text-secondary)]"}`}>
+                            {truncateText(notification.body, 80)}
+                          </p>
+
+                          {/* Time Ago */}
+                          <p className="text-xs text-[var(--text-muted)] mt-1">
+                            {formatTimeAgo(notification.created_at)}
+                          </p>
                         </div>
-
-                        {/* Body Preview */}
-                        <p className="text-sm text-[var(--text-secondary)]">
-                          {truncateText(notification.body, 80)}
-                        </p>
-
-                        {/* Time Ago */}
-                        <p className="text-xs text-[var(--text-muted)] mt-1">
-                          {formatTimeAgo(notification.created_at)}
-                        </p>
-                      </div>
-                    </li>
-                  ))}
+                      </li>
+                    );
+                  })}
                 </ul>
               )}
             </div>

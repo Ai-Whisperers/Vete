@@ -65,55 +65,67 @@ export function AppointmentForm() {
       <form action={formAction} className="space-y-4">
         {/* Name Field */}
         <div>
-          <label className="block text-sm font-bold text-[var(--text-primary)] mb-2">
+          <label htmlFor="name-field" className="block text-sm font-bold text-[var(--text-primary)] mb-2">
             Tu Nombre
           </label>
           <div className="relative">
             <div className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-lg bg-[var(--bg-subtle)] flex items-center justify-center">
-              <User className="w-5 h-5 text-[var(--text-muted)]" />
+              <User className="w-5 h-5 text-[var(--text-muted)]" aria-hidden="true" />
             </div>
             <input
+              id="name-field"
               name="name"
               type="text"
               required
               placeholder="Ej: Juan Pérez"
+              aria-invalid={state?.error ? "true" : "false"}
+              aria-describedby={state?.error ? "name-error" : undefined}
               className="w-full pl-16 pr-4 py-3.5 rounded-xl border border-gray-200 bg-white focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none transition-all text-[var(--text-primary)] placeholder:text-gray-400"
             />
           </div>
+          {state?.error && (
+            <p id="name-error" role="alert" className="mt-1 text-sm text-red-600">
+              {state.error}
+            </p>
+          )}
         </div>
 
         {/* Phone and Pet Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-bold text-[var(--text-primary)] mb-2">
+            <label htmlFor="phone-field" className="block text-sm font-bold text-[var(--text-primary)] mb-2">
               Teléfono
             </label>
             <div className="relative">
               <div className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-lg bg-[var(--bg-subtle)] flex items-center justify-center">
-                <Phone className="w-5 h-5 text-[var(--text-muted)]" />
+                <Phone className="w-5 h-5 text-[var(--text-muted)]" aria-hidden="true" />
               </div>
               <input
+                id="phone-field"
                 name="phone"
                 type="tel"
                 required
                 placeholder="0981..."
+                aria-invalid="false"
                 className="w-full pl-16 pr-4 py-3.5 rounded-xl border border-gray-200 bg-white focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none transition-all text-[var(--text-primary)] placeholder:text-gray-400"
               />
             </div>
           </div>
           <div>
-            <label className="block text-sm font-bold text-[var(--text-primary)] mb-2">
+            <label htmlFor="pet-field" className="block text-sm font-bold text-[var(--text-primary)] mb-2">
               Mascota
             </label>
             <div className="relative">
               <div className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-lg bg-[var(--bg-subtle)] flex items-center justify-center">
-                <Dog className="w-5 h-5 text-[var(--text-muted)]" />
+                <Dog className="w-5 h-5 text-[var(--text-muted)]" aria-hidden="true" />
               </div>
               <input
+                id="pet-field"
                 name="petName"
                 type="text"
                 required
                 placeholder="Ej: Firulais"
+                aria-invalid="false"
                 className="w-full pl-16 pr-4 py-3.5 rounded-xl border border-gray-200 bg-white focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none transition-all text-[var(--text-primary)] placeholder:text-gray-400"
               />
             </div>
@@ -122,18 +134,20 @@ export function AppointmentForm() {
 
         {/* Reason Field */}
         <div>
-          <label className="block text-sm font-bold text-[var(--text-primary)] mb-2">
+          <label htmlFor="reason-field" className="block text-sm font-bold text-[var(--text-primary)] mb-2">
             Motivo de la Consulta
           </label>
           <div className="relative">
             <div className="absolute left-4 top-4 w-10 h-10 rounded-lg bg-[var(--bg-subtle)] flex items-center justify-center">
-              <MessageSquare className="w-5 h-5 text-[var(--text-muted)]" />
+              <MessageSquare className="w-5 h-5 text-[var(--text-muted)]" aria-hidden="true" />
             </div>
             <textarea
+              id="reason-field"
               name="reason"
               required
               placeholder="Ej: Vacunación anual y corte de uñas..."
               rows={3}
+              aria-invalid="false"
               className="w-full pl-16 pr-4 py-3.5 rounded-xl border border-gray-200 bg-white focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none transition-all resize-none text-[var(--text-primary)] placeholder:text-gray-400"
             />
           </div>

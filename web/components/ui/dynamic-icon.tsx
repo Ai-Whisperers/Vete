@@ -1,14 +1,22 @@
-import * as Icons from 'lucide-react';
+/**
+ * Dynamic Icon Component
+ *
+ * DEPRECATED: This component imports all lucide-react icons which increases bundle size.
+ * Prefer using the optimized DynamicIcon from @/lib/icons instead.
+ *
+ * For gradual migration, this component remains but should be phased out.
+ */
+
+import { DynamicIcon as OptimizedDynamicIcon } from '@/lib/icons';
 
 interface DynamicIconProps {
-  name: string;
+  name?: string;
   className?: string;
 }
 
+/**
+ * @deprecated Use DynamicIcon from '@/lib/icons' instead for better tree-shaking
+ */
 export const DynamicIcon = ({ name, className }: DynamicIconProps) => {
-  // Safe dynamic access to Lucide icons
-  // @ts-ignore
-  const Icon = Icons[name.charAt(0).toUpperCase() + name.slice(1).replace(/-([a-z])/g, (g) => g[1].toUpperCase())] || Icons.HelpCircle;
-  
-  return <Icon className={className} />;
+  return <OptimizedDynamicIcon name={name} className={className} />;
 };

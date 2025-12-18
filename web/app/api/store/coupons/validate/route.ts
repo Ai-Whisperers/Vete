@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { rateLimit } from '@/lib/rate-limit';
 
 // POST - Validate a coupon code
 export async function POST(request: NextRequest) {
@@ -8,6 +9,12 @@ export async function POST(request: NextRequest) {
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+  }
+
+  // Apply rate limiting for write endpoints (20 requests per minute)
+  const rateLimitResult = await rateLimit(request, 'write', user.id);
+  if (!rateLimitResult.success) {
+    return rateLimitResult.response;
   }
 
   try {

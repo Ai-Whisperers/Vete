@@ -166,7 +166,7 @@ export function InvoiceForm({
           {/* Due Date */}
           <div>
             <label htmlFor="due-date-field" className="block text-sm font-medium text-[var(--text-primary)] mb-1">
-              Fecha de vencimiento
+              Fecha de vencimiento <span className="text-red-600" aria-label="requerido">*</span>
             </label>
             <input
               id="due-date-field"
@@ -174,9 +174,17 @@ export function InvoiceForm({
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
               disabled={loading}
+              required
               aria-invalid={error && !dueDate ? "true" : "false"}
+              aria-describedby={error && !dueDate ? "due-date-error" : "due-date-help"}
               className="w-full p-3 border border-gray-200 rounded-lg focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none"
             />
+            <p id="due-date-help" className="sr-only">Seleccione la fecha de vencimiento de la factura</p>
+            {error && !dueDate && (
+              <p id="due-date-error" role="alert" className="mt-1 text-sm text-red-600">
+                Debe seleccionar una fecha de vencimiento
+              </p>
+            )}
           </div>
 
           {/* Notes */}
@@ -192,8 +200,10 @@ export function InvoiceForm({
               rows={3}
               placeholder="Notas adicionales para la factura..."
               aria-invalid="false"
+              aria-describedby="notes-help"
               className="w-full p-3 border border-gray-200 rounded-lg focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none resize-none"
             />
+            <p id="notes-help" className="sr-only">Campo opcional para notas adicionales</p>
           </div>
         </div>
 

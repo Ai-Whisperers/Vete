@@ -133,9 +133,15 @@ export function ClientInviteForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {/* TICKET-FORM-005: Added role="alert" for accessibility */}
       {error && (
-        <div className="p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm flex items-start gap-2">
-          <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+        <div
+          role="alert"
+          aria-live="assertive"
+          id="form-error"
+          className="p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm flex items-start gap-2"
+        >
+          <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" aria-hidden="true" />
           <span>{error}</span>
         </div>
       )}
@@ -158,6 +164,8 @@ export function ClientInviteForm({
             onChange={(e) => setFullName(e.target.value)}
             required
             placeholder="Juan Pérez"
+            aria-invalid={error ? "true" : "false"}
+            aria-describedby={error ? "form-error" : undefined}
             className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none"
           />
         </div>
@@ -167,7 +175,7 @@ export function ClientInviteForm({
             Correo Electrónico *
           </label>
           <div className="relative">
-            <Mail className="absolute left-4 top-3.5 w-5 h-5 text-gray-400 pointer-events-none" />
+            <Mail className="absolute left-4 top-3.5 w-5 h-5 text-gray-400 pointer-events-none" aria-hidden="true" />
             <input
               id="email"
               type="email"
@@ -175,6 +183,8 @@ export function ClientInviteForm({
               onChange={(e) => setEmail(e.target.value)}
               required
               placeholder="cliente@email.com"
+              aria-invalid={error ? "true" : "false"}
+              aria-describedby={error ? "form-error" : undefined}
               className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none"
             />
           </div>
@@ -185,13 +195,14 @@ export function ClientInviteForm({
             Teléfono
           </label>
           <div className="relative">
-            <Phone className="absolute left-4 top-3.5 w-5 h-5 text-gray-400 pointer-events-none" />
+            <Phone className="absolute left-4 top-3.5 w-5 h-5 text-gray-400 pointer-events-none" aria-hidden="true" />
             <input
               id="phone"
               type="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               placeholder="0981 123 456"
+              aria-invalid="false"
               className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none"
             />
           </div>
@@ -228,6 +239,7 @@ export function ClientInviteForm({
               value={petName}
               onChange={(e) => setPetName(e.target.value)}
               placeholder="Max, Luna, etc."
+              aria-invalid="false"
               className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none bg-white"
             />
           </div>
@@ -241,6 +253,7 @@ export function ClientInviteForm({
                 id="petSpecies"
                 value={petSpecies}
                 onChange={(e) => setPetSpecies(e.target.value)}
+                aria-invalid="false"
                 className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none bg-white"
               >
                 <option value="dog">Perro</option>
@@ -264,6 +277,7 @@ export function ClientInviteForm({
                 value={petBreed}
                 onChange={(e) => setPetBreed(e.target.value)}
                 placeholder="Golden Retriever, etc."
+                aria-invalid="false"
                 className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none bg-white"
               />
             </div>

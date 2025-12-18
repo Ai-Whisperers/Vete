@@ -4,6 +4,8 @@ import { NextRequest, NextResponse } from "next/server";
 /**
  * GET /api/notifications
  * Fetch in-app notifications for the authenticated user
+ * Query params:
+ *   - status: filter by status (optional, e.g., 'read', 'queued')
  * Returns latest 50 notifications with unread count
  */
 export async function GET(request: NextRequest) {
@@ -16,12 +18,23 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // 2. Fetch notifications for this user (in-app only)
-    const { data: notifications, error: notificationsError } = await supabase
+    // 2. Parse query params
+    const { searchParams } = new URL(request.url);
+    const statusFilter = searchParams.get('status');
+
+    // 3. Build query for notifications
+    let query = supabase
       .from("notification_queue")
       .select("*")
       .eq("channel_type", "in_app")
-      .eq("client_id", user.id)
+      .eq("client_id", user.id);
+
+    // Apply status filter if provided
+    if (statusFilter) {
+      query = query.eq("status", statusFilter);
+    }
+
+    const { data: notifications, error: notificationsError } = await query
       .order("created_at", { ascending: false })
       .limit(50);
 
@@ -33,15 +46,22 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // 3. Count unread notifications
-    const unreadCount = notifications?.filter(
-      (n) => n.status === "queued"
-    ).length || 0;
+    // 4. Count unread notifications (queued = unread)
+    const { count: unreadCount, error: countError } = await supabase
+      .from("notification_queue")
+      .select("*", { count: 'exact', head: true })
+      .eq("channel_type", "in_app")
+      .eq("client_id", user.id)
+      .eq("status", "queued");
 
-    // 4. Return response
+    if (countError) {
+      console.error("Error counting unread notifications:", countError);
+    }
+
+    // 5. Return response
     return NextResponse.json({
       notifications: notifications || [],
-      unreadCount,
+      unreadCount: unreadCount || 0,
     });
   } catch (error) {
     console.error("Unexpected error fetching notifications:", error);
@@ -55,7 +75,9 @@ export async function GET(request: NextRequest) {
 /**
  * PATCH /api/notifications
  * Mark notifications as read
- * Expects: { notificationIds: string[] }
+ * Expects:
+ *   - { notificationIds: string[] } - mark specific notifications
+ *   - { markAllRead: true } - mark all unread notifications as read
  */
 export async function PATCH(request: NextRequest) {
   const supabase = await createClient();
@@ -69,11 +91,40 @@ export async function PATCH(request: NextRequest) {
   try {
     // 2. Parse request body
     const body = await request.json();
-    const { notificationIds } = body;
+    const { notificationIds, markAllRead } = body;
 
+    // 3. Handle mark all read
+    if (markAllRead === true) {
+      const { data, error: updateError } = await supabase
+        .from("notification_queue")
+        .update({
+          status: "read",
+          read_at: new Date().toISOString(),
+        })
+        .eq("client_id", user.id) // Security: only update own notifications
+        .eq("channel_type", "in_app")
+        .eq("status", "queued") // Only mark unread ones
+        .select();
+
+      if (updateError) {
+        console.error("Error marking all notifications as read:", updateError);
+        return NextResponse.json(
+          { error: "Error al marcar todas las notificaciones como leídas" },
+          { status: 500 }
+        );
+      }
+
+      return NextResponse.json({
+        success: true,
+        updated: data?.length || 0,
+        message: "Todas las notificaciones marcadas como leídas",
+      });
+    }
+
+    // 4. Handle specific notification IDs
     if (!notificationIds || !Array.isArray(notificationIds)) {
       return NextResponse.json(
-        { error: "Se requiere un array de IDs de notificaciones" },
+        { error: "Se requiere 'notificationIds' (array) o 'markAllRead' (boolean)" },
         { status: 400 }
       );
     }
@@ -85,7 +136,7 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    // 3. Update notifications to read status
+    // 5. Update specific notifications to read status
     // Only update notifications that belong to the current user
     const { data, error: updateError } = await supabase
       .from("notification_queue")
@@ -105,7 +156,7 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    // 4. Return success response
+    // 6. Return success response
     return NextResponse.json({
       success: true,
       updated: data?.length || 0,

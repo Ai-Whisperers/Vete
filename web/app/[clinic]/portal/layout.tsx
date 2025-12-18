@@ -79,11 +79,11 @@ export default async function PortalLayout({
     { iconName: 'FileBox', label: 'Productos', href: `/${clinic}/portal/products` },
   ] : [];
 
-  // Admin-only items
+  // Admin-only items - point to dashboard for admin features
   const adminItems = isAdmin ? [
-    { iconName: 'Users', label: 'Equipo', href: `/${clinic}/portal/team` },
-    { iconName: 'ClipboardList', label: 'Auditoría', href: `/${clinic}/portal/admin/audit` },
-    { iconName: 'Activity', label: 'Epidemiología', href: `/${clinic}/portal/epidemiology` },
+    { iconName: 'Users', label: 'Equipo', href: `/${clinic}/dashboard/team` },
+    { iconName: 'ClipboardList', label: 'Auditoria', href: `/${clinic}/dashboard/audit` },
+    { iconName: 'Activity', label: 'Epidemiologia', href: `/${clinic}/portal/epidemiology` },
   ] : [];
 
   // Settings items

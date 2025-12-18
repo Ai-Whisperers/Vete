@@ -65,6 +65,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
   }
 
+  // Apply rate limiting for write endpoints (20 requests per minute)
+  const { rateLimit } = await import('@/lib/rate-limit');
+  const rateLimitResult = await rateLimit(request, 'write', user.id);
+  if (!rateLimitResult.success) {
+    return rateLimitResult.response;
+  }
+
   // Get user profile - only vets/admins can create prescriptions
   const { data: profile } = await supabase
     .from('profiles')
@@ -139,6 +146,13 @@ export async function PUT(request: NextRequest) {
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+  }
+
+  // Apply rate limiting for write endpoints (20 requests per minute)
+  const { rateLimit } = await import('@/lib/rate-limit');
+  const rateLimitResult = await rateLimit(request, 'write', user.id);
+  if (!rateLimitResult.success) {
+    return rateLimitResult.response;
   }
 
   // Get user profile - only vets/admins can update

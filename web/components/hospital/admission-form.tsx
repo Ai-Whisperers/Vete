@@ -180,11 +180,12 @@ export default function AdmissionForm({ onSuccess, onCancel }: AdmissionFormProp
         </button>
       </div>
 
-      {/* TICKET-FORM-002, TICKET-A11Y-004: Error Display with accessibility */}
+      {/* TICKET-FORM-002, TICKET-A11Y-004, TICKET-FORM-005: Error Display with accessibility and ID for aria-describedby */}
       {formError && (
         <div
           role="alert"
           aria-live="assertive"
+          id="form-error"
           className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg"
         >
           <div className="flex items-center gap-3 text-red-700">
@@ -217,17 +218,21 @@ export default function AdmissionForm({ onSuccess, onCancel }: AdmissionFormProp
               Seleccionar Paciente
             </h3>
 
+            {/* TICKET-FORM-005: Added aria-invalid to search input */}
             <div className="flex gap-2">
               <div className="flex-1 relative">
                 <input
+                  id="pet-search"
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), searchPets())}
                   placeholder="Buscar por nombre o microchip..."
+                  aria-invalid={formError ? "true" : "false"}
+                  aria-describedby={formError ? "form-error" : undefined}
                   className="w-full px-4 py-2 border border-[var(--border)] rounded-lg bg-[var(--bg-default)] text-[var(--text-primary)]"
                 />
-                <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-[var(--text-secondary)]" />
+                <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-[var(--text-secondary)]" aria-hidden="true" />
               </div>
               <button
                 type="button"
@@ -310,13 +315,16 @@ export default function AdmissionForm({ onSuccess, onCancel }: AdmissionFormProp
             </h3>
 
             <div>
-              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
+              <label htmlFor="hosp-type" className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
                 Tipo de Hospitalización *
               </label>
               <select
+                id="hosp-type"
                 required
                 value={formData.hospitalization_type}
                 onChange={(e) => setFormData({ ...formData, hospitalization_type: e.target.value })}
+                aria-invalid={formError ? "true" : "false"}
+                aria-describedby={formError ? "form-error" : undefined}
                 className="w-full px-4 py-2 border border-[var(--border)] rounded-lg bg-[var(--bg-default)] text-[var(--text-primary)]"
               >
                 <option value="medical">Médica</option>
@@ -329,12 +337,14 @@ export default function AdmissionForm({ onSuccess, onCancel }: AdmissionFormProp
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
+              <label htmlFor="acuity-level" className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
                 Nivel de Acuidad
               </label>
               <select
+                id="acuity-level"
                 value={formData.acuity_level}
                 onChange={(e) => setFormData({ ...formData, acuity_level: e.target.value })}
+                aria-invalid="false"
                 className="w-full px-4 py-2 border border-[var(--border)] rounded-lg bg-[var(--bg-default)] text-[var(--text-primary)]"
               >
                 <option value="routine">Rutina</option>
@@ -408,14 +418,17 @@ export default function AdmissionForm({ onSuccess, onCancel }: AdmissionFormProp
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
+              <label htmlFor="diagnosis" className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
                 Diagnóstico de Admisión *
               </label>
               <textarea
+                id="diagnosis"
                 required
                 rows={3}
                 value={formData.admission_diagnosis}
                 onChange={(e) => setFormData({ ...formData, admission_diagnosis: e.target.value })}
+                aria-invalid={formError ? "true" : "false"}
+                aria-describedby={formError ? "form-error" : undefined}
                 className="w-full px-4 py-2 border border-[var(--border)] rounded-lg bg-[var(--bg-default)] text-[var(--text-primary)]"
                 placeholder="Ingrese el diagnóstico o razón de admisión..."
               />
@@ -449,39 +462,45 @@ export default function AdmissionForm({ onSuccess, onCancel }: AdmissionFormProp
             </h3>
 
             <div>
-              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
+              <label htmlFor="treatment-plan" className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
                 Plan de Tratamiento
               </label>
               <textarea
+                id="treatment-plan"
                 rows={4}
                 value={formData.treatment_plan}
                 onChange={(e) => setFormData({ ...formData, treatment_plan: e.target.value })}
+                aria-invalid="false"
                 className="w-full px-4 py-2 border border-[var(--border)] rounded-lg bg-[var(--bg-default)] text-[var(--text-primary)]"
                 placeholder="Describa el plan de tratamiento..."
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
+              <label htmlFor="diet-instructions" className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
                 Instrucciones de Dieta
               </label>
               <textarea
+                id="diet-instructions"
                 rows={3}
                 value={formData.diet_instructions}
                 onChange={(e) => setFormData({ ...formData, diet_instructions: e.target.value })}
+                aria-invalid="false"
                 className="w-full px-4 py-2 border border-[var(--border)] rounded-lg bg-[var(--bg-default)] text-[var(--text-primary)]"
                 placeholder="Instrucciones de alimentación..."
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
+              <label htmlFor="discharge-date" className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
                 Fecha Estimada de Alta
               </label>
               <input
+                id="discharge-date"
                 type="date"
                 value={formData.estimated_discharge_date}
                 onChange={(e) => setFormData({ ...formData, estimated_discharge_date: e.target.value })}
+                aria-invalid="false"
                 className="w-full px-4 py-2 border border-[var(--border)] rounded-lg bg-[var(--bg-default)] text-[var(--text-primary)]"
               />
             </div>
@@ -493,25 +512,29 @@ export default function AdmissionForm({ onSuccess, onCancel }: AdmissionFormProp
 
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
+                  <label htmlFor="emergency-name" className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
                     Nombre
                   </label>
                   <input
+                    id="emergency-name"
                     type="text"
                     value={formData.emergency_contact_name}
                     onChange={(e) => setFormData({ ...formData, emergency_contact_name: e.target.value })}
+                    aria-invalid="false"
                     className="w-full px-4 py-2 border border-[var(--border)] rounded-lg bg-[var(--bg-default)] text-[var(--text-primary)]"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
+                  <label htmlFor="emergency-phone" className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
                     Teléfono
                   </label>
                   <input
+                    id="emergency-phone"
                     type="tel"
                     value={formData.emergency_contact_phone}
                     onChange={(e) => setFormData({ ...formData, emergency_contact_phone: e.target.value })}
+                    aria-invalid="false"
                     className="w-full px-4 py-2 border border-[var(--border)] rounded-lg bg-[var(--bg-default)] text-[var(--text-primary)]"
                   />
                 </div>

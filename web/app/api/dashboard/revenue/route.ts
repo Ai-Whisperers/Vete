@@ -72,7 +72,7 @@ export async function GET(request: Request) {
         return acc;
       }, {});
 
-      const result = Object.entries(grouped || {}).map(([month, data]) => ({
+      const result = Object.entries(grouped || {}).map(([month, data]: [string, MonthlyRevenue]) => ({
         period_month: month,
         total_revenue: data.total,
         transaction_count: data.count,

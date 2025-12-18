@@ -15,6 +15,7 @@ import { StatsCards } from "@/components/dashboard/stats-cards";
 import { TodayScheduleWidget } from "@/components/dashboard/today-schedule-widget";
 import { UpcomingVaccines } from "@/components/dashboard/upcoming-vaccines";
 import { LostFoundWidget } from "@/components/safety/lost-found-widget";
+import { WaitingRoom } from "@/components/dashboard/waiting-room";
 
 interface Props {
   params: Promise<{ clinic: string }>;
@@ -162,8 +163,12 @@ export default async function ClinicalDashboardPage({ params }: Props): Promise<
 
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column - Today's Schedule */}
+        {/* Left Column - Waiting Room & Schedule */}
         <div className="lg:col-span-2 space-y-6">
+          {/* Waiting Room - Interactive Queue */}
+          <WaitingRoom clinic={clinic} />
+
+          {/* Today's Full Schedule */}
           <TodayScheduleWidget appointments={todayAppointments} clinic={clinic} />
 
           {/* Admin-only: Quick Financial Overview */}

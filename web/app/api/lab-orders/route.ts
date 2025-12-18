@@ -70,6 +70,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
   }
 
+  // Apply rate limiting for write endpoints (20 requests per minute)
+  const { rateLimit } = await import('@/lib/rate-limit');
+  const rateLimitResult = await rateLimit(request, 'write', user.id);
+  if (!rateLimitResult.success) {
+    return rateLimitResult.response;
+  }
+
   // Get user profile - only vets/admins can create orders
   const { data: profile } = await supabase
     .from('profiles')

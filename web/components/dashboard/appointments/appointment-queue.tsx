@@ -163,9 +163,9 @@ export function AppointmentQueue({ appointments, clinic }: AppointmentQueueProps
           <div className="flex items-center gap-2 mb-3">
             <div className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" aria-hidden="true" />
             <h2 id="in-progress-heading" className="font-bold text-[var(--text-primary)]">En Consulta</h2>
-            <span className="text-sm text-[var(--text-secondary)]" aria-label={`${inProgress.length} citas en consulta`}>({inProgress.length})</span>
+            <span className="text-sm text-[var(--text-secondary)]">({inProgress.length})</span>
           </div>
-          <div className="space-y-3" role="list">
+          <div className="space-y-3" role="list" aria-label={`${inProgress.length} ${inProgress.length === 1 ? 'cita' : 'citas'} en consulta`}>
             {inProgress.map(apt => (
               <AppointmentRow key={apt.id} appointment={apt} clinic={clinic} highlight="purple" />
             ))}
@@ -180,12 +180,12 @@ export function AppointmentQueue({ appointments, clinic }: AppointmentQueueProps
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-yellow-500" aria-hidden="true" />
               <h2 id="checked-in-heading" className="font-bold text-[var(--text-primary)]">Cola de Espera</h2>
-              <span className="text-sm text-[var(--text-secondary)]" aria-label={`${checkedIn.length} citas en espera`}>({checkedIn.length})</span>
+              <span className="text-sm text-[var(--text-secondary)]">({checkedIn.length})</span>
             </div>
             {waitStats && (
               <div className="flex items-center gap-3 text-xs ml-0 sm:ml-auto">
                 <span className="text-[var(--text-secondary)] flex items-center gap-1">
-                  <Icons.BarChart3 className="w-3 h-3" />
+                  <Icons.BarChart3 className="w-3 h-3" aria-hidden="true" />
                   Prom: <span className="font-bold text-[var(--text-primary)]">{formatWaitingTime(waitStats.avg)}</span>
                 </span>
                 {waitStats.max >= 20 && (
@@ -193,14 +193,14 @@ export function AppointmentQueue({ appointments, clinic }: AppointmentQueueProps
                     'flex items-center gap-1',
                     waitStats.max >= 45 ? 'text-red-600' : 'text-yellow-600'
                   )}>
-                    <Icons.AlertTriangle className="w-3 h-3" />
+                    <Icons.AlertTriangle className="w-3 h-3" aria-hidden="true" />
                     Máx: <span className="font-bold">{formatWaitingTime(waitStats.max)}</span>
                   </span>
                 )}
               </div>
             )}
           </div>
-          <div className="space-y-3" role="list">
+          <div className="space-y-3" role="list" aria-label={`${checkedIn.length} ${checkedIn.length === 1 ? 'cita' : 'citas'} en espera`}>
             {checkedIn.map((apt, index) => (
               <AppointmentRow
                 key={apt.id}
@@ -221,9 +221,9 @@ export function AppointmentQueue({ appointments, clinic }: AppointmentQueueProps
           <div className="flex items-center gap-2 mb-3">
             <div className="w-2 h-2 rounded-full bg-blue-500" aria-hidden="true" />
             <h2 id="waiting-heading" className="font-bold text-[var(--text-primary)]">Próximas Citas</h2>
-            <span className="text-sm text-[var(--text-secondary)]" aria-label={`${waiting.length} citas próximas`}>({waiting.length})</span>
+            <span className="text-sm text-[var(--text-secondary)]">({waiting.length})</span>
           </div>
-          <div className="space-y-3" role="list">
+          <div className="space-y-3" role="list" aria-label={`${waiting.length} ${waiting.length === 1 ? 'cita' : 'citas'} próximas`}>
             {waiting.map(apt => (
               <AppointmentRow key={apt.id} appointment={apt} clinic={clinic} />
             ))}
@@ -237,9 +237,9 @@ export function AppointmentQueue({ appointments, clinic }: AppointmentQueueProps
           <div className="flex items-center gap-2 mb-3">
             <div className="w-2 h-2 rounded-full bg-gray-400" aria-hidden="true" />
             <h2 id="completed-heading" className="font-bold text-[var(--text-primary)]">Finalizadas</h2>
-            <span className="text-sm text-[var(--text-secondary)]" aria-label={`${completed.length} citas finalizadas`}>({completed.length})</span>
+            <span className="text-sm text-[var(--text-secondary)]">({completed.length})</span>
           </div>
-          <div className="space-y-3" role="list">
+          <div className="space-y-3" role="list" aria-label={`${completed.length} ${completed.length === 1 ? 'cita' : 'citas'} finalizadas`}>
             {completed.map(apt => (
               <AppointmentRow key={apt.id} appointment={apt} clinic={clinic} faded />
             ))}

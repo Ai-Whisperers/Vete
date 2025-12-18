@@ -3,7 +3,7 @@ import Link from 'next/link'
 import * as Icons from 'lucide-react'
 import { redirect } from 'next/navigation'
 import { removeInvite } from '@/app/actions/invite-staff'
-import { InviteStaffForm } from '../../portal/team/invite-form'
+import { InviteStaffForm } from '@/components/team/invite-staff-form'
 
 interface Props {
   params: Promise<{ clinic: string }>

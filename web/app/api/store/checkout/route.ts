@@ -4,6 +4,9 @@ import { createClient } from '@/lib/supabase/server';
 // TICKET-BIZ-003: Checkout API that validates stock and decrements inventory
 // TICKET-BIZ-004: Server-side stock validation
 // Uses atomic process_checkout function for consistency
+//
+// CRITICAL: process_checkout function updated in migration 100_fix_checkout_product_lookup.sql
+// to lookup products by UUID ID (not SKU) since cart sends product.id
 
 interface CartItem {
   id: string;
@@ -33,6 +36,13 @@ export async function POST(request: Request) {
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+  }
+
+  // Apply rate limiting for write endpoints (20 requests per minute)
+  const { rateLimit } = await import('@/lib/rate-limit');
+  const rateLimitResult = await rateLimit(request as any, 'write', user.id);
+  if (!rateLimitResult.success) {
+    return rateLimitResult.response;
   }
 
   // 2. Get user profile

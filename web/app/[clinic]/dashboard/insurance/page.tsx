@@ -271,13 +271,13 @@ export default function InsuranceDashboardPage() {
         </div>
 
         {/* Claims List */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-          <div className="p-4 border-b border-gray-200">
+        <div>
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-4">
             <h2 className="text-lg font-semibold text-[var(--text-primary)]">Reclamos</h2>
           </div>
 
           {claims.length === 0 ? (
-            <div className="p-8 text-center">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
               <FileText className="w-12 h-12 text-gray-300 mx-auto mb-3" />
               <p className="text-[var(--text-secondary)]">No se encontraron reclamos</p>
               <Link
@@ -289,97 +289,152 @@ export default function InsuranceDashboardPage() {
               </Link>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase">
-                      Número
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase">
-                      Mascota
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase">
-                      Aseguradora
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase">
-                      Diagnóstico
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase">
-                      Fecha Servicio
-                    </th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-[var(--text-secondary)] uppercase">
-                      Reclamado
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase">
-                      Estado
-                    </th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-[var(--text-secondary)] uppercase">
-                      Acciones
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {claims.map((claim) => (
-                    <tr key={claim.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-3">
-                        <Link
-                          href={`./insurance/claims/${claim.id}`}
-                          className="font-medium text-[var(--primary)] hover:underline"
-                        >
-                          {claim.claim_number}
-                        </Link>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div>
-                          <p className="font-medium text-[var(--text-primary)]">{claim.pets.name}</p>
-                          <p className="text-xs text-[var(--text-secondary)]">{claim.pets.species}</p>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <p className="text-sm text-[var(--text-primary)]">
+            <>
+              {/* Mobile Cards */}
+              <div className="md:hidden space-y-3">
+                {claims.map((claim) => (
+                  <Link
+                    key={claim.id}
+                    href={`./insurance/claims/${claim.id}`}
+                    className="block bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:border-[var(--primary)] transition-colors"
+                  >
+                    <div className="flex items-start justify-between gap-3 mb-3">
+                      <div>
+                        <p className="font-medium text-[var(--primary)]">{claim.claim_number}</p>
+                        <p className="text-sm text-[var(--text-primary)]">{claim.pets.name}</p>
+                      </div>
+                      <ClaimStatusBadge status={claim.status} />
+                    </div>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-[var(--text-secondary)]">Aseguradora</span>
+                        <span className="text-[var(--text-primary)]">
                           {claim.pet_insurance_policies.insurance_providers.name}
-                        </p>
-                        <p className="text-xs text-[var(--text-secondary)]">
-                          {claim.pet_insurance_policies.policy_number}
-                        </p>
-                      </td>
-                      <td className="px-4 py-3">
-                        <p className="text-sm text-[var(--text-primary)] max-w-xs truncate">
-                          {claim.diagnosis}
-                        </p>
-                      </td>
-                      <td className="px-4 py-3">
-                        <p className="text-sm text-[var(--text-primary)]">
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-[var(--text-secondary)]">Fecha</span>
+                        <span className="text-[var(--text-primary)]">
                           {new Date(claim.date_of_service).toLocaleDateString('es-PY')}
-                        </p>
-                      </td>
-                      <td className="px-4 py-3 text-right">
-                        <p className="text-sm font-medium text-[var(--text-primary)]">
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-[var(--text-secondary)]">Reclamado</span>
+                        <span className="font-medium text-[var(--text-primary)]">
                           Gs. {claim.claimed_amount.toLocaleString('es-PY')}
-                        </p>
-                        {claim.approved_amount && (
-                          <p className="text-xs text-green-600">
-                            Aprobado: Gs. {claim.approved_amount.toLocaleString('es-PY')}
-                          </p>
-                        )}
-                      </td>
-                      <td className="px-4 py-3">
-                        <ClaimStatusBadge status={claim.status} />
-                      </td>
-                      <td className="px-4 py-3 text-right">
-                        <Link
-                          href={`./insurance/claims/${claim.id}`}
-                          className="text-sm text-[var(--primary)] hover:underline"
-                        >
-                          Ver Detalles
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                        </span>
+                      </div>
+                      {claim.approved_amount && (
+                        <div className="flex justify-between">
+                          <span className="text-[var(--text-secondary)]">Aprobado</span>
+                          <span className="font-medium text-green-600">
+                            Gs. {claim.approved_amount.toLocaleString('es-PY')}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    <p className="text-xs text-[var(--text-secondary)] mt-3 truncate">
+                      {claim.diagnosis}
+                    </p>
+                  </Link>
+                ))}
+              </div>
+
+              {/* Desktop Table */}
+              <div className="hidden md:block bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase">
+                          Numero
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase">
+                          Mascota
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase">
+                          Aseguradora
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase">
+                          Diagnostico
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase">
+                          Fecha Servicio
+                        </th>
+                        <th className="px-4 py-3 text-right text-xs font-medium text-[var(--text-secondary)] uppercase">
+                          Reclamado
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase">
+                          Estado
+                        </th>
+                        <th className="px-4 py-3 text-right text-xs font-medium text-[var(--text-secondary)] uppercase">
+                          Acciones
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                      {claims.map((claim) => (
+                        <tr key={claim.id} className="hover:bg-gray-50">
+                          <td className="px-4 py-3">
+                            <Link
+                              href={`./insurance/claims/${claim.id}`}
+                              className="font-medium text-[var(--primary)] hover:underline"
+                            >
+                              {claim.claim_number}
+                            </Link>
+                          </td>
+                          <td className="px-4 py-3">
+                            <div>
+                              <p className="font-medium text-[var(--text-primary)]">{claim.pets.name}</p>
+                              <p className="text-xs text-[var(--text-secondary)]">{claim.pets.species}</p>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3">
+                            <p className="text-sm text-[var(--text-primary)]">
+                              {claim.pet_insurance_policies.insurance_providers.name}
+                            </p>
+                            <p className="text-xs text-[var(--text-secondary)]">
+                              {claim.pet_insurance_policies.policy_number}
+                            </p>
+                          </td>
+                          <td className="px-4 py-3">
+                            <p className="text-sm text-[var(--text-primary)] max-w-xs truncate">
+                              {claim.diagnosis}
+                            </p>
+                          </td>
+                          <td className="px-4 py-3">
+                            <p className="text-sm text-[var(--text-primary)]">
+                              {new Date(claim.date_of_service).toLocaleDateString('es-PY')}
+                            </p>
+                          </td>
+                          <td className="px-4 py-3 text-right">
+                            <p className="text-sm font-medium text-[var(--text-primary)]">
+                              Gs. {claim.claimed_amount.toLocaleString('es-PY')}
+                            </p>
+                            {claim.approved_amount && (
+                              <p className="text-xs text-green-600">
+                                Aprobado: Gs. {claim.approved_amount.toLocaleString('es-PY')}
+                              </p>
+                            )}
+                          </td>
+                          <td className="px-4 py-3">
+                            <ClaimStatusBadge status={claim.status} />
+                          </td>
+                          <td className="px-4 py-3 text-right">
+                            <Link
+                              href={`./insurance/claims/${claim.id}`}
+                              className="text-sm text-[var(--primary)] hover:underline"
+                            >
+                              Ver Detalles
+                            </Link>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </>
           )}
         </div>
       </div>

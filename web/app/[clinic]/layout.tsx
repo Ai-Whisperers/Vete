@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { ClinicThemeProvider } from '@/components/clinic-theme-provider';
 import { Metadata } from 'next';
 import Link from 'next/link';
+import Image from 'next/image';
 import { MainNav } from '@/components/layout/main-nav';
 import { ToastProvider } from '@/components/ui/Toast';
 import { CartProvider } from '@/context/cart-context';
@@ -13,18 +14,155 @@ import { createClient } from '@/lib/supabase/server';
 import { Facebook, Instagram, Youtube, MapPin, Phone, Mail, Clock, MessageCircle } from 'lucide-react';
 import { FooterLogo } from '@/components/layout/footer-logo';
 
-// Generate metadata dynamically
+const BASE_URL = 'https://vetepy.vercel.app';
+
+// Generate metadata dynamically with full SEO support
 export async function generateMetadata({ params }: { params: Promise<{ clinic: string }> }): Promise<Metadata> {
   const { clinic } = await params;
   const data = await getClinicData(clinic);
   if (!data) return { title: 'Clinic Not Found' };
 
+  const { config, home } = data;
+  const seo = home?.seo;
+  const title = seo?.meta_title || config.name;
+  const description = seo?.meta_description || `Bienvenido a ${config.name}`;
+  const ogImage = config.branding?.og_image_url || '/branding/default-og.jpg';
+  const canonicalUrl = `${BASE_URL}/${clinic}`;
+
   return {
-    title: data.home.seo?.meta_title || data.config.name,
-    description: data.home.seo?.meta_description || `Welcome to ${data.config.name}`,
+    title,
+    description,
+    keywords: seo?.keywords?.join(', '),
+    authors: [{ name: config.name }],
+    creator: config.name,
+    publisher: config.name,
     icons: {
-      icon: data.config.branding?.favicon_url || '/favicon.ico',
-    }
+      icon: config.branding?.favicon_url || '/favicon.ico',
+      apple: config.branding?.apple_touch_icon || '/apple-touch-icon.png',
+    },
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      type: 'website',
+      locale: seo?.og_locale || 'es_PY',
+      url: canonicalUrl,
+      title,
+      description,
+      siteName: config.name,
+      images: [
+        {
+          url: ogImage.startsWith('/') ? `${BASE_URL}${ogImage}` : ogImage,
+          width: 1200,
+          height: 630,
+          alt: `${config.name} - ${config.tagline}`,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [ogImage.startsWith('/') ? `${BASE_URL}${ogImage}` : ogImage],
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
+    },
+  };
+}
+
+// Generate LocalBusiness/VeterinaryCare structured data
+function generateStructuredData(clinic: string, config: {
+  name: string;
+  tagline: string;
+  contact: {
+    phone_display: string;
+    whatsapp_number: string;
+    email: string;
+    address: string;
+    city?: string;
+    country?: string;
+    coordinates?: { lat: number; lng: number };
+    google_maps_id?: string;
+  };
+  hours: { weekdays: string; saturday: string; sunday?: string };
+  branding?: { logo_url?: string; og_image_url?: string };
+  social?: { facebook?: string; instagram?: string };
+}) {
+  const { contact, hours, branding, social } = config;
+
+  // Parse opening hours for schema
+  const openingHours = [];
+  if (hours.weekdays) {
+    const [open, close] = hours.weekdays.split(' - ');
+    openingHours.push({
+      '@type': 'OpeningHoursSpecification',
+      dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+      opens: open,
+      closes: close,
+    });
+  }
+  if (hours.saturday) {
+    const [open, close] = hours.saturday.split(' - ');
+    openingHours.push({
+      '@type': 'OpeningHoursSpecification',
+      dayOfWeek: 'Saturday',
+      opens: open,
+      closes: close,
+    });
+  }
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'VeterinaryCare',
+    '@id': `${BASE_URL}/${clinic}#organization`,
+    name: config.name,
+    description: config.tagline,
+    url: `${BASE_URL}/${clinic}`,
+    telephone: contact.phone_display,
+    email: contact.email,
+    image: branding?.og_image_url ? `${BASE_URL}${branding.og_image_url}` : undefined,
+    logo: branding?.logo_url ? `${BASE_URL}${branding.logo_url}` : undefined,
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: contact.address,
+      addressLocality: contact.city || 'Asunción',
+      addressCountry: contact.country || 'PY',
+    },
+    geo: contact.coordinates ? {
+      '@type': 'GeoCoordinates',
+      latitude: contact.coordinates.lat,
+      longitude: contact.coordinates.lng,
+    } : undefined,
+    openingHoursSpecification: openingHours,
+    sameAs: [
+      social?.facebook,
+      social?.instagram,
+    ].filter(Boolean),
+    hasMap: contact.google_maps_id
+      ? `https://www.google.com/maps/place/?q=place_id:${contact.google_maps_id}`
+      : undefined,
+    priceRange: '$$',
+    currenciesAccepted: 'PYG',
+    paymentAccepted: 'Cash, Credit Card, Debit Card',
+    areaServed: {
+      '@type': 'City',
+      name: contact.city || 'Asunción',
+    },
+    medicalSpecialty: [
+      'Veterinary Medicine',
+      'Emergency Medicine',
+      'Surgery',
+      'Diagnostic Imaging',
+    ],
   };
 }
 
@@ -54,12 +192,21 @@ export default async function ClinicLayout({
   const { data: { user } } = await supabase.auth.getUser();
   const isLoggedIn = !!user;
 
+  // Generate structured data for SEO
+  const structuredData = generateStructuredData(clinic, config);
+
   return (
     <ToastProvider>
       <CartProvider>
         <CommandPaletteProvider>
           <div className="min-h-screen font-sans bg-[var(--bg-default)] text-[var(--text-main)] font-body flex flex-col">
             <ClinicThemeProvider theme={data.theme} />
+
+          {/* JSON-LD Structured Data for SEO */}
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+          />
 
           {/* Skip Link for Accessibility */}
           <a href="#main-content" className="skip-link">
@@ -74,14 +221,13 @@ export default async function ClinicLayout({
                 className="flex items-center gap-3 font-heading font-black text-2xl uppercase tracking-widest text-[var(--primary)] hover:opacity-80 transition-opacity"
               >
                 {config.branding?.logo_url ? (
-                  <img
+                  <Image
                     src={config.branding.logo_url}
                     alt={`${config.name} Logo`}
+                    width={config.branding.logo_width || 150}
+                    height={config.branding.logo_height || 56}
                     className="object-contain"
-                    style={{
-                      width: config.branding.logo_width || 'auto',
-                      height: 56
-                    }}
+                    priority
                   />
                 ) : (
                   <span>{config.name}</span>

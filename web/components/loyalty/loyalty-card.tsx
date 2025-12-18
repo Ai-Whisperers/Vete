@@ -7,6 +7,11 @@ import { Gift, Star } from 'lucide-react';
 interface ClinicConfig {
     config?: {
         name?: string;
+        ui_labels?: {
+            portal?: {
+                loyalty_points?: string;
+            };
+        };
     };
 }
 
@@ -14,9 +19,15 @@ interface LoyaltyCardProps {
     petId: string;
     petName: string;
     clinicConfig: ClinicConfig;
+    labels?: {
+        pointsTitle?: string;
+        pointsAbbr?: string;
+        nextReward?: string;
+        rewardAvailable?: string;
+    };
 }
 
-export function LoyaltyCard({ petId, petName, clinicConfig }: LoyaltyCardProps) {
+export function LoyaltyCard({ petId, petName, clinicConfig, labels = {} }: LoyaltyCardProps) {
     const [balance, setBalance] = useState<number | null>(null);
     const [loading, setLoading] = useState(true);
 
@@ -44,13 +55,21 @@ export function LoyaltyCard({ petId, petName, clinicConfig }: LoyaltyCardProps) 
     const nextReward = 500;
     const progress = Math.min(100, Math.max(0, ((balance || 0) / nextReward) * 100));
 
+    // Get labels with fallbacks
+    const pointsTitle = labels.pointsTitle ||
+                       clinicConfig.config?.ui_labels?.portal?.loyalty_points ||
+                       `Puntos ${clinicConfig.config?.name || 'Veterinaria'}`;
+    const pointsAbbr = labels.pointsAbbr || 'pts';
+    const nextRewardText = labels.nextReward || 'Próximo premio';
+    const rewardAvailableText = labels.rewardAvailable || '¡Puedes un canje disponible!';
+
     return (
         <div className="bg-gradient-to-br from-purple-600 to-indigo-600 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
             <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
-            
+
             <div className="flex justify-between items-start mb-4 relative z-10">
                 <div>
-                    <h3 className="font-bold text-lg text-purple-100">Puntos {clinicConfig.config?.name || 'Veterinaria'}</h3>
+                    <h3 className="font-bold text-lg text-purple-100">{pointsTitle}</h3>
                     <p className="text-sm text-purple-200">{petName}</p>
                 </div>
                 <div className="bg-white/20 p-2 rounded-lg backdrop-blur-sm">
@@ -60,16 +79,16 @@ export function LoyaltyCard({ petId, petName, clinicConfig }: LoyaltyCardProps) 
 
             <div className="mb-4 relative z-10">
                 <span className="text-4xl font-black">{balance || 0}</span>
-                <span className="text-purple-200 ml-2 text-sm">pts</span>
+                <span className="text-purple-200 ml-2 text-sm">{pointsAbbr}</span>
             </div>
 
             <div className="relative z-10">
                 <div className="flex justify-between text-xs text-purple-200 mb-1">
-                    <span>Próximo premio</span>
-                    <span>{nextReward} pts</span>
+                    <span>{nextRewardText}</span>
+                    <span>{nextReward} {pointsAbbr}</span>
                 </div>
                 <div className="w-full bg-black/20 rounded-full h-2 overflow-hidden">
-                    <div 
+                    <div
                         className="bg-gradient-to-r from-yellow-300 to-yellow-500 h-full rounded-full transition-all duration-1000 ease-out"
                         style={{ width: `${progress}%` }}
                     ></div>
@@ -77,7 +96,7 @@ export function LoyaltyCard({ petId, petName, clinicConfig }: LoyaltyCardProps) 
                 {balance !== null && balance >= nextReward && (
                     <div className="mt-3 bg-white/20 rounded-lg p-2 text-xs flex items-center gap-2 animate-bounce">
                         <Gift className="w-4 h-4" />
-                        <span>¡Puedes un canje disponible!</span>
+                        <span>{rewardAvailableText}</span>
                     </div>
                 )}
             </div>

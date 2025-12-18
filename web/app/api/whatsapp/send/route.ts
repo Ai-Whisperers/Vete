@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { sendWhatsAppMessage } from '@/lib/whatsapp/client'
 import { formatParaguayPhone } from '@/lib/types/whatsapp'
+import { rateLimit } from '@/lib/rate-limit'
 import { z } from 'zod'
 
 const sendMessageSchema = z.object({
@@ -21,6 +22,12 @@ export async function POST(request: NextRequest) {
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+    }
+
+    // Apply rate limiting for write endpoints (20 requests per minute)
+    const rateLimitResult = await rateLimit(request, 'write', user.id);
+    if (!rateLimitResult.success) {
+      return rateLimitResult.response;
     }
 
     // Staff check

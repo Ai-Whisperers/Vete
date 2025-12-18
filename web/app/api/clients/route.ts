@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
+import { rateLimit } from "@/lib/rate-limit";
 
 interface Client {
   id: string;
@@ -30,6 +31,12 @@ export async function GET(request: NextRequest): Promise<NextResponse<ClientsRes
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  }
+
+  // Apply rate limiting for search endpoints (30 requests per minute)
+  const rateLimitResult = await rateLimit(request, 'search', user.id);
+  if (!rateLimitResult.success) {
+    return rateLimitResult.response as NextResponse<{ error: string }>;
   }
 
   // 2. Get user profile to check role and tenant

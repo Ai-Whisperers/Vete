@@ -181,8 +181,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       if (!emailResult.success) {
         console.error('[Consent Request] Failed to send email:', emailResult.error);
         // Don't fail the whole operation if email fails
-      } else {
-        console.log('[Consent Request] Email sent successfully to:', recipient_email || owner.email);
       }
     } catch (emailError) {
       console.error('[Consent Request] Exception sending email:', emailError);
@@ -190,7 +188,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
   } else if (delivery_method === 'sms') {
     // SMS sending would be implemented here
-    console.log(`[Consent Request] SMS delivery not implemented. Link: ${signingLink}`);
+    // TODO: Implement SMS delivery
   }
 
   return NextResponse.json({

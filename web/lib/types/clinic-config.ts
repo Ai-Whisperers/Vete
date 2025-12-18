@@ -784,21 +784,25 @@ export interface ClinicImage {
   height: number;
 }
 
+export interface ImageCategory {
+  [key: string]: ClinicImage;
+}
+
 export interface ClinicImages {
   version: string;
   basePath: string;
   images: {
-    hero?: Record<string, ClinicImage>;
-    team?: Record<string, ClinicImage>;
-    facilities?: Record<string, ClinicImage>;
-    services?: Record<string, ClinicImage>;
-    features?: Record<string, ClinicImage>;
-    store?: Record<string, ClinicImage>;
-    tools?: Record<string, ClinicImage>;
-    patterns?: Record<string, ClinicImage>;
-    branding?: Record<string, ClinicImage>;
-    brands?: Record<string, ClinicImage>;
-    [category: string]: Record<string, ClinicImage> | string | undefined;
+    hero?: ImageCategory;
+    team?: ImageCategory;
+    facilities?: ImageCategory;
+    services?: ImageCategory;
+    features?: ImageCategory;
+    store?: ImageCategory;
+    tools?: ImageCategory;
+    patterns?: ImageCategory;
+    branding?: ImageCategory;
+    brands?: ImageCategory;
+    [category: string]: ImageCategory | undefined;
   };
   placeholders?: {
     pet?: string;

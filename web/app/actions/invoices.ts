@@ -550,8 +550,6 @@ export async function sendInvoice(
         if (!result.success) {
           console.error('Failed to send invoice email:', result.error)
           // Don't fail the whole operation if email fails
-        } else {
-          console.log('Invoice email sent successfully to:', owner.email)
         }
       } catch (emailError) {
         console.error('Exception sending invoice email:', emailError)

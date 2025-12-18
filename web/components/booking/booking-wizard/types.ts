@@ -50,6 +50,41 @@ export interface ClinicConfig {
     config: {
         id: string;
         name: string;
+        ui_labels?: {
+            booking?: {
+                title?: string;
+                select_service?: string;
+                select_date?: string;
+                select_time?: string;
+                select_pet?: string;
+                your_info?: string;
+                confirm_btn?: string;
+                success_title?: string;
+                success_message?: string;
+                available_slots?: string;
+                no_slots?: string;
+            };
+            common?: {
+                loading?: string;
+                error?: string;
+                retry?: string;
+                actions?: {
+                    save?: string;
+                    cancel?: string;
+                    edit?: string;
+                    delete?: string;
+                    confirm?: string;
+                    close?: string;
+                    back?: string;
+                    next?: string;
+                    submit?: string;
+                    search?: string;
+                    filter?: string;
+                    clear?: string;
+                    download?: string;
+                };
+            };
+        };
     };
     services?: ServiceFromJSON[] | {
         hero?: any;

@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
+import { rateLimit } from "@/lib/rate-limit";
 
 interface SearchResult {
   id: string;
@@ -30,6 +31,12 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  }
+
+  // Apply rate limiting for search endpoints (30 requests per minute)
+  const rateLimitResult = await rateLimit(request, 'search', user.id);
+  if (!rateLimitResult.success) {
+    return rateLimitResult.response;
   }
 
   // Get user profile to verify tenant access

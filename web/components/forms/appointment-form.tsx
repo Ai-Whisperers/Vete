@@ -66,7 +66,7 @@ export function AppointmentForm() {
         {/* Name Field */}
         <div>
           <label htmlFor="name-field" className="block text-sm font-bold text-[var(--text-primary)] mb-2">
-            Tu Nombre
+            Tu Nombre <span className="text-red-600" aria-label="requerido">*</span>
           </label>
           <div className="relative">
             <div className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-lg bg-[var(--bg-subtle)] flex items-center justify-center">
@@ -94,7 +94,7 @@ export function AppointmentForm() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label htmlFor="phone-field" className="block text-sm font-bold text-[var(--text-primary)] mb-2">
-              Teléfono
+              Teléfono <span className="text-red-600" aria-label="requerido">*</span>
             </label>
             <div className="relative">
               <div className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-lg bg-[var(--bg-subtle)] flex items-center justify-center">
@@ -107,13 +107,15 @@ export function AppointmentForm() {
                 required
                 placeholder="0981..."
                 aria-invalid="false"
+                aria-describedby="phone-help"
                 className="w-full pl-16 pr-4 py-3.5 rounded-xl border border-gray-200 bg-white focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none transition-all text-[var(--text-primary)] placeholder:text-gray-400"
               />
             </div>
+            <p id="phone-help" className="sr-only">Ingrese su número de teléfono para contacto</p>
           </div>
           <div>
             <label htmlFor="pet-field" className="block text-sm font-bold text-[var(--text-primary)] mb-2">
-              Mascota
+              Mascota <span className="text-red-600" aria-label="requerido">*</span>
             </label>
             <div className="relative">
               <div className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-lg bg-[var(--bg-subtle)] flex items-center justify-center">
@@ -126,16 +128,18 @@ export function AppointmentForm() {
                 required
                 placeholder="Ej: Firulais"
                 aria-invalid="false"
+                aria-describedby="pet-help"
                 className="w-full pl-16 pr-4 py-3.5 rounded-xl border border-gray-200 bg-white focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none transition-all text-[var(--text-primary)] placeholder:text-gray-400"
               />
             </div>
+            <p id="pet-help" className="sr-only">Nombre de la mascota</p>
           </div>
         </div>
 
         {/* Reason Field */}
         <div>
           <label htmlFor="reason-field" className="block text-sm font-bold text-[var(--text-primary)] mb-2">
-            Motivo de la Consulta
+            Motivo de la Consulta <span className="text-red-600" aria-label="requerido">*</span>
           </label>
           <div className="relative">
             <div className="absolute left-4 top-4 w-10 h-10 rounded-lg bg-[var(--bg-subtle)] flex items-center justify-center">
@@ -148,9 +152,11 @@ export function AppointmentForm() {
               placeholder="Ej: Vacunación anual y corte de uñas..."
               rows={3}
               aria-invalid="false"
+              aria-describedby="reason-help"
               className="w-full pl-16 pr-4 py-3.5 rounded-xl border border-gray-200 bg-white focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none transition-all resize-none text-[var(--text-primary)] placeholder:text-gray-400"
             />
           </div>
+          <p id="reason-help" className="sr-only">Describa el motivo de la consulta veterinaria</p>
         </div>
 
         <SubmitButton />

@@ -49,7 +49,7 @@
       "booking": true,
       "telemedicine": true
     },
-    "inventory_template_google_sheet_url": "https://docs.google.com/spreadsheets/d/YOUR_TEMPLATE_ID/copy"
+    "inventory_template_google_sheet_url": "https://docs.google.com/spreadsheets/d/15hPrnWt0VcLAJkC2s2l-g5PLbM4Fe8e6KAsaSZUF6uk/copy"
   },
   "branding": {
     "logo_url": "/branding/adris/images/logo.png",

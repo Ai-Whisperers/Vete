@@ -67,11 +67,13 @@ export function EditPetForm({ pet, clinic }: Props): React.ReactElement {
       const result = await updatePet(pet.id, formData)
 
       if (!result.success) {
-        // Distinguish between photo upload errors and general errors
-        if (result.error.includes('foto') || result.error.includes('subir')) {
+        // ERR-001: Distinguish between photo upload errors and general errors
+        // Photo upload errors contain "foto" or "subir" keywords
+        if (result.error && (result.error.includes('foto') || result.error.includes('subir'))) {
           setPhotoError(result.error)
+          // Don't proceed with navigation if photo upload failed
         } else {
-          setError(result.error)
+          setError(result.error || 'Error al guardar los cambios')
         }
       } else {
         router.push(`/${clinic}/portal/pets/${pet.id}`)
@@ -103,27 +105,33 @@ export function EditPetForm({ pet, clinic }: Props): React.ReactElement {
           )}
         </div>
 
+        {/* TICKET-FORM-005: Added aria-invalid to form inputs */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-bold text-[var(--text-secondary)] mb-1">
+            <label htmlFor="pet-name" className="block text-sm font-bold text-[var(--text-secondary)] mb-1">
               Nombre
             </label>
             <input
+              id="pet-name"
               name="name"
               required
               type="text"
               defaultValue={pet.name}
               placeholder="Ej: Firulais"
+              aria-invalid={error ? "true" : "false"}
+              aria-describedby={error ? "pet-error" : undefined}
               className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[var(--primary)] outline-none"
             />
           </div>
           <div>
-            <label className="block text-sm font-bold text-[var(--text-secondary)] mb-1">
+            <label htmlFor="pet-species" className="block text-sm font-bold text-[var(--text-secondary)] mb-1">
               Especie
             </label>
             <select
+              id="pet-species"
               name="species"
               defaultValue={pet.species}
+              aria-invalid="false"
               className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[var(--primary)] outline-none bg-white"
             >
               <option value="dog">Perro</option>
@@ -134,27 +142,31 @@ export function EditPetForm({ pet, clinic }: Props): React.ReactElement {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-bold text-[var(--text-secondary)] mb-1">
+            <label htmlFor="pet-breed" className="block text-sm font-bold text-[var(--text-secondary)] mb-1">
               Raza
             </label>
             <input
+              id="pet-breed"
               name="breed"
               type="text"
               defaultValue={pet.breed || ''}
               placeholder="Ej: Caniche"
+              aria-invalid="false"
               className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[var(--primary)] outline-none"
             />
           </div>
           <div>
-            <label className="block text-sm font-bold text-[var(--text-secondary)] mb-1">
+            <label htmlFor="pet-weight" className="block text-sm font-bold text-[var(--text-secondary)] mb-1">
               Peso (kg)
             </label>
             <input
+              id="pet-weight"
               name="weight_kg"
               type="number"
               step="0.1"
               defaultValue={pet.weight_kg || ''}
               placeholder="0.0"
+              aria-invalid="false"
               className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[var(--primary)] outline-none"
             />
           </div>
@@ -315,8 +327,14 @@ export function EditPetForm({ pet, clinic }: Props): React.ReactElement {
           </div>
         </div>
 
+        {/* TICKET-FORM-005: Added proper error alert with ID */}
         {error && (
-          <div role="alert" className="p-3 bg-red-50 text-red-600 text-sm rounded-lg flex items-center gap-2">
+          <div
+            role="alert"
+            aria-live="assertive"
+            id="pet-error"
+            className="p-3 bg-red-50 text-red-600 text-sm rounded-lg flex items-center gap-2"
+          >
             <AlertCircle className="w-4 h-4" aria-hidden="true" />
             {error}
           </div>

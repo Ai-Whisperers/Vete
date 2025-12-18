@@ -79,12 +79,12 @@ export async function GET(request: Request) {
 
     const { data: expensesData } = await expenseQuery;
 
-    const totalExpenses = (expensesData as ExpenseRecord[] | null)?.reduce((acc, curr) =>
+    const totalExpenses = (expensesData as ExpenseRecord[] | null)?.reduce((acc: number, curr: ExpenseRecord) =>
         acc + Number(curr.amount), 0
     ) || 0;
 
     // Breakdown by category - TICKET-TYPE-005: Use proper type
-    const expenseBreakdown = (expensesData as ExpenseRecord[] | null)?.reduce<ExpenseBreakdown>((acc, curr) => {
+    const expenseBreakdown = (expensesData as ExpenseRecord[] | null)?.reduce<ExpenseBreakdown>((acc: ExpenseBreakdown, curr: ExpenseRecord) => {
         acc[curr.category] = (acc[curr.category] || 0) + Number(curr.amount);
         return acc;
     }, {}) || {};

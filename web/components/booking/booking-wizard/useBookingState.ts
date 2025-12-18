@@ -141,11 +141,13 @@ export function useBookingState(
 
     // Submit booking
     const submitBooking = async (): Promise<boolean> => {
+        // FORM-004: Prevent double-submit
         if (isSubmitting) return false;
 
         setIsSubmitting(true);
         setSubmitError(null);
 
+        // FORM-004: Create AbortController for cancellation
         const controller = new AbortController();
 
         try {
@@ -168,6 +170,7 @@ export function useBookingState(
                 return false;
             }
         } catch (e) {
+            // FORM-001: Proper error handling with user-friendly messages
             if (e instanceof Error && e.name === 'AbortError') {
                 setSubmitError('Solicitud cancelada');
             } else {
@@ -175,6 +178,7 @@ export function useBookingState(
             }
             return false;
         } finally {
+            // FORM-001: Always reset isSubmitting in finally block
             setIsSubmitting(false);
         }
     };

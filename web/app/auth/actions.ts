@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { headers } from "next/headers";
 import { rateLimit } from "@/lib/rate-limit";
 import { NextRequest } from "next/server";
+import { z } from "zod";
 
 // TICKET-TYPE-002: Define proper state interface for server actions
 interface ActionState {
@@ -13,6 +14,45 @@ interface ActionState {
   success?: boolean;
   message?: string;
 }
+
+// TICKET-FORM-003: Zod validation schemas
+const signupSchema = z.object({
+  email: z
+    .string()
+    .min(1, "El correo electrónico es requerido")
+    .email("Formato de correo electrónico inválido")
+    .toLowerCase()
+    .trim(),
+  password: z
+    .string()
+    .min(8, "La contraseña debe tener al menos 8 caracteres")
+    .max(72, "La contraseña es demasiado larga (máximo 72 caracteres)"),
+  fullName: z
+    .string()
+    .min(2, "El nombre completo debe tener al menos 2 caracteres")
+    .max(100, "El nombre es demasiado largo (máximo 100 caracteres)")
+    .trim(),
+  clinic: z.string().min(1, "La clínica es requerida"),
+});
+
+const loginSchema = z.object({
+  email: z.string().email("Formato de correo electrónico inválido").toLowerCase().trim(),
+  password: z.string().min(1, "La contraseña es requerida"),
+  clinic: z.string().min(1, "La clínica es requerida"),
+});
+
+const passwordResetSchema = z.object({
+  email: z.string().email("Formato de correo electrónico inválido").toLowerCase().trim(),
+  clinic: z.string().min(1, "La clínica es requerida"),
+});
+
+const updatePasswordSchema = z.object({
+  password: z.string().min(8, "La contraseña debe tener al menos 8 caracteres"),
+  confirmPassword: z.string(),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Las contraseñas no coinciden",
+  path: ["confirmPassword"],
+});
 
 /**
  * Helper to create a mock NextRequest from headers for rate limiting
@@ -40,15 +80,23 @@ export async function login(prevState: ActionState | null, formData: FormData): 
     return { error: errorData.error };
   }
 
-  const supabase = await createClient();
-
-  const data = {
+  // TICKET-FORM-003: Validate with Zod
+  const rawData = {
     email: formData.get("email") as string,
     password: formData.get("password") as string,
     clinic: formData.get("clinic") as string,
-    // Support both 'redirect' (standardized) and 'returnTo' (legacy)
-    redirect: (formData.get("redirect") ?? formData.get("returnTo")) as string,
   };
+
+  const validation = loginSchema.safeParse(rawData);
+  if (!validation.success) {
+    const firstError = validation.error.errors[0];
+    return { error: firstError.message };
+  }
+
+  const data = validation.data;
+  const redirectParam = (formData.get("redirect") ?? formData.get("returnTo")) as string;
+
+  const supabase = await createClient();
 
   const { error } = await supabase.auth.signInWithPassword({
     email: data.email,
@@ -64,7 +112,7 @@ export async function login(prevState: ActionState | null, formData: FormData): 
   }
 
   // Use redirect if provided, otherwise default to dashboard
-  const redirectPath = data.redirect || `/${data.clinic}/portal/dashboard`;
+  const redirectPath = redirectParam || `/${data.clinic}/portal/dashboard`;
 
   revalidatePath(`/${data.clinic}/portal`, "layout");
   redirect(redirectPath);
@@ -80,40 +128,30 @@ export async function signup(prevState: ActionState | null, formData: FormData):
     return { error: errorData.error };
   }
 
-  // TICKET-FORM-003: Server-side validation
-  const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
-  const fullName = formData.get("fullName") as string;
-  const clinic = formData.get("clinic") as string;
+  // TICKET-FORM-003: Validate with Zod schema
+  const rawData = {
+    email: formData.get("email") as string,
+    password: formData.get("password") as string,
+    fullName: formData.get("fullName") as string,
+    clinic: formData.get("clinic") as string,
+  };
 
-  // Validate email format
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!email || !emailRegex.test(email)) {
-    return { error: "Email inválido" };
+  const validation = signupSchema.safeParse(rawData);
+  if (!validation.success) {
+    const firstError = validation.error.errors[0];
+    return { error: firstError.message };
   }
 
-  // Validate password strength
-  if (!password || password.length < 8) {
-    return { error: "La contraseña debe tener al menos 8 caracteres" };
-  }
-
-  // Validate full name
-  if (!fullName || fullName.trim().length < 2) {
-    return { error: "Nombre completo es requerido (mínimo 2 caracteres)" };
-  }
-
-  if (fullName.length > 100) {
-    return { error: "Nombre demasiado largo (máximo 100 caracteres)" };
-  }
+  const data = validation.data;
 
   const supabase = await createClient();
 
   const { error } = await supabase.auth.signUp({
-    email: email.toLowerCase().trim(),
-    password,
+    email: data.email,
+    password: data.password,
     options: {
       data: {
-        full_name: fullName.trim(),
+        full_name: data.fullName,
       },
     },
   });
@@ -122,6 +160,9 @@ export async function signup(prevState: ActionState | null, formData: FormData):
     // Translate common Supabase errors to Spanish
     if (error.message.includes('already registered')) {
       return { error: "Este email ya está registrado" };
+    }
+    if (error.message.includes('weak password')) {
+      return { error: "La contraseña es muy débil. Usa una combinación de letras, números y símbolos." };
     }
     return { error: error.message };
   }
@@ -168,17 +209,24 @@ export async function requestPasswordReset(prevState: ActionState | null, formDa
     return { error: errorData.error };
   }
 
-  const email = formData.get('email') as string;
-  const clinic = formData.get('clinic') as string;
+  // TICKET-FORM-003: Validate with Zod
+  const rawData = {
+    email: formData.get('email') as string,
+    clinic: formData.get('clinic') as string,
+  };
 
-  if (!email) {
-    return { error: 'El correo electrónico es requerido' };
+  const validation = passwordResetSchema.safeParse(rawData);
+  if (!validation.success) {
+    const firstError = validation.error.errors[0];
+    return { error: firstError.message };
   }
+
+  const data = validation.data;
 
   const supabase = await createClient();
 
-  const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/${clinic}/portal/reset-password`
+  const { error } = await supabase.auth.resetPasswordForEmail(data.email, {
+    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/${data.clinic}/portal/reset-password`
   });
 
   if (error) {
@@ -191,20 +239,23 @@ export async function requestPasswordReset(prevState: ActionState | null, formDa
 }
 
 export async function updatePassword(prevState: ActionState | null, formData: FormData): Promise<ActionState> {
-  const password = formData.get('password') as string;
-  const confirmPassword = formData.get('confirmPassword') as string;
+  // TICKET-FORM-003: Validate with Zod
+  const rawData = {
+    password: formData.get('password') as string,
+    confirmPassword: formData.get('confirmPassword') as string,
+  };
 
-  if (!password || password.length < 8) {
-    return { error: 'La contraseña debe tener al menos 8 caracteres' };
+  const validation = updatePasswordSchema.safeParse(rawData);
+  if (!validation.success) {
+    const firstError = validation.error.errors[0];
+    return { error: firstError.message };
   }
 
-  if (password !== confirmPassword) {
-    return { error: 'Las contraseñas no coinciden' };
-  }
+  const data = validation.data;
 
   const supabase = await createClient();
 
-  const { error } = await supabase.auth.updateUser({ password });
+  const { error } = await supabase.auth.updateUser({ password: data.password });
 
   if (error) {
     console.error('Update password error:', error);

@@ -32,7 +32,7 @@ export function InviteStaffForm({ clinic }: { clinic: string }) {
           </select>
         </div>
       </div>
-      
+
       {state && !state.success && (
         <div role="alert" className="p-3 bg-red-50 text-red-600 text-sm rounded-lg flex items-center gap-2">
             <Icons.AlertCircle className="w-4 h-4" aria-hidden="true" />
@@ -43,7 +43,7 @@ export function InviteStaffForm({ clinic }: { clinic: string }) {
       {state && state.success && (
         <div className="p-3 bg-green-50 text-green-600 text-sm rounded-lg flex items-center gap-2">
             <Icons.CheckCircle className="w-4 h-4" />
-            Invitación enviada correctamente
+            Invitacion enviada correctamente
         </div>
       )}
 
@@ -52,7 +52,7 @@ export function InviteStaffForm({ clinic }: { clinic: string }) {
         disabled={isPending}
         className="w-full bg-[var(--primary)] text-white font-bold py-3 min-h-[48px] rounded-xl hover:shadow-lg transition-all active:scale-95 flex justify-center items-center gap-2"
       >
-        {isPending ? <Icons.Loader2 className="animate-spin w-5 h-5"/> : "Enviar Invitación"}
+        {isPending ? <Icons.Loader2 className="animate-spin w-5 h-5"/> : "Enviar Invitacion"}
       </button>
     </form>
   );

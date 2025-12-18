@@ -46,6 +46,9 @@ export default async function PetProfilePage({ params }: { params: Promise<{ cli
   const supabase = await createClient();
   const { clinic, id } = await params;
 
+  // Get clinic data for loyalty card
+  const clinicData = await getClinicData(clinic);
+
   // 1. Auth check first
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect(`/${clinic}/portal/login`);
@@ -91,31 +94,38 @@ export default async function PetProfilePage({ params }: { params: Promise<{ cli
 
 
   // Sort Records by Date (Newest first)
-  const records = (pet.medical_records as MedicalRecord[])?.sort((a, b) =>
+  const records = (pet.medical_records as MedicalRecord[])?.sort((a: MedicalRecord, b: MedicalRecord) =>
     new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
   ) || [];
 
-  const vaccines = (pet.vaccines as Vaccine[])?.sort((a, b) =>
+  const vaccines = (pet.vaccines as Vaccine[])?.sort((a: Vaccine, b: Vaccine) =>
     new Date(b.administered_date || 0).getTime() - new Date(a.administered_date || 0).getTime()
   ) || [];
 
-  const prescriptions = (pet.prescriptions as Prescription[])?.sort((a, b) =>
+  const prescriptions = (pet.prescriptions as Prescription[])?.sort((a: Prescription, b: Prescription) =>
     new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
   ) || [];
 
   const timelineItems: TimelineItem[] = [
-      ...records.map((r): TimelineItem => ({
-        ...r,
+      ...records.map((r: MedicalRecord): TimelineItem => ({
+        id: r.id,
+        created_at: r.created_at,
         timelineType: 'record',
-        vitals: r.vital_signs as TimelineItem['vitals']
+        title: r.title || 'Consulta',
+        type: r.type,
+        diagnosis: r.diagnosis || undefined,
+        vitals: r.vital_signs as TimelineItem['vitals'],
+        notes: r.notes || undefined,
+        attachments: r.attachments || undefined
       })),
-      ...prescriptions.map((p): TimelineItem => ({
-        ...p,
+      ...prescriptions.map((p: Prescription): TimelineItem => ({
+        id: p.id,
+        created_at: p.created_at,
         timelineType: 'prescription',
         title: 'Receta Médica',
         drugs: [] // Prescriptions use different structure
       }))
-  ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  ].sort((a: TimelineItem, b: TimelineItem) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
   // Calculate Weight History for Growth Chart
   const weightHistory: WeightRecord[] = records
@@ -263,7 +273,7 @@ export default async function PetProfilePage({ params }: { params: Promise<{ cli
                           <p className="text-gray-500 italic">No hay registros médicos aún.</p>
                       </div>
                   ) : (
-                    timelineItems.map((item) => (
+                    timelineItems.map((item: TimelineItem) => (
                         <div key={item.id} className="ml-8 relative">
                             {/* Timeline Node */}
                             <div className={`absolute -left-[41px] top-0 w-5 h-5 rounded-full border-4 border-white shadow-sm ${
@@ -315,7 +325,7 @@ export default async function PetProfilePage({ params }: { params: Promise<{ cli
                                 {/* Drugs Display (Prescriptions only) */}
                                 {item.timelineType === 'prescription' && item.drugs && item.drugs.length > 0 && (
                                     <div className="mb-4 space-y-2">
-                                        {item.drugs.map((drug, idx) => (
+                                        {item.drugs.map((drug: { name: string; dose: string; instructions: string }, idx: number) => (
                                             <div key={idx} className="bg-purple-50/30 p-2 rounded-lg border border-purple-100/50 text-sm">
                                                 <p className="font-bold text-purple-900">{drug.name}</p>
                                                 <p className="text-xs text-purple-700">{drug.dose} - <span className="italic">{drug.instructions}</span></p>
@@ -337,7 +347,7 @@ export default async function PetProfilePage({ params }: { params: Promise<{ cli
                                             <Icons.Download className="w-3 h-3" /> Ver PDF
                                         </button>
                                     )}
-                                    {item.attachments && item.attachments.map((url, idx) => (
+                                    {item.attachments && item.attachments.map((url: string, idx: number) => (
                                         <a
                                             key={idx}
                                             href={url}
@@ -370,10 +380,10 @@ export default async function PetProfilePage({ params }: { params: Promise<{ cli
               />
 
               {/* Loyalty Card */}
-              <LoyaltyCard 
-                petId={id} 
-                petName={pet.name} 
-                clinicConfig={await getClinicData(clinic)} 
+              <LoyaltyCard
+                petId={id}
+                petName={pet.name}
+                clinicConfig={clinicData || { config: { name: clinic } }}
               />
 
               {/* Bio & Health Card */}
@@ -421,7 +431,7 @@ export default async function PetProfilePage({ params }: { params: Promise<{ cli
                   </div>
                   
                   <div className="space-y-3">
-                      {vaccines.map((v) => (
+                      {vaccines.map((v: Vaccine) => (
                           <div key={v.id} className="flex items-center justify-between p-3 rounded-xl bg-gray-50 border border-gray-100">
                              <div>
                                  <p className="font-bold text-sm text-[var(--text-primary)]">{v.name}</p>

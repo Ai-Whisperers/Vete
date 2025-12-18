@@ -342,7 +342,7 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
         >
             <ShoppingCart className="w-6 h-6" aria-hidden="true" />
             {itemCount > 0 && (
-                <span className="absolute top-0 right-0 bg-[var(--status-error,#dc2626)] text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full" aria-hidden="true">
+                <span className="absolute top-0 right-0 bg-[var(--status-error,#dc2626)] text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full" aria-label={`${itemCount} ${itemCount === 1 ? 'artículo' : 'artículos'} en el carrito`}>
                     {itemCount}
                 </span>
             )}
@@ -383,7 +383,7 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
           >
               <ShoppingCart className="w-6 h-6" aria-hidden="true" />
               {itemCount > 0 && (
-                  <span className="absolute top-1 right-1 bg-[var(--status-error,#dc2626)] text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full" aria-hidden="true">
+                  <span className="absolute top-1 right-1 bg-[var(--status-error,#dc2626)] text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full" aria-label={`${itemCount} ${itemCount === 1 ? 'artículo' : 'artículos'} en el carrito`}>
                       {itemCount}
                   </span>
               )}

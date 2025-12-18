@@ -80,12 +80,26 @@ export type {
   // Images types
   ClinicImages,
   ClinicImage,
+  ImageCategory,
 
   // Complete clinic data
   ClinicData,
 } from './types/clinic-config';
 
-import type { ClinicData } from './types/clinic-config';
+import type {
+  ClinicData,
+  UiLabels,
+  ClinicConfig,
+  ClinicTheme,
+  ClinicImages,
+  ClinicImage,
+  HomeData,
+  ServicesData,
+  AboutData,
+  TestimonialsData,
+  FaqData,
+  LegalData
+} from './types/clinic-config';
 
 const CONTENT_DIR = path.join(process.cwd(), '.content_data');
 
@@ -97,31 +111,31 @@ export async function getClinicData(slug: string): Promise<ClinicData | null> {
     return null;
   }
 
-  // Helper to read JSON
-  const readJson = (file: string) => {
+  // Helper to read JSON with proper typing
+  const readJson = <T>(file: string): T | null => {
     const filePath = path.join(clinicDir, file);
     if (fs.existsSync(filePath)) {
       const fileContents = fs.readFileSync(filePath, 'utf8');
-      return JSON.parse(fileContents);
+      return JSON.parse(fileContents) as T;
     }
     return null;
   };
 
-  const config = readJson('config.json');
-  const theme = readJson('theme.json');
-  const images = readJson('images.json');
-  const home = readJson('home.json');
-  const services = readJson('services.json');
-  const about = readJson('about.json');
-  const testimonials = readJson('testimonials.json');
-  const faq = readJson('faq.json');
-  const legal = readJson('legal.json');
+  const config = readJson<ClinicConfig>('config.json');
+  const theme = readJson<ClinicTheme>('theme.json');
+  const images = readJson<ClinicImages>('images.json');
+  const home = readJson<HomeData>('home.json');
+  const services = readJson<ServicesData>('services.json');
+  const about = readJson<AboutData>('about.json');
+  const testimonials = readJson<TestimonialsData>('testimonials.json');
+  const faq = readJson<FaqData>('faq.json');
+  const legal = readJson<LegalData>('legal.json');
 
   // Load global UI labels
   const globalUiLabelsPath = path.join(CONTENT_DIR, 'ui_labels.json');
-  let ui_labels = {};
+  let ui_labels: Partial<UiLabels> = {};
   if (fs.existsSync(globalUiLabelsPath)) {
-    ui_labels = JSON.parse(fs.readFileSync(globalUiLabelsPath, 'utf8'));
+    ui_labels = JSON.parse(fs.readFileSync(globalUiLabelsPath, 'utf8')) as UiLabels;
   }
 
   if (!config || !theme) {
@@ -132,20 +146,25 @@ export async function getClinicData(slug: string): Promise<ClinicData | null> {
   if (config.ui_labels) {
       merge(ui_labels, config.ui_labels);
   }
-  
+
   // Ensure config has the merged ui_labels
-  config.ui_labels = ui_labels;
+  config.ui_labels = ui_labels as UiLabels;
+
+  // Check that required data is present
+  if (!home || !services || !about) {
+    return null; // Essential content missing
+  }
 
   return {
     config,
     theme,
-    images,
+    images: images || undefined,
     home,
     services,
     about,
-    testimonials,
-    faq,
-    legal
+    testimonials: testimonials || undefined,
+    faq: faq || undefined,
+    legal: legal || undefined
   };
 }
 
@@ -220,8 +239,12 @@ export function getClinicImagesByCategory(
     return [];
   }
 
-  const categoryImages = images.images[category] as Record<string, ClinicImage>;
-  return Object.entries(categoryImages).map(([key, image]) => ({
+  const categoryImages = images.images[category];
+  if (!categoryImages) {
+    return [];
+  }
+
+  return Object.entries(categoryImages).map(([key, image]: [string, ClinicImage]) => ({
     key,
     ...image,
     url: `${images.basePath}/${image.src}`

@@ -64,6 +64,7 @@ export function AppointmentList({ upcoming, past, clinic }: AppointmentListProps
               aria-selected={activeTab === tab.id}
               aria-controls={`${tab.id}-panel`}
               id={`${tab.id}-tab`}
+              tabIndex={activeTab === tab.id ? 0 : -1}
               onClick={() => setActiveTab(tab.id)}
               className={`flex-1 px-4 py-3 rounded-lg font-bold text-sm transition-all flex items-center justify-center gap-2 ${
                 activeTab === tab.id
@@ -77,7 +78,7 @@ export function AppointmentList({ upcoming, past, clinic }: AppointmentListProps
                 activeTab === tab.id
                   ? 'bg-[var(--primary)]/10 text-[var(--primary)]'
                   : 'bg-gray-200 text-gray-500'
-              }`} aria-hidden="true">
+              }`} aria-label={`${tab.count} citas`}>
                 {tab.count}
               </span>
             </button>

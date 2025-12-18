@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { rateLimit } from '@/lib/rate-limit';
 import type { SearchSuggestion, SearchResponse } from '@/lib/types/store';
 
 // GET - Search products with autocomplete suggestions
@@ -21,6 +22,14 @@ export async function GET(request: NextRequest): Promise<NextResponse<SearchResp
       products: [],
       total: 0,
     });
+  }
+
+  // Apply rate limiting for search endpoints (30 requests per minute)
+  // Use IP-based rate limiting for unauthenticated store searches
+  const { data: { user } } = await supabase.auth.getUser();
+  const rateLimitResult = await rateLimit(request, 'search', user?.id);
+  if (!rateLimitResult.success) {
+    return rateLimitResult.response as NextResponse<{ error: string }>;
   }
 
   try {

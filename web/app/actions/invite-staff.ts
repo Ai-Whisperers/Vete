@@ -151,15 +151,14 @@ export async function inviteStaff(prevState: ActionResult | null, formData: Form
   return { success: true };
 }
 
-export async function removeInvite(email: string, clinic: string): Promise<ActionResult> {
+export async function removeInvite(formData: FormData): Promise<void> {
   const supabase = await createClient();
+  const id = formData.get('id') as string;
+  const clinic = formData.get('clinic') as string;
 
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
-    return {
-      success: false,
-      error: "Debes iniciar sesión para eliminar invitaciones."
-    };
+    throw new Error("Debes iniciar sesion para eliminar invitaciones.");
   }
 
   // Verify user is admin of the target clinic
@@ -170,34 +169,25 @@ export async function removeInvite(email: string, clinic: string): Promise<Actio
     .single();
 
   if (!profile || profile.role !== 'admin') {
-    return {
-      success: false,
-      error: "Solo los administradores pueden eliminar invitaciones."
-    };
+    throw new Error("Solo los administradores pueden eliminar invitaciones.");
   }
 
   if (profile.tenant_id !== clinic) {
-    return {
-      success: false,
-      error: "No tienes acceso a esta clínica."
-    };
+    throw new Error("No tienes acceso a esta clinica.");
   }
 
-  // Delete invite with tenant filter for extra safety
+  // Delete invite by ID with tenant filter for extra safety
   const { error: deleteError } = await supabase
     .from("clinic_invites")
     .delete()
-    .eq('email', email)
+    .eq('id', id)
     .eq('tenant_id', clinic);
 
   if (deleteError) {
     console.error("Delete invite error:", deleteError);
-    return {
-      success: false,
-      error: "No se pudo eliminar la invitación. Por favor, intenta de nuevo."
-    };
+    throw new Error("No se pudo eliminar la invitacion. Por favor, intenta de nuevo.");
   }
 
+  revalidatePath(`/${clinic}/dashboard/team`);
   revalidatePath(`/${clinic}/portal/team`);
-  return { success: true };
 }

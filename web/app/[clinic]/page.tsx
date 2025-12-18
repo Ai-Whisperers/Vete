@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import * as Icons from 'lucide-react';
 import { AppointmentForm } from '@/components/forms/appointment-form';
+import { HeroImage } from '@/components/seo/hero-image';
 
 // Dynamic Icon Component - safely handles icon name lookup
 const DynamicIcon = ({ name, className }: { name: string; className?: string }) => {
@@ -33,17 +34,12 @@ export default async function ClinicHomePage({ params }: { params: Promise<{ cli
 
       {/* HERO SECTION - Improved overlay and visual hierarchy */}
       <section className="relative min-h-[85vh] flex items-center overflow-hidden">
-        {/* Background Image with improved overlay */}
+        {/* Background Image with optimized next/image */}
         {config.branding?.hero_image_url ? (
-          <>
-            <div
-              className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat scale-105"
-              style={{ backgroundImage: `url('${config.branding.hero_image_url}')` }}
-            />
-            {/* Gradient overlay - softer, more professional */}
-            <div className="absolute inset-0 z-0 bg-gradient-to-br from-black/60 via-black/40 to-transparent" />
-            <div className="absolute inset-0 z-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
-          </>
+          <HeroImage
+            src={config.branding.hero_image_url}
+            alt={`${config.name} - ${home.hero.headline}`}
+          />
         ) : (
           <div className="absolute inset-0 z-0" style={{ background: 'var(--gradient-hero)' }} />
         )}

@@ -112,12 +112,6 @@ export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
         }
       }
 
-      console.log('[Email] Email sent successfully:', {
-        messageId: result.data?.id,
-        to: Array.isArray(to) ? to.join(', ') : to,
-        subject,
-      })
-
       return {
         success: true,
         messageId: result.data?.id,

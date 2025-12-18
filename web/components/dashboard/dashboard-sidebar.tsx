@@ -95,6 +95,7 @@ export function DashboardSidebar({
       icon: Settings,
       defaultOpen: false,
       items: [
+        { icon: Settings, label: "Ajustes", href: `/${clinic}/dashboard/settings` },
         { icon: Users, label: "Equipo", href: `/${clinic}/dashboard/team` },
         { icon: CalendarClock, label: "Horarios", href: `/${clinic}/dashboard/schedules` },
         { icon: Calendar, label: "Ausencias", href: `/${clinic}/dashboard/time-off` },

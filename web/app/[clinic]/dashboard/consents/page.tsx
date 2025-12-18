@@ -306,73 +306,121 @@ export default function ConsentsPage(): JSX.Element {
           </p>
         </div>
       ) : (
-        <div className="bg-[var(--bg-paper)] rounded-lg border border-[var(--primary)]/20 overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-[var(--primary)]/5">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider">
-                    Mascota / Dueño
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider">
-                    Plantilla
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider">
-                    Categoría
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider">
-                    Fecha Firma
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider">
-                    Estado
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider">
-                    Acciones
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[var(--primary)]/10">
-                {filteredConsents.map((consent) => (
-                  <tr key={consent.id} className="hover:bg-[var(--primary)]/5 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div>
-                        <div className="text-sm font-medium text-[var(--text-primary)]">{consent.pet.name}</div>
-                        <div className="text-sm text-[var(--text-secondary)]">{consent.owner.full_name}</div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm text-[var(--text-primary)]">{consent.template.name}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {getCategoryBadge(consent.template.category)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-[var(--text-primary)]">
-                        {new Date(consent.signed_at).toLocaleDateString('es-PY')}
-                      </div>
-                      {consent.expires_at && (
-                        <div className="text-xs text-[var(--text-secondary)]">
-                          Expira: {new Date(consent.expires_at).toLocaleDateString('es-PY')}
-                        </div>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {getStatusBadge(consent.status)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <Link
-                        href={`./consents/${consent.id}`}
-                        className="text-[var(--primary)] hover:underline"
-                      >
-                        Ver detalles
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        <>
+          {/* Mobile Cards */}
+          <div className="md:hidden space-y-3">
+            {filteredConsents.map((consent) => (
+              <Link
+                key={consent.id}
+                href={`./consents/${consent.id}`}
+                className="block bg-[var(--bg-paper)] rounded-lg border border-[var(--primary)]/20 p-4 hover:border-[var(--primary)] transition-colors"
+              >
+                <div className="flex items-start justify-between gap-3 mb-3">
+                  <div>
+                    <p className="font-medium text-[var(--text-primary)]">{consent.pet.name}</p>
+                    <p className="text-sm text-[var(--text-secondary)]">{consent.owner.full_name}</p>
+                  </div>
+                  {getStatusBadge(consent.status)}
+                </div>
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[var(--text-secondary)]">Plantilla</span>
+                    <span className="text-[var(--text-primary)] text-right truncate ml-2 max-w-[60%]">
+                      {consent.template.name}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[var(--text-secondary)]">Categoria</span>
+                    {getCategoryBadge(consent.template.category)}
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[var(--text-secondary)]">Firmado</span>
+                    <span className="text-[var(--text-primary)]">
+                      {new Date(consent.signed_at).toLocaleDateString('es-PY')}
+                    </span>
+                  </div>
+                  {consent.expires_at && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-[var(--text-secondary)]">Expira</span>
+                      <span className="text-[var(--text-primary)]">
+                        {new Date(consent.expires_at).toLocaleDateString('es-PY')}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </Link>
+            ))}
           </div>
-        </div>
+
+          {/* Desktop Table */}
+          <div className="hidden md:block bg-[var(--bg-paper)] rounded-lg border border-[var(--primary)]/20 overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-[var(--primary)]/5">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider">
+                      Mascota / Dueño
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider">
+                      Plantilla
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider">
+                      Categoria
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider">
+                      Fecha Firma
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider">
+                      Estado
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider">
+                      Acciones
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[var(--primary)]/10">
+                  {filteredConsents.map((consent) => (
+                    <tr key={consent.id} className="hover:bg-[var(--primary)]/5 transition-colors">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div>
+                          <div className="text-sm font-medium text-[var(--text-primary)]">{consent.pet.name}</div>
+                          <div className="text-sm text-[var(--text-secondary)]">{consent.owner.full_name}</div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm text-[var(--text-primary)]">{consent.template.name}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {getCategoryBadge(consent.template.category)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-[var(--text-primary)]">
+                          {new Date(consent.signed_at).toLocaleDateString('es-PY')}
+                        </div>
+                        {consent.expires_at && (
+                          <div className="text-xs text-[var(--text-secondary)]">
+                            Expira: {new Date(consent.expires_at).toLocaleDateString('es-PY')}
+                          </div>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {getStatusBadge(consent.status)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        <Link
+                          href={`./consents/${consent.id}`}
+                          className="text-[var(--primary)] hover:underline"
+                        >
+                          Ver detalles
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </>
       )}
     </div>
   );

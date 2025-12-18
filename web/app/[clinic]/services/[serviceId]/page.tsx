@@ -3,7 +3,10 @@ import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import { createClient } from '@/lib/supabase/server';
 import { ServiceDetailClient } from '@/components/services/service-detail-client';
+import { ServiceSchema, BreadcrumbSchema } from '@/components/seo/structured-data';
 import type { Service } from '@/lib/types/services';
+
+const BASE_URL = 'https://vetepy.vercel.app';
 
 // Helper to find service by slug/id
 async function getService(clinicSlug: string, serviceId: string): Promise<{ service: Service; data: ClinicData } | null> {
@@ -20,12 +23,40 @@ async function getService(clinicSlug: string, serviceId: string): Promise<{ serv
 export async function generateMetadata({ params }: { params: Promise<{ clinic: string; serviceId: string }> }): Promise<Metadata> {
   const { clinic, serviceId } = await params;
   const result = await getService(clinic, serviceId);
-  
+
   if (!result || !result.service) return {};
 
+  const { service, data } = result;
+  const canonicalUrl = `${BASE_URL}/${clinic}/services/${serviceId}`;
+  const ogImage = data.config.branding?.og_image_url || '/branding/default-og.jpg';
+
   return {
-    title: `${result.service.title} - ${result.data.config.name}`,
-    description: result.service.summary
+    title: `${service.title} | ${data.config.name}`,
+    description: service.summary || service.description?.substring(0, 160),
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      type: 'website',
+      locale: 'es_PY',
+      url: canonicalUrl,
+      title: service.title,
+      description: service.summary || service.description?.substring(0, 160),
+      siteName: data.config.name,
+      images: [
+        {
+          url: ogImage.startsWith('/') ? `${BASE_URL}${ogImage}` : ogImage,
+          width: 1200,
+          height: 630,
+          alt: service.title,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: service.title,
+      description: service.summary || service.description?.substring(0, 160),
+    },
   };
 }
 

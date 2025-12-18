@@ -1,11 +1,35 @@
 "use client";
-import { useState, useEffect, useRef } from 'react';
-import { Download, Upload, FileSpreadsheet, AlertCircle, CheckCircle2, Loader2, Package, TrendingUp, Info, Tag, Search, Edit2, ChevronDown, ExternalLink, FileDown } from 'lucide-react';
+import { useState, useEffect, useRef, useMemo } from 'react';
+import { Download, Upload, FileSpreadsheet, AlertCircle, CheckCircle2, Loader2, Package, TrendingUp, Info, Tag, Search, Edit2, ChevronDown, ExternalLink, FileDown, ChevronLeft, ChevronRight, Filter } from 'lucide-react';
 import { useParams } from 'next/navigation';
 
 interface InventoryClientProps {
     googleSheetUrl: string | null;
 }
+
+interface PaginationInfo {
+    page: number;
+    limit: number;
+    total: number;
+    pages: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+}
+
+interface Category {
+    id: string;
+    name: string;
+    slug: string;
+}
+
+const ITEMS_PER_PAGE_OPTIONS = [10, 25, 50, 100];
+
+const stockFilterOptions = [
+    { value: 'all', label: 'Todos' },
+    { value: 'in_stock', label: 'En Stock' },
+    { value: 'low_stock', label: 'Bajo Stock' },
+    { value: 'out_of_stock', label: 'Sin Stock' },
+];
 
 export default function InventoryClient({ googleSheetUrl }: InventoryClientProps) {
     const { clinic } = useParams() as { clinic: string };
@@ -22,6 +46,21 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
     const [alerts, setAlerts] = useState<any>(null);
     const [templateDropdownOpen, setTemplateDropdownOpen] = useState(false);
     const templateDropdownRef = useRef<HTMLDivElement>(null);
+
+    // Pagination state
+    const [pagination, setPagination] = useState<PaginationInfo>({
+        page: 1,
+        limit: 25,
+        total: 0,
+        pages: 0,
+        hasNext: false,
+        hasPrev: false,
+    });
+
+    // Filter state
+    const [categories, setCategories] = useState<Category[]>([]);
+    const [selectedCategory, setSelectedCategory] = useState<string>('all');
+    const [stockFilter, setStockFilter] = useState<string>('all');
 
     const fetchStats = async () => {
         try {
@@ -58,13 +97,40 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    const fetchProducts = async (query = '') => {
-        setIsLoadingProducts(true);
+    const fetchCategories = async () => {
         try {
-            const res = await fetch(`/api/store/products?clinic=${clinic}&search=${query}`);
+            const res = await fetch(`/api/store/categories?clinic=${clinic}`);
             if (res.ok) {
                 const data = await res.json();
-                setProducts(data);
+                setCategories(data.categories || []);
+            }
+        } catch (e) {
+            console.error('Failed to fetch categories', e);
+        }
+    };
+
+    const fetchProducts = async (query = '', page = 1, limit = pagination.limit) => {
+        setIsLoadingProducts(true);
+        try {
+            let url = `/api/store/products?clinic=${clinic}&search=${query}&page=${page}&limit=${limit}`;
+
+            // Add category filter
+            if (selectedCategory !== 'all') {
+                url += `&category=${selectedCategory}`;
+            }
+
+            // Add stock filter
+            if (stockFilter === 'in_stock') {
+                url += '&in_stock_only=true';
+            }
+
+            const res = await fetch(url);
+            if (res.ok) {
+                const data = await res.json();
+                setProducts(data.products || []);
+                if (data.pagination) {
+                    setPagination(data.pagination);
+                }
             }
         } catch (e) {
             console.error('Failed to fetch products', e);
@@ -73,18 +139,45 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
         }
     };
 
+    // Apply local stock filtering for low_stock and out_of_stock
+    const filteredProducts = useMemo(() => {
+        if (stockFilter === 'low_stock') {
+            return products.filter(p => p.inventory?.stock_quantity > 0 && p.inventory?.stock_quantity <= (p.inventory?.min_stock_level || 5));
+        }
+        if (stockFilter === 'out_of_stock') {
+            return products.filter(p => (p.inventory?.stock_quantity || 0) === 0);
+        }
+        return products;
+    }, [products, stockFilter]);
+
     useEffect(() => {
         fetchStats();
+        fetchCategories();
         fetchProducts();
         fetchAlerts();
     }, [clinic]);
 
+    // Refetch when filters change
+    useEffect(() => {
+        fetchProducts(searchQuery, 1, pagination.limit);
+    }, [selectedCategory, stockFilter]);
+
+    // Debounced search
     useEffect(() => {
         const timer = setTimeout(() => {
-            fetchProducts(searchQuery);
+            fetchProducts(searchQuery, 1, pagination.limit);
         }, 500);
         return () => clearTimeout(timer);
     }, [searchQuery]);
+
+    const handlePageChange = (newPage: number) => {
+        fetchProducts(searchQuery, newPage, pagination.limit);
+    };
+
+    const handleLimitChange = (newLimit: number) => {
+        setPagination(prev => ({ ...prev, limit: newLimit }));
+        fetchProducts(searchQuery, 1, newLimit);
+    };
 
     const openEdit = (p: any) => {
         setEditingProduct(p);
@@ -469,7 +562,7 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
                     </div>
                     <div className="relative max-w-md w-full">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                        <input 
+                        <input
                             type="text"
                             placeholder="Buscar por nombre o SKU..."
                             value={searchQuery}
@@ -479,61 +572,232 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
                     </div>
                 </div>
 
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left">
-                        <thead>
-                            <tr className="border-b border-gray-50 text-xs font-bold text-gray-400 uppercase tracking-wider">
-                                <th className="px-4 py-4">Producto</th>
-                                <th className="px-4 py-4">SKU</th>
-                                <th className="px-4 py-4">Precio Base</th>
-                                <th className="px-4 py-4 text-center">Stock</th>
-                                <th className="px-4 py-4 text-right">Acción</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-50">
-                            {isLoadingProducts ? (
-                                <tr>
-                                    <td colSpan={5} className="px-4 py-12 text-center text-gray-400">
-                                        <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2" />
-                                        Cargando productos...
-                                    </td>
-                                </tr>
-                            ) : products.length === 0 ? (
-                                <tr>
-                                    <td colSpan={5} className="px-4 py-12 text-center text-gray-400">
-                                        No se encontraron productos.
-                                    </td>
-                                </tr>
-                            ) : products.map((p) => (
-                                <tr key={p.id} className="group hover:bg-gray-50/50 transition-colors">
-                                    <td className="px-4 py-4">
-                                        <div className="flex items-center gap-3">
-                                            {p.image && <img src={p.image} alt="" className="w-10 h-10 rounded-lg object-cover" />}
-                                            <span className="font-bold text-gray-900">{p.name}</span>
-                                        </div>
-                                    </td>
-                                    <td className="px-4 py-4 text-sm font-mono text-gray-500">{p.id}</td>
-                                    <td className="px-4 py-4 font-bold text-gray-900">
-                                        {new Intl.NumberFormat('es-PY', { style: 'currency', currency: 'PYG', maximumFractionDigits: 0 }).format(p.price)}
-                                    </td>
-                                    <td className="px-4 py-4 text-center">
-                                        <span className={`inline-block px-2 py-1 rounded-lg text-xs font-bold ${p.stock <= 5 ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-600'}`}>
-                                            {p.stock} un.
-                                        </span>
-                                    </td>
-                                    <td className="px-4 py-4 text-right">
-                                        <button 
-                                            onClick={() => openEdit(p)}
-                                            className="p-2 text-gray-400 hover:text-[var(--primary)] hover:bg-[var(--primary)]/5 rounded-xl transition"
-                                        >
-                                            <Edit2 className="w-4 h-4" />
-                                        </button>
-                                    </td>
-                                </tr>
+                {/* Filter Bar */}
+                <div className="flex flex-col sm:flex-row gap-4 p-4 bg-gray-50 rounded-2xl">
+                    {/* Category Filter */}
+                    <div className="flex items-center gap-2">
+                        <Filter className="w-4 h-4 text-gray-400" />
+                        <select
+                            value={selectedCategory}
+                            onChange={(e) => setSelectedCategory(e.target.value)}
+                            className="px-3 py-2 bg-white border border-gray-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-[var(--primary)]/20 outline-none"
+                        >
+                            <option value="all">Todas las categorías</option>
+                            {categories.map((cat) => (
+                                <option key={cat.id} value={cat.slug}>
+                                    {cat.name}
+                                </option>
                             ))}
-                        </tbody>
-                    </table>
+                        </select>
+                    </div>
+
+                    {/* Stock Filter Tabs */}
+                    <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-gray-200">
+                        {stockFilterOptions.map((option) => (
+                            <button
+                                key={option.value}
+                                onClick={() => setStockFilter(option.value)}
+                                className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+                                    stockFilter === option.value
+                                        ? 'bg-[var(--primary)] text-white'
+                                        : 'text-gray-600 hover:bg-gray-100'
+                                }`}
+                            >
+                                {option.label}
+                            </button>
+                        ))}
+                    </div>
+
+                    {/* Items per page */}
+                    <div className="flex items-center gap-2 ml-auto">
+                        <span className="text-sm text-gray-500">Mostrar:</span>
+                        <select
+                            value={pagination.limit}
+                            onChange={(e) => handleLimitChange(Number(e.target.value))}
+                            className="px-3 py-2 bg-white border border-gray-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-[var(--primary)]/20 outline-none"
+                        >
+                            {ITEMS_PER_PAGE_OPTIONS.map((n) => (
+                                <option key={n} value={n}>{n} items</option>
+                            ))}
+                        </select>
+                    </div>
                 </div>
+
+                {/* Loading State */}
+                {isLoadingProducts ? (
+                    <div className="py-12 text-center text-gray-400">
+                        <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2" />
+                        Cargando productos...
+                    </div>
+                ) : filteredProducts.length === 0 ? (
+                    <div className="py-12 text-center text-gray-400">
+                        No se encontraron productos.
+                    </div>
+                ) : (
+                    <>
+                        {/* Mobile Cards */}
+                        <div className="md:hidden space-y-3">
+                            {filteredProducts.map((p) => {
+                                const stock = p.inventory?.stock_quantity ?? p.stock ?? 0;
+                                const minStock = p.inventory?.min_stock_level ?? 5;
+                                const price = p.base_price ?? p.price ?? 0;
+                                const imageUrl = p.image_url ?? p.image;
+                                const sku = p.sku ?? p.id;
+
+                                return (
+                                    <div key={p.id} className="bg-gray-50 rounded-2xl p-4 border border-gray-100">
+                                        <div className="flex items-start gap-3 mb-3">
+                                            {imageUrl && <img src={imageUrl} alt="" className="w-12 h-12 rounded-lg object-cover flex-shrink-0" />}
+                                            <div className="flex-1 min-w-0">
+                                                <p className="font-bold text-gray-900 truncate">{p.name}</p>
+                                                {p.category?.name && (
+                                                    <p className="text-xs text-gray-400">{p.category.name}</p>
+                                                )}
+                                                <p className="text-xs font-mono text-gray-400 mt-1">SKU: {sku}</p>
+                                            </div>
+                                            <button
+                                                onClick={() => openEdit({ ...p, price, stock })}
+                                                className="p-2 text-gray-400 hover:text-[var(--primary)] hover:bg-[var(--primary)]/5 rounded-xl transition flex-shrink-0"
+                                            >
+                                                <Edit2 className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                        <div className="flex items-center justify-between">
+                                            <span className="font-bold text-gray-900">
+                                                {new Intl.NumberFormat('es-PY', { style: 'currency', currency: 'PYG', maximumFractionDigits: 0 }).format(price)}
+                                            </span>
+                                            <span className={`px-2 py-1 rounded-lg text-xs font-bold ${
+                                                stock === 0 ? 'bg-red-50 text-red-600' :
+                                                stock <= minStock ? 'bg-orange-50 text-orange-600' :
+                                                'bg-green-50 text-green-600'
+                                            }`}>
+                                                {stock} un.
+                                            </span>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+
+                        {/* Desktop Table */}
+                        <div className="hidden md:block overflow-x-auto">
+                            <table className="w-full text-left">
+                                <thead>
+                                    <tr className="border-b border-gray-50 text-xs font-bold text-gray-400 uppercase tracking-wider">
+                                        <th className="px-4 py-4">Producto</th>
+                                        <th className="px-4 py-4">SKU</th>
+                                        <th className="px-4 py-4">Precio Base</th>
+                                        <th className="px-4 py-4 text-center">Stock</th>
+                                        <th className="px-4 py-4 text-right">Accion</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-50">
+                                    {filteredProducts.map((p) => {
+                                        const stock = p.inventory?.stock_quantity ?? p.stock ?? 0;
+                                        const minStock = p.inventory?.min_stock_level ?? 5;
+                                        const price = p.base_price ?? p.price ?? 0;
+                                        const imageUrl = p.image_url ?? p.image;
+                                        const sku = p.sku ?? p.id;
+
+                                        return (
+                                            <tr key={p.id} className="group hover:bg-gray-50/50 transition-colors">
+                                                <td className="px-4 py-4">
+                                                    <div className="flex items-center gap-3">
+                                                        {imageUrl && <img src={imageUrl} alt="" className="w-10 h-10 rounded-lg object-cover" />}
+                                                        <div>
+                                                            <span className="font-bold text-gray-900 block">{p.name}</span>
+                                                            {p.category?.name && (
+                                                                <span className="text-xs text-gray-400">{p.category.name}</span>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className="px-4 py-4 text-sm font-mono text-gray-500">{sku}</td>
+                                                <td className="px-4 py-4 font-bold text-gray-900">
+                                                    {new Intl.NumberFormat('es-PY', { style: 'currency', currency: 'PYG', maximumFractionDigits: 0 }).format(price)}
+                                                </td>
+                                                <td className="px-4 py-4 text-center">
+                                                    <span className={`inline-block px-2 py-1 rounded-lg text-xs font-bold ${
+                                                        stock === 0 ? 'bg-red-50 text-red-600' :
+                                                        stock <= minStock ? 'bg-orange-50 text-orange-600' :
+                                                        'bg-green-50 text-green-600'
+                                                    }`}>
+                                                        {stock} un.
+                                                    </span>
+                                                </td>
+                                                <td className="px-4 py-4 text-right">
+                                                    <button
+                                                        onClick={() => openEdit({ ...p, price, stock })}
+                                                        className="p-2 text-gray-400 hover:text-[var(--primary)] hover:bg-[var(--primary)]/5 rounded-xl transition"
+                                                    >
+                                                        <Edit2 className="w-4 h-4" />
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+                    </>
+                )}
+
+                {/* Pagination Controls */}
+                {pagination.pages > 1 && (
+                    <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                        <div className="text-sm text-gray-500">
+                            Mostrando {((pagination.page - 1) * pagination.limit) + 1} - {Math.min(pagination.page * pagination.limit, pagination.total)} de {pagination.total} productos
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={() => handlePageChange(pagination.page - 1)}
+                                disabled={!pagination.hasPrev}
+                                className="p-2 text-gray-600 hover:bg-gray-100 rounded-xl transition disabled:opacity-40 disabled:cursor-not-allowed"
+                            >
+                                <ChevronLeft className="w-5 h-5" />
+                            </button>
+
+                            {/* Page numbers */}
+                            <div className="flex items-center gap-1">
+                                {Array.from({ length: Math.min(5, pagination.pages) }, (_, i) => {
+                                    // Show pages around current page
+                                    let pageNum: number;
+                                    if (pagination.pages <= 5) {
+                                        pageNum = i + 1;
+                                    } else if (pagination.page <= 3) {
+                                        pageNum = i + 1;
+                                    } else if (pagination.page >= pagination.pages - 2) {
+                                        pageNum = pagination.pages - 4 + i;
+                                    } else {
+                                        pageNum = pagination.page - 2 + i;
+                                    }
+
+                                    return (
+                                        <button
+                                            key={pageNum}
+                                            onClick={() => handlePageChange(pageNum)}
+                                            className={`w-10 h-10 rounded-xl text-sm font-bold transition ${
+                                                pagination.page === pageNum
+                                                    ? 'bg-[var(--primary)] text-white'
+                                                    : 'text-gray-600 hover:bg-gray-100'
+                                            }`}
+                                        >
+                                            {pageNum}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+
+                            <button
+                                onClick={() => handlePageChange(pagination.page + 1)}
+                                disabled={!pagination.hasNext}
+                                className="p-2 text-gray-600 hover:bg-gray-100 rounded-xl transition disabled:opacity-40 disabled:cursor-not-allowed"
+                            >
+                                <ChevronRight className="w-5 h-5" />
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* Editing Modal */}

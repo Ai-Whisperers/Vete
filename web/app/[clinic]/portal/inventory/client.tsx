@@ -194,19 +194,95 @@ export default function InventoryClient() {
                     <p className="text-gray-500">Actualiza tu catálogo y stock mediante planillas Excel.</p>
                 </div>
                 <div className="flex flex-wrap gap-3">
-                    <button 
+                    <button
                         onClick={() => window.location.href = `/${clinic}/portal/campaigns`}
                         className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-gray-700 font-bold rounded-xl hover:bg-gray-50 transition shadow-sm border border-gray-200"
                     >
                         <Tag className="w-4 h-4 text-[var(--primary)]" /> Ver Promociones
                     </button>
-                    <button 
-                        onClick={() => handleExport('template')}
-                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-gray-50 text-gray-700 font-bold rounded-xl hover:bg-gray-100 transition shadow-sm border border-gray-200"
-                    >
-                        <Download className="w-4 h-4" /> Bajar Plantilla
-                    </button>
-                    <button 
+
+                    {/* Template Download Dropdown */}
+                    <div className="relative" ref={templateDropdownRef}>
+                        <button
+                            onClick={() => setTemplateDropdownOpen(!templateDropdownOpen)}
+                            className="inline-flex items-center gap-2 px-5 py-2.5 bg-gray-50 text-gray-700 font-bold rounded-xl hover:bg-gray-100 transition shadow-sm border border-gray-200"
+                        >
+                            <Download className="w-4 h-4" />
+                            Obtener Plantilla
+                            <ChevronDown className={`w-4 h-4 transition-transform ${templateDropdownOpen ? 'rotate-180' : ''}`} />
+                        </button>
+
+                        {templateDropdownOpen && (
+                            <div className="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                                <div className="p-4 bg-gradient-to-r from-gray-900 to-gray-800 text-white">
+                                    <h4 className="font-bold text-sm">📋 Plantilla de Inventario</h4>
+                                    <p className="text-xs text-gray-300 mt-1">Elige tu formato preferido</p>
+                                </div>
+
+                                <div className="p-2">
+                                    {/* Google Sheets Option */}
+                                    {googleSheetUrl && googleSheetUrl !== 'https://docs.google.com/spreadsheets/d/YOUR_TEMPLATE_ID/copy' && (
+                                        <a
+                                            href={googleSheetUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            onClick={() => setTemplateDropdownOpen(false)}
+                                            className="flex items-start gap-4 p-4 rounded-xl hover:bg-green-50 transition-colors group cursor-pointer"
+                                        >
+                                            <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                                                <svg className="w-6 h-6 text-green-600" viewBox="0 0 24 24" fill="currentColor">
+                                                    <path d="M19.5 3h-15A1.5 1.5 0 003 4.5v15A1.5 1.5 0 004.5 21h15a1.5 1.5 0 001.5-1.5v-15A1.5 1.5 0 0019.5 3zm-9.75 15h-3v-3h3v3zm0-4.5h-3v-3h3v3zm0-4.5h-3V6h3v3zm4.5 9h-3v-3h3v3zm0-4.5h-3v-3h3v3zm0-4.5h-3V6h3v3zm4.5 9h-3v-3h3v3zm0-4.5h-3v-3h3v3zm0-4.5h-3V6h3v3z"/>
+                                                </svg>
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="font-bold text-gray-900">Google Sheets</span>
+                                                    <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-bold rounded-full">Recomendado</span>
+                                                </div>
+                                                <p className="text-xs text-gray-500 mt-1">Crear una copia en tu Google Drive. Colabora en tiempo real.</p>
+                                                <div className="flex items-center gap-1 text-xs text-green-600 mt-2 font-medium">
+                                                    <ExternalLink className="w-3 h-3" />
+                                                    Abrir en Google Sheets
+                                                </div>
+                                            </div>
+                                        </a>
+                                    )}
+
+                                    {/* Excel Download Option */}
+                                    <button
+                                        onClick={() => {
+                                            handleExport('template');
+                                            setTemplateDropdownOpen(false);
+                                        }}
+                                        className="w-full flex items-start gap-4 p-4 rounded-xl hover:bg-blue-50 transition-colors group text-left"
+                                    >
+                                        <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                                            <FileDown className="w-6 h-6 text-blue-600" />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center gap-2">
+                                                <span className="font-bold text-gray-900">Descargar Excel</span>
+                                                <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-bold rounded-full">.xlsx</span>
+                                            </div>
+                                            <p className="text-xs text-gray-500 mt-1">Archivo compatible con Excel, LibreOffice y Google Sheets.</p>
+                                            <div className="flex items-center gap-1 text-xs text-blue-600 mt-2 font-medium">
+                                                <Download className="w-3 h-3" />
+                                                Descargar archivo
+                                            </div>
+                                        </div>
+                                    </button>
+                                </div>
+
+                                <div className="p-3 bg-gray-50 border-t border-gray-100">
+                                    <p className="text-xs text-gray-400 text-center">
+                                        💡 La plantilla incluye ejemplos y validaciones
+                                    </p>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    <button
                         onClick={() => handleExport('catalog')}
                         className="inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--primary)] text-white font-bold rounded-xl hover:bg-[var(--primary)]/90 transition shadow-lg"
                     >

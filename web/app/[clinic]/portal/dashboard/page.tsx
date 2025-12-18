@@ -12,7 +12,8 @@ import {
   CheckCircle2,
   Clock,
   XCircle,
-  Download
+  Download,
+  AlertCircle
 } from "lucide-react";
 import Image from "next/image";
 import { getClinicData } from '@/lib/clinics';
@@ -40,6 +41,26 @@ interface Vaccine {
   name: string;
   status: 'verified' | 'pending' | 'rejected';
   administered_date: string;
+  next_due_date: string | null;
+}
+
+// Helper to check if a date is upcoming (within 30 days)
+function isUpcoming(dateStr: string | null): boolean {
+  if (!dateStr) return false;
+  const dueDate = new Date(dateStr);
+  const today = new Date();
+  const daysUntil = Math.ceil((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  return daysUntil >= 0 && daysUntil <= 30;
+}
+
+// Helper to filter vaccines to only pending/rejected/upcoming
+function filterPendingVaccines(vaccines: Vaccine[] | null): Vaccine[] {
+  if (!vaccines) return [];
+  return vaccines.filter(v =>
+    v.status === 'pending' ||
+    v.status === 'rejected' ||
+    isUpcoming(v.next_due_date)
+  );
 }
 
 interface Pet {
@@ -198,7 +219,7 @@ export default async function DashboardPage({ params, searchParams }: {
                     </>
                  ) : (
                     <>
-                        <Link href={`/${clinic}/portal/appointments/new`} className="flex items-center justify-center gap-2 text-[var(--primary)] font-bold bg-[var(--primary)]/10 hover:bg-[var(--primary)] hover:text-white px-6 py-3 rounded-xl transition-all shrink-0">
+                        <Link href={`/${clinic}/services`} className="flex items-center justify-center gap-2 text-[var(--primary)] font-bold bg-[var(--primary)]/10 hover:bg-[var(--primary)] hover:text-white px-6 py-3 rounded-xl transition-all shrink-0">
                             <CalendarPlus className="w-5 h-5" /> <span className="hidden md:inline">Agendar Cita</span>
                         </Link>
                         <Link href={`/${clinic}/portal/pets/new`} className="flex items-center justify-center gap-2 text-[var(--text-secondary)] font-bold hover:bg-gray-100 px-4 py-3 rounded-xl transition-colors shrink-0" title="Nueva Mascota">
@@ -327,56 +348,75 @@ export default async function DashboardPage({ params, searchParams }: {
                          </div>
                     </div>
 
-                    {/* Vaccines */}
+                    {/* Vaccines - Only show pending/rejected/upcoming */}
                     <div className="p-6">
                         <h3 className="font-bold text-[var(--text-secondary)] mb-4 flex items-center gap-2 text-sm uppercase tracking-wider">
-                            <Syringe className="w-4 h-4" /> {data.config.ui_labels?.portal?.pet_card?.vaccines}
+                            <Syringe className="w-4 h-4" /> Pendientes
                         </h3>
-                        
-                        {!pet.vaccines || pet.vaccines.length === 0 ? (
-                            <p className="text-sm text-gray-400 italic">{data.config.ui_labels?.portal?.empty_states?.no_vaccines}</p>
-                        ) : (
-                            <div className="space-y-3">
-                                {pet.vaccines.map((v: Vaccine) => (
-                                    <div key={v.id} className="flex items-center justify-between p-3 rounded-xl bg-gray-50 border border-gray-100">
-                                        <div>
-                                            <div className="flex items-center gap-2">
-                                                <span className="font-bold text-[var(--text-primary)] block text-sm">{v.name}</span>
-                                                {/* Status Badge */}
-                                                {v.status === 'verified' && (
-                                                    <span className="bg-green-100 text-green-600 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
-                                                        <CheckCircle2 className="w-3 h-3"/> Oficial
-                                                    </span>
-                                                )}
-                                                {v.status === 'pending' && (
-                                                    <span className="bg-yellow-100 text-yellow-600 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
-                                                        <Clock className="w-3 h-3"/> Revisión
-                                                    </span>
-                                                )}
-                                                {v.status === 'rejected' && (
-                                                    <span className="bg-red-100 text-red-600 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
-                                                        <XCircle className="w-3 h-3"/> Rechazada
-                                                    </span>
+
+                        {(() => {
+                            const pendingVaccines = filterPendingVaccines(pet.vaccines);
+
+                            if (pendingVaccines.length === 0) {
+                                return (
+                                    <p className="text-sm text-gray-400 italic flex items-center gap-2">
+                                        <CheckCircle2 className="w-4 h-4 text-green-500" />
+                                        Todo al día
+                                    </p>
+                                );
+                            }
+
+                            return (
+                                <div className="space-y-3">
+                                    {pendingVaccines.map((v: Vaccine) => (
+                                        <div key={v.id} className="flex items-center justify-between p-3 rounded-xl bg-gray-50 border border-gray-100">
+                                            <div>
+                                                <div className="flex items-center gap-2 flex-wrap">
+                                                    <span className="font-bold text-[var(--text-primary)] block text-sm">{v.name}</span>
+                                                    {/* Status Badge */}
+                                                    {v.status === 'pending' && (
+                                                        <span className="bg-yellow-100 text-yellow-600 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                                                            <Clock className="w-3 h-3"/> Revisión
+                                                        </span>
+                                                    )}
+                                                    {v.status === 'rejected' && (
+                                                        <span className="bg-red-100 text-red-600 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                                                            <XCircle className="w-3 h-3"/> Rechazada
+                                                        </span>
+                                                    )}
+                                                    {/* Upcoming badge - only show if verified but due soon */}
+                                                    {v.status === 'verified' && isUpcoming(v.next_due_date) && (
+                                                        <span className="bg-blue-100 text-blue-600 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                                                            <AlertCircle className="w-3 h-3"/> Vence pronto
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                {v.next_due_date && isUpcoming(v.next_due_date) ? (
+                                                    <span className="text-xs text-blue-600 font-medium">Vence: {v.next_due_date}</span>
+                                                ) : (
+                                                    <span className="text-xs text-gray-500">Puesta: {v.administered_date}</span>
                                                 )}
                                             </div>
-                                            <span className="text-xs text-gray-500">Puesta: {v.administered_date}</span>
                                         </div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
+                                    ))}
+                                </div>
+                            );
+                        })()}
                         
                         <div className="grid grid-cols-2 gap-3 mt-6">
-                            <Link 
+                            <Link
                                 href={`/${clinic}/portal/pets/${pet.id}/vaccines/new`}
                                 className="w-full py-3 bg-[var(--primary)] text-white font-bold rounded-xl shadow-md hover:shadow-lg hover:-translate-y-1 transition-all flex justify-center items-center gap-2 text-sm"
                             >
                                 <Plus className="w-4 h-4" /> {data.config.ui_labels?.portal?.pet_card?.add_vaccine}
                             </Link>
 
-                            <button className="w-full py-3 border-2 border-dashed border-[var(--primary)] text-[var(--primary)] font-bold rounded-xl hover:bg-[var(--primary)]/5 transition-colors flex justify-center items-center gap-2 text-sm">
-                                 <Download className="w-4 h-4" /> {data.config.ui_labels?.portal?.pet_card?.download_pdf}
-                            </button>
+                            <Link
+                                href={`/${clinic}/portal/pets/${pet.id}`}
+                                className="w-full py-3 border-2 border-dashed border-[var(--primary)] text-[var(--primary)] font-bold rounded-xl hover:bg-[var(--primary)]/5 transition-colors flex justify-center items-center gap-2 text-sm"
+                            >
+                                Ver historial completo
+                            </Link>
                         </div>
                     </div>
                 </div>

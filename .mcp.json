@@ -1,15 +1,30 @@
 {
   "mcpServers": {
     "playwright": {
-      "type": "stdio",
       "command": "cmd",
       "args": [
         "/c",
         "npx",
         "-y",
         "@playwright/mcp@latest"
-      ],
-      "env": {}
+      ]
+    },
+    "supabase-data": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "@supabase/mcp-server-postgrest",
+        "--apiUrl",
+        "https://okddppczckbjdotrxiev.supabase.co/rest/v1",
+        "--apiKey",
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9rZGRwcGN6Y2tiamRvdHJ4aWV2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU5MTgzNjgsImV4cCI6MjA4MTQ5NDM2OH0.ZaGuchvSsLLH5KSqSdOZO_2Cdaoa9zLExyIL37XS5jE"
+      ]
+    },
+    "supabase": {
+      "type": "http",
+      "url": "https://mcp.supabase.com/mcp?project_ref=okddppczckbjdotrxiev"
     }
   }
 }

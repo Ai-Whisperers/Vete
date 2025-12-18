@@ -157,7 +157,9 @@ class RedisStore {
 
     try {
       // Dynamically import Redis client if available
-      const redisModule = await import('redis' as string).catch(() => null);
+      // Using variable to prevent Webpack from trying to bundle redis
+      const redisModuleName = 'redis';
+      const redisModule = await import(/* webpackIgnore: true */ redisModuleName).catch(() => null);
       if (!redisModule) {
         return; // Redis not installed, use in-memory
       }

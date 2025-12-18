@@ -1,4 +1,10 @@
 /**
+ * Field-level validation errors
+ * Maps field names to their error messages
+ */
+export type FieldErrors = Record<string, string>
+
+/**
  * Standardized result type for Server Actions
  *
  * This provides a consistent error handling pattern across all server actions.
@@ -13,14 +19,23 @@
  * return { success: true }
  * ```
  *
- * @example Error
+ * @example General error
  * ```ts
  * return { success: false, error: 'No autorizado' }
+ * ```
+ *
+ * @example Field-level errors
+ * ```ts
+ * return {
+ *   success: false,
+ *   error: 'Por favor corrige los errores del formulario',
+ *   fieldErrors: { name: 'El nombre es obligatorio', weight: 'El peso debe ser mayor a 0' }
+ * }
  * ```
  */
 export type ActionResult<T = void> =
   | { success: true; data?: T }
-  | { success: false; error: string }
+  | { success: false; error: string; fieldErrors?: FieldErrors }
 
 /**
  * Type guard to check if an action result is successful

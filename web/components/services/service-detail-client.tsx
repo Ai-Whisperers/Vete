@@ -5,7 +5,6 @@ import Link from "next/link";
 import * as Icons from "lucide-react";
 import { DynamicIcon } from "@/components/ui/dynamic-icon";
 import { PetSelector } from "./pet-selector";
-import { AddToCartButton } from "../cart/add-to-cart-button";
 import { useCart } from "@/context/cart-context";
 import {
   getServicePriceForSize,
@@ -48,6 +47,7 @@ export function ServiceDetailClient({
   const [selectedPet, setSelectedPet] = useState<PetForService | null>(null);
   const [addingVariant, setAddingVariant] = useState<string | null>(null);
   const [justAddedVariant, setJustAddedVariant] = useState<string | null>(null);
+  const [showPetPrompt, setShowPetPrompt] = useState(false);
 
   // Check if any variant has size-based pricing
   const hasSizeDependentVariants = service.variants?.some((v) => hasSizeBasedPricing(v.size_pricing));
@@ -74,51 +74,45 @@ export function ServiceDetailClient({
     }, {} as Record<string, { price: number; difference: number; isSizeDependent: boolean }>);
   }, [service.variants, selectedPet]);
 
-  // Handle add to cart
+  // Handle add to cart - always requires pet selection
   const handleAddToCart = async (variant: ServiceVariant) => {
-    const variantHasSizePricing = hasSizeBasedPricing(variant.size_pricing);
-
-    if (variantHasSizePricing && !selectedPet) {
-      // User needs to select a pet first
+    // Always require pet selection
+    if (!selectedPet) {
+      setShowPetPrompt(true);
+      // Scroll to pet selector on mobile
+      const petSelector = document.getElementById('pet-selector-card');
+      if (petSelector) {
+        petSelector.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
       return;
     }
 
     setAddingVariant(variant.name);
+    setShowPetPrompt(false);
 
     // Small delay for UX
     await new Promise((resolve) => setTimeout(resolve, 300));
 
-    const calculatedPrice = calculatedPrices[variant.name]?.price ?? variant.price_value;
+    const variantHasSizePricing = hasSizeBasedPricing(variant.size_pricing);
+    const calculatedPrice = variantHasSizePricing
+      ? (calculatedPrices[variant.name]?.price ?? variant.price_value)
+      : variant.price_value;
 
-    if (variantHasSizePricing && selectedPet) {
-      // Add with pet info
-      addItem({
-        id: `${service.id}-${selectedPet.id}-${variant.name}`,
-        name: `${service.title} - ${variant.name}`,
-        price: calculatedPrice,
-        type: "service",
-        image_url: service.image,
-        description: variant.description || service.summary,
-        pet_id: selectedPet.id,
-        pet_name: selectedPet.name,
-        pet_size: selectedPet.size_category,
-        service_id: service.id,
-        variant_name: variant.name,
-        base_price: variant.price_value
-      });
-    } else {
-      // Add without pet info
-      addItem({
-        id: `${service.id}-${variant.name}`,
-        name: `${service.title} - ${variant.name}`,
-        price: variant.price_value,
-        type: "service",
-        image_url: service.image,
-        description: variant.description || service.summary,
-        service_id: service.id,
-        variant_name: variant.name
-      });
-    }
+    // Always add with pet info
+    addItem({
+      id: `${service.id}-${selectedPet.id}-${variant.name}`,
+      name: `${service.title} - ${variant.name}`,
+      price: calculatedPrice,
+      type: "service",
+      image_url: service.image,
+      description: variant.description || service.summary,
+      pet_id: selectedPet.id,
+      pet_name: selectedPet.name,
+      pet_size: selectedPet.size_category,
+      service_id: service.id,
+      variant_name: variant.name,
+      base_price: variant.price_value
+    });
 
     setAddingVariant(null);
     setJustAddedVariant(variant.name);
@@ -225,22 +219,35 @@ export function ServiceDetailClient({
               <h2 className="text-xl font-bold text-[var(--text-primary)] font-heading">
                 Precios y Variantes
               </h2>
-              {selectedPet && hasSizeDependentVariants && (
+              {selectedPet && (
                 <div className="flex items-center gap-2 px-3 py-1.5 bg-[var(--primary)]/10 rounded-full">
                   <Icons.PawPrint className="w-4 h-4 text-[var(--primary)]" />
                   <span className="text-sm font-bold text-[var(--primary)]">
                     {selectedPet.name}
                   </span>
-                  <span
-                    className={`px-2 py-0.5 rounded-full text-xs font-bold ${getSizeBadgeColor(
-                      selectedPet.size_category
-                    )}`}
-                  >
-                    {SIZE_SHORT_LABELS[selectedPet.size_category]}
-                  </span>
+                  {hasSizeDependentVariants && (
+                    <span
+                      className={`px-2 py-0.5 rounded-full text-xs font-bold ${getSizeBadgeColor(
+                        selectedPet.size_category
+                      )}`}
+                    >
+                      {SIZE_SHORT_LABELS[selectedPet.size_category]}
+                    </span>
+                  )}
                 </div>
               )}
             </div>
+
+            {/* Pet selection prompt - shows when user tries to add without pet */}
+            {showPetPrompt && !selectedPet && (
+              <div className="p-4 bg-amber-50 border-b border-amber-100 flex items-center gap-3">
+                <Icons.AlertCircle className="w-5 h-5 text-amber-600 shrink-0" />
+                <p className="text-sm text-amber-800 font-medium">
+                  Primero selecciona una mascota para agregar este servicio
+                </p>
+              </div>
+            )}
+
             <div className="overflow-x-auto">
               <table className="w-full text-left">
                 <thead className="bg-[var(--bg-subtle)] text-[var(--text-muted)] font-bold text-xs uppercase tracking-wider">
@@ -262,7 +269,6 @@ export function ServiceDetailClient({
                     const isAdding = addingVariant === variant.name;
                     const justAdded = justAddedVariant === variant.name;
                     const variantHasSizePricing = hasSizeBasedPricing(variant.size_pricing);
-                    const needsPetSelection = variantHasSizePricing && !selectedPet;
 
                     return (
                       <tr key={idx} className="hover:bg-gray-50 transition-colors">
@@ -317,19 +323,13 @@ export function ServiceDetailClient({
                                 <button
                                   type="button"
                                   onClick={() => handleAddToCart(variant)}
-                                  disabled={isAdding || justAdded || needsPetSelection}
+                                  disabled={isAdding || justAdded}
                                   className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm transition-all ${
                                     justAdded
                                       ? "bg-green-500 text-white"
-                                      : needsPetSelection
-                                      ? "bg-gray-200 text-gray-500 cursor-not-allowed"
                                       : "bg-[var(--primary)] text-white hover:brightness-110"
                                   } disabled:opacity-70`}
-                                  title={
-                                    needsPetSelection
-                                      ? "Selecciona una mascota primero"
-                                      : "Agregar al carrito"
-                                  }
+                                  title="Agregar al carrito"
                                 >
                                   {isAdding ? (
                                     <>
@@ -373,9 +373,16 @@ export function ServiceDetailClient({
 
         {/* RIGHT COLUMN: Sidebar */}
         <div className="lg:col-span-1 space-y-6">
-          {/* Pet Selector Card - Only show if logged in and has size-dependent variants */}
-          {isLoggedIn && hasSizeDependentVariants && (
-            <div className="bg-white p-6 rounded-[var(--radius)] shadow-[var(--shadow-sm)] border border-gray-100">
+          {/* Pet Selector Card - Always show for logged in users */}
+          {isLoggedIn && (
+            <div
+              id="pet-selector-card"
+              className={`bg-white p-6 rounded-[var(--radius)] shadow-[var(--shadow-sm)] border transition-all ${
+                showPetPrompt && !selectedPet
+                  ? 'border-amber-400 ring-2 ring-amber-200'
+                  : 'border-gray-100'
+              }`}
+            >
               <div className="flex items-center gap-2 mb-4">
                 <Icons.PawPrint className="w-5 h-5 text-[var(--primary)]" />
                 <h3 className="text-lg font-bold text-[var(--text-primary)] font-heading">
@@ -383,11 +390,16 @@ export function ServiceDetailClient({
                 </h3>
               </div>
               <p className="text-sm text-[var(--text-muted)] mb-4">
-                Algunos servicios tienen precios que varían según el tamaño de tu
-                mascota.
+                {hasSizeDependentVariants
+                  ? "Selecciona tu mascota para ver precios personalizados y agregar servicios."
+                  : "Selecciona la mascota para la cual deseas este servicio."
+                }
               </p>
               <PetSelector
-                onSelect={setSelectedPet}
+                onSelect={(pet) => {
+                  setSelectedPet(pet);
+                  setShowPetPrompt(false);
+                }}
                 selectedPetId={selectedPet?.id}
               />
             </div>

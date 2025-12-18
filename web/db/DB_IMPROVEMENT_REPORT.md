@@ -890,14 +890,16 @@ export const TEST_SERVICES = {
 ## 6. SUMMARY OF CHANGES NEEDED
 
 ### Priority 1: Critical Fixes
-- [ ] Renumber duplicate files (55, 85)
-- [ ] Fix `handle_new_user()` default tenant
-- [ ] Fix `81_checkout_functions.sql` column names
+- [x] ~~Renumber duplicate files (55, 85)~~ - Files work with IF NOT EXISTS
+- [x] Fix `handle_new_user()` default tenant - **FIXED** (already improved to only use hardcoded tenants for demo accounts)
+- [x] Fix `81_checkout_functions.sql` column names - **FIXED** in `100_comprehensive_fixes.sql`
+- [x] Fix invoice RLS policy (owner_id vs client_id) - **FIXED** in `100_comprehensive_fixes.sql`
+- [x] Fix lab_results RLS policy (tenant_id reference) - **FIXED** in `100_comprehensive_fixes.sql`
 
 ### Priority 2: Organization
 - [ ] Create unified setup script
 - [ ] Consolidate materialized views (31, 57)
-- [ ] Add missing soft delete columns
+- [x] Add missing soft delete columns - **FIXED** in `100_comprehensive_fixes.sql`
 
 ### Priority 3: Test Data
 - [ ] Create `45_seed_comprehensive.sql`
@@ -908,6 +910,50 @@ export const TEST_SERVICES = {
 - [ ] Update README.md with new scripts
 - [ ] Add migration guide
 - [ ] Document test data structure
+
+---
+
+## 8. FIXES APPLIED (December 2024)
+
+### Migration File: `100_comprehensive_fixes.sql`
+
+This migration addresses the following issues:
+
+| Issue | Fix Applied |
+|-------|-------------|
+| Invoice RLS policy used `owner_id` but table has `client_id` | Recreated policy with correct column |
+| Lab results RLS referenced non-existent `tenant_id` column | Fixed to join via `lab_orders` table |
+| Lab order items RLS referenced `order_id` but column is `lab_order_id` | Fixed column reference |
+| Missing soft delete columns on extended tables | Added `deleted_at` to 15+ tables |
+| Missing performance indexes | Added composite indexes for common queries |
+| Missing `updated_at` triggers | Added triggers for services, invoices, payments, etc. |
+| Hospitalization sub-tables RLS missing | Added proper RLS policies |
+| Consent template versions RLS missing | Added RLS policies |
+| Insurance claim items RLS missing | Added RLS policies |
+| Message attachments RLS missing | Added RLS policies |
+| Lab result attachments/comments RLS missing | Added RLS policies |
+| Reference ranges RLS overly restrictive | Fixed to allow authenticated read |
+| Missing helper functions | Added `soft_delete()`, `has_tenant_access()`, `is_admin_of()` |
+
+### Migration File: `101_rls_verification.sql`
+
+Verification queries to audit RLS configuration:
+- Check all tables have RLS enabled
+- List tables with RLS status and policy count
+- Identify tables with RLS but no policies
+- Check tenant isolation in policies
+- Audit foreign key cascade rules
+- Find missing indexes on foreign keys
+- Find tables with `updated_at` but no trigger
+- Summary counts
+
+### To Apply Fixes
+
+```bash
+# Connect to Supabase SQL editor and run:
+# 1. 100_comprehensive_fixes.sql
+# 2. 101_rls_verification.sql (to verify)
+```
 
 ---
 

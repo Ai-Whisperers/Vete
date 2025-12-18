@@ -11256,18 +11256,7 @@ CREATE POLICY "Staff can manage lab results" ON lab_results
         )
     );
 
--- A8. EXTERNAL_LAB_ORDERS
-ALTER TABLE external_lab_orders ENABLE ROW LEVEL SECURITY;
-
-DROP POLICY IF EXISTS "Staff can manage external lab orders" ON external_lab_orders;
-CREATE POLICY "Staff can manage external lab orders" ON external_lab_orders
-    FOR ALL USING (
-        EXISTS (
-            SELECT 1 FROM lab_orders
-            WHERE lab_orders.id = external_lab_orders.order_id
-            AND public.is_staff_of(lab_orders.tenant_id)
-        )
-    );
+-- A8. EXTERNAL_LAB_ORDERS (table doesn't exist - skipped)
 
 -- =============================================================================
 -- B. HOSPITALIZATION TABLES
@@ -11349,101 +11338,8 @@ CREATE POLICY "Staff can manage hospitalization vitals" ON hospitalization_vital
         )
     );
 
--- B5. HOSPITALIZATION_MEDICATIONS
-ALTER TABLE hospitalization_medications ENABLE ROW LEVEL SECURITY;
-
-DROP POLICY IF EXISTS "Owners can view own hospitalization medications" ON hospitalization_medications;
-CREATE POLICY "Owners can view own hospitalization medications" ON hospitalization_medications
-    FOR SELECT USING (
-        EXISTS (
-            SELECT 1 FROM hospitalizations
-            JOIN pets ON pets.id = hospitalizations.pet_id
-            WHERE hospitalizations.id = hospitalization_medications.hospitalization_id
-            AND pets.owner_id = auth.uid()
-        )
-    );
-
-DROP POLICY IF EXISTS "Staff can manage hospitalization medications" ON hospitalization_medications;
-CREATE POLICY "Staff can manage hospitalization medications" ON hospitalization_medications
-    FOR ALL USING (
-        EXISTS (
-            SELECT 1 FROM hospitalizations
-            WHERE hospitalizations.id = hospitalization_medications.hospitalization_id
-            AND public.is_staff_of(hospitalizations.tenant_id)
-        )
-    );
-
--- B6. HOSPITALIZATION_PROCEDURES
-ALTER TABLE hospitalization_procedures ENABLE ROW LEVEL SECURITY;
-
-DROP POLICY IF EXISTS "Owners can view own hospitalization procedures" ON hospitalization_procedures;
-CREATE POLICY "Owners can view own hospitalization procedures" ON hospitalization_procedures
-    FOR SELECT USING (
-        EXISTS (
-            SELECT 1 FROM hospitalizations
-            JOIN pets ON pets.id = hospitalizations.pet_id
-            WHERE hospitalizations.id = hospitalization_procedures.hospitalization_id
-            AND pets.owner_id = auth.uid()
-        )
-    );
-
-DROP POLICY IF EXISTS "Staff can manage hospitalization procedures" ON hospitalization_procedures;
-CREATE POLICY "Staff can manage hospitalization procedures" ON hospitalization_procedures
-    FOR ALL USING (
-        EXISTS (
-            SELECT 1 FROM hospitalizations
-            WHERE hospitalizations.id = hospitalization_procedures.hospitalization_id
-            AND public.is_staff_of(hospitalizations.tenant_id)
-        )
-    );
-
--- B7. HOSPITALIZATION_FEEDING_LOG
-ALTER TABLE hospitalization_feeding_log ENABLE ROW LEVEL SECURITY;
-
-DROP POLICY IF EXISTS "Owners can view own feeding log" ON hospitalization_feeding_log;
-CREATE POLICY "Owners can view own feeding log" ON hospitalization_feeding_log
-    FOR SELECT USING (
-        EXISTS (
-            SELECT 1 FROM hospitalizations
-            JOIN pets ON pets.id = hospitalizations.pet_id
-            WHERE hospitalizations.id = hospitalization_feeding_log.hospitalization_id
-            AND pets.owner_id = auth.uid()
-        )
-    );
-
-DROP POLICY IF EXISTS "Staff can manage feeding log" ON hospitalization_feeding_log;
-CREATE POLICY "Staff can manage feeding log" ON hospitalization_feeding_log
-    FOR ALL USING (
-        EXISTS (
-            SELECT 1 FROM hospitalizations
-            WHERE hospitalizations.id = hospitalization_feeding_log.hospitalization_id
-            AND public.is_staff_of(hospitalizations.tenant_id)
-        )
-    );
-
--- B8. HOSPITALIZATION_BILLING
-ALTER TABLE hospitalization_billing ENABLE ROW LEVEL SECURITY;
-
-DROP POLICY IF EXISTS "Owners can view own hospitalization billing" ON hospitalization_billing;
-CREATE POLICY "Owners can view own hospitalization billing" ON hospitalization_billing
-    FOR SELECT USING (
-        EXISTS (
-            SELECT 1 FROM hospitalizations
-            JOIN pets ON pets.id = hospitalizations.pet_id
-            WHERE hospitalizations.id = hospitalization_billing.hospitalization_id
-            AND pets.owner_id = auth.uid()
-        )
-    );
-
-DROP POLICY IF EXISTS "Staff can manage hospitalization billing" ON hospitalization_billing;
-CREATE POLICY "Staff can manage hospitalization billing" ON hospitalization_billing
-    FOR ALL USING (
-        EXISTS (
-            SELECT 1 FROM hospitalizations
-            WHERE hospitalizations.id = hospitalization_billing.hospitalization_id
-            AND public.is_staff_of(hospitalizations.tenant_id)
-        )
-    );
+-- B5-B8. SKIPPED: hospitalization_medications, hospitalization_procedures,
+--         hospitalization_feeding_log, hospitalization_billing (tables don't exist)
 
 -- =============================================================================
 -- C. CONSENT TABLES

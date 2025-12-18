@@ -628,6 +628,438 @@ Security audit trail.
 
 ---
 
+## Laboratory
+
+### `lab_test_catalog`
+
+Available lab tests.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | UUID | Primary key |
+| `tenant_id` | TEXT | FK to tenants (null = global) |
+| `name` | TEXT | Test name |
+| `code` | TEXT | Test code |
+| `category` | TEXT | Test category |
+| `sample_type` | TEXT | Sample type required |
+| `turnaround_hours` | INT | Expected turnaround |
+| `base_price` | NUMERIC | Base price |
+| `is_active` | BOOLEAN | Active status |
+
+### `lab_panels`
+
+Pre-configured test panels.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | UUID | Primary key |
+| `tenant_id` | TEXT | FK to tenants |
+| `name` | TEXT | Panel name |
+| `description` | TEXT | Panel description |
+| `test_ids` | UUID[] | Array of test IDs |
+| `base_price` | NUMERIC | Panel price |
+
+### `lab_orders`
+
+Lab test orders.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | UUID | Primary key |
+| `tenant_id` | TEXT | FK to tenants |
+| `pet_id` | UUID | FK to pets |
+| `ordered_by` | UUID | FK to profiles (vet) |
+| `order_number` | TEXT | Human-readable number |
+| `status` | TEXT | 'ordered', 'in_progress', 'completed' |
+| `priority` | TEXT | 'routine', 'urgent', 'stat' |
+| `ordered_at` | TIMESTAMPTZ | Order timestamp |
+| `completed_at` | TIMESTAMPTZ | Completion time |
+| `notes` | TEXT | Order notes |
+
+### `lab_order_items`
+
+Individual tests in an order.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | UUID | Primary key |
+| `lab_order_id` | UUID | FK to lab_orders |
+| `test_id` | UUID | FK to lab_test_catalog |
+| `status` | TEXT | Item status |
+| `price` | NUMERIC | Charged price |
+
+### `lab_results`
+
+Test results.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | UUID | Primary key |
+| `lab_order_id` | UUID | FK to lab_orders |
+| `test_id` | UUID | FK to lab_test_catalog |
+| `value` | TEXT | Result value |
+| `unit` | TEXT | Unit of measurement |
+| `reference_min` | NUMERIC | Reference range min |
+| `reference_max` | NUMERIC | Reference range max |
+| `is_abnormal` | BOOLEAN | Abnormal flag |
+| `notes` | TEXT | Result notes |
+| `entered_by` | UUID | FK to profiles |
+| `entered_at` | TIMESTAMPTZ | Entry time |
+
+### `lab_result_attachments`
+
+Result file attachments.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | UUID | Primary key |
+| `lab_order_id` | UUID | FK to lab_orders |
+| `file_url` | TEXT | Storage URL |
+| `file_name` | TEXT | Original filename |
+| `file_type` | TEXT | MIME type |
+| `uploaded_by` | UUID | FK to profiles |
+| `uploaded_at` | TIMESTAMPTZ | Upload time |
+
+### `lab_result_comments`
+
+Discussion/notes on results.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | UUID | Primary key |
+| `lab_order_id` | UUID | FK to lab_orders |
+| `comment` | TEXT | Comment text |
+| `created_by` | UUID | FK to profiles |
+| `created_at` | TIMESTAMPTZ | Creation time |
+
+---
+
+## Consent Management
+
+### `consent_templates`
+
+Consent form templates.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | UUID | Primary key |
+| `tenant_id` | TEXT | FK to tenants |
+| `name` | TEXT | Template name |
+| `description` | TEXT | Template description |
+| `content` | TEXT | Template content (HTML) |
+| `category` | TEXT | Template category |
+| `requires_witness` | BOOLEAN | Witness required |
+| `is_active` | BOOLEAN | Active status |
+| `version` | INT | Version number |
+
+### `consent_template_versions`
+
+Version history for templates.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | UUID | Primary key |
+| `template_id` | UUID | FK to consent_templates |
+| `version` | INT | Version number |
+| `content` | TEXT | Version content |
+| `created_at` | TIMESTAMPTZ | Creation time |
+| `created_by` | UUID | FK to profiles |
+
+### `consent_documents`
+
+Signed consent records.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | UUID | Primary key |
+| `tenant_id` | TEXT | FK to tenants |
+| `template_id` | UUID | FK to consent_templates |
+| `pet_id` | UUID | FK to pets |
+| `client_id` | UUID | FK to profiles |
+| `signed_at` | TIMESTAMPTZ | Signature time |
+| `signature_url` | TEXT | Signature image URL |
+| `witness_name` | TEXT | Witness name |
+| `witness_signature_url` | TEXT | Witness signature |
+| `ip_address` | TEXT | Signer IP |
+| `expires_at` | TIMESTAMPTZ | Expiration date |
+| `revoked_at` | TIMESTAMPTZ | Revocation time |
+
+---
+
+## Insurance
+
+### `insurance_providers`
+
+Insurance company directory.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | UUID | Primary key |
+| `name` | TEXT | Provider name |
+| `code` | TEXT | Provider code |
+| `contact_email` | TEXT | Contact email |
+| `contact_phone` | TEXT | Contact phone |
+| `claims_portal_url` | TEXT | Claims portal URL |
+| `is_active` | BOOLEAN | Active status |
+
+### `insurance_policies`
+
+Pet insurance policies.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | UUID | Primary key |
+| `tenant_id` | TEXT | FK to tenants |
+| `pet_id` | UUID | FK to pets |
+| `provider_id` | UUID | FK to insurance_providers |
+| `policy_number` | TEXT | Policy number |
+| `coverage_type` | TEXT | Coverage type |
+| `coverage_amount` | NUMERIC | Coverage limit |
+| `deductible` | NUMERIC | Deductible amount |
+| `copay_percentage` | NUMERIC | Copay % |
+| `effective_date` | DATE | Start date |
+| `expiration_date` | DATE | End date |
+| `status` | TEXT | 'active', 'expired', 'cancelled' |
+
+### `insurance_claims`
+
+Insurance claims.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | UUID | Primary key |
+| `tenant_id` | TEXT | FK to tenants |
+| `policy_id` | UUID | FK to insurance_policies |
+| `pet_id` | UUID | FK to pets |
+| `claim_number` | TEXT | Claim reference |
+| `claim_type` | TEXT | 'medical', 'accident', 'wellness' |
+| `service_date` | DATE | Date of service |
+| `diagnosis` | TEXT | Diagnosis |
+| `total_amount` | NUMERIC | Total claimed |
+| `approved_amount` | NUMERIC | Approved amount |
+| `status` | TEXT | 'submitted', 'pending', 'approved', 'denied' |
+| `submitted_at` | TIMESTAMPTZ | Submission time |
+| `processed_at` | TIMESTAMPTZ | Processing time |
+| `notes` | TEXT | Claim notes |
+
+### `insurance_claim_items`
+
+Line items in a claim.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | UUID | Primary key |
+| `claim_id` | UUID | FK to insurance_claims |
+| `service_id` | UUID | FK to services |
+| `description` | TEXT | Item description |
+| `amount` | NUMERIC | Item amount |
+| `approved_amount` | NUMERIC | Approved amount |
+
+---
+
+## Staff Management
+
+### `staff_profiles`
+
+Extended staff information.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | UUID | Primary key |
+| `profile_id` | UUID | FK to profiles |
+| `tenant_id` | TEXT | FK to tenants |
+| `license_number` | TEXT | Professional license |
+| `specialization` | TEXT | Specialization |
+| `hire_date` | DATE | Hire date |
+| `employment_type` | TEXT | 'full_time', 'part_time', 'contractor' |
+| `hourly_rate` | NUMERIC | Hourly rate |
+| `is_active` | BOOLEAN | Active status |
+
+### `staff_schedules`
+
+Regular working schedules.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | UUID | Primary key |
+| `staff_id` | UUID | FK to staff_profiles |
+| `day_of_week` | INT | Day (0=Sunday, 6=Saturday) |
+| `start_time` | TIME | Shift start |
+| `end_time` | TIME | Shift end |
+| `is_available` | BOOLEAN | Available for appointments |
+
+### `staff_time_off`
+
+Time off requests.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | UUID | Primary key |
+| `staff_id` | UUID | FK to staff_profiles |
+| `type_id` | UUID | FK to staff_time_off_types |
+| `start_date` | DATE | Start date |
+| `end_date` | DATE | End date |
+| `reason` | TEXT | Request reason |
+| `status` | TEXT | 'pending', 'approved', 'denied' |
+| `approved_by` | UUID | FK to profiles |
+| `approved_at` | TIMESTAMPTZ | Approval time |
+
+### `staff_time_off_types`
+
+Time off type catalog.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | UUID | Primary key |
+| `tenant_id` | TEXT | FK to tenants |
+| `name` | TEXT | Type name |
+| `is_paid` | BOOLEAN | Paid time off |
+| `max_days_per_year` | INT | Annual limit |
+| `requires_approval` | BOOLEAN | Needs approval |
+
+---
+
+## E-Commerce Extended
+
+### `store_orders`
+
+Customer orders.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | UUID | Primary key |
+| `tenant_id` | TEXT | FK to tenants |
+| `customer_id` | UUID | FK to profiles |
+| `order_number` | TEXT | Human-readable number |
+| `status` | TEXT | 'pending', 'confirmed', 'shipped', 'delivered' |
+| `subtotal` | NUMERIC | Subtotal |
+| `tax_amount` | NUMERIC | Tax |
+| `shipping_amount` | NUMERIC | Shipping cost |
+| `discount_amount` | NUMERIC | Discounts |
+| `total` | NUMERIC | Grand total |
+| `shipping_address` | JSONB | Shipping address |
+| `notes` | TEXT | Order notes |
+| `created_at` | TIMESTAMPTZ | Order time |
+
+### `store_order_items`
+
+Order line items.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | UUID | Primary key |
+| `order_id` | UUID | FK to store_orders |
+| `product_id` | UUID | FK to store_products |
+| `variant_id` | UUID | FK to store_product_variants |
+| `quantity` | INT | Quantity |
+| `unit_price` | NUMERIC | Unit price |
+| `total` | NUMERIC | Line total |
+
+### `store_coupons`
+
+Discount coupons.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | UUID | Primary key |
+| `tenant_id` | TEXT | FK to tenants |
+| `code` | TEXT | Coupon code |
+| `description` | TEXT | Description |
+| `discount_type` | TEXT | 'percentage', 'fixed' |
+| `discount_value` | NUMERIC | Discount amount |
+| `min_purchase` | NUMERIC | Minimum purchase |
+| `usage_limit` | INT | Max uses |
+| `times_used` | INT | Current uses |
+| `valid_from` | TIMESTAMPTZ | Start date |
+| `valid_until` | TIMESTAMPTZ | End date |
+| `is_active` | BOOLEAN | Active status |
+
+### `store_reviews`
+
+Product reviews.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | UUID | Primary key |
+| `product_id` | UUID | FK to store_products |
+| `user_id` | UUID | FK to profiles |
+| `rating` | INT | Rating (1-5) |
+| `title` | TEXT | Review title |
+| `content` | TEXT | Review content |
+| `is_verified_purchase` | BOOLEAN | Verified buyer |
+| `is_approved` | BOOLEAN | Moderation status |
+| `created_at` | TIMESTAMPTZ | Review time |
+
+### `store_wishlist`
+
+User wishlists.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | UUID | Primary key |
+| `user_id` | UUID | FK to profiles |
+| `product_id` | UUID | FK to store_products |
+| `created_at` | TIMESTAMPTZ | Added time |
+
+---
+
+## WhatsApp Integration
+
+### `whatsapp_messages`
+
+WhatsApp message history.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | UUID | Primary key |
+| `tenant_id` | TEXT | FK to tenants |
+| `conversation_id` | UUID | FK to conversations |
+| `phone_number` | TEXT | Phone number |
+| `direction` | TEXT | 'inbound', 'outbound' |
+| `message_type` | TEXT | 'text', 'image', 'document' |
+| `content` | TEXT | Message content |
+| `media_url` | TEXT | Media URL |
+| `status` | TEXT | 'sent', 'delivered', 'read', 'failed' |
+| `external_id` | TEXT | Provider message ID |
+| `created_at` | TIMESTAMPTZ | Message time |
+
+### `whatsapp_templates`
+
+WhatsApp message templates.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | UUID | Primary key |
+| `tenant_id` | TEXT | FK to tenants |
+| `name` | TEXT | Template name |
+| `category` | TEXT | Template category |
+| `content` | TEXT | Template content |
+| `variables` | TEXT[] | Variable placeholders |
+| `is_approved` | BOOLEAN | WhatsApp approval status |
+| `external_id` | TEXT | Provider template ID |
+
+---
+
+## Notifications
+
+### `notifications`
+
+User notifications.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | UUID | Primary key |
+| `user_id` | UUID | FK to profiles |
+| `tenant_id` | TEXT | FK to tenants |
+| `type` | TEXT | Notification type |
+| `title` | TEXT | Notification title |
+| `message` | TEXT | Notification message |
+| `data` | JSONB | Additional data |
+| `read_at` | TIMESTAMPTZ | Read timestamp |
+| `created_at` | TIMESTAMPTZ | Creation time |
+
+---
+
 ## Entity Relationship Diagram
 
 ```
@@ -642,17 +1074,61 @@ tenants
     │       │       ├─── prescriptions (pet_id)
     │       │       ├─── appointments (pet_id)
     │       │       ├─── hospitalizations (pet_id)
+    │       │       ├─── lab_orders (pet_id)
+    │       │       ├─── insurance_policies (pet_id)
+    │       │       ├─── consent_documents (pet_id)
     │       │       └─── qr_tags (pet_id)
+    │       │
+    │       ├─── staff_profiles (profile_id)
+    │       │       ├─── staff_schedules (staff_id)
+    │       │       └─── staff_time_off (staff_id)
     │       │
     │       ├─── invoices (client_id)
     │       ├─── conversations (client_id)
+    │       ├─── store_orders (customer_id)
+    │       ├─── store_wishlist (user_id)
+    │       ├─── notifications (user_id)
     │       └─── loyalty_points (user_id)
     │
     ├─── services (tenant_id)
     ├─── store_products (tenant_id)
+    │       ├─── store_inventory (product_id)
+    │       ├─── store_reviews (product_id)
+    │       └─── store_order_items (product_id)
+    ├─── store_coupons (tenant_id)
     ├─── kennels (tenant_id)
+    ├─── lab_test_catalog (tenant_id)
+    ├─── consent_templates (tenant_id)
+    ├─── insurance_providers (global)
+    ├─── message_templates (tenant_id)
+    ├─── whatsapp_templates (tenant_id)
     └─── expenses (clinic_id)
 ```
+
+---
+
+## Table Count Summary
+
+| Category | Tables |
+|----------|--------|
+| Core | 3 |
+| Pet Management | 5 |
+| Medical Records | 3 |
+| Clinical Reference | 8 |
+| Appointments | 2 |
+| Invoicing | 5 |
+| Inventory | 4 |
+| Finance | 3 |
+| Hospitalization | 4 |
+| Laboratory | 7 |
+| Consent | 3 |
+| Insurance | 4 |
+| Communication | 5 |
+| Staff | 4 |
+| E-Commerce | 5 |
+| WhatsApp | 2 |
+| Safety & Audit | 4 |
+| **Total** | **~70+** |
 
 ---
 
@@ -662,3 +1138,4 @@ tenants
 - [RLS Policies](rls-policies.md)
 - [Migrations Guide](migrations.md)
 - [Functions Reference](functions.md)
+- [DB Improvement Report](../../web/db/DB_IMPROVEMENT_REPORT.md)

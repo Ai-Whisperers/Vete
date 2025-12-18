@@ -47,9 +47,18 @@ export function AuthGate({
     const supabase = createClient();
 
     const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user ?? null);
-      setLoading(false);
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) {
+          console.error('AuthGate session error:', error);
+        }
+        setUser(session?.user ?? null);
+      } catch (err) {
+        console.error('AuthGate failed to get session:', err);
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
     };
 
     checkUser();

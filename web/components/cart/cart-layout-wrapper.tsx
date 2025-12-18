@@ -17,7 +17,7 @@ interface CartLayoutWrapperProps {
  */
 export function CartLayoutWrapper({ isLoggedIn }: CartLayoutWrapperProps) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const { totalItems } = useCart();
+  const { itemCount } = useCart();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {

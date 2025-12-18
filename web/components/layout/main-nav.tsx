@@ -6,7 +6,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { ClinicConfig } from "@/lib/clinics";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, ShoppingCart, LogOut, Home, Briefcase, Users, Store, User, Calendar, Settings, Phone, PawPrint } from "lucide-react";
+import { Menu, X, ShoppingCart, LogOut, Home, Briefcase, Users, Store, User, Calendar, Settings, Phone, PawPrint, ChevronDown, Calculator, Apple, HelpCircle, Gift, Wrench } from "lucide-react";
 import { NotificationBell } from "./notification-bell";
 import { createClient } from "@/lib/supabase/client";
 import { useCart } from "@/context/cart-context";
@@ -34,7 +34,9 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [logoutError, setLogoutError] = useState<string | null>(null);
+  const [isToolsOpen, setIsToolsOpen] = useState(false);
   const { itemCount } = useCart();
+  const toolsMenuRef = useRef<HTMLDivElement>(null);
 
   // Memoize supabase client to prevent recreation on each render
   const supabase = useMemo(() => createClient(), []);
@@ -121,7 +123,20 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
   // Close mobile menu when route changes
   useEffect(() => {
     setIsOpen(false);
+    setIsToolsOpen(false);
   }, [pathname]);
+
+  // Close tools dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (toolsMenuRef.current && !toolsMenuRef.current.contains(event.target as Node)) {
+        setIsToolsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // Prevent scroll when menu is open
   useEffect(() => {
@@ -222,6 +237,14 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
     return pathname.startsWith(href);
   };
 
+  // Tools menu items
+  const toolsItems = [
+    { label: "Calculadora de Edad", href: `/${clinic}/tools/age-calculator`, icon: Calculator },
+    { label: "Alimentos Tóxicos", href: `/${clinic}/tools/toxic-food`, icon: Apple },
+    { label: "Preguntas Frecuentes", href: `/${clinic}/faq`, icon: HelpCircle },
+    { label: "Programa de Lealtad", href: `/${clinic}/loyalty_points`, icon: Gift },
+  ];
+
   return (
     <>
       <nav className="hidden md:flex items-center gap-8">
@@ -244,6 +267,53 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
           </Link>
         ))}
 
+        {/* Tools Dropdown */}
+        <div ref={toolsMenuRef} className="relative">
+          <button
+            onClick={() => setIsToolsOpen(!isToolsOpen)}
+            className={`text-base font-bold uppercase tracking-wide transition-colors relative group flex items-center gap-1 ${
+              isToolsOpen || pathname.includes('/tools') || pathname.includes('/faq') || pathname.includes('/loyalty')
+                ? "text-[var(--primary)]"
+                : "text-[var(--text-secondary)] hover:text-[var(--primary)]"
+            }`}
+          >
+            <Wrench className="w-4 h-4" />
+            Herramientas
+            <ChevronDown className={`w-4 h-4 transition-transform ${isToolsOpen ? 'rotate-180' : ''}`} />
+          </button>
+
+          <AnimatePresence>
+            {isToolsOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.15 }}
+                className="absolute top-full left-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50"
+              >
+                {toolsItems.map((tool) => {
+                  const ToolIcon = tool.icon;
+                  return (
+                    <Link
+                      key={tool.href}
+                      href={tool.href}
+                      onClick={() => setIsToolsOpen(false)}
+                      className={`flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors ${
+                        isActive(tool.href)
+                          ? "bg-[var(--primary)]/10 text-[var(--primary)]"
+                          : "text-gray-700 hover:bg-gray-50 hover:text-[var(--primary)]"
+                      }`}
+                    >
+                      <ToolIcon className="w-4 h-4" />
+                      {tool.label}
+                    </Link>
+                  );
+                })}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
         {/* Dynamic Auth Links */}
         <Link
             href={user ? `/${clinic}/portal/dashboard` : `/${clinic}/portal/login`}
@@ -253,7 +323,7 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
                 : "text-[var(--text-secondary)] hover:text-[var(--primary)]"
             }`}
         >
-            {user ? (config.ui_labels?.nav.owners_zone || "Zona de Dueños") : (config.ui_labels?.nav.login_profile || "LogIn / Mi Perfil")}
+            {user ? (config.ui_labels?.nav.my_portal || "Mi Portal") : (config.ui_labels?.nav.login || "Iniciar Sesión")}
              <span
               className={`absolute -bottom-1 left-0 h-0.5 bg-[var(--primary)] transition-all duration-300 ${
                 isActive(`/${clinic}/portal`) ? "w-full" : "w-0 group-hover:w-full"
@@ -420,6 +490,29 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
                      })}
                    </div>
 
+                   {/* Tools Section */}
+                   <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mt-6 mb-3">Herramientas</p>
+                   <div className="flex flex-col gap-1">
+                     {toolsItems.map((tool) => {
+                       const ToolIcon = tool.icon;
+                       return (
+                         <Link
+                           key={tool.href}
+                           href={tool.href}
+                           onClick={() => setIsOpen(false)}
+                           className={`flex items-center gap-4 py-4 px-4 min-h-[48px] rounded-xl transition-colors ${
+                             isActive(tool.href)
+                               ? "bg-[var(--primary)]/10 text-[var(--primary)]"
+                               : "text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
+                           }`}
+                         >
+                           <ToolIcon className="w-5 h-5" />
+                           <span className="font-bold">{tool.label}</span>
+                         </Link>
+                       );
+                     })}
+                   </div>
+
                    {/* Portal Section */}
                    <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mt-6 mb-3">Mi Cuenta</p>
                    <div className="flex flex-col gap-1">
@@ -434,7 +527,7 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
                      >
                        <PawPrint className="w-5 h-5" />
                        <span className="font-bold">
-                         {user ? (config.ui_labels?.nav.my_pets || 'Mis Mascotas') : (config.ui_labels?.nav.login_profile || 'Iniciar Sesión')}
+                         {user ? (config.ui_labels?.nav.my_pets || 'Mis Mascotas') : (config.ui_labels?.nav.login || 'Iniciar Sesión')}
                        </span>
                      </Link>
 

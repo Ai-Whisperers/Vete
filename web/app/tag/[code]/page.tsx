@@ -13,6 +13,15 @@ export default async function TagPage({ params }: { params: Promise<{ code: stri
   // 1. Check Tag Status
   const { data: tagInfo, error } = await supabase.rpc('get_pet_by_tag', { tag_code: code });
 
+  // Get tag's tenant_id for proper clinic routing
+  const { data: tagData } = await supabase
+    .from('qr_tags')
+    .select('tenant_id')
+    .eq('code', code)
+    .single();
+
+  const clinicSlug = tagData?.tenant_id || 'adris'; // Fallback to adris if no tenant
+
   if (error || !tagInfo || tagInfo.status === 'not_found') {
      // Tag doesn't exist. Redirect to home or show 404.
      // Maybe show a "Claim this tag" if we want to allow registering new IDs?
@@ -50,8 +59,8 @@ export default async function TagPage({ params }: { params: Promise<{ code: stri
                               Inicia sesión para vicularlo a una de tus mascotas.
                           </p>
                       </div>
-                      <Link 
-                        href={`/login?next=/tag/${code}`} // Redirect back here after login (needs implementation in login logic, but typically supported)
+                      <Link
+                        href={`/${clinicSlug}/portal/login?redirect=/tag/${code}`}
                         className="block w-full py-4 bg-[var(--primary)] text-white font-bold rounded-xl shadow-lg hover:-translate-y-1 transition-transform"
                       >
                           Iniciar Sesión / Registrarse
@@ -91,12 +100,9 @@ export default async function TagPage({ params }: { params: Promise<{ code: stri
                     {!myPets || myPets.length === 0 ? (
                         <div className="text-center py-6 bg-yellow-50 rounded-xl border border-yellow-100">
                             <p className="text-yellow-700 font-bold mb-2">No tienes mascotas registradas</p>
-                            <Link href="/adris/portal/pets/new" className="text-sm underline text-yellow-800">
+                            <Link href={`/${clinicSlug}/portal/pets/new`} className="text-sm underline text-yellow-800">
                                 Registrar mascota primero
-                            </Link> 
-                            {/* Note: 'adris' hardcoded here is a bit risky if multiple clinics, 
-                                but user context is ambiguous here. Ideally prompt to dashboard. 
-                            */}
+                            </Link>
                         </div>
                     ) : (
                         <form action={handleAssign} className="space-y-4">

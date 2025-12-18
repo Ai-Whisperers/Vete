@@ -1,10 +1,41 @@
 /** @type {import('next').NextConfig} */
 
+const isDev = process.env.NODE_ENV === 'development';
+
+/**
+ * Content Security Policy
+ * - Development: Allow 'unsafe-eval' for Next.js Fast Refresh and HMR
+ * - Production: Strict CSP without eval
+ */
+const ContentSecurityPolicy = isDev
+  ? `
+    default-src 'self';
+    script-src 'self' 'unsafe-inline' 'unsafe-eval';
+    style-src 'self' 'unsafe-inline';
+    img-src 'self' blob: data: https://*.supabase.co;
+    font-src 'self';
+    connect-src 'self' https://*.supabase.co wss://*.supabase.co;
+    frame-ancestors 'self';
+  `
+  : `
+    default-src 'self';
+    script-src 'self' 'unsafe-inline';
+    style-src 'self' 'unsafe-inline';
+    img-src 'self' blob: data: https://*.supabase.co;
+    font-src 'self';
+    connect-src 'self' https://*.supabase.co wss://*.supabase.co;
+    frame-ancestors 'self';
+  `;
+
 /**
  * Security headers for all routes
  * ARCH-024: Add Security Headers
  */
 const securityHeaders = [
+  {
+    key: 'Content-Security-Policy',
+    value: ContentSecurityPolicy.replace(/\s{2,}/g, ' ').trim(),
+  },
   {
     key: 'X-DNS-Prefetch-Control',
     value: 'on',

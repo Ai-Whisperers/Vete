@@ -101,7 +101,7 @@ export default async function ClinicLayout({
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[var(--primary)] via-[var(--accent)] to-[var(--primary)]" />
 
             <div className="container mx-auto px-4 md:px-6 py-16">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-12">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-8">
 
                 {/* Brand Column */}
                 <div className="lg:col-span-1">
@@ -203,8 +203,42 @@ export default async function ClinicLayout({
                       </Link>
                     </li>
                     <li>
+                      <Link href={`/${clinic}/faq`} className="text-gray-400 hover:text-white transition-colors text-sm">
+                        Preguntas Frecuentes
+                      </Link>
+                    </li>
+                    <li>
                       <Link href={`/${clinic}/portal/login`} className="text-gray-400 hover:text-white transition-colors text-sm">
                         Portal de Dueños
+                      </Link>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Tools Section */}
+                <div>
+                  <h4 className="font-bold text-white mb-6 text-sm uppercase tracking-wider">
+                    Herramientas
+                  </h4>
+                  <ul className="space-y-3">
+                    <li>
+                      <Link href={`/${clinic}/tools/age-calculator`} className="text-gray-400 hover:text-white transition-colors text-sm">
+                        Calculadora de Edad
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href={`/${clinic}/tools/toxic-food`} className="text-gray-400 hover:text-white transition-colors text-sm">
+                        Alimentos Tóxicos
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href={`/${clinic}/book`} className="text-gray-400 hover:text-white transition-colors text-sm">
+                        Agendar Cita
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href={`/${clinic}/loyalty_points`} className="text-gray-400 hover:text-white transition-colors text-sm">
+                        Programa de Lealtad
                       </Link>
                     </li>
                   </ul>
@@ -245,14 +279,14 @@ export default async function ClinicLayout({
                       <Clock className="w-5 h-5 text-[var(--primary)] flex-shrink-0" />
                       <div className="text-sm">
                         <p className="text-white font-medium">Lun - Vie</p>
-                        <p className="text-gray-400">{config.hours.weekdays}</p>
+                        <p className="text-gray-400">{config.hours?.weekdays || '8:00 - 18:00'}</p>
                       </div>
                     </li>
                     <li className="flex items-center gap-3">
                       <Clock className="w-5 h-5 text-[var(--primary)] flex-shrink-0" />
                       <div className="text-sm">
                         <p className="text-white font-medium">Sábados</p>
-                        <p className="text-gray-400">{config.hours.saturday}</p>
+                        <p className="text-gray-400">{config.hours?.saturday || '8:00 - 12:00'}</p>
                       </div>
                     </li>
                     <li className="flex items-center gap-3">

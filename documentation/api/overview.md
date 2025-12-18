@@ -2,6 +2,12 @@
 
 Vete provides both REST API endpoints and Server Actions for data operations.
 
+> **Last Updated**: December 2024
+> **Total REST Endpoints**: 82
+> **Total Server Actions**: 20
+
+---
+
 ## API Architecture
 
 ```
@@ -28,100 +34,210 @@ Vete provides both REST API endpoints and Server Actions for data operations.
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-## REST API Endpoints
+---
 
-### Pets & Medical
+## REST API Endpoints (82 Total)
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/pets` | List pets |
-| POST | `/api/pets` | Create pet |
-| GET | `/api/pets/[id]` | Get pet details |
-| GET | `/api/pets/[id]/qr` | Generate QR code |
-
-### Appointments
+### Appointments & Booking (5 endpoints)
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET | `/api/booking` | List appointments |
 | POST | `/api/booking` | Create appointment |
+| PUT | `/api/booking` | Update appointment |
+| DELETE | `/api/booking` | Cancel appointment |
+| GET | `/api/appointments/slots` | Get available time slots |
+| POST | `/api/appointments/[id]/check-in` | Check in for appointment |
+| POST | `/api/appointments/[id]/complete` | Mark appointment complete |
 
-### Clinical
+### Pets & Medical (4 endpoints)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/pets/[id]` | Get pet details |
+| POST | `/api/pets/[id]` | Create pet |
+| PUT | `/api/pets/[id]` | Update pet |
+| GET/POST | `/api/pets/[id]/qr` | Generate/get QR code |
+
+### Clinical Tools (9 endpoints)
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET | `/api/diagnosis_codes` | Search diagnosis codes |
 | GET | `/api/drug_dosages` | Get drug dosages |
-| GET | `/api/growth_charts` | Get growth data |
-| GET | `/api/growth_standards` | Get growth standards |
-| GET | `/api/prescriptions` | List prescriptions |
-| POST | `/api/prescriptions` | Create prescription |
-| GET/POST | `/api/vaccine_reactions` | Vaccine reactions |
-| GET/POST | `/api/reproductive_cycles` | Reproductive cycles |
+| GET | `/api/growth_charts` | Get growth chart data |
+| GET | `/api/growth_standards` | Get breed growth standards |
+| GET/POST | `/api/prescriptions` | List/create prescriptions |
+| PUT/DELETE | `/api/prescriptions` | Update/delete prescriptions |
+| GET/POST | `/api/vaccine_reactions` | Vaccine reactions CRUD |
+| POST | `/api/vaccine_reactions/check` | Check reaction risk |
+| GET/POST | `/api/reproductive_cycles` | Reproductive cycle tracking |
 | GET/POST | `/api/euthanasia_assessments` | QoL assessments |
 
-### Invoicing
+### Invoicing & Payments (7 endpoints)
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET | `/api/invoices` | List invoices |
 | POST | `/api/invoices` | Create invoice |
 | GET | `/api/invoices/[id]` | Get invoice details |
+| POST | `/api/invoices/[id]` | Update invoice |
 | POST | `/api/invoices/[id]/payments` | Record payment |
-| POST | `/api/invoices/[id]/send` | Send invoice |
+| POST | `/api/invoices/[id]/send` | Send invoice via email |
 | POST | `/api/invoices/[id]/refund` | Process refund |
 
-### Inventory
+### Hospitalization (6 endpoints)
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/api/inventory/stats` | Inventory statistics |
+| GET | `/api/hospitalizations` | List hospitalizations |
+| POST | `/api/hospitalizations` | Admit patient |
+| GET | `/api/hospitalizations/[id]` | Get hospitalization details |
+| PATCH | `/api/hospitalizations/[id]` | Update/discharge |
+| GET/POST | `/api/hospitalizations/[id]/vitals` | Vital signs |
+| GET/POST | `/api/hospitalizations/[id]/treatments` | Treatments |
+| GET/POST | `/api/hospitalizations/[id]/feedings` | Feeding logs |
+| GET | `/api/kennels` | List kennels |
+
+### Laboratory (5 endpoints)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET/POST | `/api/lab-orders` | Lab order CRUD |
+| GET/PATCH | `/api/lab-orders/[id]` | Individual order |
+| POST | `/api/lab-orders/[id]/results` | Upload results |
+| POST | `/api/lab-orders/[id]/comments` | Add comments |
+| GET | `/api/lab-catalog` | Available tests |
+
+### Consent Management (7 endpoints)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET/POST | `/api/consents` | Consent CRUD |
+| GET/POST | `/api/consents/[id]` | Individual consent |
+| GET | `/api/consents/[id]/audit` | Audit trail |
+| GET/POST | `/api/consents/blanket` | Blanket consents |
+| GET/POST | `/api/consents/requests` | Consent requests |
+| GET/POST | `/api/consents/templates` | Templates |
+| GET/POST | `/api/consents/templates/[id]` | Individual template |
+
+### Insurance (5 endpoints)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET/POST | `/api/insurance/policies` | Policy management |
+| GET/POST | `/api/insurance/claims` | Claims CRUD |
+| GET/POST | `/api/insurance/claims/[id]` | Individual claim |
+| GET/POST | `/api/insurance/pre-authorizations` | Pre-auth requests |
+| GET | `/api/insurance/providers` | Provider directory |
+
+### E-Commerce / Store (11 endpoints)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/store/products` | List products |
+| GET | `/api/store/products/[id]` | Product details |
+| GET | `/api/store/search` | Product search |
+| GET/POST | `/api/store/orders` | Order management |
+| POST | `/api/store/checkout` | Process checkout |
+| POST | `/api/store/coupons/validate` | Validate coupon |
+| GET/POST | `/api/store/reviews` | Product reviews |
+| GET/POST/DELETE | `/api/store/wishlist` | User wishlist |
+| GET/POST | `/api/store/stock-alerts` | Stock alerts |
+
+### Communications (11 endpoints)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET/POST | `/api/conversations` | Conversations CRUD |
+| DELETE | `/api/conversations` | Delete conversation |
+| GET | `/api/conversations/[id]` | Conversation details |
+| POST | `/api/conversations/[id]` | Update conversation |
+| DELETE | `/api/conversations/[id]` | Delete conversation |
+| GET/POST | `/api/conversations/[id]/messages` | Messages |
+| GET/POST | `/api/messages/templates` | Message templates |
+| GET/POST/DELETE | `/api/messages/quick-replies` | Quick replies |
+| GET | `/api/whatsapp` | WhatsApp conversations |
+| POST | `/api/whatsapp/send` | Send WhatsApp message |
+| GET/POST | `/api/whatsapp/templates` | WhatsApp templates |
+| GET/POST/DELETE | `/api/whatsapp/templates/[id]` | Individual template |
+
+### Staff Management (3 endpoints)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET/POST | `/api/staff/schedule` | Staff schedules |
+| GET/POST | `/api/staff/time-off` | Time off requests |
+| GET | `/api/staff/time-off/types` | Time off types |
+
+### Inventory (4 endpoints)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
 | GET | `/api/inventory/alerts` | Low stock alerts |
+| GET/POST | `/api/inventory/stats` | Inventory statistics |
 | POST | `/api/inventory/import` | Bulk import |
-| GET | `/api/inventory/export` | Export inventory |
+| POST | `/api/inventory/export` | Export inventory |
 
-### Finance
+### Finance (3 endpoints)
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/api/finance/expenses` | List expenses |
-| POST | `/api/finance/expenses` | Create expense |
+| GET/POST | `/api/finance/expenses` | Expense tracking |
 | GET | `/api/finance/pl` | Profit/Loss report |
 
-### Other
+### Dashboard Analytics (5 endpoints)
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/api/services` | List services |
-| GET/POST | `/api/loyalty_points` | Loyalty points |
-| GET | `/api/store/products` | Store products |
+| GET | `/api/dashboard/stats` | General statistics |
+| GET | `/api/dashboard/appointments` | Appointment analytics |
+| GET | `/api/dashboard/revenue` | Revenue reporting |
+| GET | `/api/dashboard/vaccines` | Vaccine coverage |
+| GET | `/api/dashboard/inventory-alerts` | Inventory alerts |
+
+### Other (7 endpoints)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET/POST | `/api/clients` | Client management |
+| GET | `/api/services` | Service catalog |
+| GET | `/api/notifications` | User notifications |
+| POST | `/api/notifications/mark-all-read` | Mark all read |
+| GET | `/api/loyalty_points` | Loyalty program |
+| GET | `/api/search` | Global search |
 | GET | `/api/epidemiology/heatmap` | Disease heatmap |
-| GET/POST | `/api/conversations` | Messaging |
-| GET | `/api/conversations/[id]` | Conversation details |
 
 ---
 
-## Server Actions
+## Server Actions (20 Total)
 
 Server Actions are used for mutations from Server Components.
 
 ### Location: `/app/actions/`
 
-| File | Actions |
-|------|---------|
-| `create-pet.ts` | Create new pet |
-| `create-appointment.ts` | Create appointment |
-| `update-appointment.ts` | Update appointment status |
-| `create-vaccine.ts` | Add vaccine record |
-| `create-medical-record.ts` | Add medical record |
-| `create-product.ts` | Add product |
-| `update-profile.ts` | Update user profile |
-| `assign-tag.ts` | Assign QR tag to pet |
-| `invite-staff.ts` | Invite staff member |
-| `medical-records.ts` | Medical record operations |
-| `network-actions.ts` | Network-related actions |
-| `safety.ts` | Safety-related actions |
-| `send-email.ts` | Email sending |
+| File | Actions | Description |
+|------|---------|-------------|
+| `appointments.ts` | `cancelAppointment()`, `rescheduleAppointment()` | Appointment management |
+| `create-appointment.ts` | `createAppointment()` | Book new appointment |
+| `update-appointment.ts` | - | Update appointment details |
+| `create-pet.ts` | `createPet()` | Add new pet |
+| `pets.ts` | - | Pet management operations |
+| `create-vaccine.ts` | `createVaccine()` | Record vaccination |
+| `create-medical-record.ts` | `createMedicalRecord()` | Add clinical notes |
+| `medical-records.ts` | - | Medical record operations |
+| `assign-tag.ts` | - | Assign QR tag to pet |
+| `create-product.ts` | - | Create store product |
+| `invoices.ts` | - | Invoice operations |
+| `invite-staff.ts` | - | Invite team members |
+| `invite-client.ts` | - | Invite pet owners |
+| `update-profile.ts` | - | Update user profile |
+| `schedules.ts` | - | Schedule management |
+| `time-off.ts` | - | Time off requests |
+| `whatsapp.ts` | `getConversations()` | WhatsApp operations |
+| `send-email.ts` | - | Email notifications |
+| `safety.ts` | - | Security operations |
+| `network-actions.ts` | - | Network operations |
 
 ### Example Usage
 
@@ -134,7 +250,7 @@ export default function NewPetForm() {
     <form action={createPet}>
       <input name="name" required />
       <input name="species" required />
-      <button type="submit">Create Pet</button>
+      <button type="submit">Crear Mascota</button>
     </form>
   );
 }
@@ -149,14 +265,14 @@ All API requests require authentication via Supabase:
 ### Cookie-based (Browser)
 
 ```typescript
-import { createServerClient } from '@/lib/supabase/server';
+import { createClient } from '@/lib/supabase/server';
 
 export async function GET(request: Request) {
-  const supabase = createServerClient();
+  const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
-    return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    return Response.json({ error: 'No autorizado' }, { status: 401 });
   }
 
   // User is authenticated, RLS handles tenant isolation
@@ -180,6 +296,18 @@ const supabaseAdmin = createClient(
 
 ---
 
+## Rate Limiting
+
+Rate limiting is implemented on sensitive endpoints:
+
+| Endpoint Type | Limit |
+|---------------|-------|
+| Search endpoints | 30 requests/minute |
+| Write operations | 20 requests/minute |
+| Authentication | 10 requests/minute |
+
+---
+
 ## Error Handling
 
 ### Standard Error Response
@@ -198,17 +326,47 @@ const supabaseAdmin = createClient(
 |------|---------|
 | 200 | Success |
 | 201 | Created |
-| 400 | Bad Request |
-| 401 | Unauthorized |
-| 403 | Forbidden |
+| 400 | Bad Request (validation error) |
+| 401 | Unauthorized (not logged in) |
+| 403 | Forbidden (wrong role/tenant) |
 | 404 | Not Found |
+| 429 | Too Many Requests (rate limited) |
 | 500 | Server Error |
+
+### Common Error Messages (Spanish)
+
+| Code | Message |
+|------|---------|
+| AUTH_REQUIRED | "No autorizado" |
+| NOT_FOUND | "No encontrado" |
+| VALIDATION_ERROR | "Error de validación" |
+| FORBIDDEN | "Acceso denegado" |
+| SAVE_ERROR | "Error al guardar" |
+| DELETE_ERROR | "Error al eliminar" |
 
 ---
 
-## Rate Limiting
+## Validation
 
-Currently handled by Supabase defaults. No custom rate limiting implemented.
+All API endpoints use Zod for input validation:
+
+```typescript
+import { z } from 'zod';
+
+const createPetSchema = z.object({
+  name: z.string().min(1).max(100),
+  species: z.enum(['dog', 'cat', 'bird', 'reptile', 'other']),
+  breed: z.string().optional(),
+  birth_date: z.string().datetime().optional(),
+  weight_kg: z.number().positive().optional(),
+});
+
+export async function POST(request: Request) {
+  const body = await request.json();
+  const validated = createPetSchema.parse(body);
+  // ... proceed with validated data
+}
+```
 
 ---
 
@@ -220,6 +378,8 @@ Currently handled by Supabase defaults. No custom rate limiting implemented.
 - Use REST API for client-side data fetching
 - Let RLS handle tenant isolation
 - Return appropriate HTTP status codes
+- Validate all inputs with Zod
+- Use Spanish for user-facing messages
 
 ### DON'T
 
@@ -227,12 +387,13 @@ Currently handled by Supabase defaults. No custom rate limiting implemented.
 - Expose sensitive data in responses
 - Make synchronous calls for heavy operations
 - Trust client-provided tenant_id
+- Skip input validation
 
 ---
 
 ## Related Documentation
 
-- [Endpoints Reference](endpoints/)
-- [Server Actions](server-actions.md)
-- [Authentication](authentication.md)
-- [Database Schema](../database/overview.md)
+- [Features Overview](../features/overview.md)
+- [Database Schema](../database/schema-reference.md)
+- [Rate Limiting Details](rate-limiting.md)
+- [Checkout Endpoint](checkout-endpoint.md)

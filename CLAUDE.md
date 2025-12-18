@@ -110,34 +110,106 @@ Vete/
 
 **Security function**: `is_staff_of(tenant_id)` checks if user is vet/admin in that tenant.
 
-## Database Schema (Key Tables)
+## Database Schema (100+ Tables)
 
 ```sql
 -- Core (tenant isolation)
 tenants (id, name)
-profiles (id, tenant_id, role, full_name, email)
-clinic_invites (email, tenant_id, role)
+profiles (id, tenant_id, role, full_name, email, phone)
+clinic_invites (email, tenant_id, role, expires_at)
 
 -- Pet Management
 pets (id, owner_id, tenant_id, name, species, breed, ...)
-vaccines (id, pet_id, vaccine_name, date_administered, next_due)
-medical_records (id, pet_id, tenant_id, record_type, notes, ...)
-qr_tags (id, code, pet_id)
+vaccines (id, pet_id, vaccine_name, administered_date, next_due_date, status)
+medical_records (id, pet_id, tenant_id, vet_id, record_type, diagnosis_code, ...)
+qr_tags (id, code, pet_id, tenant_id, is_active)
 
 -- Clinical Tools
-diagnosis_codes (id, code, term, description)  -- VeNom/SNOMED
-drug_dosages (id, drug_name, species, dosage_per_kg, route)
-prescriptions (id, pet_id, vet_id, drug_name, dosage, ...)
-vaccine_reactions (id, pet_id, vaccine_id, reaction_type, ...)
-euthanasia_assessments (id, pet_id, hurt_score, hunger_score, ...)
+diagnosis_codes (id, code, name, description, category, species[])
+drug_dosages (id, drug_name, species, dose_mg_per_kg, route, frequency)
+prescriptions (id, pet_id, vet_id, medications JSONB, valid_until, signature_url)
+vaccine_reactions (id, pet_id, vaccine_id, reaction_type, severity, onset_hours)
+euthanasia_assessments (id, pet_id, hurt_score, hunger_score, ... total_score)
+reproductive_cycles (id, pet_id, cycle_type, start_date, end_date)
+growth_standards (id, species, breed_category, age_weeks, p50_weight, ...)
 
--- Business
-appointments (id, clinic_slug, pet_id, service_id, appointment_date)
-store_products (id, tenant_id, sku, name, price)
-store_inventory (id, product_id, current_stock)
-expenses (id, clinic_id, category, amount)
+-- Appointments & Services
+services (id, tenant_id, name, category, base_price, duration_minutes)
+appointments (id, tenant_id, pet_id, vet_id, service_id, start_time, end_time, status)
+
+-- Invoicing & Payments
+invoices (id, tenant_id, client_id, invoice_number, subtotal, tax_amount, total, status)
+invoice_items (id, invoice_id, item_type, service_id, product_id, quantity, unit_price)
+payments (id, tenant_id, invoice_id, amount, payment_date, status)
+payment_methods (id, tenant_id, name, is_active)
+refunds (id, payment_id, amount, reason, status)
+
+-- Inventory & Store
+store_categories (id, tenant_id, name, slug, parent_id)
+store_products (id, tenant_id, category_id, sku, name, base_price, is_active)
+store_inventory (id, product_id, stock_quantity, reorder_point, weighted_average_cost)
+store_orders (id, tenant_id, customer_id, status, total, shipping_address)
+store_order_items (id, order_id, product_id, quantity, unit_price)
+store_campaigns (id, tenant_id, name, discount_type, discount_value, valid_from, valid_to)
+store_coupons (id, tenant_id, code, discount_type, discount_value, usage_limit)
+
+-- Finance
+expenses (id, clinic_id, category, amount, description, date, proof_url)
 loyalty_points (id, user_id, balance, lifetime_earned)
+loyalty_transactions (id, clinic_id, user_id, points, description, type)
+
+-- Hospitalization
+kennels (id, tenant_id, name, code, kennel_type, daily_rate, current_status)
+hospitalizations (id, tenant_id, pet_id, kennel_id, admitted_at, status, acuity_level)
+hospitalization_vitals (id, hospitalization_id, temperature, heart_rate, pain_score, ...)
+hospitalization_medications (id, hospitalization_id, medication_name, dose, administered_at)
+hospitalization_feedings (id, hospitalization_id, food_type, amount, fed_at)
+
+-- Laboratory
+lab_test_catalog (id, tenant_id, name, code, category, reference_range)
+lab_panels (id, tenant_id, name, tests[])
+lab_orders (id, tenant_id, pet_id, ordered_by, status, ordered_at)
+lab_order_items (id, lab_order_id, test_id, status)
+lab_results (id, lab_order_id, test_id, value, unit, is_abnormal)
+lab_result_attachments (id, lab_order_id, file_url, file_type)
+lab_result_comments (id, lab_order_id, comment, created_by)
+
+-- Consent Management
+consent_templates (id, tenant_id, name, content, version)
+consent_template_versions (id, template_id, version, content)
+consent_documents (id, tenant_id, pet_id, template_id, signed_at, signature_url)
+
+-- Insurance
+insurance_providers (id, name, contact_info)
+insurance_policies (id, tenant_id, pet_id, provider_id, policy_number, coverage_details)
+insurance_claims (id, tenant_id, policy_id, pet_id, claim_type, amount, status)
+insurance_claim_items (id, claim_id, service_id, amount)
+
+-- Messaging
+conversations (id, tenant_id, client_id, pet_id, channel, status, last_message_at)
+messages (id, conversation_id, sender_id, sender_type, content, status, created_at)
+message_attachments (id, message_id, file_url, file_type)
+message_templates (id, tenant_id, name, content, category)
+whatsapp_messages (id, tenant_id, phone_number, direction, content, status)
+
+-- Reminders
+reminders (id, tenant_id, client_id, pet_id, type, scheduled_at, status)
+reminder_templates (id, tenant_id, type, channel, subject, body)
+
+-- Staff Management
+staff_profiles (id, profile_id, tenant_id, specialization, license_number)
+staff_schedules (id, staff_id, day_of_week, start_time, end_time)
+staff_time_off (id, staff_id, type, start_date, end_date, status)
+staff_time_off_types (id, tenant_id, name, paid, max_days)
+
+-- Safety & Audit
+lost_pets (id, pet_id, status, last_seen_location, reported_by)
+disease_reports (id, tenant_id, diagnosis_code_id, species, location_zone)
+audit_logs (id, tenant_id, user_id, action, resource, details JSONB)
+notifications (id, user_id, title, message, read_at, created_at)
 ```
+
+See `documentation/database/schema-reference.md` for complete column definitions.
 
 ## Common Commands
 
@@ -382,30 +454,102 @@ The `.claude/SUPABASE_AUDIT.md` contains a comprehensive security audit with all
 
 ## Feature Status
 
-### Live Features
+### Core Platform ✅
 - Multi-tenant public websites with dynamic theming
-- Authentication (Supabase Auth)
-- Pet profiles with photos and QR codes
-- Vaccine records with PDF generation
-- Medical records and prescriptions
-- Appointment booking system
-- Staff dashboard
-- Inventory management (WAC)
-- Financial expense tracking
-- Loyalty points program
-- Clinical tools (drug dosages, growth charts, diagnosis codes)
+- Authentication (Supabase Auth with invite system)
+- Pet profiles with photos, QR codes, and microchip tracking
+- Vaccine records with PDF generation and reaction tracking
+- Medical records and digital prescriptions
+- Growth charts with breed-specific standards
+
+### Appointments & Scheduling ✅
+- Multi-step appointment booking wizard
+- Real-time slot availability with overlap detection
+- Calendar view for staff (day/week/month)
+- Check-in and completion workflows
+- Appointment reschedule and cancellation
+- Staff schedule management with time-off requests
+
+### Clinical Tools ✅
+- Drug dosage calculator (species/weight-based)
+- Diagnosis code search (VeNom/SNOMED)
 - Quality of life assessments (HHHHHMM scale)
-- Epidemiology reports
+- Reproductive cycle tracking
+- Growth chart analysis
+- Prescription generation with PDF export
 
-### In Progress
-- Enhanced analytics dashboard
+### Hospitalization Module ✅
+- Patient admission with kennel assignment
+- Vital signs monitoring (temp, HR, RR, pain scale)
+- Treatment sheets and medication logs
+- Feeding logs
+- Discharge workflows
+
+### Laboratory Module ✅
+- Lab test ordering from catalog
+- Result entry with reference ranges
+- Lab order comments and notes
+- Result attachments and reports
+
+### Invoicing & Payments ✅
+- Full invoice lifecycle (draft → sent → paid)
+- Line items (services, products, custom)
+- Payment recording with multiple methods
+- Refund processing
+- Invoice PDF generation and email sending
+
+### E-Commerce / Store ✅
+- Product catalog with categories
+- Shopping cart with checkout flow
+- Coupon validation
+- Product reviews and ratings
+- Wishlist functionality
+- Stock alerts for low inventory
+
+### Communications ✅
+- Internal messaging (clinic ↔ owner)
+- WhatsApp integration (bidirectional)
+- Message templates library
+- Quick replies
+- Notification system
+
+### Insurance Module ✅
+- Policy management
+- Claims submission and tracking
+- Pre-authorization requests
+- Insurance provider directory
+
+### Consent Management ✅
+- Consent templates
+- Blanket consent handling
+- Digital signatures
+- Audit trail for consents
+
+### Administration ✅
+- Staff/team management with invites
+- Client management dashboard
+- Expense tracking
+- Loyalty points program
+- Audit logs
 - Epidemiology heatmaps
-- Campaign management
 
-### Planned
-- SMS/Email reminders
-- Multi-language support
-- Mobile app integration
+### Interactive Tools ✅
+- Toxic food checker
+- Pet age calculator
+- QR tag scanning and assignment
+
+### API Coverage
+- **82 REST API endpoints** across all modules
+- **20 Server Actions** for form mutations
+- Rate limiting on sensitive endpoints
+- Full Zod validation on inputs
+
+### Planned / Future
+- Multi-language support (English)
+- Mobile app (React Native)
+- Telemedicine integration
+- Advanced analytics dashboards
+- Automated reminder campaigns (SMS/Email)
 
 ---
 

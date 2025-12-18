@@ -176,7 +176,7 @@ function VaccineItem({
 }) {
   return (
     <Link
-      href={`/${clinic}/dashboard/pets/${vaccine.pet_id}`}
+      href={`/${clinic}/portal/pets/${vaccine.pet_id}`}
       className="flex items-center gap-3 p-2 rounded-lg hover:bg-[var(--bg-subtle)] transition-colors group"
     >
       <div className="relative">

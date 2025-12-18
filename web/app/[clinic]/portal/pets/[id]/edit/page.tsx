@@ -16,7 +16,7 @@ export default async function EditPetPage({ params }: Props): Promise<React.Reac
   // Auth check
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) {
-    redirect(`/${clinic}/auth/login`)
+    redirect(`/${clinic}/portal/login`)
   }
 
   // Get user profile for role check

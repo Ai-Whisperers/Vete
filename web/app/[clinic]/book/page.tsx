@@ -34,7 +34,7 @@ export default async function BookingPage({ params, searchParams }: {
                     <h2 className="text-2xl font-black text-gray-900 mb-4">Autenticación Requerida</h2>
                     <p className="text-gray-600 mb-6">Por favor inicia sesión para reservar una cita.</p>
                     <a
-                        href={`/${clinic}/auth/login?redirect=/book`}
+                        href={`/${clinic}/portal/login?redirect=/${clinic}/book`}
                         className="px-8 py-4 bg-[var(--primary)] text-white font-bold rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all inline-block"
                     >
                         Iniciar Sesión

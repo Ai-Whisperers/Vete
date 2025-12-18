@@ -4,7 +4,7 @@ import { useParams } from 'next/navigation';
 import { useAuthRedirect } from '@/hooks/useAuthRedirect';
 import { useCart } from '@/context/cart-context';
 import Link from 'next/link';
-import { ShoppingBag, Printer, MessageCircle, Loader2, AlertCircle, CheckCircle, Stethoscope, Package, PawPrint, User, Minus, Plus, Trash2 } from 'lucide-react';
+import { ShoppingBag, Printer, MessageCircle, Loader2, AlertCircle, CheckCircle, Stethoscope, Package, PawPrint, User, ArrowLeft, Edit3 } from 'lucide-react';
 import { SIZE_SHORT_LABELS, SIZE_LABELS, getSizeBadgeColor, formatPriceGs, type PetSizeCategory } from '@/lib/utils/pet-size';
 import { organizeCart } from '@/lib/utils/cart-utils';
 import type { ClinicConfig } from '@/lib/clinics';
@@ -36,7 +36,7 @@ interface CheckoutClientProps {
 export default function CheckoutClient({ config }: CheckoutClientProps) {
   const { clinic } = useParams() as { clinic: string };
   const { user, loading } = useAuthRedirect();
-  const { items, total, clearCart, updateQuantity, removeItem } = useCart();
+  const { items, total, clearCart } = useCart();
   const labels = config.ui_labels?.checkout || {};
   const currency = config.settings?.currency || 'PYG';
   const whatsappNumber = config.contact?.whatsapp_number;
@@ -207,8 +207,23 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--bg-default)] p-8">
-      <h1 className="text-3xl font-bold mb-6 text-[var(--text-primary)]">{labels.title || "Resumen del Pedido"}</h1>
+    <div className="min-h-screen bg-[var(--bg-default)]">
+      {/* Header */}
+      <div className="bg-white border-b border-gray-100 sticky top-0 z-10 shadow-sm mb-8">
+        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+          <Link href={`/${clinic}/cart`} className="flex items-center gap-2 font-bold text-gray-400 hover:text-[var(--primary)] transition-all">
+            <ArrowLeft className="w-5 h-5" />
+            <span className="hidden sm:inline">Carrito</span>
+          </Link>
+          <h1 className="text-xl font-bold text-gray-900">{labels.title || "Resumen del Pedido"}</h1>
+          <Link href={`/${clinic}/cart`} className="flex items-center gap-2 text-sm font-bold text-[var(--primary)] hover:opacity-80 transition-all">
+            <Edit3 className="w-4 h-4" />
+            <span className="hidden sm:inline">Editar</span>
+          </Link>
+        </div>
+      </div>
+
+      <div className="container mx-auto px-4 pb-8">
 
       {/* Error display */}
       {checkoutError && (
@@ -254,10 +269,10 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
                   </p>
                 </div>
               </div>
-              {/* Items */}
+              {/* Items (Read-only) */}
               <div className="divide-y divide-gray-100">
                 {organizedCart.products.map((item) => (
-                  <div key={item.id} className="flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors">
+                  <div key={item.id} className="flex items-center gap-4 p-4">
                     {item.image_url ? (
                       <img src={item.image_url} alt={item.name} className="w-16 h-16 object-cover rounded-xl" />
                     ) : (
@@ -269,35 +284,14 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
                       <p className="font-bold text-[var(--text-primary)]">{item.name}</p>
                       <p className="text-sm text-[var(--text-muted)]">{formatPriceGs(item.price)} c/u</p>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => item.quantity > 1 ? updateQuantity(item.id, item.quantity - 1) : removeItem(item.id)}
-                        className="w-8 h-8 rounded-lg border border-gray-200 hover:border-[var(--primary)] flex items-center justify-center"
-                      >
-                        <Minus className="w-4 h-4" />
-                      </button>
-                      <span className="w-8 text-center font-bold">{item.quantity}</span>
-                      <button
-                        type="button"
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                        className="w-8 h-8 rounded-lg border border-gray-200 hover:border-[var(--primary)] flex items-center justify-center"
-                      >
-                        <Plus className="w-4 h-4" />
-                      </button>
+                    <div className="px-3 py-1.5 bg-gray-100 rounded-lg">
+                      <span className="font-bold text-gray-700">×{item.quantity}</span>
                     </div>
                     <div className="text-right w-28">
                       <p className="text-lg font-black text-[var(--primary)]">
                         {formatPriceGs(item.price * item.quantity)}
                       </p>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => removeItem(item.id)}
-                      className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg"
-                    >
-                      <Trash2 className="w-5 h-5" />
-                    </button>
                   </div>
                 ))}
               </div>
@@ -330,10 +324,10 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
                   </p>
                 </div>
               </div>
-              {/* Services */}
+              {/* Services (Read-only) */}
               <div className="divide-y divide-gray-100">
                 {group.services.map((item) => (
-                  <div key={item.id} className="flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors">
+                  <div key={item.id} className="flex items-center gap-4 p-4">
                     <div className="w-1.5 h-12 bg-[var(--primary)]/30 rounded-full" />
                     {item.image_url && (
                       <img src={item.image_url} alt={item.name} className="w-12 h-12 rounded-lg object-cover" />
@@ -351,22 +345,8 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
                         </p>
                       )}
                     </div>
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => item.quantity > 1 ? updateQuantity(item.id, item.quantity - 1) : removeItem(item.id)}
-                        className="w-8 h-8 rounded-lg border border-gray-200 hover:border-[var(--primary)] flex items-center justify-center"
-                      >
-                        <Minus className="w-4 h-4" />
-                      </button>
-                      <span className="w-8 text-center font-bold">{item.quantity}</span>
-                      <button
-                        type="button"
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                        className="w-8 h-8 rounded-lg border border-gray-200 hover:border-[var(--primary)] flex items-center justify-center"
-                      >
-                        <Plus className="w-4 h-4" />
-                      </button>
+                    <div className="px-3 py-1.5 bg-gray-100 rounded-lg">
+                      <span className="font-bold text-gray-700">×{item.quantity}</span>
                     </div>
                     <div className="text-right w-28">
                       {item.quantity > 1 && (
@@ -376,13 +356,6 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
                         {formatPriceGs(item.price * item.quantity)}
                       </p>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => removeItem(item.id)}
-                      className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg"
-                    >
-                      <Trash2 className="w-5 h-5" />
-                    </button>
                   </div>
                 ))}
               </div>
@@ -398,7 +371,7 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
               </div>
               <div className="divide-y divide-gray-100">
                 {organizedCart.ungroupedServices.map((item) => (
-                  <div key={item.id} className="flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors">
+                  <div key={item.id} className="flex items-center gap-4 p-4">
                     {item.image_url ? (
                       <img src={item.image_url} alt={item.name} className="w-14 h-14 object-cover rounded-lg" />
                     ) : (
@@ -410,35 +383,14 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
                       <p className="font-bold text-[var(--text-primary)]">{item.name}</p>
                       <p className="text-sm text-[var(--text-muted)]">{formatPriceGs(item.price)} c/u</p>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => item.quantity > 1 ? updateQuantity(item.id, item.quantity - 1) : removeItem(item.id)}
-                        className="w-8 h-8 rounded-lg border border-gray-200 hover:border-[var(--primary)] flex items-center justify-center"
-                      >
-                        <Minus className="w-4 h-4" />
-                      </button>
-                      <span className="w-8 text-center font-bold">{item.quantity}</span>
-                      <button
-                        type="button"
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                        className="w-8 h-8 rounded-lg border border-gray-200 hover:border-[var(--primary)] flex items-center justify-center"
-                      >
-                        <Plus className="w-4 h-4" />
-                      </button>
+                    <div className="px-3 py-1.5 bg-gray-100 rounded-lg">
+                      <span className="font-bold text-gray-700">×{item.quantity}</span>
                     </div>
                     <div className="text-right w-28">
                       <p className="text-lg font-black text-[var(--primary)]">
                         {formatPriceGs(item.price * item.quantity)}
                       </p>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => removeItem(item.id)}
-                      className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg"
-                    >
-                      <Trash2 className="w-5 h-5" />
-                    </button>
                   </div>
                 ))}
               </div>
@@ -486,9 +438,17 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
               <Printer className="w-5 h-5" /> {labels.print_btn || "Imprimir"}
             </button>
           </div>
+
+          {/* Edit cart prompt */}
+          <p className="text-center text-sm text-[var(--text-muted)] mt-6">
+            ¿Necesitas hacer cambios?{' '}
+            <Link href={`/${clinic}/cart`} className="text-[var(--primary)] font-bold hover:underline">
+              Editar carrito
+            </Link>
+          </p>
         </div>
       )}
-      <Link href={`/${clinic}/cart`} className="mt-6 inline-block text-blue-600 hover:underline">{labels.back_cart || "Volver al carrito"}</Link>
+      </div>
     </div>
   );
 }

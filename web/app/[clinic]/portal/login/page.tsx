@@ -1,17 +1,36 @@
 "use client";
 
-import { useActionState, use } from "react";
+import { useActionState, use, useEffect, useState } from "react";
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import * as Icons from "lucide-react";
 import { login } from "@/app/auth/actions";
 import { createClient } from "@/lib/supabase/client";
 
 export default function LoginPage({ params }: { params: Promise<{ clinic: string }> }) {
   const { clinic } = use(params);
+  const router = useRouter();
   const searchParams = useSearchParams();
   const returnTo = searchParams.get('returnTo') || `/${clinic}/portal/dashboard`;
   const [state, formAction, isPending] = useActionState(login, null);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+
+  // Redirect if user is already logged in
+  useEffect(() => {
+    const checkAuth = async () => {
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (session?.user) {
+        // User is already authenticated, redirect to dashboard
+        router.replace(returnTo);
+      } else {
+        setIsCheckingAuth(false);
+      }
+    };
+
+    checkAuth();
+  }, [router, returnTo]);
 
   const handleGoogleLogin = async () => {
     const supabase = createClient();
@@ -22,6 +41,18 @@ export default function LoginPage({ params }: { params: Promise<{ clinic: string
         }
     });
   };
+
+  // Show loading while checking authentication
+  if (isCheckingAuth) {
+    return (
+      <div className="max-w-md mx-auto mt-4 sm:mt-8 md:mt-12 bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 p-6 sm:p-8">
+        <div className="flex flex-col items-center justify-center py-12">
+          <Icons.Loader2 className="animate-spin w-8 h-8 text-[var(--primary)] mb-4" />
+          <p className="text-[var(--text-secondary)]">Verificando sesión...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-md mx-auto mt-4 sm:mt-8 md:mt-12 bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 p-6 sm:p-8">

@@ -132,18 +132,7 @@ CREATE POLICY "Staff can manage lab results" ON lab_results
         )
     );
 
--- A8. EXTERNAL_LAB_ORDERS
-ALTER TABLE external_lab_orders ENABLE ROW LEVEL SECURITY;
-
-DROP POLICY IF EXISTS "Staff can manage external lab orders" ON external_lab_orders;
-CREATE POLICY "Staff can manage external lab orders" ON external_lab_orders
-    FOR ALL USING (
-        EXISTS (
-            SELECT 1 FROM lab_orders
-            WHERE lab_orders.id = external_lab_orders.order_id
-            AND public.is_staff_of(lab_orders.tenant_id)
-        )
-    );
+-- A8. EXTERNAL_LAB_ORDERS (table doesn't exist - skipped)
 
 -- =============================================================================
 -- B. HOSPITALIZATION TABLES

@@ -84,8 +84,9 @@ export default async function FAQPage({ params }: Props): Promise<React.ReactEle
     },
   ];
 
-  const faqItems = faq?.items?.length ? faq.items : defaultFAQs;
-  const faqCategories = faq?.categories || [];
+  // FaqData is FaqItem[] array, not an object with items property
+  const faqItems = faq && faq.length > 0 ? faq.map(item => ({ question: item.question, answer: item.answer })) : defaultFAQs;
+  const faqCategories = faq ? [...new Set(faq.map(item => item.category))] : [];
 
   return (
     <div className="min-h-screen bg-[var(--bg-subtle)]">

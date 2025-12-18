@@ -8,4 +8,5 @@ export * from './appointment';
 export * from './auth';
 export * from './medical';
 export * from './store';
+export * from './invoice';
 export * from './common';

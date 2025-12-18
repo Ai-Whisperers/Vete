@@ -5,16 +5,15 @@ import Image from 'next/image';
 import {
   ArrowLeft,
   Syringe,
-  Calendar,
   AlertTriangle,
   CheckCircle2,
   Clock,
   Dog,
   Cat,
   PawPrint,
-  Filter,
   Search,
 } from 'lucide-react';
+import { VaccinesFilter } from '@/components/dashboard/vaccines-filter';
 
 interface Props {
   params: Promise<{ clinic: string }>;
@@ -215,23 +214,7 @@ export default async function VaccinesPage({ params, searchParams }: Props): Pro
             className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none"
           />
         </form>
-        <div className="flex items-center gap-2">
-          <Filter className="w-4 h-4 text-gray-400" />
-          <select
-            defaultValue={filterStatus || 'all'}
-            className="px-3 py-2 rounded-lg border border-gray-200 focus:border-[var(--primary)] outline-none"
-            onChange={(e) => {
-              const url = new URL(window.location.href);
-              url.searchParams.set('status', e.target.value);
-              window.location.href = url.toString();
-            }}
-          >
-            <option value="all">Todos los estados</option>
-            <option value="pending">Pendientes</option>
-            <option value="verified">Verificadas</option>
-            <option value="rejected">Rechazadas</option>
-          </select>
-        </div>
+        <VaccinesFilter clinic={clinic} currentStatus={filterStatus || 'all'} />
       </div>
 
       {/* Overdue Section */}

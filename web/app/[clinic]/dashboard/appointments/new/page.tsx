@@ -1,16 +1,11 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
 import {
   ArrowLeft,
   Calendar,
   Clock,
   User,
-  Search,
-  PawPrint,
-  Dog,
-  Cat,
   Stethoscope,
   AlertCircle,
 } from 'lucide-react';
@@ -187,17 +182,6 @@ export default async function NewStaffAppointmentPage({ params, searchParams }: 
     const { redirect: redirectFn } = await import('next/navigation');
     redirectFn(`/${clinic}/dashboard/appointments?date=${start.toISOString().split('T')[0]}`);
   }
-
-  const getSpeciesIcon = (species: string): React.ReactElement => {
-    switch (species) {
-      case 'dog':
-        return <Dog className="w-4 h-4" />;
-      case 'cat':
-        return <Cat className="w-4 h-4" />;
-      default:
-        return <PawPrint className="w-4 h-4" />;
-    }
-  };
 
   const formatPrice = (price: number): string => {
     return new Intl.NumberFormat('es-PY', {

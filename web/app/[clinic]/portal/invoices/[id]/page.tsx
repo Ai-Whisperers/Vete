@@ -3,16 +3,14 @@ import { redirect, notFound } from 'next/navigation';
 import Link from 'next/link';
 import {
   ArrowLeft,
-  Receipt,
   Calendar,
   CheckCircle2,
   Clock,
   XCircle,
   CreditCard,
   FileText,
-  Download,
-  Printer,
 } from 'lucide-react';
+import { InvoiceActions } from '@/components/portal/invoice-actions';
 
 interface Props {
   params: Promise<{ clinic: string; id: string }>;
@@ -235,17 +233,7 @@ export default async function PortalInvoiceDetailPage({ params }: Props): Promis
 
         {/* Actions */}
         <div className="p-6 border-t border-gray-100 flex flex-wrap gap-3">
-          <button
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-            onClick={() => window.print()}
-          >
-            <Printer className="w-4 h-4" />
-            Imprimir
-          </button>
-          <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
-            <Download className="w-4 h-4" />
-            Descargar PDF
-          </button>
+          <InvoiceActions invoiceNumber={typedInvoice.invoice_number} />
           {typedInvoice.status !== 'paid' && typedInvoice.status !== 'cancelled' && (
             <Link
               href={`/${clinic}/portal/payments?pay=${typedInvoice.id}`}

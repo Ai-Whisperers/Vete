@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { ClinicConfig } from "@/lib/clinics";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, ShoppingCart, LogOut } from "lucide-react";
+import { Menu, X, ShoppingCart, LogOut, Home, Briefcase, Users, Store, User, Calendar, Settings, Phone, PawPrint } from "lucide-react";
 import { NotificationBell } from "./notification-bell";
 import { createClient } from "@/lib/supabase/client";
 import { useCart } from "@/context/cart-context";
@@ -99,22 +99,27 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
       label: config.ui_labels?.nav.home || "Inicio",
       href: `/${clinic}`,
       exact: true,
+      icon: Home,
     },
     {
       label: config.ui_labels?.nav.services || "Servicios",
       href: `/${clinic}/services`,
+      icon: Briefcase,
     },
     {
       label: config.ui_labels?.nav.about || "Nosotros",
       href: `/${clinic}/about`,
+      icon: Users,
     },
     {
       label: config.ui_labels?.nav.store || "Tienda",
       href: `/${clinic}/store`,
+      icon: Store,
     },
     ...(profile?.role === 'admin' || profile?.role === 'vet' ? [{
         label: "Inventario",
         href: `/${clinic}/portal/inventory`,
+        icon: Briefcase,
     }] : []),
   ];
 
@@ -239,52 +244,131 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed top-0 right-0 h-full w-[80%] max-w-sm bg-[var(--bg-default)] shadow-2xl z-40 md:hidden border-l border-[var(--primary)]/10 flex flex-col pt-24 px-8"
+              className="fixed top-0 right-0 h-full w-[80%] max-w-sm bg-[var(--bg-default)] shadow-2xl z-40 md:hidden border-l border-[var(--primary)]/10 flex flex-col pt-20 overflow-y-auto"
             >
-               <div className="flex flex-col gap-6">
-                {navItems.map((item) => (
-                    <Link
-                        key={item.href}
-                        href={item.href}
-                        className={`text-xl font-bold uppercase tracking-widest py-4 border-b border-gray-100 ${
-                        isActive(item.href, item.exact)
-                            ? "text-[var(--primary)] border-[var(--primary)]"
-                            : "text-[var(--text-secondary)]"
-                        }`}
-                    >
-                        {item.label}
-                    </Link>
-                ))}
-                
+               {/* User Profile Section */}
+               {user && profile && (
+                 <div className="px-6 py-4 bg-[var(--primary)]/5 border-b border-[var(--primary)]/10">
+                   <div className="flex items-center gap-4">
+                     <div className="w-12 h-12 rounded-full bg-[var(--primary)] text-white flex items-center justify-center font-bold text-lg">
+                       {profile.full_name?.[0] || user.email?.[0]?.toUpperCase() || 'U'}
+                     </div>
+                     <div className="flex-1 min-w-0">
+                       <p className="font-bold text-[var(--text-primary)] truncate">
+                         {profile.full_name || 'Usuario'}
+                       </p>
+                       <p className="text-xs text-[var(--text-muted)] truncate">{user.email}</p>
+                     </div>
+                   </div>
+                 </div>
+               )}
+
+               {/* CTA Button - Book Appointment */}
+               <div className="px-6 py-4">
                  <Link
-                    href={user ? `/${clinic}/portal/dashboard` : `/${clinic}/portal/login`}
-                    className={`text-xl font-bold uppercase tracking-widest py-4 border-b border-gray-100 ${
-                    isActive(`/${clinic}/portal`)
-                        ? "text-[var(--primary)] border-[var(--primary)]"
-                        : "text-[var(--text-secondary)]"
-                    }`}
-                >
-                    {user ? (config.ui_labels?.nav.owners_zone || "Zona de Dueños") : (config.ui_labels?.nav.login_profile || "LogIn / Mi Perfil")}
-                </Link>
-
-                {/* Logout in mobile menu */}
-                {user && (
-                    <button
-                        onClick={handleLogout}
-                        disabled={isLoggingOut}
-                        className="text-xl font-bold uppercase tracking-widest py-4 border-b border-gray-100 text-red-500 hover:text-red-600 transition-colors flex items-center gap-3 disabled:opacity-50 w-full text-left"
-                    >
-                        <LogOut className="w-5 h-5" />
-                        Cerrar sesión
-                    </button>
-                )}
-
+                   href={`/${clinic}/book`}
+                   className="flex items-center justify-center gap-3 w-full py-4 bg-[var(--primary)] text-white font-bold rounded-xl shadow-lg hover:opacity-90 transition-opacity"
+                 >
+                   <Calendar className="w-5 h-5" />
+                   {config.ui_labels?.nav.book_btn || 'Agendar Cita'}
+                 </Link>
                </div>
-               
-               <div className="mt-auto mb-12">
-                   <p className="text-center text-sm text-[var(--text-muted)]">
-                       © {new Date().getFullYear()} {config.name}
-                   </p>
+
+               {/* Navigation Links */}
+               <div className="flex-1 px-6">
+                 <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-3">Navegación</p>
+                 <div className="flex flex-col gap-1">
+                   {navItems.map((item) => {
+                     const Icon = item.icon;
+                     return (
+                       <Link
+                         key={item.href}
+                         href={item.href}
+                         className={`flex items-center gap-4 py-3 px-4 rounded-xl transition-colors ${
+                           isActive(item.href, item.exact)
+                             ? "bg-[var(--primary)]/10 text-[var(--primary)]"
+                             : "text-[var(--text-secondary)] hover:bg-gray-50"
+                         }`}
+                       >
+                         <Icon className="w-5 h-5" />
+                         <span className="font-bold">{item.label}</span>
+                       </Link>
+                     );
+                   })}
+                 </div>
+
+                 {/* Portal Section */}
+                 <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mt-6 mb-3">Mi Cuenta</p>
+                 <div className="flex flex-col gap-1">
+                   <Link
+                     href={user ? `/${clinic}/portal/dashboard` : `/${clinic}/portal/login`}
+                     className={`flex items-center gap-4 py-3 px-4 rounded-xl transition-colors ${
+                       isActive(`/${clinic}/portal/dashboard`)
+                         ? "bg-[var(--primary)]/10 text-[var(--primary)]"
+                         : "text-[var(--text-secondary)] hover:bg-gray-50"
+                     }`}
+                   >
+                     <PawPrint className="w-5 h-5" />
+                     <span className="font-bold">
+                       {user ? (config.ui_labels?.nav.my_pets || 'Mis Mascotas') : (config.ui_labels?.nav.login_profile || 'Iniciar Sesión')}
+                     </span>
+                   </Link>
+
+                   {user && (
+                     <>
+                       <Link
+                         href={`/${clinic}/portal/profile`}
+                         className={`flex items-center gap-4 py-3 px-4 rounded-xl transition-colors ${
+                           isActive(`/${clinic}/portal/profile`)
+                             ? "bg-[var(--primary)]/10 text-[var(--primary)]"
+                             : "text-[var(--text-secondary)] hover:bg-gray-50"
+                         }`}
+                       >
+                         <User className="w-5 h-5" />
+                         <span className="font-bold">{config.ui_labels?.nav.profile || 'Mi Perfil'}</span>
+                       </Link>
+                       <Link
+                         href={`/${clinic}/portal/settings`}
+                         className={`flex items-center gap-4 py-3 px-4 rounded-xl transition-colors ${
+                           isActive(`/${clinic}/portal/settings`)
+                             ? "bg-[var(--primary)]/10 text-[var(--primary)]"
+                             : "text-[var(--text-secondary)] hover:bg-gray-50"
+                         }`}
+                       >
+                         <Settings className="w-5 h-5" />
+                         <span className="font-bold">Configuración</span>
+                       </Link>
+                     </>
+                   )}
+                 </div>
+
+                 {/* Logout Button */}
+                 {user && (
+                   <button
+                     onClick={handleLogout}
+                     disabled={isLoggingOut}
+                     className="flex items-center gap-4 py-3 px-4 rounded-xl transition-colors text-red-500 hover:bg-red-50 w-full text-left mt-2 disabled:opacity-50"
+                   >
+                     <LogOut className="w-5 h-5" />
+                     <span className="font-bold">Cerrar sesión</span>
+                   </button>
+                 )}
+               </div>
+
+               {/* Emergency & Footer */}
+               <div className="mt-auto px-6 py-6 bg-gray-50 border-t border-gray-100">
+                 {config.settings?.emergency_24h && (
+                   <a
+                     href={`tel:${config.contact?.whatsapp_number}`}
+                     className="flex items-center justify-center gap-2 w-full py-3 mb-4 bg-red-500 text-white font-bold rounded-xl"
+                   >
+                     <Phone className="w-4 h-4" />
+                     {config.ui_labels?.nav.emergency_btn || 'Urgencias 24hs'}
+                   </a>
+                 )}
+                 <p className="text-center text-xs text-[var(--text-muted)]">
+                   © {new Date().getFullYear()} {config.name}
+                 </p>
                </div>
             </motion.div>
           </>

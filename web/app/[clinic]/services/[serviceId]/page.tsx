@@ -1,5 +1,5 @@
 
-import { getClinicData, getAllClinics } from '@/lib/clinics';
+import { getClinicData } from '@/lib/clinics';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import Link from 'next/link';
@@ -27,23 +27,7 @@ export async function generateMetadata({ params }: { params: Promise<{ clinic: s
   };
 }
 
-export async function generateStaticParams() {
-  const clinics = await getAllClinics();
-  const params = [];
-
-  for (const clinic of clinics) {
-    const data = await getClinicData(clinic);
-    if (data?.services?.services) {
-       for (const service of data.services.services) {
-          params.push({
-             clinic: clinic, // Note: clinic slug
-             serviceId: service.id
-          });
-       }
-    }
-  }
-  return params;
-}
+// Note: generateStaticParams removed to allow dynamic rendering
 
 export default async function ServiceDetailPage({ params }: { params: Promise<{ clinic: string; serviceId: string }> }) {
   const { clinic, serviceId } = await params;

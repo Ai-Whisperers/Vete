@@ -2,6 +2,7 @@
 export type MessageDirection = 'inbound' | 'outbound'
 export type MessageStatus = 'queued' | 'sent' | 'delivered' | 'read' | 'failed'
 export type ConversationType = 'appointment_reminder' | 'vaccine_reminder' | 'general' | 'support'
+export type TemplateCategory = ConversationType
 
 export interface WhatsAppMessage {
   id: string
@@ -70,6 +71,14 @@ export const messageStatusConfig: Record<MessageStatus, { label: string; icon: s
   delivered: { label: 'Entregado', icon: 'check-check', className: 'text-blue-500' },
   read: { label: 'Leído', icon: 'check-check', className: 'text-green-500' },
   failed: { label: 'Error', icon: 'x', className: 'text-red-500' }
+}
+
+// Template Category Configuration
+export const templateCategoryConfig: Record<TemplateCategory, { label: string; icon: string; color: string }> = {
+  appointment_reminder: { label: 'Recordatorio de cita', icon: 'calendar', color: 'blue' },
+  vaccine_reminder: { label: 'Recordatorio de vacuna', icon: 'syringe', color: 'green' },
+  general: { label: 'General', icon: 'message-circle', color: 'gray' },
+  support: { label: 'Soporte', icon: 'help-circle', color: 'purple' }
 }
 
 // Conversation Type Labels

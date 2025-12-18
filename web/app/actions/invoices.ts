@@ -162,6 +162,150 @@ export async function createInvoice(formData: InvoiceFormData): Promise<InvoiceR
 }
 
 // =============================================================================
+// UPDATE INVOICE
+// =============================================================================
+
+/**
+ * Update an existing invoice
+ * Staff only - can only update draft invoices
+ */
+export async function updateInvoice(
+  invoiceId: string,
+  formData: InvoiceFormData
+): Promise<InvoiceResult> {
+  const supabase = await createClient()
+
+  // 1. Auth Check
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) {
+    return { error: 'No autorizado' }
+  }
+
+  // 2. Staff Check
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('tenant_id, role')
+    .eq('id', user.id)
+    .single()
+
+  if (!profile || !['vet', 'admin'].includes(profile.role)) {
+    return { error: 'Solo el personal puede modificar facturas' }
+  }
+
+  // 3. Validate data
+  if (!formData.pet_id) {
+    return { error: 'Debe seleccionar una mascota' }
+  }
+
+  if (!formData.items || formData.items.length === 0) {
+    return { error: 'Debe agregar al menos un item' }
+  }
+
+  try {
+    // 4. Get existing invoice
+    const { data: existingInvoice, error: fetchError } = await supabase
+      .from('invoices')
+      .select('id, status, tenant_id')
+      .eq('id', invoiceId)
+      .eq('tenant_id', profile.tenant_id)
+      .single()
+
+    if (fetchError || !existingInvoice) {
+      return { error: 'Factura no encontrada' }
+    }
+
+    // 5. Only allow updating draft invoices
+    if (existingInvoice.status !== 'draft') {
+      return { error: 'Solo se pueden modificar facturas en borrador' }
+    }
+
+    // 6. Verify pet belongs to clinic
+    const { data: pet, error: petError } = await supabase
+      .from('pets')
+      .select('id, tenant_id, owner_id')
+      .eq('id', formData.pet_id)
+      .eq('tenant_id', profile.tenant_id)
+      .single()
+
+    if (petError || !pet) {
+      return { error: 'Mascota no encontrada' }
+    }
+
+    // 7. Calculate totals
+    let subtotal = 0
+    const processedItems = formData.items.map((item) => {
+      const lineTotal =
+        item.quantity * item.unit_price * (1 - (item.discount_percent || 0) / 100)
+      subtotal += lineTotal
+      return {
+        ...item,
+        line_total: lineTotal,
+      }
+    })
+
+    const taxRate = formData.tax_rate || 10 // Default 10% IVA
+    const taxAmount = subtotal * (taxRate / 100)
+    const total = subtotal + taxAmount
+
+    // 8. Update invoice
+    const { data: invoice, error: invoiceError } = await supabase
+      .from('invoices')
+      .update({
+        pet_id: formData.pet_id,
+        owner_id: pet.owner_id,
+        subtotal,
+        tax_rate: taxRate,
+        tax_amount: taxAmount,
+        total,
+        amount_due: total,
+        notes: formData.notes,
+        due_date: formData.due_date,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', invoiceId)
+      .select()
+      .single()
+
+    if (invoiceError) {
+      console.error('Update invoice error:', invoiceError)
+      return { error: 'Error al actualizar la factura' }
+    }
+
+    // 9. Delete existing items and recreate
+    await supabase.from('invoice_items').delete().eq('invoice_id', invoiceId)
+
+    const invoiceItems = processedItems.map((item) => ({
+      invoice_id: invoiceId,
+      service_id: item.service_id || null,
+      product_id: item.product_id || null,
+      description: item.description,
+      quantity: item.quantity,
+      unit_price: item.unit_price,
+      discount_percent: item.discount_percent || 0,
+      line_total: item.line_total,
+    }))
+
+    const { error: itemsError } = await supabase.from('invoice_items').insert(invoiceItems)
+
+    if (itemsError) {
+      console.error('Update invoice items error:', itemsError)
+      return { error: 'Error al actualizar los items de la factura' }
+    }
+
+    // 10. Revalidate paths
+    revalidatePath('/[clinic]/dashboard/invoices')
+    revalidatePath(`/[clinic]/dashboard/invoices/${invoiceId}`)
+
+    return { success: true, data: invoice as Invoice }
+  } catch (e) {
+    console.error('Update invoice exception:', e)
+    return { error: 'Error inesperado al actualizar factura' }
+  }
+}
+
+// =============================================================================
 // UPDATE INVOICE STATUS
 // =============================================================================
 

@@ -1,5 +1,5 @@
 
-import { getClinicData, getAllClinics } from '@/lib/clinics';
+import { getClinicData } from '@/lib/clinics';
 import { notFound } from 'next/navigation';
 import { ClinicThemeProvider } from '@/components/clinic-theme-provider';
 import { Metadata } from 'next';
@@ -24,12 +24,9 @@ export async function generateMetadata({ params }: { params: Promise<{ clinic: s
   };
 }
 
-export async function generateStaticParams() {
-  const clinics = await getAllClinics();
-  return clinics.map((clinic) => ({
-    clinic: clinic,
-  }));
-}
+// Note: generateStaticParams removed to allow dynamic rendering
+// Many child pages have client components that can't be serialized during static generation
+// This allows all pages to be server-rendered on-demand
 
 export default async function ClinicLayout({
   children,
@@ -53,6 +50,11 @@ export default async function ClinicLayout({
       <CartProvider>
         <div className="min-h-screen font-sans bg-[var(--bg-default)] text-[var(--text-main)] font-body flex flex-col">
           <ClinicThemeProvider theme={data.theme} />
+
+          {/* Skip Link for Accessibility */}
+          <a href="#main-content" className="skip-link">
+            Saltar al contenido principal
+          </a>
 
           {/* Header */}
           <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm">
@@ -79,7 +81,7 @@ export default async function ClinicLayout({
             </div>
           </header>
 
-          <main className="flex-1">
+          <main id="main-content" className="flex-1">
             {children}
           </main>
 

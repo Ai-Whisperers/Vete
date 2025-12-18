@@ -42,8 +42,12 @@ CREATE TABLE IF NOT EXISTS lab_test_catalog (
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
 
-    UNIQUE(COALESCE(tenant_id, 'GLOBAL'), code)
+    UNIQUE(tenant_id, code)
 );
+
+-- Unique index for global codes (tenant_id IS NULL)
+CREATE UNIQUE INDEX IF NOT EXISTS idx_lab_test_catalog_global_code
+ON lab_test_catalog (code) WHERE tenant_id IS NULL;
 
 -- =============================================================================
 -- B. LAB TEST PANELS (Groups of tests)

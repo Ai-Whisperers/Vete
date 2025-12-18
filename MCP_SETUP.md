@@ -24,7 +24,7 @@ You need to find your Agent's **MCP Settings File** (often called `cline_mcp_set
       "args": [
         "-y",
         "@modelcontextprotocol/server-postgres",
-        "postgresql://postgres:[YOUR-PASSWORD]@db.okddppczckbjdotrxiev.supabase.co:5432/postgres"
+        "postgresql://postgres:AM$!KL$BLdjY9qc@db.okddppczckbjdotrxiev.supabase.co:5432/postgres"
       ],
       "env": {
         "description": "Direct access to local Supabase DB. Fast debugging."

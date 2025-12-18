@@ -67,10 +67,10 @@ export default async function ProfilePage({ params, searchParams }: { params: Pr
               <div className="grid md:grid-cols-2 gap-6">
                   <div>
                       <label className="block text-sm font-bold text-gray-500 mb-2">Nombre Completo</label>
-                      <input 
-                          name="full_name" 
-                          defaultValue={profile?.full_name || ''} 
-                          className="w-full p-3 rounded-xl border border-gray-200 focus:border-[var(--primary)] outline-none font-bold text-gray-700"
+                      <input
+                          name="full_name"
+                          defaultValue={profile?.full_name || ''}
+                          className="w-full p-3 min-h-[48px] rounded-xl border border-gray-200 focus:border-[var(--primary)] outline-none font-bold text-gray-700"
                       />
                   </div>
                   {/* Empty col for spacing or future use */}
@@ -78,40 +78,40 @@ export default async function ProfilePage({ params, searchParams }: { params: Pr
 
                   <div>
                       <label className="block text-sm font-bold text-gray-500 mb-2">Teléfono Principal</label>
-                      <input 
-                          name="phone" 
-                          defaultValue={profile?.phone || ''} 
+                      <input
+                          name="phone"
+                          defaultValue={profile?.phone || ''}
                           placeholder="+595 9..."
-                          className="w-full p-3 rounded-xl border border-gray-200 focus:border-[var(--primary)] outline-none font-bold text-gray-700"
+                          className="w-full p-3 min-h-[48px] rounded-xl border border-gray-200 focus:border-[var(--primary)] outline-none font-bold text-gray-700"
                       />
                   </div>
                   <div>
                       <label className="block text-sm font-bold text-gray-500 mb-2">Teléfono Secundario</label>
-                      <input 
-                          name="secondary_phone" 
-                          defaultValue={profile?.secondary_phone || ''} 
+                      <input
+                          name="secondary_phone"
+                          defaultValue={profile?.secondary_phone || ''}
                           placeholder="Opcional"
-                          className="w-full p-3 rounded-xl border border-gray-200 focus:border-[var(--primary)] outline-none font-bold text-gray-700"
+                          className="w-full p-3 min-h-[48px] rounded-xl border border-gray-200 focus:border-[var(--primary)] outline-none font-bold text-gray-700"
                       />
                   </div>
 
                   <div className="md:col-span-2">
                        <label className="block text-sm font-bold text-gray-500 mb-2">Dirección</label>
-                       <input 
-                          name="address" 
-                          defaultValue={profile?.address || ''} 
+                       <input
+                          name="address"
+                          defaultValue={profile?.address || ''}
                           placeholder="Calle Principal 123"
-                          className="w-full p-3 rounded-xl border border-gray-200 focus:border-[var(--primary)] outline-none font-bold text-gray-700"
+                          className="w-full p-3 min-h-[48px] rounded-xl border border-gray-200 focus:border-[var(--primary)] outline-none font-bold text-gray-700"
                       />
                   </div>
                   
                   <div className="md:col-span-2">
                        <label className="block text-sm font-bold text-gray-500 mb-2">Ciudad / Barrio</label>
-                       <input 
-                          name="city" 
-                          defaultValue={profile?.city || ''} 
+                       <input
+                          name="city"
+                          defaultValue={profile?.city || ''}
                           placeholder="Asunción"
-                          className="w-full p-3 rounded-xl border border-gray-200 focus:border-[var(--primary)] outline-none font-bold text-gray-700"
+                          className="w-full p-3 min-h-[48px] rounded-xl border border-gray-200 focus:border-[var(--primary)] outline-none font-bold text-gray-700"
                       />
                   </div>
               </div>

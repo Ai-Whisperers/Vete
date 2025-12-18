@@ -1,34 +1,48 @@
-# Supabase Edge Functions Configuration
-# https://supabase.com/docs/guides/functions
+# Supabase Local Development Configuration
+# https://supabase.com/docs/guides/cli/config
 
-[project]
-name = "vete"
-
-# Edge Functions settings
-[functions]
+[api]
 enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
 
-# Environment variables (set these in Supabase Dashboard > Edge Functions > Secrets)
-# SUPABASE_URL - Auto-injected
-# SUPABASE_SERVICE_ROLE_KEY - Auto-injected
-# RESEND_API_KEY - Email provider API key
-# TWILIO_ACCOUNT_SID - SMS provider account SID
-# TWILIO_AUTH_TOKEN - SMS provider auth token
-# TWILIO_PHONE_NUMBER - SMS sender number
-# TWILIO_WHATSAPP_NUMBER - WhatsApp sender number
-# DEFAULT_FROM_EMAIL - Default sender email address
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 15
 
+[studio]
+enabled = true
+port = 54323
+
+[auth]
+enabled = true
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["http://localhost:3000/**"]
+
+[auth.email]
+enable_signup = true
+double_confirm_changes = true
+enable_confirmations = false
+
+[storage]
+enabled = true
+file_size_limit = "50MiB"
+
+# Edge Functions Configuration
 [functions.process-notifications]
-verify_jwt = false  # Called by cron, no JWT needed
+verify_jwt = false
 
 [functions.generate-vaccine-reminders]
-verify_jwt = false  # Called by cron, no JWT needed
+verify_jwt = false
 
 [functions.generate-appointment-reminders]
-verify_jwt = false  # Called by cron, no JWT needed
+verify_jwt = false
 
 [functions.send-email]
-verify_jwt = true  # Requires authenticated user
+verify_jwt = true
 
 [functions.send-sms]
-verify_jwt = true  # Requires authenticated user
+verify_jwt = true

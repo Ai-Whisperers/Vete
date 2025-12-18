@@ -42,7 +42,7 @@ export function ServiceSelector({ services, value, onChange, disabled }: Props):
         <optgroup key={category} label={category}>
           {categoryServices.map((service) => (
             <option key={service.id} value={service.id}>
-              {service.name} - Gs. {service.base_price.toLocaleString()}
+              {service.name} - Gs. {(service.base_price ?? 0).toLocaleString()}
             </option>
           ))}
         </optgroup>

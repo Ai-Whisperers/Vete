@@ -42,7 +42,7 @@ export function ToxicFoodSearch({ items }: ToxicFoodSearchProps) {
           placeholder="Escribe un alimento (ej: Chocolate, Uvas...)"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pl-12 pr-6 py-4 rounded-full border border-gray-200 shadow-sm focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition-all text-lg"
+          className="w-full pl-12 pr-6 py-3 sm:py-4 min-h-[48px] rounded-full border border-gray-200 shadow-sm focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition-all text-base sm:text-lg"
         />
       </div>
 

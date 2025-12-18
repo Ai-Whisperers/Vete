@@ -7,7 +7,7 @@ import { Check, ArrowRight, Calendar, MessageCircle, ShoppingBag, PawPrint } fro
 import { AddToCartButton } from "../cart/add-to-cart-button";
 import { AddServiceModal } from "./add-service-modal";
 import type { Service, ServiceVariant } from "@/lib/types/services";
-import type { PetSizeCategory } from "@/lib/utils/pet-size";
+import { hasSizeBasedPricing } from "@/lib/utils/pet-size";
 
 interface ServiceCardConfig {
   id?: string;
@@ -38,7 +38,7 @@ export const ServiceCard = ({ service, config, clinic }: ServiceCardProps) => {
   // Get first variant for display
   const firstVariant = service.variants?.[0];
   const hasVariants = service.variants && service.variants.length > 0;
-  const hasSizeDependent = service.variants?.some((v) => v.size_dependent);
+  const hasSizePricing = service.variants?.some((v) => hasSizeBasedPricing(v.size_pricing));
 
   if (!service.visible) return null;
 
@@ -47,8 +47,8 @@ export const ServiceCard = ({ service, config, clinic }: ServiceCardProps) => {
     e.preventDefault();
     e.stopPropagation();
 
-    // If any variant is size-dependent, open the modal
-    if (hasSizeDependent && firstVariant) {
+    // If any variant has size-based pricing, open the modal
+    if (hasSizePricing && firstVariant) {
       setIsModalOpen(true);
     }
     // Otherwise the AddToCartButton handles it directly
@@ -65,7 +65,7 @@ export const ServiceCard = ({ service, config, clinic }: ServiceCardProps) => {
 
         {/* Card Image */}
         {service.image && (
-          <div className="h-40 relative overflow-hidden">
+          <div className="h-36 sm:h-40 relative overflow-hidden">
             <img
               src={service.image}
               alt={service.title}
@@ -138,7 +138,7 @@ export const ServiceCard = ({ service, config, clinic }: ServiceCardProps) => {
           <div className="flex items-end justify-between gap-2 mb-3">
             <div className="flex flex-col">
               <span className="text-xs text-[var(--text-muted)] font-medium">
-                {hasSizeDependent ? "Desde" : "Precio"}
+                {hasSizePricing ? "Desde" : "Precio"}
               </span>
               <span className="text-xl font-black text-[var(--primary)]">
                 {firstVariant?.price_display || "Consultar"}
@@ -146,12 +146,12 @@ export const ServiceCard = ({ service, config, clinic }: ServiceCardProps) => {
             </div>
 
             <div className="flex gap-2">
-              {/* Add to Cart Button - uses modal if size-dependent */}
-              {hasSizeDependent ? (
+              {/* Add to Cart Button - uses modal if size-based pricing */}
+              {hasSizePricing ? (
                 <button
                   type="button"
                   onClick={handleAddToCart}
-                  className="z-30 relative rounded-xl bg-[var(--primary)]/10 text-[var(--primary)] p-3 hover:bg-[var(--primary)] hover:text-white transition-colors shadow-sm flex items-center gap-1"
+                  className="z-30 relative rounded-xl bg-[var(--primary)]/10 text-[var(--primary)] p-3 min-h-[44px] min-w-[44px] hover:bg-[var(--primary)] hover:text-white transition-colors shadow-sm flex items-center justify-center gap-1"
                   title="Seleccionar mascota para agregar"
                 >
                   <PawPrint className="w-4 h-4" />
@@ -169,11 +169,11 @@ export const ServiceCard = ({ service, config, clinic }: ServiceCardProps) => {
                     variant_name: firstVariant?.name
                   }}
                   iconOnly
-                  className="z-30 relative rounded-xl bg-[var(--primary)]/10 text-[var(--primary)] p-3 hover:bg-[var(--primary)] hover:text-white transition-colors shadow-sm"
+                  className="z-30 relative rounded-xl bg-[var(--primary)]/10 text-[var(--primary)] p-3 min-h-[44px] min-w-[44px] hover:bg-[var(--primary)] hover:text-white transition-colors shadow-sm"
                 />
               )}
 
-              <div className="rounded-xl bg-[var(--bg-subtle)] text-[var(--primary)] p-3 group-hover:bg-[var(--primary)] group-hover:text-white transition-colors shadow-sm">
+              <div className="rounded-xl bg-[var(--bg-subtle)] text-[var(--primary)] p-3 min-h-[44px] min-w-[44px] flex items-center justify-center group-hover:bg-[var(--primary)] group-hover:text-white transition-colors shadow-sm">
                 <ArrowRight className="w-5 h-5" />
               </div>
             </div>
@@ -184,7 +184,7 @@ export const ServiceCard = ({ service, config, clinic }: ServiceCardProps) => {
             {isBookable ? (
               <Link
                 href={`/${clinic}/book?service=${service.id}`}
-                className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 bg-[var(--primary)] text-white font-bold rounded-xl hover:opacity-90 transition-all z-30 relative text-sm"
+                className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 min-h-[44px] bg-[var(--primary)] text-white font-bold rounded-xl hover:opacity-90 transition-all z-30 relative text-sm"
                 onClick={(e) => e.stopPropagation()}
               >
                 <Calendar className="w-4 h-4" />
@@ -197,7 +197,7 @@ export const ServiceCard = ({ service, config, clinic }: ServiceCardProps) => {
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 bg-green-500 text-white font-bold rounded-xl hover:bg-green-600 transition-all z-30 relative text-sm"
+                className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 min-h-[44px] bg-green-500 text-white font-bold rounded-xl hover:bg-green-600 transition-all z-30 relative text-sm"
                 onClick={(e) => e.stopPropagation()}
               >
                 <MessageCircle className="w-4 h-4" />
@@ -209,7 +209,7 @@ export const ServiceCard = ({ service, config, clinic }: ServiceCardProps) => {
       </div>
 
       {/* Service Modal */}
-      {hasSizeDependent && firstVariant && (
+      {hasSizePricing && firstVariant && (
         <AddServiceModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}

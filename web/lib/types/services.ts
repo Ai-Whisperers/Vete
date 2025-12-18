@@ -4,20 +4,29 @@
  * TypeScript interfaces for the services JSON-CMS schema
  */
 
-import type { PetSizeCategory } from '@/lib/utils/pet-size';
+import type { PetSizeCategory, SizePricing } from '@/lib/utils/pet-size';
 
 /**
  * Service variant with optional size-based pricing
+ *
+ * Pricing Model:
+ * - If `size_pricing` is NOT set → use `price_value` as single price
+ * - If `size_pricing.any_size` is set → use that price for all sizes
+ * - If `size_pricing` has per-size prices → use the price for the pet's size
  */
 export interface ServiceVariant {
   name: string;
   description?: string;
+  /** Display string for the price (e.g., "60.000 Gs" or "Desde 48.000 Gs") */
   price_display: string;
+  /** Base/default price (used when no size pricing is defined) */
   price_value: number;
-  /** Whether this variant uses pet-size-based pricing */
-  size_dependent?: boolean;
-  /** Custom multipliers per size category (defaults to DEFAULT_SIZE_MULTIPLIERS if not specified) */
-  size_multipliers?: Record<PetSizeCategory, number>;
+  /**
+   * Size-based pricing. If set, prices are looked up by pet size.
+   * - `any_size`: Single price for ALL sizes (overrides per-size)
+   * - `mini`, `pequeño`, `mediano`, `grande`, `gigante`: Explicit price per size
+   */
+  size_pricing?: SizePricing;
 }
 
 /**
@@ -74,9 +83,10 @@ export interface ServiceCartItem {
   pet_id: string;
   pet_name: string;
   pet_size: PetSizeCategory;
-  base_price: number;
-  final_price: number;
-  size_dependent: boolean;
+  /** The price for this specific size */
+  price: number;
+  /** Whether this variant has size-based pricing */
+  has_size_pricing: boolean;
 }
 
 /**

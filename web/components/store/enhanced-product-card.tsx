@@ -48,7 +48,8 @@ export default function EnhancedProductCard({
   const inStock = stock > 0;
   const lowStock = stock > 0 && stock <= 5;
 
-  const formatPrice = (price: number) => {
+  const formatPrice = (price: number | null | undefined) => {
+    if (price === null || price === undefined) return `${currencySymbol} 0`;
     return `${currencySymbol} ${price.toLocaleString('es-PY')}`;
   };
 

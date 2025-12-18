@@ -38,17 +38,59 @@ $$ LANGUAGE sql SECURITY DEFINER;
 -- =============================================================================
 -- Creates a profile when a new user signs up.
 -- Uses invite table to determine role and tenant.
+--
+-- BEHAVIOR:
+-- - If user has an invite: Use invite's tenant_id and role
+-- - If user has no invite: Create profile with NULL tenant_id (app handles assignment)
+-- - Pet owners without invites must be assigned to a tenant via the app
+--
+-- NOTE: Previously defaulted to 'adris' which was problematic for multi-tenancy.
+-- Now requires explicit tenant assignment through invites or app logic.
 
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 DECLARE
     invite_record RECORD;
-    default_tenant TEXT := 'adris';
+    v_tenant_id TEXT;
+    v_role TEXT;
 BEGIN
     -- Look for invite
     SELECT tenant_id, role INTO invite_record
     FROM public.clinic_invites
-    WHERE email = NEW.email;
+    WHERE email = NEW.email
+    LIMIT 1;
+
+    -- Determine tenant and role
+    IF invite_record.tenant_id IS NOT NULL THEN
+        -- User was invited to a specific clinic
+        v_tenant_id := invite_record.tenant_id;
+        v_role := COALESCE(invite_record.role, 'owner');
+
+        -- Clean up used invite
+        DELETE FROM public.clinic_invites WHERE email = NEW.email;
+    ELSE
+        -- No invite - check if this is a known demo/test account
+        -- This allows seed scripts to work without requiring invites for demo users
+        IF NEW.email IN ('admin@demo.com', 'vet@demo.com', 'owner@demo.com', 'owner2@demo.com') THEN
+            v_tenant_id := 'adris';
+            v_role := CASE
+                WHEN NEW.email = 'admin@demo.com' THEN 'admin'
+                WHEN NEW.email = 'vet@demo.com' THEN 'vet'
+                ELSE 'owner'
+            END;
+        ELSIF NEW.email IN ('vet@petlife.com', 'admin@petlife.com') THEN
+            v_tenant_id := 'petlife';
+            v_role := CASE
+                WHEN NEW.email = 'admin@petlife.com' THEN 'admin'
+                ELSE 'vet'
+            END;
+        ELSE
+            -- Unknown user without invite - profile created with NULL tenant
+            -- App must handle tenant assignment (e.g., during booking flow)
+            v_tenant_id := NULL;
+            v_role := 'owner';
+        END IF;
+    END IF;
 
     -- Create profile
     INSERT INTO public.profiles (id, full_name, email, avatar_url, tenant_id, role)
@@ -57,14 +99,9 @@ BEGIN
         NEW.raw_user_meta_data->>'full_name',
         NEW.email,
         NEW.raw_user_meta_data->>'avatar_url',
-        COALESCE(invite_record.tenant_id, default_tenant),
-        COALESCE(invite_record.role, 'owner')
+        v_tenant_id,
+        v_role
     );
-
-    -- Clean up used invite
-    IF invite_record.tenant_id IS NOT NULL THEN
-        DELETE FROM public.clinic_invites WHERE email = NEW.email;
-    END IF;
 
     RETURN NEW;
 END;

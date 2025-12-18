@@ -63,7 +63,7 @@ export default async function ClinicHomePage({ params }: { params: Promise<{ cli
 
         <div className="container mx-auto px-4 md:px-6 relative z-10 py-20">
           <div className="max-w-4xl">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-heading font-black tracking-tight mb-6 leading-[1.1] text-white drop-shadow-2xl text-balance animate-fade-in">
+            <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-heading font-black tracking-tight mb-6 leading-[1.1] text-white drop-shadow-2xl text-balance animate-fade-in">
               {home.hero.headline}
             </h1>
             <p className="max-w-2xl text-lg md:text-xl text-white/90 mb-10 leading-relaxed font-medium drop-shadow-md text-balance animate-fade-in stagger-1">

@@ -50,8 +50,12 @@ CREATE TABLE IF NOT EXISTS consent_templates (
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
 
-    UNIQUE(COALESCE(tenant_id, 'GLOBAL'), code, version)
+    UNIQUE(tenant_id, code, version)
 );
+
+-- Unique index for global templates (tenant_id IS NULL)
+CREATE UNIQUE INDEX IF NOT EXISTS idx_consent_templates_global_code_version
+ON consent_templates (code, version) WHERE tenant_id IS NULL;
 
 -- =============================================================================
 -- B. CONSENT TEMPLATE FIELDS

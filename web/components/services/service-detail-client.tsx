@@ -8,11 +8,11 @@ import { PetSelector } from "./pet-selector";
 import { AddToCartButton } from "../cart/add-to-cart-button";
 import { useCart } from "@/context/cart-context";
 import {
-  calculateServicePrice,
+  getServicePriceForSize,
+  hasSizeBasedPricing,
   formatPriceGs,
   SIZE_SHORT_LABELS,
-  getSizeBadgeColor,
-  type PetSizeCategory
+  getSizeBadgeColor
 } from "@/lib/utils/pet-size";
 import type { Service, ServiceVariant, PetForService } from "@/lib/types/services";
 
@@ -49,27 +49,26 @@ export function ServiceDetailClient({
   const [addingVariant, setAddingVariant] = useState<string | null>(null);
   const [justAddedVariant, setJustAddedVariant] = useState<string | null>(null);
 
-  // Check if any variant is size-dependent
-  const hasSizeDependentVariants = service.variants?.some((v) => v.size_dependent);
+  // Check if any variant has size-based pricing
+  const hasSizeDependentVariants = service.variants?.some((v) => hasSizeBasedPricing(v.size_pricing));
 
   // Calculate prices for all variants based on selected pet
   const calculatedPrices = useMemo(() => {
     if (!service.variants) return {};
 
     return service.variants.reduce((acc, variant) => {
-      const calculatedPrice = selectedPet
-        ? calculateServicePrice(
-            variant.price_value,
-            variant.size_dependent ?? false,
-            variant.size_multipliers,
-            selectedPet.size_category
-          )
-        : variant.price_value;
+      const variantHasSizePricing = hasSizeBasedPricing(variant.size_pricing);
+
+      let calculatedPrice = variant.price_value;
+      if (selectedPet && variantHasSizePricing) {
+        const sizePrice = getServicePriceForSize(variant.size_pricing, selectedPet.size_category);
+        calculatedPrice = sizePrice ?? variant.price_value;
+      }
 
       acc[variant.name] = {
         price: calculatedPrice,
         difference: calculatedPrice - variant.price_value,
-        isSizeDependent: variant.size_dependent ?? false
+        isSizeDependent: variantHasSizePricing
       };
       return acc;
     }, {} as Record<string, { price: number; difference: number; isSizeDependent: boolean }>);
@@ -77,7 +76,9 @@ export function ServiceDetailClient({
 
   // Handle add to cart
   const handleAddToCart = async (variant: ServiceVariant) => {
-    if (variant.size_dependent && !selectedPet) {
+    const variantHasSizePricing = hasSizeBasedPricing(variant.size_pricing);
+
+    if (variantHasSizePricing && !selectedPet) {
       // User needs to select a pet first
       return;
     }
@@ -89,7 +90,7 @@ export function ServiceDetailClient({
 
     const calculatedPrice = calculatedPrices[variant.name]?.price ?? variant.price_value;
 
-    if (variant.size_dependent && selectedPet) {
+    if (variantHasSizePricing && selectedPet) {
       // Add with pet info
       addItem({
         id: `${service.id}-${selectedPet.id}-${variant.name}`,
@@ -260,8 +261,8 @@ export function ServiceDetailClient({
                     const priceInfo = calculatedPrices[variant.name];
                     const isAdding = addingVariant === variant.name;
                     const justAdded = justAddedVariant === variant.name;
-                    const needsPetSelection =
-                      variant.size_dependent && !selectedPet;
+                    const variantHasSizePricing = hasSizeBasedPricing(variant.size_pricing);
+                    const needsPetSelection = variantHasSizePricing && !selectedPet;
 
                     return (
                       <tr key={idx} className="hover:bg-gray-50 transition-colors">
@@ -274,7 +275,7 @@ export function ServiceDetailClient({
                               {variant.description}
                             </div>
                           )}
-                          {variant.size_dependent && (
+                          {variantHasSizePricing && (
                             <div className="flex items-center gap-1 mt-2 text-xs text-amber-600">
                               <Icons.Calculator className="w-3.5 h-3.5" />
                               <span>Precio según tamaño de mascota</span>

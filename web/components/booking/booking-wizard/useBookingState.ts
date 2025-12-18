@@ -196,7 +196,8 @@ export function useBookingState(
 /**
  * Format price number for display (e.g., 50000 -> "50.000")
  */
-export function formatPrice(price: number): string {
+export function formatPrice(price: number | null | undefined): string {
+    if (price === null || price === undefined) return '0';
     return price.toLocaleString('es-PY');
 }
 

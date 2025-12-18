@@ -102,6 +102,8 @@ const SCHEMA_FILES = [
   '54_tenant_setup.sql',
   '55_appointment_overlap.sql',
   '56_appointment_functions.sql',
+  '57_materialized_views.sql',
+  '58_appointment_workflow.sql',
   // Additional migrations
   '70_whatsapp_messages.sql',
   '80_fix_missing_rls_and_indexes.sql',
@@ -109,13 +111,35 @@ const SCHEMA_FILES = [
   '82_store_enhancements.sql',
   '83_store_orders.sql',
   '84_notification_read_status.sql',
+  '85_fix_checkout_inventory_table.sql',
+  '86_owner_clinic_connections.sql',
+  '88_fix_checkout_schema_mismatch.sql',
+  '89_exec_sql_helper.sql',
 ]
 
-// Seed files by environment
+// Seed files by environment (90+ series)
 const SEED_FILES: Record<Environment, string[]> = {
-  dev: ['20_seed_data.sql', '45_seed_comprehensive.sql'],
-  test: ['20_seed_data.sql', '45_seed_comprehensive.sql'],
-  prod: [],
+  dev: [
+    '90_seed_tenants.sql',
+    '91_seed_demo_users.sql',
+    '92_seed_services.sql',
+    '93_seed_store.sql',
+    '94_seed_pets.sql',
+    '95_seed_appointments.sql',
+    '96_seed_invites.sql',
+    '99_seed_finalize.sql',
+  ],
+  test: [
+    '90_seed_tenants.sql',
+    '91_seed_demo_users.sql',
+    '92_seed_services.sql',
+    '93_seed_store.sql',
+    '94_seed_pets.sql',
+    '95_seed_appointments.sql',
+    '96_seed_invites.sql',
+    '99_seed_finalize.sql',
+  ],
+  prod: ['90_seed_tenants.sql'],
 }
 
 class DatabaseSetup {
@@ -458,6 +482,12 @@ Demo Accounts (after setup):
   vet@demo.com     / password123  -> Veterinarian
   admin@demo.com   / password123  -> Admin
   vet@petlife.com  / password123  -> PetLife vet
+
+PREREQUISITES:
+  This script requires the exec_sql RPC function to be installed first.
+  Run 89_exec_sql_helper.sql in Supabase SQL Editor before using this script.
+
+  Alternatively, run SQL files manually in Supabase SQL Editor in order.
 `)
 }
 

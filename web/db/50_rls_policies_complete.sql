@@ -93,7 +93,7 @@ CREATE POLICY "Owners can view own lab order items" ON lab_order_items
         EXISTS (
             SELECT 1 FROM lab_orders
             JOIN pets ON pets.id = lab_orders.pet_id
-            WHERE lab_orders.id = lab_order_items.order_id
+            WHERE lab_orders.id = lab_order_items.lab_order_id
             AND pets.owner_id = auth.uid()
         )
     );
@@ -103,7 +103,7 @@ CREATE POLICY "Staff can manage lab order items" ON lab_order_items
     FOR ALL USING (
         EXISTS (
             SELECT 1 FROM lab_orders
-            WHERE lab_orders.id = lab_order_items.order_id
+            WHERE lab_orders.id = lab_order_items.lab_order_id
             AND public.is_staff_of(lab_orders.tenant_id)
         )
     );
@@ -117,7 +117,7 @@ CREATE POLICY "Owners can view own lab results" ON lab_results
         EXISTS (
             SELECT 1 FROM lab_orders
             JOIN pets ON pets.id = lab_orders.pet_id
-            WHERE lab_orders.id = lab_results.order_id
+            WHERE lab_orders.id = lab_results.lab_order_id
             AND pets.owner_id = auth.uid()
         )
     );
@@ -127,7 +127,7 @@ CREATE POLICY "Staff can manage lab results" ON lab_results
     FOR ALL USING (
         EXISTS (
             SELECT 1 FROM lab_orders
-            WHERE lab_orders.id = lab_results.order_id
+            WHERE lab_orders.id = lab_results.lab_order_id
             AND public.is_staff_of(lab_orders.tenant_id)
         )
     );

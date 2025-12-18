@@ -13,19 +13,19 @@ export function InviteStaffForm({ clinic }: { clinic: string }) {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="md:col-span-2">
           <label className="block text-xs font-bold uppercase text-gray-400 mb-1 ml-2">Email</label>
-          <input 
-            required 
-            type="email" 
-            name="email" 
-            placeholder="doctor@veterinaria.com" 
-            className="w-full bg-gray-50 border border-transparent focus:bg-white focus:border-[var(--primary)] rounded-xl px-4 py-3 outline-none transition-all font-medium"
+          <input
+            required
+            type="email"
+            name="email"
+            placeholder="doctor@veterinaria.com"
+            className="w-full bg-gray-50 border border-transparent focus:bg-white focus:border-[var(--primary)] rounded-xl px-4 py-3 min-h-[48px] outline-none transition-all font-medium"
           />
         </div>
         <div>
           <label className="block text-xs font-bold uppercase text-gray-400 mb-1 ml-2">Cargo</label>
-          <select 
-            name="role" 
-            className="w-full bg-gray-50 border border-transparent focus:bg-white focus:border-[var(--primary)] rounded-xl px-4 py-3 outline-none transition-all font-bold text-[var(--text-primary)] appearance-none"
+          <select
+            name="role"
+            className="w-full bg-gray-50 border border-transparent focus:bg-white focus:border-[var(--primary)] rounded-xl px-4 py-3 min-h-[48px] outline-none transition-all font-bold text-[var(--text-primary)] appearance-none"
           >
             <option value="vet">Veterinario</option>
             <option value="admin">Admin</option>
@@ -47,10 +47,10 @@ export function InviteStaffForm({ clinic }: { clinic: string }) {
         </div>
       )}
 
-      <button 
-        type="submit" 
+      <button
+        type="submit"
         disabled={isPending}
-        className="w-full bg-[var(--primary)] text-white font-bold py-3 rounded-xl hover:shadow-lg transition-all active:scale-95 flex justify-center items-center gap-2"
+        className="w-full bg-[var(--primary)] text-white font-bold py-3 min-h-[48px] rounded-xl hover:shadow-lg transition-all active:scale-95 flex justify-center items-center gap-2"
       >
         {isPending ? <Icons.Loader2 className="animate-spin w-5 h-5"/> : "Enviar Invitación"}
       </button>

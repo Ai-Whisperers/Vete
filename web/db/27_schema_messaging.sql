@@ -143,8 +143,12 @@ CREATE TABLE IF NOT EXISTS message_templates (
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
 
-    UNIQUE(COALESCE(tenant_id, 'GLOBAL'), code)
+    UNIQUE(tenant_id, code)
 );
+
+-- Unique index for global message templates (tenant_id IS NULL)
+CREATE UNIQUE INDEX IF NOT EXISTS idx_message_templates_global_code
+ON message_templates (code) WHERE tenant_id IS NULL;
 
 -- =============================================================================
 -- D. QUICK REPLIES
@@ -305,8 +309,11 @@ CREATE TABLE IF NOT EXISTS communication_preferences (
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
 
-    UNIQUE(user_id, COALESCE(tenant_id, 'GLOBAL'))
+    UNIQUE(user_id, tenant_id)
 );
+
+-- Note: notification_preferences table is defined in 22_schema_reminders.sql
+-- with client_id column (not user_id/tenant_id), so no additional index needed here
 
 -- =============================================================================
 -- H. MESSAGE REACTIONS

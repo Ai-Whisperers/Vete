@@ -56,7 +56,7 @@ export default async function ServicesPage({ params }: { params: Promise<{ clini
       </div>
 
        {/* Floating CTA */}
-       <div className="fixed bottom-4 sm:bottom-6 md:bottom-8 right-4 sm:right-6 md:right-8 z-50 animate-bounce-in">
+       <div className="fixed bottom-8 sm:bottom-10 md:bottom-12 right-4 sm:right-6 md:right-8 z-50 animate-bounce-in pb-[env(safe-area-inset-bottom)]">
             <a
                 href={`https://wa.me/${config.contact.whatsapp_number}`}
                 target="_blank"

@@ -73,7 +73,8 @@ export default function PriceRangeSlider({
     }
   };
 
-  const formatPrice = (value: number) => {
+  const formatPrice = (value: number | null | undefined) => {
+    if (value === null || value === undefined) return `${currencySymbol} 0`;
     return `${currencySymbol} ${value.toLocaleString('es-PY')}`;
   };
 
@@ -95,7 +96,7 @@ export default function PriceRangeSlider({
               type="number"
               value={localMin}
               onChange={(e) => handleMinInputChange(e.target.value)}
-              placeholder={min.toLocaleString('es-PY')}
+              placeholder={(min ?? 0).toLocaleString('es-PY')}
               className="w-full pl-8 pr-2 py-2 text-sm border border-[var(--border-default)] rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
             />
           </div>
@@ -111,7 +112,7 @@ export default function PriceRangeSlider({
               type="number"
               value={localMax}
               onChange={(e) => handleMaxInputChange(e.target.value)}
-              placeholder={max.toLocaleString('es-PY')}
+              placeholder={(max ?? 0).toLocaleString('es-PY')}
               className="w-full pl-8 pr-2 py-2 text-sm border border-[var(--border-default)] rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
             />
           </div>

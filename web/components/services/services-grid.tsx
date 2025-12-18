@@ -64,7 +64,7 @@ export function ServicesGrid({ services, config }: ServicesGridProps) {
           placeholder="Buscar servicios (ej: Vacunas, Consulta...)"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pl-12 pr-6 py-4 rounded-full bg-white border border-gray-200 shadow-xl focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent outline-none transition-all text-lg text-[var(--text-primary)]"
+          className="w-full pl-12 pr-6 py-3 sm:py-4 min-h-[48px] rounded-full bg-white border border-gray-200 shadow-xl focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent outline-none transition-all text-base sm:text-lg text-[var(--text-primary)]"
         />
       </div>
 
@@ -78,9 +78,9 @@ export function ServicesGrid({ services, config }: ServicesGridProps) {
       ) : (
         <div className="text-center py-20 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
           <p className="text-xl text-gray-500 font-medium">No se encontraron servicios que coincidan con &quot;{searchTerm}&quot;.</p>
-          <button 
+          <button
             onClick={() => setSearchTerm("")}
-            className="mt-4 text-[var(--primary)] font-bold hover:underline"
+            className="mt-4 text-[var(--primary)] font-bold hover:underline min-h-[44px] px-4 py-2"
           >
             Ver todos los servicios
           </button>

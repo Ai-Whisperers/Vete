@@ -200,7 +200,8 @@ export default function SearchAutocomplete({
     localStorage.removeItem(RECENT_SEARCHES_KEY);
   };
 
-  const formatPrice = (price: number): string => {
+  const formatPrice = (price: number | null | undefined): string => {
+    if (price === null || price === undefined) return 'Gs 0';
     return `Gs ${price.toLocaleString('es-PY')}`;
   };
 

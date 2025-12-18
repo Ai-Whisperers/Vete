@@ -6,11 +6,11 @@ import { PetSelector } from "./pet-selector";
 import { useCart } from "@/context/cart-context";
 import { ShoppingBag, Loader2, Check, Calculator } from "lucide-react";
 import {
-  calculateServicePrice,
+  getServicePriceForSize,
+  hasSizeBasedPricing,
   formatPriceGs,
   SIZE_SHORT_LABELS,
-  getSizeBadgeColor,
-  type PetSizeCategory
+  getSizeBadgeColor
 } from "@/lib/utils/pet-size";
 import type { Service, ServiceVariant, PetForService } from "@/lib/types/services";
 
@@ -45,17 +45,17 @@ export function AddServiceModal({
   const [isAdding, setIsAdding] = useState(false);
   const [justAdded, setJustAdded] = useState(false);
 
+  // Check if this variant has size-based pricing
+  const variantHasSizePricing = hasSizeBasedPricing(variant.size_pricing);
+
   // Calculate price based on selected pet
   const calculatedPrice = useMemo(() => {
-    if (!selectedPet) return variant.price_value;
+    if (!selectedPet || !variantHasSizePricing) return variant.price_value;
 
-    return calculateServicePrice(
-      variant.price_value,
-      variant.size_dependent ?? false,
-      variant.size_multipliers,
-      selectedPet.size_category
-    );
-  }, [selectedPet, variant]);
+    // Get the explicit price for this pet's size
+    const sizePrice = getServicePriceForSize(variant.size_pricing, selectedPet.size_category);
+    return sizePrice ?? variant.price_value;
+  }, [selectedPet, variant, variantHasSizePricing]);
 
   // Price difference from base
   const priceDifference = calculatedPrice - variant.price_value;
@@ -126,7 +126,7 @@ export function AddServiceModal({
           <div className="flex-grow min-w-0">
             <h3 className="font-bold text-[var(--text-primary)] mb-1">{service.title}</h3>
             <p className="text-sm text-[var(--text-secondary)]">{variant.name}</p>
-            {variant.size_dependent && (
+            {variantHasSizePricing && (
               <div className="flex items-center gap-1 mt-2 text-xs text-amber-600">
                 <Calculator className="w-3.5 h-3.5" />
                 <span>Precio varía según tamaño de mascota</span>
@@ -156,7 +156,7 @@ export function AddServiceModal({
               </div>
             </div>
 
-            {variant.size_dependent && (
+            {variantHasSizePricing && (
               <>
                 <div className="flex items-center justify-between mb-2 text-sm">
                   <span className="text-[var(--text-muted)]">Precio base:</span>

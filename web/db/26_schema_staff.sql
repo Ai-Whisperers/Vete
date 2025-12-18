@@ -174,8 +174,12 @@ CREATE TABLE IF NOT EXISTS time_off_types (
 
     created_at TIMESTAMPTZ DEFAULT NOW(),
 
-    UNIQUE(COALESCE(tenant_id, 'GLOBAL'), code)
+    UNIQUE(tenant_id, code)
 );
+
+-- Unique index for global time off types (tenant_id IS NULL)
+CREATE UNIQUE INDEX IF NOT EXISTS idx_time_off_types_global_code
+ON time_off_types (code) WHERE tenant_id IS NULL;
 
 CREATE TABLE IF NOT EXISTS time_off_requests (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

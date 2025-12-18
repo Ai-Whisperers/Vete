@@ -45,7 +45,7 @@ SELECT
     COUNT(DISTINCT lo.id) FILTER (WHERE lo.deleted_at IS NULL AND lo.status IN ('ordered', 'specimen_collected', 'in_progress')) AS pending_lab_orders,
 
     -- Revenue this month
-    COALESCE(SUM(inv.total_amount) FILTER (WHERE inv.deleted_at IS NULL AND DATE_TRUNC('month', inv.created_at) = DATE_TRUNC('month', CURRENT_DATE) AND inv.status = 'paid'), 0) AS month_revenue,
+    COALESCE(SUM(inv.total) FILTER (WHERE inv.deleted_at IS NULL AND DATE_TRUNC('month', inv.created_at) = DATE_TRUNC('month', CURRENT_DATE) AND inv.status = 'paid'), 0) AS month_revenue,
 
     -- Outstanding invoices
     COALESCE(SUM(inv.balance_due) FILTER (WHERE inv.deleted_at IS NULL AND inv.status IN ('sent', 'overdue')), 0) AS outstanding_balance,
@@ -122,10 +122,10 @@ SELECT
     SUM(subtotal) AS gross_revenue,
     SUM(discount_amount) AS total_discounts,
     SUM(tax_amount) AS total_taxes,
-    SUM(total_amount) AS net_revenue,
-    SUM(total_amount) FILTER (WHERE status = 'paid') AS collected_revenue,
+    SUM(total) AS net_revenue,
+    SUM(total) FILTER (WHERE status = 'paid') AS collected_revenue,
     SUM(balance_due) FILTER (WHERE status IN ('sent', 'overdue')) AS outstanding_revenue,
-    AVG(total_amount) AS avg_invoice_amount,
+    AVG(total) AS avg_invoice_amount,
     COUNT(*) FILTER (WHERE status = 'overdue') AS overdue_count,
     NOW() AS refreshed_at
 FROM invoices
@@ -147,7 +147,7 @@ SELECT
     s.category,
     COUNT(ii.id) AS times_used,
     SUM(ii.quantity) AS total_quantity,
-    SUM(ii.total_price) AS total_revenue,
+    SUM(ii.quantity * ii.unit_price) AS total_revenue,
     AVG(ii.unit_price) AS avg_price,
     DATE_TRUNC('month', MAX(i.created_at)) AS last_used_month,
     NOW() AS refreshed_at
@@ -395,7 +395,7 @@ SELECT
     MAX(a.start_time) AS last_appointment_date,
     COUNT(DISTINCT a.id) FILTER (WHERE a.status = 'completed') AS completed_appointments_count,
     COUNT(DISTINCT a.id) FILTER (WHERE a.status = 'cancelled' OR a.status = 'no_show') AS missed_appointments_count,
-    SUM(COALESCE(inv.total_amount, 0)) FILTER (WHERE inv.status = 'paid') AS lifetime_value,
+    SUM(COALESCE(inv.total, 0)) FILTER (WHERE inv.status = 'paid') AS lifetime_value,
     MAX(inv.created_at) AS last_invoice_date,
     NOW() AS refreshed_at
 FROM profiles pr

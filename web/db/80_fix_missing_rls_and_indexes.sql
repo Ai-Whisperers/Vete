@@ -86,7 +86,7 @@ CREATE POLICY "Staff manage lab order items" ON lab_order_items
     FOR ALL USING (
         EXISTS (
             SELECT 1 FROM lab_orders
-            WHERE lab_orders.id = lab_order_items.order_id
+            WHERE lab_orders.id = lab_order_items.lab_order_id
             AND public.is_staff_of(lab_orders.tenant_id)
         )
     );

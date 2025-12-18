@@ -64,8 +64,8 @@ SELECT
     COUNT(DISTINCT lo.id) FILTER (WHERE lo.deleted_at IS NULL AND lo.status IN ('ordered', 'specimen_collected', 'in_progress')) AS pending_lab_orders,
 
     -- Revenue metrics
-    COALESCE(SUM(inv.total_amount) FILTER (WHERE inv.deleted_at IS NULL AND DATE_TRUNC('month', inv.created_at) = DATE_TRUNC('month', CURRENT_DATE) AND inv.status = 'paid'), 0) AS month_revenue,
-    COALESCE(SUM(inv.total_amount) FILTER (WHERE inv.deleted_at IS NULL AND DATE(inv.created_at) = CURRENT_DATE AND inv.status = 'paid'), 0) AS today_revenue,
+    COALESCE(SUM(inv.total) FILTER (WHERE inv.deleted_at IS NULL AND DATE_TRUNC('month', inv.created_at) = DATE_TRUNC('month', CURRENT_DATE) AND inv.status = 'paid'), 0) AS month_revenue,
+    COALESCE(SUM(inv.total) FILTER (WHERE inv.deleted_at IS NULL AND DATE(inv.created_at) = CURRENT_DATE AND inv.status = 'paid'), 0) AS today_revenue,
 
     -- Outstanding invoices
     COALESCE(SUM(inv.balance_due) FILTER (WHERE inv.deleted_at IS NULL AND inv.status IN ('sent', 'overdue')), 0) AS outstanding_balance,
@@ -278,7 +278,7 @@ SELECT
     SUM(ii.quantity) AS total_quantity,
 
     -- Revenue metrics
-    SUM(ii.total_price) AS total_revenue,
+    SUM(ii.quantity * ii.unit_price) AS total_revenue,
     AVG(ii.unit_price) AS avg_unit_price,
     MIN(ii.unit_price) AS min_unit_price,
     MAX(ii.unit_price) AS max_unit_price,
@@ -325,8 +325,8 @@ SELECT
     COUNT(DISTINCT a.id) FILTER (WHERE a.status = 'cancelled') AS total_cancellations,
 
     -- Financial metrics
-    COALESCE(SUM(inv.total_amount) FILTER (WHERE inv.status = 'paid'), 0) AS lifetime_revenue,
-    COALESCE(AVG(inv.total_amount) FILTER (WHERE inv.status = 'paid'), 0) AS avg_invoice_amount,
+    COALESCE(SUM(inv.total) FILTER (WHERE inv.status = 'paid'), 0) AS lifetime_revenue,
+    COALESCE(AVG(inv.total) FILTER (WHERE inv.status = 'paid'), 0) AS avg_invoice_amount,
     COALESCE(SUM(inv.balance_due) FILTER (WHERE inv.status IN ('sent', 'overdue')), 0) AS current_balance_due,
 
     -- Engagement metrics
@@ -467,19 +467,17 @@ GRANT SELECT ON mv_client_lifetime_value TO authenticated;
 -- =============================================================================
 
 -- To add these jobs to your cron schedule, run:
-/*
-SELECT cron.schedule(
-    'vete_refresh_enhanced_views',
-    '0 */2 * * *', -- Every 2 hours
-    $$SELECT run_scheduled_job('refresh_enhanced', 'job_refresh_enhanced_views')$$
-);
-
-SELECT cron.schedule(
-    'vete_refresh_critical_views',
-    '*/10 * * * *', -- Every 10 minutes
-    $$SELECT run_scheduled_job('refresh_critical', 'job_refresh_critical_views')$$
-);
-*/
+-- SELECT cron.schedule(
+--     'vete_refresh_enhanced_views',
+--     '0 */2 * * *', -- Every 2 hours
+--     $$SELECT run_scheduled_job('refresh_enhanced', 'job_refresh_enhanced_views')$$
+-- );
+--
+-- SELECT cron.schedule(
+--     'vete_refresh_critical_views',
+--     '*/10 * * * *', -- Every 10 minutes
+--     $$SELECT run_scheduled_job('refresh_critical', 'job_refresh_critical_views')$$
+-- );
 
 -- =============================================================================
 -- J. UTILITY: Manual Refresh All (Core + Enhanced)

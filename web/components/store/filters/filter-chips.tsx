@@ -102,14 +102,16 @@ export default function FilterChips({
   }
 
   // Price Range
-  if (filters.price_min !== undefined || filters.price_max !== undefined) {
+  if (filters.price_min != null || filters.price_max != null) {
     let label = 'Precio: ';
-    if (filters.price_min !== undefined && filters.price_max !== undefined) {
-      label += `${filters.price_min.toLocaleString()} - ${filters.price_max.toLocaleString()}`;
-    } else if (filters.price_min !== undefined) {
-      label += `desde ${filters.price_min.toLocaleString()}`;
-    } else if (filters.price_max !== undefined) {
-      label += `hasta ${filters.price_max.toLocaleString()}`;
+    const minPrice = filters.price_min ?? 0;
+    const maxPrice = filters.price_max ?? 0;
+    if (filters.price_min != null && filters.price_max != null) {
+      label += `${minPrice.toLocaleString()} - ${maxPrice.toLocaleString()}`;
+    } else if (filters.price_min != null) {
+      label += `desde ${minPrice.toLocaleString()}`;
+    } else if (filters.price_max != null) {
+      label += `hasta ${maxPrice.toLocaleString()}`;
     }
     chips.push({
       key: 'price_min', // Will clear both min and max

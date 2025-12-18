@@ -12,6 +12,7 @@ import {
   Cat,
   PawPrint,
   Search,
+  Plus,
 } from 'lucide-react';
 import { VaccinesFilter } from '@/components/dashboard/vaccines-filter';
 
@@ -164,6 +165,13 @@ export default async function VaccinesPage({ params, searchParams }: Props): Pro
           <h1 className="text-2xl font-black text-[var(--text-primary)]">Control de Vacunas</h1>
           <p className="text-[var(--text-secondary)]">Gestiona el calendario de vacunación</p>
         </div>
+        <Link
+          href={`/${clinic}/dashboard/vaccines?action=new-vaccine`}
+          className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--primary)] text-white rounded-lg font-medium hover:opacity-90 transition-opacity"
+        >
+          <Plus className="w-4 h-4" />
+          Registrar Vacuna
+        </Link>
       </div>
 
       {/* Stats Cards */}

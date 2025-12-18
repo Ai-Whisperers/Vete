@@ -3,9 +3,11 @@
 Comprehensive list of all implemented features in the Vete platform.
 
 > **Last Updated**: December 2024
-> **Total API Endpoints**: 82
-> **Total Server Actions**: 20
-> **Total Pages**: 60+
+> **Total API Endpoints**: 83
+> **Total Server Actions**: 22
+> **Total Pages**: 98
+> **Database Tables**: 94
+> **React Components**: 120+
 
 ---
 
@@ -354,12 +356,16 @@ See [API Documentation](../api/overview.md) for details.
 
 ## Planned Features
 
-- Multi-language support (English translation)
-- Mobile app (React Native)
-- Telemedicine integration
-- Advanced analytics dashboards
-- Automated reminder campaigns (SMS/Email)
-- AI-assisted diagnosis suggestions
+See [Development Tickets](../tickets/README.md) for detailed implementation plans:
+
+| Feature | Priority | Effort | Ticket |
+|---------|----------|--------|--------|
+| Multi-language Support (i18n) | P2 | 40h | [FEAT-001](../tickets/features/FEAT-001-multi-language.md) |
+| Mobile App (React Native) | P3 | 8 weeks | [FEAT-002](../tickets/features/FEAT-002-mobile-app.md) |
+| Telemedicine Integration | P3 | 5 weeks | [FEAT-003](../tickets/features/FEAT-003-telemedicine.md) |
+| Advanced Analytics Dashboard | P2 | 48h | [FEAT-004](../tickets/features/FEAT-004-analytics-dashboard.md) |
+| Automated Reminder Campaigns | P2 | 32h | [FEAT-005](../tickets/features/FEAT-005-automated-reminders.md) |
+| AI-assisted Diagnosis | P3 | TBD | Backlog |
 
 ---
 
@@ -368,4 +374,7 @@ See [API Documentation](../api/overview.md) for details.
 - [API Reference](../api/overview.md)
 - [Database Schema](../database/schema-reference.md)
 - [Architecture Overview](../architecture/overview.md)
+- [Routing Map](../reference/routing-map.md)
+- [Codebase Statistics](../reference/codebase-statistics.md)
+- [Development Tickets](../tickets/README.md)
 - [Security Audit](../../.claude/SUPABASE_AUDIT.md)

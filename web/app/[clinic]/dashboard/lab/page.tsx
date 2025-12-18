@@ -1,15 +1,18 @@
-'use client'
-
-import { useEffect, useState } from 'react'
-import { useRouter, useParams } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
-import * as Icons from 'lucide-react'
+import { createClient } from '@/lib/supabase/server'
+import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import * as Icons from 'lucide-react'
+import { LabOrdersList } from '@/components/lab/lab-orders-list'
+
+interface Props {
+  params: Promise<{ clinic: string }>
+  searchParams: Promise<{ status?: string; q?: string }>
+}
 
 interface LabOrder {
   id: string
   order_number: string
-  ordered_date: string
+  ordered_at: string
   status: string
   priority: string
   has_critical_values: boolean
@@ -18,148 +21,80 @@ interface LabOrder {
     name: string
     species: string
   }
-  profiles: {
-    full_name: string
-  }
 }
 
-const statusConfig: Record<string, { label: string; className: string; icon: React.ComponentType<{ className?: string }> }> = {
-  ordered: {
-    label: 'Ordenado',
-    className: 'bg-blue-100 text-blue-800',
-    icon: Icons.FileText
-  },
-  specimen_collected: {
-    label: 'Muestra Recolectada',
-    className: 'bg-purple-100 text-purple-800',
-    icon: Icons.Droplet
-  },
-  in_progress: {
-    label: 'En Proceso',
-    className: 'bg-yellow-100 text-yellow-800',
-    icon: Icons.Clock
-  },
-  completed: {
-    label: 'Completado',
-    className: 'bg-green-100 text-green-800',
-    icon: Icons.CheckCircle
-  },
-  cancelled: {
-    label: 'Cancelado',
-    className: 'bg-red-100 text-red-800',
-    icon: Icons.XCircle
-  }
-}
+export default async function LabOrdersPage({ params, searchParams }: Props) {
+  const { clinic } = await params
+  const { status: statusFilter, q: searchQuery } = await searchParams
+  const supabase = await createClient()
 
-const priorityConfig: Record<string, { label: string; className: string }> = {
-  stat: {
-    label: 'STAT',
-    className: 'bg-red-500 text-white'
-  },
-  urgent: {
-    label: 'Urgente',
-    className: 'bg-orange-500 text-white'
-  },
-  routine: {
-    label: 'Rutina',
-    className: 'bg-gray-500 text-white'
-  }
-}
-
-export default function LabOrdersPage() {
-  const [orders, setOrders] = useState<LabOrder[]>([])
-  const [filteredOrders, setFilteredOrders] = useState<LabOrder[]>([])
-  const [loading, setLoading] = useState(true)
-  const [searchTerm, setSearchTerm] = useState('')
-  const [statusFilter, setStatusFilter] = useState<string>('all')
-  const [showCriticalOnly, setShowCriticalOnly] = useState(false)
-  const router = useRouter()
-  const params = useParams()
-  const clinic = params.clinic as string
-  const supabase = createClient()
-
-  useEffect(() => {
-    fetchOrders()
-  }, [])
-
-  useEffect(() => {
-    filterOrders()
-  }, [orders, searchTerm, statusFilter, showCriticalOnly])
-
-  const fetchOrders = async () => {
-    setLoading(true)
-    try {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session?.user) {
-        router.push(`/${clinic}`)
-        return
-      }
-
-      const { data, error } = await supabase
-        .from('lab_orders')
-        .select(`
-          id,
-          order_number,
-          ordered_date,
-          status,
-          priority,
-          has_critical_values,
-          pets!inner(id, name, species),
-          profiles!ordered_by(full_name)
-        `)
-        .order('ordered_date', { ascending: false })
-
-      if (error) throw error
-      setOrders(data as LabOrder[])
-    } catch (error) {
-      console.error('Error fetching lab orders:', error)
-    } finally {
-      setLoading(false)
-    }
+  // Auth check
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    redirect(`/${clinic}/portal/login`)
   }
 
-  const filterOrders = () => {
-    let filtered = [...orders]
+  // Staff check
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role, tenant_id')
+    .eq('id', user.id)
+    .single()
 
-    // Search filter
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase()
-      filtered = filtered.filter(order =>
-        order.pets.name.toLowerCase().includes(term) ||
-        order.order_number.toLowerCase().includes(term)
-      )
-    }
-
-    // Status filter
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter(order => order.status === statusFilter)
-    }
-
-    // Critical values filter
-    if (showCriticalOnly) {
-      filtered = filtered.filter(order => order.has_critical_values)
-    }
-
-    setFilteredOrders(filtered)
+  if (!profile || !['vet', 'admin'].includes(profile.role) || profile.tenant_id !== clinic) {
+    redirect(`/${clinic}/portal/dashboard`)
   }
 
-  const getStatusCounts = () => {
-    return {
-      pending: orders.filter(o => o.status === 'ordered' || o.status === 'specimen_collected').length,
-      in_progress: orders.filter(o => o.status === 'in_progress').length,
-      completed: orders.filter(o => o.status === 'completed').length,
-      critical: orders.filter(o => o.has_critical_values).length
-    }
+  // Fetch lab orders with tenant filter
+  const { data: orders, error } = await supabase
+    .from('lab_orders')
+    .select(`
+      id,
+      order_number,
+      ordered_at,
+      status,
+      priority,
+      has_critical_values,
+      pets!inner(id, name, species)
+    `)
+    .eq('tenant_id', clinic)
+    .order('ordered_at', { ascending: false })
+
+  if (error) {
+    console.error('Error fetching lab orders:', error)
   }
 
-  const counts = getStatusCounts()
+  // Transform data
+  let labOrders: LabOrder[] = (orders || []).map((order: any) => ({
+    id: order.id,
+    order_number: order.order_number,
+    ordered_at: order.ordered_at,
+    status: order.status,
+    priority: order.priority,
+    has_critical_values: order.has_critical_values,
+    pets: Array.isArray(order.pets) ? order.pets[0] : order.pets,
+  }))
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Icons.Loader2 className="w-8 h-8 animate-spin text-[var(--primary)]" />
-      </div>
+  // Apply search filter
+  if (searchQuery) {
+    const term = searchQuery.toLowerCase()
+    labOrders = labOrders.filter(order =>
+      order.pets?.name?.toLowerCase().includes(term) ||
+      order.order_number?.toLowerCase().includes(term)
     )
+  }
+
+  // Apply status filter
+  if (statusFilter && statusFilter !== 'all') {
+    labOrders = labOrders.filter(order => order.status === statusFilter)
+  }
+
+  // Calculate stats
+  const stats = {
+    pending: labOrders.filter(o => o.status === 'ordered' || o.status === 'specimen_collected').length,
+    in_progress: labOrders.filter(o => o.status === 'in_progress').length,
+    completed: labOrders.filter(o => o.status === 'completed').length,
+    critical: labOrders.filter(o => o.has_critical_values).length,
   }
 
   return (
@@ -185,155 +120,74 @@ export default function LabOrdersPage() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <button
-          onClick={() => setStatusFilter(statusFilter === 'ordered' ? 'all' : 'ordered')}
+        <Link
+          href={`/${clinic}/dashboard/lab?status=ordered`}
           className={`p-4 rounded-xl border-2 transition-all ${
             statusFilter === 'ordered'
               ? 'border-[var(--primary)] bg-[var(--primary)]/5'
-              : 'border-gray-200 hover:border-gray-300'
+              : 'border-gray-200 hover:border-gray-300 bg-white'
           }`}
         >
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-[var(--text-secondary)]">Pendientes</span>
             <Icons.Clock className="w-5 h-5 text-blue-500" />
           </div>
-          <p className="text-2xl font-bold text-[var(--text-primary)]">{counts.pending}</p>
-        </button>
+          <p className="text-2xl font-bold text-[var(--text-primary)]">{stats.pending}</p>
+        </Link>
 
-        <button
-          onClick={() => setStatusFilter(statusFilter === 'in_progress' ? 'all' : 'in_progress')}
+        <Link
+          href={`/${clinic}/dashboard/lab?status=in_progress`}
           className={`p-4 rounded-xl border-2 transition-all ${
             statusFilter === 'in_progress'
               ? 'border-[var(--primary)] bg-[var(--primary)]/5'
-              : 'border-gray-200 hover:border-gray-300'
+              : 'border-gray-200 hover:border-gray-300 bg-white'
           }`}
         >
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-[var(--text-secondary)]">En Proceso</span>
             <Icons.Activity className="w-5 h-5 text-yellow-500" />
           </div>
-          <p className="text-2xl font-bold text-[var(--text-primary)]">{counts.in_progress}</p>
-        </button>
+          <p className="text-2xl font-bold text-[var(--text-primary)]">{stats.in_progress}</p>
+        </Link>
 
-        <button
-          onClick={() => setStatusFilter(statusFilter === 'completed' ? 'all' : 'completed')}
+        <Link
+          href={`/${clinic}/dashboard/lab?status=completed`}
           className={`p-4 rounded-xl border-2 transition-all ${
             statusFilter === 'completed'
               ? 'border-[var(--primary)] bg-[var(--primary)]/5'
-              : 'border-gray-200 hover:border-gray-300'
+              : 'border-gray-200 hover:border-gray-300 bg-white'
           }`}
         >
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-[var(--text-secondary)]">Completados</span>
             <Icons.CheckCircle className="w-5 h-5 text-green-500" />
           </div>
-          <p className="text-2xl font-bold text-[var(--text-primary)]">{counts.completed}</p>
-        </button>
+          <p className="text-2xl font-bold text-[var(--text-primary)]">{stats.completed}</p>
+        </Link>
 
-        <button
-          onClick={() => setShowCriticalOnly(!showCriticalOnly)}
+        <Link
+          href={`/${clinic}/dashboard/lab?critical=true`}
           className={`p-4 rounded-xl border-2 transition-all ${
-            showCriticalOnly
+            searchQuery === 'critical'
               ? 'border-red-500 bg-red-50'
-              : 'border-gray-200 hover:border-gray-300'
+              : 'border-gray-200 hover:border-gray-300 bg-white'
           }`}
         >
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-[var(--text-secondary)]">Valores Críticos</span>
             <Icons.AlertTriangle className="w-5 h-5 text-red-500" />
           </div>
-          <p className="text-2xl font-bold text-[var(--text-primary)]">{counts.critical}</p>
-        </button>
+          <p className="text-2xl font-bold text-[var(--text-primary)]">{stats.critical}</p>
+        </Link>
       </div>
 
-      {/* Search and Filters */}
-      <div className="flex flex-col md:flex-row gap-4 mb-6">
-        <div className="flex-1 relative">
-          <Icons.Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--text-secondary)]" />
-          <input
-            type="text"
-            placeholder="Buscar por mascota o número de orden..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
-          />
-        </div>
-      </div>
-
-      {/* Orders List */}
-      {filteredOrders.length === 0 ? (
-        <div className="text-center py-12 bg-gray-50 rounded-xl">
-          <Icons.FileText className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-          <p className="text-[var(--text-secondary)] text-lg">
-            {searchTerm || statusFilter !== 'all' || showCriticalOnly
-              ? 'No se encontraron órdenes con los filtros aplicados'
-              : 'No hay órdenes de laboratorio'}
-          </p>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {filteredOrders.map((order) => {
-            const status = statusConfig[order.status] || statusConfig.ordered
-            const priority = priorityConfig[order.priority] || priorityConfig.routine
-            const StatusIcon = status.icon
-
-            return (
-              <Link
-                key={order.id}
-                href={`/${clinic}/dashboard/lab/${order.id}`}
-                className="block bg-white rounded-xl border-2 border-gray-100 hover:border-[var(--primary)] transition-all p-5"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start gap-4 flex-1">
-                    <div className={`p-3 rounded-lg ${status.className}`}>
-                      <StatusIcon className="w-6 h-6" />
-                    </div>
-
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h3 className="text-lg font-bold text-[var(--text-primary)]">
-                          {order.pets.name}
-                        </h3>
-                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${priority.className}`}>
-                          {priority.label}
-                        </span>
-                        {order.has_critical_values && (
-                          <span className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-800">
-                            <Icons.AlertTriangle className="w-3 h-3" />
-                            Crítico
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="flex items-center gap-4 text-sm text-[var(--text-secondary)]">
-                        <span className="flex items-center gap-1">
-                          <Icons.Hash className="w-4 h-4" />
-                          {order.order_number}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <Icons.Calendar className="w-4 h-4" />
-                          {new Date(order.ordered_date).toLocaleDateString('es-PY')}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <Icons.User className="w-4 h-4" />
-                          {order.profiles.full_name}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col items-end gap-2">
-                    <span className={`px-4 py-2 rounded-full text-sm font-medium ${status.className}`}>
-                      {status.label}
-                    </span>
-                    <Icons.ChevronRight className="w-5 h-5 text-[var(--text-secondary)]" />
-                  </div>
-                </div>
-              </Link>
-            )
-          })}
-        </div>
-      )}
+      {/* Lab Orders List with Search */}
+      <LabOrdersList
+        orders={labOrders}
+        clinic={clinic}
+        currentStatus={statusFilter || 'all'}
+        currentSearch={searchQuery || ''}
+      />
     </div>
   )
 }

@@ -58,6 +58,21 @@ Vete is a **SaaS veterinary management platform** that provides:
 
 ---
 
+## Platform Statistics
+
+| Metric | Count |
+|--------|-------|
+| **Database Tables** | 94 |
+| **API Endpoints** | 83 |
+| **Server Actions** | 22 |
+| **React Components** | 120+ |
+| **Pages (Routes)** | 98 |
+| **SQL Migrations** | 58 |
+
+See [Codebase Statistics](reference/codebase-statistics.md) for detailed breakdown.
+
+---
+
 ## Documentation Structure
 
 ```
@@ -70,40 +85,39 @@ documentation/
 ├── architecture/            # System design
 │   ├── overview.md
 │   ├── multi-tenancy.md
-│   ├── json-cms.md
-│   ├── theming.md
-│   └── security.md
+│   ├── CODE_PATTERNS.md
+│   └── security reviews
 │
 ├── database/               # Supabase/PostgreSQL
 │   ├── overview.md
-│   ├── schema-reference.md
-│   ├── migrations.md
-│   └── rls-policies.md
+│   └── schema-reference.md
 │
 ├── api/                    # API documentation
 │   ├── overview.md
-│   ├── endpoints/
-│   └── server-actions.md
+│   └── endpoints/
 │
 ├── features/               # Feature documentation
 │   ├── overview.md
-│   ├── public-website/
-│   ├── pet-management/
-│   ├── clinical-tools/
-│   ├── business-tools/
-│   ├── hospitalization/
-│   └── communication/
+│   └── [feature subdirectories]
 │
 ├── development/            # Developer guides
 │   ├── setup.md
-│   ├── testing.md
-│   └── contributing.md
+│   └── testing.md
 │
-├── product/               # Product documentation
-│   └── vision.md
+├── tickets/               # Development backlog (NEW)
+│   ├── refactoring/       # Code improvements
+│   ├── bugs/              # Known issues
+│   ├── features/          # New features
+│   ├── performance/       # Optimizations
+│   ├── security/          # Security fixes
+│   └── technical-debt/    # Cleanup
 │
-└── reference/             # Reference materials
-    └── glossary.md
+├── reference/             # Reference materials
+│   ├── glossary.md
+│   └── codebase-statistics.md
+│
+└── product/               # Product documentation
+    └── roadmap.md
 ```
 
 ---
@@ -206,6 +220,29 @@ Content is decoupled from code:
 
 ---
 
+## Development Tickets
+
+Active development backlog with 16 tickets organized by priority.
+
+### High Priority (P1)
+- [REF-001](tickets/refactoring/REF-001-centralize-auth-patterns.md) - Centralize Auth Patterns
+- [SEC-001](tickets/security/SEC-001-tenant-validation.md) - Add Tenant Validation
+- [BUG-001](tickets/bugs/BUG-001-double-signup-routes.md) - Fix Double Signup Routes
+- [REF-002](tickets/refactoring/REF-002-form-validation-centralization.md) - Centralize Form Validation
+
+### Medium Priority (P2)
+- Analytics dashboard, multi-language support, automated reminders
+- API error handling, performance optimizations
+
+### Quick Wins (< 4 hours)
+- Tenant validation fix (2-3h)
+- Remove duplicate signup route (1.5h)
+- Fix redirect params (3h)
+
+See [tickets/README.md](tickets/README.md) for complete backlog.
+
+---
+
 ## Contributing
 
 See [Contributing Guide](development/contributing.md) for:
@@ -223,3 +260,4 @@ See [Contributing Guide](development/contributing.md) for:
 ---
 
 *Last updated: December 2024*
+*Codebase analysis completed with 16 improvement tickets identified*

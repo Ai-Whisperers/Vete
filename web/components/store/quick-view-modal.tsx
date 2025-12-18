@@ -54,7 +54,7 @@ export default function QuickViewModal({
     ? [{ id: 'main', image_url: product.image_url, alt_text: product.name }, ...product.images]
     : product.images.length > 0
     ? product.images
-    : [{ id: 'placeholder', image_url: '/placeholder-product.png', alt_text: product.name }];
+    : [{ id: 'placeholder', image_url: '/placeholder-product.svg', alt_text: product.name }];
 
   // Lock body scroll when modal is open
   useEffect(() => {
@@ -140,7 +140,7 @@ export default function QuickViewModal({
           <div className="relative w-full md:w-1/2 bg-gray-50">
             <div className="aspect-square relative">
               <Image
-                src={images[currentImageIndex]?.image_url || '/placeholder-product.png'}
+                src={images[currentImageIndex]?.image_url || '/placeholder-product.svg'}
                 alt={images[currentImageIndex]?.alt_text || product.name}
                 fill
                 className="object-contain p-6"

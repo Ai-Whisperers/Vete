@@ -4,15 +4,9 @@ import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import {
   Users,
-  Calendar,
-  PawPrint,
-  Syringe,
   FileText,
-  Bed,
-  FlaskConical,
   TrendingUp,
   Clock,
-  AlertTriangle,
   Plus,
   ChevronRight,
   CalendarClock,
@@ -114,19 +108,6 @@ export default async function ClinicalDashboardPage({ params }: Props): Promise<
     };
   });
 
-  // Quick stats for hospitalization and lab
-  const { count: hospitalizedCount } = await supabase
-    .from("hospitalizations")
-    .select("*", { count: "exact", head: true })
-    .eq("tenant_id", clinic)
-    .eq("status", "admitted");
-
-  const { count: pendingLabCount } = await supabase
-    .from("lab_orders")
-    .select("*", { count: "exact", head: true })
-    .eq("tenant_id", clinic)
-    .in("status", ["pending", "in_progress"]);
-
   // Get greeting based on time
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Buenos días" : hour < 18 ? "Buenas tardes" : "Buenas noches";
@@ -150,100 +131,34 @@ export default async function ClinicalDashboardPage({ params }: Props): Promise<
           </p>
         </div>
 
-        {/* Quick Actions */}
+        {/* Quick Actions - Using ?action= pattern for slide-overs */}
         <div className="flex flex-wrap gap-2">
           <Link
-            href={`/${clinic}/dashboard/appointments/new`}
+            href={`/${clinic}/dashboard/appointments?action=new`}
             className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--primary)] text-white rounded-lg hover:opacity-90 transition-opacity text-sm font-medium shadow-sm"
           >
             <Plus className="w-4 h-4" />
             Nueva Cita
           </Link>
           <Link
-            href={`/${clinic}/dashboard/patients`}
+            href={`/${clinic}/dashboard/invoices?action=new`}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-white text-[var(--text-primary)] border border-[var(--border-color)] rounded-lg hover:bg-[var(--bg-subtle)] transition-colors text-sm font-medium shadow-sm"
+          >
+            <FileText className="w-4 h-4" />
+            Nueva Factura
+          </Link>
+          <Link
+            href={`/${clinic}/dashboard/clients?action=new-client`}
             className="inline-flex items-center gap-2 px-4 py-2 bg-white text-[var(--text-primary)] border border-[var(--border-color)] rounded-lg hover:bg-[var(--bg-subtle)] transition-colors text-sm font-medium shadow-sm"
           >
             <Users className="w-4 h-4" />
-            Pacientes
+            Nuevo Cliente
           </Link>
         </div>
       </div>
 
-      {/* Stats Cards */}
+      {/* Stats Cards - includes clickable navigation to each module */}
       <StatsCards clinic={clinic} />
-
-      {/* Quick Access Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-        <Link
-          href={`/${clinic}/dashboard/appointments`}
-          className="flex flex-col items-center gap-2 p-4 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-blue-300 transition-all group"
-        >
-          <div className="p-3 bg-blue-100 rounded-xl group-hover:bg-blue-500 transition-colors">
-            <Calendar className="w-5 h-5 text-blue-600 group-hover:text-white transition-colors" />
-          </div>
-          <span className="text-sm font-medium text-[var(--text-primary)]">Citas</span>
-        </Link>
-
-        <Link
-          href={`/${clinic}/dashboard/clients`}
-          className="flex flex-col items-center gap-2 p-4 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-green-300 transition-all group"
-        >
-          <div className="p-3 bg-green-100 rounded-xl group-hover:bg-green-500 transition-colors">
-            <PawPrint className="w-5 h-5 text-green-600 group-hover:text-white transition-colors" />
-          </div>
-          <span className="text-sm font-medium text-[var(--text-primary)]">Clientes</span>
-        </Link>
-
-        <Link
-          href={`/${clinic}/dashboard/vaccines`}
-          className="flex flex-col items-center gap-2 p-4 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-amber-300 transition-all group"
-        >
-          <div className="p-3 bg-amber-100 rounded-xl group-hover:bg-amber-500 transition-colors">
-            <Syringe className="w-5 h-5 text-amber-600 group-hover:text-white transition-colors" />
-          </div>
-          <span className="text-sm font-medium text-[var(--text-primary)]">Vacunas</span>
-        </Link>
-
-        <Link
-          href={`/${clinic}/dashboard/invoices`}
-          className="flex flex-col items-center gap-2 p-4 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-purple-300 transition-all group"
-        >
-          <div className="p-3 bg-purple-100 rounded-xl group-hover:bg-purple-500 transition-colors">
-            <FileText className="w-5 h-5 text-purple-600 group-hover:text-white transition-colors" />
-          </div>
-          <span className="text-sm font-medium text-[var(--text-primary)]">Facturas</span>
-        </Link>
-
-        <Link
-          href={`/${clinic}/dashboard/hospital`}
-          className="flex flex-col items-center gap-2 p-4 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-red-300 transition-all group relative"
-        >
-          <div className="p-3 bg-red-100 rounded-xl group-hover:bg-red-500 transition-colors">
-            <Bed className="w-5 h-5 text-red-600 group-hover:text-white transition-colors" />
-          </div>
-          <span className="text-sm font-medium text-[var(--text-primary)]">Hospital</span>
-          {(hospitalizedCount ?? 0) > 0 && (
-            <span className="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
-              {hospitalizedCount}
-            </span>
-          )}
-        </Link>
-
-        <Link
-          href={`/${clinic}/dashboard/lab`}
-          className="flex flex-col items-center gap-2 p-4 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-cyan-300 transition-all group relative"
-        >
-          <div className="p-3 bg-cyan-100 rounded-xl group-hover:bg-cyan-500 transition-colors">
-            <FlaskConical className="w-5 h-5 text-cyan-600 group-hover:text-white transition-colors" />
-          </div>
-          <span className="text-sm font-medium text-[var(--text-primary)]">Lab</span>
-          {(pendingLabCount ?? 0) > 0 && (
-            <span className="absolute top-2 right-2 bg-cyan-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
-              {pendingLabCount}
-            </span>
-          )}
-        </Link>
-      </div>
 
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

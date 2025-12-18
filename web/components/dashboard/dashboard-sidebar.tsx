@@ -86,7 +86,7 @@ export function DashboardSidebar({
       defaultOpen: false,
       items: [
         { icon: FileText, label: "Facturas", href: `/${clinic}/dashboard/invoices` },
-        { icon: Package, label: "Inventario", href: `/${clinic}/portal/inventory` },
+        { icon: Package, label: "Inventario", href: `/${clinic}/dashboard/inventory` },
         { icon: Shield, label: "Seguros", href: `/${clinic}/dashboard/insurance` },
       ],
     },
@@ -95,10 +95,10 @@ export function DashboardSidebar({
       icon: Settings,
       defaultOpen: false,
       items: [
-        { icon: Users, label: "Equipo", href: `/${clinic}/portal/team` },
+        { icon: Users, label: "Equipo", href: `/${clinic}/dashboard/team` },
         { icon: CalendarClock, label: "Horarios", href: `/${clinic}/dashboard/schedules` },
         { icon: Calendar, label: "Ausencias", href: `/${clinic}/dashboard/time-off` },
-        { icon: Settings, label: "Auditoría", href: `/${clinic}/portal/admin/audit` },
+        { icon: Settings, label: "Auditoría", href: `/${clinic}/dashboard/audit` },
       ],
     },
   ];

@@ -23,8 +23,11 @@ import {
   AlertCircle,
   Settings,
   X,
+  User,
+  TestTube,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { useRecentItems, getRecentItemIcon, type RecentItem } from "@/hooks/use-recent-items";
 
 interface CommandItem {
   id: string;
@@ -57,9 +60,12 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps): React.
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
-  // Fetch recent patients
+  // Get localStorage-based recent items
+  const { items: localRecentItems } = useRecentItems(clinic || "");
+
+  // Fetch recent patients from database
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen || !clinic) return;
 
     const fetchRecent = async (): Promise<void> => {
       const supabase = createClient();
@@ -82,7 +88,7 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps): React.
     };
 
     fetchRecent();
-  }, [isOpen]);
+  }, [isOpen, clinic]);
 
   // Navigate helper
   const navigate = useCallback(
@@ -274,21 +280,52 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps): React.
       },
     ];
 
-    // Add recent patients
-    recentPatients.forEach((patient) => {
+    // Add localStorage recent items first (user's personally viewed items)
+    localRecentItems.slice(0, 5).forEach((item) => {
+      const iconMap: Record<string, React.ReactNode> = {
+        patient: <PawPrint className="w-4 h-4" />,
+        client: <User className="w-4 h-4" />,
+        invoice: <FileText className="w-4 h-4" />,
+        appointment: <Calendar className="w-4 h-4" />,
+        "lab-order": <TestTube className="w-4 h-4" />,
+      };
+
       items.push({
-        id: `recent-${patient.id}`,
-        title: patient.name,
-        subtitle: `${patient.species} · ${patient.ownerName}`,
-        icon: <PawPrint className="w-4 h-4" />,
-        action: () => navigate(`/portal/pets/${patient.id}`),
+        id: `local-recent-${item.type}-${item.id}`,
+        title: item.title,
+        subtitle: item.subtitle,
+        icon: iconMap[item.type] || <Clock className="w-4 h-4" />,
+        action: () => {
+          router.push(item.href);
+          onClose();
+        },
         category: "recent",
-        keywords: [patient.name.toLowerCase(), patient.ownerName.toLowerCase()],
+        keywords: [item.title.toLowerCase(), item.subtitle?.toLowerCase() || ""].filter(Boolean),
       });
     });
 
+    // Add database recent patients if not already in localStorage recent
+    const localRecentIds = new Set(
+      localRecentItems.filter((i) => i.type === "patient").map((i) => i.id)
+    );
+
+    recentPatients
+      .filter((p) => !localRecentIds.has(p.id))
+      .slice(0, 3)
+      .forEach((patient) => {
+        items.push({
+          id: `recent-${patient.id}`,
+          title: patient.name,
+          subtitle: `${patient.species} · ${patient.ownerName}`,
+          icon: <PawPrint className="w-4 h-4" />,
+          action: () => navigate(`/portal/pets/${patient.id}`),
+          category: "recent",
+          keywords: [patient.name.toLowerCase(), patient.ownerName.toLowerCase()],
+        });
+      });
+
     return items;
-  }, [navigate, recentPatients]);
+  }, [navigate, recentPatients, localRecentItems, router, onClose]);
 
   // Filter commands based on query
   const filteredCommands = useMemo(() => {

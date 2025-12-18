@@ -45,7 +45,7 @@ export async function GET(request: Request) {
           .from('vaccines')
           .select('id', { count: 'exact', head: true })
           .eq('tenant_id', profile.tenant_id)
-          .lte('next_dose_date', new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()),
+          .lte('next_due_date', new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()),
         supabase
           .from('invoices')
           .select('id, amount_due', { count: 'exact' })

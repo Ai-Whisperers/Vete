@@ -40,7 +40,6 @@ export async function GET(
     .select(`
       *,
       pets!inner(id, name, species, breed, date_of_birth, tenant_id),
-      profiles!ordered_by(full_name),
       lab_order_items(
         id,
         test_id,

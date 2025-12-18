@@ -108,16 +108,95 @@ export async function POST(req: NextRequest) {
                 return NextResponse.json({ error: `Máximo ${MAX_ROWS} filas permitidas` }, { status: 400 });
             }
 
-            // Map rows to RPC format
+            // Map rows to RPC format - supports both English and Spanish column names
             rpcData = rows.map(row => ({
-                operation: (row['Operation (Required)'] || row['Operation (Optional)'] || '').trim().toLowerCase(),
-                sku: String(row['SKU'] || '').trim(),
-                name: String(row['Name'] || '').trim(),
-                category: String(row['Category'] || '').trim(),
-                price: Number.parseFloat(row['Base Price (Sell)'] || '0'),
-                quantity: Number.parseFloat(row['Quantity (Add/Remove)'] || '0'),
-                cost: Number.parseFloat(row['Unit Cost (Buy)'] || '0'),
-                description: row['Description'] || ''
+                operation: String(
+                    row['Operation (Required)'] ||
+                    row['Operation (Optional)'] ||
+                    row['Operación'] ||
+                    row['Operación (Requerido)'] ||
+                    ''
+                ).trim().toLowerCase(),
+                sku: String(
+                    row['SKU'] ||
+                    row['SKU (Opcional)'] ||
+                    row['SKU (Requerido)'] ||
+                    ''
+                ).trim(),
+                name: String(
+                    row['Name'] ||
+                    row['Nombre (Requerido)'] ||
+                    row['Nombre'] ||
+                    ''
+                ).trim(),
+                category: String(
+                    row['Category'] ||
+                    row['Categoría (Requerido)'] ||
+                    row['Categoría'] ||
+                    ''
+                ).trim(),
+                price: Number.parseFloat(String(
+                    row['Base Price (Sell)'] ||
+                    row['Precio Venta (Requerido)'] ||
+                    row['Nuevo Precio Venta'] ||
+                    row['Precio Venta'] ||
+                    '0'
+                )),
+                quantity: Number.parseFloat(String(
+                    row['Quantity (Add/Remove)'] ||
+                    row['Stock Inicial'] ||
+                    row['Cantidad (+/-)'] ||
+                    row['Cantidad'] ||
+                    '0'
+                )),
+                cost: Number.parseFloat(String(
+                    row['Unit Cost (Buy)'] ||
+                    row['Costo Unitario'] ||
+                    row['Costo Unitario (Compras)'] ||
+                    '0'
+                )),
+                description: String(
+                    row['Description'] ||
+                    row['Descripción'] ||
+                    ''
+                ),
+                // Additional fields for comprehensive inventory management
+                barcode: String(
+                    row['Barcode'] ||
+                    row['Código de Barras'] ||
+                    ''
+                ).trim() || null,
+                min_stock_level: Number.parseFloat(String(
+                    row['Min Stock Level'] ||
+                    row['Stock Mínimo (Alerta)'] ||
+                    row['Stock Mínimo'] ||
+                    '0'
+                )),
+                expiry_date: String(
+                    row['Expiry Date (YYYY-MM-DD)'] ||
+                    row['Expiry Date'] ||
+                    row['Fecha Vencimiento (YYYY-MM-DD)'] ||
+                    row['Fecha Vencimiento'] ||
+                    row['Fecha Venc.'] ||
+                    ''
+                ).trim() || null,
+                batch_number: String(
+                    row['Batch Number'] ||
+                    row['Número de Lote'] ||
+                    row['Lote'] ||
+                    ''
+                ).trim() || null,
+                supplier_name: String(
+                    row['Supplier'] ||
+                    row['Proveedor'] ||
+                    ''
+                ).trim() || null,
+                is_active: String(
+                    row['Active'] ||
+                    row['Activo (SI/NO)'] ||
+                    row['Activo'] ||
+                    'SI'
+                ).toUpperCase() !== 'NO'
             }));
         }
 

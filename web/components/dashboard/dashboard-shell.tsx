@@ -1,8 +1,12 @@
 "use client";
 
+import { Suspense } from "react";
 import { DashboardSidebar } from "./dashboard-sidebar";
 import { BottomNavigation } from "./bottom-navigation";
+import { QuickActionsHandler } from "./quick-actions-handler";
 import { CommandPalette, useCommandPalette } from "@/components/ui/command-palette";
+import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
+import { RecentItemsProvider } from "./recent-items-provider";
 
 interface DashboardShellProps {
   clinic: string;
@@ -17,10 +21,21 @@ export function DashboardShell({
 }: DashboardShellProps): React.ReactElement {
   const { isOpen, open, close } = useCommandPalette();
 
+  // Enable global keyboard shortcuts
+  useKeyboardShortcuts({
+    onOpenCommandPalette: open,
+    enabled: true,
+  });
+
   return (
-    <>
+    <RecentItemsProvider clinic={clinic}>
       {/* Command Palette */}
       <CommandPalette isOpen={isOpen} onClose={close} />
+
+      {/* Quick Actions Handler (slide-overs triggered by URL params) */}
+      <Suspense fallback={null}>
+        <QuickActionsHandler clinic={clinic} />
+      </Suspense>
 
       <div className="flex min-h-screen bg-[var(--bg-subtle)]">
         {/* Desktop Sidebar */}
@@ -40,6 +55,6 @@ export function DashboardShell({
 
       {/* Mobile Bottom Navigation */}
       <BottomNavigation clinic={clinic} />
-    </>
+    </RecentItemsProvider>
   );
 }

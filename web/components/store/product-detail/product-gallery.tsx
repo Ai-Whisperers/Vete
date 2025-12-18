@@ -72,7 +72,7 @@ export default function ProductGallery({
         {/* Image */}
         <div className="relative w-full h-full">
           <Image
-            src={currentImage?.image_url || '/placeholder-product.png'}
+            src={currentImage?.image_url || '/placeholder-product.svg'}
             alt={currentImage?.alt_text || productName}
             fill
             className="object-contain p-4"
@@ -143,7 +143,7 @@ export default function ProductGallery({
 
           <div className="relative w-full max-w-4xl aspect-square">
             <Image
-              src={currentImage?.image_url || '/placeholder-product.png'}
+              src={currentImage?.image_url || '/placeholder-product.svg'}
               alt={currentImage?.alt_text || productName}
               fill
               className="object-contain"

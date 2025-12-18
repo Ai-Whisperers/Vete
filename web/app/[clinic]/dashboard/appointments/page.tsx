@@ -45,8 +45,6 @@ export default async function StaffAppointmentsPage({ params, searchParams }: Pr
       status,
       reason,
       notes,
-      checked_in_at,
-      started_at,
       pets (
         id,
         name,

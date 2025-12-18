@@ -78,7 +78,7 @@ export default function RelatedProducts({ products, clinic, currencySymbol }: Pr
           </div>
 
           <Image
-            src={p.image_url || '/placeholder-product.png'}
+            src={p.image_url || '/placeholder-product.svg'}
             alt={p.name}
             fill
             className="object-contain p-4 group-hover:scale-105 transition-transform duration-300"

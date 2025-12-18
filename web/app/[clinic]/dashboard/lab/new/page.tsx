@@ -1,21 +1,32 @@
-'use client'
-
-import { useRouter, useParams } from 'next/navigation'
+import { createClient } from '@/lib/supabase/server'
+import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import * as Icons from 'lucide-react'
-import { LabOrderForm } from '@/components/lab/order-form'
+import { LabOrderFormWrapper } from '@/components/dashboard/lab-order-form-wrapper'
 
-export default function NewLabOrderPage() {
-  const router = useRouter()
-  const params = useParams()
-  const clinic = params.clinic as string
+interface Props {
+  params: Promise<{ clinic: string }>
+}
 
-  const handleSuccess = (orderId: string) => {
-    router.push(`/${clinic}/dashboard/lab/${orderId}`)
+export default async function NewLabOrderPage({ params }: Props) {
+  const { clinic } = await params
+  const supabase = await createClient()
+
+  // Auth check
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    redirect(`/${clinic}/portal/login`)
   }
 
-  const handleCancel = () => {
-    router.push(`/${clinic}/dashboard/lab`)
+  // Staff check
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role, tenant_id')
+    .eq('id', user.id)
+    .single()
+
+  if (!profile || !['vet', 'admin'].includes(profile.role) || profile.tenant_id !== clinic) {
+    redirect(`/${clinic}/portal/dashboard`)
   }
 
   return (
@@ -40,7 +51,7 @@ export default function NewLabOrderPage() {
 
       {/* Form Card */}
       <div className="bg-white rounded-xl border border-gray-200 p-6">
-        <LabOrderForm onSuccess={handleSuccess} onCancel={handleCancel} />
+        <LabOrderFormWrapper clinic={clinic} />
       </div>
     </div>
   )

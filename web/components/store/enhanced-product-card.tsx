@@ -140,7 +140,7 @@ export default function EnhancedProductCard({
         {/* Product Image */}
         <div className="relative w-full h-full">
           <Image
-            src={product.image_url || '/placeholder-product.png'}
+            src={product.image_url || '/placeholder-product.svg'}
             alt={product.name}
             fill
             className={`object-contain p-4 transition-transform duration-300 ${

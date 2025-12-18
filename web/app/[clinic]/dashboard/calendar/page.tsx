@@ -64,10 +64,6 @@ export default async function CalendarPage({ params, searchParams }: Props) {
           id,
           full_name
         )
-      ),
-      services (
-        id,
-        name
       )
     `)
     .eq('tenant_id', clinic)
@@ -169,7 +165,6 @@ export default async function CalendarPage({ params, searchParams }: Props) {
     for (const apt of appointments) {
       const pet = Array.isArray(apt.pets) ? apt.pets[0] : apt.pets
       const owner = pet?.owner ? (Array.isArray(pet.owner) ? pet.owner[0] : pet.owner) : undefined
-      const service = Array.isArray(apt.services) ? apt.services[0] : apt.services
 
       const event = appointmentToCalendarEvent({
         id: apt.id,
@@ -178,7 +173,7 @@ export default async function CalendarPage({ params, searchParams }: Props) {
         status: apt.status,
         reason: apt.reason,
         pet: pet ? { name: pet.name } : null,
-        service: service ? { name: service.name } : null
+        service: null
       })
 
       // Enrich with resource data
@@ -190,8 +185,6 @@ export default async function CalendarPage({ params, searchParams }: Props) {
         species: pet?.species,
         ownerId: owner?.id,
         ownerName: owner?.full_name,
-        serviceId: service?.id,
-        serviceName: service?.name,
         reason: apt.reason || undefined,
         notes: apt.notes || undefined,
         status: apt.status,

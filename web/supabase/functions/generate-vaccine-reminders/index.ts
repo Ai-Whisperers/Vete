@@ -65,15 +65,15 @@ async function generateRemindersForTenant(tenant: { id: string; name: string; co
     const { data: vaccines, error } = await supabaseAdmin
       .from('vaccines')
       .select(`
-        id, name, next_dose_date,
+        id, name, next_due_date,
         pet:pets(
           id, name,
           owner:profiles!pets_owner_id_fkey(id, email, phone, full_name)
         )
       `)
       .eq('tenant_id', tenant.id)
-      .gte('next_dose_date', `${targetDateStr}T00:00:00`)
-      .lt('next_dose_date', `${targetDateStr}T23:59:59`);
+      .gte('next_due_date', `${targetDateStr}T00:00:00`)
+      .lt('next_due_date', `${targetDateStr}T23:59:59`);
 
     if (error) {
       console.error(`Error fetching vaccines for tenant ${tenant.id}:`, error);

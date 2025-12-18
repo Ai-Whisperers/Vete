@@ -37,11 +37,10 @@ export async function GET(request: NextRequest) {
     .from('lab_orders')
     .select(`
       *,
-      pets!inner(id, name, species, tenant_id),
-      profiles!ordered_by(full_name)
+      pets!inner(id, name, species)
     `, { count: 'exact' })
-    .eq('pets.tenant_id', profile.clinic_id)
-    .order('ordered_date', { ascending: false })
+    .eq('tenant_id', profile.clinic_id)
+    .order('ordered_at', { ascending: false })
     .range(offset, offset + limit - 1);
 
   if (petId) {
@@ -140,14 +139,15 @@ export async function POST(request: NextRequest) {
   const { data: order, error: orderError } = await supabase
     .from('lab_orders')
     .insert({
+      tenant_id: profile.clinic_id,
       pet_id,
       order_number: orderNumber,
       ordered_by: user.id,
-      ordered_date: new Date().toISOString(),
+      ordered_at: new Date().toISOString(),
       status: 'ordered',
       priority: priority || 'routine',
       lab_type: lab_type || 'in_house',
-      fasting_status: fasting_status || false,
+      fasting_status: fasting_status || null,
       clinical_notes: clinical_notes || null,
       has_critical_values: false
     })

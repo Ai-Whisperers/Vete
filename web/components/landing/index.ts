@@ -9,3 +9,13 @@ export { BenefitsSection } from './benefits-section';
 export { PricingSection } from './pricing-section';
 export { FAQSection } from './faq-section';
 export { CTASection } from './cta-section';
+
+// New sections
+export { ClientShowcase } from './client-showcase';
+export { NetworkMap } from './network-map';
+export { OwnerJourney } from './owner-journey';
+export { ContactForm } from './contact-form';
+export { ComparisonTable } from './comparison-table';
+export { TrustBadges } from './trust-badges';
+export { ROICalculator } from './roi-calculator';
+export { FloatingWhatsApp } from './floating-whatsapp';

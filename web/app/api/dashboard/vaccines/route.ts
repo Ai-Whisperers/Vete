@@ -37,22 +37,22 @@ export async function GET(request: Request) {
     const { data: vaccines, error } = await supabase
       .from('vaccines')
       .select(`
-        id, name, next_dose_date,
+        id, name, next_due_date,
         pet:pets(
           id, name, photo_url,
           owner:profiles!pets_owner_id_fkey(id, full_name, phone)
         )
       `)
       .eq('tenant_id', profile.tenant_id)
-      .gte('next_dose_date', pastDate.toISOString())
-      .lte('next_dose_date', futureDate.toISOString())
-      .not('next_dose_date', 'is', null)
-      .order('next_dose_date', { ascending: true });
+      .gte('next_due_date', pastDate.toISOString())
+      .lte('next_due_date', futureDate.toISOString())
+      .not('next_due_date', 'is', null)
+      .order('next_due_date', { ascending: true });
 
     if (error) throw error;
 
     const reminders = vaccines?.map(v => {
-      const dueDate = new Date(v.next_dose_date);
+      const dueDate = new Date(v.next_due_date);
       const daysUntil = Math.ceil((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
       const pet = v.pet as any;
       const owner = pet?.owner;
@@ -64,7 +64,7 @@ export async function GET(request: Request) {
         owner_name: owner?.full_name || 'Sin dueño',
         owner_phone: owner?.phone,
         vaccine_name: v.name,
-        due_date: v.next_dose_date,
+        due_date: v.next_due_date,
         days_until: daysUntil,
         is_overdue: daysUntil < 0
       };

@@ -291,7 +291,7 @@ export default function ProductDetailClient({ clinic, productId, clinicConfig }:
           {/* Left Column - Gallery */}
           <div>
             <ProductGallery
-              images={product.images.length > 0 ? product.images : [{ id: '1', image_url: product.image_url || '/placeholder-product.png', alt_text: product.name, is_primary: true, sort_order: 0, product_id: product.id, tenant_id: product.tenant_id, created_at: '' }]}
+              images={product.images.length > 0 ? product.images : [{ id: '1', image_url: product.image_url || '/placeholder-product.svg', alt_text: product.name, is_primary: true, sort_order: 0, product_id: product.id, tenant_id: product.tenant_id, created_at: '' }]}
               productName={product.name}
               hasDiscount={product.has_discount}
               discountPercentage={product.discount_percentage}

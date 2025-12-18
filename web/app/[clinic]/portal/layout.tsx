@@ -4,6 +4,7 @@ import { getClinicData } from "@/lib/clinics";
 import { LogoutButton } from "@/components/auth/logout-button";
 import { createClient } from "@/lib/supabase/server";
 import { PortalMobileNav } from "@/components/portal/portal-mobile-nav";
+import { redirect } from "next/navigation";
 
 // Helper to get icon component by name for server-side rendering
 function getIcon(name: string): React.ComponentType<{ className?: string }> {
@@ -26,20 +27,36 @@ export default async function PortalLayout({
 
   if (!data) return null;
 
-  // Get user role to show appropriate navigation
+  // Get user and validate tenant access
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  let userRole: 'owner' | 'vet' | 'admin' = 'owner';
-  if (user) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single();
-    userRole = profile?.role || 'owner';
+  // Require authentication for portal
+  if (!user) {
+    redirect(`/${clinic}/portal/login?redirect=${encodeURIComponent(`/${clinic}/portal/dashboard`)}`);
   }
 
+  // Get profile with tenant_id for validation
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role, tenant_id')
+    .eq('id', user.id)
+    .single();
+
+  // Validate tenant access - users can only access their own clinic's portal
+  if (!profile) {
+    redirect(`/${clinic}/portal/login?error=no_profile`);
+  }
+
+  if (profile.tenant_id !== clinic) {
+    // Redirect to user's actual clinic if they try to access another clinic's portal
+    if (profile.tenant_id) {
+      redirect(`/${profile.tenant_id}/portal/dashboard`);
+    }
+    redirect(`/${clinic}/portal/login?error=tenant_mismatch`);
+  }
+
+  const userRole: 'owner' | 'vet' | 'admin' = profile.role || 'owner';
   const isStaff = userRole === 'vet' || userRole === 'admin';
   const isAdmin = userRole === 'admin';
 

@@ -11,15 +11,14 @@ import { ResultEntry } from '@/components/lab/result-entry'
 interface LabOrder {
   id: string
   order_number: string
-  ordered_date: string
+  ordered_at: string
   status: string
   priority: string
   lab_type: string
-  fasting_status: boolean
+  fasting_status: string | null
   clinical_notes?: string
   has_critical_values: boolean
   specimen_collected_at?: string
-  completed_at?: string
   pets: {
     id: string
     name: string
@@ -28,19 +27,13 @@ interface LabOrder {
     date_of_birth: string
     owner_id: string
   }
-  ordered_by_profile: {
-    full_name: string
-  }
 }
 
 interface Comment {
   id: string
-  comment_text: string
-  interpretation?: string
+  comment: string
+  comment_type: string
   created_at: string
-  profiles: {
-    full_name: string
-  }
 }
 
 interface Attachment {
@@ -93,7 +86,7 @@ export default function LabOrderDetailPage() {
         .select(`
           id,
           order_number,
-          ordered_date,
+          ordered_at,
           status,
           priority,
           lab_type,
@@ -101,31 +94,25 @@ export default function LabOrderDetailPage() {
           clinical_notes,
           has_critical_values,
           specimen_collected_at,
-          completed_at,
-          pets!inner(id, name, species, breed, date_of_birth, owner_id),
-          profiles!ordered_by(full_name)
+          pets!inner(id, name, species, breed, date_of_birth, owner_id)
         `)
         .eq('id', orderId)
         .single()
 
       if (orderError) throw orderError
 
-      setOrder({
-        ...orderData,
-        ordered_by_profile: orderData.profiles
-      } as LabOrder)
+      setOrder(orderData as LabOrder)
 
       // Fetch comments
       const { data: commentsData } = await supabase
         .from('lab_result_comments')
         .select(`
           id,
-          comment_text,
-          interpretation,
-          created_at,
-          profiles!commented_by(full_name)
+          comment,
+          comment_type,
+          created_at
         `)
-        .eq('order_id', orderId)
+        .eq('lab_order_id', orderId)
         .order('created_at', { ascending: false })
 
       setComments(commentsData as Comment[] || [])
@@ -172,7 +159,7 @@ export default function LabOrderDetailPage() {
       const response = await fetch(`/api/lab-orders/${orderId}/comments`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ comment_text: newComment })
+        body: JSON.stringify({ comment: newComment })
       })
 
       if (!response.ok) throw new Error('Error al agregar comentario')
@@ -232,7 +219,7 @@ export default function LabOrderDetailPage() {
               Orden #{order.order_number}
             </h1>
             <p className="text-[var(--text-secondary)]">
-              {new Date(order.ordered_date).toLocaleDateString('es-PY', {
+              {new Date(order.ordered_at).toLocaleDateString('es-PY', {
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric'
@@ -314,10 +301,12 @@ export default function LabOrderDetailPage() {
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <Icons.User className="w-5 h-5 text-[var(--primary)]" />
+                <Icons.Clock className="w-5 h-5 text-[var(--primary)]" />
                 <div>
-                  <div className="text-sm text-[var(--text-secondary)]">Ordenado por</div>
-                  <div className="font-medium text-[var(--text-primary)]">{order.ordered_by_profile.full_name}</div>
+                  <div className="text-sm text-[var(--text-secondary)]">Fecha de orden</div>
+                  <div className="font-medium text-[var(--text-primary)]">
+                    {new Date(order.ordered_at).toLocaleTimeString('es-PY', { hour: '2-digit', minute: '2-digit' })}
+                  </div>
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -484,18 +473,14 @@ export default function LabOrderDetailPage() {
             {comments.map(comment => (
               <div key={comment.id} className="p-4 bg-gray-50 rounded-lg">
                 <div className="flex items-start justify-between mb-2">
-                  <span className="font-medium text-[var(--text-primary)]">{comment.profiles.full_name}</span>
+                  <span className="px-2 py-1 text-xs font-medium bg-gray-200 text-gray-700 rounded capitalize">
+                    {comment.comment_type || 'Nota'}
+                  </span>
                   <span className="text-sm text-[var(--text-secondary)]">
                     {new Date(comment.created_at).toLocaleDateString('es-PY')}
                   </span>
                 </div>
-                <p className="text-[var(--text-secondary)]">{comment.comment_text}</p>
-                {comment.interpretation && (
-                  <div className="mt-2 pt-2 border-t border-gray-200">
-                    <span className="text-xs font-semibold text-[var(--text-primary)]">Interpretación:</span>
-                    <p className="text-sm text-[var(--text-secondary)] mt-1">{comment.interpretation}</p>
-                  </div>
-                )}
+                <p className="text-[var(--text-secondary)]">{comment.comment}</p>
               </div>
             ))}
           </div>

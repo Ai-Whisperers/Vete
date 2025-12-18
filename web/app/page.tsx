@@ -10,17 +10,25 @@ import {
   BenefitsSection,
   PricingSection,
   FAQSection,
-  CTASection
+  CTASection,
+  ClientShowcase,
+  NetworkMap,
+  OwnerJourney,
+  ContactForm,
+  ComparisonTable,
+  TrustBadges,
+  ROICalculator,
+  FloatingWhatsApp
 } from '@/components/landing';
 
 export const metadata: Metadata = {
   title: 'VetePy - La Red Veterinaria Digital de Paraguay',
-  description: 'Sitios web profesionales para veterinarias paraguayas. Una plataforma, múltiples clínicas. Diseño de primer mundo, precio local. Sistema completo de gestión veterinaria.',
-  keywords: ['veterinaria', 'paraguay', 'sitio web veterinario', 'gestión veterinaria', 'citas online', 'mascotas'],
+  description: 'Sitios web profesionales para veterinarias paraguayas. Una plataforma, multiples clinicas. Diseno de primer mundo, precio local. Sistema completo de gestion veterinaria con citas online, historial medico digital y mas.',
+  keywords: ['veterinaria', 'paraguay', 'sitio web veterinario', 'gestion veterinaria', 'citas online', 'mascotas', 'veterinaria asuncion', 'software veterinario'],
   authors: [{ name: 'VetePy' }],
   openGraph: {
     title: 'VetePy - La Red Veterinaria Digital de Paraguay',
-    description: 'Sitios web profesionales para veterinarias paraguayas. Una plataforma, múltiples clínicas.',
+    description: 'Sitios web profesionales para veterinarias paraguayas. Una plataforma, multiples clinicas. Sistema completo de gestion veterinaria.',
     type: 'website',
     locale: 'es_PY',
     siteName: 'VetePy',
@@ -39,17 +47,62 @@ export const metadata: Metadata = {
 export default function LandingPage() {
   return (
     <main className="min-h-screen bg-[#0F172A]">
+      {/* Navigation */}
       <LandingNav />
+
+      {/* Hero Section */}
       <Hero />
+
+      {/* Problem: Why vets need digital presence */}
       <ProblemSection />
+
+      {/* Solution: How VetePy works */}
       <SolutionSection />
+
+      {/* How It Works: 3 simple steps */}
       <HowItWorks />
+
+      {/* Client Showcase: Real clinics using VetePy */}
+      <ClientShowcase />
+
+      {/* Network Map: Find clinics near you */}
+      <NetworkMap />
+
+      {/* Features: Everything included */}
       <FeaturesShowcase />
+
+      {/* Comparison: VetePy vs alternatives */}
+      <ComparisonTable />
+
+      {/* Benefits: For clinics and pet owners */}
       <BenefitsSection />
+
+      {/* Pet Owner Journey: How it works for B2C */}
+      <OwnerJourney />
+
+      {/* ROI Calculator: Is it worth it? */}
+      <ROICalculator />
+
+      {/* Pricing: Simple and transparent */}
       <PricingSection />
+
+      {/* Trust Badges: Security and tech */}
+      <TrustBadges />
+
+      {/* FAQ: Common questions */}
       <FAQSection />
+
+      {/* Contact Form: Lead capture */}
+      <ContactForm />
+
+      {/* Final CTA */}
       <CTASection />
+
+      {/* Footer */}
       <LandingFooter />
+
+      {/* Floating WhatsApp Button */}
+      <FloatingWhatsApp />
     </main>
   );
 }

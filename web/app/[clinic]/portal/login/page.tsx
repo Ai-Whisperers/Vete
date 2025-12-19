@@ -8,14 +8,36 @@ import { login } from "@/app/auth/actions";
 import { createClient } from "@/lib/supabase/client";
 import { PasswordInput } from "@/components/ui/password-input";
 
+// Error messages for URL error params
+const ERROR_MESSAGES: Record<string, string> = {
+  no_profile: "Tu cuenta necesita ser configurada. Por favor, inicia sesión nuevamente.",
+  profile_creation_failed: "Error al crear tu perfil. Intenta de nuevo o contacta soporte.",
+  tenant_assignment_failed: "Error al asignar tu clínica. Intenta de nuevo.",
+  tenant_mismatch: "Tu cuenta pertenece a otra clínica.",
+  session_expired: "Tu sesión ha expirado. Por favor, inicia sesión nuevamente.",
+};
+
 export default function LoginPage({ params }: { params: Promise<{ clinic: string }> }) {
   const { clinic } = use(params);
   const router = useRouter();
   const searchParams = useSearchParams();
   // Support both 'redirect' (standardized) and 'returnTo' (legacy) parameters
   const redirectTo = searchParams.get('redirect') ?? searchParams.get('returnTo') ?? `/${clinic}/portal/dashboard`;
+  const errorParam = searchParams.get('error');
   const [state, formAction, isPending] = useActionState(login, null);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const [urlError, setUrlError] = useState<string | null>(null);
+
+  // Handle URL error params
+  useEffect(() => {
+    if (errorParam && ERROR_MESSAGES[errorParam]) {
+      setUrlError(ERROR_MESSAGES[errorParam]);
+      // Clean URL without losing other params
+      const newUrl = new URL(window.location.href);
+      newUrl.searchParams.delete('error');
+      router.replace(newUrl.pathname + newUrl.search, { scroll: false });
+    }
+  }, [errorParam, router]);
 
   // Redirect if user is already logged in
   useEffect(() => {
@@ -116,10 +138,10 @@ export default function LoginPage({ params }: { params: Promise<{ clinic: string
                     />
                 </div>
 
-                {state?.error && (
+                {(state?.error || urlError) && (
                     <div role="alert" className="p-3 bg-red-50 text-red-600 text-sm rounded-lg flex items-center gap-2">
-                        <Icons.AlertCircle className="w-4 h-4" />
-                        {state.error}
+                        <Icons.AlertCircle className="w-4 h-4 flex-shrink-0" />
+                        {state?.error || urlError}
                     </div>
                 )}
 

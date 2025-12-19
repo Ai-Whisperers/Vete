@@ -19,7 +19,8 @@ v2/
 ├── 00_cleanup.sql              # Drop all tables/functions (for reset)
 ├── 01_extensions.sql           # PostgreSQL extensions
 ├── 02_functions/
-│   └── 02_core_functions.sql   # Shared utility functions
+│   ├── 02_core_functions.sql   # Core utility functions
+│   └── 03_helper_functions.sql # Business logic helpers
 ├── 10_core/
 │   ├── 10_tenants.sql          # Multi-tenant foundation
 │   ├── 11_profiles.sql         # User profiles
@@ -47,7 +48,14 @@ v2/
 ├── 85_system/
 │   ├── 85_staff.sql            # Staff profiles, schedules, time off
 │   └── 86_audit.sql            # Audit logs, notifications, QR tags
-├── 95_seeds/                   # Seed data (optional)
+├── 90_infrastructure/
+│   ├── 90_storage.sql          # Supabase Storage buckets
+│   ├── 91_realtime.sql         # Realtime subscriptions
+│   └── 92_views.sql            # Dashboard views and stats
+├── 95_seeds/
+│   ├── 95_seed_services.sql    # Service catalog
+│   ├── 96_seed_store.sql       # Products and inventory
+│   └── 97_seed_demo_data.sql   # Reference data and demo content
 ├── run-migrations.sql          # psql script to run all
 └── setup-db.mjs                # Node.js runner script
 ```
@@ -75,7 +83,14 @@ Each SQL file follows this structure:
 
 ## Running Migrations
 
-### Option 1: Using Node.js Script
+### Option 1: Using psql (Recommended)
+
+```bash
+cd web/db/v2
+psql $DATABASE_URL -f run-migrations.sql
+```
+
+### Option 2: Using Node.js Script
 
 ```bash
 cd web/db/v2
@@ -86,18 +101,8 @@ node setup-db.mjs
 # Reset and run (DELETES ALL DATA)
 node setup-db.mjs --reset
 
-# Include seed data
-node setup-db.mjs --seeds
-
 # Dry run (see what would execute)
 node setup-db.mjs --dry-run
-```
-
-### Option 2: Using psql
-
-```bash
-cd web/db/v2
-psql $DATABASE_URL -f run-migrations.sql
 ```
 
 ### Option 3: Via Supabase Dashboard
@@ -106,97 +111,45 @@ Copy each file's contents into the SQL Editor and run in order.
 
 ## Table Summary
 
-### Core (10_core/)
+### Core (10_core/) - 3 tables
 - `tenants` - Clinic/organization records
 - `profiles` - User profiles extending auth.users
 - `clinic_invites` - Invitation system
 
-### Pets (20_pets/)
+### Pets (20_pets/) - 4 tables
 - `pets` - Pet profiles
 - `vaccine_templates` - Vaccine reference data
 - `vaccines` - Vaccination records
 - `vaccine_reactions` - Adverse reaction tracking
 
-### Clinical (30_clinical/)
-- `diagnosis_codes` - Diagnostic code reference
-- `drug_dosages` - Drug dosage calculator data
-- `growth_standards` - Growth chart percentiles
-- `reproductive_cycles` - Heat cycle tracking
-- `euthanasia_assessments` - Quality of life scores
-- `lab_test_catalog` - Lab test reference
-- `lab_panels` - Test groupings
-- `lab_orders` - Lab order requests
-- `lab_order_items` - Individual tests in an order
-- `lab_results` - Test results
-- `lab_result_attachments` - Result file attachments
-- `lab_result_comments` - Vet comments on results
-- `kennels` - Hospital kennel inventory
-- `hospitalizations` - Admission records
-- `hospitalization_vitals` - Vital sign logs
-- `hospitalization_medications` - Medication administration
-- `hospitalization_treatments` - Treatment logs
-- `hospitalization_feedings` - Feeding logs
-- `hospitalization_notes` - Progress notes
-- `medical_records` - SOAP notes
-- `prescriptions` - Digital prescriptions
-- `consent_templates` - Consent form templates
-- `consent_documents` - Signed consent forms
+### Clinical (30_clinical/) - 20 tables
+- Reference: `diagnosis_codes`, `drug_dosages`, `growth_standards`, `reproductive_cycles`, `euthanasia_assessments`
+- Lab: `lab_test_catalog`, `lab_panels`, `lab_orders`, `lab_order_items`, `lab_results`, `lab_result_attachments`, `lab_result_comments`
+- Hospital: `kennels`, `hospitalizations`, `hospitalization_vitals`, `hospitalization_medications`, `hospitalization_treatments`, `hospitalization_feedings`, `hospitalization_notes`
+- Medical: `medical_records`, `prescriptions`, `consent_templates`, `consent_documents`
 
-### Scheduling (40_scheduling/)
+### Scheduling (40_scheduling/) - 2 tables
 - `services` - Service catalog with pricing
 - `appointments` - Appointment bookings
 
-### Finance (50_finance/)
-- `payment_methods` - Payment method configuration
-- `invoices` - Invoice records
-- `invoice_items` - Line items
-- `payments` - Payment records
-- `refunds` - Refund records
-- `client_credits` - Account credits
-- `expenses` - Expense tracking
-- `expense_categories` - Custom expense categories
-- `loyalty_points` - Client loyalty balances
-- `loyalty_transactions` - Point earn/redeem history
-- `loyalty_rules` - Earning/redemption rules
+### Finance (50_finance/) - 12 tables
+- `payment_methods`, `invoices`, `invoice_items`, `payments`, `refunds`, `client_credits`
+- `expenses`, `expense_categories`, `loyalty_points`, `loyalty_transactions`, `loyalty_rules`
 
-### Store (60_store/)
-- `store_categories` - Product categories
-- `store_brands` - Product brands
-- `store_products` - Product catalog
-- `store_inventory` - Stock levels
-- `store_inventory_transactions` - Stock movement ledger
-- `store_campaigns` - Promotional campaigns
-- `store_campaign_items` - Products in campaigns
-- `store_coupons` - Discount coupons
-- `store_price_history` - Price change audit
+### Store (60_store/) - 9 tables
+- `store_categories`, `store_brands`, `store_products`, `store_inventory`, `store_inventory_transactions`
+- `store_campaigns`, `store_campaign_items`, `store_coupons`, `store_price_history`
 
-### Communications (70_communications/)
-- `conversations` - Client conversations
-- `messages` - Individual messages
-- `message_templates` - Template library
-- `reminders` - Scheduled reminders
-- `notification_queue` - Outbound message queue
-- `communication_preferences` - User preferences
+### Communications (70_communications/) - 6 tables
+- `conversations`, `messages`, `message_templates`
+- `reminders`, `notification_queue`, `communication_preferences`
 
-### Insurance (80_insurance/)
-- `insurance_providers` - Insurance company directory
-- `insurance_policies` - Pet insurance policies
-- `insurance_claims` - Claim submissions
-- `insurance_claim_items` - Claim line items
-- `insurance_claim_documents` - Claim attachments
+### Insurance (80_insurance/) - 5 tables
+- `insurance_providers`, `insurance_policies`, `insurance_claims`, `insurance_claim_items`, `insurance_claim_documents`
 
-### System (85_system/)
-- `staff_profiles` - Extended staff info
-- `staff_schedules` - Work schedules
-- `staff_schedule_entries` - Schedule time slots
-- `time_off_types` - Leave type configuration
-- `staff_time_off` - Time off requests
-- `audit_logs` - System audit trail
-- `notifications` - In-app notifications
-- `qr_tags` - Pet QR tag inventory
-- `qr_tag_scans` - QR scan tracking
-- `lost_pets` - Lost pet reports
-- `disease_reports` - Epidemiology tracking
+### System (85_system/) - 8 tables
+- `staff_profiles`, `staff_schedules`, `staff_schedule_entries`, `time_off_types`, `staff_time_off`
+- `audit_logs`, `notifications`, `qr_tags`, `qr_tag_scans`, `lost_pets`, `disease_reports`
 
 ## Security
 
@@ -207,46 +160,79 @@ All tables use Row Level Security (RLS) with these patterns:
 3. **Staff Elevation**: `is_staff_of(tenant_id)` grants broader access
 4. **Service Role**: Full access for backend operations
 
-## Functions
-
-Key utility functions:
+## Key Functions
 
 | Function | Purpose |
 |----------|---------|
 | `handle_updated_at()` | Auto-update timestamps |
 | `is_staff_of(tenant_id)` | Check if user is staff in tenant |
 | `is_owner_of_pet(pet_id)` | Check if user owns the pet |
+| `get_user_tenant()` | Get current user's tenant_id |
+| `get_user_role()` | Get current user's role |
 | `soft_delete(table, id)` | Soft delete helper |
 | `generate_sequence_number(prefix, tenant)` | Generate numbered sequences |
+| `get_pet_by_tag(code)` | Public QR tag lookup |
+| `search_pets(tenant, query)` | Staff pet search |
+| `validate_coupon(tenant, code)` | Coupon validation |
+| `get_available_slots(tenant, date)` | Appointment slot finder |
+| `get_clinic_stats(tenant)` | Dashboard statistics |
+
+## Storage Buckets
+
+| Bucket | Public | Purpose |
+|--------|--------|---------|
+| `pets` | Yes | Pet photos |
+| `vaccines` | Yes | Vaccine certificates |
+| `records` | Yes | Medical attachments |
+| `prescriptions` | Yes | Prescription PDFs |
+| `invoices` | Yes | Invoice PDFs |
+| `lab` | Yes | Lab result attachments |
+| `consents` | Yes | Consent documents |
+| `store` | Yes | Product images |
+| `receipts` | No | Expense receipts |
+| `qr-codes` | Yes | QR code images |
+| `signatures` | Yes | Digital signatures |
 
 ## Resetting the Database
 
-To completely reset and start fresh:
+⚠️ **WARNING**: This deletes ALL data!
 
 ```bash
-# Using Node script
-node setup-db.mjs --reset
-
-# Using psql
+cd web/db/v2
 psql $DATABASE_URL -f 00_cleanup.sql
 psql $DATABASE_URL -f run-migrations.sql
 ```
 
-⚠️ **WARNING**: This deletes ALL data!
+Or use the Node script:
 
-## Migrating from v1
-
-1. Export any custom data you need to preserve
-2. Run the v2 cleanup: `psql -f 00_cleanup.sql`
-3. Run v2 migrations: `node setup-db.mjs`
-4. Re-import your data
-5. Delete the v1 files once confirmed working
+```bash
+node setup-db.mjs --reset
+```
 
 ## Adding New Tables
 
 1. Determine the correct module (or create new one)
 2. Follow the module template structure
-3. Add to `MIGRATION_ORDER` in `setup-db.mjs`
-4. Add DROP statement to `00_cleanup.sql`
-5. Test with `--dry-run` first
+3. Include: TABLE, RLS, INDEXES, TRIGGERS
+4. Update `run-migrations.sql` to include new file
+5. Add DROP statement to `00_cleanup.sql`
+6. Test with dry run first
 
+## Demo Accounts
+
+After running migrations, create these users in Supabase Auth:
+
+| Email | Password | Role | Clinic |
+|-------|----------|------|--------|
+| `admin@demo.com` | password123 | Admin | adris |
+| `vet@demo.com` | password123 | Vet | adris |
+| `owner@demo.com` | password123 | Owner | adris |
+| `owner2@demo.com` | password123 | Owner | adris |
+| `vet@petlife.com` | password123 | Vet | petlife |
+| `admin@petlife.com` | password123 | Admin | petlife |
+
+The `handle_new_user()` trigger automatically creates profiles with correct roles/tenants.
+
+---
+
+*Last updated: December 2024*

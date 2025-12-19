@@ -20,6 +20,13 @@ export type * from './calendar';
 // Database types
 export type * from './database';
 
+// System types
+export type * from './audit';
+export type * from './notification';
+export type * from './reports';
+export type * from './settings';
+export type * from './staff';
+
 // Utility types
 export type * from './action-result';
 export type * from './errors';

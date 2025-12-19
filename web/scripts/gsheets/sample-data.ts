@@ -118,7 +118,7 @@ export async function addSampleData(spreadsheetId: string = SPREADSHEET_ID): Pro
     ['Senior', '3', 'ALI-PER', 'Sí'],
     // Level 2 - Medicamentos
     ['Antibióticos', '2', 'MED', 'Sí'],
-    ['Antiparasitarios', '2', 'MED', 'Sí'],
+    ['Desparasitantes', '2', 'MED', 'Sí'],
     ['Vacunas', '2', 'MED', 'Sí'],
     // Level 2 - Accesorios
     ['Correas y Collares', '2', 'ACC', 'Sí'],
@@ -201,7 +201,7 @@ export async function addSampleData(spreadsheetId: string = SPREADSHEET_ID): Pro
     ['Royal Canin Adult Medium 15kg', 'ALI-PER-ADU', 'RO-001', 'Bolsa', 180000, 250000, 235000, 39, 5, 12, 'No', 'ROY-001', 'Alimento premium para perros adultos medianos', 'Sí'],
     ['Royal Canin Puppy 10kg', 'ALI-PER-CAC', 'RO-001', 'Bolsa', 150000, 210000, '', 40, 3, 8, 'No', 'ROY-001', 'Alimento para cachorros hasta 12 meses', 'Sí'],
     ['Pro Plan Cat Adult 7.5kg', 'ALI-GAT', 'PR-002', 'Bolsa', 120000, 175000, '', 46, 4, 6, 'No', 'ROY-001', 'Alimento premium para gatos adultos', 'Sí'],
-    ['Nexgard Spectra M (7-15kg)', 'MED-ANP', 'NE-011', 'Caja', 45000, 75000, '', 67, 10, 25, 'Sí', 'DIS-002', 'Antiparasitario oral mensual', 'Sí'],
+    ['Nexgard Spectra M (7-15kg)', 'MED-DES', 'NE-011', 'Caja', 45000, 75000, '', 67, 10, 25, 'Sí', 'DIS-002', 'Antiparasitario oral mensual', 'Sí'],
     ['Amoxicilina 500mg x 10', 'MED-ANT', 'BA-006', 'Caja', 15000, 28000, '', 87, 8, 20, 'Sí', 'DIS-002', 'Antibiótico de amplio espectro', 'Sí'],
     ['Vacuna Óctuple', 'MED-VAC', 'ZO-007', 'Unidad', 35000, 60000, '', 71, 20, 45, 'Sí', 'DIS-002', 'Vacuna polivalente canina', 'Sí'],
     ['Collar Antipulgas Seresto L', 'ACC-COR', 'BA-006', 'Unidad', 95000, 150000, 140000, 58, 5, 10, 'No', 'LAB-004', 'Collar 8 meses protección', 'Sí'],
@@ -210,7 +210,7 @@ export async function addSampleData(spreadsheetId: string = SPREADSHEET_ID): Pro
     ['Jeringa 5ml c/aguja x100', 'INS-JER', '3M-009', 'Caja', 35000, 55000, '', 57, 5, 8, 'No', 'MED-005', 'Jeringas descartables estériles', 'Sí'],
     ['Guantes Látex M x100', 'INS-GUA', '3M-009', 'Caja', 18000, 30000, '', 67, 10, 15, 'No', 'MED-005', 'Guantes de examen', 'Sí'],
     ['Royal Canin Senior 12kg', 'ALI-PER-ADU', 'RO-001', 'Bolsa', 185000, 260000, '', 41, 3, 5, 'No', 'ROY-001', 'Alimento para perros senior +7 años', 'Sí'],
-    ['Frontline Plus Perro M', 'MED-ANP', 'FR-010', 'Caja', 38000, 65000, '', 71, 8, 18, 'No', 'DIS-002', 'Pipeta antiparasitaria externa', 'Sí'],
+    ['Frontline Plus Perro M', 'MED-DES', 'FR-010', 'Caja', 38000, 65000, '', 71, 8, 18, 'No', 'DIS-002', 'Pipeta antiparasitaria externa', 'Sí'],
   ]);
 
   // 📦 Stock Inicial (sin SKU - Producto seleccionable desde dropdown)
@@ -264,12 +264,6 @@ export async function addSampleData(spreadsheetId: string = SPREADSHEET_ID): Pro
     ['Producto de prueba 2', 'MED-ANT', 'Caja', 50000, 85000, 20, 'BA-006', 'DIS-002', 'Requiere receta'],
     ['Producto de prueba 3', 'ALI-PER-ADU', 'Bolsa', 120000, 180000, 5, 'PR-002', 'ROY-001', ''],
     ['', '', '', '', '', '', '', '', ''],
-  ]);
-
-  // Helper text below sample data
-  await updateValues(spreadsheetId, "'⚡ Carga Rápida'!A7:A8", [
-    ['💡 El SKU se generará automáticamente en el sistema al importar'],
-    ['Formato: CATEGORIA-### secuencial (ej: ALI-PER-ADU-001)'],
   ]);
 
   console.log('\n  ✅ Sample data added\n');

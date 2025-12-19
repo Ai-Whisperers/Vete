@@ -226,11 +226,6 @@ export function FAQSection() {
               }`}
             >
               {categoryLabels[category]}
-              {category !== 'all' && (
-                <span className="ml-1 text-xs opacity-60">
-                  ({faqs.filter(f => f.category === category).length})
-                </span>
-              )}
             </button>
           ))}
         </div>

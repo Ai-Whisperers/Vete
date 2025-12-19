@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { Syringe, ChevronRight, Bell } from 'lucide-react';
+import { Syringe, ChevronRight, Bell, Loader2, CheckCircle, XCircle } from 'lucide-react';
 import Link from 'next/link';
 
 interface VaccineReminder {
@@ -23,6 +23,8 @@ interface UpcomingVaccinesProps {
 export function UpcomingVaccines({ clinic }: UpcomingVaccinesProps) {
   const [vaccines, setVaccines] = useState<VaccineReminder[]>([]);
   const [loading, setLoading] = useState(true);
+  const [sendingReminders, setSendingReminders] = useState(false);
+  const [reminderResult, setReminderResult] = useState<{ success: boolean; message: string } | null>(null);
 
   useEffect(() => {
     const fetchVaccines = async () => {
@@ -81,6 +83,42 @@ export function UpcomingVaccines({ clinic }: UpcomingVaccinesProps) {
     if (days === 0) return 'Hoy';
     if (days === 1) return 'Mañana';
     return `En ${days} días`;
+  };
+
+  const handleSendReminders = async () => {
+    setSendingReminders(true);
+    setReminderResult(null);
+
+    try {
+      const res = await fetch('/api/reminders/stats', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ job_type: 'vaccine' })
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setReminderResult({
+          success: true,
+          message: data.message || 'Recordatorios de vacunas enviados correctamente'
+        });
+      } else {
+        setReminderResult({
+          success: false,
+          message: data.error || 'Error al enviar recordatorios'
+        });
+      }
+    } catch {
+      setReminderResult({
+        success: false,
+        message: 'Error de conexión al enviar recordatorios'
+      });
+    } finally {
+      setSendingReminders(false);
+      // Clear result after 5 seconds
+      setTimeout(() => setReminderResult(null), 5000);
+    }
   };
 
   return (
@@ -146,17 +184,40 @@ export function UpcomingVaccines({ clinic }: UpcomingVaccinesProps) {
 
       {/* Quick action */}
       {vaccines.length > 0 && (
-        <div className="mt-4 pt-4 border-t border-[var(--border-light,#f3f4f6)]">
+        <div className="mt-4 pt-4 border-t border-[var(--border-light,#f3f4f6)] space-y-2">
           <button
-            className="w-full flex items-center justify-center gap-2 py-2 bg-[var(--primary)]/10 text-[var(--primary)] rounded-lg hover:bg-[var(--primary)]/20 transition-colors text-sm font-medium"
-            onClick={() => {
-              // Could trigger bulk reminder sending
-              alert('Función de recordatorios masivos próximamente');
-            }}
+            className="w-full flex items-center justify-center gap-2 py-2 bg-[var(--primary)]/10 text-[var(--primary)] rounded-lg hover:bg-[var(--primary)]/20 transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={handleSendReminders}
+            disabled={sendingReminders}
           >
-            <Bell className="w-4 h-4" />
-            Enviar recordatorios
+            {sendingReminders ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Enviando...
+              </>
+            ) : (
+              <>
+                <Bell className="w-4 h-4" />
+                Enviar recordatorios
+              </>
+            )}
           </button>
+
+          {/* Result feedback */}
+          {reminderResult && (
+            <div className={`flex items-center gap-2 p-2 rounded-lg text-sm ${
+              reminderResult.success
+                ? 'bg-green-50 text-green-700'
+                : 'bg-red-50 text-red-700'
+            }`}>
+              {reminderResult.success ? (
+                <CheckCircle className="w-4 h-4 flex-shrink-0" />
+              ) : (
+                <XCircle className="w-4 h-4 flex-shrink-0" />
+              )}
+              <span className="truncate">{reminderResult.message}</span>
+            </div>
+          )}
         </div>
       )}
     </div>

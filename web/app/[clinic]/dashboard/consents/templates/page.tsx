@@ -438,6 +438,374 @@ export default function TemplatesPage(): JSX.Element {
     );
   };
 
+  const CreateTemplateModal = ({ onClose, onSuccess }: { onClose: () => void; onSuccess: () => void }): JSX.Element => {
+    const [newTemplate, setNewTemplate] = useState({
+      name: '',
+      category: 'treatment',
+      content: '',
+      requires_witness: false,
+      requires_id_verification: false,
+      can_be_revoked: true,
+      default_expiry_days: null as number | null,
+      fields: [] as TemplateField[]
+    });
+    const [creating, setCreating] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    const categories = [
+      { value: 'surgery', label: 'Cirugía' },
+      { value: 'anesthesia', label: 'Anestesia' },
+      { value: 'euthanasia', label: 'Eutanasia' },
+      { value: 'boarding', label: 'Hospedaje' },
+      { value: 'treatment', label: 'Tratamiento' },
+      { value: 'vaccination', label: 'Vacunación' },
+      { value: 'diagnostic', label: 'Diagnóstico' },
+      { value: 'other', label: 'Otro' }
+    ];
+
+    const fieldTypes = [
+      { value: 'text', label: 'Texto' },
+      { value: 'textarea', label: 'Texto largo' },
+      { value: 'number', label: 'Número' },
+      { value: 'date', label: 'Fecha' },
+      { value: 'select', label: 'Selección' },
+      { value: 'checkbox', label: 'Casilla' }
+    ];
+
+    const handleAddField = () => {
+      const newField: TemplateField = {
+        id: `new-${Date.now()}`,
+        field_name: '',
+        field_type: 'text',
+        field_label: '',
+        is_required: false,
+        field_options: null,
+        display_order: newTemplate.fields.length
+      };
+      setNewTemplate({ ...newTemplate, fields: [...newTemplate.fields, newField] });
+    };
+
+    const handleDeleteField = (index: number) => {
+      setNewTemplate({
+        ...newTemplate,
+        fields: newTemplate.fields.filter((_, i) => i !== index)
+      });
+    };
+
+    const handleCreate = async () => {
+      if (!newTemplate.name || !newTemplate.category || !newTemplate.content) {
+        setError('Nombre, categoría y contenido son requeridos');
+        return;
+      }
+
+      setCreating(true);
+      setError(null);
+
+      try {
+        const response = await fetch('/api/consents/templates', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: newTemplate.name,
+            category: newTemplate.category,
+            content: newTemplate.content,
+            requires_witness: newTemplate.requires_witness,
+            requires_id_verification: newTemplate.requires_id_verification,
+            can_be_revoked: newTemplate.can_be_revoked,
+            default_expiry_days: newTemplate.default_expiry_days,
+            fields: newTemplate.fields.filter(f => f.field_name && f.field_label)
+          })
+        });
+
+        if (!response.ok) {
+          const data = await response.json();
+          throw new Error(data.error || 'Error al crear plantilla');
+        }
+
+        setFeedback({ type: 'success', message: 'Plantilla creada correctamente' });
+        setTimeout(() => setFeedback(null), 3000);
+        onSuccess();
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Error al crear plantilla');
+      } finally {
+        setCreating(false);
+      }
+    };
+
+    return (
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+        <div className="bg-[var(--bg-paper)] rounded-lg max-w-5xl w-full my-8">
+          {/* Header */}
+          <div className="sticky top-0 bg-[var(--bg-paper)] border-b border-[var(--primary)]/20 p-6 rounded-t-lg">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-[var(--text-primary)]">Nueva Plantilla</h2>
+              <button
+                onClick={onClose}
+                disabled={creating}
+                className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] disabled:opacity-50"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+          </div>
+
+          {/* Form */}
+          <div className="p-6 space-y-6 max-h-[calc(90vh-200px)] overflow-y-auto">
+            {/* Error Message */}
+            {error && (
+              <div className="p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg flex items-center gap-2">
+                <XCircle className="w-5 h-5 flex-shrink-0" />
+                {error}
+              </div>
+            )}
+
+            {/* Basic Information */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-[var(--text-primary)]">Información Básica</h3>
+
+              <div>
+                <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
+                  Nombre de la plantilla *
+                </label>
+                <input
+                  type="text"
+                  value={newTemplate.name}
+                  onChange={(e) => setNewTemplate({ ...newTemplate, name: e.target.value })}
+                  className="w-full px-4 py-2 bg-[var(--bg-default)] border border-[var(--primary)]/20 rounded-lg text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+                  placeholder="Ej: Consentimiento de Cirugía General"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
+                  Categoría *
+                </label>
+                <select
+                  value={newTemplate.category}
+                  onChange={(e) => setNewTemplate({ ...newTemplate, category: e.target.value })}
+                  className="w-full px-4 py-2 bg-[var(--bg-default)] border border-[var(--primary)]/20 rounded-lg text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+                >
+                  {categories.map((cat) => (
+                    <option key={cat.value} value={cat.value}>
+                      {cat.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
+                  Contenido de la plantilla *
+                </label>
+                <textarea
+                  value={newTemplate.content}
+                  onChange={(e) => setNewTemplate({ ...newTemplate, content: e.target.value })}
+                  rows={10}
+                  className="w-full px-4 py-2 bg-[var(--bg-default)] border border-[var(--primary)]/20 rounded-lg text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] font-mono text-sm"
+                  placeholder="Contenido HTML del consentimiento..."
+                />
+                <p className="text-xs text-[var(--text-secondary)] mt-1">
+                  Usa etiquetas HTML y variables como {`{{field_name}}`} para campos personalizados
+                </p>
+              </div>
+            </div>
+
+            {/* Settings */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-[var(--text-primary)]">Configuración</h3>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={newTemplate.requires_witness}
+                    onChange={(e) => setNewTemplate({ ...newTemplate, requires_witness: e.target.checked })}
+                    className="w-4 h-4 text-[var(--primary)] rounded focus:ring-[var(--primary)]"
+                  />
+                  <span className="text-sm text-[var(--text-primary)]">Requiere testigo</span>
+                </label>
+
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={newTemplate.requires_id_verification}
+                    onChange={(e) => setNewTemplate({ ...newTemplate, requires_id_verification: e.target.checked })}
+                    className="w-4 h-4 text-[var(--primary)] rounded focus:ring-[var(--primary)]"
+                  />
+                  <span className="text-sm text-[var(--text-primary)]">Requiere verificación de ID</span>
+                </label>
+
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={newTemplate.can_be_revoked}
+                    onChange={(e) => setNewTemplate({ ...newTemplate, can_be_revoked: e.target.checked })}
+                    className="w-4 h-4 text-[var(--primary)] rounded focus:ring-[var(--primary)]"
+                  />
+                  <span className="text-sm text-[var(--text-primary)]">Puede ser revocado</span>
+                </label>
+
+                <div>
+                  <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
+                    Días de expiración
+                  </label>
+                  <input
+                    type="number"
+                    value={newTemplate.default_expiry_days || ''}
+                    onChange={(e) => setNewTemplate({
+                      ...newTemplate,
+                      default_expiry_days: e.target.value ? parseInt(e.target.value) : null
+                    })}
+                    className="w-full px-4 py-2 bg-[var(--bg-default)] border border-[var(--primary)]/20 rounded-lg text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+                    placeholder="Dejar vacío para sin expiración"
+                    min="1"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Custom Fields */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-[var(--text-primary)]">Campos Personalizados</h3>
+                <button
+                  onClick={handleAddField}
+                  className="inline-flex items-center gap-2 px-3 py-1 bg-[var(--primary)] text-white rounded-lg hover:opacity-90 transition-opacity text-sm"
+                >
+                  <Plus className="w-4 h-4" />
+                  Agregar Campo
+                </button>
+              </div>
+
+              {newTemplate.fields.length > 0 ? (
+                <div className="space-y-3">
+                  {newTemplate.fields.map((field, index) => (
+                    <div key={field.id} className="p-4 bg-[var(--bg-default)] rounded-lg border border-[var(--primary)]/20">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1">
+                            Nombre del campo (variable)
+                          </label>
+                          <input
+                            type="text"
+                            value={field.field_name}
+                            onChange={(e) => {
+                              const newFields = [...newTemplate.fields];
+                              newFields[index] = { ...field, field_name: e.target.value };
+                              setNewTemplate({ ...newTemplate, fields: newFields });
+                            }}
+                            className="w-full px-3 py-2 bg-[var(--bg-paper)] border border-[var(--primary)]/20 rounded text-sm text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]"
+                            placeholder="nombre_campo"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1">
+                            Etiqueta
+                          </label>
+                          <input
+                            type="text"
+                            value={field.field_label}
+                            onChange={(e) => {
+                              const newFields = [...newTemplate.fields];
+                              newFields[index] = { ...field, field_label: e.target.value };
+                              setNewTemplate({ ...newTemplate, fields: newFields });
+                            }}
+                            className="w-full px-3 py-2 bg-[var(--bg-paper)] border border-[var(--primary)]/20 rounded text-sm text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]"
+                            placeholder="Etiqueta visible"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1">
+                            Tipo de campo
+                          </label>
+                          <select
+                            value={field.field_type}
+                            onChange={(e) => {
+                              const newFields = [...newTemplate.fields];
+                              newFields[index] = { ...field, field_type: e.target.value };
+                              setNewTemplate({ ...newTemplate, fields: newFields });
+                            }}
+                            className="w-full px-3 py-2 bg-[var(--bg-paper)] border border-[var(--primary)]/20 rounded text-sm text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]"
+                          >
+                            {fieldTypes.map((type) => (
+                              <option key={type.value} value={type.value}>
+                                {type.label}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div className="flex items-end gap-2">
+                          <label className="flex items-center gap-2 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={field.is_required}
+                              onChange={(e) => {
+                                const newFields = [...newTemplate.fields];
+                                newFields[index] = { ...field, is_required: e.target.checked };
+                                setNewTemplate({ ...newTemplate, fields: newFields });
+                              }}
+                              className="w-4 h-4 text-[var(--primary)] rounded focus:ring-[var(--primary)]"
+                            />
+                            <span className="text-xs text-[var(--text-primary)]">Requerido</span>
+                          </label>
+
+                          <button
+                            onClick={() => handleDeleteField(index)}
+                            className="ml-auto p-2 text-red-600 hover:bg-red-50 rounded transition-colors"
+                            title="Eliminar campo"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-[var(--text-secondary)] text-center py-4">
+                  No hay campos personalizados. Haz clic en &quot;Agregar Campo&quot; para crear uno.
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="sticky bottom-0 bg-[var(--bg-paper)] border-t border-[var(--primary)]/20 p-6 rounded-b-lg">
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={onClose}
+                disabled={creating}
+                className="px-6 py-2 bg-[var(--bg-default)] text-[var(--text-primary)] rounded-lg hover:bg-[var(--primary)]/10 transition-colors disabled:opacity-50"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleCreate}
+                disabled={creating || !newTemplate.name || !newTemplate.category || !newTemplate.content}
+                className="inline-flex items-center gap-2 px-6 py-2 bg-[var(--primary)] text-white rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
+              >
+                {creating ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    Creando...
+                  </>
+                ) : (
+                  <>
+                    <Plus className="w-4 h-4" />
+                    Crear Plantilla
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const TemplatePreviewModal = ({ template }: { template: ConsentTemplate }): JSX.Element => {
     return (
       <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
@@ -705,23 +1073,8 @@ export default function TemplatesPage(): JSX.Element {
       {/* Preview Modal */}
       {previewTemplate && <TemplatePreviewModal template={previewTemplate} />}
 
-      {/* Create Modal Placeholder */}
-      {showCreateModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-[var(--bg-paper)] rounded-lg max-w-2xl w-full p-6">
-            <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-4">Nueva Plantilla</h2>
-            <p className="text-[var(--text-secondary)] mb-6">
-              Esta funcionalidad estará disponible próximamente.
-            </p>
-            <button
-              onClick={() => setShowCreateModal(false)}
-              className="w-full px-4 py-2 bg-[var(--primary)] text-white rounded-lg hover:opacity-90 transition-opacity"
-            >
-              Cerrar
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Create Modal */}
+      {showCreateModal && <CreateTemplateModal onClose={() => setShowCreateModal(false)} onSuccess={() => { setShowCreateModal(false); fetchTemplates(); }} />}
     </div>
   );
 }

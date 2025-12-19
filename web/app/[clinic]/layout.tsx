@@ -242,9 +242,9 @@ export default async function ClinicLayout({
           </main>
 
           {/* Footer - Enhanced */}
-          <footer className="bg-[var(--bg-dark,#1a1a1a)] text-white relative overflow-hidden">
+          <footer className="bg-[var(--bg-dark,#1a1a1a)] text-white relative overflow-hidden" role="contentinfo">
             {/* Decorative top border */}
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[var(--primary)] via-[var(--accent)] to-[var(--primary)]" />
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[var(--primary)] via-[var(--accent)] to-[var(--primary)]" aria-hidden="true" />
 
             <div className="container mx-auto px-4 md:px-6 py-16">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-8">
@@ -323,8 +323,8 @@ export default async function ClinicLayout({
                 </div>
 
                 {/* Quick Links */}
-                <div>
-                  <h4 className="font-bold text-white mb-6 text-sm uppercase tracking-wider">
+                <nav aria-labelledby="footer-quick-links">
+                  <h4 id="footer-quick-links" className="font-bold text-white mb-6 text-sm uppercase tracking-wider">
                     Enlaces Rápidos
                   </h4>
                   <ul className="space-y-3">
@@ -359,11 +359,11 @@ export default async function ClinicLayout({
                       </Link>
                     </li>
                   </ul>
-                </div>
+                </nav>
 
                 {/* Tools Section */}
-                <div>
-                  <h4 className="font-bold text-white mb-6 text-sm uppercase tracking-wider">
+                <nav aria-labelledby="footer-tools">
+                  <h4 id="footer-tools" className="font-bold text-white mb-6 text-sm uppercase tracking-wider">
                     Herramientas
                   </h4>
                   <ul className="space-y-3">
@@ -388,26 +388,26 @@ export default async function ClinicLayout({
                       </Link>
                     </li>
                   </ul>
-                </div>
+                </nav>
 
                 {/* Contact Info */}
-                <div>
-                  <h4 className="font-bold text-white mb-6 text-sm uppercase tracking-wider">
+                <div aria-labelledby="footer-contact">
+                  <h4 id="footer-contact" className="font-bold text-white mb-6 text-sm uppercase tracking-wider">
                     {footerLabels.contact_us || 'Contacto'}
                   </h4>
                   <ul className="space-y-4">
                     <li className="flex items-start gap-3">
-                      <MapPin className="w-5 h-5 text-[var(--primary)] flex-shrink-0 mt-0.5" />
+                      <MapPin className="w-5 h-5 text-[var(--primary)] flex-shrink-0 mt-0.5" aria-hidden="true" />
                       <span className="text-gray-400 text-sm">{config.contact.address}</span>
                     </li>
                     <li className="flex items-center gap-3">
-                      <Phone className="w-5 h-5 text-[var(--primary)] flex-shrink-0" />
+                      <Phone className="w-5 h-5 text-[var(--primary)] flex-shrink-0" aria-hidden="true" />
                       <a href={`tel:${config.contact.whatsapp_number}`} className="text-gray-400 hover:text-white transition-colors text-sm">
                         {config.contact.phone_display}
                       </a>
                     </li>
                     <li className="flex items-center gap-3">
-                      <Mail className="w-5 h-5 text-[var(--primary)] flex-shrink-0" />
+                      <Mail className="w-5 h-5 text-[var(--primary)] flex-shrink-0" aria-hidden="true" />
                       <a href={`mailto:${config.contact.email}`} className="text-gray-400 hover:text-white transition-colors text-sm">
                         {config.contact.email}
                       </a>
@@ -416,20 +416,20 @@ export default async function ClinicLayout({
                 </div>
 
                 {/* Hours */}
-                <div>
-                  <h4 className="font-bold text-white mb-6 text-sm uppercase tracking-wider">
+                <div aria-labelledby="footer-hours">
+                  <h4 id="footer-hours" className="font-bold text-white mb-6 text-sm uppercase tracking-wider">
                     Horarios
                   </h4>
                   <ul className="space-y-3">
                     <li className="flex items-center gap-3">
-                      <Clock className="w-5 h-5 text-[var(--primary)] flex-shrink-0" />
+                      <Clock className="w-5 h-5 text-[var(--primary)] flex-shrink-0" aria-hidden="true" />
                       <div className="text-sm">
                         <p className="text-white font-medium">Lun - Vie</p>
                         <p className="text-gray-400">{config.hours?.weekdays || '8:00 - 18:00'}</p>
                       </div>
                     </li>
                     <li className="flex items-center gap-3">
-                      <Clock className="w-5 h-5 text-[var(--primary)] flex-shrink-0" />
+                      <Clock className="w-5 h-5 text-[var(--primary)] flex-shrink-0" aria-hidden="true" />
                       <div className="text-sm">
                         <p className="text-white font-medium">Sábados</p>
                         <p className="text-gray-400">{config.hours?.saturday || '8:00 - 12:00'}</p>
@@ -437,7 +437,7 @@ export default async function ClinicLayout({
                     </li>
                     <li className="flex items-center gap-3">
                       <div className="w-5 h-5 flex-shrink-0 flex items-center justify-center">
-                        <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                        <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" aria-hidden="true" />
                       </div>
                       <div className="text-sm">
                         <p className="text-[var(--accent)] font-bold">Urgencias 24hs</p>
@@ -450,10 +450,10 @@ export default async function ClinicLayout({
               </div>
 
               {/* Newsletter Section */}
-              <div className="mt-12 p-8 rounded-2xl bg-gradient-to-r from-[var(--primary)]/20 to-[var(--accent)]/20 border border-white/10">
+              <section aria-labelledby="newsletter-heading" className="mt-12 p-8 rounded-2xl bg-gradient-to-r from-[var(--primary)]/20 to-[var(--accent)]/20 border border-white/10">
                 <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                   <div className="text-center md:text-left">
-                    <h4 className="font-bold text-white text-lg mb-1">
+                    <h4 id="newsletter-heading" className="font-bold text-white text-lg mb-1">
                       {footerLabels.newsletter_title || 'Suscríbete a nuestro boletín'}
                     </h4>
                     <p className="text-gray-400 text-sm">
@@ -462,11 +462,16 @@ export default async function ClinicLayout({
                   </div>
                   <form className="flex gap-2 w-full md:w-auto" action={`/api/newsletter`} method="POST">
                     <input type="hidden" name="clinic" value={clinic} />
+                    <label htmlFor="newsletter-email" className="sr-only">
+                      Correo electrónico para suscripción
+                    </label>
                     <input
+                      id="newsletter-email"
                       type="email"
                       name="email"
                       placeholder={footerLabels.newsletter_placeholder || 'Tu email'}
                       required
+                      aria-required="true"
                       className="flex-1 md:w-64 px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
                     />
                     <button
@@ -477,7 +482,7 @@ export default async function ClinicLayout({
                     </button>
                   </form>
                 </div>
-              </div>
+              </section>
 
               {/* Bottom Bar */}
               <div className="mt-8 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">

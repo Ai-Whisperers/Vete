@@ -52,15 +52,20 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         className={clsx(baseStyles, variants[variant], sizes[size], className)}
         disabled={disabled || isLoading}
+        aria-busy={isLoading}
+        aria-live={isLoading ? "polite" : undefined}
         {...props}
       >
         {isLoading ? (
-          <Loader2 className="w-5 h-5 animate-spin" />
+          <>
+            <Loader2 className="w-5 h-5 animate-spin" aria-hidden="true" />
+            <span className="sr-only">Cargando...</span>
+          </>
         ) : (
           <>
-            {leftIcon && <span className="flex-shrink-0">{leftIcon}</span>}
+            {leftIcon && <span className="flex-shrink-0" aria-hidden="true">{leftIcon}</span>}
             {children}
-            {rightIcon && <span className="flex-shrink-0">{rightIcon}</span>}
+            {rightIcon && <span className="flex-shrink-0" aria-hidden="true">{rightIcon}</span>}
           </>
         )}
       </button>

@@ -65,6 +65,19 @@ interface ProductFromDB {
   store_product_variants: { id: string; sku: string; name: string; variant_type: string; price_modifier: number; stock_quantity: number; is_default: boolean; sort_order: number }[];
 }
 
+/**
+ * Public endpoint - no authentication required
+ * Returns product catalog for a clinic
+ *
+ * @param clinic - Clinic slug (required)
+ * @param search - Search query (optional)
+ * @param category - Category filter (optional)
+ * @param sort - Sort order (relevance, price_low_high, price_high_low, newest, rating, best_selling, name_asc, discount)
+ * @param page - Page number (default: 1)
+ * @param limit - Items per page (default: 24)
+ *
+ * Returns paginated products with filters and sorting
+ */
 export async function GET(request: NextRequest): Promise<NextResponse<ProductListResponse | { error: string }>> {
   const { searchParams } = new URL(request.url);
   const clinic = searchParams.get('clinic');

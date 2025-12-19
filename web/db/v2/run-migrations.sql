@@ -3,9 +3,20 @@
 -- =============================================================================
 -- Master script to run all migrations in correct order.
 --
--- USAGE: Run this file against your Supabase database.
+-- USAGE:
+--   psql $DATABASE_URL -f run-migrations.sql
+--
+-- Or run via Node.js:
+--   node setup-db.mjs
+--
 -- ORDER IS CRITICAL - dependencies must be resolved before use.
 -- =============================================================================
+
+\echo ''
+\echo '============================================'
+\echo 'VETE DATABASE v2 MIGRATION'
+\echo '============================================'
+\echo ''
 
 -- =============================================================================
 -- PHASE 1: EXTENSIONS
@@ -22,6 +33,7 @@
 
 \echo 'Phase 2: Loading core functions...'
 \i 02_functions/02_core_functions.sql
+\i 02_functions/03_helper_functions.sql
 
 -- =============================================================================
 -- PHASE 3: CORE ENTITIES
@@ -105,17 +117,45 @@
 \i 85_system/86_audit.sql
 
 -- =============================================================================
+-- PHASE 12: INFRASTRUCTURE
+-- =============================================================================
+-- Storage buckets, realtime, and views.
+
+\echo 'Phase 12: Loading infrastructure...'
+\i 90_infrastructure/90_storage.sql
+\i 90_infrastructure/91_realtime.sql
+\i 90_infrastructure/92_views.sql
+
+-- =============================================================================
+-- PHASE 13: SEED DATA (Optional)
+-- =============================================================================
+-- Reference data and demo content.
+
+\echo 'Phase 13: Loading seed data...'
+\i 95_seeds/95_seed_services.sql
+\i 95_seeds/96_seed_store.sql
+\i 95_seeds/97_seed_demo_data.sql
+
+-- =============================================================================
 -- COMPLETE
 -- =============================================================================
 
 \echo ''
 \echo '============================================'
-\echo 'All migrations completed successfully!'
+\echo 'ALL MIGRATIONS COMPLETED SUCCESSFULLY!'
 \echo '============================================'
 \echo ''
-\echo 'Next steps:'
-\echo '  1. Run seed files from 95_seeds/ if needed'
-\echo '  2. Set up storage buckets via Supabase dashboard'
-\echo '  3. Configure realtime subscriptions as needed'
+\echo 'Database v2 is ready.'
 \echo ''
-
+\echo 'Demo Accounts (create in Supabase Auth):'
+\echo '  - admin@demo.com / password123 (adris admin)'
+\echo '  - vet@demo.com / password123 (adris vet)'
+\echo '  - owner@demo.com / password123 (adris owner)'
+\echo '  - owner2@demo.com / password123 (adris owner)'
+\echo '  - vet@petlife.com / password123 (petlife vet)'
+\echo '  - admin@petlife.com / password123 (petlife admin)'
+\echo ''
+\echo 'Access the app at:'
+\echo '  - http://localhost:3000/adris'
+\echo '  - http://localhost:3000/petlife'
+\echo ''

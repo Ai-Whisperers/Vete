@@ -26,17 +26,55 @@ export default async function DashboardLayout({
   }
 
   // Check if user is staff (vet or admin)
-  const { data: profile } = await supabase
+  let { data: profile } = await supabase
     .from('profiles')
     .select('role, tenant_id')
     .eq('id', user.id)
     .single();
 
-  const isStaff = profile?.role === 'vet' || profile?.role === 'admin';
+  // Handle case where profile doesn't exist (trigger may have failed)
+  if (!profile) {
+    // Create profile for authenticated user - defaults to owner role
+    const { data: newProfile, error: createError } = await supabase
+      .from('profiles')
+      .insert({
+        id: user.id,
+        email: user.email,
+        full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Usuario',
+        avatar_url: user.user_metadata?.avatar_url,
+        tenant_id: clinic,
+        role: 'owner'
+      })
+      .select('role, tenant_id')
+      .single();
 
+    if (createError || !newProfile) {
+      // If we still can't create profile, redirect to login
+      await supabase.auth.signOut();
+      redirect(`/${clinic}/portal/login?error=profile_creation_failed`);
+    }
+    profile = newProfile;
+  }
+
+  // Handle case where user has no tenant assigned
+  if (!profile.tenant_id) {
+    await supabase
+      .from('profiles')
+      .update({ tenant_id: clinic })
+      .eq('id', user.id);
+    profile.tenant_id = clinic;
+  }
+
+  const isStaff = profile.role === 'vet' || profile.role === 'admin';
+
+  // Non-staff users should use the portal
   if (!isStaff) {
-    // Redirect non-staff users to portal
     redirect(`/${clinic}/portal/dashboard`);
+  }
+
+  // Staff must belong to this clinic
+  if (profile.tenant_id !== clinic) {
+    redirect(`/${profile.tenant_id}/dashboard`);
   }
 
   return (

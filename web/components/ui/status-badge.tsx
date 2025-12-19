@@ -191,6 +191,7 @@ export function StatusBadge({
         pulse && "animate-pulse",
         className
       )}
+      aria-label={`Estado: ${displayLabel}`}
       {...props}
     >
       {showIcon && (
@@ -199,6 +200,7 @@ export function StatusBadge({
             size === "sm" ? "w-3 h-3" : size === "lg" ? "w-4 h-4" : "w-3.5 h-3.5",
             isAnimated && "animate-spin"
           )}
+          aria-hidden="true"
         />
       )}
       <span>{displayLabel}</span>

@@ -7,9 +7,15 @@ interface TimeSlot {
 }
 
 /**
- * GET /api/appointments/slots
- * Returns available appointment slots for a given date
- * Query params: clinic, date, service_id (optional), vet_id (optional)
+ * Public endpoint - authentication required
+ * Returns available appointment slots for a clinic
+ *
+ * @param clinic - Clinic slug from URL
+ * @param date - Date to check slots (YYYY-MM-DD)
+ * @param service_id - Optional service filter
+ * @param vet_id - Optional vet filter
+ *
+ * Security: Users can only access slots for their own clinic
  */
 export async function GET(request: NextRequest) {
   const supabase = await createClient()

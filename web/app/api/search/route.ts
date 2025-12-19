@@ -87,7 +87,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
           service_id,
           pets!inner(name, species)
         `)
-        .eq("clinic_slug", clinic)
+        .eq("tenant_id", clinic)
         .or(`notes.ilike.${searchPattern}`)
         .order("appointment_date", { ascending: false })
         .limit(5);

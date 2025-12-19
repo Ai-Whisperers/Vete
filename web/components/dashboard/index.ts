@@ -8,6 +8,7 @@ export { UpcomingVaccines } from './upcoming-vaccines';
 // Shell & Navigation
 export { DashboardShell } from './dashboard-shell';
 export { DashboardSidebar } from './dashboard-sidebar';
+export { DashboardPageLayout } from './page-layout';
 export { WaitingRoom } from './waiting-room';
 
 // Patient & Pet Management

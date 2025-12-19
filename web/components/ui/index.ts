@@ -44,3 +44,32 @@ export { ConfirmDialog } from './confirm-dialog';
 export { StatusBadge } from './status-badge';
 export { LoadingButton } from './loading-button';
 export { InfoCard } from './info-card';
+
+// Form Components
+export { Label } from './label';
+export type { LabelProps } from './label';
+
+export { DatePicker } from './date-picker';
+export type { DatePickerProps } from './date-picker';
+
+export { FileUpload } from './file-upload';
+export type { FileUploadProps } from './file-upload';
+
+// Tab Components
+export {
+  Tabs,
+  TabList,
+  TabTrigger,
+  TabPanel,
+  PetProfileTabs,
+  PetTabPanel,
+  DashboardTabs,
+} from './tabs';
+
+// Utility Components
+export { ProgressStepper } from './progress-stepper';
+export { PasswordInput } from './password-input';
+export { CommandPalette } from './command-palette';
+export { NotificationBanner } from './notification-banner';
+export { SlideOver } from './slide-over';
+export { SROnly } from './sr-only';

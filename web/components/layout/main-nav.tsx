@@ -247,7 +247,7 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
 
   return (
     <>
-      <nav className="hidden md:flex items-center gap-8">
+      <nav className="hidden md:flex items-center gap-8" aria-label="Navegación principal">
         {navItems.map((item) => (
           <Link
             key={item.href}
@@ -271,15 +271,18 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
         <div ref={toolsMenuRef} className="relative">
           <button
             onClick={() => setIsToolsOpen(!isToolsOpen)}
+            aria-expanded={isToolsOpen}
+            aria-haspopup="true"
+            aria-label="Menú de herramientas"
             className={`text-base font-bold uppercase tracking-wide transition-colors relative group flex items-center gap-1 ${
               isToolsOpen || pathname.includes('/tools') || pathname.includes('/faq') || pathname.includes('/loyalty')
                 ? "text-[var(--primary)]"
                 : "text-[var(--text-secondary)] hover:text-[var(--primary)]"
             }`}
           >
-            <Wrench className="w-4 h-4" />
+            <Wrench className="w-4 h-4" aria-hidden="true" />
             {config.ui_labels?.nav?.tools || 'Herramientas'}
-            <ChevronDown className={`w-4 h-4 transition-transform ${isToolsOpen ? 'rotate-180' : ''}`} />
+            <ChevronDown className={`w-4 h-4 transition-transform ${isToolsOpen ? 'rotate-180' : ''}`} aria-hidden="true" />
           </button>
 
           <AnimatePresence>
@@ -289,6 +292,8 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.15 }}
+                role="menu"
+                aria-label="Opciones de herramientas"
                 className="absolute top-full left-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50"
               >
                 {toolsItems.map((tool) => {
@@ -298,13 +303,14 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
                       key={tool.href}
                       href={tool.href}
                       onClick={() => setIsToolsOpen(false)}
+                      role="menuitem"
                       className={`flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors ${
                         isActive(tool.href)
                           ? "bg-[var(--primary)]/10 text-[var(--primary)]"
                           : "text-gray-700 hover:bg-gray-50 hover:text-[var(--primary)]"
                       }`}
                     >
-                      <ToolIcon className="w-4 h-4" />
+                      <ToolIcon className="w-4 h-4" aria-hidden="true" />
                       {tool.label}
                     </Link>
                   );
@@ -358,7 +364,7 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
                   title="Cerrar sesión"
                   aria-label="Cerrar sesión"
               >
-                  <LogOut className="w-5 h-5" />
+                  <LogOut className="w-5 h-5" aria-hidden="true" />
               </button>
               {/* Error toast for logout */}
               {logoutError && (

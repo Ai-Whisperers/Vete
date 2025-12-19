@@ -85,27 +85,30 @@ export function ServicesGrid({ services, config }: ServicesGridProps) {
   return (
     <div className="space-y-6">
       {/* Search and Filter Controls */}
-      <div className="space-y-4">
-        {/* Search Bar */}
-        <div className="flex gap-3">
-          <div className="flex-1 relative">
-            <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-gray-400">
-              <Search className="w-5 h-5" />
-            </div>
-            <input
-              type="text"
-              placeholder="Buscar servicios (ej: Vacunas, Consulta...)"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-12 py-3 sm:py-4 min-h-[48px] rounded-full bg-white border border-gray-200 shadow-lg focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent outline-none transition-all text-base text-[var(--text-primary)]"
-            />
+      <section aria-labelledby="filters-heading">
+        <h2 id="filters-heading" className="sr-only">Filtros de búsqueda</h2>
+        <div className="space-y-4">
+          {/* Search Bar */}
+          <div className="flex gap-3">
+            <div className="flex-1 relative">
+              <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-gray-400">
+                <Search className="w-5 h-5" aria-hidden="true" />
+              </div>
+              <input
+                type="search"
+                placeholder="Buscar servicios (ej: Vacunas, Consulta...)"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                aria-label="Buscar servicios"
+                className="w-full pl-12 pr-12 py-3 sm:py-4 min-h-[48px] rounded-full bg-white border border-gray-200 shadow-lg focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent outline-none transition-all text-base text-[var(--text-primary)]"
+              />
             {searchTerm && (
               <button
                 onClick={() => setSearchTerm("")}
                 className="absolute inset-y-0 right-4 flex items-center text-gray-400 hover:text-gray-600"
                 aria-label="Limpiar búsqueda"
               >
-                <X className="w-5 h-5" />
+                <X className="w-5 h-5" aria-hidden="true" />
               </button>
             )}
           </div>
@@ -117,16 +120,17 @@ export function ServicesGrid({ services, config }: ServicesGridProps) {
                 : "bg-white text-gray-600 border border-gray-200 hover:border-[var(--primary)]"
             }`}
             aria-expanded={showFilters}
-            aria-label="Mostrar filtros"
+            aria-controls="category-filters"
+            aria-label={showFilters ? "Ocultar filtros de categoría" : "Mostrar filtros de categoría"}
           >
-            <SlidersHorizontal className="w-5 h-5" />
+            <SlidersHorizontal className="w-5 h-5" aria-hidden="true" />
             <span className="hidden sm:inline">Filtros</span>
           </button>
         </div>
 
         {/* Category Filter */}
         {showFilters && categories.length > 1 && (
-          <div className="animate-in slide-in-from-top-2 duration-200">
+          <div id="category-filters" className="animate-in slide-in-from-top-2 duration-200">
             <CategoryFilter
               categories={categories}
               selectedCategory={selectedCategory}
@@ -140,35 +144,42 @@ export function ServicesGrid({ services, config }: ServicesGridProps) {
 
         {/* Active Filters Summary */}
         {hasActiveFilters && (
-          <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
+          <div className="flex items-center justify-center gap-2 text-sm text-gray-500" role="status" aria-live="polite">
             <span>
               Mostrando {filteredServices.length} de {services.length} servicios
             </span>
             <button
               onClick={clearFilters}
               className="text-[var(--primary)] font-bold hover:underline flex items-center gap-1"
+              aria-label="Limpiar todos los filtros"
             >
-              <X className="w-4 h-4" />
+              <X className="w-4 h-4" aria-hidden="true" />
               Limpiar filtros
             </button>
           </div>
         )}
-      </div>
+        </div>
+      </section>
 
       {/* Grid */}
-      {filteredServices.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-          {filteredServices.map((service) => (
-            <ServiceCard key={service.id} service={service} config={config} clinic={clinic} />
-          ))}
-        </div>
-      ) : (
-        <EmptyStateNoSearchResults
-          query={searchTerm || selectedCategory}
-          onClear={clearFilters}
-          className="py-20 bg-gray-50 rounded-2xl border border-dashed border-gray-200"
-        />
-      )}
+      <section aria-labelledby="services-heading">
+        <h2 id="services-heading" className="sr-only">Lista de servicios</h2>
+        {filteredServices.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8" role="list">
+            {filteredServices.map((service) => (
+              <div key={service.id} role="listitem">
+                <ServiceCard service={service} config={config} clinic={clinic} />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <EmptyStateNoSearchResults
+            query={searchTerm || selectedCategory}
+            onClear={clearFilters}
+            className="py-20 bg-gray-50 rounded-2xl border border-dashed border-gray-200"
+          />
+        )}
+      </section>
     </div>
   );
 }

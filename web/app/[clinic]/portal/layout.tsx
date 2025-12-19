@@ -37,23 +37,56 @@ export default async function PortalLayout({
   }
 
   // Get profile with tenant_id for validation
-  const { data: profile } = await supabase
+  let { data: profile } = await supabase
     .from('profiles')
     .select('role, tenant_id')
     .eq('id', user.id)
     .single();
 
-  // Validate tenant access - users can only access their own clinic's portal
+  // Handle case where profile doesn't exist (trigger may have failed)
   if (!profile) {
-    redirect(`/${clinic}/portal/login?error=no_profile`);
+    // Create profile for authenticated user with current clinic
+    const { data: newProfile, error: createError } = await supabase
+      .from('profiles')
+      .insert({
+        id: user.id,
+        email: user.email,
+        full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Usuario',
+        avatar_url: user.user_metadata?.avatar_url,
+        tenant_id: clinic,
+        role: 'owner'
+      })
+      .select('role, tenant_id')
+      .single();
+
+    if (createError || !newProfile) {
+      // If we still can't create profile, sign out and redirect
+      await supabase.auth.signOut();
+      redirect(`/${clinic}/portal/login?error=profile_creation_failed`);
+    }
+    profile = newProfile;
   }
 
+  // Handle case where user has no tenant assigned (signed up without invite)
+  if (!profile.tenant_id) {
+    // Assign user to current clinic
+    const { error: updateError } = await supabase
+      .from('profiles')
+      .update({ tenant_id: clinic })
+      .eq('id', user.id);
+
+    if (updateError) {
+      console.error('Failed to assign tenant:', updateError);
+      await supabase.auth.signOut();
+      redirect(`/${clinic}/portal/login?error=tenant_assignment_failed`);
+    }
+    profile.tenant_id = clinic;
+  }
+
+  // Validate tenant access - users can only access their own clinic's portal
   if (profile.tenant_id !== clinic) {
     // Redirect to user's actual clinic if they try to access another clinic's portal
-    if (profile.tenant_id) {
-      redirect(`/${profile.tenant_id}/portal/dashboard`);
-    }
-    redirect(`/${clinic}/portal/login?error=tenant_mismatch`);
+    redirect(`/${profile.tenant_id}/portal/dashboard`);
   }
 
   const userRole: 'owner' | 'vet' | 'admin' = profile.role || 'owner';

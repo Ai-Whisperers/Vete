@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
     // Use websearch text search if available, or ILIKE
     const { data, error } = await supabase
         .from('diagnosis_codes')
-        .select('*')
+        .select('id, code, term, category, species, description, created_at')
         .ilike('term', `%${query}%`)
         .limit(10);
 
@@ -46,5 +46,9 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json(data);
+    return NextResponse.json(data, {
+        headers: {
+            'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
+        },
+    });
 }

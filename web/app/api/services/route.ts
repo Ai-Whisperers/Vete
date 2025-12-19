@@ -3,7 +3,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import { withAuth } from '@/lib/api/with-auth';
 import { apiError, apiSuccess } from '@/lib/api/errors';
 
-// GET /api/services - List services for a clinic (public)
+/**
+ * Public endpoint - no authentication required
+ * Returns available services for a clinic
+ *
+ * @param clinic - Clinic slug (required)
+ * @param category - Optional category filter
+ * @param active - Filter active services (default: true)
+ *
+ * Cache: 5 minutes (s-maxage=300)
+ */
 export async function GET(request: Request) {
   const supabase = await createClient();
 
@@ -36,7 +45,11 @@ export async function GET(request: Request) {
 
     if (error) throw error;
 
-    return NextResponse.json(services);
+    return NextResponse.json(services, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
+      },
+    });
   } catch (e) {
     console.error('Error loading services:', e);
     return apiError('DATABASE_ERROR', 500);

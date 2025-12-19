@@ -13,18 +13,26 @@ import {
   User,
   MoreVertical,
   X,
-  Check
+  Check,
+  FileText,
+  Image as ImageIcon,
+  Loader2
 } from 'lucide-react'
 import { formatDistanceToNow, format, isToday, isYesterday } from 'date-fns'
 import { es } from 'date-fns/locale'
 
+interface Attachment {
+  url: string
+  name: string
+  type: string
+  size: number
+}
+
 interface Message {
   id: string
   content: string
-  content_type: string
-  attachment_url: string | null
-  attachment_type: string | null
-  is_internal: boolean
+  message_type: string
+  attachments: Attachment[]
   created_at: string
   sender: {
     id: string
@@ -81,9 +89,12 @@ export default function ConversationPage() {
   const [sending, setSending] = useState(false)
   const [currentUser, setCurrentUser] = useState<{ id: string; role: string } | null>(null)
   const [showActions, setShowActions] = useState(false)
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([])
+  const [uploading, setUploading] = useState(false)
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const messageInputRef = useRef<HTMLTextAreaElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Fetch conversation data
   const fetchConversation = async () => {
@@ -132,18 +143,91 @@ export default function ConversationPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
 
+  // Handle file selection
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || [])
+    if (files.length === 0) return
+
+    // Limit to 5 files
+    if (selectedFiles.length + files.length > 5) {
+      alert('Máximo 5 archivos por mensaje')
+      return
+    }
+
+    // Validate file types and sizes
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf', 'text/plain', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
+    const maxSize = 10 * 1024 * 1024 // 10MB
+
+    for (const file of files) {
+      if (!allowedTypes.includes(file.type)) {
+        alert(`Tipo de archivo no permitido: ${file.name}`)
+        return
+      }
+      if (file.size > maxSize) {
+        alert(`Archivo muy grande: ${file.name} (máximo 10MB)`)
+        return
+      }
+    }
+
+    setSelectedFiles(prev => [...prev, ...files])
+    // Reset input so same file can be selected again
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
+  }
+
+  // Remove selected file
+  const removeFile = (index: number) => {
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index))
+  }
+
+  // Format file size
+  const formatFileSize = (bytes: number): string => {
+    if (bytes < 1024) return `${bytes} B`
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+  }
+
   // Send message
   const handleSendMessage = async () => {
-    if (!newMessage.trim() || sending) return
+    if ((!newMessage.trim() && selectedFiles.length === 0) || sending) return
 
     setSending(true)
+    setUploading(selectedFiles.length > 0)
+
     try {
+      let uploadedAttachments: Attachment[] = []
+
+      // Upload files if any
+      if (selectedFiles.length > 0) {
+        const formData = new FormData()
+        formData.append('conversation_id', conversationId)
+        selectedFiles.forEach(file => formData.append('files', file))
+
+        const uploadResponse = await fetch('/api/messages/attachments', {
+          method: 'POST',
+          body: formData
+        })
+
+        if (!uploadResponse.ok) {
+          const errorData = await uploadResponse.json()
+          throw new Error(errorData.error || 'Error al subir archivos')
+        }
+
+        const uploadResult = await uploadResponse.json()
+        uploadedAttachments = uploadResult.attachments
+      }
+
+      setUploading(false)
+
+      // Send message with attachments
       const response = await fetch(`/api/conversations/${conversationId}/messages`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           content: newMessage.trim(),
-          content_type: 'text'
+          content_type: 'text',
+          attachments: uploadedAttachments
         })
       })
 
@@ -152,12 +236,14 @@ export default function ConversationPage() {
       }
 
       setNewMessage('')
+      setSelectedFiles([])
       await fetchConversation()
       messageInputRef.current?.focus()
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Error al enviar mensaje')
     } finally {
       setSending(false)
+      setUploading(false)
     }
   }
 
@@ -434,23 +520,46 @@ export default function ConversationPage() {
                               : 'bg-white text-[var(--text-primary)] border border-gray-200 rounded-bl-sm shadow-sm'
                           }`}
                         >
-                          <p className="text-sm whitespace-pre-wrap break-words">
-                            {message.content}
-                          </p>
+                          {message.content && (
+                            <p className="text-sm whitespace-pre-wrap break-words">
+                              {message.content}
+                            </p>
+                          )}
 
-                          {/* Attachment */}
-                          {message.attachment_url && (
-                            <a
-                              href={message.attachment_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className={`flex items-center gap-2 mt-2 text-sm ${
-                                isSentByMe ? 'text-white' : 'text-[var(--primary)]'
-                              } hover:underline`}
-                            >
-                              <Paperclip className="w-4 h-4" />
-                              Ver adjunto
-                            </a>
+                          {/* Attachments */}
+                          {message.attachments && message.attachments.length > 0 && (
+                            <div className={`${message.content ? 'mt-2 pt-2 border-t' : ''} ${isSentByMe ? 'border-white/20' : 'border-gray-200'} space-y-2`}>
+                              {message.attachments.map((attachment, idx) => (
+                                <a
+                                  key={idx}
+                                  href={attachment.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className={`flex items-center gap-2 text-sm ${
+                                    isSentByMe ? 'text-white hover:text-white/80' : 'text-[var(--primary)] hover:text-[var(--primary-dark)]'
+                                  }`}
+                                >
+                                  {attachment.type.startsWith('image/') ? (
+                                    <>
+                                      <div className="relative w-32 h-24 rounded overflow-hidden bg-black/10">
+                                        <img
+                                          src={attachment.url}
+                                          alt={attachment.name}
+                                          className="w-full h-full object-cover"
+                                        />
+                                      </div>
+                                    </>
+                                  ) : (
+                                    <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${
+                                      isSentByMe ? 'bg-white/10' : 'bg-gray-100'
+                                    }`}>
+                                      <FileText className="w-4 h-4 flex-shrink-0" />
+                                      <span className="truncate max-w-[150px]">{attachment.name}</span>
+                                    </div>
+                                  )}
+                                </a>
+                              ))}
+                            </div>
                           )}
                         </div>
 
@@ -486,12 +595,53 @@ export default function ConversationPage() {
       {conversation.status !== 'closed' ? (
         <div className="bg-white border-t border-gray-200 shadow-lg">
           <div className="container mx-auto px-4 py-4 max-w-5xl">
+            {/* Selected Files Preview */}
+            {selectedFiles.length > 0 && (
+              <div className="mb-3 flex flex-wrap gap-2">
+                {selectedFiles.map((file, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg text-sm"
+                  >
+                    {file.type.startsWith('image/') ? (
+                      <ImageIcon className="w-4 h-4 text-[var(--text-secondary)]" />
+                    ) : (
+                      <FileText className="w-4 h-4 text-[var(--text-secondary)]" />
+                    )}
+                    <span className="truncate max-w-[120px] text-[var(--text-primary)]">
+                      {file.name}
+                    </span>
+                    <span className="text-[var(--text-tertiary)]">
+                      ({formatFileSize(file.size)})
+                    </span>
+                    <button
+                      onClick={() => removeFile(index)}
+                      className="p-1 hover:bg-gray-200 rounded-full transition-colors"
+                    >
+                      <X className="w-3 h-3 text-[var(--text-secondary)]" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
             <div className="flex items-end gap-3">
-              {/* Attachment Button (Placeholder) */}
+              {/* Hidden File Input */}
+              <input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                accept="image/jpeg,image/png,image/gif,image/webp,application/pdf,text/plain,.doc,.docx"
+                onChange={handleFileSelect}
+                className="hidden"
+              />
+
+              {/* Attachment Button */}
               <button
-                disabled
-                className="p-2 text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                title="Próximamente: adjuntar archivos"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={sending || selectedFiles.length >= 5}
+                className="p-2 text-[var(--text-secondary)] hover:text-[var(--primary)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Adjuntar archivos (máx. 5)"
               >
                 <Paperclip className="w-6 h-6" />
               </button>
@@ -505,7 +655,8 @@ export default function ConversationPage() {
                   onKeyPress={handleKeyPress}
                   placeholder="Escribe tu mensaje..."
                   rows={1}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent resize-none max-h-32"
+                  disabled={sending}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent resize-none max-h-32 disabled:bg-gray-50"
                   style={{
                     minHeight: '48px',
                     maxHeight: '128px',
@@ -517,11 +668,13 @@ export default function ConversationPage() {
               {/* Send Button */}
               <button
                 onClick={handleSendMessage}
-                disabled={!newMessage.trim() || sending}
+                disabled={(!newMessage.trim() && selectedFiles.length === 0) || sending}
                 className="p-3 bg-[var(--primary)] text-white rounded-2xl hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
               >
                 {sending ? (
-                  <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="w-6 h-6 animate-spin" />
+                  </div>
                 ) : (
                   <Send className="w-6 h-6" />
                 )}
@@ -530,7 +683,9 @@ export default function ConversationPage() {
 
             {/* Help Text */}
             <p className="text-xs text-[var(--text-tertiary)] mt-2 text-center">
-              Presiona Enter para enviar, Shift+Enter para nueva línea
+              {uploading
+                ? 'Subiendo archivos...'
+                : 'Presiona Enter para enviar, Shift+Enter para nueva línea'}
             </p>
           </div>
         </div>

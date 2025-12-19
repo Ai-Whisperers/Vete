@@ -218,3 +218,130 @@ export function OrganizationSchema({ name, description, url, logo, sameAs }: Org
     />
   );
 }
+
+// Person Schema for team members
+export interface TeamMember {
+  name: string;
+  role: string;
+  bio?: string;
+  photo_url?: string;
+  specialties?: string[];
+}
+
+export interface TeamSchemaProps {
+  clinic: string;
+  clinicName: string;
+  members: TeamMember[];
+}
+
+export function TeamSchema({ clinic, clinicName, members }: TeamSchemaProps) {
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@graph': members.map((member, index) => ({
+      '@type': 'Person',
+      '@id': `${BASE_URL}/${clinic}/about#team-${index}`,
+      name: member.name,
+      jobTitle: member.role,
+      description: member.bio,
+      ...(member.photo_url && {
+        image: member.photo_url.startsWith('/') ? `${BASE_URL}${member.photo_url}` : member.photo_url,
+      }),
+      ...(member.specialties && member.specialties.length > 0 && {
+        knowsAbout: member.specialties,
+      }),
+      worksFor: {
+        '@type': 'VeterinaryCare',
+        '@id': `${BASE_URL}/${clinic}#organization`,
+        name: clinicName,
+      },
+    })),
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+    />
+  );
+}
+
+// HowTo Schema for tools/tutorials
+export interface HowToStep {
+  name?: string;
+  text: string;
+  image?: string;
+}
+
+export interface HowToSchemaProps {
+  name: string;
+  description: string;
+  steps: HowToStep[];
+  totalTime?: string; // ISO 8601 duration, e.g., "PT5M"
+  image?: string;
+}
+
+export function HowToSchema({ name, description, steps, totalTime, image }: HowToSchemaProps) {
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    name,
+    description,
+    ...(totalTime && { totalTime }),
+    ...(image && { image: image.startsWith('/') ? `${BASE_URL}${image}` : image }),
+    step: steps.map((step, index) => ({
+      '@type': 'HowToStep',
+      position: index + 1,
+      ...(step.name && { name: step.name }),
+      text: step.text,
+      ...(step.image && {
+        image: step.image.startsWith('/') ? `${BASE_URL}${step.image}` : step.image,
+      }),
+    })),
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+    />
+  );
+}
+
+// WebApplication Schema for interactive tools
+export interface WebApplicationSchemaProps {
+  name: string;
+  description: string;
+  url: string;
+  applicationCategory?: string;
+  operatingSystem?: string;
+}
+
+export function WebApplicationSchema({
+  name,
+  description,
+  url,
+  applicationCategory = 'HealthApplication',
+  operatingSystem = 'Web Browser',
+}: WebApplicationSchemaProps) {
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name,
+    description,
+    url: url.startsWith('/') ? `${BASE_URL}${url}` : url,
+    applicationCategory,
+    operatingSystem,
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'USD',
+    },
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+    />
+  );
+}

@@ -1,36 +1,14 @@
-import { createClient } from '@/lib/supabase/server';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
+import { withAuth } from '@/lib/api/with-auth';
+import { rateLimit } from '@/lib/rate-limit';
+import { parsePagination, paginatedResponse } from '@/lib/api/pagination';
+import { apiError, HTTP_STATUS } from '@/lib/api/errors';
 
-export async function GET(request: NextRequest) {
-  const supabase = await createClient();
-
-  // Authentication check
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-  if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
-  }
-
-  // Get user profile
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('clinic_id:tenant_id, role')
-    .eq('id', user.id)
-    .single();
-
-  if (!profile) {
-    return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 });
-  }
-
-  // Only staff can view lab orders
-  if (!['vet', 'admin'].includes(profile.role)) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
-  }
-
+export const GET = withAuth(async ({ request, profile, supabase }) => {
   const { searchParams } = new URL(request.url);
   const petId = searchParams.get('pet_id');
   const status = searchParams.get('status');
-  const limit = parseInt(searchParams.get('limit') || '50');
-  const offset = parseInt(searchParams.get('offset') || '0');
+  const { page, limit, offset } = parsePagination(searchParams);
 
   // Build query
   let query = supabase
@@ -39,7 +17,7 @@ export async function GET(request: NextRequest) {
       *,
       pets!inner(id, name, species)
     `, { count: 'exact' })
-    .eq('tenant_id', profile.clinic_id)
+    .eq('tenant_id', profile.tenant_id)
     .order('ordered_at', { ascending: false })
     .range(offset, offset + limit - 1);
 
@@ -55,41 +33,20 @@ export async function GET(request: NextRequest) {
 
   if (error) {
     console.error('[API] lab_orders GET error:', error);
-    return NextResponse.json({ error: 'Error al obtener órdenes' }, { status: 500 });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 
-  return NextResponse.json({ data, count });
-}
+  return NextResponse.json({
+    data,
+    ...paginatedResponse(data || [], count || 0, { page, limit, offset })
+  });
+}, { roles: ['vet', 'admin'] });
 
-export async function POST(request: NextRequest) {
-  const supabase = await createClient();
-
-  // Authentication check
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-  if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
-  }
-
+export const POST = withAuth(async ({ request, user, profile, supabase }) => {
   // Apply rate limiting for write endpoints (20 requests per minute)
-  const { rateLimit } = await import('@/lib/rate-limit');
   const rateLimitResult = await rateLimit(request, 'write', user.id);
   if (!rateLimitResult.success) {
     return rateLimitResult.response;
-  }
-
-  // Get user profile - only vets/admins can create orders
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('clinic_id:tenant_id, role')
-    .eq('id', user.id)
-    .single();
-
-  if (!profile) {
-    return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 });
-  }
-
-  if (!['vet', 'admin'].includes(profile.role)) {
-    return NextResponse.json({ error: 'Solo veterinarios pueden crear órdenes' }, { status: 403 });
   }
 
   // Parse body
@@ -97,7 +54,7 @@ export async function POST(request: NextRequest) {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: 'JSON inválido' }, { status: 400 });
+    return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST);
   }
 
   const {
@@ -112,10 +69,12 @@ export async function POST(request: NextRequest) {
 
   // Validate required fields
   if (!pet_id || !test_ids || test_ids.length === 0) {
-    return NextResponse.json(
-      { error: 'pet_id y test_ids son requeridos' },
-      { status: 400 }
-    );
+    return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
+      field_errors: {
+        pet_id: !pet_id ? ['El ID de la mascota es requerido'] : [],
+        test_ids: !test_ids || test_ids.length === 0 ? ['Al menos un test es requerido'] : [],
+      }
+    });
   }
 
   // Verify pet belongs to staff's clinic
@@ -126,11 +85,11 @@ export async function POST(request: NextRequest) {
     .single();
 
   if (!pet) {
-    return NextResponse.json({ error: 'Mascota no encontrada' }, { status: 404 });
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND);
   }
 
-  if (pet.tenant_id !== profile.clinic_id) {
-    return NextResponse.json({ error: 'No tienes acceso a esta mascota' }, { status: 403 });
+  if (pet.tenant_id !== profile.tenant_id) {
+    return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN);
   }
 
   // Generate order number (format: LAB-YYYYMMDD-XXXX)
@@ -146,7 +105,7 @@ export async function POST(request: NextRequest) {
   const { data: order, error: orderError } = await supabase
     .from('lab_orders')
     .insert({
-      tenant_id: profile.clinic_id,
+      tenant_id: profile.tenant_id,
       pet_id,
       order_number: orderNumber,
       ordered_by: user.id,
@@ -163,7 +122,7 @@ export async function POST(request: NextRequest) {
 
   if (orderError) {
     console.error('[API] lab_orders POST error:', orderError);
-    return NextResponse.json({ error: 'Error al crear orden' }, { status: 500 });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 
   // Insert order items for each test
@@ -180,7 +139,7 @@ export async function POST(request: NextRequest) {
     console.error('[API] lab_order_items POST error:', itemsError);
     // Rollback order creation
     await supabase.from('lab_orders').delete().eq('id', order.id);
-    return NextResponse.json({ error: 'Error al crear ítems de orden' }, { status: 500 });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 
   // If panel_ids provided, insert them as well
@@ -193,5 +152,5 @@ export async function POST(request: NextRequest) {
     await supabase.from('lab_order_panels').insert(panelItems);
   }
 
-  return NextResponse.json(order, { status: 201 });
-}
+  return NextResponse.json(order, { status: HTTP_STATUS.CREATED });
+}, { roles: ['vet', 'admin'] });

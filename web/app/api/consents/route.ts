@@ -1,26 +1,7 @@
-import { createClient } from '@/lib/supabase/server';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
+import { withAuth } from '@/lib/api/with-auth';
 
-export async function GET(request: NextRequest): Promise<NextResponse> {
-  const supabase = await createClient();
-
-  // Authentication check
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-  if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
-  }
-
-  // Get user profile
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('clinic_id:tenant_id, role')
-    .eq('id', user.id)
-    .single();
-
-  if (!profile) {
-    return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 });
-  }
-
+export const GET = withAuth(async ({ request, user, profile, supabase }) => {
   const { searchParams } = new URL(request.url);
   const petId = searchParams.get('pet_id');
   const ownerId = searchParams.get('owner_id');
@@ -41,7 +22,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
   if (['vet', 'admin'].includes(profile.role)) {
     // Staff sees all clinic consent documents
-    query = query.eq('pet.tenant_id', profile.clinic_id);
+    query = query.eq('pet.tenant_id', profile.tenant_id);
   } else {
     // Owners see only their pets' consent documents
     query = query.eq('owner_id', user.id);
@@ -71,32 +52,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   }
 
   return NextResponse.json(data);
-}
+});
 
-export async function POST(request: NextRequest): Promise<NextResponse> {
-  const supabase = await createClient();
-
-  // Authentication check
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-  if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
-  }
-
-  // Get user profile
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('clinic_id:tenant_id, role')
-    .eq('id', user.id)
-    .single();
-
-  if (!profile) {
-    return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 });
-  }
-
-  if (!['vet', 'admin'].includes(profile.role)) {
-    return NextResponse.json({ error: 'Solo personal autorizado puede crear consentimientos' }, { status: 403 });
-  }
-
+export const POST = withAuth(async ({ request, user, profile, supabase }) => {
   // Parse body
   let body;
   try {
@@ -135,7 +93,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: 'Mascota no encontrada' }, { status: 404 });
   }
 
-  if (pet.tenant_id !== profile.clinic_id) {
+  if (pet.tenant_id !== profile.tenant_id) {
     return NextResponse.json({ error: 'No tienes acceso a esta mascota' }, { status: 403 });
   }
 
@@ -209,4 +167,4 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     });
 
   return NextResponse.json(data, { status: 201 });
-}
+}, { roles: ['vet', 'admin'] });

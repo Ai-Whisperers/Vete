@@ -1,30 +1,13 @@
-import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { withAuth } from '@/lib/api/with-auth';
 
 // GET /api/dashboard/stats - Get clinic dashboard stats from materialized view
-export async function GET(request: Request) {
-  const supabase = await createClient();
-
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
-  }
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('tenant_id, role')
-    .eq('id', user.id)
-    .single();
-
-  if (!profile || !['vet', 'admin'].includes(profile.role)) {
-    return NextResponse.json({ error: 'Solo el personal puede ver estadísticas' }, { status: 403 });
-  }
-
+export const GET = withAuth(async ({ profile, supabase }) => {
   try {
     // Get from materialized view for fast access
     const { data: stats, error } = await supabase
       .from('mv_clinic_dashboard_stats')
-      .select('*')
+      .select('tenant_id, total_pets, appointments_today, pending_vaccines, pending_invoices, pending_amount, last_updated')
       .eq('tenant_id', profile.tenant_id)
       .single();
 
@@ -70,4 +53,4 @@ export async function GET(request: Request) {
     console.error('Error loading dashboard stats:', e);
     return NextResponse.json({ error: 'Error al cargar estadísticas' }, { status: 500 });
   }
-}
+}, { roles: ['vet', 'admin'] });

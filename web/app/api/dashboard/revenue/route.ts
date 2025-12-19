@@ -42,7 +42,7 @@ export async function GET(request: Request) {
     // Try materialized view first
     const { data: revenue, error } = await supabase
       .from('mv_revenue_analytics')
-      .select('*')
+      .select('period_month, total_revenue, transaction_count, avg_transaction, by_payment_method')
       .eq('tenant_id', profile.tenant_id)
       .order('period_month', { ascending: false })
       .limit(months);

@@ -1,31 +1,7 @@
-import { createClient } from '@/lib/supabase/server';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
+import { withAuth } from '@/lib/api/with-auth';
 
-export async function GET(request: NextRequest): Promise<NextResponse> {
-  const supabase = await createClient();
-
-  // Authentication check
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-  if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
-  }
-
-  // Get user profile
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('clinic_id:tenant_id, role')
-    .eq('id', user.id)
-    .single();
-
-  if (!profile) {
-    return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 });
-  }
-
-  // Only staff can view hospitalizations
-  if (!['vet', 'admin'].includes(profile.role)) {
-    return NextResponse.json({ error: 'Solo el personal puede ver hospitalizaciones' }, { status: 403 });
-  }
-
+export const GET = withAuth(async ({ request, profile, supabase }) => {
   const { searchParams } = new URL(request.url);
   const status = searchParams.get('status');
   const kennelId = searchParams.get('kennel_id');
@@ -41,7 +17,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       admitted_by:profiles!hospitalizations_admitted_by_fkey(full_name),
       discharged_by:profiles!hospitalizations_discharged_by_fkey(full_name)
     `)
-    .eq('pet.tenant_id', profile.clinic_id)
+    .eq('pet.tenant_id', profile.tenant_id)
     .order('admission_date', { ascending: false });
 
   // Apply filters
@@ -63,32 +39,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   }
 
   return NextResponse.json(data);
-}
+}, { roles: ['vet', 'admin'] });
 
-export async function POST(request: NextRequest): Promise<NextResponse> {
-  const supabase = await createClient();
-
-  // Authentication check
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-  if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
-  }
-
-  // Get user profile - only vets/admins can create hospitalizations
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('clinic_id:tenant_id, role')
-    .eq('id', user.id)
-    .single();
-
-  if (!profile) {
-    return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 });
-  }
-
-  if (!['vet', 'admin'].includes(profile.role)) {
-    return NextResponse.json({ error: 'Solo veterinarios pueden crear hospitalizaciones' }, { status: 403 });
-  }
-
+export const POST = withAuth(async ({ request, user, profile, supabase }) => {
   // Parse body
   let body;
   try {
@@ -128,7 +81,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: 'Mascota no encontrada' }, { status: 404 });
   }
 
-  if (pet.tenant_id !== profile.clinic_id) {
+  if (pet.tenant_id !== profile.tenant_id) {
     return NextResponse.json({ error: 'No tienes acceso a esta mascota' }, { status: 403 });
   }
 
@@ -143,7 +96,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: 'Jaula no encontrada' }, { status: 404 });
   }
 
-  if (kennel.tenant_id !== profile.clinic_id) {
+  if (kennel.tenant_id !== profile.tenant_id) {
     return NextResponse.json({ error: 'No tienes acceso a esta jaula' }, { status: 403 });
   }
 
@@ -208,28 +161,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     .eq('id', kennel_id);
 
   return NextResponse.json(hospitalization, { status: 201 });
-}
+}, { roles: ['vet', 'admin'] });
 
-export async function PATCH(request: NextRequest): Promise<NextResponse> {
-  const supabase = await createClient();
-
-  // Authentication check
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-  if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
-  }
-
-  // Get user profile - only vets/admins can update
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('clinic_id:tenant_id, role')
-    .eq('id', user.id)
-    .single();
-
-  if (!profile || !['vet', 'admin'].includes(profile.role)) {
-    return NextResponse.json({ error: 'Solo veterinarios pueden modificar hospitalizaciones' }, { status: 403 });
-  }
-
+export const PATCH = withAuth(async ({ request, user, profile, supabase }) => {
   // Parse body
   let body;
   try {
@@ -269,7 +203,7 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
 
   const petData = Array.isArray(existing.pet) ? existing.pet[0] : existing.pet;
   const pet = petData as { tenant_id: string };
-  if (pet.tenant_id !== profile.clinic_id) {
+  if (pet.tenant_id !== profile.tenant_id) {
     return NextResponse.json({ error: 'No tienes acceso a esta hospitalización' }, { status: 403 });
   }
 
@@ -314,4 +248,4 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
   }
 
   return NextResponse.json(data);
-}
+}, { roles: ['vet', 'admin'] });

@@ -1,0 +1,139 @@
+import { createClient } from '@/lib/supabase/server';
+import { NextRequest, NextResponse } from 'next/server';
+
+const ALLOWED_TYPES = [
+  'image/jpeg',
+  'image/png',
+  'image/gif',
+  'image/webp',
+  'application/pdf',
+  'text/plain',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+];
+
+const MAX_SIZE = 10 * 1024 * 1024; // 10MB
+
+interface UploadedAttachment {
+  url: string;
+  name: string;
+  type: string;
+  size: number;
+}
+
+// POST /api/messages/attachments - Upload file(s) for message
+export async function POST(request: NextRequest): Promise<NextResponse> {
+  const supabase = await createClient();
+
+  // Auth check
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) {
+    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+  }
+
+  try {
+    const formData = await request.formData();
+    const conversationId = formData.get('conversation_id') as string;
+    const files = formData.getAll('files') as File[];
+
+    if (!conversationId) {
+      return NextResponse.json({ error: 'conversation_id requerido' }, { status: 400 });
+    }
+
+    if (!files || files.length === 0) {
+      return NextResponse.json({ error: 'No se proporcionaron archivos' }, { status: 400 });
+    }
+
+    if (files.length > 5) {
+      return NextResponse.json({ error: 'Máximo 5 archivos por mensaje' }, { status: 400 });
+    }
+
+    // Verify user has access to conversation
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('tenant_id, role')
+      .eq('id', user.id)
+      .single();
+
+    if (!profile) {
+      return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 });
+    }
+
+    const { data: conversation } = await supabase
+      .from('conversations')
+      .select('id, client_id, tenant_id')
+      .eq('id', conversationId)
+      .single();
+
+    if (!conversation) {
+      return NextResponse.json({ error: 'Conversación no encontrada' }, { status: 404 });
+    }
+
+    const isStaff = ['vet', 'admin'].includes(profile.role);
+    if (!isStaff && conversation.client_id !== user.id) {
+      return NextResponse.json({ error: 'No tienes acceso a esta conversación' }, { status: 403 });
+    }
+
+    // Upload files
+    const uploadedAttachments: UploadedAttachment[] = [];
+
+    for (const file of files) {
+      // Validate type
+      if (!ALLOWED_TYPES.includes(file.type)) {
+        return NextResponse.json({
+          error: `Tipo de archivo no permitido: ${file.type}. Tipos permitidos: imágenes, PDF, documentos de texto.`
+        }, { status: 400 });
+      }
+
+      // Validate size
+      if (file.size > MAX_SIZE) {
+        return NextResponse.json({
+          error: `Archivo "${file.name}" excede el tamaño máximo de 10MB`
+        }, { status: 400 });
+      }
+
+      // Generate unique filename
+      const timestamp = Date.now();
+      const randomSuffix = Math.random().toString(36).substring(7);
+      const extension = file.name.split('.').pop() || 'bin';
+      const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+      const storagePath = `${user.id}/${conversationId}/${timestamp}-${randomSuffix}.${extension}`;
+
+      // Upload to Supabase Storage
+      const arrayBuffer = await file.arrayBuffer();
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('message-attachments')
+        .upload(storagePath, arrayBuffer, {
+          contentType: file.type,
+          upsert: false
+        });
+
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        return NextResponse.json({
+          error: `Error al subir "${file.name}": ${uploadError.message}`
+        }, { status: 500 });
+      }
+
+      // Get public URL
+      const { data: urlData } = supabase.storage
+        .from('message-attachments')
+        .getPublicUrl(uploadData.path);
+
+      uploadedAttachments.push({
+        url: urlData.publicUrl,
+        name: sanitizedName,
+        type: file.type,
+        size: file.size
+      });
+    }
+
+    return NextResponse.json({
+      success: true,
+      attachments: uploadedAttachments
+    });
+  } catch (e) {
+    console.error('Error uploading attachments:', e);
+    return NextResponse.json({ error: 'Error al subir archivos' }, { status: 500 });
+  }
+}

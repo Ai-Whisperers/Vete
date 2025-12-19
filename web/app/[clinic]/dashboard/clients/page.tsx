@@ -1,6 +1,7 @@
 import { getClinicData } from '@/lib/clinics'
 import { createClient } from '@/lib/supabase/server'
-import { notFound, redirect } from 'next/navigation'
+import { notFound } from 'next/navigation'
+import { requireStaff } from '@/lib/auth'
 import Link from 'next/link'
 import { Users, Search, Phone, Mail, PawPrint, UserPlus, Calendar, CheckCircle, AlertCircle } from 'lucide-react'
 import ClientSearch from './client-search'
@@ -28,25 +29,13 @@ export default async function ClientsPage({ params, searchParams }: Props) {
   const { clinic } = await params
   const { q } = await searchParams
 
+  // SEC-007: Require staff authentication with tenant verification
+  const { profile } = await requireStaff(clinic)
+
   const clinicData = await getClinicData(clinic)
   if (!clinicData) notFound()
 
   const supabase = await createClient()
-
-  // Check authentication
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect(`/${clinic}/portal/login`)
-
-  // Check staff role
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role, tenant_id')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile || !['vet', 'admin'].includes(profile.role)) {
-    redirect(`/${clinic}/portal/dashboard`)
-  }
 
   // Fetch clients (pet owners) for this tenant
   let query = supabase

@@ -72,7 +72,7 @@ export const sortSchema = z.object({
  */
 export const searchSchema = z.object({
   q: z.string().min(1).max(100).optional(),
-  filter: z.record(z.string()).optional(),
+  filter: z.record(z.string(), z.string()).optional(),
 });
 
 /**
@@ -124,6 +124,6 @@ export function enumSchema<T extends string>(
   fieldName: string
 ) {
   return z.enum(values as [T, ...T[]], {
-    errorMap: () => ({ message: `${fieldName} inválido` }),
+    message: `${fieldName} inválido`,
   });
 }

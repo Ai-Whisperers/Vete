@@ -1,6 +1,45 @@
 # Database Refactoring Plan
 
-## Current Problems
+## ✅ STATUS: COMPLETE
+
+The refactoring has been completed. All new modular files are in `db/v2/`.
+
+### Files Created:
+- `v2/00_cleanup.sql` - Complete database reset script
+- `v2/01_extensions.sql` - PostgreSQL extensions
+- `v2/02_functions/02_core_functions.sql` - Core utility functions
+- `v2/10_core/10_tenants.sql` - Tenant table with RLS
+- `v2/10_core/11_profiles.sql` - User profiles with RLS
+- `v2/10_core/12_invites.sql` - Clinic invitations with RLS
+- `v2/20_pets/20_pets.sql` - Pet profiles with RLS
+- `v2/20_pets/21_vaccines.sql` - Vaccination system with RLS
+- `v2/30_clinical/30_reference_data.sql` - Diagnosis, drugs, growth standards
+- `v2/30_clinical/31_lab.sql` - Laboratory module with RLS
+- `v2/30_clinical/32_hospitalization.sql` - Hospitalization module with RLS
+- `v2/30_clinical/33_medical_records.sql` - Medical records, prescriptions, consent
+- `v2/40_scheduling/40_services.sql` - Service catalog with RLS
+- `v2/40_scheduling/41_appointments.sql` - Appointments with overlap detection
+- `v2/50_finance/50_invoicing.sql` - Invoices, payments, refunds with RLS
+- `v2/50_finance/51_expenses.sql` - Expenses, loyalty points with RLS
+- `v2/60_store/60_inventory.sql` - Store/inventory with RLS
+- `v2/70_communications/70_messaging.sql` - Messaging, reminders with RLS
+- `v2/80_insurance/80_insurance.sql` - Insurance module with RLS
+- `v2/85_system/85_staff.sql` - Staff management with RLS
+- `v2/85_system/86_audit.sql` - Audit logs, QR tags, notifications
+- `v2/run-migrations.sql` - psql runner script
+- `v2/setup-db.mjs` - Node.js runner script
+- `v2/README.md` - Complete documentation
+
+### To Use:
+```bash
+cd web/db/v2
+node setup-db.mjs          # Run all migrations
+node setup-db.mjs --reset  # Reset and run (DELETES DATA!)
+```
+
+---
+
+## Current Problems (v1)
 
 ### 1. **"Fix" Files Scattered Throughout (Anti-pattern)**
 - `80_fix_missing_rls_and_indexes.sql` - Adds RLS that should have been in original files

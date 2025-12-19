@@ -4,6 +4,9 @@ import { Info, AlertTriangle, Sparkles } from 'lucide-react';
 import { getClinicData } from '@/lib/clinics';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
+import { HowToSchema, WebApplicationSchema, BreadcrumbSchema } from '@/components/seo/structured-data';
+
+const BASE_URL = 'https://vetepy.vercel.app';
 
 interface Props {
   params: Promise<{ clinic: string }>;
@@ -13,9 +16,29 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { clinic } = await params;
   const clinicData = await getClinicData(clinic);
 
+  const title = `Verificador de Alimentos Tóxicos para Mascotas | ${clinicData?.config.name || 'Veterinaria'}`;
+  const description = `Verifica si un alimento es seguro para tu mascota. Base de datos con ${TOXIC_FOODS.length}+ alimentos tóxicos para perros, gatos, aves, conejos y más. Herramienta gratuita de ${clinicData?.config.name}.`;
+  const canonicalUrl = `${BASE_URL}/${clinic}/tools/toxic-food`;
+
   return {
-    title: `Alimentos Tóxicos para Mascotas | ${clinicData?.config.name || 'Veterinaria'}`,
-    description: 'Verifica si un alimento es seguro para tu mascota. Base de datos completa de alimentos tóxicos para perros, gatos, aves, conejos y más.',
+    title,
+    description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      type: 'website',
+      locale: 'es_PY',
+      url: canonicalUrl,
+      title,
+      description,
+      siteName: clinicData?.config.name,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+    },
   };
 }
 
@@ -41,8 +64,39 @@ export default async function ToxicFoodPage({ params }: Props): Promise<React.Re
   const highToxicity = TOXIC_FOODS.filter(f => f.toxicity === 'Alta').length;
   const speciesCount = Object.keys(SPECIES_LABELS).length;
 
+  // Breadcrumb items for structured data
+  const breadcrumbItems = [
+    { name: 'Inicio', url: `/${clinic}` },
+    { name: 'Herramientas', url: `/${clinic}/tools` },
+    { name: 'Alimentos Tóxicos', url: `/${clinic}/tools/toxic-food` },
+  ];
+
+  // HowTo steps for the tool
+  const howToSteps = [
+    { text: 'Escribe el nombre del alimento que quieres verificar en el buscador' },
+    { text: 'Selecciona la especie de tu mascota (perro, gato, ave, conejo, etc.)' },
+    { text: 'Revisa el nivel de toxicidad: Verde (seguro), Amarillo (precaución), Rojo (tóxico)' },
+    { text: 'Lee los síntomas y qué hacer en caso de ingesta' },
+  ];
+
   return (
-    <div className="min-h-screen bg-[var(--bg-default)] font-body">
+    <>
+      {/* Structured Data for SEO */}
+      <BreadcrumbSchema items={breadcrumbItems} />
+      <HowToSchema
+        name="Cómo verificar si un alimento es tóxico para tu mascota"
+        description="Usa nuestro verificador gratuito para comprobar si un alimento es seguro para tu perro, gato u otra mascota"
+        steps={howToSteps}
+        totalTime="PT1M"
+      />
+      <WebApplicationSchema
+        name="Verificador de Alimentos Tóxicos para Mascotas"
+        description={`Base de datos con ${TOXIC_FOODS.length}+ alimentos para verificar toxicidad en mascotas`}
+        url={`/${clinic}/tools/toxic-food`}
+        applicationCategory="HealthApplication"
+      />
+
+      <div className="min-h-screen bg-[var(--bg-default)] font-body">
       {/* Header */}
       <div className="pt-20 pb-12 text-center bg-gradient-to-b from-red-50 to-[var(--bg-paper)] shadow-sm mb-8 border-b">
         <div className="container px-4 mx-auto">
@@ -109,6 +163,7 @@ export default async function ToxicFoodPage({ params }: Props): Promise<React.Re
           </p>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

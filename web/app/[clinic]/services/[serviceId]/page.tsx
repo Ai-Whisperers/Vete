@@ -76,18 +76,44 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
   const { data: { user } } = await supabase.auth.getUser();
   const isLoggedIn = !!user;
 
+  // Breadcrumb items for structured data
+  const breadcrumbItems = [
+    { name: 'Inicio', url: `/${clinic}` },
+    { name: 'Servicios', url: `/${clinic}/services` },
+    { name: service.title, url: `/${clinic}/services/${serviceId}` },
+  ];
+
   return (
-    <ServiceDetailClient
-      service={service}
-      config={{
-        name: config.name,
-        contact: {
-          whatsapp_number: config.contact?.whatsapp_number
-        },
-        ui_labels: config.ui_labels
-      }}
-      clinic={clinic}
-      isLoggedIn={isLoggedIn}
-    />
+    <>
+      {/* Structured Data for SEO */}
+      <ServiceSchema
+        clinic={clinic}
+        clinicName={config.name}
+        service={{
+          id: service.id,
+          title: service.title,
+          summary: service.summary,
+          description: service.description,
+          base_price: service.base_price,
+          duration_minutes: service.duration_minutes,
+          category: service.category,
+          image_url: service.image_url,
+        }}
+      />
+      <BreadcrumbSchema items={breadcrumbItems} />
+
+      <ServiceDetailClient
+        service={service}
+        config={{
+          name: config.name,
+          contact: {
+            whatsapp_number: config.contact?.whatsapp_number
+          },
+          ui_labels: config.ui_labels
+        }}
+        clinic={clinic}
+        isLoggedIn={isLoggedIn}
+      />
+    </>
   );
 }

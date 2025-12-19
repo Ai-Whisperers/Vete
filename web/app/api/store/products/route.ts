@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { parsePagination } from '@/lib/api/pagination';
+import { apiError, HTTP_STATUS } from '@/lib/api/errors';
 import type {
   ProductListResponse,
   ProductFilters,
@@ -63,25 +65,23 @@ interface ProductFromDB {
   store_product_variants: { id: string; sku: string; name: string; variant_type: string; price_modifier: number; stock_quantity: number; is_default: boolean; sort_order: number }[];
 }
 
-const DEFAULT_PAGE = 1;
-const DEFAULT_LIMIT = 24;
-const MAX_LIMIT = 100;
-
 export async function GET(request: NextRequest): Promise<NextResponse<ProductListResponse | { error: string }>> {
   const { searchParams } = new URL(request.url);
   const clinic = searchParams.get('clinic');
 
   if (!clinic) {
-    return NextResponse.json({ error: 'Falta el parámetro clinic' }, { status: 400 });
+    return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+      field_errors: { clinic: ['El parámetro clinic es requerido'] }
+    });
   }
 
   const supabase = await createClient();
 
   try {
-    // Parse query parameters
-    const page = Math.max(1, parseInt(searchParams.get('page') || String(DEFAULT_PAGE)));
-    const limit = Math.min(MAX_LIMIT, Math.max(1, parseInt(searchParams.get('limit') || String(DEFAULT_LIMIT))));
-    const offset = (page - 1) * limit;
+    // Parse query parameters - default to 24 items per page for store
+    const { page, limit, offset } = parsePagination(searchParams);
+    const effectiveLimit = searchParams.get('limit') ? limit : 24; // Use 24 as default for store
+    const effectiveOffset = (page - 1) * effectiveLimit;
     const sort = (searchParams.get('sort') || 'relevance') as SortOption;
 
     // Parse filters
@@ -244,7 +244,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<ProductLis
     }
 
     // Apply pagination
-    queryBuilder = queryBuilder.range(offset, offset + limit - 1);
+    queryBuilder = queryBuilder.range(effectiveOffset, effectiveOffset + effectiveLimit - 1);
 
     const { data: products, error: pError, count } = await queryBuilder;
 
@@ -424,13 +424,13 @@ export async function GET(request: NextRequest): Promise<NextResponse<ProductLis
     const availableFilters = await getAvailableFilters(supabase, clinic, filters);
 
     const total = count || 0;
-    const totalPages = Math.ceil(total / limit);
+    const totalPages = Math.ceil(total / effectiveLimit);
 
     const response: ProductListResponse = {
       products: processedProducts,
       pagination: {
         page,
-        limit,
+        limit: effectiveLimit,
         total,
         pages: totalPages,
         hasNext: page < totalPages,
@@ -445,7 +445,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<ProductLis
     return NextResponse.json(response);
   } catch (e) {
     console.error('Error loading products from Supabase', e);
-    return NextResponse.json({ error: 'No se pudieron cargar los productos' }, { status: 500 });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 }
 

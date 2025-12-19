@@ -1,28 +1,15 @@
-import { createClient } from '@/lib/supabase/server'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
+import { withAuth } from '@/lib/api/with-auth'
 
 /**
  * POST /api/appointments/[id]/check-in
  * Marks an appointment as checked in (patient has arrived)
  * Staff only - requires vet/admin role
  */
-export async function POST(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const { id } = await params
-  const supabase = await createClient()
+export const POST = withAuth(async ({ user, profile, supabase }, context) => {
+  const { id } = await context!.params
 
-  // 1. Auth check
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) {
-    return NextResponse.json(
-      { error: 'No autorizado' },
-      { status: 401 }
-    )
-  }
-
-  // 2. Get appointment
+  // Get appointment
   const { data: appointment, error: fetchError } = await supabase
     .from('appointments')
     .select('id, tenant_id, status, start_time')
@@ -36,25 +23,15 @@ export async function POST(
     )
   }
 
-  // 3. Check staff permission
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role, tenant_id')
-    .eq('id', user.id)
-    .single()
-
-  const isStaff = profile &&
-    ['vet', 'admin'].includes(profile.role) &&
-    profile.tenant_id === appointment.tenant_id
-
-  if (!isStaff) {
+  // Check staff permission
+  if (profile.tenant_id !== appointment.tenant_id) {
     return NextResponse.json(
       { error: 'Solo el personal puede registrar llegadas' },
       { status: 403 }
     )
   }
 
-  // 4. Validate appointment status
+  // Validate appointment status
   if (!['pending', 'confirmed'].includes(appointment.status)) {
     return NextResponse.json(
       { error: `No se puede registrar llegada para una cita con estado: ${appointment.status}` },
@@ -62,7 +39,7 @@ export async function POST(
     )
   }
 
-  // 5. Update appointment status
+  // Update appointment status
   const { error: updateError } = await supabase
     .from('appointments')
     .update({
@@ -84,4 +61,4 @@ export async function POST(
     success: true,
     message: 'Llegada registrada correctamente'
   })
-}
+}, { roles: ['vet', 'admin'] })

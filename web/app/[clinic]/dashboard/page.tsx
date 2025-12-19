@@ -1,6 +1,7 @@
 import { getClinicData } from "@/lib/clinics";
 import { createClient } from "@/lib/supabase/server";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
+import { requireStaff } from "@/lib/auth";
 import Link from "next/link";
 import {
   Users,
@@ -46,6 +47,10 @@ interface TodayAppointment {
 
 export default async function ClinicalDashboardPage({ params }: Props): Promise<React.ReactElement> {
   const { clinic } = await params;
+
+  // SEC-006: Require staff authentication with tenant verification
+  const { profile, isAdmin } = await requireStaff(clinic);
+
   const clinicData = await getClinicData(clinic);
 
   if (!clinicData) {
@@ -53,24 +58,6 @@ export default async function ClinicalDashboardPage({ params }: Props): Promise<
   }
 
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect(`/${clinic}/portal/login`);
-  }
-
-  // Check staff role
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role, tenant_id, full_name")
-    .eq("id", user.id)
-    .single();
-
-  if (!profile || !["vet", "admin"].includes(profile.role)) {
-    redirect(`/${clinic}/portal/dashboard`);
-  }
-
-  const isAdmin = profile.role === "admin";
 
   // Fetch today's appointments
   const today = new Date().toISOString().split("T")[0];

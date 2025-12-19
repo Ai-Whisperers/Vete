@@ -28,14 +28,20 @@ export default function EpidemiologyPage({ params }: { params: { clinic: string 
                 if (speciesFilter !== 'all') {
                     url.searchParams.set('species', speciesFilter);
                 }
-                
+
                 const res = await fetch(url.toString());
                 const json = await res.json();
-                
-                // Sort by case count desc
-                setData(json.sort((a: any, b: any) => b.case_count - a.case_count));
+
+                // Handle both array response and error response
+                if (Array.isArray(json)) {
+                    setData(json.sort((a: HeatmapPoint, b: HeatmapPoint) => b.case_count - a.case_count));
+                } else {
+                    console.error('API Error:', json.error);
+                    setData([]);
+                }
             } catch (e) {
                 console.error('Error fetching epidemiology data:', e);
+                setData([]);
             } finally {
                 setLoading(false);
             }

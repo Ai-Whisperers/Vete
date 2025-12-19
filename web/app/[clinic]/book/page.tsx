@@ -2,16 +2,51 @@
 import { getClinicData } from '@/lib/clinics';
 import { createClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
+import { Metadata } from 'next';
 import BookingWizard from '@/components/booking/booking-wizard';
+import { BreadcrumbSchema } from '@/components/seo/structured-data';
 
-export const generateMetadata = async ({ params }: { params: Promise<{ clinic: string }> }) => {
-    const { clinic } = await params;
-    const data = await getClinicData(clinic);
-    return {
-        title: `Reservar Cita - ${data?.config.name || 'Adris'}`,
-        description: 'Agende su cita veterinaria online.'
-    };
-};
+const BASE_URL = 'https://vetepy.vercel.app';
+
+export async function generateMetadata({ params }: { params: Promise<{ clinic: string }> }): Promise<Metadata> {
+  const { clinic } = await params;
+  const data = await getClinicData(clinic);
+  if (!data) return { title: 'Página no encontrada' };
+
+  const title = `Reservar Cita Online | ${data.config.name}`;
+  const description = `Agenda tu cita veterinaria en ${data.config.name}. Reserva online 24/7, elige horario, servicio y recibe confirmación al instante. ${data.config.contact?.address || ''}`;
+  const canonicalUrl = `${BASE_URL}/${clinic}/book`;
+  const ogImage = data.config.branding?.og_image_url || '/branding/default-og.jpg';
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      type: 'website',
+      locale: 'es_PY',
+      url: canonicalUrl,
+      title,
+      description,
+      siteName: data.config.name,
+      images: [
+        {
+          url: ogImage.startsWith('/') ? `${BASE_URL}${ogImage}` : ogImage,
+          width: 1200,
+          height: 630,
+          alt: `Reservar cita en ${data.config.name}`,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+    },
+  };
+}
 
 export default async function BookingPage({ params, searchParams }: { 
     params: Promise<{ clinic: string }>;
@@ -52,14 +87,23 @@ export default async function BookingPage({ params, searchParams }: {
 
     const userPets = pets || [];
 
+    // Breadcrumb items for structured data
+    const breadcrumbItems = [
+        { name: 'Inicio', url: `/${clinic}` },
+        { name: 'Reservar Cita', url: `/${clinic}/book` },
+    ];
+
     return (
-        <div className="min-h-screen bg-gray-50">
-            <BookingWizard
-                clinic={data}
-                user={user}
-                userPets={userPets}
-                initialService={service}
-            />
-        </div>
+        <>
+            <BreadcrumbSchema items={breadcrumbItems} />
+            <div className="min-h-screen bg-gray-50">
+                <BookingWizard
+                    clinic={data}
+                    user={user}
+                    userPets={userPets}
+                    initialService={service}
+                />
+            </div>
+        </>
     );
 }

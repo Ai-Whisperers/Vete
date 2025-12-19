@@ -239,10 +239,10 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
 
   // Tools menu items
   const toolsItems = [
-    { label: "Calculadora de Edad", href: `/${clinic}/tools/age-calculator`, icon: Calculator },
-    { label: "Alimentos Tóxicos", href: `/${clinic}/tools/toxic-food`, icon: Apple },
-    { label: "Preguntas Frecuentes", href: `/${clinic}/faq`, icon: HelpCircle },
-    { label: "Programa de Lealtad", href: `/${clinic}/loyalty_points`, icon: Gift },
+    { label: config.ui_labels?.tools?.age_calculator || "Calculadora de Edad", href: `/${clinic}/tools/age-calculator`, icon: Calculator },
+    { label: config.ui_labels?.tools?.toxic_food || "Alimentos Tóxicos", href: `/${clinic}/tools/toxic-food`, icon: Apple },
+    { label: config.ui_labels?.nav?.faq || "Preguntas Frecuentes", href: `/${clinic}/faq`, icon: HelpCircle },
+    { label: config.ui_labels?.nav?.loyalty_program || "Programa de Lealtad", href: `/${clinic}/loyalty_points`, icon: Gift },
   ];
 
   return (
@@ -278,7 +278,7 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
             }`}
           >
             <Wrench className="w-4 h-4" />
-            Herramientas
+            {config.ui_labels?.nav?.tools || 'Herramientas'}
             <ChevronDown className={`w-4 h-4 transition-transform ${isToolsOpen ? 'rotate-180' : ''}`} />
           </button>
 
@@ -427,7 +427,7 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
               >
                  {/* Drawer Header with Close Button */}
                  <div className="flex items-center justify-between px-4 py-4 border-b border-gray-100 bg-white sticky top-0 z-10">
-                   <span className="font-bold text-lg text-[var(--text-primary)]">Menú</span>
+                   <span className="font-bold text-lg text-[var(--text-primary)]">{config.ui_labels?.nav?.menu || 'Menú'}</span>
                    <button
                      onClick={() => setIsOpen(false)}
                      className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--primary)] hover:bg-gray-100 rounded-xl transition-colors"
@@ -468,7 +468,7 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
 
                  {/* Navigation Links */}
                  <div className="flex-1 px-4 sm:px-6">
-                   <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-3">Navegación</p>
+                   <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-3">{config.ui_labels?.nav?.navigation || 'Navegación'}</p>
                    <div className="flex flex-col gap-1">
                      {navItems.map((item) => {
                        const Icon = item.icon;
@@ -491,7 +491,7 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
                    </div>
 
                    {/* Tools Section */}
-                   <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mt-6 mb-3">Herramientas</p>
+                   <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mt-6 mb-3">{config.ui_labels?.nav?.tools || 'Herramientas'}</p>
                    <div className="flex flex-col gap-1">
                      {toolsItems.map((tool) => {
                        const ToolIcon = tool.icon;
@@ -514,7 +514,7 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
                    </div>
 
                    {/* Portal Section */}
-                   <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mt-6 mb-3">Mi Cuenta</p>
+                   <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mt-6 mb-3">{config.ui_labels?.nav?.my_account || 'Mi Cuenta'}</p>
                    <div className="flex flex-col gap-1">
                      <Link
                        href={user ? `/${clinic}/portal/dashboard` : `/${clinic}/portal/login`}
@@ -555,7 +555,7 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
                            }`}
                          >
                            <Settings className="w-5 h-5" />
-                           <span className="font-bold">Configuración</span>
+                           <span className="font-bold">{config.ui_labels?.nav?.settings || 'Configuración'}</span>
                          </Link>
                        </>
                      )}

@@ -133,12 +133,64 @@ export async function PATCH(
     .from('lab_orders')
     .update(updates)
     .eq('id', id)
-    .select()
+    .select(`
+      *,
+      pets!inner(id, name, owner_id, tenant_id)
+    `)
     .single();
 
   if (error) {
     console.error('[API] lab_orders PATCH error:', error);
     return NextResponse.json({ error: 'Error al actualizar orden' }, { status: 500 });
+  }
+
+  // Send notification when status changes to completed
+  if (status === 'completed') {
+    try {
+      const petData = Array.isArray(data.pets) ? data.pets[0] : data.pets;
+
+      // Create in-app notification for the pet owner
+      await supabase.from('notifications').insert({
+        user_id: petData.owner_id,
+        title: 'Resultados de laboratorio listos',
+        message: `Los resultados del laboratorio para ${petData.name} ya están disponibles.`,
+        type: 'lab_results',
+        link: `/portal/pets/${petData.id}/lab`,
+        data: {
+          lab_order_id: id,
+          pet_id: petData.id,
+          has_critical_values: data.has_critical_values
+        }
+      });
+
+      // If there are critical values, also notify the vet
+      if (data.has_critical_values) {
+        // Get ordering vet
+        const { data: orderDetails } = await supabase
+          .from('lab_orders')
+          .select('ordered_by')
+          .eq('id', id)
+          .single();
+
+        if (orderDetails?.ordered_by) {
+          await supabase.from('notifications').insert({
+            user_id: orderDetails.ordered_by,
+            title: '⚠️ Valores críticos detectados',
+            message: `Resultados de laboratorio para ${petData.name} contienen valores críticos.`,
+            type: 'lab_critical',
+            link: `/dashboard/lab/${id}`,
+            data: {
+              lab_order_id: id,
+              pet_id: petData.id,
+              has_critical_values: true
+            }
+          });
+        }
+      }
+    } catch (notifyError) {
+      // Log but don't fail the request if notification fails
+      console.error('[API] lab_orders notification error:', notifyError);
+    }
   }
 
   return NextResponse.json(data);

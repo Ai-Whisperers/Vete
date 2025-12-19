@@ -1,9 +1,5 @@
-import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
-
-interface RouteParams {
-  params: Promise<{ id: string }>;
-}
+import { withAuth, isStaff } from '@/lib/api/with-auth';
 
 interface InvoiceItem {
   service_id?: string;
@@ -15,24 +11,8 @@ interface InvoiceItem {
 }
 
 // GET /api/invoices/[id] - Get single invoice
-export async function GET(request: Request, { params }: RouteParams) {
-  const { id } = await params;
-  const supabase = await createClient();
-
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
-  }
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('tenant_id, role')
-    .eq('id', user.id)
-    .single();
-
-  if (!profile) {
-    return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 });
-  }
+export const GET = withAuth(async ({ user, profile, supabase }, context) => {
+  const { id } = await context!.params;
 
   try {
     const { data: invoice, error } = await supabase
@@ -59,8 +39,8 @@ export async function GET(request: Request, { params }: RouteParams) {
     }
 
     // Check access
-    const isStaff = ['vet', 'admin'].includes(profile.role);
-    if (!isStaff && invoice.owner_id !== user.id) {
+    const userIsStaff = isStaff(profile);
+    if (!userIsStaff && invoice.owner_id !== user.id) {
       return NextResponse.json({ error: 'No tienes acceso a esta factura' }, { status: 403 });
     }
 
@@ -69,27 +49,11 @@ export async function GET(request: Request, { params }: RouteParams) {
     console.error('Error loading invoice:', e);
     return NextResponse.json({ error: 'Error al cargar factura' }, { status: 500 });
   }
-}
+});
 
 // PATCH /api/invoices/[id] - Update invoice
-export async function PATCH(request: Request, { params }: RouteParams) {
-  const { id } = await params;
-  const supabase = await createClient();
-
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
-  }
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('tenant_id, role')
-    .eq('id', user.id)
-    .single();
-
-  if (!profile || !['vet', 'admin'].includes(profile.role)) {
-    return NextResponse.json({ error: 'Solo el personal puede modificar facturas' }, { status: 403 });
-  }
+export const PATCH = withAuth(async ({ user, profile, supabase, request }, context) => {
+  const { id } = await context!.params;
 
   try {
     // Get current invoice
@@ -109,7 +73,6 @@ export async function PATCH(request: Request, { params }: RouteParams) {
       const body = await request.json();
       // For non-draft, only allow status changes and notes
       const allowedFields = ['status', 'notes'];
-      // TICKET-TYPE-004: Use proper interface instead of any
       const updates: { status?: string; notes?: string } = {};
       allowedFields.forEach(field => {
         if (body[field] !== undefined) updates[field] = body[field];
@@ -203,27 +166,11 @@ export async function PATCH(request: Request, { params }: RouteParams) {
     console.error('Error updating invoice:', e);
     return NextResponse.json({ error: 'Error al actualizar factura' }, { status: 500 });
   }
-}
+}, { roles: ['vet', 'admin'] });
 
 // DELETE /api/invoices/[id] - Delete invoice (soft delete or void)
-export async function DELETE(request: Request, { params }: RouteParams) {
-  const { id } = await params;
-  const supabase = await createClient();
-
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
-  }
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('tenant_id, role')
-    .eq('id', user.id)
-    .single();
-
-  if (!profile || profile.role !== 'admin') {
-    return NextResponse.json({ error: 'Solo administradores pueden eliminar facturas' }, { status: 403 });
-  }
+export const DELETE = withAuth(async ({ user, profile, supabase }, context) => {
+  const { id } = await context!.params;
 
   try {
     const { data: invoice } = await supabase
@@ -264,4 +211,4 @@ export async function DELETE(request: Request, { params }: RouteParams) {
     console.error('Error deleting invoice:', e);
     return NextResponse.json({ error: 'Error al eliminar factura' }, { status: 500 });
   }
-}
+}, { roles: ['admin'] });

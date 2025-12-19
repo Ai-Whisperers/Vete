@@ -1,18 +1,9 @@
-import { createClient } from '@/lib/supabase/server'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
+import { withAuth } from '@/lib/api/with-auth'
 
 // GET a single pet by ID
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-): Promise<NextResponse> {
-  const { id } = await params
-  const supabase = await createClient()
-
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
-  if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-  }
+export const GET = withAuth(async ({ user, profile, supabase }, context) => {
+  const { id } = await context!.params
 
   const { data: pet, error } = await supabase
     .from('pets')
@@ -26,36 +17,19 @@ export async function GET(
   }
 
   // Verify ownership or staff access
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('tenant_id, role')
-    .eq('id', user.id)
-    .single()
-
   const isOwner = pet.owner_id === user.id
-  const isStaff = profile?.role === 'vet' || profile?.role === 'admin'
-  const sameTenant = profile?.tenant_id === pet.tenant_id
+  const isStaff = (profile.role === 'vet' || profile.role === 'admin') && profile.tenant_id === pet.tenant_id
 
-  if (!isOwner && !(isStaff && sameTenant)) {
+  if (!isOwner && !isStaff) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
   }
 
   return NextResponse.json(pet)
-}
+})
 
 // PATCH update a pet
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-): Promise<NextResponse> {
-  const { id } = await params
-  const supabase = await createClient()
-
-  // Auth check
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
-  if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-  }
+export const PATCH = withAuth(async ({ request, user, profile, supabase }, context) => {
+  const { id } = await context!.params
 
   // Fetch pet to verify ownership
   const { data: pet, error: fetchError } = await supabase
@@ -70,17 +44,10 @@ export async function PATCH(
   }
 
   // Verify ownership or staff access
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('tenant_id, role')
-    .eq('id', user.id)
-    .single()
-
   const isOwner = pet.owner_id === user.id
-  const isStaff = profile?.role === 'vet' || profile?.role === 'admin'
-  const sameTenant = profile?.tenant_id === pet.tenant_id
+  const isStaff = (profile.role === 'vet' || profile.role === 'admin') && profile.tenant_id === pet.tenant_id
 
-  if (!isOwner && !(isStaff && sameTenant)) {
+  if (!isOwner && !isStaff) {
     return NextResponse.json({ error: 'No tienes permiso para editar esta mascota' }, { status: 403 })
   }
 
@@ -118,21 +85,11 @@ export async function PATCH(
   }
 
   return NextResponse.json(data)
-}
+})
 
 // DELETE soft-delete a pet
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-): Promise<NextResponse> {
-  const { id } = await params
-  const supabase = await createClient()
-
-  // Auth check
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
-  if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-  }
+export const DELETE = withAuth(async ({ user, supabase }, context) => {
+  const { id } = await context!.params
 
   // Fetch pet to verify ownership
   const { data: pet, error: fetchError } = await supabase
@@ -162,4 +119,4 @@ export async function DELETE(
   }
 
   return NextResponse.json({ success: true })
-}
+})

@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
+import { requireStaff } from '@/lib/auth'
 import { AppointmentQueue } from '@/components/dashboard/appointments/appointment-queue'
 import { DateFilter } from '@/components/dashboard/appointments/date-filter'
 import { StatusFilter } from '@/components/dashboard/appointments/status-filter'
@@ -13,24 +13,11 @@ interface Props {
 export default async function StaffAppointmentsPage({ params, searchParams }: Props) {
   const { clinic } = await params
   const { date, status } = await searchParams
+
+  // SEC-008: Require staff authentication with tenant verification
+  await requireStaff(clinic)
+
   const supabase = await createClient()
-
-  // Auth check
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) {
-    redirect(`/${clinic}/portal/login`)
-  }
-
-  // Staff check
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role, tenant_id')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile || !['vet', 'admin'].includes(profile.role) || profile.tenant_id !== clinic) {
-    redirect(`/${clinic}/portal/dashboard`)
-  }
 
   const today = date || new Date().toISOString().split('T')[0]
 

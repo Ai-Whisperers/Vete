@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
+import { requireStaff } from '@/lib/auth'
 import Link from 'next/link'
 import * as Icons from 'lucide-react'
 import { InvoiceList } from '@/components/invoices/invoice-list'
@@ -13,24 +13,11 @@ interface Props {
 export default async function InvoicesPage({ params, searchParams }: Props) {
   const { clinic } = await params
   const { status, page } = await searchParams
+
+  // SEC-009: Require staff authentication with tenant verification
+  await requireStaff(clinic)
+
   const supabase = await createClient()
-
-  // Auth check
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) {
-    redirect(`/${clinic}/portal/login`)
-  }
-
-  // Staff check
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role, tenant_id')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile || !['vet', 'admin'].includes(profile.role) || profile.tenant_id !== clinic) {
-    redirect(`/${clinic}/portal/dashboard`)
-  }
 
   // Fetch invoices
   const result = await getInvoices({

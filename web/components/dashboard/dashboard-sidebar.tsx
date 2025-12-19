@@ -23,6 +23,7 @@ import {
   Search,
   Command,
   ArrowLeft,
+  BarChart3,
   type LucideIcon,
 } from "lucide-react";
 
@@ -85,6 +86,7 @@ export function DashboardSidebar({
       icon: FileText,
       defaultOpen: false,
       items: [
+        { icon: BarChart3, label: "Analytics", href: `/${clinic}/dashboard/analytics` },
         { icon: FileText, label: "Facturas", href: `/${clinic}/dashboard/invoices` },
         { icon: Package, label: "Inventario", href: `/${clinic}/dashboard/inventory` },
         { icon: Shield, label: "Seguros", href: `/${clinic}/dashboard/insurance` },

@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
     // 3. Build query for notifications
     let query = supabase
       .from("notification_queue")
-      .select("*")
+      .select("id, title, message, status, created_at, read_at, notification_type, metadata")
       .eq("channel_type", "in_app")
       .eq("client_id", user.id);
 
@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
     // 4. Count unread notifications (queued = unread)
     const { count: unreadCount, error: countError } = await supabase
       .from("notification_queue")
-      .select("*", { count: 'exact', head: true })
+      .select("id", { count: 'exact', head: true })
       .eq("channel_type", "in_app")
       .eq("client_id", user.id)
       .eq("status", "queued");

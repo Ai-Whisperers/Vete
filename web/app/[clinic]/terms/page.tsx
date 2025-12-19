@@ -2,9 +2,39 @@ import { getClinicData } from "@/lib/clinics";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, FileText, AlertTriangle, CreditCard, Calendar, ShieldCheck, Scale, Clock } from "lucide-react";
+import type { Metadata } from 'next';
 
 interface Props {
   params: Promise<{ clinic: string }>;
+}
+
+const BASE_URL = 'https://vetepy.vercel.app';
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { clinic } = await params;
+  const data = await getClinicData(clinic);
+  if (!data) return { title: 'Página no encontrada' };
+
+  const title = `Términos y Condiciones | ${data.config.name}`;
+  const description = `Lee los términos y condiciones de servicio de ${data.config.name}. Información sobre citas, pagos, emergencias y responsabilidades.`;
+  const canonicalUrl = `${BASE_URL}/${clinic}/terms`;
+
+  return {
+    title,
+    description,
+    robots: 'index, follow',
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      type: 'website',
+      locale: 'es_PY',
+      url: canonicalUrl,
+      title,
+      description,
+      siteName: data.config.name,
+    },
+  };
 }
 
 export default async function TermsPage({ params }: Props): Promise<React.ReactElement> {

@@ -30,12 +30,14 @@ interface Invoice {
   status: 'draft' | 'sent' | 'paid' | 'cancelled' | 'overdue';
   subtotal: number;
   tax_amount: number;
+  tax_rate?: number;
   discount_amount: number;
   total: number;
   notes: string | null;
   due_date: string | null;
   created_at: string;
   paid_at: string | null;
+  pet_id: string | null;
   invoice_items: InvoiceItem[];
 }
 
@@ -66,12 +68,14 @@ export default async function PortalInvoiceDetailPage({ params }: Props): Promis
       status,
       subtotal,
       tax_amount,
+      tax_rate,
       discount_amount,
       total,
       notes,
       due_date,
       created_at,
       paid_at,
+      pet_id,
       invoice_items (
         id,
         description,
@@ -90,6 +94,37 @@ export default async function PortalInvoiceDetailPage({ params }: Props): Promis
   }
 
   const typedInvoice = invoice as unknown as Invoice;
+
+  // Fetch owner (current user) profile
+  const { data: ownerProfile } = await supabase
+    .from('profiles')
+    .select('full_name, email, phone')
+    .eq('id', user.id)
+    .single();
+
+  // Fetch pet info if linked
+  let petInfo: { name: string; species: string } | undefined;
+  if (typedInvoice.pet_id) {
+    const { data: pet } = await supabase
+      .from('pets')
+      .select('name, species')
+      .eq('id', typedInvoice.pet_id)
+      .single();
+    if (pet) {
+      petInfo = pet;
+    }
+  }
+
+  // Build invoice data for PDF
+  const invoiceForPdf = {
+    ...typedInvoice,
+    owner: ownerProfile ? {
+      full_name: ownerProfile.full_name || '',
+      email: ownerProfile.email || '',
+      phone: ownerProfile.phone || undefined
+    } : undefined,
+    pet: petInfo
+  };
   const status = statusConfig[typedInvoice.status] || statusConfig.draft;
   const StatusIcon = status.icon;
 
@@ -233,7 +268,7 @@ export default async function PortalInvoiceDetailPage({ params }: Props): Promis
 
         {/* Actions */}
         <div className="p-6 border-t border-gray-100 flex flex-wrap gap-3">
-          <InvoiceActions invoiceNumber={typedInvoice.invoice_number} />
+          <InvoiceActions invoice={invoiceForPdf} clinicName={tenant?.name || clinic} />
           {typedInvoice.status !== 'paid' && typedInvoice.status !== 'cancelled' && (
             <Link
               href={`/${clinic}/portal/payments?pay=${typedInvoice.id}`}

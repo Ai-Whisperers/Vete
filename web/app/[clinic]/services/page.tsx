@@ -6,13 +6,45 @@ import { MessageCircle } from 'lucide-react';
 import { ServicesGrid } from '@/components/services/services-grid';
 import { VaccineSchedule } from '@/components/services/vaccine-schedule';
 
+const BASE_URL = 'https://vetepy.vercel.app';
+
 export async function generateMetadata({ params }: { params: Promise<{ clinic: string }> }): Promise<Metadata> {
   const { clinic } = await params;
   const data = await getClinicData(clinic);
   if (!data) return {};
+
+  const title = `${data.services.meta?.title || 'Servicios'} | ${data.config.name}`;
+  const description = data.services.meta?.subtitle || `Servicios veterinarios de ${data.config.name}`;
+  const canonicalUrl = `${BASE_URL}/${clinic}/services`;
+  const ogImage = data.config.branding?.og_image_url || '/branding/default-og.jpg';
+
   return {
-    title: `${data.services.meta?.title || 'Servicios'} - ${data.config.name}`,
-    description: data.services.meta?.subtitle
+    title,
+    description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      type: 'website',
+      locale: 'es_PY',
+      url: canonicalUrl,
+      title,
+      description,
+      siteName: data.config.name,
+      images: [
+        {
+          url: ogImage.startsWith('/') ? `${BASE_URL}${ogImage}` : ogImage,
+          width: 1200,
+          height: 630,
+          alt: `Servicios de ${data.config.name}`,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+    },
   };
 }
 

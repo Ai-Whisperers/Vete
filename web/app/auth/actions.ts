@@ -89,7 +89,7 @@ export async function login(prevState: ActionState | null, formData: FormData): 
 
   const validation = loginSchema.safeParse(rawData);
   if (!validation.success) {
-    const firstError = validation.error.errors[0];
+    const firstError = validation.error.issues[0];
     return { error: firstError.message };
   }
 
@@ -138,7 +138,7 @@ export async function signup(prevState: ActionState | null, formData: FormData):
 
   const validation = signupSchema.safeParse(rawData);
   if (!validation.success) {
-    const firstError = validation.error.errors[0];
+    const firstError = validation.error.issues[0];
     return { error: firstError.message };
   }
 
@@ -217,7 +217,7 @@ export async function requestPasswordReset(prevState: ActionState | null, formDa
 
   const validation = passwordResetSchema.safeParse(rawData);
   if (!validation.success) {
-    const firstError = validation.error.errors[0];
+    const firstError = validation.error.issues[0];
     return { error: firstError.message };
   }
 
@@ -247,7 +247,7 @@ export async function updatePassword(prevState: ActionState | null, formData: Fo
 
   const validation = updatePasswordSchema.safeParse(rawData);
   if (!validation.success) {
-    const firstError = validation.error.errors[0];
+    const firstError = validation.error.issues[0];
     return { error: firstError.message };
   }
 

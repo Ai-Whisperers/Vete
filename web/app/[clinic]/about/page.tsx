@@ -1,14 +1,15 @@
 import { getClinicData } from '@/lib/clinics';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { 
-  Award, 
-  Heart, 
-  Users, 
-  Stethoscope, 
-  Building2, 
-  Target, 
-  Eye, 
+import { Metadata } from 'next';
+import {
+  Award,
+  Heart,
+  Users,
+  Stethoscope,
+  Building2,
+  Target,
+  Eye,
   ShieldCheck,
   HeartPulse,
   Microscope,
@@ -24,6 +25,52 @@ import {
 import { TeamMemberCard } from '@/components/about/team-member-card';
 import { FacilitiesGallery } from '@/components/about/facilities-gallery';
 import { CertificationBadge } from '@/components/about/certification-badge';
+import { TeamSchema, BreadcrumbSchema } from '@/components/seo/structured-data';
+
+const BASE_URL = 'https://vetepy.vercel.app';
+
+// Generate metadata for SEO
+export async function generateMetadata({ params }: { params: Promise<{ clinic: string }> }): Promise<Metadata> {
+  const { clinic } = await params;
+  const data = await getClinicData(clinic);
+  if (!data) return { title: 'Página no encontrada' };
+
+  const { about, config } = data;
+  const title = `Conoce a ${config.name} | Equipo y Historia`;
+  const description = about?.intro?.text?.substring(0, 160) ||
+    `Conoce al equipo de profesionales de ${config.name}. Años de experiencia en medicina veterinaria.`;
+  const canonicalUrl = `${BASE_URL}/${clinic}/about`;
+  const ogImage = config.branding?.og_image_url || '/branding/default-og.jpg';
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      type: 'website',
+      locale: 'es_PY',
+      url: canonicalUrl,
+      title,
+      description,
+      siteName: config.name,
+      images: [
+        {
+          url: ogImage.startsWith('/') ? `${BASE_URL}${ogImage}` : ogImage,
+          width: 1200,
+          height: 630,
+          alt: `Equipo de ${config.name}`,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+    },
+  };
+}
 
 // Icon mapping for dynamic facility icons
 const FACILITY_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -59,6 +106,21 @@ export default async function AboutPage({ params }: { params: Promise<{ clinic: 
     emergency_hours: config.stats?.emergency_hours || '24/7',
     rating: config.stats?.rating || '4.9'
   };
+
+  // Breadcrumb items for structured data
+  const breadcrumbItems = [
+    { name: 'Inicio', url: `/${clinic}` },
+    { name: 'Nosotros', url: `/${clinic}/about` },
+  ];
+
+  // Team members for Person schema
+  const teamMembers = about.team?.map((member: { name: string; role: string; bio?: string; photo_url?: string; specialties?: string[] }) => ({
+    name: member.name,
+    role: member.role,
+    bio: member.bio,
+    photo_url: member.photo_url,
+    specialties: member.specialties,
+  })) || [];
 
   // Role to gradient/color mapping for visual variety
   const getRoleStyle = (role: string) => {
@@ -102,9 +164,20 @@ export default async function AboutPage({ params }: { params: Promise<{ clinic: 
   };
 
   return (
-    <div className="min-h-screen bg-[var(--bg-default)]">
+    <>
+      {/* Structured Data for SEO */}
+      <BreadcrumbSchema items={breadcrumbItems} />
+      {teamMembers.length > 0 && (
+        <TeamSchema
+          clinic={clinic}
+          clinicName={config.name}
+          members={teamMembers}
+        />
+      )}
 
-      {/* Hero Section - With visual interest */}
+      <div className="min-h-screen bg-[var(--bg-default)]">
+
+        {/* Hero Section - With visual interest */}
       <section className="relative py-20 md:py-28 overflow-hidden">
         {/* Background - Image or Pattern */}
         {heroImage ? (
@@ -490,6 +563,7 @@ export default async function AboutPage({ params }: { params: Promise<{ clinic: 
         </div>
       </section>
 
-    </div>
+      </div>
+    </>
   );
 }

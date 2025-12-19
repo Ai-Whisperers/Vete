@@ -186,9 +186,64 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       console.error('[Consent Request] Exception sending email:', emailError);
       // Don't fail the whole operation if email fails
     }
-  } else if (delivery_method === 'sms') {
-    // SMS sending would be implemented here
-    // TODO: Implement SMS delivery
+  } else if (delivery_method === 'sms' && (recipient_phone || owner.phone)) {
+    // Send consent request via SMS
+    try {
+      const phone = recipient_phone || owner.phone;
+      const smsMessage = `${tenant?.name || 'Tu veterinaria'}: Hola ${owner.full_name || ''}, necesitamos tu firma para ${template.name} de ${pet.name}. Firma aquí: ${signingLink}`;
+
+      // Get tenant SMS config
+      const { data: tenantConfig } = await supabase
+        .from('tenants')
+        .select('config')
+        .eq('id', profile.clinic_id)
+        .single();
+
+      const config = tenantConfig?.config || {};
+      const accountSid = config.sms_api_key || process.env.TWILIO_ACCOUNT_SID;
+      const authToken = config.sms_api_secret || process.env.TWILIO_AUTH_TOKEN;
+      const fromNumber = config.sms_from || process.env.TWILIO_PHONE_NUMBER;
+
+      if (accountSid && authToken && fromNumber) {
+        // Normalize phone number (Paraguay format)
+        let normalizedPhone = phone.replace(/\D/g, '');
+        if (normalizedPhone.startsWith('0')) {
+          normalizedPhone = '595' + normalizedPhone.substring(1);
+        }
+        if (!normalizedPhone.startsWith('595') && normalizedPhone.length === 9) {
+          normalizedPhone = '595' + normalizedPhone;
+        }
+        normalizedPhone = '+' + normalizedPhone;
+
+        const smsResponse = await fetch(
+          `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`,
+          {
+            method: 'POST',
+            headers: {
+              'Authorization': 'Basic ' + Buffer.from(`${accountSid}:${authToken}`).toString('base64'),
+              'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams({
+              From: fromNumber,
+              To: normalizedPhone,
+              Body: smsMessage.substring(0, 160)
+            })
+          }
+        );
+
+        if (!smsResponse.ok) {
+          const smsError = await smsResponse.json();
+          console.error('[Consent Request] Failed to send SMS:', smsError);
+        } else {
+          console.log('[Consent Request] SMS sent successfully');
+        }
+      } else {
+        console.warn('[Consent Request] SMS not configured for this tenant');
+      }
+    } catch (smsError) {
+      console.error('[Consent Request] Exception sending SMS:', smsError);
+      // Don't fail the whole operation if SMS fails
+    }
   }
 
   return NextResponse.json({

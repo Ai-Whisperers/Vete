@@ -1,6 +1,8 @@
-import { createClient } from "@/lib/supabase/server";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
+import { withAuth } from "@/lib/api/with-auth";
 import { rateLimit } from "@/lib/rate-limit";
+import { parsePagination, paginatedResponse } from "@/lib/api/pagination";
+import { apiError, HTTP_STATUS } from "@/lib/api/errors";
 
 interface Client {
   id: string;
@@ -12,54 +14,17 @@ interface Client {
   last_appointment: string | null;
 }
 
-interface PaginationInfo {
-  page: number;
-  limit: number;
-  total: number;
-  totalPages: number;
-}
-
-interface ClientsResponse {
-  clients: Client[];
-  pagination: PaginationInfo;
-}
-
-export async function GET(request: NextRequest): Promise<NextResponse<ClientsResponse | { error: string }>> {
-  const supabase = await createClient();
-
-  // 1. Auth check
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-  if (authError || !user) {
-    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-  }
-
+export const GET = withAuth(async ({ request, user, profile, supabase }) => {
   // Apply rate limiting for search endpoints (30 requests per minute)
   const rateLimitResult = await rateLimit(request, 'search', user.id);
   if (!rateLimitResult.success) {
-    return rateLimitResult.response as NextResponse<{ error: string }>;
+    return rateLimitResult.response;
   }
 
-  // 2. Get user profile to check role and tenant
-  const { data: profile, error: profileError } = await supabase
-    .from('profiles')
-    .select('role, tenant_id')
-    .eq('id', user.id)
-    .single();
-
-  if (profileError || !profile) {
-    return NextResponse.json({ error: "Error al obtener perfil de usuario" }, { status: 500 });
-  }
-
-  // 3. Check if user is staff (vet or admin)
-  if (!['vet', 'admin'].includes(profile.role)) {
-    return NextResponse.json({ error: "No autorizado. Solo personal autorizado puede acceder." }, { status: 403 });
-  }
-
-  // 4. Parse query parameters
+  // Parse query parameters
   const searchParams = request.nextUrl.searchParams;
   const search = searchParams.get('search') || '';
-  const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
-  const limit = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') || '10', 10)));
+  const { page, limit, offset } = parsePagination(searchParams);
   const sortField = searchParams.get('sort') || 'created_at';
   const sortOrder = searchParams.get('order') === 'asc' ? 'asc' : 'desc';
   const useRealtime = searchParams.get('realtime') === 'true';
@@ -67,8 +32,6 @@ export async function GET(request: NextRequest): Promise<NextResponse<ClientsRes
   // Validate sort field to prevent SQL injection
   const allowedSortFields = ['full_name', 'email', 'created_at', 'pet_count', 'last_appointment'];
   const validSortField = allowedSortFields.includes(sortField) ? sortField : 'created_at';
-
-  const offset = (page - 1) * limit;
 
   try {
     // Option 1: Use materialized view (fast, but may be slightly stale)
@@ -126,12 +89,9 @@ export async function GET(request: NextRequest): Promise<NextResponse<ClientsRes
           last_appointment: c.last_appointment_date || null
         }));
 
-        const total = totalCount || 0;
-        const totalPages = Math.ceil(total / limit);
-
         return NextResponse.json({
           clients,
-          pagination: { page, limit, total, totalPages }
+          ...paginatedResponse(clients, totalCount || 0, { page, limit, offset })
         });
       }
     }
@@ -153,7 +113,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<ClientsRes
 
     if (countError) {
       console.error('Error counting clients:', countError);
-      return NextResponse.json({ error: "Error al contar clientes" }, { status: 500 });
+      return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
     }
 
     // Use RPC function for aggregated data (if available) or fallback to manual aggregation
@@ -182,18 +142,13 @@ export async function GET(request: NextRequest): Promise<NextResponse<ClientsRes
 
     if (clientsError) {
       console.error('Error fetching clients:', clientsError);
-      return NextResponse.json({ error: "Error al obtener clientes" }, { status: 500 });
+      return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
     }
 
     if (!clients || clients.length === 0) {
       return NextResponse.json({
         clients: [],
-        pagination: {
-          page,
-          limit,
-          total: totalCount || 0,
-          totalPages: Math.ceil((totalCount || 0) / limit)
-        }
+        ...paginatedResponse([], totalCount || 0, { page, limit, offset })
       });
     }
 
@@ -294,16 +249,13 @@ export async function GET(request: NextRequest): Promise<NextResponse<ClientsRes
       });
     }
 
-    const total = totalCount || 0;
-    const totalPages = Math.ceil(total / limit);
-
     return NextResponse.json({
       clients: enrichedClients,
-      pagination: { page, limit, total, totalPages }
+      ...paginatedResponse(enrichedClients, totalCount || 0, { page, limit, offset })
     });
 
   } catch (error) {
     console.error('Unexpected error in clients API:', error);
-    return NextResponse.json({ error: "Error inesperado al procesar la solicitud" }, { status: 500 });
+    return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
-}
+}, { roles: ['vet', 'admin'] });

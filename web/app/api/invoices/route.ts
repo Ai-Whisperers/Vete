@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { withAuth, isStaff } from '@/lib/api/with-auth';
-import { apiError, apiSuccess } from '@/lib/api/errors';
+import { apiError, apiSuccess, HTTP_STATUS } from '@/lib/api/errors';
+import { parsePagination, paginatedResponse } from '@/lib/api/pagination';
 
 interface InvoiceItem {
   service_id?: string;
@@ -18,15 +19,13 @@ export const GET = withAuth(async ({ user, profile, supabase, request }) => {
   const clinic = searchParams.get('clinic') || profile.tenant_id;
   const status = searchParams.get('status');
   const petId = searchParams.get('pet_id');
-  const page = parseInt(searchParams.get('page') || '1');
-  const limit = parseInt(searchParams.get('limit') || '20');
-  const offset = (page - 1) * limit;
+  const { page, limit, offset } = parsePagination(searchParams);
 
   // Staff can see all invoices, owners only see their own tenant's
   const userIsStaff = isStaff(profile);
 
   if (!userIsStaff && clinic !== profile.tenant_id) {
-    return apiError('FORBIDDEN', 403, { details: { reason: 'Tenant access denied' } });
+    return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN, { details: { reason: 'Tenant access denied' } });
   }
 
   try {
@@ -55,7 +54,10 @@ export const GET = withAuth(async ({ user, profile, supabase, request }) => {
 
       const petIds = ownerPets?.map(p => p.id) || [];
       if (petIds.length === 0) {
-        return NextResponse.json({ data: [], total: 0, page, limit });
+        return NextResponse.json({
+          data: [],
+          ...paginatedResponse([], 0, { page, limit, offset })
+        });
       }
       query = query.in('pet_id', petIds);
     }
@@ -74,13 +76,11 @@ export const GET = withAuth(async ({ user, profile, supabase, request }) => {
 
     return NextResponse.json({
       data: invoices,
-      total: count || 0,
-      page,
-      limit
+      ...paginatedResponse(invoices || [], count || 0, { page, limit, offset })
     });
   } catch (e) {
     console.error('Error loading invoices:', e);
-    return apiError('DATABASE_ERROR', 500);
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 });
 
@@ -92,7 +92,7 @@ export const POST = withAuth(
       const { pet_id, items, notes, due_date } = body;
 
       if (!pet_id || !items || !Array.isArray(items) || items.length === 0) {
-        return apiError('MISSING_FIELDS', 400, {
+        return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
           details: { required: ['pet_id', 'items'] }
         });
       }
@@ -106,7 +106,7 @@ export const POST = withAuth(
         .single();
 
       if (!pet) {
-        return apiError('NOT_FOUND', 404, { details: { resource: 'pet' } });
+        return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, { details: { resource: 'pet' } });
       }
 
       // Generate invoice number using database function
@@ -183,10 +183,10 @@ export const POST = withAuth(
         pet_id
       });
 
-      return apiSuccess(invoice, 'Factura creada exitosamente', 201);
+      return apiSuccess(invoice, 'Factura creada exitosamente', HTTP_STATUS.CREATED);
     } catch (e) {
       console.error('Error creating invoice:', e);
-      return apiError('DATABASE_ERROR', 500);
+      return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
     }
   },
   { roles: ['vet', 'admin'] }

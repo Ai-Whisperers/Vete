@@ -1,33 +1,44 @@
 import { createClient } from '@/lib/supabase/server';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(request: Request) {
+/**
+ * GET /api/epidemiology/heatmap
+ * Get disease outbreak heatmap data from materialized view
+ */
+export async function GET(request: NextRequest): Promise<NextResponse> {
     const { searchParams } = new URL(request.url);
     const species = searchParams.get('species');
-    const weeks = parseInt(searchParams.get('weeks') || '4');
-    
+    const tenant = searchParams.get('tenant');
+
     const supabase = await createClient();
 
+    // Auth check
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+        return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    }
+
     try {
+        // Query the materialized view
         let query = supabase
-            .from('public_health_heatmap')
+            .from('mv_disease_heatmap')
             .select('*');
 
-        if (species) {
+        if (species && species !== 'all') {
             query = query.eq('species', species);
         }
 
-        // Filter by date range (calculated in JS for simplicity or DB level)
-        // The view already filters for last 90 days.
-        // We can further refine here if needed, but the view is weekly aggregated.
-        
-        const { data, error } = await query;
+        if (tenant) {
+            query = query.eq('tenant_id', tenant);
+        }
+
+        const { data, error } = await query.order('week', { ascending: false });
 
         if (error) throw error;
 
-        return NextResponse.json(data);
+        return NextResponse.json(data || []);
     } catch (e) {
-        // TICKET-TYPE-004: Proper error handling without any
+        console.error('Error fetching heatmap:', e);
         return NextResponse.json({ error: e instanceof Error ? e.message : 'Error desconocido' }, { status: 500 });
     }
 }

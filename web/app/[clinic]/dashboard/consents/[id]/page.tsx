@@ -202,8 +202,35 @@ export default function ConsentDetailPage(): JSX.Element {
   };
 
   const handleSendEmail = async (): Promise<void> => {
-    // TODO: Implement email sending
-    alert('Función de envío por email próximamente');
+    if (!consent?.owner?.email) {
+      alert('El propietario no tiene correo electrónico registrado');
+      return;
+    }
+
+    if (!confirm(`¿Enviar el consentimiento firmado a ${consent.owner.email}?`)) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/consents/${consentId}/email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Error al enviar email');
+      }
+
+      alert(`Email enviado exitosamente a ${consent.owner.email}`);
+
+      // Refresh to update audit log
+      fetchConsent();
+    } catch (error) {
+      console.error('Error sending email:', error);
+      alert(error instanceof Error ? error.message : 'Error al enviar email');
+    }
   };
 
   const renderContent = (): string => {

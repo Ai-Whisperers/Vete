@@ -1,0 +1,231 @@
+import { createClient } from '@/lib/supabase/server';
+import { NextRequest, NextResponse } from 'next/server';
+
+interface RouteParams {
+  params: Promise<{ id: string }>;
+}
+
+/**
+ * GET /api/consents/templates/[id]/versions
+ * Get version history for a consent template
+ */
+export async function GET(
+  request: NextRequest,
+  { params }: RouteParams
+): Promise<NextResponse> {
+  const supabase = await createClient();
+  const { id: templateId } = await params;
+
+  // Auth check
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) {
+    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+  }
+
+  // Admin check
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('tenant_id, role')
+    .eq('id', user.id)
+    .single();
+
+  if (!profile || !['vet', 'admin'].includes(profile.role)) {
+    return NextResponse.json({ error: 'Solo personal puede ver versiones' }, { status: 403 });
+  }
+
+  try {
+    // Get template info
+    const { data: template, error: templateError } = await supabase
+      .from('consent_templates')
+      .select('code, tenant_id')
+      .eq('id', templateId)
+      .single();
+
+    if (templateError || !template) {
+      return NextResponse.json({ error: 'Plantilla no encontrada' }, { status: 404 });
+    }
+
+    // Get all versions of this template (same code)
+    const { data: versions, error } = await supabase
+      .from('consent_templates')
+      .select(`
+        id, version, is_current, is_active, published_at, change_summary,
+        created_at, created_by,
+        creator:profiles!consent_templates_created_by_fkey(full_name)
+      `)
+      .eq('code', template.code)
+      .eq('tenant_id', template.tenant_id)
+      .order('version', { ascending: false });
+
+    if (error) throw error;
+
+    // Get document counts for each version
+    const versionIds = versions?.map(v => v.id) || [];
+    const { data: docCounts } = await supabase
+      .from('consent_documents')
+      .select('template_id')
+      .in('template_id', versionIds);
+
+    const countMap: Record<string, number> = {};
+    docCounts?.forEach(doc => {
+      countMap[doc.template_id] = (countMap[doc.template_id] || 0) + 1;
+    });
+
+    const versionsWithCounts = versions?.map(v => ({
+      ...v,
+      documents_count: countMap[v.id] || 0,
+      creator_name: Array.isArray(v.creator) ? v.creator[0]?.full_name : (v.creator as { full_name?: string })?.full_name
+    }));
+
+    return NextResponse.json({ data: versionsWithCounts || [] });
+  } catch (e) {
+    console.error('Error fetching versions:', e);
+    return NextResponse.json({ error: 'Error al cargar versiones' }, { status: 500 });
+  }
+}
+
+/**
+ * POST /api/consents/templates/[id]/versions
+ * Create a new version of a consent template
+ */
+export async function POST(
+  request: NextRequest,
+  { params }: RouteParams
+): Promise<NextResponse> {
+  const supabase = await createClient();
+  const { id: templateId } = await params;
+
+  // Auth check
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) {
+    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+  }
+
+  // Admin check
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('tenant_id, role')
+    .eq('id', user.id)
+    .single();
+
+  if (!profile || profile.role !== 'admin') {
+    return NextResponse.json({ error: 'Solo administradores pueden crear versiones' }, { status: 403 });
+  }
+
+  try {
+    const body = await request.json();
+    const { content_html, title, description, change_summary } = body;
+
+    if (!content_html) {
+      return NextResponse.json({ error: 'content_html es requerido' }, { status: 400 });
+    }
+
+    // Get current template
+    const { data: template, error: templateError } = await supabase
+      .from('consent_templates')
+      .select('*')
+      .eq('id', templateId)
+      .single();
+
+    if (templateError || !template) {
+      return NextResponse.json({ error: 'Plantilla no encontrada' }, { status: 404 });
+    }
+
+    // Can only version tenant-specific templates
+    if (!template.tenant_id) {
+      return NextResponse.json({ error: 'No se pueden versionar plantillas globales' }, { status: 403 });
+    }
+
+    if (template.tenant_id !== profile.tenant_id) {
+      return NextResponse.json({ error: 'No tienes acceso a esta plantilla' }, { status: 403 });
+    }
+
+    // Get next version number
+    const { data: versionData } = await supabase
+      .from('consent_templates')
+      .select('version')
+      .eq('tenant_id', template.tenant_id)
+      .eq('code', template.code)
+      .order('version', { ascending: false })
+      .limit(1)
+      .single();
+
+    const nextVersion = (versionData?.version || 1) + 1;
+
+    // Mark current version as not current
+    await supabase
+      .from('consent_templates')
+      .update({ is_current: false })
+      .eq('tenant_id', template.tenant_id)
+      .eq('code', template.code)
+      .eq('is_current', true);
+
+    // Create new version
+    const { data: newTemplate, error: insertError } = await supabase
+      .from('consent_templates')
+      .insert({
+        tenant_id: template.tenant_id,
+        code: template.code,
+        name: template.name,
+        category: template.category,
+        title: title || template.title,
+        description: description || template.description,
+        content_html,
+        requires_witness: template.requires_witness,
+        requires_id_verification: template.requires_id_verification,
+        requires_payment_acknowledgment: template.requires_payment_acknowledgment,
+        min_age_to_sign: template.min_age_to_sign,
+        validity_days: template.validity_days,
+        can_be_revoked: template.can_be_revoked,
+        language: template.language,
+        is_active: true,
+        version: nextVersion,
+        parent_id: template.id,
+        is_current: true,
+        published_at: new Date().toISOString(),
+        change_summary: change_summary || null,
+        created_by: user.id
+      })
+      .select()
+      .single();
+
+    if (insertError) throw insertError;
+
+    // Copy fields from old template to new
+    const { data: fields } = await supabase
+      .from('consent_template_fields')
+      .select('*')
+      .eq('template_id', templateId);
+
+    if (fields && fields.length > 0) {
+      const newFields = fields.map(f => ({
+        template_id: newTemplate.id,
+        field_name: f.field_name,
+        field_label: f.field_label,
+        field_type: f.field_type,
+        is_required: f.is_required,
+        default_value: f.default_value,
+        options: f.options,
+        validation_regex: f.validation_regex,
+        min_length: f.min_length,
+        max_length: f.max_length,
+        display_order: f.display_order,
+        help_text: f.help_text,
+        placeholder: f.placeholder
+      }));
+
+      await supabase
+        .from('consent_template_fields')
+        .insert(newFields);
+    }
+
+    return NextResponse.json({
+      success: true,
+      data: newTemplate,
+      message: `Versión ${nextVersion} creada exitosamente`
+    }, { status: 201 });
+  } catch (e) {
+    console.error('Error creating version:', e);
+    return NextResponse.json({ error: 'Error al crear versión' }, { status: 500 });
+  }
+}

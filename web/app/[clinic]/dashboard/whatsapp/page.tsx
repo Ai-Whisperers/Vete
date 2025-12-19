@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import * as Icons from 'lucide-react'
 import { Inbox } from '@/components/whatsapp/inbox'
-import { getConversations } from '@/app/actions/whatsapp'
+import { getConversations, getWhatsAppStats } from '@/app/actions/whatsapp'
 
 interface Props {
   params: Promise<{ clinic: string }>
@@ -30,13 +30,20 @@ export default async function WhatsAppPage({ params }: Props) {
     redirect(`/${clinic}/portal/dashboard`)
   }
 
-  // Fetch conversations
-  const result = await getConversations(clinic)
-  const conversations = result.success && result.data ? result.data : []
+  // Fetch conversations and stats in parallel
+  const [conversationsResult, statsResult] = await Promise.all([
+    getConversations(clinic),
+    getWhatsAppStats(clinic)
+  ])
+
+  const conversations = 'data' in conversationsResult && conversationsResult.data ? conversationsResult.data : []
+  const stats = 'data' in statsResult && statsResult.data ? statsResult.data : null
 
   // Stats
   const totalConversations = conversations.length
   const unreadCount = conversations.reduce((sum, c) => sum + c.unread_count, 0)
+  const sentToday = stats?.sentToday ?? 0
+  const failedToday = stats?.failedToday ?? 0
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
@@ -90,7 +97,7 @@ export default async function WhatsAppPage({ params }: Props) {
             <Icons.Send className="w-4 h-4" />
             <span className="text-xs font-medium">Enviados Hoy</span>
           </div>
-          <p className="text-2xl font-bold text-[var(--text-primary)]">-</p>
+          <p className="text-2xl font-bold text-[var(--text-primary)]">{sentToday}</p>
         </div>
 
         <div className="bg-white rounded-xl p-4 border border-gray-100">
@@ -98,7 +105,9 @@ export default async function WhatsAppPage({ params }: Props) {
             <Icons.AlertCircle className="w-4 h-4" />
             <span className="text-xs font-medium">Fallidos</span>
           </div>
-          <p className="text-2xl font-bold text-[var(--text-primary)]">-</p>
+          <p className={`text-2xl font-bold ${failedToday > 0 ? 'text-red-600' : 'text-[var(--text-primary)]'}`}>
+            {failedToday}
+          </p>
         </div>
       </div>
 

@@ -1,9 +1,8 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { withActionAuth, actionSuccess, actionError } from '@/lib/actions'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
-import { ActionResult } from '@/lib/types/action-result'
 
 const updatePetSchema = z.object({
   name: z.string().min(1, 'El nombre es requerido').max(100).optional(),
@@ -22,137 +21,115 @@ const updatePetSchema = z.object({
   birth_date: z.string().nullable().optional(),
 })
 
-export async function updatePet(
-  petId: string,
-  formData: FormData
-): Promise<ActionResult> {
-  const supabase = await createClient()
-
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) {
-    return { success: false, error: 'No autorizado' }
-  }
-
-  // Verify ownership or staff access
-  const { data: pet } = await supabase
-    .from('pets')
-    .select('owner_id, tenant_id')
-    .eq('id', petId)
-    .is('deleted_at', null)
-    .single()
-
-  if (!pet) {
-    return { success: false, error: 'Mascota no encontrada' }
-  }
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('tenant_id, role')
-    .eq('id', user.id)
-    .single()
-
-  const isOwner = pet.owner_id === user.id
-  const isStaff = profile?.role === 'vet' || profile?.role === 'admin'
-  const sameTenant = profile?.tenant_id === pet.tenant_id
-
-  if (!isOwner && !(isStaff && sameTenant)) {
-    return { success: false, error: 'No tienes permiso para editar esta mascota' }
-  }
-
-  // Get clinic for revalidation
-  const clinic = formData.get('clinic') as string
-
-  // Parse and validate form data
-  const rawData = {
-    name: formData.get('name') as string || undefined,
-    species: formData.get('species') as string || undefined,
-    breed: formData.get('breed') as string || undefined,
-    weight_kg: formData.get('weight_kg') ? parseFloat(formData.get('weight_kg') as string) : null,
-    microchip_id: formData.get('microchip_id') as string || null,
-    diet_category: formData.get('diet_category') as string || null,
-    diet_notes: formData.get('diet_notes') as string || null,
-    sex: formData.get('sex') as string || undefined,
-    is_neutered: formData.get('is_neutered') === 'on' || formData.get('is_neutered') === 'true',
-    color: formData.get('color') as string || null,
-    temperament: formData.get('temperament') as string || null,
-    allergies: formData.get('allergies') as string || null,
-    existing_conditions: formData.get('existing_conditions') as string || null,
-    birth_date: formData.get('birth_date') as string || null,
-  }
-
-  const validation = updatePetSchema.safeParse(rawData)
-  if (!validation.success) {
-    const firstError = validation.error.issues?.[0]
-    return { success: false, error: firstError?.message || 'Error de validación' }
-  }
-
-  // Handle photo upload if provided
-  const photo = formData.get('photo') as File
-  let photoUrl = formData.get('existing_photo_url') as string | null
-
-  if (photo && photo.size > 0) {
-    const fileExt = photo.name.split('.').pop()
-    const fileName = `${user.id}/${Date.now()}.${fileExt}`
-
-    const { error: uploadError } = await supabase.storage
+export const updatePet = withActionAuth(
+  async ({ user, profile, isStaff, supabase }, petId: string, formData: FormData) => {
+    // Verify ownership or staff access
+    const { data: pet } = await supabase
       .from('pets')
-      .upload(fileName, photo)
+      .select('owner_id, tenant_id')
+      .eq('id', petId)
+      .is('deleted_at', null)
+      .single()
 
-    if (uploadError) {
-      console.error('Upload error:', uploadError)
-      return { success: false, error: 'No se pudo subir la foto. Por favor intente de nuevo.' }
+    if (!pet) {
+      return actionError('Mascota no encontrada')
     }
 
-    const { data: { publicUrl } } = supabase.storage
-      .from('pets')
-      .getPublicUrl(fileName)
-    photoUrl = publicUrl
-  }
+    const isOwner = pet.owner_id === user.id
+    const sameTenant = profile.tenant_id === pet.tenant_id
 
-  // Handle photo removal
-  const removePhoto = formData.get('remove_photo') === 'true'
-  if (removePhoto) {
-    photoUrl = null
-  }
-
-  // Prepare updates
-  const updates: Record<string, unknown> = {
-    ...validation.data,
-    photo_url: photoUrl,
-  }
-
-  // Remove undefined values
-  Object.keys(updates).forEach(key => {
-    if (updates[key] === undefined) {
-      delete updates[key]
+    if (!isOwner && !(isStaff && sameTenant)) {
+      return actionError('No tienes permiso para editar esta mascota')
     }
-  })
 
-  const { error } = await supabase
-    .from('pets')
-    .update(updates)
-    .eq('id', petId)
+    // Get clinic for revalidation
+    const clinic = formData.get('clinic') as string
 
-  if (error) {
-    return { success: false, error: 'Error al guardar los cambios' }
+    // Parse and validate form data
+    const rawData = {
+      name: formData.get('name') as string || undefined,
+      species: formData.get('species') as string || undefined,
+      breed: formData.get('breed') as string || undefined,
+      weight_kg: formData.get('weight_kg') ? parseFloat(formData.get('weight_kg') as string) : null,
+      microchip_id: formData.get('microchip_id') as string || null,
+      diet_category: formData.get('diet_category') as string || null,
+      diet_notes: formData.get('diet_notes') as string || null,
+      sex: formData.get('sex') as string || undefined,
+      is_neutered: formData.get('is_neutered') === 'on' || formData.get('is_neutered') === 'true',
+      color: formData.get('color') as string || null,
+      temperament: formData.get('temperament') as string || null,
+      allergies: formData.get('allergies') as string || null,
+      existing_conditions: formData.get('existing_conditions') as string || null,
+      birth_date: formData.get('birth_date') as string || null,
+    }
+
+    const validation = updatePetSchema.safeParse(rawData)
+    if (!validation.success) {
+      const firstError = validation.error.issues?.[0]
+      return actionError(firstError?.message || 'Error de validación')
+    }
+
+    // Handle photo upload if provided
+    const photo = formData.get('photo') as File
+    let photoUrl = formData.get('existing_photo_url') as string | null
+
+    if (photo && photo.size > 0) {
+      const fileExt = photo.name.split('.').pop()
+      const fileName = `${user.id}/${Date.now()}.${fileExt}`
+
+      const { error: uploadError } = await supabase.storage
+        .from('pets')
+        .upload(fileName, photo)
+
+      if (uploadError) {
+        console.error('Upload error:', uploadError)
+        return actionError('No se pudo subir la foto. Por favor intente de nuevo.')
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('pets')
+        .getPublicUrl(fileName)
+      photoUrl = publicUrl
+    }
+
+    // Handle photo removal
+    const removePhoto = formData.get('remove_photo') === 'true'
+    if (removePhoto) {
+      photoUrl = null
+    }
+
+    // Prepare updates
+    const updates: Record<string, unknown> = {
+      ...validation.data,
+      photo_url: photoUrl,
+    }
+
+    // Remove undefined values
+    Object.keys(updates).forEach(key => {
+      if (updates[key] === undefined) {
+        delete updates[key]
+      }
+    })
+
+    const { error } = await supabase
+      .from('pets')
+      .update(updates)
+      .eq('id', petId)
+
+    if (error) {
+      return actionError('Error al guardar los cambios')
+    }
+
+    if (clinic) {
+      revalidatePath(`/${clinic}/portal/pets/${petId}`)
+      revalidatePath(`/${clinic}/portal/dashboard`)
+    }
+
+    return actionSuccess()
   }
+)
 
-  if (clinic) {
-    revalidatePath(`/${clinic}/portal/pets/${petId}`)
-    revalidatePath(`/${clinic}/portal/dashboard`)
-  }
-
-  return { success: true }
-}
-
-export async function deletePet(petId: string): Promise<ActionResult> {
-  const supabase = await createClient()
-
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) {
-    return { success: false, error: 'No autorizado' }
-  }
-
+export const deletePet = withActionAuth(async ({ user, supabase }, petId: string) => {
   // Verify ownership - only owners can delete their pets
   const { data: pet } = await supabase
     .from('pets')
@@ -162,11 +139,11 @@ export async function deletePet(petId: string): Promise<ActionResult> {
     .single()
 
   if (!pet) {
-    return { success: false, error: 'Mascota no encontrada' }
+    return actionError('Mascota no encontrada')
   }
 
   if (pet.owner_id !== user.id) {
-    return { success: false, error: 'Solo el dueño puede eliminar esta mascota' }
+    return actionError('Solo el dueño puede eliminar esta mascota')
   }
 
   // Soft delete
@@ -176,8 +153,8 @@ export async function deletePet(petId: string): Promise<ActionResult> {
     .eq('id', petId)
 
   if (error) {
-    return { success: false, error: 'Error al eliminar la mascota' }
+    return actionError('Error al eliminar la mascota')
   }
 
-  return { success: true }
-}
+  return actionSuccess()
+})

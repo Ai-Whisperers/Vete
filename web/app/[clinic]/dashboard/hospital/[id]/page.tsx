@@ -1,28 +1,16 @@
-"use client";
+'use client';
 
 import type { JSX } from 'react';
 import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
+import { AlertCircle, FileText, Heart, Activity, Utensils, Clock } from 'lucide-react';
+import { PatientHeader } from '@/components/hospital/patient-header';
+import { PatientInfoCard } from '@/components/hospital/patient-info-card';
+import { OverviewPanel } from '@/components/hospital/overview-panel';
+import { VitalsPanel } from '@/components/hospital/vitals-panel';
+import { FeedingsPanel } from '@/components/hospital/feedings-panel';
+import { TimelinePanel } from '@/components/hospital/timeline-panel';
 import TreatmentSheet from '@/components/hospital/treatment-sheet';
-import {
-  ArrowLeft,
-  Activity,
-  FileText,
-  Utensils,
-  Clock,
-  User,
-  Phone,
-  MapPin,
-  AlertCircle,
-  CheckCircle,
-  Calendar,
-  Stethoscope,
-  Heart,
-  Thermometer,
-  Weight,
-  Save,
-} from 'lucide-react';
 
 interface HospitalizationDetail {
   id: string;
@@ -138,27 +126,6 @@ interface HospitalizationDetail {
   }>;
 }
 
-interface VitalsForm {
-  temperature: string;
-  heart_rate: string;
-  respiratory_rate: string;
-  weight: string;
-  blood_pressure_systolic: string;
-  blood_pressure_diastolic: string;
-  mucous_membrane_color: string;
-  capillary_refill_time: string;
-  pain_score: string;
-  notes: string;
-}
-
-interface FeedingForm {
-  food_type: string;
-  amount_offered: string;
-  amount_consumed: string;
-  appetite_level: string;
-  notes: string;
-}
-
 export default function HospitalizationDetailPage({
   params,
 }: {
@@ -170,33 +137,9 @@ export default function HospitalizationDetailPage({
   const [hospitalization, setHospitalization] = useState<HospitalizationDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'overview' | 'vitals' | 'treatments' | 'feedings' | 'timeline'>('overview');
-  const [showVitalsForm, setShowVitalsForm] = useState(false);
-  const [showFeedingForm, setShowFeedingForm] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  const [vitalsForm, setVitalsForm] = useState<VitalsForm>({
-    temperature: '',
-    heart_rate: '',
-    respiratory_rate: '',
-    weight: '',
-    blood_pressure_systolic: '',
-    blood_pressure_diastolic: '',
-    mucous_membrane_color: '',
-    capillary_refill_time: '',
-    pain_score: '',
-    notes: '',
-  });
-
-  const [feedingForm, setFeedingForm] = useState<FeedingForm>({
-    food_type: '',
-    amount_offered: '',
-    amount_consumed: '',
-    appetite_level: 'normal',
-    notes: '',
-  });
-
   const router = useRouter();
-  const supabase = createClient();
 
   useEffect(() => {
     fetchHospitalization();
@@ -215,89 +158,6 @@ export default function HospitalizationDetailPage({
       alert('Error al cargar los datos de hospitalización');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleSaveVitals = async (e: React.FormEvent): Promise<void> => {
-    e.preventDefault();
-    setSaving(true);
-
-    try {
-      const vitalsData: Record<string, unknown> = {};
-      if (vitalsForm.temperature) vitalsData.temperature = parseFloat(vitalsForm.temperature);
-      if (vitalsForm.heart_rate) vitalsData.heart_rate = parseInt(vitalsForm.heart_rate, 10);
-      if (vitalsForm.respiratory_rate) vitalsData.respiratory_rate = parseInt(vitalsForm.respiratory_rate, 10);
-      if (vitalsForm.weight) vitalsData.weight = parseFloat(vitalsForm.weight);
-      if (vitalsForm.blood_pressure_systolic) vitalsData.blood_pressure_systolic = parseInt(vitalsForm.blood_pressure_systolic, 10);
-      if (vitalsForm.blood_pressure_diastolic) vitalsData.blood_pressure_diastolic = parseInt(vitalsForm.blood_pressure_diastolic, 10);
-      if (vitalsForm.mucous_membrane_color) vitalsData.mucous_membrane_color = vitalsForm.mucous_membrane_color;
-      if (vitalsForm.capillary_refill_time) vitalsData.capillary_refill_time = vitalsForm.capillary_refill_time;
-      if (vitalsForm.pain_score) vitalsData.pain_score = parseInt(vitalsForm.pain_score, 10);
-      if (vitalsForm.notes) vitalsData.notes = vitalsForm.notes;
-
-      const response = await fetch(`/api/hospitalizations/${id}/vitals`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(vitalsData),
-      });
-
-      if (!response.ok) throw new Error('Error al guardar signos vitales');
-
-      setShowVitalsForm(false);
-      setVitalsForm({
-        temperature: '',
-        heart_rate: '',
-        respiratory_rate: '',
-        weight: '',
-        blood_pressure_systolic: '',
-        blood_pressure_diastolic: '',
-        mucous_membrane_color: '',
-        capillary_refill_time: '',
-        pain_score: '',
-        notes: '',
-      });
-      fetchHospitalization();
-    } catch (error) {
-      console.error('Error saving vitals:', error);
-      alert('Error al guardar signos vitales');
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleSaveFeeding = async (e: React.FormEvent): Promise<void> => {
-    e.preventDefault();
-    setSaving(true);
-
-    try {
-      const response = await fetch(`/api/hospitalizations/${id}/feedings`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          food_type: feedingForm.food_type,
-          amount_offered: parseFloat(feedingForm.amount_offered),
-          amount_consumed: parseFloat(feedingForm.amount_consumed),
-          appetite_level: feedingForm.appetite_level,
-          notes: feedingForm.notes || null,
-        }),
-      });
-
-      if (!response.ok) throw new Error('Error al guardar alimentación');
-
-      setShowFeedingForm(false);
-      setFeedingForm({
-        food_type: '',
-        amount_offered: '',
-        amount_consumed: '',
-        appetite_level: 'normal',
-        notes: '',
-      });
-      fetchHospitalization();
-    } catch (error) {
-      console.error('Error saving feeding:', error);
-      alert('Error al guardar alimentación');
-    } finally {
-      setSaving(false);
     }
   };
 
@@ -332,46 +192,39 @@ export default function HospitalizationDetailPage({
     }
   };
 
-  const formatDateTime = (isoString: string): string => {
-    return new Date(isoString).toLocaleString('es-PY', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
+  const handleGenerateInvoice = async (): Promise<void> => {
+    if (!confirm('¿Generar factura para esta hospitalización?')) return;
 
-  const formatDate = (isoString: string): string => {
-    return new Date(isoString).toLocaleDateString('es-PY', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric',
-    });
-  };
+    setSaving(true);
+    try {
+      const response = await fetch(`/api/hospitalizations/${id}/invoice`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
 
-  const calculateAge = (dateOfBirth: string): string => {
-    const birth = new Date(dateOfBirth);
-    const now = new Date();
-    const years = now.getFullYear() - birth.getFullYear();
-    const months = now.getMonth() - birth.getMonth();
+      const data = await response.json();
 
-    if (years > 0) {
-      return `${years} año${years > 1 ? 's' : ''}`;
-    }
-    return `${months} mes${months !== 1 ? 'es' : ''}`;
-  };
+      if (!response.ok) {
+        if (data.invoice_id) {
+          if (confirm(`${data.error}. ¿Desea ver la factura existente?`)) {
+            router.push(`/dashboard/invoices/${data.invoice_id}`);
+          }
+        } else {
+          throw new Error(data.error || 'Error al generar factura');
+        }
+        return;
+      }
 
-  const getAcuityColor = (level: string): string => {
-    switch (level) {
-      case 'critical':
-        return 'text-red-600 bg-red-100 border-red-300';
-      case 'urgent':
-        return 'text-orange-600 bg-orange-100 border-orange-300';
-      case 'routine':
-        return 'text-green-600 bg-green-100 border-green-300';
-      default:
-        return 'text-gray-600 bg-gray-100 border-gray-300';
+      alert(`Factura ${data.invoice.invoice_number} generada exitosamente.\nTotal: ${new Intl.NumberFormat('es-PY', { style: 'currency', currency: 'PYG', maximumFractionDigits: 0 }).format(data.invoice.total)}`);
+
+      if (confirm('¿Desea ir a la factura?')) {
+        router.push(`/dashboard/invoices/${data.invoice.id}`);
+      }
+    } catch (error) {
+      console.error('Error generating invoice:', error);
+      alert(error instanceof Error ? error.message : 'Error al generar factura');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -402,114 +255,15 @@ export default function HospitalizationDetailPage({
 
   return (
     <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => router.push('/dashboard/hospital')}
-            className="p-2 hover:bg-[var(--bg-secondary)] rounded-lg"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </button>
-          <div>
-            <h1 className="text-3xl font-bold text-[var(--text-primary)]">
-              {hospitalization.pet.name}
-            </h1>
-            <p className="text-[var(--text-secondary)]">
-              {hospitalization.hospitalization_number}
-            </p>
-          </div>
-          <span className={`text-sm px-3 py-1 rounded-full border ${getAcuityColor(hospitalization.acuity_level)}`}>
-            {hospitalization.acuity_level === 'critical' && 'Crítico'}
-            {hospitalization.acuity_level === 'urgent' && 'Urgente'}
-            {hospitalization.acuity_level === 'routine' && 'Rutina'}
-          </span>
-        </div>
+      <PatientHeader
+        hospitalization={hospitalization}
+        saving={saving}
+        onBack={() => router.push('/dashboard/hospital')}
+        onGenerateInvoice={handleGenerateInvoice}
+        onDischarge={handleDischarge}
+      />
 
-        {hospitalization.status === 'active' && (
-          <button
-            onClick={handleDischarge}
-            disabled={saving}
-            className="flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:opacity-90 disabled:opacity-50"
-          >
-            <CheckCircle className="h-5 w-5" />
-            Dar de Alta
-          </button>
-        )}
-      </div>
-
-      {/* Patient Info Card */}
-      <div className="bg-[var(--bg-secondary)] p-6 rounded-lg border border-[var(--border)]">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div>
-            <h3 className="font-semibold text-[var(--text-primary)] mb-3">
-              Información del Paciente
-            </h3>
-            <div className="space-y-2 text-sm">
-              <div>
-                <span className="text-[var(--text-secondary)]">Especie:</span>{' '}
-                <span className="text-[var(--text-primary)]">{hospitalization.pet.species}</span>
-              </div>
-              <div>
-                <span className="text-[var(--text-secondary)]">Raza:</span>{' '}
-                <span className="text-[var(--text-primary)]">{hospitalization.pet.breed}</span>
-              </div>
-              <div>
-                <span className="text-[var(--text-secondary)]">Edad:</span>{' '}
-                <span className="text-[var(--text-primary)]">
-                  {calculateAge(hospitalization.pet.date_of_birth)}
-                </span>
-              </div>
-              <div>
-                <span className="text-[var(--text-secondary)]">Peso:</span>{' '}
-                <span className="text-[var(--text-primary)]">{hospitalization.pet.weight} kg</span>
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <h3 className="font-semibold text-[var(--text-primary)] mb-3">
-              Propietario
-            </h3>
-            <div className="space-y-2 text-sm">
-              <div className="flex items-center gap-2">
-                <User className="h-4 w-4 text-[var(--text-secondary)]" />
-                <span className="text-[var(--text-primary)]">
-                  {hospitalization.pet.owner.full_name}
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Phone className="h-4 w-4 text-[var(--text-secondary)]" />
-                <span className="text-[var(--text-primary)]">
-                  {hospitalization.pet.owner.phone}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <h3 className="font-semibold text-[var(--text-primary)] mb-3">
-              Ubicación
-            </h3>
-            <div className="space-y-2 text-sm">
-              <div className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-[var(--text-secondary)]" />
-                <span className="text-[var(--text-primary)]">
-                  Jaula {hospitalization.kennel.kennel_number}
-                </span>
-              </div>
-              <div>
-                <span className="text-[var(--text-secondary)]">Tipo:</span>{' '}
-                <span className="text-[var(--text-primary)]">{hospitalization.kennel.kennel_type}</span>
-              </div>
-              <div>
-                <span className="text-[var(--text-secondary)]">Ubicación:</span>{' '}
-                <span className="text-[var(--text-primary)]">{hospitalization.kennel.location}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <PatientInfoCard hospitalization={hospitalization} />
 
       {/* Tabs */}
       <div className="border-b border-[var(--border)]">
@@ -539,305 +293,16 @@ export default function HospitalizationDetailPage({
 
       {/* Tab Content */}
       <div className="bg-[var(--bg-secondary)] rounded-lg border border-[var(--border)] p-6">
-        {/* Overview Tab */}
-        {activeTab === 'overview' && (
-          <div className="space-y-6">
-            <div>
-              <h3 className="font-semibold text-[var(--text-primary)] mb-2">
-                Diagnóstico de Admisión
-              </h3>
-              <p className="text-[var(--text-secondary)]">{hospitalization.admission_diagnosis}</p>
-            </div>
+        {activeTab === 'overview' && <OverviewPanel hospitalization={hospitalization} />}
 
-            {hospitalization.treatment_plan && (
-              <div>
-                <h3 className="font-semibold text-[var(--text-primary)] mb-2">
-                  Plan de Tratamiento
-                </h3>
-                <p className="text-[var(--text-secondary)] whitespace-pre-wrap">
-                  {hospitalization.treatment_plan}
-                </p>
-              </div>
-            )}
-
-            {hospitalization.diet_instructions && (
-              <div>
-                <h3 className="font-semibold text-[var(--text-primary)] mb-2">
-                  Instrucciones de Dieta
-                </h3>
-                <p className="text-[var(--text-secondary)] whitespace-pre-wrap">
-                  {hospitalization.diet_instructions}
-                </p>
-              </div>
-            )}
-
-            <div className="grid md:grid-cols-2 gap-4 pt-4 border-t border-[var(--border)]">
-              <div>
-                <p className="text-sm text-[var(--text-secondary)]">Fecha de Admisión</p>
-                <p className="text-[var(--text-primary)] font-medium">
-                  {formatDate(hospitalization.admission_date)}
-                </p>
-                {hospitalization.admitted_by && (
-                  <p className="text-sm text-[var(--text-secondary)]">
-                    por {hospitalization.admitted_by.full_name}
-                  </p>
-                )}
-              </div>
-
-              {hospitalization.estimated_discharge_date && (
-                <div>
-                  <p className="text-sm text-[var(--text-secondary)]">Alta Estimada</p>
-                  <p className="text-[var(--text-primary)] font-medium">
-                    {formatDate(hospitalization.estimated_discharge_date)}
-                  </p>
-                </div>
-              )}
-
-              {hospitalization.emergency_contact_name && (
-                <div>
-                  <p className="text-sm text-[var(--text-secondary)]">Contacto de Emergencia</p>
-                  <p className="text-[var(--text-primary)] font-medium">
-                    {hospitalization.emergency_contact_name}
-                  </p>
-                  {hospitalization.emergency_contact_phone && (
-                    <p className="text-sm text-[var(--text-secondary)]">
-                      {hospitalization.emergency_contact_phone}
-                    </p>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Vitals Tab */}
         {activeTab === 'vitals' && (
-          <div className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h3 className="text-lg font-semibold text-[var(--text-primary)]">
-                Signos Vitales
-              </h3>
-              <button
-                onClick={() => setShowVitalsForm(!showVitalsForm)}
-                className="px-4 py-2 bg-[var(--primary)] text-white rounded-lg hover:opacity-90"
-              >
-                {showVitalsForm ? 'Cancelar' : 'Registrar Vitales'}
-              </button>
-            </div>
-
-            {showVitalsForm && (
-              <form onSubmit={handleSaveVitals} className="bg-[var(--bg-default)] p-4 rounded-lg border border-[var(--border)]">
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">
-                      Temperatura (°C)
-                    </label>
-                    <input
-                      type="number"
-                      step="0.1"
-                      value={vitalsForm.temperature}
-                      onChange={(e) => setVitalsForm({ ...vitalsForm, temperature: e.target.value })}
-                      className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--bg-default)] text-[var(--text-primary)]"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">
-                      FC (lpm)
-                    </label>
-                    <input
-                      type="number"
-                      value={vitalsForm.heart_rate}
-                      onChange={(e) => setVitalsForm({ ...vitalsForm, heart_rate: e.target.value })}
-                      className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--bg-default)] text-[var(--text-primary)]"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">
-                      FR (rpm)
-                    </label>
-                    <input
-                      type="number"
-                      value={vitalsForm.respiratory_rate}
-                      onChange={(e) => setVitalsForm({ ...vitalsForm, respiratory_rate: e.target.value })}
-                      className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--bg-default)] text-[var(--text-primary)]"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">
-                      Peso (kg)
-                    </label>
-                    <input
-                      type="number"
-                      step="0.1"
-                      value={vitalsForm.weight}
-                      onChange={(e) => setVitalsForm({ ...vitalsForm, weight: e.target.value })}
-                      className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--bg-default)] text-[var(--text-primary)]"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">
-                      PA Sistólica
-                    </label>
-                    <input
-                      type="number"
-                      value={vitalsForm.blood_pressure_systolic}
-                      onChange={(e) => setVitalsForm({ ...vitalsForm, blood_pressure_systolic: e.target.value })}
-                      className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--bg-default)] text-[var(--text-primary)]"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">
-                      PA Diastólica
-                    </label>
-                    <input
-                      type="number"
-                      value={vitalsForm.blood_pressure_diastolic}
-                      onChange={(e) => setVitalsForm({ ...vitalsForm, blood_pressure_diastolic: e.target.value })}
-                      className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--bg-default)] text-[var(--text-primary)]"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">
-                      Color de Mucosas
-                    </label>
-                    <select
-                      value={vitalsForm.mucous_membrane_color}
-                      onChange={(e) => setVitalsForm({ ...vitalsForm, mucous_membrane_color: e.target.value })}
-                      className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--bg-default)] text-[var(--text-primary)]"
-                    >
-                      <option value="">Seleccionar</option>
-                      <option value="pink">Rosado</option>
-                      <option value="pale">Pálido</option>
-                      <option value="cyanotic">Cianótico</option>
-                      <option value="icteric">Ictérico</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">
-                      TLLC
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="ej: <2s"
-                      value={vitalsForm.capillary_refill_time}
-                      onChange={(e) => setVitalsForm({ ...vitalsForm, capillary_refill_time: e.target.value })}
-                      className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--bg-default)] text-[var(--text-primary)]"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">
-                      Dolor (0-10)
-                    </label>
-                    <input
-                      type="number"
-                      min="0"
-                      max="10"
-                      value={vitalsForm.pain_score}
-                      onChange={(e) => setVitalsForm({ ...vitalsForm, pain_score: e.target.value })}
-                      className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--bg-default)] text-[var(--text-primary)]"
-                    />
-                  </div>
-
-                  <div className="md:col-span-3">
-                    <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">
-                      Notas
-                    </label>
-                    <textarea
-                      rows={2}
-                      value={vitalsForm.notes}
-                      onChange={(e) => setVitalsForm({ ...vitalsForm, notes: e.target.value })}
-                      className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--bg-default)] text-[var(--text-primary)]"
-                    />
-                  </div>
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="mt-4 flex items-center gap-2 px-6 py-2 bg-[var(--primary)] text-white rounded-lg hover:opacity-90 disabled:opacity-50"
-                >
-                  <Save className="h-4 w-4" />
-                  {saving ? 'Guardando...' : 'Guardar Signos Vitales'}
-                </button>
-              </form>
-            )}
-
-            {/* Vitals History */}
-            <div className="space-y-3">
-              {hospitalization.vitals?.length === 0 ? (
-                <p className="text-center text-[var(--text-secondary)] py-8">
-                  No hay registros de signos vitales
-                </p>
-              ) : (
-                hospitalization.vitals?.map((vital) => (
-                  <div key={vital.id} className="bg-[var(--bg-default)] p-4 rounded-lg border border-[var(--border)]">
-                    <div className="flex justify-between items-start mb-3">
-                      <div className="text-sm text-[var(--text-secondary)]">
-                        {formatDateTime(vital.recorded_at)}
-                        {vital.recorded_by && ` - ${vital.recorded_by.full_name}`}
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-                      {vital.temperature && (
-                        <div className="flex items-center gap-2">
-                          <Thermometer className="h-4 w-4 text-[var(--text-secondary)]" />
-                          <span className="text-[var(--text-primary)]">{vital.temperature}°C</span>
-                        </div>
-                      )}
-                      {vital.heart_rate && (
-                        <div className="flex items-center gap-2">
-                          <Heart className="h-4 w-4 text-[var(--text-secondary)]" />
-                          <span className="text-[var(--text-primary)]">{vital.heart_rate} lpm</span>
-                        </div>
-                      )}
-                      {vital.respiratory_rate && (
-                        <div className="flex items-center gap-2">
-                          <Activity className="h-4 w-4 text-[var(--text-secondary)]" />
-                          <span className="text-[var(--text-primary)]">{vital.respiratory_rate} rpm</span>
-                        </div>
-                      )}
-                      {vital.weight && (
-                        <div className="flex items-center gap-2">
-                          <Weight className="h-4 w-4 text-[var(--text-secondary)]" />
-                          <span className="text-[var(--text-primary)]">{vital.weight} kg</span>
-                        </div>
-                      )}
-                      {vital.blood_pressure_systolic && vital.blood_pressure_diastolic && (
-                        <div>
-                          <span className="text-[var(--text-secondary)]">PA:</span>{' '}
-                          <span className="text-[var(--text-primary)]">
-                            {vital.blood_pressure_systolic}/{vital.blood_pressure_diastolic}
-                          </span>
-                        </div>
-                      )}
-                      {vital.pain_score !== null && vital.pain_score !== undefined && (
-                        <div>
-                          <span className="text-[var(--text-secondary)]">Dolor:</span>{' '}
-                          <span className="text-[var(--text-primary)]">{vital.pain_score}/10</span>
-                        </div>
-                      )}
-                    </div>
-
-                    {vital.notes && (
-                      <p className="mt-2 text-sm text-[var(--text-secondary)] italic">{vital.notes}</p>
-                    )}
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
+          <VitalsPanel
+            hospitalizationId={id}
+            vitals={hospitalization.vitals}
+            onVitalsSaved={fetchHospitalization}
+          />
         )}
 
-        {/* Treatments Tab */}
         {activeTab === 'treatments' && (
           <TreatmentSheet
             hospitalizationId={id}
@@ -846,262 +311,15 @@ export default function HospitalizationDetailPage({
           />
         )}
 
-        {/* Feedings Tab */}
         {activeTab === 'feedings' && (
-          <div className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h3 className="text-lg font-semibold text-[var(--text-primary)]">
-                Registro de Alimentación
-              </h3>
-              <button
-                onClick={() => setShowFeedingForm(!showFeedingForm)}
-                className="px-4 py-2 bg-[var(--primary)] text-white rounded-lg hover:opacity-90"
-              >
-                {showFeedingForm ? 'Cancelar' : 'Registrar Alimentación'}
-              </button>
-            </div>
-
-            {showFeedingForm && (
-              <form onSubmit={handleSaveFeeding} className="bg-[var(--bg-default)] p-4 rounded-lg border border-[var(--border)]">
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">
-                      Tipo de Alimento *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={feedingForm.food_type}
-                      onChange={(e) => setFeedingForm({ ...feedingForm, food_type: e.target.value })}
-                      className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--bg-default)] text-[var(--text-primary)]"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">
-                      Apetito
-                    </label>
-                    <select
-                      value={feedingForm.appetite_level}
-                      onChange={(e) => setFeedingForm({ ...feedingForm, appetite_level: e.target.value })}
-                      className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--bg-default)] text-[var(--text-primary)]"
-                    >
-                      <option value="excellent">Excelente</option>
-                      <option value="good">Bueno</option>
-                      <option value="normal">Normal</option>
-                      <option value="poor">Pobre</option>
-                      <option value="none">Ninguno</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">
-                      Cantidad Ofrecida (g) *
-                    </label>
-                    <input
-                      type="number"
-                      step="0.1"
-                      required
-                      value={feedingForm.amount_offered}
-                      onChange={(e) => setFeedingForm({ ...feedingForm, amount_offered: e.target.value })}
-                      className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--bg-default)] text-[var(--text-primary)]"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">
-                      Cantidad Consumida (g)
-                    </label>
-                    <input
-                      type="number"
-                      step="0.1"
-                      value={feedingForm.amount_consumed}
-                      onChange={(e) => setFeedingForm({ ...feedingForm, amount_consumed: e.target.value })}
-                      className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--bg-default)] text-[var(--text-primary)]"
-                    />
-                  </div>
-
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">
-                      Notas
-                    </label>
-                    <textarea
-                      rows={2}
-                      value={feedingForm.notes}
-                      onChange={(e) => setFeedingForm({ ...feedingForm, notes: e.target.value })}
-                      className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--bg-default)] text-[var(--text-primary)]"
-                    />
-                  </div>
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="mt-4 flex items-center gap-2 px-6 py-2 bg-[var(--primary)] text-white rounded-lg hover:opacity-90 disabled:opacity-50"
-                >
-                  <Save className="h-4 w-4" />
-                  {saving ? 'Guardando...' : 'Guardar Registro'}
-                </button>
-              </form>
-            )}
-
-            {/* Feedings History */}
-            <div className="space-y-3">
-              {hospitalization.feedings?.length === 0 ? (
-                <p className="text-center text-[var(--text-secondary)] py-8">
-                  No hay registros de alimentación
-                </p>
-              ) : (
-                hospitalization.feedings?.map((feeding) => (
-                  <div key={feeding.id} className="bg-[var(--bg-default)] p-4 rounded-lg border border-[var(--border)]">
-                    <div className="flex justify-between items-start mb-2">
-                      <div className="text-sm text-[var(--text-secondary)]">
-                        {formatDateTime(feeding.feeding_time)}
-                        {feeding.fed_by && ` - ${feeding.fed_by.full_name}`}
-                      </div>
-                      <span className={`text-xs px-2 py-1 rounded-full ${
-                        feeding.appetite_level === 'excellent' || feeding.appetite_level === 'good'
-                          ? 'bg-green-100 text-green-800'
-                          : feeding.appetite_level === 'poor' || feeding.appetite_level === 'none'
-                          ? 'bg-red-100 text-red-800'
-                          : 'bg-yellow-100 text-yellow-800'
-                      }`}>
-                        {feeding.appetite_level}
-                      </span>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3 text-sm">
-                      <div>
-                        <span className="text-[var(--text-secondary)]">Alimento:</span>{' '}
-                        <span className="text-[var(--text-primary)]">{feeding.food_type}</span>
-                      </div>
-                      <div>
-                        <span className="text-[var(--text-secondary)]">Ofrecido:</span>{' '}
-                        <span className="text-[var(--text-primary)]">{feeding.amount_offered}g</span>
-                      </div>
-                      <div>
-                        <span className="text-[var(--text-secondary)]">Consumido:</span>{' '}
-                        <span className="text-[var(--text-primary)]">{feeding.amount_consumed}g</span>
-                      </div>
-                      <div>
-                        <span className="text-[var(--text-secondary)]">Porcentaje:</span>{' '}
-                        <span className="text-[var(--text-primary)]">
-                          {Math.round((feeding.amount_consumed / feeding.amount_offered) * 100)}%
-                        </span>
-                      </div>
-                    </div>
-
-                    {feeding.notes && (
-                      <p className="mt-2 text-sm text-[var(--text-secondary)] italic">{feeding.notes}</p>
-                    )}
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
+          <FeedingsPanel
+            hospitalizationId={id}
+            feedings={hospitalization.feedings}
+            onFeedingSaved={fetchHospitalization}
+          />
         )}
 
-        {/* Timeline Tab */}
-        {activeTab === 'timeline' && (
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-[var(--text-primary)]">
-              Línea de Tiempo
-            </h3>
-
-            <div className="space-y-3">
-              {/* Combine all events and sort by date */}
-              {[
-                ...((hospitalization.vitals || []).map(v => ({ type: 'vital', date: v.recorded_at, data: v }))),
-                ...((hospitalization.treatments || []).filter(t => t.administered_at).map(t => ({ type: 'treatment', date: t.administered_at!, data: t }))),
-                ...((hospitalization.feedings || []).map(f => ({ type: 'feeding', date: f.feeding_time, data: f }))),
-                ...((hospitalization.transfers || []).map(t => ({ type: 'transfer', date: t.transfer_date, data: t }))),
-                ...((hospitalization.visits || []).map(v => ({ type: 'visit', date: v.visit_start, data: v }))),
-              ]
-                .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-                .map((event, index) => (
-                  <div key={index} className="flex gap-4">
-                    <div className="flex flex-col items-center">
-                      <div className={`w-3 h-3 rounded-full ${
-                        event.type === 'vital' ? 'bg-blue-500' :
-                        event.type === 'treatment' ? 'bg-green-500' :
-                        event.type === 'feeding' ? 'bg-orange-500' :
-                        event.type === 'transfer' ? 'bg-purple-500' :
-                        'bg-gray-500'
-                      }`} />
-                      {index < hospitalization.vitals.length + hospitalization.treatments.length + hospitalization.feedings.length + hospitalization.transfers.length + hospitalization.visits.length - 1 && (
-                        <div className="w-0.5 h-full bg-[var(--border)] mt-2" />
-                      )}
-                    </div>
-
-                    <div className="flex-1 pb-6">
-                      <div className="text-sm text-[var(--text-secondary)] mb-1">
-                        {formatDateTime(event.date)}
-                      </div>
-                      <div className="bg-[var(--bg-default)] p-3 rounded-lg border border-[var(--border)]">
-                        {event.type === 'vital' && (
-                          <div>
-                            <div className="font-medium text-[var(--text-primary)] mb-1">
-                              Signos Vitales Registrados
-                            </div>
-                            <div className="text-sm text-[var(--text-secondary)]">
-                              {(event.data as typeof hospitalization.vitals[0]).temperature && `T: ${(event.data as typeof hospitalization.vitals[0]).temperature}°C `}
-                              {(event.data as typeof hospitalization.vitals[0]).heart_rate && `FC: ${(event.data as typeof hospitalization.vitals[0]).heart_rate} lpm `}
-                              {(event.data as typeof hospitalization.vitals[0]).respiratory_rate && `FR: ${(event.data as typeof hospitalization.vitals[0]).respiratory_rate} rpm`}
-                            </div>
-                          </div>
-                        )}
-
-                        {event.type === 'treatment' && (
-                          <div>
-                            <div className="font-medium text-[var(--text-primary)] mb-1">
-                              Tratamiento Administrado
-                            </div>
-                            <div className="text-sm text-[var(--text-secondary)]">
-                              {(event.data as typeof hospitalization.treatments[0]).medication_name || (event.data as typeof hospitalization.treatments[0]).treatment_type}
-                              {(event.data as typeof hospitalization.treatments[0]).dosage && ` - ${(event.data as typeof hospitalization.treatments[0]).dosage}`}
-                            </div>
-                          </div>
-                        )}
-
-                        {event.type === 'feeding' && (
-                          <div>
-                            <div className="font-medium text-[var(--text-primary)] mb-1">
-                              Alimentación
-                            </div>
-                            <div className="text-sm text-[var(--text-secondary)]">
-                              {(event.data as typeof hospitalization.feedings[0]).food_type} - {(event.data as typeof hospitalization.feedings[0]).amount_consumed}g de {(event.data as typeof hospitalization.feedings[0]).amount_offered}g
-                            </div>
-                          </div>
-                        )}
-
-                        {event.type === 'transfer' && (
-                          <div>
-                            <div className="font-medium text-[var(--text-primary)] mb-1">
-                              Transferencia de Jaula
-                            </div>
-                            <div className="text-sm text-[var(--text-secondary)]">
-                              De Jaula {(event.data as typeof hospitalization.transfers[0]).from_kennel.kennel_number} a Jaula {(event.data as typeof hospitalization.transfers[0]).to_kennel.kennel_number}
-                            </div>
-                          </div>
-                        )}
-
-                        {event.type === 'visit' && (
-                          <div>
-                            <div className="font-medium text-[var(--text-primary)] mb-1">
-                              Visita
-                            </div>
-                            <div className="text-sm text-[var(--text-secondary)]">
-                              {(event.data as typeof hospitalization.visits[0]).visitor_name}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-            </div>
-          </div>
-        )}
+        {activeTab === 'timeline' && <TimelinePanel hospitalization={hospitalization} />}
       </div>
     </div>
   );

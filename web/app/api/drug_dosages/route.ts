@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
     const limit = Math.min(parseInt(searchParams.get('limit') || '100'), 200); // TICKET-PERF-001: Cap at 200
     const offset = (page - 1) * limit;
 
-    let query = supabase.from('drug_dosages').select('*', { count: 'exact' }).order('name');
+    let query = supabase.from('drug_dosages').select('id, name, species, dose_mg_per_kg, route, frequency, contraindications, notes, created_at, updated_at', { count: 'exact' }).order('name');
 
     if (species) {
         query = query.or(`species.eq.${species},species.eq.all`);

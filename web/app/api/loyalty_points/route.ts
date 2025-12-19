@@ -1,26 +1,7 @@
-import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { withAuth } from '@/lib/api/with-auth';
 
-export async function GET(request: Request) {
-    const supabase = await createClient();
-
-    // Authentication check
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
-        return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
-    }
-
-    // Get user profile
-    const { data: profile } = await supabase
-        .from('profiles')
-        .select('clinic_id:tenant_id, role')
-        .eq('id', user.id)
-        .single();
-
-    if (!profile) {
-        return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 });
-    }
-
+export const GET = withAuth(async ({ request, user, profile, supabase }) => {
     const { searchParams } = new URL(request.url);
     const petId = searchParams.get('petId');
 
@@ -40,7 +21,7 @@ export async function GET(request: Request) {
     }
 
     const isOwner = pet.owner_id === user.id;
-    const isStaff = ['vet', 'admin'].includes(profile.role) && pet.tenant_id === profile.clinic_id;
+    const isStaff = ['vet', 'admin'].includes(profile.role) && pet.tenant_id === profile.tenant_id;
 
     if (!isOwner && !isStaff) {
         return NextResponse.json({ error: 'No tienes acceso a esta mascota' }, { status: 403 });
@@ -59,28 +40,9 @@ export async function GET(request: Request) {
     const balance = data.reduce((sum, txn) => sum + txn.points, 0);
 
     return NextResponse.json({ balance });
-}
+});
 
-export async function POST(request: Request) {
-    const supabase = await createClient();
-
-    // Authentication check
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
-        return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
-    }
-
-    // Get user profile - only staff can add loyalty points
-    const { data: profile } = await supabase
-        .from('profiles')
-        .select('clinic_id:tenant_id, role')
-        .eq('id', user.id)
-        .single();
-
-    if (!profile || !['vet', 'admin'].includes(profile.role)) {
-        return NextResponse.json({ error: 'Solo el personal puede agregar puntos' }, { status: 403 });
-    }
-
+export const POST = withAuth(async ({ request, user, profile, supabase }) => {
     let body;
     try {
         body = await request.json();
@@ -105,7 +67,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'Mascota no encontrada' }, { status: 404 });
     }
 
-    if (pet.tenant_id !== profile.clinic_id) {
+    if (pet.tenant_id !== profile.tenant_id) {
         return NextResponse.json({ error: 'No tienes acceso a esta mascota' }, { status: 403 });
     }
 
@@ -141,4 +103,4 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json(data, { status: 201 });
-}
+}, { roles: ['vet', 'admin'] });

@@ -5,6 +5,13 @@ interface RouteParams {
   params: Promise<{ id: string }>;
 }
 
+interface Attachment {
+  url: string;
+  name: string;
+  type: string;
+  size: number;
+}
+
 // POST /api/conversations/[id]/messages - Send a message
 export async function POST(request: Request, { params }: RouteParams) {
   const { id: conversationId } = await params;
@@ -48,16 +55,32 @@ export async function POST(request: Request, { params }: RouteParams) {
     }
 
     const body = await request.json();
-    const { content, content_type, attachment_url, attachment_type, is_internal } = body;
+    const { content, content_type, attachments, is_internal } = body;
 
-    if (!content && !attachment_url) {
+    // Support both single attachment (legacy) and multiple attachments
+    const attachmentList: Attachment[] = attachments || [];
+    const hasAttachments = attachmentList.length > 0;
+
+    if (!content && !hasAttachments) {
       return NextResponse.json({ error: 'Se requiere contenido o adjunto' }, { status: 400 });
     }
 
     // Non-staff cannot send internal messages
     const finalIsInternal = isStaff ? (is_internal || false) : false;
 
-    // Create message
+    // Determine message type based on content
+    let messageType = content_type || 'text';
+    if (hasAttachments && !content) {
+      // Pure attachment message
+      const firstType = attachmentList[0].type;
+      if (firstType.startsWith('image/')) {
+        messageType = 'image';
+      } else {
+        messageType = 'file';
+      }
+    }
+
+    // Create message with attachments JSONB
     const { data: message, error: msgError } = await supabase
       .from('messages')
       .insert({
@@ -65,13 +88,11 @@ export async function POST(request: Request, { params }: RouteParams) {
         sender_id: user.id,
         sender_type: isStaff ? 'staff' : 'client',
         content: content || '',
-        content_type: content_type || 'text',
-        attachment_url,
-        attachment_type,
-        is_internal: finalIsInternal
+        message_type: messageType,
+        attachments: attachmentList
       })
       .select(`
-        id, content, content_type, attachment_url, attachment_type, is_internal, created_at,
+        id, content, message_type, attachments, created_at,
         sender:profiles!messages_sender_id_fkey(id, full_name, avatar_url, role)
       `)
       .single();

@@ -36,6 +36,38 @@ export async function GET(request: NextRequest) {
     )
   }
 
+  // SEC-001: Verify authentication and tenant access
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  if (authError || !user) {
+    return NextResponse.json(
+      { error: 'No autorizado' },
+      { status: 401 }
+    )
+  }
+
+  // Get user profile and verify tenant access
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('tenant_id, role')
+    .eq('id', user.id)
+    .single()
+
+  if (!profile) {
+    return NextResponse.json(
+      { error: 'No autorizado' },
+      { status: 401 }
+    )
+  }
+
+  // Verify tenant isolation - users can only access slots for their own clinic
+  const isStaff = ['vet', 'admin'].includes(profile.role)
+  if (clinicSlug !== profile.tenant_id && !isStaff) {
+    return NextResponse.json(
+      { error: 'Acceso denegado' },
+      { status: 403 }
+    )
+  }
+
   try {
     // Get service duration if service_id provided
     let slotDuration = 30 // default 30 minutes

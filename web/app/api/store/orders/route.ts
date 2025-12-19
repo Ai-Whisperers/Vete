@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 
 // Order statuses
-const ORDER_STATUSES = ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded'] as const;
+const ORDER_STATUSES = ['pending', 'pending_prescription', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded'] as const;
 type OrderStatus = (typeof ORDER_STATUSES)[number];
 
 interface OrderItem {
@@ -141,7 +141,22 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: 'Uno o más productos no están disponibles' }, { status: 400 });
     }
 
-    // Check stock availability
+    // Fetch variant names if any variant_ids are provided
+    const variantIds = items.filter(i => i.variant_id).map(i => i.variant_id!);
+    let variantMap: Record<string, string> = {};
+    if (variantIds.length > 0) {
+      const { data: variants } = await supabase
+        .from('store_product_variants')
+        .select('id, name')
+        .in('id', variantIds);
+
+      if (variants) {
+        variantMap = variants.reduce((acc, v) => ({ ...acc, [v.id]: v.name }), {} as Record<string, string>);
+      }
+    }
+
+    // Check stock availability and prescription requirements
+    let requiresPrescriptionReview = false;
     for (const item of items) {
       const product = products.find(p => p.id === item.product_id);
       if (!product) {
@@ -158,8 +173,18 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
       // Check prescription requirement
       if (product.is_prescription_required) {
-        // TODO: Verify user has valid prescription for this product
-        // For now, just allow but mark the order for review
+        // Check if user has a valid prescription for this product type
+        const { data: prescriptions } = await supabase
+          .from('prescriptions')
+          .select('id, valid_until')
+          .eq('client_id', user.id)
+          .gte('valid_until', new Date().toISOString())
+          .limit(1);
+
+        if (!prescriptions || prescriptions.length === 0) {
+          // No valid prescription - flag for review but allow order
+          requiresPrescriptionReview = true;
+        }
       }
     }
 
@@ -176,11 +201,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         product_id: item.product_id,
         variant_id: item.variant_id || null,
         product_name: product.name,
-        variant_name: null, // TODO: Get variant name if variant_id provided
+        variant_name: item.variant_id ? (variantMap[item.variant_id] || null) : null,
         quantity: item.quantity,
         unit_price: unitPrice,
         discount_amount: discount,
         line_total: lineTotal,
+        requires_prescription: product.is_prescription_required || false,
       };
     });
 
@@ -214,14 +240,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // Generate order number
     const orderNumber = `ORD-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
 
-    // Create order
+    // Create order - flag for prescription review if needed
+    const orderStatus = requiresPrescriptionReview ? 'pending_prescription' : 'pending';
     const { data: order, error: orderError } = await supabase
       .from('store_orders')
       .insert({
         tenant_id: clinic,
         user_id: user.id,
         order_number: orderNumber,
-        status: 'pending',
+        status: orderStatus,
         subtotal,
         discount_amount: couponDiscount,
         coupon_id: couponId,
@@ -235,6 +262,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         shipping_method: shipping_method || 'standard',
         payment_method: payment_method || 'cash_on_delivery',
         notes,
+        requires_prescription_review: requiresPrescriptionReview,
       })
       .select()
       .single();
@@ -296,7 +324,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         order_number: order.order_number,
         status: order.status,
         total: order.total,
+        requires_prescription_review: requiresPrescriptionReview,
       },
+      message: requiresPrescriptionReview
+        ? 'Pedido creado. Algunos productos requieren receta médica. Un veterinario revisará tu pedido.'
+        : undefined,
     }, { status: 201 });
   } catch (e) {
     console.error('Error creating order:', e);

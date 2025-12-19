@@ -380,6 +380,88 @@ export async function deleteTemplate(templateId: string): Promise<{ success: boo
   }
 }
 
+// WhatsApp message stats
+export interface WhatsAppStats {
+  sentToday: number;
+  failedToday: number;
+  deliveredToday: number;
+  pendingToday: number;
+  totalThisWeek: number;
+  deliveryRate: number;
+}
+
+// Get WhatsApp message stats for dashboard
+export async function getWhatsAppStats(clinic: string): Promise<{ data: WhatsAppStats } | { error: string }> {
+  const supabase = await createClient()
+
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    return { error: 'No autorizado' }
+  }
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('tenant_id, role')
+    .eq('id', user.id)
+    .single()
+
+  if (!profile || !['vet', 'admin'].includes(profile.role) || profile.tenant_id !== clinic) {
+    return { error: 'No autorizado' }
+  }
+
+  try {
+    const now = new Date()
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString()
+    const weekStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7).toISOString()
+
+    // Get today's outbound messages with status counts
+    const { data: todayMessages, error: todayError } = await supabase
+      .from('whatsapp_messages')
+      .select('status')
+      .eq('tenant_id', clinic)
+      .eq('direction', 'outbound')
+      .gte('created_at', todayStart)
+
+    if (todayError) throw todayError
+
+    // Get this week's total
+    const { count: weekTotal, error: weekError } = await supabase
+      .from('whatsapp_messages')
+      .select('*', { count: 'exact', head: true })
+      .eq('tenant_id', clinic)
+      .eq('direction', 'outbound')
+      .gte('created_at', weekStart)
+
+    if (weekError) throw weekError
+
+    // Calculate stats
+    const sentToday = todayMessages?.length || 0
+    const failedToday = todayMessages?.filter(m => m.status === 'failed').length || 0
+    const deliveredToday = todayMessages?.filter(m => m.status === 'delivered' || m.status === 'read').length || 0
+    const pendingToday = todayMessages?.filter(m => m.status === 'pending' || m.status === 'sent').length || 0
+
+    // Delivery rate (excluding pending)
+    const completedMessages = sentToday - pendingToday
+    const deliveryRate = completedMessages > 0
+      ? Math.round((deliveredToday / completedMessages) * 100)
+      : 100
+
+    return {
+      data: {
+        sentToday,
+        failedToday,
+        deliveredToday,
+        pendingToday,
+        totalThisWeek: weekTotal || 0,
+        deliveryRate
+      }
+    }
+  } catch (e) {
+    console.error('Error loading WhatsApp stats:', e)
+    return { error: 'Error al cargar estadísticas' }
+  }
+}
+
 // TICKET-TYPE-004: Define proper type for client data
 interface ClientProfile {
   id: string;

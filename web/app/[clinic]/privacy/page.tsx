@@ -2,9 +2,39 @@ import { getClinicData } from "@/lib/clinics";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Shield, Lock, Eye, Database, Bell, UserCheck, Mail } from "lucide-react";
+import type { Metadata } from 'next';
 
 interface Props {
   params: Promise<{ clinic: string }>;
+}
+
+const BASE_URL = 'https://vetepy.vercel.app';
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { clinic } = await params;
+  const data = await getClinicData(clinic);
+  if (!data) return { title: 'Página no encontrada' };
+
+  const title = `Política de Privacidad | ${data.config.name}`;
+  const description = `Lee nuestra política de privacidad y protección de datos. ${data.config.name} protege tu información personal y la de tu mascota.`;
+  const canonicalUrl = `${BASE_URL}/${clinic}/privacy`;
+
+  return {
+    title,
+    description,
+    robots: 'index, follow',
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      type: 'website',
+      locale: 'es_PY',
+      url: canonicalUrl,
+      title,
+      description,
+      siteName: data.config.name,
+    },
+  };
 }
 
 export default async function PrivacyPage({ params }: Props): Promise<React.ReactElement> {

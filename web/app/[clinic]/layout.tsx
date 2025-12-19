@@ -82,7 +82,7 @@ export async function generateMetadata({ params }: { params: Promise<{ clinic: s
 // Generate LocalBusiness/VeterinaryCare structured data
 function generateStructuredData(clinic: string, config: {
   name: string;
-  tagline: string;
+  tagline?: string;
   contact: {
     phone_display: string;
     whatsapp_number: string;
@@ -93,7 +93,7 @@ function generateStructuredData(clinic: string, config: {
     coordinates?: { lat: number; lng: number };
     google_maps_id?: string;
   };
-  hours: { weekdays: string; saturday: string; sunday?: string };
+  hours?: { weekdays?: string; saturday?: string; sunday?: string };
   branding?: { logo_url?: string; og_image_url?: string };
   social?: { facebook?: string; instagram?: string };
 }) {
@@ -101,7 +101,7 @@ function generateStructuredData(clinic: string, config: {
 
   // Parse opening hours for schema
   const openingHours = [];
-  if (hours.weekdays) {
+  if (hours?.weekdays) {
     const [open, close] = hours.weekdays.split(' - ');
     openingHours.push({
       '@type': 'OpeningHoursSpecification',
@@ -110,7 +110,7 @@ function generateStructuredData(clinic: string, config: {
       closes: close,
     });
   }
-  if (hours.saturday) {
+  if (hours?.saturday) {
     const [open, close] = hours.saturday.split(' - ');
     openingHours.push({
       '@type': 'OpeningHoursSpecification',
@@ -125,7 +125,7 @@ function generateStructuredData(clinic: string, config: {
     '@type': 'VeterinaryCare',
     '@id': `${BASE_URL}/${clinic}#organization`,
     name: config.name,
-    description: config.tagline,
+    description: config.tagline || `Clínica veterinaria ${config.name}`,
     url: `${BASE_URL}/${clinic}`,
     telephone: contact.phone_display,
     email: contact.email,
@@ -214,7 +214,7 @@ export default async function ClinicLayout({
           </a>
 
           {/* Header */}
-          <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm">
+          <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm" role="banner">
             <div className="container mx-auto flex h-20 items-center justify-between px-4 md:px-6">
               <Link
                 href={`/${clinic}`}
@@ -237,7 +237,7 @@ export default async function ClinicLayout({
             </div>
           </header>
 
-          <main id="main-content" className="flex-1">
+          <main id="main-content" tabIndex={-1} className="flex-1">
             {children}
           </main>
 

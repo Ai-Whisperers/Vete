@@ -19,7 +19,7 @@ export async function GET(request: Request) {
   try {
     let query = supabase
       .from('services')
-      .select('*')
+      .select('id, tenant_id, name, description, category, base_price, duration_minutes, is_active, created_at, updated_at')
       .eq('tenant_id', clinic)
       .order('category')
       .order('name');

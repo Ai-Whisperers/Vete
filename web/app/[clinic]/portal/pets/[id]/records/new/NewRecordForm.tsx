@@ -38,7 +38,7 @@ export default function NewRecordForm({ clinic, petId, initialWeight }: { clinic
 
   return (
     <div className="relative">
-        <form action={createMedicalRecord} className="space-y-6">
+        <form action={createMedicalRecord as unknown as (formData: FormData) => Promise<void>} className="space-y-6">
             <input type="hidden" name="clinic" value={clinic} />
             <input type="hidden" name="pet_id" value={petId} />
 

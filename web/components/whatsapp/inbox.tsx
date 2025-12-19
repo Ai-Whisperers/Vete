@@ -9,10 +9,10 @@ import { MessageThread } from './message-thread'
 import { MessageInput } from './message-input'
 import { TemplateSelector } from './template-selector'
 import { sendMessage, getMessages, getTemplates } from '@/app/actions/whatsapp'
-import type { Conversation, WhatsAppMessage, WhatsAppTemplate } from '@/lib/types/whatsapp'
+import type { WhatsAppConversation, WhatsAppMessage, WhatsAppTemplate } from '@/lib/types/whatsapp'
 
 interface InboxProps {
-  conversations: Conversation[]
+  conversations: WhatsAppConversation[]
   clinic: string
 }
 
@@ -35,7 +35,7 @@ export function Inbox({ conversations, clinic }: InboxProps) {
 
     setLoading(true)
     const result = await getMessages(clinic, selectedPhone)
-    if (result.success && result.data) {
+    if ('data' in result && result.data) {
       setMessages(result.data)
     }
     setLoading(false)
@@ -44,7 +44,7 @@ export function Inbox({ conversations, clinic }: InboxProps) {
   // Load templates
   const loadTemplates = useCallback(async () => {
     const result = await getTemplates(clinic)
-    if (result.success && result.data) {
+    if ('data' in result && result.data) {
       setTemplates(result.data)
     }
   }, [clinic])

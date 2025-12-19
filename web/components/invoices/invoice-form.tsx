@@ -26,7 +26,7 @@ interface Pet {
 interface Service {
   id: string
   name: string
-  price: number
+  base_price: number
   category?: string
 }
 

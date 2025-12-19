@@ -522,12 +522,12 @@ export default function ClaimDetailPage({ params }: ClaimDetailPageProps) {
                 )}
 
                 <div className="pt-3 border-t border-gray-200">
-                  {claim.pet_insurance_policies.claims_email && (
+                  {claim.pet_insurance_policies.insurance_providers?.claims_email && (
                     <p className="text-xs text-[var(--text-secondary)]">
                       Email: {claim.pet_insurance_policies.insurance_providers.claims_email}
                     </p>
                   )}
-                  {claim.pet_insurance_policies.claims_phone && (
+                  {claim.pet_insurance_policies.insurance_providers?.claims_phone && (
                     <p className="text-xs text-[var(--text-secondary)]">
                       Teléfono: {claim.pet_insurance_policies.insurance_providers.claims_phone}
                     </p>

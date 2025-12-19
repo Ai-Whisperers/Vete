@@ -22,6 +22,15 @@ export interface NavLabels {
   back: string;
   book_btn: string;
   emergency_btn: string;
+  // Additional nav labels for mobile menu
+  faq?: string;
+  loyalty_program?: string;
+  menu?: string;
+  navigation?: string;
+  tools?: string;
+  my_account?: string;
+  login?: string;
+  settings?: string;
 }
 
 export interface FooterLabels {
@@ -719,6 +728,8 @@ export interface ContactInfo {
     lat: number;
     lng: number;
   };
+  /** Emergency phone number (24h) */
+  emergencyPhone?: string;
 }
 
 export interface SocialLinks {
@@ -792,6 +803,12 @@ export interface ClinicConfig {
   ui_labels: UiLabels;
   branding?: BrandingAssets;
   stats?: StatsInfo;
+  /** Module toggles (shortcut, also available in settings.modules) */
+  modules?: {
+    toxicFoodChecker?: boolean;
+    ageCalculator?: boolean;
+    [key: string]: boolean | undefined;
+  };
 }
 
 // ============================================================================

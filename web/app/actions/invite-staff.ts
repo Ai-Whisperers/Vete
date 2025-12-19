@@ -16,7 +16,7 @@ const inviteStaffSchema = z.object({
 
   role: z
     .enum(["vet", "admin"], {
-      errorMap: () => ({ message: "Selecciona un cargo válido (Veterinario o Administrador)" })
+      message: "Selecciona un cargo válido (Veterinario o Administrador)"
     }),
 });
 

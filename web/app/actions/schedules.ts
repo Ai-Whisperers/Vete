@@ -84,9 +84,11 @@ export async function getStaffSchedules(clinicSlug: string): Promise<{
   }
 
   // Get profile names for each staff
-  const staffProfileIds = schedules?.map(s =>
-    (s.staff_profile as { user_id: string }).user_id
-  ) || []
+  // Note: Supabase joins with !inner return single objects, but TS infers arrays
+  const staffProfileIds = schedules?.map(s => {
+    const sp = s.staff_profile as unknown as { user_id: string }
+    return sp.user_id
+  }) || []
 
   const { data: profiles } = await supabase
     .from('profiles')
@@ -95,7 +97,7 @@ export async function getStaffSchedules(clinicSlug: string): Promise<{
 
   // Merge profile data
   const schedulesWithProfiles = schedules?.map(schedule => {
-    const staffProfile = schedule.staff_profile as {
+    const staffProfile = schedule.staff_profile as unknown as {
       id: string
       user_id: string
       job_title: string
@@ -182,7 +184,7 @@ export async function getStaffSchedule(scheduleId: string): Promise<{
   }
 
   // Get staff profile name
-  const staffProfile = schedule.staff_profile as { user_id: string }
+  const staffProfile = schedule.staff_profile as unknown as { user_id: string }
   const { data: userProfile } = await supabase
     .from('profiles')
     .select('full_name, avatar_url')
@@ -192,9 +194,10 @@ export async function getStaffSchedule(scheduleId: string): Promise<{
   return {
     schedule: {
       ...schedule,
+      staff_profile: staffProfile,
       profile: userProfile || undefined,
       entries: (schedule.entries || []) as StaffScheduleEntry[]
-    } as StaffScheduleWithProfile
+    } as unknown as StaffScheduleWithProfile
   }
 }
 
@@ -538,7 +541,7 @@ export async function updateScheduleEntry(
     return { error: 'Entrada no encontrada' }
   }
 
-  const schedule = entry.schedule as { tenant_id: string }
+  const schedule = entry.schedule as unknown as { tenant_id: string }
 
   // Check admin permission
   const { data: profile } = await supabase
@@ -600,7 +603,7 @@ export async function deleteScheduleEntry(entryId: string): Promise<CalendarActi
     return { error: 'Entrada no encontrada' }
   }
 
-  const schedule = entry.schedule as { tenant_id: string }
+  const schedule = entry.schedule as unknown as { tenant_id: string }
 
   // Check admin permission
   const { data: profile } = await supabase

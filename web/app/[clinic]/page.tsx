@@ -17,7 +17,8 @@ const DynamicIcon = ({ name, className }: { name: string; className?: string }) 
     .charAt(0).toUpperCase() +
     name.slice(1).replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
 
-  const Icon = (Icons as Record<string, React.ComponentType<{ className?: string }>>)[iconName] || Icons.HelpCircle;
+  const IconsMap = Icons as unknown as Record<string, React.ComponentType<{ className?: string }>>;
+  const Icon = IconsMap[iconName] || Icons.HelpCircle;
   return <Icon className={className} />;
 };
 
@@ -195,7 +196,7 @@ export default async function ClinicHomePage({ params }: { params: Promise<{ cli
 
             {/* Testimonials Grid - Show 3 max on desktop */}
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-              {(data.testimonials ?? []).slice(0, 6).map((t: { id: string; rating: number; text: string; author: string; source: string }, idx: number) => (
+              {(data.testimonials ?? []).slice(0, 6).map((t, idx) => (
                 <div
                   key={t.id}
                   className="group bg-white p-6 md:p-8 rounded-2xl shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] transition-all duration-300 hover:-translate-y-1 border border-gray-100 relative"
@@ -280,7 +281,7 @@ export default async function ClinicHomePage({ params }: { params: Promise<{ cli
                   </div>
                   <div>
                     <p className="font-bold text-[var(--text-primary)] text-sm">Horarios</p>
-                    <p className="text-[var(--text-secondary)] text-sm">Lun-Vie: {config.hours.weekdays}</p>
+                    <p className="text-[var(--text-secondary)] text-sm">Lun-Vie: {config.hours?.weekdays || 'Consultar'}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4 p-4 bg-[var(--accent)]/10 rounded-xl border border-[var(--accent)]/20">

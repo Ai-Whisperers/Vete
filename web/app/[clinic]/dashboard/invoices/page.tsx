@@ -27,7 +27,7 @@ export default async function InvoicesPage({ params, searchParams }: Props) {
     limit: 20
   })
 
-  if ('error' in result) {
+  if (!result.success) {
     return (
       <div className="p-6 max-w-7xl mx-auto">
         <div className="bg-red-50 text-red-700 p-4 rounded-lg">
@@ -37,7 +37,11 @@ export default async function InvoicesPage({ params, searchParams }: Props) {
     )
   }
 
-  const { data: invoices, total, page: currentPage, limit } = result
+  // Extract data from the ActionResult
+  const invoices = result.data?.data || []
+  const total = result.data?.total || 0
+  const currentPage = parseInt(page || '1')
+  const limit = 20
 
   // Calculate stats
   const stats = {

@@ -325,7 +325,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 
         // Add 30 empty rows for data entry
         for (let i = 0; i < 30; i++) {
-            quickImportData.push(['', '', '', '', '', '', 0, 0, 0, 0, '', '', '', '']);
+            quickImportData.push(['', '', '', '', '', '', '', '', '', '', '', '', '', '']);
         }
 
         const wsQuickImport = createStyledSheet(quickImportData, [3, 15, 16, 28, 20, 35, 14, 12, 14, 12, 14, 14, 20, 16]);
@@ -368,7 +368,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         if (error) return new NextResponse(error.message, { status: 500 });
 
         // Calculate totals
-        const typedProducts = products as ProductFromDB[];
+        const typedProducts = products as unknown as ProductFromDB[];
         const totalProducts = typedProducts.length;
         const totalValue = typedProducts.reduce((sum, p) => {
             const qty = p.store_inventory?.stock_quantity || 0;

@@ -436,7 +436,7 @@ export async function cancelTimeOffRequest(requestId: string): Promise<CalendarA
     return { error: 'Solicitud no encontrada' }
   }
 
-  const staffProfile = request.staff_profile as { user_id: string }
+  const staffProfile = request.staff_profile as unknown as { user_id: string }
 
   // Check permission - must be the requester or admin
   const isRequester = staffProfile.user_id === user.id

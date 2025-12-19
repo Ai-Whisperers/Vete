@@ -101,17 +101,15 @@ export async function POST(request: Request, { params }: RouteParams) {
 
     // Update conversation
     // TICKET-TYPE-004: Use proper interface instead of any
-    const updateData: { last_message_at: string } = {
+    const updateData: {
+      last_message_at: string;
+      unread_count_client?: number;
+      unread_count_staff?: number;
+      status?: string;
+      closed_at?: string | null;
+    } = {
       last_message_at: new Date().toISOString()
     };
-
-    // Update unread count for the other party (unless internal message)
-    if (!finalIsInternal) {
-      if (isStaff) {
-        updateData.unread_count_client = supabase.rpc('increment_unread_client', { conv_id: conversationId });
-        // Actually, we need to do this differently
-      }
-    }
 
     // Simple approach - just increment the counter
     const unreadField = isStaff ? 'unread_count_client' : 'unread_count_staff';
@@ -123,7 +121,7 @@ export async function POST(request: Request, { params }: RouteParams) {
         .eq('id', conversationId)
         .single();
 
-      const currentCount = (currentConv as Record<string, number> | null)?.[unreadField] || 0;
+      const currentCount = (currentConv as { unread_count_staff?: number; unread_count_client?: number } | null)?.[unreadField] || 0;
       updateData[unreadField] = currentCount + 1;
     }
 

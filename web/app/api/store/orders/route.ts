@@ -163,7 +163,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         return NextResponse.json({ error: `Producto no encontrado: ${item.product_id}` }, { status: 400 });
       }
 
-      const inventory = product.store_inventory as { stock_quantity: number } | null;
+      const inventory = product.store_inventory as unknown as { stock_quantity: number } | null;
       if (!inventory || inventory.stock_quantity < item.quantity) {
         return NextResponse.json({
           error: `Stock insuficiente para: ${product.name}`,

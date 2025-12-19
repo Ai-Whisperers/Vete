@@ -249,7 +249,7 @@ const createPetForClientSchema = z.object({
 
   petSpecies: z
     .enum(["dog", "cat"], {
-      errorMap: () => ({ message: "Selecciona perro o gato" })
+      message: "Selecciona perro o gato"
     }),
 
   petBreed: z
@@ -428,7 +428,7 @@ export async function createPetForClient(
     }
 
     revalidatePath(`/${clinic}/dashboard/clients/${validData.clientId}`);
-    return { success: true, data: { petId: pet.id } };
+    return { success: true };
 
   } catch (e) {
     console.error('Error in createPetForClient:', e);

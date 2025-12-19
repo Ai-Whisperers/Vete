@@ -156,27 +156,37 @@ export const GET = withAuth(async ({ request, user, profile, supabase }) => {
     const clientIds = clients.map(c => c.id);
 
     // Single query to get pet counts using aggregation
-    const { data: petAggregates } = await supabase
-      .rpc('get_client_pet_counts', {
-        client_ids: clientIds,
-        p_tenant_id: profile.tenant_id
-      })
-      .catch(() => ({ data: null }));
+    let petAggregates: { owner_id: string; pet_count: number }[] | null = null;
+    try {
+      const { data } = await supabase
+        .rpc('get_client_pet_counts', {
+          client_ids: clientIds,
+          p_tenant_id: profile.tenant_id
+        });
+      petAggregates = data;
+    } catch {
+      // RPC function may not exist, fall back to batch query
+    }
 
     // Single query to get last appointments using aggregation
-    const { data: apptAggregates } = await supabase
-      .rpc('get_client_last_appointments', {
-        client_ids: clientIds,
-        p_tenant_id: profile.tenant_id
-      })
-      .catch(() => ({ data: null }));
+    let apptAggregates: { owner_id: string; last_appointment: string }[] | null = null;
+    try {
+      const { data } = await supabase
+        .rpc('get_client_last_appointments', {
+          client_ids: clientIds,
+          p_tenant_id: profile.tenant_id
+        });
+      apptAggregates = data;
+    } catch {
+      // RPC function may not exist, fall back to batch query
+    }
 
     // If RPC functions don't exist, fall back to batch queries
     const petCountMap = new Map<string, number>();
     const lastAppointmentMap = new Map<string, string>();
 
     if (petAggregates) {
-      petAggregates.forEach((row: any) => {
+      petAggregates.forEach((row) => {
         petCountMap.set(row.owner_id, row.pet_count);
       });
     } else {
@@ -197,7 +207,7 @@ export const GET = withAuth(async ({ request, user, profile, supabase }) => {
     }
 
     if (apptAggregates) {
-      apptAggregates.forEach((row: any) => {
+      apptAggregates.forEach((row) => {
         lastAppointmentMap.set(row.owner_id, row.last_appointment);
       });
     } else {

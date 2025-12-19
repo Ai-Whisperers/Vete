@@ -36,8 +36,8 @@ export default async function NewInvoicePage({ params }: Props) {
     getClinicPets(clinic)
   ])
 
-  const services = 'data' in servicesResult ? servicesResult.data : []
-  const pets = 'data' in petsResult ? petsResult.data : []
+  const services = servicesResult.success && servicesResult.data ? servicesResult.data : []
+  const pets = petsResult.success && petsResult.data ? petsResult.data : []
 
   return (
     <div className="p-6 max-w-5xl mx-auto">

@@ -28,19 +28,21 @@ export default async function AppointmentsPage({ params }: PageProps) {
   }
 
   // Fetch appointments
-  const { data, error } = await getOwnerAppointments(clinic)
+  const result = await getOwnerAppointments(clinic)
 
-  if (error) {
+  if (!result.success) {
     return (
       <div className="max-w-2xl mx-auto">
         <div className="p-8 bg-red-50 rounded-2xl text-center">
           <Icons.AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
           <h2 className="text-xl font-bold text-red-700 mb-2">Error al cargar citas</h2>
-          <p className="text-red-600">{error}</p>
+          <p className="text-red-600">{result.error}</p>
         </div>
       </div>
     )
   }
+
+  const { upcoming, past } = result.data || { upcoming: [], past: [] }
 
   return (
     <div className="max-w-3xl mx-auto">
@@ -75,8 +77,8 @@ export default async function AppointmentsPage({ params }: PageProps) {
       {/* Appointment List */}
       <div className="bg-white rounded-3xl shadow-xl border border-gray-100 p-6">
         <AppointmentList
-          upcoming={data?.upcoming || []}
-          past={data?.past || []}
+          upcoming={upcoming}
+          past={past}
           clinic={clinic}
         />
       </div>

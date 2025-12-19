@@ -66,7 +66,8 @@ export function ResultEntry({ orderId, onSuccess, onCancel }: ResultEntryProps) 
         .single()
 
       if (orderData) {
-        const pet = orderData.pets
+        // Supabase inner join returns single object, but TS infers array
+        const pet = orderData.pets as unknown as { species: string; date_of_birth: string; sex: string }
         const ageYears = Math.floor(
           (new Date().getTime() - new Date(pet.date_of_birth).getTime()) /
           (1000 * 60 * 60 * 24 * 365)
@@ -86,20 +87,24 @@ export function ResultEntry({ orderId, onSuccess, onCancel }: ResultEntryProps) 
         .eq('order_id', orderId)
         .order('created_at')
 
-      const items = itemsData?.map(item => ({
-        id: item.id,
-        test_id: item.test_id,
-        test: {
-          id: item.lab_test_catalog.id,
-          code: item.lab_test_catalog.code,
-          name: item.lab_test_catalog.name,
-          unit: item.lab_test_catalog.unit,
-          result_type: item.lab_test_catalog.result_type
-        },
-        result: Array.isArray(item.lab_results) && item.lab_results.length > 0
-          ? item.lab_results[0]
-          : undefined
-      })) || []
+      const items = itemsData?.map(item => {
+        // Supabase inner join returns single object, but TS infers array
+        const catalog = item.lab_test_catalog as unknown as { id: string; code: string; name: string; unit: string; result_type: string }
+        return {
+          id: item.id,
+          test_id: item.test_id,
+          test: {
+            id: catalog.id,
+            code: catalog.code,
+            name: catalog.name,
+            unit: catalog.unit,
+            result_type: catalog.result_type
+          },
+          result: Array.isArray(item.lab_results) && item.lab_results.length > 0
+            ? item.lab_results[0]
+            : undefined
+        }
+      }) || []
 
       setOrderItems(items)
 

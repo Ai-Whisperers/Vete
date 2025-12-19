@@ -4,7 +4,7 @@ import { useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { ScheduleEditor } from '@/components/calendar'
 import { createStaffSchedule, updateStaffSchedule, deleteStaffSchedule } from '@/app/actions/schedules'
-import type { StaffScheduleEntry, StaffScheduleEntryFormData } from '@/lib/types/calendar'
+import type { StaffScheduleEntry, ScheduleEntryFormData } from '@/lib/types/calendar'
 
 // =============================================================================
 // TYPES
@@ -55,8 +55,9 @@ export function ScheduleEditorClient({
   )
   const [effectiveTo, setEffectiveTo] = useState(existingSchedule?.effectiveTo || '')
   const [notes, setNotes] = useState(existingSchedule?.notes || '')
-  const [entries, setEntries] = useState<StaffScheduleEntryFormData[]>(() => {
+  const [entries, setEntries] = useState<ScheduleEntryFormData[]>(() => {
     if (!existingSchedule?.entries) return []
+    // Transform from DB snake_case to form camelCase
     return existingSchedule.entries.map(entry => ({
       dayOfWeek: entry.day_of_week,
       startTime: entry.start_time,
@@ -74,7 +75,7 @@ export function ScheduleEditorClient({
   const [success, setSuccess] = useState('')
 
   // Handle entries change from ScheduleEditor
-  const handleEntriesChange = useCallback((newEntries: StaffScheduleEntryFormData[]) => {
+  const handleEntriesChange = useCallback((newEntries: ScheduleEntryFormData[]) => {
     setEntries(newEntries)
   }, [])
 

@@ -29,6 +29,7 @@ interface ConsentRequest {
     name: string;
     species: string;
     breed: string;
+    owner_id: string;
   };
   owner: {
     id: string;
@@ -71,7 +72,7 @@ export default function RemoteSigningPage(): JSX.Element {
             requires_id_verification,
             fields:consent_template_fields(*)
           ),
-          pet:pets!pet_id(id, name, species, breed),
+          pet:pets!pet_id(id, name, species, breed, owner_id),
           owner:profiles!owner_id(id, full_name, email, phone)
         `)
         .eq('token', token)

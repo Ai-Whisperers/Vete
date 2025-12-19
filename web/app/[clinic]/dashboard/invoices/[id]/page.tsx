@@ -36,7 +36,7 @@ export default async function InvoiceDetailPage({ params }: Props) {
     supabase.from('tenants').select('name').eq('id', clinic).single()
   ])
 
-  if ('error' in invoiceResult) {
+  if (!invoiceResult.success || !invoiceResult.data) {
     notFound()
   }
 

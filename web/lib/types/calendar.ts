@@ -276,13 +276,44 @@ export interface StaffShift {
 // FORM DATA
 // =============================================================================
 
+/**
+ * Form data for schedule entries (camelCase for forms)
+ */
 export interface ScheduleEntryFormData {
+  dayOfWeek: number
+  startTime: string
+  endTime: string
+  breakStart?: string
+  breakEnd?: string
+  location?: string
+}
+
+/** @deprecated Use ScheduleEntryFormData instead */
+export type StaffScheduleEntryFormData = ScheduleEntryFormData
+
+/**
+ * Database record format for schedule entries (snake_case for DB)
+ */
+export interface ScheduleEntryDbData {
   day_of_week: number
   start_time: string
   end_time: string
-  break_start?: string
-  break_end?: string
-  location?: string
+  break_start?: string | null
+  break_end?: string | null
+  location?: string | null
+}
+
+/**
+ * Form data for creating/updating a staff schedule
+ */
+export interface StaffScheduleFormData {
+  staffProfileId: string
+  name: string
+  effectiveFrom: string
+  effectiveTo?: string
+  timezone: string
+  notes?: string
+  entries: ScheduleEntryFormData[]
 }
 
 export interface TimeOffRequestFormData {

@@ -11,7 +11,7 @@ import { createAppointmentSchema, updateAppointmentSchema, appointmentQuerySchem
 import { rateLimit } from '@/lib/rate-limit';
 
 // GET /api/booking - List appointments
-export const GET = withAuth(async (ctx: AuthContext, { params: _ }: { params: Promise<unknown> }) => {
+export const GET = withAuth(async (ctx: AuthContext) => {
   // Apply rate limiting for search endpoints (30 requests per minute)
   const rateLimitResult = await rateLimit(ctx.request, 'search', ctx.user.id);
   if (!rateLimitResult.success) {
@@ -32,10 +32,11 @@ export const GET = withAuth(async (ctx: AuthContext, { params: _ }: { params: Pr
   });
 
   if (!queryResult.success) {
-    return apiError('VALIDATION_ERROR', 400, queryResult.error.flatten().fieldErrors);
+    return apiError('VALIDATION_ERROR', 400, { field_errors: queryResult.error.flatten().fieldErrors });
   }
 
-  const { clinic, status, date_from, date_to, page, limit } = queryResult.data;
+  const { status, date_from, date_to, page, limit } = queryResult.data;
+  const clinic = profile.tenant_id; // Use user's tenant
 
   // Build query based on role
   let query = supabase
@@ -101,12 +102,12 @@ export const POST = withAuth(async (ctx: AuthContext) => {
   try {
     body = await request.json();
   } catch {
-    return apiError('INVALID_JSON', 400);
+    return apiError('INVALID_FORMAT', 400);
   }
 
   const result = createAppointmentSchema.safeParse(body);
   if (!result.success) {
-    return apiError('VALIDATION_ERROR', 400, result.error.flatten().fieldErrors);
+    return apiError('VALIDATION_ERROR', 400, { field_errors: result.error.flatten().fieldErrors });
   }
 
   const { clinic_slug, pet_id, service_id, appointment_date, time_slot, vet_id, notes } = result.data;
@@ -229,12 +230,12 @@ export const PUT = withAuth(async (ctx: AuthContext) => {
   try {
     body = await request.json();
   } catch {
-    return apiError('INVALID_JSON', 400);
+    return apiError('INVALID_FORMAT', 400);
   }
 
   const result = updateAppointmentSchema.safeParse(body);
   if (!result.success) {
-    return apiError('VALIDATION_ERROR', 400, result.error.flatten().fieldErrors);
+    return apiError('VALIDATION_ERROR', 400, { field_errors: result.error.flatten().fieldErrors });
   }
 
   const { id, status, appointment_date, time_slot, vet_id, notes } = result.data;

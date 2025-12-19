@@ -116,13 +116,14 @@ export async function PATCH(request: Request, { params }: RouteParams) {
 
   try {
     const body = await request.json();
-    const allowedFields = ['status', 'priority', 'assigned_to', 'subject'];
     // TICKET-TYPE-004: Use proper interface instead of any
     const updates: { status?: string; priority?: string; assigned_to?: string; subject?: string; closed_at?: string } = {};
 
-    allowedFields.forEach(field => {
-      if (body[field] !== undefined) updates[field] = body[field];
-    });
+    // Check each allowed field individually for type safety
+    if (body.status !== undefined) updates.status = body.status;
+    if (body.priority !== undefined) updates.priority = body.priority;
+    if (body.assigned_to !== undefined) updates.assigned_to = body.assigned_to;
+    if (body.subject !== undefined) updates.subject = body.subject;
 
     if (Object.keys(updates).length === 0) {
       return NextResponse.json({ error: 'No hay campos para actualizar' }, { status: 400 });

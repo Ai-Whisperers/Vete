@@ -45,7 +45,7 @@ export default async function ProfilePage({ params, searchParams }: { params: Pr
               </div>
           )}
 
-          <form action={updateProfile} className="space-y-6">
+          <form action={updateProfile as unknown as (formData: FormData) => Promise<void>} className="space-y-6">
               <input type="hidden" name="clinic" value={clinic} />
               
               <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 pb-6 border-b border-gray-100">

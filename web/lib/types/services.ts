@@ -48,6 +48,9 @@ export interface ServiceBooking {
 
 /**
  * Complete service definition (matches services.json structure)
+ *
+ * Note: Some properties can exist both at root level and nested in `details`.
+ * The JSON-CMS may use either format depending on the clinic's configuration.
  */
 export interface Service {
   id: string;
@@ -57,6 +60,14 @@ export interface Service {
   icon?: string;
   summary?: string;
   image?: string;
+  /** Direct image URL (alternative to `image`) */
+  image_url?: string;
+  /** Direct description (alternative to `details.description`) */
+  description?: string;
+  /** Direct base price (for simple pricing without variants) */
+  base_price?: number;
+  /** Direct duration (alternative to `details.duration_minutes`) */
+  duration_minutes?: number;
   details?: ServiceDetails;
   variants?: ServiceVariant[];
   booking?: ServiceBooking;

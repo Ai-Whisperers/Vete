@@ -17,7 +17,7 @@ const createProductSchema = z.object({
 
   category: z
     .enum(["dog", "cat", "exotic", "other"], {
-      errorMap: () => ({ message: "Selecciona una categoría válida" })
+      message: "Selecciona una categoría válida"
     }),
 
   price: z

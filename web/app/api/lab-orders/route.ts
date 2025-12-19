@@ -36,10 +36,7 @@ export const GET = withAuth(async ({ request, profile, supabase }) => {
     return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 
-  return NextResponse.json({
-    data,
-    ...paginatedResponse(data || [], count || 0, { page, limit, offset })
-  });
+  return NextResponse.json(paginatedResponse(data || [], count || 0, { page, limit, offset }));
 }, { roles: ['vet', 'admin'] });
 
 export const POST = withAuth(async ({ request, user, profile, supabase }) => {

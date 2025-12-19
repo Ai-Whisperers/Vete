@@ -6,7 +6,7 @@ import { calculateLineTotal, formatCurrency } from '@/lib/types/invoicing'
 interface Service {
   id: string
   name: string
-  price: number
+  base_price: number
   category?: string
 }
 
@@ -36,7 +36,7 @@ export function LineItemRow({ item, services, onUpdate, onRemove, disabled }: Li
       ...item,
       service_id: serviceId || null,
       description: service?.name || item.description,
-      unit_price: service?.price || item.unit_price
+      unit_price: service?.base_price || item.unit_price
     })
   }
 

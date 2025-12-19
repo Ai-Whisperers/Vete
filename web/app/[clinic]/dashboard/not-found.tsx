@@ -1,6 +1,5 @@
 import Link from 'next/link'
 import { Home, ArrowLeft } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 
 /**
  * Dashboard-scoped 404 page
@@ -22,18 +21,20 @@ export default function DashboardNotFound() {
         </div>
 
         <div className="flex gap-3 justify-center">
-          <Button variant="outline" asChild>
-            <Link href="..">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Volver
-            </Link>
-          </Button>
-          <Button asChild>
-            <Link href="/dashboard">
-              <Home className="w-4 h-4 mr-2" />
-              Dashboard
-            </Link>
-          </Button>
+          <Link
+            href=".."
+            className="inline-flex items-center justify-center px-5 py-3 text-base font-bold rounded-xl gap-2 border border-[var(--border,#e5e7eb)] bg-[var(--bg-paper)] text-[var(--text-primary)] hover:bg-[var(--bg-subtle)] transition-all"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Volver
+          </Link>
+          <Link
+            href="/dashboard"
+            className="inline-flex items-center justify-center px-5 py-3 text-base font-bold rounded-xl gap-2 bg-[var(--primary)] text-white shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all"
+          >
+            <Home className="w-4 h-4" />
+            Dashboard
+          </Link>
         </div>
       </div>
     </div>

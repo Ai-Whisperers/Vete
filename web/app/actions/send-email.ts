@@ -1,28 +1,57 @@
 "use server";
 
-// TICKET-TYPE-002: Define proper state interface for server actions
-interface ActionState {
-  error?: string;
-  success?: boolean;
-  message?: string;
-}
+import { withActionAuth, type ActionResult } from '@/lib/actions/with-action-auth';
+import { actionSuccess, actionError } from '@/lib/actions/result';
+import { z } from 'zod';
 
-export async function sendEmail(prevState: ActionState | null, formData: FormData): Promise<ActionState> {
-  const rawFormData = {
-    name: formData.get("name"),
-    phone: formData.get("phone"),
-    petName: formData.get("petName"),
-    reason: formData.get("reason"),
-  };
+// Validation schema
+const sendEmailSchema = z.object({
+  name: z.string().min(1, 'El nombre es obligatorio'),
+  phone: z.string().min(1, 'El teléfono es obligatorio'),
+  petName: z.string().min(1, 'El nombre de la mascota es obligatorio'),
+  reason: z.string().min(1, 'El motivo es obligatorio'),
+});
 
-  // Simulate network delay
-  await new Promise((resolve) => setTimeout(resolve, 1500));
+export const sendEmail = withActionAuth<void, [FormData]>(
+  async (context, formData: FormData) => {
+    // Validate input
+    const rawFormData = {
+      name: formData.get("name"),
+      phone: formData.get("phone"),
+      petName: formData.get("petName"),
+      reason: formData.get("reason"),
+    };
 
-  // In a real app, use Resend or Nodemailer here
-  // await resend.emails.send({ ... })
+    const validation = sendEmailSchema.safeParse(rawFormData);
+    if (!validation.success) {
+      const fieldErrors = Object.fromEntries(
+        Object.entries(validation.error.flatten().fieldErrors).map(([key, value]) => [
+          key,
+          value?.[0] || 'Error de validación',
+        ])
+      );
+      return actionError('Por favor corrige los errores del formulario', fieldErrors);
+    }
 
-  return { 
-    success: true, 
-    message: "¡Solicitud recibida! Te contactaremos por WhatsApp en breve." 
-  };
-}
+    const validatedData = validation.data;
+
+    // Verify this is staff sending the email
+    if (!context.isStaff) {
+      return actionError('Solo el personal de la clínica puede enviar correos');
+    }
+
+    try {
+      // Simulate network delay
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
+      // In a real app, use Resend or Nodemailer here
+      // await resend.emails.send({ ... })
+
+      return actionSuccess();
+    } catch (error) {
+      console.error('Error sending email:', error);
+      return actionError('Error al enviar el correo');
+    }
+  },
+  { requireStaff: true }
+);

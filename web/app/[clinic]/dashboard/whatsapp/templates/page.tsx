@@ -32,7 +32,7 @@ export default async function WhatsAppTemplatesPage({ params }: Props) {
 
   // Fetch templates
   const result = await getTemplates(clinic)
-  const templates = result.success && result.data ? result.data : []
+  const templates = 'data' in result ? result.data : []
 
   return (
     <div className="p-6 max-w-5xl mx-auto">

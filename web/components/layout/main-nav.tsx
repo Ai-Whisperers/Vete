@@ -1,25 +1,15 @@
 "use client";
 
-import { useState, useEffect, useMemo, useRef, useCallback } from "react";
-import { createPortal } from "react-dom";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { ClinicConfig } from "@/lib/clinics";
-import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, ShoppingCart, LogOut, Home, Briefcase, Users, Store, User, Calendar, Settings, Phone, PawPrint, ChevronDown, Calculator, Apple, HelpCircle, Gift, Wrench } from "lucide-react";
+import { ShoppingCart, Home, Briefcase, Users, Store } from "lucide-react";
 import { NotificationBell } from "./notification-bell";
-import { createClient } from "@/lib/supabase/client";
 import { useCart } from "@/context/cart-context";
-import type { User as SupabaseUser } from "@supabase/supabase-js";
-
-interface UserProfile {
-  id: string;
-  tenant_id: string;
-  role: 'owner' | 'vet' | 'admin';
-  full_name: string | null;
-  email: string | null;
-  phone: string | null;
-}
+import { useNavAuth } from "./nav/useNavAuth";
+import { ToolsDropdown } from "./nav/ToolsDropdown";
+import { UserMenu } from "./nav/UserMenu";
+import { MobileMenu, type NavItem } from "./nav/MobileMenu";
 
 interface MainNavProps {
   clinic: string;
@@ -28,176 +18,10 @@ interface MainNavProps {
 
 export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
   const pathname = usePathname();
-  const router = useRouter();
-  const [isOpen, setIsOpen] = useState(false);
-  const [user, setUser] = useState<SupabaseUser | null>(null);
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [logoutError, setLogoutError] = useState<string | null>(null);
-  const [isToolsOpen, setIsToolsOpen] = useState(false);
   const { itemCount } = useCart();
-  const toolsMenuRef = useRef<HTMLDivElement>(null);
+  const { user, profile, isLoggingOut, logoutError, handleLogout } = useNavAuth(clinic);
 
-  // Memoize supabase client to prevent recreation on each render
-  const supabase = useMemo(() => createClient(), []);
-
-  // Ref for focus trap in mobile menu
-  const mobileMenuRef = useRef<HTMLDivElement>(null);
-  const mobileMenuTriggerRef = useRef<HTMLButtonElement>(null);
-
-  const handleLogout = useCallback(async () => {
-    setIsLoggingOut(true);
-    setLogoutError(null);
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        throw error;
-      }
-      setUser(null);
-      setProfile(null);
-      router.push(`/${clinic}/portal/login`);
-      router.refresh();
-    } catch {
-      setLogoutError("Error al cerrar sesión. Intente de nuevo.");
-      // Auto-clear error after 5 seconds
-      setTimeout(() => setLogoutError(null), 5000);
-    } finally {
-      setIsLoggingOut(false);
-    }
-  }, [supabase, clinic, router]);
-
-  useEffect(() => {
-    const fetchProfile = async (userId: string): Promise<UserProfile | null> => {
-      try {
-        const { data: prof, error } = await supabase
-          .from('profiles')
-          .select('id, tenant_id, role, full_name, email, phone')
-          .eq('id', userId)
-          .single();
-
-        if (error) {
-          return null;
-        }
-        return prof as UserProfile;
-      } catch {
-        return null;
-      }
-    };
-
-    const checkUser = async () => {
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        if (error) {
-          return;
-        }
-
-        if (session?.user) {
-          setUser(session.user);
-          const prof = await fetchProfile(session.user.id);
-          setProfile(prof);
-        } else {
-          setUser(null);
-          setProfile(null);
-        }
-      } catch {
-        // Error checking user - silently fail
-      }
-    };
-
-    checkUser();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      if (session?.user) {
-        setUser(session.user);
-        const prof = await fetchProfile(session.user.id);
-        setProfile(prof);
-      } else {
-        setUser(null);
-        setProfile(null);
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [supabase]);
-
-  // Close mobile menu when route changes
-  useEffect(() => {
-    setIsOpen(false);
-    setIsToolsOpen(false);
-  }, [pathname]);
-
-  // Close tools dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (toolsMenuRef.current && !toolsMenuRef.current.contains(event.target as Node)) {
-        setIsToolsOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  // Prevent scroll when menu is open
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
-    return () => {
-      document.body.style.overflow = "unset";
-    };
-  }, [isOpen]);
-
-  // Focus trap for mobile menu
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const menuElement = mobileMenuRef.current;
-    if (!menuElement) return;
-
-    // Get all focusable elements
-    const focusableElements = menuElement.querySelectorAll<HTMLElement>(
-      'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
-    );
-    const firstElement = focusableElements[0];
-    const lastElement = focusableElements[focusableElements.length - 1];
-
-    // Focus first element when menu opens
-    firstElement?.focus();
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Close menu on Escape
-      if (e.key === 'Escape') {
-        setIsOpen(false);
-        mobileMenuTriggerRef.current?.focus();
-        return;
-      }
-
-      // Focus trap
-      if (e.key === 'Tab') {
-        if (e.shiftKey) {
-          // Shift+Tab
-          if (document.activeElement === firstElement) {
-            e.preventDefault();
-            lastElement?.focus();
-          }
-        } else {
-          // Tab
-          if (document.activeElement === lastElement) {
-            e.preventDefault();
-            firstElement?.focus();
-          }
-        }
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen]);
-
-  const navItems = [
+  const navItems: NavItem[] = [
     {
       label: config.ui_labels?.nav.home || "Inicio",
       href: `/${clinic}`,
@@ -220,30 +44,16 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
       icon: Store,
     },
     ...(profile?.role === 'admin' || profile?.role === 'vet' ? [{
-        label: "Inventario",
-        href: `/${clinic}/portal/inventory`,
-        icon: Briefcase,
+      label: "Inventario",
+      href: `/${clinic}/portal/inventory`,
+      icon: Briefcase,
     }] : []),
   ];
 
-  // Check for hydration to safe use document.body
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const isActive = (href: string, exact: boolean = false) => {
+  const isActive = (href: string, exact: boolean = false): boolean => {
     if (exact) return pathname === href;
     return pathname.startsWith(href);
   };
-
-  // Tools menu items
-  const toolsItems = [
-    { label: config.ui_labels?.tools?.age_calculator || "Calculadora de Edad", href: `/${clinic}/tools/age-calculator`, icon: Calculator },
-    { label: config.ui_labels?.tools?.toxic_food || "Alimentos Tóxicos", href: `/${clinic}/tools/toxic-food`, icon: Apple },
-    { label: config.ui_labels?.nav?.faq || "Preguntas Frecuentes", href: `/${clinic}/faq`, icon: HelpCircle },
-    { label: config.ui_labels?.nav?.loyalty_program || "Programa de Lealtad", href: `/${clinic}/loyalty_points`, icon: Gift },
-  ];
 
   return (
     <>
@@ -267,343 +77,66 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
           </Link>
         ))}
 
-        {/* Tools Dropdown */}
-        <div ref={toolsMenuRef} className="relative">
-          <button
-            onClick={() => setIsToolsOpen(!isToolsOpen)}
-            aria-expanded={isToolsOpen}
-            aria-haspopup="true"
-            aria-label="Menú de herramientas"
-            className={`text-base font-bold uppercase tracking-wide transition-colors relative group flex items-center gap-1 ${
-              isToolsOpen || pathname.includes('/tools') || pathname.includes('/faq') || pathname.includes('/loyalty')
-                ? "text-[var(--primary)]"
-                : "text-[var(--text-secondary)] hover:text-[var(--primary)]"
-            }`}
-          >
-            <Wrench className="w-4 h-4" aria-hidden="true" />
-            {config.ui_labels?.nav?.tools || 'Herramientas'}
-            <ChevronDown className={`w-4 h-4 transition-transform ${isToolsOpen ? 'rotate-180' : ''}`} aria-hidden="true" />
-          </button>
+        <ToolsDropdown
+          clinic={clinic}
+          config={config}
+          isActive={isActive}
+          pathname={pathname}
+        />
 
-          <AnimatePresence>
-            {isToolsOpen && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.15 }}
-                role="menu"
-                aria-label="Opciones de herramientas"
-                className="absolute top-full left-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50"
-              >
-                {toolsItems.map((tool) => {
-                  const ToolIcon = tool.icon;
-                  return (
-                    <Link
-                      key={tool.href}
-                      href={tool.href}
-                      onClick={() => setIsToolsOpen(false)}
-                      role="menuitem"
-                      className={`flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors ${
-                        isActive(tool.href)
-                          ? "bg-[var(--primary)]/10 text-[var(--primary)]"
-                          : "text-gray-700 hover:bg-gray-50 hover:text-[var(--primary)]"
-                      }`}
-                    >
-                      <ToolIcon className="w-4 h-4" aria-hidden="true" />
-                      {tool.label}
-                    </Link>
-                  );
-                })}
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+        <UserMenu
+          clinic={clinic}
+          config={config}
+          user={user}
+          isActive={isActive}
+          isLoggingOut={isLoggingOut}
+          logoutError={logoutError}
+          handleLogout={handleLogout}
+        />
 
-        {/* Dynamic Auth Links */}
-        <Link
-            href={user ? `/${clinic}/portal/dashboard` : `/${clinic}/portal/login`}
-            className={`text-base font-bold uppercase tracking-wide transition-colors relative group ${
-                isActive(`/${clinic}/portal`)
-                ? "text-[var(--primary)]"
-                : "text-[var(--text-secondary)] hover:text-[var(--primary)]"
-            }`}
-        >
-            {user ? (config.ui_labels?.nav.my_portal || "Mi Portal") : (config.ui_labels?.nav.login || "Iniciar Sesión")}
-             <span
-              className={`absolute -bottom-1 left-0 h-0.5 bg-[var(--primary)] transition-all duration-300 ${
-                isActive(`/${clinic}/portal`) ? "w-full" : "w-0 group-hover:w-full"
-              }`}
-            ></span>
-        </Link>
-        
-        {/* Notification Bell - Only for logged in users */}
         {user && <NotificationBell clinic={clinic} />}
 
-        {/* Cart Icon - Always visible for all users */}
         <Link
-            href={`/${clinic}/cart`}
-            className="relative p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--primary)] transition-colors"
-            aria-label={itemCount > 0 ? `Carrito de compras (${itemCount} ${itemCount === 1 ? 'artículo' : 'artículos'})` : 'Carrito de compras'}
+          href={`/${clinic}/cart`}
+          className="relative p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--primary)] transition-colors"
+          aria-label={itemCount > 0 ? `Carrito de compras (${itemCount} ${itemCount === 1 ? 'artículo' : 'artículos'})` : 'Carrito de compras'}
         >
-            <ShoppingCart className="w-6 h-6" aria-hidden="true" />
-            {itemCount > 0 && (
-                <span className="absolute top-0 right-0 bg-[var(--status-error,#dc2626)] text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full" aria-label={`${itemCount} ${itemCount === 1 ? 'artículo' : 'artículos'} en el carrito`}>
-                    {itemCount}
-                </span>
-            )}
+          <ShoppingCart className="w-6 h-6" aria-hidden="true" />
+          {itemCount > 0 && (
+            <span className="absolute top-0 right-0 bg-[var(--status-error,#dc2626)] text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full" aria-label={`${itemCount} ${itemCount === 1 ? 'artículo' : 'artículos'} en el carrito`}>
+              {itemCount}
+            </span>
+          )}
         </Link>
-
-        {/* Logout Button */}
-        {user && (
-            <div className="relative">
-              <button
-                  onClick={handleLogout}
-                  disabled={isLoggingOut}
-                  className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--status-error,#dc2626)] hover:bg-[var(--status-error-bg,#fef2f2)] rounded-lg transition-colors disabled:opacity-50"
-                  title="Cerrar sesión"
-                  aria-label="Cerrar sesión"
-              >
-                  <LogOut className="w-5 h-5" aria-hidden="true" />
-              </button>
-              {/* Error toast for logout */}
-              {logoutError && (
-                <div className="absolute top-full right-0 mt-2 px-4 py-2 bg-[var(--status-error,#ef4444)] text-white text-sm font-medium rounded-lg shadow-lg whitespace-nowrap z-50" role="alert">
-                  {logoutError}
-                </div>
-              )}
-            </div>
-        )}
-
       </nav>
 
-      {/* Mobile Menu Button */}
       <div className="flex md:hidden items-center gap-3">
-          {user && <NotificationBell clinic={clinic} />}
+        {user && <NotificationBell clinic={clinic} />}
 
-          {/* Mobile cart - Always visible */}
-          <Link
-              href={`/${clinic}/cart`}
-              className="relative p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-[var(--primary)]"
-              aria-label={itemCount > 0 ? `Carrito de compras (${itemCount} ${itemCount === 1 ? 'artículo' : 'artículos'})` : 'Carrito de compras'}
-          >
-              <ShoppingCart className="w-6 h-6" aria-hidden="true" />
-              {itemCount > 0 && (
-                  <span className="absolute top-1 right-1 bg-[var(--status-error,#dc2626)] text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full" aria-label={`${itemCount} ${itemCount === 1 ? 'artículo' : 'artículos'} en el carrito`}>
-                      {itemCount}
-                  </span>
-              )}
-          </Link>
-
-          <button
-            ref={mobileMenuTriggerRef}
-            className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-[var(--primary)]"
-            onClick={() => setIsOpen(!isOpen)}
-            aria-label={isOpen ? "Cerrar menú" : "Abrir menú"}
-            aria-expanded={isOpen}
-          >
-            <Menu size={28} />
-          </button>
-      </div>
-
-      {/* Mobile Drawer - Portaled to document.body to avoid stacking context issues */}
-      {mounted && createPortal(
-        <AnimatePresence>
-          {isOpen && (
-            <>
-              {/* Backdrop */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                onClick={() => setIsOpen(false)}
-                className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] md:hidden"
-              />
-              {/* Drawer */}
-              <motion.div
-                ref={mobileMenuRef}
-                initial={{ x: "100%" }}
-                animate={{ x: 0 }}
-                exit={{ x: "100%" }}
-                transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                className="fixed top-0 right-0 h-full w-[85%] max-w-sm bg-[var(--bg-default)] shadow-2xl z-[10000] md:hidden border-l border-[var(--primary)]/10 flex flex-col overflow-y-auto"
-                role="dialog"
-                aria-modal="true"
-                aria-label="Menú de navegación"
-              >
-                 {/* Drawer Header with Close Button */}
-                 <div className="flex items-center justify-between px-4 py-4 border-b border-gray-100 bg-white sticky top-0 z-10">
-                   <span className="font-bold text-lg text-[var(--text-primary)]">{config.ui_labels?.nav?.menu || 'Menú'}</span>
-                   <button
-                     onClick={() => setIsOpen(false)}
-                     className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--primary)] hover:bg-gray-100 rounded-xl transition-colors"
-                     aria-label="Cerrar menú"
-                   >
-                     <X size={24} />
-                   </button>
-                 </div>
-
-                 {/* User Profile Section */}
-                 {user && profile && (
-                   <div className="px-6 py-4 bg-[var(--primary)]/5 border-b border-[var(--primary)]/10">
-                     <div className="flex items-center gap-4">
-                       <div className="w-12 h-12 rounded-full bg-[var(--primary)] text-white flex items-center justify-center font-bold text-lg">
-                         {profile.full_name?.[0] || user.email?.[0]?.toUpperCase() || 'U'}
-                       </div>
-                       <div className="flex-1 min-w-0">
-                         <p className="font-bold text-[var(--text-primary)] truncate">
-                           {profile.full_name || 'Usuario'}
-                         </p>
-                         <p className="text-xs text-[var(--text-muted)] truncate">{user.email}</p>
-                       </div>
-                     </div>
-                   </div>
-                 )}
-
-                 {/* CTA Button - Book Appointment */}
-                 <div className="px-4 sm:px-6 py-4">
-                   <Link
-                     href={`/${clinic}/book`}
-                     onClick={() => setIsOpen(false)}
-                     className="flex items-center justify-center gap-3 w-full py-4 min-h-[52px] bg-[var(--primary)] text-white font-bold rounded-xl shadow-lg hover:opacity-90 transition-opacity"
-                   >
-                     <Calendar className="w-5 h-5" />
-                     {config.ui_labels?.nav.book_btn || 'Agendar Cita'}
-                   </Link>
-                 </div>
-
-                 {/* Navigation Links */}
-                 <div className="flex-1 px-4 sm:px-6">
-                   <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-3">{config.ui_labels?.nav?.navigation || 'Navegación'}</p>
-                   <div className="flex flex-col gap-1">
-                     {navItems.map((item) => {
-                       const Icon = item.icon;
-                       return (
-                         <Link
-                           key={item.href}
-                           href={item.href}
-                           onClick={() => setIsOpen(false)}
-                           className={`flex items-center gap-4 py-4 px-4 min-h-[48px] rounded-xl transition-colors ${
-                             isActive(item.href, item.exact)
-                               ? "bg-[var(--primary)]/10 text-[var(--primary)]"
-                               : "text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
-                           }`}
-                         >
-                           <Icon className="w-5 h-5" />
-                           <span className="font-bold">{item.label}</span>
-                         </Link>
-                       );
-                     })}
-                   </div>
-
-                   {/* Tools Section */}
-                   <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mt-6 mb-3">{config.ui_labels?.nav?.tools || 'Herramientas'}</p>
-                   <div className="flex flex-col gap-1">
-                     {toolsItems.map((tool) => {
-                       const ToolIcon = tool.icon;
-                       return (
-                         <Link
-                           key={tool.href}
-                           href={tool.href}
-                           onClick={() => setIsOpen(false)}
-                           className={`flex items-center gap-4 py-4 px-4 min-h-[48px] rounded-xl transition-colors ${
-                             isActive(tool.href)
-                               ? "bg-[var(--primary)]/10 text-[var(--primary)]"
-                               : "text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
-                           }`}
-                         >
-                           <ToolIcon className="w-5 h-5" />
-                           <span className="font-bold">{tool.label}</span>
-                         </Link>
-                       );
-                     })}
-                   </div>
-
-                   {/* Portal Section */}
-                   <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mt-6 mb-3">{config.ui_labels?.nav?.my_account || 'Mi Cuenta'}</p>
-                   <div className="flex flex-col gap-1">
-                     <Link
-                       href={user ? `/${clinic}/portal/dashboard` : `/${clinic}/portal/login`}
-                       onClick={() => setIsOpen(false)}
-                       className={`flex items-center gap-4 py-4 px-4 min-h-[48px] rounded-xl transition-colors ${
-                         isActive(`/${clinic}/portal/dashboard`)
-                           ? "bg-[var(--primary)]/10 text-[var(--primary)]"
-                           : "text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
-                       }`}
-                     >
-                       <PawPrint className="w-5 h-5" />
-                       <span className="font-bold">
-                         {user ? (config.ui_labels?.nav.my_pets || 'Mis Mascotas') : (config.ui_labels?.nav.login || 'Iniciar Sesión')}
-                       </span>
-                     </Link>
-
-                     {user && (
-                       <>
-                         <Link
-                           href={`/${clinic}/portal/profile`}
-                           onClick={() => setIsOpen(false)}
-                           className={`flex items-center gap-4 py-4 px-4 min-h-[48px] rounded-xl transition-colors ${
-                             isActive(`/${clinic}/portal/profile`)
-                               ? "bg-[var(--primary)]/10 text-[var(--primary)]"
-                               : "text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
-                           }`}
-                         >
-                           <User className="w-5 h-5" />
-                           <span className="font-bold">{config.ui_labels?.nav.profile || 'Mi Perfil'}</span>
-                         </Link>
-                         <Link
-                           href={`/${clinic}/portal/settings`}
-                           onClick={() => setIsOpen(false)}
-                           className={`flex items-center gap-4 py-4 px-4 min-h-[48px] rounded-xl transition-colors ${
-                             isActive(`/${clinic}/portal/settings`)
-                               ? "bg-[var(--primary)]/10 text-[var(--primary)]"
-                               : "text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
-                           }`}
-                         >
-                           <Settings className="w-5 h-5" />
-                           <span className="font-bold">{config.ui_labels?.nav?.settings || 'Configuración'}</span>
-                         </Link>
-                       </>
-                     )}
-                   </div>
-
-                   {/* Logout Button */}
-                   {user && (
-                     <button
-                       onClick={() => {
-                         setIsOpen(false);
-                         handleLogout();
-                       }}
-                       disabled={isLoggingOut}
-                       className="flex items-center gap-4 py-4 px-4 min-h-[48px] rounded-xl transition-colors text-[var(--status-error,#ef4444)] hover:bg-[var(--status-error-bg,#fef2f2)] w-full text-left mt-2 disabled:opacity-50"
-                     >
-                       <LogOut className="w-5 h-5" />
-                       <span className="font-bold">Cerrar sesión</span>
-                     </button>
-                   )}
-                 </div>
-
-                 {/* Emergency & Footer */}
-                 <div className="mt-auto px-4 sm:px-6 py-6 bg-[var(--bg-subtle)] border-t border-[var(--border,#e5e7eb)]">
-                   {config.settings?.emergency_24h && (
-                     <a
-                       href={`tel:${config.contact?.whatsapp_number}`}
-                       className="flex items-center justify-center gap-2 w-full py-4 min-h-[48px] mb-4 bg-[var(--status-error,#ef4444)] text-white font-bold rounded-xl"
-                     >
-                       <Phone className="w-4 h-4" />
-                       {config.ui_labels?.nav.emergency_btn || 'Urgencias 24hs'}
-                     </a>
-                   )}
-                   <p className="text-center text-xs text-[var(--text-muted)]">
-                     © {new Date().getFullYear()} {config.name}
-                   </p>
-                 </div>
-              </motion.div>
-            </>
+        <Link
+          href={`/${clinic}/cart`}
+          className="relative p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-[var(--primary)]"
+          aria-label={itemCount > 0 ? `Carrito de compras (${itemCount} ${itemCount === 1 ? 'artículo' : 'artículos'})` : 'Carrito de compras'}
+        >
+          <ShoppingCart className="w-6 h-6" aria-hidden="true" />
+          {itemCount > 0 && (
+            <span className="absolute top-1 right-1 bg-[var(--status-error,#dc2626)] text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full" aria-label={`${itemCount} ${itemCount === 1 ? 'artículo' : 'artículos'} en el carrito`}>
+              {itemCount}
+            </span>
           )}
-        </AnimatePresence>,
-        document.body
-      )}
+        </Link>
+
+        <MobileMenu
+          clinic={clinic}
+          config={config}
+          user={user}
+          profile={profile}
+          navItems={navItems}
+          isActive={isActive}
+          isLoggingOut={isLoggingOut}
+          handleLogout={handleLogout}
+        />
+      </div>
     </>
   );
 }

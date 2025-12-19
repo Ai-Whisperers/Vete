@@ -1,13 +1,14 @@
 import { NextResponse } from 'next/server'
-import { withAuth } from '@/lib/api/with-auth'
+import { withAuth, type AuthContext, type RouteContext } from '@/lib/api/with-auth'
 
 /**
  * POST /api/appointments/[id]/check-in
  * Marks an appointment as checked in (patient has arrived)
  * Staff only - requires vet/admin role
  */
-export const POST = withAuth(async ({ user, profile, supabase }, context) => {
-  const { id } = await context!.params
+export const POST = withAuth<{ id: string }>(
+  async ({ user, profile, supabase }: AuthContext, context: RouteContext<{ id: string }>) => {
+  const { id } = await context.params
 
   // Get appointment
   const { data: appointment, error: fetchError } = await supabase

@@ -5,6 +5,10 @@ import { LogoutButton } from "@/components/auth/logout-button";
 import { createClient } from "@/lib/supabase/server";
 import { PortalMobileNav } from "@/components/portal/portal-mobile-nav";
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
+
+// Auth pages that don't require authentication
+const AUTH_PAGES = ['/login', '/signup', '/forgot-password', '/reset-password'];
 
 // Helper to get icon component by name for server-side rendering
 function getIcon(name: string): React.ComponentType<{ className?: string }> {
@@ -27,20 +31,47 @@ export default async function PortalLayout({
 
   if (!data) return null;
 
+  // Check if current page is an auth page (login, signup, etc.)
+  const headersList = await headers();
+  const pathname = headersList.get('x-pathname') || headersList.get('x-invoke-path') || '';
+  const isAuthPage = AUTH_PAGES.some(page => pathname.endsWith(page));
+
   // Get user and validate tenant access
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  // Require authentication for portal
-  if (!user) {
+  // Require authentication for portal (except auth pages)
+  if (!user && !isAuthPage) {
     redirect(`/${clinic}/portal/login?redirect=${encodeURIComponent(`/${clinic}/portal/dashboard`)}`);
   }
+
+  // For auth pages without user, render minimal layout
+  if (!user && isAuthPage) {
+    return (
+      <div className="min-h-screen bg-[var(--bg-subtle)] flex flex-col">
+        <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
+          <div className="container mx-auto px-4 h-16 flex items-center">
+            <Link href={`/${clinic}`} className="flex items-center gap-2 font-bold text-[var(--primary)] hover:opacity-80 transition-opacity">
+              <Icons.ArrowLeft className="w-5 h-5" />
+              <span className="hidden md:inline">{data.config.ui_labels?.nav?.back || 'Volver'}</span>
+            </Link>
+          </div>
+        </header>
+        <main className="flex-1 container mx-auto px-4 py-8">
+          {children}
+        </main>
+      </div>
+    );
+  }
+
+  // At this point, user is guaranteed to be non-null (redirected or returned above)
+  const authenticatedUser = user!;
 
   // Get profile with tenant_id for validation
   let { data: profile } = await supabase
     .from('profiles')
     .select('role, tenant_id')
-    .eq('id', user.id)
+    .eq('id', authenticatedUser.id)
     .single();
 
   // Handle case where profile doesn't exist (trigger may have failed)
@@ -49,10 +80,10 @@ export default async function PortalLayout({
     const { data: newProfile, error: createError } = await supabase
       .from('profiles')
       .insert({
-        id: user.id,
-        email: user.email,
-        full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Usuario',
-        avatar_url: user.user_metadata?.avatar_url,
+        id: authenticatedUser.id,
+        email: authenticatedUser.email,
+        full_name: authenticatedUser.user_metadata?.full_name || authenticatedUser.email?.split('@')[0] || 'Usuario',
+        avatar_url: authenticatedUser.user_metadata?.avatar_url,
         tenant_id: clinic,
         role: 'owner'
       })
@@ -73,7 +104,7 @@ export default async function PortalLayout({
     const { error: updateError } = await supabase
       .from('profiles')
       .update({ tenant_id: clinic })
-      .eq('id', user.id);
+      .eq('id', authenticatedUser.id);
 
     if (updateError) {
       console.error('Failed to assign tenant:', updateError);

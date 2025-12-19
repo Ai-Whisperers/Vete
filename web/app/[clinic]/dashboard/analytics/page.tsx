@@ -273,7 +273,7 @@ export default function AnalyticsPage(): React.ReactElement {
                     tickFormatter={(value) => `${(value / 1000000).toFixed(1)}M`}
                   />
                   <Tooltip
-                    formatter={(value: number) => [formatCurrency(value), labels.analytics.stats.revenue]}
+                    formatter={(value) => [formatCurrency(value as number), labels.analytics.stats.revenue]}
                     contentStyle={{
                       borderRadius: "8px",
                       border: "1px solid #e5e7eb",
@@ -308,8 +308,8 @@ export default function AnalyticsPage(): React.ReactElement {
                     outerRadius={100}
                     fill="#8884d8"
                     dataKey="count"
-                    label={({ type, percent }) =>
-                      `${type.split(" ")[0]} ${(percent * 100).toFixed(0)}%`
+                    label={({ name, percent }) =>
+                      `${(name as string)?.split(" ")[0] || ''} ${((percent || 0) * 100).toFixed(0)}%`
                     }
                   >
                     {chartData.appointmentsByType.map((entry, index) => (
@@ -317,7 +317,7 @@ export default function AnalyticsPage(): React.ReactElement {
                     ))}
                   </Pie>
                   <Tooltip
-                    formatter={(value: number, name: string) => [value, labels.analytics.stats.appointments]}
+                    formatter={(value) => [value as number, labels.analytics.stats.appointments]}
                     contentStyle={{
                       borderRadius: "8px",
                       border: "1px solid #e5e7eb",
@@ -352,7 +352,7 @@ export default function AnalyticsPage(): React.ReactElement {
                   width={120}
                 />
                 <Tooltip
-                  formatter={(value: number) => [formatCurrency(value), labels.analytics.stats.revenue]}
+                  formatter={(value) => [formatCurrency(value as number), labels.analytics.stats.revenue]}
                   contentStyle={{
                     borderRadius: "8px",
                     border: "1px solid #e5e7eb",

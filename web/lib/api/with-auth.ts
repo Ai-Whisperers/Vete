@@ -50,7 +50,28 @@ export interface WithAuthOptions {
   requireTenant?: boolean;
 }
 
-type ApiResponse<T> = NextResponse<T | ApiErrorResponse>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type ApiResponse = NextResponse<any>;
+
+/**
+ * Route context with dynamic params (for routes like /api/[id])
+ */
+export interface RouteContext<P = Record<string, string>> {
+  params: Promise<P>;
+}
+
+/**
+ * Authenticated handler signature for routes without dynamic params
+ */
+type AuthHandler = (ctx: AuthContext) => Promise<ApiResponse>;
+
+/**
+ * Authenticated handler signature for routes with dynamic params
+ */
+type AuthHandlerWithParams<P> = (
+  ctx: AuthContext,
+  context: RouteContext<P>
+) => Promise<ApiResponse>;
 
 /**
  * Wrap an API route handler with authentication and authorization
@@ -61,7 +82,7 @@ type ApiResponse<T> = NextResponse<T | ApiErrorResponse>;
  *
  * @example
  * ```typescript
- * // Basic auth check
+ * // Basic auth check (no params)
  * export const GET = withAuth(async ({ profile, supabase }) => {
  *   const { data } = await supabase
  *     .from('pets')
@@ -70,10 +91,11 @@ type ApiResponse<T> = NextResponse<T | ApiErrorResponse>;
  *   return NextResponse.json(data);
  * });
  *
- * // Admin-only route
+ * // Route with dynamic params
  * export const DELETE = withAuth(
  *   async ({ supabase }, { params }) => {
- *     await supabase.from('pets').delete().eq('id', params.id);
+ *     const { id } = await params;
+ *     await supabase.from('pets').delete().eq('id', id);
  *     return new NextResponse(null, { status: 204 });
  *   },
  *   { roles: ['admin'] }
@@ -88,17 +110,24 @@ type ApiResponse<T> = NextResponse<T | ApiErrorResponse>;
  * );
  * ```
  */
-export function withAuth<T, P = unknown>(
-  handler: (
-    ctx: AuthContext,
-    params?: { params: Promise<P> }
-  ) => Promise<NextResponse<T>>,
+export function withAuth(
+  handler: AuthHandler,
+  options?: WithAuthOptions
+): (request: NextRequest) => Promise<ApiResponse>;
+
+export function withAuth<P extends Record<string, string>>(
+  handler: AuthHandlerWithParams<P>,
+  options?: WithAuthOptions
+): (request: NextRequest, context: RouteContext<P>) => Promise<ApiResponse>;
+
+export function withAuth<P extends Record<string, string> = Record<string, string>>(
+  handler: AuthHandler | AuthHandlerWithParams<P>,
   options?: WithAuthOptions
 ) {
   return async (
     request: NextRequest,
-    params?: { params: Promise<P> }
-  ): Promise<ApiResponse<T>> => {
+    context?: RouteContext<P>
+  ): Promise<ApiResponse> => {
     try {
       // Create Supabase client
       const supabase = await createClient();
@@ -139,8 +168,8 @@ export function withAuth<T, P = unknown>(
       }
 
       // Optional: Validate tenant from URL params
-      if (options?.requireTenant && params) {
-        const resolvedParams = await params.params;
+      if (options?.requireTenant && context) {
+        const resolvedParams = await context.params;
         const tenantParam = (resolvedParams as Record<string, string>)?.clinic;
 
         if (tenantParam && tenantParam !== profile.tenant_id) {
@@ -151,14 +180,18 @@ export function withAuth<T, P = unknown>(
       }
 
       // Execute the wrapped handler
-      const context: AuthContext = {
+      const authContext: AuthContext = {
         user,
         profile: profile as UserProfile,
         supabase,
         request,
       };
 
-      return await handler(context, params);
+      // Call handler with or without context based on signature
+      if (context) {
+        return await (handler as AuthHandlerWithParams<P>)(authContext, context);
+      }
+      return await (handler as AuthHandler)(authContext);
     } catch (error) {
       console.error('API route error:', error);
       return apiError('SERVER_ERROR', 500);

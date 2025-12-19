@@ -4,7 +4,7 @@ import { rateLimit } from '@/lib/rate-limit';
 import type { SearchSuggestion, SearchResponse } from '@/lib/types/store';
 
 // GET - Search products with autocomplete suggestions
-export async function GET(request: NextRequest): Promise<NextResponse<SearchResponse | { error: string }>> {
+export async function GET(request: NextRequest) {
   const supabase = await createClient();
   const { searchParams } = new URL(request.url);
 
@@ -208,11 +208,11 @@ export async function GET(request: NextRequest): Promise<NextResponse<SearchResp
         is_active: true,
         created_at: '',
         updated_at: '',
-        category: product.store_categories as { id: string; name: string; slug: string } | null,
+        category: product.store_categories as unknown as { id: string; name: string; slug: string } | null,
         subcategory: null,
-        brand: product.store_brands as { id: string; name: string; slug: string } | null,
+        brand: product.store_brands as unknown as { id: string; name: string; slug: string } | null,
         inventory: product.store_inventory
-          ? { stock_quantity: (product.store_inventory as { stock_quantity: number }).stock_quantity, min_stock_level: null }
+          ? { stock_quantity: (product.store_inventory as unknown as { stock_quantity: number }).stock_quantity, min_stock_level: null }
           : null,
         images: [],
         variants: [],

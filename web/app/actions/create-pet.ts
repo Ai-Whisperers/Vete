@@ -17,7 +17,7 @@ const createPetSchema = z.object({
 
   species: z
     .enum(["dog", "cat"], {
-      errorMap: () => ({ message: "Debes seleccionar si es perro o gato" })
+      message: "Debes seleccionar si es perro o gato"
     }),
 
   breed: z
@@ -40,7 +40,7 @@ const createPetSchema = z.object({
 
   sex: z
     .enum(["male", "female"], {
-      errorMap: () => ({ message: "Debes indicar si tu mascota es macho o hembra" })
+      message: "Debes indicar si tu mascota es macho o hembra"
     }),
 
   is_neutered: z
@@ -56,7 +56,7 @@ const createPetSchema = z.object({
 
   temperament: z
     .enum(["unknown", "friendly", "shy", "aggressive", "calm"], {
-      errorMap: () => ({ message: "Selecciona un temperamento válido" })
+      message: "Selecciona un temperamento válido"
     })
     .optional()
     .default("unknown"),

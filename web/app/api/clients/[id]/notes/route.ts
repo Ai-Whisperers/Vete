@@ -53,7 +53,7 @@ export async function GET(
     return NextResponse.json({
       notes: (notes || []).map((note) => ({
         ...note,
-        created_by_name: (note.profiles as { full_name: string } | null)?.full_name || "Usuario",
+        created_by_name: (note.profiles as unknown as { full_name: string } | null)?.full_name || "Usuario",
       })),
     });
   } catch (error) {

@@ -54,10 +54,7 @@ export const GET = withAuth(async ({ user, profile, supabase, request }) => {
 
       const petIds = ownerPets?.map(p => p.id) || [];
       if (petIds.length === 0) {
-        return NextResponse.json({
-          data: [],
-          ...paginatedResponse([], 0, { page, limit, offset })
-        });
+        return NextResponse.json(paginatedResponse([], 0, { page, limit, offset }));
       }
       query = query.in('pet_id', petIds);
     }
@@ -74,10 +71,7 @@ export const GET = withAuth(async ({ user, profile, supabase, request }) => {
 
     if (error) throw error;
 
-    return NextResponse.json({
-      data: invoices,
-      ...paginatedResponse(invoices || [], count || 0, { page, limit, offset })
-    });
+    return NextResponse.json(paginatedResponse(invoices || [], count || 0, { page, limit, offset }));
   } catch (e) {
     console.error('Error loading invoices:', e);
     return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);

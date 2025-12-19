@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
-import { withAuth, isStaff } from '@/lib/api/with-auth';
+import { withAuth, isStaff, type AuthContext, type RouteContext } from '@/lib/api/with-auth';
+
+type Params = { id: string };
 
 interface InvoiceItem {
   service_id?: string;
@@ -11,8 +13,8 @@ interface InvoiceItem {
 }
 
 // GET /api/invoices/[id] - Get single invoice
-export const GET = withAuth(async ({ user, profile, supabase }, context) => {
-  const { id } = await context!.params;
+export const GET = withAuth<Params>(async ({ user, profile, supabase }: AuthContext, context: RouteContext<Params>) => {
+  const { id } = await context.params;
 
   try {
     const { data: invoice, error } = await supabase
@@ -52,8 +54,8 @@ export const GET = withAuth(async ({ user, profile, supabase }, context) => {
 });
 
 // PATCH /api/invoices/[id] - Update invoice
-export const PATCH = withAuth(async ({ user, profile, supabase, request }, context) => {
-  const { id } = await context!.params;
+export const PATCH = withAuth<Params>(async ({ user, profile, supabase, request }: AuthContext, context: RouteContext<Params>) => {
+  const { id } = await context.params;
 
   try {
     // Get current invoice
@@ -72,11 +74,9 @@ export const PATCH = withAuth(async ({ user, profile, supabase, request }, conte
     if (existing.status !== 'draft') {
       const body = await request.json();
       // For non-draft, only allow status changes and notes
-      const allowedFields = ['status', 'notes'];
       const updates: { status?: string; notes?: string } = {};
-      allowedFields.forEach(field => {
-        if (body[field] !== undefined) updates[field] = body[field];
-      });
+      if (body.status !== undefined) updates.status = body.status;
+      if (body.notes !== undefined) updates.notes = body.notes;
 
       if (Object.keys(updates).length === 0) {
         return NextResponse.json({ error: 'Las facturas enviadas solo pueden cambiar estado o notas' }, { status: 400 });
@@ -169,8 +169,8 @@ export const PATCH = withAuth(async ({ user, profile, supabase, request }, conte
 }, { roles: ['vet', 'admin'] });
 
 // DELETE /api/invoices/[id] - Delete invoice (soft delete or void)
-export const DELETE = withAuth(async ({ user, profile, supabase }, context) => {
-  const { id } = await context!.params;
+export const DELETE = withAuth<Params>(async ({ user, profile, supabase }: AuthContext, context: RouteContext<Params>) => {
+  const { id } = await context.params;
 
   try {
     const { data: invoice } = await supabase

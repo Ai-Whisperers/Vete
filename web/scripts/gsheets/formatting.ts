@@ -13,7 +13,7 @@ const COLUMN_WIDTHS: Record<string, number[]> = {
   '📂 Categorías': [120, 200, 60, 120, 70],
   '🏭 Proveedores': [100, 220, 100, 130, 220, 200, 70],
   '🏷️ Marcas': [80, 180, 100, 70],
-  '🆕 Productos': [100, 280, 120, 80, 80, 110, 110, 100, 80, 90, 90, 110, 100, 250, 70],
+  '🆕 Productos': [100, 280, 120, 80, 80, 110, 110, 90, 110, 100, 250, 70],
   '📦 Stock Inicial': [280, 100, 90, 110, 110, 140, 200],
   '⚙️ Configuración': [100, 180, 280, 70],
   '🔧 Datos': [150, 100, 120, 200, 150],
@@ -320,10 +320,9 @@ async function addCellNotes(spreadsheetId: string): Promise<void> {
       'D1': '🏷️ Código de marca\nSelecciona del dropdown ▼\n⚠️ Solo marcas ACTIVAS',
       'F1': '💰 Precio de compra\nSin IVA incluido',
       'G1': '💵 Precio de venta al público\nCon IVA incluido',
-      'H1': '🏷️ Precio promocional\nDejar vacío si no hay promo',
-      'I1': '📈 Margen calculado\n= (Venta - Costo) / Costo × 100',
-      'L1': '💊 ¿Requiere receta veterinaria?\nSí = Medicamentos controlados',
-      'M1': '🏭 Proveedor\nSelecciona del dropdown ▼\n⚠️ Solo proveedores ACTIVOS',
+      'H1': '📦 Stock mínimo\nAlerta cuando el stock baje de este valor',
+      'I1': '💊 ¿Requiere receta veterinaria?\nSí = Medicamentos controlados',
+      'J1': '🏭 Proveedor\nSelecciona del dropdown ▼\n⚠️ Solo proveedores ACTIVOS',
     },
     '📦 Stock Inicial': {
       'A1': '📦 Selecciona el producto\nUsa el menú desplegable ▼\n⚠️ Solo productos ACTIVOS',
@@ -482,7 +481,7 @@ function addProductsFormatting(requests: any[], sheetMap: Record<string, number>
     },
   });
 
-  // Price columns (F-I) - light amber
+  // Price columns (F-G) - light amber
   requests.push({
     repeatCell: {
       range: {
@@ -490,7 +489,7 @@ function addProductsFormatting(requests: any[], sheetMap: Record<string, number>
         startRowIndex: 1,
         endRowIndex: 501,
         startColumnIndex: 5,
-        endColumnIndex: 9,
+        endColumnIndex: 7,
       },
       cell: {
         userEnteredFormat: {
@@ -501,7 +500,7 @@ function addProductsFormatting(requests: any[], sheetMap: Record<string, number>
     },
   });
 
-  // Number format for prices (F-I) with currency symbol
+  // Number format for prices (F-G) with currency symbol
   requests.push({
     repeatCell: {
       range: {
@@ -509,7 +508,7 @@ function addProductsFormatting(requests: any[], sheetMap: Record<string, number>
         startRowIndex: 1,
         endRowIndex: 501,
         startColumnIndex: 5,
-        endColumnIndex: 9,
+        endColumnIndex: 7,
       },
       cell: {
         userEnteredFormat: {
@@ -521,34 +520,15 @@ function addProductsFormatting(requests: any[], sheetMap: Record<string, number>
     },
   });
 
-  // Percent format for margin (I)
+  // Number format for stock minimum (H)
   requests.push({
     repeatCell: {
       range: {
         sheetId,
         startRowIndex: 1,
         endRowIndex: 501,
-        startColumnIndex: 8,
-        endColumnIndex: 9,
-      },
-      cell: {
-        userEnteredFormat: {
-          numberFormat: { type: 'PERCENT', pattern: '0%' },
-        },
-      },
-      fields: 'userEnteredFormat.numberFormat',
-    },
-  });
-
-  // Number format for stock (J-K)
-  requests.push({
-    repeatCell: {
-      range: {
-        sheetId,
-        startRowIndex: 1,
-        endRowIndex: 501,
-        startColumnIndex: 9,
-        endColumnIndex: 11,
+        startColumnIndex: 7,
+        endColumnIndex: 8,
       },
       cell: {
         userEnteredFormat: {
@@ -560,41 +540,15 @@ function addProductsFormatting(requests: any[], sheetMap: Record<string, number>
     },
   });
 
-  // Conditional formatting: Low stock warning
-  requests.push({
-    addConditionalFormatRule: {
-      rule: {
-        ranges: [{
-          sheetId,
-          startRowIndex: 1,
-          endRowIndex: 501,
-          startColumnIndex: 10, // Stock Actual (K)
-          endColumnIndex: 11,
-        }],
-        booleanRule: {
-          condition: {
-            type: 'CUSTOM_FORMULA',
-            values: [{ userEnteredValue: '=AND(K2<>"", K2<J2)' }], // Stock < Mínimo
-          },
-          format: {
-            backgroundColor: COLORS.errorLight,
-            textFormat: { foregroundColor: COLORS.error, bold: true },
-          },
-        },
-      },
-      index: 0,
-    },
-  });
-
-  // Description column (N) - text wrap
+  // Description column (K) - text wrap
   requests.push({
     repeatCell: {
       range: {
         sheetId,
         startRowIndex: 1,
         endRowIndex: 501,
-        startColumnIndex: 13,
-        endColumnIndex: 14,
+        startColumnIndex: 10,
+        endColumnIndex: 11,
       },
       cell: {
         userEnteredFormat: {

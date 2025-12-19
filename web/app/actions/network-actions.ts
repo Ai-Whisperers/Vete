@@ -1,25 +1,49 @@
 'use server';
 
-import { createClient } from '@/lib/supabase/server';
+import { withActionAuth } from '@/lib/actions/with-action-auth';
+import { actionSuccess, actionError } from '@/lib/actions/result';
 import { revalidatePath } from 'next/cache';
+import { z } from 'zod';
 
-export async function requestAccess(petId: string, clinicId: string) {
-    const supabase = await createClient();
+// Validation schema
+const requestAccessSchema = z.object({
+    petId: z.string().uuid('El ID de la mascota debe ser un UUID válido'),
+    clinicId: z.string().min(1, 'El ID de la clínica es obligatorio'),
+});
 
-    try {
-        const { data, error } = await supabase.rpc('grant_clinic_access', {
-            target_pet_id: petId,
-            target_clinic_id: clinicId
-        });
-
-        if (error) {
-            console.error('RPC Error:', error);
-            return { success: false, error: error.message };
+export const requestAccess = withActionAuth<void, [string, string]>(
+    async (context, petId: string, clinicId: string) => {
+        // Validate input
+        const validation = requestAccessSchema.safeParse({ petId, clinicId });
+        if (!validation.success) {
+            const fieldErrors = Object.fromEntries(
+                Object.entries(validation.error.flatten().fieldErrors).map(([key, value]) => [
+                    key,
+                    value?.[0] || 'Error de validación',
+                ])
+            );
+            return actionError('Por favor corrige los errores', fieldErrors);
         }
 
-        revalidatePath(`/${clinicId}/portal/dashboard/patients`);
-        return { success: true };
-    } catch (e) {
-        return { success: false, error: 'Internal Server Error' };
-    }
-}
+        const { supabase } = context;
+
+        try {
+            const { data, error } = await supabase.rpc('grant_clinic_access', {
+                target_pet_id: petId,
+                target_clinic_id: clinicId
+            });
+
+            if (error) {
+                console.error('RPC Error:', error);
+                return actionError(error.message);
+            }
+
+            revalidatePath(`/${clinicId}/portal/dashboard/patients`);
+            return actionSuccess();
+        } catch (e) {
+            console.error('Request access error:', e);
+            return actionError('Error interno del servidor');
+        }
+    },
+    { requireStaff: false } // Pet owners should be able to request access
+);

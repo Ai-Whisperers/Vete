@@ -1,5 +1,5 @@
-import { createClient } from "@/lib/supabase/server";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
+import { withAuth } from "@/lib/api/with-auth";
 import { rateLimit } from "@/lib/rate-limit";
 
 interface SearchResult {
@@ -12,9 +12,7 @@ interface SearchResult {
 }
 
 // GET /api/search?q=query&clinic=clinic_slug
-export async function GET(request: NextRequest): Promise<NextResponse> {
-  const supabase = await createClient();
-
+export const GET = withAuth(async ({ request, user, profile, supabase }) => {
   const { searchParams } = new URL(request.url);
   const query = searchParams.get("q")?.trim();
   const clinic = searchParams.get("clinic");
@@ -27,26 +25,14 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: "Falta parámetro clinic" }, { status: 400 });
   }
 
-  // Check authentication
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
-    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-  }
-
   // Apply rate limiting for search endpoints (30 requests per minute)
   const rateLimitResult = await rateLimit(request, 'search', user.id);
   if (!rateLimitResult.success) {
     return rateLimitResult.response;
   }
 
-  // Get user profile to verify tenant access
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("tenant_id, role")
-    .eq("id", user.id)
-    .single();
-
-  if (!profile || profile.tenant_id !== clinic) {
+  // Verify tenant access
+  if (profile.tenant_id !== clinic) {
     return NextResponse.json({ error: "Sin acceso a esta clínica" }, { status: 403 });
   }
 
@@ -160,4 +146,4 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     console.error("Search error:", error);
     return NextResponse.json({ error: "Error en búsqueda" }, { status: 500 });
   }
-}
+});

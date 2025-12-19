@@ -2,6 +2,44 @@
 export type InvoiceStatus = 'draft' | 'sent' | 'paid' | 'partial' | 'overdue' | 'cancelled' | 'void'
 export type PaymentMethod = 'cash' | 'card' | 'transfer' | 'check' | 'other'
 
+// Form Data Types for Server Actions
+
+/**
+ * Item data for creating/updating an invoice
+ */
+export interface InvoiceItemFormData {
+  service_id?: string | null
+  product_id?: string | null
+  description: string
+  quantity: number
+  unit_price: number
+  discount_percent?: number
+}
+
+/**
+ * Form data for creating/updating an invoice
+ */
+export interface InvoiceFormData {
+  pet_id: string
+  owner_id?: string
+  items: InvoiceItemFormData[]
+  tax_rate?: number
+  notes?: string
+  due_date?: string
+}
+
+/**
+ * Form data for recording a payment
+ */
+export interface RecordPaymentData {
+  invoice_id: string
+  amount: number
+  payment_method: PaymentMethod
+  reference_number?: string
+  notes?: string
+  paid_at?: string
+}
+
 // Invoice Item
 export interface InvoiceItem {
   id?: string

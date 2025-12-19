@@ -71,9 +71,14 @@ export const SHEETS: SheetConfig[] = [
     dataRows: 100,
   },
   {
+    // PROVEEDORES: Can be global (platform) or local (clinic-specific)
     name: '🏭 Proveedores',
     headerColor: COLORS.providerHeader,
-    columns: ['🔒 Código', 'Nombre', 'Tipo', 'Teléfono', 'Email', 'Notas', 'Activo'],
+    columns: [
+      '🔒 Código', 'Nombre', 'Razón Social', 'RUC',
+      'Tipo', 'Teléfono', 'Email', 'Condiciones Pago',
+      'Días Entrega', 'Notas', 'Activo'
+    ],
     dataRows: 100,
   },
   {
@@ -83,18 +88,34 @@ export const SHEETS: SheetConfig[] = [
     dataRows: 100,
   },
   {
+    // CATÁLOGO MASTER (B2B): Todos los productos disponibles en el mercado
+    // Dual-unit inventory: Buy in boxes, sell by pill
+    // Precios de referencia del proveedor, NO precios de venta de la clínica
     name: '🆕 Productos',
     headerColor: COLORS.productHeader,
     columns: [
-      '🔒 SKU', 'Nombre', 'Categoría', 'Marca', 'Unidad',
-      'Precio Costo', 'Precio Venta', 'Precio Promo', 'Margen %',
-      'Stock Mínimo', 'Stock Actual', 'Requiere Receta',
-      'Proveedor', 'Descripción', 'Activo'
+      '🔒 SKU', 'Nombre', 'Categoría', 'Marca',
+      'Unid. Compra', 'Cant. Contenida', 'Unid. Venta',
+      'Precio Compra', '💹 Costo Unit.',
+      'Proveedor', 'Especies', 'Receta', 'Descripción', 'Activo'
     ],
     dataRows: 500,
   },
   {
-    name: '📦 Stock Inicial',
+    // PRODUCTOS DE LA CLÍNICA: Solo los que la clínica tiene en stock
+    // Cada clínica define su propio precio de venta y stock
+    name: '📋 Mis Productos',
+    headerColor: COLORS.quickHeader,
+    columns: [
+      'Producto', 'Precio Venta', '📊 Margen %',
+      'Stock Mín.', 'Stock Inicial', 'Ubicación',
+      'Requiere Receta', 'Activo'
+    ],
+    dataRows: 500,
+  },
+  {
+    // MOVIMIENTOS DE STOCK: Compras, ventas, ajustes
+    name: '📦 Movimientos Stock',
     headerColor: COLORS.stockHeader,
     columns: ['Producto', 'Operación', 'Cantidad', 'Costo Unit.', 'Fecha', 'Ubicación', 'Notas'],
     dataRows: 500,
@@ -107,17 +128,12 @@ export const SHEETS: SheetConfig[] = [
     frozenRows: 1,
   },
   {
+    // HOJA AUXILIAR: Listas filtradas para dropdowns
     name: '🔧 Datos',
     headerColor: COLORS.darkGray,
-    columns: ['Categorías Activas', 'Marcas Activas', 'Proveedores Activos', 'Productos Activos', 'Ubicaciones Activas'],
+    columns: ['Categorías', 'Marcas', 'Proveedores', 'Productos Catálogo', 'Mis Productos', 'Ubicaciones'],
     dataRows: 500,
     frozenRows: 1,
-  },
-  {
-    name: '⚡ Carga Rápida',
-    headerColor: COLORS.quickHeader,
-    columns: ['Nombre', 'Categoría', 'Unidad', 'Precio Costo', 'Precio Venta', 'Stock Inicial', 'Marca', 'Proveedor', 'Notas'],
-    dataRows: 500,
   },
 ];
 
@@ -136,8 +152,25 @@ export const STOCK_OPERATIONS = [
 export const DROPDOWN_OPTIONS = {
   yesNo: ['Sí', 'No'],
   levels: ['1', '2', '3'],
-  providerTypes: ['Productos', 'Insumos', 'Ambos'],
+  providerTypes: ['Productos', 'Servicios', 'Ambos'],
+
+  // Unidades de COMPRA (cómo llega la factura del proveedor)
+  // Must match CHECK constraint in store_products.purchase_unit
+  unitsBuy: ['Unidad', 'Caja', 'Pack', 'Bolsa', 'Frasco', 'Bulto', 'Display', 'Blister', 'Paquete', 'Kg', 'L'],
+
+  // Unidades de VENTA (cómo se vende al cliente)
+  // Must match CHECK constraint in store_products.sale_unit
+  unitsSell: ['Unidad', 'Tableta', 'Ampolla', 'ml', 'g', 'Kg', 'Dosis', 'Aplicación', 'Bolsa', 'Frasco', 'Caja'],
+
+  // Mantener units para compatibilidad con otras hojas
   units: ['Unidad', 'Caja', 'Paquete', 'Kg', 'g', 'L', 'ml', 'Bolsa', 'Frasco', 'Ampolla'],
+
+  // Species for product targeting
+  species: ['Perro', 'Gato', 'Perro y Gato', 'Aves', 'Roedores', 'Reptiles', 'Equinos', 'Bovinos', 'Todos'],
+
+  // Payment terms for suppliers
+  paymentTerms: ['Contado', '15 días', '30 días', '60 días', '90 días'],
+
   operations: STOCK_OPERATIONS.map(op => op.value),
 } as const;
 

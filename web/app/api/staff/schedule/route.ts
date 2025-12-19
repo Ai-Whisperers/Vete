@@ -88,7 +88,7 @@ export async function GET(request: NextRequest) {
 
     // Transform data for response
     const schedules = staffData?.map(staff => {
-      const profile = staff.profiles as { id: string; full_name: string; email: string } | null
+      const profile = staff.profiles as unknown as { id: string; full_name: string; email: string } | null
       const activeSchedules = activeOnly
         ? staff.staff_schedules?.filter((s: { is_active: boolean }) => s.is_active)
         : staff.staff_schedules

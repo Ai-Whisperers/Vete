@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import * as Icons from 'lucide-react'
@@ -101,7 +101,7 @@ export default function LabOrderDetailPage() {
 
       if (orderError) throw orderError
 
-      setOrder(orderData as LabOrder)
+      setOrder(orderData as unknown as LabOrder)
 
       // Fetch comments
       const { data: commentsData } = await supabase

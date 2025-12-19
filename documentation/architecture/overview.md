@@ -291,6 +291,21 @@ Client makes API request
 - Stable and well-documented
 - Works with our `.content_data` pattern
 
+## Visual Diagrams
+
+Architecture diagrams are available in the [diagrams/](diagrams/) directory:
+
+- [System Architecture](diagrams/01-system-architecture.md) - High-level system overview
+- [Multi-Tenant Isolation](diagrams/02-multi-tenant-isolation.md) - Tenant isolation mechanism
+- [Appointment Booking Flow](diagrams/03-appointment-booking-flow.md) - Complete booking process
+- [Checkout Flow](diagrams/04-checkout-flow.md) - E-commerce checkout process
+- [RLS Isolation Flow](diagrams/05-rls-isolation-flow.md) - Row-Level Security enforcement
+- [Authentication Flow](diagrams/06-authentication-flow.md) - Login and session management
+- [Page Load Flow](diagrams/07-page-load-flow.md) - Page rendering process
+- [Entity Relationship Diagram](diagrams/08-entity-relationship.md) - Database schema
+
+See [DIAGRAMS_ANALYSIS.md](DIAGRAMS_ANALYSIS.md) for a complete list of all possible diagrams.
+
 ## Related Documentation
 
 - [Multi-Tenancy Deep Dive](multi-tenancy.md)

@@ -293,18 +293,44 @@ Client makes API request
 
 ## Visual Diagrams
 
-Architecture diagrams are available in the [diagrams/](diagrams/) directory:
+**25 comprehensive diagrams** are available in the [diagrams/](diagrams/) directory covering all aspects of the platform:
 
+### Quick Links
+- **[All Diagrams Summary](diagrams/ALL_DIAGRAMS_SUMMARY.md)** - Complete list of all 25 diagrams
+- **[Diagrams README](diagrams/README.md)** - How to view and create diagrams
+
+### Core Diagrams
 - [System Architecture](diagrams/01-system-architecture.md) - High-level system overview
 - [Multi-Tenant Isolation](diagrams/02-multi-tenant-isolation.md) - Tenant isolation mechanism
+- [Entity Relationship Diagram](diagrams/08-entity-relationship.md) - Database schema
+- [Security Architecture](diagrams/20-security-architecture.md) - Multi-layer security
+
+### User Flows
 - [Appointment Booking Flow](diagrams/03-appointment-booking-flow.md) - Complete booking process
 - [Checkout Flow](diagrams/04-checkout-flow.md) - E-commerce checkout process
-- [RLS Isolation Flow](diagrams/05-rls-isolation-flow.md) - Row-Level Security enforcement
-- [Authentication Flow](diagrams/06-authentication-flow.md) - Login and session management
-- [Page Load Flow](diagrams/07-page-load-flow.md) - Page rendering process
-- [Entity Relationship Diagram](diagrams/08-entity-relationship.md) - Database schema
+- [Pet Owner Journey](diagrams/16-user-journey-pet-owner.md) - Complete owner experience
+- [Veterinarian Journey](diagrams/17-user-journey-veterinarian.md) - Daily vet workflow
 
-See [DIAGRAMS_ANALYSIS.md](DIAGRAMS_ANALYSIS.md) for a complete list of all possible diagrams.
+### Feature Workflows
+- [Prescription Workflow](diagrams/09-prescription-workflow.md) - Prescription creation
+- [Invoice Creation & Payment](diagrams/10-invoice-creation-payment.md) - Invoicing workflow
+- [Inventory Management](diagrams/11-inventory-management.md) - Stock with WAC
+- [Medical Record Creation](diagrams/12-medical-record-creation.md) - Clinical records
+- [Hospitalization Flow](diagrams/18-hospitalization-flow.md) - Patient admission
+- [Lab Order Workflow](diagrams/19-lab-order-workflow.md) - Lab orders to results
+
+### System Architecture
+- [API Request Lifecycle](diagrams/15-api-request-lifecycle.md) - Complete API flow
+- [Page Load Flow](diagrams/07-page-load-flow.md) - Page rendering process
+- [Authentication Flow](diagrams/06-authentication-flow.md) - Login and session
+- [RLS Isolation Flow](diagrams/05-rls-isolation-flow.md) - Row-Level Security
+- [Error Handling Flow](diagrams/25-error-handling-flow.md) - Error processing
+
+### State Machines
+- [Appointment State Machine](diagrams/13-appointment-state-machine.md) - Appointment lifecycle
+- [Invoice State Machine](diagrams/14-invoice-state-machine.md) - Invoice payment states
+
+See [DIAGRAMS_ANALYSIS.md](DIAGRAMS_ANALYSIS.md) for the complete analysis of all possible diagrams.
 
 ## Related Documentation
 

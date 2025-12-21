@@ -19,13 +19,19 @@ CREATE TABLE IF NOT EXISTS public.payment_methods (
     -- Method info
     name TEXT NOT NULL,
     type TEXT NOT NULL
-        CHECK (type IN ('cash', 'card', 'transfer', 'check', 'credit', 'other')),
+        CHECK (type IN ('cash', 'card', 'transfer', 'check', 'credit', 'qr', 'other')),
     description TEXT,
 
     -- Settings
     is_default BOOLEAN DEFAULT false,
     is_active BOOLEAN DEFAULT true,
     requires_reference BOOLEAN DEFAULT false,
+
+    -- Fees and limits
+    fee_percentage NUMERIC(5,2) CHECK (fee_percentage IS NULL OR fee_percentage >= 0),
+    min_amount NUMERIC(12,2) CHECK (min_amount IS NULL OR min_amount >= 0),
+    max_amount NUMERIC(12,2) CHECK (max_amount IS NULL OR max_amount >= 0),
+    instructions TEXT,
 
     -- Display
     display_order INTEGER DEFAULT 100,

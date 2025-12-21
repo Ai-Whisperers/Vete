@@ -2,6 +2,101 @@
 
 Quick reference for using the refactored and new components.
 
+> **🏗️ New Architecture**: See [ARCHITECTURE_GUIDE.md](ARCHITECTURE_GUIDE.md) for the modular component architecture with shared hooks and utilities.
+
+---
+
+## Shared Components & Hooks
+
+### ErrorBoundary
+```typescript
+import { ErrorBoundary } from '@/components/shared';
+
+<ErrorBoundary
+  fallback={<div>Custom error message</div>}
+  onError={(error, info) => console.error(error, info)}
+>
+  <ComponentThatMightError />
+</ErrorBoundary>
+```
+
+### LoadingSpinner
+```typescript
+import { LoadingSpinner } from '@/components/shared';
+
+<LoadingSpinner size="md" text="Loading..." />
+<LoadingSpinner fullScreen overlay />
+```
+
+### EmptyState
+```typescript
+import { EmptyState } from '@/components/shared';
+
+<EmptyState
+  icon={<Users className="h-12 w-12" />}
+  title="No data found"
+  description="Try adjusting your filters"
+  action={{ label: "Clear Filters", onClick: handleClear }}
+/>
+```
+
+### useAsyncData Hook
+```typescript
+import { useAsyncData } from '@/hooks';
+
+const { data, isLoading, error, refetch } = useAsyncData(
+  () => fetch('/api/data').then(res => res.json()),
+  [dependency],
+  { retryCount: 3, refetchOnWindowFocus: true }
+);
+```
+
+### useForm Hook
+```typescript
+import { useForm } from '@/hooks';
+import { required, email } from '@/lib/utils';
+
+const form = useForm({
+  initialValues: { email: '', password: '' },
+  validationRules: {
+    email: required('Email required'),
+    password: required('Password required')
+  }
+});
+
+// In your component
+const emailProps = form.getFieldProps('email');
+<input {...emailProps} />
+
+// Handle submit
+const handleSubmit = form.handleSubmit(async (values) => {
+  await api.save(values);
+});
+```
+
+### useModal Hook
+```typescript
+import { useModal } from '@/hooks';
+
+const modal = useModal();
+
+return (
+  <>
+    <button onClick={modal.open}>Open Modal</button>
+    <Modal isOpen={modal.isOpen} onClose={modal.close} />
+  </>
+);
+```
+
+### Utility Functions
+```typescript
+import { formatCurrency, formatDate, formatPhoneNumber } from '@/lib/utils';
+
+formatCurrency(1000000, 'PYG'); // ₲ 1.000.000
+formatDate(new Date()); // "21 dic 2025"
+formatPhoneNumber('0981123456'); // 0981 123 456
+```
+
 ---
 
 ## SearchField Component

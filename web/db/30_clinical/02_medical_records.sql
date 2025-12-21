@@ -27,25 +27,34 @@ CREATE TABLE IF NOT EXISTS public.medical_records (
     visit_date TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     chief_complaint TEXT,
     history TEXT,
+    physical_exam TEXT,  -- Physical examination findings
 
     -- Vitals
     weight_kg NUMERIC(6,2) CHECK (weight_kg IS NULL OR weight_kg > 0),
-    temperature NUMERIC(4,1) CHECK (temperature IS NULL OR (temperature >= 30 AND temperature <= 45)),
-    heart_rate INTEGER CHECK (heart_rate IS NULL OR (heart_rate >= 20 AND heart_rate <= 400)),
-    respiratory_rate INTEGER CHECK (respiratory_rate IS NULL OR (respiratory_rate >= 5 AND respiratory_rate <= 150)),
+    temperature_celsius NUMERIC(4,1) CHECK (temperature_celsius IS NULL OR (temperature_celsius >= 30 AND temperature_celsius <= 45)),
+    heart_rate_bpm INTEGER CHECK (heart_rate_bpm IS NULL OR (heart_rate_bpm >= 20 AND heart_rate_bpm <= 400)),
+    respiratory_rate_rpm INTEGER CHECK (respiratory_rate_rpm IS NULL OR (respiratory_rate_rpm >= 5 AND respiratory_rate_rpm <= 150)),
     blood_pressure TEXT,
     body_condition_score INTEGER CHECK (body_condition_score IS NULL OR (body_condition_score >= 1 AND body_condition_score <= 9)),
 
     -- Assessment
     diagnosis_code TEXT,
     diagnosis_text TEXT,
+    assessment TEXT,  -- Assessment/Diagnosis summary
     clinical_notes TEXT,
 
     -- Plan
     treatment_plan TEXT,
     medications_prescribed TEXT,
-    follow_up_date DATE,
+    followup_date DATE,
     follow_up_notes TEXT,
+
+    -- Emergency and follow-up flags
+    is_emergency BOOLEAN DEFAULT false,
+    requires_followup BOOLEAN DEFAULT false,
+
+    -- Additional notes
+    notes TEXT,
 
     -- Attachments
     attachments TEXT[] DEFAULT ARRAY[]::TEXT[],

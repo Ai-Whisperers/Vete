@@ -11,6 +11,8 @@ A modular, self-contained database schema for the Vete veterinary platform.
 | Duplicate files (31 & 57 both for materialized views) | Single source of truth for each feature |
 | Inconsistent numbering with gaps | Clear, logical numbering by domain |
 | Missing soft deletes added via patches | Soft delete built in from the start |
+| Monolithic files (1700+ lines) | Modular files (50-200 lines each) |
+| Poor dependency management | Clear domain separation |
 
 ## Directory Structure
 
@@ -40,7 +42,23 @@ v2/
 │   ├── 50_invoicing.sql        # Invoices, payments, refunds
 │   └── 51_expenses.sql         # Expenses, loyalty points
 ├── 60_store/
-│   └── 60_inventory.sql        # Products, inventory, campaigns
+│   ├── suppliers/
+│   │   └── 01_suppliers.sql           # B2B suppliers management
+│   ├── categories/
+│   │   └── 01_categories.sql          # Product categories hierarchy
+│   ├── brands/
+│   │   └── 01_brands.sql              # Product brands management
+│   ├── products/
+│   │   └── 01_products.sql            # Product catalog with dual-unit inventory
+│   ├── inventory/
+│   │   └── 01_inventory.sql           # Stock management and transactions
+│   ├── orders/
+│   │   └── 01_orders.sql              # Order management, payments, coupons
+│   ├── reviews/
+│   │   └── 01_reviews.sql             # Product reviews and wishlists
+│   ├── procurement/
+│   │   └── 01_procurement.sql         # B2B market intelligence
+│   └── 02_import_rpc.sql              # Import utilities
 ├── 70_communications/
 │   └── 70_messaging.sql        # Conversations, messages, reminders
 ├── 80_insurance/
@@ -208,6 +226,49 @@ Or use the Node script:
 ```bash
 node setup-db.mjs --reset
 ```
+
+## Database Optimization Benefits
+
+### ✅ **Modular Architecture**
+- **Before**: 1 monolithic file (1700+ lines) with mixed concerns
+- **After**: 8 focused modules (50-200 lines each) by domain
+- **Benefit**: Easier maintenance, faster development, clear separation
+
+### ✅ **Improved Dependency Management**
+- **Clear domain boundaries**: suppliers → categories → brands → products → operations
+- **Logical loading order**: Foundation → Catalog → Operations → Intelligence
+- **Better error isolation**: Issues in one module don't affect others
+
+### ✅ **Enhanced Developer Experience**
+- **Faster file loads**: Smaller files load quicker in editors
+- **Easier navigation**: Find tables instantly by domain
+- **Reduced merge conflicts**: Smaller files mean fewer conflicts
+- **Better code reviews**: Focused changes are easier to review
+
+### ✅ **Performance Benefits**
+- **Faster deployments**: Only changed modules need attention
+- **Better caching**: Database can cache smaller schema chunks
+- **Improved debugging**: Isolate issues to specific domains
+
+### ✅ **Scalability**
+- **Easy expansion**: Add new domains without affecting existing code
+- **Team parallelization**: Different developers can work on different modules
+- **Independent versioning**: Update domains independently
+
+## File Size Optimization
+
+| Module | Tables | Lines | Purpose |
+|--------|--------|-------|---------|
+| suppliers | 1 | ~80 | B2B supplier management |
+| categories | 1 | ~100 | Product category hierarchy |
+| brands | 1 | ~90 | Brand management |
+| products | 1 | ~200 | Product catalog + dual-unit inventory |
+| inventory | 2 | ~120 | Stock management + transactions |
+| orders | 4 | ~180 | Orders + payments + coupons |
+| reviews | 2 | ~80 | Reviews + wishlists |
+| procurement | 2 | ~150 | B2B intelligence + assignments |
+
+**Total**: 14 tables across 8 focused modules vs 1 monolithic file
 
 ## Adding New Tables
 

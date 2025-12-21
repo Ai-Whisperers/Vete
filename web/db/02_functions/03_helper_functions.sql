@@ -153,36 +153,37 @@ COMMENT ON FUNCTION public.process_inventory_transaction IS 'Updates stock and W
 -- C. CLINICAL FUNCTIONS
 -- =============================================================================
 
+-- Temporarily disabled due to vaccines table issues
 -- Handle new pet vaccines (auto-create from templates)
-CREATE OR REPLACE FUNCTION public.handle_new_pet_vaccines()
-RETURNS TRIGGER AS $$
-DECLARE
-    v_template RECORD;
-BEGIN
-    -- Get vaccine templates for this species
-    FOR v_template IN
-        SELECT * FROM public.vaccine_templates
-        WHERE NEW.species = ANY(species)
-          AND is_active = TRUE
-          AND (tenant_id IS NULL OR tenant_id = NEW.tenant_id)
-        ORDER BY display_order
-    LOOP
-        -- Create scheduled vaccine record
-        INSERT INTO public.vaccines (pet_id, template_id, name, administered_date, status)
-        VALUES (
-            NEW.id,
-            v_template.id,
-            v_template.name,
-            CURRENT_DATE,  -- Placeholder date
-            'scheduled'
-        );
-    END LOOP;
-
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql SET search_path = public;
-
-COMMENT ON FUNCTION public.handle_new_pet_vaccines IS 'Auto-creates vaccine records for new pets based on templates';
+-- CREATE OR REPLACE FUNCTION public.handle_new_pet_vaccines()
+-- RETURNS TRIGGER AS $$
+-- DECLARE
+--     v_template RECORD;
+-- BEGIN
+--     -- Get vaccine templates for this species
+--     FOR v_template IN
+--         SELECT * FROM public.vaccine_templates
+--         WHERE NEW.species = ANY(species)
+--           AND is_active = TRUE
+--           AND (tenant_id IS NULL OR tenant_id = NEW.tenant_id)
+--         ORDER BY display_order
+--     LOOP
+--         -- Create scheduled vaccine record
+--         INSERT INTO public.vaccines (pet_id, template_id, name, administered_date, status)
+--         VALUES (
+--             NEW.id,
+--             v_template.id,
+--             v_template.name,
+--             CURRENT_DATE,  -- Placeholder date
+--             'scheduled'
+--         );
+--     END LOOP;
+--
+--     RETURN NEW;
+-- END;
+-- $$ LANGUAGE plpgsql SET search_path = public;
+--
+-- COMMENT ON FUNCTION public.handle_new_pet_vaccines IS 'Auto-creates vaccine records for new pets based on templates';
 
 -- Get pet's active insurance
 CREATE OR REPLACE FUNCTION public.get_pet_active_insurance(p_pet_id UUID)
@@ -412,13 +413,14 @@ $$ LANGUAGE sql STABLE SET search_path = public;
 
 COMMENT ON FUNCTION public.get_tenant_from_qr_tag IS 'Get tenant_id from qr_tags table';
 
+-- Temporarily disabled due to vaccines table issues
 -- Lookup tenant from vaccines table (for vaccine_reactions)
-CREATE OR REPLACE FUNCTION public.get_tenant_from_vaccine(p_vaccine_id UUID)
-RETURNS TEXT AS $$
-    SELECT tenant_id FROM public.vaccines WHERE id = p_vaccine_id;
-$$ LANGUAGE sql STABLE SET search_path = public;
-
-COMMENT ON FUNCTION public.get_tenant_from_vaccine IS 'Get tenant_id from vaccines table';
+-- CREATE OR REPLACE FUNCTION public.get_tenant_from_vaccine(p_vaccine_id UUID)
+-- RETURNS TEXT AS $$
+--     SELECT tenant_id FROM public.vaccines WHERE id = p_vaccine_id;
+-- $$ LANGUAGE sql STABLE SET search_path = public;
+--
+-- COMMENT ON FUNCTION public.get_tenant_from_vaccine IS 'Get tenant_id from vaccines table';
 
 -- =============================================================================
 -- DOCUMENTATION: How to use tenant propagation pattern

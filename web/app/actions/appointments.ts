@@ -1,6 +1,8 @@
 'use server'
 
-import { withActionAuth, actionSuccess, actionError } from '@/lib/actions'
+import { withActionAuth } from '@/lib/auth'
+import { actionSuccess, handleActionError } from '@/lib/errors'
+import { getDomainFactory } from '@/lib/domain'
 import { revalidatePath } from 'next/cache'
 import type { CancelAppointmentResult, RescheduleAppointmentResult } from '@/lib/types/appointments'
 
@@ -9,7 +11,7 @@ import type { CancelAppointmentResult, RescheduleAppointmentResult } from '@/lib
  * Can be used by pet owners (for their pets) or staff (for any appointment in their tenant)
  */
 export const cancelAppointment = withActionAuth(
-  async ({ user, profile, isStaff, supabase }, appointmentId: string, reason?: string) => {
+  async ({ user, profile, supabase }, appointmentId: string, reason?: string) => {
     // Get appointment with pet to verify ownership
     const { data: appointment, error: fetchError } = await supabase
       .from('appointments')

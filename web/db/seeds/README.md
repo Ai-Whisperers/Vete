@@ -1,182 +1,123 @@
-# Seed Data
+# Database Seeds
 
-All seed data is managed as JSON files with schema validation. The TypeScript generator (`seed-from-json.ts`) reads these files and produces SQL for database seeding.
+This directory contains comprehensive seed data and setup scripts for the veterinary platform.
 
-## Directory Structure
+## 📁 Directory Structure
 
 ```
-data/
-├── _schemas/                       # JSON Schema definitions for validation
-│   ├── core.schema.json           # Tenant, DemoAccount
-│   ├── reference.schema.json      # DiagnosisCode, DrugDosage, etc.
-│   ├── clinic.schema.json         # Service, Kennel, templates, etc.
-│   └── store.schema.json          # Brand, Category, Product, Supplier
-│
-├── 00-core/                        # Foundation data (load first)
-│   ├── tenants.json               # Clinic tenants with settings
-│   └── demo-accounts.json         # Development login credentials
-│
-├── 01-reference/                   # Global reference data (shared across tenants)
-│   ├── diagnosis-codes.json       # VeNom/SNOMED veterinary codes
-│   ├── drug-dosages.json          # Drug dosage calculations by species
-│   ├── growth-standards.json      # Weight/growth charts by breed
-│   ├── lab-tests.json             # Laboratory test catalog
-│   ├── insurance-providers.json   # Insurance company directory
-│   └── vaccine-protocols.json     # Vaccination schedules by species
-│
-├── 02-clinic/                      # Clinic operational data (per-tenant)
-│   ├── _global/                   # Shared templates across all clinics
-│   │   ├── message-templates.json # WhatsApp/SMS message templates
-│   │   ├── consent-templates.json # Medical consent forms
-│   │   └── time-off-types.json    # Staff leave types (Paraguay labor law)
-│   ├── adris/                     # Veterinaria Adris specific data
-│   │   ├── services.json          # Services with pricing
-│   │   ├── payment-methods.json   # Payment options
-│   │   ├── kennels.json           # Hospitalization kennels
-│   │   └── qr-tags.json           # QR tag inventory
-│   └── petlife/                   # PetLife Center specific data
-│       ├── services.json
-│       ├── payment-methods.json
-│       ├── kennels.json
-│       └── qr-tags.json
-│
-└── 03-store/                       # E-commerce data
-    ├── brands.json                # Product brands
-    ├── categories.json            # Category hierarchy
-    ├── suppliers.json             # B2B suppliers (Paraguay)
-    └── products/                  # Product catalog
-        ├── products-royal-canin.json
-        ├── products-hills.json
-        ├── products-purina.json
-        └── ... (60+ brand files)
+seeds/
+├── data/                    # JSON data files
+│   ├── _schemas/           # JSON schema definitions
+│   ├── 00-core/            # Core system data (tenants, demo accounts)
+│   ├── 01-reference/       # Reference data (diagnoses, drugs, etc.)
+│   ├── 02-clinic/          # Clinic-specific data
+│   └── 03-store/           # Store/e-commerce data
+├── scripts/                # Executable scripts
+│   ├── seed-from-json.ts   # SQL generation script
+│   ├── setup-via-api.ts    # API-based setup script
+│   ├── setup               # CLI wrapper script
+│   └── transform-services.js # Utility script
+├── docs/                   # Documentation
+│   ├── README-API-SETUP.md # API-based setup guide
+│   └── MIGRATION-GUIDE.md  # Migration documentation
+└── generated-seed.sql      # Generated SQL file
 ```
 
-## Load Order
+## 🚀 Quick Start
 
-The numbered prefixes indicate the required load order due to foreign key dependencies:
+### API-Based Setup (Recommended)
 
-1. **00-core** - Tenants must exist before any tenant-specific data
-2. **01-reference** - Reference data has no tenant dependencies
-3. **02-clinic** - Clinic operations depend on tenants
-4. **03-store** - Products depend on brands, categories, and suppliers
-
-## Commands
+For development and testing, use the API-based approach:
 
 ```bash
-# Navigate to web directory
-cd web
+# Basic clinic setup
+npm run env:setup:basic
 
-# Full setup (clean database + schema + seeds)
-node db/setup-db.mjs full
+# Full clinic with sample data
+npm run env:setup:full
 
-# Run seeds only (assumes schema exists)
-node db/setup-db.mjs seeds
+# Complete demo environment
+npm run env:setup:demo
 
-# Generate SQL without executing (outputs to stdout)
-node db/setup-db.mjs generate
+# Clear environment
+npm run env:clear
 
-# Generate and save to file
-node db/setup-db.mjs generate > db/seeds/generated-seed.sql
+# Reset to demo state
+npm run env:reset
 ```
 
-## Schema Validation
+### SQL-Based Setup (Legacy)
 
-Each JSON file references its schema via the `$schema` property:
+For direct database seeding:
 
-```json
-{
-  "$schema": "../_schemas/reference.schema.json#/definitions/DiagnosisCodesFile",
-  "diagnosis_codes": [...]
-}
+```bash
+# Generate SQL from JSON files
+npm run db:seeds
+
+# Apply to database
+npm run db:seeds:load
 ```
 
-Use VS Code or any JSON Schema-aware editor for validation and autocomplete.
+## 📊 Data Coverage
 
-## Adding Data
+The seed data provides comprehensive coverage for testing:
 
-### Adding to Existing Files
+- **18+ pets** with complete medical histories
+- **20+ appointments** across different statuses
+- **Hospitalization workflows** with kennel management
+- **1000+ store products** across all categories
+- **Complete medical records** and vaccination histories
+- **Multi-tenant architecture** with isolated clinic data
 
-1. Edit the appropriate JSON file in `data/`
-2. Ensure your data matches the schema
-3. Run `node db/setup-db.mjs seeds`
+## 📖 Documentation
 
-### Adding a New Tenant
+- **[API Setup Guide](docs/README-API-SETUP.md)** - Complete guide for API-based environment setup
+- **[Migration Guide](docs/MIGRATION-GUIDE.md)** - Migrating from SQL to API-based seeding
 
-1. Create tenant entry in `00-core/tenants.json`
-2. Create folder `02-clinic/{tenant-id}/`
-3. Add the four required files:
-   - `services.json` - Clinic services
-   - `payment-methods.json` - Payment options
-   - `kennels.json` - Hospitalization units
-   - `qr-tags.json` - QR tag inventory
-4. Run seeds
+## 🛠️ Scripts
 
-### Adding New Products
+### API-Based Scripts
+- `scripts/setup-via-api.ts` - Main API setup script
+- `scripts/setup` - CLI wrapper for common operations
 
-1. Create `03-store/products/products-{brand-slug}.json`
-2. Follow the schema in `_schemas/store.schema.json#/definitions/ProductFile`
-3. Ensure the brand exists in `brands.json`
-4. Ensure categories exist in `categories.json`
+### SQL-Based Scripts
+- `scripts/seed-from-json.ts` - Generates SQL from JSON files
+- `scripts/transform-services.js` - Service data transformation utility
 
-### Adding a New Data Type
+## 🔧 Development
 
-1. Add TypeScript interface to `seed-from-json.ts`
-2. Add generator function (`generateXxxSQL`)
-3. Add schema definition to appropriate `_schemas/*.schema.json`
-4. Create JSON file in appropriate folder
-5. Update generator's main function to call your generator
+### Adding New Seed Data
 
-## Data Conventions
+1. **JSON Structure**: Add new data files following the existing schema in `data/_schemas/`
+2. **API Integration**: Update `scripts/setup-via-api.ts` if adding new entity types
+3. **SQL Generation**: Update `scripts/seed-from-json.ts` for SQL-based seeding
 
-### IDs and Slugs
+### Testing Seed Data
 
-- Use lowercase kebab-case for slugs: `royal-canin`, `vacuna-antirrabica`
-- UUIDs are auto-generated by PostgreSQL where needed
-- Tenant IDs are short strings: `adris`, `petlife`
+```bash
+# Test API-based setup
+npm run env:setup:basic
 
-### Currency
+# Test SQL generation
+npm run db:seeds
 
-- All prices in Guaranies (PYG) as integers
-- No decimals (PYG doesn't use them)
-- Example: `150000` = Gs. 150.000
+# Verify data integrity
+npm run db:seeds:verify
+```
 
-### Dates and Times
+## 📋 File Organization
 
-- Use ISO 8601 format: `2024-01-15`
-- Times in 24-hour format: `08:00`, `18:30`
-- Timezone: `America/Asuncion`
+### Data Files (`data/`)
+- **00-core/**: Tenants, demo accounts, global settings
+- **01-reference/**: Medical reference data (diagnoses, drugs, growth standards)
+- **02-clinic/**: Clinic-specific operational data
+- **03-store/**: Product catalog and e-commerce data
 
-### Language
+### Scripts (`scripts/`)
+- **setup-via-api.ts**: Modern API-based seeding with ID tracking
+- **seed-from-json.ts**: Legacy SQL generation from JSON
+- **setup**: Bash wrapper for common CLI operations
 
-- All user-facing text in Spanish (Paraguay)
-- Internal identifiers in English
-
-## Tenant-Specific vs Global Data
-
-| Data Type | Scope | Location |
-|-----------|-------|----------|
-| Tenants | System | `00-core/` |
-| Reference codes | Global | `01-reference/` |
-| Message templates | Global | `02-clinic/_global/` |
-| Services | Per-tenant | `02-clinic/{tenant}/` |
-| Products | Global | `03-store/` |
-
-## Generated Files
-
-`generated-seed.sql` is auto-created by the generator. **Do not edit manually** - changes will be overwritten.
-
-## Troubleshooting
-
-### Foreign Key Errors
-
-Ensure data is loaded in correct order. The generator handles this automatically.
-
-### Duplicate Key Errors
-
-Seeds use `ON CONFLICT DO UPDATE` for idempotent runs. Check for duplicate IDs in your JSON.
-
-### Schema Validation Fails
-
-- Check JSON syntax (trailing commas, missing quotes)
-- Verify required fields are present
-- Ensure enum values match schema definitions
+### Documentation (`docs/`)
+- Comprehensive guides for setup and migration
+- API reference and troubleshooting guides

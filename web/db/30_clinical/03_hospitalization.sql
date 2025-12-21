@@ -21,11 +21,15 @@ CREATE TABLE IF NOT EXISTS public.kennels (
     code TEXT NOT NULL,
     location TEXT,
     kennel_type TEXT DEFAULT 'standard'
-        CHECK (kennel_type IN ('standard', 'isolation', 'icu', 'recovery', 'large', 'small', 'exotic')),
+        CHECK (kennel_type IN ('standard', 'isolation', 'icu', 'recovery', 'large', 'small', 'extra-large', 'oxygen', 'exotic')),
 
     -- Capacity
     max_occupancy INTEGER DEFAULT 1 CHECK (max_occupancy > 0),
     current_occupancy INTEGER DEFAULT 0 CHECK (current_occupancy >= 0),
+    max_weight_kg NUMERIC(6,2) CHECK (max_weight_kg IS NULL OR max_weight_kg > 0),
+
+    -- Features
+    features TEXT[],
 
     -- Pricing
     daily_rate NUMERIC(12,2) DEFAULT 0 CHECK (daily_rate >= 0),

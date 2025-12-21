@@ -2,6 +2,9 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Check, X, Pencil, Loader2, Copy, CheckCheck } from "lucide-react";
+import { useForm } from '@/hooks/use-form';
+import { useAsyncData } from '@/hooks/use-async-data';
+import { required } from '@/lib/utils/validation';
 
 interface InlineEditFieldProps {
   value: string;
@@ -31,33 +34,20 @@ export function InlineEditField({
   editable = true,
 }: InlineEditFieldProps): React.ReactElement {
   const [isEditing, setIsEditing] = useState(false);
-  const [editValue, setEditValue] = useState(value);
-  const [isSaving, setIsSaving] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    if (isEditing && inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
+  // Form handling with validation
+  const form = useForm({
+    initialValues: { [field]: value },
+    validationRules: {
+      [field]: type === 'email' ? required('Email requerido') : undefined
     }
-  }, [isEditing]);
+  });
 
-  useEffect(() => {
-    setEditValue(value);
-  }, [value]);
-
-  const handleSave = async (): Promise<void> => {
-    if (editValue === value) {
-      setIsEditing(false);
-      return;
-    }
-
-    setIsSaving(true);
-    setError(null);
-
-    try {
+  // Async data handling for save operation
+  const { isLoading: isSaving, error: saveError, refetch: saveField } = useAsyncData(
+    async () => {
       const endpoint = entityType === "client"
         ? `/api/clients/${entityId}`
         : `/api/pets/${entityId}`;
@@ -67,7 +57,7 @@ export function InlineEditField({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           clinic,
-          [field]: editValue
+          [field]: form.values[field]
         }),
       });
 
@@ -76,19 +66,44 @@ export function InlineEditField({
         throw new Error(data.error || "Error al guardar");
       }
 
-      onUpdate?.(editValue);
+      return response.json();
+    },
+    [], // No dependencies - manual trigger only
+    { enabled: false } // Don't run automatically
+  );
+
+  useEffect(() => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
+  }, [isEditing]);
+
+  useEffect(() => {
+    // Reset form when value changes externally
+    form.reset({ [field]: value });
+  }, [value, field]);
+
+  const handleSave = async (): Promise<void> => {
+    if (!form.validateForm()) return;
+
+    if (form.values[field] === value) {
+      setIsEditing(false);
+      return;
+    }
+
+    try {
+      await saveField();
+      onUpdate?.(form.values[field]);
       setIsEditing(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al guardar");
-    } finally {
-      setIsSaving(false);
+      // Error is handled by useAsyncData
     }
   };
 
   const handleCancel = (): void => {
-    setEditValue(value);
+    form.reset({ [field]: value });
     setIsEditing(false);
-    setError(null);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent): void => {
@@ -112,6 +127,8 @@ export function InlineEditField({
   };
 
   const displayValue = value || "No registrado";
+  const fieldProps = form.getFieldProps(field);
+  const hasError = saveError || fieldProps.error;
 
   return (
     <div className="flex items-start gap-3">
@@ -129,11 +146,14 @@ export function InlineEditField({
               <input
                 ref={inputRef}
                 type={type}
-                value={editValue}
-                onChange={(e) => setEditValue(e.target.value)}
+                {...fieldProps}
                 onKeyDown={handleKeyDown}
                 disabled={isSaving}
-                className="flex-1 px-3 py-1.5 text-sm border border-[var(--border-color)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent disabled:opacity-50"
+                className={`flex-1 px-3 py-1.5 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent disabled:opacity-50 ${
+                  hasError
+                    ? 'border-red-300 focus:ring-red-500'
+                    : 'border-[var(--border-color)] focus:ring-[var(--primary)]'
+                }`}
               />
               <button
                 onClick={handleSave}
@@ -156,8 +176,8 @@ export function InlineEditField({
                 <X className="w-4 h-4" />
               </button>
             </div>
-            {error && (
-              <p className="text-xs text-red-600">{error}</p>
+            {hasError && (
+              <p className="text-xs text-red-600">{saveError || fieldProps.error}</p>
             )}
           </div>
         ) : (

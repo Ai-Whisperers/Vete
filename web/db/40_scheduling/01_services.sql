@@ -35,6 +35,10 @@ CREATE TABLE IF NOT EXISTS public.services (
     available_start_time TIME DEFAULT '08:00',
     available_end_time TIME DEFAULT '18:00',
 
+    -- Deposits
+    requires_deposit BOOLEAN DEFAULT false,
+    deposit_percentage NUMERIC(5,2) CHECK (deposit_percentage IS NULL OR (deposit_percentage >= 0 AND deposit_percentage <= 100)),
+
     -- Species restrictions
     species_allowed TEXT[],  -- NULL = all species
 

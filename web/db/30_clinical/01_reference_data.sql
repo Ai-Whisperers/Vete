@@ -26,6 +26,9 @@ CREATE TABLE IF NOT EXISTS public.diagnosis_codes (
     -- Species applicability
     species TEXT[] DEFAULT ARRAY['all']::TEXT[],
 
+    -- Severity level
+    severity TEXT CHECK (severity IN ('mild', 'moderate', 'severe', 'critical')),
+
     -- Soft delete
     deleted_at TIMESTAMPTZ,
     deleted_by UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
@@ -55,6 +58,7 @@ CREATE TABLE IF NOT EXISTS public.drug_dosages (
     name TEXT NOT NULL,
     generic_name TEXT,
     species TEXT DEFAULT 'all' CHECK (species IN ('dog', 'cat', 'bird', 'rabbit', 'all')),
+    category TEXT CHECK (category IN ('antibiotic', 'analgesic', 'nsaid', 'corticosteroid', 'antiemetic', 'cardiac', 'antifungal', 'antiparasitic', 'sedative', 'steroid', 'heartworm', 'vaccine', 'other')),
 
     -- Dosage range
     min_dose_mg_kg NUMERIC(10,2) CHECK (min_dose_mg_kg IS NULL OR min_dose_mg_kg >= 0),
@@ -62,7 +66,7 @@ CREATE TABLE IF NOT EXISTS public.drug_dosages (
     concentration_mg_ml NUMERIC(10,2) CHECK (concentration_mg_ml IS NULL OR concentration_mg_ml > 0),
 
     -- Administration
-    route TEXT CHECK (route IS NULL OR route IN ('oral', 'IV', 'IM', 'SQ', 'topical', 'inhaled', 'rectal', 'ophthalmic', 'otic')),
+    route TEXT CHECK (route IS NULL OR route IN ('oral', 'PO', 'IV', 'IM', 'SC', 'SQ', 'topical', 'inhaled', 'rectal', 'ophthalmic', 'otic')),
     frequency TEXT,
     max_daily_dose_mg_kg NUMERIC(10,2) CHECK (max_daily_dose_mg_kg IS NULL OR max_daily_dose_mg_kg >= 0),
 
@@ -70,6 +74,9 @@ CREATE TABLE IF NOT EXISTS public.drug_dosages (
     contraindications TEXT[],
     side_effects TEXT[],
     notes TEXT,
+
+    -- Prescription requirements
+    requires_prescription BOOLEAN DEFAULT true,
 
     -- Soft delete
     deleted_at TIMESTAMPTZ,
@@ -103,8 +110,8 @@ CREATE TABLE IF NOT EXISTS public.growth_standards (
 
     -- Identification
     species TEXT NOT NULL DEFAULT 'dog' CHECK (species IN ('dog', 'cat')),
-    breed TEXT NOT NULL,
-    breed_category TEXT,  -- 'small', 'medium', 'large', 'giant'
+    breed TEXT,  -- NULL for general breed category standards
+    breed_category TEXT,  -- 'toy', 'small', 'medium', 'large', 'giant'
     gender TEXT CHECK (gender IN ('male', 'female')),
     age_weeks INTEGER NOT NULL CHECK (age_weeks >= 0),
 
@@ -126,6 +133,47 @@ CREATE TABLE IF NOT EXISTS public.growth_standards (
 COMMENT ON TABLE public.growth_standards IS 'Weight percentile reference data for pet growth chart analysis';
 COMMENT ON COLUMN public.growth_standards.percentile IS 'Weight percentile: P3, P10, P25, P50 (median), P75, P90, P97';
 COMMENT ON COLUMN public.growth_standards.breed_category IS 'Size category for dogs: small, medium, large, giant';
+
+-- =============================================================================
+-- VACCINE PROTOCOLS
+-- =============================================================================
+
+CREATE TABLE IF NOT EXISTS public.vaccine_protocols (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+    -- Vaccine info
+    vaccine_name TEXT NOT NULL,
+    vaccine_code TEXT NOT NULL UNIQUE,
+    species TEXT NOT NULL CHECK (species IN ('dog', 'cat', 'all')),
+    protocol_type TEXT NOT NULL CHECK (protocol_type IN ('core', 'non-core', 'lifestyle')),
+
+    -- Diseases prevented
+    diseases_prevented TEXT[] NOT NULL,
+
+    -- Dosing schedule
+    first_dose_weeks INTEGER,
+    booster_weeks INTEGER[],
+    booster_intervals_months INTEGER[],
+    revaccination_months INTEGER,
+    duration_years INTEGER,
+
+    -- Additional info
+    manufacturer TEXT,
+    notes TEXT,
+
+    -- Soft delete
+    deleted_at TIMESTAMPTZ,
+    deleted_by UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
+
+    -- Timestamps
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+COMMENT ON TABLE public.vaccine_protocols IS 'Standard vaccination protocols by species and vaccine type';
+COMMENT ON COLUMN public.vaccine_protocols.type IS 'Vaccine type: core (essential), non-core (recommended), lifestyle (optional)';
+COMMENT ON COLUMN public.vaccine_protocols.diseases_prevented IS 'Array of diseases this vaccine prevents';
+COMMENT ON COLUMN public.vaccine_protocols.booster_intervals_months IS 'Array of booster intervals in months';
 
 -- =============================================================================
 -- REPRODUCTIVE CYCLES
@@ -464,4 +512,76 @@ $$ LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path = public;
 
 COMMENT ON FUNCTION public.get_growth_percentile(TEXT, TEXT, TEXT, INTEGER, NUMERIC) IS
 'Estimate weight percentile for a pet based on breed growth standards';
+
+-- =============================================================================
+-- CONSENT TEMPLATES
+-- =============================================================================
+-- Templates for informed consent forms and documents
+
+CREATE TABLE IF NOT EXISTS public.consent_templates (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+    -- Tenancy: NULL = global template, SET = clinic-specific
+    tenant_id TEXT REFERENCES public.tenants(id) ON DELETE CASCADE,
+
+    -- Template identification
+    code TEXT NOT NULL,
+    name TEXT NOT NULL,
+    category TEXT NOT NULL CHECK (category IN ('surgical', 'anesthetic', 'diagnostic', 'therapeutic', 'vaccination', 'euthanasia', 'general')),
+
+    -- Content
+    title TEXT NOT NULL,
+    content_html TEXT NOT NULL,
+    requires_witness BOOLEAN DEFAULT false,
+
+    -- Validity
+    validity_days INTEGER,  -- NULL = unlimited
+    version TEXT DEFAULT '1.0',
+
+    -- Metadata
+    created_by UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
+    updated_by UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
+
+    -- Soft delete
+    deleted_at TIMESTAMPTZ,
+    deleted_by UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
+
+    -- Timestamps
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+    -- Constraints
+    CONSTRAINT consent_templates_code_length CHECK (char_length(code) BETWEEN 2 AND 50),
+    CONSTRAINT consent_templates_name_length CHECK (char_length(name) BETWEEN 2 AND 200),
+    CONSTRAINT consent_templates_version_format CHECK (version ~ '^\d+\.\d+$'),
+
+    -- Unique constraints
+    CONSTRAINT consent_templates_global_code UNIQUE (code) DEFERRABLE INITIALLY DEFERRED,
+    CONSTRAINT consent_templates_tenant_code UNIQUE (tenant_id, code) DEFERRABLE INITIALLY DEFERRED
+);
+
+COMMENT ON TABLE public.consent_templates IS 'Templates for informed consent forms and legal documents';
+COMMENT ON COLUMN public.consent_templates.tenant_id IS 'NULL for global templates, clinic ID for clinic-specific templates';
+COMMENT ON COLUMN public.consent_templates.validity_days IS 'How long the signed consent is valid (NULL = unlimited)';
+COMMENT ON COLUMN public.consent_templates.version IS 'Semantic version for template updates';
+
+-- Indexes for performance
+CREATE INDEX IF NOT EXISTS idx_consent_templates_tenant ON public.consent_templates(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_consent_templates_category ON public.consent_templates(category);
+CREATE INDEX IF NOT EXISTS idx_consent_templates_code ON public.consent_templates(code);
+
+-- Row Level Security
+DROP POLICY IF EXISTS "Global templates viewable by all" ON public.consent_templates;
+CREATE POLICY "Global templates viewable by all" ON public.consent_templates
+    FOR SELECT TO authenticated
+    USING (tenant_id IS NULL AND deleted_at IS NULL);
+
+DROP POLICY IF EXISTS "Clinic templates managed by staff" ON public.consent_templates;
+CREATE POLICY "Clinic templates managed by staff" ON public.consent_templates
+    FOR ALL TO authenticated
+    USING (tenant_id IS NOT NULL AND public.is_staff_of(tenant_id) AND deleted_at IS NULL);
+
+DROP POLICY IF EXISTS "Service role full access consent_templates" ON public.consent_templates;
+CREATE POLICY "Service role full access consent_templates" ON public.consent_templates
+    FOR ALL TO service_role USING (true);
 

@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS public.insurance_providers (
     -- Provider info
     name TEXT NOT NULL,
     code TEXT NOT NULL UNIQUE,
+    country TEXT,
     logo_url TEXT,
     website TEXT,
 
@@ -27,6 +28,10 @@ CREATE TABLE IF NOT EXISTS public.insurance_providers (
 
     -- Address
     address JSONB,
+
+    -- Coverage
+    coverage_types TEXT[],  -- ['accident', 'illness', 'wellness', 'dental']
+    direct_billing BOOLEAN DEFAULT false,
 
     -- Status
     is_active BOOLEAN DEFAULT true,

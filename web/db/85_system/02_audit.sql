@@ -94,6 +94,9 @@ CREATE TABLE IF NOT EXISTS public.qr_tags (
     assigned_at TIMESTAMPTZ,
     assigned_by UUID REFERENCES public.profiles(id),
 
+    -- Batch tracking
+    batch_id TEXT,
+
     -- Previous owner tracking (for theft prevention)
     previous_pet_id UUID REFERENCES public.pets(id),
     reassigned_at TIMESTAMPTZ,

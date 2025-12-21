@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Keyboard, Command, Search, Calendar, Users, PawPrint, FileText, Settings, Plus } from "lucide-react";
 import { useDashboardLabels } from "@/lib/hooks/use-dashboard-labels";
+import { useModal } from "@/hooks/use-modal";
+import { ErrorBoundary } from "@/components/shared";
 
 interface ShortcutCategory {
   title: string;
@@ -12,11 +13,6 @@ interface ShortcutCategory {
     keys: string[];
     description: string;
   }[];
-}
-
-interface KeyboardShortcutsModalProps {
-  isOpen: boolean;
-  onClose: () => void;
 }
 
 const shortcutCategories: ShortcutCategory[] = [
@@ -89,22 +85,32 @@ const shortcutCategories: ShortcutCategory[] = [
   },
 ];
 
+interface KeyboardShortcutsModalProps {
+  trigger?: React.ReactNode;
+}
+
 export function KeyboardShortcutsModal({
-  isOpen,
-  onClose,
-}: KeyboardShortcutsModalProps): React.ReactElement {
+  trigger
+}: KeyboardShortcutsModalProps = {}): React.ReactElement {
+  const modal = useModal();
   const labels = useDashboardLabels();
 
   return (
-    <AnimatePresence>
-      {isOpen && (
+    <ErrorBoundary>
+      {trigger && (
+        <div onClick={modal.open} className="cursor-pointer">
+          {trigger}
+        </div>
+      )}
+      <AnimatePresence>
+        {modal.isOpen && (
         <>
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={onClose}
+            onClick={modal.close}
             className="fixed inset-0 bg-black/50 z-50"
           />
 
@@ -128,7 +134,7 @@ export function KeyboardShortcutsModal({
                 </div>
               </div>
               <button
-                onClick={onClose}
+                onClick={modal.close}
                 className="p-2 rounded-lg bg-white/20 hover:bg-white/30 transition-colors"
               >
                 <X className="w-5 h-5 text-white" />
@@ -188,48 +194,6 @@ export function KeyboardShortcutsModal({
         </>
       )}
     </AnimatePresence>
+    </ErrorBoundary>
   );
-}
-
-// Hook to manage keyboard shortcuts modal
-export function useKeyboardShortcuts(): {
-  isOpen: boolean;
-  openShortcuts: () => void;
-  closeShortcuts: () => void;
-} {
-  const [isOpen, setIsOpen] = useState(false);
-
-  const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    // Check if user is typing in an input
-    const target = e.target as HTMLElement;
-    if (
-      target.tagName === "INPUT" ||
-      target.tagName === "TEXTAREA" ||
-      target.isContentEditable
-    ) {
-      return;
-    }
-
-    // Open shortcuts with ?
-    if (e.key === "?" && !e.ctrlKey && !e.metaKey && !e.altKey) {
-      e.preventDefault();
-      setIsOpen(true);
-    }
-
-    // Close with Escape
-    if (e.key === "Escape" && isOpen) {
-      setIsOpen(false);
-    }
-  }, [isOpen]);
-
-  useEffect(() => {
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [handleKeyDown]);
-
-  return {
-    isOpen,
-    openShortcuts: () => setIsOpen(true),
-    closeShortcuts: () => setIsOpen(false),
-  };
 }

@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { Download, Upload, FileSpreadsheet, AlertCircle, CheckCircle2, Loader2, Package, TrendingUp, Info, Tag, Search, Edit2, ChevronDown, ExternalLink, FileDown, ChevronLeft, ChevronRight, Filter } from 'lucide-react';
 import { useParams } from 'next/navigation';
+import DatePicker from '@/components/ui/date-picker';
 
 interface InventoryClientProps {
     googleSheetUrl: string | null;
@@ -41,7 +42,17 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
     const [products, setProducts] = useState<any[]>([]);
     const [isLoadingProducts, setIsLoadingProducts] = useState(false);
     const [editingProduct, setEditingProduct] = useState<any>(null);
-    const [editValues, setEditValues] = useState({ price: 0, stock: 0 });
+    const [editValues, setEditValues] = useState({
+      price: 0,
+      stock: 0,
+      expiry_date: '',
+      batch_number: '',
+      location: '',
+      bin_number: '',
+      supplier_name: '',
+      min_stock_level: 0
+    });
+    const [activeTab, setActiveTab] = useState<'basic' | 'inventory' | 'location'>('basic');
     const [isSaving, setIsSaving] = useState(false);
     const [alerts, setAlerts] = useState<any>(null);
     const [templateDropdownOpen, setTemplateDropdownOpen] = useState(false);
@@ -182,8 +193,14 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
     const openEdit = (p: any) => {
         setEditingProduct(p);
         setEditValues({
-            price: p.price,
-            stock: p.stock
+            price: p.base_price ?? p.price ?? 0,
+            stock: p.inventory?.stock_quantity ?? p.stock ?? 0,
+            expiry_date: p.inventory?.expiry_date ?? '',
+            batch_number: p.inventory?.batch_number ?? '',
+            location: p.inventory?.location ?? '',
+            bin_number: p.inventory?.bin_number ?? '',
+            supplier_name: p.inventory?.supplier_name ?? '',
+            min_stock_level: p.inventory?.min_stock_level ?? 5
         });
     };
 
@@ -196,10 +213,15 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
                 headers: { 'Content-Type': 'application/json' }, // We'll update the API to handle JSON too
                 body: JSON.stringify({
                     rows: [{
-                        operation: 'price update', // Or adjustment
-                        sku: editingProduct.id,
+                        operation: 'adjustment', // General adjustment operation
+                        sku: editingProduct.sku ?? editingProduct.id,
+                        name: editingProduct.name,
                         price: editValues.price,
-                        quantity: editValues.stock - editingProduct.stock, // Adjustment delta
+                        quantity: editValues.stock - (editingProduct.inventory?.stock_quantity ?? editingProduct.stock ?? 0),
+                        expiry_date: editValues.expiry_date || undefined,
+                        batch_number: editValues.batch_number || undefined,
+                        supplier_name: editValues.supplier_name || undefined,
+                        min_stock_level: editValues.min_stock_level
                     }]
                 })
             });
@@ -277,6 +299,13 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
                     <p className="text-gray-500">Actualiza tu catálogo y stock mediante planillas Excel.</p>
                 </div>
                 <div className="flex flex-wrap gap-3">
+                    <button
+                        onClick={() => window.location.href = `/${clinic}/portal/inventory/catalog`}
+                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition shadow-lg"
+                    >
+                        <Package className="w-4 h-4" /> Agregar Productos
+                    </button>
+
                     <button
                         onClick={() => window.location.href = `/${clinic}/portal/campaigns`}
                         className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-gray-700 font-bold rounded-xl hover:bg-gray-50 transition shadow-sm border border-gray-200"
@@ -813,79 +842,142 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
                                 <Search className="w-5 h-5 rotate-45" />
                             </button>
                         </div>
-                        <div className="p-8 space-y-6">
-                            {/* Image Upload */}
-                            <div className="flex items-center gap-6 p-4 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
-                                <div className="w-24 h-24 bg-white rounded-xl border border-gray-100 overflow-hidden flex items-center justify-center shrink-0">
-                                    {editingProduct.image ? (
-                                        <img src={editingProduct.image} alt="" className="w-full h-full object-cover" />
-                                    ) : (
-                                        <Package className="w-8 h-8 text-gray-200" />
-                                    )}
-                                </div>
-                                <div className="space-y-1">
-                                    <p className="text-sm font-bold text-gray-900">Imagen del Producto</p>
-                                    <p className="text-xs text-gray-500">JPG, PNG o WebP. Máx 2MB.</p>
-                                    <label className="inline-block mt-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-xs font-bold hover:bg-gray-50 cursor-pointer transition">
-                                        Cambiar Imagen
-                                        <input 
-                                            type="file" 
-                                            className="hidden" 
-                                            accept="image/*"
-                                            onChange={async (e) => {
-                                                const file = e.target.files?.[0];
-                                                if (!file) return;
-                                                // We'll handle immediate upload here or just preview
-                                                const formData = new FormData();
-                                                formData.append('file', file);
-                                                formData.append('sku', editingProduct.id);
-                                                formData.append('type', 'image');
-                                                
-                                                try {
-                                                    const res = await fetch('/api/inventory/import', {
-                                                        method: 'POST',
-                                                        body: formData
-                                                    });
-                                                    if (res.ok) {
-                                                        fetchProducts(searchQuery);
-                                                    }
-                                                } catch (err) {
-                                                    console.error('Upload failed', err);
-                                                }
-                                            }} 
-                                        />
-                                    </label>
-                                </div>
+                        {/* Tab Navigation */}
+                        <div className="px-8 pt-6">
+                            <div className="flex border-b border-gray-100">
+                                {[
+                                    { id: 'basic', label: 'Básico', icon: '💰' },
+                                    { id: 'inventory', label: 'Inventario', icon: '📦' },
+                                    { id: 'location', label: 'Ubicación', icon: '📍' }
+                                ].map((tab) => (
+                                    <button
+                                        key={tab.id}
+                                        onClick={() => setActiveTab(tab.id as 'basic' | 'inventory' | 'location')}
+                                        className={`px-4 py-3 text-sm font-bold border-b-2 transition-all ${
+                                            activeTab === tab.id ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-400 hover:text-gray-600'
+                                        }`}
+                                    >
+                                        <span className="mr-2">{tab.icon}</span>
+                                        {tab.label}
+                                    </button>
+                                ))}
                             </div>
+                        </div>
 
-                            <div className="grid grid-cols-2 gap-6">
-                                <div className="space-y-2">
-                                    <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Precio de Venta</label>
-                                    <input 
-                                        type="number"
-                                        value={editValues.price}
-                                        onChange={(e) => setEditValues({ ...editValues, price: Number(e.target.value) })}
-                                        className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl font-bold text-lg focus:ring-2 focus:ring-[var(--primary)]/20 outline-none"
-                                    />
+                        <div className="p-8 space-y-6">
+                            {/* Basic Tab */}
+                            {activeTab === 'basic' && (
+                                <>
+                                    <div className="grid grid-cols-2 gap-6">
+                                        <div className="space-y-2">
+                                            <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Precio de Venta</label>
+                                            <input
+                                                type="number"
+                                                value={editValues.price}
+                                                onChange={(e) => setEditValues({ ...editValues, price: Number(e.target.value) })}
+                                                className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl font-bold text-lg focus:ring-2 focus:ring-blue-500/20 outline-none"
+                                                min="0"
+                                                step="0.01"
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Stock Actual</label>
+                                            <input
+                                                type="number"
+                                                value={editValues.stock}
+                                                onChange={(e) => setEditValues({ ...editValues, stock: Number(e.target.value) })}
+                                                className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl font-bold text-lg focus:ring-2 focus:ring-blue-500/20 outline-none"
+                                                min="0"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="bg-blue-50 p-4 rounded-2xl flex gap-3">
+                                        <Info className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
+                                        <div className="text-xs text-blue-700 leading-relaxed">
+                                            <p className="font-medium mb-1">Cambios de Stock:</p>
+                                            <p>Al cambiar el stock manualmente se generará una transacción de ajuste. Para compras a proveedores, utiliza la carga de planilla Excel para registrar el costo de compra correctamente.</p>
+                                        </div>
+                                    </div>
+                                </>
+                            )}
+
+                            {/* Inventory Tab */}
+                            {activeTab === 'inventory' && (
+                                <div className="space-y-6">
+                                    <div className="grid grid-cols-2 gap-6">
+                                        <div className="space-y-2">
+                                            <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Fecha de Vencimiento</label>
+                                            <DatePicker
+                                                value={editValues.expiry_date}
+                                                onChange={(date) => setEditValues({ ...editValues, expiry_date: date })}
+                                                placeholder="Seleccionar fecha"
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Número de Lote</label>
+                                            <input
+                                                type="text"
+                                                value={editValues.batch_number}
+                                                onChange={(e) => setEditValues({ ...editValues, batch_number: e.target.value })}
+                                                className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl font-medium focus:ring-2 focus:ring-blue-500/20 outline-none"
+                                                placeholder="Ej: LOTE-2024-001"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Stock Mínimo (Alerta)</label>
+                                        <input
+                                            type="number"
+                                            value={editValues.min_stock_level}
+                                            onChange={(e) => setEditValues({ ...editValues, min_stock_level: Number(e.target.value) })}
+                                            className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl font-medium focus:ring-2 focus:ring-blue-500/20 outline-none"
+                                            min="0"
+                                            placeholder="5"
+                                        />
+                                        <p className="text-xs text-gray-500">Cantidad mínima antes de mostrar alerta de bajo stock</p>
+                                    </div>
                                 </div>
-                                <div className="space-y-2">
-                                    <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Stock Actual</label>
-                                    <input 
-                                        type="number"
-                                        value={editValues.stock}
-                                        onChange={(e) => setEditValues({ ...editValues, stock: Number(e.target.value) })}
-                                        className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl font-bold text-lg focus:ring-2 focus:ring-[var(--primary)]/20 outline-none"
-                                    />
+                            )}
+
+                            {/* Location Tab */}
+                            {activeTab === 'location' && (
+                                <div className="space-y-6">
+                                    <div className="grid grid-cols-2 gap-6">
+                                        <div className="space-y-2">
+                                            <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Ubicación</label>
+                                            <input
+                                                type="text"
+                                                value={editValues.location}
+                                                onChange={(e) => setEditValues({ ...editValues, location: e.target.value })}
+                                                className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl font-medium focus:ring-2 focus:ring-blue-500/20 outline-none"
+                                                placeholder="Ej: Estante A, Refrigerador"
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Número de Bandeja</label>
+                                            <input
+                                                type="text"
+                                                value={editValues.bin_number}
+                                                onChange={(e) => setEditValues({ ...editValues, bin_number: e.target.value })}
+                                                className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl font-medium focus:ring-2 focus:ring-blue-500/20 outline-none"
+                                                placeholder="Ej: BIN-01, Cajón 3"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Proveedor</label>
+                                        <input
+                                            type="text"
+                                            value={editValues.supplier_name}
+                                            onChange={(e) => setEditValues({ ...editValues, supplier_name: e.target.value })}
+                                            className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl font-medium focus:ring-2 focus:ring-blue-500/20 outline-none"
+                                            placeholder="Nombre del proveedor"
+                                        />
+                                    </div>
                                 </div>
-                            </div>
-                            
-                            <div className="bg-blue-50 p-4 rounded-2xl flex gap-3">
-                                <Info className="w-5 h-5 text-blue-500 shrink-0" />
-                                <p className="text-xs text-blue-700 leading-relaxed">
-                                    Al cambiar el stock manualmente se generará una transacción de ajuste. 
-                                    Para compras a proveedores, utiliza la carga de planilla Excel para registrar el costo de compra.
-                                </p>
-                            </div>
+                            )}
                         </div>
                         <div className="p-8 bg-gray-50 flex gap-3">
                             <button 

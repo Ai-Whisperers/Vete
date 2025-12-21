@@ -14,6 +14,10 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { useForm } from "@/hooks/use-form";
+import { useAsyncData } from "@/hooks/use-async-data";
+import { required, email } from "@/lib/utils/validation";
+import { ErrorBoundary } from "@/components/shared";
 
 interface ClientInviteFormProps {
   clinic: string;
@@ -27,25 +31,28 @@ export function ClientInviteForm({
   onCancel,
 }: ClientInviteFormProps): React.ReactElement {
   const router = useRouter();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [showPetSection, setShowPetSection] = useState(false);
 
-  // Form state
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [petName, setPetName] = useState("");
-  const [petSpecies, setPetSpecies] = useState("dog");
-  const [petBreed, setPetBreed] = useState("");
+  // Form state management
+  const form = useForm({
+    initialValues: {
+      fullName: "",
+      email: "",
+      phone: "",
+      petName: "",
+      petSpecies: "dog",
+      petBreed: "",
+    },
+    validationRules: {
+      fullName: required("El nombre completo es requerido"),
+      email: [required("El correo electrónico es requerido"), email("Correo electrónico inválido")],
+    },
+  });
 
-  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setError(null);
-
-    try {
+  // API call for creating client
+  const { isLoading: isSubmitting, error: submitError, refetch: submitForm } = useAsyncData(
+    async () => {
       const supabase = createClient();
 
       // Get current user
@@ -58,7 +65,7 @@ export function ClientInviteForm({
       const { data: existingProfile } = await supabase
         .from("profiles")
         .select("id")
-        .eq("email", email.toLowerCase())
+        .eq("email", form.values.email.toLowerCase())
         .eq("tenant_id", clinic)
         .single();
 
@@ -71,9 +78,9 @@ export function ClientInviteForm({
         .from("profiles")
         .insert({
           tenant_id: clinic,
-          full_name: fullName,
-          email: email.toLowerCase(),
-          phone: phone || null,
+          full_name: form.values.fullName,
+          email: form.values.email.toLowerCase(),
+          phone: form.values.phone || null,
           role: "owner",
         })
         .select("id")
@@ -85,13 +92,13 @@ export function ClientInviteForm({
       }
 
       // Create pet if provided
-      if (showPetSection && petName) {
+      if (showPetSection && form.values.petName) {
         const { error: petError } = await supabase.from("pets").insert({
           tenant_id: clinic,
           owner_id: newProfile.id,
-          name: petName,
-          species: petSpecies,
-          breed: petBreed || null,
+          name: form.values.petName,
+          species: form.values.petSpecies,
+          breed: form.values.petBreed || null,
         });
 
         if (petError) {
@@ -100,6 +107,15 @@ export function ClientInviteForm({
         }
       }
 
+      return newProfile;
+    },
+    [], // No dependencies - manual trigger only
+    { enabled: false } // Don't run automatically
+  );
+
+  const handleSubmit = form.handleSubmit(async () => {
+    try {
+      await submitForm();
       setSuccess(true);
       router.refresh();
 
@@ -108,12 +124,9 @@ export function ClientInviteForm({
         onSuccess?.();
       }, 1500);
     } catch (err) {
-      console.error("Error creating client:", err);
-      setError(err instanceof Error ? err.message : "Error al crear cliente");
-    } finally {
-      setIsSubmitting(false);
+      // Error is handled by useAsyncData
     }
-  };
+  });
 
   if (success) {
     return (
@@ -132,9 +145,10 @@ export function ClientInviteForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <ErrorBoundary>
+      <form onSubmit={handleSubmit} className="space-y-6">
       {/* TICKET-FORM-005: Added role="alert" for accessibility */}
-      {error && (
+      {submitError && (
         <div
           role="alert"
           aria-live="assertive"
@@ -142,7 +156,7 @@ export function ClientInviteForm({
           className="p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm flex items-start gap-2"
         >
           <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" aria-hidden="true" />
-          <span>{error}</span>
+          <span>{submitError}</span>
         </div>
       )}
 
@@ -160,14 +174,20 @@ export function ClientInviteForm({
           <input
             id="fullName"
             type="text"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
+            {...form.getFieldProps('fullName')}
             required
             placeholder="Juan Pérez"
-            aria-invalid={error ? "true" : "false"}
-            aria-describedby={error ? "form-error" : undefined}
-            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none"
+            aria-invalid={submitError ? "true" : "false"}
+            aria-describedby={submitError ? "form-error" : undefined}
+            className={`w-full px-4 py-3 rounded-xl border focus:ring-2 outline-none ${
+              form.getFieldProps('fullName').error
+                ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20'
+                : 'border-gray-200 focus:border-[var(--primary)] focus:ring-[var(--primary)]/20'
+            }`}
           />
+          {form.getFieldProps('fullName').error && (
+            <p className="text-red-600 text-xs mt-1">{form.getFieldProps('fullName').error}</p>
+          )}
         </div>
 
         <div>
@@ -179,15 +199,21 @@ export function ClientInviteForm({
             <input
               id="email"
               type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              {...form.getFieldProps('email')}
               required
               placeholder="cliente@email.com"
-              aria-invalid={error ? "true" : "false"}
-              aria-describedby={error ? "form-error" : undefined}
-              className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none"
+              aria-invalid={submitError ? "true" : "false"}
+              aria-describedby={submitError ? "form-error" : undefined}
+              className={`w-full pl-12 pr-4 py-3 rounded-xl border focus:ring-2 outline-none ${
+                form.getFieldProps('email').error
+                  ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20'
+                  : 'border-gray-200 focus:border-[var(--primary)] focus:ring-[var(--primary)]/20'
+              }`}
             />
           </div>
+          {form.getFieldProps('email').error && (
+            <p className="text-red-600 text-xs mt-1">{form.getFieldProps('email').error}</p>
+          )}
         </div>
 
         <div>
@@ -199,8 +225,7 @@ export function ClientInviteForm({
             <input
               id="phone"
               type="tel"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              {...form.getFieldProps('phone')}
               placeholder="0981 123 456"
               aria-invalid="false"
               className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none"
@@ -236,8 +261,7 @@ export function ClientInviteForm({
             <input
               id="petName"
               type="text"
-              value={petName}
-              onChange={(e) => setPetName(e.target.value)}
+              {...form.getFieldProps('petName')}
               placeholder="Max, Luna, etc."
               aria-invalid="false"
               className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none bg-white"
@@ -251,8 +275,7 @@ export function ClientInviteForm({
               </label>
               <select
                 id="petSpecies"
-                value={petSpecies}
-                onChange={(e) => setPetSpecies(e.target.value)}
+                {...form.getFieldProps('petSpecies')}
                 aria-invalid="false"
                 className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none bg-white"
               >
@@ -274,8 +297,7 @@ export function ClientInviteForm({
               <input
                 id="petBreed"
                 type="text"
-                value={petBreed}
-                onChange={(e) => setPetBreed(e.target.value)}
+                {...form.getFieldProps('petBreed')}
                 placeholder="Golden Retriever, etc."
                 aria-invalid="false"
                 className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none bg-white"
@@ -297,7 +319,7 @@ export function ClientInviteForm({
         </button>
         <button
           type="submit"
-          disabled={isSubmitting || !fullName || !email}
+          disabled={isSubmitting || !form.isValid}
           className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[var(--primary)] text-white font-bold rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50"
         >
           {isSubmitting ? (
@@ -314,5 +336,6 @@ export function ClientInviteForm({
         </button>
       </div>
     </form>
+    </ErrorBoundary>
   );
 }

@@ -1,9 +1,17 @@
 /**
- * API utilities barrel export
+ * API utilities and helpers
+ * Centralized API functionality
  */
 
-export * from './errors';
-export * from './with-auth';
-export * from './pagination';
-export * from './verify-tenant';
-export * from './status-transitions';
+// Authentication wrappers (new system)
+export { withApiAuth, withApiAuthParams } from '@/lib/auth'
+
+// Error handling
+export { apiSuccess, handleApiError } from '@/lib/errors'
+
+// Response patterns
+export * from './responses'
+
+// Legacy exports (for gradual migration)
+export { withAuth, type AuthContext, type RouteContext } from './with-auth'
+export { apiError, validationError, type ApiErrorResponse } from './errors'

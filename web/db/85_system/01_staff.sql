@@ -146,6 +146,7 @@ CREATE TABLE IF NOT EXISTS public.time_off_types (
     is_paid BOOLEAN DEFAULT true,
     max_days_per_year INTEGER,
     requires_approval BOOLEAN DEFAULT true,
+    requires_documentation BOOLEAN DEFAULT false,
 
     -- Display
     color TEXT DEFAULT '#6366f1',

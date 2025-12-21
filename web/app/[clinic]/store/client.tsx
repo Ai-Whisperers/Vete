@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, lazy, Suspense } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import {
@@ -40,12 +40,23 @@ import type {
   HealthCondition,
 } from '@/lib/types/store';
 import { SPECIES } from '@/lib/types/store';
-import FilterSidebar from '@/components/store/filters/filter-sidebar';
-import FilterDrawer from '@/components/store/filters/filter-drawer';
 import SortDropdown from '@/components/store/filters/sort-dropdown';
 import FilterChips from '@/components/store/filters/filter-chips';
 import EnhancedProductCard from '@/components/store/enhanced-product-card';
-import QuickViewModal from '@/components/store/quick-view-modal';
+
+// Lazy load heavy components to reduce initial bundle size
+
+const LazyFilterSidebar = lazy(() =>
+  import('@/components/store/filters/filter-sidebar').then(mod => ({ default: mod.default }))
+);
+const LazyFilterDrawer = lazy(() =>
+  import('@/components/store/filters/filter-drawer').then(mod => ({ default: mod.default }))
+);
+const LazyQuickViewModal = lazy(() =>
+  import('@/components/store/quick-view-modal').then(mod => ({ default: mod.default }))
+);
+
+// Dynamically import components that aren't needed immediately
 import { useCart } from '@/context/cart-context';
 
 interface StorePageClientProps {
@@ -593,12 +604,14 @@ export default function StorePageClient({ config, heroImage }: StorePageClientPr
         <div className="flex gap-6 lg:gap-8">
           {/* Desktop Sidebar - Wider */}
           <div className="hidden lg:block w-72 flex-shrink-0">
-            <FilterSidebar
-              filters={filters}
-              availableFilters={availableFilters}
-              onFiltersChange={handleFiltersChange}
-              onClearFilters={handleClearFilters}
-            />
+            <Suspense fallback={<div className="animate-pulse bg-gray-100 rounded-lg h-96"></div>}>
+              <LazyFilterSidebar
+                filters={filters}
+                availableFilters={availableFilters}
+                onFiltersChange={handleFiltersChange}
+                onClearFilters={handleClearFilters}
+              />
+            </Suspense>
           </div>
 
           {/* Products Area */}
@@ -835,28 +848,32 @@ export default function StorePageClient({ config, heroImage }: StorePageClientPr
       </Link>
 
       {/* Mobile Filter Drawer */}
-      <FilterDrawer
-        isOpen={isFilterDrawerOpen}
-        onClose={() => setIsFilterDrawerOpen(false)}
-        filters={pendingFilters}
-        availableFilters={availableFilters}
-        onFiltersChange={setPendingFilters}
-        onClearFilters={() => {
-          setPendingFilters(DEFAULT_FILTERS);
-        }}
-        onApply={handleApplyMobileFilters}
-        resultCount={totalProducts}
-      />
+      <Suspense fallback={<div className="fixed inset-0 bg-black/50 z-40 flex items-center justify-center"><div className="bg-white p-4 rounded-lg">Cargando filtros...</div></div>}>
+        <LazyFilterDrawer
+          isOpen={isFilterDrawerOpen}
+          onClose={() => setIsFilterDrawerOpen(false)}
+          filters={pendingFilters}
+          availableFilters={availableFilters}
+          onFiltersChange={setPendingFilters}
+          onClearFilters={() => {
+            setPendingFilters(DEFAULT_FILTERS);
+          }}
+          onApply={handleApplyMobileFilters}
+          resultCount={totalProducts}
+        />
+      </Suspense>
 
       {/* Quick View Modal */}
       {quickViewProduct && (
-        <QuickViewModal
-          product={quickViewProduct}
-          clinic={clinic}
-          isWishlisted={wishlistedIds.has(quickViewProduct.id)}
-          onWishlistToggle={handleWishlistToggle}
-          onClose={() => setQuickViewProduct(null)}
-        />
+        <Suspense fallback={<div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center"><div className="bg-white p-4 rounded-lg">Cargando producto...</div></div>}>
+          <LazyQuickViewModal
+            product={quickViewProduct}
+            clinic={clinic}
+            isWishlisted={wishlistedIds.has(quickViewProduct.id)}
+            onWishlistToggle={handleWishlistToggle}
+            onClose={() => setQuickViewProduct(null)}
+          />
+        </Suspense>
       )}
     </div>
   );

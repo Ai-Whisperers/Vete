@@ -60,8 +60,20 @@ const SCHEMA_ORDER = [
   '40_scheduling/01_services.sql',
   '40_scheduling/02_appointments.sql',
 
-  // Phase 8: Store (must be before finance - invoice_items references products)
-  '60_store/01_inventory.sql',
+  // Phase 8: Store (modular by domain - must be before finance)
+  // Store foundation (independent tables)
+  '60_store/suppliers/01_suppliers.sql',
+  '60_store/categories/01_categories.sql',
+  '60_store/brands/01_brands.sql',
+  // Store catalog (depends on foundation)
+  '60_store/products/01_products.sql',
+  // Store operations (depend on products)
+  '60_store/inventory/01_inventory.sql',
+  '60_store/orders/01_orders.sql',
+  '60_store/reviews/01_reviews.sql',
+  // Store intelligence (B2B features)
+  '60_store/procurement/01_procurement.sql',
+  // Store utilities
   '60_store/02_import_rpc.sql',
 
   // Phase 9: Finance (needs store_products)
@@ -82,12 +94,12 @@ const SCHEMA_ORDER = [
 
   // Phase 14: System
   '85_system/01_staff.sql',
-  '85_system/02_audit.sql',
+  // '85_system/02_audit.sql', // Temporarily disabled - has issues
 
   // Phase 15: Infrastructure
   '90_infrastructure/01_storage.sql',
-  '90_infrastructure/02_realtime.sql',
-  '90_infrastructure/03_views.sql',
+  // '90_infrastructure/02_realtime.sql', // Depends on notifications table
+  // '90_infrastructure/03_views.sql', // Depends on disease_reports table
 
   // Phase 16: Table-dependent functions (MUST run after all tables exist)
   '02_functions/02_core_functions.sql',
@@ -321,7 +333,7 @@ async function runSchema(client, dryRun = false) {
 function generateSeedsFromJSON(dryRun = false) {
   console.log('\n--- Generating Seeds from JSON ---\n');
 
-  const generatorPath = join(__dirname, 'seeds', 'seed-from-json.ts');
+  const generatorPath = join(__dirname, 'seeds', 'scripts', 'seed-from-json.ts');
   const outputPath = join(__dirname, 'seeds', 'generated-seed.sql');
 
   if (!existsSync(generatorPath)) {

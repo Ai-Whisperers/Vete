@@ -72,6 +72,55 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
 
+  // Webpack optimizations for better performance
+  webpack: (config, { dev, isServer }) => {
+    // Only apply optimizations in production builds to avoid dev issues
+    if (!dev && !isServer) {
+      // Aggressive code splitting to reduce chunk sizes
+      config.optimization = {
+        ...config.optimization,
+        splitChunks: {
+          ...config.optimization.splitChunks,
+          chunks: 'all',
+          maxSize: 512000, // 512KB max chunk size
+          minSize: 100000, // 100KB min chunk size
+          cacheGroups: {
+            ...config.optimization.splitChunks?.cacheGroups,
+            // Separate store components into smaller chunks
+            storeFilters: {
+              test: /[\\/]store[\\/]filters[\\/]/,
+              name: 'store-filters',
+              chunks: 'all',
+              priority: 30,
+            },
+            storeComponents: {
+              test: /[\\/]store[\\/](enhanced-product-card|quick-view-modal)[\\/]/,
+              name: 'store-cards',
+              chunks: 'all',
+              priority: 25,
+            },
+            // Core vendor libraries
+            vendor: {
+              test: /[\\/]node_modules[\\/](react|react-dom|lucide-react|clsx)[\\/]/,
+              name: 'core-vendor',
+              chunks: 'all',
+              priority: 20,
+            },
+            // Supabase and other large libs
+            dataLibs: {
+              test: /[\\/]node_modules[\\/](@supabase|framer-motion|date-fns)[\\/]/,
+              name: 'data-libs',
+              chunks: 'all',
+              priority: 15,
+            },
+          },
+        },
+      };
+    }
+
+    return config;
+  },
+
   // Image optimization configuration
   images: {
     remotePatterns: [

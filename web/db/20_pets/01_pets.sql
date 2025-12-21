@@ -14,7 +14,7 @@
 CREATE TABLE IF NOT EXISTS public.pets (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     owner_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE RESTRICT,
-    tenant_id TEXT NOT NULL REFERENCES public.tenants(id) ON DELETE RESTRICT,
+    tenant_id TEXT REFERENCES public.tenants(id), -- Nullable for global pets
 
     -- Identity
     name TEXT NOT NULL,
@@ -294,6 +294,7 @@ CREATE TABLE IF NOT EXISTS public.qr_tags (
     -- Tag info
     code TEXT NOT NULL UNIQUE,  -- Unique tag code (printed on physical tag)
     batch_number TEXT,          -- Manufacturing batch
+    batch_id TEXT,              -- Batch identifier
 
     -- Assignment
     is_registered BOOLEAN DEFAULT false,
@@ -430,3 +431,100 @@ DROP TRIGGER IF EXISTS lost_pets_auto_tenant ON public.lost_pets;
 CREATE TRIGGER lost_pets_auto_tenant
     BEFORE INSERT ON public.lost_pets
     FOR EACH ROW EXECUTE FUNCTION public.lost_pets_set_tenant_id();
+
+-- =============================================================================
+-- CLINIC PETS (Junction table for pet-clinic relationships)
+-- =============================================================================
+
+CREATE TABLE IF NOT EXISTS public.clinic_pets (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    pet_id UUID NOT NULL REFERENCES public.pets(id) ON DELETE CASCADE,
+    tenant_id TEXT NOT NULL REFERENCES public.tenants(id) ON DELETE CASCADE,
+
+    -- Visit tracking
+    first_visit_date TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    last_visit_date TIMESTAMPTZ,
+    visit_count INTEGER DEFAULT 0,
+
+    -- Status
+    is_active BOOLEAN DEFAULT true,
+
+    -- Clinic-specific notes
+    notes TEXT,
+
+    -- Audit
+    created_by UUID REFERENCES public.profiles(id),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+    UNIQUE(pet_id, tenant_id)
+);
+
+COMMENT ON TABLE public.clinic_pets IS 'Junction table linking pets to clinics they visit. Supports pets visiting multiple clinics.';
+COMMENT ON COLUMN public.clinic_pets.first_visit_date IS 'When this pet was first seen at this clinic';
+COMMENT ON COLUMN public.clinic_pets.visit_count IS 'Total visits to this clinic';
+
+-- =============================================================================
+-- INDEXES
+-- =============================================================================
+
+CREATE INDEX IF NOT EXISTS idx_clinic_pets_pet ON public.clinic_pets(pet_id);
+CREATE INDEX IF NOT EXISTS idx_clinic_pets_tenant ON public.clinic_pets(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_clinic_pets_active ON public.clinic_pets(tenant_id, is_active)
+    WHERE is_active = true;
+
+-- =============================================================================
+-- RLS POLICIES
+-- =============================================================================
+
+ALTER TABLE public.clinic_pets ENABLE ROW LEVEL SECURITY;
+
+-- Service role full access
+DROP POLICY IF EXISTS "Service role full access clinic_pets" ON public.clinic_pets;
+CREATE POLICY "Service role full access clinic_pets" ON public.clinic_pets
+    FOR ALL TO service_role USING (true) WITH CHECK (true);
+
+-- Clinic staff can manage their clinic's pet relationships
+DROP POLICY IF EXISTS "Clinic staff manage clinic_pets" ON public.clinic_pets;
+CREATE POLICY "Clinic staff manage clinic_pets" ON public.clinic_pets
+    FOR ALL TO authenticated
+    USING (
+        EXISTS (
+            SELECT 1 FROM public.profiles p
+            WHERE p.id = auth.uid()
+            AND p.tenant_id = clinic_pets.tenant_id
+            AND p.role IN ('vet', 'admin')
+            AND p.deleted_at IS NULL
+        )
+    )
+    WITH CHECK (
+        EXISTS (
+            SELECT 1 FROM public.profiles p
+            WHERE p.id = auth.uid()
+            AND p.tenant_id = clinic_pets.tenant_id
+            AND p.role IN ('vet', 'admin')
+            AND p.deleted_at IS NULL
+        )
+    );
+
+-- Pet owners can view their pets' clinic relationships
+DROP POLICY IF EXISTS "Owners view their pets clinic relationships" ON public.clinic_pets;
+CREATE POLICY "Owners view their pets clinic relationships" ON public.clinic_pets
+    FOR SELECT TO authenticated
+    USING (
+        EXISTS (
+            SELECT 1 FROM public.pets pet
+            WHERE pet.id = clinic_pets.pet_id
+            AND pet.owner_id = auth.uid()
+        )
+    );
+
+-- =============================================================================
+-- TRIGGERS
+-- =============================================================================
+
+-- Updated at trigger
+DROP TRIGGER IF EXISTS handle_updated_at_clinic_pets ON public.clinic_pets;
+CREATE TRIGGER handle_updated_at_clinic_pets
+    BEFORE UPDATE ON public.clinic_pets
+    FOR EACH ROW EXECUTE FUNCTION handle_updated_at();

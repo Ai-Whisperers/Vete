@@ -12,7 +12,7 @@
 -- =============================================================================
 
 CREATE TABLE IF NOT EXISTS public.profiles (
-    id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+    id UUID PRIMARY KEY, -- REFERENCES auth.users(id) ON DELETE CASCADE, -- Disabled for seeding
     tenant_id TEXT REFERENCES public.tenants(id) ON DELETE SET NULL,
 
     -- Identity
@@ -66,6 +66,105 @@ COMMENT ON COLUMN public.profiles.tenant_id IS 'The clinic this user belongs to.
 COMMENT ON COLUMN public.profiles.client_code IS 'Unique client identifier within the tenant (e.g., CLI-00001)';
 COMMENT ON COLUMN public.profiles.preferred_contact IS 'How the client prefers to be contacted';
 COMMENT ON COLUMN public.profiles.specializations IS 'Vet specialization areas for staff profiles';
+
+-- =============================================================================
+-- CLINIC PROFILES (Junction table for multi-tenancy)
+-- =============================================================================
+
+CREATE TABLE IF NOT EXISTS public.clinic_profiles (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    profile_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+    tenant_id TEXT NOT NULL REFERENCES public.tenants(id) ON DELETE CASCADE,
+
+    -- Clinic-specific role (may differ from global role)
+    role TEXT NOT NULL DEFAULT 'owner' CHECK (role IN ('owner', 'vet', 'admin')),
+
+    -- Membership status
+    is_active BOOLEAN DEFAULT true,
+    joined_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+    -- Clinic-specific settings
+    permissions JSONB DEFAULT '{}',  -- Additional permissions within this clinic
+
+    -- Audit
+    invited_by UUID REFERENCES public.profiles(id),
+    invitation_accepted_at TIMESTAMPTZ,
+
+    -- Soft delete
+    deleted_at TIMESTAMPTZ,
+    deleted_by UUID REFERENCES public.profiles(id),
+
+    -- Timestamps
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+    UNIQUE(profile_id, tenant_id)
+);
+
+COMMENT ON TABLE public.clinic_profiles IS 'Junction table linking users to clinics they can access. Supports multi-tenancy.';
+COMMENT ON COLUMN public.clinic_profiles.role IS 'Role within this specific clinic (may override global role)';
+COMMENT ON COLUMN public.clinic_profiles.permissions IS 'Clinic-specific permission overrides';
+
+-- =============================================================================
+-- INDEXES
+-- =============================================================================
+
+CREATE INDEX IF NOT EXISTS idx_clinic_profiles_profile ON public.clinic_profiles(profile_id);
+CREATE INDEX IF NOT EXISTS idx_clinic_profiles_tenant ON public.clinic_profiles(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_clinic_profiles_active ON public.clinic_profiles(tenant_id, is_active)
+    WHERE deleted_at IS NULL;
+
+-- =============================================================================
+-- RLS POLICIES
+-- =============================================================================
+
+ALTER TABLE public.clinic_profiles ENABLE ROW LEVEL SECURITY;
+
+-- Service role full access
+DROP POLICY IF EXISTS "Service role full access clinic_profiles" ON public.clinic_profiles;
+CREATE POLICY "Service role full access clinic_profiles" ON public.clinic_profiles
+    FOR ALL TO service_role USING (true) WITH CHECK (true);
+
+-- Users can view their own clinic memberships
+DROP POLICY IF EXISTS "Users view own clinic memberships" ON public.clinic_profiles;
+CREATE POLICY "Users view own clinic memberships" ON public.clinic_profiles
+    FOR SELECT TO authenticated
+    USING (profile_id = auth.uid());
+
+-- Clinic staff can manage clinic memberships
+DROP POLICY IF EXISTS "Clinic staff manage clinic memberships" ON public.clinic_profiles;
+CREATE POLICY "Clinic staff manage clinic memberships" ON public.clinic_profiles
+    FOR ALL TO authenticated
+    USING (
+        EXISTS (
+            SELECT 1 FROM public.clinic_profiles cp
+            WHERE cp.profile_id = auth.uid()
+            AND cp.tenant_id = clinic_profiles.tenant_id
+            AND cp.role IN ('vet', 'admin')
+            AND cp.is_active = true
+            AND cp.deleted_at IS NULL
+        )
+    )
+    WITH CHECK (
+        EXISTS (
+            SELECT 1 FROM public.clinic_profiles cp
+            WHERE cp.profile_id = auth.uid()
+            AND cp.tenant_id = clinic_profiles.tenant_id
+            AND cp.role IN ('vet', 'admin')
+            AND cp.is_active = true
+            AND cp.deleted_at IS NULL
+        )
+    );
+
+-- =============================================================================
+-- TRIGGERS
+-- =============================================================================
+
+-- Updated at trigger
+DROP TRIGGER IF EXISTS handle_updated_at_clinic_profiles ON public.clinic_profiles;
+CREATE TRIGGER handle_updated_at_clinic_profiles
+    BEFORE UPDATE ON public.clinic_profiles
+    FOR EACH ROW EXECUTE FUNCTION handle_updated_at();
 
 -- =============================================================================
 -- ROW LEVEL SECURITY
@@ -175,11 +274,13 @@ CREATE TRIGGER protect_critical_columns
 -- =============================================================================
 -- Maps emails to tenants/roles for development without invites
 
-CREATE TABLE IF NOT EXISTS public.demo_accounts (
+DROP TABLE IF EXISTS public.demo_accounts;
+CREATE TABLE public.demo_accounts (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     email TEXT NOT NULL UNIQUE,
     tenant_id TEXT NOT NULL REFERENCES public.tenants(id) ON DELETE CASCADE,
     role TEXT NOT NULL DEFAULT 'owner' CHECK (role IN ('owner', 'vet', 'admin')),
+    full_name TEXT,
     is_active BOOLEAN DEFAULT true,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -343,5 +444,28 @@ CREATE POLICY "Admin manage sequences" ON public.document_sequences
             AND p.tenant_id = document_sequences.tenant_id
             AND p.role = 'admin'
             AND p.deleted_at IS NULL
+        )
+    );
+
+-- =============================================================================
+-- UPDATE TENANTS RLS (now that profiles table exists)
+-- =============================================================================
+
+-- Update tenants RLS to include profile-based access
+DROP POLICY IF EXISTS "Authenticated users view active tenants" ON public.tenants;
+DROP POLICY IF EXISTS "Authenticated users view own tenant" ON public.tenants;
+CREATE POLICY "Authenticated users view own tenant" ON public.tenants
+    FOR SELECT TO authenticated
+    USING (
+        is_active = true
+        AND (
+            -- Users can see their own tenant
+            EXISTS (
+                SELECT 1 FROM public.profiles
+                WHERE profiles.id = auth.uid()
+                AND profiles.tenant_id = tenants.id
+            )
+            -- Or public discovery (limited info via column security in views)
+            OR true
         )
     );

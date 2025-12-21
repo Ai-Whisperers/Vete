@@ -14,9 +14,11 @@
 CREATE TABLE IF NOT EXISTS public.tenants (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
+    legal_name TEXT,
 
     -- Contact information
     phone TEXT,
+    whatsapp TEXT,
     email TEXT,
     address TEXT,
     city TEXT,
@@ -30,6 +32,7 @@ CREATE TABLE IF NOT EXISTS public.tenants (
     -- Settings (JSONB for flexibility)
     -- Structure: { currency: 'PYG', timezone: 'America/Asuncion', ... }
     settings JSONB DEFAULT '{}'::jsonb,
+    business_hours JSONB DEFAULT '{}'::jsonb,
 
     -- Feature flags (which modules are enabled)
     features_enabled TEXT[] DEFAULT ARRAY['core'],
@@ -64,23 +67,11 @@ COMMENT ON COLUMN public.tenants.plan IS 'Subscription tier affecting available 
 
 ALTER TABLE public.tenants ENABLE ROW LEVEL SECURITY;
 
--- Authenticated users can only see active tenants they belong to or public info
-DROP POLICY IF EXISTS "Authenticated users view own tenant" ON public.tenants;
-CREATE POLICY "Authenticated users view own tenant" ON public.tenants
+-- Authenticated users can see active tenants (RLS will be updated after profiles table exists)
+DROP POLICY IF EXISTS "Authenticated users view active tenants" ON public.tenants;
+CREATE POLICY "Authenticated users view active tenants" ON public.tenants
     FOR SELECT TO authenticated
-    USING (
-        is_active = true
-        AND (
-            -- Users can see their own tenant
-            EXISTS (
-                SELECT 1 FROM public.profiles
-                WHERE profiles.id = auth.uid()
-                AND profiles.tenant_id = tenants.id
-            )
-            -- Or public discovery (limited info via column security in views)
-            OR true
-        )
-    );
+    USING (is_active = true);
 
 -- Service role full access for admin operations
 DROP POLICY IF EXISTS "Service role full access" ON public.tenants;

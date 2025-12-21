@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   AreaChart,
   Area,
@@ -12,6 +12,8 @@ import {
   Legend
 } from 'recharts';
 import { Calendar } from 'lucide-react';
+import { useAsyncData } from '@/hooks/use-async-data';
+import { ErrorBoundary, LoadingSpinner } from '@/components/shared';
 
 interface AppointmentData {
   period_start: string;
@@ -27,28 +29,22 @@ interface AppointmentsChartProps {
 }
 
 export function AppointmentsChart({ clinic }: AppointmentsChartProps) {
-  const [data, setData] = useState<AppointmentData[]>([]);
-  const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState<'day' | 'week' | 'month'>('week');
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const res = await fetch(`/api/dashboard/appointments?clinic=${clinic}&period=${period}`);
-        if (res.ok) {
-          const result = await res.json();
-          setData(result);
-        }
-      } catch {
-        // Error fetching appointment data - silently fail
-      } finally {
-        setLoading(false);
+  const { data, isLoading, error, refetch } = useAsyncData<AppointmentData[]>(
+    async () => {
+      const res = await fetch(`/api/dashboard/appointments?clinic=${clinic}&period=${period}`);
+      if (!res.ok) {
+        throw new Error('Failed to fetch appointment data');
       }
-    };
-
-    fetchData();
-  }, [clinic, period]);
+      return res.json();
+    },
+    [clinic, period],
+    {
+      enabled: true,
+      retryCount: 2
+    }
+  );
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -58,24 +54,39 @@ export function AppointmentsChart({ clinic }: AppointmentsChartProps) {
     return date.toLocaleDateString('es-PY', { month: 'short', day: 'numeric' });
   };
 
-  if (loading) {
+  if (error) {
     return (
       <div className="bg-[var(--bg-paper)] rounded-xl p-6 shadow-sm">
-        <div className="animate-pulse">
-          <div className="h-6 bg-[var(--bg-subtle)] rounded w-1/4 mb-4"></div>
-          <div className="h-64 bg-[var(--border-light,#f3f4f6)] rounded"></div>
+        <div className="flex items-center justify-center h-64 text-[var(--text-secondary)]">
+          <div className="text-center">
+            <p>Error al cargar datos de citas</p>
+            <button
+              onClick={() => refetch()}
+              className="mt-2 text-sm text-[var(--primary)] hover:underline"
+            >
+              Intentar de nuevo
+            </button>
+          </div>
         </div>
       </div>
     );
   }
 
-  const chartData = data.map(d => ({
+  const chartData = (data || []).map(d => ({
     ...d,
     date: formatDate(d.period_start)
   }));
 
   return (
-    <div className="bg-[var(--bg-paper)] rounded-xl p-6 shadow-sm">
+    <ErrorBoundary>
+      <div className="bg-[var(--bg-paper)] rounded-xl p-6 shadow-sm">
+        {isLoading && (
+          <div className="flex items-center justify-center h-64">
+            <LoadingSpinner text="Cargando datos..." />
+          </div>
+        )}
+
+        {!isLoading && (
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center gap-2">
           <Calendar className="w-5 h-5 text-[var(--text-secondary)]" />
@@ -98,7 +109,7 @@ export function AppointmentsChart({ clinic }: AppointmentsChartProps) {
         </div>
       </div>
 
-      {data.length === 0 ? (
+      {(data || []).length === 0 ? (
         <div className="h-64 flex items-center justify-center text-[var(--text-secondary)]">
           No hay datos de citas para mostrar
         </div>
@@ -177,7 +188,8 @@ export function AppointmentsChart({ clinic }: AppointmentsChartProps) {
             />
           </AreaChart>
         </ResponsiveContainer>
-      )}
-    </div>
+        )}
+      </div>
+    </ErrorBoundary>
   );
 }

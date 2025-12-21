@@ -82,14 +82,12 @@ export default function NewPrescriptionForm({ clinic, patient, vetName }: Prescr
     const pdfData = {
         clinicName: clinic.config.name,
         clinicAddress: clinic.config.address || 'Calle Ficticia 123',
-        patientName: patient?.name || 'Desconocido',
-        ownerName: 'Propietario', 
+        petName: patient?.name || 'Desconocido',
+        ownerName: 'Propietario',
         date: new Date().toLocaleDateString(),
         drugs,
         notes,
         vetName,
-        signatureHash,
-        signatureImage: signatureDataUrl // Pass to PDF
     };
 
     return (

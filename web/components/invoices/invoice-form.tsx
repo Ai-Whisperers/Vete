@@ -7,7 +7,7 @@ import { PetSelector } from './pet-selector'
 import { LineItems } from './line-items'
 import { TotalsSummary } from './totals-summary'
 import { createInvoice, updateInvoice } from '@/app/actions/invoices'
-import { calculateLineTotal } from '@/lib/types/invoicing'
+import { calculateLineTotal, type InvoiceFormData } from '@/lib/types/invoicing'
 
 interface Pet {
   id: string
@@ -110,12 +110,20 @@ export function InvoiceForm({
       return
     }
 
-    const formData = new FormData()
-    formData.append('pet_id', selectedPetId)
-    formData.append('items', JSON.stringify(itemsWithTotals))
-    formData.append('notes', notes)
-    formData.append('due_date', dueDate)
-    formData.append('tax_rate', taxRate.toString())
+    // Build typed form data object
+    const formData: InvoiceFormData = {
+      pet_id: selectedPetId,
+      items: itemsWithTotals.map(item => ({
+        service_id: item.service_id,
+        description: item.description,
+        quantity: item.quantity,
+        unit_price: item.unit_price,
+        discount_percent: item.discount_percent || 0
+      })),
+      notes: notes || undefined,
+      due_date: dueDate || undefined,
+      tax_rate: taxRate
+    }
 
     try {
       let result
@@ -131,8 +139,8 @@ export function InvoiceForm({
         return
       }
 
-      if (mode === 'create' && result.invoiceId) {
-        router.push(`/${clinic}/dashboard/invoices/${result.invoiceId}`)
+      if (mode === 'create' && result.data?.id) {
+        router.push(`/${clinic}/dashboard/invoices/${result.data.id}`)
       } else {
         router.push(`/${clinic}/dashboard/invoices`)
       }

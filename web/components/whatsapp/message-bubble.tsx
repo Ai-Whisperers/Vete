@@ -34,7 +34,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
           </span>
 
           {isOutbound && (
-            <span className={isOutbound ? 'text-white/70' : statusConfig?.color}>
+            <span className={isOutbound ? 'text-white/70' : statusConfig?.className}>
               {message.status === 'read' ? (
                 <Icons.CheckCheck className="w-4 h-4" />
               ) : message.status === 'delivered' ? (

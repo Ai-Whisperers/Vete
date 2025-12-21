@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Calendar State Management Hook
  * Custom hook for managing calendar state and handlers

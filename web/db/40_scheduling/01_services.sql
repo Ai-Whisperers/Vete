@@ -2,18 +2,21 @@
 -- 01_SERVICES.SQL
 -- =============================================================================
 -- Service catalog for appointments and invoicing.
+--
+-- DEPENDENCIES: 10_core/01_tenants.sql, 10_core/02_profiles.sql
 -- =============================================================================
 
 CREATE TABLE IF NOT EXISTS public.services (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    tenant_id TEXT NOT NULL REFERENCES public.tenants(id),
+    tenant_id TEXT NOT NULL REFERENCES public.tenants(id) ON DELETE CASCADE,
 
     -- Service details
     name TEXT NOT NULL,
     description TEXT,
     category TEXT NOT NULL CHECK (category IN (
         'consultation', 'vaccination', 'grooming', 'surgery',
-        'diagnostic', 'dental', 'emergency', 'hospitalization', 'other'
+        'diagnostic', 'dental', 'emergency', 'hospitalization',
+        'treatment', 'identification', 'other'
     )),
 
     -- Pricing
@@ -28,7 +31,7 @@ CREATE TABLE IF NOT EXISTS public.services (
 
     -- Availability - USED BY get_available_slots
     requires_appointment BOOLEAN DEFAULT true,
-    available_days INTEGER[] DEFAULT ARRAY[1,2,3,4,5],  -- Mon-Fri (1=Monday)
+    available_days INTEGER[] DEFAULT ARRAY[1,2,3,4,5],  -- Mon-Fri (1=Monday per ISO)
     available_start_time TIME DEFAULT '08:00',
     available_end_time TIME DEFAULT '18:00',
 
@@ -46,7 +49,7 @@ CREATE TABLE IF NOT EXISTS public.services (
 
     -- Soft delete
     deleted_at TIMESTAMPTZ,
-    deleted_by UUID REFERENCES public.profiles(id),
+    deleted_by UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
 
     -- Timestamps
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -54,8 +57,16 @@ CREATE TABLE IF NOT EXISTS public.services (
 
     -- Constraints
     CONSTRAINT services_name_length CHECK (char_length(name) BETWEEN 2 AND 100),
-    CONSTRAINT services_time_order CHECK (available_start_time < available_end_time)
+    CONSTRAINT services_time_order CHECK (available_start_time < available_end_time),
+    CONSTRAINT services_tax_rate_valid CHECK (tax_rate IS NULL OR (tax_rate >= 0 AND tax_rate <= 100)),
+    CONSTRAINT services_buffer_non_negative CHECK (buffer_minutes IS NULL OR buffer_minutes >= 0)
 );
+
+COMMENT ON TABLE public.services IS 'Service catalog for appointments and invoicing';
+COMMENT ON COLUMN public.services.category IS 'Service category: consultation, vaccination, grooming, surgery, diagnostic, dental, emergency, hospitalization, treatment, identification, other';
+COMMENT ON COLUMN public.services.available_days IS 'Days service is available as ISO day numbers: 1=Monday, 7=Sunday';
+COMMENT ON COLUMN public.services.species_allowed IS 'Allowed species array (NULL = all species allowed)';
+COMMENT ON COLUMN public.services.buffer_minutes IS 'Buffer time after appointment before next can be booked';
 
 -- =============================================================================
 -- ROW LEVEL SECURITY
@@ -83,6 +94,14 @@ CREATE POLICY "Service role full access" ON public.services
     USING (true) WITH CHECK (true);
 
 -- =============================================================================
+-- UNIQUE CONSTRAINTS
+-- =============================================================================
+
+-- Service names must be unique per tenant (for upsert support)
+CREATE UNIQUE INDEX IF NOT EXISTS idx_services_tenant_name_unique
+    ON public.services(tenant_id, name) WHERE deleted_at IS NULL;
+
+-- =============================================================================
 -- INDEXES
 -- =============================================================================
 
@@ -98,6 +117,11 @@ CREATE INDEX IF NOT EXISTS idx_services_list ON public.services(tenant_id, displ
     INCLUDE (name, category, base_price, duration_minutes, is_featured)
     WHERE is_active = true AND deleted_at IS NULL;
 
+-- Active services for booking
+CREATE INDEX IF NOT EXISTS idx_services_booking ON public.services(tenant_id, category, display_order)
+    INCLUDE (name, base_price, duration_minutes, is_featured, species_allowed)
+    WHERE is_active = true AND deleted_at IS NULL;
+
 -- =============================================================================
 -- TRIGGERS
 -- =============================================================================
@@ -107,4 +131,44 @@ CREATE TRIGGER handle_updated_at
     BEFORE UPDATE ON public.services
     FOR EACH ROW
     EXECUTE FUNCTION public.handle_updated_at();
+
+-- =============================================================================
+-- HELPER FUNCTIONS
+-- =============================================================================
+
+-- Get services available for a species
+CREATE OR REPLACE FUNCTION public.get_services_for_species(
+    p_tenant_id TEXT,
+    p_species TEXT
+)
+RETURNS TABLE (
+    id UUID,
+    name TEXT,
+    description TEXT,
+    category TEXT,
+    base_price NUMERIC,
+    duration_minutes INTEGER,
+    is_featured BOOLEAN
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT
+        s.id,
+        s.name,
+        s.description,
+        s.category,
+        s.base_price,
+        s.duration_minutes,
+        s.is_featured
+    FROM public.services s
+    WHERE s.tenant_id = p_tenant_id
+    AND s.is_active = true
+    AND s.deleted_at IS NULL
+    AND (s.species_allowed IS NULL OR p_species = ANY(s.species_allowed))
+    ORDER BY s.display_order, s.name;
+END;
+$$ LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path = public;
+
+COMMENT ON FUNCTION public.get_services_for_species(TEXT, TEXT) IS
+'Get services available for a specific species (filters by species_allowed array)';
 

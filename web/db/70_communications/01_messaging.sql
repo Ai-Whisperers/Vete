@@ -3,6 +3,8 @@
 -- =============================================================================
 -- Communication system: conversations, messages, templates, reminders.
 -- INCLUDES tenant_id on messages for optimized RLS.
+--
+-- DEPENDENCIES: 10_core/*, 20_pets/*, 40_scheduling/*
 -- =============================================================================
 
 -- =============================================================================
@@ -49,10 +51,20 @@ CREATE TABLE IF NOT EXISTS public.conversations (
     -- Tags
     tags TEXT[],
 
+    -- Soft delete
+    deleted_at TIMESTAMPTZ,
+    deleted_by UUID REFERENCES public.profiles(id),
+
     -- Timestamps
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+COMMENT ON TABLE public.conversations IS 'Message threads between clinic staff and clients. Can be linked to pets or appointments.';
+COMMENT ON COLUMN public.conversations.channel IS 'Communication channel: in_app, sms, whatsapp, email';
+COMMENT ON COLUMN public.conversations.status IS 'Conversation status: open, pending (awaiting response), resolved, closed, spam';
+COMMENT ON COLUMN public.conversations.unread_client_count IS 'Unread messages count for the client';
+COMMENT ON COLUMN public.conversations.unread_staff_count IS 'Unread messages count for staff';
 
 -- =============================================================================
 -- MESSAGES - WITH TENANT_ID
@@ -106,6 +118,12 @@ CREATE TABLE IF NOT EXISTS public.messages (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+COMMENT ON TABLE public.messages IS 'Individual messages within conversations. Includes tenant_id for optimized RLS.';
+COMMENT ON COLUMN public.messages.sender_type IS 'Who sent: client, staff, system (automated), bot (AI)';
+COMMENT ON COLUMN public.messages.message_type IS 'Content type: text, image, file, audio, video, location, or rich cards (appointment_card, etc.)';
+COMMENT ON COLUMN public.messages.status IS 'Delivery status: pending → sent → delivered → read, or failed';
+COMMENT ON COLUMN public.messages.card_data IS 'JSON data for rich cards (appointment details, invoice summary, etc.)';
+
 -- =============================================================================
 -- MESSAGE TEMPLATES
 -- =============================================================================
@@ -152,6 +170,11 @@ CREATE TABLE IF NOT EXISTS public.message_templates (
 
     UNIQUE(tenant_id, code)
 );
+
+COMMENT ON TABLE public.message_templates IS 'Reusable message templates with variable substitution. NULL tenant_id = global templates.';
+COMMENT ON COLUMN public.message_templates.variables IS 'Array of variable names like owner_name, pet_name, appointment_date';
+COMMENT ON COLUMN public.message_templates.channels IS 'Which channels this template can be sent on: in_app, sms, whatsapp, email';
+COMMENT ON COLUMN public.message_templates.whatsapp_template_id IS 'Pre-approved WhatsApp Business template ID for compliant messaging';
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_message_templates_global_code
 ON public.message_templates (code) WHERE tenant_id IS NULL AND deleted_at IS NULL;
@@ -202,10 +225,20 @@ CREATE TABLE IF NOT EXISTS public.reminders (
     custom_subject TEXT,
     custom_body TEXT,
 
+    -- Soft delete
+    deleted_at TIMESTAMPTZ,
+    deleted_by UUID REFERENCES public.profiles(id),
+
     -- Timestamps
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+COMMENT ON TABLE public.reminders IS 'Scheduled reminders for vaccines, appointments, payments, etc. Processed by background jobs.';
+COMMENT ON COLUMN public.reminders.type IS 'Reminder type: vaccine_reminder, appointment_reminder, payment_overdue, birthday, follow_up, etc.';
+COMMENT ON COLUMN public.reminders.status IS 'Processing status: pending → processing → sent, or failed/cancelled/skipped';
+COMMENT ON COLUMN public.reminders.reference_type IS 'Type of referenced entity (vaccine, appointment, invoice, etc.)';
+COMMENT ON COLUMN public.reminders.reference_id IS 'UUID of the referenced entity';
 
 -- =============================================================================
 -- NOTIFICATION QUEUE
@@ -250,6 +283,10 @@ CREATE TABLE IF NOT EXISTS public.notification_queue (
     -- Timestamps
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+COMMENT ON TABLE public.notification_queue IS 'Outbound notification queue for multi-channel delivery (email, SMS, WhatsApp, push)';
+COMMENT ON COLUMN public.notification_queue.channel_type IS 'Delivery channel: email, sms, whatsapp, push, in_app';
+COMMENT ON COLUMN public.notification_queue.status IS 'Delivery status: queued → sending → sent → delivered, or failed/bounced';
 
 -- =============================================================================
 -- COMMUNICATION PREFERENCES
@@ -297,6 +334,10 @@ CREATE TABLE IF NOT EXISTS public.communication_preferences (
 
     UNIQUE(user_id, tenant_id)
 );
+
+COMMENT ON TABLE public.communication_preferences IS 'Per-user communication preferences: channels, quiet hours, opt-outs';
+COMMENT ON COLUMN public.communication_preferences.allow_marketing IS 'Opt-in for promotional messages (defaults false for GDPR/privacy)';
+COMMENT ON COLUMN public.communication_preferences.quiet_hours_enabled IS 'When TRUE, no notifications between quiet_hours_start and quiet_hours_end';
 
 -- =============================================================================
 -- ROW LEVEL SECURITY
@@ -426,10 +467,28 @@ CREATE INDEX IF NOT EXISTS idx_conversations_last_message ON public.conversation
 CREATE INDEX IF NOT EXISTS idx_conversations_unread_staff ON public.conversations(unread_staff_count)
     WHERE unread_staff_count > 0;
 
+-- Staff inbox (unread first)
+CREATE INDEX IF NOT EXISTS idx_conversations_inbox ON public.conversations(tenant_id, unread_staff_count DESC, last_message_at DESC)
+    INCLUDE (client_id, pet_id, subject, status, priority);
+
+-- Client conversations (covering index)
+CREATE INDEX IF NOT EXISTS idx_conversations_client_history ON public.conversations(client_id, last_message_at DESC)
+    INCLUDE (tenant_id, subject, status, unread_client_count);
+
 CREATE INDEX IF NOT EXISTS idx_messages_conversation ON public.messages(conversation_id);
 CREATE INDEX IF NOT EXISTS idx_messages_tenant ON public.messages(tenant_id);
 CREATE INDEX IF NOT EXISTS idx_messages_sender ON public.messages(sender_id);
 CREATE INDEX IF NOT EXISTS idx_messages_created_brin ON public.messages
+    USING BRIN(created_at) WITH (pages_per_range = 32);
+
+-- GIN indexes for JSONB columns (efficient message metadata searches)
+CREATE INDEX IF NOT EXISTS idx_messages_metadata_gin ON public.messages USING gin(metadata jsonb_path_ops)
+    WHERE metadata IS NOT NULL AND metadata != '{}';
+CREATE INDEX IF NOT EXISTS idx_messages_attachments_gin ON public.messages USING gin(attachments jsonb_path_ops)
+    WHERE attachments IS NOT NULL AND attachments != '[]';
+
+-- BRIN index for notification queue
+CREATE INDEX IF NOT EXISTS idx_notification_queue_created_brin ON public.notification_queue
     USING BRIN(created_at) WITH (pages_per_range = 32);
 CREATE INDEX IF NOT EXISTS idx_messages_status ON public.messages(status);
 
@@ -442,6 +501,15 @@ CREATE INDEX IF NOT EXISTS idx_reminders_tenant ON public.reminders(tenant_id);
 CREATE INDEX IF NOT EXISTS idx_reminders_client ON public.reminders(client_id);
 CREATE INDEX IF NOT EXISTS idx_reminders_status ON public.reminders(status);
 CREATE INDEX IF NOT EXISTS idx_reminders_scheduled ON public.reminders(scheduled_at)
+    WHERE status = 'pending';
+
+-- BRIN index for reminders
+CREATE INDEX IF NOT EXISTS idx_reminders_scheduled_brin ON public.reminders
+    USING BRIN(scheduled_at) WITH (pages_per_range = 32);
+
+-- Reminders to process
+CREATE INDEX IF NOT EXISTS idx_reminders_queue ON public.reminders(scheduled_at, status)
+    INCLUDE (tenant_id, client_id, pet_id, type, reference_type, reference_id)
     WHERE status = 'pending';
 CREATE INDEX IF NOT EXISTS idx_reminders_reference ON public.reminders(reference_type, reference_id);
 
@@ -491,7 +559,7 @@ BEGIN
     END IF;
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SET search_path = public;
 
 DROP TRIGGER IF EXISTS messages_auto_tenant ON public.messages;
 CREATE TRIGGER messages_auto_tenant
@@ -517,7 +585,7 @@ BEGIN
 
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SET search_path = public;
 
 DROP TRIGGER IF EXISTS message_update_conversation ON public.messages;
 CREATE TRIGGER message_update_conversation
@@ -557,7 +625,7 @@ BEGIN
           AND status != 'read';
     END IF;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 -- =============================================================================
 -- SEED DATA

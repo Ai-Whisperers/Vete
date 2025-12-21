@@ -10,8 +10,8 @@ interface WitnessSignatureProps {
   onModeChange: (mode: 'draw' | 'type') => void;
   signatureText: string;
   onSignatureTextChange: (text: string) => void;
-  canvasRef: React.RefObject<HTMLCanvasElement>;
-  canvasContainerRef: React.RefObject<HTMLDivElement>;
+  canvasRef: React.RefObject<HTMLCanvasElement | null>;
+  canvasContainerRef: React.RefObject<HTMLDivElement | null>;
   onStartDrawing: (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => void;
   onDraw: (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => void;
   onStopDrawing: () => void;

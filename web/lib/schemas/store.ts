@@ -116,7 +116,7 @@ export type UpdateCartItemInput = z.infer<typeof updateCartItemSchema>;
 export const checkoutSchema = z.object({
   items: z.array(cartItemSchema).min(1, 'El carrito está vacío'),
   payment_method: z.enum(['cash', 'card', 'transfer', 'qr'], {
-    errorMap: () => ({ message: 'Método de pago inválido' }),
+    message: 'Método de pago inválido',
   }),
   notes: optionalString(500),
   delivery_address: optionalString(500),
@@ -241,7 +241,7 @@ export const loyaltyPointsOperationSchema = z.object({
   user_id: uuidSchema,
   points: z.coerce.number().int(),
   operation: z.enum(['add', 'subtract', 'redeem'], {
-    errorMap: () => ({ message: 'Operación inválida' }),
+    message: 'Operación inválida',
   }),
   reason: optionalString(200),
   reference_id: uuidSchema.optional(), // Order or transaction ID

@@ -80,7 +80,8 @@ export function CalendarViewComponent({
           break
         default:
           // Use status color for appointments
-          if (event.data?.status) {
+          const eventStatus = event.resource?.status || event.status
+          if (eventStatus) {
             const statusColors: Record<string, string> = {
               scheduled: EVENT_COLORS.scheduled,
               confirmed: EVENT_COLORS.confirmed,
@@ -90,7 +91,7 @@ export function CalendarViewComponent({
               cancelled: EVENT_COLORS.cancelled,
               no_show: EVENT_COLORS.no_show,
             }
-            backgroundColor = statusColors[event.data.status] || EVENT_COLORS.appointment
+            backgroundColor = statusColors[eventStatus] || EVENT_COLORS.appointment
           }
       }
     }

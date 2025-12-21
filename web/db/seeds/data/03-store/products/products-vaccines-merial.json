@@ -1,0 +1,185 @@
+{
+  "$schema": "../../../schemas/store.schema.json",
+  "brand_slug": "merial",
+  "products": [
+    {
+      "sku": "MER-EURICAN-DHPPI2L",
+      "name": "Eurican DHPPi2-L",
+      "description": "Vacuna séxtuple canina completa",
+      "category_slug": "CLI-FAR-VAC",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "1 dosis",
+          "base_price": 95000,
+          "cost_price": 57000,
+          "sku_suffix": "-1D"
+        },
+        {
+          "size": "Caja x 10 dosis",
+          "base_price": 850000,
+          "cost_price": 510000,
+          "sku_suffix": "-10D"
+        }
+      ],
+      "image_url": "https://www.boehringer-ingelheim.com/images/eurican-dhppi2l.png",
+      "attributes": {
+        "route": "Subcutánea",
+        "storage": "2-8°C",
+        "components": "Distemper, Hepatitis, Parvo, Parainfluenza, Leptospira",
+        "age_minimum": "7 semanas"
+      }
+    },
+    {
+      "sku": "MER-EURICAN-PRIMO",
+      "name": "Eurican Primo",
+      "description": "Vacuna para primovacunación de cachorros",
+      "category_slug": "CLI-FAR-VAC",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "1 dosis",
+          "base_price": 65000,
+          "cost_price": 39000,
+          "sku_suffix": "-1D"
+        },
+        {
+          "size": "Caja x 10 dosis",
+          "base_price": 580000,
+          "cost_price": 348000,
+          "sku_suffix": "-10D"
+        }
+      ],
+      "image_url": "https://www.boehringer-ingelheim.com/images/eurican-primo.png",
+      "attributes": {
+        "route": "Subcutánea",
+        "storage": "2-8°C",
+        "age_minimum": "4 semanas"
+      }
+    },
+    {
+      "sku": "MER-RABISIN",
+      "name": "Rabisin",
+      "description": "Vacuna antirrábica inactivada",
+      "category_slug": "CLI-FAR-VAC",
+      "target_species": [
+        "dog",
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "1 dosis",
+          "base_price": 42000,
+          "cost_price": 25200,
+          "sku_suffix": "-1D"
+        },
+        {
+          "size": "Caja x 10 dosis",
+          "base_price": 360000,
+          "cost_price": 216000,
+          "sku_suffix": "-10D"
+        }
+      ],
+      "image_url": "https://www.boehringer-ingelheim.com/images/rabisin.png",
+      "attributes": {
+        "route": "Subcutánea",
+        "storage": "2-8°C",
+        "immunity_duration": "3 años"
+      }
+    },
+    {
+      "sku": "MER-PUREVAX-RCPCH",
+      "name": "Purevax RCPCh",
+      "description": "Vacuna felina cuádruple sin adyuvante",
+      "category_slug": "CLI-FAR-VAC",
+      "target_species": [
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "1 dosis",
+          "base_price": 135000,
+          "cost_price": 81000,
+          "sku_suffix": "-1D"
+        },
+        {
+          "size": "Caja x 10 dosis",
+          "base_price": 1200000,
+          "cost_price": 720000,
+          "sku_suffix": "-10D"
+        }
+      ],
+      "image_url": "https://www.boehringer-ingelheim.com/images/purevax-rcpch.png",
+      "attributes": {
+        "route": "Subcutánea",
+        "storage": "2-8°C",
+        "adjuvant_free": true,
+        "components": "Rinotraqueítis, Calicivirus, Panleucopenia, Chlamydia"
+      }
+    },
+    {
+      "sku": "MER-PUREVAX-FELV",
+      "name": "Purevax FeLV",
+      "description": "Vacuna contra Leucemia Felina sin adyuvante",
+      "category_slug": "CLI-FAR-VAC",
+      "target_species": [
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "1 dosis",
+          "base_price": 145000,
+          "cost_price": 87000,
+          "sku_suffix": "-1D"
+        },
+        {
+          "size": "Caja x 10 dosis",
+          "base_price": 1280000,
+          "cost_price": 768000,
+          "sku_suffix": "-10D"
+        }
+      ],
+      "image_url": "https://www.boehringer-ingelheim.com/images/purevax-felv.png",
+      "attributes": {
+        "route": "Subcutánea",
+        "storage": "2-8°C",
+        "adjuvant_free": true,
+        "recombinant": true
+      }
+    },
+    {
+      "sku": "MER-PUREVAX-RABIES",
+      "name": "Purevax Rabies",
+      "description": "Vacuna antirrábica felina recombinante",
+      "category_slug": "CLI-FAR-VAC",
+      "target_species": [
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "1 dosis",
+          "base_price": 125000,
+          "cost_price": 75000,
+          "sku_suffix": "-1D"
+        },
+        {
+          "size": "Caja x 10 dosis",
+          "base_price": 1100000,
+          "cost_price": 660000,
+          "sku_suffix": "-10D"
+        }
+      ],
+      "image_url": "https://www.boehringer-ingelheim.com/images/purevax-rabies.png",
+      "attributes": {
+        "route": "Subcutánea",
+        "storage": "2-8°C",
+        "adjuvant_free": true,
+        "recombinant": true
+      }
+    }
+  ]
+}

@@ -24,7 +24,7 @@ export {
 } from "./skeleton";
 export type { SkeletonProps } from "./skeleton";
 
-export { Badge, StatusBadge, SpeciesBadge } from "./badge";
+export { Badge, SpeciesBadge } from "./badge";
 export type { BadgeProps } from "./badge";
 
 export { Modal, ModalFooter, ConfirmModal } from "./modal";
@@ -33,7 +33,7 @@ export type { ModalProps } from "./modal";
 export { Input, Textarea, Select } from "./input";
 export type { InputProps, TextareaProps, SelectProps } from "./input";
 
-export { Toast, ToastProvider, useToast } from "./Toast";
+export { ToastProvider, useToast } from "./Toast";
 
 export { SearchField } from './search-field';
 export { DataTable } from './data-table';

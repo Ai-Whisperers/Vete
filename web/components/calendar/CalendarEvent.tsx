@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Calendar Event Component
  * Renders individual events in the calendar

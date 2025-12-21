@@ -12,7 +12,7 @@ const ContentSecurityPolicy = isDev
     default-src 'self';
     script-src 'self' 'unsafe-inline' 'unsafe-eval';
     style-src 'self' 'unsafe-inline';
-    img-src 'self' blob: data: https://*.supabase.co;
+    img-src 'self' blob: data: https://*.supabase.co https://assets.ruralmakro.org https://www.4pets.com.py https://www.ruralcenter.com.py https://www.bayer.com https://*.cloudinary.com https://images.unsplash.com https://assets.petco.com https://www.royalcanin.com https://www.bd.com;
     font-src 'self';
     connect-src 'self' https://*.supabase.co wss://*.supabase.co;
     frame-ancestors 'self';
@@ -21,7 +21,7 @@ const ContentSecurityPolicy = isDev
     default-src 'self';
     script-src 'self' 'unsafe-inline';
     style-src 'self' 'unsafe-inline';
-    img-src 'self' blob: data: https://*.supabase.co;
+    img-src 'self' blob: data: https://*.supabase.co https://assets.ruralmakro.org https://www.4pets.com.py https://www.ruralcenter.com.py https://www.bayer.com https://*.cloudinary.com https://images.unsplash.com https://assets.petco.com https://www.royalcanin.com https://www.bd.com;
     font-src 'self';
     connect-src 'self' https://*.supabase.co wss://*.supabase.co;
     frame-ancestors 'self';
@@ -84,6 +84,43 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'supabase.co',
         pathname: '/storage/v1/object/**',
+      },
+      // Product image sources from seed data
+      {
+        protocol: 'https',
+        hostname: 'assets.ruralmakro.org',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.4pets.com.py',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.ruralcenter.com.py',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.bayer.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.cloudinary.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'assets.petco.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.royalcanin.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.bd.com',
       },
     ],
     formats: ['image/avif', 'image/webp'],

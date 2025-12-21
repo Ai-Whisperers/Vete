@@ -74,7 +74,7 @@ CATEGORIES = {
         "brands": ["Zee.Dog", "Kong", "Mpets", "Ruffwear", "Generico"],
         "images": [
             "https://http2.mlstatic.com/D_NQ_NP_937667-MLA51368297637_092022-O.webp",
-            "https://assets.petco.com/petco/image/upload/f_auto,q_auto/850020-left-1",
+            "https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=400&h=400&fit=crop",
             "https://m.media-amazon.com/images/I/71Y8Jj+jvnL._AC_SX425_.jpg",
         ],
     },
@@ -98,7 +98,7 @@ CATEGORIES = {
         "subtypes": ["Pelota", "Peluche", "Interactivo", "Mordillo", "Caña", "Soga"],
         "brands": ["Kong", "Chuckit!", "Nerf Dog", "Trixie", "JW"],
         "images": [
-            "https://assets.petco.com/petco/image/upload/f_auto,q_auto/850020-left-1",
+            "https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=400&h=400&fit=crop",
             "https://m.media-amazon.com/images/I/71kXc-wFjBL._AC_SL1500_.jpg",
         ],
     },

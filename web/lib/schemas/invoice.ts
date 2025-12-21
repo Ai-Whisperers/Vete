@@ -51,7 +51,7 @@ export type CreateInvoiceInput = z.infer<typeof createInvoiceSchema>;
  */
 export const updateInvoiceStatusSchema = z.object({
   status: z.enum(INVOICE_STATUSES, {
-    errorMap: () => ({ message: 'Estado de factura inválido' }),
+    message: 'Estado de factura inválido',
   }),
 });
 

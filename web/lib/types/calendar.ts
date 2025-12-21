@@ -188,6 +188,7 @@ export interface TimeOffType {
   min_notice_days: number
   color_code: string
   is_active: boolean
+  allows_half_day?: boolean
 }
 
 export interface TimeOffRequest {

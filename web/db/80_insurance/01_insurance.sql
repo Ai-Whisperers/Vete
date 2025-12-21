@@ -2,6 +2,8 @@
 -- 01_INSURANCE.SQL
 -- =============================================================================
 -- Pet insurance management: providers, policies, claims.
+--
+-- DEPENDENCIES: 10_core/*, 20_pets/*, 40_scheduling/*, 50_finance/*
 -- =============================================================================
 
 -- =============================================================================
@@ -33,6 +35,10 @@ CREATE TABLE IF NOT EXISTS public.insurance_providers (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+COMMENT ON TABLE public.insurance_providers IS 'Pet insurance provider directory (global reference data)';
+COMMENT ON COLUMN public.insurance_providers.claims_email IS 'Email for submitting claims';
+COMMENT ON COLUMN public.insurance_providers.claims_phone IS 'Phone for claims inquiries';
 
 -- =============================================================================
 -- INSURANCE POLICIES
@@ -82,6 +88,11 @@ CREATE TABLE IF NOT EXISTS public.insurance_policies (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+COMMENT ON TABLE public.insurance_policies IS 'Pet insurance policies with coverage details and limits';
+COMMENT ON COLUMN public.insurance_policies.coverage_type IS 'Coverage tier: basic, standard, premium, comprehensive';
+COMMENT ON COLUMN public.insurance_policies.coverage_details IS 'JSON with detailed coverage info: procedures, exclusions, limits';
+COMMENT ON COLUMN public.insurance_policies.status IS 'Policy status: pending (application), active, expired, cancelled, suspended';
 
 -- =============================================================================
 -- INSURANCE CLAIMS
@@ -138,6 +149,11 @@ CREATE TABLE IF NOT EXISTS public.insurance_claims (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+COMMENT ON TABLE public.insurance_claims IS 'Insurance claim submissions with approval workflow';
+COMMENT ON COLUMN public.insurance_claims.claim_type IS 'Type of claim: treatment, surgery, hospitalization, medication, diagnostic, other';
+COMMENT ON COLUMN public.insurance_claims.status IS 'Claim status: draft → submitted → under_review → approved/denied → paid';
+COMMENT ON COLUMN public.insurance_claims.supporting_documents IS 'Array of document URLs (invoices, medical records, etc.)';
+
 -- =============================================================================
 -- INSURANCE CLAIM ITEMS
 -- =============================================================================
@@ -161,6 +177,10 @@ CREATE TABLE IF NOT EXISTS public.insurance_claim_items (
     -- Timestamps
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+COMMENT ON TABLE public.insurance_claim_items IS 'Line items within a claim. Includes tenant_id for optimized RLS.';
+COMMENT ON COLUMN public.insurance_claim_items.is_covered IS 'Whether the provider covers this item';
+COMMENT ON COLUMN public.insurance_claim_items.denial_reason IS 'Reason if item was not covered';
 
 -- =============================================================================
 -- PRE-AUTHORIZATION REQUESTS
@@ -199,6 +219,11 @@ CREATE TABLE IF NOT EXISTS public.insurance_preauth (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+COMMENT ON TABLE public.insurance_preauth IS 'Pre-authorization requests for procedures. Get approval before treatment.';
+COMMENT ON COLUMN public.insurance_preauth.status IS 'Request status: pending → submitted → approved/denied/expired';
+COMMENT ON COLUMN public.insurance_preauth.authorization_code IS 'Code from insurer to reference when submitting claim';
+COMMENT ON COLUMN public.insurance_preauth.valid_until IS 'Pre-auth expires after this date';
 
 -- =============================================================================
 -- ROW LEVEL SECURITY
@@ -295,6 +320,12 @@ CREATE INDEX IF NOT EXISTS idx_insurance_preauth_tenant ON public.insurance_prea
 CREATE INDEX IF NOT EXISTS idx_insurance_preauth_policy ON public.insurance_preauth(policy_id);
 CREATE INDEX IF NOT EXISTS idx_insurance_preauth_status ON public.insurance_preauth(status);
 
+-- GIN indexes for JSONB columns (efficient coverage lookups)
+CREATE INDEX IF NOT EXISTS idx_insurance_policies_coverage_gin ON public.insurance_policies USING gin(coverage_details jsonb_path_ops)
+    WHERE coverage_details IS NOT NULL AND coverage_details != '{}';
+CREATE INDEX IF NOT EXISTS idx_insurance_providers_address_gin ON public.insurance_providers USING gin(address jsonb_path_ops)
+    WHERE address IS NOT NULL;
+
 -- =============================================================================
 -- TRIGGERS
 -- =============================================================================
@@ -330,7 +361,7 @@ BEGIN
     END IF;
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SET search_path = public;
 
 DROP TRIGGER IF EXISTS claim_items_auto_tenant ON public.insurance_claim_items;
 CREATE TRIGGER claim_items_auto_tenant
@@ -341,24 +372,29 @@ CREATE TRIGGER claim_items_auto_tenant
 -- FUNCTIONS
 -- =============================================================================
 
--- Generate claim number
+-- Generate claim number (thread-safe with advisory lock)
 CREATE OR REPLACE FUNCTION public.generate_claim_number(p_tenant_id TEXT)
 RETURNS TEXT AS $$
 DECLARE
-    v_number INTEGER;
-    v_lock_id BIGINT;
+    v_seq INTEGER;
+    v_lock_key BIGINT;
 BEGIN
-    v_lock_id := ('x' || substr(md5(p_tenant_id || 'CLM'), 1, 8))::bit(32)::bigint;
-    PERFORM pg_advisory_xact_lock(v_lock_id);
+    -- Generate lock key from tenant_id and document type
+    v_lock_key := ('x' || substr(md5(p_tenant_id || ':claim:0'), 1, 8))::bit(32)::bigint;
 
-    INSERT INTO public.document_sequences (tenant_id, document_type, last_number, prefix)
-    VALUES (p_tenant_id, 'claim', 1, 'CLM')
-    ON CONFLICT (tenant_id, document_type) DO UPDATE
-    SET last_number = public.document_sequences.last_number + 1,
+    -- Acquire advisory lock
+    PERFORM pg_advisory_xact_lock(v_lock_key);
+
+    -- Upsert with year = 0 to indicate non-yearly sequence
+    INSERT INTO public.document_sequences (tenant_id, document_type, year, current_sequence, prefix)
+    VALUES (p_tenant_id, 'claim', 0, 1, 'CLM')
+    ON CONFLICT (tenant_id, document_type, year)
+    DO UPDATE SET
+        current_sequence = public.document_sequences.current_sequence + 1,
         updated_at = NOW()
-    RETURNING last_number INTO v_number;
+    RETURNING current_sequence INTO v_seq;
 
-    RETURN 'CLM' || LPAD(v_number::TEXT, 6, '0');
+    RETURN 'CLM' || LPAD(v_seq::TEXT, 6, '0');
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SET search_path = public;
 

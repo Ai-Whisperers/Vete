@@ -35,6 +35,18 @@ This directory contains comprehensive testing documentation that serves as the b
    - UX/UI critique
    - Recommendations
 
+3. **[03-IMPLEMENTATION-ROADMAP.md](./03-IMPLEMENTATION-ROADMAP.md)**
+   - 8-week phased implementation plan
+   - Week-by-week breakdown
+   - Success criteria per phase
+   - Test implementation checklist
+
+4. **[ANALYSIS.md](./ANALYSIS.md)** ← Documentation Analysis
+   - Complete documentation inventory
+   - What's covered and what's missing
+   - Recommended additions
+   - Next steps and priorities
+
 ### Test Plans
 
 3. **[plans/FEATURE_TEST_PLANS.md](./plans/FEATURE_TEST_PLANS.md)**
@@ -137,9 +149,11 @@ This directory contains comprehensive testing documentation that serves as the b
 1. **Understand the Problem:** Read `00-PROBLEM-ANALYSIS.md` to understand why we need tests
 2. **Start with Strategy:** Read `01-TEST-STRATEGY.md` to understand overall approach
 3. **Review Critique:** Read `02-PLATFORM-CRITIQUE.md` to understand current state
-4. **Review Automation:** Read `plans/TEST_AUTOMATION_STRATEGY.md` for execution details
-5. **Implement Tests:** Use feature/screen/API/action plans as implementation guides
-6. **Follow Patterns:** Use component and E2E plans for testing patterns
+4. **Review Roadmap:** Read `03-IMPLEMENTATION-ROADMAP.md` for implementation plan
+5. **Review Analysis:** Read `ANALYSIS.md` to understand documentation gaps and next steps
+6. **Review Automation:** Read `plans/TEST_AUTOMATION_STRATEGY.md` for execution details
+7. **Implement Tests:** Use feature/screen/API/action plans as implementation guides
+8. **Follow Patterns:** Use component and E2E plans for testing patterns
 
 ### For Test Planning
 

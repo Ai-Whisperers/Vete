@@ -19,23 +19,18 @@ export async function GET(request: NextRequest) {
 
   try {
     const { data, error } = await supabase
-      .from('store_wishlists')
+      .from('store_wishlist')
       .select(`
         id,
         product_id,
-        variant_id,
-        notes,
-        notify_on_sale,
-        notify_on_stock,
         created_at,
         store_products(
           id, name, short_description, image_url, base_price,
-          avg_rating, review_count, is_new_arrival, is_best_seller,
           store_inventory(stock_quantity),
           store_brands(name, slug)
         )
       `)
-      .eq('user_id', user.id)
+      .eq('customer_id', user.id)
       .eq('tenant_id', clinic)
       .order('created_at', { ascending: false });
 
@@ -70,9 +65,9 @@ export async function POST(request: NextRequest) {
 
     // Check if already in wishlist
     const { data: existing } = await supabase
-      .from('store_wishlists')
+      .from('store_wishlist')
       .select('id')
-      .eq('user_id', user.id)
+      .eq('customer_id', user.id)
       .eq('product_id', product_id)
       .single();
 
@@ -81,15 +76,11 @@ export async function POST(request: NextRequest) {
     }
 
     const { data, error } = await supabase
-      .from('store_wishlists')
+      .from('store_wishlist')
       .insert({
-        user_id: user.id,
+        customer_id: user.id,
         product_id,
         tenant_id: clinic,
-        variant_id,
-        notes,
-        notify_on_sale: notify_on_sale ?? true,
-        notify_on_stock: notify_on_stock ?? true,
       })
       .select()
       .single();
@@ -121,9 +112,9 @@ export async function DELETE(request: NextRequest) {
 
   try {
     const { error } = await supabase
-      .from('store_wishlists')
+      .from('store_wishlist')
       .delete()
-      .eq('user_id', user.id)
+      .eq('customer_id', user.id)
       .eq('product_id', productId);
 
     if (error) throw error;

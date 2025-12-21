@@ -44,8 +44,8 @@ export function MobileMenu({
   const mobileMenuTriggerRef = useRef<HTMLButtonElement>(null);
 
   const toolsItems = [
-    { label: config.ui_labels?.tools?.age_calculator || "Calculadora de Edad", href: `/${clinic}/tools/age-calculator`, icon: Calculator },
-    { label: config.ui_labels?.tools?.toxic_food || "Alimentos Tóxicos", href: `/${clinic}/tools/toxic-food`, icon: Apple },
+    { label: config.ui_labels?.tools?.age_calculator?.title || "Calculadora de Edad", href: `/${clinic}/tools/age-calculator`, icon: Calculator },
+    { label: config.ui_labels?.tools?.toxic_food?.title || "Alimentos Tóxicos", href: `/${clinic}/tools/toxic-food`, icon: Apple },
     { label: config.ui_labels?.nav?.faq || "Preguntas Frecuentes", href: `/${clinic}/faq`, icon: HelpCircle },
     { label: config.ui_labels?.nav?.loyalty_program || "Programa de Lealtad", href: `/${clinic}/loyalty_points`, icon: Gift },
   ];

@@ -1,0 +1,330 @@
+{
+  "$schema": "../../../schemas/store.schema.json",
+  "brand_slug": "kong",
+  "products": [
+    {
+      "sku": "KONG-CLASSIC",
+      "name": "Kong Classic",
+      "description": "Juguete original de goma natural roja para rellenar con premios",
+      "category_slug": "ACC-JUG-INT",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "XS",
+          "base_price": 75000,
+          "cost_price": 45000,
+          "sku_suffix": "-XS"
+        },
+        {
+          "size": "S",
+          "base_price": 89000,
+          "cost_price": 53400,
+          "sku_suffix": "-S"
+        },
+        {
+          "size": "M",
+          "base_price": 110500,
+          "cost_price": 66300,
+          "sku_suffix": "-M"
+        },
+        {
+          "size": "L",
+          "base_price": 135000,
+          "cost_price": 81000,
+          "sku_suffix": "-L"
+        },
+        {
+          "size": "XL",
+          "base_price": 165000,
+          "cost_price": 99000,
+          "sku_suffix": "-XL"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=400&h=400&fit=crop&q=products/MK0005_04cb6179-5895-4b43-a0e7-c6653e2b88cb.jpg",
+      "attributes": {
+        "material": "Goma natural",
+        "color": "Rojo",
+        "durability": "Masticadores moderados"
+      }
+    },
+    {
+      "sku": "KONG-EXTREME",
+      "name": "Kong Extreme",
+      "description": "Juguete de goma negra extra resistente para masticadores agresivos",
+      "category_slug": "ACC-JUG-INT",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "S",
+          "base_price": 105000,
+          "cost_price": 63000,
+          "sku_suffix": "-S"
+        },
+        {
+          "size": "M",
+          "base_price": 126100,
+          "cost_price": 75660,
+          "sku_suffix": "-M"
+        },
+        {
+          "size": "L",
+          "base_price": 155000,
+          "cost_price": 93000,
+          "sku_suffix": "-L"
+        },
+        {
+          "size": "XL",
+          "base_price": 185000,
+          "cost_price": 111000,
+          "sku_suffix": "-XL"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=400&h=400&fit=crop&q=products/MK0011_d37a205a-59f8-4611-b997-6391988b6f09.png",
+      "attributes": {
+        "material": "Goma natural reforzada",
+        "color": "Negro",
+        "durability": "Masticadores agresivos"
+      }
+    },
+    {
+      "sku": "KONG-PUPPY",
+      "name": "Kong Puppy",
+      "description": "Juguete de goma suave diseñado especialmente para cachorros",
+      "category_slug": "ACC-JUG-INT",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "XS",
+          "base_price": 65000,
+          "cost_price": 39000,
+          "sku_suffix": "-XS"
+        },
+        {
+          "size": "S",
+          "base_price": 75000,
+          "cost_price": 45000,
+          "sku_suffix": "-S"
+        },
+        {
+          "size": "M",
+          "base_price": 81900,
+          "cost_price": 49140,
+          "sku_suffix": "-M"
+        },
+        {
+          "size": "L",
+          "base_price": 95000,
+          "cost_price": 57000,
+          "sku_suffix": "-L"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=400&h=400&fit=crop&q=products/MK0001_b443f6ca-5917-4211-9d07-c5468d14c012.jpg",
+      "attributes": {
+        "material": "Goma suave",
+        "color": "Rosa/Azul",
+        "durability": "Cachorros"
+      }
+    },
+    {
+      "sku": "KONG-SENIOR",
+      "name": "Kong Senior",
+      "description": "Juguete de goma suave para perros mayores con mandíbulas sensibles",
+      "category_slug": "ACC-JUG-INT",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "S",
+          "base_price": 89000,
+          "cost_price": 53400,
+          "sku_suffix": "-S"
+        },
+        {
+          "size": "M",
+          "base_price": 106600,
+          "cost_price": 63960,
+          "sku_suffix": "-M"
+        },
+        {
+          "size": "L",
+          "base_price": 125000,
+          "cost_price": 75000,
+          "sku_suffix": "-L"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=400&h=400&fit=crop&q=products/MK0016_291a7efd-e90f-4b08-9062-3ec038fd0e5c.png",
+      "attributes": {
+        "material": "Goma suave",
+        "color": "Morado",
+        "durability": "Perros senior"
+      }
+    },
+    {
+      "sku": "KONG-SQUEAKAIR-BALL",
+      "name": "Kong Squeakair Ball",
+      "description": "Pelotas de tennis con sonido squeaker, no dañan los dientes",
+      "category_slug": "ACC-JUG-INT",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "S x3",
+          "base_price": 45000,
+          "cost_price": 27000,
+          "sku_suffix": "-S-3"
+        },
+        {
+          "size": "M x3",
+          "base_price": 59800,
+          "cost_price": 35880,
+          "sku_suffix": "-M-3"
+        },
+        {
+          "size": "L x2",
+          "base_price": 65000,
+          "cost_price": 39000,
+          "sku_suffix": "-L-2"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=400&h=400&fit=crop&q=files/KONG-Air-Medium-Tennis-Ball-Toy_fe124b25-80b0-432a-940b-371c5cbffbd2_1.webp",
+      "attributes": {
+        "material": "Fieltro no abrasivo",
+        "sound": "Squeaker"
+      }
+    },
+    {
+      "sku": "KONG-GOODIE-BONE",
+      "name": "Kong Goodie Bone",
+      "description": "Hueso de goma con extremos rellenables para mayor entretenimiento",
+      "category_slug": "ACC-JUG-INT",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "S",
+          "base_price": 115000,
+          "cost_price": 69000,
+          "sku_suffix": "-S"
+        },
+        {
+          "size": "M",
+          "base_price": 149500,
+          "cost_price": 89700,
+          "sku_suffix": "-M"
+        },
+        {
+          "size": "L",
+          "base_price": 175000,
+          "cost_price": 105000,
+          "sku_suffix": "-L"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=400&h=400&fit=crop&q=files/10011_DIM_OFF_PK_1.png",
+      "attributes": {
+        "material": "Goma natural",
+        "fillable_ends": true
+      }
+    },
+    {
+      "sku": "KONG-AQUA",
+      "name": "Kong Aqua",
+      "description": "Juguete flotante ideal para juegos en el agua",
+      "category_slug": "ACC-JUG-INT",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "M",
+          "base_price": 145000,
+          "cost_price": 87000,
+          "sku_suffix": "-M"
+        },
+        {
+          "size": "L",
+          "base_price": 172900,
+          "cost_price": 103740,
+          "sku_suffix": "-L"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=400&h=400&fit=crop&q=files/CK2_DIM_OFF_PK_1_2eae8a4b-f645-43d6-b951-80f075f2821e.png",
+      "attributes": {
+        "floats": true,
+        "material": "Goma natural",
+        "ideal_for": "Agua"
+      }
+    },
+    {
+      "sku": "KONG-LICKS",
+      "name": "Kong Licks",
+      "description": "Plato para lamer que reduce ansiedad y promueve calma",
+      "category_slug": "ACC-JUG-INT",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "Pequeño",
+          "base_price": 84500,
+          "cost_price": 50700,
+          "sku_suffix": "-S"
+        },
+        {
+          "size": "Grande",
+          "base_price": 115000,
+          "cost_price": 69000,
+          "sku_suffix": "-L"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=400&h=400&fit=crop&q=files/PLP3_DIM_OFF_PK_1.png",
+      "attributes": {
+        "purpose": "Anti-ansiedad",
+        "dishwasher_safe": true
+      }
+    },
+    {
+      "sku": "KONG-WILD-KNOTS",
+      "name": "Kong Wild Knots Bear",
+      "description": "Peluche con cuerdas internas resistentes, menos relleno",
+      "category_slug": "ACC-JUG-INT",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "S",
+          "base_price": 95000,
+          "cost_price": 57000,
+          "sku_suffix": "-S"
+        },
+        {
+          "size": "M",
+          "base_price": 143000,
+          "cost_price": 85800,
+          "sku_suffix": "-M"
+        },
+        {
+          "size": "L",
+          "base_price": 185000,
+          "cost_price": 111000,
+          "sku_suffix": "-L"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=400&h=400&fit=crop&q=products/MK0042_23e864dd-9236-4da5-ab9c-170e92226dda.png",
+      "attributes": {
+        "material": "Peluche con cuerdas",
+        "squeaker": true,
+        "less_stuffing": true
+      }
+    }
+  ]
+}

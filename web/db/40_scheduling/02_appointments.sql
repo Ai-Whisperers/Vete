@@ -3,17 +3,19 @@
 -- =============================================================================
 -- Appointment scheduling with overlap detection and dynamic slot generation.
 -- INCLUDES FIXED get_available_slots using service settings.
+--
+-- DEPENDENCIES: 10_core/*, 20_pets/01_pets.sql, 40_scheduling/01_services.sql
 -- =============================================================================
 
 CREATE TABLE IF NOT EXISTS public.appointments (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    tenant_id TEXT NOT NULL REFERENCES public.tenants(id),
+    tenant_id TEXT NOT NULL REFERENCES public.tenants(id) ON DELETE CASCADE,
 
     -- Relationships
-    pet_id UUID NOT NULL REFERENCES public.pets(id),
-    service_id UUID REFERENCES public.services(id),
-    vet_id UUID REFERENCES public.profiles(id),
-    created_by UUID REFERENCES public.profiles(id),
+    pet_id UUID NOT NULL REFERENCES public.pets(id) ON DELETE CASCADE,
+    service_id UUID REFERENCES public.services(id) ON DELETE SET NULL,
+    vet_id UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
+    created_by UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
 
     -- Scheduling
     start_time TIMESTAMPTZ NOT NULL,
@@ -43,7 +45,7 @@ CREATE TABLE IF NOT EXISTS public.appointments (
     started_at TIMESTAMPTZ,
     completed_at TIMESTAMPTZ,
     cancelled_at TIMESTAMPTZ,
-    cancelled_by UUID REFERENCES public.profiles(id),
+    cancelled_by UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
     cancellation_reason TEXT,
 
     -- Reminders
@@ -52,7 +54,7 @@ CREATE TABLE IF NOT EXISTS public.appointments (
 
     -- Soft delete
     deleted_at TIMESTAMPTZ,
-    deleted_by UUID REFERENCES public.profiles(id),
+    deleted_by UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
 
     -- Timestamps
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -64,6 +66,11 @@ CREATE TABLE IF NOT EXISTS public.appointments (
         EXTRACT(EPOCH FROM (end_time - start_time)) / 60 = duration_minutes
     )
 );
+
+COMMENT ON TABLE public.appointments IS 'Appointment scheduling with overlap detection and status tracking';
+COMMENT ON COLUMN public.appointments.status IS 'Workflow: scheduled → confirmed → checked_in → in_progress → completed';
+COMMENT ON COLUMN public.appointments.internal_notes IS 'Staff-only notes not visible to pet owners';
+COMMENT ON COLUMN public.appointments.duration_minutes IS 'Duration in minutes (must match end_time - start_time)';
 
 -- =============================================================================
 -- ROW LEVEL SECURITY
@@ -119,12 +126,14 @@ CREATE INDEX IF NOT EXISTS idx_appointments_tenant ON public.appointments(tenant
 CREATE INDEX IF NOT EXISTS idx_appointments_pet ON public.appointments(pet_id);
 CREATE INDEX IF NOT EXISTS idx_appointments_vet ON public.appointments(vet_id);
 CREATE INDEX IF NOT EXISTS idx_appointments_service ON public.appointments(service_id);
+CREATE INDEX IF NOT EXISTS idx_appointments_created_by ON public.appointments(created_by);
+CREATE INDEX IF NOT EXISTS idx_appointments_cancelled_by ON public.appointments(cancelled_by);
 
 -- Date-based queries (most common) - BRIN for time-series
 CREATE INDEX IF NOT EXISTS idx_appointments_tenant_date ON public.appointments(tenant_id, start_time)
     WHERE deleted_at IS NULL;
 CREATE INDEX IF NOT EXISTS idx_appointments_start_brin ON public.appointments
-    USING BRIN(start_time) WITH (pages_per_range = 32);
+    USING BRIN(start_time) WITH (pages_per_range = 64);
 
 -- Status filtering
 CREATE INDEX IF NOT EXISTS idx_appointments_tenant_status ON public.appointments(tenant_id, status)
@@ -139,9 +148,19 @@ CREATE INDEX IF NOT EXISTS idx_appointments_vet_overlap ON public.appointments(v
     WHERE status NOT IN ('cancelled', 'no_show') AND deleted_at IS NULL;
 
 -- Calendar view covering index
-CREATE INDEX IF NOT EXISTS idx_appointments_calendar ON public.appointments(tenant_id, start_time)
-    INCLUDE (pet_id, vet_id, service_id, status, end_time, reason)
+CREATE INDEX IF NOT EXISTS idx_appointments_calendar ON public.appointments(tenant_id, start_time, status)
+    INCLUDE (pet_id, vet_id, service_id, end_time, duration_minutes, reason)
     WHERE deleted_at IS NULL;
+
+-- Upcoming appointments for owner portal
+CREATE INDEX IF NOT EXISTS idx_appointments_owner_upcoming ON public.appointments(pet_id, start_time)
+    INCLUDE (tenant_id, service_id, vet_id, status, reason)
+    WHERE status IN ('scheduled', 'confirmed') AND deleted_at IS NULL;
+
+-- Vet's daily schedule
+CREATE INDEX IF NOT EXISTS idx_appointments_vet_schedule ON public.appointments(vet_id, start_time, end_time)
+    INCLUDE (tenant_id, pet_id, service_id, status)
+    WHERE status NOT IN ('cancelled', 'no_show') AND deleted_at IS NULL;
 
 -- =============================================================================
 -- TRIGGERS
@@ -188,7 +207,10 @@ BEGIN
         (a.start_time, a.end_time) OVERLAPS (p_start_time, p_end_time)
     );
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path = public;
+
+COMMENT ON FUNCTION public.check_appointment_overlap(TEXT, UUID, TIMESTAMPTZ, TIMESTAMPTZ, UUID) IS
+'Check for overlapping appointments for a vet. Returns conflicting appointments if any.';
 
 -- =============================================================================
 -- BOOKING VALIDATION TRIGGER
@@ -218,13 +240,18 @@ BEGIN
 
         IF v_conflict.conflicting_id IS NOT NULL THEN
             RAISE EXCEPTION 'Appointment overlaps with existing booking for %',
-                v_conflict.pet_name;
+                v_conflict.pet_name
+                USING ERRCODE = 'exclusion_violation',
+                      HINT = 'Choose a different time slot or vet';
         END IF;
     END IF;
 
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SET search_path = public;
+
+COMMENT ON FUNCTION public.validate_appointment_booking() IS
+'Validates that new/updated appointments do not overlap with existing ones for the same vet';
 
 DROP TRIGGER IF EXISTS validate_appointment_booking ON public.appointments;
 CREATE TRIGGER validate_appointment_booking
@@ -233,7 +260,7 @@ CREATE TRIGGER validate_appointment_booking
     EXECUTE FUNCTION public.validate_appointment_booking();
 
 -- =============================================================================
--- FIXED: AVAILABLE SLOTS FUNCTION
+-- AVAILABLE SLOTS FUNCTION
 -- Uses service settings instead of hardcoded times
 -- =============================================================================
 
@@ -334,7 +361,10 @@ BEGIN
     AND (p_date > CURRENT_DATE OR s.start_ts > NOW())
     ORDER BY s.start_ts, s.vet_name;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path = public;
+
+COMMENT ON FUNCTION public.get_available_slots(TEXT, DATE, UUID, UUID, INTEGER) IS
+'Generate available appointment slots for a given date, respecting service settings and existing bookings';
 
 -- =============================================================================
 -- HELPER: GET NEXT AVAILABLE SLOT
@@ -362,7 +392,7 @@ BEGIN
     FOR i IN 1..v_max_days LOOP
         RETURN QUERY
         SELECT s.slot_start, s.slot_end, s.vet_id, s.vet_name
-        FROM public.get_available_slots(p_tenant_id, v_check_date, p_service_id, p_vet_id)s
+        FROM public.get_available_slots(p_tenant_id, v_check_date, p_service_id, p_vet_id) s
         LIMIT 1;
 
         IF FOUND THEN
@@ -372,5 +402,56 @@ BEGIN
         v_check_date := v_check_date + 1;
     END LOOP;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path = public;
+
+COMMENT ON FUNCTION public.get_next_available_slot(TEXT, UUID, UUID, DATE) IS
+'Find the next available appointment slot within 30 days';
+
+-- =============================================================================
+-- HELPER: GET APPOINTMENTS FOR DATE RANGE
+-- =============================================================================
+
+CREATE OR REPLACE FUNCTION public.get_appointments_in_range(
+    p_tenant_id TEXT,
+    p_start_date DATE,
+    p_end_date DATE,
+    p_vet_id UUID DEFAULT NULL
+)
+RETURNS TABLE (
+    appointment_id UUID,
+    start_time TIMESTAMPTZ,
+    end_time TIMESTAMPTZ,
+    pet_name TEXT,
+    owner_name TEXT,
+    service_name TEXT,
+    vet_name TEXT,
+    status TEXT
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT
+        a.id,
+        a.start_time,
+        a.end_time,
+        p.name,
+        pr.full_name,
+        s.name,
+        v.full_name,
+        a.status
+    FROM public.appointments a
+    JOIN public.pets p ON a.pet_id = p.id
+    JOIN public.profiles pr ON p.owner_id = pr.id
+    LEFT JOIN public.services s ON a.service_id = s.id
+    LEFT JOIN public.profiles v ON a.vet_id = v.id
+    WHERE a.tenant_id = p_tenant_id
+    AND a.start_time >= p_start_date
+    AND a.start_time < p_end_date + 1
+    AND a.deleted_at IS NULL
+    AND (p_vet_id IS NULL OR a.vet_id = p_vet_id)
+    ORDER BY a.start_time;
+END;
+$$ LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path = public;
+
+COMMENT ON FUNCTION public.get_appointments_in_range(TEXT, DATE, DATE, UUID) IS
+'Get appointments within a date range for calendar views';
 

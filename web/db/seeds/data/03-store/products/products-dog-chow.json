@@ -1,0 +1,210 @@
+{
+  "$schema": "../../../schemas/store.schema.json",
+  "brand_slug": "dog-chow",
+  "products": [
+    {
+      "sku": "DC-DOG-ADULT-MED-LG",
+      "name": "Dog Chow Adultos Medianos y Grandes",
+      "description": "Alimento completo para perros adultos de razas medianas y grandes",
+      "category_slug": "NUT-CAN-SEC",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "1.5kg",
+          "base_price": 46300,
+          "cost_price": 27780,
+          "sku_suffix": "-1.5KG"
+        },
+        {
+          "size": "3kg",
+          "base_price": 85000,
+          "cost_price": 51000,
+          "sku_suffix": "-3KG"
+        },
+        {
+          "size": "8kg",
+          "base_price": 195000,
+          "cost_price": 117000,
+          "sku_suffix": "-8KG"
+        },
+        {
+          "size": "21kg",
+          "base_price": 425000,
+          "cost_price": 255000,
+          "sku_suffix": "-21KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop&q=dog-chow-adult-med-lg.png",
+      "attributes": {
+        "age_range": "1+ años",
+        "breed_size": "Mediano y Grande"
+      }
+    },
+    {
+      "sku": "DC-DOG-ADULT-SMALL",
+      "name": "Dog Chow Adultos Pequeños",
+      "description": "Alimento completo para perros adultos de razas pequeñas",
+      "category_slug": "NUT-CAN-SEC",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "1.5kg",
+          "base_price": 46300,
+          "cost_price": 27780,
+          "sku_suffix": "-1.5KG"
+        },
+        {
+          "size": "3kg",
+          "base_price": 85000,
+          "cost_price": 51000,
+          "sku_suffix": "-3KG"
+        },
+        {
+          "size": "8kg",
+          "base_price": 195000,
+          "cost_price": 117000,
+          "sku_suffix": "-8KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop&q=dog-chow-adult-small.png",
+      "attributes": {
+        "age_range": "1+ años",
+        "breed_size": "Pequeño"
+      }
+    },
+    {
+      "sku": "DC-DOG-PUPPY-SMALL",
+      "name": "Dog Chow Cachorros Pequeños",
+      "description": "Alimento completo para cachorros de razas pequeñas",
+      "category_slug": "NUT-CAN-SEC",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "1.5kg",
+          "base_price": 51300,
+          "cost_price": 30780,
+          "sku_suffix": "-1.5KG"
+        },
+        {
+          "size": "3kg",
+          "base_price": 95000,
+          "cost_price": 57000,
+          "sku_suffix": "-3KG"
+        },
+        {
+          "size": "8kg",
+          "base_price": 215000,
+          "cost_price": 129000,
+          "sku_suffix": "-8KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop&q=dog-chow-puppy-small.png",
+      "attributes": {
+        "age_range": "Hasta 1 año",
+        "breed_size": "Pequeño"
+      }
+    },
+    {
+      "sku": "DC-DOG-PUPPY-MED-LG",
+      "name": "Dog Chow Cachorros Medianos y Grandes",
+      "description": "Alimento completo para cachorros de razas medianas y grandes",
+      "category_slug": "NUT-CAN-SEC",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "1.5kg",
+          "base_price": 51300,
+          "cost_price": 30780,
+          "sku_suffix": "-1.5KG"
+        },
+        {
+          "size": "3kg",
+          "base_price": 95000,
+          "cost_price": 57000,
+          "sku_suffix": "-3KG"
+        },
+        {
+          "size": "8kg",
+          "base_price": 215000,
+          "cost_price": 129000,
+          "sku_suffix": "-8KG"
+        },
+        {
+          "size": "21kg",
+          "base_price": 475000,
+          "cost_price": 285000,
+          "sku_suffix": "-21KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop&q=dog-chow-puppy-med-lg.png",
+      "attributes": {
+        "age_range": "Hasta 1 año",
+        "breed_size": "Mediano y Grande"
+      }
+    },
+    {
+      "sku": "DC-DOG-SENIOR",
+      "name": "Dog Chow Senior 7+",
+      "description": "Alimento para perros mayores de 7 años con antioxidantes",
+      "category_slug": "NUT-CAN-SEC",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "3kg",
+          "base_price": 95200,
+          "cost_price": 57120,
+          "sku_suffix": "-3KG"
+        },
+        {
+          "size": "8kg",
+          "base_price": 215000,
+          "cost_price": 129000,
+          "sku_suffix": "-8KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop&q=dog-chow-senior.png",
+      "attributes": {
+        "age_range": "7+ años",
+        "special_need": "Senior"
+      }
+    },
+    {
+      "sku": "DC-DOG-LIGHT",
+      "name": "Dog Chow Light",
+      "description": "Alimento reducido en calorías para perros con sobrepeso",
+      "category_slug": "NUT-CAN-SEC",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "3kg",
+          "base_price": 89000,
+          "cost_price": 53400,
+          "sku_suffix": "-3KG"
+        },
+        {
+          "size": "8kg",
+          "base_price": 199000,
+          "cost_price": 119400,
+          "sku_suffix": "-8KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop&q=dog-chow-light.png",
+      "attributes": {
+        "special_need": "Control de peso",
+        "low_calorie": true
+      }
+    }
+  ]
+}

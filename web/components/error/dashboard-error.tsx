@@ -41,16 +41,14 @@ export default function DashboardError({ error, reset }: DashboardErrorProps) {
       </div>
 
       <div className="flex gap-3">
-        <Button onClick={reset} variant="default">
-          <RefreshCw className="w-4 h-4 mr-2" />
+        <Button onClick={reset} variant="primary" leftIcon={<RefreshCw className="w-4 h-4" />}>
           Intentar de nuevo
         </Button>
-        <Button variant="outline" asChild>
-          <Link href="/dashboard">
-            <Home className="w-4 h-4 mr-2" />
+        <Link href="/dashboard">
+          <Button variant="outline" leftIcon={<Home className="w-4 h-4" />}>
             Ir al inicio
-          </Link>
-        </Button>
+          </Button>
+        </Link>
       </div>
     </div>
   )

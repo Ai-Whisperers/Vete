@@ -1,5 +1,5 @@
 // Main store components
-export { default as ProductCard } from './product-card';
+export { ProductCard } from './product-card';
 export { default as EnhancedProductCard } from './enhanced-product-card';
 export { default as QuickViewModal } from './quick-view-modal';
 export { default as SearchAutocomplete } from './search-autocomplete';

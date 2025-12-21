@@ -87,18 +87,24 @@ export function ResultViewer({ orderId, petId, showHistory = true, onDownloadPdf
         .eq('lab_order_items.order.id', orderId)
         .order('result_date', { ascending: false })
 
-      const formattedResults = data?.map(r => ({
-        id: r.id,
-        value_numeric: r.value_numeric,
-        value_text: r.value_text,
-        flag: r.flag,
-        verified_at: r.verified_at,
-        verified_by: r.verified_by,
-        result_date: r.result_date,
-        order_item: {
-          test: r.lab_order_items.test
+      // Supabase returns arrays for joined tables, extract first element
+      const formattedResults = data?.map(r => {
+        const orderItems = r.lab_order_items as unknown as Array<{ test: unknown[]; order: unknown[] }>
+        const firstOrderItem = orderItems?.[0]
+        const testData = Array.isArray(firstOrderItem?.test) ? firstOrderItem.test[0] : firstOrderItem?.test
+        return {
+          id: r.id,
+          value_numeric: r.value_numeric,
+          value_text: r.value_text,
+          flag: r.flag,
+          verified_at: r.verified_at,
+          verified_by: r.verified_by,
+          result_date: r.result_date,
+          order_item: {
+            test: testData as { id: string; code: string; name: string; unit: string }
+          }
         }
-      })) || []
+      }) || []
 
       setResults(formattedResults)
     } catch {
@@ -134,7 +140,11 @@ export function ResultViewer({ orderId, petId, showHistory = true, onDownloadPdf
 
       const grouped: Record<string, HistoricalResult[]> = {}
       data?.forEach(result => {
-        const testId = result.lab_order_items.test_id
+        // Supabase returns arrays for joined tables
+        const orderItems = result.lab_order_items as unknown as Array<{ test_id: string; order: unknown[] }>
+        const firstOrderItem = orderItems?.[0]
+        const testId = firstOrderItem?.test_id
+        if (!testId) return
         if (!grouped[testId]) grouped[testId] = []
         if (result.value_numeric !== null) {
           grouped[testId].push({

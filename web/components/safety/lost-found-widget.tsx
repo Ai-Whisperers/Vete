@@ -2,7 +2,7 @@
 
 import { createClient } from '@/lib/supabase/client';
 import { useEffect, useState } from 'react';
-import { Check, Search, MapPin, Phone, AlertTriangle } from 'lucide-react';
+import { Check, Search, MapPin, Phone, AlertTriangle, PawPrint } from 'lucide-react';
 
 interface LostPet {
     id: string;
@@ -111,7 +111,7 @@ export function LostFoundWidget() {
                                 <img src={report.pets.photo_url} className="w-full h-full object-cover" />
                             ) : (
                                 <div className="w-full h-full flex items-center justify-center bg-white">
-                                    <Icons.PawPrint className="w-6 h-6 text-gray-300" />
+                                    <PawPrint className="w-6 h-6 text-gray-300" />
                                 </div>
                             )}
                         </div>
@@ -126,7 +126,7 @@ export function LostFoundWidget() {
                             </div>
                             <p className="text-xs text-gray-500 truncate">Props: {report.pets.profiles.full_name}</p>
                             <div className="flex items-center gap-1 mt-1 text-xs text-red-600 font-medium">
-                                <Icons.MapPin className="w-3 h-3" />
+                                <MapPin className="w-3 h-3" />
                                 <span className="truncate">{report.last_seen_location}</span>
                             </div>
                         </div>

@@ -1,0 +1,174 @@
+{
+  "$schema": "../../../schemas/store.schema.json",
+  "brand_slug": "felix",
+  "products": [
+    {
+      "sku": "FLX-CAT-POUCH-CARNE",
+      "name": "Felix Sensations Carne en Salsa",
+      "description": "Alimento húmedo para gatos con trozos de carne en salsa",
+      "category_slug": "NUT-FEL-HUM",
+      "target_species": [
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "85g",
+          "base_price": 8500,
+          "cost_price": 5100,
+          "sku_suffix": "-85G"
+        },
+        {
+          "size": "Pack 12x85g",
+          "base_price": 95000,
+          "cost_price": 57000,
+          "sku_suffix": "-12PACK"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1574158622682-e40e69881006?w=400&h=400&fit=crop-sensations-carne.png",
+      "attributes": {
+        "flavor": "Carne",
+        "texture": "Trozos en salsa",
+        "wet_food": true
+      }
+    },
+    {
+      "sku": "FLX-CAT-POUCH-POLLO",
+      "name": "Felix Sensations Pollo en Salsa",
+      "description": "Alimento húmedo para gatos con trozos de pollo en salsa",
+      "category_slug": "NUT-FEL-HUM",
+      "target_species": [
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "85g",
+          "base_price": 8500,
+          "cost_price": 5100,
+          "sku_suffix": "-85G"
+        },
+        {
+          "size": "Pack 12x85g",
+          "base_price": 95000,
+          "cost_price": 57000,
+          "sku_suffix": "-12PACK"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1574158622682-e40e69881006?w=400&h=400&fit=crop-sensations-pollo.png",
+      "attributes": {
+        "flavor": "Pollo",
+        "texture": "Trozos en salsa",
+        "wet_food": true
+      }
+    },
+    {
+      "sku": "FLX-CAT-POUCH-SALMON",
+      "name": "Felix Sensations Salmón en Salsa",
+      "description": "Alimento húmedo para gatos con trozos de salmón en salsa",
+      "category_slug": "NUT-FEL-HUM",
+      "target_species": [
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "85g",
+          "base_price": 9000,
+          "cost_price": 5400,
+          "sku_suffix": "-85G"
+        },
+        {
+          "size": "Pack 12x85g",
+          "base_price": 99000,
+          "cost_price": 59400,
+          "sku_suffix": "-12PACK"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1574158622682-e40e69881006?w=400&h=400&fit=crop-sensations-salmon.png",
+      "attributes": {
+        "flavor": "Salmón",
+        "texture": "Trozos en salsa",
+        "wet_food": true
+      }
+    },
+    {
+      "sku": "FLX-CAT-POUCH-ATUN",
+      "name": "Felix Sensations Atún en Gelatina",
+      "description": "Alimento húmedo para gatos con trozos de atún en gelatina",
+      "category_slug": "NUT-FEL-HUM",
+      "target_species": [
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "85g",
+          "base_price": 9000,
+          "cost_price": 5400,
+          "sku_suffix": "-85G"
+        },
+        {
+          "size": "Pack 12x85g",
+          "base_price": 99000,
+          "cost_price": 59400,
+          "sku_suffix": "-12PACK"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1574158622682-e40e69881006?w=400&h=400&fit=crop-sensations-atun.png",
+      "attributes": {
+        "flavor": "Atún",
+        "texture": "Trozos en gelatina",
+        "wet_food": true
+      }
+    },
+    {
+      "sku": "FLX-CAT-KITTEN",
+      "name": "Felix Kitten Pollo en Gelatina",
+      "description": "Alimento húmedo para gatitos con pollo en gelatina",
+      "category_slug": "NUT-FEL-HUM",
+      "target_species": [
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "85g",
+          "base_price": 9500,
+          "cost_price": 5700,
+          "sku_suffix": "-85G"
+        },
+        {
+          "size": "Pack 12x85g",
+          "base_price": 105000,
+          "cost_price": 63000,
+          "sku_suffix": "-12PACK"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1574158622682-e40e69881006?w=400&h=400&fit=crop-kitten.png",
+      "attributes": {
+        "flavor": "Pollo",
+        "texture": "Trozos en gelatina",
+        "wet_food": true,
+        "lifestage": "Kitten"
+      }
+    },
+    {
+      "sku": "FLX-CAT-VARIETY-PACK",
+      "name": "Felix Party Mix Variety Pack",
+      "description": "Pack variado de snacks crujientes para gatos",
+      "category_slug": "NUT-CAN-SNA",
+      "target_species": [
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "60g",
+          "base_price": 18000,
+          "cost_price": 10800,
+          "sku_suffix": "-60G"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1574158622682-e40e69881006?w=400&h=400&fit=crop-party-mix.png",
+      "attributes": {
+        "snack_type": "Crujiente",
+        "variety_pack": true
+      }
+    }
+  ]
+}

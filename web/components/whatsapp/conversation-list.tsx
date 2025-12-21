@@ -25,7 +25,7 @@ export function ConversationList({ conversations, selectedPhone, onSelect }: Con
     <div className="divide-y divide-gray-100">
       {conversations.map((conversation) => {
         const isSelected = selectedPhone === conversation.phone_number
-        const statusConfig = messageStatusConfig[conversation.last_message_status]
+        const statusConfig = conversation.last_message_status ? messageStatusConfig[conversation.last_message_status] : undefined
 
         return (
           <button
@@ -65,7 +65,7 @@ export function ConversationList({ conversations, selectedPhone, onSelect }: Con
                 {/* Last message */}
                 <div className="flex items-center gap-2">
                   {conversation.last_message_direction === 'outbound' && (
-                    <span className={`flex-shrink-0 ${statusConfig?.color || 'text-gray-400'}`}>
+                    <span className={`flex-shrink-0 ${statusConfig?.className || 'text-gray-400'}`}>
                       {conversation.last_message_status === 'read' ? (
                         <Icons.CheckCheck className="w-4 h-4" />
                       ) : conversation.last_message_status === 'delivered' ? (

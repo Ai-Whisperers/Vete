@@ -1,0 +1,90 @@
+{
+  "$schema": "../../../schemas/store.schema.json",
+  "brand_slug": "seresto",
+  "products": [
+    {
+      "sku": "SER-DOG-SMALL",
+      "name": "Seresto Collar Perros Pequeños",
+      "description": "Collar antiparasitario de 8 meses para perros hasta 8kg",
+      "category_slug": "FAR-ANT-EXT",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "38cm",
+          "base_price": 285000,
+          "cost_price": 171000,
+          "sku_suffix": "-38CM"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400&h=400&fit=crop",
+      "attributes": {
+        "weight_range": "Hasta 8kg",
+        "active_ingredients": [
+          "Imidacloprid",
+          "Flumetrina"
+        ],
+        "duration_months": 8,
+        "collar_type": "Antiparasitario",
+        "water_resistant": true
+      }
+    },
+    {
+      "sku": "SER-DOG-LARGE",
+      "name": "Seresto Collar Perros Grandes",
+      "description": "Collar antiparasitario de 8 meses para perros mayores de 8kg",
+      "category_slug": "FAR-ANT-EXT",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "70cm",
+          "base_price": 325000,
+          "cost_price": 195000,
+          "sku_suffix": "-70CM"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400&h=400&fit=crop",
+      "attributes": {
+        "weight_range": "Más de 8kg",
+        "active_ingredients": [
+          "Imidacloprid",
+          "Flumetrina"
+        ],
+        "duration_months": 8,
+        "collar_type": "Antiparasitario",
+        "water_resistant": true
+      }
+    },
+    {
+      "sku": "SER-CAT",
+      "name": "Seresto Collar Gatos",
+      "description": "Collar antiparasitario de 8 meses para gatos",
+      "category_slug": "FAR-ANT-EXT",
+      "target_species": [
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "38cm",
+          "base_price": 275000,
+          "cost_price": 165000,
+          "sku_suffix": "-38CM"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=400&h=400&fit=crop",
+      "attributes": {
+        "active_ingredients": [
+          "Imidacloprid",
+          "Flumetrina"
+        ],
+        "duration_months": 8,
+        "collar_type": "Antiparasitario",
+        "breakaway_safety": true,
+        "water_resistant": true
+      }
+    }
+  ]
+}

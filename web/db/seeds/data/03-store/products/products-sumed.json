@@ -1,0 +1,708 @@
+{
+  "$schema": "../../../schemas/store.schema.json",
+  "brand_slug": "sumed",
+  "products": [
+    {
+      "sku": "SUMED-REANIMADOR-AMBU",
+      "name": "Reanimador Manual AMBU",
+      "description": "Reanimador manual tipo AMBU para reanimación cardiopulmonar",
+      "category_slug": "CLI-EQU-ANE",
+      "target_species": [
+        "dog",
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "Adulto",
+          "base_price": 250000,
+          "cost_price": 150000,
+          "sku_suffix": "-ADU"
+        },
+        {
+          "size": "Pediatrico",
+          "base_price": 220000,
+          "cost_price": 132000,
+          "sku_suffix": "-PED"
+        }
+      ],
+      "image_url": "https://www.sumed.com.py/images/reanimador-ambu.jpg",
+      "attributes": {
+        "sterile": false,
+        "single_use": false,
+        "brand": "AMBU"
+      }
+    },
+    {
+      "sku": "SUMED-MICROPORE-GREETMED",
+      "name": "Micropore Greetmed",
+      "description": "Cinta adhesiva médica hipoalergénica",
+      "category_slug": "CLI-INS-VEN",
+      "target_species": [
+        "dog",
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "Rollo 1.25cm x 10m",
+          "base_price": 4000,
+          "cost_price": 2400,
+          "sku_suffix": "-1.25CM"
+        },
+        {
+          "size": "Rollo 2.5cm x 10m",
+          "base_price": 5500,
+          "cost_price": 3300,
+          "sku_suffix": "-2.5CM"
+        },
+        {
+          "size": "Rollo 5cm x 10m",
+          "base_price": 8000,
+          "cost_price": 4800,
+          "sku_suffix": "-5CM"
+        }
+      ],
+      "image_url": "https://www.sumed.com.py/images/micropore-greetmed.jpg",
+      "attributes": {
+        "sterile": false,
+        "brand": "Greetmed"
+      }
+    },
+    {
+      "sku": "SUMED-LLAVE-3VIAS",
+      "name": "Llave de 3 Vías",
+      "description": "Llave de tres vías para infusión intravenosa",
+      "category_slug": "CLI-INS-AGU",
+      "target_species": [
+        "dog",
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "Unidad",
+          "base_price": 2700,
+          "cost_price": 1620,
+          "sku_suffix": "-UNI"
+        },
+        {
+          "size": "Caja x 50",
+          "base_price": 120000,
+          "cost_price": 72000,
+          "sku_suffix": "-50UN"
+        }
+      ],
+      "image_url": "https://www.sumed.com.py/images/llave-3vias.jpg",
+      "attributes": {
+        "sterile": true,
+        "single_use": true
+      }
+    },
+    {
+      "sku": "SUMED-TENS-ART-GREETMED",
+      "name": "Aparato de Presión Manual Greetmed",
+      "description": "Tensiómetro manual con estetoscopio integrado",
+      "category_slug": "CLI-EQU-DIA",
+      "target_species": [
+        "dog",
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "Standard",
+          "base_price": 92000,
+          "cost_price": 55200,
+          "sku_suffix": "-STD"
+        }
+      ],
+      "image_url": "https://www.sumed.com.py/images/tensiometro-manual.jpg",
+      "attributes": {
+        "brand": "Greetmed",
+        "includes_stethoscope": true
+      }
+    },
+    {
+      "sku": "SUMED-MONONYLON-3-0-SHALON",
+      "name": "Mononylon 3-0 Shalon",
+      "description": "Hilo de sutura monofilamento no absorbible",
+      "category_slug": "CLI-INS-QUI",
+      "target_species": [
+        "dog",
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "Caja x 12",
+          "base_price": 57000,
+          "cost_price": 34200,
+          "sku_suffix": "-12UN"
+        },
+        {
+          "size": "Caja x 24",
+          "base_price": 108000,
+          "cost_price": 64800,
+          "sku_suffix": "-24UN"
+        }
+      ],
+      "image_url": "https://www.sumed.com.py/images/mononylon-shalon.jpg",
+      "attributes": {
+        "sterile": true,
+        "brand": "Shalon Medical",
+        "material": "Nylon",
+        "absorbable": false
+      }
+    },
+    {
+      "sku": "SUMED-CONTENEDOR-DESECHOS-13L",
+      "name": "Contenedor de Desechos Descartex 13 Litros",
+      "description": "Contenedor para desechos médicos con tapa de seguridad",
+      "category_slug": "CLI-INS-EPP",
+      "target_species": [
+        "dog",
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "13 Litros",
+          "base_price": 14025,
+          "cost_price": 8415,
+          "sku_suffix": "-13L"
+        },
+        {
+          "size": "20 Litros",
+          "base_price": 18000,
+          "cost_price": 10800,
+          "sku_suffix": "-20L"
+        }
+      ],
+      "image_url": "https://www.sumed.com.py/images/contenedor-desechos.jpg",
+      "attributes": {
+        "brand": "Descartex",
+        "capacity_liters": 13
+      }
+    },
+    {
+      "sku": "SUMED-BAJALENGUA-MADERA-ADU",
+      "name": "Bajalengua de Madera Adulto",
+      "description": "Depresor lingual de madera desechable",
+      "category_slug": "CLI-INS-QUI",
+      "target_species": [
+        "dog",
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "Adulto",
+          "base_price": 16000,
+          "cost_price": 9600,
+          "sku_suffix": "-ADU"
+        },
+        {
+          "size": "Pediatrico",
+          "base_price": 14000,
+          "cost_price": 8400,
+          "sku_suffix": "-PED"
+        },
+        {
+          "size": "Caja x 100",
+          "base_price": 1200000,
+          "cost_price": 720000,
+          "sku_suffix": "-100UN"
+        }
+      ],
+      "image_url": "https://www.sumed.com.py/images/bajalengua-madera.jpg",
+      "attributes": {
+        "sterile": true,
+        "single_use": true,
+        "material": "Madera"
+      }
+    },
+    {
+      "sku": "SUMED-COMBO-CLINICO-ESENCIAL",
+      "name": "Combo Clínico Esencial",
+      "description": "Kit básico de insumos clínicos esenciales",
+      "category_slug": "CLI-INS-QUI",
+      "target_species": [
+        "dog",
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "Kit Básico",
+          "base_price": 255000,
+          "cost_price": 153000,
+          "sku_suffix": "-BAS"
+        }
+      ],
+      "image_url": "https://www.sumed.com.py/images/combo-clinico.jpg",
+      "attributes": {
+        "includes": [
+          "Jeringas",
+          "Agujas",
+          "Gasas",
+          "Algodón",
+          "Guantes"
+        ]
+      }
+    },
+    {
+      "sku": "SUMED-BOTIQUIN-EMERGENCIAS-PLUS",
+      "name": "Botiquín de Emergencias Plus",
+      "description": "Botiquín completo para primeros auxilios veterinarios",
+      "category_slug": "CLI-INS-QUI",
+      "target_species": [
+        "dog",
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "Plus",
+          "base_price": 153000,
+          "cost_price": 91800,
+          "sku_suffix": "-PLUS"
+        }
+      ],
+      "image_url": "https://www.sumed.com.py/images/botiquin-emergencias.jpg",
+      "attributes": {
+        "includes": [
+          "Antisépticos",
+          "Vendas",
+          "Gasas",
+          "Tijeras",
+          "Termómetro"
+        ]
+      }
+    },
+    {
+      "sku": "SUMED-BOTIQUIN-MASCOTAS-CASA",
+      "name": "Botiquín Mascotas en Casa",
+      "description": "Botiquín básico para primeros auxilios en el hogar",
+      "category_slug": "CLI-INS-QUI",
+      "target_species": [
+        "dog",
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "Hogar",
+          "base_price": 158000,
+          "cost_price": 94800,
+          "sku_suffix": "-HOG"
+        }
+      ],
+      "image_url": "https://www.sumed.com.py/images/botiquin-mascotas.jpg",
+      "attributes": {
+        "for_home_use": true
+      }
+    },
+    {
+      "sku": "SUMED-COMBO-SALUD-BASICO",
+      "name": "Combo Salud Básico",
+      "description": "Kit básico de salud preventiva",
+      "category_slug": "CLI-INS-QUI",
+      "target_species": [
+        "dog",
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "Básico",
+          "base_price": 61000,
+          "cost_price": 36600,
+          "sku_suffix": "-BAS"
+        }
+      ],
+      "image_url": "https://www.sumed.com.py/images/combo-salud.jpg",
+      "attributes": {}
+    },
+    {
+      "sku": "SUMED-COLECTOR-ORINA-2000ML",
+      "name": "Colector de Orina con Soporte Adulto 2000ml Greetmed",
+      "description": "Bolsa colectora de orina con sistema de soporte",
+      "category_slug": "CLI-INS-QUI",
+      "target_species": [
+        "dog",
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "2000ml",
+          "base_price": 9900,
+          "cost_price": 5940,
+          "sku_suffix": "-2L"
+        },
+        {
+          "size": "1000ml",
+          "base_price": 7500,
+          "cost_price": 4500,
+          "sku_suffix": "-1L"
+        }
+      ],
+      "image_url": "https://www.sumed.com.py/images/colector-orina.jpg",
+      "attributes": {
+        "sterile": true,
+        "brand": "Greetmed",
+        "capacity_ml": 2000
+      }
+    },
+    {
+      "sku": "SUMED-GASA-HIDROFILA-16H",
+      "name": "Gasa Hidrófila 16 Hebras Greetmed",
+      "description": "Gasa estéril de algodón para curaciones",
+      "category_slug": "CLI-INS-VEN",
+      "target_species": [
+        "dog",
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "Paquete x 10",
+          "base_price": 12000,
+          "cost_price": 7200,
+          "sku_suffix": "-10UN"
+        },
+        {
+          "size": "Paquete x 20",
+          "base_price": 22000,
+          "cost_price": 13200,
+          "sku_suffix": "-20UN"
+        },
+        {
+          "size": "Caja x 100",
+          "base_price": 95000,
+          "cost_price": 57000,
+          "sku_suffix": "-100UN"
+        }
+      ],
+      "image_url": "https://www.sumed.com.py/images/gasa-hidrofila.jpg",
+      "attributes": {
+        "sterile": true,
+        "brand": "Greetmed",
+        "threads": 16
+      }
+    },
+    {
+      "sku": "SUMED-SONDA-ASPIRACION-FR14",
+      "name": "Sonda de Aspiración FR 14",
+      "description": "Sonda para aspiración de secreciones",
+      "category_slug": "CLI-INS-QUI",
+      "target_species": [
+        "dog",
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "FR 14",
+          "base_price": 1440,
+          "cost_price": 864,
+          "sku_suffix": "-FR14"
+        },
+        {
+          "size": "FR 12",
+          "base_price": 1440,
+          "cost_price": 864,
+          "sku_suffix": "-FR12"
+        },
+        {
+          "size": "FR 16",
+          "base_price": 1800,
+          "cost_price": 1080,
+          "sku_suffix": "-FR16"
+        }
+      ],
+      "image_url": "https://www.sumed.com.py/images/sonda-aspiracion.jpg",
+      "attributes": {
+        "sterile": true,
+        "single_use": true,
+        "french_size": 14
+      }
+    },
+    {
+      "sku": "SUMED-SONDA-ENDOTRAQUEAL-BALON",
+      "name": "Sonda Endotraqueal con Balón",
+      "description": "Tubo endotraqueal con balón para intubación",
+      "category_slug": "CLI-INS-QUI",
+      "target_species": [
+        "dog",
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "3.0mm",
+          "base_price": 11050,
+          "cost_price": 6630,
+          "sku_suffix": "-3.0"
+        },
+        {
+          "size": "3.5mm",
+          "base_price": 11050,
+          "cost_price": 6630,
+          "sku_suffix": "-3.5"
+        },
+        {
+          "size": "4.0mm",
+          "base_price": 12000,
+          "cost_price": 7200,
+          "sku_suffix": "-4.0"
+        },
+        {
+          "size": "4.5mm",
+          "base_price": 12000,
+          "cost_price": 7200,
+          "sku_suffix": "-4.5"
+        },
+        {
+          "size": "5.0mm",
+          "base_price": 13000,
+          "cost_price": 7800,
+          "sku_suffix": "-5.0"
+        },
+        {
+          "size": "6.0mm",
+          "base_price": 14000,
+          "cost_price": 8400,
+          "sku_suffix": "-6.0"
+        },
+        {
+          "size": "7.0mm",
+          "base_price": 15000,
+          "cost_price": 9000,
+          "sku_suffix": "-7.0"
+        },
+        {
+          "size": "8.0mm",
+          "base_price": 16000,
+          "cost_price": 9600,
+          "sku_suffix": "-8.0"
+        }
+      ],
+      "image_url": "https://www.sumed.com.py/images/sonda-endotraqueal.jpg",
+      "attributes": {
+        "sterile": true,
+        "single_use": true,
+        "with_cuff": true
+      }
+    },
+    {
+      "sku": "SUMED-LAPIZ-ELECTROBISTURI",
+      "name": "Lápiz para Electrobisturí",
+      "description": "Lápiz monopolar para electrobisturí",
+      "category_slug": "CLI-EQU-INS",
+      "target_species": [
+        "dog",
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "Monopolar",
+          "base_price": 27000,
+          "cost_price": 16200,
+          "sku_suffix": "-MONO"
+        },
+        {
+          "size": "Bipolar",
+          "base_price": 35000,
+          "cost_price": 21000,
+          "sku_suffix": "-BI"
+        }
+      ],
+      "image_url": "https://www.sumed.com.py/images/lapiz-electrobisturi.jpg",
+      "attributes": {
+        "sterile": false,
+        "reusable": true
+      }
+    },
+    {
+      "sku": "SUMED-MICRONEBULIZADOR-ADU-PED",
+      "name": "Micronebulizador Adulto y Pediátrico",
+      "description": "Nebulizador para administración de medicamentos inhalados",
+      "category_slug": "CLI-INS-QUI",
+      "target_species": [
+        "dog",
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "Adulto",
+          "base_price": 10200,
+          "cost_price": 6120,
+          "sku_suffix": "-ADU"
+        },
+        {
+          "size": "Pediátrico",
+          "base_price": 9500,
+          "cost_price": 5700,
+          "sku_suffix": "-PED"
+        },
+        {
+          "size": "Combo Adu+Ped",
+          "base_price": 18000,
+          "cost_price": 10800,
+          "sku_suffix": "-COMBO"
+        }
+      ],
+      "image_url": "https://www.sumed.com.py/images/micronebulizador.jpg",
+      "attributes": {
+        "sterile": true,
+        "single_use": true
+      }
+    },
+    {
+      "sku": "SUMED-BOTIQUIN-PRIMEROS-AUXILIOS-EST",
+      "name": "Botiquín de Primeros Auxilios Estándar",
+      "description": "Botiquín estándar para primeros auxilios",
+      "category_slug": "CLI-INS-QUI",
+      "target_species": [
+        "dog",
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "Estándar",
+          "base_price": 68000,
+          "cost_price": 40800,
+          "sku_suffix": "-EST"
+        }
+      ],
+      "image_url": "https://www.sumed.com.py/images/botiquin-estandar.jpg",
+      "attributes": {}
+    },
+    {
+      "sku": "SUMED-SONDA-YANKAUER-3M",
+      "name": "Sonda K-66 Yankauer 3 Metros",
+      "description": "Sonda de aspiración tipo Yankauer",
+      "category_slug": "CLI-INS-QUI",
+      "target_species": [
+        "dog",
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "3 metros",
+          "base_price": 19000,
+          "cost_price": 11400,
+          "sku_suffix": "-3M"
+        },
+        {
+          "size": "1.5 metros",
+          "base_price": 12000,
+          "cost_price": 7200,
+          "sku_suffix": "-1.5M"
+        }
+      ],
+      "image_url": "https://www.sumed.com.py/images/sonda-yankauer.jpg",
+      "attributes": {
+        "sterile": true,
+        "single_use": true,
+        "type": "Yankauer"
+      }
+    },
+    {
+      "sku": "SUMED-MESA-MAYO",
+      "name": "Mesa de Mayo",
+      "description": "Mesa auxiliar quirúrgica móvil",
+      "category_slug": "CLI-EQU-MOB",
+      "target_species": [
+        "dog",
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "Standard",
+          "base_price": 315000,
+          "cost_price": 189000,
+          "sku_suffix": "-STD"
+        },
+        {
+          "size": "Con ruedas",
+          "base_price": 350000,
+          "cost_price": 210000,
+          "sku_suffix": "-RUED"
+        }
+      ],
+      "image_url": "https://www.sumed.com.py/images/mesa-mayo.jpg",
+      "attributes": {
+        "manufactured_by": "SUMED",
+        "mobile": true
+      }
+    },
+    {
+      "sku": "SUMED-MESA-INSPECCION-RECTA",
+      "name": "Mesa de Inspección Recta",
+      "description": "Mesa de examen e inspección recta",
+      "category_slug": "CLI-EQU-MOB",
+      "target_species": [
+        "dog",
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "Standard",
+          "base_price": 585000,
+          "cost_price": 351000,
+          "sku_suffix": "-STD"
+        },
+        {
+          "size": "Con altura ajustable",
+          "base_price": 680000,
+          "cost_price": 408000,
+          "sku_suffix": "-AJU"
+        }
+      ],
+      "image_url": "https://www.sumed.com.py/images/mesa-inspeccion.jpg",
+      "attributes": {
+        "manufactured_by": "SUMED"
+      }
+    },
+    {
+      "sku": "SUMED-BIOMBO-3-CUERPOS",
+      "name": "Biombo de 3 Cuerpos Reforzado",
+      "description": "Biombo de privacidad de 3 paneles reforzado",
+      "category_slug": "CLI-EQU-MOB",
+      "target_species": [
+        "dog",
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "3 cuerpos",
+          "base_price": 525000,
+          "cost_price": 315000,
+          "sku_suffix": "-3C"
+        },
+        {
+          "size": "4 cuerpos",
+          "base_price": 680000,
+          "cost_price": 408000,
+          "sku_suffix": "-4C"
+        }
+      ],
+      "image_url": "https://www.sumed.com.py/images/biombo.jpg",
+      "attributes": {
+        "manufactured_by": "SUMED",
+        "panels": 3
+      }
+    },
+    {
+      "sku": "SUMED-CAMILLA-GINECOLOGICA",
+      "name": "Camilla Ginecológica Reforzada",
+      "description": "Mesa de examen ginecológico reforzada",
+      "category_slug": "CLI-EQU-MOB",
+      "target_species": [
+        "dog",
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "Standard",
+          "base_price": 1050000,
+          "cost_price": 630000,
+          "sku_suffix": "-STD"
+        }
+      ],
+      "image_url": "https://www.sumed.com.py/images/camilla-ginecologica.jpg",
+      "attributes": {
+        "manufactured_by": "SUMED",
+        "height_adjustable": true
+      }
+    }
+  ]
+}

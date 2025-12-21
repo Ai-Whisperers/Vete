@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Calendar Global Styles
  * Styled JSX for calendar theming

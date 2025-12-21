@@ -2,4 +2,4 @@
  * Messaging components barrel export
  */
 
-export { NewConversationDialog } from './new-conversation-dialog';
+export { default as NewConversationDialog } from './new-conversation-dialog';

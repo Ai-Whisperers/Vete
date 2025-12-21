@@ -123,7 +123,7 @@ export function Inbox({ conversations, clinic }: InboxProps) {
             <ConversationHeader
               phoneNumber={selectedPhone}
               clientName={selectedConversation?.client_name}
-              clientId={selectedConversation?.client_id}
+              clientId={selectedConversation?.client_id ?? undefined}
               petName={undefined}
               petId={undefined}
               clinic={clinic}

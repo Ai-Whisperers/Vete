@@ -74,7 +74,7 @@ export default function FilterDrawer({
     const newValues = currentValues.includes(value)
       ? currentValues.filter((v) => v !== value)
       : [...currentValues, value];
-    updateFilter(key, newValues.length > 0 ? newValues : undefined);
+    updateFilter(key, (newValues.length > 0 ? newValues : undefined) as ProductFilters[typeof key]);
   };
 
   const handleApplyAndClose = () => {

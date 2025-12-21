@@ -28,7 +28,7 @@ export function CancelButton({
 
     const result = await cancelAppointment(appointmentId, reason || undefined)
 
-    if (result.error) {
+    if (!result.success) {
       setError(result.error)
       setLoading(false)
     } else {

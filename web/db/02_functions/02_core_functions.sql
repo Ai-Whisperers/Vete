@@ -2,8 +2,10 @@
 -- 02_CORE_FUNCTIONS.SQL
 -- =============================================================================
 -- Core utility functions used throughout the application.
--- These must be created BEFORE any tables that use them in triggers.
+-- These replace the stub functions created earlier with real implementations.
 -- =============================================================================
+
+-- Functions use CREATE OR REPLACE to update in place without breaking dependencies
 
 -- =============================================================================
 -- A. UPDATED_AT TRIGGER FUNCTION
@@ -37,7 +39,7 @@ RETURNS BOOLEAN AS $$
         AND role IN ('vet', 'admin')
         AND deleted_at IS NULL
     );
-$$ LANGUAGE sql SECURITY DEFINER STABLE;
+$$ LANGUAGE sql SECURITY DEFINER STABLE SET search_path = public;
 
 -- =============================================================================
 -- C. IS_OWNER_OF_PET (Authorization Helper)
@@ -53,7 +55,7 @@ RETURNS BOOLEAN AS $$
         AND owner_id = auth.uid()
         AND deleted_at IS NULL
     );
-$$ LANGUAGE sql SECURITY DEFINER STABLE;
+$$ LANGUAGE sql SECURITY DEFINER STABLE SET search_path = public;
 
 -- =============================================================================
 -- D. GET_USER_TENANT (Helper)
@@ -67,7 +69,7 @@ RETURNS TEXT AS $$
     WHERE id = auth.uid()
     AND deleted_at IS NULL
     LIMIT 1;
-$$ LANGUAGE sql SECURITY DEFINER STABLE;
+$$ LANGUAGE sql SECURITY DEFINER STABLE SET search_path = public;
 
 -- =============================================================================
 -- E. GET_USER_ROLE (Helper)
@@ -80,7 +82,7 @@ RETURNS TEXT AS $$
     WHERE id = auth.uid()
     AND deleted_at IS NULL
     LIMIT 1;
-$$ LANGUAGE sql SECURITY DEFINER STABLE;
+$$ LANGUAGE sql SECURITY DEFINER STABLE SET search_path = public;
 
 -- =============================================================================
 -- F. PROTECT_CRITICAL_COLUMNS (Security Trigger)
@@ -109,12 +111,13 @@ BEGIN
 
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 -- =============================================================================
 -- G. SOFT DELETE HELPER
 -- =============================================================================
 -- Generic function to soft delete records.
+-- Handles tables with or without deleted_by column
 
 CREATE OR REPLACE FUNCTION public.soft_delete(
     table_name TEXT,
@@ -124,21 +127,38 @@ CREATE OR REPLACE FUNCTION public.soft_delete(
 RETURNS BOOLEAN AS $$
 DECLARE
     affected_rows INTEGER;
+    has_deleted_by BOOLEAN;
 BEGIN
-    EXECUTE format(
-        'UPDATE %I SET deleted_at = NOW(), deleted_by = $1 WHERE id = $2 AND deleted_at IS NULL',
-        table_name
-    ) USING COALESCE(deleted_by_id, auth.uid()), record_id;
+    -- Check if table has deleted_by column
+    SELECT EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_schema = 'public'
+        AND table_name = soft_delete.table_name
+        AND column_name = 'deleted_by'
+    ) INTO has_deleted_by;
+
+    IF has_deleted_by THEN
+        EXECUTE format(
+            'UPDATE public.%I SET deleted_at = NOW(), deleted_by = $1 WHERE id = $2 AND deleted_at IS NULL',
+            table_name
+        ) USING COALESCE(deleted_by_id, auth.uid()), record_id;
+    ELSE
+        EXECUTE format(
+            'UPDATE public.%I SET deleted_at = NOW() WHERE id = $1 AND deleted_at IS NULL',
+            table_name
+        ) USING record_id;
+    END IF;
 
     GET DIAGNOSTICS affected_rows = ROW_COUNT;
     RETURN affected_rows > 0;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 -- =============================================================================
 -- H. RESTORE DELETED RECORD
 -- =============================================================================
 -- Generic function to restore soft-deleted records.
+-- Handles tables with or without deleted_by column
 
 CREATE OR REPLACE FUNCTION public.restore_deleted(
     table_name TEXT,
@@ -147,22 +167,37 @@ CREATE OR REPLACE FUNCTION public.restore_deleted(
 RETURNS BOOLEAN AS $$
 DECLARE
     affected_rows INTEGER;
+    has_deleted_by BOOLEAN;
 BEGIN
-    EXECUTE format(
-        'UPDATE %I SET deleted_at = NULL, deleted_by = NULL WHERE id = $1',
-        table_name
-    ) USING record_id;
+    SELECT EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_schema = 'public'
+        AND table_name = restore_deleted.table_name
+        AND column_name = 'deleted_by'
+    ) INTO has_deleted_by;
+
+    IF has_deleted_by THEN
+        EXECUTE format(
+            'UPDATE public.%I SET deleted_at = NULL, deleted_by = NULL WHERE id = $1 AND deleted_at IS NOT NULL',
+            table_name
+        ) USING record_id;
+    ELSE
+        EXECUTE format(
+            'UPDATE public.%I SET deleted_at = NULL WHERE id = $1 AND deleted_at IS NOT NULL',
+            table_name
+        ) USING record_id;
+    END IF;
 
     GET DIAGNOSTICS affected_rows = ROW_COUNT;
     RETURN affected_rows > 0;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 -- =============================================================================
 -- I. GENERATE SEQUENCE NUMBER
 -- =============================================================================
 -- Generates sequential numbers for invoices, lab orders, etc.
--- Pattern: PREFIX-YEAR-SEQUENCE (e.g., INV-2024-00001)
+-- Uses document_sequences table for thread-safe generation
 
 CREATE OR REPLACE FUNCTION public.generate_sequence_number(
     prefix TEXT,
@@ -171,23 +206,11 @@ CREATE OR REPLACE FUNCTION public.generate_sequence_number(
 )
 RETURNS TEXT AS $$
 DECLARE
-    seq_name TEXT;
-    seq_val BIGINT;
-    year_part TEXT;
+    v_doc_type TEXT;
 BEGIN
-    year_part := to_char(NOW(), 'YYYY');
-    seq_name := COALESCE(sequence_name, 'seq_' || lower(prefix) || '_' || tenant || '_' || year_part);
+    -- Map prefix to document type
+    v_doc_type := COALESCE(sequence_name, LOWER(prefix));
 
-    -- Create sequence if it doesn't exist
-    BEGIN
-        EXECUTE format('CREATE SEQUENCE IF NOT EXISTS %I START 1', seq_name);
-    EXCEPTION WHEN duplicate_table THEN
-        -- Sequence already exists, continue
-    END;
-
-    -- Get next value
-    EXECUTE format('SELECT nextval(%L)', seq_name) INTO seq_val;
-
-    RETURN upper(prefix) || '-' || year_part || '-' || lpad(seq_val::TEXT, 5, '0');
+    RETURN public.next_document_number(tenant, v_doc_type, UPPER(prefix));
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SET search_path = public;

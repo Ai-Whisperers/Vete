@@ -1,0 +1,127 @@
+{
+  "$schema": "../../../schemas/store.schema.json",
+  "brand_slug": "primocao",
+  "products": [
+    {
+      "sku": "PC-DOG-ADULT-SMALL",
+      "name": "Primocao Adultos Pequeños Pollo y Vegetal",
+      "description": "Alimento económico para perros adultos de razas pequeñas",
+      "category_slug": "NUT-CAN-SEC",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "1kg",
+          "base_price": 27300,
+          "cost_price": 16380,
+          "sku_suffix": "-1KG"
+        },
+        {
+          "size": "3kg",
+          "base_price": 69000,
+          "cost_price": 41400,
+          "sku_suffix": "-3KG"
+        },
+        {
+          "size": "8kg",
+          "base_price": 159000,
+          "cost_price": 95400,
+          "sku_suffix": "-8KG"
+        },
+        {
+          "size": "20kg",
+          "base_price": 345000,
+          "cost_price": 207000,
+          "sku_suffix": "-20KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop-adult-small.png",
+      "attributes": {
+        "age_range": "1+ años",
+        "breed_size": "Pequeño",
+        "flavor": "Pollo y Vegetal"
+      }
+    },
+    {
+      "sku": "PC-DOG-ADULT-MED-LG",
+      "name": "Primocao Adultos Medianos y Grandes",
+      "description": "Alimento económico para perros adultos de razas medianas y grandes",
+      "category_slug": "NUT-CAN-SEC",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "1kg",
+          "base_price": 25000,
+          "cost_price": 15000,
+          "sku_suffix": "-1KG"
+        },
+        {
+          "size": "3kg",
+          "base_price": 65000,
+          "cost_price": 39000,
+          "sku_suffix": "-3KG"
+        },
+        {
+          "size": "8kg",
+          "base_price": 149000,
+          "cost_price": 89400,
+          "sku_suffix": "-8KG"
+        },
+        {
+          "size": "20kg",
+          "base_price": 325000,
+          "cost_price": 195000,
+          "sku_suffix": "-20KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop-adult-med-lg.png",
+      "attributes": {
+        "age_range": "1+ años",
+        "breed_size": "Mediano y Grande"
+      }
+    },
+    {
+      "sku": "PC-DOG-PUPPY",
+      "name": "Primocao Cachorros",
+      "description": "Alimento económico para cachorros de todas las razas",
+      "category_slug": "NUT-CAN-SEC",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "1kg",
+          "base_price": 29000,
+          "cost_price": 17400,
+          "sku_suffix": "-1KG"
+        },
+        {
+          "size": "3kg",
+          "base_price": 75000,
+          "cost_price": 45000,
+          "sku_suffix": "-3KG"
+        },
+        {
+          "size": "8kg",
+          "base_price": 169000,
+          "cost_price": 101400,
+          "sku_suffix": "-8KG"
+        },
+        {
+          "size": "20kg",
+          "base_price": 365000,
+          "cost_price": 219000,
+          "sku_suffix": "-20KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop-puppy.png",
+      "attributes": {
+        "age_range": "Hasta 1 año",
+        "lifestage": "Puppy"
+      }
+    }
+  ]
+}

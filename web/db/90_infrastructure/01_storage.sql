@@ -473,7 +473,7 @@ BEGIN
         p_path
     );
 END;
-$$ LANGUAGE plpgsql IMMUTABLE;
+$$ LANGUAGE plpgsql IMMUTABLE SET search_path = public;
 
 -- Clean up orphaned storage objects (run periodically)
 -- This is a template - actual cleanup should be handled by a scheduled job
@@ -493,6 +493,6 @@ BEGIN
           );
     END IF;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 

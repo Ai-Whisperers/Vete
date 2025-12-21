@@ -83,7 +83,7 @@ export function VaccineRegistrationForm({
         console.error("Error fetching pets:", fetchError);
         setError("Error al cargar mascotas");
       } else {
-        setPets((data || []) as Pet[]);
+        setPets((data || []) as unknown as Pet[]);
       }
       setLoading(false);
     };

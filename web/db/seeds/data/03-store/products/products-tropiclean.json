@@ -1,0 +1,216 @@
+{
+  "$schema": "../../../schemas/store.schema.json",
+  "brand_slug": "tropiclean",
+  "products": [
+    {
+      "sku": "TC-SHAMPOO-OATMEAL",
+      "name": "TropiClean Shampoo Avena & Tea Tree",
+      "description": "Shampoo natural para piel sensible con avena y árbol de té",
+      "category_slug": "ACC-HIG-SHA",
+      "target_species": [
+        "dog",
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "355ml",
+          "base_price": 95000,
+          "cost_price": 57000,
+          "sku_suffix": "-355ML"
+        },
+        {
+          "size": "592ml",
+          "base_price": 145000,
+          "cost_price": 87000,
+          "sku_suffix": "-592ML"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?w=400&h=400&fit=crop-oatmeal.png",
+      "attributes": {
+        "type": "Shampoo",
+        "ingredients": "Avena, Árbol de té",
+        "soap_free": true,
+        "natural": true
+      }
+    },
+    {
+      "sku": "TC-SHAMPOO-PAPAYA",
+      "name": "TropiClean Shampoo Papaya & Coco",
+      "description": "Shampoo natural hidratante con papaya y coco",
+      "category_slug": "ACC-HIG-SHA",
+      "target_species": [
+        "dog",
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "355ml",
+          "base_price": 89000,
+          "cost_price": 53400,
+          "sku_suffix": "-355ML"
+        },
+        {
+          "size": "592ml",
+          "base_price": 135000,
+          "cost_price": 81000,
+          "sku_suffix": "-592ML"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?w=400&h=400&fit=crop-papaya.png",
+      "attributes": {
+        "type": "Shampoo",
+        "ingredients": "Papaya, Coco",
+        "soap_free": true
+      }
+    },
+    {
+      "sku": "TC-SHAMPOO-WHITENING",
+      "name": "TropiClean Shampoo Blanqueador",
+      "description": "Shampoo para pelajes blancos con extracto de arándano",
+      "category_slug": "ACC-HIG-SHA",
+      "target_species": [
+        "dog",
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "355ml",
+          "base_price": 99000,
+          "cost_price": 59400,
+          "sku_suffix": "-355ML"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?w=400&h=400&fit=crop-whitening.png",
+      "attributes": {
+        "type": "Shampoo",
+        "purpose": "Blanqueador",
+        "for_coat": "Blanco/Claro"
+      }
+    },
+    {
+      "sku": "TC-DENTAL-GEL",
+      "name": "TropiClean Fresh Breath Gel Dental",
+      "description": "Gel dental para limpieza sin cepillado, reduce placa y sarro",
+      "category_slug": "ACC-HIG-DEN",
+      "target_species": [
+        "dog",
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "118ml",
+          "base_price": 125000,
+          "cost_price": 75000,
+          "sku_suffix": "-118ML"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?w=400&h=400&fit=crop-dental-gel.png",
+      "attributes": {
+        "type": "Gel dental",
+        "no_brushing": true,
+        "reduces": "Placa y sarro"
+      }
+    },
+    {
+      "sku": "TC-WATER-ADDITIVE",
+      "name": "TropiClean Fresh Breath Water Additive",
+      "description": "Aditivo para agua que combate el mal aliento",
+      "category_slug": "ACC-HIG-DEN",
+      "target_species": [
+        "dog",
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "473ml",
+          "base_price": 115000,
+          "cost_price": 69000,
+          "sku_suffix": "-473ML"
+        },
+        {
+          "size": "1L",
+          "base_price": 195000,
+          "cost_price": 117000,
+          "sku_suffix": "-1L"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?w=400&h=400&fit=crop-water-additive.png",
+      "attributes": {
+        "type": "Aditivo para agua",
+        "purpose": "Aliento fresco",
+        "daily_use": true
+      }
+    },
+    {
+      "sku": "TC-EAR-WASH",
+      "name": "TropiClean Ear Wash",
+      "description": "Limpiador de oídos suave con extractos naturales",
+      "category_slug": "ACC-HIG-SHA",
+      "target_species": [
+        "dog",
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "118ml",
+          "base_price": 85000,
+          "cost_price": 51000,
+          "sku_suffix": "-118ML"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?w=400&h=400&fit=crop-ear-wash.png",
+      "attributes": {
+        "type": "Limpiador de oídos",
+        "alcohol_free": true,
+        "gentle": true
+      }
+    },
+    {
+      "sku": "TC-FLEA-TICK-SPRAY",
+      "name": "TropiClean Flea & Tick Spray",
+      "description": "Spray natural antipulgas y garrapatas para el hogar y mascotas",
+      "category_slug": "ACC-HIG-SHA",
+      "target_species": [
+        "dog",
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "473ml",
+          "base_price": 135000,
+          "cost_price": 81000,
+          "sku_suffix": "-473ML"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?w=400&h=400&fit=crop-flea-spray.png",
+      "attributes": {
+        "type": "Spray antipulgas",
+        "natural": true,
+        "safe_for_home": true
+      }
+    },
+    {
+      "sku": "TC-DEODORIZER",
+      "name": "TropiClean Deodorizing Spray",
+      "description": "Spray desodorizante entre baños con aroma fresco",
+      "category_slug": "ACC-HIG-SHA",
+      "target_species": [
+        "dog",
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "236ml",
+          "base_price": 75000,
+          "cost_price": 45000,
+          "sku_suffix": "-236ML"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?w=400&h=400&fit=crop-deodorizer.png",
+      "attributes": {
+        "type": "Spray desodorizante",
+        "between_baths": true
+      }
+    }
+  ]
+}

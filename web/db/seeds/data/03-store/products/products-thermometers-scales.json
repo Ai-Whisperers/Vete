@@ -1,0 +1,139 @@
+{
+  "$schema": "../../../schemas/store.schema.json",
+  "brand_slug": "eickemeyer",
+  "products": [
+    {
+      "sku": "EICK-THERMO-DIGITAL",
+      "name": "Termómetro Digital Veterinario",
+      "description": "Termómetro digital de lectura rápida",
+      "category_slug": "CLI-EQU-DIA",
+      "target_species": [
+        "dog",
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "Estándar",
+          "base_price": 45000,
+          "cost_price": 27000,
+          "sku_suffix": "-STD"
+        }
+      ],
+      "image_url": "https://www.eickemeyer.com/images/thermometer-digital.png",
+      "attributes": {
+        "reading_time": "10 segundos",
+        "range": "32-43°C",
+        "accuracy": "±0.1°C",
+        "waterproof": true
+      }
+    },
+    {
+      "sku": "EICK-THERMO-INSTANT",
+      "name": "Termómetro Infrarrojo Sin Contacto",
+      "description": "Termómetro infrarrojo para oído",
+      "category_slug": "CLI-EQU-DIA",
+      "target_species": [
+        "dog",
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "Estándar",
+          "base_price": 285000,
+          "cost_price": 171000,
+          "sku_suffix": "-IR"
+        }
+      ],
+      "image_url": "https://www.eickemeyer.com/images/thermometer-infrared.png",
+      "attributes": {
+        "reading_time": "1 segundo",
+        "non_contact": true,
+        "memory": "32 lecturas"
+      }
+    },
+    {
+      "sku": "EICK-SCALE-TABLE",
+      "name": "Báscula Veterinaria de Mesa",
+      "description": "Báscula digital para animales pequeños",
+      "category_slug": "CLI-EQU-DIA",
+      "target_species": [
+        "dog",
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "Hasta 20kg",
+          "base_price": 485000,
+          "cost_price": 291000,
+          "sku_suffix": "-20KG"
+        },
+        {
+          "size": "Hasta 60kg",
+          "base_price": 685000,
+          "cost_price": 411000,
+          "sku_suffix": "-60KG"
+        }
+      ],
+      "image_url": "https://www.eickemeyer.com/images/scale-table.png",
+      "attributes": {
+        "precision": "±10g",
+        "platform_size": "60x40cm",
+        "tare_function": true
+      }
+    },
+    {
+      "sku": "EICK-SCALE-FLOOR",
+      "name": "Báscula Veterinaria de Piso",
+      "description": "Báscula de plataforma para animales grandes",
+      "category_slug": "CLI-EQU-DIA",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "Hasta 150kg",
+          "base_price": 1250000,
+          "cost_price": 750000,
+          "sku_suffix": "-150KG"
+        },
+        {
+          "size": "Hasta 300kg",
+          "base_price": 1850000,
+          "cost_price": 1110000,
+          "sku_suffix": "-300KG"
+        }
+      ],
+      "image_url": "https://www.eickemeyer.com/images/scale-floor.png",
+      "attributes": {
+        "precision": "±50g",
+        "platform_size": "100x75cm",
+        "low_profile": true,
+        "wheels": true
+      }
+    },
+    {
+      "sku": "EICK-SCALE-BABY",
+      "name": "Báscula para Cachorros y Gatitos",
+      "description": "Báscula de precisión para neonatos",
+      "category_slug": "CLI-EQU-DIA",
+      "target_species": [
+        "dog",
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "Hasta 5kg",
+          "base_price": 325000,
+          "cost_price": 195000,
+          "sku_suffix": "-5KG"
+        }
+      ],
+      "image_url": "https://www.eickemeyer.com/images/scale-baby.png",
+      "attributes": {
+        "precision": "±1g",
+        "bowl_included": true,
+        "hold_function": true
+      }
+    }
+  ]
+}

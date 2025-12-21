@@ -20,9 +20,11 @@ export default function SignupPage({ params }: { params: Promise<{ clinic: strin
   useEffect(() => {
     const checkAuth = async () => {
       const supabase = createClient();
-      const { data: { session } } = await supabase.auth.getSession();
+      // Use getUser() instead of getSession() - getUser() verifies with the server
+      // getSession() only reads from localStorage and can return stale/invalid sessions
+      const { data: { user }, error } = await supabase.auth.getUser();
 
-      if (session?.user) {
+      if (user && !error) {
         // User is already authenticated, redirect to dashboard
         router.replace(redirectTo);
       } else {

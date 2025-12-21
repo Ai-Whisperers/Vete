@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { ChevronDown, ChevronUp, X, Star, Dog, Cat, Bird, Fish, Rabbit } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { ChevronDown, ChevronUp, Star, Dog, Cat, Search, X } from 'lucide-react';
 import type {
   ProductFilters,
   AvailableFilters,
@@ -17,6 +17,7 @@ import {
   HEALTH_CONDITION_LABELS,
 } from '@/lib/types/store';
 import PriceRangeSlider from './price-range-slider';
+import CategoryTree from './category-tree';
 
 interface Props {
   filters: ProductFilters;
@@ -25,33 +26,32 @@ interface Props {
   onClearFilters: () => void;
 }
 
-const SPECIES_ICONS: Record<Species, React.ReactNode> = {
-  perro: <Dog className="w-4 h-4" />,
-  gato: <Cat className="w-4 h-4" />,
-  ave: <Bird className="w-4 h-4" />,
-  reptil: <span className="w-4 h-4 text-center">🦎</span>,
-  pez: <Fish className="w-4 h-4" />,
-  roedor: <span className="w-4 h-4 text-center">🐹</span>,
-  conejo: <Rabbit className="w-4 h-4" />,
-  otro: <span className="w-4 h-4 text-center">🐾</span>,
-};
-
 interface FilterSectionProps {
   title: string;
   defaultOpen?: boolean;
+  badge?: number;
   children: React.ReactNode;
 }
 
-function FilterSection({ title, defaultOpen = true, children }: FilterSectionProps) {
+function FilterSection({ title, defaultOpen = true, badge, children }: FilterSectionProps) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   return (
     <div className="border-b border-[var(--border-default)] pb-4 mb-4 last:border-b-0 last:mb-0 last:pb-0">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center justify-between w-full text-left"
+        className="flex items-center justify-between w-full text-left group"
       >
-        <span className="font-semibold text-[var(--text-primary)]">{title}</span>
+        <div className="flex items-center gap-2">
+          <span className="font-semibold text-[var(--text-primary)] group-hover:text-[var(--primary)] transition-colors">
+            {title}
+          </span>
+          {badge !== undefined && badge > 0 && (
+            <span className="text-xs px-1.5 py-0.5 bg-[var(--primary)] text-white rounded-full">
+              {badge}
+            </span>
+          )}
+        </div>
         {isOpen ? (
           <ChevronUp className="w-4 h-4 text-[var(--text-muted)]" />
         ) : (
@@ -69,6 +69,8 @@ export default function FilterSidebar({
   onFiltersChange,
   onClearFilters,
 }: Props) {
+  const [brandSearch, setBrandSearch] = useState('');
+
   const updateFilter = <K extends keyof ProductFilters>(key: K, value: ProductFilters[K]) => {
     onFiltersChange({ ...filters, [key]: value });
   };
@@ -81,7 +83,7 @@ export default function FilterSidebar({
     const newValues = currentValues.includes(value)
       ? currentValues.filter((v) => v !== value)
       : [...currentValues, value];
-    updateFilter(key, newValues.length > 0 ? newValues : undefined);
+    updateFilter(key, (newValues.length > 0 ? newValues : undefined) as ProductFilters[typeof key]);
   };
 
   const hasActiveFilters = Object.entries(filters).some(([key, value]) => {
@@ -91,172 +93,173 @@ export default function FilterSidebar({
     return true;
   });
 
+  const activeFilterCount = useMemo(() => {
+    let count = 0;
+    if (filters.category) count++;
+    if (filters.brand) count++;
+    if (filters.species?.length) count += filters.species.length;
+    if (filters.life_stages?.length) count += filters.life_stages.length;
+    if (filters.price_min !== undefined || filters.price_max !== undefined) count++;
+    if (filters.in_stock_only) count++;
+    if (filters.on_sale) count++;
+    if (filters.new_arrivals) count++;
+    if (filters.best_sellers) count++;
+    if (filters.min_rating) count++;
+    return count;
+  }, [filters]);
+
+  // Filter brands by search
+  const filteredBrands = useMemo(() => {
+    if (!brandSearch.trim()) return availableFilters.brands.slice(0, 20);
+    const search = brandSearch.toLowerCase();
+    return availableFilters.brands.filter(b =>
+      b.name.toLowerCase().includes(search)
+    );
+  }, [availableFilters.brands, brandSearch]);
+
+  // Primary species (dogs/cats) vs others
+  const primarySpecies: Species[] = ['perro', 'gato'];
+  const otherSpecies = availableFilters.species.filter(s => !primarySpecies.includes(s.value));
+
+  const handleCategorySelect = (slug: string | undefined, _includeChildren: boolean) => {
+    updateFilter('category', slug);
+  };
+
   return (
-    <div className="w-64 flex-shrink-0">
-      <div className="sticky top-24 bg-[var(--bg-elevated)] rounded-xl border border-[var(--border-default)] p-4">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-4">
+    <div className="sticky top-24 bg-white rounded-2xl border border-[var(--border-default)] shadow-sm overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center justify-between p-4 bg-gray-50 border-b border-[var(--border-default)]">
+        <div className="flex items-center gap-2">
           <h2 className="text-lg font-bold text-[var(--text-primary)]">Filtros</h2>
-          {hasActiveFilters && (
-            <button
-              onClick={onClearFilters}
-              className="text-sm text-[var(--primary)] hover:underline"
-            >
-              Limpiar
-            </button>
+          {activeFilterCount > 0 && (
+            <span className="text-xs px-2 py-0.5 bg-[var(--primary)] text-white rounded-full font-medium">
+              {activeFilterCount}
+            </span>
           )}
         </div>
-
-        {/* Categories */}
-        {availableFilters.categories.length > 0 && (
-          <FilterSection title="Categoría">
-            <div className="space-y-2">
-              {availableFilters.categories.map((cat) => (
-                <label
-                  key={cat.id}
-                  className="flex items-center gap-2 cursor-pointer group"
-                >
-                  <input
-                    type="radio"
-                    name="category"
-                    checked={filters.category === cat.slug}
-                    onChange={() =>
-                      updateFilter('category', filters.category === cat.slug ? undefined : cat.slug)
-                    }
-                    className="w-4 h-4 text-[var(--primary)] border-[var(--border-default)] focus:ring-[var(--primary)]"
-                  />
-                  <span className="text-sm text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]">
-                    {cat.name}
-                  </span>
-                  {cat.count > 0 && (
-                    <span className="text-xs text-[var(--text-muted)]">({cat.count})</span>
-                  )}
-                </label>
-              ))}
-            </div>
-          </FilterSection>
+        {hasActiveFilters && (
+          <button
+            onClick={onClearFilters}
+            className="text-sm text-[var(--primary)] hover:underline font-medium flex items-center gap-1"
+          >
+            <X className="w-3.5 h-3.5" />
+            Limpiar
+          </button>
         )}
+      </div>
 
-        {/* Species */}
-        <FilterSection title="Mascota">
-          <div className="space-y-2">
-            {availableFilters.species.map((s) => (
-              <label
-                key={s.value}
-                className="flex items-center gap-2 cursor-pointer group"
-              >
-                <input
-                  type="checkbox"
-                  checked={filters.species?.includes(s.value) || false}
-                  onChange={() => toggleArrayFilter('species', s.value)}
-                  className="w-4 h-4 rounded text-[var(--primary)] border-[var(--border-default)] focus:ring-[var(--primary)]"
-                />
-                <span className="text-[var(--text-muted)]">
-                  {SPECIES_ICONS[s.value]}
-                </span>
-                <span className="text-sm text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]">
-                  {SPECIES_LABELS[s.value]}
-                </span>
-              </label>
-            ))}
+      {/* Scrollable Content */}
+      <div className="p-4 max-h-[calc(100vh-12rem)] overflow-y-auto">
+        {/* Quick Filters - Compact Pills */}
+        <FilterSection title="Filtros Rápidos">
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              onClick={() => updateFilter('in_stock_only', !filters.in_stock_only)}
+              className={`px-3 py-2 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-1.5 ${
+                filters.in_stock_only
+                  ? 'bg-green-500 text-white shadow-sm'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              <span className="w-2 h-2 rounded-full bg-current" />
+              En stock
+            </button>
+            <button
+              onClick={() => updateFilter('on_sale', !filters.on_sale)}
+              className={`px-3 py-2 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-1.5 ${
+                filters.on_sale
+                  ? 'bg-red-500 text-white shadow-sm'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              🏷️ Ofertas
+            </button>
+            <button
+              onClick={() => updateFilter('new_arrivals', !filters.new_arrivals)}
+              className={`px-3 py-2 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-1.5 ${
+                filters.new_arrivals
+                  ? 'bg-blue-500 text-white shadow-sm'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              ✨ Nuevos
+            </button>
+            <button
+              onClick={() => updateFilter('best_sellers', !filters.best_sellers)}
+              className={`px-3 py-2 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-1.5 ${
+                filters.best_sellers
+                  ? 'bg-amber-500 text-white shadow-sm'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              🔥 Top ventas
+            </button>
           </div>
         </FilterSection>
 
-        {/* Life Stage */}
-        <FilterSection title="Etapa de Vida">
+        {/* Species - Primary Focus */}
+        <FilterSection title="Mascota" badge={filters.species?.length}>
           <div className="space-y-2">
-            {availableFilters.life_stages.map((ls) => (
-              <label
-                key={ls.value}
-                className="flex items-center gap-2 cursor-pointer group"
+            {/* Primary: Dogs & Cats */}
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={() => toggleArrayFilter('species', 'perro')}
+                className={`flex items-center justify-center gap-2 px-3 py-3 rounded-xl text-sm font-medium transition-all ${
+                  filters.species?.includes('perro')
+                    ? 'bg-[var(--primary)] text-white shadow-md'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
               >
-                <input
-                  type="checkbox"
-                  checked={filters.life_stages?.includes(ls.value) || false}
-                  onChange={() => toggleArrayFilter('life_stages', ls.value)}
-                  className="w-4 h-4 rounded text-[var(--primary)] border-[var(--border-default)] focus:ring-[var(--primary)]"
-                />
-                <span className="text-sm text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]">
-                  {LIFE_STAGE_LABELS[ls.value]}
-                </span>
-              </label>
-            ))}
-          </div>
-        </FilterSection>
-
-        {/* Breed Size */}
-        <FilterSection title="Tamaño de Raza" defaultOpen={false}>
-          <div className="space-y-2">
-            {availableFilters.breed_sizes.map((bs) => (
-              <label
-                key={bs.value}
-                className="flex items-center gap-2 cursor-pointer group"
+                <Dog className="w-5 h-5" />
+                Perros
+              </button>
+              <button
+                onClick={() => toggleArrayFilter('species', 'gato')}
+                className={`flex items-center justify-center gap-2 px-3 py-3 rounded-xl text-sm font-medium transition-all ${
+                  filters.species?.includes('gato')
+                    ? 'bg-[var(--primary)] text-white shadow-md'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
               >
-                <input
-                  type="checkbox"
-                  checked={filters.breed_sizes?.includes(bs.value) || false}
-                  onChange={() => toggleArrayFilter('breed_sizes', bs.value)}
-                  className="w-4 h-4 rounded text-[var(--primary)] border-[var(--border-default)] focus:ring-[var(--primary)]"
-                />
-                <span className="text-sm text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]">
-                  {BREED_SIZE_LABELS[bs.value]}
-                </span>
-              </label>
-            ))}
-          </div>
-        </FilterSection>
-
-        {/* Health Conditions */}
-        <FilterSection title="Necesidades Especiales" defaultOpen={false}>
-          <div className="space-y-2">
-            {availableFilters.health_conditions.map((hc) => (
-              <label
-                key={hc.value}
-                className="flex items-center gap-2 cursor-pointer group"
-              >
-                <input
-                  type="checkbox"
-                  checked={filters.health_conditions?.includes(hc.value) || false}
-                  onChange={() => toggleArrayFilter('health_conditions', hc.value)}
-                  className="w-4 h-4 rounded text-[var(--primary)] border-[var(--border-default)] focus:ring-[var(--primary)]"
-                />
-                <span className="text-sm text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]">
-                  {HEALTH_CONDITION_LABELS[hc.value]}
-                </span>
-              </label>
-            ))}
-          </div>
-        </FilterSection>
-
-        {/* Brands */}
-        {availableFilters.brands.length > 0 && (
-          <FilterSection title="Marca" defaultOpen={false}>
-            <div className="space-y-2 max-h-48 overflow-y-auto">
-              {availableFilters.brands.map((brand) => (
-                <label
-                  key={brand.id}
-                  className="flex items-center gap-2 cursor-pointer group"
-                >
-                  <input
-                    type="radio"
-                    name="brand"
-                    checked={filters.brand === brand.slug}
-                    onChange={() =>
-                      updateFilter('brand', filters.brand === brand.slug ? undefined : brand.slug)
-                    }
-                    className="w-4 h-4 text-[var(--primary)] border-[var(--border-default)] focus:ring-[var(--primary)]"
-                  />
-                  <span className="text-sm text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]">
-                    {brand.name}
-                  </span>
-                </label>
-              ))}
+                <Cat className="w-5 h-5" />
+                Gatos
+              </button>
             </div>
+
+            {/* Other Species - Smaller */}
+            {otherSpecies.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                {otherSpecies.map((s) => (
+                  <button
+                    key={s.value}
+                    onClick={() => toggleArrayFilter('species', s.value)}
+                    className={`px-2.5 py-1 rounded-full text-xs font-medium transition-all ${
+                      filters.species?.includes(s.value)
+                        ? 'bg-[var(--primary)] text-white'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    {SPECIES_LABELS[s.value]}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </FilterSection>
+
+        {/* Categories - Tree View */}
+        {availableFilters.categories.length > 0 && (
+          <FilterSection title="Categoría" badge={filters.category ? 1 : 0}>
+            <CategoryTree
+              categories={availableFilters.categories}
+              selectedCategory={filters.category}
+              onCategorySelect={handleCategorySelect}
+            />
           </FilterSection>
         )}
 
         {/* Price Range */}
-        <FilterSection title="Precio">
+        <FilterSection title="Precio" badge={filters.price_min !== undefined || filters.price_max !== undefined ? 1 : 0}>
           <PriceRangeSlider
             min={availableFilters.price_range.min}
             max={availableFilters.price_range.max}
@@ -272,93 +275,164 @@ export default function FilterSidebar({
           />
         </FilterSection>
 
+        {/* Brands - With Search */}
+        {availableFilters.brands.length > 0 && (
+          <FilterSection title="Marca" badge={filters.brand ? 1 : 0} defaultOpen={false}>
+            {/* Brand Search */}
+            <div className="relative mb-3">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Buscar marca..."
+                value={brandSearch}
+                onChange={(e) => setBrandSearch(e.target.value)}
+                className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
+              />
+              {brandSearch && (
+                <button
+                  onClick={() => setBrandSearch('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+
+            {/* Brand List */}
+            <div className="space-y-1 max-h-48 overflow-y-auto pr-1">
+              {filteredBrands.length === 0 ? (
+                <p className="text-sm text-gray-500 text-center py-2">
+                  No se encontraron marcas
+                </p>
+              ) : (
+                filteredBrands.map((brand) => (
+                  <button
+                    key={brand.id}
+                    onClick={() => updateFilter('brand', filters.brand === brand.slug ? undefined : brand.slug)}
+                    className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all flex items-center justify-between ${
+                      filters.brand === brand.slug
+                        ? 'bg-[var(--primary)] text-white'
+                        : 'hover:bg-gray-100 text-[var(--text-secondary)]'
+                    }`}
+                  >
+                    <span className="font-medium truncate">{brand.name}</span>
+                    {filters.brand === brand.slug && (
+                      <span className="text-xs">✓</span>
+                    )}
+                  </button>
+                ))
+              )}
+              {!brandSearch && availableFilters.brands.length > 20 && (
+                <p className="text-xs text-gray-400 text-center pt-2">
+                  Busca para ver más marcas
+                </p>
+              )}
+            </div>
+          </FilterSection>
+        )}
+
+        {/* Life Stage */}
+        {availableFilters.life_stages.length > 0 && (
+          <FilterSection title="Etapa de Vida" badge={filters.life_stages?.length} defaultOpen={false}>
+            <div className="flex flex-wrap gap-2">
+              {availableFilters.life_stages.map((ls) => (
+                <button
+                  key={ls.value}
+                  onClick={() => toggleArrayFilter('life_stages', ls.value)}
+                  className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
+                    filters.life_stages?.includes(ls.value)
+                      ? 'bg-[var(--primary)] text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  {LIFE_STAGE_LABELS[ls.value]}
+                </button>
+              ))}
+            </div>
+          </FilterSection>
+        )}
+
         {/* Rating */}
-        <FilterSection title="Calificación" defaultOpen={false}>
-          <div className="space-y-2">
-            {[4, 3, 2, 1].map((rating) => (
-              <label
+        <FilterSection title="Calificación" badge={filters.min_rating ? 1 : 0} defaultOpen={false}>
+          <div className="space-y-1">
+            {[4, 3, 2].map((rating) => (
+              <button
                 key={rating}
-                className="flex items-center gap-2 cursor-pointer group"
+                onClick={() => updateFilter('min_rating', filters.min_rating === rating ? undefined : rating)}
+                className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg transition-all ${
+                  filters.min_rating === rating
+                    ? 'bg-[var(--primary)]/10 text-[var(--primary)]'
+                    : 'hover:bg-gray-100'
+                }`}
               >
-                <input
-                  type="radio"
-                  name="rating"
-                  checked={filters.min_rating === rating}
-                  onChange={() =>
-                    updateFilter('min_rating', filters.min_rating === rating ? undefined : rating)
-                  }
-                  className="w-4 h-4 text-[var(--primary)] border-[var(--border-default)] focus:ring-[var(--primary)]"
-                />
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-0.5">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <Star
                       key={star}
                       className={`w-4 h-4 ${
                         star <= rating
                           ? 'text-yellow-400 fill-yellow-400'
-                          : 'text-gray-300'
+                          : 'text-gray-200'
                       }`}
                     />
                   ))}
                 </div>
                 <span className="text-sm text-[var(--text-muted)]">y más</span>
-              </label>
+              </button>
             ))}
           </div>
         </FilterSection>
 
-        {/* Quick Filters */}
-        <FilterSection title="Filtros Rápidos">
-          <div className="space-y-2">
-            <label className="flex items-center gap-2 cursor-pointer group">
-              <input
-                type="checkbox"
-                checked={filters.in_stock_only || false}
-                onChange={() => updateFilter('in_stock_only', !filters.in_stock_only)}
-                className="w-4 h-4 rounded text-[var(--primary)] border-[var(--border-default)] focus:ring-[var(--primary)]"
-              />
-              <span className="text-sm text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]">
-                Solo en stock
-              </span>
-            </label>
+        {/* Breed Size - Collapsed by default */}
+        {availableFilters.breed_sizes.length > 0 && (
+          <FilterSection title="Tamaño de Raza" badge={filters.breed_sizes?.length} defaultOpen={false}>
+            <div className="flex flex-wrap gap-2">
+              {availableFilters.breed_sizes.map((bs) => (
+                <button
+                  key={bs.value}
+                  onClick={() => toggleArrayFilter('breed_sizes', bs.value)}
+                  className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
+                    filters.breed_sizes?.includes(bs.value)
+                      ? 'bg-[var(--primary)] text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  {BREED_SIZE_LABELS[bs.value]}
+                </button>
+              ))}
+            </div>
+          </FilterSection>
+        )}
 
-            <label className="flex items-center gap-2 cursor-pointer group">
-              <input
-                type="checkbox"
-                checked={filters.on_sale || false}
-                onChange={() => updateFilter('on_sale', !filters.on_sale)}
-                className="w-4 h-4 rounded text-[var(--primary)] border-[var(--border-default)] focus:ring-[var(--primary)]"
-              />
-              <span className="text-sm text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]">
-                En oferta
-              </span>
-            </label>
-
-            <label className="flex items-center gap-2 cursor-pointer group">
-              <input
-                type="checkbox"
-                checked={filters.new_arrivals || false}
-                onChange={() => updateFilter('new_arrivals', !filters.new_arrivals)}
-                className="w-4 h-4 rounded text-[var(--primary)] border-[var(--border-default)] focus:ring-[var(--primary)]"
-              />
-              <span className="text-sm text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]">
-                Recién llegados
-              </span>
-            </label>
-
-            <label className="flex items-center gap-2 cursor-pointer group">
-              <input
-                type="checkbox"
-                checked={filters.best_sellers || false}
-                onChange={() => updateFilter('best_sellers', !filters.best_sellers)}
-                className="w-4 h-4 rounded text-[var(--primary)] border-[var(--border-default)] focus:ring-[var(--primary)]"
-              />
-              <span className="text-sm text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]">
-                Más vendidos
-              </span>
-            </label>
-          </div>
-        </FilterSection>
+        {/* Health Conditions - Collapsed by default */}
+        {availableFilters.health_conditions.length > 0 && (
+          <FilterSection title="Necesidades Especiales" badge={filters.health_conditions?.length} defaultOpen={false}>
+            <div className="space-y-1">
+              {availableFilters.health_conditions.map((hc) => (
+                <button
+                  key={hc.value}
+                  onClick={() => toggleArrayFilter('health_conditions', hc.value)}
+                  className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all flex items-center gap-2 ${
+                    filters.health_conditions?.includes(hc.value)
+                      ? 'bg-[var(--primary)] text-white'
+                      : 'hover:bg-gray-100 text-[var(--text-secondary)]'
+                  }`}
+                >
+                  <span className={`w-4 h-4 rounded border-2 flex items-center justify-center ${
+                    filters.health_conditions?.includes(hc.value)
+                      ? 'border-white bg-white/20'
+                      : 'border-gray-300'
+                  }`}>
+                    {filters.health_conditions?.includes(hc.value) && (
+                      <span className="text-xs">✓</span>
+                    )}
+                  </span>
+                  {HEALTH_CONDITION_LABELS[hc.value]}
+                </button>
+              ))}
+            </div>
+          </FilterSection>
+        )}
       </div>
     </div>
   );

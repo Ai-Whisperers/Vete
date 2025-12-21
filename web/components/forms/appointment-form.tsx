@@ -2,8 +2,10 @@
 
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
-import { sendEmail } from "@/app/actions/send-email";
+import { submitContactForm } from "@/app/actions/contact-form";
 import { Check, Loader2, Send, User, Phone, Dog, MessageSquare } from "lucide-react";
+
+type FormState = { success: true; message?: string } | { success: false; error: string } | null;
 
 // Submit Button with loading state
 function SubmitButton() {
@@ -31,7 +33,7 @@ function SubmitButton() {
 }
 
 export function AppointmentForm() {
-  const [state, formAction] = useActionState(sendEmail, null);
+  const [state, formAction] = useActionState<FormState, FormData>(submitContactForm, null);
 
   if (state?.success) {
     return (
@@ -40,7 +42,7 @@ export function AppointmentForm() {
           <Check className="w-8 h-8" />
         </div>
         <h3 className="text-xl font-bold text-green-800 mb-2">¡Solicitud Enviada!</h3>
-        <p className="text-green-700">{state.message}</p>
+        <p className="text-green-700">{state.message || 'Te contactaremos pronto'}</p>
         <button
           onClick={() => window.location.reload()}
           className="mt-6 text-sm font-bold text-green-800 hover:text-green-900 hover:underline transition-colors"
@@ -83,7 +85,7 @@ export function AppointmentForm() {
               className="w-full pl-16 pr-4 py-3.5 rounded-xl border border-gray-200 bg-white focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none transition-all text-[var(--text-primary)] placeholder:text-gray-400"
             />
           </div>
-          {state?.error && (
+          {state && !state.success && (
             <p id="name-error" role="alert" className="mt-1 text-sm text-red-600">
               {state.error}
             </p>

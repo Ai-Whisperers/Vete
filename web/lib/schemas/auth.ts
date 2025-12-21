@@ -40,7 +40,7 @@ export const signupSchema = z
       .regex(/^(\+595|0)?[9][0-9]{8}$/, 'Número de teléfono inválido')
       .optional(),
     accept_terms: z.literal(true, {
-      errorMap: () => ({ message: 'Debe aceptar los términos y condiciones' }),
+      message: 'Debe aceptar los términos y condiciones',
     }),
   })
   .refine((data) => data.password === data.confirm_password, {
@@ -125,7 +125,7 @@ export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
 export const inviteUserSchema = z.object({
   email: emailSchema,
   role: z.enum(['owner', 'vet', 'admin'], {
-    errorMap: () => ({ message: 'Rol inválido' }),
+    message: 'Rol inválido',
   }),
   message: z.string().max(500, 'Mensaje muy largo').optional(),
 });

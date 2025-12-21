@@ -29,40 +29,23 @@ interface ProductFromDB {
   short_description: string | null;
   description: string | null;
   image_url: string | null;
+  images: string[] | null; // Array of image URLs stored directly in products table
   base_price: number;
-  specifications: Record<string, string> | null;
-  features: string[] | null;
-  ingredients: string | null;
-  nutritional_info: Record<string, string | number> | null;
-  species: string[] | null;
-  life_stages: string[] | null;
-  breed_sizes: string[] | null;
-  health_conditions: string[] | null;
+  attributes: Record<string, string> | null; // Was specifications
+  target_species: string[] | null; // Was species
   weight_grams: number | null;
   dimensions: { length?: number; width?: number; height?: number } | null;
-  is_prescription_required: boolean;
+  requires_prescription: boolean; // Column name in DB
   is_featured: boolean;
-  is_new_arrival: boolean;
-  is_best_seller: boolean;
-  avg_rating: number;
-  review_count: number;
-  sales_count: number;
-  view_count: number;
-  meta_title: string | null;
-  meta_description: string | null;
-  sort_order: number;
   is_active: boolean;
+  display_order: number; // Column name in DB (was sort_order)
   created_at: string;
   updated_at: string;
   category_id: string | null;
-  subcategory_id: string | null;
   brand_id: string | null;
   store_categories: { id: string; name: string; slug: string } | null;
-  store_subcategories: { id: string; name: string; slug: string } | null;
   store_brands: { id: string; name: string; slug: string; logo_url: string | null } | null;
   store_inventory: { stock_quantity: number; min_stock_level: number | null } | null;
-  store_product_images: { id: string; image_url: string; alt_text: string | null; is_primary: boolean; sort_order: number }[];
-  store_product_variants: { id: string; sku: string; name: string; variant_type: string; price_modifier: number; stock_quantity: number; is_default: boolean; sort_order: number }[];
 }
 
 /**
@@ -119,16 +102,17 @@ export async function GET(request: NextRequest): Promise<NextResponse<ProductLis
     };
 
     // Build the base query
+    // Note: store_subcategories, store_product_images, store_product_variants don't exist
+    // - Categories use self-referencing parent_id for hierarchy
+    // - Images are stored in images TEXT[] array on products
+    // - Variants are not currently implemented in schema
     let queryBuilder = supabase
       .from('store_products')
       .select(`
         *,
         store_categories(id, name, slug),
-        store_subcategories(id, name, slug),
         store_brands(id, name, slug, logo_url),
-        store_inventory(stock_quantity, min_stock_level),
-        store_product_images(id, image_url, alt_text, is_primary, sort_order),
-        store_product_variants(id, sku, name, variant_type, price_modifier, stock_quantity, is_default, sort_order)
+        store_inventory(stock_quantity, min_stock_level)
       `, { count: 'exact' })
       .eq('tenant_id', clinic)
       .eq('is_active', true);
@@ -139,31 +123,37 @@ export async function GET(request: NextRequest): Promise<NextResponse<ProductLis
     }
 
     if (filters.category) {
-      // First get category ID from slug
-      const { data: category } = await supabase
+      // Get the selected category and all its descendants
+      // First, fetch all categories to build the hierarchy
+      const { data: allCategories } = await supabase
         .from('store_categories')
-        .select('id')
+        .select('id, slug, parent_id')
         .eq('tenant_id', clinic)
-        .eq('slug', filters.category)
-        .single();
+        .eq('is_active', true);
 
-      if (category) {
-        queryBuilder = queryBuilder.eq('category_id', category.id);
+      if (allCategories) {
+        // Find the selected category
+        const selectedCat = allCategories.find(c => c.slug === filters.category);
+
+        if (selectedCat) {
+          // Recursively collect all descendant category IDs
+          const collectDescendants = (parentId: string): string[] => {
+            const children = allCategories.filter(c => c.parent_id === parentId);
+            return children.reduce<string[]>((acc, child) => {
+              return [...acc, child.id, ...collectDescendants(child.id)];
+            }, []);
+          };
+
+          const categoryIds = [selectedCat.id, ...collectDescendants(selectedCat.id)];
+
+          // Filter products that belong to any of these categories
+          queryBuilder = queryBuilder.in('category_id', categoryIds);
+        }
       }
     }
 
-    if (filters.subcategory) {
-      const { data: subcategory } = await supabase
-        .from('store_subcategories')
-        .select('id')
-        .eq('tenant_id', clinic)
-        .eq('slug', filters.subcategory)
-        .single();
-
-      if (subcategory) {
-        queryBuilder = queryBuilder.eq('subcategory_id', subcategory.id);
-      }
-    }
+    // Note: subcategory filter removed - schema uses parent_id hierarchy on store_categories
+    // If subcategory filtering is needed, use the parent category's slug with nested category lookup
 
     if (filters.brand) {
       const { data: brand } = await supabase
@@ -178,21 +168,13 @@ export async function GET(request: NextRequest): Promise<NextResponse<ProductLis
       }
     }
 
+    // Note: The schema uses target_species TEXT[] instead of species, life_stages, breed_sizes, health_conditions
     if (filters.species && filters.species.length > 0) {
-      queryBuilder = queryBuilder.overlaps('species', filters.species);
+      queryBuilder = queryBuilder.overlaps('target_species', filters.species);
     }
 
-    if (filters.life_stages && filters.life_stages.length > 0) {
-      queryBuilder = queryBuilder.overlaps('life_stages', filters.life_stages);
-    }
-
-    if (filters.breed_sizes && filters.breed_sizes.length > 0) {
-      queryBuilder = queryBuilder.overlaps('breed_sizes', filters.breed_sizes);
-    }
-
-    if (filters.health_conditions && filters.health_conditions.length > 0) {
-      queryBuilder = queryBuilder.overlaps('health_conditions', filters.health_conditions);
-    }
+    // Note: life_stages, breed_sizes, health_conditions columns don't exist in current schema
+    // These filters are ignored until schema is updated
 
     if (filters.price_min !== undefined) {
       queryBuilder = queryBuilder.gte('base_price', filters.price_min);
@@ -202,27 +184,22 @@ export async function GET(request: NextRequest): Promise<NextResponse<ProductLis
       queryBuilder = queryBuilder.lte('base_price', filters.price_max);
     }
 
-    if (filters.new_arrivals) {
-      queryBuilder = queryBuilder.eq('is_new_arrival', true);
-    }
-
-    if (filters.best_sellers) {
-      queryBuilder = queryBuilder.eq('is_best_seller', true);
-    }
-
+    // Note: is_new_arrival and is_best_seller columns don't exist in current schema
+    // Filtering by featured still works
     if (filters.featured) {
       queryBuilder = queryBuilder.eq('is_featured', true);
     }
 
+    // Note: Column is requires_prescription not is_prescription_required
     if (filters.prescription_required !== undefined) {
-      queryBuilder = queryBuilder.eq('is_prescription_required', filters.prescription_required);
+      queryBuilder = queryBuilder.eq('requires_prescription', filters.prescription_required);
     }
 
-    if (filters.min_rating !== undefined) {
-      queryBuilder = queryBuilder.gte('avg_rating', filters.min_rating);
-    }
+    // Note: avg_rating column doesn't exist in current schema
 
     // Apply sorting
+    // Note: Column is display_order not sort_order
+    // Note: sales_count, avg_rating, review_count don't exist in current schema
     switch (sort) {
       case 'price_low_high':
         queryBuilder = queryBuilder.order('base_price', { ascending: true });
@@ -234,24 +211,25 @@ export async function GET(request: NextRequest): Promise<NextResponse<ProductLis
         queryBuilder = queryBuilder.order('created_at', { ascending: false });
         break;
       case 'rating':
-        queryBuilder = queryBuilder.order('avg_rating', { ascending: false }).order('review_count', { ascending: false });
+        // avg_rating doesn't exist, fall back to display_order
+        queryBuilder = queryBuilder.order('display_order', { ascending: true }).order('name', { ascending: true });
         break;
       case 'best_selling':
-        queryBuilder = queryBuilder.order('sales_count', { ascending: false });
+        // sales_count doesn't exist, fall back to display_order
+        queryBuilder = queryBuilder.order('display_order', { ascending: true }).order('name', { ascending: true });
         break;
       case 'name_asc':
         queryBuilder = queryBuilder.order('name', { ascending: true });
         break;
       case 'discount':
         // Will be handled after fetching campaigns
-        queryBuilder = queryBuilder.order('sort_order', { ascending: true }).order('name', { ascending: true });
+        queryBuilder = queryBuilder.order('display_order', { ascending: true }).order('name', { ascending: true });
         break;
       case 'relevance':
       default:
         queryBuilder = queryBuilder
           .order('is_featured', { ascending: false })
-          .order('sales_count', { ascending: false })
-          .order('sort_order', { ascending: true })
+          .order('display_order', { ascending: true })
           .order('name', { ascending: true });
         break;
     }
@@ -264,19 +242,30 @@ export async function GET(request: NextRequest): Promise<NextResponse<ProductLis
     if (pError) throw pError;
 
     // Fetch active campaigns for discount calculation
+    // Note: This query may fail if there's no FK relationship detected by PostgREST
+    // We handle this gracefully by defaulting to empty campaigns
     const now = new Date().toISOString();
-    const { data: campaigns, error: cError } = await supabase
-      .from('store_campaigns')
-      .select(`
-        id,
-        store_campaign_items(product_id, discount_type, discount_value)
-      `)
-      .eq('tenant_id', clinic)
-      .eq('is_active', true)
-      .lte('start_date', now)
-      .gte('end_date', now);
+    let campaigns: Campaign[] | null = null;
 
-    if (cError) throw cError;
+    try {
+      const { data: campaignData, error: cError } = await supabase
+        .from('store_campaigns')
+        .select(`
+          id,
+          store_campaign_items(product_id, discount_type, discount_value)
+        `)
+        .eq('tenant_id', clinic)
+        .eq('is_active', true)
+        .lte('start_date', now)
+        .gte('end_date', now);
+
+      if (!cError) {
+        campaigns = campaignData as Campaign[] | null;
+      }
+    } catch {
+      // Campaign query failed - continue without discounts
+      console.warn('Could not load campaigns for discount calculation');
+    }
 
     // Build discount map
     const discountMap = new Map<string, { type: 'percentage' | 'fixed_amount'; value: number }>();
@@ -304,40 +293,43 @@ export async function GET(request: NextRequest): Promise<NextResponse<ProductLis
         }
       }
 
+      // Map database fields to API response structure
+      // Note: Many fields don't exist in current schema - providing sensible defaults
       return {
         id: p.id,
         tenant_id: clinic,
         category_id: p.category_id,
-        subcategory_id: p.subcategory_id,
+        subcategory_id: null, // Doesn't exist in schema
         brand_id: p.brand_id,
         sku: p.sku,
         barcode: p.barcode,
         name: p.name,
         short_description: p.short_description,
         description: p.description,
-        image_url: p.image_url || (p.store_product_images?.find(img => img.is_primary)?.image_url) || (p.store_product_images?.[0]?.image_url) || null,
+        // Use image_url or first from images array
+        image_url: p.image_url || (p.images && p.images.length > 0 ? p.images[0] : null),
         base_price: p.base_price,
-        specifications: p.specifications || {},
-        features: p.features || [],
-        ingredients: p.ingredients,
-        nutritional_info: p.nutritional_info || {},
-        species: (p.species || []) as StoreProductWithDetails['species'],
-        life_stages: (p.life_stages || []) as StoreProductWithDetails['life_stages'],
-        breed_sizes: (p.breed_sizes || []) as StoreProductWithDetails['breed_sizes'],
-        health_conditions: (p.health_conditions || []) as StoreProductWithDetails['health_conditions'],
+        specifications: p.attributes || {},
+        features: [],
+        ingredients: null,
+        nutritional_info: {},
+        species: (p.target_species || []) as StoreProductWithDetails['species'],
+        life_stages: [] as StoreProductWithDetails['life_stages'],
+        breed_sizes: [] as StoreProductWithDetails['breed_sizes'],
+        health_conditions: [] as StoreProductWithDetails['health_conditions'],
         weight_grams: p.weight_grams,
         dimensions: p.dimensions,
-        is_prescription_required: p.is_prescription_required,
+        is_prescription_required: p.requires_prescription,
         is_featured: p.is_featured,
-        is_new_arrival: p.is_new_arrival,
-        is_best_seller: p.is_best_seller,
-        avg_rating: p.avg_rating || 0,
-        review_count: p.review_count || 0,
-        sales_count: p.sales_count || 0,
-        view_count: p.view_count || 0,
-        meta_title: p.meta_title,
-        meta_description: p.meta_description,
-        sort_order: p.sort_order,
+        is_new_arrival: false, // Doesn't exist in schema
+        is_best_seller: false, // Doesn't exist in schema
+        avg_rating: 0, // Doesn't exist in schema
+        review_count: 0, // Doesn't exist in schema
+        sales_count: 0, // Doesn't exist in schema
+        view_count: 0, // Doesn't exist in schema
+        meta_title: null,
+        meta_description: null,
+        sort_order: p.display_order,
         is_active: p.is_active,
         created_at: p.created_at,
         updated_at: p.updated_at,
@@ -355,19 +347,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<ProductLis
           created_at: '',
           updated_at: '',
         } : null,
-        subcategory: p.store_subcategories ? {
-          id: p.store_subcategories.id,
-          tenant_id: clinic,
-          category_id: p.category_id || '',
-          name: p.store_subcategories.name,
-          slug: p.store_subcategories.slug,
-          description: null,
-          icon: null,
-          sort_order: 0,
-          is_active: true,
-          created_at: '',
-          updated_at: '',
-        } : null,
+        subcategory: null, // Doesn't exist in schema - categories use parent_id hierarchy
         brand: p.store_brands ? {
           id: p.store_brands.id,
           tenant_id: clinic,
@@ -386,31 +366,18 @@ export async function GET(request: NextRequest): Promise<NextResponse<ProductLis
           stock_quantity: p.store_inventory.stock_quantity || 0,
           min_stock_level: p.store_inventory.min_stock_level,
         } : { stock_quantity: 0, min_stock_level: null },
-        images: (p.store_product_images || []).sort((a, b) => a.sort_order - b.sort_order).map(img => ({
-          id: img.id,
+        // Convert images array strings to image objects
+        images: (p.images || []).map((url, index) => ({
+          id: `${p.id}-img-${index}`,
           product_id: p.id,
           tenant_id: clinic,
-          image_url: img.image_url,
-          alt_text: img.alt_text,
-          sort_order: img.sort_order,
-          is_primary: img.is_primary,
+          image_url: url,
+          alt_text: p.name,
+          sort_order: index,
+          is_primary: index === 0,
           created_at: '',
         })),
-        variants: (p.store_product_variants || []).sort((a, b) => a.sort_order - b.sort_order).map(v => ({
-          id: v.id,
-          product_id: p.id,
-          tenant_id: clinic,
-          sku: v.sku,
-          name: v.name,
-          variant_type: v.variant_type as StoreProductWithDetails['variants'][0]['variant_type'],
-          price_modifier: v.price_modifier,
-          stock_quantity: v.stock_quantity,
-          sort_order: v.sort_order,
-          is_default: v.is_default,
-          is_active: true,
-          created_at: '',
-          updated_at: '',
-        })),
+        variants: [], // Variants table doesn't exist in current schema
         current_price: currentPrice,
         original_price: originalPrice,
         has_discount: !!discount,
@@ -467,21 +434,19 @@ async function getAvailableFilters(
   tenantId: string,
   currentFilters: ProductFilters
 ): Promise<AvailableFilters> {
-  // Get categories with product counts
+  // Get categories with parent info for tree building (column is display_order not sort_order)
   const { data: categories } = await supabase
     .from('store_categories')
-    .select('id, name, slug')
+    .select('id, name, slug, parent_id')
     .eq('tenant_id', tenantId)
     .eq('is_active', true)
-    .order('sort_order');
+    .order('display_order');
 
-  // Get subcategories
-  const { data: subcategories } = await supabase
-    .from('store_subcategories')
-    .select('id, name, slug')
-    .eq('tenant_id', tenantId)
-    .eq('is_active', true)
-    .order('sort_order');
+  // Build a map of id -> slug for parent lookup
+  const categoryIdToSlug = new Map<string, string>();
+  (categories || []).forEach(c => categoryIdToSlug.set(c.id, c.slug));
+
+  // Note: store_subcategories table doesn't exist - categories use parent_id hierarchy
 
   // Get brands
   const { data: brands } = await supabase
@@ -504,8 +469,14 @@ async function getAvailableFilters(
   const maxPrice = prices.length > 0 ? Math.max(...prices) : 0;
 
   return {
-    categories: (categories || []).map(c => ({ id: c.id, name: c.name, slug: c.slug, count: 0 })),
-    subcategories: (subcategories || []).map(s => ({ id: s.id, name: s.name, slug: s.slug, count: 0 })),
+    categories: (categories || []).map(c => ({
+      id: c.id,
+      name: c.name,
+      slug: c.slug,
+      parent_slug: c.parent_id ? categoryIdToSlug.get(c.parent_id) : undefined,
+      count: 0
+    })),
+    subcategories: [], // Subcategories table doesn't exist - use parent_id hierarchy on categories
     brands: (brands || []).map(b => ({ id: b.id, name: b.name, slug: b.slug, count: 0 })),
     species: [
       { value: 'perro' as const, label: 'Perro', count: 0 },

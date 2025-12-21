@@ -104,7 +104,7 @@ export function GlobalSearch({ clinic }: GlobalSearchProps): React.ReactElement 
           setResults(data.results || []);
         } else {
           // Mock results for demo
-          setResults([
+          const mockResults: SearchResult[] = [
             {
               id: "1",
               type: "client",
@@ -127,7 +127,8 @@ export function GlobalSearch({ clinic }: GlobalSearchProps): React.ReactElement 
               href: `/${clinic}/dashboard/appointments/3`,
               meta: "Pendiente",
             },
-          ].filter(
+          ];
+          setResults(mockResults.filter(
             (r) =>
               r.title.toLowerCase().includes(query.toLowerCase()) ||
               r.subtitle.toLowerCase().includes(query.toLowerCase())

@@ -103,7 +103,7 @@ export default function ClaimForm({ petId, invoiceId, onSuccess }: ClaimFormProp
       `)
       .eq('pet_id', petId)
       .eq('status', 'active');
-    if (data) setPolicies(data);
+    if (data) setPolicies(data as unknown as Policy[]);
   };
 
   const loadInvoices = async (petId: string) => {

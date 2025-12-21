@@ -1,0 +1,143 @@
+{
+  "$schema": "../../../schemas/store.schema.json",
+  "brand_slug": "ganador",
+  "products": [
+    {
+      "sku": "GAN-DOG-ADULT",
+      "name": "Ganador Adultos Carne y Cereales",
+      "description": "Alimento económico para perros adultos",
+      "category_slug": "NUT-CAN-SEC",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "2kg",
+          "base_price": 32000,
+          "cost_price": 19200,
+          "sku_suffix": "-2KG"
+        },
+        {
+          "size": "8kg",
+          "base_price": 105000,
+          "cost_price": 63000,
+          "sku_suffix": "-8KG"
+        },
+        {
+          "size": "22kg",
+          "base_price": 245000,
+          "cost_price": 147000,
+          "sku_suffix": "-22KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop-adult.png",
+      "attributes": {
+        "age_range": "1+ años",
+        "flavor": "Carne y Cereales",
+        "economy_line": true
+      }
+    },
+    {
+      "sku": "GAN-DOG-PUPPY",
+      "name": "Ganador Cachorros",
+      "description": "Alimento económico para cachorros",
+      "category_slug": "NUT-CAN-SEC",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "2kg",
+          "base_price": 35000,
+          "cost_price": 21000,
+          "sku_suffix": "-2KG"
+        },
+        {
+          "size": "8kg",
+          "base_price": 115000,
+          "cost_price": 69000,
+          "sku_suffix": "-8KG"
+        },
+        {
+          "size": "22kg",
+          "base_price": 269000,
+          "cost_price": 161400,
+          "sku_suffix": "-22KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop-puppy.png",
+      "attributes": {
+        "age_range": "Hasta 1 año",
+        "lifestage": "Puppy",
+        "economy_line": true
+      }
+    },
+    {
+      "sku": "GAN-DOG-PREMIUM",
+      "name": "Ganador Premium Adultos",
+      "description": "Alimento premium para perros adultos",
+      "category_slug": "NUT-CAN-SEC",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "3kg",
+          "base_price": 65000,
+          "cost_price": 39000,
+          "sku_suffix": "-3KG"
+        },
+        {
+          "size": "8kg",
+          "base_price": 145000,
+          "cost_price": 87000,
+          "sku_suffix": "-8KG"
+        },
+        {
+          "size": "20kg",
+          "base_price": 315000,
+          "cost_price": 189000,
+          "sku_suffix": "-20KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop-premium.png",
+      "attributes": {
+        "age_range": "1+ años"
+      }
+    },
+    {
+      "sku": "GAN-CAT-ADULT",
+      "name": "Ganador Gatos Adultos",
+      "description": "Alimento económico para gatos adultos",
+      "category_slug": "NUT-CAN-SEC",
+      "target_species": [
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "1kg",
+          "base_price": 22000,
+          "cost_price": 13200,
+          "sku_suffix": "-1KG"
+        },
+        {
+          "size": "3kg",
+          "base_price": 58000,
+          "cost_price": 34800,
+          "sku_suffix": "-3KG"
+        },
+        {
+          "size": "8kg",
+          "base_price": 135000,
+          "cost_price": 81000,
+          "sku_suffix": "-8KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop-cat-adult.png",
+      "attributes": {
+        "age_range": "1+ años",
+        "economy_line": true
+      }
+    }
+  ]
+}

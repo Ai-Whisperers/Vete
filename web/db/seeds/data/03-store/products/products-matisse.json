@@ -1,0 +1,158 @@
+{
+  "$schema": "../../../schemas/store.schema.json",
+  "brand_slug": "matisse",
+  "products": [
+    {
+      "sku": "MAT-CAT-ADULT-POLLO",
+      "name": "Matisse Adultos Pollo y Arroz",
+      "description": "Alimento premium italiano para gatos adultos",
+      "category_slug": "NUT-FEL-SEC",
+      "target_species": [
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "800g",
+          "base_price": 65000,
+          "cost_price": 39000,
+          "sku_suffix": "-800G"
+        },
+        {
+          "size": "2kg",
+          "base_price": 111800,
+          "cost_price": 67080,
+          "sku_suffix": "-2KG"
+        },
+        {
+          "size": "10kg",
+          "base_price": 485000,
+          "cost_price": 291000,
+          "sku_suffix": "-10KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1574158622682-e40e69881006?w=400&h=400&fit=crop-adult-pollo.png",
+      "attributes": {
+        "age_range": "1+ años",
+        "flavor": "Pollo y Arroz"
+      }
+    },
+    {
+      "sku": "MAT-CAT-ADULT-SALMON",
+      "name": "Matisse Adultos Salmón y Arroz",
+      "description": "Alimento premium italiano con salmón para gatos adultos",
+      "category_slug": "NUT-FEL-SEC",
+      "target_species": [
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "800g",
+          "base_price": 85000,
+          "cost_price": 51000,
+          "sku_suffix": "-800G"
+        },
+        {
+          "size": "2kg",
+          "base_price": 167200,
+          "cost_price": 100320,
+          "sku_suffix": "-2KG"
+        },
+        {
+          "size": "10kg",
+          "base_price": 725000,
+          "cost_price": 435000,
+          "sku_suffix": "-10KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1574158622682-e40e69881006?w=400&h=400&fit=crop-adult-salmon.png",
+      "attributes": {
+        "age_range": "1+ años",
+        "flavor": "Salmón y Arroz"
+      }
+    },
+    {
+      "sku": "MAT-CAT-KITTEN",
+      "name": "Matisse Gatitos",
+      "description": "Alimento premium italiano para gatitos",
+      "category_slug": "NUT-FEL-SEC",
+      "target_species": [
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "800g",
+          "base_price": 89000,
+          "cost_price": 53400,
+          "sku_suffix": "-800G"
+        },
+        {
+          "size": "2kg",
+          "base_price": 169100,
+          "cost_price": 101460,
+          "sku_suffix": "-2KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1574158622682-e40e69881006?w=400&h=400&fit=crop-kitten.png",
+      "attributes": {
+        "age_range": "Hasta 1 año",
+        "lifestage": "Kitten"
+      }
+    },
+    {
+      "sku": "MAT-CAT-CASTRADO",
+      "name": "Matisse Castrados Salmón y Arroz",
+      "description": "Alimento premium para gatos esterilizados",
+      "category_slug": "NUT-FEL-SEC",
+      "target_species": [
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "800g",
+          "base_price": 85000,
+          "cost_price": 51000,
+          "sku_suffix": "-800G"
+        },
+        {
+          "size": "2kg",
+          "base_price": 167200,
+          "cost_price": 100320,
+          "sku_suffix": "-2KG"
+        },
+        {
+          "size": "10kg",
+          "base_price": 725000,
+          "cost_price": 435000,
+          "sku_suffix": "-10KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1574158622682-e40e69881006?w=400&h=400&fit=crop-castrados.png",
+      "attributes": {
+        "special_need": "Esterilizado",
+        "flavor": "Salmón y Arroz"
+      }
+    },
+    {
+      "sku": "MAT-CAT-HAIRBALL",
+      "name": "Matisse Hairball",
+      "description": "Alimento para control de bolas de pelo",
+      "category_slug": "FAR-SUP-DIG",
+      "target_species": [
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "2kg",
+          "base_price": 169000,
+          "cost_price": 101400,
+          "sku_suffix": "-2KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1574158622682-e40e69881006?w=400&h=400&fit=crop-hairball.png",
+      "attributes": {
+        "special_need": "Control bolas de pelo",
+        "fiber_content": "Alto"
+      }
+    }
+  ]
+}

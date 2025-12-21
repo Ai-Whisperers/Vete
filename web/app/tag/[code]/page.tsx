@@ -77,13 +77,6 @@ export default async function TagPage({ params }: { params: Promise<{ code: stri
         .select('id, name, species, photo_url')
         .eq('owner_id', user.id);
 
-      // Simple Action Wrapper
-      async function handleAssign(formData: FormData) {
-        "use server";
-        const petId = formData.get("petId") as string;
-        await assignTag(code, petId);
-      }
-
       return (
           <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
                <div className="bg-white p-8 rounded-3xl shadow-xl max-w-md w-full space-y-6">
@@ -105,7 +98,8 @@ export default async function TagPage({ params }: { params: Promise<{ code: stri
                             </Link>
                         </div>
                     ) : (
-                        <form action={handleAssign} className="space-y-4">
+                        <form action={assignTag} className="space-y-4">
+                            <input type="hidden" name="tagCode" value={code} />
                             <label className="block text-sm font-bold text-gray-400 uppercase tracking-wider">
                                 Selecciona tu Mascota
                             </label>

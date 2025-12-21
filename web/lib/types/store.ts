@@ -509,7 +509,7 @@ export interface ProductListResponse {
 }
 
 export interface AvailableFilters {
-  categories: { id: string; name: string; slug: string; count: number }[];
+  categories: { id: string; name: string; slug: string; parent_slug?: string; count: number }[];
   subcategories: { id: string; name: string; slug: string; count: number }[];
   brands: { id: string; name: string; slug: string; count: number }[];
   species: { value: Species; label: string; count: number }[];

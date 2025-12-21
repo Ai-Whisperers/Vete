@@ -5,6 +5,18 @@ import { PrescriptionPDF } from './prescription-pdf';
 import * as Icons from 'lucide-react';
 
 // TICKET-TYPE-003: Define proper types for prescription data
+// Support both detailed format (dosage, frequency, duration) and simple format (dose, instructions)
+interface DrugEntry {
+    name: string;
+    // Detailed format
+    dosage?: string;
+    frequency?: string;
+    duration?: string;
+    // Simple format
+    dose?: string;
+    instructions?: string;
+}
+
 interface PrescriptionData {
     petName: string;
     species?: string;
@@ -16,13 +28,7 @@ interface PrescriptionData {
     vetName: string;
     vetLicense?: string;
     date: string;
-    drugs: Array<{
-        name: string;
-        dosage: string;
-        frequency: string;
-        duration: string;
-        instructions?: string;
-    }>;
+    drugs: DrugEntry[];
     notes?: string;
 }
 
@@ -32,8 +38,27 @@ interface PrescriptionDownloadButtonProps {
 }
 
 export default function PrescriptionDownloadButton({ data, fileName }: PrescriptionDownloadButtonProps) {
+    // Map petName to patientName for PDF component compatibility
+    // Handle both detailed format (dosage, frequency, duration) and simple format (dose, instructions)
+    const pdfData = {
+        clinicName: data.clinicName || 'Clínica Veterinaria',
+        clinicAddress: data.clinicAddress,
+        patientName: data.petName,
+        ownerName: data.ownerName,
+        date: data.date,
+        vetName: data.vetName,
+        drugs: data.drugs.map(drug => ({
+            name: drug.name,
+            // Support both formats: detailed (dosage) or simple (dose)
+            dose: drug.dosage || drug.dose || '',
+            // Support both formats: detailed (frequency + duration) or simple (instructions)
+            instructions: drug.instructions || (drug.frequency && drug.duration ? `${drug.frequency} por ${drug.duration}` : '')
+        })),
+        notes: data.notes
+    };
+
     return (
-        <PDFDownloadLink document={<PrescriptionPDF {...data} />} fileName={fileName}>
+        <PDFDownloadLink document={<PrescriptionPDF {...pdfData} />} fileName={fileName}>
             {({ blob, url, loading, error }) => (
                 <button 
                     disabled={loading}

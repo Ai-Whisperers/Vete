@@ -1,0 +1,176 @@
+{
+  "$schema": "../../_schemas/clinic.schema.json",
+  "_comment": "Global message templates (tenant_id = null). Clinics can override with their own.",
+  "message_templates": [
+    {
+      "code": "APPT_CONFIRM",
+      "name": "Confirmación de Cita",
+      "category": "appointment",
+      "subject": "Cita Confirmada - {{clinic_name}}",
+      "content": "Hola {{owner_name}}, tu cita para {{pet_name}} ha sido confirmada para el {{date}} a las {{time}}. ¡Te esperamos!",
+      "channels": ["email", "whatsapp"],
+      "variables": ["owner_name", "pet_name", "clinic_name", "date", "time"],
+      "is_active": true
+    },
+    {
+      "code": "APPT_REMINDER_24H",
+      "name": "Recordatorio de Cita (24h)",
+      "category": "reminder",
+      "subject": "Recordatorio: Cita mañana - {{clinic_name}}",
+      "content": "Hola {{owner_name}}, te recordamos que tienes cita con {{pet_name}} mañana {{date}} a las {{time}}. Para cancelar o reprogramar, responde a este mensaje.",
+      "channels": ["email", "whatsapp", "sms"],
+      "variables": ["owner_name", "pet_name", "clinic_name", "date", "time"],
+      "is_active": true
+    },
+    {
+      "code": "APPT_REMINDER_2H",
+      "name": "Recordatorio de Cita (2h)",
+      "category": "reminder",
+      "subject": "Recordatorio: Tu cita es en 2 horas",
+      "content": "Hola {{owner_name}}, tu cita para {{pet_name}} es hoy a las {{time}}. ¡Te esperamos en {{clinic_name}}!",
+      "channels": ["whatsapp", "sms"],
+      "variables": ["owner_name", "pet_name", "clinic_name", "time"],
+      "is_active": true
+    },
+    {
+      "code": "APPT_CANCELLED",
+      "name": "Cita Cancelada",
+      "category": "appointment",
+      "subject": "Cita Cancelada - {{clinic_name}}",
+      "content": "Hola {{owner_name}}, tu cita para {{pet_name}} del {{date}} a las {{time}} ha sido cancelada. Para reagendar, visita {{booking_url}} o contáctanos.",
+      "channels": ["email", "whatsapp"],
+      "variables": ["owner_name", "pet_name", "date", "time", "booking_url"],
+      "is_active": true
+    },
+    {
+      "code": "APPT_RESCHEDULED",
+      "name": "Cita Reprogramada",
+      "category": "appointment",
+      "subject": "Cita Reprogramada - {{clinic_name}}",
+      "content": "Hola {{owner_name}}, tu cita para {{pet_name}} ha sido reprogramada para el {{new_date}} a las {{new_time}}.",
+      "channels": ["email", "whatsapp"],
+      "variables": ["owner_name", "pet_name", "new_date", "new_time"],
+      "is_active": true
+    },
+    {
+      "code": "VACCINE_DUE_7D",
+      "name": "Vacuna Próxima (7 días)",
+      "category": "reminder",
+      "subject": "Vacuna pendiente para {{pet_name}}",
+      "content": "Hola {{owner_name}}, la vacuna {{vaccine_name}} de {{pet_name}} vence el {{due_date}}. Agenda tu cita en {{booking_url}}",
+      "channels": ["email", "whatsapp"],
+      "variables": ["owner_name", "pet_name", "vaccine_name", "due_date", "booking_url"],
+      "is_active": true
+    },
+    {
+      "code": "VACCINE_OVERDUE",
+      "name": "Vacuna Vencida",
+      "category": "reminder",
+      "subject": "¡Atención! Vacuna vencida - {{pet_name}}",
+      "content": "Hola {{owner_name}}, la vacuna {{vaccine_name}} de {{pet_name}} está vencida desde el {{due_date}}. Es importante vacunar cuanto antes para mantener la protección.",
+      "channels": ["email", "whatsapp", "sms"],
+      "variables": ["owner_name", "pet_name", "vaccine_name", "due_date"],
+      "is_active": true
+    },
+    {
+      "code": "INVOICE_READY",
+      "name": "Factura Lista",
+      "category": "transactional",
+      "subject": "Tu factura #{{invoice_number}}",
+      "content": "Hola {{owner_name}}, tu factura #{{invoice_number}} por Gs. {{total}} está lista. Puedes verla en: {{invoice_url}}",
+      "channels": ["email"],
+      "variables": ["owner_name", "invoice_number", "total", "invoice_url"],
+      "is_active": true
+    },
+    {
+      "code": "PAYMENT_RECEIVED",
+      "name": "Pago Recibido",
+      "category": "transactional",
+      "subject": "Pago recibido - Gracias",
+      "content": "Hola {{owner_name}}, hemos recibido tu pago de Gs. {{amount}} para la factura #{{invoice_number}}. ¡Gracias!",
+      "channels": ["email", "whatsapp"],
+      "variables": ["owner_name", "amount", "invoice_number"],
+      "is_active": true
+    },
+    {
+      "code": "WELCOME",
+      "name": "Bienvenida",
+      "category": "transactional",
+      "subject": "¡Bienvenido a {{clinic_name}}!",
+      "content": "Hola {{owner_name}}, gracias por registrar a {{pet_name}} en {{clinic_name}}. Estamos aquí para cuidar de tu mascota. Visita tu portal en {{portal_url}} para ver citas, vacunas y más.",
+      "channels": ["email"],
+      "variables": ["owner_name", "pet_name", "clinic_name", "portal_url"],
+      "is_active": true
+    },
+    {
+      "code": "LAB_RESULTS",
+      "name": "Resultados de Laboratorio",
+      "category": "transactional",
+      "subject": "Resultados listos para {{pet_name}}",
+      "content": "Hola {{owner_name}}, los resultados de laboratorio de {{pet_name}} ya están disponibles. Puedes verlos en tu portal o consultar con nosotros.",
+      "channels": ["email", "whatsapp"],
+      "variables": ["owner_name", "pet_name"],
+      "is_active": true
+    },
+    {
+      "code": "HOSPITALIZATION_UPDATE",
+      "name": "Actualización de Internación",
+      "category": "transactional",
+      "subject": "Actualización de {{pet_name}} - Internación",
+      "content": "Hola {{owner_name}}, te informamos sobre el estado de {{pet_name}}: {{update_message}}. Para más información, contáctanos.",
+      "channels": ["email", "whatsapp"],
+      "variables": ["owner_name", "pet_name", "update_message"],
+      "is_active": true
+    },
+    {
+      "code": "HOSPITALIZATION_DISCHARGE",
+      "name": "Alta de Internación",
+      "category": "transactional",
+      "subject": "¡{{pet_name}} está listo/a para ir a casa!",
+      "content": "Hola {{owner_name}}, {{pet_name}} está listo/a para ser dado/a de alta. Por favor, pasa por la clínica hoy entre {{start_time}} y {{end_time}} para el retiro.",
+      "channels": ["email", "whatsapp", "sms"],
+      "variables": ["owner_name", "pet_name", "start_time", "end_time"],
+      "is_active": true
+    },
+    {
+      "code": "PRESCRIPTION_READY",
+      "name": "Receta Lista",
+      "category": "transactional",
+      "subject": "Receta de {{pet_name}} disponible",
+      "content": "Hola {{owner_name}}, la receta de {{pet_name}} está lista. Puedes descargarla desde tu portal o recogerla en la clínica.",
+      "channels": ["email", "whatsapp"],
+      "variables": ["owner_name", "pet_name"],
+      "is_active": true
+    },
+    {
+      "code": "BIRTHDAY",
+      "name": "Feliz Cumpleaños",
+      "category": "marketing",
+      "subject": "¡Feliz Cumpleaños {{pet_name}}! 🎂",
+      "content": "¡Hola {{owner_name}}! Hoy {{pet_name}} cumple {{age}} años. 🎉 ¡Le deseamos un muy feliz cumpleaños! Pasa por la clínica para un regalo especial.",
+      "channels": ["email", "whatsapp"],
+      "variables": ["owner_name", "pet_name", "age"],
+      "is_active": true
+    },
+    {
+      "code": "FOLLOWUP_POST_VISIT",
+      "name": "Seguimiento Post-Visita",
+      "category": "transactional",
+      "subject": "¿Cómo sigue {{pet_name}}?",
+      "content": "Hola {{owner_name}}, esperamos que {{pet_name}} esté mejorando después de su visita del {{visit_date}}. Si tienes alguna duda o notas algún cambio, no dudes en contactarnos.",
+      "channels": ["email", "whatsapp"],
+      "variables": ["owner_name", "pet_name", "visit_date"],
+      "is_active": true
+    },
+    {
+      "code": "STOCK_ALERT_CLIENT",
+      "name": "Producto Disponible",
+      "category": "transactional",
+      "subject": "{{product_name}} ya está disponible",
+      "content": "Hola {{owner_name}}, el producto {{product_name}} que solicitaste ya está disponible en nuestra tienda. ¡No te quedes sin el tuyo!",
+      "channels": ["email", "whatsapp"],
+      "variables": ["owner_name", "product_name"],
+      "is_active": true
+    }
+  ]
+}

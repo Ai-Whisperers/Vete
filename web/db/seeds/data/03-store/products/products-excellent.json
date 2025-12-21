@@ -1,0 +1,237 @@
+{
+  "$schema": "../../../schemas/store.schema.json",
+  "brand_slug": "excellent",
+  "products": [
+    {
+      "sku": "EXC-DOG-ADULT-SMALL",
+      "name": "Excellent Adultos Razas Pequeñas",
+      "description": "Alimento premium para perros adultos de razas pequeñas",
+      "category_slug": "NUT-CAN-SEC",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "1kg",
+          "base_price": 35000,
+          "cost_price": 21000,
+          "sku_suffix": "-1KG"
+        },
+        {
+          "size": "3kg",
+          "base_price": 89000,
+          "cost_price": 53400,
+          "sku_suffix": "-3KG"
+        },
+        {
+          "size": "7.5kg",
+          "base_price": 185000,
+          "cost_price": 111000,
+          "sku_suffix": "-7.5KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop-adult-small.png",
+      "attributes": {
+        "age_range": "1+ años",
+        "breed_size": "Pequeño"
+      }
+    },
+    {
+      "sku": "EXC-DOG-ADULT-MED-LG",
+      "name": "Excellent Adultos Medianos y Grandes",
+      "description": "Alimento premium para perros adultos de razas medianas y grandes",
+      "category_slug": "NUT-CAN-SEC",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "3kg",
+          "base_price": 85000,
+          "cost_price": 51000,
+          "sku_suffix": "-3KG"
+        },
+        {
+          "size": "7.5kg",
+          "base_price": 175000,
+          "cost_price": 105000,
+          "sku_suffix": "-7.5KG"
+        },
+        {
+          "size": "15kg",
+          "base_price": 315000,
+          "cost_price": 189000,
+          "sku_suffix": "-15KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop-adult-med-lg.png",
+      "attributes": {
+        "age_range": "1+ años",
+        "breed_size": "Mediano y Grande"
+      }
+    },
+    {
+      "sku": "EXC-DOG-PUPPY-SMALL",
+      "name": "Excellent Cachorros Razas Pequeñas",
+      "description": "Alimento premium para cachorros de razas pequeñas",
+      "category_slug": "NUT-CAN-SEC",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "1kg",
+          "base_price": 38000,
+          "cost_price": 22800,
+          "sku_suffix": "-1KG"
+        },
+        {
+          "size": "3kg",
+          "base_price": 95000,
+          "cost_price": 57000,
+          "sku_suffix": "-3KG"
+        },
+        {
+          "size": "7.5kg",
+          "base_price": 199000,
+          "cost_price": 119400,
+          "sku_suffix": "-7.5KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop-puppy-small.png",
+      "attributes": {
+        "age_range": "Hasta 12 meses",
+        "breed_size": "Pequeño"
+      }
+    },
+    {
+      "sku": "EXC-DOG-PUPPY-MED-LG",
+      "name": "Excellent Cachorros Medianos y Grandes",
+      "description": "Alimento premium para cachorros de razas medianas y grandes",
+      "category_slug": "NUT-CAN-SEC",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "3kg",
+          "base_price": 92000,
+          "cost_price": 55200,
+          "sku_suffix": "-3KG"
+        },
+        {
+          "size": "7.5kg",
+          "base_price": 189000,
+          "cost_price": 113400,
+          "sku_suffix": "-7.5KG"
+        },
+        {
+          "size": "15kg",
+          "base_price": 335000,
+          "cost_price": 201000,
+          "sku_suffix": "-15KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop-puppy-med-lg.png",
+      "attributes": {
+        "age_range": "Hasta 18 meses",
+        "breed_size": "Mediano y Grande"
+      }
+    },
+    {
+      "sku": "EXC-CAT-ADULT",
+      "name": "Excellent Gatos Adultos",
+      "description": "Alimento premium para gatos adultos",
+      "category_slug": "NUT-FEL-SEC",
+      "target_species": [
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "1kg",
+          "base_price": 42000,
+          "cost_price": 25200,
+          "sku_suffix": "-1KG"
+        },
+        {
+          "size": "3kg",
+          "base_price": 105000,
+          "cost_price": 63000,
+          "sku_suffix": "-3KG"
+        },
+        {
+          "size": "7.5kg",
+          "base_price": 215000,
+          "cost_price": 129000,
+          "sku_suffix": "-7.5KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop-cat-adult.png",
+      "attributes": {
+        "age_range": "1+ años"
+      }
+    },
+    {
+      "sku": "EXC-CAT-KITTEN",
+      "name": "Excellent Gatitos",
+      "description": "Alimento premium para gatitos en crecimiento",
+      "category_slug": "NUT-FEL-SEC",
+      "target_species": [
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "1kg",
+          "base_price": 45000,
+          "cost_price": 27000,
+          "sku_suffix": "-1KG"
+        },
+        {
+          "size": "3kg",
+          "base_price": 112000,
+          "cost_price": 67200,
+          "sku_suffix": "-3KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop-cat-kitten.png",
+      "attributes": {
+        "age_range": "Hasta 1 año",
+        "lifestage": "Kitten"
+      }
+    },
+    {
+      "sku": "EXC-CAT-CASTRADO",
+      "name": "Excellent Gatos Castrados",
+      "description": "Alimento premium para gatos esterilizados",
+      "category_slug": "NUT-FEL-SEC",
+      "target_species": [
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "1kg",
+          "base_price": 44000,
+          "cost_price": 26400,
+          "sku_suffix": "-1KG"
+        },
+        {
+          "size": "3kg",
+          "base_price": 109000,
+          "cost_price": 65400,
+          "sku_suffix": "-3KG"
+        },
+        {
+          "size": "7.5kg",
+          "base_price": 225000,
+          "cost_price": 135000,
+          "sku_suffix": "-7.5KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop-cat-castrado.png",
+      "attributes": {
+        "special_need": "Esterilizado",
+        "weight_control": true
+      }
+    }
+  ]
+}

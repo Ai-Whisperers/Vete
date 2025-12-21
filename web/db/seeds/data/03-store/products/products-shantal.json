@@ -1,0 +1,498 @@
+{
+  "$schema": "../../../schemas/store.schema.json",
+  "brand_slug": "shantal",
+  "products": [
+    {
+      "sku": "SHANTAL-CAMILLA-ESTANDAR",
+      "name": "Camilla Estándar",
+      "description": "Camilla de examen y procedimientos estándar",
+      "category_slug": "CLI-EQU-MOB",
+      "target_species": [
+        "dog",
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "Standard",
+          "base_price": 450000,
+          "cost_price": 270000,
+          "sku_suffix": "-STD"
+        },
+        {
+          "size": "Con altura ajustable",
+          "base_price": 580000,
+          "cost_price": 348000,
+          "sku_suffix": "-AJU"
+        }
+      ],
+      "image_url": "https://shantalparaguay.com.py/images/camilla.jpg",
+      "attributes": {
+        "manufactured_by": "Shantal"
+      }
+    },
+    {
+      "sku": "SHANTAL-CENTRIFUGA-LAB",
+      "name": "Centrífuga de Laboratorio",
+      "description": "Centrífuga para análisis de laboratorio clínico",
+      "category_slug": "CLI-EQU-LAB",
+      "target_species": [
+        "dog",
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "6 tubos",
+          "base_price": 1200000,
+          "cost_price": 720000,
+          "sku_suffix": "-6T"
+        },
+        {
+          "size": "12 tubos",
+          "base_price": 1800000,
+          "cost_price": 1080000,
+          "sku_suffix": "-12T"
+        },
+        {
+          "size": "24 tubos",
+          "base_price": 2500000,
+          "cost_price": 1500000,
+          "sku_suffix": "-24T"
+        }
+      ],
+      "image_url": "https://shantalparaguay.com.py/images/centrifuga.jpg",
+      "attributes": {
+        "max_rpm": 4000,
+        "timer": true,
+        "digital_display": true
+      }
+    },
+    {
+      "sku": "SHANTAL-CORAZON-CLASICO",
+      "name": "Corazón Clásico",
+      "description": "Equipo de monitoreo cardíaco clásico",
+      "category_slug": "CLI-EQU-DIA",
+      "target_species": [
+        "dog",
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "Standard",
+          "base_price": 850000,
+          "cost_price": 510000,
+          "sku_suffix": "-STD"
+        },
+        {
+          "size": "Con impresora",
+          "base_price": 1200000,
+          "cost_price": 720000,
+          "sku_suffix": "-IMP"
+        }
+      ],
+      "image_url": "https://shantalparaguay.com.py/images/corazon-clasico.jpg",
+      "attributes": {
+        "ecg_channels": 3,
+        "display_type": "LCD"
+      }
+    },
+    {
+      "sku": "SHANTAL-MICROPIPETA-10UL",
+      "name": "Micropipeta 10μL",
+      "description": "Micropipeta de precisión para laboratorio",
+      "category_slug": "CLI-EQU-LAB",
+      "target_species": [
+        "dog",
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "0.5-10μL",
+          "base_price": 350000,
+          "cost_price": 210000,
+          "sku_suffix": "-10UL"
+        },
+        {
+          "size": "10-100μL",
+          "base_price": 380000,
+          "cost_price": 228000,
+          "sku_suffix": "-100UL"
+        },
+        {
+          "size": "100-1000μL",
+          "base_price": 420000,
+          "cost_price": 252000,
+          "sku_suffix": "-1000UL"
+        }
+      ],
+      "image_url": "https://shantalparaguay.com.py/images/micropipeta.jpg",
+      "attributes": {
+        "precision": "±0.5%",
+        "calibrated": true
+      }
+    },
+    {
+      "sku": "SHANTAL-MICROPIPETA-100UL",
+      "name": "Micropipeta 100μL",
+      "description": "Micropipeta de rango medio para laboratorio",
+      "category_slug": "CLI-EQU-LAB",
+      "target_species": [
+        "dog",
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "10-100μL",
+          "base_price": 380000,
+          "cost_price": 228000,
+          "sku_suffix": "-100UL"
+        }
+      ],
+      "image_url": "https://shantalparaguay.com.py/images/micropipeta-100ul.jpg",
+      "attributes": {
+        "precision": "±0.5%",
+        "calibrated": true
+      }
+    },
+    {
+      "sku": "SHANTAL-MICROPIPETA-1000UL",
+      "name": "Micropipeta 1000μL",
+      "description": "Micropipeta de alto volumen para laboratorio",
+      "category_slug": "CLI-EQU-LAB",
+      "target_species": [
+        "dog",
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "100-1000μL",
+          "base_price": 420000,
+          "cost_price": 252000,
+          "sku_suffix": "-1000UL"
+        }
+      ],
+      "image_url": "https://shantalparaguay.com.py/images/micropipeta-1000ul.jpg",
+      "attributes": {
+        "precision": "±0.5%",
+        "calibrated": true
+      }
+    },
+    {
+      "sku": "SHANTAL-SOLUCIONES-REACTIVOS",
+      "name": "Soluciones y Reactivos",
+      "description": "Reactivos y soluciones para análisis de laboratorio",
+      "category_slug": "CLI-INS-LAB",
+      "target_species": [
+        "dog",
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "Kit básico",
+          "base_price": 250000,
+          "cost_price": 150000,
+          "sku_suffix": "-BAS"
+        },
+        {
+          "size": "Kit completo",
+          "base_price": 580000,
+          "cost_price": 348000,
+          "sku_suffix": "-COMP"
+        }
+      ],
+      "image_url": "https://shantalparaguay.com.py/images/reactivos.jpg",
+      "attributes": {
+        "includes": [
+          "Reactivos bioquímicos",
+          "Soluciones buffer",
+          "Colorantes"
+        ]
+      }
+    },
+    {
+      "sku": "SHANTAL-EQUIPOS-LABORATORIO",
+      "name": "Equipos de Laboratorio",
+      "description": "Equipamiento completo para laboratorio clínico veterinario",
+      "category_slug": "CLI-EQU-LAB",
+      "target_species": [
+        "dog",
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "Kit básico",
+          "base_price": 2500000,
+          "cost_price": 1500000,
+          "sku_suffix": "-BAS"
+        },
+        {
+          "size": "Kit completo",
+          "base_price": 4500000,
+          "cost_price": 2700000,
+          "sku_suffix": "-COMP"
+        }
+      ],
+      "image_url": "https://shantalparaguay.com.py/images/equipos-lab.jpg",
+      "attributes": {
+        "includes": [
+          "Centrífuga",
+          "Micropipetas",
+          "Microscopio",
+          "Baño María"
+        ]
+      }
+    },
+    {
+      "sku": "SHANTAL-INSUMOS-LABORATORIO",
+      "name": "Insumos de Laboratorio",
+      "description": "Insumos y consumibles para laboratorio",
+      "category_slug": "CLI-INS-LAB",
+      "target_species": [
+        "dog",
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "Kit básico",
+          "base_price": 180000,
+          "cost_price": 108000,
+          "sku_suffix": "-BAS"
+        }
+      ],
+      "image_url": "https://shantalparaguay.com.py/images/insumos-lab.jpg",
+      "attributes": {
+        "includes": [
+          "Tubos de ensayo",
+          "Pipetas",
+          "Portaobjetos",
+          "Cubreobjetos"
+        ]
+      }
+    },
+    {
+      "sku": "SHANTAL-EQUIPOS-HOSPITAL",
+      "name": "Equipos Hospitalarios",
+      "description": "Equipamiento para hospitalización veterinaria",
+      "category_slug": "CLI-EQU-MOB",
+      "target_species": [
+        "dog",
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "Kit básico",
+          "base_price": 3500000,
+          "cost_price": 2100000,
+          "sku_suffix": "-BAS"
+        }
+      ],
+      "image_url": "https://shantalparaguay.com.py/images/equipos-hospital.jpg",
+      "attributes": {
+        "includes": [
+          "Camillas",
+          "Monitores",
+          "Equipos de suero"
+        ]
+      }
+    },
+    {
+      "sku": "SHANTAL-INSUMOS-HOSPITAL",
+      "name": "Insumos Hospitalarios",
+      "description": "Insumos y consumibles para hospitalización",
+      "category_slug": "CLI-INS",
+      "target_species": [
+        "dog",
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "Kit básico",
+          "base_price": 220000,
+          "cost_price": 132000,
+          "sku_suffix": "-BAS"
+        }
+      ],
+      "image_url": "https://shantalparaguay.com.py/images/insumos-hospital.jpg",
+      "attributes": {
+        "includes": [
+          "Sueros",
+          "Jeringas",
+          "Agujas",
+          "Gasas"
+        ]
+      }
+    },
+    {
+      "sku": "SHANTAL-EQUIPOS-VETERINARIOS",
+      "name": "Equipos Veterinarios",
+      "description": "Equipamiento especializado para clínica veterinaria",
+      "category_slug": "CLI-EQU",
+      "target_species": [
+        "dog",
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "Kit básico",
+          "base_price": 2800000,
+          "cost_price": 1680000,
+          "sku_suffix": "-BAS"
+        }
+      ],
+      "image_url": "https://shantalparaguay.com.py/images/equipos-vet.jpg",
+      "attributes": {
+        "includes": [
+          "Mesa quirúrgica",
+          "Lámpara quirúrgica",
+          "Equipos de diagnóstico"
+        ]
+      }
+    },
+    {
+      "sku": "SHANTAL-INSUMOS-VETERINARIOS",
+      "name": "Insumos Veterinarios",
+      "description": "Insumos y consumibles para clínica veterinaria",
+      "category_slug": "CLI-INS",
+      "target_species": [
+        "dog",
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "Kit básico",
+          "base_price": 195000,
+          "cost_price": 117000,
+          "sku_suffix": "-BAS"
+        }
+      ],
+      "image_url": "https://shantalparaguay.com.py/images/insumos-vet.jpg",
+      "attributes": {
+        "includes": [
+          "Material quirúrgico",
+          "Suturas",
+          "Gasas",
+          "Algodón"
+        ]
+      }
+    },
+    {
+      "sku": "SHANTAL-REACTIVOS-BIOQUIMICOS",
+      "name": "Reactivos Bioquímicos",
+      "description": "Reactivos para análisis bioquímicos",
+      "category_slug": "CLI-INS-LAB",
+      "target_species": [
+        "dog",
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "Kit estándar",
+          "base_price": 320000,
+          "cost_price": 192000,
+          "sku_suffix": "-EST"
+        }
+      ],
+      "image_url": "https://shantalparaguay.com.py/images/reactivos-bioquimicos.jpg",
+      "attributes": {
+        "includes": [
+          "Glucosa",
+          "Urea",
+          "Creatinina",
+          "Proteínas totales"
+        ]
+      }
+    },
+    {
+      "sku": "SHANTAL-MICROSCOPIO-LAB",
+      "name": "Microscopio de Laboratorio",
+      "description": "Microscopio óptico para análisis clínico",
+      "category_slug": "CLI-EQU-LAB",
+      "target_species": [
+        "dog",
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "Monocular",
+          "base_price": 1800000,
+          "cost_price": 1080000,
+          "sku_suffix": "-MONO"
+        },
+        {
+          "size": "Binocular",
+          "base_price": 2500000,
+          "cost_price": 1500000,
+          "sku_suffix": "-BI"
+        },
+        {
+          "size": "Trinocular",
+          "base_price": 3500000,
+          "cost_price": 2100000,
+          "sku_suffix": "-TRI"
+        }
+      ],
+      "image_url": "https://shantalparaguay.com.py/images/microscopio.jpg",
+      "attributes": {
+        "magnification": "40x-1000x",
+        "illumination": "LED"
+      }
+    },
+    {
+      "sku": "SHANTAL-BANO-MARIA",
+      "name": "Baño María",
+      "description": "Baño María para incubación y calentamiento",
+      "category_slug": "CLI-EQU-LAB",
+      "target_species": [
+        "dog",
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "6 litros",
+          "base_price": 450000,
+          "cost_price": 270000,
+          "sku_suffix": "-6L"
+        },
+        {
+          "size": "12 litros",
+          "base_price": 680000,
+          "cost_price": 408000,
+          "sku_suffix": "-12L"
+        }
+      ],
+      "image_url": "https://shantalparaguay.com.py/images/bano-maria.jpg",
+      "attributes": {
+        "temperature_range": "RT-100°C",
+        "digital_control": true
+      }
+    },
+    {
+      "sku": "SHANTAL-ESTUFA-LAB",
+      "name": "Estufa de Laboratorio",
+      "description": "Estufa de incubación para cultivos",
+      "category_slug": "CLI-EQU-LAB",
+      "target_species": [
+        "dog",
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "Standard",
+          "base_price": 850000,
+          "cost_price": 510000,
+          "sku_suffix": "-STD"
+        },
+        {
+          "size": "Con CO2",
+          "base_price": 1800000,
+          "cost_price": 1080000,
+          "sku_suffix": "-CO2"
+        }
+      ],
+      "image_url": "https://shantalparaguay.com.py/images/estufa.jpg",
+      "attributes": {
+        "temperature_range": "RT-80°C",
+        "digital_control": true
+      }
+    }
+  ]
+}

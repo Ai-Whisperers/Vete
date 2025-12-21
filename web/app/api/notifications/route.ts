@@ -5,8 +5,15 @@ import { NextRequest, NextResponse } from "next/server";
  * GET /api/notifications
  * Fetch in-app notifications for the authenticated user
  * Query params:
- *   - status: filter by status (optional, e.g., 'read', 'queued')
+ *   - status: filter by status (optional, e.g., 'read', 'unread')
  * Returns latest 50 notifications with unread count
+ *
+ * Schema: notifications table
+ * - user_id: UUID (auth user ID)
+ * - type: notification type
+ * - title, message: content
+ * - read_at: NULL = unread, timestamp = read
+ * - channels: TEXT[] (in_app, email, push, sms)
  */
 export async function GET(request: NextRequest) {
   const supabase = await createClient();
@@ -22,16 +29,18 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const statusFilter = searchParams.get('status');
 
-    // 3. Build query for notifications
+    // 3. Build query for notifications (use correct table and columns)
     let query = supabase
-      .from("notification_queue")
-      .select("id, title, message, status, created_at, read_at, notification_type, metadata")
-      .eq("channel_type", "in_app")
-      .eq("client_id", user.id);
+      .from("notifications")
+      .select("id, title, message, type, priority, reference_type, reference_id, action_url, read_at, dismissed_at, created_at")
+      .eq("user_id", user.id)
+      .is("dismissed_at", null); // Don't show dismissed notifications
 
     // Apply status filter if provided
-    if (statusFilter) {
-      query = query.eq("status", statusFilter);
+    if (statusFilter === 'read') {
+      query = query.not("read_at", "is", null);
+    } else if (statusFilter === 'unread') {
+      query = query.is("read_at", null);
     }
 
     const { data: notifications, error: notificationsError } = await query
@@ -46,21 +55,24 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // 4. Count unread notifications (queued = unread)
+    // 4. Count unread notifications (read_at IS NULL)
     const { count: unreadCount, error: countError } = await supabase
-      .from("notification_queue")
+      .from("notifications")
       .select("id", { count: 'exact', head: true })
-      .eq("channel_type", "in_app")
-      .eq("client_id", user.id)
-      .eq("status", "queued");
+      .eq("user_id", user.id)
+      .is("read_at", null)
+      .is("dismissed_at", null);
 
     if (countError) {
       console.error("Error counting unread notifications:", countError);
     }
 
-    // 5. Return response
+    // 5. Return response (map to consistent format)
     return NextResponse.json({
-      notifications: notifications || [],
+      notifications: (notifications || []).map(n => ({
+        ...n,
+        status: n.read_at ? 'read' : 'unread',
+      })),
       unreadCount: unreadCount || 0,
     });
   } catch (error) {
@@ -96,14 +108,12 @@ export async function PATCH(request: NextRequest) {
     // 3. Handle mark all read
     if (markAllRead === true) {
       const { data, error: updateError } = await supabase
-        .from("notification_queue")
+        .from("notifications")
         .update({
-          status: "read",
           read_at: new Date().toISOString(),
         })
-        .eq("client_id", user.id) // Security: only update own notifications
-        .eq("channel_type", "in_app")
-        .eq("status", "queued") // Only mark unread ones
+        .eq("user_id", user.id) // Security: only update own notifications
+        .is("read_at", null) // Only mark unread ones
         .select();
 
       if (updateError) {
@@ -139,13 +149,12 @@ export async function PATCH(request: NextRequest) {
     // 5. Update specific notifications to read status
     // Only update notifications that belong to the current user
     const { data, error: updateError } = await supabase
-      .from("notification_queue")
+      .from("notifications")
       .update({
-        status: "read",
         read_at: new Date().toISOString(),
       })
       .in("id", notificationIds)
-      .eq("client_id", user.id) // Security: only update own notifications
+      .eq("user_id", user.id) // Security: only update own notifications
       .select();
 
     if (updateError) {

@@ -85,7 +85,7 @@ BEGIN
         )::text
     );
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 -- Notify on appointment changes
 CREATE OR REPLACE FUNCTION public.notify_appointment_change()
@@ -102,7 +102,7 @@ BEGIN
     );
     RETURN COALESCE(NEW, OLD);
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SET search_path = public;
 
 DROP TRIGGER IF EXISTS appointment_realtime_notify ON public.appointments;
 CREATE TRIGGER appointment_realtime_notify
@@ -127,7 +127,7 @@ BEGIN
     END IF;
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SET search_path = public;
 
 DROP TRIGGER IF EXISTS hospitalization_realtime_notify ON public.hospitalizations;
 CREATE TRIGGER hospitalization_realtime_notify
@@ -167,7 +167,7 @@ BEGIN
 
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SET search_path = public;
 
 DROP TRIGGER IF EXISTS message_realtime_notify ON public.messages;
 CREATE TRIGGER message_realtime_notify
@@ -190,7 +190,7 @@ BEGIN
     );
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SET search_path = public;
 
 DROP TRIGGER IF EXISTS notification_realtime_notify ON public.notifications;
 CREATE TRIGGER notification_realtime_notify
@@ -223,7 +223,7 @@ BEGIN
 
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SET search_path = public;
 
 DROP TRIGGER IF EXISTS qr_scan_realtime_notify ON public.qr_tag_scans;
 CREATE TRIGGER qr_scan_realtime_notify
@@ -259,7 +259,7 @@ BEGIN
 
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SET search_path = public;
 
 DROP TRIGGER IF EXISTS lost_pet_realtime_notify ON public.lost_pets;
 CREATE TRIGGER lost_pet_realtime_notify

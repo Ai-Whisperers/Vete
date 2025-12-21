@@ -1,0 +1,178 @@
+{
+  "$schema": "../../../schemas/store.schema.json",
+  "brand_slug": "gourmet",
+  "products": [
+    {
+      "sku": "GOU-CAT-GOLD-ATUN",
+      "name": "Gourmet Gold Mousse Atún",
+      "description": "Mousse premium de atún para gatos exigentes",
+      "category_slug": "NUT-FEL-HUM",
+      "target_species": [
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "85g",
+          "base_price": 15000,
+          "cost_price": 9000,
+          "sku_suffix": "-85G"
+        },
+        {
+          "size": "Pack 8x85g",
+          "base_price": 109000,
+          "cost_price": 65400,
+          "sku_suffix": "-8PACK"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1574158622682-e40e69881006?w=400&h=400&fit=crop-gold-atun.png",
+      "attributes": {
+        "flavor": "Atún",
+        "texture": "Mousse",
+        "wet_food": true,
+        "premium_line": true
+      }
+    },
+    {
+      "sku": "GOU-CAT-GOLD-SALMON",
+      "name": "Gourmet Gold Mousse Salmón",
+      "description": "Mousse premium de salmón para gatos exigentes",
+      "category_slug": "NUT-FEL-HUM",
+      "target_species": [
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "85g",
+          "base_price": 15000,
+          "cost_price": 9000,
+          "sku_suffix": "-85G"
+        },
+        {
+          "size": "Pack 8x85g",
+          "base_price": 109000,
+          "cost_price": 65400,
+          "sku_suffix": "-8PACK"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1574158622682-e40e69881006?w=400&h=400&fit=crop-gold-salmon.png",
+      "attributes": {
+        "flavor": "Salmón",
+        "texture": "Mousse",
+        "wet_food": true,
+        "premium_line": true
+      }
+    },
+    {
+      "sku": "GOU-CAT-GOLD-POLLO",
+      "name": "Gourmet Gold Mousse Pollo",
+      "description": "Mousse premium de pollo para gatos exigentes",
+      "category_slug": "NUT-FEL-HUM",
+      "target_species": [
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "85g",
+          "base_price": 14000,
+          "cost_price": 8400,
+          "sku_suffix": "-85G"
+        },
+        {
+          "size": "Pack 8x85g",
+          "base_price": 99000,
+          "cost_price": 59400,
+          "sku_suffix": "-8PACK"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1574158622682-e40e69881006?w=400&h=400&fit=crop-gold-pollo.png",
+      "attributes": {
+        "flavor": "Pollo",
+        "texture": "Mousse",
+        "wet_food": true,
+        "premium_line": true
+      }
+    },
+    {
+      "sku": "GOU-CAT-GOLD-CARNE",
+      "name": "Gourmet Gold Mousse Carne",
+      "description": "Mousse premium de carne para gatos exigentes",
+      "category_slug": "NUT-FEL-HUM",
+      "target_species": [
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "85g",
+          "base_price": 14000,
+          "cost_price": 8400,
+          "sku_suffix": "-85G"
+        },
+        {
+          "size": "Pack 8x85g",
+          "base_price": 99000,
+          "cost_price": 59400,
+          "sku_suffix": "-8PACK"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1574158622682-e40e69881006?w=400&h=400&fit=crop-gold-carne.png",
+      "attributes": {
+        "flavor": "Carne",
+        "texture": "Mousse",
+        "wet_food": true,
+        "premium_line": true
+      }
+    },
+    {
+      "sku": "GOU-CAT-PERLE",
+      "name": "Gourmet Perle Filetes en Salsa",
+      "description": "Delicados filetes de carne en salsa sabrosa",
+      "category_slug": "NUT-FEL-HUM",
+      "target_species": [
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "85g",
+          "base_price": 12000,
+          "cost_price": 7200,
+          "sku_suffix": "-85G"
+        },
+        {
+          "size": "Pack 12x85g",
+          "base_price": 125000,
+          "cost_price": 75000,
+          "sku_suffix": "-12PACK"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1574158622682-e40e69881006?w=400&h=400&fit=crop-perle.png",
+      "attributes": {
+        "texture": "Filetes en salsa",
+        "wet_food": true,
+        "variety_pack": true
+      }
+    },
+    {
+      "sku": "GOU-CAT-REVELATIONS",
+      "name": "Gourmet Revelations Mousse con Centro",
+      "description": "Mousse premium con centro cremoso de salsa",
+      "category_slug": "NUT-FEL-HUM",
+      "target_species": [
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "Pack 4x57g",
+          "base_price": 65000,
+          "cost_price": 39000,
+          "sku_suffix": "-4PACK"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1574158622682-e40e69881006?w=400&h=400&fit=crop-revelations.png",
+      "attributes": {
+        "texture": "Mousse con centro cremoso",
+        "wet_food": true,
+        "premium_line": true
+      }
+    }
+  ]
+}

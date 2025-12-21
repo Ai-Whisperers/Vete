@@ -123,7 +123,8 @@ function FilterToolbar({
                 style={{
                   backgroundColor: member.color_code + '20',
                   color: member.color_code,
-                  ringColor: member.color_code,
+                  // @ts-expect-error CSS custom property for ring color
+                  '--tw-ring-color': member.color_code,
                 }}
               >
                 <span

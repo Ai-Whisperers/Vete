@@ -24,10 +24,15 @@ export function LogoutButton({
     try {
       const supabase = createClient();
       await supabase.auth.signOut();
-      router.push(`/${clinic}/portal/login`);
+      // Refresh first to clear server-side cache, then navigate
+      // This prevents race conditions where navigation happens before signOut completes
       router.refresh();
+      // Small delay to ensure cookies are cleared before navigation
+      await new Promise(resolve => setTimeout(resolve, 100));
+      router.push(`/${clinic}/portal/login`);
     } catch {
-      // Logout error - silently fail
+      // Logout error - still try to navigate to login
+      router.push(`/${clinic}/portal/login`);
     } finally {
       setIsLoading(false);
     }

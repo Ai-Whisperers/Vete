@@ -1,0 +1,238 @@
+{
+  "$schema": "../../../schemas/store.schema.json",
+  "brand_slug": "cibau",
+  "products": [
+    {
+      "sku": "CIB-DOG-ADULT-MED",
+      "name": "Cibau Adultos Medianos",
+      "description": "Alimento super premium italiano para perros adultos medianos",
+      "category_slug": "NUT-CAN-SEC",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "2.5kg",
+          "base_price": 145000,
+          "cost_price": 87000,
+          "sku_suffix": "-2.5KG"
+        },
+        {
+          "size": "12kg",
+          "base_price": 525000,
+          "cost_price": 315000,
+          "sku_suffix": "-12KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop-adult-medium.png",
+      "attributes": {
+        "age_range": "1+ años",
+        "breed_size": "Mediano"
+      }
+    },
+    {
+      "sku": "CIB-DOG-ADULT-MAXI",
+      "name": "Cibau Adultos Maxi",
+      "description": "Alimento super premium italiano para perros adultos grandes",
+      "category_slug": "NUT-CAN-SEC",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "2.5kg",
+          "base_price": 139000,
+          "cost_price": 83400,
+          "sku_suffix": "-2.5KG"
+        },
+        {
+          "size": "12kg",
+          "base_price": 495000,
+          "cost_price": 297000,
+          "sku_suffix": "-12KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop-adult-maxi.png",
+      "attributes": {
+        "age_range": "1+ años",
+        "breed_size": "Grande"
+      }
+    },
+    {
+      "sku": "CIB-DOG-ADULT-MINI",
+      "name": "Cibau Adultos Mini",
+      "description": "Alimento super premium italiano para perros adultos pequeños",
+      "category_slug": "NUT-CAN-SEC",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "1kg",
+          "base_price": 69000,
+          "cost_price": 41400,
+          "sku_suffix": "-1KG"
+        },
+        {
+          "size": "2.5kg",
+          "base_price": 155000,
+          "cost_price": 93000,
+          "sku_suffix": "-2.5KG"
+        },
+        {
+          "size": "7.5kg",
+          "base_price": 395000,
+          "cost_price": 237000,
+          "sku_suffix": "-7.5KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop-adult-mini.png",
+      "attributes": {
+        "age_range": "1+ años",
+        "breed_size": "Pequeño"
+      }
+    },
+    {
+      "sku": "CIB-DOG-PUPPY-MED",
+      "name": "Cibau Cachorros Medianos",
+      "description": "Alimento super premium para cachorros de razas medianas",
+      "category_slug": "NUT-CAN-SEC",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "2.5kg",
+          "base_price": 155000,
+          "cost_price": 93000,
+          "sku_suffix": "-2.5KG"
+        },
+        {
+          "size": "12kg",
+          "base_price": 565000,
+          "cost_price": 339000,
+          "sku_suffix": "-12KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop-puppy-medium.png",
+      "attributes": {
+        "age_range": "Hasta 1 año",
+        "breed_size": "Mediano"
+      }
+    },
+    {
+      "sku": "CIB-DOG-PUPPY-MAXI",
+      "name": "Cibau Cachorros Maxi",
+      "description": "Alimento super premium para cachorros de razas grandes y gigantes",
+      "category_slug": "NUT-CAN-SEC",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "2.5kg",
+          "base_price": 149000,
+          "cost_price": 89400,
+          "sku_suffix": "-2.5KG"
+        },
+        {
+          "size": "12kg",
+          "base_price": 535000,
+          "cost_price": 321000,
+          "sku_suffix": "-12KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop-puppy-maxi.png",
+      "attributes": {
+        "age_range": "Hasta 18 meses",
+        "breed_size": "Grande y Gigante"
+      }
+    },
+    {
+      "sku": "CIB-DOG-PUPPY-MINI",
+      "name": "Cibau Cachorros Mini",
+      "description": "Alimento super premium para cachorros de razas pequeñas",
+      "category_slug": "NUT-CAN-SEC",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "1kg",
+          "base_price": 75000,
+          "cost_price": 45000,
+          "sku_suffix": "-1KG"
+        },
+        {
+          "size": "2.5kg",
+          "base_price": 165000,
+          "cost_price": 99000,
+          "sku_suffix": "-2.5KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop-puppy-mini.png",
+      "attributes": {
+        "age_range": "Hasta 10 meses",
+        "breed_size": "Pequeño"
+      }
+    },
+    {
+      "sku": "CIB-DOG-SENSITIVE-LAMB",
+      "name": "Cibau Sensitive Cordero",
+      "description": "Alimento hipoalergénico con cordero para perros sensibles",
+      "category_slug": "NUT-CAN-SEC",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "2.5kg",
+          "base_price": 165000,
+          "cost_price": 99000,
+          "sku_suffix": "-2.5KG"
+        },
+        {
+          "size": "12kg",
+          "base_price": 595000,
+          "cost_price": 357000,
+          "sku_suffix": "-12KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop-sensitive-lamb.png",
+      "attributes": {
+        "special_need": "Piel sensible",
+        "flavor": "Cordero",
+        "hypoallergenic": true
+      }
+    },
+    {
+      "sku": "CIB-DOG-SENSITIVE-FISH",
+      "name": "Cibau Sensitive Pescado",
+      "description": "Alimento hipoalergénico con pescado para perros sensibles",
+      "category_slug": "NUT-CAN-SEC",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "2.5kg",
+          "base_price": 165000,
+          "cost_price": 99000,
+          "sku_suffix": "-2.5KG"
+        },
+        {
+          "size": "12kg",
+          "base_price": 595000,
+          "cost_price": 357000,
+          "sku_suffix": "-12KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop-sensitive-fish.png",
+      "attributes": {
+        "special_need": "Piel sensible",
+        "flavor": "Pescado",
+        "hypoallergenic": true
+      }
+    }
+  ]
+}

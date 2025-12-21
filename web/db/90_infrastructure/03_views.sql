@@ -192,10 +192,8 @@ SELECT
     h.reason,
     h.diagnosis,
     h.status,
-    h.priority,
     h.acuity_level,
     h.estimated_cost,
-    h.daily_rate,
     p.name AS pet_name,
     p.species,
     p.breed,
@@ -206,8 +204,9 @@ SELECT
     k.code AS kennel_code,
     k.kennel_type,
     v.full_name AS primary_vet_name,
+    k.daily_rate,
     EXTRACT(DAY FROM NOW() - h.admitted_at)::INTEGER AS days_hospitalized,
-    (h.daily_rate * EXTRACT(DAY FROM NOW() - h.admitted_at))::NUMERIC(12,2) AS accrued_charges,
+    (COALESCE(k.daily_rate, 0) * EXTRACT(DAY FROM NOW() - h.admitted_at))::NUMERIC(12,2) AS accrued_charges,
     (
         SELECT jsonb_build_object(
             'temperature', hv.temperature,
@@ -227,10 +226,10 @@ LEFT JOIN public.kennels k ON h.kennel_id = k.id
 LEFT JOIN public.profiles v ON h.primary_vet_id = v.id
 WHERE h.status IN ('admitted', 'in_treatment', 'observation', 'critical')
 ORDER BY
-    CASE h.priority
+    CASE h.acuity_level
         WHEN 'critical' THEN 1
-        WHEN 'urgent' THEN 2
-        WHEN 'high' THEN 3
+        WHEN 'high' THEN 2
+        WHEN 'normal' THEN 3
         ELSE 4
     END,
     h.admitted_at DESC;
@@ -293,10 +292,10 @@ SELECT
     lo.tenant_id,
     lo.order_number,
     lo.pet_id,
-    lo.ordered_at,
+    lo.created_at AS ordered_at,
     lo.status,
     lo.priority,
-    lo.notes,
+    lo.clinical_notes AS notes,
     p.name AS pet_name,
     p.species,
     pr.full_name AS owner_name,
@@ -324,7 +323,7 @@ ORDER BY
         WHEN 'routine' THEN 3
         ELSE 4
     END,
-    lo.ordered_at ASC;
+    lo.created_at ASC;
 
 COMMENT ON VIEW public.pending_lab_orders IS 'Lab orders awaiting results';
 
@@ -376,6 +375,7 @@ COMMENT ON VIEW public.staff_workload IS 'Staff appointment and workload summary
 -- CLINIC DASHBOARD STATS FUNCTION
 -- =============================================================================
 
+DROP FUNCTION IF EXISTS public.get_clinic_stats(TEXT);
 CREATE OR REPLACE FUNCTION public.get_clinic_stats(p_tenant_id TEXT)
 RETURNS TABLE (
     total_pets BIGINT,
@@ -416,7 +416,7 @@ BEGIN
          WHERE c.tenant_id = p_tenant_id AND c.status = 'open'
          AND EXISTS (SELECT 1 FROM public.messages m WHERE m.conversation_id = c.id AND m.sender_type = 'client' AND m.status = 'delivered'))::BIGINT;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 COMMENT ON FUNCTION public.get_clinic_stats IS 'Returns dashboard summary statistics for a clinic';
 
@@ -424,6 +424,7 @@ COMMENT ON FUNCTION public.get_clinic_stats IS 'Returns dashboard summary statis
 -- NETWORK STATS FUNCTION (Cross-tenant)
 -- =============================================================================
 
+DROP FUNCTION IF EXISTS public.get_network_stats();
 CREATE OR REPLACE FUNCTION public.get_network_stats()
 RETURNS TABLE (
     total_tenants BIGINT,
@@ -453,7 +454,7 @@ BEGIN
         (SELECT COUNT(DISTINCT tenant_id) FROM public.appointments
          WHERE start_time::DATE = CURRENT_DATE AND deleted_at IS NULL)::BIGINT;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 COMMENT ON FUNCTION public.get_network_stats IS 'Returns network-wide statistics';
 
@@ -461,6 +462,7 @@ COMMENT ON FUNCTION public.get_network_stats IS 'Returns network-wide statistics
 -- REVENUE SUMMARY FUNCTION
 -- =============================================================================
 
+DROP FUNCTION IF EXISTS public.get_revenue_summary(TEXT, DATE, DATE);
 CREATE OR REPLACE FUNCTION public.get_revenue_summary(
     p_tenant_id TEXT,
     p_start_date DATE DEFAULT DATE_TRUNC('month', CURRENT_DATE)::DATE,
@@ -503,7 +505,7 @@ BEGIN
          WHERE i.tenant_id = p_tenant_id AND r.created_at::DATE BETWEEN p_start_date AND p_end_date
          AND r.status = 'completed')::NUMERIC;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 COMMENT ON FUNCTION public.get_revenue_summary IS 'Returns revenue summary for a date range';
 

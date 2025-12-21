@@ -3,7 +3,7 @@
 -- =============================================================================
 -- System audit, notifications, QR tags, lost pets, disease surveillance.
 --
--- Dependencies: 00_setup/*, 10_core/*, 20_pets/*
+-- DEPENDENCIES: 00_setup/*, 10_core/*, 20_pets/*
 -- =============================================================================
 
 -- =============================================================================
@@ -33,6 +33,12 @@ CREATE TABLE IF NOT EXISTS public.audit_logs (
     -- Timestamps
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+COMMENT ON TABLE public.audit_logs IS 'Immutable audit trail for security and compliance. Admin view only.';
+COMMENT ON COLUMN public.audit_logs.action IS 'Action performed: create, update, delete, view, export, login, etc.';
+COMMENT ON COLUMN public.audit_logs.resource IS 'Resource type affected (e.g., pet, invoice, prescription)';
+COMMENT ON COLUMN public.audit_logs.old_values IS 'Previous values for updates (JSONB snapshot)';
+COMMENT ON COLUMN public.audit_logs.new_values IS 'New values for creates/updates (JSONB snapshot)';
 
 -- =============================================================================
 -- NOTIFICATIONS
@@ -66,6 +72,11 @@ CREATE TABLE IF NOT EXISTS public.notifications (
     -- Timestamps
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+COMMENT ON TABLE public.notifications IS 'In-app notifications for users (reminders, alerts, updates)';
+COMMENT ON COLUMN public.notifications.priority IS 'Priority level: low, normal, high, urgent';
+COMMENT ON COLUMN public.notifications.channels IS 'Delivery channels: in_app, email, push, sms';
+COMMENT ON COLUMN public.notifications.read_at IS 'When user read the notification (NULL = unread)';
 
 -- =============================================================================
 -- QR TAGS
@@ -108,6 +119,12 @@ CREATE TABLE IF NOT EXISTS public.qr_tags (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+COMMENT ON TABLE public.qr_tags IS 'Physical QR tags for pet identification. Tracks assignments and theft prevention.';
+COMMENT ON COLUMN public.qr_tags.code IS 'Unique code printed on physical tag (globally unique)';
+COMMENT ON COLUMN public.qr_tags.previous_pet_id IS 'Previous pet for theft prevention tracking';
+COMMENT ON COLUMN public.qr_tags.reassigned_reason IS 'Why tag was reassigned (lost, new owner, etc.)';
+COMMENT ON COLUMN public.qr_tags.scan_count IS 'Total times this tag has been scanned';
+
 -- =============================================================================
 -- QR TAG SCANS
 -- =============================================================================
@@ -135,6 +152,10 @@ CREATE TABLE IF NOT EXISTS public.qr_tag_scans (
     -- Scanner info (if authenticated)
     scanned_by UUID REFERENCES public.profiles(id)
 );
+
+COMMENT ON TABLE public.qr_tag_scans IS 'Log of QR tag scans with location data for lost pet tracking';
+COMMENT ON COLUMN public.qr_tag_scans.contact_attempted IS 'TRUE if finder attempted to contact owner';
+COMMENT ON COLUMN public.qr_tag_scans.location_accuracy IS 'GPS accuracy in meters';
 
 -- =============================================================================
 -- LOST PETS
@@ -188,6 +209,11 @@ CREATE TABLE IF NOT EXISTS public.lost_pets (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+COMMENT ON TABLE public.lost_pets IS 'Lost and found pet reports with location tracking and public visibility';
+COMMENT ON COLUMN public.lost_pets.status IS 'Report status: lost, found (located not returned), reunited, cancelled';
+COMMENT ON COLUMN public.lost_pets.is_public IS 'TRUE to show on public lost pet board';
+COMMENT ON COLUMN public.lost_pets.distinctive_features IS 'Notable features to identify the pet';
+
 -- =============================================================================
 -- DISEASE REPORTS (Epidemiology / Surveillance)
 -- =============================================================================
@@ -237,6 +263,12 @@ CREATE TABLE IF NOT EXISTS public.disease_reports (
     -- Timestamps
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+COMMENT ON TABLE public.disease_reports IS 'Epidemiological surveillance: anonymized disease case reports for outbreak detection';
+COMMENT ON COLUMN public.disease_reports.location_zone IS 'Geographic zone (anonymized for privacy)';
+COMMENT ON COLUMN public.disease_reports.is_notifiable IS 'TRUE if disease must be reported to government authorities';
+COMMENT ON COLUMN public.disease_reports.lab_confirmed IS 'TRUE if diagnosis was confirmed by laboratory testing';
+COMMENT ON COLUMN public.disease_reports.severity IS 'Case severity: mild, moderate, severe, critical';
 
 -- =============================================================================
 -- ROW LEVEL SECURITY
@@ -366,6 +398,18 @@ CREATE INDEX IF NOT EXISTS idx_audit_logs_created_brin ON public.audit_logs
 CREATE INDEX IF NOT EXISTS idx_audit_logs_tenant_created ON public.audit_logs(tenant_id, created_at DESC)
     INCLUDE (user_id, action, resource);
 
+-- Composite BRIN for tenant + time queries
+CREATE INDEX IF NOT EXISTS idx_audit_logs_tenant_created_brin ON public.audit_logs
+    USING BRIN(tenant_id, created_at) WITH (pages_per_range = 64);
+
+-- GIN indexes for JSONB columns (efficient value searches in audit data)
+CREATE INDEX IF NOT EXISTS idx_audit_logs_old_values_gin ON public.audit_logs USING gin(old_values jsonb_path_ops)
+    WHERE old_values IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_audit_logs_new_values_gin ON public.audit_logs USING gin(new_values jsonb_path_ops)
+    WHERE new_values IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_audit_logs_metadata_gin ON public.audit_logs USING gin(metadata jsonb_path_ops)
+    WHERE metadata IS NOT NULL AND metadata != '{}';
+
 -- Notifications
 CREATE INDEX IF NOT EXISTS idx_notifications_user ON public.notifications(user_id);
 CREATE INDEX IF NOT EXISTS idx_notifications_tenant ON public.notifications(tenant_id);
@@ -374,10 +418,19 @@ CREATE INDEX IF NOT EXISTS idx_notifications_unread ON public.notifications(user
 CREATE INDEX IF NOT EXISTS idx_notifications_created_brin ON public.notifications
     USING BRIN(created_at) WITH (pages_per_range = 32);
 
+-- Unread notifications for user
+CREATE INDEX IF NOT EXISTS idx_notifications_unread_list ON public.notifications(user_id, created_at DESC)
+    INCLUDE (type, title, message, reference_type, reference_id)
+    WHERE read_at IS NULL AND dismissed_at IS NULL;
+
 -- QR tags
 CREATE INDEX IF NOT EXISTS idx_qr_tags_code ON public.qr_tags(code);
 CREATE INDEX IF NOT EXISTS idx_qr_tags_pet ON public.qr_tags(pet_id);
 CREATE INDEX IF NOT EXISTS idx_qr_tags_tenant ON public.qr_tags(tenant_id);
+
+-- One QR tag per pet (active tags only)
+CREATE UNIQUE INDEX IF NOT EXISTS idx_one_qr_tag_per_pet ON public.qr_tags(pet_id)
+    WHERE pet_id IS NOT NULL AND is_active = true AND deleted_at IS NULL;
 CREATE INDEX IF NOT EXISTS idx_qr_tags_batch ON public.qr_tags(batch_id);
 CREATE INDEX IF NOT EXISTS idx_qr_tags_active ON public.qr_tags(is_active)
     WHERE is_active = true AND deleted_at IS NULL;
@@ -392,6 +445,10 @@ CREATE INDEX IF NOT EXISTS idx_qr_tag_scans_scanned_brin ON public.qr_tag_scans
 CREATE INDEX IF NOT EXISTS idx_lost_pets_pet ON public.lost_pets(pet_id);
 CREATE INDEX IF NOT EXISTS idx_lost_pets_tenant ON public.lost_pets(tenant_id);
 CREATE INDEX IF NOT EXISTS idx_lost_pets_status ON public.lost_pets(status);
+
+-- Unique lost pet report per pet (only one active)
+CREATE UNIQUE INDEX IF NOT EXISTS idx_one_lost_report_per_pet ON public.lost_pets(pet_id)
+    WHERE status = 'lost';
 CREATE INDEX IF NOT EXISTS idx_lost_pets_public ON public.lost_pets(is_public)
     WHERE is_public = true AND status = 'lost';
 CREATE INDEX IF NOT EXISTS idx_lost_pets_location ON public.lost_pets(last_seen_latitude, last_seen_longitude)
@@ -434,7 +491,7 @@ BEGIN
     END IF;
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SET search_path = public;
 
 DROP TRIGGER IF EXISTS qr_scans_auto_tenant ON public.qr_tag_scans;
 CREATE TRIGGER qr_scans_auto_tenant
@@ -452,7 +509,7 @@ BEGIN
 
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SET search_path = public;
 
 DROP TRIGGER IF EXISTS qr_scan_update_tag ON public.qr_tag_scans;
 CREATE TRIGGER qr_scan_update_tag
@@ -469,7 +526,7 @@ BEGIN
     END IF;
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SET search_path = public;
 
 DROP TRIGGER IF EXISTS qr_tag_reassignment ON public.qr_tags;
 CREATE TRIGGER qr_tag_reassignment
@@ -508,7 +565,7 @@ BEGIN
 
     RETURN v_log_id;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 -- Create notification
 CREATE OR REPLACE FUNCTION public.create_notification(
@@ -543,7 +600,7 @@ BEGIN
 
     RETURN v_notification_id;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 -- Generate QR code
 CREATE OR REPLACE FUNCTION public.generate_qr_code(p_prefix TEXT DEFAULT 'VET')
@@ -565,7 +622,7 @@ BEGIN
 
     RETURN v_code;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SET search_path = public;
 
 -- Create QR tag batch
 CREATE OR REPLACE FUNCTION public.create_qr_tag_batch(
@@ -590,7 +647,7 @@ BEGIN
         RETURN NEXT;
     END LOOP;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 -- Get unread notification count
 CREATE OR REPLACE FUNCTION public.get_unread_notification_count(p_user_id UUID)
@@ -604,7 +661,7 @@ BEGIN
           AND dismissed_at IS NULL
     );
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 -- Mark notifications as read
 CREATE OR REPLACE FUNCTION public.mark_notifications_read(
@@ -633,7 +690,7 @@ BEGIN
     GET DIAGNOSTICS v_count = ROW_COUNT;
     RETURN v_count;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 -- Get disease outbreak alerts
 CREATE OR REPLACE FUNCTION public.get_disease_alerts(
@@ -667,6 +724,6 @@ BEGIN
     HAVING SUM(dr.case_count) >= p_threshold
     ORDER BY SUM(dr.case_count) DESC;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 

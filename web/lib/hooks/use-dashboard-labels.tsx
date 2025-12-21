@@ -322,7 +322,7 @@ export function DashboardLabelsProvider({
 }: DashboardLabelsProviderProps): React.ReactElement {
   // Deep merge custom labels with defaults
   const mergedLabels = labels
-    ? deepMerge(defaultDashboardLabels, labels)
+    ? deepMerge(defaultDashboardLabels as unknown as Record<string, unknown>, labels as unknown as Record<string, unknown>) as unknown as DashboardLabels
     : defaultDashboardLabels;
 
   return (

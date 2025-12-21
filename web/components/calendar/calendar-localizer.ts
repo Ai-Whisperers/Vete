@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Calendar Localizer
  * Date-fns localizer configuration for react-big-calendar

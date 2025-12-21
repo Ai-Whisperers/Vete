@@ -104,7 +104,7 @@ export default async function OwnerDashboardPage({ params, searchParams }: {
     .order('start_time', { ascending: true })
     .limit(5);
 
-  const myAppointments = (appointmentsData || []) as Appointment[];
+  const myAppointments = (appointmentsData || []) as unknown as Appointment[];
 
   // Fetch Owner's pets
   let petQuery = supabase
@@ -136,7 +136,7 @@ export default async function OwnerDashboardPage({ params, searchParams }: {
             {data.config.ui_labels?.portal?.dashboard?.owner_title || 'Mis Mascotas'}
           </h1>
           <p className="text-[var(--text-secondary)] mt-1">
-            {data.config.ui_labels?.portal?.dashboard?.welcome?.replace('{name}', user.email) || `Bienvenido, ${user.email}`}
+            {data.config.ui_labels?.portal?.dashboard?.welcome?.replace('{name}', user.email || '') || `Bienvenido, ${user.email || ''}`}
           </p>
         </div>
 

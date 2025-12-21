@@ -1,0 +1,54 @@
+{
+  "$schema": "../../../schemas/store.schema.json",
+  "brand_slug": "scalibor",
+  "products": [
+    {
+      "sku": "SCALIBOR-48",
+      "name": "Scalibor Collar 48cm",
+      "description": "Collar antiparasitario de larga duración para perros pequeños y medianos",
+      "category_slug": "FAR-ANT-EXT",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "48cm",
+          "base_price": 245000,
+          "cost_price": 147000,
+          "sku_suffix": "-48"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400&h=400&fit=crop",
+      "attributes": {
+        "active_ingredient": "Deltametrina",
+        "protection": "Pulgas, garrapatas, mosquitos, flebótomos",
+        "duration": "12 meses",
+        "suitable_for": "Perros hasta 25kg"
+      }
+    },
+    {
+      "sku": "SCALIBOR-65",
+      "name": "Scalibor Collar 65cm",
+      "description": "Collar antiparasitario de larga duración para perros grandes",
+      "category_slug": "FAR-ANT-EXT",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "65cm",
+          "base_price": 285000,
+          "cost_price": 171000,
+          "sku_suffix": "-65"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400&h=400&fit=crop",
+      "attributes": {
+        "active_ingredient": "Deltametrina",
+        "protection": "Pulgas, garrapatas, mosquitos, flebótomos",
+        "duration": "12 meses",
+        "suitable_for": "Perros de más de 25kg"
+      }
+    }
+  ]
+}

@@ -23,8 +23,10 @@ export default function LogoutPage() {
           setStatus("error");
           return;
         }
+        // Refresh to clear server-side cache
+        router.refresh();
         setStatus("success");
-        // Short delay to show success message
+        // Short delay to show success message, then redirect
         setTimeout(() => {
           router.push(`/${clinic}/portal/login`);
         }, 1500);

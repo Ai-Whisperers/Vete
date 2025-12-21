@@ -1,0 +1,123 @@
+{
+  "$schema": "../../../schemas/store.schema.json",
+  "brand_slug": "kets",
+  "products": [
+    {
+      "sku": "KETS-NATURAL",
+      "name": "Kets Arena Natural",
+      "description": "Arena sanitaria aglomerante de alta absorción",
+      "category_slug": "ACC-HIG-ARE",
+      "target_species": [
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "4kg",
+          "base_price": 45000,
+          "cost_price": 27000,
+          "sku_suffix": "-4KG"
+        },
+        {
+          "size": "12kg",
+          "base_price": 115000,
+          "cost_price": 69000,
+          "sku_suffix": "-12KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1574158622682-e40e69881006?w=400&h=400&fit=crop-natural.png",
+      "attributes": {
+        "type": "Bentonita",
+        "clumping": true,
+        "dust_level": "Bajo"
+      }
+    },
+    {
+      "sku": "KETS-LAVANDA",
+      "name": "Kets Arena Lavanda",
+      "description": "Arena sanitaria aglomerante perfumada con lavanda",
+      "category_slug": "ACC-HIG-ARE",
+      "target_species": [
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "4kg",
+          "base_price": 49000,
+          "cost_price": 29400,
+          "sku_suffix": "-4KG"
+        },
+        {
+          "size": "12kg",
+          "base_price": 125000,
+          "cost_price": 75000,
+          "sku_suffix": "-12KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1574158622682-e40e69881006?w=400&h=400&fit=crop-lavanda.png",
+      "attributes": {
+        "type": "Bentonita",
+        "clumping": true,
+        "scent": "Lavanda"
+      }
+    },
+    {
+      "sku": "KETS-BABY-POWDER",
+      "name": "Kets Arena Baby Powder",
+      "description": "Arena sanitaria aglomerante con aroma a talco",
+      "category_slug": "ACC-HIG-ARE",
+      "target_species": [
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "4kg",
+          "base_price": 49000,
+          "cost_price": 29400,
+          "sku_suffix": "-4KG"
+        },
+        {
+          "size": "12kg",
+          "base_price": 125000,
+          "cost_price": 75000,
+          "sku_suffix": "-12KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1574158622682-e40e69881006?w=400&h=400&fit=crop-baby-powder.png",
+      "attributes": {
+        "type": "Bentonita",
+        "clumping": true,
+        "scent": "Baby Powder"
+      }
+    },
+    {
+      "sku": "KETS-SILICA",
+      "name": "Kets Arena Sílice",
+      "description": "Arena de sílice de alta absorción y larga duración",
+      "category_slug": "ACC-HIG-ARE",
+      "target_species": [
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "1.8kg",
+          "base_price": 55000,
+          "cost_price": 33000,
+          "sku_suffix": "-1.8KG"
+        },
+        {
+          "size": "3.8kg",
+          "base_price": 95000,
+          "cost_price": 57000,
+          "sku_suffix": "-3.8KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1574158622682-e40e69881006?w=400&h=400&fit=crop-silica.png",
+      "attributes": {
+        "type": "Sílice",
+        "clumping": false,
+        "duration": "Hasta 30 días",
+        "dust_free": true
+      }
+    }
+  ]
+}

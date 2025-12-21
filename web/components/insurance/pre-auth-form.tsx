@@ -71,7 +71,7 @@ export default function PreAuthForm({ petId, policyId, onSuccess }: PreAuthFormP
       `)
       .eq('pet_id', petId)
       .eq('status', 'active');
-    if (data) setPolicies(data);
+    if (data) setPolicies(data as unknown as Policy[]);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

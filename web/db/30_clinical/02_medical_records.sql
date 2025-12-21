@@ -1,31 +1,40 @@
 -- =============================================================================
 -- 02_MEDICAL_RECORDS.SQL
 -- =============================================================================
--- Medical records and prescriptions.
+-- Medical records and prescriptions for veterinary patients.
+--
+-- DEPENDENCIES: 10_core/*, 20_pets/01_pets.sql, 30_clinical/01_reference_data.sql
 -- =============================================================================
+
+-- =============================================================================
+-- MEDICAL RECORDS
+-- =============================================================================
+-- Core medical records for all patient encounters.
 
 CREATE TABLE IF NOT EXISTS public.medical_records (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     pet_id UUID NOT NULL REFERENCES public.pets(id) ON DELETE CASCADE,
-    tenant_id TEXT NOT NULL REFERENCES public.tenants(id),
-    vet_id UUID REFERENCES public.profiles(id),
+    tenant_id TEXT NOT NULL REFERENCES public.tenants(id) ON DELETE CASCADE,
+    vet_id UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
 
     -- Record type
     record_type TEXT NOT NULL CHECK (record_type IN (
         'consultation', 'surgery', 'emergency', 'vaccination', 'checkup',
-        'dental', 'grooming', 'lab_result', 'imaging', 'other'
+        'dental', 'grooming', 'lab_result', 'imaging', 'follow_up', 'other'
     )),
 
     -- Visit info
     visit_date TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     chief_complaint TEXT,
+    history TEXT,
 
-    -- Clinical findings
-    weight_kg NUMERIC(6,2),
-    temperature NUMERIC(4,1),
-    heart_rate INTEGER,
-    respiratory_rate INTEGER,
+    -- Vitals
+    weight_kg NUMERIC(6,2) CHECK (weight_kg IS NULL OR weight_kg > 0),
+    temperature NUMERIC(4,1) CHECK (temperature IS NULL OR (temperature >= 30 AND temperature <= 45)),
+    heart_rate INTEGER CHECK (heart_rate IS NULL OR (heart_rate >= 20 AND heart_rate <= 400)),
+    respiratory_rate INTEGER CHECK (respiratory_rate IS NULL OR (respiratory_rate >= 5 AND respiratory_rate <= 150)),
     blood_pressure TEXT,
+    body_condition_score INTEGER CHECK (body_condition_score IS NULL OR (body_condition_score >= 1 AND body_condition_score <= 9)),
 
     -- Assessment
     diagnosis_code TEXT,
@@ -34,6 +43,7 @@ CREATE TABLE IF NOT EXISTS public.medical_records (
 
     -- Plan
     treatment_plan TEXT,
+    medications_prescribed TEXT,
     follow_up_date DATE,
     follow_up_notes TEXT,
 
@@ -42,32 +52,42 @@ CREATE TABLE IF NOT EXISTS public.medical_records (
 
     -- Soft delete
     deleted_at TIMESTAMPTZ,
-    deleted_by UUID REFERENCES public.profiles(id),
+    deleted_by UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
 
     -- Timestamps
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+    -- Constraints
+    CONSTRAINT medical_records_visit_not_future CHECK (visit_date <= NOW() + INTERVAL '1 day')
 );
+
+COMMENT ON TABLE public.medical_records IS 'Core medical records for all patient encounters (consultations, surgeries, etc.)';
+COMMENT ON COLUMN public.medical_records.record_type IS 'Type of visit: consultation, surgery, emergency, vaccination, checkup, etc.';
+COMMENT ON COLUMN public.medical_records.body_condition_score IS 'BCS on 1-9 scale: 1-3 underweight, 4-5 ideal, 6-9 overweight';
+COMMENT ON COLUMN public.medical_records.diagnosis_code IS 'Reference to diagnosis_codes.code (VeNom/SNOMED)';
 
 -- =============================================================================
 -- PRESCRIPTIONS
 -- =============================================================================
+-- Digital prescriptions with medication details and signatures.
 
 CREATE TABLE IF NOT EXISTS public.prescriptions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     pet_id UUID NOT NULL REFERENCES public.pets(id) ON DELETE CASCADE,
-    tenant_id TEXT NOT NULL REFERENCES public.tenants(id),
-    vet_id UUID NOT NULL REFERENCES public.profiles(id),
-    medical_record_id UUID REFERENCES public.medical_records(id),
+    tenant_id TEXT NOT NULL REFERENCES public.tenants(id) ON DELETE CASCADE,
+    vet_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE RESTRICT,
+    medical_record_id UUID REFERENCES public.medical_records(id) ON DELETE SET NULL,
 
     -- Prescription number
-    prescription_number TEXT,
+    prescription_number TEXT NOT NULL,
 
     -- Dates
     prescribed_date DATE NOT NULL DEFAULT CURRENT_DATE,
     valid_until DATE,
 
     -- Medications (JSONB array)
+    -- Structure: [{"name": "...", "dose": "...", "frequency": "...", "duration": "...", "instructions": "..."}]
     medications JSONB NOT NULL DEFAULT '[]',
 
     -- Signature
@@ -83,15 +103,34 @@ CREATE TABLE IF NOT EXISTS public.prescriptions (
     -- Notes
     notes TEXT,
     pharmacist_notes TEXT,
+    dispensing_notes TEXT,
+
+    -- Dispensing info
+    dispensed_at TIMESTAMPTZ,
+    dispensed_by UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
 
     -- Soft delete
     deleted_at TIMESTAMPTZ,
-    deleted_by UUID,
+    deleted_by UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
 
     -- Timestamps
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+    -- Constraints
+    UNIQUE(tenant_id, prescription_number),
+    CONSTRAINT prescriptions_valid_until_after_prescribed CHECK (
+        valid_until IS NULL OR valid_until >= prescribed_date
+    ),
+    CONSTRAINT prescriptions_medications_is_array CHECK (
+        jsonb_typeof(medications) = 'array'
+    )
 );
+
+COMMENT ON TABLE public.prescriptions IS 'Digital veterinary prescriptions with medication details';
+COMMENT ON COLUMN public.prescriptions.medications IS 'JSON array of medications with dose, frequency, duration, instructions';
+COMMENT ON COLUMN public.prescriptions.status IS 'draft: being written, active: ready to dispense, dispensed: filled, expired: past valid_until, cancelled: voided';
+COMMENT ON COLUMN public.prescriptions.signature_url IS 'URL to veterinarian digital signature image';
 
 -- =============================================================================
 -- ROW LEVEL SECURITY
@@ -100,7 +139,7 @@ CREATE TABLE IF NOT EXISTS public.prescriptions (
 ALTER TABLE public.medical_records ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.prescriptions ENABLE ROW LEVEL SECURITY;
 
--- Medical records
+-- Medical records: Staff manage, owners view
 DROP POLICY IF EXISTS "Staff manage medical records" ON public.medical_records;
 CREATE POLICY "Staff manage medical records" ON public.medical_records
     FOR ALL TO authenticated
@@ -115,7 +154,7 @@ DROP POLICY IF EXISTS "Service role full access records" ON public.medical_recor
 CREATE POLICY "Service role full access records" ON public.medical_records
     FOR ALL TO service_role USING (true);
 
--- Prescriptions
+-- Prescriptions: Staff manage, owners view
 DROP POLICY IF EXISTS "Staff manage prescriptions" ON public.prescriptions;
 CREATE POLICY "Staff manage prescriptions" ON public.prescriptions
     FOR ALL TO authenticated
@@ -134,18 +173,39 @@ CREATE POLICY "Service role full access prescriptions" ON public.prescriptions
 -- INDEXES
 -- =============================================================================
 
+-- Medical records
 CREATE INDEX IF NOT EXISTS idx_medical_records_pet ON public.medical_records(pet_id);
 CREATE INDEX IF NOT EXISTS idx_medical_records_tenant ON public.medical_records(tenant_id);
 CREATE INDEX IF NOT EXISTS idx_medical_records_vet ON public.medical_records(vet_id);
 CREATE INDEX IF NOT EXISTS idx_medical_records_date ON public.medical_records(visit_date DESC);
 CREATE INDEX IF NOT EXISTS idx_medical_records_type ON public.medical_records(record_type);
-CREATE INDEX IF NOT EXISTS idx_medical_records_active ON public.medical_records(tenant_id, deleted_at) WHERE deleted_at IS NULL;
+CREATE INDEX IF NOT EXISTS idx_medical_records_diagnosis ON public.medical_records(diagnosis_code);
+CREATE INDEX IF NOT EXISTS idx_medical_records_active ON public.medical_records(tenant_id, deleted_at)
+    WHERE deleted_at IS NULL;
 
+-- Pet medical history (covering index)
+CREATE INDEX IF NOT EXISTS idx_medical_records_pet_history ON public.medical_records(pet_id, visit_date DESC)
+    INCLUDE (record_type, diagnosis_text, vet_id, weight_kg)
+    WHERE deleted_at IS NULL;
+
+-- Prescriptions
 CREATE INDEX IF NOT EXISTS idx_prescriptions_pet ON public.prescriptions(pet_id);
 CREATE INDEX IF NOT EXISTS idx_prescriptions_tenant ON public.prescriptions(tenant_id);
 CREATE INDEX IF NOT EXISTS idx_prescriptions_vet ON public.prescriptions(vet_id);
+CREATE INDEX IF NOT EXISTS idx_prescriptions_medical_record ON public.prescriptions(medical_record_id);
 CREATE INDEX IF NOT EXISTS idx_prescriptions_date ON public.prescriptions(prescribed_date DESC);
 CREATE INDEX IF NOT EXISTS idx_prescriptions_status ON public.prescriptions(status) WHERE deleted_at IS NULL;
+CREATE INDEX IF NOT EXISTS idx_prescriptions_number ON public.prescriptions(prescription_number);
+CREATE INDEX IF NOT EXISTS idx_prescriptions_dispensed_by ON public.prescriptions(dispensed_by);
+
+-- Active prescriptions for a pet (covering index)
+CREATE INDEX IF NOT EXISTS idx_prescriptions_pet_active ON public.prescriptions(pet_id, prescribed_date DESC)
+    INCLUDE (prescription_number, status, valid_until, vet_id)
+    WHERE deleted_at IS NULL AND status IN ('active', 'dispensed');
+
+-- GIN index for JSONB medications (efficient medication searches)
+CREATE INDEX IF NOT EXISTS idx_prescriptions_medications_gin ON public.prescriptions USING gin(medications jsonb_path_ops)
+    WHERE deleted_at IS NULL;
 
 -- =============================================================================
 -- TRIGGERS
@@ -161,7 +221,7 @@ CREATE TRIGGER handle_updated_at
     BEFORE UPDATE ON public.prescriptions
     FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
 
--- Auto-set tenant_id
+-- Auto-set tenant_id from pet
 DROP TRIGGER IF EXISTS medical_records_auto_tenant ON public.medical_records;
 CREATE TRIGGER medical_records_auto_tenant
     BEFORE INSERT ON public.medical_records
@@ -171,3 +231,96 @@ DROP TRIGGER IF EXISTS prescriptions_auto_tenant ON public.prescriptions;
 CREATE TRIGGER prescriptions_auto_tenant
     BEFORE INSERT ON public.prescriptions
     FOR EACH ROW EXECUTE FUNCTION public.clinical_set_tenant_id();
+
+-- Auto-expire prescriptions trigger
+CREATE OR REPLACE FUNCTION public.auto_expire_prescription()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.valid_until IS NOT NULL AND NEW.valid_until < CURRENT_DATE AND NEW.status = 'active' THEN
+        NEW.status := 'expired';
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SET search_path = public;
+
+COMMENT ON FUNCTION public.auto_expire_prescription() IS 'Automatically set prescription status to expired when past valid_until date';
+
+DROP TRIGGER IF EXISTS prescription_auto_expire ON public.prescriptions;
+CREATE TRIGGER prescription_auto_expire
+    BEFORE UPDATE ON public.prescriptions
+    FOR EACH ROW EXECUTE FUNCTION public.auto_expire_prescription();
+
+-- =============================================================================
+-- FUNCTIONS
+-- =============================================================================
+
+-- Generate prescription number (thread-safe)
+CREATE OR REPLACE FUNCTION public.generate_prescription_number(p_tenant_id TEXT)
+RETURNS TEXT AS $$
+BEGIN
+    RETURN public.next_document_number(p_tenant_id, 'prescription', 'RX');
+END;
+$$ LANGUAGE plpgsql SET search_path = public;
+
+COMMENT ON FUNCTION public.generate_prescription_number(TEXT) IS
+'Generate unique prescription number for a tenant. Format: RX-YYYY-NNNNNN';
+
+-- Get pet medical summary
+CREATE OR REPLACE FUNCTION public.get_pet_medical_summary(p_pet_id UUID)
+RETURNS TABLE (
+    total_visits INTEGER,
+    last_visit_date TIMESTAMPTZ,
+    last_weight_kg NUMERIC,
+    last_diagnosis TEXT,
+    active_prescriptions INTEGER,
+    chronic_conditions TEXT[]
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT
+        (SELECT COUNT(*)::INTEGER FROM public.medical_records WHERE pet_id = p_pet_id AND deleted_at IS NULL),
+        (SELECT MAX(visit_date) FROM public.medical_records WHERE pet_id = p_pet_id AND deleted_at IS NULL),
+        (SELECT weight_kg FROM public.medical_records WHERE pet_id = p_pet_id AND weight_kg IS NOT NULL AND deleted_at IS NULL ORDER BY visit_date DESC LIMIT 1),
+        (SELECT diagnosis_text FROM public.medical_records WHERE pet_id = p_pet_id AND diagnosis_text IS NOT NULL AND deleted_at IS NULL ORDER BY visit_date DESC LIMIT 1),
+        (SELECT COUNT(*)::INTEGER FROM public.prescriptions WHERE pet_id = p_pet_id AND status = 'active' AND deleted_at IS NULL),
+        (SELECT p.chronic_conditions FROM public.pets p WHERE p.id = p_pet_id);
+END;
+$$ LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path = public;
+
+COMMENT ON FUNCTION public.get_pet_medical_summary(UUID) IS
+'Get summary of pet medical history including visit count, last weight, active prescriptions';
+
+-- Get recent records for a pet
+CREATE OR REPLACE FUNCTION public.get_pet_recent_records(
+    p_pet_id UUID,
+    p_limit INTEGER DEFAULT 10
+)
+RETURNS TABLE (
+    record_id UUID,
+    record_type TEXT,
+    visit_date TIMESTAMPTZ,
+    diagnosis_text TEXT,
+    vet_name TEXT,
+    weight_kg NUMERIC
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT
+        mr.id,
+        mr.record_type,
+        mr.visit_date,
+        mr.diagnosis_text,
+        pr.full_name,
+        mr.weight_kg
+    FROM public.medical_records mr
+    LEFT JOIN public.profiles pr ON mr.vet_id = pr.id
+    WHERE mr.pet_id = p_pet_id
+    AND mr.deleted_at IS NULL
+    ORDER BY mr.visit_date DESC
+    LIMIT p_limit;
+END;
+$$ LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path = public;
+
+COMMENT ON FUNCTION public.get_pet_recent_records(UUID, INTEGER) IS
+'Get recent medical records for a pet with vet information';
+

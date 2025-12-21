@@ -1,0 +1,297 @@
+{
+  "$schema": "../../../schemas/store.schema.json",
+  "brand_slug": "pro-plan",
+  "products": [
+    {
+      "sku": "PP-DOG-ADULT-MED",
+      "name": "Pro Plan Adult Medium",
+      "description": "Alimento premium para perros adultos medianos con OptiHealth",
+      "category_slug": "NUT-CAN-SEC",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "3kg",
+          "base_price": 189000,
+          "cost_price": 113400,
+          "sku_suffix": "-3KG"
+        },
+        {
+          "size": "15kg",
+          "base_price": 695000,
+          "cost_price": 417000,
+          "sku_suffix": "-15KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop&q=proplan-adult-medium.png",
+      "attributes": {
+        "age_range": "1-7 años",
+        "breed_size": "Mediano",
+        "main_ingredient": "Pollo"
+      }
+    },
+    {
+      "sku": "PP-DOG-ADULT-LARGE",
+      "name": "Pro Plan Adult Large",
+      "description": "Alimento premium para perros adultos grandes con glucosamina",
+      "category_slug": "NUT-CAN-SEC",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "3kg",
+          "base_price": 195000,
+          "cost_price": 117000,
+          "sku_suffix": "-3KG"
+        },
+        {
+          "size": "15kg",
+          "base_price": 715000,
+          "cost_price": 429000,
+          "sku_suffix": "-15KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop&q=proplan-adult-large.png",
+      "attributes": {
+        "age_range": "1-7 años",
+        "breed_size": "Grande",
+        "joint_support": "Glucosamina"
+      }
+    },
+    {
+      "sku": "PP-DOG-PUPPY-MED",
+      "name": "Pro Plan Puppy Medium",
+      "description": "Alimento para cachorros medianos con OptiStart y DHA",
+      "category_slug": "NUT-CAN-SEC",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "3kg",
+          "base_price": 199000,
+          "cost_price": 119400,
+          "sku_suffix": "-3KG"
+        },
+        {
+          "size": "15kg",
+          "base_price": 735000,
+          "cost_price": 441000,
+          "sku_suffix": "-15KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop&q=proplan-puppy-medium.png",
+      "attributes": {
+        "age_range": "Hasta 1 año",
+        "breed_size": "Mediano",
+        "dha": "Desarrollo cerebral"
+      }
+    },
+    {
+      "sku": "PP-DOG-PUPPY-LARGE",
+      "name": "Pro Plan Puppy Large",
+      "description": "Alimento para cachorros grandes con crecimiento controlado",
+      "category_slug": "NUT-CAN-SEC",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "3kg",
+          "base_price": 205000,
+          "cost_price": 123000,
+          "sku_suffix": "-3KG"
+        },
+        {
+          "size": "15kg",
+          "base_price": 755000,
+          "cost_price": 453000,
+          "sku_suffix": "-15KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop&q=proplan-puppy-large.png",
+      "attributes": {
+        "age_range": "Hasta 2 años",
+        "breed_size": "Grande",
+        "growth_control": true
+      }
+    },
+    {
+      "sku": "PP-DOG-SENSITIVE-SKIN",
+      "name": "Pro Plan Sensitive Skin & Stomach",
+      "description": "Alimento para perros con piel y estómago sensible",
+      "category_slug": "NUT-CAN-SEC",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "3kg",
+          "base_price": 215000,
+          "cost_price": 129000,
+          "sku_suffix": "-3KG"
+        },
+        {
+          "size": "13.6kg",
+          "base_price": 785000,
+          "cost_price": 471000,
+          "sku_suffix": "-13.6KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop&q=proplan-sensitive.png",
+      "attributes": {
+        "special_need": "Piel y estómago sensible",
+        "protein_source": "Salmón"
+      }
+    },
+    {
+      "sku": "PP-DOG-PERFORMANCE",
+      "name": "Pro Plan Performance",
+      "description": "Alimento de alto rendimiento para perros activos y de trabajo",
+      "category_slug": "NUT-CAN-SEC",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "15kg",
+          "base_price": 765000,
+          "cost_price": 459000,
+          "sku_suffix": "-15KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop&q=proplan-performance.png",
+      "attributes": {
+        "activity_level": "Alto",
+        "protein_content": "30%",
+        "fat_content": "20%"
+      }
+    },
+    {
+      "sku": "PP-CAT-ADULT",
+      "name": "Pro Plan Adult Cat",
+      "description": "Alimento premium para gatos adultos con OptiRenal",
+      "category_slug": "NUT-FEL-SEC",
+      "target_species": [
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "1.5kg",
+          "base_price": 125000,
+          "cost_price": 75000,
+          "sku_suffix": "-1.5KG"
+        },
+        {
+          "size": "3kg",
+          "base_price": 225000,
+          "cost_price": 135000,
+          "sku_suffix": "-3KG"
+        },
+        {
+          "size": "7.5kg",
+          "base_price": 495000,
+          "cost_price": 297000,
+          "sku_suffix": "-7.5KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop&q=proplan-cat-adult.png",
+      "attributes": {
+        "age_range": "1-7 años",
+        "main_ingredient": "Pollo"
+      }
+    },
+    {
+      "sku": "PP-CAT-KITTEN",
+      "name": "Pro Plan Kitten",
+      "description": "Alimento para gatitos con OptiStart y DHA",
+      "category_slug": "NUT-FEL-SEC",
+      "target_species": [
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "1.5kg",
+          "base_price": 135000,
+          "cost_price": 81000,
+          "sku_suffix": "-1.5KG"
+        },
+        {
+          "size": "3kg",
+          "base_price": 245000,
+          "cost_price": 147000,
+          "sku_suffix": "-3KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop&q=proplan-kitten.png",
+      "attributes": {
+        "age_range": "Hasta 1 año",
+        "lifestage": "Kitten"
+      }
+    },
+    {
+      "sku": "PP-CAT-STERILISED",
+      "name": "Pro Plan Sterilised Cat",
+      "description": "Alimento para gatos esterilizados con control de peso",
+      "category_slug": "NUT-FEL-SEC",
+      "target_species": [
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "1.5kg",
+          "base_price": 129000,
+          "cost_price": 77400,
+          "sku_suffix": "-1.5KG"
+        },
+        {
+          "size": "3kg",
+          "base_price": 235000,
+          "cost_price": 141000,
+          "sku_suffix": "-3KG"
+        },
+        {
+          "size": "7.5kg",
+          "base_price": 515000,
+          "cost_price": 309000,
+          "sku_suffix": "-7.5KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop&q=proplan-cat-sterilised.png",
+      "attributes": {
+        "special_need": "Esterilizado",
+        "weight_control": true
+      }
+    },
+    {
+      "sku": "PP-CAT-URINARY",
+      "name": "Pro Plan Urinary Cat",
+      "description": "Alimento para gatos con salud urinaria óptima",
+      "category_slug": "NUT-FEL-SEC",
+      "target_species": [
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "1.5kg",
+          "base_price": 145000,
+          "cost_price": 87000,
+          "sku_suffix": "-1.5KG"
+        },
+        {
+          "size": "3kg",
+          "base_price": 265000,
+          "cost_price": 159000,
+          "sku_suffix": "-3KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop&q=proplan-cat-urinary.png",
+      "attributes": {
+        "special_need": "Salud urinaria",
+        "ph_balanced": true
+      }
+    }
+  ]
+}

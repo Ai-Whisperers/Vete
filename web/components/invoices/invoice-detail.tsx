@@ -72,7 +72,7 @@ export function InvoiceDetail({ invoice, clinic, clinicName, isAdmin }: InvoiceD
         <div className="flex flex-wrap gap-2">
           <InvoicePDFButton invoice={invoice} clinicName={clinicName} />
 
-          {canEditInvoice(invoice) && (
+          {canEditInvoice(invoice.status) && (
             <Link
               href={`/${clinic}/dashboard/invoices/${invoice.id}/edit`}
               className="inline-flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg text-[var(--text-primary)] hover:bg-gray-50"
@@ -82,7 +82,7 @@ export function InvoiceDetail({ invoice, clinic, clinicName, isAdmin }: InvoiceD
             </Link>
           )}
 
-          {canSendInvoice(invoice) && (
+          {canSendInvoice(invoice.status) && (
             <button
               onClick={() => setShowSendDialog(true)}
               className="inline-flex items-center gap-2 px-4 py-2 border border-blue-200 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100"
@@ -92,7 +92,7 @@ export function InvoiceDetail({ invoice, clinic, clinicName, isAdmin }: InvoiceD
             </button>
           )}
 
-          {canRecordPayment(invoice) && (
+          {canRecordPayment(invoice.status, invoice.amount_due) && (
             <button
               onClick={() => setShowPaymentDialog(true)}
               className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
@@ -102,7 +102,7 @@ export function InvoiceDetail({ invoice, clinic, clinicName, isAdmin }: InvoiceD
             </button>
           )}
 
-          {isAdmin && canVoidInvoice(invoice) && (
+          {isAdmin && canVoidInvoice(invoice.status) && (
             <button
               onClick={handleVoid}
               disabled={voidLoading}

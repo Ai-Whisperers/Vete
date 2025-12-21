@@ -17,6 +17,12 @@ import {
   ChevronRight,
   BadgePercent,
   X,
+  Dog,
+  Cat,
+  Sparkles,
+  TrendingUp,
+  Tag,
+  Clock,
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { createClient } from '@/lib/supabase/client';
@@ -137,9 +143,9 @@ export default function StorePageClient({ config, heroImage }: StorePageClientPr
 
         // Fetch wishlist
         const { data: wishlist } = await supabase
-          .from('store_wishlists')
+          .from('store_wishlist')
           .select('product_id')
-          .eq('user_id', session.user.id)
+          .eq('customer_id', session.user.id)
           .eq('tenant_id', clinic);
 
         if (wishlist) {
@@ -155,9 +161,9 @@ export default function StorePageClient({ config, heroImage }: StorePageClientPr
         setUser(session?.user ?? null);
         if (session?.user) {
           const { data: wishlist } = await supabase
-            .from('store_wishlists')
+            .from('store_wishlist')
             .select('product_id')
-            .eq('user_id', session.user.id)
+            .eq('customer_id', session.user.id)
             .eq('tenant_id', clinic);
 
           if (wishlist) {
@@ -345,20 +351,27 @@ export default function StorePageClient({ config, heroImage }: StorePageClientPr
       {/* Header */}
       <div className="bg-white border-b border-gray-100 sticky top-0 z-30 shadow-sm">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
-          <Link
-            href={`/${clinic}`}
-            className="flex items-center gap-2 font-bold text-[var(--primary)] hover:opacity-80 transition-opacity flex-shrink-0"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            <span className="hidden sm:inline">{labels.back_home || 'Volver'}</span>
-          </Link>
+          {/* Left: Back + Branding */}
+          <div className="flex items-center gap-3 flex-shrink-0">
+            <Link
+              href={`/${clinic}`}
+              className="flex items-center gap-2 text-[var(--primary)] hover:opacity-80 transition-opacity"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Link>
+            <div className="hidden sm:flex items-center gap-2">
+              <span className="font-bold text-lg text-[var(--text-primary)]">{config.name}</span>
+              <span className="text-gray-400">|</span>
+              <span className="text-sm text-gray-500">Tienda</span>
+            </div>
+          </div>
 
           {/* Search - Desktop */}
-          <form onSubmit={handleSearchSubmit} className="relative hidden md:block flex-1 max-w-lg">
+          <form onSubmit={handleSearchSubmit} className="relative hidden md:block flex-1 max-w-xl">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
               type="text"
-              placeholder={labels.search_placeholder || 'Buscar productos...'}
+              placeholder={labels.search_placeholder || 'Buscar productos, marcas, categorías...'}
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               className="w-full pl-12 pr-4 py-2.5 bg-gray-100 border-none rounded-full text-sm focus:ring-2 focus:ring-[var(--primary)] outline-none transition-all"
@@ -377,9 +390,10 @@ export default function StorePageClient({ config, heroImage }: StorePageClientPr
             )}
           </form>
 
+          {/* Right: Cart */}
           <Link
             href={`/${clinic}/cart`}
-            className="relative p-2 hover:bg-gray-100 rounded-full transition flex-shrink-0"
+            className="relative p-2 hover:bg-gray-100 rounded-full transition flex-shrink-0 hidden lg:flex"
           >
             <ShoppingBag className="w-6 h-6 text-gray-700" />
             {cartItemCount > 0 && (
@@ -391,7 +405,7 @@ export default function StorePageClient({ config, heroImage }: StorePageClientPr
         </div>
       </div>
 
-      {/* Hero Section */}
+      {/* Hero Section - Compact */}
       <div className="relative overflow-hidden">
         {heroImage ? (
           <>
@@ -411,34 +425,107 @@ export default function StorePageClient({ config, heroImage }: StorePageClientPr
                 backgroundSize: '24px 24px',
               }}
             />
-            <div
-              className="absolute right-0 top-0 bottom-0 w-1/2 bg-white/5"
-              style={{ clipPath: 'polygon(30% 0, 100% 0, 100% 100%, 0 100%)' }}
-            />
           </>
         )}
 
-        <div className="container mx-auto px-4 py-10 md:py-14 relative z-10">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="container mx-auto px-4 py-6 md:py-8 relative z-10">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="max-w-xl text-center md:text-left">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 rounded-full text-white/90 text-sm font-medium mb-4">
-                <Truck className="w-4 h-4" />
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/20 rounded-full text-white/90 text-xs font-medium mb-3">
+                <Truck className="w-3.5 h-3.5" />
                 Delivery Gratis +150.000 Gs
               </div>
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-white mb-3 leading-tight">
+              <h1 className="text-2xl md:text-3xl lg:text-4xl font-black text-white mb-2 leading-tight">
                 {labels.hero_title || 'Lo Mejor para tu Mascota'}
               </h1>
-              <p className="text-white/90 text-base md:text-lg leading-relaxed">
+              <p className="text-white/90 text-sm md:text-base leading-relaxed hidden md:block">
                 {labels.hero_subtitle ||
-                  'Encuentra alimentos premium, accesorios y medicamentos recomendados por nuestros veterinarios.'}
+                  'Alimentos, accesorios y medicamentos recomendados por veterinarios.'}
               </p>
             </div>
+          </div>
+        </div>
+      </div>
 
-            <div className="hidden lg:flex items-center justify-center">
-              <div className="w-28 h-28 rounded-full bg-white/10 flex items-center justify-center">
-                <ShoppingBag className="w-14 h-14 text-white/40" />
-              </div>
-            </div>
+      {/* Quick Category Chips */}
+      <div className="bg-white border-b border-gray-100 py-3 overflow-hidden">
+        <div className="container mx-auto px-4">
+          <div className="flex gap-2 overflow-x-auto pb-1 hide-scrollbar">
+            <button
+              onClick={() => handleFiltersChange({ ...filters, species: ['perro'] })}
+              className={clsx(
+                'flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all flex-shrink-0',
+                filters.species?.includes('perro')
+                  ? 'bg-[var(--primary)] text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              )}
+            >
+              <Dog className="w-4 h-4" />
+              Perros
+            </button>
+            <button
+              onClick={() => handleFiltersChange({ ...filters, species: ['gato'] })}
+              className={clsx(
+                'flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all flex-shrink-0',
+                filters.species?.includes('gato')
+                  ? 'bg-[var(--primary)] text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              )}
+            >
+              <Cat className="w-4 h-4" />
+              Gatos
+            </button>
+            <button
+              onClick={() => handleFiltersChange({ ...filters, on_sale: !filters.on_sale })}
+              className={clsx(
+                'flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all flex-shrink-0',
+                filters.on_sale
+                  ? 'bg-red-500 text-white'
+                  : 'bg-red-50 text-red-600 hover:bg-red-100'
+              )}
+            >
+              <Tag className="w-4 h-4" />
+              Ofertas
+            </button>
+            <button
+              onClick={() => handleFiltersChange({ ...filters, new_arrivals: !filters.new_arrivals })}
+              className={clsx(
+                'flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all flex-shrink-0',
+                filters.new_arrivals
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-blue-50 text-blue-600 hover:bg-blue-100'
+              )}
+            >
+              <Sparkles className="w-4 h-4" />
+              Nuevos
+            </button>
+            <button
+              onClick={() => handleFiltersChange({ ...filters, best_sellers: !filters.best_sellers })}
+              className={clsx(
+                'flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all flex-shrink-0',
+                filters.best_sellers
+                  ? 'bg-amber-500 text-white'
+                  : 'bg-amber-50 text-amber-600 hover:bg-amber-100'
+              )}
+            >
+              <TrendingUp className="w-4 h-4" />
+              Top Ventas
+            </button>
+            {/* Category quick links */}
+            {availableFilters.categories.slice(0, 4).map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => handleFiltersChange({ ...filters, category: cat.slug })}
+                className={clsx(
+                  'px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all flex-shrink-0',
+                  filters.category === cat.slug
+                    ? 'bg-[var(--primary)] text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                )}
+              >
+                {cat.name}
+              </button>
+            ))}
           </div>
         </div>
       </div>
@@ -471,11 +558,11 @@ export default function StorePageClient({ config, heroImage }: StorePageClientPr
           </div>
         </form>
 
-        {/* Mobile Filter Button */}
-        <div className="flex items-center justify-between gap-4 mb-4 lg:hidden">
+        {/* Mobile Filter & Sort - Grid Layout */}
+        <div className="grid grid-cols-2 gap-3 mb-4 lg:hidden">
           <button
             onClick={() => setIsFilterDrawerOpen(true)}
-            className="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 rounded-lg shadow-sm hover:border-[var(--primary)] transition-colors"
+            className="flex items-center justify-center gap-2 px-4 py-3 bg-white border border-gray-200 rounded-xl shadow-sm hover:border-[var(--primary)] transition-colors"
           >
             <SlidersHorizontal className="w-4 h-4" />
             <span className="font-medium">Filtros</span>
@@ -489,9 +576,23 @@ export default function StorePageClient({ config, heroImage }: StorePageClientPr
           <SortDropdown value={sort} onChange={handleSortChange} />
         </div>
 
-        <div className="flex gap-8">
-          {/* Desktop Sidebar */}
-          <div className="hidden lg:block">
+        {/* Promo Banner - Above Products */}
+        <div className="bg-gradient-to-r from-[var(--accent)]/20 to-[var(--primary)]/10 rounded-xl p-4 mb-6 border border-[var(--accent)]/20">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-[var(--accent)]/30 flex items-center justify-center flex-shrink-0">
+              <BadgePercent className="w-5 h-5 text-[var(--secondary-dark)]" />
+            </div>
+            <div>
+              <p className="font-medium text-[var(--text-primary)]">
+                ¡10% OFF en tu primera compra! Código: <span className="font-bold text-[var(--primary)]">PRIMERA10</span>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex gap-6 lg:gap-8">
+          {/* Desktop Sidebar - Wider */}
+          <div className="hidden lg:block w-72 flex-shrink-0">
             <FilterSidebar
               filters={filters}
               availableFilters={availableFilters}
@@ -509,10 +610,8 @@ export default function StorePageClient({ config, heroImage }: StorePageClientPr
                   {debouncedSearch
                     ? `Resultados para "${debouncedSearch}"`
                     : filters.category || 'Todos los productos'}
+                  <span className="font-normal text-[var(--text-muted)] ml-2">({totalProducts})</span>
                 </h2>
-                <p className="text-sm text-[var(--text-muted)]">
-                  {totalProducts} producto{totalProducts !== 1 ? 's' : ''} encontrado{totalProducts !== 1 ? 's' : ''}
-                </p>
               </div>
 
               <div className="hidden lg:block">
@@ -599,7 +698,7 @@ export default function StorePageClient({ config, heroImage }: StorePageClientPr
             {/* Product Grid */}
             {!loading && !error && products.length > 0 && (
               <>
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-5">
                   {products.map((product) => (
                     <EnhancedProductCard
                       key={product.id}
@@ -616,64 +715,71 @@ export default function StorePageClient({ config, heroImage }: StorePageClientPr
 
                 {/* Pagination */}
                 {totalPages > 1 && (
-                  <div className="flex items-center justify-center gap-2 mt-8">
-                    <button
-                      onClick={() => setPage((p) => Math.max(1, p - 1))}
-                      disabled={page === 1}
-                      className={clsx(
-                        'flex items-center gap-1 px-4 py-2 rounded-lg font-medium transition-colors',
-                        page === 1
-                          ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                          : 'bg-white border border-gray-200 text-gray-700 hover:border-[var(--primary)]'
-                      )}
-                    >
-                      <ChevronLeft className="w-4 h-4" />
-                      Anterior
-                    </button>
+                  <div className="flex flex-col items-center gap-4 mt-8">
+                    {/* Page Info */}
+                    <p className="text-sm text-[var(--text-muted)]">
+                      Página {page} de {totalPages}
+                    </p>
 
-                    <div className="flex items-center gap-1">
-                      {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                        let pageNum: number;
-                        if (totalPages <= 5) {
-                          pageNum = i + 1;
-                        } else if (page <= 3) {
-                          pageNum = i + 1;
-                        } else if (page >= totalPages - 2) {
-                          pageNum = totalPages - 4 + i;
-                        } else {
-                          pageNum = page - 2 + i;
-                        }
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setPage((p) => Math.max(1, p - 1))}
+                        disabled={page === 1}
+                        className={clsx(
+                          'flex items-center gap-1 px-4 py-2.5 rounded-lg font-medium transition-colors',
+                          page === 1
+                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                            : 'bg-white border border-gray-200 text-gray-700 hover:border-[var(--primary)] hover:bg-gray-50'
+                        )}
+                      >
+                        <ChevronLeft className="w-4 h-4" />
+                        <span className="hidden sm:inline">Anterior</span>
+                      </button>
 
-                        return (
-                          <button
-                            key={pageNum}
-                            onClick={() => setPage(pageNum)}
-                            className={clsx(
-                              'w-10 h-10 rounded-lg font-medium transition-colors',
-                              page === pageNum
-                                ? 'bg-[var(--primary)] text-white'
-                                : 'bg-white border border-gray-200 text-gray-700 hover:border-[var(--primary)]'
-                            )}
-                          >
-                            {pageNum}
-                          </button>
-                        );
-                      })}
+                      <div className="flex items-center gap-1">
+                        {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                          let pageNum: number;
+                          if (totalPages <= 5) {
+                            pageNum = i + 1;
+                          } else if (page <= 3) {
+                            pageNum = i + 1;
+                          } else if (page >= totalPages - 2) {
+                            pageNum = totalPages - 4 + i;
+                          } else {
+                            pageNum = page - 2 + i;
+                          }
+
+                          return (
+                            <button
+                              key={pageNum}
+                              onClick={() => setPage(pageNum)}
+                              className={clsx(
+                                'w-10 h-10 rounded-lg font-medium transition-colors',
+                                page === pageNum
+                                  ? 'bg-[var(--primary)] text-white shadow-sm'
+                                  : 'bg-white border border-gray-200 text-gray-700 hover:border-[var(--primary)] hover:bg-gray-50'
+                              )}
+                            >
+                              {pageNum}
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      <button
+                        onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                        disabled={page === totalPages}
+                        className={clsx(
+                          'flex items-center gap-1 px-4 py-2.5 rounded-lg font-medium transition-colors',
+                          page === totalPages
+                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                            : 'bg-white border border-gray-200 text-gray-700 hover:border-[var(--primary)] hover:bg-gray-50'
+                        )}
+                      >
+                        <span className="hidden sm:inline">Siguiente</span>
+                        <ChevronRight className="w-4 h-4" />
+                      </button>
                     </div>
-
-                    <button
-                      onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                      disabled={page === totalPages}
-                      className={clsx(
-                        'flex items-center gap-1 px-4 py-2 rounded-lg font-medium transition-colors',
-                        page === totalPages
-                          ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                          : 'bg-white border border-gray-200 text-gray-700 hover:border-[var(--primary)]'
-                      )}
-                    >
-                      Siguiente
-                      <ChevronRight className="w-4 h-4" />
-                    </button>
                   </div>
                 )}
               </>
@@ -681,23 +787,52 @@ export default function StorePageClient({ config, heroImage }: StorePageClientPr
           </div>
         </div>
 
-        {/* Promo Banner */}
-        <div className="mt-10 bg-gradient-to-r from-[var(--accent)]/20 to-[var(--primary)]/10 rounded-2xl p-6 md:p-8 border border-[var(--accent)]/20">
-          <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6">
-            <div className="w-14 h-14 rounded-full bg-[var(--accent)]/30 flex items-center justify-center flex-shrink-0">
-              <BadgePercent className="w-7 h-7 text-[var(--secondary-dark)]" />
+        {/* Recently Viewed Section */}
+        {products.length > 0 && (
+          <div className="mt-10 pt-8 border-t border-gray-200">
+            <div className="flex items-center gap-2 mb-4">
+              <Clock className="w-5 h-5 text-[var(--text-muted)]" />
+              <h3 className="font-bold text-lg text-[var(--text-primary)]">Vistos recientemente</h3>
             </div>
-            <div className="text-center md:text-left">
-              <h3 className="font-bold text-lg text-[var(--text-primary)] mb-1">
-                ¡10% de descuento en tu primera compra!
-              </h3>
-              <p className="text-[var(--text-secondary)]">
-                Usa el código <span className="font-bold text-[var(--primary)]">PRIMERA10</span> al finalizar tu compra
-              </p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+              {products.slice(0, 6).map((product) => (
+                <Link
+                  key={`recent-${product.id}`}
+                  href={`/${clinic}/store/product/${product.id}`}
+                  className="group bg-white rounded-lg border border-gray-100 p-2 hover:shadow-md hover:border-[var(--primary)]/30 transition-all"
+                >
+                  <div className="aspect-square relative mb-2 bg-gray-50 rounded overflow-hidden">
+                    <img
+                      src={product.image_url || '/placeholder-product.svg'}
+                      alt={product.name}
+                      className="w-full h-full object-contain p-1"
+                    />
+                  </div>
+                  <p className="text-xs font-medium text-[var(--text-primary)] line-clamp-2 group-hover:text-[var(--primary)]">
+                    {product.name}
+                  </p>
+                  <p className="text-xs font-bold text-[var(--primary)] mt-1">
+                    Gs {product.current_price?.toLocaleString('es-PY')}
+                  </p>
+                </Link>
+              ))}
             </div>
           </div>
-        </div>
+        )}
       </div>
+
+      {/* Floating Cart Button - Mobile Only */}
+      <Link
+        href={`/${clinic}/cart`}
+        className="fixed bottom-6 right-6 z-40 lg:hidden w-14 h-14 bg-[var(--primary)] text-white rounded-full shadow-lg flex items-center justify-center hover:scale-105 transition-transform"
+      >
+        <ShoppingBag className="w-6 h-6" />
+        {cartItemCount > 0 && (
+          <span className="absolute -top-1 -right-1 w-6 h-6 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center border-2 border-white">
+            {cartItemCount > 9 ? '9+' : cartItemCount}
+          </span>
+        )}
+      </Link>
 
       {/* Mobile Filter Drawer */}
       <FilterDrawer

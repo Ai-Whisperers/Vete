@@ -57,6 +57,11 @@ CREATE TABLE IF NOT EXISTS public.suppliers (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+COMMENT ON TABLE public.suppliers IS 'Product suppliers. NULL tenant_id = global platform-verified, SET = local clinic-specific';
+COMMENT ON COLUMN public.suppliers.tenant_id IS 'NULL for global (platform-verified) suppliers, SET for local (clinic-specific)';
+COMMENT ON COLUMN public.suppliers.is_platform_provider IS 'TRUE if this is the platform aggregator (us)';
+COMMENT ON COLUMN public.suppliers.verification_status IS 'Verification status: pending, verified, rejected';
+
 -- =============================================================================
 -- STORE CATEGORIES
 -- =============================================================================
@@ -73,8 +78,8 @@ CREATE TABLE IF NOT EXISTS public.store_categories (
     description TEXT,
     parent_id UUID REFERENCES public.store_categories(id),
 
-    -- Hierarchy level (1 = top, 2 = sub, 3 = leaf)
-    level INTEGER DEFAULT 1 CHECK (level BETWEEN 1 AND 3),
+    -- Hierarchy level (1 = top, 2 = sub, 3 = detail, 4 = granular, 5 = micro)
+    level INTEGER DEFAULT 1 CHECK (level BETWEEN 1 AND 5),
 
     -- Media
     image_url TEXT,
@@ -95,6 +100,10 @@ CREATE TABLE IF NOT EXISTS public.store_categories (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+COMMENT ON TABLE public.store_categories IS 'Product categories. NULL tenant_id = global platform category, SET = local clinic-specific';
+COMMENT ON COLUMN public.store_categories.level IS 'Hierarchy level: 1=top, 2=sub, 3=detail, 4=granular, 5=micro';
+COMMENT ON COLUMN public.store_categories.is_global_catalog IS 'TRUE for platform-verified categories';
 
 -- Unique constraint: global categories have unique slugs, local categories unique per tenant
 CREATE UNIQUE INDEX IF NOT EXISTS idx_store_categories_global_slug
@@ -135,6 +144,9 @@ CREATE TABLE IF NOT EXISTS public.store_brands (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+COMMENT ON TABLE public.store_brands IS 'Product brands. NULL tenant_id = global platform brand, SET = local clinic-specific';
+COMMENT ON COLUMN public.store_brands.is_global_catalog IS 'TRUE for platform-verified brands';
 
 -- Unique constraint: global brands have unique slugs, local brands unique per tenant
 CREATE UNIQUE INDEX IF NOT EXISTS idx_store_brands_global_slug
@@ -183,8 +195,9 @@ CREATE TABLE IF NOT EXISTS public.store_products (
     -- Unit of SALE (how you sell to customers)
     sale_unit TEXT DEFAULT 'Unidad'
         CHECK (sale_unit IN (
-            'Unidad', 'Tableta', 'Ampolla', 'ml', 'g', 'Kg',
-            'Dosis', 'Aplicación', 'Bolsa', 'Frasco', 'Caja'
+            'Unidad', 'Tableta', 'Ampolla', 'Cápsula', 'Comprimido',
+            'ml', 'g', 'Kg', 'Dosis', 'Aplicación',
+            'Bolsa', 'Frasco', 'Caja', 'Sobre', 'Pipeta'
         )),
 
     -- Conversion: 1 purchase_unit = N sale_units
@@ -232,6 +245,9 @@ CREATE TABLE IF NOT EXISTS public.store_products (
     is_featured BOOLEAN DEFAULT false,
     requires_prescription BOOLEAN DEFAULT false,
 
+    -- Display
+    display_order INTEGER DEFAULT 100,
+
     -- ==========================================================================
     -- GLOBAL CATALOG FLAGS (B2B Layer)
     -- ==========================================================================
@@ -254,6 +270,15 @@ CREATE TABLE IF NOT EXISTS public.store_products (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+COMMENT ON TABLE public.store_products IS 'Product catalog. NULL tenant_id = global catalog, SET = local clinic product. Supports dual-unit inventory.';
+COMMENT ON COLUMN public.store_products.purchase_unit IS 'Unit for purchasing from supplier (e.g., Caja, Bulto)';
+COMMENT ON COLUMN public.store_products.sale_unit IS 'Unit for selling to customer (e.g., Tableta, Unidad)';
+COMMENT ON COLUMN public.store_products.conversion_factor IS '1 purchase_unit = N sale_units (e.g., 1 Caja = 100 Tabletas)';
+COMMENT ON COLUMN public.store_products.purchase_price IS 'Price per purchase_unit (what you pay supplier)';
+COMMENT ON COLUMN public.store_products.unit_cost IS 'Computed cost per sale_unit = purchase_price / conversion_factor';
+COMMENT ON COLUMN public.store_products.base_price IS 'Selling price per sale_unit';
+COMMENT ON COLUMN public.store_products.is_global_catalog IS 'TRUE for platform-verified global catalog products';
 
 -- Unique constraint: global products have unique SKUs, local products unique per tenant
 CREATE UNIQUE INDEX IF NOT EXISTS idx_store_products_global_sku
@@ -295,8 +320,17 @@ CREATE TABLE IF NOT EXISTS public.store_inventory (
     -- Timestamps
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
-    UNIQUE(product_id)
+    UNIQUE(product_id),
+    
+    -- CHECK constraints
+    CONSTRAINT store_inventory_stock_non_negative CHECK (stock_quantity >= 0),
+    CONSTRAINT store_inventory_reserved_valid CHECK (COALESCE(reserved_quantity, 0) <= stock_quantity)
 );
+
+COMMENT ON TABLE public.store_inventory IS 'Per-product per-clinic inventory levels with weighted average cost tracking';
+COMMENT ON COLUMN public.store_inventory.available_quantity IS 'Computed: stock_quantity - reserved_quantity';
+COMMENT ON COLUMN public.store_inventory.weighted_average_cost IS 'Running WAC updated on purchase transactions';
+COMMENT ON COLUMN public.store_inventory.reorder_point IS 'Stock level at which to reorder';
 
 -- =============================================================================
 -- INVENTORY TRANSACTIONS
@@ -324,6 +358,10 @@ CREATE TABLE IF NOT EXISTS public.store_inventory_transactions (
     -- Timestamps
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+COMMENT ON TABLE public.store_inventory_transactions IS 'Inventory movement ledger: purchases, sales, adjustments, returns, damages';
+COMMENT ON COLUMN public.store_inventory_transactions.type IS 'Transaction type: purchase, sale, adjustment, return, damage, theft, expired, transfer';
+COMMENT ON COLUMN public.store_inventory_transactions.quantity IS 'Positive = add stock, Negative = remove stock';
 
 -- =============================================================================
 -- STORE CAMPAIGNS
@@ -361,6 +399,9 @@ CREATE TABLE IF NOT EXISTS public.store_campaigns (
     CONSTRAINT store_campaigns_dates CHECK (end_date > start_date)
 );
 
+COMMENT ON TABLE public.store_campaigns IS 'Promotional campaigns: sales, BOGO, bundles, flash sales, seasonal';
+COMMENT ON COLUMN public.store_campaigns.campaign_type IS 'Campaign type: sale, bogo (buy one get one), bundle, flash, seasonal';
+
 -- =============================================================================
 -- CAMPAIGN ITEMS - WITH TENANT_ID
 -- =============================================================================
@@ -377,6 +418,8 @@ CREATE TABLE IF NOT EXISTS public.store_campaign_items (
 
     UNIQUE(campaign_id, product_id)
 );
+
+COMMENT ON TABLE public.store_campaign_items IS 'Products included in a campaign with optional item-specific discounts';
 
 -- =============================================================================
 -- STORE COUPONS
@@ -422,8 +465,25 @@ CREATE TABLE IF NOT EXISTS public.store_coupons (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
-    UNIQUE(tenant_id, code)
+    UNIQUE(tenant_id, code),
+    
+    -- CHECK constraints
+    CONSTRAINT store_coupons_discount_positive CHECK (discount_value > 0),
+    CONSTRAINT store_coupons_percentage_valid CHECK (
+        discount_type != 'percentage' OR
+        (discount_value > 0 AND discount_value <= 100)
+    ),
+    CONSTRAINT store_coupons_valid_period CHECK (valid_until IS NULL OR valid_until > valid_from),
+    CONSTRAINT store_coupons_usage_valid CHECK (
+        usage_limit IS NULL OR
+        COALESCE(usage_count, 0) <= usage_limit
+    )
 );
+
+COMMENT ON TABLE public.store_coupons IS 'Discount coupons with usage limits and validity periods';
+COMMENT ON COLUMN public.store_coupons.discount_type IS 'percentage, fixed_amount, or free_shipping';
+COMMENT ON COLUMN public.store_coupons.applicable_products IS 'Array of product UUIDs this coupon applies to (NULL = all)';
+COMMENT ON COLUMN public.store_coupons.applicable_categories IS 'Array of category UUIDs this coupon applies to (NULL = all)';
 
 -- =============================================================================
 -- STORE ORDERS
@@ -497,6 +557,10 @@ CREATE TABLE IF NOT EXISTS public.store_orders (
     UNIQUE(tenant_id, order_number)
 );
 
+COMMENT ON TABLE public.store_orders IS 'Customer orders with status tracking and payment handling';
+COMMENT ON COLUMN public.store_orders.status IS 'Workflow: pending → confirmed → processing → ready → shipped → delivered. Also: cancelled, refunded';
+COMMENT ON COLUMN public.store_orders.payment_status IS 'Payment status: pending, paid, failed, refunded';
+
 -- =============================================================================
 -- STORE ORDER ITEMS - WITH TENANT_ID
 -- =============================================================================
@@ -519,6 +583,10 @@ CREATE TABLE IF NOT EXISTS public.store_order_items (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+COMMENT ON TABLE public.store_order_items IS 'Order line items with product snapshot at time of purchase';
+COMMENT ON COLUMN public.store_order_items.product_name IS 'Snapshot of product name at purchase time';
+COMMENT ON COLUMN public.store_order_items.unit_price IS 'Snapshot of price at purchase time';
+
 -- =============================================================================
 -- PRICE HISTORY
 -- =============================================================================
@@ -540,6 +608,9 @@ CREATE TABLE IF NOT EXISTS public.store_price_history (
     -- Timestamps
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+COMMENT ON TABLE public.store_price_history IS 'Price change audit log for products (auto-tracked via trigger)';
+COMMENT ON COLUMN public.store_price_history.price_type IS 'Which price changed: base, sale, or cost';
 
 -- =============================================================================
 -- PRODUCT REVIEWS
@@ -573,6 +644,9 @@ CREATE TABLE IF NOT EXISTS public.store_reviews (
     UNIQUE(product_id, customer_id)
 );
 
+COMMENT ON TABLE public.store_reviews IS 'Product reviews with moderation. One review per customer per product.';
+COMMENT ON COLUMN public.store_reviews.is_approved IS 'Review must be approved before public display';
+
 -- =============================================================================
 -- WISHLIST
 -- =============================================================================
@@ -588,6 +662,8 @@ CREATE TABLE IF NOT EXISTS public.store_wishlist (
 
     UNIQUE(customer_id, product_id)
 );
+
+COMMENT ON TABLE public.store_wishlist IS 'Customer wishlists for saved products';
 
 -- =============================================================================
 -- PROCUREMENT LEADS (B2B Market Intelligence)
@@ -646,6 +722,12 @@ CREATE TABLE IF NOT EXISTS public.procurement_leads (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+COMMENT ON TABLE public.procurement_leads IS 'B2B market intelligence: captured competitor/supplier data from clinic imports';
+COMMENT ON COLUMN public.procurement_leads.status IS 'Processing status: new, processing, matched, unmatched, ignored, converted';
+COMMENT ON COLUMN public.procurement_leads.match_confidence IS 'Auto-matching confidence 0-100%';
+COMMENT ON COLUMN public.procurement_leads.is_new_product IS 'TRUE if product not found in global catalog (market opportunity)';
+COMMENT ON COLUMN public.procurement_leads.price_variance IS 'Percentage difference from catalog price (negative = cheaper elsewhere)';
+
 -- =============================================================================
 -- CLINIC PRODUCT ASSIGNMENTS (Link global products to clinics)
 -- =============================================================================
@@ -678,6 +760,10 @@ CREATE TABLE IF NOT EXISTS public.clinic_product_assignments (
     -- Each clinic can only assign a product once
     UNIQUE(tenant_id, catalog_product_id)
 );
+
+COMMENT ON TABLE public.clinic_product_assignments IS 'Links global catalog products to clinics with custom pricing and margins';
+COMMENT ON COLUMN public.clinic_product_assignments.sale_price IS 'What THIS clinic charges (may differ from catalog suggestion)';
+COMMENT ON COLUMN public.clinic_product_assignments.margin_percentage IS 'Computed margin: ((sale_price - unit_cost) / sale_price) * 100';
 
 -- =============================================================================
 -- ROW LEVEL SECURITY
@@ -1014,9 +1100,17 @@ CREATE INDEX IF NOT EXISTS idx_store_products_featured ON public.store_products(
     WHERE is_featured = true AND is_active = true AND deleted_at IS NULL;
 
 -- Product list covering index
-CREATE INDEX IF NOT EXISTS idx_store_products_list ON public.store_products(tenant_id, category_id)
+CREATE INDEX IF NOT EXISTS idx_store_products_list ON public.store_products(tenant_id, category_id, display_order)
     INCLUDE (name, base_price, sale_price, image_url, is_featured)
     WHERE is_active = true AND deleted_at IS NULL;
+
+-- Product search (requires pg_trgm extension)
+CREATE INDEX IF NOT EXISTS idx_products_search ON public.store_products USING gin(name gin_trgm_ops);
+
+-- Featured products
+CREATE INDEX IF NOT EXISTS idx_products_featured_list ON public.store_products(tenant_id)
+    INCLUDE (name, base_price, sale_price, image_url, category_id)
+    WHERE is_featured = true AND is_active = true AND deleted_at IS NULL;
 
 CREATE INDEX IF NOT EXISTS idx_store_inventory_product ON public.store_inventory(product_id);
 CREATE INDEX IF NOT EXISTS idx_store_inventory_tenant ON public.store_inventory(tenant_id);
@@ -1050,6 +1144,10 @@ CREATE INDEX IF NOT EXISTS idx_store_order_items_tenant ON public.store_order_it
 CREATE INDEX IF NOT EXISTS idx_store_order_items_product ON public.store_order_items(product_id);
 
 CREATE INDEX IF NOT EXISTS idx_store_price_history_product ON public.store_price_history(product_id);
+
+-- BRIN index for price history
+CREATE INDEX IF NOT EXISTS idx_store_price_history_date_brin ON public.store_price_history
+    USING BRIN(created_at) WITH (pages_per_range = 32);
 
 CREATE INDEX IF NOT EXISTS idx_store_reviews_product ON public.store_reviews(product_id);
 CREATE INDEX IF NOT EXISTS idx_store_reviews_customer ON public.store_reviews(customer_id);
@@ -1086,6 +1184,20 @@ CREATE INDEX IF NOT EXISTS idx_store_products_supplier ON public.store_products(
     WHERE default_supplier_id IS NOT NULL;
 CREATE INDEX IF NOT EXISTS idx_store_products_verification ON public.store_products(verification_status)
     WHERE verification_status = 'pending';
+
+-- GIN indexes for array columns (efficient array containment queries)
+CREATE INDEX IF NOT EXISTS idx_store_products_species_gin ON public.store_products USING gin(target_species)
+    WHERE target_species IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_store_coupons_products_gin ON public.store_coupons USING gin(applicable_products)
+    WHERE applicable_products IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_store_coupons_categories_gin ON public.store_coupons USING gin(applicable_categories)
+    WHERE applicable_categories IS NOT NULL;
+
+-- GIN indexes for JSONB columns (efficient key/value queries)
+CREATE INDEX IF NOT EXISTS idx_store_products_attributes_gin ON public.store_products USING gin(attributes jsonb_path_ops)
+    WHERE attributes IS NOT NULL AND attributes != '{}';
+CREATE INDEX IF NOT EXISTS idx_store_products_dimensions_gin ON public.store_products USING gin(dimensions jsonb_path_ops)
+    WHERE dimensions IS NOT NULL;
 
 -- =============================================================================
 -- TRIGGERS
@@ -1153,7 +1265,7 @@ BEGIN
     END IF;
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SET search_path = public;
 
 DROP TRIGGER IF EXISTS campaign_items_auto_tenant ON public.store_campaign_items;
 CREATE TRIGGER campaign_items_auto_tenant
@@ -1170,7 +1282,7 @@ BEGIN
     END IF;
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SET search_path = public;
 
 DROP TRIGGER IF EXISTS order_items_auto_tenant ON public.store_order_items;
 CREATE TRIGGER order_items_auto_tenant
@@ -1206,7 +1318,7 @@ BEGIN
 
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SET search_path = public;
 
 DROP TRIGGER IF EXISTS inventory_txn_update_stock ON public.store_inventory_transactions;
 CREATE TRIGGER inventory_txn_update_stock
@@ -1229,7 +1341,7 @@ BEGIN
 
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SET search_path = public;
 
 DROP TRIGGER IF EXISTS product_price_change ON public.store_products;
 CREATE TRIGGER product_price_change
@@ -1286,28 +1398,33 @@ BEGIN
 
     RETURN QUERY SELECT true, v_coupon.id, v_coupon.discount_type, v_coupon.discount_value, 'Cupón válido'::TEXT;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 -- Generate order number
 CREATE OR REPLACE FUNCTION public.generate_order_number(p_tenant_id TEXT)
 RETURNS TEXT AS $$
 DECLARE
-    v_number INTEGER;
-    v_lock_id BIGINT;
+    v_seq INTEGER;
+    v_lock_key BIGINT;
 BEGIN
-    v_lock_id := ('x' || substr(md5(p_tenant_id || 'ORD'), 1, 8))::bit(32)::bigint;
-    PERFORM pg_advisory_xact_lock(v_lock_id);
+    -- Orders don't reset yearly, so we use year = 0
+    v_lock_key := hashtext(p_tenant_id || ':order:0');
 
-    INSERT INTO public.document_sequences (tenant_id, document_type, last_number, prefix)
-    VALUES (p_tenant_id, 'order', 1, 'ORD')
-    ON CONFLICT (tenant_id, document_type) DO UPDATE
-    SET last_number = public.document_sequences.last_number + 1,
+    -- Acquire advisory lock
+    PERFORM pg_advisory_xact_lock(v_lock_key);
+
+    -- Upsert with year = 0 to indicate non-yearly sequence
+    INSERT INTO public.document_sequences (tenant_id, document_type, year, current_sequence, prefix)
+    VALUES (p_tenant_id, 'order', 0, 1, 'ORD')
+    ON CONFLICT (tenant_id, document_type, year)
+    DO UPDATE SET
+        current_sequence = public.document_sequences.current_sequence + 1,
         updated_at = NOW()
-    RETURNING last_number INTO v_number;
+    RETURNING current_sequence INTO v_seq;
 
-    RETURN 'ORD' || LPAD(v_number::TEXT, 6, '0');
+    RETURN 'ORD' || LPAD(v_seq::TEXT, 6, '0');
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SET search_path = public;
 
 -- =============================================================================
 -- B2B FUNCTIONS
@@ -1333,7 +1450,7 @@ BEGIN
 
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SET search_path = public;
 
 DROP TRIGGER IF EXISTS calc_margin_on_assignment ON public.clinic_product_assignments;
 CREATE TRIGGER calc_margin_on_assignment
@@ -1395,7 +1512,7 @@ BEGIN
     ORDER BY p.name
     LIMIT p_limit OFFSET p_offset;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 -- Import procurement lead from external data
 CREATE OR REPLACE FUNCTION public.import_procurement_lead(
@@ -1504,7 +1621,7 @@ BEGIN
 
     RETURN v_lead_id;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 -- Get clinic's product inventory with margin info
 CREATE OR REPLACE FUNCTION public.get_clinic_inventory(
@@ -1595,5 +1712,5 @@ BEGIN
 
     ORDER BY name;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 

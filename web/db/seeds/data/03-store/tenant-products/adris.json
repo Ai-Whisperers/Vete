@@ -1,0 +1,162 @@
+{
+  "$schema": "../../_schemas/store.schema.json#/definitions/TenantProductsFile",
+  "tenant_id": "adris",
+  "description": "Products carried by Veterinaria Adris with local pricing",
+  "products": [
+    {
+      "sku": "RC-DOG-ADULT-MED-15KG",
+      "sale_price": 485000,
+      "min_stock_level": 5,
+      "location": "Estante A1",
+      "initial_stock": 12
+    },
+    {
+      "sku": "RC-DOG-ADULT-MED-3KG",
+      "sale_price": 125000,
+      "min_stock_level": 8,
+      "location": "Estante A1",
+      "initial_stock": 20
+    },
+    {
+      "sku": "RC-DOG-PUPPY-MED-15KG",
+      "sale_price": 520000,
+      "min_stock_level": 4,
+      "location": "Estante A2",
+      "initial_stock": 8
+    },
+    {
+      "sku": "RC-DOG-PUPPY-MED-3KG",
+      "sale_price": 135000,
+      "min_stock_level": 10,
+      "location": "Estante A2",
+      "initial_stock": 15
+    },
+    {
+      "sku": "RC-CAT-ADULT-4KG",
+      "sale_price": 195000,
+      "min_stock_level": 6,
+      "location": "Estante B1",
+      "initial_stock": 10
+    },
+    {
+      "sku": "RC-CAT-KITTEN-4KG",
+      "sale_price": 210000,
+      "min_stock_level": 5,
+      "location": "Estante B1",
+      "initial_stock": 8
+    },
+    {
+      "sku": "HILLS-SD-ADULT-12KG",
+      "sale_price": 520000,
+      "min_stock_level": 3,
+      "location": "Estante A3",
+      "initial_stock": 6
+    },
+    {
+      "sku": "HILLS-SD-PUPPY-12KG",
+      "sale_price": 550000,
+      "min_stock_level": 3,
+      "location": "Estante A3",
+      "initial_stock": 5
+    },
+    {
+      "sku": "NEXGARD-S-3",
+      "sale_price": 145000,
+      "min_stock_level": 10,
+      "location": "Vitrina 1",
+      "initial_stock": 25,
+      "requires_prescription": false
+    },
+    {
+      "sku": "NEXGARD-M-3",
+      "sale_price": 165000,
+      "min_stock_level": 15,
+      "location": "Vitrina 1",
+      "initial_stock": 30
+    },
+    {
+      "sku": "NEXGARD-L-3",
+      "sale_price": 180000,
+      "min_stock_level": 12,
+      "location": "Vitrina 1",
+      "initial_stock": 25
+    },
+    {
+      "sku": "NEXGARD-XL-3",
+      "sale_price": 195000,
+      "min_stock_level": 8,
+      "location": "Vitrina 1",
+      "initial_stock": 15
+    },
+    {
+      "sku": "BRAVECTO-S-1",
+      "sale_price": 185000,
+      "min_stock_level": 8,
+      "location": "Vitrina 1",
+      "initial_stock": 12
+    },
+    {
+      "sku": "BRAVECTO-M-1",
+      "sale_price": 210000,
+      "min_stock_level": 10,
+      "location": "Vitrina 1",
+      "initial_stock": 15
+    },
+    {
+      "sku": "BRAVECTO-L-1",
+      "sale_price": 235000,
+      "min_stock_level": 10,
+      "location": "Vitrina 1",
+      "initial_stock": 18
+    },
+    {
+      "sku": "BRAVECTO-XL-1",
+      "sale_price": 260000,
+      "min_stock_level": 6,
+      "location": "Vitrina 1",
+      "initial_stock": 10
+    },
+    {
+      "sku": "FRONTLINE-S-3",
+      "sale_price": 85000,
+      "min_stock_level": 15,
+      "location": "Vitrina 2",
+      "initial_stock": 30
+    },
+    {
+      "sku": "FRONTLINE-M-3",
+      "sale_price": 95000,
+      "min_stock_level": 15,
+      "location": "Vitrina 2",
+      "initial_stock": 30
+    },
+    {
+      "sku": "FRONTLINE-L-3",
+      "sale_price": 105000,
+      "min_stock_level": 12,
+      "location": "Vitrina 2",
+      "initial_stock": 25
+    },
+    {
+      "sku": "PP-DOG-ADULT-15KG",
+      "sale_price": 450000,
+      "min_stock_level": 4,
+      "location": "Estante A4",
+      "initial_stock": 8
+    },
+    {
+      "sku": "PP-DOG-PUPPY-15KG",
+      "sale_price": 480000,
+      "min_stock_level": 4,
+      "location": "Estante A4",
+      "initial_stock": 6
+    },
+    {
+      "sku": "PP-CAT-ADULT-7KG",
+      "sale_price": 295000,
+      "min_stock_level": 5,
+      "location": "Estante B2",
+      "initial_stock": 8
+    }
+  ]
+}

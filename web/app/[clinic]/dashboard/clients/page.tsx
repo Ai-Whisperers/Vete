@@ -38,6 +38,8 @@ export default async function ClientsPage({ params, searchParams }: Props) {
   const supabase = await createClient()
 
   // Fetch clients (pet owners) for this tenant
+  // NOTE: Using !owner_id hint to specify the FK relationship since pets has multiple FKs to profiles
+  // Appointments are fetched through pets since there's no direct client_id on appointments
   let query = supabase
     .from('profiles')
     .select(`
@@ -46,8 +48,10 @@ export default async function ClientsPage({ params, searchParams }: Props) {
       email,
       phone,
       created_at,
-      pets:pets(count),
-      appointments:appointments(appointment_date)
+      pets:pets!owner_id(
+        id,
+        appointments(start_time)
+      )
     `)
     .eq('tenant_id', profile.tenant_id)
     .eq('role', 'owner')
@@ -73,12 +77,17 @@ export default async function ClientsPage({ params, searchParams }: Props) {
 
   // Transform data to get pet count and last visit
   const clients: Client[] = (rawClients || []).map((client: any) => {
-    const petCount = Array.isArray(client.pets) ? client.pets.length : 0
-    const appointments = Array.isArray(client.appointments) ? client.appointments : []
-    const lastVisit = appointments.length > 0
-      ? appointments.sort((a: any, b: any) =>
-          new Date(b.appointment_date).getTime() - new Date(a.appointment_date).getTime()
-        )[0]?.appointment_date
+    const pets = Array.isArray(client.pets) ? client.pets : []
+    const petCount = pets.length
+
+    // Collect all appointments from all pets and find the most recent
+    const allAppointments = pets.flatMap((pet: any) =>
+      Array.isArray(pet.appointments) ? pet.appointments : []
+    )
+    const lastVisit = allAppointments.length > 0
+      ? allAppointments.sort((a: any, b: any) =>
+          new Date(b.start_time).getTime() - new Date(a.start_time).getTime()
+        )[0]?.start_time
       : null
 
     return {

@@ -1,0 +1,282 @@
+{
+  "$schema": "../../../schemas/store.schema.json",
+  "brand_slug": "pedigree",
+  "products": [
+    {
+      "sku": "PED-DOG-ADULT",
+      "name": "Pedigree Adulto",
+      "description": "Alimento completo para perros adultos con carne y vegetales",
+      "category_slug": "NUT-CAN-SEC",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "3kg",
+          "base_price": 65000,
+          "cost_price": 39000,
+          "sku_suffix": "-3KG"
+        },
+        {
+          "size": "8kg",
+          "base_price": 145000,
+          "cost_price": 87000,
+          "sku_suffix": "-8KG"
+        },
+        {
+          "size": "15kg",
+          "base_price": 245000,
+          "cost_price": 147000,
+          "sku_suffix": "-15KG"
+        },
+        {
+          "size": "21kg",
+          "base_price": 325000,
+          "cost_price": 195000,
+          "sku_suffix": "-21KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop&q=pedigree-adulto.png",
+      "attributes": {
+        "age_range": "1+ años",
+        "main_ingredient": "Carne"
+      }
+    },
+    {
+      "sku": "PED-DOG-ADULT-CARNE",
+      "name": "Pedigree Adulto Carne",
+      "description": "Alimento para perros adultos sabor carne",
+      "category_slug": "NUT-CAN-SEC",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "3kg",
+          "base_price": 69000,
+          "cost_price": 41400,
+          "sku_suffix": "-3KG"
+        },
+        {
+          "size": "15kg",
+          "base_price": 255000,
+          "cost_price": 153000,
+          "sku_suffix": "-15KG"
+        },
+        {
+          "size": "21kg",
+          "base_price": 335000,
+          "cost_price": 201000,
+          "sku_suffix": "-21KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop&q=pedigree-carne.png",
+      "attributes": {
+        "flavor": "Carne",
+        "age_range": "1+ años"
+      }
+    },
+    {
+      "sku": "PED-DOG-PUPPY",
+      "name": "Pedigree Cachorro",
+      "description": "Alimento para cachorros con vitaminas y minerales esenciales",
+      "category_slug": "NUT-CAN-SEC",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "3kg",
+          "base_price": 75000,
+          "cost_price": 45000,
+          "sku_suffix": "-3KG"
+        },
+        {
+          "size": "8kg",
+          "base_price": 165000,
+          "cost_price": 99000,
+          "sku_suffix": "-8KG"
+        },
+        {
+          "size": "15kg",
+          "base_price": 285000,
+          "cost_price": 171000,
+          "sku_suffix": "-15KG"
+        },
+        {
+          "size": "21kg",
+          "base_price": 375000,
+          "cost_price": 225000,
+          "sku_suffix": "-21KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop&q=pedigree-cachorro.png",
+      "attributes": {
+        "age_range": "Hasta 1 año",
+        "lifestage": "Puppy"
+      }
+    },
+    {
+      "sku": "PED-DOG-SENIOR",
+      "name": "Pedigree Senior 7+",
+      "description": "Alimento para perros mayores de 7 años con antioxidantes",
+      "category_slug": "NUT-CAN-SEC",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "3kg",
+          "base_price": 72000,
+          "cost_price": 43200,
+          "sku_suffix": "-3KG"
+        },
+        {
+          "size": "15kg",
+          "base_price": 265000,
+          "cost_price": 159000,
+          "sku_suffix": "-15KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop&q=pedigree-senior.png",
+      "attributes": {
+        "age_range": "7+ años",
+        "special_need": "Senior"
+      }
+    },
+    {
+      "sku": "PED-DOG-MINI",
+      "name": "Pedigree Razas Pequeñas",
+      "description": "Alimento para perros adultos de razas pequeñas",
+      "category_slug": "NUT-CAN-SEC",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "1kg",
+          "base_price": 35000,
+          "cost_price": 21000,
+          "sku_suffix": "-1KG"
+        },
+        {
+          "size": "3kg",
+          "base_price": 85000,
+          "cost_price": 51000,
+          "sku_suffix": "-3KG"
+        },
+        {
+          "size": "6kg",
+          "base_price": 155000,
+          "cost_price": 93000,
+          "sku_suffix": "-6KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop&q=pedigree-mini.png",
+      "attributes": {
+        "breed_size": "Pequeño",
+        "kibble_size": "Mini"
+      }
+    },
+    {
+      "sku": "PED-DOG-WET-CARNE",
+      "name": "Pedigree Húmedo Carne",
+      "description": "Alimento húmedo en lata sabor carne para perros adultos",
+      "category_slug": "NUT-CAN-SEC",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "290g",
+          "base_price": 22000,
+          "cost_price": 13200,
+          "sku_suffix": "-290G"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop&q=pedigree-wet-carne.png",
+      "attributes": {
+        "format": "Lata",
+        "flavor": "Carne"
+      }
+    },
+    {
+      "sku": "PED-DOG-WET-POLLO",
+      "name": "Pedigree Húmedo Pollo",
+      "description": "Alimento húmedo en lata sabor pollo para perros adultos",
+      "category_slug": "NUT-CAN-SEC",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "290g",
+          "base_price": 22000,
+          "cost_price": 13200,
+          "sku_suffix": "-290G"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop&q=pedigree-wet-pollo.png",
+      "attributes": {
+        "format": "Lata",
+        "flavor": "Pollo"
+      }
+    },
+    {
+      "sku": "PED-DENTASTIX",
+      "name": "Pedigree Dentastix",
+      "description": "Snacks dentales para limpieza de dientes y aliento fresco",
+      "category_slug": "NUT-CAN-SNA",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "7 unidades",
+          "base_price": 45000,
+          "cost_price": 27000,
+          "sku_suffix": "-7"
+        },
+        {
+          "size": "28 unidades",
+          "base_price": 145000,
+          "cost_price": 87000,
+          "sku_suffix": "-28"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop&q=pedigree-dentastix.png",
+      "attributes": {
+        "purpose": "Salud dental",
+        "texture": "Masticable"
+      }
+    },
+    {
+      "sku": "PED-BISCROK",
+      "name": "Pedigree Biscrok",
+      "description": "Galletas crujientes para perros adultos",
+      "category_slug": "NUT-CAN-SEC",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "500g",
+          "base_price": 35000,
+          "cost_price": 21000,
+          "sku_suffix": "-500G"
+        },
+        {
+          "size": "1kg",
+          "base_price": 55000,
+          "cost_price": 33000,
+          "sku_suffix": "-1KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop&q=pedigree-biscrok.png",
+      "attributes": {
+        "type": "Galletas",
+        "texture": "Crujiente"
+      }
+    }
+  ]
+}

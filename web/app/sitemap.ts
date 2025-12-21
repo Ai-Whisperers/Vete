@@ -56,16 +56,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
 
     // Dynamic service detail pages
-    if (clinicData.services?.categories) {
-      for (const category of clinicData.services.categories) {
-        for (const service of category.services || []) {
-          entries.push({
-            url: `${BASE_URL}/${clinicSlug}/services/${service.id}`,
-            lastModified: new Date(),
-            changeFrequency: 'weekly',
-            priority: 0.6,
-          });
-        }
+    if (clinicData.services?.services) {
+      for (const service of clinicData.services.services) {
+        entries.push({
+          url: `${BASE_URL}/${clinicSlug}/services/${service.id}`,
+          lastModified: new Date(),
+          changeFrequency: 'weekly',
+          priority: 0.6,
+        });
       }
     }
   }

@@ -114,8 +114,8 @@ export function memoizeAsync<T extends (...args: any[]) => Promise<any>>(
   options: MemoizeOptions = {}
 ): T {
   const { maxSize = 100, ttlMs, keyGenerator } = options
-  const cache = new Map<string, CacheEntry<ReturnType<T>>>()
-  const pending = new Map<string, Promise<any>>()
+  const cache = new Map<string, CacheEntry<Awaited<ReturnType<T>>>>()
+  const pending = new Map<string, Promise<Awaited<ReturnType<T>>>>()
 
   return (async (...args: Parameters<T>): Promise<Awaited<ReturnType<T>>> => {
     // Generate cache key

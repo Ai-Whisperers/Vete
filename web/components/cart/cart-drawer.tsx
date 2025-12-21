@@ -24,7 +24,7 @@ interface CartDrawerProps {
  */
 export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
   const { clinic } = useParams<{ clinic: string }>();
-  const { items, totalItems, subtotal, clearCart } = useCart();
+  const { items, itemCount: totalItems, total: subtotal, clearCart } = useCart();
   const [mounted, setMounted] = useState(false);
 
   // Handle hydration mismatch
@@ -277,7 +277,7 @@ interface FloatingCartButtonProps {
 }
 
 export function FloatingCartButton({ onClick }: FloatingCartButtonProps) {
-  const { totalItems } = useCart();
+  const { itemCount: totalItems } = useCart();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {

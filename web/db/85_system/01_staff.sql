@@ -2,6 +2,8 @@
 -- 01_STAFF.SQL
 -- =============================================================================
 -- Staff management: profiles, schedules, time off.
+--
+-- DEPENDENCIES: 10_core/*
 -- =============================================================================
 
 -- =============================================================================
@@ -52,6 +54,12 @@ CREATE TABLE IF NOT EXISTS public.staff_profiles (
     UNIQUE(profile_id)
 );
 
+COMMENT ON TABLE public.staff_profiles IS 'Extended staff info: licenses, specializations, employment details, signatures';
+COMMENT ON COLUMN public.staff_profiles.license_number IS 'Professional license number (veterinarian, technician)';
+COMMENT ON COLUMN public.staff_profiles.specializations IS 'Array of medical specializations (e.g., surgery, dermatology)';
+COMMENT ON COLUMN public.staff_profiles.employment_type IS 'Employment type: full_time, part_time, contractor, intern';
+COMMENT ON COLUMN public.staff_profiles.signature_url IS 'Digital signature image for prescriptions and documents';
+
 -- =============================================================================
 -- STAFF SCHEDULES
 -- =============================================================================
@@ -76,6 +84,11 @@ CREATE TABLE IF NOT EXISTS public.staff_schedules (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+COMMENT ON TABLE public.staff_schedules IS 'Named schedule definitions for staff members with effective date ranges';
+COMMENT ON COLUMN public.staff_schedules.is_default IS 'TRUE if this is the staff members primary schedule';
+COMMENT ON COLUMN public.staff_schedules.effective_from IS 'Schedule starts applying from this date';
+COMMENT ON COLUMN public.staff_schedules.effective_until IS 'Schedule ends on this date (NULL = indefinite)';
 
 -- =============================================================================
 -- STAFF SCHEDULE ENTRIES
@@ -110,13 +123,19 @@ CREATE TABLE IF NOT EXISTS public.staff_schedule_entries (
     )
 );
 
+COMMENT ON TABLE public.staff_schedule_entries IS 'Daily working hours within a schedule (one row per working day)';
+COMMENT ON COLUMN public.staff_schedule_entries.day_of_week IS 'ISO day of week: 1=Monday through 7=Sunday';
+COMMENT ON COLUMN public.staff_schedule_entries.break_start IS 'Lunch/break start time (optional)';
+COMMENT ON COLUMN public.staff_schedule_entries.break_end IS 'Lunch/break end time (optional)';
+
 -- =============================================================================
 -- TIME OFF TYPES
 -- =============================================================================
 
 CREATE TABLE IF NOT EXISTS public.time_off_types (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    tenant_id TEXT NOT NULL REFERENCES public.tenants(id),
+    -- tenant_id NULL = global template, NOT NULL = clinic-specific
+    tenant_id TEXT REFERENCES public.tenants(id),
 
     -- Type info
     name TEXT NOT NULL,
@@ -140,6 +159,11 @@ CREATE TABLE IF NOT EXISTS public.time_off_types (
 
     UNIQUE(tenant_id, code)
 );
+
+COMMENT ON TABLE public.time_off_types IS 'Time off categories: vacation, sick, personal, etc. NULL tenant_id = global templates';
+COMMENT ON COLUMN public.time_off_types.is_paid IS 'Whether this type of leave is paid';
+COMMENT ON COLUMN public.time_off_types.max_days_per_year IS 'Annual allowance limit (NULL = unlimited)';
+COMMENT ON COLUMN public.time_off_types.requires_approval IS 'Whether requests need manager approval';
 
 -- =============================================================================
 -- STAFF TIME OFF
@@ -176,6 +200,11 @@ CREATE TABLE IF NOT EXISTS public.staff_time_off (
 
     CONSTRAINT staff_time_off_dates CHECK (end_date >= start_date)
 );
+
+COMMENT ON TABLE public.staff_time_off IS 'Staff time off requests with approval workflow';
+COMMENT ON COLUMN public.staff_time_off.status IS 'Request status: pending → approved/rejected, or cancelled by staff';
+COMMENT ON COLUMN public.staff_time_off.start_half_day IS 'TRUE if starting afternoon only';
+COMMENT ON COLUMN public.staff_time_off.end_half_day IS 'TRUE if ending morning only';
 
 -- =============================================================================
 -- ROW LEVEL SECURITY
@@ -364,7 +393,7 @@ BEGIN
     END IF;
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SET search_path = public;
 
 DROP TRIGGER IF EXISTS schedule_entries_auto_tenant ON public.staff_schedule_entries;
 CREATE TRIGGER schedule_entries_auto_tenant
@@ -417,5 +446,5 @@ BEGIN
 
     RETURN NOT v_has_time_off;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 

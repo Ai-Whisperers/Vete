@@ -60,7 +60,7 @@ export default function PetSearchStep({
         .limit(10);
 
       if (error) throw error;
-      setPets(data || []);
+      setPets((data || []) as unknown as Pet[]);
     } catch {
       // Error searching pets - silently fail
     } finally {

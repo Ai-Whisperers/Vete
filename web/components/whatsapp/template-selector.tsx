@@ -196,7 +196,7 @@ export function TemplateSelector({
               ) : (
                 <div className="divide-y divide-gray-50">
                   {filteredTemplates.map((template) => {
-                    const categoryConfig = templateCategoryConfig[template.category]
+                    const categoryConfig = template.category ? templateCategoryConfig[template.category] : templateCategoryConfig.general
                     const isSelected = selectedTemplate?.id === template.id
 
                     return (

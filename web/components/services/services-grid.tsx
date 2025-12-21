@@ -7,25 +7,7 @@ import { Search, X, SlidersHorizontal } from "lucide-react";
 import { ClinicConfig } from "@/lib/clinics";
 import { CategoryFilter, extractCategories } from "./category-filter";
 import { EmptyStateNoSearchResults } from "@/components/ui/empty-state";
-
-interface ServiceVariant {
-  name: string;
-  description?: string;
-  price_display?: string;
-}
-
-interface Service {
-  id: string;
-  title: string;
-  summary?: string;
-  icon?: string;
-  category?: string;
-  details?: {
-    description?: string;
-    includes?: string[];
-  };
-  variants?: ServiceVariant[];
-}
+import type { Service, ServiceVariant } from "@/lib/types/services";
 
 interface ServicesGridProps {
   services: Service[];

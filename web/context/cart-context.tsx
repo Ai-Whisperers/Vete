@@ -15,6 +15,10 @@ export interface CartItem {
   description?: string;
   stock?: number; // Available stock for validation
 
+  // Product-specific fields (optional)
+  sku?: string;
+  variant_id?: string;
+
   // Service-specific fields (optional)
   pet_id?: string;
   pet_name?: string;

@@ -198,6 +198,15 @@
     text-wrap: balance;
   }
 
+  /* Hide scrollbar utility */
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
   /* Animation utilities */
   .animate-fade-in {
     animation: fadeIn 0.5s ease-out forwards;

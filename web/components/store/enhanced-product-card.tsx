@@ -15,6 +15,7 @@ import {
   Check,
   Truck,
   AlertCircle,
+  Gift,
 } from 'lucide-react';
 import type { StoreProductWithDetails } from '@/lib/types/store';
 import { useCart } from '@/context/cart-context';
@@ -174,9 +175,9 @@ export default function EnhancedProductCard({
 
       {/* Product Info */}
       <div className="p-4">
-        {/* Brand */}
+        {/* Brand - More Visible */}
         {product.brand && (
-          <span className="text-xs text-[var(--text-muted)] uppercase tracking-wider">
+          <span className="text-xs font-semibold text-[var(--primary)] uppercase tracking-wide">
             {product.brand.name}
           </span>
         )}
@@ -186,34 +187,34 @@ export default function EnhancedProductCard({
           {product.name}
         </h3>
 
-        {/* Rating */}
+        {/* Rating - Larger Stars */}
         {product.review_count > 0 && (
-          <div className="flex items-center gap-1 mt-2">
-            <div className="flex items-center">
+          <div className="flex items-center gap-1.5 mt-2">
+            <div className="flex items-center gap-0.5">
               {[1, 2, 3, 4, 5].map((star) => (
                 <Star
                   key={star}
-                  className={`w-3.5 h-3.5 ${
+                  className={`w-4 h-4 ${
                     star <= Math.round(product.avg_rating)
                       ? 'text-yellow-400 fill-yellow-400'
-                      : 'text-gray-300'
+                      : 'text-gray-200'
                   }`}
                 />
               ))}
             </div>
-            <span className="text-xs text-[var(--text-muted)]">
-              ({product.review_count})
+            <span className="text-xs font-medium text-[var(--text-secondary)]">
+              {product.avg_rating.toFixed(1)} ({product.review_count})
             </span>
           </div>
         )}
 
-        {/* Price */}
+        {/* Price - Larger and Bolder */}
         <div className="mt-3">
-          <div className="flex items-baseline gap-2">
+          <div className="flex items-baseline gap-2 flex-wrap">
             <span className="text-xl font-black text-[var(--text-primary)]">
               {formatPrice(product.current_price)}
             </span>
-            {product.original_price && (
+            {product.original_price && product.original_price > product.current_price && (
               <span className="text-sm text-[var(--text-muted)] line-through">
                 {formatPrice(product.original_price)}
               </span>
@@ -221,23 +222,25 @@ export default function EnhancedProductCard({
           </div>
         </div>
 
-        {/* Stock Status */}
+        {/* Stock Status - Compact */}
         <div className="mt-2 flex items-center gap-1 text-xs">
           {inStock ? (
-            <>
-              {lowStock ? (
-                <span className="text-amber-600 font-medium">
-                  ¡Solo {stock} disponibles!
-                </span>
-              ) : (
-                <span className="text-green-600 flex items-center gap-1">
-                  <Truck className="w-3 h-3" />
-                  Disponible
-                </span>
-              )}
-            </>
+            lowStock ? (
+              <span className="text-amber-600 font-semibold flex items-center gap-1">
+                <AlertCircle className="w-3 h-3" />
+                ¡Últimos {stock}!
+              </span>
+            ) : (
+              <span className="text-green-600 flex items-center gap-1 font-medium">
+                <Truck className="w-3.5 h-3.5" />
+                Envío disponible
+              </span>
+            )
           ) : (
-            <span className="text-red-500 font-medium">Sin Stock</span>
+            <span className="text-red-500 font-semibold flex items-center gap-1">
+              <AlertCircle className="w-3 h-3" />
+              Sin Stock
+            </span>
           )}
         </div>
 
@@ -245,11 +248,11 @@ export default function EnhancedProductCard({
         <button
           onClick={handleAddToCart}
           disabled={!inStock || addingToCart}
-          className={`w-full mt-3 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all ${
+          className={`w-full mt-3 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-semibold transition-all ${
             inStock
               ? addedToCart
-                ? 'bg-green-500 text-white'
-                : 'bg-[var(--primary)] text-white hover:opacity-90'
+                ? 'bg-green-500 text-white shadow-md'
+                : 'bg-[var(--primary)] text-white hover:shadow-md hover:scale-[1.02] active:scale-[0.98]'
               : 'bg-gray-100 text-gray-400 cursor-not-allowed'
           }`}
         >
@@ -258,20 +261,21 @@ export default function EnhancedProductCard({
           ) : addedToCart ? (
             <>
               <Check className="w-4 h-4" />
-              Agregado
+              ¡Agregado!
             </>
           ) : (
             <>
               <ShoppingCart className="w-4 h-4" />
-              Agregar
+              Agregar al carrito
             </>
           )}
         </button>
 
-        {/* Loyalty Points (if applicable) */}
+        {/* Loyalty Points - More Visible */}
         {inStock && product.current_price > 10000 && (
-          <p className="mt-2 text-xs text-center text-[var(--text-muted)]">
-            +{Math.floor(product.current_price / 10000)} puntos de lealtad
+          <p className="mt-2 text-xs text-center text-[var(--text-muted)] flex items-center justify-center gap-1">
+            <Sparkles className="w-3 h-3 text-amber-500" />
+            Gana {Math.floor(product.current_price / 10000)} puntos
           </p>
         )}
       </div>

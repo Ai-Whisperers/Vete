@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import type { ActionResult, FieldErrors } from '@/lib/types/action-result'
 
 export interface ActionContext {
-  user: { id: string; email: string }
+  user: { id: string; email?: string }
   profile: { id: string; tenant_id: string; role: string; full_name: string }
   isStaff: boolean
   isAdmin: boolean
@@ -22,15 +22,13 @@ interface ActionAuthOptions {
 
 /**
  * Wraps a server action with automatic authentication and authorization.
- * This is a helper function, not a server action itself.
+ * IMPORTANT: The file using this wrapper MUST have 'use server' at the top.
  */
 export function withActionAuth<T = void, Args extends unknown[] = []>(
   action: AuthenticatedAction<T, Args>,
   options: ActionAuthOptions = {}
 ) {
   return async (...args: Args): Promise<ActionResult<T>> => {
-    'use server'
-
     const supabase = await createClient()
 
     const { data: { user }, error: authError } = await supabase.auth.getUser()

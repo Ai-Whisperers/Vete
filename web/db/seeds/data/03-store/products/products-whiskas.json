@@ -1,0 +1,292 @@
+{
+  "$schema": "../../../schemas/store.schema.json",
+  "brand_slug": "whiskas",
+  "products": [
+    {
+      "sku": "WHK-CAT-ADULT-POLLO",
+      "name": "Whiskas Adulto Pollo",
+      "description": "Alimento completo para gatos adultos sabor pollo",
+      "category_slug": "NUT-FEL-SEC",
+      "target_species": [
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "500g",
+          "base_price": 29000,
+          "cost_price": 17400,
+          "sku_suffix": "-500G"
+        },
+        {
+          "size": "1.5kg",
+          "base_price": 65000,
+          "cost_price": 39000,
+          "sku_suffix": "-1.5KG"
+        },
+        {
+          "size": "3kg",
+          "base_price": 115000,
+          "cost_price": 69000,
+          "sku_suffix": "-3KG"
+        },
+        {
+          "size": "10kg",
+          "base_price": 345000,
+          "cost_price": 207000,
+          "sku_suffix": "-10KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1574158622682-e40e69881006?w=400&h=400&fit=crop&q=whiskas-adult-pollo.png",
+      "attributes": {
+        "age_range": "1+ años",
+        "flavor": "Pollo"
+      }
+    },
+    {
+      "sku": "WHK-CAT-ADULT-PESCADO",
+      "name": "Whiskas Adulto Pescado",
+      "description": "Alimento completo para gatos adultos sabor pescado",
+      "category_slug": "NUT-FEL-SEC",
+      "target_species": [
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "500g",
+          "base_price": 29000,
+          "cost_price": 17400,
+          "sku_suffix": "-500G"
+        },
+        {
+          "size": "1.5kg",
+          "base_price": 65000,
+          "cost_price": 39000,
+          "sku_suffix": "-1.5KG"
+        },
+        {
+          "size": "3kg",
+          "base_price": 115000,
+          "cost_price": 69000,
+          "sku_suffix": "-3KG"
+        },
+        {
+          "size": "10kg",
+          "base_price": 345000,
+          "cost_price": 207000,
+          "sku_suffix": "-10KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1574158622682-e40e69881006?w=400&h=400&fit=crop&q=whiskas-adult-pescado.png",
+      "attributes": {
+        "age_range": "1+ años",
+        "flavor": "Pescado"
+      }
+    },
+    {
+      "sku": "WHK-CAT-ADULT-CARNE",
+      "name": "Whiskas Adulto Carne",
+      "description": "Alimento completo para gatos adultos sabor carne",
+      "category_slug": "NUT-FEL-SEC",
+      "target_species": [
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "500g",
+          "base_price": 29000,
+          "cost_price": 17400,
+          "sku_suffix": "-500G"
+        },
+        {
+          "size": "1.5kg",
+          "base_price": 65000,
+          "cost_price": 39000,
+          "sku_suffix": "-1.5KG"
+        },
+        {
+          "size": "3kg",
+          "base_price": 115000,
+          "cost_price": 69000,
+          "sku_suffix": "-3KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1574158622682-e40e69881006?w=400&h=400&fit=crop&q=whiskas-adult-carne.png",
+      "attributes": {
+        "age_range": "1+ años",
+        "flavor": "Carne"
+      }
+    },
+    {
+      "sku": "WHK-CAT-KITTEN",
+      "name": "Whiskas Gatito",
+      "description": "Alimento para gatitos hasta 1 año con vitaminas y DHA",
+      "category_slug": "NUT-FEL-SEC",
+      "target_species": [
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "500g",
+          "base_price": 32000,
+          "cost_price": 19200,
+          "sku_suffix": "-500G"
+        },
+        {
+          "size": "1.5kg",
+          "base_price": 72000,
+          "cost_price": 43200,
+          "sku_suffix": "-1.5KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1574158622682-e40e69881006?w=400&h=400&fit=crop&q=whiskas-kitten.png",
+      "attributes": {
+        "age_range": "Hasta 1 año",
+        "lifestage": "Kitten"
+      }
+    },
+    {
+      "sku": "WHK-CAT-CASTRADO",
+      "name": "Whiskas Castrados",
+      "description": "Alimento para gatos esterilizados con control de peso",
+      "category_slug": "NUT-FEL-SEC",
+      "target_species": [
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "500g",
+          "base_price": 32000,
+          "cost_price": 19200,
+          "sku_suffix": "-500G"
+        },
+        {
+          "size": "1.5kg",
+          "base_price": 72000,
+          "cost_price": 43200,
+          "sku_suffix": "-1.5KG"
+        },
+        {
+          "size": "3kg",
+          "base_price": 125000,
+          "cost_price": 75000,
+          "sku_suffix": "-3KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1574158622682-e40e69881006?w=400&h=400&fit=crop&q=whiskas-castrados.png",
+      "attributes": {
+        "special_need": "Esterilizado",
+        "weight_control": true
+      }
+    },
+    {
+      "sku": "WHK-CAT-WET-POLLO",
+      "name": "Whiskas Húmedo Pollo",
+      "description": "Alimento húmedo en pouch para gatos adultos sabor pollo",
+      "category_slug": "NUT-FEL-HUM",
+      "target_species": [
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "85g",
+          "base_price": 12000,
+          "cost_price": 7200,
+          "sku_suffix": "-85G"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1574158622682-e40e69881006?w=400&h=400&fit=crop&q=whiskas-pouch-pollo.png",
+      "attributes": {
+        "format": "Pouch",
+        "flavor": "Pollo en salsa"
+      }
+    },
+    {
+      "sku": "WHK-CAT-WET-PESCADO",
+      "name": "Whiskas Húmedo Pescado",
+      "description": "Alimento húmedo en pouch para gatos adultos sabor pescado",
+      "category_slug": "NUT-FEL-HUM",
+      "target_species": [
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "85g",
+          "base_price": 12000,
+          "cost_price": 7200,
+          "sku_suffix": "-85G"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1574158622682-e40e69881006?w=400&h=400&fit=crop&q=whiskas-pouch-pescado.png",
+      "attributes": {
+        "format": "Pouch",
+        "flavor": "Pescado en salsa"
+      }
+    },
+    {
+      "sku": "WHK-CAT-WET-CARNE",
+      "name": "Whiskas Húmedo Carne",
+      "description": "Alimento húmedo en pouch para gatos adultos sabor carne",
+      "category_slug": "NUT-FEL-HUM",
+      "target_species": [
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "85g",
+          "base_price": 12000,
+          "cost_price": 7200,
+          "sku_suffix": "-85G"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1574158622682-e40e69881006?w=400&h=400&fit=crop&q=whiskas-pouch-carne.png",
+      "attributes": {
+        "format": "Pouch",
+        "flavor": "Carne en salsa"
+      }
+    },
+    {
+      "sku": "WHK-TEMPTATIONS-POLLO",
+      "name": "Whiskas Temptations Pollo",
+      "description": "Snacks crujientes por fuera y suaves por dentro sabor pollo",
+      "category_slug": "NUT-CAN-SNA",
+      "target_species": [
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "85g",
+          "base_price": 25000,
+          "cost_price": 15000,
+          "sku_suffix": "-85G"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1574158622682-e40e69881006?w=400&h=400&fit=crop&q=whiskas-temptations-pollo.png",
+      "attributes": {
+        "type": "Snack",
+        "flavor": "Pollo"
+      }
+    },
+    {
+      "sku": "WHK-TEMPTATIONS-SALMON",
+      "name": "Whiskas Temptations Salmón",
+      "description": "Snacks crujientes por fuera y suaves por dentro sabor salmón",
+      "category_slug": "NUT-CAN-SNA",
+      "target_species": [
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "85g",
+          "base_price": 25000,
+          "cost_price": 15000,
+          "sku_suffix": "-85G"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1574158622682-e40e69881006?w=400&h=400&fit=crop&q=whiskas-temptations-salmon.png",
+      "attributes": {
+        "type": "Snack",
+        "flavor": "Salmón"
+      }
+    }
+  ]
+}

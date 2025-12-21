@@ -1,0 +1,259 @@
+{
+  "$schema": "../../../schemas/store.schema.json",
+  "brand_slug": "furminator",
+  "products": [
+    {
+      "sku": "FUR-DOG-SHORT-S",
+      "name": "FURminator Perros Pelo Corto Pequeños",
+      "description": "Herramienta de deslanado para perros pequeños de pelo corto",
+      "category_slug": "ACC-HIG-CEP",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "Pequeño",
+          "base_price": 185000,
+          "cost_price": 111000,
+          "sku_suffix": "-S"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?w=400&h=400&fit=crop&q=furminator-dog-short-s.png",
+      "attributes": {
+        "coat_type": "Pelo corto",
+        "dog_size": "Hasta 9kg",
+        "blade_width": "3.8cm",
+        "reduces_shedding": "Hasta 90%"
+      }
+    },
+    {
+      "sku": "FUR-DOG-SHORT-M",
+      "name": "FURminator Perros Pelo Corto Medianos",
+      "description": "Herramienta de deslanado para perros medianos de pelo corto",
+      "category_slug": "ACC-HIG-CEP",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "Mediano",
+          "base_price": 215000,
+          "cost_price": 129000,
+          "sku_suffix": "-M"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?w=400&h=400&fit=crop&q=furminator-dog-short-m.png",
+      "attributes": {
+        "coat_type": "Pelo corto",
+        "dog_size": "9-23kg",
+        "blade_width": "6.7cm",
+        "reduces_shedding": "Hasta 90%"
+      }
+    },
+    {
+      "sku": "FUR-DOG-SHORT-L",
+      "name": "FURminator Perros Pelo Corto Grandes",
+      "description": "Herramienta de deslanado para perros grandes de pelo corto",
+      "category_slug": "ACC-HIG-CEP",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "Grande",
+          "base_price": 245000,
+          "cost_price": 147000,
+          "sku_suffix": "-L"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?w=400&h=400&fit=crop&q=furminator-dog-short-l.png",
+      "attributes": {
+        "coat_type": "Pelo corto",
+        "dog_size": "23-41kg",
+        "blade_width": "10.2cm",
+        "reduces_shedding": "Hasta 90%"
+      }
+    },
+    {
+      "sku": "FUR-DOG-LONG-S",
+      "name": "FURminator Perros Pelo Largo Pequeños",
+      "description": "Herramienta de deslanado para perros pequeños de pelo largo",
+      "category_slug": "ACC-HIG-CEP",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "Pequeño",
+          "base_price": 195000,
+          "cost_price": 117000,
+          "sku_suffix": "-S"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?w=400&h=400&fit=crop&q=furminator-dog-long-s.png",
+      "attributes": {
+        "coat_type": "Pelo largo (>5cm)",
+        "dog_size": "Hasta 9kg",
+        "blade_width": "3.8cm",
+        "reduces_shedding": "Hasta 90%"
+      }
+    },
+    {
+      "sku": "FUR-DOG-LONG-M",
+      "name": "FURminator Perros Pelo Largo Medianos",
+      "description": "Herramienta de deslanado para perros medianos de pelo largo",
+      "category_slug": "ACC-HIG-CEP",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "Mediano",
+          "base_price": 225000,
+          "cost_price": 135000,
+          "sku_suffix": "-M"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?w=400&h=400&fit=crop&q=furminator-dog-long-m.png",
+      "attributes": {
+        "coat_type": "Pelo largo (>5cm)",
+        "dog_size": "9-23kg",
+        "blade_width": "6.7cm",
+        "reduces_shedding": "Hasta 90%"
+      }
+    },
+    {
+      "sku": "FUR-DOG-LONG-L",
+      "name": "FURminator Perros Pelo Largo Grandes",
+      "description": "Herramienta de deslanado para perros grandes de pelo largo",
+      "category_slug": "ACC-HIG-CEP",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "Grande",
+          "base_price": 255000,
+          "cost_price": 153000,
+          "sku_suffix": "-L"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?w=400&h=400&fit=crop&q=furminator-dog-long-l.png",
+      "attributes": {
+        "coat_type": "Pelo largo (>5cm)",
+        "dog_size": "23-41kg",
+        "blade_width": "10.2cm",
+        "reduces_shedding": "Hasta 90%"
+      }
+    },
+    {
+      "sku": "FUR-CAT-SHORT",
+      "name": "FURminator Gatos Pelo Corto",
+      "description": "Herramienta de deslanado para gatos de pelo corto",
+      "category_slug": "ACC-HIG-CEP",
+      "target_species": [
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "Pequeño",
+          "base_price": 175000,
+          "cost_price": 105000,
+          "sku_suffix": "-S"
+        },
+        {
+          "size": "Grande",
+          "base_price": 195000,
+          "cost_price": 117000,
+          "sku_suffix": "-L"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?w=400&h=400&fit=crop&q=furminator-cat-short.png",
+      "attributes": {
+        "coat_type": "Pelo corto",
+        "reduces_shedding": "Hasta 90%"
+      }
+    },
+    {
+      "sku": "FUR-CAT-LONG",
+      "name": "FURminator Gatos Pelo Largo",
+      "description": "Herramienta de deslanado para gatos de pelo largo",
+      "category_slug": "ACC-HIG-CEP",
+      "target_species": [
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "Pequeño",
+          "base_price": 185000,
+          "cost_price": 111000,
+          "sku_suffix": "-S"
+        },
+        {
+          "size": "Grande",
+          "base_price": 205000,
+          "cost_price": 123000,
+          "sku_suffix": "-L"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?w=400&h=400&fit=crop&q=furminator-cat-long.png",
+      "attributes": {
+        "coat_type": "Pelo largo (>5cm)",
+        "reduces_shedding": "Hasta 90%"
+      }
+    },
+    {
+      "sku": "FUR-SHAMPOO-DESHED",
+      "name": "FURminator deShedding Shampoo",
+      "description": "Shampoo que reduce la caída del pelo",
+      "category_slug": "ACC-HIG-SHA",
+      "target_species": [
+        "dog",
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "250ml",
+          "base_price": 89000,
+          "cost_price": 53400,
+          "sku_suffix": "-250ML"
+        },
+        {
+          "size": "490ml",
+          "base_price": 145000,
+          "cost_price": 87000,
+          "sku_suffix": "-490ML"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?w=400&h=400&fit=crop&q=furminator-shampoo.png",
+      "attributes": {
+        "omega_fatty_acids": true,
+        "calendula_extract": true,
+        "papaya_leaf": true
+      }
+    },
+    {
+      "sku": "FUR-CONDITIONER",
+      "name": "FURminator deShedding Conditioner",
+      "description": "Acondicionador que facilita el cepillado",
+      "category_slug": "ACC-HIG-CEP",
+      "target_species": [
+        "dog",
+        "cat"
+      ],
+      "variants": [
+        {
+          "size": "250ml",
+          "base_price": 95000,
+          "cost_price": 57000,
+          "sku_suffix": "-250ML"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?w=400&h=400&fit=crop&q=furminator-conditioner.png",
+      "attributes": {
+        "omega_fatty_acids": true,
+        "detangling": true
+      }
+    }
+  ]
+}

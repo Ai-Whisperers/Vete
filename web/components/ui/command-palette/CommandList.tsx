@@ -50,7 +50,7 @@ export function CommandList({
                   {CATEGORY_LABELS[category]}
                 </span>
               </div>
-              {items.map((item) => {
+              {items.map((item: CommandItem) => {
                 globalIndex++;
                 const isSelected = globalIndex === selectedIndex;
 

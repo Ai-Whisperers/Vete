@@ -52,6 +52,12 @@ export interface WhatsAppConversation {
   messages?: WhatsAppMessage[]
 }
 
+// Extended conversation interface for UI display
+export interface Conversation extends WhatsAppConversation {
+  last_message_direction?: MessageDirection
+  last_message_status?: MessageStatus
+}
+
 // Twilio webhook payload
 export interface TwilioWhatsAppWebhook {
   MessageSid: string

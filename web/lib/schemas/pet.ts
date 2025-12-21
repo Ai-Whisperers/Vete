@@ -73,6 +73,6 @@ export type PetQueryParams = z.infer<typeof petQuerySchema>;
 export const deletePetSchema = z.object({
   id: uuidSchema,
   confirm: z.literal(true, {
-    errorMap: () => ({ message: 'Debe confirmar la eliminación' }),
+    message: 'Debe confirmar la eliminación',
   }),
 });

@@ -9,6 +9,18 @@ import * as path from 'path';
 
 let sheetsClient: sheets_v4.Sheets | null = null;
 
+// Rate limiting: delay between API calls (ms)
+// Google Sheets API limit: 60 write requests per minute per user
+// 1100ms delay = ~54 requests/minute (safe margin)
+const API_DELAY_MS = 1100;
+
+/**
+ * Helper to add delay between API calls
+ */
+function delay(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 /**
  * Get authenticated Google Sheets API client
  * Uses service account credentials from config directory
@@ -62,11 +74,12 @@ export async function getSheetIds(spreadsheetId: string): Promise<Record<string,
 
 /**
  * Execute batch update with automatic chunking for large requests
+ * Includes delay between batches to avoid quota limits
  */
 export async function batchUpdate(
   spreadsheetId: string,
   requests: any[],
-  batchSize: number = 100
+  batchSize: number = 50  // Reduced batch size for rate limiting
 ): Promise<void> {
   const sheets = await getGoogleSheetsClient();
 
@@ -76,11 +89,16 @@ export async function batchUpdate(
       spreadsheetId,
       requestBody: { requests: batch },
     });
+    // Add delay between batches to avoid quota limits
+    if (i + batchSize < requests.length) {
+      await delay(API_DELAY_MS);
+    }
   }
 }
 
 /**
  * Update values in a range
+ * Includes delay to avoid quota limits
  */
 export async function updateValues(
   spreadsheetId: string,
@@ -95,4 +113,34 @@ export async function updateValues(
     valueInputOption: 'USER_ENTERED',
     requestBody: { values },
   });
+
+  // Add delay after each update to avoid quota limits
+  await delay(API_DELAY_MS);
+}
+
+/**
+ * Batch update multiple value ranges in a single API call
+ * Much more efficient than individual updateValues calls
+ */
+export async function batchUpdateValues(
+  spreadsheetId: string,
+  data: Array<{ range: string; values: any[][] }>
+): Promise<void> {
+  if (data.length === 0) return;
+
+  const sheets = await getGoogleSheetsClient();
+
+  await sheets.spreadsheets.values.batchUpdate({
+    spreadsheetId,
+    requestBody: {
+      valueInputOption: 'USER_ENTERED',
+      data: data.map(d => ({
+        range: d.range,
+        values: d.values,
+      })),
+    },
+  });
+
+  // Add delay after batch to avoid quota limits
+  await delay(API_DELAY_MS);
 }

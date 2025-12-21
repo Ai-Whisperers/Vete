@@ -2,6 +2,8 @@
 -- 02_EXPENSES.SQL
 -- =============================================================================
 -- Expense tracking and loyalty points system.
+--
+-- DEPENDENCIES: 10_core/*, 50_finance/01_invoicing.sql
 -- =============================================================================
 
 -- =============================================================================
@@ -59,6 +61,12 @@ CREATE TABLE IF NOT EXISTS public.expenses (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+COMMENT ON TABLE public.expenses IS 'Clinic operating expenses for financial tracking and tax purposes';
+COMMENT ON COLUMN public.expenses.category IS 'Expense category: supplies, utilities, payroll, rent, equipment, marketing, insurance, taxes, travel, maintenance, professional_services, training, other';
+COMMENT ON COLUMN public.expenses.status IS 'Approval workflow: pending → approved → paid, or rejected';
+COMMENT ON COLUMN public.expenses.receipt_url IS 'URL to uploaded receipt image for documentation';
+COMMENT ON COLUMN public.expenses.approved_by IS 'Staff member who approved the expense';
+
 -- =============================================================================
 -- EXPENSE CATEGORIES (Custom per tenant)
 -- =============================================================================
@@ -87,6 +95,10 @@ CREATE TABLE IF NOT EXISTS public.expense_categories (
     UNIQUE(tenant_id, name)
 );
 
+COMMENT ON TABLE public.expense_categories IS 'Custom expense categories per tenant with optional monthly budgets';
+COMMENT ON COLUMN public.expense_categories.parent_id IS 'Parent category for hierarchical organization';
+COMMENT ON COLUMN public.expense_categories.budget_monthly IS 'Monthly budget limit for this category';
+
 -- =============================================================================
 -- LOYALTY POINTS
 -- =============================================================================
@@ -111,6 +123,11 @@ CREATE TABLE IF NOT EXISTS public.loyalty_points (
 
     UNIQUE(tenant_id, client_id)
 );
+
+COMMENT ON TABLE public.loyalty_points IS 'Client loyalty point balances with tier status. Auto-updated via triggers.';
+COMMENT ON COLUMN public.loyalty_points.balance IS 'Current available points balance';
+COMMENT ON COLUMN public.loyalty_points.lifetime_earned IS 'Total points earned all-time (used for tier calculation)';
+COMMENT ON COLUMN public.loyalty_points.tier IS 'Loyalty tier: bronze (0-499), silver (500-1999), gold (2000-4999), platinum (5000+)';
 
 -- =============================================================================
 -- LOYALTY TRANSACTIONS
@@ -140,6 +157,11 @@ CREATE TABLE IF NOT EXISTS public.loyalty_transactions (
     -- Timestamps
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+COMMENT ON TABLE public.loyalty_transactions IS 'Point transaction history: earn, redeem, expire, adjust, bonus';
+COMMENT ON COLUMN public.loyalty_transactions.type IS 'Transaction type: earn (purchase), redeem (use points), expire (time-based), adjust (manual), bonus (promotion)';
+COMMENT ON COLUMN public.loyalty_transactions.balance_after IS 'Point balance after this transaction (auto-set by trigger)';
+COMMENT ON COLUMN public.loyalty_transactions.expires_at IS 'When earned points expire (if applicable)';
 
 -- =============================================================================
 -- LOYALTY RULES
@@ -176,6 +198,12 @@ CREATE TABLE IF NOT EXISTS public.loyalty_rules (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+COMMENT ON TABLE public.loyalty_rules IS 'Configuration for loyalty program: earning rates, tier multipliers, redemption rules';
+COMMENT ON COLUMN public.loyalty_rules.points_per_currency IS 'Points earned per currency unit spent (e.g., 0.01 = 1 point per 100 PYG)';
+COMMENT ON COLUMN public.loyalty_rules.tier_multipliers IS 'JSON object with tier multipliers: {"bronze": 1.0, "silver": 1.25, "gold": 1.5, "platinum": 2.0}';
+COMMENT ON COLUMN public.loyalty_rules.points_value IS 'Currency value per point when redeeming (e.g., 100 = 100 PYG per point)';
+COMMENT ON COLUMN public.loyalty_rules.max_redemption_percentage IS 'Maximum percentage of invoice that can be paid with points';
 
 -- =============================================================================
 -- ROW LEVEL SECURITY
@@ -299,11 +327,33 @@ CREATE TRIGGER handle_updated_at
 -- FUNCTIONS
 -- =============================================================================
 
+-- Calculate loyalty tier based on lifetime points earned
+-- Tier thresholds (configurable per tenant in future):
+--   Bronze:   0 - 499 points
+--   Silver:   500 - 1999 points
+--   Gold:     2000 - 4999 points
+--   Platinum: 5000+ points
+CREATE OR REPLACE FUNCTION public.calculate_loyalty_tier(p_lifetime_earned INTEGER)
+RETURNS TEXT AS $$
+BEGIN
+    RETURN CASE
+        WHEN p_lifetime_earned >= 5000 THEN 'platinum'
+        WHEN p_lifetime_earned >= 2000 THEN 'gold'
+        WHEN p_lifetime_earned >= 500 THEN 'silver'
+        ELSE 'bronze'
+    END;
+END;
+$$ LANGUAGE plpgsql IMMUTABLE;
+
+COMMENT ON FUNCTION public.calculate_loyalty_tier IS 'Calculate loyalty tier based on lifetime points earned';
+
 -- Update loyalty balance on transaction
 CREATE OR REPLACE FUNCTION public.update_loyalty_balance()
 RETURNS TRIGGER AS $$
 DECLARE
     v_new_balance INTEGER;
+    v_new_lifetime_earned INTEGER;
+    v_new_tier TEXT;
 BEGIN
     -- Calculate new balance
     SELECT COALESCE(SUM(
@@ -321,14 +371,30 @@ BEGIN
     -- Ensure non-negative
     v_new_balance := GREATEST(0, v_new_balance);
 
-    -- Update or insert loyalty points
-    INSERT INTO public.loyalty_points (tenant_id, client_id, balance, lifetime_earned, lifetime_redeemed)
+    -- Calculate new lifetime earned for tier calculation
+    SELECT COALESCE(lifetime_earned, 0) +
+           CASE WHEN NEW.type IN ('earn', 'bonus') THEN NEW.points ELSE 0 END
+    INTO v_new_lifetime_earned
+    FROM public.loyalty_points
+    WHERE tenant_id = NEW.tenant_id AND client_id = NEW.client_id;
+
+    -- Default for new clients
+    IF v_new_lifetime_earned IS NULL THEN
+        v_new_lifetime_earned := CASE WHEN NEW.type IN ('earn', 'bonus') THEN NEW.points ELSE 0 END;
+    END IF;
+
+    -- Calculate tier based on new lifetime total
+    v_new_tier := public.calculate_loyalty_tier(v_new_lifetime_earned);
+
+    -- Update or insert loyalty points with auto-calculated tier
+    INSERT INTO public.loyalty_points (tenant_id, client_id, balance, lifetime_earned, lifetime_redeemed, tier)
     VALUES (
         NEW.tenant_id,
         NEW.client_id,
         v_new_balance,
         CASE WHEN NEW.type IN ('earn', 'bonus') THEN NEW.points ELSE 0 END,
-        CASE WHEN NEW.type = 'redeem' THEN ABS(NEW.points) ELSE 0 END
+        CASE WHEN NEW.type = 'redeem' THEN ABS(NEW.points) ELSE 0 END,
+        v_new_tier
     )
     ON CONFLICT (tenant_id, client_id) DO UPDATE SET
         balance = v_new_balance,
@@ -336,6 +402,7 @@ BEGIN
             CASE WHEN NEW.type IN ('earn', 'bonus') THEN NEW.points ELSE 0 END,
         lifetime_redeemed = public.loyalty_points.lifetime_redeemed +
             CASE WHEN NEW.type = 'redeem' THEN ABS(NEW.points) ELSE 0 END,
+        tier = v_new_tier,
         updated_at = NOW();
 
     -- Set balance_after on the transaction

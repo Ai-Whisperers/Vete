@@ -56,7 +56,7 @@ export function LineItemRow({ item, services, onUpdate, onRemove, disabled }: Li
           <option value="">Personalizado</option>
           {services.map((service) => (
             <option key={service.id} value={service.id}>
-              {service.name} - {formatCurrency(service.price)}
+              {service.name} - {formatCurrency(service.base_price)}
             </option>
           ))}
         </select>

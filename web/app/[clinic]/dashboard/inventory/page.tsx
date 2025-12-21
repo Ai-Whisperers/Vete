@@ -1,8 +1,7 @@
-import { createClient } from '@/lib/supabase/server'
 import { requireStaff } from '@/lib/auth'
 import { Suspense } from 'react'
 import { Loader2 } from 'lucide-react'
-import InventoryClient from '../../portal/inventory/client'
+import InventoryClient from './client'
 import { getClinicData } from '@/lib/clinics'
 
 interface Props {

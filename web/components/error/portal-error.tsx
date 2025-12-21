@@ -29,16 +29,14 @@ export default function PortalError({ error, reset }: PortalErrorProps) {
       </div>
 
       <div className="flex gap-3">
-        <Button onClick={reset}>
-          <RefreshCw className="w-4 h-4 mr-2" />
+        <Button onClick={reset} leftIcon={<RefreshCw className="w-4 h-4" />}>
           Reintentar
         </Button>
-        <Button variant="outline" asChild>
-          <Link href="/">
-            <ArrowLeft className="w-4 h-4 mr-2" />
+        <Link href="/">
+          <Button variant="outline" leftIcon={<ArrowLeft className="w-4 h-4" />}>
             Volver
-          </Link>
-        </Button>
+          </Button>
+        </Link>
       </div>
     </div>
   )

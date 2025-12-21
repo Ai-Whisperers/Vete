@@ -85,61 +85,83 @@ export async function applyValidations(
   const requests: any[] = [];
 
   // ========================
-  // 📂 Categorías (Columns: 🔒 Código, Nombre, Nivel, Categoría Padre, Activo)
+  // 📂 Categorías (10 columns)
+  // A-Código, B-Código Padre, C-Nivel(calc), D-Nombre, E-Descripción, F-Ejemplos,
+  // G-Categoría#(calc), H-Subcategoría#(calc), I-#Productos(calc), J-Activo
   // ========================
   const catSheetId = sheetMap['📂 Categorías'];
   if (catSheetId !== undefined) {
     console.log('  📂 Categorías...');
 
-    // Nivel dropdown (C - index 2: 1, 2, 3)
-    requests.push(createDropdown(catSheetId, 1, 101, 2, 3, DROPDOWN_OPTIONS.levels));
-
-    // Activo dropdown (E - index 4: Sí, No)
-    requests.push(createDropdown(catSheetId, 1, 101, 4, 5, DROPDOWN_OPTIONS.yesNo));
+    // Activo dropdown (J - index 9)
+    requests.push(createDropdown(catSheetId, 1, 101, 9, 10, DROPDOWN_OPTIONS.yesNo));
   }
 
   // ========================
-  // 🏭 Proveedores
+  // 🏭 Proveedores (24 columns)
+  // A-Código, B-Nombre, C-Razón Social, D-RUC, E-Tipo, F-Calificación, G-Teléfono, H-WhatsApp,
+  // I-Email, J-Sitio Web, K-Dirección, L-Ciudad, M-Persona Contacto, N-Cargo,
+  // O-Pedido Mín., P-Condiciones Pago, Q-Días Entrega, R-Marcas,
+  // S-#Productos, T-Total Compras, U-Última Compra, V-Verificado, W-Notas, X-Activo
   // ========================
   const provSheetId = sheetMap['🏭 Proveedores'];
   if (provSheetId !== undefined) {
     console.log('  🏭 Proveedores...');
 
-    // Tipo dropdown (C: Productos, Insumos, Ambos)
-    requests.push(createDropdown(provSheetId, 1, 101, 2, 3, DROPDOWN_OPTIONS.providerTypes));
+    // Tipo dropdown (E - index 4: Productos, Servicios, Ambos)
+    requests.push(createDropdown(provSheetId, 1, 101, 4, 5, DROPDOWN_OPTIONS.providerTypes));
 
-    // Activo dropdown (G)
-    requests.push(createDropdown(provSheetId, 1, 101, 6, 7, DROPDOWN_OPTIONS.yesNo));
+    // Calificación dropdown (F - index 5: stars)
+    requests.push(createDropdown(provSheetId, 1, 101, 5, 6, DROPDOWN_OPTIONS.ratings));
+
+    // Condiciones Pago dropdown (P - index 15)
+    requests.push(createDropdown(provSheetId, 1, 101, 15, 16, DROPDOWN_OPTIONS.paymentTerms));
+
+    // Verificado dropdown (V - index 21)
+    requests.push(createDropdown(provSheetId, 1, 101, 21, 22, DROPDOWN_OPTIONS.verificationStatus));
+
+    // Activo dropdown (X - index 23)
+    requests.push(createDropdown(provSheetId, 1, 101, 23, 24, DROPDOWN_OPTIONS.yesNo));
   }
 
   // ========================
-  // 🏷️ Marcas
+  // 🏷️ Marcas (15 columns)
+  // A-Código, B-Nombre, C-Tipo, D-Segmento, E-País, F-Empresa Matriz, G-Fundación,
+  // H-Especialidades, I-Solo Veterinaria, J-Distribuidor, K-Sitio Web, L-Productos Clave,
+  // M-#Productos, N-Descripción, O-Activo
   // ========================
   const brandSheetId = sheetMap['🏷️ Marcas'];
   if (brandSheetId !== undefined) {
     console.log('  🏷️ Marcas...');
 
-    // Activo dropdown (D)
-    requests.push(createDropdown(brandSheetId, 1, 101, 3, 4, DROPDOWN_OPTIONS.yesNo));
+    // Tipo dropdown (C - index 2)
+    requests.push(createDropdown(brandSheetId, 1, 151, 2, 3, DROPDOWN_OPTIONS.brandTypes, false));
+
+    // Segmento dropdown (D - index 3)
+    requests.push(createDropdown(brandSheetId, 1, 151, 3, 4, DROPDOWN_OPTIONS.marketSegments, false));
+
+    // Solo Veterinaria dropdown (I - index 8)
+    requests.push(createDropdown(brandSheetId, 1, 151, 8, 9, DROPDOWN_OPTIONS.yesNo));
+
+    // Activo dropdown (O - index 14)
+    requests.push(createDropdown(brandSheetId, 1, 151, 14, 15, DROPDOWN_OPTIONS.yesNo));
   }
 
   // ========================
-  // ⚙️ Configuración (Ubicaciones)
+  // ⚙️ Configuración (4 columns: Parámetro, Valor, Descripción, Activo)
   // ========================
   const configSheetId = sheetMap['⚙️ Configuración'];
   if (configSheetId !== undefined) {
     console.log('  ⚙️ Configuración...');
 
-    // Activo dropdown (D)
-    requests.push(createDropdown(configSheetId, 1, 30, 3, 4, DROPDOWN_OPTIONS.yesNo));
+    // Activo dropdown (D - index 3)
+    requests.push(createDropdown(configSheetId, 1, 51, 3, 4, DROPDOWN_OPTIONS.yesNo));
   }
 
   // ========================
-  // 🆕 Productos (CATÁLOGO MASTER - Productos del mercado)
-  // Columnas: SKU, Nombre, Categoría, Marca, Unid.Compra, Cant.Contenida, Unid.Venta,
-  //           PrecioCompra, CostoUnit(calc), Proveedor, Descripción, Activo
-  // Índices:  0     1        2          3      4            5              6
-  //           7            8              9          10           11
+  // 🆕 Productos (CATÁLOGO MASTER - 15 columns)
+  // A-SKU, B-Nombre, C-Categoría, D-Marca, E-Unid.Compra, F-Cant.Contenida, G-Unid.Venta,
+  // H-PrecioCompra, I-CostoUnit(calc), J-Proveedor, K-Especies, L-Receta, M-EnStock(calc), N-Descripción, O-Activo
   // ========================
   const prodSheetId = sheetMap['🆕 Productos'];
   if (prodSheetId !== undefined) {
@@ -147,83 +169,95 @@ export async function applyValidations(
 
     // Categoría dropdown (C - col 2) - from 🔧 Datos
     requests.push(createDropdownFromRange(
-      prodSheetId, 1, 501, 2, 3,
-      "='🔧 Datos'!$A$2:$A$500"
+      prodSheetId, 1, 1201, 2, 3,
+      "='🔧 Datos'!$A$2:$A$1200"
     ));
 
     // Marca dropdown (D - col 3) - from 🔧 Datos
     requests.push(createDropdownFromRange(
-      prodSheetId, 1, 501, 3, 4,
-      "='🔧 Datos'!$B$2:$B$500"
+      prodSheetId, 1, 1201, 3, 4,
+      "='🔧 Datos'!$B$2:$B$1200"
     ));
 
     // Unid. Compra dropdown (E - col 4)
-    requests.push(createDropdown(prodSheetId, 1, 501, 4, 5, DROPDOWN_OPTIONS.unitsBuy, false));
+    requests.push(createDropdown(prodSheetId, 1, 1201, 4, 5, DROPDOWN_OPTIONS.unitsBuy, false));
 
     // Unid. Venta dropdown (G - col 6)
-    requests.push(createDropdown(prodSheetId, 1, 501, 6, 7, DROPDOWN_OPTIONS.unitsSell, false));
+    requests.push(createDropdown(prodSheetId, 1, 1201, 6, 7, DROPDOWN_OPTIONS.unitsSell, false));
 
     // Proveedor dropdown (J - col 9) - from 🔧 Datos
     requests.push(createDropdownFromRange(
-      prodSheetId, 1, 501, 9, 10,
-      "='🔧 Datos'!$C$2:$C$500"
+      prodSheetId, 1, 1201, 9, 10,
+      "='🔧 Datos'!$C$2:$C$1200"
     ));
 
-    // Activo dropdown (L - col 11)
-    requests.push(createDropdown(prodSheetId, 1, 501, 11, 12, DROPDOWN_OPTIONS.yesNo));
+    // Especies dropdown (K - col 10)
+    requests.push(createDropdown(prodSheetId, 1, 1201, 10, 11, DROPDOWN_OPTIONS.species, false));
+
+    // Receta dropdown (L - col 11)
+    requests.push(createDropdown(prodSheetId, 1, 1201, 11, 12, DROPDOWN_OPTIONS.yesNo));
+
+    // Activo dropdown (O - col 14)
+    requests.push(createDropdown(prodSheetId, 1, 1201, 14, 15, DROPDOWN_OPTIONS.yesNo));
   }
 
   // ========================
-  // 📋 Mis Productos (PRODUCTOS DE LA CLÍNICA)
-  // Columnas: Producto, PrecioVenta, Margen%(calc), StockMín, StockInicial, Ubicación, Receta, Activo
-  // Índices:  0         1            2              3         4             5          6       7
+  // 📋 Mis Productos - SIMPLIFIED (18 columns)
+  // Client enters (4 cols): A-Producto, B-PrecioVenta, C-StockMín, D-Ubicación
+  // Auto-fill (7 cols): E-Código, F-Descripción, G-Categoría, H-Marca, I-Proveedor, J-CódigoBarras, K-Receta
+  // Calculated (7 cols): L-Últ.Costo, M-Margen%, N-Stock, O-Valor, P-Estado, Q-Próx.Vence, R-Alertas
   // ========================
   const myProdSheetId = sheetMap['📋 Mis Productos'];
   if (myProdSheetId !== undefined) {
     console.log('  📋 Mis Productos...');
 
-    // Producto dropdown (A - col 0) - from 🔧 Datos (productos del catálogo)
+    // Producto dropdown (A - col 0) - from 🔧 Datos (productos del catálogo activos)
+    // NOTE: Range extended to $D$2100 to accommodate 2080+ products in catalog
     requests.push(createDropdownFromRange(
       myProdSheetId, 1, 501, 0, 1,
-      "='🔧 Datos'!$D$2:$D$500"
+      "='🔧 Datos'!$D$2:$D$2100"
     ));
 
-    // Ubicación dropdown (F - col 5) - from 🔧 Datos
+    // Ubicación dropdown (D - col 3) - from 🔧 Datos (ubicaciones activas)
     requests.push(createDropdownFromRange(
-      myProdSheetId, 1, 501, 5, 6,
-      "='🔧 Datos'!$F$2:$F$500"
+      myProdSheetId, 1, 501, 3, 4,
+      "='🔧 Datos'!$F$2:$F$1200"
     ));
 
-    // Requiere Receta dropdown (G - col 6)
-    requests.push(createDropdown(myProdSheetId, 1, 501, 6, 7, DROPDOWN_OPTIONS.yesNo));
-
-    // Activo dropdown (H - col 7)
-    requests.push(createDropdown(myProdSheetId, 1, 501, 7, 8, DROPDOWN_OPTIONS.yesNo));
+    // Note: Other columns (E-R) are auto-filled or calculated, no dropdowns needed
   }
 
   // ========================
-  // 📦 Movimientos Stock (Compras, Ventas, Ajustes)
-  // Columnas: Producto, Operación, Cantidad, CostoUnit, Fecha, Ubicación, Notas
-  // Índices:  0         1          2         3          4      5          6
+  // 📦 Movimientos Stock - 15 columns (A-O)
+  // Client enters (10 cols): A-Fecha, B-Producto, C-Operación, D-Cantidad, E-Lote, F-Ubicación, G-Responsable, H-CostoUnit, I-Vencimiento, J-Documento
+  // Calculated (5 cols): K-#, L-Código, M-CostoUsado, N-+/-, O-Total
   // ========================
   const stockSheetId = sheetMap['📦 Movimientos Stock'];
   if (stockSheetId !== undefined) {
     console.log('  📦 Movimientos Stock...');
 
-    // Producto dropdown (A - col 0) - from 🔧 Datos (Mis Productos activos)
+    // Producto dropdown (B - col 1) - from 🔧 Datos (Mis Productos activos)
     requests.push(createDropdownFromRange(
-      stockSheetId, 1, 501, 0, 1,
-      "='🔧 Datos'!$E$2:$E$500"
+      stockSheetId, 1, 1001, 1, 2,
+      "='🔧 Datos'!$E$2:$E$1200"
     ));
 
-    // Operación dropdown (B - col 1)
-    requests.push(createDropdown(stockSheetId, 1, 501, 1, 2, DROPDOWN_OPTIONS.operations));
+    // Operación dropdown (C - col 2)
+    requests.push(createDropdown(stockSheetId, 1, 1001, 2, 3, DROPDOWN_OPTIONS.operations));
 
-    // Ubicación dropdown (F - col 5) - from 🔧 Datos
+    // Ubicación dropdown (F - col 5) - from 🔧 Datos (ubicaciones activas)
     requests.push(createDropdownFromRange(
-      stockSheetId, 1, 501, 5, 6,
-      "='🔧 Datos'!$F$2:$F$500"
+      stockSheetId, 1, 1001, 5, 6,
+      "='🔧 Datos'!$F$2:$F$50"
     ));
+
+    // Responsable dropdown (G - col 6) - from 🔧 Datos (responsables activos)
+    requests.push(createDropdownFromRange(
+      stockSheetId, 1, 1001, 6, 7,
+      "='🔧 Datos'!$G$2:$G$50"
+    ));
+
+    // Note: Lote (E), Vencimiento (I), Documento (J) are free text/date fields
   }
 
   // Execute validations

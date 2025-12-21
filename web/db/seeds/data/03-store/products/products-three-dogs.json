@@ -1,0 +1,205 @@
+{
+  "$schema": "../../../schemas/store.schema.json",
+  "brand_slug": "three-dogs",
+  "products": [
+    {
+      "sku": "3D-DOG-ADULT-SMALL",
+      "name": "Three Dogs Adultos Pequeños",
+      "description": "Alimento premium para perros adultos de razas pequeñas",
+      "category_slug": "NUT-CAN-SEC",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "1kg",
+          "base_price": 33600,
+          "cost_price": 20160,
+          "sku_suffix": "-1KG"
+        },
+        {
+          "size": "3kg",
+          "base_price": 89000,
+          "cost_price": 53400,
+          "sku_suffix": "-3KG"
+        },
+        {
+          "size": "8kg",
+          "base_price": 199000,
+          "cost_price": 119400,
+          "sku_suffix": "-8KG"
+        },
+        {
+          "size": "15kg",
+          "base_price": 345000,
+          "cost_price": 207000,
+          "sku_suffix": "-15KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop-adult-small.png",
+      "attributes": {
+        "age_range": "1+ años",
+        "breed_size": "Pequeño"
+      }
+    },
+    {
+      "sku": "3D-DOG-ADULT-MED-LG",
+      "name": "Three Dogs Adultos Medianos y Grandes Carne",
+      "description": "Alimento premium para perros adultos de razas medianas y grandes",
+      "category_slug": "NUT-CAN-SEC",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "3kg",
+          "base_price": 141200,
+          "cost_price": 84720,
+          "sku_suffix": "-3KG"
+        },
+        {
+          "size": "8kg",
+          "base_price": 189000,
+          "cost_price": 113400,
+          "sku_suffix": "-8KG"
+        },
+        {
+          "size": "15kg",
+          "base_price": 325000,
+          "cost_price": 195000,
+          "sku_suffix": "-15KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop-adult-med-lg.png",
+      "attributes": {
+        "age_range": "1+ años",
+        "breed_size": "Mediano y Grande",
+        "flavor": "Carne"
+      }
+    },
+    {
+      "sku": "3D-DOG-PUPPY-MED-LG",
+      "name": "Three Dogs Cachorros Medianos y Grandes",
+      "description": "Alimento premium para cachorros de razas medianas y grandes",
+      "category_slug": "NUT-CAN-SEC",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "3kg",
+          "base_price": 101000,
+          "cost_price": 60600,
+          "sku_suffix": "-3KG"
+        },
+        {
+          "size": "8kg",
+          "base_price": 225000,
+          "cost_price": 135000,
+          "sku_suffix": "-8KG"
+        },
+        {
+          "size": "15kg",
+          "base_price": 385000,
+          "cost_price": 231000,
+          "sku_suffix": "-15KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop-puppy-med-lg.png",
+      "attributes": {
+        "age_range": "Hasta 1 año",
+        "breed_size": "Mediano y Grande"
+      }
+    },
+    {
+      "sku": "3D-DOG-PUPPY-SMALL",
+      "name": "Three Dogs Cachorros Pequeños",
+      "description": "Alimento premium para cachorros de razas pequeñas",
+      "category_slug": "NUT-CAN-SEC",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "1kg",
+          "base_price": 38000,
+          "cost_price": 22800,
+          "sku_suffix": "-1KG"
+        },
+        {
+          "size": "3kg",
+          "base_price": 99000,
+          "cost_price": 59400,
+          "sku_suffix": "-3KG"
+        },
+        {
+          "size": "8kg",
+          "base_price": 219000,
+          "cost_price": 131400,
+          "sku_suffix": "-8KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop-puppy-small.png",
+      "attributes": {
+        "age_range": "Hasta 1 año",
+        "breed_size": "Pequeño"
+      }
+    },
+    {
+      "sku": "3D-DOG-SENIOR",
+      "name": "Three Dogs Senior 7+",
+      "description": "Alimento premium para perros mayores con antioxidantes",
+      "category_slug": "NUT-CAN-SEC",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "3kg",
+          "base_price": 95000,
+          "cost_price": 57000,
+          "sku_suffix": "-3KG"
+        },
+        {
+          "size": "15kg",
+          "base_price": 355000,
+          "cost_price": 213000,
+          "sku_suffix": "-15KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop-senior.png",
+      "attributes": {
+        "age_range": "7+ años",
+        "special_need": "Senior"
+      }
+    },
+    {
+      "sku": "3D-DOG-LIGHT",
+      "name": "Three Dogs Light",
+      "description": "Alimento reducido en calorías para control de peso",
+      "category_slug": "NUT-CAN-SEC",
+      "target_species": [
+        "dog"
+      ],
+      "variants": [
+        {
+          "size": "3kg",
+          "base_price": 92000,
+          "cost_price": 55200,
+          "sku_suffix": "-3KG"
+        },
+        {
+          "size": "15kg",
+          "base_price": 345000,
+          "cost_price": 207000,
+          "sku_suffix": "-15KG"
+        }
+      ],
+      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop-light.png",
+      "attributes": {
+        "special_need": "Control de peso",
+        "low_calorie": true
+      }
+    }
+  ]
+}

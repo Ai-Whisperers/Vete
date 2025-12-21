@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import * as Icons from 'lucide-react'
 import { recordPayment } from '@/app/actions/invoices'
-import { formatCurrency, paymentMethodLabels, type PaymentMethod } from '@/lib/types/invoicing'
+import { formatCurrency, paymentMethodLabels, type PaymentMethod, type RecordPaymentData } from '@/lib/types/invoicing'
 
 interface RecordPaymentDialogProps {
   invoiceId: string
@@ -29,13 +29,16 @@ export function RecordPaymentDialog({ invoiceId, amountDue, isOpen, onClose }: R
     setLoading(true)
     setError(null)
 
-    const formData = new FormData()
-    formData.append('amount', amount)
-    formData.append('payment_method', paymentMethod)
-    formData.append('reference_number', referenceNumber)
-    formData.append('notes', notes)
+    // Build typed payment data object
+    const paymentData: RecordPaymentData = {
+      invoice_id: invoiceId,
+      amount: parseFloat(amount),
+      payment_method: paymentMethod,
+      reference_number: referenceNumber || undefined,
+      notes: notes || undefined
+    }
 
-    const result = await recordPayment(invoiceId, formData)
+    const result = await recordPayment(invoiceId, paymentData)
 
     if (!result.success) {
       setError(result.error || 'Error al registrar pago')

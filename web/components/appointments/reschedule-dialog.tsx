@@ -44,7 +44,7 @@ export function RescheduleDialog({
 
     const result = await rescheduleAppointment(appointmentId, newDate, newTime)
 
-    if (result.error) {
+    if (!result.success) {
       setError(result.error)
       setLoading(false)
     } else {

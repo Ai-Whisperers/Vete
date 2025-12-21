@@ -1,6 +1,14 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 
+/**
+ * POST /api/notifications/mark-all-read
+ * Mark all unread notifications as read for the authenticated user
+ *
+ * Schema: notifications table
+ * - user_id: UUID (auth user ID)
+ * - read_at: NULL = unread, timestamp = read
+ */
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
 
@@ -13,14 +21,12 @@ export async function POST(request: NextRequest) {
   try {
     // Mark all unread notifications as read for this user
     const { data, error } = await supabase
-      .from("notification_queue")
+      .from("notifications")
       .update({
-        status: "read",
         read_at: new Date().toISOString()
       })
-      .eq("client_id", user.id)
-      .eq("channel_type", "in_app")
-      .in("status", ["queued", "delivered"])
+      .eq("user_id", user.id)
+      .is("read_at", null) // Only mark unread ones
       .select();
 
     if (error) {

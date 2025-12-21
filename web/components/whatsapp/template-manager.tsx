@@ -51,7 +51,7 @@ export function TemplateManager({ templates, clinic }: TemplateManagerProps) {
     setEditingId(template.id)
     setForm({
       name: template.name,
-      category: template.category,
+      category: template.category || 'general',
       content: template.content,
       variables: template.variables,
     })
@@ -250,7 +250,7 @@ export function TemplateManager({ templates, clinic }: TemplateManagerProps) {
           </div>
         ) : (
           templates.map((template) => {
-            const categoryConfig = templateCategoryConfig[template.category]
+            const categoryConfig = template.category ? templateCategoryConfig[template.category] : templateCategoryConfig.general
 
             return (
               <div

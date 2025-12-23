@@ -1,7 +1,7 @@
 'use server'
 
 import { withActionAuth } from '@/lib/auth'
-import { actionSuccess, handleActionError } from '@/lib/errors'
+import { actionSuccess, actionError, handleActionError } from '@/lib/errors'
 import { getDomainFactory } from '@/lib/domain'
 import { revalidatePath } from 'next/cache'
 import type { CancelAppointmentResult, RescheduleAppointmentResult } from '@/lib/types/appointments'
@@ -34,6 +34,7 @@ export const cancelAppointment = withActionAuth(
 
     // Authorization: Check if user is pet owner or staff
     const isOwner = pet.owner_id === user.id
+    const isStaff = ['vet', 'admin'].includes(profile.role)
     const sameTenant = profile.tenant_id === appointment.tenant_id
 
     if (!isOwner && !(isStaff && sameTenant)) {
@@ -84,7 +85,7 @@ export const cancelAppointment = withActionAuth(
  */
 export const rescheduleAppointment = withActionAuth(
   async (
-    { user, profile, isStaff, supabase },
+    { user, profile, supabase },
     appointmentId: string,
     newDate: string,
     newTime: string
@@ -112,6 +113,7 @@ export const rescheduleAppointment = withActionAuth(
 
     // Check ownership
     const isOwner = pet.owner_id === user.id
+    const isStaff = ['vet', 'admin'].includes(profile.role)
     const sameTenant = profile.tenant_id === appointment.tenant_id
 
     if (!isOwner && !(isStaff && sameTenant)) {

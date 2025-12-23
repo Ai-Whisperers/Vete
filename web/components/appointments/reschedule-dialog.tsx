@@ -2,22 +2,20 @@
 
 import { useState } from 'react'
 import * as Icons from 'lucide-react'
-import { rescheduleAppointment } from '@/app/actions/appointments'
+import { rescheduleAppointment, checkAvailableSlots } from '@/app/actions/appointments'
+import { useQuery } from '@tanstack/react-query'
 
 interface RescheduleDialogProps {
   appointmentId: string
+  clinicId: string
   currentDate: string
   currentTime: string
   onSuccess?: () => void
 }
 
-const timeSlots = [
-  '08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
-  '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30'
-]
-
 export function RescheduleDialog({
   appointmentId,
+  clinicId,
   currentDate,
   currentTime,
   onSuccess
@@ -25,42 +23,58 @@ export function RescheduleDialog({
   const [showDialog, setShowDialog] = useState(false)
   const [newDate, setNewDate] = useState(currentDate)
   const [newTime, setNewTime] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
 
   // Get tomorrow's date as minimum
   const tomorrow = new Date()
   tomorrow.setDate(tomorrow.getDate() + 1)
   const minDate = tomorrow.toISOString().split('T')[0]
 
+  // Fetch available slots
+  const { data: slots = [], isLoading: isLoadingSlots, error: slotsError } = useQuery({
+    queryKey: ['reschedule-slots', clinicId, newDate],
+    queryFn: async () => {
+        if (!newDate) return [];
+        const result = await checkAvailableSlots({
+            clinicSlug: clinicId,
+            date: newDate
+        });
+        if (result.error) throw new Error(result.error);
+        return result.data || [];
+    },
+    enabled: !!newDate && showDialog
+  });
+
   async function handleReschedule() {
     if (!newDate || !newTime) {
-      setError('Selecciona una fecha y hora')
+      setSubmitError('Selecciona una fecha y hora')
       return
     }
 
-    setLoading(true)
-    setError(null)
+    setIsSubmitting(true)
+    setSubmitError(null)
 
     const result = await rescheduleAppointment(appointmentId, newDate, newTime)
 
     if (!result.success) {
-      setError(result.error)
-      setLoading(false)
+      setSubmitError(result.error)
+      setIsSubmitting(false)
     } else {
       setShowDialog(false)
       setNewDate('')
       setNewTime('')
       onSuccess?.()
+      setIsSubmitting(false)
     }
   }
 
   function handleClose() {
-    if (!loading) {
+    if (!isSubmitting) {
       setShowDialog(false)
       setNewDate(currentDate)
       setNewTime('')
-      setError(null)
+      setSubmitError(null)
     }
   }
 
@@ -130,7 +144,7 @@ export function RescheduleDialog({
                   min={minDate}
                   onChange={(e) => setNewDate(e.target.value)}
                   className="w-full p-3 sm:p-4 min-h-[48px] border border-gray-200 rounded-xl text-base focus:ring-2 focus:ring-[var(--primary)]/20 focus:border-[var(--primary)] outline-none transition-all"
-                  disabled={loading}
+                  disabled={isSubmitting}
                 />
               </div>
 
@@ -139,29 +153,42 @@ export function RescheduleDialog({
                 <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
                   Nueva hora
                 </label>
-                <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-                  {timeSlots.map((time) => (
-                    <button
-                      key={time}
-                      onClick={() => setNewTime(time)}
-                      disabled={loading}
-                      className={`py-3 min-h-[44px] rounded-xl text-sm font-bold transition-all ${
-                        newTime === time
-                          ? 'bg-[var(--primary)] text-white shadow-lg'
-                          : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
-                      } disabled:opacity-50`}
-                    >
-                      {time}
-                    </button>
-                  ))}
-                </div>
+                
+                {isLoadingSlots ? (
+                    <div className="flex justify-center py-4">
+                        <Icons.Loader2 className="w-6 h-6 animate-spin text-[var(--primary)]" />
+                    </div>
+                ) : slotsError ? (
+                    <p className="text-red-500 text-sm">Error cargando horarios.</p>
+                ) : slots.length === 0 ? (
+                    <p className="text-gray-500 text-sm italic">No hay horarios disponibles.</p>
+                ) : (
+                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                    {slots.map((slot) => (
+                        <button
+                        key={slot.time}
+                        onClick={() => setNewTime(slot.time)}
+                        disabled={isSubmitting || !slot.available}
+                        className={`py-3 min-h-[44px] rounded-xl text-sm font-bold transition-all ${
+                            newTime === slot.time
+                            ? 'bg-[var(--primary)] text-white shadow-lg'
+                            : !slot.available 
+                                ? 'bg-gray-50 text-gray-300 cursor-not-allowed'
+                                : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+                        }`}
+                        >
+                        {slot.time}
+                        </button>
+                    ))}
+                    </div>
+                )}
               </div>
 
               {/* TICKET-A11Y-004: Added role="alert" for screen readers */}
-              {error && (
+              {submitError && (
                 <div role="alert" aria-live="assertive" className="p-3 sm:p-4 bg-red-50 border border-red-100 rounded-xl flex items-center gap-3">
                   <Icons.AlertCircle className="w-5 h-5 text-red-500 shrink-0" aria-hidden="true" />
-                  <p className="text-red-600 text-sm font-medium">{error}</p>
+                  <p className="text-red-600 text-sm font-medium">{submitError}</p>
                 </div>
               )}
 
@@ -178,16 +205,16 @@ export function RescheduleDialog({
               <button
                 onClick={handleClose}
                 className="px-6 py-3 min-h-[48px] text-[var(--text-secondary)] font-bold rounded-xl hover:bg-gray-50 transition-all"
-                disabled={loading}
+                disabled={isSubmitting}
               >
                 Cancelar
               </button>
               <button
                 onClick={handleReschedule}
                 className="px-6 py-3 min-h-[48px] bg-[var(--primary)] text-white font-bold rounded-xl hover:opacity-90 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
-                disabled={loading || !newDate || !newTime}
+                disabled={isSubmitting || !newDate || !newTime}
               >
-                {loading ? (
+                {isSubmitting ? (
                   <>
                     <Icons.Loader2 className="w-4 h-4 animate-spin" />
                     Reprogramando...
@@ -206,3 +233,4 @@ export function RescheduleDialog({
     </>
   )
 }
+

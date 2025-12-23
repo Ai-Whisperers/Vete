@@ -1,6 +1,7 @@
 'use server'
 
-import { withActionAuth, actionSuccess, actionError } from '@/lib/actions'
+import { withActionAuth } from '@/lib/auth'
+import { actionSuccess, actionError } from '@/lib/errors'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 
@@ -21,8 +22,82 @@ const updatePetSchema = z.object({
   birth_date: z.string().nullable().optional(),
 })
 
+/**
+ * Get pets for the current user (pet owner)
+ */
+export const getOwnerPets = withActionAuth(
+  async ({ user, profile, supabase }, clinicSlug: string, query?: string) => {
+    let supabaseQuery = supabase
+      .from('pets')
+      .select(`
+        id,
+        name,
+        species,
+        breed,
+        date_of_birth,
+        photo_url,
+        tenant_id,
+        owner_id
+      `)
+      .eq('owner_id', user.id)
+      .eq('tenant_id', clinicSlug)
+      .is('deleted_at', null)
+      .order('name', { ascending: true })
+
+    if (query) {
+      supabaseQuery = supabaseQuery.ilike('name', `%${query}%`)
+    }
+
+    const { data: pets, error } = await supabaseQuery
+
+    if (error) {
+      console.error('Get owner pets error:', error)
+      return actionError('Error al obtener las mascotas')
+    }
+
+    return actionSuccess(pets || [])
+  }
+)
+
+/**
+ * Get detailed pet profile for owner or staff
+ */
+export const getPetProfile = withActionAuth(
+  async ({ user, profile, supabase }, clinicSlug: string, petId: string) => {
+    // Fetch full pet profile with related data
+    const { data: pet, error } = await supabase
+      .from('pets')
+      .select(`
+        *,
+        vaccines (*),
+        medical_records (*),
+        prescriptions (*),
+        vaccine_reactions (*),
+        profiles:owner_id (full_name, email, phone)
+      `)
+      .eq('id', petId)
+      .eq('tenant_id', clinicSlug)
+      .is('deleted_at', null)
+      .single();
+
+    if (error || !pet) {
+      return actionError('Mascota no encontrada');
+    }
+
+    // Authorization: Check if user is pet owner or staff
+    const isStaff = ['vet', 'admin'].includes(profile.role);
+    const isOwner = pet.owner_id === user.id;
+
+    if (!isStaff && !isOwner) {
+        return actionError('No tienes permiso para ver esta mascota');
+    }
+
+    return actionSuccess(pet);
+  }
+)
+
 export const updatePet = withActionAuth(
-  async ({ user, profile, isStaff, supabase }, petId: string, formData: FormData) => {
+  async ({ user, profile, supabase }, petId: string, formData: FormData) => {
     // Verify ownership or staff access
     const { data: pet } = await supabase
       .from('pets')
@@ -35,6 +110,7 @@ export const updatePet = withActionAuth(
       return actionError('Mascota no encontrada')
     }
 
+    const isStaff = ['vet', 'admin'].includes(profile.role)
     const isOwner = pet.owner_id === user.id
     const sameTenant = profile.tenant_id === pet.tenant_id
 
@@ -73,7 +149,7 @@ export const updatePet = withActionAuth(
     const photo = formData.get('photo') as File
     let photoUrl = formData.get('existing_photo_url') as string | null
 
-    if (photo && photo.size > 0) {
+    if (photo && photo instanceof File && photo.size > 0) {
       const fileExt = photo.name.split('.').pop()
       const fileName = `${user.id}/${Date.now()}.${fileExt}`
 

@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { PortalMobileNav } from "@/components/portal/portal-mobile-nav";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
+import { PortalProviders } from "./providers";
 
 // Auth pages that don't require authentication
 const AUTH_PAGES = ['/login', '/signup', '/forgot-password', '/reset-password'];
@@ -58,7 +59,9 @@ export default async function PortalLayout({
           </div>
         </header>
         <main className="flex-1 container mx-auto px-4 py-8">
-          {children}
+          <PortalProviders>
+            {children}
+          </PortalProviders>
         </main>
       </div>
     );
@@ -240,8 +243,11 @@ export default async function PortalLayout({
        </header>
 
        <main className="flex-1 container mx-auto px-4 py-8">
-           {children}
+           <PortalProviders>
+             {children}
+           </PortalProviders>
        </main>
     </div>
   );
 }
+

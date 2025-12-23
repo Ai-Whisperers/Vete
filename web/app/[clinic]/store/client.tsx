@@ -47,6 +47,7 @@ import type {
   HealthCondition,
 } from '@/lib/types/store';
 import { SPECIES } from '@/lib/types/store';
+import { getStoreProducts, getWishlist, toggleWishlist as toggleWishlistAction } from '@/app/actions/store';
 import SortDropdown from '@/components/store/filters/sort-dropdown';
 import FilterChips from '@/components/store/filters/filter-chips';
 import EnhancedProductCard from '@/components/store/enhanced-product-card';
@@ -128,10 +129,9 @@ function StorePageClient({ config, heroImage, initialProductData }: StorePageCli
     queryKey: ['wishlist', user?.id],
     queryFn: async () => {
       if (!user) return new Set<string>();
-      const res = await fetch(`/api/store/wishlist?userId=${user.id}&clinic=${clinic}`);
-      if (!res.ok) throw new Error('Failed to fetch wishlist');
-      const wishlist: { product_id: string }[] = await res.json();
-      return new Set(wishlist.map(w => w.product_id));
+      const result = await getWishlist(clinic);
+      if (!result.success) throw new Error(result.error);
+      return result.data;
     },
     enabled: !!user,
   });
@@ -143,20 +143,21 @@ function StorePageClient({ config, heroImage, initialProductData }: StorePageCli
   } = useQuery<ProductListResponse>({
     queryKey: ['products', clinic, page, sort, debouncedSearch, filters],
     queryFn: async () => {
-      const params = new URLSearchParams();
-      params.set('clinic', clinic);
-      params.set('page', page.toString());
-      params.set('limit', '12');
-      params.set('sort', sort);
-      if (debouncedSearch) params.set('search', debouncedSearch);
-      if (filters.category) params.set('category', filters.category);
-      // ... and so on for all other filters
-
-      const res = await fetch(`/api/store/products?${params.toString()}`);
-      if (!res.ok) {
-        throw new Error(`Error ${res.status}: ${res.statusText}`);
+      const result = await getStoreProducts(clinic, {
+        page,
+        limit: 12,
+        sort,
+        search: debouncedSearch,
+        category: filters.category,
+        brand: filters.brand,
+        species: filters.species,
+      });
+      
+      if (!result.success) {
+        throw new Error(result.error);
       }
-      return res.json();
+      
+      return result.data as unknown as ProductListResponse;
     },
     initialData: initialProductData,
   });
@@ -274,23 +275,8 @@ function StorePageClient({ config, heroImage, initialProductData }: StorePageCli
 
   const { mutate: toggleWishlist } = useMutation({
     mutationFn: async (productId: string) => {
-      const isWishlisted = wishlistedIds.has(productId);
-      const method = isWishlisted ? 'DELETE' : 'POST';
-      const url = isWishlisted 
-        ? `/api/store/wishlist?product_id=${productId}`
-        : '/api/store/wishlist';
-      const body = isWishlisted ? undefined : JSON.stringify({ product_id: productId, clinic });
-
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body,
-      });
-
-      if (!res.ok) {
-        throw new Error('Failed to update wishlist');
-      }
-
+      const result = await toggleWishlistAction(clinic, productId);
+      if (!result.success) throw new Error(result.error);
       return productId;
     },
     onSuccess: (productId) => {

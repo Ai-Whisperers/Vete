@@ -10,4 +10,5 @@ This document outlines the core technologies used in the project.
 *   **Database:** Supabase (PostgreSQL)
 *   **Authentication:** Supabase Auth
 *   **Client-Side Data Fetching:** TanStack Query
+*   **State Management:** Zustand
 *   **Testing:** Vitest and Playwright

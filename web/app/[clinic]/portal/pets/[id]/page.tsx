@@ -1,4 +1,3 @@
-import { createClient } from '@/lib/supabase/server';
 import { notFound, redirect } from 'next/navigation';
 import { LoyaltyCard } from '@/components/loyalty/loyalty-card';
 import { getClinicData } from '@/lib/clinics';
@@ -7,6 +6,8 @@ import { PetProfileHeader } from '@/components/pets/pet-profile-header';
 import { VaccineReactionAlert } from '@/components/pets/vaccine-reaction-alert';
 import { MedicalTimeline } from '@/components/pets/medical-timeline';
 import { PetSidebarInfo } from '@/components/pets/pet-sidebar-info';
+import { getPetProfile } from '@/app/actions/pets';
+import { AuthService } from '@/lib/auth/core';
 import type { MedicalRecord, Vaccine, Prescription } from '@/lib/types/database';
 
 interface VaccineReaction {
@@ -44,48 +45,36 @@ interface WeightRecord {
 }
 
 export default async function PetProfilePage({ params }: { params: Promise<{ clinic: string; id: string }> }) {
-  const supabase = await createClient();
   const { clinic, id } = await params;
 
+  // Use Server Action for unified data fetching and auth
+  const result = await getPetProfile(clinic, id);
+
+  if (!result.success) {
+    if (result.error === 'Authentication required') {
+        redirect(`/${clinic}/portal/login`);
+    }
+    if (result.error === 'Mascota no encontrada') {
+        notFound();
+    }
+    // Generic error
+    return (
+        <div className="p-8 text-center bg-red-50 text-red-600 rounded-2xl">
+            <p className="font-bold">Error al cargar perfil</p>
+            <p className="text-sm">{result.error}</p>
+        </div>
+    );
+  }
+
+  const pet = result.data;
   const clinicData = await getClinicData(clinic);
 
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect(`/${clinic}/portal/login`);
-
-  const { data: userProfile } = await supabase
-    .from('profiles')
-    .select('role, tenant_id')
-    .eq('id', user.id)
-    .single();
-
-  if (!userProfile) {
-    redirect(`/${clinic}/portal/login`);
-  }
-
-  const { data: pet } = await supabase
-    .from('pets')
-    .select(`
-      *,
-      vaccines (*),
-      medical_records (*),
-      prescriptions (*),
-      vaccine_reactions (*),
-      profiles:owner_id (full_name, email, phone)
-    `)
-    .eq('id', id)
-    .eq('tenant_id', clinic)
-    .single();
-
-  if (!pet) {
-    notFound();
-  }
-
-  const isStaff = userProfile.role === 'vet' || userProfile.role === 'admin';
-  const isOwner = pet.owner_id === user.id;
-
-  if (!isStaff && !isOwner) {
-    notFound();
-  }
+  // We still need to know if current user is staff for UI components
+  // result of getPetProfile doesn't return context, but we can check profile again
+  // OR just assume if success, they have access. 
+  // Let's get context for isStaff check
+  const authContext = await AuthService.getContext();
+  const isStaff = authContext.isAuthenticated && ['vet', 'admin'].includes(authContext.profile.role);
 
   const records = (pet.medical_records as MedicalRecord[])?.sort((a: MedicalRecord, b: MedicalRecord) =>
     new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
@@ -141,18 +130,20 @@ export default async function PetProfilePage({ params }: { params: Promise<{ cli
     });
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8 pb-20">
+    <div className="max-w-5xl mx-auto space-y-8 pb-20 px-4">
       <VaccineReactionAlert reactions={pet.vaccine_reactions as VaccineReaction[]} />
 
       <PetProfileHeader pet={pet} clinic={clinic} isStaff={isStaff} />
 
-      <div className="grid md:grid-cols-3 gap-8">
-        <MedicalTimeline
-          timelineItems={timelineItems}
-          clinic={clinic}
-          petId={id}
-          isStaff={isStaff}
-        />
+      <div className="grid lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2">
+            <MedicalTimeline
+                timelineItems={timelineItems}
+                clinic={clinic}
+                petId={id}
+                isStaff={isStaff}
+            />
+        </div>
 
         <div className="space-y-6">
           <GrowthChart

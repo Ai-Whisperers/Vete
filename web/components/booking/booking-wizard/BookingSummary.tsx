@@ -1,14 +1,10 @@
 "use client";
 
-import React from 'react';
-import { ShoppingBag, Zap, Calendar } from 'lucide-react';
-import { formatPrice } from './useBookingState';
-import type { BookingSelection, BookableService, Pet } from './types';
+import React, { useMemo } from 'react';
+import { ShoppingBag, Zap } from 'lucide-react';
+import { useBookingStore, formatPrice } from '@/lib/store/booking-store';
 
 interface BookingSummaryProps {
-    selection: BookingSelection;
-    currentService: BookableService | undefined;
-    currentPet: Pet | undefined;
     labels?: {
         summary?: string;
         service?: string;
@@ -25,11 +21,20 @@ interface BookingSummaryProps {
  * Displays selected service, pet, date/time, and total price
  */
 export function BookingSummary({
-    selection,
-    currentService,
-    currentPet,
     labels = {}
 }: BookingSummaryProps) {
+    const { selection, services, pets } = useBookingStore();
+
+    const currentService = useMemo(() => 
+        services.find(s => s.id === selection.serviceId),
+        [services, selection.serviceId]
+    );
+
+    const currentPet = useMemo(() => 
+        pets.find(p => p.id === selection.petId),
+        [pets, selection.petId]
+    );
+
     return (
         <aside className="lg:sticky lg:top-12 space-y-6 animate-in slide-in-from-bottom-8 duration-700">
             <div className="bg-white rounded-[2.5rem] p-8 shadow-2xl border border-gray-100">

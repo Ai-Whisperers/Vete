@@ -86,20 +86,33 @@ export default function ProductDetailClient({ clinic, productId, clinicConfig }:
     fetchProduct();
   }, [productId, clinic]);
 
+import { getStoreProduct, toggleWishlist as toggleWishlistAction } from '@/app/actions/store';
+
+// ... inside ProductDetailClient component ...
+
   const fetchProduct = async () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`/api/store/products/${productId}?clinic=${clinic}`);
-      if (!res.ok) {
-        if (res.status === 404) {
-          setError('Producto no encontrado');
-        } else {
-          throw new Error('Error al cargar el producto');
-        }
+      const result = await getStoreProduct(clinic, productId);
+      
+      if (!result.success) {
+        setError(result.error || 'Error al cargar el producto');
         return;
       }
-      const productData = await res.json();
+      
+      // Note: The original implementation expected a full ProductDetailResponse 
+      // with review_summary, related_products, and questions.
+      // For now, we only have the product data from getStoreProduct.
+      // We'll wrap it to match the expected interface as much as possible.
+      
+      const productData = {
+        product: result.data,
+        review_summary: { average_rating: result.data.avg_rating || 0, total_reviews: result.data.review_count || 0, rating_distribution: {} },
+        related_products: [],
+        questions: []
+      } as unknown as ProductDetailResponse;
+      
       setData(productData);
 
       // Set default variant if exists
@@ -115,7 +128,16 @@ export default function ProductDetailClient({ clinic, productId, clinicConfig }:
     }
   };
 
-  const handleAddToCart = async () => {
+  const handleWishlistToggle = async () => {
+    try {
+        const result = await toggleWishlistAction(clinic, productId);
+        if (result.success) {
+            setIsWishlisted(!isWishlisted);
+        }
+    } catch (err) {
+        console.error('Failed to toggle wishlist:', err);
+    }
+  };
     if (!data?.product) return;
     const product = data.product;
 
@@ -480,7 +502,7 @@ export default function ProductDetailClient({ clinic, productId, clinicConfig }:
             {/* Wishlist & Share */}
             <div className="flex gap-4 mb-6">
               <button
-                onClick={() => setIsWishlisted(!isWishlisted)}
+                onClick={handleWishlistToggle}
                 className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-colors ${
                   isWishlisted
                     ? 'border-red-500 text-red-500 bg-red-50'

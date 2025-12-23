@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Stethoscope, PawPrint, Calendar, CheckCircle } from 'lucide-react';
-import { useBookingState } from './useBookingState';
+import { useBookingStore } from '@/lib/store/booking-store';
 import { ServiceSelection } from './ServiceSelection';
 import { PetSelection } from './PetSelection';
 import { DateTimeSelection } from './DateTimeSelection';
@@ -31,18 +32,35 @@ export default function BookingWizard({
     userPets,
     initialService
 }: BookingWizardProps) {
+    const [queryClient] = useState(() => new QueryClient());
+    
     const {
         step,
         setStep,
         selection,
         updateSelection,
         services,
-        currentService,
-        currentPet,
         isSubmitting,
         submitError,
         submitBooking,
-    } = useBookingState(clinic, userPets, initialService);
+        initialize
+    } = useBookingStore();
+
+    // Initialize store with props on mount
+    useEffect(() => {
+        initialize(clinic, userPets, initialService);
+    }, [clinic, userPets, initialService, initialize]);
+
+    // Derived values from store
+    const currentService = useMemo(() => 
+        services.find(s => s.id === selection.serviceId),
+        [services, selection.serviceId]
+    );
+
+    const currentPet = useMemo(() => 
+        userPets.find(p => p.id === selection.petId),
+        [userPets, selection.petId]
+    );
 
     // Generate step configuration with labels from config
     const BOOKING_STEPS: Step[] = useMemo(() => [
@@ -98,93 +116,96 @@ export default function BookingWizard({
     }
 
     return (
-        <div className="max-w-6xl mx-auto py-12 px-4">
-            {/* Progress Stepper */}
-            <div className="mb-8 sm:mb-12 max-w-3xl mx-auto">
-                <ProgressStepper
-                    steps={BOOKING_STEPS}
-                    currentStep={currentStepIndex}
-                    variant="default"
-                    onStepClick={handleStepClick}
-                    className="px-4"
-                />
-            </div>
-
-            <div className="grid lg:grid-cols-[1fr_350px] gap-12 items-start">
-                {/* Main Content Area */}
-                <div className="bg-white/70 backdrop-blur-xl rounded-[3rem] shadow-2xl shadow-gray-200/50 border border-white/50 overflow-hidden min-h-[500px] p-8 md:p-12 relative">
-                    {/* Background Decorations */}
-                    <div className="absolute -top-24 -right-24 w-64 h-64 bg-[var(--primary)]/5 rounded-full blur-3xl"></div>
-                    <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-[var(--primary)]/5 rounded-full blur-3xl"></div>
-
-                    {/* Step 1: Service Selection */}
-                    {step === 'service' && (
-                        <ServiceSelection
-                            services={services}
-                            selection={selection}
-                            onServiceSelect={(serviceId) => {
-                                updateSelection({ serviceId });
-                                setStep('pet');
-                            }}
-                        />
-                    )}
-
-                    {/* Step 2: Pet Selection */}
-                    {step === 'pet' && (
-                        <PetSelection
-                            pets={userPets}
-                            selection={selection}
-                            clinicId={clinic.config.id}
-                            onPetSelect={(petId) => {
-                                updateSelection({ petId });
-                                setStep('datetime');
-                            }}
-                            onBack={() => setStep('service')}
-                        />
-                    )}
-
-                    {/* Step 3: Date & Time Selection */}
-                    {step === 'datetime' && (
-                        <DateTimeSelection
-                            selection={selection}
-                            clinicName={clinic.config.name}
-                            onUpdate={updateSelection}
-                            onBack={() => setStep('pet')}
-                            onContinue={() => setStep('confirm')}
-                        />
-                    )}
-
-                    {/* Step 4: Confirmation */}
-                    {step === 'confirm' && (
-                        <Confirmation
-                            selection={selection}
-                            currentService={currentService}
-                            currentPet={currentPet}
-                            isSubmitting={isSubmitting}
-                            submitError={submitError}
-                            onUpdate={updateSelection}
-                            onBack={() => setStep('datetime')}
-                            onSubmit={submitBooking}
-                        />
-                    )}
+        <QueryClientProvider client={queryClient}>
+            <div className="max-w-6xl mx-auto py-12 px-4">
+                {/* Progress Stepper */}
+                <div className="mb-8 sm:mb-12 max-w-3xl mx-auto">
+                    <ProgressStepper
+                        steps={BOOKING_STEPS}
+                        currentStep={currentStepIndex}
+                        variant="default"
+                        onStepClick={handleStepClick}
+                        className="px-4"
+                    />
                 </div>
 
-                {/* Sidebar Summary */}
-                <BookingSummary
-                    selection={selection}
-                    currentService={currentService}
-                    currentPet={currentPet}
-                    labels={{
-                        summary: 'Resumen',
-                        service: 'Servicio',
-                        patient: 'Paciente',
-                        schedule: 'Horario',
-                        notSelected: 'Sin seleccionar',
-                        toDefine: 'Por definir',
-                        estimatedTotal: 'Total Estimado',
-                    }}
-                />
+                <div className="grid lg:grid-cols-[1fr_350px] gap-12 items-start">
+                    {/* Main Content Area */}
+                    <div className="bg-white/70 backdrop-blur-xl rounded-[3rem] shadow-2xl shadow-gray-200/50 border border-white/50 overflow-hidden min-h-[500px] p-8 md:p-12 relative">
+                        {/* Background Decorations */}
+                        <div className="absolute -top-24 -right-24 w-64 h-64 bg-[var(--primary)]/5 rounded-full blur-3xl"></div>
+                        <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-[var(--primary)]/5 rounded-full blur-3xl"></div>
+
+                        {/* Step 1: Service Selection */}
+                        {step === 'service' && (
+                            <ServiceSelection
+                                services={services}
+                                selection={selection}
+                                onServiceSelect={(serviceId) => {
+                                    updateSelection({ serviceId });
+                                    setStep('pet');
+                                }}
+                            />
+                        )}
+
+                        {/* Step 2: Pet Selection */}
+                        {step === 'pet' && (
+                            <PetSelection
+                                pets={userPets}
+                                selection={selection}
+                                clinicId={clinic.config.id}
+                                onPetSelect={(petId) => {
+                                    updateSelection({ petId });
+                                    setStep('datetime');
+                                }}
+                                onBack={() => setStep('service')}
+                            />
+                        )}
+
+                        {/* Step 3: Date & Time Selection */}
+                        {step === 'datetime' && (
+                            <DateTimeSelection
+                                selection={selection}
+                                clinicName={clinic.config.name}
+                                clinicId={clinic.config.id}
+                                onUpdate={updateSelection}
+                                onBack={() => setStep('pet')}
+                                onContinue={() => setStep('confirm')}
+                            />
+                        )}
+
+                        {/* Step 4: Confirmation */}
+                        {step === 'confirm' && (
+                            <Confirmation
+                                selection={selection}
+                                currentService={currentService}
+                                currentPet={currentPet}
+                                isSubmitting={isSubmitting}
+                                submitError={submitError}
+                                onUpdate={updateSelection}
+                                onBack={() => setStep('datetime')}
+                                onSubmit={() => submitBooking(clinic.config.id, currentService?.name)}
+                            />
+                        )}
+                    </div>
+
+                    {/* Sidebar Summary */}
+                    <BookingSummary
+                        selection={selection}
+                        currentService={currentService}
+                        currentPet={currentPet}
+                        labels={{
+                            summary: 'Resumen',
+                            service: 'Servicio',
+                            patient: 'Paciente',
+                            schedule: 'Horario',
+                            notSelected: 'Sin seleccionar',
+                            toDefine: 'Por definir',
+                            estimatedTotal: 'Total Estimado',
+                        }}
+                    />
+                </div>
             </div>
-        </div>
+        </QueryClientProvider>
     );
 }

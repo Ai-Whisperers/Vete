@@ -11,7 +11,7 @@ export { DateTimeSelection } from './booking-wizard/DateTimeSelection';
 export { Confirmation } from './booking-wizard/Confirmation';
 export { SuccessScreen } from './booking-wizard/SuccessScreen';
 export { BookingSummary } from './booking-wizard/BookingSummary';
-export { useBookingState, formatPrice } from './booking-wizard/useBookingState';
+export { formatPrice } from '@/lib/store/booking-store';
 export type {
     BookingSelection,
     BookableService,

@@ -1,12 +1,12 @@
 # Implementation Plan: Adopt a Schema Validation Library
 
 ### Phase 1: Library Evaluation and Setup
-- [ ] **Task:** Evaluate and Decide on Library
-  - [ ] Sub-task: Briefly evaluate Zod against one alternative (e.g., Valibot/Yup) for fit within our Next.js/TypeScript stack.
-  - [ ] Sub-task: Document the decision and reasoning (e.g., in `documentation/architecture/validation-decision.md`).
-- [ ] **Task:** Install and Configure Library
-  - [ ] Sub-task: Install the chosen schema validation library (e.g., Zod).
-  - [ ] Sub-task: Set up basic configuration for use in both backend (API routes) and frontend (React components).
+- [x] **Task:** Evaluate and Decide on Library
+  - [x] Sub-task: Briefly evaluate Zod against one alternative (e.g., Valibot/Yup) for fit within our Next.js/TypeScript stack.
+  - [x] Sub-task: Document the decision and reasoning (e.g., in `documentation/architecture/validation-decision.md`).
+- [x] **Task:** Install and Configure Library
+  - [x] Sub-task: Install the chosen schema validation library (e.g., Zod).
+  - [x] Sub-task: Set up basic configuration for use in both backend (API routes) and frontend (React components).
 - [ ] **Task:** Conductor - User Manual Verification 'Phase 1: Library Evaluation and Setup' (Protocol in workflow.md)
 
 ### Phase 2: Backend API Integration

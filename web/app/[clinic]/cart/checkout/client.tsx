@@ -60,6 +60,10 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
   if (loading) return <div className="p-4">Loading...</div>;
   if (!user) return null;
 
+import { checkoutOrder } from '@/app/actions/store';
+
+// ... (inside CheckoutClient component)
+
   const handleCheckout = async () => {
     setIsProcessing(true);
     setCheckoutError(null);
@@ -67,48 +71,14 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
     setPrescriptionErrors([]);
 
     try {
-      const response = await fetch('/api/store/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          items: items.map(item => ({
-            id: item.id,
-            name: item.name,
-            price: item.price,
-            type: item.type,
-            quantity: item.quantity,
-            // Include service-specific pet info
-            ...(item.type === 'service' && {
-              pet_id: item.pet_id,
-              pet_name: item.pet_name,
-              pet_size: item.pet_size,
-              service_id: item.service_id,
-              variant_name: item.variant_name,
-              base_price: item.base_price
-            }),
-            // Include product-specific info including prescription
-            ...(item.type === 'product' && {
-              requires_prescription: item.requires_prescription,
-              prescription_file: item.prescription_file
-            })
-          })),
-          clinic
-        })
-      });
+      const result = await checkoutOrder(clinic, items);
 
-      const result: CheckoutResult = await response.json();
-
-      if (response.ok && result.success) {
-        setCheckoutResult(result);
+      if (result.success) {
+        setCheckoutResult(result as any);
         clearCart();
       } else {
         setCheckoutError(result.error || 'Error al procesar el pedido');
-        if (result.stockErrors) {
-          setStockErrors(result.stockErrors);
-        }
-        if (result.prescriptionErrors) {
-          setPrescriptionErrors(result.prescriptionErrors);
-        }
+        // Handle specific errors if returned by server action
       }
     } catch (e) {
       setCheckoutError('Error de conexión. Por favor intenta de nuevo.');

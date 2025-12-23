@@ -9,6 +9,7 @@ import { sendConfirmationEmail } from '@/web/lib/notification-service'
 import { generateAppointmentConfirmationEmail } from '@/web/lib/email-templates'
 import { ERROR_MESSAGES } from '@/web/lib/constants'
 
+// Schema
 const createAppointmentSchema = z.object({
   clinic: z
     .string()
@@ -28,7 +29,8 @@ const createAppointmentSchema = z.object({
     .refine(val => {
       const date = new Date(val);
       const now = new Date();
-      now.setMinutes(now.getMinutes() + 15); // At least 15 minutes in the future
+      // Allow booking if it's at least 15 mins in the future
+      now.setMinutes(now.getMinutes() + 15); 
       return date >= now;
     }, { message: ERROR_MESSAGES.APPOINTMENT_TOO_SOON }),
 
@@ -42,10 +44,17 @@ const createAppointmentSchema = z.object({
     .string()
     .max(1000, ERROR_MESSAGES.LONG_NOTES)
     .optional()
+    .nullable()
     .transform(val => val?.trim() || null),
 });
 
-export async function createAppointment(prevState: ActionResult | null, formData: FormData): Promise<ActionResult> {
+type AppointmentInput = z.infer<typeof createAppointmentSchema>;
+
+/**
+ * Core logic for creating an appointment
+ * Returns a result object, does NOT redirect
+ */
+async function validateAndCreateAppointment(input: unknown): Promise<ActionResult> {
   const supabase = await createClient()
 
   // Auth Check
@@ -57,19 +66,8 @@ export async function createAppointment(prevState: ActionResult | null, formData
     }
   }
 
-  const clinic = formData.get('clinic') as string
-
-  // Extract form data
-  const rawData = {
-    clinic: clinic,
-    pet_id: formData.get('pet_id') as string,
-    start_time: formData.get('start_time') as string,
-    reason: formData.get('reason') as string,
-    notes: formData.get('notes') as string,
-  }
-
-  // Validate
-  const validation = createAppointmentSchema.safeParse(rawData)
+  // Validate Input
+  const validation = createAppointmentSchema.safeParse(input)
 
   if (!validation.success) {
     const fieldErrors: FieldErrors = {}
@@ -87,7 +85,7 @@ export async function createAppointment(prevState: ActionResult | null, formData
     }
   }
 
-  const { pet_id, start_time, reason, notes } = validation.data
+  const { clinic, pet_id, start_time, reason, notes } = validation.data
 
   // Verify Pet Ownership
   const { data: pet } = await supabase
@@ -120,18 +118,31 @@ export async function createAppointment(prevState: ActionResult | null, formData
   const start = new Date(start_time)
   const end = new Date(start.getTime() + 30 * 60000)
 
-  // Check for overlapping appointments (Global Clinic check)
-  // Prevent double booking the same slot
-  const { data: busySlot } = await supabase
-    .from('appointments')
-    .select('id')
-    .eq('tenant_id', pet.tenant_id)
-    .not('status', 'in', '("cancelled")') // Ignore cancelled
-    .lt('start_time', end.toISOString())
-    .gt('end_time', start.toISOString())
-    .maybeSingle()
+  // ---------------------------------------------------------------------------
+  // ROBUST OVERLAP CHECK (Using Database Function)
+  // ---------------------------------------------------------------------------
+  const dateStr = start.toLocaleDateString('en-CA'); // YYYY-MM-DD
+  const startTimeStr = start.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }); // HH:MM
+  const endTimeStr = end.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }); // HH:MM
 
-  if (busySlot) {
+  const { data: hasOverlap, error: overlapError } = await supabase.rpc('check_appointment_overlap', {
+    p_tenant_id: pet.tenant_id,
+    p_date: dateStr,
+    p_start_time: startTimeStr,
+    p_end_time: endTimeStr,
+    p_vet_id: null, // Check global availability for now
+    p_exclude_id: null
+  });
+
+  if (overlapError) {
+    console.error('Overlap Check Error:', overlapError);
+    return {
+        success: false,
+        error: ERROR_MESSAGES.GENERIC_APPOINTMENT_ERROR
+    };
+  }
+
+  if (hasOverlap) {
     return {
       success: false,
       error: ERROR_MESSAGES.SLOT_ALREADY_TAKEN,
@@ -141,13 +152,14 @@ export async function createAppointment(prevState: ActionResult | null, formData
     }
   }
 
-  // Check for Same Pet multiple appointments (Business Rule: 1 per day?)
-  // Existing logic kept but optimized
+  // ---------------------------------------------------------------------------
+  // SAME DAY CHECK (Business Rule)
+  // ---------------------------------------------------------------------------
   const { data: existingAppointments } = await supabase
     .from('appointments')
     .select('id, start_time')
     .eq('pet_id', pet_id)
-    .neq('status', 'cancelled') // Fix: explicitly exclude cancelled instead of just "pending"
+    .neq('status', 'cancelled')
     .gte('start_time', new Date().toISOString())
 
   if (existingAppointments && existingAppointments.length > 0) {
@@ -165,13 +177,15 @@ export async function createAppointment(prevState: ActionResult | null, formData
         success: false,
         error: ERROR_MESSAGES.APPOINTMENT_ON_SAME_DAY(pet.name, existingTime),
         fieldErrors: {
-          start_time: ERROR_MESSAGES.APPOINTMENT_ON_SAME_DAY(pet.name, existingTime).split('. ')[1] // Extracting just the second sentence
+          start_time: ERROR_MESSAGES.APPOINTMENT_ON_SAME_DAY(pet.name, existingTime).split('. ')[1]
         }
       }
     }
   }
 
-  // Insert Appointment
+  // ---------------------------------------------------------------------------
+  // INSERT APPOINTMENT
+  // ---------------------------------------------------------------------------
   const { error: insertError } = await supabase.from('appointments').insert({
     tenant_id: pet.tenant_id,
     pet_id: pet_id,
@@ -184,30 +198,19 @@ export async function createAppointment(prevState: ActionResult | null, formData
   })
 
   if (insertError) {
-    console.error('Appointment Error:', insertError)
-
-    if (insertError.code === '23505') {
-      return {
-        success: false,
-        error: ERROR_MESSAGES.SLOT_ALREADY_TAKEN, // Re-using for unique constraint, which implies slot taken
-        fieldErrors: {
-          start_time: ERROR_MESSAGES.SLOT_ALREADY_TAKEN
-        }
-      }
-    }
-
+    console.error('Appointment Insert Error:', insertError)
     return {
       success: false,
       error: ERROR_MESSAGES.GENERIC_APPOINTMENT_ERROR
     }
   }
 
-  }
-
-  // Send Confirmation Email
+  // ---------------------------------------------------------------------------
+  // NOTIFICATIONS
+  // ---------------------------------------------------------------------------
   try {
-    const userEmail = user.email || 'correo_desconocido@example.com'; // Fallback if email is not available
-    const userName = user.user_metadata?.full_name || user.email; // Fallback for name
+    const userEmail = user.email || 'correo_desconocido@example.com'; 
+    const userName = user.user_metadata?.full_name || user.email;
 
     await sendConfirmationEmail({
       to: userEmail,
@@ -222,9 +225,42 @@ export async function createAppointment(prevState: ActionResult | null, formData
     });
   } catch (emailError) {
     console.error('Error sending confirmation email:', emailError);
-    // Continue with the appointment process even if email sending fails
+    // Non-blocking
   }
 
   revalidatePath(`/${clinic}/portal/dashboard`)
-  redirect(`/${clinic}/portal/dashboard?success=appointment_created`)
+  revalidatePath(`/${clinic}/portal/appointments`)
+  
+  return { success: true }
+}
+
+/**
+ * Action for useActionState (FormData)
+ */
+export async function createAppointment(prevState: ActionResult | null, formData: FormData): Promise<ActionResult> {
+  const input = {
+    clinic: formData.get('clinic') as string,
+    pet_id: formData.get('pet_id') as string,
+    start_time: formData.get('start_time') as string,
+    reason: formData.get('reason') as string,
+    notes: formData.get('notes') as string,
+  }
+
+  const result = await validateAndCreateAppointment(input);
+
+  if (result.success) {
+    // Redirect pattern for Form submissions
+    redirect(`/${input.clinic}/portal/dashboard?success=appointment_created`)
+  }
+
+  return result;
+}
+
+/**
+ * Action for Client Components (JSON/Object)
+ */
+export async function createAppointmentJson(input: unknown): Promise<ActionResult> {
+  // Directly return the result (success or failure)
+  // Client component handles the UI transition
+  return await validateAndCreateAppointment(input);
 }

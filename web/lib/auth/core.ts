@@ -6,6 +6,9 @@
 import { createClient } from '@/lib/supabase/server'
 import type { UserRole, UserProfile, AuthContext, UnauthenticatedContext, AppAuthContext, AuthResult } from './types'
 import { apiError } from '@/lib/api/errors'
+import { db } from "@/db"
+import { profiles } from "@/db/schema"
+import { eq } from "drizzle-orm"
 
 export class AuthService {
   /**
@@ -26,13 +29,16 @@ export class AuthService {
         }
       }
 
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single()
+      // Refactored to use Drizzle
+      const result = await db
+        .select()
+        .from(profiles)
+        .where(eq(profiles.id, user.id))
+        .limit(1);
 
-      if (profileError || !profile) {
+      const profile = result[0];
+
+      if (!profile) {
         console.warn('Profile not found for authenticated user:', user.id)
         return {
           user: null,
@@ -44,7 +50,7 @@ export class AuthService {
 
       return {
         user,
-        profile: profile as UserProfile,
+        profile: profile as unknown as UserProfile,
         supabase,
         isAuthenticated: true
       }

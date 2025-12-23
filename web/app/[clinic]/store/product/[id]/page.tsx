@@ -3,29 +3,12 @@ import { notFound } from 'next/navigation';
 import { getClinicData } from '@/lib/clinics';
 import ProductDetailClient from './client';
 import { ProductSchema, BreadcrumbSchema } from '@/components/seo/structured-data';
+import { getStoreProduct } from '@/app/actions/store';
 
 const BASE_URL = 'https://vetepy.vercel.app';
 
 interface Props {
   params: Promise<{ clinic: string; id: string }>;
-}
-
-// Fetch product data on server for SEO
-async function getProduct(clinic: string, id: string) {
-  try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-    const res = await fetch(`${baseUrl}/api/store/products/${id}?clinic=${clinic}`, {
-      next: { revalidate: 60 },
-    });
-
-    if (res.ok) {
-      const data = await res.json();
-      return data.product;
-    }
-  } catch {
-    return null;
-  }
-  return null;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -37,9 +20,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   const canonicalUrl = `${BASE_URL}/${clinic}/store/product/${id}`;
-  const product = await getProduct(clinic, id);
+  const result = await getStoreProduct(clinic, id);
 
-  if (product) {
+  if (result.success) {
+    const product = result.data;
     const ogImage = product.image_url || clinicData.config.branding?.og_image_url || '/branding/default-og.jpg';
 
     return {
@@ -89,8 +73,9 @@ export default async function ProductDetailPage({ params }: Props) {
     notFound();
   }
 
-  // Fetch product data for structured data
-  const product = await getProduct(clinic, id);
+  // Fetch product data
+  const result = await getStoreProduct(clinic, id);
+  const product = result.success ? result.data : null;
 
   // Breadcrumb items for structured data
   const breadcrumbItems = [

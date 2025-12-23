@@ -2,23 +2,19 @@
 
 import React from 'react';
 import { Layers, ArrowRight } from 'lucide-react';
-import type { BookableService, BookingSelection } from './types';
-import { formatPrice } from './useBookingState';
-
-interface ServiceSelectionProps {
-    services: BookableService[];
-    selection: BookingSelection;
-    onServiceSelect: (serviceId: string) => void;
-}
+import { useBookingStore, formatPrice } from '@/lib/store/booking-store';
 
 /**
  * Step 1: Service selection component
  */
-export function ServiceSelection({
-    services,
-    selection,
-    onServiceSelect
-}: ServiceSelectionProps) {
+export function ServiceSelection() {
+    const { services, updateSelection, setStep } = useBookingStore();
+
+    const handleServiceSelect = (serviceId: string) => {
+        updateSelection({ serviceId });
+        setStep('pet');
+    };
+
     return (
         <div className="relative z-10 animate-in slide-in-from-right-8 duration-500">
             <div className="flex items-center gap-4 mb-10">
@@ -33,7 +29,7 @@ export function ServiceSelection({
                     services.map(s => (
                         <button
                             key={s.id}
-                            onClick={() => onServiceSelect(s.id)}
+                            onClick={() => handleServiceSelect(s.id)}
                             className="p-6 bg-white border border-gray-100 rounded-[2rem] hover:border-[var(--primary)] hover:shadow-xl hover:-translate-y-1 transition-all text-left group flex items-start gap-4"
                         >
                             <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 ${s.color} transition-transform group-hover:scale-110`}>

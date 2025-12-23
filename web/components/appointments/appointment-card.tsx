@@ -131,6 +131,7 @@ export function AppointmentCard({
               {canReschedule && (
                 <RescheduleDialog
                   appointmentId={appointment.id}
+                  clinicId={clinic}
                   currentDate={appointment.start_time.split('T')[0]}
                   currentTime={formatAppointmentTime(appointment.start_time)}
                   onSuccess={onUpdate}

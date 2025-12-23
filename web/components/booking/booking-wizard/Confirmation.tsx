@@ -1,39 +1,44 @@
 "use client";
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { ArrowLeft, ArrowRight, Calendar, Clock, AlertCircle, Loader2 } from 'lucide-react';
-import type { BookableService, Pet, BookingSelection } from './types';
-import { formatPrice } from './useBookingState';
-
-interface ConfirmationProps {
-    selection: BookingSelection;
-    currentService?: BookableService;
-    currentPet?: Pet;
-    isSubmitting: boolean;
-    submitError: string | null;
-    onUpdate: (updates: Partial<BookingSelection>) => void;
-    onBack: () => void;
-    onSubmit: () => void;
-}
+import { useBookingStore, formatPrice } from '@/lib/store/booking-store';
 
 /**
  * Step 4: Confirmation component
  */
-export function Confirmation({
-    selection,
-    currentService,
-    currentPet,
-    isSubmitting,
-    submitError,
-    onUpdate,
-    onBack,
-    onSubmit
-}: ConfirmationProps) {
+export function Confirmation() {
+    const { 
+        selection, 
+        services, 
+        pets, 
+        isSubmitting, 
+        submitError, 
+        updateSelection, 
+        setStep, 
+        submitBooking,
+        clinicId
+    } = useBookingStore();
+
+    const currentService = useMemo(() => 
+        services.find(s => s.id === selection.serviceId),
+        [services, selection.serviceId]
+    );
+
+    const currentPet = useMemo(() => 
+        pets.find(p => p.id === selection.petId),
+        [pets, selection.petId]
+    );
+
+    const handleSubmit = async () => {
+        await submitBooking(currentService?.name);
+    };
+
     return (
         <div className="relative z-10 animate-in slide-in-from-right-8 duration-500">
             <div className="flex items-center gap-4 mb-10">
                 <button
-                    onClick={onBack}
+                    onClick={() => setStep('datetime')}
                     className="p-3 bg-gray-50 text-gray-400 rounded-2xl hover:bg-gray-100 transition-all"
                 >
                     <ArrowLeft className="w-5 h-5" />
@@ -96,7 +101,7 @@ export function Confirmation({
                     className="w-full p-6 bg-white border border-gray-100 rounded-[2rem] font-medium text-gray-700 focus:ring-4 focus:ring-[var(--primary)]/10 transition-all outline-none h-32"
                     placeholder="Ej: Mi mascota está un poco nerviosa..."
                     value={selection.notes}
-                    onChange={(e) => onUpdate({ notes: e.target.value })}
+                    onChange={(e) => updateSelection({ notes: e.target.value })}
                 ></textarea>
             </div>
 
@@ -117,7 +122,7 @@ export function Confirmation({
             {/* Submit Button */}
             <div className="flex justify-end">
                 <button
-                    onClick={onSubmit}
+                    onClick={handleSubmit}
                     disabled={isSubmitting}
                     className="px-12 py-6 bg-[var(--primary)] text-white font-black text-xl rounded-[2rem] shadow-2xl shadow-[var(--primary)]/40 hover:scale-105 transition-all flex items-center gap-4 disabled:opacity-50"
                 >

@@ -4,61 +4,61 @@ This document outlines the official standards for fetching and mutating data in 
 
 ## 1. Server-Side Data Fetching (The Default)
 
-For fetching data that is required for the initial render of a page, **always** use `async` React Server Components (RSCs) with the native `fetch` API.
+For fetching data required for the initial render of a page, **always** call your data-fetching functions directly from `async` React Server Components (RSCs). Avoid making `fetch` calls to your own application's API routes from server components.
 
-- **When to use:** Fetching data in `page.tsx` or any server-side layout/component.
-- **Why:** This is the most performant method. Data is fetched on the server, and the component is rendered to HTML before being sent to the client, reducing client-side JavaScript and improving load times.
+- **When to use:** Fetching the primary, initial data for a page or server-side layout.
+- **Why:** This is the most performant method. It avoids an unnecessary network hop and keeps data fetching logic close to where it's used.
 
 **Example:**
 ```tsx
-// app/some-page/page.tsx
+// app/[clinic]/dashboard/page.tsx
+import { getTodayAppointmentsForClinic } from '@/lib/appointments';
 
-async function getData(id: string) {
-  const res = await fetch(`https://api.example.com/items/${id}`);
-  if (!res.ok) {
-    throw new Error('Failed to fetch data');
-  }
-  return res.json();
+export default async function DashboardPage({ params }) {
+  const { clinic } = params;
+  // Good: Directly calling the data function.
+  const appointments = await getTodayAppointmentsForClinic(clinic);
+
+  return <TodayScheduleWidget appointments={appointments} />;
 }
-
-export default async function Page({ params }: { params: { id: string } }) {
-  const data = await getData(params.id);
-
-  return <div>{data.name}</div>;
+```
+```ts
+// lib/appointments.ts
+export async function getTodayAppointmentsForClinic(clinicId: string) {
+  const supabase = await createClient();
+  // ... logic to fetch appointments from Supabase
+  return data;
 }
 ```
 
 ## 2. Client-Side Data Fetching
 
-For data that is dynamic, needs to be re-fetched on the client based on user interaction, or is specific to the logged-in user and not needed for the initial SEO-critical render, use **`@tanstack/react-query`**.
+For data that is dynamic, needs to be re-fetched on the client based on user interaction, or polled periodically, use **`@tanstack/react-query`**.
 
 - **When to use:**
-  - Fetching data in response to user events (e.g., clicking a button).
-  - Data that changes frequently (e.g., a real-time dashboard).
+  - Data that changes frequently (e.g., a real-time waiting room).
+  - Fetching data in response to user events (e.g., clicking a filter button).
   - Managing complex cache invalidation.
-- **Why:** It provides a robust solution for caching, revalidation, and managing the state of server data on the client, avoiding complex `useState` and `useEffect` logic.
+- **Why:** It provides a robust solution for caching, re-fetching, and managing server state on the client, avoiding complex manual `useState` and `useEffect` logic.
 
-**Example:**
+**Example (from `WaitingRoom.tsx`):**
 ```tsx
 'use client';
-
 import { useQuery } from '@tanstack/react-query';
 
 // This requires a <QueryClientProvider> wrapper further up the tree.
 
-function MyComponent() {
+function WaitingRoom({ clinic }: { clinic: string }) {
   const { isPending, error, data } = useQuery({
-    queryKey: ['repoData'],
-    queryFn: () =>
-      fetch('https://api.github.com/repos/TanStack/query').then((res) =>
-        res.json(),
+    queryKey: ['waitingRoom', clinic],
+    queryFn: () => 
+      fetch(`/api/dashboard/waiting-room?clinic=${clinic}`).then((res) => 
+        res.json()
       ),
+    refetchInterval: 30000, // Refetch every 30 seconds
   });
 
-  if (isPending) return 'Loading...';
-  if (error) return 'An error has occurred: ' + error.message;
-
-  return <div>{data.name}</div>;
+  // ... render logic
 }
 ```
 
@@ -66,8 +66,9 @@ function MyComponent() {
 
 For all data mutations, **always** use **Server Actions**.
 
-- **When to use:** Submitting forms, deleting items, updating settings.
-- **Why:** Server Actions provide a direct and secure way to call server-side functions from client components without needing to create intermediate API endpoints. They are a core feature of the Next.js App Router and provide a great developer experience with progressive enhancement.
+### 3.1. Basic Mutations (From Forms)
+
+For simple mutations originating from a `<form>`, you can pass the Server Action directly to the `action` prop.
 
 **Example:**
 ```ts
@@ -75,17 +76,12 @@ For all data mutations, **always** use **Server Actions**.
 'use server';
 
 export async function createItem(formData: FormData) {
-  const rawData = {
-    name: formData.get('name'),
-  };
-  // ... logic to validate and save to database
-  // revalidatePath(...);
+  // ... logic to save to database
+  revalidatePath('/items');
 }
 ```
 ```tsx
 // app/some-form-component.tsx
-'use client';
-
 import { createItem } from './actions';
 
 export function ItemForm() {
@@ -94,6 +90,40 @@ export function ItemForm() {
       <input type="text" name="name" />
       <button type="submit">Submit</button>
     </form>
+  );
+}
+```
+
+### 3.2. Client-Side Mutations (From `onClick` Handlers)
+
+For mutations that are not tied to a form or require more complex client-side logic (like updating UI state on success), use the **`useMutation`** hook from `@tanstack/react-query` to call your Server Action.
+
+- **Why:** This pattern elegantly handles loading/pending states for the mutation and, most importantly, allows you to **invalidate and refetch** client-side queries upon success, ensuring the UI stays up-to-date.
+
+**Example (from `WaitingRoom.tsx`):**
+```tsx
+'use client';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { updateAppointmentStatus } from '@/app/actions/update-appointment-status';
+
+function WaitingRoom({ clinic }: { clinic: string }) {
+  const queryClient = useQueryClient();
+
+  const { mutate: updateStatus, isPending: isUpdatingStatus } = useMutation({
+    mutationFn: (variables: { appointmentId: string, newStatus: string }) => 
+      updateAppointmentStatus(variables.appointmentId, variables.newStatus, clinic),
+    
+    onSuccess: () => {
+      // When the mutation is successful, invalidate the 'waitingRoom' query
+      // to force it to refetch the latest data.
+      queryClient.invalidateQueries({ queryKey: ['waitingRoom', clinic] });
+    },
+  });
+
+  return (
+    <button onClick={() => updateStatus({ appointmentId: '123', newStatus: 'completed' })}>
+      Complete
+    </button>
   );
 }
 ```

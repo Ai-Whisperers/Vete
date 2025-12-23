@@ -3,33 +3,25 @@
 import React from 'react';
 import { ArrowLeft, ChevronRight, Dog } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import type { Pet, BookingSelection } from './types';
-
-interface PetSelectionProps {
-    pets: Pet[];
-    selection: BookingSelection;
-    clinicId: string;
-    onPetSelect: (petId: string) => void;
-    onBack: () => void;
-}
+import { useBookingStore } from '@/lib/store/booking-store';
 
 /**
  * Step 2: Pet selection component
  */
-export function PetSelection({
-    pets,
-    selection,
-    clinicId,
-    onPetSelect,
-    onBack
-}: PetSelectionProps) {
+export function PetSelection() {
     const router = useRouter();
+    const { pets, clinicId, updateSelection, setStep } = useBookingStore();
+
+    const handlePetSelect = (petId: string) => {
+        updateSelection({ petId });
+        setStep('datetime');
+    };
 
     return (
         <div className="relative z-10 animate-in slide-in-from-right-8 duration-500">
             <div className="flex items-center gap-4 mb-10">
                 <button
-                    onClick={onBack}
+                    onClick={() => setStep('service')}
                     className="p-3 bg-gray-50 text-gray-400 rounded-2xl hover:bg-gray-100 transition-all"
                 >
                     <ArrowLeft className="w-5 h-5" />
@@ -42,7 +34,7 @@ export function PetSelection({
                     pets.map(p => (
                         <button
                             key={p.id}
-                            onClick={() => onPetSelect(p.id)}
+                            onClick={() => handlePetSelect(p.id)}
                             className="p-6 bg-white border border-gray-100 rounded-[2rem] hover:border-[var(--primary)] hover:shadow-xl hover:-translate-y-1 transition-all text-left group flex items-center gap-5"
                         >
                             <div className="w-16 h-16 bg-[var(--primary)] text-white rounded-[1.5rem] flex items-center justify-center font-black text-2xl shadow-lg shadow-[var(--primary)]/20">

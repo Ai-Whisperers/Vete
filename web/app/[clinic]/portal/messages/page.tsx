@@ -1,5 +1,4 @@
 import { getClinicData } from '@/lib/clinics'
-import { createClient } from '@/lib/supabase/server'
 import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
 import {
@@ -13,6 +12,8 @@ import {
 } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
+import { getConversations } from '@/app/actions/messages'
+import { AuthService } from '@/lib/auth/core'
 
 interface Props {
   params: Promise<{ clinic: string }>
@@ -21,76 +22,6 @@ interface Props {
 
 export async function generateStaticParams() {
   return [{ clinic: 'adris' }, { clinic: 'petlife' }]
-}
-
-interface Conversation {
-  id: string
-  subject: string
-  status: 'open' | 'pending' | 'closed'
-  created_at: string
-  updated_at: string
-  client_id: string
-  assigned_to: string | null
-  last_message_at: string | null
-  unread_count: number
-  client_name: string
-  staff_name: string | null
-  last_message_preview: string | null
-}
-
-async function getConversations(
-  clinic: string,
-  status?: string,
-  search?: string
-): Promise<Conversation[]> {
-  const supabase = await createClient()
-
-  // Build query params
-  const params = new URLSearchParams()
-  if (status && status !== 'all') {
-    params.append('status', status)
-  }
-  if (search) {
-    params.append('search', search)
-  }
-
-  const queryString = params.toString()
-  const url = `/api/conversations${queryString ? `?${queryString}` : ''}`
-
-  try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL?.replace('.supabase.co', '') || 'http://localhost:3000'}${url}`,
-      {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        cache: 'no-store',
-      }
-    )
-
-    if (!response.ok) {
-      console.error('Failed to fetch conversations:', response.statusText)
-      return []
-    }
-
-    const data = await response.json()
-    return data.conversations || []
-  } catch (error) {
-    console.error('Error fetching conversations:', error)
-    return []
-  }
-}
-
-async function getUserProfile(userId: string) {
-  const supabase = await createClient()
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role, full_name')
-    .eq('id', userId)
-    .single()
-
-  return profile
 }
 
 export default async function MessagesPage({ params, searchParams }: Props) {
@@ -102,19 +33,26 @@ export default async function MessagesPage({ params, searchParams }: Props) {
     notFound()
   }
 
-  const supabase = await createClient()
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  // Fetch conversations using Server Action
+  const result = await getConversations(clinic, { status, search })
 
-  if (authError || !user) {
-    redirect(`/${clinic}/portal/login`)
+  if (!result.success) {
+    if (result.error === 'Authentication required') {
+        redirect(`/${clinic}/portal/login`)
+    }
+    return (
+        <div className="p-8 text-center bg-red-50 text-red-600 rounded-2xl mx-auto max-w-5xl mt-8">
+            <p className="font-bold">Error al cargar mensajes</p>
+            <p className="text-sm">{result.error}</p>
+        </div>
+    )
   }
 
-  // Get user profile to determine role
-  const profile = await getUserProfile(user.id)
-  const isStaff = profile?.role === 'vet' || profile?.role === 'admin'
-
-  // Fetch conversations
-  const conversations = await getConversations(clinic, status, search)
+  const conversations = result.data as any[]
+  
+  // Get context for isStaff check
+  const authContext = await AuthService.getContext()
+  const isStaff = authContext.isAuthenticated && ['vet', 'admin'].includes(authContext.profile.role)
 
   return (
     <div className="min-h-screen bg-[var(--bg-primary)]">
@@ -155,14 +93,17 @@ export default async function MessagesPage({ params, searchParams }: Props) {
                   placeholder="Buscar por asunto o mensaje..."
                   defaultValue={search || ''}
                   className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
-                  onChange={(e) => {
-                    const params = new URLSearchParams(window.location.search)
-                    if (e.target.value) {
-                      params.set('search', e.target.value)
-                    } else {
-                      params.delete('search')
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                        const target = e.target as HTMLInputElement
+                        const params = new URLSearchParams(window.location.search)
+                        if (target.value) {
+                          params.set('search', target.value)
+                        } else {
+                          params.delete('search')
+                        }
+                        window.location.search = params.toString()
                     }
-                    window.location.search = params.toString()
                   }}
                 />
               </div>

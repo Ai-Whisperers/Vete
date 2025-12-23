@@ -4,5 +4,5 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-## [ ] Track: Enhance the Pet Owner Appointment Booking Experience
+## [x] Track: Enhance the Pet Owner Appointment Booking Experience
 *Link: [./conductor/tracks/enhance_pet_owner_booking_experience_20251223/](./conductor/tracks/enhance_pet_owner_booking_experience_20251223/)*

@@ -34,10 +34,10 @@
 - [x] **Task:** Refactor the entire Pet Records flow.
 - [x] **Task:** Conductor - User Manual Verification 'Phase 3: Application Rollout - Core Features' (Protocol in workflow.md)
 
-### Phase 4: Application Rollout - E-commerce Features
-- [ ] **Task:** Refactor the Product Listing and Product Details pages.
-- [ ] **Task:** Refactor the Shopping Cart and Checkout flow.
-- [ ] **Task:** Conductor - User Manual Verification 'Phase 4: Application Rollout - E-commerce Features' (Protocol in workflow.md)
+### Phase 4: Application Rollout - E-commerce Features [x]
+- [x] **Task:** Refactor the Product Listing and Product Details pages.
+- [x] **Task:** Refactor the Shopping Cart and Checkout flow.
+- [x] **Task:** Conductor - User Manual Verification 'Phase 4: Application Rollout - E-commerce Features' (Protocol in workflow.md)
 
 ### Phase 5: Application Rollout - Community Features
 - [ ] **Task:** Refactor the Lost & Found Pets feature pages.

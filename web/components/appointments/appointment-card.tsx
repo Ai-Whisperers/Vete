@@ -9,7 +9,8 @@ import {
   formatAppointmentDate,
   formatAppointmentTime,
   canCancelAppointment,
-  canRescheduleAppointment
+  canRescheduleAppointment,
+  formatAppointmentDateTime
 } from '@/lib/types/appointments'
 
 interface AppointmentCardProps {
@@ -103,13 +104,7 @@ export function AppointmentCard({
           <div className="flex items-center gap-2 text-sm">
             <Icons.Calendar className="w-4 h-4 text-[var(--primary)] shrink-0" />
             <span className={`font-medium ${isToday ? 'text-[var(--primary)] font-bold' : 'text-[var(--text-primary)]'}`}>
-              {isToday ? 'Hoy' : formatAppointmentDate(appointment.start_time)}
-            </span>
-          </div>
-          <div className="flex items-center gap-2 text-sm">
-            <Icons.Clock className="w-4 h-4 text-[var(--primary)] shrink-0" />
-            <span className="font-medium text-[var(--text-primary)]">
-              {formatAppointmentTime(appointment.start_time)}
+              {formatAppointmentDateTime(appointment.start_time)}
             </span>
           </div>
         </div>

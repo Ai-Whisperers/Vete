@@ -112,6 +112,21 @@ export function formatAppointmentDate(dateString: string): string {
 }
 
 /**
+ * Utility to format appointment date and time for display
+ */
+export function formatAppointmentDateTime(dateString: string): string {
+  const date = new Date(dateString)
+  return date.toLocaleDateString('es-PY', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}
+
+/**
  * Utility to format appointment time for display
  */
 export function formatAppointmentTime(dateString: string): string {

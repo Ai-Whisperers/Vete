@@ -7,14 +7,14 @@ This plan outlines the steps to enhance the pet owner appointment booking experi
 ### Goal
 Modernize and streamline the appointment scheduling interface for pet owners.
 
-- [ ] Task: Design and Implement Responsive UI for Scheduling
+- [x] Task: Design and Implement Responsive UI for Scheduling
   - [~] Task: Write Failing Tests for Responsive UI
   - [x] Task: Implement to Pass Tests for Responsive UI
   - [x] Task: Refactor Responsive UI
 - [ ] Task: Implement Clearer Date and Time Display
-  - [ ] Task: Write Failing Tests for Date and Time Display
-  - [ ] Task: Implement to Pass Tests for Date and Time Display
-  - [ ] Task: Refactor Date and Time Display
+  - [x] Task: Write Failing Tests for Date and Time Display
+  - [x] Task: Implement to Pass Tests for Date and Time Display
+  - [x] Task: Refactor Date and Time Display
 - [ ] Task: Implement Intuitive Service and Veterinarian Selection
   - [ ] Task: Write Failing Tests for Service and Veterinarian Selection
   - [ ] Task: Implement to Pass Tests for Service and Veterinarian Selection

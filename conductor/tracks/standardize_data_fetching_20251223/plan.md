@@ -6,9 +6,9 @@
   - [x] Sub-task: Create a small proof-of-concept for TanStack Query.
   - [x] Sub-task: Write a brief comparison document outlining pros and cons.
   - [x] Sub-task: Make and record a final decision.
-- [ ] **Task:** Document the Standard
-  - [ ] Sub-task: Write the first draft of `DATA_FETCHING_STANDARD.md`.
-  - [ ] Sub-task: Review the document with the team and incorporate feedback.
+- [x] **Task:** Document the Standard
+  - [x] Sub-task: Write the first draft of `DATA_FETCHING_STANDARD.md`.
+  - [x] Sub-task: Review the document with the team and incorporate feedback.
 - [ ] **Task:** Conductor - User Manual Verification 'Phase 1: Foundation and Standardization' (Protocol in workflow.md)
 
 ### Phase 2: Reference Implementation (Clinic Dashboard)

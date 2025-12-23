@@ -12,10 +12,10 @@
 - [x] **Task:** Conductor - User Manual Verification 'Phase 1: Foundation and Standardization' (Protocol in workflow.md)
 
 ### Phase 2: Reference Implementation (Clinic Dashboard)
-- [ ] **Task:** Refactor Dashboard Data Loading (Server Components)
-  - [ ] Sub-task: Write tests for the current dashboard server-side data fetching logic.
-  - [ ] Sub-task: Refactor the data loading to use `async` Server Components with native `fetch`.
-  - [ ] Sub-task: Ensure all tests pass.
+- [x] **Task:** Refactor Dashboard Data Loading (Server Components)
+  - [x] Sub-task: Write tests for the current dashboard server-side data fetching logic.
+  - [x] Sub-task: Refactor the data loading to use `async` Server Components with native `fetch`.
+  - [x] Sub-task: Ensure all tests pass.
 - [ ] **Task:** Refactor Dashboard Interactive Components (Client Components)
   - [ ] Sub-task: Write tests for a component that requires client-side fetching.
   - [ ] Sub-task: Refactor the component to use the chosen client library (SWR or TanStack Query).

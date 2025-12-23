@@ -19,3 +19,4 @@ export * from './laboratory';
 export * from './insurance';
 export * from './messaging';
 export * from './store';
+export * from './settings';

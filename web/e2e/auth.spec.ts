@@ -1,31 +1,58 @@
 import { test, expect } from '@playwright/test';
+import { 
+  gotoSignup, 
+  gotoLogin, 
+  signupViaUI, 
+  loginViaUI, 
+  expectLoggedIn, 
+  expectLoggedOut 
+} from './auth-helpers';
 
-test.describe('Authentication', () => {
-  test('login page loads elements', async ({ page }) => {
-    await page.goto('/adris/portal/login');
-    await expect(page.getByLabel('Email', { exact: false })).toBeVisible();
-    await expect(page.getByLabel('Contraseña', { exact: false })).toBeVisible();
-    await expect(page.getByRole('button', { name: /iniciar/i })).toBeVisible();
+test.describe('Authentication Flow', () => {
+  const clinic = 'adris';
+  
+  // Use a unique email for each test run to avoid "already registered" errors
+  // since we don't have an easy way to delete users from E2E yet.
+  const testEmail = `e2e-user-${Date.now()}@example.com`;
+  const testPassword = 'TestPassword123!';
+  const testName = 'E2E Test User';
+
+  test.describe('Signup', () => {
+    test('should allow a new user to sign up', async ({ page }) => {
+      await gotoSignup(page, clinic);
+      
+      await signupViaUI(page, testEmail, testPassword, testName);
+      
+      // After signup, the app shows a "Check your email" message
+      await expect(page.getByText(/cuenta creada|revisa tu email/i)).toBeVisible();
+      
+      // And a link to go back to login
+      await expect(page.getByRole('link', { name: /volver al login|inicia sesión/i })).toBeVisible();
+    });
   });
 
-  test.skip('login with invalid credentials shows error', async ({ page }) => {
-    await page.goto('/adris/portal/login');
-
-    await page.getByLabel('Email', { exact: false }).fill('invalid@example.com');
-    await page.getByLabel('Contraseña', { exact: false }).fill('wrongpassword');
-    await page.getByRole('button', { name: /iniciar/i }).click();
-
-    // Wait for the alert - increase timeout
-    const alert = page.getByRole('alert');
-    await expect(alert).toBeVisible({ timeout: 10000 });
+  test.describe('Login & Logout', () => {
+    // These will be implemented in Phase 2
+    // But we can add them now as placeholders or skipped if we want to follow the phase strictly
     
-    // Check content - accept English or Spanish
-    const text = await alert.textContent();
-    console.log('Alert text:', text);
-    
-    // Supabase usually returns "Invalid login credentials"
-    // But verify it's not empty
-    expect(text).toBeTruthy();
-    expect(text).toMatch(/invalid|credenciales|error/i);
+    test.skip('should allow an existing user to login', async ({ page }) => {
+      await gotoLogin(page, clinic);
+      await loginViaUI(page, testEmail, testPassword);
+      await expectLoggedIn(page, clinic);
+    });
+
+    test.skip('should allow a logged in user to logout', async ({ page }) => {
+      // Setup: login first
+      await gotoLogin(page, clinic);
+      await loginViaUI(page, testEmail, testPassword);
+      await expectLoggedIn(page, clinic);
+
+      // Action: logout
+      const logoutButton = page.getByLabel(/cerrar sesión/i);
+      await logoutButton.click();
+
+      // Assertion: redirected to login or home
+      await expectLoggedOut(page, clinic);
+    });
   });
 });

@@ -1,35 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { withAuth, type AuthContext } from "@/lib/api/with-auth";
+import { apiError, apiSuccess, validationError } from "@/lib/api/errors";
+import { generalSettingsSchema } from "@/lib/schemas/settings";
 import * as fs from "fs/promises";
 import * as path from "path";
 
 const CONTENT_DATA_PATH = path.join(process.cwd(), ".content_data");
 
-export async function GET(request: NextRequest): Promise<NextResponse> {
+export const GET = withAuth(async ({ request, profile }) => {
   const { searchParams } = new URL(request.url);
   const clinic = searchParams.get("clinic");
 
   if (!clinic) {
-    return NextResponse.json({ error: "Clinic parameter required" }, { status: 400 });
+    return apiError("MISSING_FIELDS", 400, { details: { message: "Clinic parameter required" } });
   }
 
-  // Auth check
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-  }
-
-  // Admin check
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role, tenant_id")
-    .eq("id", user.id)
-    .single();
-
-  if (!profile || profile.role !== "admin" || profile.tenant_id !== clinic) {
-    return NextResponse.json({ error: "No autorizado" }, { status: 403 });
+  // Admin check (already verified by withAuth roles if passed, but here we check tenant)
+  if (profile.role !== "admin" || profile.tenant_id !== clinic) {
+    return apiError("FORBIDDEN", 403);
   }
 
   try {
@@ -38,7 +27,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const configData = await fs.readFile(configPath, "utf-8");
     const config = JSON.parse(configData);
 
-    return NextResponse.json({
+    return apiSuccess({
       name: config.name || "",
       tagline: config.tagline || "",
       contact: config.contact || {},
@@ -50,35 +39,29 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     });
   } catch (error) {
     console.error("Error reading config:", error);
-    return NextResponse.json({ error: "Error al leer configuración" }, { status: 500 });
+    return apiError("SERVER_ERROR", 500, { details: { message: "Error al leer configuración" } });
   }
-}
+}, { roles: ["admin"] });
 
-export async function PUT(request: NextRequest): Promise<NextResponse> {
-  const body = await request.json();
-  const { clinic, ...settings } = body;
-
-  if (!clinic) {
-    return NextResponse.json({ error: "Clinic parameter required" }, { status: 400 });
+export const PUT = withAuth(async ({ request, profile }) => {
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return apiError("INVALID_FORMAT", 400);
   }
 
-  // Auth check
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  // Validate with Zod
+  const validation = generalSettingsSchema.safeParse(body);
+  if (!validation.success) {
+    return validationError(validation.error.flatten().fieldErrors);
   }
+
+  const { clinic, ...settings } = validation.data;
 
   // Admin check
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role, tenant_id")
-    .eq("id", user.id)
-    .single();
-
-  if (!profile || profile.role !== "admin" || profile.tenant_id !== clinic) {
-    return NextResponse.json({ error: "No autorizado" }, { status: 403 });
+  if (profile.role !== "admin" || profile.tenant_id !== clinic) {
+    return apiError("FORBIDDEN", 403);
   }
 
   try {
@@ -110,9 +93,9 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
     // Write back
     await fs.writeFile(configPath, JSON.stringify(updatedConfig, null, 2), "utf-8");
 
-    return NextResponse.json({ success: true });
+    return apiSuccess({ success: true });
   } catch (error) {
     console.error("Error updating config:", error);
-    return NextResponse.json({ error: "Error al guardar configuración" }, { status: 500 });
+    return apiError("SERVER_ERROR", 500, { details: { message: "Error al guardar configuración" } });
   }
-}
+}, { roles: ["admin"] });

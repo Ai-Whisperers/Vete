@@ -1,8 +1,8 @@
 # Implementation Plan: Establish DB Optimization Process & Fix Top Query
 
 ### Phase 1: Process Definition and Query Identification
-- [ ] **Task:** Document the Optimization Process
-  - [ ] Sub-task: Draft the `documentation/backend/database-optimization-process.md` document, detailing the steps from identification with the Supabase Dashboard to analysis with `EXPLAIN ANALYZE` and final verification.
+- [x] **Task:** Document the Optimization Process
+  - [x] Sub-task: Draft the `documentation/backend/database-optimization-process.md` document, detailing the steps from identification with the Supabase Dashboard to analysis with `EXPLAIN ANALYZE` and final verification.
 - [ ] **Task:** Identify Target Query
   - [ ] Sub-task: Navigate to the Supabase dashboard -> Reports -> Query Performance.
   - [ ] Sub-task: Identify the top query listed under "Most time consuming" or "Most frequent".

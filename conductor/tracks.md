@@ -39,7 +39,7 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-## [ ] Track: Analyze and Optimize Database Queries
+## [~] Track: Analyze and Optimize Database Queries
 *Link: [./conductor/tracks/optimize_database_queries_20251223/](./conductor/tracks/optimize_database_queries_20251223/)*
 
 ---
@@ -64,7 +64,7 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-## [ ] Track: Create E2E Test for Authentication Flow
+## [~] Track: Create E2E Test for Authentication Flow
 *Link: [./conductor/tracks/create_e2e_tests_auth_20251223/](./conductor/tracks/create_e2e_tests_auth_20251223/)*
 
 ---

@@ -58,9 +58,9 @@ Ensure robust and efficient backend support for the enhanced booking experience.
   - [x] Task: Implement to Pass Tests for API Slot Availability Optimization
   - [x] Task: Refactor API Slot Availability Optimization
 - [ ] Task: Modify APIs for Pre-selection and Reminder Preferences
-  - [ ] Task: Write Failing Tests for API Modifications
-  - [ ] Task: Implement to Pass Tests for API Modifications
-  - [ ] Task: Refactor API Modifications
+  - [x] Task: Write Failing Tests for API Modifications
+  - [x] Task: Implement to Pass Tests for API Modifications
+  - [x] Task: Refactor API Modifications
 - [ ] Task: Ensure Robust Error Handling and Validation for Booking APIs
   - [ ] Task: Write Failing Tests for API Error Handling
   - [ ] Task: Implement to Pass Tests for API Error Handling

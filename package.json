@@ -1,5 +1,9 @@
 {
   "devDependencies": {
     "pg": "^8.16.3"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.90.12",
+    "swr": "^2.3.8"
   }
 }

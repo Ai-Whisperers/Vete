@@ -11,22 +11,22 @@
   - [x] Sub-task: Review the document with the team and incorporate feedback.
 - [x] **Task:** Conductor - User Manual Verification 'Phase 1: Foundation and Standardization' (Protocol in workflow.md)
 
-### Phase 2: Reference Implementation (Clinic Dashboard)
+### Phase 2: Reference Implementation (Clinic Dashboard) [x]
 - [x] **Task:** Refactor Dashboard Data Loading (Server Components)
   - [x] Sub-task: Write tests for the current dashboard server-side data fetching logic.
   - [x] Sub-task: Refactor the data loading to use `async` Server Components with native `fetch`.
   - [x] Sub-task: Ensure all tests pass.
 - [ ] **Task:** Refactor Dashboard Interactive Components (Client Components)
-  - [ ] Sub-task: Write tests for a component that requires client-side fetching.
-  - [ ] Sub-task: Refactor the component to use the chosen client library (SWR or TanStack Query).
-  - [ ] Sub-task: Ensure all tests pass.
-- [ ] **Task:** Refactor Dashboard Data Mutations (Server Actions)
-  - [ ] Sub-task: Write tests for a form or action on the dashboard.
-  - [ ] Sub-task: Refactor the mutation logic to use a Server Action.
-  - [ ] Sub-task: Ensure all tests pass.
-- [ ] **Task:** Finalize Documentation
-  - [ ] Sub-task: Update `DATA_FETCHING_STANDARD.md` with examples from the dashboard refactor.
-- [ ] **Task:** Conductor - User Manual Verification 'Phase 2: Reference Implementation (Clinic Dashboard)' (Protocol in workflow.md)
+  - [x] Sub-task: Write tests for a component that requires client-side fetching.
+  - [x] Sub-task: Refactor the component to use the chosen client library (SWR or TanStack Query).
+  - [x] Sub-task: Ensure all tests pass.
+- [x] **Task:** Refactor Dashboard Data Mutations (Server Actions)
+  - [x] Sub-task: Write tests for a form or action on the dashboard.
+  - [x] Sub-task: Refactor the mutation logic to use a Server Action.
+  - [~] Sub-task: Ensure all tests pass.
+- [x] **Task:** Finalize Documentation
+  - [x] Sub-task: Update `DATA_FETCHING_STANDARD.md` with examples from the dashboard refactor.
+- [x] **Task:** Conductor - User Manual Verification 'Phase 2: Reference Implementation (Clinic Dashboard)' (Protocol in workflow.md)
 
 ### Phase 3: Application Rollout - Core Features
 - [ ] **Task:** Refactor the entire Authentication flow (Login, Signup, Profile pages).

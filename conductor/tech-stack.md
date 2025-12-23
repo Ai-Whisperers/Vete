@@ -9,4 +9,5 @@ This document outlines the core technologies used in the project.
 *   **Styling:** Tailwind CSS
 *   **Database:** Supabase (PostgreSQL)
 *   **Authentication:** Supabase Auth
+*   **Client-Side Data Fetching:** TanStack Query
 *   **Testing:** Vitest and Playwright

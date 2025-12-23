@@ -67,7 +67,7 @@ export function AppointmentCard({
     }`}>
       <div className="p-5">
         {/* Header with status and date */}
-        <div className="flex items-start justify-between mb-4">
+        <div className="flex flex-wrap items-start justify-between mb-4">
           <div className="flex items-center gap-3">
             {/* Pet Avatar */}
             <div className="w-12 h-12 rounded-xl bg-[var(--primary)]/10 flex items-center justify-center overflow-hidden">

@@ -52,7 +52,7 @@ export function AppointmentList({ upcoming, past, clinic }: AppointmentListProps
   const appointments = activeTab === 'upcoming' ? upcoming : past
 
   return (
-    <div>
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 min-h-screen">
       {/* Tabs */}
       <div className="flex gap-2 mb-6 bg-gray-100 p-1 rounded-xl" role="tablist" aria-label="Filtros de citas">
         {tabs.map((tab) => {

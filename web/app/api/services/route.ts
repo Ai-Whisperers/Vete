@@ -13,7 +13,25 @@ import { apiError, apiSuccess } from '@/lib/api/errors';
  *
  * Cache: 5 minutes (s-maxage=300)
  */
+import { rateLimit } from '@/lib/rate-limit';
+
+/**
+ * Public endpoint - no authentication required
+ * Returns available services for a clinic
+ *
+ * @param clinic - Clinic slug (required)
+ * @param category - Optional category filter
+ * @param active - Filter active services (default: true)
+ *
+ * Cache: 5 minutes (s-maxage=300)
+ */
 export async function GET(request: Request) {
+  // Apply mild rate limiting for public scraping protection (30 requests per minute)
+  const rateLimitResult = await rateLimit(request as NextRequest, 'search', 'public-services');
+  if (!rateLimitResult.success) {
+    return rateLimitResult.response;
+  }
+
   const supabase = await createClient();
 
   const { searchParams } = new URL(request.url);

@@ -16,14 +16,14 @@
   - [x] Sub-task: Write tests for the current dashboard server-side data fetching logic.
   - [x] Sub-task: Refactor the data loading to use `async` Server Components with native `fetch`.
   - [x] Sub-task: Ensure all tests pass.
-- [ ] **Task:** Refactor Dashboard Interactive Components (Client Components)
+- [x] **Task:** Refactor Dashboard Interactive Components (Client Components)
   - [x] Sub-task: Write tests for a component that requires client-side fetching.
   - [x] Sub-task: Refactor the component to use the chosen client library (SWR or TanStack Query).
   - [x] Sub-task: Ensure all tests pass.
 - [x] **Task:** Refactor Dashboard Data Mutations (Server Actions)
   - [x] Sub-task: Write tests for a form or action on the dashboard.
   - [x] Sub-task: Refactor the mutation logic to use a Server Action.
-  - [~] Sub-task: Ensure all tests pass.
+  - [x] Sub-task: Ensure all tests pass.
 - [x] **Task:** Finalize Documentation
   - [x] Sub-task: Update `DATA_FETCHING_STANDARD.md` with examples from the dashboard refactor.
 - [x] **Task:** Conductor - User Manual Verification 'Phase 2: Reference Implementation (Clinic Dashboard)' (Protocol in workflow.md)
@@ -44,7 +44,7 @@
 - [x] **Task:** Conductor - User Manual Verification 'Phase 5: Application Rollout - Community Features' (Protocol in workflow.md)
 
 ### Phase 6: Final Sweep and Cleanup
-- [ ] **Task:** Audit the codebase for any remaining legacy data fetching patterns.
-- [ ] **Task:** Perform a final refactoring pass to address any missed files.
-- [ ] **Task:** Remove any old data fetching utilities or libraries that are no longer needed.
-- [ ] **Task:** Conductor - User Manual Verification 'Phase 6: Final Sweep and Cleanup' (Protocol in workflow.md)
+- [x] **Task:** Audit the codebase for any remaining legacy data fetching patterns.
+- [x] **Task:** Perform a final refactoring pass to address any missed files.
+- [x] **Task:** Remove any old data fetching utilities or libraries that are no longer needed.
+- [~] **Task:** Conductor - User Manual Verification 'Phase 6: Final Sweep and Cleanup' (Protocol in workflow.md)

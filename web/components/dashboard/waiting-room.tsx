@@ -1,6 +1,12 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import {
+  QueryClient,
+  QueryClientProvider,
+  useQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import {
   Clock,
@@ -16,7 +22,17 @@ import {
   Timer,
   AlertCircle
 } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import { updateAppointmentStatus } from "@/app/actions/update-appointment-status";
+
+const queryClient = new QueryClient();
+
+export function WaitingRoomWrapper({ clinic }: { clinic: string }) {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <WaitingRoom clinic={clinic} />
+    </QueryClientProvider>
+  );
+}
 
 interface WaitingPatient {
   id: string;
@@ -91,124 +107,39 @@ const statusConfig: Record<string, { label: string; color: string; bgColor: stri
   },
 };
 
-export function WaitingRoom({ clinic, initialAppointments = [] }: WaitingRoomProps): React.ReactElement {
+export function WaitingRoom({ clinic }: { clinic: string }): React.ReactElement {
   const router = useRouter();
-  const [appointments, setAppointments] = useState<WaitingPatient[]>(initialAppointments);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isUpdating, setIsUpdating] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
-  const fetchAppointments = useCallback(async (): Promise<void> => {
-    setIsLoading(true);
-    try {
-      const supabase = createClient();
-      const today = new Date().toISOString().split("T")[0];
-
-      const { data } = await supabase
-        .from("appointments")
-        .select(`
-          id,
-          start_time,
-          end_time,
-          status,
-          reason,
-          pets (
-            id,
-            name,
-            species,
-            photo_url
-          ),
-          profiles!appointments_vet_id_fkey (
-            id,
-            full_name
-          )
-        `)
-        .eq("tenant_id", clinic)
-        .gte("start_time", `${today}T00:00:00`)
-        .lt("start_time", `${today}T23:59:59`)
-        .order("start_time", { ascending: true });
-
-      if (data) {
-        // Fetch owner data for each pet
-        const enrichedData = await Promise.all(
-          data.map(async (apt) => {
-            const pet = Array.isArray(apt.pets) ? apt.pets[0] : apt.pets;
-            const vet = Array.isArray(apt.profiles) ? apt.profiles[0] : apt.profiles;
-
-            let owner = null;
-            if (pet) {
-              const { data: petWithOwner } = await supabase
-                .from("pets")
-                .select("owner:profiles!pets_owner_id_fkey(id, full_name, phone)")
-                .eq("id", pet.id)
-                .single();
-
-              if (petWithOwner?.owner) {
-                owner = Array.isArray(petWithOwner.owner)
-                  ? petWithOwner.owner[0]
-                  : petWithOwner.owner;
-              }
-            }
-
-            return {
-              id: apt.id,
-              start_time: apt.start_time,
-              end_time: apt.end_time,
-              status: apt.status,
-              reason: apt.reason || "",
-              pet: pet ? {
-                id: pet.id,
-                name: pet.name,
-                species: pet.species,
-                photo_url: pet.photo_url,
-              } : null,
-              owner,
-              vet: vet ? {
-                id: vet.id,
-                full_name: vet.full_name,
-              } : null,
-            };
-          })
-        );
-
-        setAppointments(enrichedData as WaitingPatient[]);
+  const {
+    data: appointments = [],
+    isLoading,
+    isFetching,
+  } = useQuery<WaitingPatient[]>({
+    queryKey: ["waitingRoom", clinic],
+    queryFn: async () => {
+      const res = await fetch(`/api/dashboard/waiting-room?clinic=${clinic}`);
+      if (!res.ok) {
+        throw new Error("Failed to fetch waiting room appointments");
       }
-    } catch (error) {
-      console.error("Error fetching appointments:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [clinic]);
+      return res.json();
+    },
+    refetchInterval: 30000, // Refetch every 30 seconds
+  });
 
-  useEffect(() => {
-    if (initialAppointments.length === 0) {
-      fetchAppointments();
-    }
+  const { mutate: updateStatus, isPending: isUpdatingStatus } = useMutation({
+    mutationFn: ({
+      appointmentId,
+      newStatus,
+    }: {
+      appointmentId: string;
+      newStatus: string;
+    }) => updateAppointmentStatus(appointmentId, newStatus, clinic),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["waitingRoom", clinic] });
+    },
+  });
 
-    // Auto-refresh every 30 seconds
-    const interval = setInterval(fetchAppointments, 30000);
-    return () => clearInterval(interval);
-  }, [fetchAppointments, initialAppointments.length]);
-
-  const updateStatus = async (appointmentId: string, newStatus: string): Promise<void> => {
-    setIsUpdating(appointmentId);
-    try {
-      const supabase = createClient();
-      await supabase
-        .from("appointments")
-        .update({ status: newStatus })
-        .eq("id", appointmentId);
-
-      setAppointments((prev) =>
-        prev.map((apt) =>
-          apt.id === appointmentId ? { ...apt, status: newStatus as WaitingPatient["status"] } : apt
-        )
-      );
-    } catch (error) {
-      console.error("Error updating status:", error);
-    } finally {
-      setIsUpdating(null);
-    }
-  };
 
   const formatTime = (timeString: string): string => {
     return new Date(timeString).toLocaleTimeString("es-PY", {
@@ -268,7 +199,6 @@ export function WaitingRoom({ clinic, initialAppointments = [] }: WaitingRoomPro
 
   return (
     <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-      {/* Header */}
       <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-[var(--primary)] bg-opacity-10 rounded-lg">
@@ -282,11 +212,11 @@ export function WaitingRoom({ clinic, initialAppointments = [] }: WaitingRoomPro
           </div>
         </div>
         <button
-          onClick={fetchAppointments}
-          disabled={isLoading}
+          onClick={() => queryClient.invalidateQueries({ queryKey: ["waitingRoom", clinic] })}
+          disabled={isFetching}
           className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
         >
-          <RefreshCw className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`} />
+          <RefreshCw className={`w-4 h-4 ${isFetching ? "animate-spin" : ""}`} />
         </button>
       </div>
 
@@ -303,8 +233,8 @@ export function WaitingRoom({ clinic, initialAppointments = [] }: WaitingRoomPro
               key={apt.id}
               appointment={apt}
               clinic={clinic}
-              isUpdating={isUpdating === apt.id}
-              onStatusChange={updateStatus}
+              isUpdating={isUpdatingStatus && isUpdatingStatus.appointmentId === apt.id}
+              onStatusChange={(appointmentId, newStatus) => updateStatus({ appointmentId, newStatus })}
               getNextStatuses={getNextStatuses}
               formatTime={formatTime}
               getWaitTime={getWaitTime}
@@ -326,8 +256,8 @@ export function WaitingRoom({ clinic, initialAppointments = [] }: WaitingRoomPro
               key={apt.id}
               appointment={apt}
               clinic={clinic}
-              isUpdating={isUpdating === apt.id}
-              onStatusChange={updateStatus}
+              isUpdating={isUpdatingStatus && isUpdatingStatus.appointmentId === apt.id}
+              onStatusChange={(appointmentId, newStatus) => updateStatus({ appointmentId, newStatus })}
               getNextStatuses={getNextStatuses}
               formatTime={formatTime}
               getWaitTime={getWaitTime}
@@ -349,8 +279,8 @@ export function WaitingRoom({ clinic, initialAppointments = [] }: WaitingRoomPro
               key={apt.id}
               appointment={apt}
               clinic={clinic}
-              isUpdating={isUpdating === apt.id}
-              onStatusChange={updateStatus}
+              isUpdating={isUpdatingStatus && isUpdatingStatus.appointmentId === apt.id}
+              onStatusChange={(appointmentId, newStatus) => updateStatus({ appointmentId, newStatus })}
               getNextStatuses={getNextStatuses}
               formatTime={formatTime}
               getWaitTime={getWaitTime}
@@ -388,8 +318,8 @@ export function WaitingRoom({ clinic, initialAppointments = [] }: WaitingRoomPro
               key={apt.id}
               appointment={apt}
               clinic={clinic}
-              isUpdating={isUpdating === apt.id}
-              onStatusChange={updateStatus}
+              isUpdating={isUpdatingStatus && isUpdatingStatus.appointmentId === apt.id}
+              onStatusChange={(appointmentId, newStatus) => updateStatus({ appointmentId, newStatus })}
               getNextStatuses={getNextStatuses}
               formatTime={formatTime}
               getWaitTime={getWaitTime}

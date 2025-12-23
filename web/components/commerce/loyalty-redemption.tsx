@@ -1,40 +1,48 @@
 "use client";
 
+import {
+  QueryClient,
+  QueryClientProvider,
+  useQuery,
+} from "@tanstack/react-query";
 import { useState, useEffect } from 'react';
 import { Star, Gift, CheckCircle2 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { useCart } from '@/context/cart-context';
 import { useToast } from '@/components/ui/Toast';
 
+const queryClient = new QueryClient();
+
+export default function LoyaltyRedemptionWrapper(props: LoyaltyRedemptionProps) {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <LoyaltyRedemption {...props} />
+    </QueryClientProvider>
+  );
+}
+
 interface LoyaltyRedemptionProps {
   userId: string;
 }
 
-export default function LoyaltyRedemption({ userId }: LoyaltyRedemptionProps) {
-  const supabase = createClient();
+function LoyaltyRedemption({ userId }: LoyaltyRedemptionProps) {
   const { total, discount, setDiscount } = useCart();
   const { showToast } = useToast();
-  
-  const [points, setPoints] = useState<number | null>(null);
-  const [redeemAmount, setRedeemAmount] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
-  
-  // Rules: 1 point = 100 PYG
-  const POINT_VALUE = 100;
 
-  useEffect(() => {
-    const loadPoints = async () => {
-      const { data } = await supabase
-        .from('loyalty_points')
-        .select('points')
-        .eq('profile_id', userId)
-        .maybeSingle();
-      
-      setPoints(data?.points || 0);
-      setIsLoading(false);
-    };
-    loadPoints();
-  }, [userId, supabase]);
+  const { data: pointsData, isLoading } = useQuery<{ points: number }>({
+    queryKey: ['loyaltyPoints', userId],
+    queryFn: async () => {
+      const res = await fetch(`/api/loyalty/points?userId=${userId}`);
+      if (!res.ok) {
+        throw new Error('Failed to fetch loyalty points');
+      }
+      return res.json();
+    },
+  });
+
+  const points = pointsData?.points || 0;
+  
+  const [redeemAmount, setRedeemAmount] = useState(0);
 
   const maxRedeemablePoints = points ? Math.min(points, Math.floor(total / POINT_VALUE)) : 0;
 

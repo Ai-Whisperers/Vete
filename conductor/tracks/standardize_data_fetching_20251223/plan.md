@@ -43,8 +43,8 @@
 - [x] **Task:** Refactor the Lost & Found Pets feature pages.
 - [x] **Task:** Conductor - User Manual Verification 'Phase 5: Application Rollout - Community Features' (Protocol in workflow.md)
 
-### Phase 6: Final Sweep and Cleanup
+### Phase 6: Final Sweep and Cleanup [x]
 - [x] **Task:** Audit the codebase for any remaining legacy data fetching patterns.
 - [x] **Task:** Perform a final refactoring pass to address any missed files.
 - [x] **Task:** Remove any old data fetching utilities or libraries that are no longer needed.
-- [~] **Task:** Conductor - User Manual Verification 'Phase 6: Final Sweep and Cleanup' (Protocol in workflow.md)
+- [x] **Task:** Conductor - User Manual Verification 'Phase 6: Final Sweep and Cleanup' (Protocol in workflow.md)

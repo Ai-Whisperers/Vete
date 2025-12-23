@@ -18,6 +18,8 @@ export interface CartItem {
   // Product-specific fields (optional)
   sku?: string;
   variant_id?: string;
+  requires_prescription?: boolean;
+  prescription_file?: string; // URL or ID of the uploaded prescription
 
   // Service-specific fields (optional)
   pet_id?: string;

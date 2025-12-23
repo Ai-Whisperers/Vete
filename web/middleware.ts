@@ -91,6 +91,12 @@ export async function middleware(request: NextRequest) {
   const url = request.nextUrl.clone()
   const path = url.pathname
 
+  // Redirect authenticated users away from login page
+  if (user && path.endsWith('/portal/login')) {
+    url.pathname = `/${path.split('/')[1]}/portal/dashboard`;
+    return NextResponse.redirect(url);
+  }
+
   // 1. Protected Routes Pattern Matching
   const isDashboard = path.includes('/dashboard')
   const isPortal = path.includes('/portal')

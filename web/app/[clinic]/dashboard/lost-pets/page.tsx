@@ -1,7 +1,14 @@
 "use client";
 
+import {
+  QueryClient,
+  QueryClientProvider,
+  useQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 import type { JSX } from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { useParams } from 'next/navigation';
 import {
   Search,
@@ -15,6 +22,16 @@ import {
   Clock,
   Heart,
 } from 'lucide-react';
+
+const queryClient = new QueryClient();
+
+export default function LostPetsPageWrapper(): JSX.Element {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <LostPetsPage />
+    </QueryClientProvider>
+  );
+}
 
 interface LostPetReport {
   id: string;
@@ -47,62 +64,50 @@ interface LostPetReport {
   } | null;
 }
 
-export default function LostPetsPage(): JSX.Element {
+function LostPetsPage(): JSX.Element {
   const params = useParams();
   const clinic = params?.clinic as string;
+  const queryClient = useQueryClient();
 
-  const [reports, setReports] = useState<LostPetReport[]>([]);
-  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'lost' | 'found' | 'reunited'>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedReport, setSelectedReport] = useState<LostPetReport | null>(null);
-  const [updating, setUpdating] = useState(false);
 
-  useEffect(() => {
-    fetchReports();
-  }, [filter]);
-
-  const fetchReports = async (): Promise<void> => {
-    setLoading(true);
-    try {
+  const { data: reports = [], isLoading: loading } = useQuery<LostPetReport[]>({
+    queryKey: ['lostPets', filter],
+    queryFn: async () => {
       const url = filter === 'all'
         ? '/api/lost-pets'
         : `/api/lost-pets?status=${filter}`;
       const response = await fetch(url);
-
       if (!response.ok) throw new Error('Error al cargar');
-
       const result = await response.json();
-      setReports(result.data || []);
-    } catch (error) {
-      console.error('Error fetching lost pets:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+      return result.data || [];
+    },
+  });
 
-  const updateStatus = async (id: string, newStatus: string): Promise<void> => {
-    if (!confirm(`¿Cambiar estado a "${getStatusLabel(newStatus)}"?`)) return;
-
-    setUpdating(true);
-    try {
-      const response = await fetch('/api/lost-pets', {
+  const { mutate: updateStatus, isPending: updating } = useMutation({
+    mutationFn: ({ id, newStatus }: { id: string; newStatus: string }) => 
+      fetch('/api/lost-pets', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, status: newStatus }),
-      });
-
-      if (!response.ok) throw new Error('Error al actualizar');
-
-      alert('Estado actualizado exitosamente');
-      fetchReports();
+      }).then(res => {
+        if (!res.ok) throw new Error('Error al actualizar');
+        return res.json();
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['lostPets'] });
       setSelectedReport(null);
-    } catch (error) {
-      console.error('Error updating status:', error);
+    },
+    onError: () => {
       alert('Error al actualizar estado');
-    } finally {
-      setUpdating(false);
-    }
+    },
+  });
+
+  const handleUpdateStatus = (id: string, newStatus: string) => {
+    if (!confirm(`¿Cambiar estado a "${getStatusLabel(newStatus)}"?`)) return;
+    updateStatus({ id, newStatus });
   };
 
   const getStatusLabel = (status: string): string => {

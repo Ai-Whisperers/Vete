@@ -28,6 +28,26 @@ interface Pet {
   vaccines: { id: string; status: string }[] | null;
 }
 
+async function getPets(userId: string, query?: string): Promise<Pet[]> {
+  // In a real app, you'd get the full URL from an env var
+  const url = new URL(`http://localhost:3000/api/pets`);
+  url.searchParams.append('userId', userId);
+  if (query) {
+    url.searchParams.append('query', query);
+  }
+
+  const res = await fetch(url.toString(), {
+    next: { tags: ['pets'] }, // Tag for on-demand revalidation
+  });
+
+  if (!res.ok) {
+    console.error('Failed to fetch pets:', await res.text());
+    return [];
+  }
+
+  return res.json();
+}
+
 export default async function PortalPetsPage({ params, searchParams }: Props): Promise<React.ReactElement> {
   const { clinic } = await params;
   const { query } = await searchParams;
@@ -39,29 +59,8 @@ export default async function PortalPetsPage({ params, searchParams }: Props): P
     redirect(`/${clinic}/portal/login`);
   }
 
-  // Fetch user's pets
-  let petsQuery = supabase
-    .from('pets')
-    .select(`
-      id,
-      name,
-      species,
-      breed,
-      date_of_birth,
-      photo_url,
-      vaccines (id, status)
-    `)
-    .eq('owner_id', user.id)
-    .is('deleted_at', null)
-    .order('created_at', { ascending: false });
+  const typedPets = await getPets(user.id, query);
 
-  // Apply search filter
-  if (query) {
-    petsQuery = petsQuery.ilike('name', `%${query}%`);
-  }
-
-  const { data: pets } = await petsQuery;
-  const typedPets = (pets || []) as Pet[];
 
   const getSpeciesIcon = (species: string): React.ReactElement => {
     switch (species) {

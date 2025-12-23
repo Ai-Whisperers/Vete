@@ -39,26 +39,9 @@ export default function LoginPage({ params }: { params: Promise<{ clinic: string
     }
   }, [errorParam, router]);
 
-  // Redirect if user is already logged in
-  useEffect(() => {
-    const checkAuth = async () => {
-      const supabase = createClient();
-      // Use getUser() instead of getSession() - getUser() verifies with the server
-      // getSession() only reads from localStorage and can return stale/invalid sessions
-      const { data: { user }, error } = await supabase.auth.getUser();
-
-      if (user && !error) {
-        // User is already authenticated, redirect to dashboard
-        router.replace(redirectTo);
-      } else {
-        setIsCheckingAuth(false);
-      }
-    };
-
-    checkAuth();
-  }, [router, redirectTo]);
-
   const handleGoogleLogin = async () => {
+    // This will be handled by a form action in a real implementation
+    // For now, we'll keep the client-side call, as Server Actions with OAuth redirects can be complex.
     const supabase = createClient();
     await supabase.auth.signInWithOAuth({
         provider: 'google',

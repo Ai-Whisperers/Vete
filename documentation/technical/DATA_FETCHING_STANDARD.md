@@ -12,25 +12,28 @@ For initial data loads on a page, use **React Server Components** with the nativ
 
 **Example:**
 ```tsx
-// app/dashboard/page.tsx (Server Component)
+// app/[clinic]/dashboard/page.tsx (Server Component)
 
-async function getDashboardData() {
-  const res = await fetch('https://api.example.com/dashboard', {
-    next: { revalidate: 3600 }, // Revalidate every hour
+async function getTodayAppointments(clinic: string): Promise<TodayAppointment[]> {
+  const res = await fetch(`http://localhost:3000/api/dashboard/today-appointments?clinic=${clinic}`, {
+    next: { revalidate: 60 }, // Revalidate every minute
   });
+
   if (!res.ok) {
-    throw new Error('Failed to fetch dashboard data');
+    console.error("Failed to fetch today's appointments:", await res.text());
+    return [];
   }
   return res.json();
 }
 
-export default async function DashboardPage() {
-  const data = await getDashboardData();
+export default async function ClinicalDashboardPage({ params }: { params: { clinic: string } }) {
+  const { clinic } = params;
+  const todayAppointments = await getTodayAppointments(clinic);
 
   return (
     <div>
       <h1>Dashboard</h1>
-      <pre>{JSON.stringify(data, null, 2)}</pre>
+      <TodayScheduleWidget appointments={todayAppointments} clinic={clinic} />
     </div>
   );
 }
@@ -46,35 +49,27 @@ For all data mutations, use **Server Actions**. Server Actions allow client comp
 
 **Example:**
 ```tsx
-// app/actions/create-item.ts (Server Action)
+// app/actions/update-appointment-status.ts (Server Action)
 'use server';
 
+import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 
-export async function createItem(formData: FormData) {
-  const rawData = {
-    name: formData.get('name') as string,
-  };
+export async function updateAppointmentStatus(appointmentId: string, newStatus: string, clinic: string) {
+  const supabase = await createClient();
 
-  // Here you would typically validate the data and insert it into the database
-  console.log('Creating item:', rawData);
+  const { error } = await supabase
+    .from('appointments')
+    .update({ status: newStatus })
+    .eq('id', appointmentId);
 
-  revalidatePath('/items'); // Revalidate the items page to show the new item
-}
-```
-```tsx
-// app/items/page.tsx (Client Component)
-'use client';
+  if (error) {
+    console.error('Error updating appointment status:', error);
+    return { success: false, error: 'Failed to update appointment status' };
+  }
 
-import { createItem } from '@/app/actions/create-item';
-
-export default function ItemsPage() {
-  return (
-    <form action={createItem}>
-      <input type="text" name="name" />
-      <button type="submit">Create Item</button>
-    </form>
-  );
+  revalidatePath(`/${clinic}/dashboard`);
+  return { success: true };
 }
 ```
 
@@ -89,43 +84,48 @@ For dynamic, interactive, or real-time data needs on the client, use **TanStack 
 
 **Example:**
 ```tsx
-// app/components/items-list.tsx (Client Component)
+// app/components/dashboard/waiting-room.tsx (Client Component)
 'use client';
 
-import { useQuery, QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { updateAppointmentStatus } from '@/app/actions/update-appointment-status';
 
 const queryClient = new QueryClient();
 
-const fetchItems = async () => {
-  const res = await fetch('/api/items');
-  if (!res.ok) {
-    throw new Error('Network response was not ok');
-  }
-  return res.json();
-};
+function WaitingRoom({ clinic }: { clinic: string }) {
+  const queryClient = useQueryClient();
 
-function ItemsList() {
-  const { data, error, isPending } = useQuery({
-    queryKey: ['items'],
-    queryFn: fetchItems,
+  const { data: appointments = [] } = useQuery<WaitingPatient[]>({
+    queryKey: ['waitingRoom', clinic],
+    queryFn: async () => {
+      const res = await fetch(`/api/dashboard/waiting-room?clinic=${clinic}`);
+      if (!res.ok) {
+        throw new Error('Failed to fetch waiting room appointments');
+      }
+      return res.json();
+    },
+    refetchInterval: 30000,
   });
 
-  if (isPending) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;
+  const { mutate: updateStatus } = useMutation({
+    mutationFn: ({ appointmentId, newStatus }: { appointmentId: string; newStatus: string; }) => 
+      updateAppointmentStatus(appointmentId, newStatus, clinic),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['waitingRoom', clinic] });
+    },
+  });
 
   return (
-    <ul>
-      {data.map((item: any) => (
-        <li key={item.id}>{item.name}</li>
-      ))}
-    </ul>
+    <div>
+      {/* ... JSX to display appointments and call updateStatus on button clicks ... */}
+    </div>
   );
 }
 
-export default function ItemsPage() {
+export function WaitingRoomWrapper({ clinic }: { clinic: string }) {
   return (
     <QueryClientProvider client={queryClient}>
-      <ItemsList />
+      <WaitingRoom clinic={clinic} />
     </QueryClientProvider>
   );
 }

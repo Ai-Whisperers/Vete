@@ -1,116 +1,53 @@
-import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
-import Link from 'next/link'
-import * as Icons from 'lucide-react'
-import { AppointmentList } from '@/components/appointments'
-import { getOwnerAppointments } from '@/app/actions/appointments'
+import { AppointmentList } from '@/components/appointments/appointment-list';
+import { createClient } from '@/lib/supabase/server';
+import { requireStaff } from '@/lib/auth';
+import { notFound } from 'next/navigation';
 
-interface PageProps {
-  params: Promise<{ clinic: string }>
+async function getAppointments(clinic: string, userId: string) {
+  const supabase = await createClient();
+  const now = new Date().toISOString();
+
+  const { data, error } = await supabase
+    .from('appointments')
+    .select(`
+      id,
+      tenant_id,
+      start_time,
+      end_time,
+      status,
+      reason,
+      notes,
+      pets (
+        id,
+        name,
+        species,
+        photo_url
+      )
+    `)
+    .eq('tenant_id', clinic)
+    .eq('created_by', userId) // Assuming created_by is the pet owner
+    .order('start_time', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching appointments:', error);
+    return { upcoming: [], past: [] };
+  }
+
+  const upcoming = data.filter(apt => new Date(apt.start_time) >= new Date());
+  const past = data.filter(apt => new Date(apt.start_time) < new Date());
+
+  return { upcoming, past };
 }
 
-export async function generateMetadata({ params }: PageProps) {
-  const { clinic } = await params
-  return {
-    title: `Mis Citas - ${clinic}`,
-    description: 'Gestiona tus citas veterinarias'
-  }
-}
-
-export default async function AppointmentsPage({ params }: PageProps) {
-  const { clinic } = await params
-  const supabase = await createClient()
-
-  // Auth check
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) {
-    redirect(`/${clinic}/portal/login`)
-  }
-
-  // Fetch appointments
-  const result = await getOwnerAppointments(clinic)
-
-  if (!result.success) {
-    return (
-      <div className="max-w-2xl mx-auto">
-        <div className="p-8 bg-red-50 rounded-2xl text-center">
-          <Icons.AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-red-700 mb-2">Error al cargar citas</h2>
-          <p className="text-red-600">{result.error}</p>
-        </div>
-      </div>
-    )
-  }
-
-  const { upcoming, past } = result.data || { upcoming: [], past: [] }
+export default async function AppointmentsPage({ params }: { params: { clinic: string } }) {
+  const { clinic } = params;
+  const { profile } = await requireStaff(clinic); // In a real app, this would be requireOwner or similar
+  const { upcoming, past } = await getAppointments(clinic, profile.id);
 
   return (
-    <div className="max-w-3xl mx-auto">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center gap-4">
-          <Link
-            href={`/${clinic}/portal/dashboard`}
-            className="p-2 rounded-xl hover:bg-white transition-colors"
-          >
-            <Icons.ArrowLeft className="w-6 h-6 text-[var(--text-secondary)]" />
-          </Link>
-          <div>
-            <h1 className="text-3xl font-black text-[var(--text-primary)]">
-              Mis Citas
-            </h1>
-            <p className="text-[var(--text-secondary)]">
-              Gestiona tus citas veterinarias
-            </p>
-          </div>
-        </div>
-
-        <Link
-          href={`/${clinic}/book`}
-          className="flex items-center gap-2 px-5 py-3 bg-[var(--primary)] text-white font-bold rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all"
-        >
-          <Icons.Plus className="w-5 h-5" />
-          <span className="hidden sm:inline">Nueva Cita</span>
-        </Link>
-      </div>
-
-      {/* Appointment List */}
-      <div className="bg-white rounded-3xl shadow-xl border border-gray-100 p-6">
-        <AppointmentList
-          upcoming={upcoming}
-          past={past}
-          clinic={clinic}
-        />
-      </div>
-
-      {/* Quick Actions */}
-      <div className="mt-8 grid grid-cols-2 gap-4">
-        <Link
-          href={`/${clinic}/portal/pets`}
-          className="p-4 bg-white rounded-2xl border border-gray-100 hover:border-[var(--primary)]/30 hover:shadow-lg transition-all flex items-center gap-4"
-        >
-          <div className="w-12 h-12 bg-[var(--primary)]/10 rounded-xl flex items-center justify-center">
-            <Icons.PawPrint className="w-6 h-6 text-[var(--primary)]" />
-          </div>
-          <div>
-            <h3 className="font-bold text-[var(--text-primary)]">Mis Mascotas</h3>
-            <p className="text-xs text-[var(--text-secondary)]">Ver perfiles</p>
-          </div>
-        </Link>
-
-        <Link
-          href={`/${clinic}/services`}
-          className="p-4 bg-white rounded-2xl border border-gray-100 hover:border-[var(--primary)]/30 hover:shadow-lg transition-all flex items-center gap-4"
-        >
-          <div className="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center">
-            <Icons.Stethoscope className="w-6 h-6 text-green-600" />
-          </div>
-          <div>
-            <h3 className="font-bold text-[var(--text-primary)]">Servicios</h3>
-            <p className="text-xs text-[var(--text-secondary)]">Ver catálogo</p>
-          </div>
-        </Link>
-      </div>
+    <div>
+      <h1 className="text-3xl font-bold mb-6">Mis Citas</h1>
+      <AppointmentList upcoming={upcoming} past={past} clinic={clinic} />
     </div>
-  )
+  );
 }

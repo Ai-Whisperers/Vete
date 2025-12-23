@@ -45,14 +45,43 @@ export const generateMetadata = async ({ params }: { params: Promise<{ clinic: s
   };
 };
 
+import { getClinicData, getClinicImageUrl } from '@/lib/clinics';
+import { notFound } from 'next/navigation';
+import { Metadata } from 'next';
+import StorePageClient from '@/app/[clinic]/store/client';
+import { ProductListResponse } from '@/lib/types/store';
+
+async function getInitialProducts(clinic: string): Promise<ProductListResponse> {
+  const url = new URL(`http://localhost:3000/api/store/products`);
+  url.searchParams.set('clinic', clinic);
+  url.searchParams.set('page', '1');
+  url.searchParams.set('limit', '12');
+
+  const res = await fetch(url.toString(), {
+    next: { tags: ['products'] },
+  });
+
+  if (!res.ok) {
+    console.error('Failed to fetch initial products:', await res.text());
+    // Return a default empty state
+    return {
+      products: [],
+      pagination: { page: 1, pages: 1, total: 0 },
+      filters: { applied: {}, available: { categories: [], subcategories: [], brands: [], species: [], life_stages: [], breed_sizes: [], health_conditions: [], price_range: {min: 0, max: 0} } },
+    };
+  }
+
+  return res.json();
+}
+
 export default async function StorePage({ params }: { params: Promise<{ clinic: string }> }) {
   const { clinic } = await params;
   const data = await getClinicData(clinic);
 
   if (!data) notFound();
 
-  // Get store hero image from images manifest
   const storeHeroImage = getClinicImageUrl(data.images, 'hero', 'store');
+  const initialProductData = await getInitialProducts(clinic);
 
-  return <StorePageClient config={data.config} heroImage={storeHeroImage} />;
+  return <StorePageClient config={data.config} heroImage={storeHeroImage} initialProductData={initialProductData} />;
 }

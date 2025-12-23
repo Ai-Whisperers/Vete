@@ -17,6 +17,7 @@ import { TodayScheduleWidget } from "@/components/dashboard/today-schedule-widge
 import { UpcomingVaccines } from "@/components/dashboard/upcoming-vaccines";
 import { LostFoundWidget } from "@/components/safety/lost-found-widget";
 import { WaitingRoom } from "@/components/dashboard/waiting-room";
+import { getTodayAppointmentsForClinic } from "@/lib/appointments";
 
 interface Props {
   params: Promise<{ clinic: string }>;
@@ -24,49 +25,6 @@ interface Props {
 
 export async function generateStaticParams(): Promise<Array<{ clinic: string }>> {
   return [{ clinic: "adris" }, { clinic: "petlife" }];
-}
-
-interface TodayAppointment {
-  id: string;
-  start_time: string;
-  end_time: string;
-  status: string;
-  reason: string;
-  pets: {
-    id: string;
-    name: string;
-    species: string;
-    photo_url?: string | null;
-    owner?: {
-      id: string;
-      full_name: string;
-      phone?: string | null;
-    };
-  } | null;
-}
-
-async function getTodayAppointments(clinic: string): Promise<TodayAppointment[]> {
-  // In a real app, you'd get the full URL from an env var
-  const res = await fetch(`http://localhost:3000/api/dashboard/today-appointments?clinic=${clinic}`, {
-    next: { revalidate: 60 }, // Revalidate every minute
-  });
-
-  if (!res.ok) {
-    console.error('Failed to fetch today\'s appointments:', await res.text());
-    return [];
-  }
-
-  const data = await res.json();
-
-  // Transform pets data as before
-  return (data || []).map((apt: any) => {
-    const pets = Array.isArray(apt.pets) ? apt.pets[0] : apt.pets;
-    const owner = pets?.owner ? (Array.isArray(pets.owner) ? pets.owner[0] : pets.owner) : undefined;
-    return {
-      ...apt,
-      pets: pets ? { ...pets, owner } : null,
-    };
-  });
 }
 
 export default async function ClinicalDashboardPage({ params }: Props): Promise<React.ReactElement> {
@@ -81,7 +39,7 @@ export default async function ClinicalDashboardPage({ params }: Props): Promise<
     notFound();
   }
 
-  const todayAppointments = await getTodayAppointments(clinic);
+  const todayAppointments = await getTodayAppointmentsForClinic(clinic);
 
 
   // Get greeting based on time

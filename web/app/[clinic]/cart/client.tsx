@@ -1,4 +1,42 @@
 "use client";
+import {
+  QueryClient,
+  QueryClientProvider,
+  useQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
+import { useParams } from 'next/navigation';
+import { useCart, CartItem } from '@/context/cart-context';
+import Link from 'next/link';
+import { ShoppingBag, X, ArrowRight, Trash2, ArrowLeft, ShieldCheck, Plus, Minus, Tag, AlertCircle, PawPrint, Package, User, Stethoscope } from 'lucide-react';
+import LoyaltyRedemption from '@/components/commerce/loyalty-redemption';
+import { createClient } from '@/lib/supabase/client';
+import { useEffect, useState, useMemo, useCallback } from 'react';
+import { ClinicConfig } from '@/lib/clinics';
+import type { User as SupabaseUser } from '@supabase/supabase-js';
+import { AuthGate } from '@/components/auth/auth-gate';
+import { organizeCart } from '@/lib/utils/cart-utils';
+import { formatPriceGs, SIZE_SHORT_LABELS, getSizeBadgeColor, SIZE_LABELS, type PetSizeCategory } from '@/lib/utils/pet-size';
+
+const queryClient = new QueryClient();
+
+export default function CartPageClientWrapper(props: CartPageClientProps) {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <CartPageClient {...props} />
+    </QueryClientProvider>
+  );
+}
+
+interface CartPageClientProps {
+  readonly config: ClinicConfig;
+}
+
+// Maximum quantity per item to prevent abuse
+const MAX_QUANTITY_PER_ITEM = 99;
+
+
 import { useParams } from 'next/navigation';
 import { useCart, CartItem } from '@/context/cart-context';
 import Link from 'next/link';
@@ -22,40 +60,30 @@ const MAX_QUANTITY_PER_ITEM = 99;
 export default function CartPageClient({ config }: CartPageClientProps) {
   const { clinic } = useParams() as { clinic: string };
   const { items, clearCart, total, removeItem, updateQuantity, discount } = useCart();
-  const [user, setUser] = useState<SupabaseUser | null>(null);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+
+  const { data: user, isLoading: loading } = useQuery({
+    queryKey: ['user'],
+    queryFn: async () => {
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      return session?.user ?? null;
+    },
+  });
+
+  const { data: wishlistedIds = new Set<string>() } = useQuery({
+    queryKey: ['wishlist', user?.id],
+    queryFn: async () => {
+      if (!user) return new Set<string>();
+      const res = await fetch(`/api/store/wishlist?userId=${user.id}&clinic=${clinic}`);
+      if (!res.ok) throw new Error('Failed to fetch wishlist');
+      const wishlist: { product_id: string }[] = await res.json();
+      return new Set(wishlist.map(w => w.product_id));
+    },
+    enabled: !!user,
+  });
+
   const [quantityWarning, setQuantityWarning] = useState<string | null>(null);
-
-  // Memoize supabase client
-  const supabase = useMemo(() => createClient(), []);
-
-  useEffect(() => {
-    const checkUser = async () => {
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        if (error) {
-          console.error('Auth session error:', error);
-        }
-        setUser(session?.user ?? null);
-      } catch (err) {
-        console.error('Failed to get session:', err);
-        setUser(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    checkUser();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setUser(session?.user ?? null);
-        setLoading(false);
-      }
-    );
-
-    return () => subscription.unsubscribe();
-  }, [supabase]);
 
   const finalTotal = Math.max(0, total - discount);
   const labels = config.ui_labels?.cart || {};

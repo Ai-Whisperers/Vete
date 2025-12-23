@@ -46,7 +46,7 @@ export default async function TermsPage({ params }: Props): Promise<React.ReactE
   }
 
   const { config } = data;
-  const currentYear = new Date().getFullYear();
+  const currentYear = 2024;
 
   const sections = [
     {

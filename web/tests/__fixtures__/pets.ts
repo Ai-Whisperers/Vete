@@ -14,19 +14,20 @@ export interface PetFixture {
   tenantId: string;
   name: string;
   species: Species;
-  breed?: string;
-  birthDate?: string;
-  weightKg?: number;
-  sex?: Sex;
-  isNeutered?: boolean;
-  color?: string;
-  temperament?: Temperament;
-  existingConditions?: string;
-  allergies?: string;
-  notes?: string;
-  microchipId?: string;
-  dietCategory?: string;
-  dietNotes?: string;
+  breed: string;
+  birthDate: string;
+  weightKg: number;
+  sex: Sex;
+  isNeutered: boolean;
+  color: string;
+  temperament: Temperament;
+  microchipId?: string | null;
+  dietCategory?: string | null;
+  dietNotes?: string | null;
+  allergies?: string | null;
+  existingConditions?: string | null;
+  notes?: string | null;
+  photoUrl?: string | null;
 }
 
 /** Pre-defined test pets */
@@ -99,9 +100,11 @@ export const PETS: Record<string, PetFixture> = {
     tenantId: 'adris',
     name: 'Copito',
     species: 'rabbit',
+    breed: 'Holland Lop',
     birthDate: '2023-02-14',
     weightKg: 1.8,
     sex: 'male',
+    isNeutered: false,
     color: 'Blanco',
     temperament: 'shy',
   },
@@ -158,7 +161,6 @@ export const ALL_TEMPERAMENTS: Temperament[] = ['friendly', 'shy', 'aggressive',
 
 /** Generate unique pet data for creation tests */
 export function generatePetData(overrides: Partial<PetFixture> = {}): Omit<PetFixture, 'id'> {
-  const timestamp = Date.now();
   const random = Math.random().toString(36).substring(7);
   return {
     ownerId: '00000000-0000-0000-0000-000000000001',

@@ -13,6 +13,7 @@ import { CartLayoutWrapper } from '@/components/cart/cart-layout-wrapper';
 import { createClient } from '@/lib/supabase/server';
 import { Facebook, Instagram, Youtube, MapPin, Phone, Mail, Clock, MessageCircle } from 'lucide-react';
 import { FooterLogo } from '@/components/layout/footer-logo';
+import { Copyright } from '@/components/ui/copyright';
 
 const BASE_URL = 'https://vetepy.vercel.app';
 
@@ -487,9 +488,10 @@ export default async function ClinicLayout({
 
               {/* Bottom Bar */}
               <div className="mt-8 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
-                <p className="text-gray-500 text-sm text-center md:text-left">
-                  © {new Date().getFullYear()} {config.name}. {footerLabels.rights || 'Todos los derechos reservados.'}
-                </p>
+                <Copyright
+                  companyName={config.name}
+                  rightsText={footerLabels.rights || 'Todos los derechos reservados.'}
+                />
                 <div className="flex gap-6 text-sm">
                   <Link href={`/${clinic}/privacy`} className="text-gray-500 hover:text-white transition-colors">
                     {footerLabels.privacy || 'Privacidad'}

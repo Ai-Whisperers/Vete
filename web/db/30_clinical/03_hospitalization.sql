@@ -84,6 +84,7 @@ CREATE TABLE IF NOT EXISTS public.hospitalizations (
     reason TEXT NOT NULL,
     diagnosis TEXT,
     notes TEXT,
+    discharge_instructions TEXT,
 
     -- Priority/Acuity
     acuity_level TEXT DEFAULT 'normal'

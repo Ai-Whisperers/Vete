@@ -162,31 +162,42 @@ export default function HospitalizationDetailPage({
   };
 
   const handleDischarge = async (): Promise<void> => {
-    if (!confirm('¿Está seguro que desea dar de alta a este paciente?')) return;
+    if (!confirm('¿Está seguro que desea dar de alta a este paciente? Esta acción generará la factura final automáticamente.')) return;
 
     const dischargeNotes = prompt('Notas de alta (opcional):');
-    const dischargeInstructions = prompt('Instrucciones de alta (opcional):');
+    // const dischargeInstructions = prompt('Instrucciones de alta (opcional):');
 
     setSaving(true);
     try {
-      const response = await fetch(`/api/hospitalizations`, {
-        method: 'PATCH',
+      // Use the new atomic Discharge & Bill endpoint
+      const response = await fetch(`/api/hospitalizations/${id}/discharge`, {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          id,
-          status: 'discharged',
           discharge_notes: dischargeNotes || undefined,
-          discharge_instructions: dischargeInstructions || undefined,
+          // discharge_instructions: dischargeInstructions || undefined,
         }),
       });
 
-      if (!response.ok) throw new Error('Error al dar de alta');
+      const data = await response.json();
 
-      alert('Paciente dado de alta exitosamente');
-      router.push('/dashboard/hospital');
+      if (!response.ok) {
+        throw new Error(data.error || 'Error al dar de alta');
+      }
+
+      alert(`Paciente dado de alta exitosamente. Factura ${data.invoice?.invoice_number || ''} generada.`);
+      
+      // Redirect to invoice or dash?
+      // User likely wants to clear the bed, so back to dash is fine.
+      // But maybe ask to see invoice
+      if (data.invoice?.id && confirm('¿Desea ver la factura generada ahora?')) {
+        router.push(`/dashboard/invoices/${data.invoice.id}`);
+      } else {
+        router.push('/dashboard/hospital');
+      }
     } catch (error) {
       console.error('Error discharging patient:', error);
-      alert('Error al dar de alta al paciente');
+      alert(error instanceof Error ? error.message : 'Error al dar de alta al paciente');
     } finally {
       setSaving(false);
     }

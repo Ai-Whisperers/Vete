@@ -87,7 +87,7 @@ export function AppointmentsChart({ clinic }: AppointmentsChartProps) {
         )}
 
         {!isLoading && (
-      <div className="flex justify-between items-center mb-6">
+          <div className="flex justify-between items-center mb-6">
         <div className="flex items-center gap-2">
           <Calendar className="w-5 h-5 text-[var(--text-secondary)]" />
           <h3 className="font-semibold text-[var(--text-primary)]">Citas</h3>
@@ -107,9 +107,10 @@ export function AppointmentsChart({ clinic }: AppointmentsChartProps) {
             </button>
           ))}
         </div>
-      </div>
+          </div>
+        )}
 
-      {(data || []).length === 0 ? (
+        {(data || []).length === 0 ? (
         <div className="h-64 flex items-center justify-center text-[var(--text-secondary)]">
           No hay datos de citas para mostrar
         </div>

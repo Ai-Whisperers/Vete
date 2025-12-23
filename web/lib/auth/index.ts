@@ -36,3 +36,6 @@ export {
   createTenantQuery,
   type ActionOptions
 } from './action-wrapper'
+
+// Role-based authorization
+export { requireStaff, requireAdmin } from './require-staff'

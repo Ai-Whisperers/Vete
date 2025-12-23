@@ -23,7 +23,7 @@
       "kennel_id": "2",
       "admitted_at": "2024-05-20T14:00:00Z",
       "status": "discharged",
-      "acuity_level": "moderate",
+      "acuity_level": "normal",
       "discharged_at": "2024-05-22T09:00:00Z",
       "reason_for_admission": "Cirugía de esterilización",
       "discharge_diagnosis": "Ovariohisterectomía sin complicaciones",
@@ -36,8 +36,8 @@
       "pet_id": "660e8400-e29b-41d4-a716-446655440003",
       "kennel_id": "3",
       "admitted_at": "2024-12-15T08:00:00Z",
-      "status": "active",
-      "acuity_level": "moderate",
+      "status": "admitted",
+      "acuity_level": "normal",
       "reason_for_admission": "Deshidratación y vómitos persistentes",
       "vet_id": "550e8400-e29b-41d4-a716-446655440004"
     },
@@ -47,8 +47,8 @@
       "pet_id": "660e8400-e29b-41d4-a716-446655440009",
       "kennel_id": "KG1",
       "admitted_at": "2024-12-20T13:00:00Z",
-      "status": "active",
-      "acuity_level": "moderate",
+      "status": "admitted",
+      "acuity_level": "normal",
       "reason_for_admission": "Cirugía de castración programada",
       "vet_id": "550e8400-e29b-41d4-a716-446655440005"
     }

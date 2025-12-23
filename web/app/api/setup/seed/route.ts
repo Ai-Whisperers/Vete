@@ -44,8 +44,6 @@ export async function POST(request: NextRequest) {
         return await createMedicalRecord(supabase, data)
       case 'create_vaccine':
         return await createVaccine(supabase, data)
-      case 'create_hospitalization':
-        return await createHospitalization(supabase, data)
       case 'bulk_seed':
         return await bulkSeed(supabase, data)
       default:
@@ -226,21 +224,6 @@ async function createVaccine(supabase: any, data: any) {
   }
 
   return NextResponse.json(vaccine)
-}
-
-async function createHospitalization(supabase: any, data: any) {
-  const { data: hospitalization, error } = await supabase
-    .from('hospitalizations')
-    .insert([data])
-    .select()
-    .single()
-
-  if (error) {
-    console.error('Error creating hospitalization:', error)
-    return NextResponse.json({ error: error.message }, { status: 400 })
-  }
-
-  return NextResponse.json(hospitalization)
 }
 
 async function bulkSeed(supabase: any, data: any) {

@@ -242,7 +242,7 @@ export async function createPet(prevState: ActionResult | null, formData: FormDa
     species: validData.species,
     breed: validData.breed,
     weight_kg: validData.weight,
-    microchip_id: validData.microchip_id,
+    microchip_number: validData.microchip_id, // Map ID to Number
     diet_category: validData.diet_category,
     diet_notes: validData.diet_notes,
     photo_url: photoUrl,
@@ -250,9 +250,9 @@ export async function createPet(prevState: ActionResult | null, formData: FormDa
     is_neutered: validData.is_neutered,
     color: validData.color,
     temperament: validData.temperament,
-    allergies: validData.allergies,
-    existing_conditions: validData.existing_conditions,
-    notes: validData.existing_conditions,
+    allergies: validData.allergies ? [validData.allergies] : [], // Convert to array
+    chronic_conditions: validData.existing_conditions ? [validData.existing_conditions] : [], // Map and convert to array
+    notes: validData.existing_conditions, // Use existing_conditions as fallback for notes
     date_of_birth: validData.date_of_birth,
   });
 

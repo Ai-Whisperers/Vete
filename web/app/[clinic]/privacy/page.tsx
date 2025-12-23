@@ -46,7 +46,7 @@ export default async function PrivacyPage({ params }: Props): Promise<React.Reac
   }
 
   const { config } = data;
-  const currentYear = new Date().getFullYear();
+  const currentYear = 2024;
 
   const sections = [
     {

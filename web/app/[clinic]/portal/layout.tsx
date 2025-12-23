@@ -76,7 +76,28 @@ export default async function PortalLayout({
 
   // Handle case where profile doesn't exist (trigger may have failed)
   if (!profile) {
-    // Create profile for authenticated user with current clinic
+    // Check if this is a demo account and set appropriate role/tenant
+    let role = 'owner';
+    let tenantId = clinic;
+
+    // Check demo accounts
+    try {
+      const { data: demoAccount } = await supabase
+        .from('demo_accounts')
+        .select('role, tenant_id')
+        .eq('email', authenticatedUser.email)
+        .eq('is_active', true)
+        .single();
+
+      if (demoAccount) {
+        role = demoAccount.role;
+        tenantId = demoAccount.tenant_id;
+      }
+    } catch (error) {
+      // demo_accounts table might not exist or other error, continue with defaults
+    }
+
+    // Create profile for authenticated user
     const { data: newProfile, error: createError } = await supabase
       .from('profiles')
       .insert({
@@ -84,8 +105,8 @@ export default async function PortalLayout({
         email: authenticatedUser.email,
         full_name: authenticatedUser.user_metadata?.full_name || authenticatedUser.email?.split('@')[0] || 'Usuario',
         avatar_url: authenticatedUser.user_metadata?.avatar_url,
-        tenant_id: clinic,
-        role: 'owner'
+        tenant_id: tenantId,
+        role: role
       })
       .select('role, tenant_id')
       .single();

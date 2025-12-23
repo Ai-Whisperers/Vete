@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
 })
 
 // PDF Document Component
-function InvoicePDFDocument({ invoice, clinicName }: { invoice: Invoice; clinicName: string }) {
+export function InvoicePDFDocument({ invoice, clinicName }: { invoice: Invoice; clinicName: string }) {
   const owner = invoice.pets?.owner
 
   return (

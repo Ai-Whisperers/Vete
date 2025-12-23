@@ -123,8 +123,7 @@ export function GlobalSearch({ clinic }: GlobalSearchProps): React.ReactElement 
   return (
     <ErrorBoundary>
       <div>
-    <>
-      {/* Trigger Button */}
+        {/* Trigger Button */}
       <button
         onClick={commandPalette.open}
         className="flex items-center gap-2 px-3 py-2 text-sm text-gray-500 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors border border-gray-200"
@@ -272,7 +271,7 @@ export function GlobalSearch({ clinic }: GlobalSearchProps): React.ReactElement 
           </>
         )}
       </AnimatePresence>
-    </div>
+      </div>
     </ErrorBoundary>
   );
 }

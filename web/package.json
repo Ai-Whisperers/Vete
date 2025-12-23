@@ -11,7 +11,7 @@
     "test:all": "npm run test",
     "test:watch": "vitest watch",
     "test:unit": "vitest run tests/unit --coverage",
-    "test:integration": "vitest run tests/integration --coverage",
+    "test:integration": "vitest run --config vitest.integration.config.ts --coverage",
     "test:system": "vitest run tests/system --coverage",
     "test:functionality": "vitest run tests/functionality --coverage",
     "test:uat": "vitest run tests/uat --coverage",
@@ -57,7 +57,8 @@
     "env:reset:basic": "npm run env:clear && npm run env:setup:basic",
     "env:reset:full": "npm run env:clear && npm run env:setup:full",
     "db:fixes": "node db/setup-db.mjs fixes",
-    "reset-dev": "powershell -ExecutionPolicy Bypass -File reset-dev.ps1"
+    "reset-dev": "powershell -ExecutionPolicy Bypass -File reset-dev.ps1",
+    "kill-node": "powershell -ExecutionPolicy Bypass -File kill-node.ps1 -Force"
   },
   "dependencies": {
     "@react-pdf/renderer": "^4.3.1",

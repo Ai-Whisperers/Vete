@@ -31,7 +31,7 @@ import { fileURLToPath } from 'url'
 // =============================================================================
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const DATA_DIR = join(__dirname, 'data')
+const DATA_DIR = join(__dirname, '..', 'data')
 
 // Tenant IDs that should have store products
 const STORE_TENANTS = ['adris', 'petlife']
@@ -567,18 +567,23 @@ function generateAppointmentsSQL(tenantId: string, appointments: Appointment[]):
 
   const lines = [
     `-- APPOINTMENTS (${tenantId})`,
-    'INSERT INTO public.appointments (id, tenant_id, pet_id, vet_id, service_id, start_time, end_time, status, notes, created_at) VALUES',
+    'INSERT INTO public.appointments (id, tenant_id, pet_id, vet_id, service_id, start_time, end_time, duration_minutes, status, notes, created_at) VALUES',
   ]
 
   const values = appointments.map((appt, i) => {
     const comma = i < appointments.length - 1 ? ',' : ''
     // Map service_id from number to UUID based on tenant services
     const serviceId = mapServiceId(appt.service_id, tenantId)
-    return `    (${escapeSQL(appt.id)}, ${escapeSQL(tenantId)}, ${escapeSQL(appt.pet_id)}, ${escapeSQL(appt.vet_id)}, ${serviceId}, ${escapeSQL(appt.start_time)}, ${escapeSQL(appt.end_time)}, ${escapeSQL(appt.status)}, ${escapeSQL(appt.notes)}, ${escapeSQL(appt.created_at)})${comma}`
+    // Calculate duration in minutes from start_time and end_time
+    const startTime = new Date(appt.start_time)
+    const endTime = new Date(appt.end_time)
+    const durationMinutes = Math.floor((endTime.getTime() - startTime.getTime()) / (1000 * 60))
+    // Use gen_random_uuid() for ID since database expects UUID
+    return `    (gen_random_uuid(), ${escapeSQL(tenantId)}, ${escapeSQL(appt.pet_id)}, ${escapeSQL(appt.vet_id)}, ${serviceId}, ${escapeSQL(appt.start_time)}, ${escapeSQL(appt.end_time)}, ${durationMinutes}, ${escapeSQL(appt.status)}, ${escapeSQL(appt.notes)}, ${escapeSQL(appt.created_at)})${comma}`
   })
 
   lines.push(...values)
-  lines.push('ON CONFLICT (id) DO NOTHING;', '')
+  lines.push('ON CONFLICT DO NOTHING;', '') // No specific conflict target since using gen_random_uuid()
   return lines.join('\n')
 }
 
@@ -587,18 +592,21 @@ function generateHospitalizationsSQL(tenantId: string, hospitalizations: Hospita
 
   const lines = [
     `-- HOSPITALIZATIONS (${tenantId})`,
-    'INSERT INTO public.hospitalizations (id, tenant_id, pet_id, kennel_id, primary_vet_id, admitted_at, status, acuity_level, actual_discharge, reason, diagnosis, discharge_instructions) VALUES',
+    'INSERT INTO public.hospitalizations (id, tenant_id, pet_id, kennel_id, primary_vet_id, admission_number, admitted_at, status, acuity_level, actual_discharge, reason, diagnosis, discharge_instructions) VALUES',
   ]
 
   const values = hospitalizations.map((hosp, i) => {
     const comma = i < hospitalizations.length - 1 ? ',' : ''
     // Map kennel_id from number to UUID based on tenant kennels
     const kennelId = mapKennelId(hosp.kennel_id, tenantId)
-    return `    (${escapeSQL(hosp.id)}, ${escapeSQL(tenantId)}, ${escapeSQL(hosp.pet_id)}, ${kennelId}, ${escapeSQL(hosp.vet_id)}, ${escapeSQL(hosp.admitted_at)}, ${escapeSQL(hosp.status)}, ${escapeSQL(hosp.acuity_level)}, ${hosp.discharged_at ? escapeSQL(hosp.discharged_at) : 'NULL'}, ${escapeSQL(hosp.reason_for_admission)}, ${escapeSQL(hosp.discharge_diagnosis)}, ${escapeSQL(hosp.discharge_instructions)})${comma}`
+    // Generate admission number (e.g., HOSP-2024-001)
+    const admissionNumber = `'HOSP-${new Date().getFullYear()}-${String(i + 1).padStart(3, '0')}'`
+    // Use gen_random_uuid() for ID since database expects UUID
+    return `    (gen_random_uuid(), ${escapeSQL(tenantId)}, ${escapeSQL(hosp.pet_id)}, ${kennelId}, ${escapeSQL(hosp.vet_id)}, ${admissionNumber}, ${escapeSQL(hosp.admitted_at)}, ${escapeSQL(hosp.status)}, ${escapeSQL(hosp.acuity_level)}, ${hosp.discharged_at ? escapeSQL(hosp.discharged_at) : 'NULL'}, ${escapeSQL(hosp.reason_for_admission)}, ${escapeSQL(hosp.discharge_diagnosis)}, ${escapeSQL(hosp.discharge_instructions)})${comma}`
   })
 
   lines.push(...values)
-  lines.push('ON CONFLICT (id) DO NOTHING;', '')
+  lines.push('ON CONFLICT DO NOTHING;', '') // No specific conflict target since using gen_random_uuid()
   return lines.join('\n')
 }
 
@@ -934,6 +942,7 @@ async function main() {
   // 00-CORE
   const coreDir = join(DATA_DIR, '00-core')
   const tenantsData = loadJSON<{ tenants: Tenant[] }>(join(coreDir, 'tenants.json'))
+  console.log('-- Loading tenants:', tenantsData?.tenants?.length || 0, 'tenants')
   if (tenantsData?.tenants) console.log(generateTenantsSQL(tenantsData.tenants))
 
   const demoData = loadJSON<{ demo_accounts: DemoAccount[] }>(join(coreDir, 'demo-accounts.json'))
@@ -1039,6 +1048,22 @@ async function main() {
   // Suppliers
   const suppliersData = loadJSON<{ suppliers: Supplier[] }>(join(storeDir, 'suppliers.json'))
   if (suppliersData?.suppliers) console.log(generateSuppliersSQL(suppliersData.suppliers))
+
+  // Tenant Products Assignments
+  const tenantProductsDir = join(storeDir, 'tenant-products')
+  console.log('-- Processing tenant products from:', tenantProductsDir)
+  if (existsSync(tenantProductsDir)) {
+    const tenantProductFiles = listJsonFiles(tenantProductsDir)
+    console.log('-- Found tenant product files:', tenantProductFiles)
+    for (const file of tenantProductFiles) {
+      const tenantId = file.replace('.json', '')
+      const data = loadJSON<TenantProductsFile>(join(tenantProductsDir, file))
+      console.log('-- Loading tenant products for', tenantId + ':', data?.products?.length || 0, 'products')
+      if (data) console.log(generateTenantProductAssignmentsSQL(tenantId, data.products))
+    }
+  } else {
+    console.log('-- Tenant products directory not found')
+  }
 
   console.log('COMMIT;')
   console.log('-- =============================================================================')

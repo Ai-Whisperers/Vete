@@ -13,7 +13,23 @@ let testClient: SupabaseClient | null = null;
 /**
  * Get or create Supabase test client
  */
-export function getTestClient(): SupabaseClient {
+export function getTestClient(options: { serviceRole?: boolean } = {}): SupabaseClient {
+  if (options.serviceRole) {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!supabaseUrl || !supabaseServiceKey) {
+      throw new Error('Missing Supabase service role environment variables');
+    }
+
+    return createClient(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+    });
+  }
+
   if (!testClient) {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -31,6 +47,8 @@ export function getTestClient(): SupabaseClient {
  * Tables in order of dependency (for cleanup)
  */
 const TABLE_ORDER = [
+  'invoice_items',
+  'invoices',
   'vaccine_reactions',
   'vaccines',
   'medical_records',
@@ -54,7 +72,7 @@ const TABLE_ORDER = [
 export async function cleanupTestData(
   testIds: Partial<Record<string, string[]>>
 ): Promise<void> {
-  const client = getTestClient();
+  const client = getTestClient({ serviceRole: true });
 
   for (const table of TABLE_ORDER) {
     const ids = testIds[table];
@@ -72,7 +90,7 @@ export async function cleanupTestData(
  * Use with caution - only in isolated test environments
  */
 export async function cleanupTenantData(tenantId: string): Promise<void> {
-  const client = getTestClient();
+  const client = getTestClient({ serviceRole: true });
 
   // Delete in dependency order
   for (const table of TABLE_ORDER) {
@@ -93,13 +111,27 @@ export async function cleanupTenantData(tenantId: string): Promise<void> {
 }
 
 /**
+ * Seed tenants
+ */
+export async function seedTenants(): Promise<void> {
+  const client = getTestClient({ serviceRole: true });
+  
+  const { error } = await client.from('tenants').upsert([
+    { id: 'adris', name: 'Veterinaria Adris' },
+    { id: 'petlife', name: 'PetLife Center' },
+  ]);
+
+  if (error) throw new Error(`Failed to seed tenants: ${error.message}`);
+}
+
+/**
  * Seed minimal test data
  */
 export async function seedTestData(): Promise<{
   profileId: string;
   petId: string;
 }> {
-  const client = getTestClient();
+  const client = getTestClient({ serviceRole: true });
 
   // Create test profile
   const { data: profile, error: profileError } = await client

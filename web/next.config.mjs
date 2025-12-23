@@ -1,4 +1,9 @@
 /** @type {import('next').NextConfig} */
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -12,7 +17,7 @@ const ContentSecurityPolicy = isDev
     default-src 'self';
     script-src 'self' 'unsafe-inline' 'unsafe-eval';
     style-src 'self' 'unsafe-inline';
-    img-src 'self' blob: data: https://*.supabase.co https://assets.ruralmakro.org https://www.4pets.com.py https://www.ruralcenter.com.py https://www.bayer.com https://*.cloudinary.com https://images.unsplash.com https://assets.petco.com https://www.royalcanin.com https://www.bd.com;
+    img-src 'self' blob: data: https://*.supabase.co https://assets.ruralmakro.org https://www.4pets.com.py https://www.ruralcenter.com.py https://www.bayer.com https://*.cloudinary.com https://images.unsplash.com https://assets.petco.com https://www.royalcanin.com https://www.bd.com https://http2.mlstatic.com https://m.media-amazon.com https://cdn.shopify.com https://d36tnp772eyphs.cloudfront.net https://www.nexgard.com.ar;
     font-src 'self';
     connect-src 'self' https://*.supabase.co wss://*.supabase.co;
     frame-ancestors 'self';
@@ -21,7 +26,7 @@ const ContentSecurityPolicy = isDev
     default-src 'self';
     script-src 'self' 'unsafe-inline';
     style-src 'self' 'unsafe-inline';
-    img-src 'self' blob: data: https://*.supabase.co https://assets.ruralmakro.org https://www.4pets.com.py https://www.ruralcenter.com.py https://www.bayer.com https://*.cloudinary.com https://images.unsplash.com https://assets.petco.com https://www.royalcanin.com https://www.bd.com;
+    img-src 'self' blob: data: https://*.supabase.co https://assets.ruralmakro.org https://www.4pets.com.py https://www.ruralcenter.com.py https://www.bayer.com https://*.cloudinary.com https://images.unsplash.com https://assets.petco.com https://www.royalcanin.com https://www.bd.com https://http2.mlstatic.com https://m.media-amazon.com https://cdn.shopify.com https://d36tnp772eyphs.cloudfront.net https://www.nexgard.com.ar;
     font-src 'self';
     connect-src 'self' https://*.supabase.co wss://*.supabase.co;
     frame-ancestors 'self';
@@ -63,6 +68,10 @@ const securityHeaders = [
 ];
 
 const nextConfig = {
+  // Set workspace root to web directory to fix multiple lockfiles warning
+  // This tells Next.js that the web directory is the root for output file tracing
+  outputFileTracingRoot: __dirname,
+
   // TypeScript and ESLint settings
   // TODO: Set to false once all type errors are fixed
   typescript: {
@@ -74,6 +83,15 @@ const nextConfig = {
 
   // Webpack optimizations for better performance
   webpack: (config, { dev, isServer }) => {
+    // Optimize webpack cache to reduce serialization warnings
+    // Use Buffer for large strings to improve cache performance
+    if (config.cache) {
+      config.cache = {
+        ...config.cache,
+        compression: 'gzip',
+      };
+    }
+
     // Only apply optimizations in production builds to avoid dev issues
     if (!dev && !isServer) {
       // Aggressive code splitting to reduce chunk sizes
@@ -170,6 +188,26 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'www.bd.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'http2.mlstatic.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'm.media-amazon.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.shopify.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'd36tnp772eyphs.cloudfront.net',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.nexgard.com.ar',
       },
     ],
     formats: ['image/avif', 'image/webp'],

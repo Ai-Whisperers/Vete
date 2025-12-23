@@ -5,10 +5,10 @@
  * Useful for creating many variations of test data quickly.
  */
 
-import { getTestClient, createTestId } from './db';
+import { getTestClient } from './db';
 import { PetFixture, Species, Sex, Temperament } from '../__fixtures__/pets';
-import { VaccineFixture, VaccineStatus, VACCINE_NAMES } from '../__fixtures__/vaccines';
-import { AppointmentFixture, AppointmentStatus, AppointmentType, TIME_SLOTS } from '../__fixtures__/appointments';
+import { VaccineFixture, VACCINE_NAMES } from '../__fixtures__/vaccines';
+import { AppointmentFixture, AppointmentType, TIME_SLOTS } from '../__fixtures__/appointments';
 
 /**
  * Counter for unique sequence generation
@@ -72,6 +72,13 @@ export interface PetFactoryOptions {
   ownerId?: string;
   tenantId?: string;
   species?: Species;
+  microchipId?: string | null;
+  dietCategory?: string | null;
+  dietNotes?: string | null;
+  allergies?: string | null;
+  existingConditions?: string | null;
+  notes?: string | null;
+  photoUrl?: string | null;
   withMedicalHistory?: boolean;
 }
 
@@ -102,6 +109,13 @@ export function buildPet(overrides: Partial<PetFixture> = {}): Omit<PetFixture, 
     isNeutered: overrides.isNeutered ?? Math.random() > 0.5,
     color: overrides.color || randomItem(['Negro', 'Blanco', 'Marrón', 'Dorado', 'Gris']),
     temperament: overrides.temperament || randomItem<Temperament>(['friendly', 'shy', 'aggressive', 'unknown']),
+    microchipId: overrides.microchipId || null,
+    dietCategory: overrides.dietCategory || null,
+    dietNotes: overrides.dietNotes || null,
+    allergies: overrides.allergies || null,
+    existingConditions: overrides.existingConditions || null,
+    notes: overrides.notes || null,
+    photoUrl: overrides.photoUrl || null,
     ...overrides,
   };
 }
@@ -112,7 +126,7 @@ export function buildPet(overrides: Partial<PetFixture> = {}): Omit<PetFixture, 
 export async function createPet(
   overrides: Partial<PetFixture> = {}
 ): Promise<PetFixture> {
-  const client = getTestClient();
+  const client = getTestClient({ serviceRole: true });
   const data = buildPet(overrides);
 
   const { data: pet, error } = await client
@@ -129,6 +143,13 @@ export async function createPet(
       is_neutered: data.isNeutered,
       color: data.color,
       temperament: data.temperament,
+      microchip_number: data.microchipId,
+      diet_category: data.dietCategory,
+      diet_notes: data.dietNotes,
+      allergies: data.allergies ? [data.allergies] : [],
+      chronic_conditions: data.existingConditions ? [data.existingConditions] : [],
+      notes: data.notes,
+      photo_url: data.photoUrl,
     })
     .select()
     .single();
@@ -167,7 +188,8 @@ export function buildVaccine(
   overrides: Partial<VaccineFixture> = {}
 ): Omit<VaccineFixture, 'id'> {
   const seq = nextSequence();
-  const species = overrides.petId ? 'dog' : 'dog'; // Default to dog vaccines
+  // species assignment removed as it was unused and shadowed
+
 
   return {
     petId,
@@ -187,7 +209,7 @@ export async function createVaccine(
   petId: string,
   overrides: Partial<VaccineFixture> = {}
 ): Promise<VaccineFixture> {
-  const client = getTestClient();
+  const client = getTestClient({ serviceRole: true });
   const data = buildVaccine(petId, overrides);
 
   const { data: vaccine, error } = await client
@@ -232,7 +254,7 @@ export function buildAppointment(
     date: overrides.date || futureDate(Math.floor(Math.random() * 14) + 1),
     time: overrides.time || randomItem(TIME_SLOTS),
     duration: overrides.duration || 30,
-    status: overrides.status || 'pending',
+    status: overrides.status || 'confirmed',
     reason: overrides.reason || `Test appointment ${seq}`,
     ...overrides,
   };
@@ -244,20 +266,22 @@ export function buildAppointment(
 export async function createAppointment(
   overrides: Partial<AppointmentFixture> = {}
 ): Promise<AppointmentFixture> {
-  const client = getTestClient();
+  const client = getTestClient({ serviceRole: true });
   const data = buildAppointment(overrides);
+
+  // Create Date object from date/time (interprets as local)
+  const startDate = new Date(`${data.date}T${data.time}:00`);
+  const endDate = new Date(startDate.getTime() + (data.duration || 30) * 60000);
 
   const { data: appointment, error } = await client
     .from('appointments')
     .insert({
       tenant_id: data.tenantId,
       pet_id: data.petId,
-      owner_id: data.ownerId,
       vet_id: data.vetId,
-      type: data.type,
-      date: data.date,
-      time: data.time,
-      duration: data.duration,
+      created_by: data.vetId || '00000000-0000-0000-0000-000000000001', // Required by schema
+      start_time: startDate.toISOString(),
+      end_time: endDate.toISOString(),
       status: data.status,
       reason: data.reason,
       notes: data.notes,
@@ -310,7 +334,7 @@ export function buildProfile(
 export async function createProfile(
   overrides: Partial<ProfileData> = {}
 ): Promise<ProfileData & { id: string }> {
-  const client = getTestClient();
+  const client = getTestClient({ serviceRole: true });
   const data = buildProfile(overrides);
 
   const { data: profile, error } = await client
@@ -438,4 +462,98 @@ export async function createCompleteTestScenario(options: {
   }
 
   return { profile, pets, vaccines, appointments };
+}
+
+// =============================================================================
+// Medical Record Factory
+// =============================================================================
+
+/**
+ * Create and persist medical record
+ */
+export async function createMedicalRecord(
+  petId: string,
+  overrides: Partial<MedicalRecordData> = {}
+): Promise<MedicalRecordData & { id: string }> {
+  const client = getTestClient({ serviceRole: true });
+  const data = buildMedicalRecord(petId, overrides);
+
+  const { data: record, error } = await client
+    .from('medical_records')
+    .insert({
+      pet_id: data.petId,
+      tenant_id: data.tenantId,
+      created_by: data.performedBy || '00000000-0000-0000-0000-000000000001',
+      notes: `${data.type ? `Type: ${data.type}. ` : ''}${data.title ? `Title: ${data.title}. ` : ''}${data.diagnosis ? `Diagnosis: ${data.diagnosis}. ` : ''}${data.notes || ''}`,
+      vital_signs: data.vitals,
+    })
+    .select()
+    .single();
+
+  if (error) throw new Error(`Failed to create medical record: ${error.message}`);
+
+  return {
+    id: record.id,
+    ...data,
+  };
+}
+
+// =============================================================================
+// Invoice Factory
+// =============================================================================
+
+export interface InvoiceData {
+  id?: string;
+  tenantId: string;
+  clientId: string; // Changed from ownerId to matches schema
+  petId?: string;
+  status?: string;
+}
+
+export function buildInvoice(
+  overrides: Partial<InvoiceData> = {}
+): InvoiceData {
+  
+  return {
+    tenantId: overrides.tenantId || 'adris',
+    clientId: overrides.clientId || '00000000-0000-0000-0000-000000000001',
+    status: overrides.status || 'draft',
+    ...overrides
+  };
+}
+
+export async function createInvoice(
+  overrides: Partial<InvoiceData> = {}
+): Promise<InvoiceData & { id: string }> {
+  const client = getTestClient({ serviceRole: true });
+  const data = buildInvoice(overrides);
+
+  // Invoice Number generator dummy
+  const invoiceNumber = `INV-${Date.now()}`;
+
+  const { data: invoice, error } = await client
+    .from('invoices')
+    .insert({
+      tenant_id: data.tenantId,
+      client_id: data.clientId,
+      pet_id: data.petId,
+      invoice_number: invoiceNumber,
+      status: data.status,
+      subtotal: 0,
+      discount_amount: 0,
+      tax_rate: 10,
+      tax_amount: 0,
+      total_amount: 0,
+      amount_paid: 0,
+      balance_due: 0
+    })
+    .select()
+    .single();
+
+  if (error) throw new Error(`Failed to create invoice: ${error.message}`);
+
+  return {
+    id: invoice.id,
+    ...data,
+  };
 }

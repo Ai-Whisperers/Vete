@@ -1,0 +1,3 @@
+[dotenv@17.2.3] injecting env (5) from web\.env.local -- tip: ­ƒöÉ prevent committing .env to code: https://dotenvx.com/precommit
+SUPABASE_URL=https://okddppczckbjdotrxiev.supabase.co
+SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9rZGRwcGN6Y2tiamRvdHJ4aWV2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU5MTgzNjgsImV4cCI6MjA4MTQ5NDM2OH0.ZaGuchvSsLLH5KSqSdOZO_2Cdaoa9zLExyIL37XS5jE

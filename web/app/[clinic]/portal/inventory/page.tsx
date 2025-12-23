@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 import InventoryClient from './client';
 import { Loader2 } from 'lucide-react';
 import { getClinicData } from '@/lib/clinics';
+import { requireStaff } from '@/lib/auth';
 
 interface Props {
     params: Promise<{ clinic: string }>;
@@ -9,6 +10,10 @@ interface Props {
 
 export default async function InventoryPage({ params }: Props) {
     const { clinic } = await params;
+    
+    // SEC-007: Require staff authentication
+    await requireStaff(clinic);
+
     const clinicData = await getClinicData(clinic);
 
     const googleSheetUrl = clinicData?.config?.settings?.inventory_template_google_sheet_url || null;

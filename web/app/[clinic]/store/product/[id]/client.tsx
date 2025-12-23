@@ -77,6 +77,8 @@ export default function ProductDetailClient({ clinic, productId, clinicConfig }:
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [addingToCart, setAddingToCart] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
+  const [prescriptionFile, setPrescriptionFile] = useState('');
+  const [showPrescriptionError, setShowPrescriptionError] = useState(false);
 
   const currencySymbol = clinicConfig.settings?.currency_symbol || 'Gs';
 
@@ -115,9 +117,16 @@ export default function ProductDetailClient({ clinic, productId, clinicConfig }:
 
   const handleAddToCart = async () => {
     if (!data?.product) return;
+    const product = data.product;
+
+    if (product.is_prescription_required && !prescriptionFile.trim()) {
+      setShowPrescriptionError(true);
+      // Scroll to error if needed (omitted for brevity)
+      return;
+    }
 
     setAddingToCart(true);
-    const product = data.product;
+    
     const variant = selectedVariant
       ? product.variants.find(v => v.id === selectedVariant)
       : null;
@@ -136,6 +145,8 @@ export default function ProductDetailClient({ clinic, productId, clinicConfig }:
       stock: variant ? variant.stock_quantity : (product.inventory?.stock_quantity || 0),
       variant_id: variant?.id,
       sku: variant?.sku || product.sku || undefined,
+      requires_prescription: product.is_prescription_required,
+      prescription_file: product.is_prescription_required ? prescriptionFile : undefined,
     }, quantity);
 
     setAddingToCart(false);
@@ -498,17 +509,39 @@ export default function ProductDetailClient({ clinic, productId, clinicConfig }:
               </button>
             </div>
 
-            {/* Prescription Warning */}
+            {/* Prescription Warning & Input */}
             {product.is_prescription_required && (
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
-                <div className="flex items-start gap-3">
+              <div className={`bg-amber-50 border rounded-lg p-4 mb-6 ${showPrescriptionError ? 'border-red-500 ring-1 ring-red-500' : 'border-amber-200'}`}>
+                <div className="flex items-start gap-3 mb-3">
                   <FileText className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
                   <div>
                     <p className="font-medium text-amber-800">Requiere Receta Veterinaria</p>
                     <p className="text-sm text-amber-700 mt-1">
-                      Este producto requiere una receta válida. Deberás presentarla al momento de la compra.
+                      Este producto requiere una receta válida.
                     </p>
                   </div>
+                </div>
+                
+                <div className="mt-2">
+                  <label htmlFor="prescription" className="block text-sm font-medium text-amber-900 mb-1">
+                    Link a tu receta (Drive, Dropbox, etc.) <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="url"
+                    id="prescription"
+                    value={prescriptionFile}
+                    onChange={(e) => {
+                      setPrescriptionFile(e.target.value);
+                      if (e.target.value.trim()) setShowPrescriptionError(false);
+                    }}
+                    placeholder="https://..."
+                    className="w-full px-3 py-2 bg-white border border-amber-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm"
+                  />
+                  {showPrescriptionError && (
+                    <p className="text-xs text-red-600 mt-1 font-medium">
+                      Por favor ingresá el link de tu receta para continuar.
+                    </p>
+                  )}
                 </div>
               </div>
             )}

@@ -18,6 +18,12 @@ interface StockError {
   available: number;
 }
 
+interface PrescriptionError {
+  id: string;
+  name: string;
+  error: string;
+}
+
 interface CheckoutResult {
   success: boolean;
   invoice?: {
@@ -27,6 +33,7 @@ interface CheckoutResult {
   };
   error?: string;
   stockErrors?: StockError[];
+  prescriptionErrors?: PrescriptionError[]; // Added support for prescription errors
 }
 
 interface CheckoutClientProps {
@@ -45,6 +52,7 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
   const [checkoutResult, setCheckoutResult] = useState<CheckoutResult | null>(null);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [stockErrors, setStockErrors] = useState<StockError[]>([]);
+  const [prescriptionErrors, setPrescriptionErrors] = useState<PrescriptionError[]>([]);
 
   // Organize cart by owner products and pet services
   const organizedCart = useMemo(() => organizeCart(items), [items]);
@@ -56,6 +64,7 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
     setIsProcessing(true);
     setCheckoutError(null);
     setStockErrors([]);
+    setPrescriptionErrors([]);
 
     try {
       const response = await fetch('/api/store/checkout', {
@@ -76,6 +85,11 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
               service_id: item.service_id,
               variant_name: item.variant_name,
               base_price: item.base_price
+            }),
+            // Include product-specific info including prescription
+            ...(item.type === 'product' && {
+              requires_prescription: item.requires_prescription,
+              prescription_file: item.prescription_file
             })
           })),
           clinic
@@ -91,6 +105,9 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
         setCheckoutError(result.error || 'Error al procesar el pedido');
         if (result.stockErrors) {
           setStockErrors(result.stockErrors);
+        }
+        if (result.prescriptionErrors) {
+          setPrescriptionErrors(result.prescriptionErrors);
         }
       }
     } catch (e) {
@@ -236,6 +253,15 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
                 {stockErrors.map((err) => (
                   <li key={err.id}>
                     {err.name}: Solicitado {err.requested}, disponible {err.available}
+                  </li>
+                ))}
+              </ul>
+            )}
+            {prescriptionErrors.length > 0 && (
+              <ul className="mt-2 text-sm text-red-600">
+                {prescriptionErrors.map((err) => (
+                  <li key={err.id}>
+                    {err.name}: {err.error}
                   </li>
                 ))}
               </ul>

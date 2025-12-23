@@ -14,6 +14,8 @@ interface CartItem {
   price: number;
   type: 'service' | 'product';
   quantity: number;
+  requires_prescription?: boolean;
+  prescription_file?: string;
 }
 
 interface CheckoutRequest {
@@ -27,6 +29,12 @@ interface StockError {
   name: string;
   requested: number;
   available: number;
+}
+
+interface PrescriptionError {
+  id: string;
+  name: string;
+  error: string;
 }
 
 export async function POST(request: Request) {
@@ -90,7 +98,9 @@ export async function POST(request: Request) {
         name: item.name,
         price: item.price,
         quantity: item.quantity,
-        type: item.type
+        type: item.type,
+        requires_prescription: item.requires_prescription,
+        prescription_file: item.prescription_file
       }))),
       p_notes: notes || 'Pedido desde tienda online'
     });
@@ -108,6 +118,7 @@ export async function POST(request: Request) {
       success: boolean;
       error?: string;
       stock_errors?: StockError[];
+      prescription_errors?: PrescriptionError[];
       invoice?: {
         id: string;
         invoice_number: string;
@@ -122,6 +133,13 @@ export async function POST(request: Request) {
         return NextResponse.json({
           error: result.error || 'Stock insuficiente para algunos productos',
           stockErrors: result.stock_errors
+        }, { status: 400 });
+      }
+
+      if (result.prescription_errors && result.prescription_errors.length > 0) {
+        return NextResponse.json({
+          error: result.error || 'Falta receta médica para algunos productos',
+          prescriptionErrors: result.prescription_errors
         }, { status: 400 });
       }
 

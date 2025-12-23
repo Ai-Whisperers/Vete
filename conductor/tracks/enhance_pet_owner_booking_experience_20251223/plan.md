@@ -25,7 +25,7 @@ Modernize and streamline the appointment scheduling interface for pet owners.
   - [x] Task: Refactor Multi-day Availability View
 - [x] Task: Conductor - User Manual Verification 'UI/UX Enhancements for Scheduling Interface' (Protocol in workflow.md)
 
-## Phase 2: Confirmation, Reminders, and Pre-filling
+## Phase 2: Confirmation, Reminders, and Pre-filling [x]
 
 ### Goal
 Improve communication around appointments and streamline the booking process for returning users.
@@ -46,7 +46,7 @@ Improve communication around appointments and streamline the booking process for
   - [x] Task: Write Failing Tests for Pet and Service Pre-selection
   - [x] Task: Implement to Pass Tests for Pet and Service Pre-selection
   - [x] Task: Refactor Pet and Service Pre-selection
-- [ ] Task: Conductor - User Manual Verification 'Confirmation, Reminders, and Pre-filling' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Confirmation, Reminders, and Pre-filling' (Protocol in workflow.md)
 
 ## Phase 3: Backend API Support and Integration
 

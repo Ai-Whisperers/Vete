@@ -31,9 +31,9 @@ Modernize and streamline the appointment scheduling interface for pet owners.
 Improve communication around appointments and streamline the booking process for returning users.
 
 - [ ] Task: Implement Instant Email Confirmation
-  - [ ] Task: Write Failing Tests for Email Confirmation
-  - [ ] Task: Implement to Pass Tests for Email Confirmation
-  - [ ] Task: Refactor Email Confirmation
+  - [x] Task: Write Failing Tests for Email Confirmation
+  - [x] Task: Implement to Pass Tests for Email Confirmation
+  - [x] Task: Refactor Email Confirmation
 - [ ] Task: Implement Configurable Email/SMS Reminders
   - [ ] Task: Write Failing Tests for Configurable Reminders
   - [ ] Task: Implement to Pass Tests for Configurable Reminders

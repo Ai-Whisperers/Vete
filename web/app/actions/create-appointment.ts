@@ -5,6 +5,8 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
 import { ActionResult, FieldErrors } from '@/lib/types/action-result'
+import { sendConfirmationEmail } from '@/web/lib/email-service'
+import { generateAppointmentConfirmationEmail } from '@/web/lib/email-templates'
 
 const createAppointmentSchema = z.object({
   pet_id: z
@@ -121,12 +123,34 @@ export async function createAppointment(prevState: ActionResult | null, formData
   const start = new Date(start_time)
   const end = new Date(start.getTime() + 30 * 60000)
 
-  // Check for overlapping appointments
+  // Check for overlapping appointments (Global Clinic check)
+  // Prevent double booking the same slot
+  const { data: busySlot } = await supabase
+    .from('appointments')
+    .select('id')
+    .eq('tenant_id', pet.tenant_id)
+    .not('status', 'in', '("cancelled")') // Ignore cancelled
+    .lt('start_time', end.toISOString())
+    .gt('end_time', start.toISOString())
+    .maybeSingle()
+
+  if (busySlot) {
+    return {
+      success: false,
+      error: 'Este horario ya está ocupado.',
+      fieldErrors: {
+        start_time: 'El horario seleccionado no está disponible. Por favor elige otro.'
+      }
+    }
+  }
+
+  // Check for Same Pet multiple appointments (Business Rule: 1 per day?)
+  // Existing logic kept but optimized
   const { data: existingAppointments } = await supabase
     .from('appointments')
     .select('id, start_time')
     .eq('pet_id', pet_id)
-    .eq('status', 'pending')
+    .neq('status', 'cancelled') // Fix: explicitly exclude cancelled instead of just "pending"
     .gte('start_time', new Date().toISOString())
 
   if (existingAppointments && existingAppointments.length > 0) {
@@ -142,9 +166,9 @@ export async function createAppointment(prevState: ActionResult | null, formData
       })
       return {
         success: false,
-        error: `${pet.name} ya tiene una cita programada para este día.`,
+        error: `${pet.name} ya tiene una cita para este día.`,
         fieldErrors: {
-          start_time: `Ya existe una cita a las ${existingTime}. Elige otro día u horario.`
+          start_time: `Ya existe una cita a las ${existingTime}.`
         }
       }
     }
@@ -179,6 +203,29 @@ export async function createAppointment(prevState: ActionResult | null, formData
       success: false,
       error: 'No se pudo agendar la cita. Por favor, intenta de nuevo en unos minutos.'
     }
+  }
+
+  }
+
+  // Send Confirmation Email
+  try {
+    const userEmail = user.email || 'correo_desconocido@example.com'; // Fallback if email is not available
+    const userName = user.user_metadata?.full_name || user.email; // Fallback for name
+
+    await sendConfirmationEmail({
+      to: userEmail,
+      subject: `Confirmación de Cita para ${pet.name} en ${clinic}`,
+      body: generateAppointmentConfirmationEmail({
+        userName: userName,
+        petName: pet.name,
+        reason: reason,
+        dateTime: new Date(start.toISOString()).toLocaleString('es-PY', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
+        clinicName: clinic,
+      }),
+    });
+  } catch (emailError) {
+    console.error('Error sending confirmation email:', emailError);
+    // Continue with the appointment process even if email sending fails
   }
 
   revalidatePath(`/${clinic}/portal/dashboard`)

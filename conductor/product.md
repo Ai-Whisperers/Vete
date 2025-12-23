@@ -6,7 +6,9 @@ A multi-tenant SaaS veterinary clinic management platform designed to host multi
 ## Target Audience and Key Features
 
 ### Pet Owners
-*   Schedule appointments
+*   Schedule appointments with an enhanced, intuitive, and responsive interface, including multi-day availability, pre-selection, instant confirmations, and reminders.
+*   Receive configurable email/SMS appointment reminders.
+*   Add appointments directly to personal calendars.
 *   Purchase products
 *   View their pet's records
 *   Post lost and found pets

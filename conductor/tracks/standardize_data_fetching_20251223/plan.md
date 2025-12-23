@@ -39,9 +39,9 @@
 - [x] **Task:** Refactor the Shopping Cart and Checkout flow.
 - [x] **Task:** Conductor - User Manual Verification 'Phase 4: Application Rollout - E-commerce Features' (Protocol in workflow.md)
 
-### Phase 5: Application Rollout - Community Features
-- [ ] **Task:** Refactor the Lost & Found Pets feature pages.
-- [ ] **Task:** Conductor - User Manual Verification 'Phase 5: Application Rollout - Community Features' (Protocol in workflow.md)
+### Phase 5: Application Rollout - Community Features [x]
+- [x] **Task:** Refactor the Lost & Found Pets feature pages.
+- [x] **Task:** Conductor - User Manual Verification 'Phase 5: Application Rollout - Community Features' (Protocol in workflow.md)
 
 ### Phase 6: Final Sweep and Cleanup
 - [ ] **Task:** Audit the codebase for any remaining legacy data fetching patterns.

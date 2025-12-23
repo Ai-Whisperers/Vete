@@ -39,9 +39,9 @@ Improve communication around appointments and streamline the booking process for
   - [x] Task: Implement to Pass Tests for Configurable Reminders
   - [x] Task: Refactor Configurable Reminders
 - [ ] Task: Implement "Add to Calendar" Option
-  - [ ] Task: Write Failing Tests for "Add to Calendar"
-  - [ ] Task: Implement to Pass Tests for "Add to Calendar"
-  - [ ] Task: Refactor "Add to Calendar"
+  - [x] Task: Write Failing Tests for "Add to Calendar"
+  - [x] Task: Implement to Pass Tests for "Add to Calendar"
+  - [x] Task: Refactor "Add to Calendar"
 - [ ] Task: Implement Pet and Service Pre-selection/Pre-filling
   - [ ] Task: Write Failing Tests for Pet and Service Pre-selection
   - [ ] Task: Implement to Pass Tests for Pet and Service Pre-selection

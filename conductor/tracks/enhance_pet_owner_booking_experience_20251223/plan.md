@@ -15,14 +15,14 @@ Modernize and streamline the appointment scheduling interface for pet owners.
   - [x] Task: Write Failing Tests for Date and Time Display
   - [x] Task: Implement to Pass Tests for Date and Time Display
   - [x] Task: Refactor Date and Time Display
-- [ ] Task: Implement Intuitive Service and Veterinarian Selection
+- [x] Task: Implement Intuitive Service and Veterinarian Selection
   - [x] Task: Write Failing Tests for Service and Veterinarian Selection
   - [x] Task: Implement to Pass Tests for Service and Veterinarian Selection
   - [x] Task: Refactor Service and Veterinarian Selection
 - [ ] Task: Implement Multi-day Availability View
-  - [ ] Task: Write Failing Tests for Multi-day Availability View
-  - [ ] Task: Implement to Pass Tests for Multi-day Availability View
-  - [ ] Task: Refactor Multi-day Availability View
+  - [x] Task: Write Failing Tests for Multi-day Availability View
+  - [x] Task: Implement to Pass Tests for Multi-day Availability View
+  - [x] Task: Refactor Multi-day Availability View
 - [ ] Task: Conductor - User Manual Verification 'UI/UX Enhancements for Scheduling Interface' (Protocol in workflow.md)
 
 ## Phase 2: Confirmation, Reminders, and Pre-filling

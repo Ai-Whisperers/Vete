@@ -42,7 +42,11 @@ const loginSchema = z.object({
 });
 
 const passwordResetSchema = z.object({
-  email: z.string().email("Formato de correo electrónico inválido").toLowerCase().trim(),
+  email: z.string()
+    .min(1, "El correo electrónico es requerido")
+    .email("Formato de correo electrónico inválido")
+    .toLowerCase()
+    .trim(),
   clinic: z.string().min(1, "La clínica es requerida"),
 });
 

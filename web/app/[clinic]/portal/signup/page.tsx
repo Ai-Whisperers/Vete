@@ -6,6 +6,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import * as Icons from "lucide-react";
 import { signup } from "@/app/auth/actions";
 import { createClient } from "@/lib/supabase/client";
+import { PasswordInput } from "@/components/ui/password-input";
 
 export default function SignupPage({ params }: { params: Promise<{ clinic: string }> }) {
   const { clinic } = use(params);
@@ -119,14 +120,14 @@ export default function SignupPage({ params }: { params: Promise<{ clinic: strin
             <div>
                 <label htmlFor="signup-password" className="block text-sm font-bold text-[var(--text-secondary)] mb-1">Contraseña</label>
                 <div className="relative">
-                    <Icons.Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input
+                    <Icons.Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 z-10" />
+                    <PasswordInput
                         id="signup-password"
                         name="password"
                         required
-                        type="password"
                         placeholder="••••••••"
-                        className="w-full pl-12 pr-4 py-3 min-h-[48px] rounded-xl border border-gray-200 focus:border-[var(--primary)] focus:border-2 outline-none transition-all"
+                        className="pl-12"
+                        showStrength
                     />
                 </div>
             </div>

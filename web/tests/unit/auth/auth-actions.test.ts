@@ -17,6 +17,16 @@ vi.mock('next/navigation', () => ({
   }),
 }));
 
+// Mock next/headers
+vi.mock('next/headers', () => ({
+  headers: vi.fn().mockResolvedValue({
+    get: vi.fn((key) => {
+      if (key === 'x-forwarded-for') return '127.0.0.1';
+      return null;
+    }),
+  }),
+}));
+
 import { createClient } from '@/lib/supabase/server';
 import {
   requestPasswordReset,

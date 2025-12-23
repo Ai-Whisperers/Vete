@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
 import { ActionResult, FieldErrors } from '@/lib/types/action-result'
-import { sendConfirmationEmail } from '@/web/lib/email-service'
+import { sendConfirmationEmail } from '@/web/lib/notification-service'
 import { generateAppointmentConfirmationEmail } from '@/web/lib/email-templates'
 
 const createAppointmentSchema = z.object({

@@ -35,9 +35,9 @@ Improve communication around appointments and streamline the booking process for
   - [x] Task: Implement to Pass Tests for Email Confirmation
   - [x] Task: Refactor Email Confirmation
 - [ ] Task: Implement Configurable Email/SMS Reminders
-  - [ ] Task: Write Failing Tests for Configurable Reminders
-  - [ ] Task: Implement to Pass Tests for Configurable Reminders
-  - [ ] Task: Refactor Configurable Reminders
+  - [x] Task: Write Failing Tests for Configurable Reminders
+  - [x] Task: Implement to Pass Tests for Configurable Reminders
+  - [x] Task: Refactor Configurable Reminders
 - [ ] Task: Implement "Add to Calendar" Option
   - [ ] Task: Write Failing Tests for "Add to Calendar"
   - [ ] Task: Implement to Pass Tests for "Add to Calendar"

@@ -11,14 +11,14 @@ Modernize and streamline the appointment scheduling interface for pet owners.
   - [~] Task: Write Failing Tests for Responsive UI
   - [x] Task: Implement to Pass Tests for Responsive UI
   - [x] Task: Refactor Responsive UI
-- [ ] Task: Implement Clearer Date and Time Display
+- [x] Task: Implement Clearer Date and Time Display
   - [x] Task: Write Failing Tests for Date and Time Display
   - [x] Task: Implement to Pass Tests for Date and Time Display
   - [x] Task: Refactor Date and Time Display
 - [ ] Task: Implement Intuitive Service and Veterinarian Selection
-  - [ ] Task: Write Failing Tests for Service and Veterinarian Selection
-  - [ ] Task: Implement to Pass Tests for Service and Veterinarian Selection
-  - [ ] Task: Refactor Service and Veterinarian Selection
+  - [x] Task: Write Failing Tests for Service and Veterinarian Selection
+  - [x] Task: Implement to Pass Tests for Service and Veterinarian Selection
+  - [x] Task: Refactor Service and Veterinarian Selection
 - [ ] Task: Implement Multi-day Availability View
   - [ ] Task: Write Failing Tests for Multi-day Availability View
   - [ ] Task: Implement to Pass Tests for Multi-day Availability View

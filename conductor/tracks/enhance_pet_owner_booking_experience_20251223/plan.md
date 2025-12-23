@@ -43,9 +43,9 @@ Improve communication around appointments and streamline the booking process for
   - [x] Task: Implement to Pass Tests for "Add to Calendar"
   - [x] Task: Refactor "Add to Calendar"
 - [ ] Task: Implement Pet and Service Pre-selection/Pre-filling
-  - [ ] Task: Write Failing Tests for Pet and Service Pre-selection
-  - [ ] Task: Implement to Pass Tests for Pet and Service Pre-selection
-  - [ ] Task: Refactor Pet and Service Pre-selection
+  - [x] Task: Write Failing Tests for Pet and Service Pre-selection
+  - [x] Task: Implement to Pass Tests for Pet and Service Pre-selection
+  - [x] Task: Refactor Pet and Service Pre-selection
 - [ ] Task: Conductor - User Manual Verification 'Confirmation, Reminders, and Pre-filling' (Protocol in workflow.md)
 
 ## Phase 3: Backend API Support and Integration

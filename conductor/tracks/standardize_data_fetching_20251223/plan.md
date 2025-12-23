@@ -28,11 +28,11 @@
   - [x] Sub-task: Update `DATA_FETCHING_STANDARD.md` with examples from the dashboard refactor.
 - [x] **Task:** Conductor - User Manual Verification 'Phase 2: Reference Implementation (Clinic Dashboard)' (Protocol in workflow.md)
 
-### Phase 3: Application Rollout - Core Features
-- [ ] **Task:** Refactor the entire Authentication flow (Login, Signup, Profile pages).
-- [ ] **Task:** Refactor the entire Appointment Management flow (Scheduling, Viewing, etc.).
-- [ ] **Task:** Refactor the entire Pet Records flow.
-- [ ] **Task:** Conductor - User Manual Verification 'Phase 3: Application Rollout - Core Features' (Protocol in workflow.md)
+### Phase 3: Application Rollout - Core Features [x]
+- [x] **Task:** Refactor the entire Authentication flow (Login, Signup, Profile pages).
+- [x] **Task:** Refactor the entire Appointment Management flow (Scheduling, Viewing, etc.).
+- [x] **Task:** Refactor the entire Pet Records flow.
+- [x] **Task:** Conductor - User Manual Verification 'Phase 3: Application Rollout - Core Features' (Protocol in workflow.md)
 
 ### Phase 4: Application Rollout - E-commerce Features
 - [ ] **Task:** Refactor the Product Listing and Product Details pages.

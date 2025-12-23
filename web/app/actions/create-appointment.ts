@@ -7,37 +7,40 @@ import { z } from 'zod'
 import { ActionResult, FieldErrors } from '@/lib/types/action-result'
 import { sendConfirmationEmail } from '@/web/lib/notification-service'
 import { generateAppointmentConfirmationEmail } from '@/web/lib/email-templates'
+import { ERROR_MESSAGES } from '@/web/lib/constants'
 
 const createAppointmentSchema = z.object({
+  clinic: z
+    .string()
+    .min(1, ERROR_MESSAGES.CLINIC_IDENTIFICATION_FAILED),
   pet_id: z
     .string()
-    .min(1, "Debes seleccionar una mascota")
-    .uuid("ID de mascota inválido"),
+    .min(1, ERROR_MESSAGES.REQUIRED_PET_SELECTION)
+    .uuid(ERROR_MESSAGES.INVALID_PET_ID),
 
   start_time: z
     .string()
-    .min(1, "La fecha y hora son obligatorias")
+    .min(1, ERROR_MESSAGES.REQUIRED_DATETIME)
     .refine(val => {
       const date = new Date(val);
       return !isNaN(date.getTime());
-    }, { message: "Fecha y hora inválidas" })
+    }, { message: ERROR_MESSAGES.INVALID_DATETIME })
     .refine(val => {
       const date = new Date(val);
       const now = new Date();
-      // Allow appointments at least 15 minutes in the future
-      now.setMinutes(now.getMinutes() + 15);
+      now.setMinutes(now.getMinutes() + 15); // At least 15 minutes in the future
       return date >= now;
-    }, { message: "La cita debe ser al menos 15 minutos en el futuro" }),
+    }, { message: ERROR_MESSAGES.APPOINTMENT_TOO_SOON }),
 
   reason: z
     .string()
-    .min(1, "El motivo de la consulta es obligatorio")
-    .min(3, "Describe brevemente el motivo (mínimo 3 caracteres)")
-    .max(200, "El motivo no puede exceder 200 caracteres"),
+    .min(1, ERROR_MESSAGES.REQUIRED_REASON)
+    .min(3, ERROR_MESSAGES.SHORT_REASON)
+    .max(200, ERROR_MESSAGES.LONG_REASON),
 
   notes: z
     .string()
-    .max(1000, "Las notas no pueden exceder 1000 caracteres")
+    .max(1000, ERROR_MESSAGES.LONG_NOTES)
     .optional()
     .transform(val => val?.trim() || null),
 });
@@ -50,21 +53,15 @@ export async function createAppointment(prevState: ActionResult | null, formData
   if (authError || !user) {
     return {
       success: false,
-      error: 'Debes iniciar sesión para agendar una cita. Por favor, inicia sesión y vuelve a intentarlo.'
+      error: ERROR_MESSAGES.LOGIN_REQUIRED
     }
   }
 
   const clinic = formData.get('clinic') as string
 
-  if (!clinic) {
-    return {
-      success: false,
-      error: 'No se pudo identificar la clínica. Por favor, recarga la página.'
-    }
-  }
-
   // Extract form data
   const rawData = {
+    clinic: clinic,
     pet_id: formData.get('pet_id') as string,
     start_time: formData.get('start_time') as string,
     reason: formData.get('reason') as string,
@@ -85,7 +82,7 @@ export async function createAppointment(prevState: ActionResult | null, formData
 
     return {
       success: false,
-      error: 'Por favor, revisa los campos marcados en rojo.',
+      error: ERROR_MESSAGES.REVIEW_FIELDS,
       fieldErrors
     }
   }
@@ -102,9 +99,9 @@ export async function createAppointment(prevState: ActionResult | null, formData
   if (!pet) {
     return {
       success: false,
-      error: 'Mascota no encontrada.',
+      error: ERROR_MESSAGES.PET_NOT_FOUND,
       fieldErrors: {
-        pet_id: 'La mascota seleccionada no existe o fue eliminada. Selecciona otra mascota.'
+        pet_id: ERROR_MESSAGES.PET_NOT_FOUND
       }
     }
   }
@@ -112,9 +109,9 @@ export async function createAppointment(prevState: ActionResult | null, formData
   if (pet.owner_id !== user.id) {
     return {
       success: false,
-      error: 'No tienes permiso para agendar citas para esta mascota.',
+      error: ERROR_MESSAGES.UNAUTHORIZED_PET_ACCESS,
       fieldErrors: {
-        pet_id: 'Solo puedes agendar citas para tus propias mascotas.'
+        pet_id: ERROR_MESSAGES.UNAUTHORIZED_PET_ACCESS
       }
     }
   }
@@ -137,9 +134,9 @@ export async function createAppointment(prevState: ActionResult | null, formData
   if (busySlot) {
     return {
       success: false,
-      error: 'Este horario ya está ocupado.',
+      error: ERROR_MESSAGES.SLOT_ALREADY_TAKEN,
       fieldErrors: {
-        start_time: 'El horario seleccionado no está disponible. Por favor elige otro.'
+        start_time: ERROR_MESSAGES.SLOT_ALREADY_TAKEN
       }
     }
   }
@@ -166,9 +163,9 @@ export async function createAppointment(prevState: ActionResult | null, formData
       })
       return {
         success: false,
-        error: `${pet.name} ya tiene una cita para este día.`,
+        error: ERROR_MESSAGES.APPOINTMENT_ON_SAME_DAY(pet.name, existingTime),
         fieldErrors: {
-          start_time: `Ya existe una cita a las ${existingTime}.`
+          start_time: ERROR_MESSAGES.APPOINTMENT_ON_SAME_DAY(pet.name, existingTime).split('. ')[1] // Extracting just the second sentence
         }
       }
     }
@@ -192,16 +189,16 @@ export async function createAppointment(prevState: ActionResult | null, formData
     if (insertError.code === '23505') {
       return {
         success: false,
-        error: 'Ya existe una cita en este horario.',
+        error: ERROR_MESSAGES.SLOT_ALREADY_TAKEN, // Re-using for unique constraint, which implies slot taken
         fieldErrors: {
-          start_time: 'Este horario ya está ocupado. Por favor, elige otro.'
+          start_time: ERROR_MESSAGES.SLOT_ALREADY_TAKEN
         }
       }
     }
 
     return {
       success: false,
-      error: 'No se pudo agendar la cita. Por favor, intenta de nuevo en unos minutos.'
+      error: ERROR_MESSAGES.GENERIC_APPOINTMENT_ERROR
     }
   }
 

@@ -4,23 +4,14 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-## [~] Track: Adopt a Schema Validation Library
-*Link: [./conductor/tracks/adopt_schema_validation_20251223/](./conductor/tracks/adopt_schema_validation_20251223/)*
-
----
-
-## [ ] Track: Set Up a Component Documentation System
-*Link: [./conductor/tracks/setup_component_docs_20251223/](./conductor/tracks/setup_component_docs_20251223/)*
-
----
-
-## [ ] Track: Implement API Mocking
+## [x] Track: Implement API Mocking
 *Link: [./conductor/tracks/implement_api_mocking_20251223/](./conductor/tracks/implement_api_mocking_20251223/)*
 
 ---
 
-## [ ] Track: Fix Tenant Access Control
+## [~] Track: Fix Tenant Access Control
 *Link: [./conductor/tracks/fix_tenant_access_control_20251223/](./conductor/tracks/fix_tenant_access_control_20251223/)*
+**Status:** Phase 1 Complete ✅ | Phase 2 In Progress 🔍 | 114 API routes need refactoring
 
 ---
 
@@ -34,7 +25,7 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-## [ ] Track: Resolve TypeScript and ESLint Errors
+## [x] Track: Resolve TypeScript and ESLint Errors
 *Link: [./conductor/tracks/resolve_lint_type_errors_20251223/](./conductor/tracks/resolve_lint_type_errors_20251223/)*
 
 ---
@@ -84,11 +75,6 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-## [ ] Track: Automate Clinic Data Seeding
-*Link: [./conductor/tracks/automate_clinic_seeding_20251223/](./conductor/tracks/automate_clinic_seeding_20251223/)*
-
----
-
 ## [ ] Track: Create Component Library Roadmap
 *Link: [./conductor/tracks/component_library_roadmap_20251223/](./conductor/tracks/component_library_roadmap_20251223/)*
 
@@ -96,3 +82,12 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ## [ ] Track: Increase Unit Test Coverage
 *Link: [./conductor/tracks/increase_unit_test_coverage_20251223/](./conductor/tracks/increase_unit_test_coverage_20251223/)*
+---
+
+## [ ] Track: Optimize AI Tooling & Configuration
+*Link: [./conductor/tracks/optimize_ai_tooling_20251223/](./conductor/tracks/optimize_ai_tooling_20251223/)*
+
+---
+
+## [ ] Track: MVP Core Veterinary Platform
+*Link: [./conductor/tracks/mvp_core_platform_20251226/](./conductor/tracks/mvp_core_platform_20251226/)*

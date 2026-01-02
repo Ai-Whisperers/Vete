@@ -34,7 +34,11 @@ export function UserMenu({
             : "text-[var(--text-secondary)] hover:text-[var(--primary)]"
         }`}
       >
+<<<<<<< HEAD
         {user ? (config.ui_labels?.nav.my_account || "Mi Portal") : (config.ui_labels?.nav.login || "Iniciar Sesión")}
+=======
+        {user ? (config.ui_labels?.nav.my_portal || "Mi Portal") : (config.ui_labels?.nav.login || "Iniciar Sesión")}
+>>>>>>> cc104e4 (feat: Introduce command palette, refactor calendar and pets-by-owner components, add new pages, server actions, and extensive database schema updates with security fixes and testing documentation.)
         <span
           className={`absolute -bottom-1 left-0 h-0.5 bg-[var(--primary)] transition-all duration-300 ${
             isActive(`/${clinic}/portal`) ? "w-full" : "w-0 group-hover:w-full"

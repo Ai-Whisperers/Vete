@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+<<<<<<< HEAD
 import { createServerClient } from '@supabase/ssr'
 
 export async function middleware(request: NextRequest) {
@@ -147,6 +148,19 @@ export async function middleware(request: NextRequest) {
   // For now, simple auth check (already done) is enough.
 
   return response
+=======
+
+export function middleware(request: NextRequest) {
+  // Add pathname to headers for layout to access
+  const requestHeaders = new Headers(request.headers)
+  requestHeaders.set('x-pathname', request.nextUrl.pathname)
+
+  return NextResponse.next({
+    request: {
+      headers: requestHeaders,
+    },
+  })
+>>>>>>> cc104e4 (feat: Introduce command palette, refactor calendar and pets-by-owner components, add new pages, server actions, and extensive database schema updates with security fixes and testing documentation.)
 }
 
 export const config = {

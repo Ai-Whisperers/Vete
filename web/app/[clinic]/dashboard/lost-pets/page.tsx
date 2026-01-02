@@ -73,29 +73,32 @@ function LostPetsPage(): JSX.Element {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedReport, setSelectedReport] = useState<LostPetReport | null>(null);
 
-import { getLostPets, updateLostPetStatus } from '@/app/actions/safety';
-
-// ... inside LostPetsPage component ...
-
   const { data: reports = [], isLoading: loading } = useQuery<LostPetReport[]>({
-    queryKey: ['lostPets', filter, clinic],
+    queryKey: ['lostPets', filter],
     queryFn: async () => {
-      const result = await getLostPets(clinic, filter);
-      if (!result.success) throw new Error(result.error);
-      return result.data as unknown as LostPetReport[];
+      const url = filter === 'all'
+        ? '/api/lost-pets'
+        : `/api/lost-pets?status=${filter}`;
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Error al cargar');
+      const result = await response.json();
+      return result.data || [];
     },
   });
 
   const { mutate: updateStatus, isPending: updating } = useMutation({
     mutationFn: ({ id, newStatus }: { id: string; newStatus: string }) => 
-      updateLostPetStatus(clinic, id, newStatus),
-    onSuccess: (result) => {
-      if (result.success) {
-        queryClient.invalidateQueries({ queryKey: ['lostPets'] });
-        setSelectedReport(null);
-      } else {
-        alert(result.error || 'Error al actualizar');
-      }
+      fetch('/api/lost-pets', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, status: newStatus }),
+      }).then(res => {
+        if (!res.ok) throw new Error('Error al actualizar');
+        return res.json();
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['lostPets'] });
+      setSelectedReport(null);
     },
     onError: () => {
       alert('Error al actualizar estado');

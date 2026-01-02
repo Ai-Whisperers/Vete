@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getReminderPreference, setUserReminderPreference } from '@/web/lib/user-preferences';
+import { getReminderPreference, setUserReminderPreference } from '@/lib/user-preferences';
 
 // Mock function to simulate getting user-specific data from a session or DB
 // In a real app, this would get the actual authenticated user ID

@@ -1,12 +1,10 @@
 "use client";
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useAuthRedirect } from '@/hooks/useAuthRedirect';
 import { useCart } from '@/context/cart-context';
 import Link from 'next/link';
-import { ShoppingBag, Printer, MessageCircle, Loader2, AlertCircle, CheckCircle, Stethoscope, Package, PawPrint, User, ArrowLeft, Edit3 } from 'lucide-react';
-import { SIZE_SHORT_LABELS, SIZE_LABELS, getSizeBadgeColor, formatPriceGs, type PetSizeCategory } from '@/lib/utils/pet-size';
-import { organizeCart } from '@/lib/utils/cart-utils';
+import { ShoppingBag, Printer, MessageCircle, Loader2, AlertCircle, CheckCircle } from 'lucide-react';
 import type { ClinicConfig } from '@/lib/clinics';
 
 // TICKET-BIZ-003: Proper checkout with stock validation
@@ -18,12 +16,6 @@ interface StockError {
   available: number;
 }
 
-interface PrescriptionError {
-  id: string;
-  name: string;
-  error: string;
-}
-
 interface CheckoutResult {
   success: boolean;
   invoice?: {
@@ -33,7 +25,6 @@ interface CheckoutResult {
   };
   error?: string;
   stockErrors?: StockError[];
-  prescriptionErrors?: PrescriptionError[]; // Added support for prescription errors
 }
 
 interface CheckoutClientProps {
@@ -52,33 +43,41 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
   const [checkoutResult, setCheckoutResult] = useState<CheckoutResult | null>(null);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [stockErrors, setStockErrors] = useState<StockError[]>([]);
-  const [prescriptionErrors, setPrescriptionErrors] = useState<PrescriptionError[]>([]);
-
-  // Organize cart by owner products and pet services
-  const organizedCart = useMemo(() => organizeCart(items), [items]);
 
   if (loading) return <div className="p-4">Loading...</div>;
   if (!user) return null;
-
-import { checkoutOrder } from '@/app/actions/store';
-
-// ... (inside CheckoutClient component)
 
   const handleCheckout = async () => {
     setIsProcessing(true);
     setCheckoutError(null);
     setStockErrors([]);
-    setPrescriptionErrors([]);
 
     try {
-      const result = await checkoutOrder(clinic, items);
+      const response = await fetch('/api/store/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          items: items.map(item => ({
+            id: item.id,
+            name: item.name,
+            price: item.price,
+            type: item.type,
+            quantity: item.quantity
+          })),
+          clinic
+        })
+      });
 
-      if (result.success) {
-        setCheckoutResult(result as any);
+      const result: CheckoutResult = await response.json();
+
+      if (response.ok && result.success) {
+        setCheckoutResult(result);
         clearCart();
       } else {
         setCheckoutError(result.error || 'Error al procesar el pedido');
-        // Handle specific errors if returned by server action
+        if (result.stockErrors) {
+          setStockErrors(result.stockErrors);
+        }
       }
     } catch (e) {
       setCheckoutError('Error de conexión. Por favor intenta de nuevo.');
@@ -99,41 +98,13 @@ import { checkoutOrder } from '@/app/actions/store';
       : `Hola *${config.name}*, me gustaría realizar el siguiente pedido:\n\n`;
 
     if (!invoiceNumber) {
-      // Use organized cart for cleaner message
-      if (organizedCart.products.length > 0) {
-        message += `*🛒 Productos:*\n`;
-        organizedCart.products.forEach(item => {
-          message += `• ${item.quantity}x ${item.name}\n`;
-        });
-        message += `\n`;
-      }
-
-      if (organizedCart.petGroups.length > 0) {
-        organizedCart.petGroups.forEach(group => {
-          message += `*🐾 Servicios para ${group.pet_name}:*\n`;
-          group.services.forEach(item => {
-            const serviceName = item.name.split(' - ')[0];
-            message += `• ${item.quantity}x ${serviceName}`;
-            if (item.variant_name) {
-              message += ` (${item.variant_name})`;
-            }
-            message += `\n`;
-          });
-          message += `\n`;
-        });
-      }
-
-      if (organizedCart.ungroupedServices.length > 0) {
-        message += `*📋 Otros Servicios:*\n`;
-        organizedCart.ungroupedServices.forEach(item => {
-          message += `• ${item.quantity}x ${item.name}\n`;
-        });
-        message += `\n`;
-      }
+      items.forEach(item => {
+        message += `• ${item.quantity}x ${item.name} (${item.type === 'service' ? 'Servicio' : 'Producto'})\n`;
+      });
     }
 
     const formattedTotal = new Intl.NumberFormat('es-PY', { style: 'currency', currency: currency }).format(total);
-    message += `*Total: ${formattedTotal}*\n`;
+    message += `\n*Total: ${formattedTotal}*\n`;
     message += `\nMis datos: ${user.email}`;
 
     return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
@@ -194,23 +165,8 @@ import { checkoutOrder } from '@/app/actions/store';
   }
 
   return (
-    <div className="min-h-screen bg-[var(--bg-default)]">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-100 sticky top-0 z-10 shadow-sm mb-8">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <Link href={`/${clinic}/cart`} className="flex items-center gap-2 font-bold text-gray-400 hover:text-[var(--primary)] transition-all">
-            <ArrowLeft className="w-5 h-5" />
-            <span className="hidden sm:inline">Carrito</span>
-          </Link>
-          <h1 className="text-xl font-bold text-gray-900">{labels.title || "Resumen del Pedido"}</h1>
-          <Link href={`/${clinic}/cart`} className="flex items-center gap-2 text-sm font-bold text-[var(--primary)] hover:opacity-80 transition-all">
-            <Edit3 className="w-4 h-4" />
-            <span className="hidden sm:inline">Editar</span>
-          </Link>
-        </div>
-      </div>
-
-      <div className="container mx-auto px-4 pb-8">
+    <div className="min-h-screen bg-[var(--bg-default)] p-8">
+      <h1 className="text-3xl font-bold mb-6 text-[var(--text-primary)]">{labels.title || "Resumen del Pedido"}</h1>
 
       {/* Error display */}
       {checkoutError && (
@@ -227,15 +183,6 @@ import { checkoutOrder } from '@/app/actions/store';
                 ))}
               </ul>
             )}
-            {prescriptionErrors.length > 0 && (
-              <ul className="mt-2 text-sm text-red-600">
-                {prescriptionErrors.map((err) => (
-                  <li key={err.id}>
-                    {err.name}: {err.error}
-                  </li>
-                ))}
-              </ul>
-            )}
           </div>
         </div>
       )}
@@ -243,155 +190,27 @@ import { checkoutOrder } from '@/app/actions/store';
       {items.length === 0 ? (
         <p className="text-[var(--text-secondary)]">{labels.empty || "No hay items en el carrito."}</p>
       ) : (
-        <div className="space-y-6">
-          {/* Products Section (For the Owner) */}
-          {organizedCart.products.length > 0 && (
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-              {/* Header */}
-              <div className="flex items-center gap-3 p-5 bg-gradient-to-r from-gray-50 to-transparent border-b border-gray-100">
-                <div className="w-12 h-12 rounded-xl bg-[var(--bg-subtle)] flex items-center justify-center">
-                  <User className="w-6 h-6 text-[var(--text-secondary)]" />
-                </div>
-                <div className="flex-grow">
-                  <h3 className="text-lg font-bold text-[var(--text-primary)]">Productos para Ti</h3>
-                  <p className="text-sm text-[var(--text-muted)]">
-                    {organizedCart.products.length} producto{organizedCart.products.length !== 1 ? 's' : ''}
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="text-xs text-[var(--text-muted)]">Subtotal</p>
-                  <p className="text-xl font-black text-[var(--primary)]">
-                    {formatPriceGs(organizedCart.productsSubtotal)}
+        <div className="space-y-4">
+          {items.map((item) => (
+            <div key={`${item.type}-${item.id}`} className="flex items-center justify-between bg-white p-4 rounded-xl shadow-sm">
+              <div className="flex items-center gap-4">
+                {item.image_url ? (
+                  <img src={item.image_url} alt={item.name} className="w-12 h-12 object-cover rounded" />
+                ) : (
+                  <ShoppingBag className="w-12 h-12 text-[var(--primary)]" />
+                )}
+                <div>
+                  <p className="font-medium text-[var(--text-primary)]">{item.name}</p>
+                  <p className="text-sm text-[var(--text-secondary)]">
+                    {item.type === 'service' ? 'Servicio' : 'Producto'} × {item.quantity}
                   </p>
                 </div>
               </div>
-              {/* Items (Read-only) */}
-              <div className="divide-y divide-gray-100">
-                {organizedCart.products.map((item) => (
-                  <div key={item.id} className="flex items-center gap-4 p-4">
-                    {item.image_url ? (
-                      <img src={item.image_url} alt={item.name} className="w-16 h-16 object-cover rounded-xl" />
-                    ) : (
-                      <div className="w-16 h-16 bg-[var(--bg-subtle)] rounded-xl flex items-center justify-center">
-                        <Package className="w-7 h-7 text-gray-400" />
-                      </div>
-                    )}
-                    <div className="flex-grow min-w-0">
-                      <p className="font-bold text-[var(--text-primary)]">{item.name}</p>
-                      <p className="text-sm text-[var(--text-muted)]">{formatPriceGs(item.price)} c/u</p>
-                    </div>
-                    <div className="px-3 py-1.5 bg-gray-100 rounded-lg">
-                      <span className="font-bold text-gray-700">×{item.quantity}</span>
-                    </div>
-                    <div className="text-right w-28">
-                      <p className="text-lg font-black text-[var(--primary)]">
-                        {formatPriceGs(item.price * item.quantity)}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Services by Pet */}
-          {organizedCart.petGroups.map((group) => (
-            <div key={group.pet_id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-              {/* Pet Header */}
-              <div className="flex items-center gap-4 p-5 bg-gradient-to-r from-[var(--primary)]/10 via-[var(--primary)]/5 to-transparent border-b border-gray-100">
-                <div className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center border-2 border-white shadow-md">
-                  <PawPrint className="w-7 h-7 text-[var(--primary)]" />
-                </div>
-                <div className="flex-grow">
-                  <div className="flex items-center gap-3 mb-1">
-                    <h3 className="text-xl font-black text-[var(--text-primary)]">{group.pet_name}</h3>
-                    <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${getSizeBadgeColor(group.pet_size)}`}>
-                      {SIZE_SHORT_LABELS[group.pet_size]}
-                    </span>
-                  </div>
-                  <p className="text-sm text-[var(--text-muted)]">
-                    {SIZE_LABELS[group.pet_size]} • {group.services.length} servicio{group.services.length !== 1 ? 's' : ''}
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="text-xs text-[var(--text-muted)]">Subtotal</p>
-                  <p className="text-2xl font-black text-[var(--primary)]">
-                    {formatPriceGs(group.subtotal)}
-                  </p>
-                </div>
-              </div>
-              {/* Services (Read-only) */}
-              <div className="divide-y divide-gray-100">
-                {group.services.map((item) => (
-                  <div key={item.id} className="flex items-center gap-4 p-4">
-                    <div className="w-1.5 h-12 bg-[var(--primary)]/30 rounded-full" />
-                    {item.image_url && (
-                      <img src={item.image_url} alt={item.name} className="w-12 h-12 rounded-lg object-cover" />
-                    )}
-                    <div className="flex-grow min-w-0">
-                      <p className="font-bold text-[var(--text-primary)]">
-                        {item.name.split(' - ')[0]}
-                      </p>
-                      {item.variant_name && (
-                        <p className="text-sm text-[var(--text-muted)]">{item.variant_name}</p>
-                      )}
-                      {item.base_price && item.base_price !== item.price && (
-                        <p className="text-xs text-amber-600 mt-1">
-                          Base: {formatPriceGs(item.base_price)} → Ajustado por tamaño
-                        </p>
-                      )}
-                    </div>
-                    <div className="px-3 py-1.5 bg-gray-100 rounded-lg">
-                      <span className="font-bold text-gray-700">×{item.quantity}</span>
-                    </div>
-                    <div className="text-right w-28">
-                      {item.quantity > 1 && (
-                        <p className="text-xs text-[var(--text-muted)]">{formatPriceGs(item.price)} c/u</p>
-                      )}
-                      <p className="text-lg font-black text-[var(--primary)]">
-                        {formatPriceGs(item.price * item.quantity)}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <span className="font-bold text-[var(--primary)]">
+                {new Intl.NumberFormat('es-PY', { style: 'currency', currency: currency }).format(item.price * item.quantity)}
+              </span>
             </div>
           ))}
-
-          {/* Ungrouped Services */}
-          {organizedCart.ungroupedServices.length > 0 && (
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-              <div className="flex items-center gap-3 p-5 bg-gray-50 border-b border-gray-100">
-                <Stethoscope className="w-6 h-6 text-[var(--text-secondary)]" />
-                <h3 className="text-lg font-bold text-[var(--text-primary)]">Otros Servicios</h3>
-              </div>
-              <div className="divide-y divide-gray-100">
-                {organizedCart.ungroupedServices.map((item) => (
-                  <div key={item.id} className="flex items-center gap-4 p-4">
-                    {item.image_url ? (
-                      <img src={item.image_url} alt={item.name} className="w-14 h-14 object-cover rounded-lg" />
-                    ) : (
-                      <div className="w-14 h-14 bg-[var(--bg-subtle)] rounded-lg flex items-center justify-center">
-                        <Stethoscope className="w-6 h-6 text-[var(--primary)]" />
-                      </div>
-                    )}
-                    <div className="flex-grow">
-                      <p className="font-bold text-[var(--text-primary)]">{item.name}</p>
-                      <p className="text-sm text-[var(--text-muted)]">{formatPriceGs(item.price)} c/u</p>
-                    </div>
-                    <div className="px-3 py-1.5 bg-gray-100 rounded-lg">
-                      <span className="font-bold text-gray-700">×{item.quantity}</span>
-                    </div>
-                    <div className="text-right w-28">
-                      <p className="text-lg font-black text-[var(--primary)]">
-                        {formatPriceGs(item.price * item.quantity)}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
 
           <div className="bg-white p-6 rounded-xl shadow-sm">
             <div className="flex justify-between items-center mb-4">
@@ -434,17 +253,9 @@ import { checkoutOrder } from '@/app/actions/store';
               <Printer className="w-5 h-5" /> {labels.print_btn || "Imprimir"}
             </button>
           </div>
-
-          {/* Edit cart prompt */}
-          <p className="text-center text-sm text-[var(--text-muted)] mt-6">
-            ¿Necesitas hacer cambios?{' '}
-            <Link href={`/${clinic}/cart`} className="text-[var(--primary)] font-bold hover:underline">
-              Editar carrito
-            </Link>
-          </p>
         </div>
       )}
-      </div>
+      <Link href={`/${clinic}/cart`} className="mt-6 inline-block text-blue-600 hover:underline">{labels.back_cart || "Volver al carrito"}</Link>
     </div>
   );
 }

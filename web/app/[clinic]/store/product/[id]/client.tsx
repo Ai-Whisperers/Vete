@@ -77,8 +77,6 @@ export default function ProductDetailClient({ clinic, productId, clinicConfig }:
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [addingToCart, setAddingToCart] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
-  const [prescriptionFile, setPrescriptionFile] = useState('');
-  const [showPrescriptionError, setShowPrescriptionError] = useState(false);
 
   const currencySymbol = clinicConfig.settings?.currency_symbol || 'Gs';
 
@@ -86,33 +84,20 @@ export default function ProductDetailClient({ clinic, productId, clinicConfig }:
     fetchProduct();
   }, [productId, clinic]);
 
-import { getStoreProduct, toggleWishlist as toggleWishlistAction } from '@/app/actions/store';
-
-// ... inside ProductDetailClient component ...
-
   const fetchProduct = async () => {
     setLoading(true);
     setError(null);
     try {
-      const result = await getStoreProduct(clinic, productId);
-      
-      if (!result.success) {
-        setError(result.error || 'Error al cargar el producto');
+      const res = await fetch(`/api/store/products/${productId}?clinic=${clinic}`);
+      if (!res.ok) {
+        if (res.status === 404) {
+          setError('Producto no encontrado');
+        } else {
+          throw new Error('Error al cargar el producto');
+        }
         return;
       }
-      
-      // Note: The original implementation expected a full ProductDetailResponse 
-      // with review_summary, related_products, and questions.
-      // For now, we only have the product data from getStoreProduct.
-      // We'll wrap it to match the expected interface as much as possible.
-      
-      const productData = {
-        product: result.data,
-        review_summary: { average_rating: result.data.avg_rating || 0, total_reviews: result.data.review_count || 0, rating_distribution: {} },
-        related_products: [],
-        questions: []
-      } as unknown as ProductDetailResponse;
-      
+      const productData = await res.json();
       setData(productData);
 
       // Set default variant if exists
@@ -128,27 +113,11 @@ import { getStoreProduct, toggleWishlist as toggleWishlistAction } from '@/app/a
     }
   };
 
-  const handleWishlistToggle = async () => {
-    try {
-        const result = await toggleWishlistAction(clinic, productId);
-        if (result.success) {
-            setIsWishlisted(!isWishlisted);
-        }
-    } catch (err) {
-        console.error('Failed to toggle wishlist:', err);
-    }
-  };
+  const handleAddToCart = async () => {
     if (!data?.product) return;
-    const product = data.product;
-
-    if (product.is_prescription_required && !prescriptionFile.trim()) {
-      setShowPrescriptionError(true);
-      // Scroll to error if needed (omitted for brevity)
-      return;
-    }
 
     setAddingToCart(true);
-    
+    const product = data.product;
     const variant = selectedVariant
       ? product.variants.find(v => v.id === selectedVariant)
       : null;
@@ -167,8 +136,6 @@ import { getStoreProduct, toggleWishlist as toggleWishlistAction } from '@/app/a
       stock: variant ? variant.stock_quantity : (product.inventory?.stock_quantity || 0),
       variant_id: variant?.id,
       sku: variant?.sku || product.sku || undefined,
-      requires_prescription: product.is_prescription_required,
-      prescription_file: product.is_prescription_required ? prescriptionFile : undefined,
     }, quantity);
 
     setAddingToCart(false);
@@ -187,8 +154,7 @@ import { getStoreProduct, toggleWishlist as toggleWishlistAction } from '@/app/a
     }
   };
 
-  const formatPrice = (price: number | null | undefined) => {
-    if (price === null || price === undefined) return `${currencySymbol} 0`;
+  const formatPrice = (price: number) => {
     return `${currencySymbol} ${price.toLocaleString('es-PY')}`;
   };
 
@@ -324,7 +290,7 @@ import { getStoreProduct, toggleWishlist as toggleWishlistAction } from '@/app/a
           {/* Left Column - Gallery */}
           <div>
             <ProductGallery
-              images={product.images.length > 0 ? product.images : [{ id: '1', image_url: product.image_url || '/placeholder-product.svg', alt_text: product.name, is_primary: true, sort_order: 0, product_id: product.id, tenant_id: product.tenant_id, created_at: '' }]}
+              images={product.images.length > 0 ? product.images : [{ id: '1', image_url: product.image_url || '/placeholder-product.png', alt_text: product.name, is_primary: true, sort_order: 0, product_id: product.id, tenant_id: product.tenant_id, created_at: '' }]}
               productName={product.name}
               hasDiscount={product.has_discount}
               discountPercentage={product.discount_percentage}
@@ -502,7 +468,7 @@ import { getStoreProduct, toggleWishlist as toggleWishlistAction } from '@/app/a
             {/* Wishlist & Share */}
             <div className="flex gap-4 mb-6">
               <button
-                onClick={handleWishlistToggle}
+                onClick={() => setIsWishlisted(!isWishlisted)}
                 className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-colors ${
                   isWishlisted
                     ? 'border-red-500 text-red-500 bg-red-50'
@@ -531,39 +497,17 @@ import { getStoreProduct, toggleWishlist as toggleWishlistAction } from '@/app/a
               </button>
             </div>
 
-            {/* Prescription Warning & Input */}
+            {/* Prescription Warning */}
             {product.is_prescription_required && (
-              <div className={`bg-amber-50 border rounded-lg p-4 mb-6 ${showPrescriptionError ? 'border-red-500 ring-1 ring-red-500' : 'border-amber-200'}`}>
-                <div className="flex items-start gap-3 mb-3">
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
+                <div className="flex items-start gap-3">
                   <FileText className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
                   <div>
                     <p className="font-medium text-amber-800">Requiere Receta Veterinaria</p>
                     <p className="text-sm text-amber-700 mt-1">
-                      Este producto requiere una receta válida.
+                      Este producto requiere una receta válida. Deberás presentarla al momento de la compra.
                     </p>
                   </div>
-                </div>
-                
-                <div className="mt-2">
-                  <label htmlFor="prescription" className="block text-sm font-medium text-amber-900 mb-1">
-                    Link a tu receta (Drive, Dropbox, etc.) <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="url"
-                    id="prescription"
-                    value={prescriptionFile}
-                    onChange={(e) => {
-                      setPrescriptionFile(e.target.value);
-                      if (e.target.value.trim()) setShowPrescriptionError(false);
-                    }}
-                    placeholder="https://..."
-                    className="w-full px-3 py-2 bg-white border border-amber-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm"
-                  />
-                  {showPrescriptionError && (
-                    <p className="text-xs text-red-600 mt-1 font-medium">
-                      Por favor ingresá el link de tu receta para continuar.
-                    </p>
-                  )}
                 </div>
               </div>
             )}

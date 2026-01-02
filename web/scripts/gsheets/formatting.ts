@@ -8,6 +8,7 @@ import { SPREADSHEET_ID, SHEETS, COLORS, STOCK_OPERATIONS } from './config';
 
 // Optimal column widths per sheet (in pixels)
 const COLUMN_WIDTHS: Record<string, number[]> = {
+<<<<<<< HEAD
   // Full-width documentation layout (8 columns, mostly merged)
   '📖 Guía Rápida': [700, 50, 50, 50, 50, 50, 50, 50],
 
@@ -57,6 +58,18 @@ const COLUMN_WIDTHS: Record<string, number[]> = {
 
   // Datos helper: 7 columns
   '🔧 Datos': [160, 120, 140, 240, 240, 140, 140],
+=======
+  // Horizontal 3-section layout: Content | Spacer | Content | Spacer | Content | Spacer | Extra
+  '📖 Guía Rápida': [280, 20, 280, 20, 200, 20, 50],
+  '📂 Categorías': [120, 200, 60, 120, 70],
+  '🏭 Proveedores': [100, 220, 100, 130, 220, 200, 70],
+  '🏷️ Marcas': [80, 180, 100, 70],
+  '🆕 Productos': [100, 280, 120, 80, 80, 110, 110, 90, 110, 100, 250, 70],
+  '📦 Stock Inicial': [280, 100, 90, 110, 110, 140, 200],
+  '⚙️ Configuración': [100, 180, 280, 70],
+  '🔧 Datos': [150, 100, 120, 200, 150],
+  '⚡ Carga Rápida': [280, 120, 80, 110, 110, 100, 80, 100, 200],
+>>>>>>> cc104e4 (feat: Introduce command palette, refactor calendar and pets-by-owner components, add new pages, server actions, and extensive database schema updates with security fixes and testing documentation.)
 };
 
 // Sheet tab colors
@@ -625,7 +638,11 @@ function addProductsFormatting(requests: any[], sheetMap: Record<string, number>
     },
   });
 
+<<<<<<< HEAD
   // Conversion columns (E-G: Unid.Compra, Cant.Contenida, Unid.Venta) - light blue
+=======
+  // Price columns (F-G) - light amber
+>>>>>>> cc104e4 (feat: Introduce command palette, refactor calendar and pets-by-owner components, add new pages, server actions, and extensive database schema updates with security fixes and testing documentation.)
   requests.push({
     repeatCell: {
       range: {
@@ -652,6 +669,7 @@ function addProductsFormatting(requests: any[], sheetMap: Record<string, number>
         startRowIndex: 1,
         endRowIndex: MAX_ROWS,
         startColumnIndex: 5,
+<<<<<<< HEAD
         endColumnIndex: 6,
       },
       cell: {
@@ -673,6 +691,9 @@ function addProductsFormatting(requests: any[], sheetMap: Record<string, number>
         endRowIndex: MAX_ROWS,
         startColumnIndex: 7,
         endColumnIndex: 9,
+=======
+        endColumnIndex: 7,
+>>>>>>> cc104e4 (feat: Introduce command palette, refactor calendar and pets-by-owner components, add new pages, server actions, and extensive database schema updates with security fixes and testing documentation.)
       },
       cell: {
         userEnteredFormat: {
@@ -683,15 +704,25 @@ function addProductsFormatting(requests: any[], sheetMap: Record<string, number>
     },
   });
 
+<<<<<<< HEAD
   // Number format for prices (H-I) with currency symbol
+=======
+  // Number format for prices (F-G) with currency symbol
+>>>>>>> cc104e4 (feat: Introduce command palette, refactor calendar and pets-by-owner components, add new pages, server actions, and extensive database schema updates with security fixes and testing documentation.)
   requests.push({
     repeatCell: {
       range: {
         sheetId,
         startRowIndex: 1,
+<<<<<<< HEAD
         endRowIndex: MAX_ROWS,
         startColumnIndex: 7,
         endColumnIndex: 9,
+=======
+        endRowIndex: 501,
+        startColumnIndex: 5,
+        endColumnIndex: 7,
+>>>>>>> cc104e4 (feat: Introduce command palette, refactor calendar and pets-by-owner components, add new pages, server actions, and extensive database schema updates with security fixes and testing documentation.)
       },
       cell: {
         userEnteredFormat: {
@@ -703,12 +734,17 @@ function addProductsFormatting(requests: any[], sheetMap: Record<string, number>
     },
   });
 
+<<<<<<< HEAD
   // Costo Unit column (I - index 8) - gray for calculated field
+=======
+  // Number format for stock minimum (H)
+>>>>>>> cc104e4 (feat: Introduce command palette, refactor calendar and pets-by-owner components, add new pages, server actions, and extensive database schema updates with security fixes and testing documentation.)
   requests.push({
     repeatCell: {
       range: {
         sheetId,
         startRowIndex: 1,
+<<<<<<< HEAD
         endRowIndex: MAX_ROWS,
         startColumnIndex: 8,
         endColumnIndex: 9,
@@ -735,11 +771,17 @@ function addProductsFormatting(requests: any[], sheetMap: Record<string, number>
         endRowIndex: MAX_ROWS,
         startColumnIndex: 12,
         endColumnIndex: 13,
+=======
+        endRowIndex: 501,
+        startColumnIndex: 7,
+        endColumnIndex: 8,
+>>>>>>> cc104e4 (feat: Introduce command palette, refactor calendar and pets-by-owner components, add new pages, server actions, and extensive database schema updates with security fixes and testing documentation.)
       },
       cell: {
         userEnteredFormat: {
           backgroundColor: COLORS.lightGray,
           horizontalAlignment: 'CENTER',
+<<<<<<< HEAD
           textFormat: {
             foregroundColor: COLORS.darkGray,
             italic: true,
@@ -751,14 +793,29 @@ function addProductsFormatting(requests: any[], sheetMap: Record<string, number>
   });
 
   // Description column (N - index 13) - text wrap
+=======
+        },
+      },
+      fields: 'userEnteredFormat(numberFormat,horizontalAlignment)',
+    },
+  });
+
+  // Description column (K) - text wrap
+>>>>>>> cc104e4 (feat: Introduce command palette, refactor calendar and pets-by-owner components, add new pages, server actions, and extensive database schema updates with security fixes and testing documentation.)
   requests.push({
     repeatCell: {
       range: {
         sheetId,
         startRowIndex: 1,
+<<<<<<< HEAD
         endRowIndex: MAX_ROWS,
         startColumnIndex: 13,
         endColumnIndex: 14,
+=======
+        endRowIndex: 501,
+        startColumnIndex: 10,
+        endColumnIndex: 11,
+>>>>>>> cc104e4 (feat: Introduce command palette, refactor calendar and pets-by-owner components, add new pages, server actions, and extensive database schema updates with security fixes and testing documentation.)
       },
       cell: {
         userEnteredFormat: {

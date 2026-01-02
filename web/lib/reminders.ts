@@ -36,15 +36,12 @@ function calculateReminderTime(appointmentTime: Date, preference: ReminderPrefer
 export async function checkAndSendReminders(
   appointments: Appointment[],
 ): Promise<void> {
-  console.log('Checking and sending reminders...');
-
   const now = new Date();
 
   for (const appointment of appointments) {
     const userPreference = await getReminderPreference(appointment.userId);
 
     if (!userPreference) {
-      console.log(`No reminder preference found for user ${appointment.userId}. Skipping.`);
       continue;
     }
 
@@ -68,7 +65,6 @@ export async function checkAndSendReminders(
         type: userPreference.type,
         message: message,
       });
-      console.log(`Reminder sent for appointment ${appointment.id} to user ${appointment.userId}`);
     }
   }
 }

@@ -23,8 +23,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       ErrorMessage
     } = data;
 
-    console.log('SMS Webhook received:', { MessageSid, MessageStatus, To });
-
     if (!MessageSid) {
       return new NextResponse('Missing MessageSid', { status: 400 });
     }
@@ -66,9 +64,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         error_message: ErrorMessage || null
       })
       .eq('external_id', MessageSid);
-
-    // Log the status update
-    console.log(`SMS ${MessageSid} status updated to ${newStatus}`);
 
     return new NextResponse('OK', { status: 200 });
   } catch (e) {

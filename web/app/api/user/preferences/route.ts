@@ -10,7 +10,6 @@ function getAuthenticatedUserId(): string {
 export async function GET(request: Request) {
   const userId = getAuthenticatedUserId();
   const userPref = await getReminderPreference(userId); // Re-using for general preferences
-  console.log(`[API/User/Preferences] Fetching preferences for user ${userId}.`);
   return NextResponse.json(userPref, { status: 200 });
 }
 
@@ -42,7 +41,6 @@ export async function POST(request: Request) {
   }
 
   await setUserReminderPreference(userId, updatedPreferences);
-  console.log(`[API/User/Preferences] Updated preferences for user ${userId}:`, updatedPreferences);
 
   return NextResponse.json({ success: true, preferences: updatedPreferences }, { status: 200 });
 }

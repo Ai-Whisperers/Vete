@@ -17,9 +17,6 @@ export async function GET(request: Request) {
   const endDate = searchParams.get('endDate');
   const serviceId = searchParams.get('serviceId'); // Not used in mock, but for completeness
 
-  console.log('[API/Availability] Request received.');
-  console.log('[API/Availability] Filters:', { startDate, endDate, serviceId });
-
   // Simulate network latency or complex calculations
   await new Promise(resolve => setTimeout(resolve, Math.random() * 500 + 100)); // 100-600ms delay
 
@@ -35,6 +32,5 @@ export async function GET(request: Request) {
     return pass;
   });
 
-  console.log(`[API/Availability] Returning ${filteredSlots.length} available slots.`);
   return NextResponse.json(filteredSlots, { status: 200 });
 }

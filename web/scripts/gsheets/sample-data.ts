@@ -585,7 +585,6 @@ export async function addSampleData(spreadsheetId: string = SPREADSHEET_ID): Pro
     'professional': 'Profesional',
   };
 
-<<<<<<< HEAD
   // Brand type translation map
   const brandTypeMap: Record<string, string> = {
     'alimentos': 'Alimentos',
@@ -610,24 +609,6 @@ export async function addSampleData(spreadsheetId: string = SPREADSHEET_ID): Pro
     b.local_distributor || '',                                 // J: Distribuidor
     b.website || '',                                           // K: Sitio Web
     b.key_products || '',                                      // L: Productos Clave
-=======
-  // Sample data (sin columna A que se genera automáticamente)
-  // Columns: Nombre, Categoría, Marca, Unidad, PCosto, PVenta, StockMin, Receta, Proveedor, Desc, Activo
-  await updateValues(spreadsheetId, "'🆕 Productos'!B2:L14", [
-    ['Royal Canin Adult Medium 15kg', 'ALI-PER-ADU', 'RO-001', 'Bolsa', 180000, 250000, 5, 'No', 'ROY-001', 'Alimento premium para perros adultos medianos', 'Sí'],
-    ['Royal Canin Puppy 10kg', 'ALI-PER-CAC', 'RO-001', 'Bolsa', 150000, 210000, 3, 'No', 'ROY-001', 'Alimento para cachorros hasta 12 meses', 'Sí'],
-    ['Pro Plan Cat Adult 7.5kg', 'ALI-GAT', 'PR-002', 'Bolsa', 120000, 175000, 4, 'No', 'ROY-001', 'Alimento premium para gatos adultos', 'Sí'],
-    ['Nexgard Spectra M (7-15kg)', 'MED-DES', 'NE-011', 'Caja', 45000, 75000, 10, 'Sí', 'DIS-002', 'Antiparasitario oral mensual', 'Sí'],
-    ['Amoxicilina 500mg x 10', 'MED-ANT', 'BA-006', 'Caja', 15000, 28000, 8, 'Sí', 'DIS-002', 'Antibiótico de amplio espectro', 'Sí'],
-    ['Vacuna Óctuple', 'MED-VAC', 'ZO-007', 'Unidad', 35000, 60000, 20, 'Sí', 'DIS-002', 'Vacuna polivalente canina', 'Sí'],
-    ['Collar Antipulgas Seresto L', 'ACC-COR', 'BA-006', 'Unidad', 95000, 150000, 5, 'No', 'LAB-004', 'Collar 8 meses protección', 'Sí'],
-    ['Cama Premium Grande', 'ACC-CAM', 'FR-010', 'Unidad', 80000, 130000, 2, 'No', 'PET-003', 'Cama ortopédica lavable', 'Sí'],
-    ['Shampoo Dermocalmante 500ml', 'HIG-SHA', '3M-009', 'Frasco', 25000, 45000, 6, 'No', 'PET-003', 'Para pieles sensibles', 'Sí'],
-    ['Jeringa 5ml c/aguja x100', 'INS-JER', '3M-009', 'Caja', 35000, 55000, 5, 'No', 'MED-005', 'Jeringas descartables estériles', 'Sí'],
-    ['Guantes Látex M x100', 'INS-GUA', '3M-009', 'Caja', 18000, 30000, 10, 'No', 'MED-005', 'Guantes de examen', 'Sí'],
-    ['Royal Canin Senior 12kg', 'ALI-PER-ADU', 'RO-001', 'Bolsa', 185000, 260000, 3, 'No', 'ROY-001', 'Alimento para perros senior +7 años', 'Sí'],
-    ['Frontline Plus Perro M', 'MED-DES', 'FR-010', 'Caja', 38000, 65000, 8, 'No', 'DIS-002', 'Pipeta antiparasitaria externa', 'Sí'],
->>>>>>> cc104e4 (feat: Introduce command palette, refactor calendar and pets-by-owner components, add new pages, server actions, and extensive database schema updates with security fixes and testing documentation.)
   ]);
 
   const brandRowsNO = brands.map(b => [

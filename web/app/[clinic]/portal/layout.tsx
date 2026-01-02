@@ -6,10 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { PortalMobileNav } from "@/components/portal/portal-mobile-nav";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
-<<<<<<< HEAD
 import { PortalProviders } from "./providers";
-=======
->>>>>>> cc104e4 (feat: Introduce command palette, refactor calendar and pets-by-owner components, add new pages, server actions, and extensive database schema updates with security fixes and testing documentation.)
 
 // Auth pages that don't require authentication
 const AUTH_PAGES = ['/login', '/signup', '/forgot-password', '/reset-password'];
@@ -62,13 +59,9 @@ export default async function PortalLayout({
           </div>
         </header>
         <main className="flex-1 container mx-auto px-4 py-8">
-<<<<<<< HEAD
           <PortalProviders>
             {children}
           </PortalProviders>
-=======
-          {children}
->>>>>>> cc104e4 (feat: Introduce command palette, refactor calendar and pets-by-owner components, add new pages, server actions, and extensive database schema updates with security fixes and testing documentation.)
         </main>
       </div>
     );
@@ -115,13 +108,8 @@ export default async function PortalLayout({
         email: authenticatedUser.email,
         full_name: authenticatedUser.user_metadata?.full_name || authenticatedUser.email?.split('@')[0] || 'Usuario',
         avatar_url: authenticatedUser.user_metadata?.avatar_url,
-<<<<<<< HEAD
         tenant_id: tenantId,
         role: role
-=======
-        tenant_id: clinic,
-        role: 'owner'
->>>>>>> cc104e4 (feat: Introduce command palette, refactor calendar and pets-by-owner components, add new pages, server actions, and extensive database schema updates with security fixes and testing documentation.)
       })
       .select('role, tenant_id')
       .single();

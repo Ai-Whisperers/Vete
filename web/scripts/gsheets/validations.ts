@@ -182,7 +182,6 @@ export async function applyValidations(
     // Unid. Compra dropdown (E - col 4)
     requests.push(createDropdown(prodSheetId, 1, 1201, 4, 5, DROPDOWN_OPTIONS.unitsBuy, false));
 
-<<<<<<< HEAD
     // Unid. Venta dropdown (G - col 6)
     requests.push(createDropdown(prodSheetId, 1, 1201, 6, 7, DROPDOWN_OPTIONS.unitsSell, false));
 
@@ -200,19 +199,6 @@ export async function applyValidations(
 
     // Activo dropdown (O - col 14)
     requests.push(createDropdown(prodSheetId, 1, 1201, 14, 15, DROPDOWN_OPTIONS.yesNo));
-=======
-    // Requiere Receta dropdown (I - col 8)
-    requests.push(createDropdown(prodSheetId, 1, 501, 8, 9, DROPDOWN_OPTIONS.yesNo));
-
-    // Proveedor dropdown (J - col 9) - from 🔧 Datos (solo activos)
-    requests.push(createDropdownFromRange(
-      prodSheetId, 1, 501, 9, 10,
-      "='🔧 Datos'!$C$2:$C$500"
-    ));
-
-    // Activo dropdown (L - col 11)
-    requests.push(createDropdown(prodSheetId, 1, 501, 11, 12, DROPDOWN_OPTIONS.yesNo));
->>>>>>> cc104e4 (feat: Introduce command palette, refactor calendar and pets-by-owner components, add new pages, server actions, and extensive database schema updates with security fixes and testing documentation.)
   }
 
   // ========================

@@ -71,8 +71,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       .eq('is_active', true)
       .single();
 
-    console.log('Product verification:', { product, productError });
-
     if (productError || !product) {
       return NextResponse.json(
         { error: 'Producto no encontrado en el catálogo global' },
@@ -96,8 +94,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       })
       .select()
       .single();
-
-    console.log('Assignment result:', { assignment, assignmentError });
 
     if (assignmentError) {
       console.error('Assignment error:', assignmentError);

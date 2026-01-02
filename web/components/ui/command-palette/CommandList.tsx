@@ -50,11 +50,7 @@ export function CommandList({
                   {CATEGORY_LABELS[category]}
                 </span>
               </div>
-<<<<<<< HEAD
               {items.map((item: CommandItem) => {
-=======
-              {items.map((item) => {
->>>>>>> cc104e4 (feat: Introduce command palette, refactor calendar and pets-by-owner components, add new pages, server actions, and extensive database schema updates with security fixes and testing documentation.)
                 globalIndex++;
                 const isSelected = globalIndex === selectedIndex;
 

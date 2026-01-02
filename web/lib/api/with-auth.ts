@@ -130,7 +130,6 @@ type AuthHandlerWithParams<T, P> = (
  * );
  * ```
  */
-<<<<<<< HEAD
 export function withAuth(
   handler: AuthHandler,
   options?: WithAuthOptions
@@ -143,30 +142,12 @@ export function withAuth<P extends Record<string, string>>(
 
 export function withAuth<P extends Record<string, string> = Record<string, string>>(
   handler: AuthHandler | AuthHandlerWithParams<P>,
-=======
-export function withAuth<T>(
-  handler: AuthHandler<T>,
-  options?: WithAuthOptions
-): (request: NextRequest) => Promise<ApiResponse<T>>;
-
-export function withAuth<T, P extends Record<string, string>>(
-  handler: AuthHandlerWithParams<T, P>,
-  options?: WithAuthOptions
-): (request: NextRequest, context: RouteContext<P>) => Promise<ApiResponse<T>>;
-
-export function withAuth<T, P extends Record<string, string> = Record<string, string>>(
-  handler: AuthHandler<T> | AuthHandlerWithParams<T, P>,
->>>>>>> cc104e4 (feat: Introduce command palette, refactor calendar and pets-by-owner components, add new pages, server actions, and extensive database schema updates with security fixes and testing documentation.)
   options?: WithAuthOptions
 ) {
   return async (
     request: NextRequest,
     context?: RouteContext<P>
-<<<<<<< HEAD
   ): Promise<ApiResponse> => {
-=======
-  ): Promise<ApiResponse<T>> => {
->>>>>>> cc104e4 (feat: Introduce command palette, refactor calendar and pets-by-owner components, add new pages, server actions, and extensive database schema updates with security fixes and testing documentation.)
     try {
       // Create Supabase client
       const supabase = await createClient();
@@ -228,15 +209,9 @@ export function withAuth<T, P extends Record<string, string> = Record<string, st
 
       // Call handler with or without context based on signature
       if (context) {
-<<<<<<< HEAD
         return await (handler as AuthHandlerWithParams<P>)(authContext, context);
       }
       return await (handler as AuthHandler)(authContext);
-=======
-        return await (handler as AuthHandlerWithParams<T, P>)(authContext, context);
-      }
-      return await (handler as AuthHandler<T>)(authContext);
->>>>>>> cc104e4 (feat: Introduce command palette, refactor calendar and pets-by-owner components, add new pages, server actions, and extensive database schema updates with security fixes and testing documentation.)
     } catch (error) {
       console.error('API route error:', error);
       return apiError('SERVER_ERROR', 500);

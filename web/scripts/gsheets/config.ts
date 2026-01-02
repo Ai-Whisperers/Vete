@@ -149,7 +149,6 @@ export const SHEETS: SheetConfig[] = [
     name: '🆕 Productos',
     headerColor: COLORS.productHeader,
     columns: [
-<<<<<<< HEAD
       '🔒 SKU',           // A - Auto-generated
       'Nombre',           // B - Product name
       'Categoría',        // C - Category code
@@ -199,11 +198,6 @@ export const SHEETS: SheetConfig[] = [
       '🚦 Estado',        // Q - Status text with emoji (formula)
       '📅 Próx.Vence',    // R - Next expiration (formula from movements)
       '⚠️ Alertas'        // S - Alerts (formula: expired, low stock, etc.)
-=======
-      '🔒 SKU', 'Nombre', 'Categoría', 'Marca', 'Unidad',
-      'Precio Costo', 'Precio Venta', 'Stock Mínimo', 'Requiere Receta',
-      'Proveedor', 'Descripción', 'Activo'
->>>>>>> cc104e4 (feat: Introduce command palette, refactor calendar and pets-by-owner components, add new pages, server actions, and extensive database schema updates with security fixes and testing documentation.)
     ],
     dataRows: 500,
     frozenRows: 1,

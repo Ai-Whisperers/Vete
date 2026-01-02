@@ -240,8 +240,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         if (!smsResponse.ok) {
           const smsError = await smsResponse.json();
           console.error('[Consent Request] Failed to send SMS:', smsError);
-        } else {
-          console.log('[Consent Request] SMS sent successfully');
         }
       } else {
         console.warn('[Consent Request] SMS not configured for this tenant');

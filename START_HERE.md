@@ -26,7 +26,7 @@ Read these in order to understand what you're working with:
 | Order | File | What You'll Learn | Time |
 |-------|------|-------------------|------|
 | 1 | [`CLAUDE.md`](./CLAUDE.md) | Project overview, architecture, coding standards | 10 min |
-| 2 | [`PROJECT_DOCUMENTATION.md`](./PROJECT_DOCUMENTATION.md) | Complete technical reference (skim sections as needed) | 15 min |
+| 2 | [`docs/PROJECT_DOCUMENTATION.md`](./docs/PROJECT_DOCUMENTATION.md) | Complete technical reference (skim sections as needed) | 15 min |
 | 3 | [`web/.content_data/_TEMPLATE/`](./web/.content_data/_TEMPLATE/) | How the JSON-CMS content system works | 5 min |
 
 **After Phase 1, you'll understand:**
@@ -42,9 +42,9 @@ Read these in order to understand what you're working with:
 
 | Order | File | What You'll Learn | Time |
 |-------|------|-------------------|------|
-| 4 | [`ISSUES_ANALYSIS.md`](./ISSUES_ANALYSIS.md) | All 53 issues categorized by severity | 10 min |
-| 5 | [`INCOMPLETE_IMPLEMENTATIONS.md`](./INCOMPLETE_IMPLEMENTATIONS.md) | Features that are half-built | 10 min |
-| 6 | [`TROUBLESHOOTING.md`](./TROUBLESHOOTING.md) | Common problems and solutions | 5 min |
+| 4 | [`docs/ISSUES_ANALYSIS.md`](./docs/ISSUES_ANALYSIS.md) | All 53 issues categorized by severity | 10 min |
+| 5 | [`docs/INCOMPLETE_IMPLEMENTATIONS.md`](./docs/INCOMPLETE_IMPLEMENTATIONS.md) | Features that are half-built | 10 min |
+| 6 | [`docs/TROUBLESHOOTING.md`](./docs/TROUBLESHOOTING.md) | Common problems and solutions | 5 min |
 
 **After Phase 2, you'll understand:**
 - Critical security issues to fix first
@@ -58,7 +58,7 @@ Read these in order to understand what you're working with:
 
 | Order | File | What You'll Learn | Time |
 |-------|------|-------------------|------|
-| 7 | [`ISSUES_ACTION_PLAN.md`](./ISSUES_ACTION_PLAN.md) | Week-by-week fix schedule with code examples | 10 min |
+| 7 | [`docs/ISSUES_ACTION_PLAN.md`](./docs/ISSUES_ACTION_PLAN.md) | Week-by-week fix schedule with code examples | 10 min |
 
 **After Phase 3, you'll have:**
 - Prioritized task list
@@ -249,12 +249,13 @@ Explain how the appointment booking system works end-to-end, from the user click
 
 ### Documentation Files
 - [CLAUDE.md](./CLAUDE.md) - Project context for AI
-- [PROJECT_DOCUMENTATION.md](./PROJECT_DOCUMENTATION.md) - Complete reference
-- [ISSUES_ANALYSIS.md](./ISSUES_ANALYSIS.md) - All 53 issues
-- [ISSUES_ACTION_PLAN.md](./ISSUES_ACTION_PLAN.md) - Fix schedule
-- [INCOMPLETE_IMPLEMENTATIONS.md](./INCOMPLETE_IMPLEMENTATIONS.md) - Half-built features
-- [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) - Common problems
-- [ENV_REFERENCE.md](./ENV_REFERENCE.md) - Environment variables
+- [docs/PROJECT_DOCUMENTATION.md](./docs/PROJECT_DOCUMENTATION.md) - Complete reference
+- [docs/ISSUES_ANALYSIS.md](./docs/ISSUES_ANALYSIS.md) - All 53 issues
+- [docs/ISSUES_ACTION_PLAN.md](./docs/ISSUES_ACTION_PLAN.md) - Fix schedule
+- [docs/INCOMPLETE_IMPLEMENTATIONS.md](./docs/INCOMPLETE_IMPLEMENTATIONS.md) - Half-built features
+- [docs/TROUBLESHOOTING.md](./docs/TROUBLESHOOTING.md) - Common problems
+- [docs/ENV_REFERENCE.md](./docs/ENV_REFERENCE.md) - Environment variables
+- [docs/ANALYSIS_REPORT.md](./docs/ANALYSIS_REPORT.md) - Latest code analysis
 
 ### Existing Documentation
 - [documentation/](./documentation/) - 174 technical docs
@@ -268,9 +269,9 @@ Explain how the appointment booking system works end-to-end, from the user click
 
 As you fix issues, update these files:
 
-1. **ISSUES_ANALYSIS.md** - Mark issues as ✅ FIXED
-2. **ISSUES_ACTION_PLAN.md** - Check off completed tasks
-3. **INCOMPLETE_IMPLEMENTATIONS.md** - Remove completed features
+1. **docs/ISSUES_ANALYSIS.md** - Mark issues as ✅ FIXED
+2. **docs/ISSUES_ACTION_PLAN.md** - Check off completed tasks
+3. **docs/INCOMPLETE_IMPLEMENTATIONS.md** - Remove completed features
 
 Or just tell me:
 ```

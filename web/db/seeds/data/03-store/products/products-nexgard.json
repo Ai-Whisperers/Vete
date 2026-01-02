@@ -25,7 +25,7 @@
           "sku_suffix": "-3"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400&h=400&fit=crop&q=nexgard-2-4kg.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "active_ingredient": "Afoxolaner",
         "weight_range": "2-4kg",
@@ -55,7 +55,7 @@
           "sku_suffix": "-3"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400&h=400&fit=crop&q=nexgard-4-10kg.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "active_ingredient": "Afoxolaner",
         "weight_range": "4-10kg",
@@ -85,7 +85,7 @@
           "sku_suffix": "-3"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400&h=400&fit=crop&q=nexgard-10-25kg.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "active_ingredient": "Afoxolaner",
         "weight_range": "10-25kg",
@@ -115,7 +115,7 @@
           "sku_suffix": "-3"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400&h=400&fit=crop&q=nexgard-25-50kg.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "active_ingredient": "Afoxolaner",
         "weight_range": "25-50kg",
@@ -145,7 +145,7 @@
           "sku_suffix": "-3"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400&h=400&fit=crop&q=nexgard-spectra-3-7kg.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "active_ingredient": "Afoxolaner + Milbemicina oxima",
         "weight_range": "3.5-7.5kg",
@@ -176,7 +176,7 @@
           "sku_suffix": "-3"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400&h=400&fit=crop&q=nexgard-spectra-7-15kg.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "active_ingredient": "Afoxolaner + Milbemicina oxima",
         "weight_range": "7.5-15kg",
@@ -207,7 +207,7 @@
           "sku_suffix": "-3"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400&h=400&fit=crop&q=nexgard-spectra-15-30kg.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "active_ingredient": "Afoxolaner + Milbemicina oxima",
         "weight_range": "15-30kg",
@@ -238,7 +238,7 @@
           "sku_suffix": "-3"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400&h=400&fit=crop&q=nexgard-spectra-30-60kg.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "active_ingredient": "Afoxolaner + Milbemicina oxima",
         "weight_range": "30-60kg",

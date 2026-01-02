@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import { apiError, HTTP_STATUS } from '@/lib/api/errors';
 
 // Generate a unique redemption code
 function generateRedemptionCode(): string {
@@ -21,7 +22,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   // Auth check
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   try {
@@ -29,7 +30,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const { reward_id, pet_id } = body;
 
     if (!reward_id) {
-      return NextResponse.json({ error: 'reward_id es requerido' }, { status: 400 });
+      return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, { details: { field: 'reward_id' } });
     }
 
     // Get reward details
@@ -41,21 +42,21 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       .single();
 
     if (rewardError || !reward) {
-      return NextResponse.json({ error: 'Recompensa no encontrada o no disponible' }, { status: 404 });
+      return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND);
     }
 
     // Check validity dates
     const now = new Date();
     if (reward.valid_from && new Date(reward.valid_from) > now) {
-      return NextResponse.json({ error: 'Esta recompensa aún no está disponible' }, { status: 400 });
+      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, { details: { reason: 'Esta recompensa aún no está disponible' } });
     }
     if (reward.valid_to && new Date(reward.valid_to) < now) {
-      return NextResponse.json({ error: 'Esta recompensa ha expirado' }, { status: 400 });
+      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, { details: { reason: 'Esta recompensa ha expirado' } });
     }
 
     // Check stock
     if (reward.stock !== null && reward.stock <= 0) {
-      return NextResponse.json({ error: 'Esta recompensa está agotada' }, { status: 400 });
+      return apiError('CONFLICT', HTTP_STATUS.BAD_REQUEST, { details: { reason: 'Esta recompensa está agotada' } });
     }
 
     // Check max per user
@@ -68,7 +69,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         .in('status', ['pending', 'approved', 'used']);
 
       if (count && count >= reward.max_per_user) {
-        return NextResponse.json({ error: `Ya has canjeado esta recompensa el máximo de ${reward.max_per_user} veces` }, { status: 400 });
+        return apiError('QUOTA_EXCEEDED', HTTP_STATUS.BAD_REQUEST, { details: { reason: `Ya has canjeado esta recompensa el máximo de ${reward.max_per_user} veces` } });
       }
     }
 
@@ -101,9 +102,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     if (pointsBalance < reward.points_cost) {
-      return NextResponse.json({
-        error: `Puntos insuficientes. Tienes ${pointsBalance} puntos, necesitas ${reward.points_cost}`
-      }, { status: 400 });
+      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, { details: { reason: `Puntos insuficientes. Tienes ${pointsBalance} puntos, necesitas ${reward.points_cost}` } });
     }
 
     // Generate unique code
@@ -203,7 +202,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }, { status: 201 });
   } catch (e) {
     console.error('Error redeeming reward:', e);
-    return NextResponse.json({ error: 'Error al canjear recompensa' }, { status: 500 });
+    return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 }
 
@@ -217,7 +216,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   // Auth check
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   try {
@@ -235,6 +234,6 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ data: redemptions || [] });
   } catch (e) {
     console.error('Error fetching redemptions:', e);
-    return NextResponse.json({ error: 'Error al cargar historial' }, { status: 500 });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 }

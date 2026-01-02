@@ -3,6 +3,7 @@
 import { withActionAuth } from '@/lib/auth'
 import { actionSuccess, actionError } from '@/lib/errors'
 import { revalidatePath } from 'next/cache'
+import { logger } from '@/lib/logger'
 
 /**
  * Get conversations for current user or staff
@@ -43,7 +44,11 @@ export const getConversations = withActionAuth(
     const { data, error } = await query.order('last_message_at', { ascending: false, nullsFirst: false })
 
     if (error) {
-      console.error('Get conversations error:', error)
+      logger.error('Failed to get conversations', {
+        error,
+        tenant: clinicSlug,
+        userId: user.id
+      })
       return actionError('Error al obtener conversaciones')
     }
 
@@ -77,7 +82,11 @@ export const createConversation = withActionAuth(
       .single()
 
     if (convError || !conversation) {
-      console.error('Create conversation error:', convError)
+      logger.error('Failed to create conversation', {
+        error: convError,
+        tenant: clinicSlug,
+        userId: user.id
+      })
       return actionError('Error al crear la conversación')
     }
 
@@ -92,7 +101,12 @@ export const createConversation = withActionAuth(
       })
 
     if (msgError) {
-      console.error('Create message error:', msgError)
+      logger.error('Failed to create first message', {
+        error: msgError,
+        tenant: clinicSlug,
+        userId: user.id,
+        conversationId: conversation.id
+      })
       return actionError('Error al enviar el primer mensaje')
     }
 

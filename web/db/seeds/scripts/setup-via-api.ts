@@ -208,24 +208,6 @@ class ApiClient {
     return this.request('GET', '/qr-tags')
   }
 
-  // Appointments
-  async createAppointment(data: any): Promise<any> {
-    return this.request('POST', '/appointments', data)
-  }
-
-  async getAppointments(): Promise<any[]> {
-    return this.request('GET', '/appointments')
-  }
-
-  // Hospitalizations
-  async createHospitalization(data: any): Promise<any> {
-    return this.request('POST', '/hospitalizations', data)
-  }
-
-  async getHospitalizations(): Promise<any[]> {
-    return this.request('GET', '/hospitalizations')
-  }
-
   // Store operations
   async createBrand(data: any): Promise<any> {
     return this.request('POST', '/store/brands', data)
@@ -268,13 +250,7 @@ class ApiClient {
   async clearTenantData(tenantId: string): Promise<void> {
     console.log(`🧹 Clearing all data for tenant: ${tenantId}`)
 
-    const response = await this.request('DELETE', `/api/setup/seed?tenant_id=${tenantId}`)
-    const result = await response.json()
-
-    if (!response.ok) {
-      throw new Error(`Failed to clear tenant data: ${result.error}`)
-    }
-
+    const result = await this.request<{ total_deleted: number }>('DELETE', `/api/setup/seed?tenant_id=${tenantId}`)
     console.log(`   ✅ Cleared ${result.total_deleted} records for tenant ${tenantId}`)
   }
 }
@@ -494,8 +470,8 @@ class EnvironmentSetup {
         if (tenant.id === this.config.tenantId) {
           try {
             const response = await this.api.seedEntity('create_tenant', tenant)
-            this.tracker.set('tenant', tenant.id, created.id)
-            console.log(`   ✅ Created tenant: ${created.name}`)
+            this.tracker.set('tenant', tenant.id, response.id)
+            console.log(`   ✅ Created tenant: ${response.name}`)
           } catch (error) {
             if (this.config.skipExisting) {
               console.log(`   ⏭️  Tenant ${tenant.id} already exists, skipping`)
@@ -519,10 +495,10 @@ class EnvironmentSetup {
       for (const service of servicesData.services) {
         try {
           const response = await this.api.seedEntity('create_service', service)
-          this.tracker.set('service', service.name, created.id)
-          console.log(`   ✅ Created service: ${created.name}`)
+          this.tracker.set('service', service.name, response.id)
+          console.log(`   ✅ Created service: ${response.name}`)
         } catch (error) {
-          console.log(`   ⚠️  Failed to create service ${service.name}:`, error.message)
+          console.log(`   ⚠️  Failed to create service ${service.name}:`, (error as Error).message)
         }
       }
     }
@@ -539,10 +515,10 @@ class EnvironmentSetup {
       for (const method of paymentData.payment_methods) {
         try {
           const response = await this.api.seedEntity('create_payment_method', method)
-          this.tracker.set('payment_method', method.name, created.id)
-          console.log(`   ✅ Created payment method: ${created.name}`)
+          this.tracker.set('payment_method', method.name, response.id)
+          console.log(`   ✅ Created payment method: ${response.name}`)
         } catch (error) {
-          console.log(`   ⚠️  Failed to create payment method ${method.name}:`, error.message)
+          console.log(`   ⚠️  Failed to create payment method ${method.name}:`, (error as Error).message)
         }
       }
     }
@@ -559,10 +535,10 @@ class EnvironmentSetup {
       for (const kennel of kennelsData.kennels) {
         try {
           const response = await this.api.seedEntity('create_kennel', kennel)
-          this.tracker.set('kennel', kennel.name, created.id)
-          console.log(`   ✅ Created kennel: ${created.name}`)
+          this.tracker.set('kennel', kennel.name, response.id)
+          console.log(`   ✅ Created kennel: ${response.name}`)
         } catch (error) {
-          console.log(`   ⚠️  Failed to create kennel ${kennel.name}:`, error.message)
+          console.log(`   ⚠️  Failed to create kennel ${kennel.name}:`, (error as Error).message)
         }
       }
     }
@@ -579,10 +555,10 @@ class EnvironmentSetup {
       for (const tag of qrData.qr_tags) {
         try {
           const response = await this.api.seedEntity('create_qr_tag', tag)
-          this.tracker.set('qr_tag', tag.code, created.id)
-          console.log(`   ✅ Created QR tag: ${created.code}`)
+          this.tracker.set('qr_tag', tag.code, response.id)
+          console.log(`   ✅ Created QR tag: ${response.code}`)
         } catch (error) {
-          console.log(`   ⚠️  Failed to create QR tag ${tag.code}:`, error.message)
+          console.log(`   ⚠️  Failed to create QR tag ${tag.code}:`, (error as Error).message)
         }
       }
     }
@@ -604,7 +580,7 @@ class EnvironmentSetup {
           this.tracker.set('profile', profile.id, response.id)
           console.log(`   ✅ Created profile: ${response.full_name}`)
         } catch (error) {
-          console.log(`   ⚠️  Failed to create profile ${profile.full_name}:`, error.message)
+          console.log(`   ⚠️  Failed to create profile ${profile.full_name}:`, (error as Error).message)
         }
       }
     }
@@ -627,7 +603,7 @@ class EnvironmentSetup {
           this.tracker.set('pet', pet.id, response.id)
           console.log(`   ✅ Created pet: ${response.name}`)
         } catch (error) {
-          console.log(`   ⚠️  Failed to create pet ${pet.name}:`, error.message)
+          console.log(`   ⚠️  Failed to create pet ${pet.name}:`, (error as Error).message)
         }
       }
     }
@@ -650,7 +626,7 @@ class EnvironmentSetup {
           this.tracker.set('appointment', appointment.id, response.id)
           console.log(`   ✅ Created appointment: ${response.id}`)
         } catch (error) {
-          console.log(`   ⚠️  Failed to create appointment ${appointment.id}:`, error.message)
+          console.log(`   ⚠️  Failed to create appointment ${appointment.id}:`, (error as Error).message)
         }
       }
     }
@@ -670,10 +646,10 @@ class EnvironmentSetup {
           const { id, ...recordData } = record
           const resolvedData = this.tracker.resolveReferences(recordData, 'profile')
           const response = await this.api.seedEntity('create_medical_record', resolvedData)
-          this.tracker.set('medical_record', record.id, created.id)
-          console.log(`   ✅ Created medical record: ${created.id}`)
+          this.tracker.set('medical_record', record.id, response.id)
+          console.log(`   ✅ Created medical record: ${response.id}`)
         } catch (error) {
-          console.log(`   ⚠️  Failed to create medical record ${record.id}:`, error.message)
+          console.log(`   ⚠️  Failed to create medical record ${record.id}:`, (error as Error).message)
         }
       }
     }
@@ -693,10 +669,10 @@ class EnvironmentSetup {
           const { id, ...vaccineData } = vaccine
           const resolvedData = this.tracker.resolveReferences(vaccineData, 'profile')
           const response = await this.api.seedEntity('create_vaccine', resolvedData)
-          this.tracker.set('vaccine', vaccine.id, created.id)
-          console.log(`   ✅ Created vaccine record: ${created.id}`)
+          this.tracker.set('vaccine', vaccine.id, response.id)
+          console.log(`   ✅ Created vaccine record: ${response.id}`)
         } catch (error) {
-          console.log(`   ⚠️  Failed to create vaccine ${vaccine.id}:`, error.message)
+          console.log(`   ⚠️  Failed to create vaccine ${vaccine.id}:`, (error as Error).message)
         }
       }
     }
@@ -719,7 +695,7 @@ class EnvironmentSetup {
           this.tracker.set('hospitalization', hospitalization.id, response.id)
           console.log(`   ✅ Created hospitalization: ${response.id}`)
         } catch (error) {
-          console.log(`   ⚠️  Failed to create hospitalization ${hospitalization.id}:`, error.message)
+          console.log(`   ⚠️  Failed to create hospitalization ${hospitalization.id}:`, (error as Error).message)
         }
       }
     }

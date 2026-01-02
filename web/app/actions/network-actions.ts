@@ -4,6 +4,7 @@ import { withActionAuth } from '@/lib/actions/with-action-auth';
 import { actionSuccess, actionError } from '@/lib/actions/result';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
+import { logger } from '@/lib/logger';
 
 // Validation schema
 const requestAccessSchema = z.object({
@@ -34,14 +35,24 @@ export const requestAccess = withActionAuth<void, [string, string]>(
             });
 
             if (error) {
-                console.error('RPC Error:', error);
+                logger.error('Failed to grant clinic access', {
+                    error,
+                    userId: context.user.id,
+                    petId,
+                    clinicId
+                });
                 return actionError(error.message);
             }
 
             revalidatePath(`/${clinicId}/portal/dashboard/patients`);
             return actionSuccess();
         } catch (e) {
-            console.error('Request access error:', e);
+            logger.error('Unexpected error in requestAccess', {
+                error: e instanceof Error ? e : undefined,
+                userId: context.user.id,
+                petId,
+                clinicId
+            });
             return actionError('Error interno del servidor');
         }
     },

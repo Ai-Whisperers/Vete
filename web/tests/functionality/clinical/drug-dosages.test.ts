@@ -39,11 +39,12 @@ describe('Drug Dosages Functionality', () => {
 
       expect(error).toBeNull();
       expect(data).toBeDefined();
-      expect(data.drug_name).toBe('Amoxicilina');
-      expect(data.dosage_per_kg).toBe(10);
-      expect(data.unit).toBe('mg');
+      expect(data).not.toBeNull();
+      expect(data!.drug_name).toBe('Amoxicilina');
+      expect(data!.dosage_per_kg).toBe(10);
+      expect(data!.unit).toBe('mg');
 
-      ctx.track('drug_dosages', data.id);
+      ctx.track('drug_dosages', data!.id);
     });
 
     test('retrieves all drug dosages', async () => {
@@ -79,7 +80,8 @@ describe('Drug Dosages Functionality', () => {
 
       expect(error).toBeNull();
       expect(data).toBeDefined();
-      expect(data.some((d: { drug_name: string }) => d.drug_name === 'Metronidazol')).toBe(true);
+      expect(data).not.toBeNull();
+      expect(data!.some((d: { drug_name: string }) => d.drug_name === 'Metronidazol')).toBe(true);
     });
   });
 
@@ -153,8 +155,9 @@ describe('Drug Dosages Functionality', () => {
           .single();
 
         expect(error).toBeNull();
-        expect(data.unit).toBe(unit);
-        ctx.track('drug_dosages', data.id);
+        expect(data).not.toBeNull();
+        expect(data!.unit).toBe(unit);
+        ctx.track('drug_dosages', data!.id);
       }
     });
   });

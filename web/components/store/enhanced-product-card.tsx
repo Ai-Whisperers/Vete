@@ -19,6 +19,8 @@ import {
 } from 'lucide-react';
 import type { StoreProductWithDetails } from '@/lib/types/store';
 import { useCart } from '@/context/cart-context';
+import { useWishlist } from '@/context/wishlist-context';
+import { NotifyWhenAvailable } from './notify-when-available';
 
 interface Props {
   product: StoreProductWithDetails;
@@ -26,8 +28,6 @@ interface Props {
   currencySymbol?: string;
   onQuickView?: (product: StoreProductWithDetails) => void;
   showWishlist?: boolean;
-  isWishlisted?: boolean;
-  onWishlistToggle?: (productId: string) => void;
 }
 
 export default function EnhancedProductCard({
@@ -36,14 +36,15 @@ export default function EnhancedProductCard({
   currencySymbol = 'Gs',
   onQuickView,
   showWishlist = true,
-  isWishlisted = false,
-  onWishlistToggle,
 }: Props) {
   const { addItem } = useCart();
+  const { isWishlisted, toggleWishlist, syncStatus } = useWishlist();
   const [isHovered, setIsHovered] = useState(false);
   const [addingToCart, setAddingToCart] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
-  const [localWishlisted, setLocalWishlisted] = useState(isWishlisted);
+  const [togglingWishlist, setTogglingWishlist] = useState(false);
+
+  const productIsWishlisted = isWishlisted(product.id);
 
   const stock = product.inventory?.stock_quantity || 0;
   const inStock = stock > 0;
@@ -80,11 +81,17 @@ export default function EnhancedProductCard({
     }, 300);
   };
 
-  const handleWishlistToggle = (e: React.MouseEvent) => {
+  const handleWishlistToggle = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setLocalWishlisted(!localWishlisted);
-    onWishlistToggle?.(product.id);
+    if (togglingWishlist) return;
+
+    setTogglingWishlist(true);
+    try {
+      await toggleWishlist(product.id);
+    } finally {
+      setTogglingWishlist(false);
+    }
   };
 
   const handleQuickView = (e: React.MouseEvent) => {
@@ -106,13 +113,19 @@ export default function EnhancedProductCard({
         {showWishlist && (
           <button
             onClick={handleWishlistToggle}
+            disabled={togglingWishlist}
             className={`absolute top-3 right-3 z-10 p-2 rounded-full transition-all ${
-              localWishlisted
+              productIsWishlisted
                 ? 'bg-red-50 text-red-500'
                 : 'bg-white/80 backdrop-blur text-gray-400 hover:text-red-500'
-            } shadow-sm`}
+            } shadow-sm disabled:opacity-50`}
+            aria-label={productIsWishlisted ? 'Quitar de lista de deseos' : 'Agregar a lista de deseos'}
           >
-            <Heart className={`w-5 h-5 ${localWishlisted ? 'fill-current' : ''}`} />
+            {togglingWishlist ? (
+              <Loader2 className="w-5 h-5 animate-spin" />
+            ) : (
+              <Heart className={`w-5 h-5 ${productIsWishlisted ? 'fill-current' : ''}`} />
+            )}
           </button>
         )}
 
@@ -244,32 +257,40 @@ export default function EnhancedProductCard({
           )}
         </div>
 
-        {/* Add to Cart Button */}
-        <button
-          onClick={handleAddToCart}
-          disabled={!inStock || addingToCart}
-          className={`w-full mt-3 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-semibold transition-all ${
-            inStock
-              ? addedToCart
+        {/* Add to Cart Button or Notify Component */}
+        {inStock ? (
+          <button
+            onClick={handleAddToCart}
+            disabled={addingToCart}
+            className={`w-full mt-3 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-semibold transition-all ${
+              addedToCart
                 ? 'bg-green-500 text-white shadow-md'
                 : 'bg-[var(--primary)] text-white hover:shadow-md hover:scale-[1.02] active:scale-[0.98]'
-              : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-          }`}
-        >
-          {addingToCart ? (
-            <Loader2 className="w-4 h-4 animate-spin" />
-          ) : addedToCart ? (
-            <>
-              <Check className="w-4 h-4" />
-              ¡Agregado!
-            </>
-          ) : (
-            <>
-              <ShoppingCart className="w-4 h-4" />
-              Agregar al carrito
-            </>
-          )}
-        </button>
+            }`}
+          >
+            {addingToCart ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : addedToCart ? (
+              <>
+                <Check className="w-4 h-4" />
+                ¡Agregado!
+              </>
+            ) : (
+              <>
+                <ShoppingCart className="w-4 h-4" />
+                Agregar al carrito
+              </>
+            )}
+          </button>
+        ) : (
+          <div className="mt-3" onClick={(e) => e.preventDefault()}>
+            <NotifyWhenAvailable
+              productId={product.id}
+              clinic={clinic}
+              variant="inline"
+            />
+          </div>
+        )}
 
         {/* Loyalty Points - More Visible */}
         {inStock && product.current_price > 10000 && (

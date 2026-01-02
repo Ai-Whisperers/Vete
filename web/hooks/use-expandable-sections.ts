@@ -39,7 +39,7 @@ export function useExpandableSections<T extends Record<string, boolean>>(
 
   const expandAll = () => {
     const allExpanded = Object.keys(expandedSections).reduce((acc, key) => {
-      acc[key as keyof T] = true;
+      (acc as Record<string, boolean>)[key] = true;
       return acc;
     }, {} as T);
     setExpandedSections(allExpanded);
@@ -47,7 +47,7 @@ export function useExpandableSections<T extends Record<string, boolean>>(
 
   const collapseAll = () => {
     const allCollapsed = Object.keys(expandedSections).reduce((acc, key) => {
-      acc[key as keyof T] = false;
+      (acc as Record<string, boolean>)[key] = false;
       return acc;
     }, {} as T);
     setExpandedSections(allCollapsed);

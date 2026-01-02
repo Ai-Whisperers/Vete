@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import { apiError, HTTP_STATUS } from '@/lib/api/errors';
 
 interface RouteParams {
   params: Promise<{
@@ -14,7 +15,7 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
   // Authentication check
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   // Get user profile
@@ -25,7 +26,9 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
     .single();
 
   if (!profile) {
-    return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 });
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
+      details: { resource: 'profile' }
+    });
   }
 
   // Parse body
@@ -33,7 +36,7 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: 'JSON inválido' }, { status: 400 });
+    return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST);
   }
 
   const { action, details } = body;
@@ -41,7 +44,9 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
   // Validate action
   const validActions = ['viewed', 'downloaded', 'emailed', 'printed'];
   if (!action || !validActions.includes(action)) {
-    return NextResponse.json({ error: 'Acción no válida' }, { status: 400 });
+    return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+      details: { validActions }
+    });
   }
 
   // Verify consent exists and user has access
@@ -56,7 +61,9 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
     .single();
 
   if (!consent) {
-    return NextResponse.json({ error: 'Consentimiento no encontrado' }, { status: 404 });
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
+      details: { resource: 'consent' }
+    });
   }
 
   // Authorization check
@@ -68,10 +75,10 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
 
   if (isStaff) {
     if (pet.tenant_id !== profile.clinic_id) {
-      return NextResponse.json({ error: 'No tienes acceso a este consentimiento' }, { status: 403 });
+      return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN);
     }
   } else if (!isOwner) {
-    return NextResponse.json({ error: 'No tienes acceso a este consentimiento' }, { status: 403 });
+    return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN);
   }
 
   // Create audit log entry
@@ -91,7 +98,7 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
 
   if (auditError) {
     console.error('[API] audit log error:', auditError);
-    return NextResponse.json({ error: 'Error al registrar acción' }, { status: 500 });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 
   return NextResponse.json(auditEntry);

@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
+import { useState, useEffect } from "react";
 import { submitContactForm } from "@/app/actions/contact-form";
 import { Check, Loader2, Send, User, Phone, Dog, MessageSquare } from "lucide-react";
 
@@ -32,7 +33,41 @@ function SubmitButton() {
   );
 }
 
-export function AppointmentForm() {
+// Loading skeleton that matches the form layout
+function FormSkeleton() {
+  return (
+    <div className="bg-white p-6 md:p-8 rounded-2xl shadow-[var(--shadow-card)] border border-gray-100 animate-pulse">
+      <div className="mb-6">
+        <div className="h-7 bg-gray-200 rounded w-32 mb-2" />
+        <div className="h-4 bg-gray-100 rounded w-64" />
+      </div>
+      <div className="space-y-4">
+        <div>
+          <div className="h-4 bg-gray-200 rounded w-20 mb-2" />
+          <div className="h-14 bg-gray-100 rounded-xl" />
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <div className="h-4 bg-gray-200 rounded w-16 mb-2" />
+            <div className="h-14 bg-gray-100 rounded-xl" />
+          </div>
+          <div>
+            <div className="h-4 bg-gray-200 rounded w-16 mb-2" />
+            <div className="h-14 bg-gray-100 rounded-xl" />
+          </div>
+        </div>
+        <div>
+          <div className="h-4 bg-gray-200 rounded w-36 mb-2" />
+          <div className="h-24 bg-gray-100 rounded-xl" />
+        </div>
+        <div className="h-14 bg-gray-200 rounded-xl" />
+      </div>
+    </div>
+  );
+}
+
+// The actual form component
+function AppointmentFormContent() {
   const [state, formAction] = useActionState<FormState, FormData>(submitContactForm, null);
 
   if (state?.success) {
@@ -64,7 +99,7 @@ export function AppointmentForm() {
         </p>
       </div>
 
-      <form action={formAction} className="space-y-4">
+      <form action={formAction} className="space-y-4" autoComplete="off" data-form-type="other">
         {/* Name Field */}
         <div>
           <label htmlFor="name-field" className="block text-sm font-bold text-[var(--text-primary)] mb-2">
@@ -80,6 +115,9 @@ export function AppointmentForm() {
               type="text"
               required
               placeholder="Ej: Juan Pérez"
+              autoComplete="off"
+              data-lpignore="true"
+              data-form-type="other"
               aria-invalid={state?.error ? "true" : "false"}
               aria-describedby={state?.error ? "name-error" : undefined}
               className="w-full pl-16 pr-4 py-3.5 rounded-xl border border-gray-200 bg-white focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none transition-all text-[var(--text-primary)] placeholder:text-gray-400"
@@ -108,6 +146,9 @@ export function AppointmentForm() {
                 type="tel"
                 required
                 placeholder="0981..."
+                autoComplete="off"
+                data-lpignore="true"
+                data-form-type="other"
                 aria-invalid="false"
                 aria-describedby="phone-help"
                 className="w-full pl-16 pr-4 py-3.5 rounded-xl border border-gray-200 bg-white focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none transition-all text-[var(--text-primary)] placeholder:text-gray-400"
@@ -129,6 +170,9 @@ export function AppointmentForm() {
                 type="text"
                 required
                 placeholder="Ej: Firulais"
+                autoComplete="off"
+                data-lpignore="true"
+                data-form-type="other"
                 aria-invalid="false"
                 aria-describedby="pet-help"
                 className="w-full pl-16 pr-4 py-3.5 rounded-xl border border-gray-200 bg-white focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none transition-all text-[var(--text-primary)] placeholder:text-gray-400"
@@ -153,6 +197,9 @@ export function AppointmentForm() {
               required
               placeholder="Ej: Vacunación anual y corte de uñas..."
               rows={3}
+              autoComplete="off"
+              data-lpignore="true"
+              data-form-type="other"
               aria-invalid="false"
               aria-describedby="reason-help"
               className="w-full pl-16 pr-4 py-3.5 rounded-xl border border-gray-200 bg-white focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none transition-all resize-none text-[var(--text-primary)] placeholder:text-gray-400"
@@ -169,4 +216,22 @@ export function AppointmentForm() {
       </form>
     </div>
   );
+}
+
+// Main export: Client-only wrapper to prevent hydration mismatch from browser extensions
+export function AppointmentForm() {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // Show skeleton during SSR and initial client render
+  // This prevents hydration mismatch because the skeleton is identical on server and client
+  // The actual form only renders after React has fully hydrated
+  if (!isMounted) {
+    return <FormSkeleton />;
+  }
+
+  return <AppointmentFormContent />;
 }

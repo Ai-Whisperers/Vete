@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import { apiError, HTTP_STATUS } from '@/lib/api/errors';
 
 // GET /api/insurance/providers - List insurance providers
 export async function GET(request: NextRequest) {
@@ -7,7 +8,7 @@ export async function GET(request: NextRequest) {
 
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   const { searchParams } = new URL(request.url);
@@ -30,6 +31,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ data: providers });
   } catch (e) {
     console.error('Error loading insurance providers:', e);
-    return NextResponse.json({ error: 'Error al cargar proveedores' }, { status: 500 });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 }

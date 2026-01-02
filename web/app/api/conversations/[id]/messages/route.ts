@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -168,7 +169,12 @@ export async function POST(request: Request, { params }: RouteParams) {
 
     return NextResponse.json(message, { status: 201 });
   } catch (e) {
-    console.error('Error sending message:', e);
+    logger.error('Error sending message', {
+      userId: user.id,
+      tenantId: profile.tenant_id,
+      conversationId,
+      error: e instanceof Error ? e.message : String(e)
+    });
     return NextResponse.json({ error: 'Error al enviar mensaje' }, { status: 500 });
   }
 }

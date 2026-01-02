@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { apiError, HTTP_STATUS } from '@/lib/api/errors';
 
 // TICKET-TYPE-005: Type definitions for revenue analytics
 interface PaymentsByMethod {
@@ -22,7 +23,7 @@ export async function GET(request: Request) {
 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   const { data: profile } = await supabase
@@ -32,7 +33,7 @@ export async function GET(request: Request) {
     .single();
 
   if (!profile || profile.role !== 'admin') {
-    return NextResponse.json({ error: 'Solo administradores pueden ver ingresos' }, { status: 403 });
+    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
   }
 
   const { searchParams } = new URL(request.url);
@@ -86,6 +87,8 @@ export async function GET(request: Request) {
     return NextResponse.json(revenue);
   } catch (e) {
     console.error('Error loading revenue analytics:', e);
-    return NextResponse.json({ error: 'Error al cargar analítica de ingresos' }, { status: 500 });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
+      details: { message: e instanceof Error ? e.message : 'Unknown error' }
+    });
   }
 }

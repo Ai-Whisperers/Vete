@@ -37,7 +37,7 @@
           "sku_suffix": "-XL"
         }
       ],
-      "image_url": "https://www.medline.com/images/gloves-nitrile.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "material": "Nitrilo",
         "powder_free": true,
@@ -74,7 +74,7 @@
           "sku_suffix": "-L"
         }
       ],
-      "image_url": "https://www.medline.com/images/gloves-latex.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "material": "Látex natural",
         "powder_free": true,
@@ -116,7 +116,7 @@
           "sku_suffix": "-80"
         }
       ],
-      "image_url": "https://www.medline.com/images/gloves-surgical.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "sterile": true,
         "beaded_cuff": true,
@@ -146,7 +146,7 @@
           "sku_suffix": "-10CM"
         }
       ],
-      "image_url": "https://www.medline.com/images/gauze-roll.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "material": "Algodón 100%",
         "sterile": true,
@@ -170,7 +170,7 @@
           "sku_suffix": "-200"
         }
       ],
-      "image_url": "https://www.medline.com/images/gauze-sponge.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "size": "10x10cm",
         "sterile": true,
@@ -206,7 +206,7 @@
           "sku_suffix": "-10CM"
         }
       ],
-      "image_url": "https://www.medline.com/images/cohesive-bandage.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "self_adherent": true,
         "latex_free": true,
@@ -241,7 +241,7 @@
           "sku_suffix": "-1KG"
         }
       ],
-      "image_url": "https://www.medline.com/images/cotton-roll.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "absorbent": true,
         "bleached": true
@@ -270,7 +270,7 @@
           "sku_suffix": "-25"
         }
       ],
-      "image_url": "https://www.medline.com/images/surgical-tape.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "hypoallergenic": true,
         "breathable": true,
@@ -294,7 +294,7 @@
           "sku_suffix": "-200"
         }
       ],
-      "image_url": "https://www.medline.com/images/alcohol-swabs.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "alcohol_concentration": "70%",
         "individually_wrapped": true
@@ -317,7 +317,7 @@
           "sku_suffix": "-50"
         }
       ],
-      "image_url": "https://www.medline.com/images/surgical-mask.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "layers": 3,
         "fluid_resistant": true,
@@ -353,7 +353,7 @@
           "sku_suffix": "-XL"
         }
       ],
-      "image_url": "https://www.medline.com/images/surgical-gown.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "sterile": true,
         "fluid_resistant": true,
@@ -377,7 +377,7 @@
           "sku_suffix": "-100"
         }
       ],
-      "image_url": "https://www.medline.com/images/bouffant-cap.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "one_size": true,
         "elastic_band": true
@@ -400,7 +400,7 @@
           "sku_suffix": "-100"
         }
       ],
-      "image_url": "https://www.medline.com/images/shoe-covers.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "non_slip": true,
         "fluid_resistant": true
@@ -429,7 +429,7 @@
           "sku_suffix": "-100X150"
         }
       ],
-      "image_url": "https://www.medline.com/images/surgical-drapes.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "sterile": true,
         "fenestrated": true,

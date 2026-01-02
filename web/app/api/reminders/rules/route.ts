@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import { apiError, HTTP_STATUS } from '@/lib/api/errors';
 
 /**
  * GET /api/reminders/rules
@@ -11,7 +12,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   // Auth check
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   // Admin check
@@ -22,7 +23,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     .single();
 
   if (!profile || profile.role !== 'admin') {
-    return NextResponse.json({ error: 'Solo administradores pueden ver reglas' }, { status: 403 });
+    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
   }
 
   try {
@@ -38,7 +39,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ data: data || [] });
   } catch (e) {
     console.error('Error fetching reminder rules:', e);
-    return NextResponse.json({ error: 'Error al cargar reglas' }, { status: 500 });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 }
 
@@ -52,7 +53,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   // Auth check
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   // Admin check
@@ -63,7 +64,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     .single();
 
   if (!profile || profile.role !== 'admin') {
-    return NextResponse.json({ error: 'Solo administradores pueden crear reglas' }, { status: 403 });
+    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
   }
 
   try {
@@ -71,7 +72,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const { name, type, days_offset, time_of_day, channels, conditions, is_active } = body;
 
     if (!name || !type || days_offset === undefined) {
-      return NextResponse.json({ error: 'name, type y days_offset son requeridos' }, { status: 400 });
+      return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, { details: { required: ['name', 'type', 'days_offset'] } });
     }
 
     const { data, error } = await supabase
@@ -94,7 +95,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ data }, { status: 201 });
   } catch (e) {
     console.error('Error creating reminder rule:', e);
-    return NextResponse.json({ error: 'Error al crear regla' }, { status: 500 });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 }
 
@@ -108,7 +109,7 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
   // Auth check
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   // Admin check
@@ -119,7 +120,7 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
     .single();
 
   if (!profile || profile.role !== 'admin') {
-    return NextResponse.json({ error: 'Solo administradores pueden editar reglas' }, { status: 403 });
+    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
   }
 
   try {
@@ -127,7 +128,7 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
     const { id, ...updates } = body;
 
     if (!id) {
-      return NextResponse.json({ error: 'id es requerido' }, { status: 400 });
+      return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, { details: { required: ['id'] } });
     }
 
     const { data, error } = await supabase
@@ -143,7 +144,7 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ data });
   } catch (e) {
     console.error('Error updating reminder rule:', e);
-    return NextResponse.json({ error: 'Error al actualizar regla' }, { status: 500 });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 }
 
@@ -157,13 +158,13 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
   const id = searchParams.get('id');
 
   if (!id) {
-    return NextResponse.json({ error: 'id es requerido' }, { status: 400 });
+    return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, { details: { required: ['id'] } });
   }
 
   // Auth check
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   // Admin check
@@ -174,7 +175,7 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
     .single();
 
   if (!profile || profile.role !== 'admin') {
-    return NextResponse.json({ error: 'Solo administradores pueden eliminar reglas' }, { status: 403 });
+    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
   }
 
   try {
@@ -189,6 +190,6 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ success: true });
   } catch (e) {
     console.error('Error deleting reminder rule:', e);
-    return NextResponse.json({ error: 'Error al eliminar regla' }, { status: 500 });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 }

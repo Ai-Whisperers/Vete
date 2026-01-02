@@ -5,8 +5,9 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { AuthService } from './core'
-import { apiError } from '@/lib/api/errors'
+import { apiError, type ApiErrorType } from '@/lib/api/errors'
 import type { AuthContext, UserRole } from './types'
+import type { ApiResponse } from '@/lib/errors/types'
 
 export interface ApiHandlerContext extends AuthContext {
   request: NextRequest
@@ -18,11 +19,11 @@ export interface ApiRouteOptions {
   requireActive?: boolean
 }
 
-type ApiHandler<T = any> = (context: ApiHandlerContext) => Promise<NextResponse<T>>
-type ApiHandlerWithParams<P, T = any> = (
+type ApiHandler<T = unknown> = (context: ApiHandlerContext) => Promise<NextResponse<ApiResponse<T>>>
+type ApiHandlerWithParams<P, T = unknown> = (
   context: ApiHandlerContext,
   params: P
-) => Promise<NextResponse<T>>
+) => Promise<NextResponse<ApiResponse<T>>>
 
 /**
  * Enhanced API route wrapper with centralized authentication
@@ -38,18 +39,18 @@ type ApiHandlerWithParams<P, T = any> = (
  * )
  * ```
  */
-export function withApiAuth<T = any>(
+export function withApiAuth<T = unknown>(
   handler: ApiHandler<T>,
   options: ApiRouteOptions = {}
-): (request: NextRequest) => Promise<NextResponse<T>> {
-  return async (request: NextRequest): Promise<NextResponse<T>> => {
+): (request: NextRequest) => Promise<NextResponse<ApiResponse<T>>> {
+  return async (request: NextRequest): Promise<NextResponse<ApiResponse<T>>> => {
     try {
       // Validate authentication
       const authResult = await AuthService.validateAuth(options)
 
       if (!authResult.success || !authResult.context) {
         return apiError(
-          authResult.error!.code,
+          authResult.error!.code as ApiErrorType,
           authResult.error!.statusCode,
           { details: authResult.error }
         )
@@ -72,16 +73,16 @@ export function withApiAuth<T = any>(
 /**
  * API route wrapper for routes with dynamic parameters
  */
-export function withApiAuthParams<P extends Record<string, string>, T = any>(
+export function withApiAuthParams<P extends Record<string, string>, T = unknown>(
   handler: ApiHandlerWithParams<P, T>,
   options: ApiRouteOptions & {
     paramName?: keyof P
   } = {}
-): (request: NextRequest, context: { params: Promise<P> }) => Promise<NextResponse<T>> {
+): (request: NextRequest, context: { params: Promise<P> }) => Promise<NextResponse<ApiResponse<T>>> {
   return async (
     request: NextRequest,
     context: { params: Promise<P> }
-  ): Promise<NextResponse<T>> => {
+  ): Promise<NextResponse<ApiResponse<T>>> => {
     try {
       const params = await context.params
 
@@ -98,7 +99,7 @@ export function withApiAuthParams<P extends Record<string, string>, T = any>(
 
       if (!authResult.success || !authResult.context) {
         return apiError(
-          authResult.error!.code,
+          authResult.error!.code as ApiErrorType,
           authResult.error!.statusCode,
           { details: authResult.error }
         )

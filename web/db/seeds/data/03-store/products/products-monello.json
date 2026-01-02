@@ -36,7 +36,7 @@
           "sku_suffix": "-25KG"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop-adult-dog.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "age_range": "1+ años",
         "main_ingredient": "Pollo"
@@ -70,7 +70,7 @@
           "sku_suffix": "-15KG"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop-puppy.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "age_range": "Hasta 1 año",
         "lifestage": "Puppy"
@@ -98,7 +98,7 @@
           "sku_suffix": "-15KG"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop-light.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "special_need": "Control de peso",
         "low_calorie": true
@@ -126,7 +126,7 @@
           "sku_suffix": "-15KG"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop-select.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "line": "Premium Select",
         "main_ingredient": "Carne y pollo"
@@ -166,7 +166,7 @@
           "sku_suffix": "-10KG"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop-cat-adult.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "age_range": "1+ años",
         "main_ingredient": "Salmón y pollo"
@@ -194,7 +194,7 @@
           "sku_suffix": "-1KG"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop-kitten.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "age_range": "Hasta 1 año",
         "lifestage": "Kitten"
@@ -228,7 +228,7 @@
           "sku_suffix": "-10KG"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop-castrados.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "special_need": "Esterilizado",
         "weight_control": true

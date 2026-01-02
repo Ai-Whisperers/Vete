@@ -1,12 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { apiError, HTTP_STATUS } from '@/lib/api/errors';
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   const { searchParams } = new URL(request.url);
   const clinic = searchParams.get("clinic");
 
   if (!clinic) {
-    return NextResponse.json({ error: "Clinic parameter required" }, { status: 400 });
+    return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
+      details: { message: 'Clinic parameter required' }
+    });
   }
 
   const supabase = await createClient();
@@ -26,6 +29,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ categories: categories || [] });
   } catch (error) {
     console.error("Error fetching categories:", error);
-    return NextResponse.json({ error: "Error al cargar categorías" }, { status: 500 });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
+      details: { message: 'Error al cargar categorías' }
+    });
   }
 }

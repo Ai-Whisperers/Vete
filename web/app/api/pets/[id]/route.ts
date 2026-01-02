@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { withAuth, type AuthContext, type RouteContext } from '@/lib/api/with-auth'
+import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 
 type Params = { id: string }
 
@@ -15,7 +16,7 @@ export const GET = withAuth<Params>(async ({ user, profile, supabase }: AuthCont
     .single()
 
   if (error || !pet) {
-    return NextResponse.json({ error: 'Mascota no encontrada' }, { status: 404 })
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND)
   }
 
   // Verify ownership or staff access
@@ -23,7 +24,7 @@ export const GET = withAuth<Params>(async ({ user, profile, supabase }: AuthCont
   const isStaff = (profile.role === 'vet' || profile.role === 'admin') && profile.tenant_id === pet.tenant_id
 
   if (!isOwner && !isStaff) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
+    return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN)
   }
 
   return NextResponse.json(pet)
@@ -42,7 +43,7 @@ export const PATCH = withAuth<Params>(async ({ request, user, profile, supabase 
     .single()
 
   if (fetchError || !pet) {
-    return NextResponse.json({ error: 'Mascota no encontrada' }, { status: 404 })
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND)
   }
 
   // Verify ownership or staff access
@@ -50,29 +51,53 @@ export const PATCH = withAuth<Params>(async ({ request, user, profile, supabase 
   const isStaff = (profile.role === 'vet' || profile.role === 'admin') && profile.tenant_id === pet.tenant_id
 
   if (!isOwner && !isStaff) {
-    return NextResponse.json({ error: 'No tienes permiso para editar esta mascota' }, { status: 403 })
+    return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN)
   }
 
   // Parse body and update
   const body = await request.json()
 
-  // Allowlist of updatable fields
-  const allowedFields = [
-    'name', 'species', 'breed', 'weight_kg', 'microchip_id',
-    'diet_category', 'diet_notes', 'sex', 'is_neutered', 'color',
-    'temperament', 'allergies', 'existing_conditions', 'photo_url',
-    'birth_date', 'notes'
-  ]
+  // Allowlist of updatable fields (form names -> database column names)
+  const fieldMapping: Record<string, string> = {
+    'name': 'name',
+    'species': 'species',
+    'breed': 'breed',
+    'weight_kg': 'weight_kg',
+    'microchip_id': 'microchip_number',  // Form uses microchip_id, DB uses microchip_number
+    'diet_category': 'diet_category',
+    'diet_notes': 'diet_notes',
+    'sex': 'sex',
+    'is_neutered': 'is_neutered',
+    'color': 'color',
+    'temperament': 'temperament',
+    'allergies': 'allergies',
+    'existing_conditions': 'chronic_conditions',  // Form uses existing_conditions, DB uses chronic_conditions
+    'photo_url': 'photo_url',
+    'birth_date': 'birth_date',
+    'notes': 'notes'
+  }
 
   const updates: Record<string, unknown> = {}
-  for (const field of allowedFields) {
-    if (field in body) {
-      updates[field] = body[field]
+  for (const [formField, dbColumn] of Object.entries(fieldMapping)) {
+    if (formField in body) {
+      let value = body[formField]
+
+      // Convert allergies string to array if needed
+      if (dbColumn === 'allergies' && typeof value === 'string') {
+        value = value ? value.split(',').map((a: string) => a.trim()).filter((a: string) => a.length > 0) : []
+      }
+
+      // Convert existing_conditions to array for chronic_conditions
+      if (dbColumn === 'chronic_conditions' && typeof value === 'string') {
+        value = value ? [value] : []
+      }
+
+      updates[dbColumn] = value
     }
   }
 
   if (Object.keys(updates).length === 0) {
-    return NextResponse.json({ error: 'No hay campos para actualizar' }, { status: 400 })
+    return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, { details: { reason: 'No hay campos para actualizar' } })
   }
 
   const { data, error } = await supabase
@@ -83,7 +108,7 @@ export const PATCH = withAuth<Params>(async ({ request, user, profile, supabase 
     .single()
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 400 })
+    return apiError('DATABASE_ERROR', HTTP_STATUS.BAD_REQUEST, { details: { message: error.message } })
   }
 
   return NextResponse.json(data)
@@ -102,12 +127,12 @@ export const DELETE = withAuth<Params>(async ({ user, supabase }: AuthContext, c
     .single()
 
   if (fetchError || !pet) {
-    return NextResponse.json({ error: 'Mascota no encontrada' }, { status: 404 })
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND)
   }
 
   // Only owner can delete their own pet
   if (pet.owner_id !== user.id) {
-    return NextResponse.json({ error: 'No tienes permiso para eliminar esta mascota' }, { status: 403 })
+    return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN)
   }
 
   // Soft delete
@@ -117,7 +142,7 @@ export const DELETE = withAuth<Params>(async ({ user, supabase }: AuthContext, c
     .eq('id', id)
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 400 })
+    return apiError('DATABASE_ERROR', HTTP_STATUS.BAD_REQUEST, { details: { message: error.message } })
   }
 
   return NextResponse.json({ success: true })

@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter, useParams, usePathname } from "next/navigation";
 import { useCart, CartItem } from "@/context/cart-context";
+import { useToast } from "@/components/ui/Toast";
 import { createClient } from "@/lib/supabase/client";
-import { useRouter } from "next/navigation";
-import { ShoppingBag, Loader2, Check } from "lucide-react";
+import { ShoppingBag, Loader2, Check, AlertTriangle } from "lucide-react";
 import { clsx } from "clsx";
 
 interface AddToCartButtonProps {
@@ -14,42 +15,96 @@ interface AddToCartButtonProps {
   readonly iconOnly?: boolean;
   readonly label?: string;
   readonly addedLabel?: string;
+  readonly stockLimitLabel?: string;
 }
 
-export function AddToCartButton({ item, quantity = 1, className, iconOnly = false, label = "Agregar", addedLabel = "Agregado" }: AddToCartButtonProps) {
+export function AddToCartButton({
+  item,
+  quantity = 1,
+  className,
+  iconOnly = false,
+  label = "Agregar",
+  addedLabel = "Agregado",
+  stockLimitLabel = "Stock agotado"
+}: AddToCartButtonProps) {
   const { addItem } = useCart();
+  const { showToast } = useToast();
+  const router = useRouter();
+  const params = useParams();
+  const pathname = usePathname();
+  const clinic = params?.clinic as string;
+
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [stockWarning, setStockWarning] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+
+  // Check auth status on mount
+  useEffect(() => {
+    const checkAuth = async () => {
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      setIsAuthenticated(!!session);
+    };
+    checkAuth();
+  }, []);
 
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+
+    // Redirect to login if not authenticated
+    if (!isAuthenticated) {
+      const returnTo = encodeURIComponent(pathname || `/${clinic}/store`);
+      router.push(`/${clinic}/portal/login?returnTo=${returnTo}`);
+      return;
+    }
+
     setLoading(true);
-    
+
     // Simulate network delay for effect or just add immediately
     setTimeout(() => {
-        addItem(item, quantity);
-        setLoading(false);
+      const result = addItem(item, quantity);
+      setLoading(false);
+
+      if (result.limitedByStock) {
+        if (!result.success) {
+          // Could not add any - show error
+          setStockWarning(true);
+          showToast(result.message || `Stock insuficiente. Solo hay ${result.availableStock} unidades disponibles.`);
+          setTimeout(() => setStockWarning(false), 2000);
+        } else {
+          // Added partial quantity - show warning but also success
+          setSuccess(true);
+          showToast(result.message || `Solo hay ${result.availableStock} unidades disponibles`);
+          setTimeout(() => setSuccess(false), 2000);
+        }
+      } else {
+        // Normal success
         setSuccess(true);
         setTimeout(() => setSuccess(false), 2000);
+      }
     }, 500);
   };
 
   return (
     <button
       onClick={handleClick}
-      disabled={loading || success}
+      disabled={loading || success || stockWarning}
       className={clsx(
         "transition-all active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2",
+        stockWarning && "!bg-amber-500 !border-amber-500",
         className
       )}
     >
       {loading ? (
         <Loader2 className="w-5 h-5 animate-spin" />
+      ) : stockWarning ? (
+        iconOnly ? <AlertTriangle className="w-5 h-5" /> : <><AlertTriangle className="w-4 h-4" /> <span>{stockLimitLabel}</span></>
       ) : success ? (
-         iconOnly ? <Check className="w-5 h-5" /> : <> <Check className="w-4 h-4" /> <span>{addedLabel}</span> </>
+        iconOnly ? <Check className="w-5 h-5" /> : <><Check className="w-4 h-4" /> <span>{addedLabel}</span></>
       ) : (
-         iconOnly ? <ShoppingBag className="w-5 h-5" /> : <> <ShoppingBag className="w-4 h-4" /> <span>{label}</span> </>
+        iconOnly ? <ShoppingBag className="w-5 h-5" /> : <><ShoppingBag className="w-4 h-4" /> <span>{label}</span></>
       )}
     </button>
   );

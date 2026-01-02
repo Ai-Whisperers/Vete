@@ -74,26 +74,6 @@ type AuthHandlerWithParams<P> = (
 ) => Promise<ApiResponse>;
 
 /**
- * Route context with dynamic params (for routes like /api/[id])
- */
-export interface RouteContext<P = Record<string, string>> {
-  params: Promise<P>;
-}
-
-/**
- * Authenticated handler signature for routes without dynamic params
- */
-type AuthHandler<T> = (ctx: AuthContext) => Promise<NextResponse<T>>;
-
-/**
- * Authenticated handler signature for routes with dynamic params
- */
-type AuthHandlerWithParams<T, P> = (
-  ctx: AuthContext,
-  context: RouteContext<P>
-) => Promise<NextResponse<T>>;
-
-/**
  * Wrap an API route handler with authentication and authorization
  *
  * @param handler - The async handler function to wrap

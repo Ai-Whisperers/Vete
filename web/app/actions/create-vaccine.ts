@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import type { ActionResult, FieldErrors } from "@/lib/types/action-result"
 import { z } from "zod"
+import { logger } from '@/lib/logger'
 
 // Validation schema with detailed Spanish error messages
 const createVaccineSchema = z.object({
@@ -148,7 +149,12 @@ export const createVaccine = withActionAuth(
           .upload(fileName, file)
 
         if (uploadError) {
-          console.error("Upload error:", uploadError)
+          logger.error('Failed to upload vaccine photo', {
+            error: uploadError,
+            userId: user.id,
+            petId,
+            fileName: file.name
+          })
           // Continue with other photos, don't fail the entire operation
         } else {
           const { data: { publicUrl } } = supabase.storage
@@ -216,7 +222,13 @@ export const createVaccine = withActionAuth(
     })
 
     if (insertError) {
-      console.error("Insert error:", insertError)
+      logger.error('Failed to create vaccine record', {
+        error: insertError,
+        userId: user.id,
+        petId,
+        tenant: clinic,
+        errorCode: insertError.code
+      })
 
       let userMessage = "No se pudo guardar la vacuna. "
 

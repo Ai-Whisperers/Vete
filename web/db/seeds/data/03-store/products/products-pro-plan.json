@@ -24,7 +24,7 @@
           "sku_suffix": "-15KG"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop&q=proplan-adult-medium.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "age_range": "1-7 años",
         "breed_size": "Mediano",
@@ -53,7 +53,7 @@
           "sku_suffix": "-15KG"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop&q=proplan-adult-large.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "age_range": "1-7 años",
         "breed_size": "Grande",
@@ -82,7 +82,7 @@
           "sku_suffix": "-15KG"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop&q=proplan-puppy-medium.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "age_range": "Hasta 1 año",
         "breed_size": "Mediano",
@@ -111,7 +111,7 @@
           "sku_suffix": "-15KG"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop&q=proplan-puppy-large.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "age_range": "Hasta 2 años",
         "breed_size": "Grande",
@@ -140,7 +140,7 @@
           "sku_suffix": "-13.6KG"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop&q=proplan-sensitive.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "special_need": "Piel y estómago sensible",
         "protein_source": "Salmón"
@@ -162,7 +162,7 @@
           "sku_suffix": "-15KG"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop&q=proplan-performance.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "activity_level": "Alto",
         "protein_content": "30%",
@@ -197,7 +197,7 @@
           "sku_suffix": "-7.5KG"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop&q=proplan-cat-adult.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "age_range": "1-7 años",
         "main_ingredient": "Pollo"
@@ -225,7 +225,7 @@
           "sku_suffix": "-3KG"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop&q=proplan-kitten.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "age_range": "Hasta 1 año",
         "lifestage": "Kitten"
@@ -259,7 +259,7 @@
           "sku_suffix": "-7.5KG"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop&q=proplan-cat-sterilised.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "special_need": "Esterilizado",
         "weight_control": true
@@ -287,7 +287,7 @@
           "sku_suffix": "-3KG"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop&q=proplan-cat-urinary.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "special_need": "Salud urinaria",
         "ph_balanced": true

@@ -36,7 +36,7 @@
           "sku_suffix": "-20KG"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop-adult-small.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "age_range": "1+ años",
         "breed_size": "Pequeño",
@@ -77,7 +77,7 @@
           "sku_suffix": "-20KG"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop-adult-med-lg.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "age_range": "1+ años",
         "breed_size": "Mediano y Grande"
@@ -117,7 +117,7 @@
           "sku_suffix": "-20KG"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop-puppy.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "age_range": "Hasta 1 año",
         "lifestage": "Puppy"

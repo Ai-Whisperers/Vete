@@ -79,7 +79,7 @@ export class PetService {
   }
 
   private async verifyOwnerTenant(ownerId: string, tenantId: string): Promise<void> {
-    const { data: owner, error } = await this.repository.supabase
+    const { data: owner, error } = await this.repository.getClient()
       .from('profiles')
       .select('tenant_id')
       .eq('id', ownerId)

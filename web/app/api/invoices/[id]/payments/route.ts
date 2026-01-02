@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { apiError, HTTP_STATUS } from '@/lib/api/errors';
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -12,7 +13,7 @@ export async function POST(request: Request, { params }: RouteParams) {
 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   const { data: profile } = await supabase
@@ -22,7 +23,7 @@ export async function POST(request: Request, { params }: RouteParams) {
     .single();
 
   if (!profile || !['vet', 'admin'].includes(profile.role)) {
-    return NextResponse.json({ error: 'Solo el personal puede registrar pagos' }, { status: 403 });
+    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
   }
 
   try {
@@ -31,7 +32,7 @@ export async function POST(request: Request, { params }: RouteParams) {
 
     // Basic validation before calling RPC
     if (!amount || typeof amount !== 'number') {
-      return NextResponse.json({ error: 'Monto inválido' }, { status: 400 });
+      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, { details: { field: 'amount' } });
     }
 
     // Use atomic RPC function to prevent race conditions
@@ -48,12 +49,12 @@ export async function POST(request: Request, { params }: RouteParams) {
 
     if (rpcError) {
       console.error('RPC error:', rpcError);
-      return NextResponse.json({ error: 'Error al procesar pago' }, { status: 500 });
+      return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
     }
 
     // RPC returns JSONB with success flag
     if (!result.success) {
-      return NextResponse.json({ error: result.error }, { status: 400 });
+      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, { details: { reason: result.error } });
     }
 
     // Audit log
@@ -74,7 +75,7 @@ export async function POST(request: Request, { params }: RouteParams) {
     }, { status: 201 });
   } catch (e) {
     console.error('Error recording payment:', e);
-    return NextResponse.json({ error: 'Error al registrar pago' }, { status: 500 });
+    return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 }
 
@@ -85,7 +86,7 @@ export async function GET(request: Request, { params }: RouteParams) {
 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   const { data: profile } = await supabase
@@ -95,7 +96,7 @@ export async function GET(request: Request, { params }: RouteParams) {
     .single();
 
   if (!profile) {
-    return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 });
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND);
   }
 
   try {
@@ -107,12 +108,12 @@ export async function GET(request: Request, { params }: RouteParams) {
       .single();
 
     if (!invoice) {
-      return NextResponse.json({ error: 'Factura no encontrada' }, { status: 404 });
+      return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND);
     }
 
     const isStaff = ['vet', 'admin'].includes(profile.role);
     if (!isStaff && invoice.owner_id !== user.id) {
-      return NextResponse.json({ error: 'No tienes acceso a esta factura' }, { status: 403 });
+      return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN);
     }
 
     const { data: payments, error } = await supabase
@@ -129,6 +130,6 @@ export async function GET(request: Request, { params }: RouteParams) {
     return NextResponse.json(payments);
   } catch (e) {
     console.error('Error loading payments:', e);
-    return NextResponse.json({ error: 'Error al cargar pagos' }, { status: 500 });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 }

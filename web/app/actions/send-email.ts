@@ -3,6 +3,7 @@
 import { withActionAuth, type ActionResult } from '@/lib/actions/with-action-auth';
 import { actionSuccess, actionError } from '@/lib/actions/result';
 import { z } from 'zod';
+import { logger } from '@/lib/logger';
 
 // Validation schema
 const sendEmailSchema = z.object({
@@ -49,7 +50,10 @@ export const sendEmail = withActionAuth<void, [FormData]>(
 
       return actionSuccess();
     } catch (error) {
-      console.error('Error sending email:', error);
+      logger.error('Failed to send email', {
+        error: error instanceof Error ? error : undefined,
+        userId: context.user.id
+      });
       return actionError('Error al enviar el correo');
     }
   },

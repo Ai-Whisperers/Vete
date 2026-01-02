@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -89,7 +90,12 @@ export async function GET(request: Request, { params }: RouteParams) {
       limit
     });
   } catch (e) {
-    console.error('Error loading conversation:', e);
+    logger.error('Error loading conversation', {
+      userId: user.id,
+      tenantId: profile.tenant_id,
+      conversationId: id,
+      error: e instanceof Error ? e.message : String(e)
+    });
     return NextResponse.json({ error: 'Error al cargar conversación' }, { status: 500 });
   }
 }
@@ -146,7 +152,12 @@ export async function PATCH(request: Request, { params }: RouteParams) {
 
     return NextResponse.json(updated);
   } catch (e) {
-    console.error('Error updating conversation:', e);
+    logger.error('Error updating conversation', {
+      userId: user.id,
+      tenantId: profile.tenant_id,
+      conversationId: id,
+      error: e instanceof Error ? e.message : String(e)
+    });
     return NextResponse.json({ error: 'Error al actualizar conversación' }, { status: 500 });
   }
 }
@@ -185,7 +196,12 @@ export async function DELETE(request: Request, { params }: RouteParams) {
 
     return NextResponse.json({ success: true });
   } catch (e) {
-    console.error('Error deleting conversation:', e);
+    logger.error('Error deleting conversation', {
+      userId: user.id,
+      tenantId: profile.tenant_id,
+      conversationId: id,
+      error: e instanceof Error ? e.message : String(e)
+    });
     return NextResponse.json({ error: 'Error al eliminar conversación' }, { status: 500 });
   }
 }

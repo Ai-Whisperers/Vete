@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { withAuth, isStaff, type AuthContext, type RouteContext } from '@/lib/api/with-auth';
+import { apiError, HTTP_STATUS } from '@/lib/api/errors';
 
 type Params = { id: string };
 
@@ -37,19 +38,19 @@ export const GET = withAuth<Params>(async ({ user, profile, supabase }: AuthCont
     if (error) throw error;
 
     if (!invoice) {
-      return NextResponse.json({ error: 'Factura no encontrada' }, { status: 404 });
+      return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND);
     }
 
     // Check access
     const userIsStaff = isStaff(profile);
     if (!userIsStaff && invoice.owner_id !== user.id) {
-      return NextResponse.json({ error: 'No tienes acceso a esta factura' }, { status: 403 });
+      return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN);
     }
 
     return NextResponse.json(invoice);
   } catch (e) {
     console.error('Error loading invoice:', e);
-    return NextResponse.json({ error: 'Error al cargar factura' }, { status: 500 });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 });
 
@@ -67,7 +68,7 @@ export const PATCH = withAuth<Params>(async ({ user, profile, supabase, request 
       .single();
 
     if (!existing) {
-      return NextResponse.json({ error: 'Factura no encontrada' }, { status: 404 });
+      return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND);
     }
 
     // Only draft invoices can be fully edited
@@ -79,7 +80,7 @@ export const PATCH = withAuth<Params>(async ({ user, profile, supabase, request 
       if (body.notes !== undefined) updates.notes = body.notes;
 
       if (Object.keys(updates).length === 0) {
-        return NextResponse.json({ error: 'Las facturas enviadas solo pueden cambiar estado o notas' }, { status: 400 });
+        return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, { details: { reason: 'Las facturas enviadas solo pueden cambiar estado o notas' } });
       }
 
       const { data: updated, error } = await supabase
@@ -164,7 +165,7 @@ export const PATCH = withAuth<Params>(async ({ user, profile, supabase, request 
     return NextResponse.json(updated);
   } catch (e) {
     console.error('Error updating invoice:', e);
-    return NextResponse.json({ error: 'Error al actualizar factura' }, { status: 500 });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 }, { roles: ['vet', 'admin'] });
 
@@ -181,7 +182,7 @@ export const DELETE = withAuth<Params>(async ({ user, profile, supabase }: AuthC
       .single();
 
     if (!invoice) {
-      return NextResponse.json({ error: 'Factura no encontrada' }, { status: 404 });
+      return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND);
     }
 
     // If draft, hard delete
@@ -209,6 +210,6 @@ export const DELETE = withAuth<Params>(async ({ user, profile, supabase }: AuthC
     return NextResponse.json({ success: true });
   } catch (e) {
     console.error('Error deleting invoice:', e);
-    return NextResponse.json({ error: 'Error al eliminar factura' }, { status: 500 });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 }, { roles: ['admin'] });

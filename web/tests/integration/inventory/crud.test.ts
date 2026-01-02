@@ -163,7 +163,8 @@ describe('Inventory Management', () => {
         .eq('tenant_id', DEFAULT_TENANT.id);
 
       expect(error).toBeNull();
-      expect(data.length).toBeGreaterThan(0);
+      expect(data).not.toBeNull();
+      expect(data!.length).toBeGreaterThan(0);
     });
 
     test('filters products by category', async () => {
@@ -174,7 +175,8 @@ describe('Inventory Management', () => {
         .eq('category', 'Alimentos');
 
       expect(error).toBeNull();
-      expect(data.every((p: { category: string }) => p.category === 'Alimentos')).toBe(true);
+      expect(data).not.toBeNull();
+      expect(data!.every((p: { category: string }) => p.category === 'Alimentos')).toBe(true);
     });
 
     test('searches products by name', async () => {
@@ -195,9 +197,10 @@ describe('Inventory Management', () => {
         .order('price', { ascending: true });
 
       expect(error).toBeNull();
+      expect(data).not.toBeNull();
       // Verify ascending order
-      for (let i = 1; i < data.length; i++) {
-        expect(data[i].price).toBeGreaterThanOrEqual(data[i - 1].price);
+      for (let i = 1; i < data!.length; i++) {
+        expect(data![i].price).toBeGreaterThanOrEqual(data![i - 1].price);
       }
     });
 
@@ -209,7 +212,8 @@ describe('Inventory Management', () => {
         .range(0, 4);
 
       expect(error1).toBeNull();
-      expect(data.length).toBeLessThanOrEqual(5);
+      expect(page1).not.toBeNull();
+      expect(page1!.length).toBeLessThanOrEqual(5);
 
       const { data: page2, error: error2 } = await client
         .from('products')
@@ -350,15 +354,18 @@ describe('Inventory Management', () => {
         .eq('id', stockProductId)
         .single();
 
+      expect(before).not.toBeNull();
+
       const { data, error } = await client
         .from('products')
-        .update({ stock: before.stock - 5 })
+        .update({ stock: before!.stock - 5 })
         .eq('id', stockProductId)
         .select()
         .single();
 
       expect(error).toBeNull();
-      expect(data.stock).toBe(before.stock - 5);
+      expect(data).not.toBeNull();
+      expect(data!.stock).toBe(before!.stock - 5);
     });
 
     test('increments stock on restock', async () => {
@@ -368,15 +375,18 @@ describe('Inventory Management', () => {
         .eq('id', stockProductId)
         .single();
 
+      expect(before).not.toBeNull();
+
       const { data, error } = await client
         .from('products')
-        .update({ stock: before.stock + 50 })
+        .update({ stock: before!.stock + 50 })
         .eq('id', stockProductId)
         .select()
         .single();
 
       expect(error).toBeNull();
-      expect(data.stock).toBe(before.stock + 50);
+      expect(data).not.toBeNull();
+      expect(data!.stock).toBe(before!.stock + 50);
     });
 
     test('finds low stock products', async () => {
@@ -389,7 +399,8 @@ describe('Inventory Management', () => {
         .lte('stock', lowStockThreshold);
 
       expect(error).toBeNull();
-      expect(data.every((p: { stock: number }) => p.stock <= lowStockThreshold)).toBe(true);
+      expect(data).not.toBeNull();
+      expect(data!.every((p: { stock: number }) => p.stock <= lowStockThreshold)).toBe(true);
     });
 
     test('finds out of stock products', async () => {
@@ -414,7 +425,8 @@ describe('Inventory Management', () => {
         .eq('stock', 0);
 
       expect(error).toBeNull();
-      expect(data.some((p: { id: string }) => p.id === outOfStock.id)).toBe(true);
+      expect(data).not.toBeNull();
+      expect(data!.some((p: { id: string }) => p.id === outOfStock!.id)).toBe(true);
     });
   });
 
@@ -426,8 +438,9 @@ describe('Inventory Management', () => {
         .eq('tenant_id', DEFAULT_TENANT.id);
 
       expect(error).toBeNull();
+      expect(data).not.toBeNull();
 
-      const totalValue = data.reduce(
+      const totalValue = data!.reduce(
         (sum: number, p: { price: number; stock: number }) => sum + p.price * p.stock,
         0
       );
@@ -442,8 +455,9 @@ describe('Inventory Management', () => {
         .eq('tenant_id', DEFAULT_TENANT.id);
 
       expect(error).toBeNull();
+      expect(data).not.toBeNull();
 
-      const byCategory = data.reduce(
+      const byCategory = data!.reduce(
         (acc: Record<string, number>, p: { category: string }) => {
           acc[p.category] = (acc[p.category] || 0) + 1;
           return acc;
@@ -484,8 +498,10 @@ describe('Inventory Management', () => {
         .eq('tenant_id', 'petlife');
 
       // Verify isolation
-      expect(adrisProducts.some((p: { id: string }) => p.id === petlifeProduct.id)).toBe(false);
-      expect(petlifeProducts.some((p: { id: string }) => p.id === petlifeProduct.id)).toBe(true);
+      expect(adrisProducts).not.toBeNull();
+      expect(petlifeProducts).not.toBeNull();
+      expect(adrisProducts!.some((p: { id: string }) => p.id === petlifeProduct!.id)).toBe(false);
+      expect(petlifeProducts!.some((p: { id: string }) => p.id === petlifeProduct!.id)).toBe(true);
     });
   });
 });

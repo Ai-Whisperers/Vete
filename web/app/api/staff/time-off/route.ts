@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
+import { logger } from '@/lib/logger'
 
 /**
  * GET /api/staff/time-off
@@ -115,7 +116,11 @@ export async function GET(request: NextRequest) {
     const { data, error } = await query
 
     if (error) {
-      console.error('Error fetching time off requests:', error)
+      logger.error('Error fetching time off requests', {
+        error: error.message,
+        tenantId: clinicSlug,
+        userId: user.id
+      })
       return NextResponse.json(
         { error: 'Error al obtener solicitudes' },
         { status: 500 }
@@ -167,7 +172,11 @@ export async function GET(request: NextRequest) {
       clinic: clinicSlug
     })
   } catch (e) {
-    console.error('Error in time-off GET:', e)
+    logger.error('Error in time-off GET', {
+      error: e instanceof Error ? e.message : 'Unknown',
+      tenantId: clinicSlug,
+      userId: user?.id
+    })
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }
@@ -322,7 +331,11 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (createError) {
-      console.error('Error creating time off request:', createError)
+      logger.error('Error creating time off request', {
+        error: createError.message,
+        tenantId: clinic,
+        userId: user.id
+      })
       return NextResponse.json(
         { error: 'Error al crear solicitud' },
         { status: 500 }
@@ -336,7 +349,10 @@ export async function POST(request: NextRequest) {
         : 'Ausencia registrada exitosamente'
     }, { status: 201 })
   } catch (e) {
-    console.error('Error in time-off POST:', e)
+    logger.error('Error in time-off POST', {
+      error: e instanceof Error ? e.message : 'Unknown',
+      userId: user?.id
+    })
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }
@@ -495,7 +511,13 @@ export async function PATCH(request: NextRequest) {
       .single()
 
     if (updateError) {
-      console.error('Error updating time off request:', updateError)
+      logger.error('Error updating time off request', {
+        error: updateError.message,
+        requestId: request_id,
+        action,
+        tenantId: clinic,
+        userId: user.id
+      })
       return NextResponse.json(
         { error: 'Error al actualizar solicitud' },
         { status: 500 }
@@ -514,7 +536,10 @@ export async function PATCH(request: NextRequest) {
       message: actionMessages[action]
     })
   } catch (e) {
-    console.error('Error in time-off PATCH:', e)
+    logger.error('Error in time-off PATCH', {
+      error: e instanceof Error ? e.message : 'Unknown',
+      userId: user?.id
+    })
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }

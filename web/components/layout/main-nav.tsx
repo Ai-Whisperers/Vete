@@ -10,6 +10,8 @@ import { useNavAuth } from "./nav/useNavAuth";
 import { ToolsDropdown } from "./nav/ToolsDropdown";
 import { UserMenu } from "./nav/UserMenu";
 import { MobileMenu, type NavItem } from "./nav/MobileMenu";
+import { LanguageSelector } from "@/components/ui/language-selector";
+import { useLocale } from "@/i18n/hooks";
 
 interface MainNavProps {
   clinic: string;
@@ -20,6 +22,7 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
   const pathname = usePathname();
   const { itemCount } = useCart();
   const { user, profile, isLoggingOut, logoutError, handleLogout } = useNavAuth(clinic);
+  const currentLocale = useLocale();
 
   const navItems: NavItem[] = [
     {
@@ -96,35 +99,43 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
 
         {user && <NotificationBell clinic={clinic} />}
 
-        <Link
-          href={`/${clinic}/cart`}
-          className="relative p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--primary)] transition-colors"
-          aria-label={itemCount > 0 ? `Carrito de compras (${itemCount} ${itemCount === 1 ? 'artículo' : 'artículos'})` : 'Carrito de compras'}
-        >
-          <ShoppingCart className="w-6 h-6" aria-hidden="true" />
-          {itemCount > 0 && (
-            <span className="absolute top-0 right-0 bg-[var(--status-error,#dc2626)] text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full" aria-label={`${itemCount} ${itemCount === 1 ? 'artículo' : 'artículos'} en el carrito`}>
-              {itemCount}
-            </span>
-          )}
-        </Link>
+        {/* Cart icon - only show for logged-in users */}
+        {user && (
+          <Link
+            href={`/${clinic}/cart`}
+            className="relative p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--primary)] transition-colors"
+            aria-label={itemCount > 0 ? `Carrito de compras (${itemCount} ${itemCount === 1 ? 'artículo' : 'artículos'})` : 'Carrito de compras'}
+          >
+            <ShoppingCart className="w-6 h-6" aria-hidden="true" />
+            {itemCount > 0 && (
+              <span className="absolute top-0 right-0 bg-[var(--status-error,#dc2626)] text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full" aria-label={`${itemCount} ${itemCount === 1 ? 'artículo' : 'artículos'} en el carrito`}>
+                {itemCount}
+              </span>
+            )}
+          </Link>
+        )}
+
+        <LanguageSelector currentLocale={currentLocale} />
       </nav>
 
       <div className="flex md:hidden items-center gap-3">
         {user && <NotificationBell clinic={clinic} />}
 
-        <Link
-          href={`/${clinic}/cart`}
-          className="relative p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-[var(--primary)]"
-          aria-label={itemCount > 0 ? `Carrito de compras (${itemCount} ${itemCount === 1 ? 'artículo' : 'artículos'})` : 'Carrito de compras'}
-        >
-          <ShoppingCart className="w-6 h-6" aria-hidden="true" />
-          {itemCount > 0 && (
-            <span className="absolute top-1 right-1 bg-[var(--status-error,#dc2626)] text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full" aria-label={`${itemCount} ${itemCount === 1 ? 'artículo' : 'artículos'} en el carrito`}>
-              {itemCount}
-            </span>
-          )}
-        </Link>
+        {/* Cart icon - only show for logged-in users */}
+        {user && (
+          <Link
+            href={`/${clinic}/cart`}
+            className="relative p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-[var(--primary)]"
+            aria-label={itemCount > 0 ? `Carrito de compras (${itemCount} ${itemCount === 1 ? 'artículo' : 'artículos'})` : 'Carrito de compras'}
+          >
+            <ShoppingCart className="w-6 h-6" aria-hidden="true" />
+            {itemCount > 0 && (
+              <span className="absolute top-1 right-1 bg-[var(--status-error,#dc2626)] text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full" aria-label={`${itemCount} ${itemCount === 1 ? 'artículo' : 'artículos'} en el carrito`}>
+                {itemCount}
+              </span>
+            )}
+          </Link>
+        )}
 
         <MobileMenu
           clinic={clinic}

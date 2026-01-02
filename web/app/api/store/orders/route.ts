@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { logger } from '@/lib/logger';
+import { apiError, HTTP_STATUS } from '@/lib/api/errors';
 
 // Order statuses
 const ORDER_STATUSES = ['pending', 'pending_prescription', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded'] as const;
@@ -43,7 +45,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   const { searchParams } = new URL(request.url);
@@ -54,7 +56,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const offset = (page - 1) * limit;
 
   if (!clinic) {
-    return NextResponse.json({ error: 'Falta parámetro clinic' }, { status: 400 });
+    return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
+      details: { message: 'Falta parámetro clinic' }
+    });
   }
 
   try {
@@ -98,8 +102,14 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       },
     });
   } catch (e) {
-    console.error('Error fetching orders:', e);
-    return NextResponse.json({ error: 'Error al cargar pedidos' }, { status: 500 });
+    logger.error('Error fetching orders', {
+      tenantId: clinic,
+      userId: user.id,
+      error: e instanceof Error ? e.message : 'Unknown'
+    });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
+      details: { message: 'Error al cargar pedidos' }
+    });
   }
 }
 
@@ -109,7 +119,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   try {
@@ -117,7 +127,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const { clinic, items, coupon_code, shipping_address, billing_address, shipping_method, payment_method, notes } = body;
 
     if (!clinic || !items || items.length === 0) {
-      return NextResponse.json({ error: 'Faltan parámetros requeridos' }, { status: 400 });
+      return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
+        details: { message: 'Faltan parámetros requeridos' }
+      });
     }
 
     // Validate products and get current prices
@@ -138,7 +150,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     if (productsError) throw productsError;
 
     if (!products || products.length !== productIds.length) {
-      return NextResponse.json({ error: 'Uno o más productos no están disponibles' }, { status: 400 });
+      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+        details: { message: 'Uno o más productos no están disponibles' }
+      });
     }
 
     // Fetch variant names if any variant_ids are provided
@@ -160,15 +174,19 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     for (const item of items) {
       const product = products.find(p => p.id === item.product_id);
       if (!product) {
-        return NextResponse.json({ error: `Producto no encontrado: ${item.product_id}` }, { status: 400 });
+        return apiError('NOT_FOUND', HTTP_STATUS.BAD_REQUEST, {
+          details: { message: `Producto no encontrado: ${item.product_id}` }
+        });
       }
 
       const inventory = product.store_inventory as unknown as { stock_quantity: number } | null;
       if (!inventory || inventory.stock_quantity < item.quantity) {
-        return NextResponse.json({
-          error: `Stock insuficiente para: ${product.name}`,
-          available: inventory?.stock_quantity || 0,
-        }, { status: 400 });
+        return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+          details: {
+            message: `Stock insuficiente para: ${product.name}`,
+            available: inventory?.stock_quantity || 0
+          }
+        });
       }
 
       // Check prescription requirement
@@ -290,7 +308,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       });
 
       if (inventoryError) {
-        console.error('Stock update error:', inventoryError);
+        logger.error('Stock update error', {
+          tenantId: clinic,
+          productId: item.product_id,
+          quantity: item.quantity,
+          error: inventoryError instanceof Error ? inventoryError.message : String(inventoryError)
+        });
         // Don't fail the order, but log for manual review
       }
     }
@@ -331,7 +354,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         : undefined,
     }, { status: 201 });
   } catch (e) {
-    console.error('Error creating order:', e);
-    return NextResponse.json({ error: 'Error al crear pedido' }, { status: 500 });
+    logger.error('Error creating order', {
+      userId: user.id,
+      operation: 'create_order',
+      error: e instanceof Error ? e.message : 'Unknown'
+    });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
+      details: { message: 'Error al crear pedido' }
+    });
   }
 }

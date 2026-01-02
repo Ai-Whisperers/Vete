@@ -8,12 +8,14 @@ import Image from 'next/image';
 import { MainNav } from '@/components/layout/main-nav';
 import { ToastProvider } from '@/components/ui/Toast';
 import { CartProvider } from '@/context/cart-context';
-import { CommandPaletteProvider } from '@/components/search/command-palette-provider';
 import { CartLayoutWrapper } from '@/components/cart/cart-layout-wrapper';
+// Note: CommandPaletteProvider moved to portal/dashboard layouts
+// Note: WishlistProvider moved to store layout
 import { createClient } from '@/lib/supabase/server';
 import { Facebook, Instagram, Youtube, MapPin, Phone, Mail, Clock, MessageCircle } from 'lucide-react';
 import { FooterLogo } from '@/components/layout/footer-logo';
 import { Copyright } from '@/components/ui/copyright';
+import { NewsletterForm } from '@/components/layout/newsletter-form';
 
 const BASE_URL = 'https://vetepy.vercel.app';
 
@@ -199,9 +201,8 @@ export default async function ClinicLayout({
   return (
     <ToastProvider>
       <CartProvider>
-        <CommandPaletteProvider>
-          <div className="min-h-screen font-sans bg-[var(--bg-default)] text-[var(--text-main)] font-body flex flex-col">
-            <ClinicThemeProvider theme={data.theme} />
+        <div className="min-h-screen font-sans bg-[var(--bg-default)] text-[var(--text-main)] font-body flex flex-col">
+          <ClinicThemeProvider theme={data.theme} />
 
           {/* JSON-LD Structured Data for SEO */}
           <script
@@ -451,39 +452,14 @@ export default async function ClinicLayout({
 
               </div>
 
-              {/* Newsletter Section */}
+              {/* Newsletter Section - Client-only to prevent hydration mismatch from browser extensions */}
               <section aria-labelledby="newsletter-heading" className="mt-12 p-8 rounded-2xl bg-gradient-to-r from-[var(--primary)]/20 to-[var(--accent)]/20 border border-white/10">
-                <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-                  <div className="text-center md:text-left">
-                    <h4 id="newsletter-heading" className="font-bold text-white text-lg mb-1">
-                      {footerLabels.newsletter_title || 'Suscríbete a nuestro boletín'}
-                    </h4>
-                    <p className="text-gray-400 text-sm">
-                      Recibe tips de cuidado, ofertas exclusivas y novedades.
-                    </p>
-                  </div>
-                  <form className="flex gap-2 w-full md:w-auto" action={`/api/newsletter`} method="POST">
-                    <input type="hidden" name="clinic" value={clinic} />
-                    <label htmlFor="newsletter-email" className="sr-only">
-                      Correo electrónico para suscripción
-                    </label>
-                    <input
-                      id="newsletter-email"
-                      type="email"
-                      name="email"
-                      placeholder={footerLabels.newsletter_placeholder || 'Tu email'}
-                      required
-                      aria-required="true"
-                      className="flex-1 md:w-64 px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
-                    />
-                    <button
-                      type="submit"
-                      className="px-6 py-3 bg-[var(--primary)] text-white font-bold rounded-xl hover:opacity-90 transition-opacity whitespace-nowrap"
-                    >
-                      {footerLabels.newsletter_button || 'Enviar'}
-                    </button>
-                  </form>
-                </div>
+                <NewsletterForm
+                  clinic={clinic}
+                  title={footerLabels.newsletter_title}
+                  placeholder={footerLabels.newsletter_placeholder}
+                  buttonText={footerLabels.newsletter_button}
+                />
               </section>
 
               {/* Bottom Bar */}
@@ -506,8 +482,7 @@ export default async function ClinicLayout({
 
           {/* Cart UI (only for logged-in users) */}
           <CartLayoutWrapper isLoggedIn={isLoggedIn} />
-          </div>
-        </CommandPaletteProvider>
+        </div>
       </CartProvider>
     </ToastProvider>
   );

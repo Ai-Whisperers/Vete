@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import { apiError, HTTP_STATUS } from '@/lib/api/errors';
 
 interface RouteParams {
   params: Promise<{
@@ -14,7 +15,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   const { data: profile } = await supabase
@@ -24,7 +25,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     .single();
 
   if (!profile || !['vet', 'admin'].includes(profile.role)) {
-    return NextResponse.json({ error: 'Solo el personal puede ver reclamos' }, { status: 403 });
+    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
   }
 
   try {
@@ -60,13 +61,15 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     if (error) throw error;
 
     if (!claim) {
-      return NextResponse.json({ error: 'Reclamo no encontrado' }, { status: 404 });
+      return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
+        details: { resource: 'claim' }
+      });
     }
 
     return NextResponse.json(claim);
   } catch (e) {
     console.error('Error loading claim detail:', e);
-    return NextResponse.json({ error: 'Error al cargar reclamo' }, { status: 500 });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 }
 
@@ -77,7 +80,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   const { data: profile } = await supabase
@@ -87,7 +90,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     .single();
 
   if (!profile || !['vet', 'admin'].includes(profile.role)) {
-    return NextResponse.json({ error: 'Solo el personal puede actualizar reclamos' }, { status: 403 });
+    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
   }
 
   try {
@@ -116,7 +119,9 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       .single();
 
     if (!existingClaim) {
-      return NextResponse.json({ error: 'Reclamo no encontrado' }, { status: 404 });
+      return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
+        details: { resource: 'claim' }
+      });
     }
 
     // Build update object
@@ -174,6 +179,6 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json(claim);
   } catch (e) {
     console.error('Error updating claim:', e);
-    return NextResponse.json({ error: 'Error al actualizar reclamo' }, { status: 500 });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 }

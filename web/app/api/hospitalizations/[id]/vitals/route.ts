@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import { apiError, HTTP_STATUS } from '@/lib/api/errors';
 
 interface RouteParams {
   params: Promise<{
@@ -14,7 +15,7 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
   // Authentication check
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   // Get user profile - only vets/admins can record vitals
@@ -25,11 +26,11 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
     .single();
 
   if (!profile) {
-    return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 });
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, { details: { resource: 'profile' } });
   }
 
   if (!['vet', 'admin'].includes(profile.role)) {
-    return NextResponse.json({ error: 'Solo veterinarios pueden registrar signos vitales' }, { status: 403 });
+    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
   }
 
   // Verify hospitalization exists and belongs to clinic
@@ -40,13 +41,13 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
     .single();
 
   if (!hospitalization) {
-    return NextResponse.json({ error: 'Hospitalización no encontrada' }, { status: 404 });
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, { details: { resource: 'hospitalization' } });
   }
 
   const petData = Array.isArray(hospitalization.pet) ? hospitalization.pet[0] : hospitalization.pet;
   const pet = petData as { tenant_id: string };
   if (pet.tenant_id !== profile.clinic_id) {
-    return NextResponse.json({ error: 'No tienes acceso a esta hospitalización' }, { status: 403 });
+    return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN);
   }
 
   // Parse body
@@ -54,7 +55,7 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: 'JSON inválido' }, { status: 400 });
+    return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST);
   }
 
   const {
@@ -96,7 +97,7 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
 
   if (error) {
     console.error('[API] vitals POST error:', error);
-    return NextResponse.json({ error: 'Error al registrar signos vitales' }, { status: 500 });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 
   return NextResponse.json(data, { status: 201 });

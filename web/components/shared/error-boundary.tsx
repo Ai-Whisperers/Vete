@@ -2,6 +2,7 @@ import React, { Component, ReactNode } from 'react';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { logger } from '@/lib/logger';
 
 interface Props {
   children: ReactNode;
@@ -9,6 +10,8 @@ interface Props {
   onError?: (error: Error, errorInfo: React.ErrorInfo) => void;
   showHomeLink?: boolean;
   showRefreshButton?: boolean;
+  /** Context identifier for logging (e.g., "CartProvider", "BookingWizard") */
+  context?: string;
 }
 
 interface State {
@@ -27,9 +30,14 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('ErrorBoundary caught an error:', error, errorInfo);
+    // Log with structured logger
+    logger.error('Component error caught by ErrorBoundary', {
+      error: error.message,
+      context: this.props.context,
+      componentStack: errorInfo.componentStack?.slice(0, 500), // Limit stack size
+    });
 
-    // Log to error reporting service if provided
+    // Call custom error handler if provided
     this.props.onError?.(error, errorInfo);
   }
 

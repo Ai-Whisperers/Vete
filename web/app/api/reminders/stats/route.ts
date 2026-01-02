@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import { apiError, HTTP_STATUS } from '@/lib/api/errors';
 
 /**
  * GET /api/reminders/stats
@@ -11,7 +12,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   // Auth check
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   // Staff check
@@ -22,7 +23,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     .single();
 
   if (!profile || !['vet', 'admin'].includes(profile.role)) {
-    return NextResponse.json({ error: 'Solo personal puede ver estadísticas' }, { status: 403 });
+    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
   }
 
   try {
@@ -108,7 +109,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     });
   } catch (e) {
     console.error('Error fetching reminder stats:', e);
-    return NextResponse.json({ error: 'Error al cargar estadísticas' }, { status: 500 });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 }
 
@@ -122,7 +123,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   // Auth check
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   // Admin check
@@ -133,7 +134,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     .single();
 
   if (!profile || profile.role !== 'admin') {
-    return NextResponse.json({ error: 'Solo administradores pueden ejecutar jobs' }, { status: 403 });
+    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
   }
 
   try {
@@ -141,7 +142,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const { job_type } = body;
 
     if (!job_type) {
-      return NextResponse.json({ error: 'job_type es requerido' }, { status: 400 });
+      return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, { details: { required: ['job_type'] } });
     }
 
     // Call the database function to trigger the job
@@ -150,7 +151,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
                     job_type === 'process' ? 'process_notifications' : null;
 
     if (!jobName) {
-      return NextResponse.json({ error: 'Tipo de job inválido' }, { status: 400 });
+      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, { details: { reason: 'Tipo de job invalido' } });
     }
 
     const { data, error } = await supabase.rpc('trigger_job', { p_job_name: jobName });
@@ -163,6 +164,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     });
   } catch (e) {
     console.error('Error triggering job:', e);
-    return NextResponse.json({ error: 'Error al ejecutar job' }, { status: 500 });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 }

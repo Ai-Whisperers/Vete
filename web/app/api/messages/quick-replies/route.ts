@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 
 // GET /api/messages/quick-replies - List quick replies for current user
 export async function GET(request: Request) {
@@ -32,7 +33,11 @@ export async function GET(request: Request) {
 
     return NextResponse.json(quickReplies);
   } catch (e) {
-    console.error('Error loading quick replies:', e);
+    logger.error('Error loading quick replies', {
+      userId: user.id,
+      tenantId: profile.tenant_id,
+      error: e instanceof Error ? e.message : String(e)
+    });
     return NextResponse.json({ error: 'Error al cargar respuestas rápidas' }, { status: 500 });
   }
 }
@@ -93,7 +98,11 @@ export async function POST(request: Request) {
 
     return NextResponse.json(quickReply, { status: 201 });
   } catch (e) {
-    console.error('Error creating quick reply:', e);
+    logger.error('Error creating quick reply', {
+      userId: user.id,
+      tenantId: profile.tenant_id,
+      error: e instanceof Error ? e.message : String(e)
+    });
     return NextResponse.json({ error: 'Error al crear respuesta rápida' }, { status: 500 });
   }
 }
@@ -125,7 +134,11 @@ export async function DELETE(request: Request) {
 
     return NextResponse.json({ success: true });
   } catch (e) {
-    console.error('Error deleting quick reply:', e);
+    logger.error('Error deleting quick reply', {
+      userId: user.id,
+      quickReplyId: id,
+      error: e instanceof Error ? e.message : String(e)
+    });
     return NextResponse.json({ error: 'Error al eliminar respuesta rápida' }, { status: 500 });
   }
 }

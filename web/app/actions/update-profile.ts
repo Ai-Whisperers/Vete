@@ -4,6 +4,7 @@ import { withActionAuth, actionError, type FieldErrors } from '@/lib/actions'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
+import { logger } from '@/lib/logger'
 
 // Validation schema with detailed Spanish error messages
 const updateProfileSchema = z.object({
@@ -97,7 +98,12 @@ export const updateProfile = withActionAuth(
       .eq('id', user.id)
 
     if (updateError) {
-      console.error("Update Profile Error:", updateError)
+      logger.error('Failed to update profile', {
+        error: updateError,
+        userId: user.id,
+        tenant: clinic,
+        errorCode: updateError.code
+      })
 
       let userMessage = "No se pudo actualizar tu perfil. "
 

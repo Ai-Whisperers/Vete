@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { ActionResult } from "@/lib/types/action-result";
+import { logger } from "@/lib/logger";
 
 export async function deleteProduct(productId: string, clinic: string): Promise<ActionResult> {
   const supabase = await createClient();
@@ -39,9 +40,10 @@ export async function deleteProduct(productId: string, clinic: string): Promise<
 
   // Check product exists and belongs to this tenant
   const { data: existingProduct, error: fetchError } = await supabase
-    .from('products')
+    .from('store_products')
     .select('id, tenant_id, name, image_url')
     .eq('id', productId)
+    .is('deleted_at', null)
     .single();
 
   if (fetchError || !existingProduct) {
@@ -58,21 +60,30 @@ export async function deleteProduct(productId: string, clinic: string): Promise<
     };
   }
 
-  // Delete the product
+  // Soft delete the product (set deleted_at)
   const { error: deleteError } = await supabase
-    .from('products')
-    .delete()
+    .from('store_products')
+    .update({
+      deleted_at: new Date().toISOString(),
+      deleted_by: user.id,
+      is_active: false
+    })
     .eq('id', productId)
     .eq('tenant_id', profile.tenant_id);
 
   if (deleteError) {
-    console.error("Delete Product Error:", deleteError);
+    logger.error("Delete Product Error", {
+      error: deleteError.message,
+      productId,
+      tenantId: profile.tenant_id,
+      userId: user.id
+    });
 
-    // Check for foreign key constraint (product might be referenced in invoices, etc.)
+    // Check for foreign key constraint (product might be referenced in orders, etc.)
     if (deleteError.code === "23503") {
       return {
         success: false,
-        error: "No se puede eliminar este producto porque está siendo utilizado en facturas u otros registros."
+        error: "No se puede eliminar este producto porque está siendo utilizado en pedidos u otros registros."
       };
     }
 
@@ -90,11 +101,16 @@ export async function deleteProduct(productId: string, clinic: string): Promise<
       await supabase.storage.from('products').remove([fileName]);
     } catch (e) {
       // Silently fail - not critical if image cleanup fails
-      console.warn("Failed to delete product image:", e);
+      logger.warn("Failed to delete product image", {
+        error: e instanceof Error ? e.message : 'Unknown error',
+        productId,
+        imageUrl: existingProduct.image_url
+      });
     }
   }
 
   revalidatePath(`/${clinic}/portal/products`);
+  revalidatePath(`/${clinic}/store`);
 
   return {
     success: true

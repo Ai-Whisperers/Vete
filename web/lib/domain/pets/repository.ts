@@ -3,10 +3,14 @@
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js'
-import type { Pet, CreatePetData, UpdatePetData, PetFilters, PetStats } from './types'
+import type { Pet, CreatePetData, UpdatePetData, PetFilters, PetStats, PetSpecies } from './types'
 
 export class PetRepository {
   constructor(private supabase: SupabaseClient) {}
+
+  getClient(): SupabaseClient {
+    return this.supabase
+  }
 
   async findById(id: string): Promise<Pet | null> {
     const { data, error } = await this.supabase
@@ -122,7 +126,10 @@ export class PetRepository {
     }
 
     pets.forEach(pet => {
-      stats.by_species[pet.species]++
+      const species = (pet.species as PetSpecies) || 'other'
+      if (species in stats.by_species) {
+        stats.by_species[species]++
+      }
       if (pet.is_active) {
         stats.active++
       } else {

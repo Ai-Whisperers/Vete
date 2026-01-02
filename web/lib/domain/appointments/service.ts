@@ -280,7 +280,7 @@ export class AppointmentService {
     }
 
     // Check if pet belongs to tenant
-    const { data: pet, error } = await this.repository.supabase
+    const { data: pet, error } = await this.repository.getClient()
       .from('pets')
       .select('id, owner_id')
       .eq('id', data.pet_id)
@@ -291,7 +291,7 @@ export class AppointmentService {
     }
 
     // Verify pet belongs to this tenant (through owner profile)
-    const { data: owner } = await this.repository.supabase
+    const { data: owner } = await this.repository.getClient()
       .from('profiles')
       .select('tenant_id')
       .eq('id', pet.owner_id)

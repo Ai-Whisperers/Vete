@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { AlertCircle, RefreshCw, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
+import { logger } from '@/lib/logger'
 
 interface PortalErrorProps {
   error: Error & { digest?: string }
@@ -12,7 +13,11 @@ interface PortalErrorProps {
 
 export default function PortalError({ error, reset }: PortalErrorProps) {
   useEffect(() => {
-    console.error('Portal error:', error)
+    logger.error('Portal error occurred', {
+      error: error.message,
+      digest: error.digest,
+      context: 'PortalError'
+    })
   }, [error])
 
   return (

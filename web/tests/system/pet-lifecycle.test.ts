@@ -113,7 +113,8 @@ describe('Pet Lifecycle', () => {
         .eq('pet_id', petId)
         .eq('name', 'Rabia');
 
-      const vaccineId = vaccines[0].id;
+      expect(vaccines).not.toBeNull();
+      const vaccineId = vaccines![0].id;
 
       // Verify it
       const { data: verified, error } = await client

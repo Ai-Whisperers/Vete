@@ -1,5 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
+import { apiError, HTTP_STATUS } from '@/lib/api/errors';
 
 // GET /api/dashboard/vaccines - Get upcoming vaccine reminders
 export async function GET(request: Request) {
@@ -7,7 +9,7 @@ export async function GET(request: Request) {
 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   const { data: profile } = await supabase
@@ -17,7 +19,7 @@ export async function GET(request: Request) {
     .single();
 
   if (!profile || !['vet', 'admin'].includes(profile.role)) {
-    return NextResponse.json({ error: 'Solo el personal puede ver recordatorios' }, { status: 403 });
+    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
   }
 
   const { searchParams } = new URL(request.url);
@@ -79,7 +81,9 @@ export async function GET(request: Request) {
 
     return NextResponse.json(reminders);
   } catch (e) {
-    console.error('Error loading vaccine reminders:', e);
-    return NextResponse.json({ error: 'Error al cargar recordatorios' }, { status: 500 });
+    logger.error('Error loading vaccine reminders', { userId: user.id, tenantId: profile.tenant_id, error: e instanceof Error ? e.message : 'Unknown' });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
+      details: { message: e instanceof Error ? e.message : 'Unknown error' }
+    });
   }
 }

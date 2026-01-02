@@ -258,7 +258,8 @@ describe('Pet CRUD Operations', () => {
       expect(error).toBeNull();
       expect(data).toBeDefined();
       expect(Array.isArray(data)).toBe(true);
-      expect(data.length).toBeGreaterThan(0);
+      expect(data).not.toBeNull();
+      expect(data!.length).toBeGreaterThan(0);
     });
 
     test('reads pets by tenant', async () => {
@@ -315,7 +316,8 @@ describe('Pet CRUD Operations', () => {
 
       expect(error).toBeNull();
       expect(data).toBeDefined();
-      expect(data.every((pet: { species: string }) => pet.species === 'dog')).toBe(true);
+      expect(data).not.toBeNull();
+      expect(data!.every((pet: { species: string }) => pet.species === 'dog')).toBe(true);
     });
   });
 
@@ -402,8 +404,10 @@ describe('Pet CRUD Operations', () => {
         .select('updated_at')
         .single();
 
-      expect(new Date(after.updated_at).getTime()).toBeGreaterThanOrEqual(
-        new Date(before.updated_at).getTime()
+      expect(before).not.toBeNull();
+      expect(after).not.toBeNull();
+      expect(new Date(after!.updated_at).getTime()).toBeGreaterThanOrEqual(
+        new Date(before!.updated_at).getTime()
       );
     });
 
@@ -551,10 +555,12 @@ describe('Pet CRUD Operations', () => {
         .eq('tenant_id', 'petlife');
 
       // Verify isolation
-      expect(adrisPets.some((p: { id: string }) => p.id === adrisPet.id)).toBe(true);
-      expect(adrisPets.some((p: { id: string }) => p.id === petlifePet.id)).toBe(false);
-      expect(petlifePets.some((p: { id: string }) => p.id === petlifePet.id)).toBe(true);
-      expect(petlifePets.some((p: { id: string }) => p.id === adrisPet.id)).toBe(false);
+      expect(adrisPets).not.toBeNull();
+      expect(petlifePets).not.toBeNull();
+      expect(adrisPets!.some((p: { id: string }) => p.id === adrisPet.id)).toBe(true);
+      expect(adrisPets!.some((p: { id: string }) => p.id === petlifePet.id)).toBe(false);
+      expect(petlifePets!.some((p: { id: string }) => p.id === petlifePet.id)).toBe(true);
+      expect(petlifePets!.some((p: { id: string }) => p.id === adrisPet.id)).toBe(false);
     });
   });
 });

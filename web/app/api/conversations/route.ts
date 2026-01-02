@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 
 // GET /api/conversations - List conversations
 export async function GET(request: Request) {
@@ -68,7 +69,11 @@ export async function GET(request: Request) {
       limit
     });
   } catch (e) {
-    console.error('Error loading conversations:', e);
+    logger.error('Error loading conversations', {
+      userId: user.id,
+      tenantId: profile.tenant_id,
+      error: e instanceof Error ? e.message : String(e)
+    });
     return NextResponse.json({ error: 'Error al cargar conversaciones' }, { status: 500 });
   }
 }
@@ -157,7 +162,11 @@ export async function POST(request: Request) {
 
     return NextResponse.json(conversation, { status: 201 });
   } catch (e) {
-    console.error('Error creating conversation:', e);
+    logger.error('Error creating conversation', {
+      userId: user.id,
+      tenantId: profile.tenant_id,
+      error: e instanceof Error ? e.message : String(e)
+    });
     return NextResponse.json({ error: 'Error al crear conversación' }, { status: 500 });
   }
 }

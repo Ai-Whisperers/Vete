@@ -2,8 +2,8 @@
 
 Vete provides both REST API endpoints and Server Actions for data operations.
 
-> **Last Updated**: December 2024
-> **Total REST Endpoints**: 82
+> **Last Updated**: January 2025
+> **Total REST Endpoints**: 87
 > **Total Server Actions**: 20
 
 ---
@@ -131,15 +131,20 @@ Vete provides both REST API endpoints and Server Actions for data operations.
 | GET/POST | `/api/insurance/pre-authorizations` | Pre-auth requests |
 | GET | `/api/insurance/providers` | Provider directory |
 
-### E-Commerce / Store (11 endpoints)
+### E-Commerce / Store (16 endpoints)
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET | `/api/store/products` | List products |
+| POST | `/api/store/products` | Create product (staff only) |
 | GET | `/api/store/products/[id]` | Product details |
 | GET | `/api/store/search` | Product search |
+| GET/PUT/DELETE | `/api/store/cart` | Cart persistence (logged-in users) |
 | GET/POST | `/api/store/orders` | Order management |
 | POST | `/api/store/checkout` | Process checkout |
+| GET | `/api/store/orders/pending-prescriptions` | Orders pending prescription review |
+| GET/PUT | `/api/store/orders/[id]/prescription` | Prescription review (approve/reject) |
+| POST | `/api/store/prescriptions/upload` | Upload prescription file |
 | POST | `/api/store/coupons/validate` | Validate coupon |
 | GET/POST | `/api/store/reviews` | Product reviews |
 | GET/POST/DELETE | `/api/store/wishlist` | User wishlist |

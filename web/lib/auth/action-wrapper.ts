@@ -5,7 +5,8 @@
 
 import { AuthService } from './core'
 import { actionError } from '@/lib/actions/result'
-import type { ActionResult, AuthContext, UserRole } from './types'
+import type { ActionResult } from '@/lib/types/action-result'
+import type { AuthContext, UserRole } from './types'
 
 export interface ActionOptions {
   roles?: UserRole[]

@@ -17,15 +17,20 @@ interface CartLayoutWrapperProps {
  */
 export function CartLayoutWrapper({ isLoggedIn }: CartLayoutWrapperProps) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const { itemCount } = useCart();
+  const { itemCount, isLoggedIn: clientIsLoggedIn } = useCart();
   const [mounted, setMounted] = useState(false);
+  const [hasAuthCookie, setHasAuthCookie] = useState(false);
 
   useEffect(() => {
     setMounted(true);
+    // Double-check auth cookie on client side
+    const hasCookie = document.cookie.includes("sb-") && document.cookie.includes("-auth-token");
+    setHasAuthCookie(hasCookie);
   }, []);
 
-  // Don't render anything if not logged in or not mounted
-  if (!mounted || !isLoggedIn) {
+  // Don't render anything if not logged in (server OR client check)
+  // This provides a failsafe against stale server-side auth
+  if (!mounted || !isLoggedIn || !hasAuthCookie) {
     return null;
   }
 

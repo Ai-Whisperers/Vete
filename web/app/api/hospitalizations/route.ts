@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { withAuth } from '@/lib/api/with-auth';
+import { apiError, HTTP_STATUS } from '@/lib/api/errors';
 
 export const GET = withAuth(async ({ request, profile, supabase }) => {
   const { searchParams } = new URL(request.url);
@@ -35,7 +36,7 @@ export const GET = withAuth(async ({ request, profile, supabase }) => {
 
   if (error) {
     console.error('[API] hospitalizations GET error:', error);
-    return NextResponse.json({ error: 'Error al obtener hospitalizaciones' }, { status: 500 });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 
   return NextResponse.json(data);
@@ -47,7 +48,7 @@ export const POST = withAuth(async ({ request, user, profile, supabase }) => {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: 'JSON inválido' }, { status: 400 });
+    return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST);
   }
 
   const {
@@ -65,9 +66,9 @@ export const POST = withAuth(async ({ request, user, profile, supabase }) => {
 
   // Validate required fields
   if (!pet_id || !kennel_id || !hospitalization_type || !admission_diagnosis) {
-    return NextResponse.json({
-      error: 'pet_id, kennel_id, hospitalization_type y admission_diagnosis son requeridos'
-    }, { status: 400 });
+    return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
+      details: { required: ['pet_id', 'kennel_id', 'hospitalization_type', 'admission_diagnosis'] }
+    });
   }
 
   // Verify pet belongs to staff's clinic
@@ -78,11 +79,11 @@ export const POST = withAuth(async ({ request, user, profile, supabase }) => {
     .single();
 
   if (!pet) {
-    return NextResponse.json({ error: 'Mascota no encontrada' }, { status: 404 });
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, { details: { resource: 'pet' } });
   }
 
   if (pet.tenant_id !== profile.tenant_id) {
-    return NextResponse.json({ error: 'No tienes acceso a esta mascota' }, { status: 403 });
+    return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN);
   }
 
   // Verify kennel is available
@@ -93,15 +94,15 @@ export const POST = withAuth(async ({ request, user, profile, supabase }) => {
     .single();
 
   if (!kennel) {
-    return NextResponse.json({ error: 'Jaula no encontrada' }, { status: 404 });
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, { details: { resource: 'kennel' } });
   }
 
   if (kennel.tenant_id !== profile.tenant_id) {
-    return NextResponse.json({ error: 'No tienes acceso a esta jaula' }, { status: 403 });
+    return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN);
   }
 
   if (kennel.kennel_status !== 'available') {
-    return NextResponse.json({ error: 'La jaula no está disponible' }, { status: 400 });
+    return apiError('CONFLICT', HTTP_STATUS.CONFLICT, { details: { reason: 'kennel_not_available' } });
   }
 
   // Generate hospitalization number
@@ -151,7 +152,7 @@ export const POST = withAuth(async ({ request, user, profile, supabase }) => {
 
   if (hospError) {
     console.error('[API] hospitalizations POST error:', hospError);
-    return NextResponse.json({ error: 'Error al crear hospitalización' }, { status: 500 });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 
   // Update kennel status to occupied
@@ -169,7 +170,7 @@ export const PATCH = withAuth(async ({ request, user, profile, supabase }) => {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: 'JSON inválido' }, { status: 400 });
+    return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST);
   }
 
   const {
@@ -183,7 +184,7 @@ export const PATCH = withAuth(async ({ request, user, profile, supabase }) => {
   } = body;
 
   if (!id) {
-    return NextResponse.json({ error: 'ID es requerido' }, { status: 400 });
+    return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, { details: { required: ['id'] } });
   }
 
   // Verify hospitalization belongs to staff's clinic
@@ -198,13 +199,13 @@ export const PATCH = withAuth(async ({ request, user, profile, supabase }) => {
     .single();
 
   if (!existing) {
-    return NextResponse.json({ error: 'Hospitalización no encontrada' }, { status: 404 });
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, { details: { resource: 'hospitalization' } });
   }
 
   const petData = Array.isArray(existing.pet) ? existing.pet[0] : existing.pet;
   const pet = petData as { tenant_id: string };
   if (pet.tenant_id !== profile.tenant_id) {
-    return NextResponse.json({ error: 'No tienes acceso a esta hospitalización' }, { status: 403 });
+    return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN);
   }
 
   // Build update
@@ -244,7 +245,7 @@ export const PATCH = withAuth(async ({ request, user, profile, supabase }) => {
 
   if (error) {
     console.error('[API] hospitalizations PATCH error:', error);
-    return NextResponse.json({ error: 'Error al actualizar hospitalización' }, { status: 500 });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 
   return NextResponse.json(data);

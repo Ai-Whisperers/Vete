@@ -198,11 +198,15 @@ export type LowStockAlertInput = z.infer<typeof lowStockAlertSchema>;
  */
 export const ORDER_STATUSES = [
   'pending',
+  'pending_prescription',
   'confirmed',
   'processing',
   'ready',
+  'shipped',
   'delivered',
   'cancelled',
+  'prescription_rejected',
+  'refunded',
 ] as const;
 export type OrderStatus = (typeof ORDER_STATUSES)[number];
 

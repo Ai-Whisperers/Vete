@@ -17,6 +17,10 @@ export default async function AppointmentsPage({ params }: { params: Promise<{ c
     );
   }
 
+  if (!result.data) {
+    return notFound();
+  }
+
   const { upcoming, past } = result.data;
 
   return (

@@ -116,7 +116,8 @@ describe('Authentication Security', () => {
         .eq('id', owner.id)
         .single();
 
-      expect(data.tenant_id).toBe(DEFAULT_TENANT.id);
+      expect(data).not.toBeNull();
+      expect(data!.tenant_id).toBe(DEFAULT_TENANT.id);
     });
 
     test('cannot create profile without tenant', async () => {
@@ -263,7 +264,8 @@ describe('Input Validation Security', () => {
         .eq('id', owner.id)
         .single();
 
-      expect(data.full_name).toBe(maliciousName);
+      expect(data).not.toBeNull();
+      expect(data!.full_name).toBe(maliciousName);
 
       // Verify tables still exist
       const { error } = await client.from('pets').select('id').limit(1);

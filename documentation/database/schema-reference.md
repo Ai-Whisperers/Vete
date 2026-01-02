@@ -931,7 +931,7 @@ Customer orders.
 | `tenant_id` | TEXT | FK to tenants |
 | `customer_id` | UUID | FK to profiles |
 | `order_number` | TEXT | Human-readable number |
-| `status` | TEXT | 'pending', 'confirmed', 'shipped', 'delivered' |
+| `status` | TEXT | 'pending', 'pending_prescription', 'confirmed', 'shipped', 'delivered', 'cancelled' |
 | `subtotal` | NUMERIC | Subtotal |
 | `tax_amount` | NUMERIC | Tax |
 | `shipping_amount` | NUMERIC | Shipping cost |
@@ -939,6 +939,12 @@ Customer orders.
 | `total` | NUMERIC | Grand total |
 | `shipping_address` | JSONB | Shipping address |
 | `notes` | TEXT | Order notes |
+| `requires_prescription_review` | BOOLEAN | Has items needing prescription |
+| `prescription_file_url` | TEXT | Main prescription file URL |
+| `prescription_reviewed_by` | UUID | FK to profiles (vet who reviewed) |
+| `prescription_reviewed_at` | TIMESTAMPTZ | Review timestamp |
+| `prescription_notes` | TEXT | Vet review notes |
+| `prescription_rejection_reason` | TEXT | Reason if rejected |
 | `created_at` | TIMESTAMPTZ | Order time |
 
 ### `store_order_items`
@@ -954,6 +960,8 @@ Order line items.
 | `quantity` | INT | Quantity |
 | `unit_price` | NUMERIC | Unit price |
 | `total` | NUMERIC | Line total |
+| `requires_prescription` | BOOLEAN | Item needs prescription |
+| `prescription_file_url` | TEXT | Prescription file for this item |
 
 ### `store_coupons`
 
@@ -990,9 +998,54 @@ Product reviews.
 | `is_approved` | BOOLEAN | Moderation status |
 | `created_at` | TIMESTAMPTZ | Review time |
 
-### `store_wishlist`
+### `store_wishlists`
 
-User wishlists.
+User wishlists (product bookmarks).
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | UUID | Primary key |
+| `tenant_id` | TEXT | FK to tenants |
+| `user_id` | UUID | FK to profiles |
+| `product_id` | UUID | FK to store_products |
+| `created_at` | TIMESTAMPTZ | When added |
+
+Unique constraint on (user_id, product_id).
+
+### `store_carts`
+
+Persistent shopping carts for logged-in users.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | UUID | Primary key |
+| `tenant_id` | TEXT | FK to tenants |
+| `customer_id` | UUID | FK to profiles |
+| `items` | JSONB | Cart items array |
+| `updated_at` | TIMESTAMPTZ | Last update |
+| `created_at` | TIMESTAMPTZ | Cart created |
+
+Unique constraint on (customer_id, tenant_id).
+
+### `store_stock_alerts`
+
+Stock restoration notifications.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | UUID | Primary key |
+| `tenant_id` | TEXT | FK to tenants |
+| `product_id` | UUID | FK to store_products |
+| `user_id` | UUID | FK to profiles (nullable) |
+| `email` | TEXT | Email to notify |
+| `notified` | BOOLEAN | Whether notification sent |
+| `created_at` | TIMESTAMPTZ | Subscription time |
+
+Unique constraint on (email, product_id).
+
+### `store_wishlist` (DEPRECATED)
+
+Legacy table - use `store_wishlists` instead.
 
 | Column | Type | Description |
 |--------|------|-------------|

@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import QRCode from 'qrcode';
+import { apiError, HTTP_STATUS } from '@/lib/api/errors';
 
 export async function POST(
     request: Request,
@@ -13,7 +14,7 @@ export async function POST(
         // 1. Authenticate user
         const { data: { user }, error: authError } = await supabase.auth.getUser();
         if (authError || !user) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+            return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
         }
 
         // 2. Verify pet ownership or vet/admin access
@@ -24,7 +25,7 @@ export async function POST(
             .single();
 
         if (petError || !pet) {
-            return NextResponse.json({ error: 'Pet not found' }, { status: 404 });
+            return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND);
         }
 
         // Check if user is owner or staff
@@ -38,7 +39,7 @@ export async function POST(
         const isStaff = profile && ['vet', 'admin'].includes(profile.role) && profile.tenant_id === pet.tenant_id;
 
         if (!isOwner && !isStaff) {
-            return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+            return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN);
         }
 
         // 3. Fetch owner contact info
@@ -84,7 +85,7 @@ export async function POST(
 
         if (uploadError) {
             console.error('Upload error:', uploadError);
-            return NextResponse.json({ error: 'Failed to upload QR code' }, { status: 500 });
+            return apiError('UPLOAD_FAILED', HTTP_STATUS.INTERNAL_SERVER_ERROR);
         }
 
         // 8. Get public URL
@@ -113,7 +114,7 @@ export async function POST(
 
         if (insertError) {
             console.error('Insert error:', insertError);
-            return NextResponse.json({ error: 'Failed to save QR code record' }, { status: 500 });
+            return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
         }
 
         return NextResponse.json({
@@ -127,8 +128,7 @@ export async function POST(
 
     } catch (e) {
         console.error('QR generation error:', e);
-        const message = e instanceof Error ? e.message : 'Error interno del servidor';
-        return NextResponse.json({ error: message }, { status: 500 });
+        return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
     }
 }
 
@@ -144,7 +144,7 @@ export async function GET(
         // TICKET-SEC-001: Add authentication check
         const { data: { user }, error: authError } = await supabase.auth.getUser();
         if (authError || !user) {
-            return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+            return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
         }
 
         // Verify pet access (owner or staff of same tenant)
@@ -155,7 +155,7 @@ export async function GET(
             .single();
 
         if (!pet) {
-            return NextResponse.json({ error: 'Mascota no encontrada' }, { status: 404 });
+            return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND);
         }
 
         const { data: profile } = await supabase
@@ -168,7 +168,7 @@ export async function GET(
         const isStaff = profile && ['vet', 'admin'].includes(profile.role) && profile.tenant_id === pet.tenant_id;
 
         if (!isOwner && !isStaff) {
-            return NextResponse.json({ error: 'Acceso denegado' }, { status: 403 });
+            return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN);
         }
 
         const { data: qrCode, error } = await supabase
@@ -185,7 +185,7 @@ export async function GET(
         return NextResponse.json({ qrCode });
 
     } catch (e) {
-        const message = e instanceof Error ? e.message : 'Error interno del servidor';
-        return NextResponse.json({ error: message }, { status: 500 });
+        console.error('QR GET error:', e);
+        return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
     }
 }

@@ -68,7 +68,8 @@ describe('Store - Product Browsing', () => {
         .gt('stock', 0);
 
       expect(error).toBeNull();
-      expect(data.length).toBeGreaterThanOrEqual(testProducts.length);
+      expect(data).not.toBeNull();
+      expect(data!.length).toBeGreaterThanOrEqual(testProducts.length);
     });
 
     test('returns product with all display fields', async () => {
@@ -80,11 +81,12 @@ describe('Store - Product Browsing', () => {
         .single();
 
       expect(error).toBeNull();
-      expect(data).toHaveProperty('id');
-      expect(data).toHaveProperty('name');
-      expect(data).toHaveProperty('category');
-      expect(data).toHaveProperty('price');
-      expect(data).toHaveProperty('stock');
+      expect(data).not.toBeNull();
+      expect(data!).toHaveProperty('id');
+      expect(data!).toHaveProperty('name');
+      expect(data!).toHaveProperty('category');
+      expect(data!).toHaveProperty('price');
+      expect(data!).toHaveProperty('stock');
     });
 
     test('excludes out-of-stock products when filtering', async () => {
@@ -100,7 +102,8 @@ describe('Store - Product Browsing', () => {
         })
         .select()
         .single();
-      ctx.track('products', outOfStock.id);
+      expect(outOfStock).not.toBeNull();
+      ctx.track('products', outOfStock!.id);
 
       // Query available products
       const { data } = await client
@@ -109,7 +112,8 @@ describe('Store - Product Browsing', () => {
         .eq('tenant_id', DEFAULT_TENANT.id)
         .gt('stock', 0);
 
-      expect(data.some((p: { id: string }) => p.id === outOfStock.id)).toBe(false);
+      expect(data).not.toBeNull();
+      expect(data!.some((p: { id: string }) => p.id === outOfStock!.id)).toBe(false);
     });
   });
 
@@ -122,8 +126,9 @@ describe('Store - Product Browsing', () => {
         .eq('category', 'Alimentos');
 
       expect(error).toBeNull();
-      expect(data.length).toBeGreaterThan(0);
-      expect(data.every((p: { category: string }) => p.category === 'Alimentos')).toBe(true);
+      expect(data).not.toBeNull();
+      expect(data!.length).toBeGreaterThan(0);
+      expect(data!.every((p: { category: string }) => p.category === 'Alimentos')).toBe(true);
     });
 
     test('filters products by Farmacia category', async () => {
@@ -134,7 +139,8 @@ describe('Store - Product Browsing', () => {
         .eq('category', 'Farmacia');
 
       expect(error).toBeNull();
-      expect(data.every((p: { category: string }) => p.category === 'Farmacia')).toBe(true);
+      expect(data).not.toBeNull();
+      expect(data!.every((p: { category: string }) => p.category === 'Farmacia')).toBe(true);
     });
 
     test('filters products by Accesorios category', async () => {
@@ -145,7 +151,8 @@ describe('Store - Product Browsing', () => {
         .eq('category', 'Accesorios');
 
       expect(error).toBeNull();
-      expect(data.every((p: { category: string }) => p.category === 'Accesorios')).toBe(true);
+      expect(data).not.toBeNull();
+      expect(data!.every((p: { category: string }) => p.category === 'Accesorios')).toBe(true);
     });
 
     test('gets all available categories', async () => {
@@ -155,8 +162,9 @@ describe('Store - Product Browsing', () => {
         .eq('tenant_id', DEFAULT_TENANT.id);
 
       expect(error).toBeNull();
+      expect(data).not.toBeNull();
 
-      const categories = [...new Set(data.map((p: { category: string }) => p.category))];
+      const categories = [...new Set(data!.map((p: { category: string }) => p.category))];
       expect(categories.length).toBeGreaterThan(0);
     });
 
@@ -168,7 +176,8 @@ describe('Store - Product Browsing', () => {
         .eq('category', 'NonExistentCategory');
 
       expect(error).toBeNull();
-      expect(data.length).toBe(0);
+      expect(data).not.toBeNull();
+      expect(data!.length).toBe(0);
     });
   });
 
@@ -181,8 +190,9 @@ describe('Store - Product Browsing', () => {
         .order('price', { ascending: true });
 
       expect(error).toBeNull();
-      for (let i = 1; i < data.length; i++) {
-        expect(data[i].price).toBeGreaterThanOrEqual(data[i - 1].price);
+      expect(data).not.toBeNull();
+      for (let i = 1; i < data!.length; i++) {
+        expect(data![i].price).toBeGreaterThanOrEqual(data![i - 1].price);
       }
     });
 
@@ -194,8 +204,9 @@ describe('Store - Product Browsing', () => {
         .order('price', { ascending: false });
 
       expect(error).toBeNull();
-      for (let i = 1; i < data.length; i++) {
-        expect(data[i].price).toBeLessThanOrEqual(data[i - 1].price);
+      expect(data).not.toBeNull();
+      for (let i = 1; i < data!.length; i++) {
+        expect(data![i].price).toBeLessThanOrEqual(data![i - 1].price);
       }
     });
   });
@@ -209,7 +220,8 @@ describe('Store - Product Browsing', () => {
         .lt('price', 30000);
 
       expect(error).toBeNull();
-      expect(data.every((p: { price: number }) => p.price < 30000)).toBe(true);
+      expect(data).not.toBeNull();
+      expect(data!.every((p: { price: number }) => p.price < 30000)).toBe(true);
     });
 
     test('filters products between 30000 and 60000', async () => {
@@ -221,8 +233,9 @@ describe('Store - Product Browsing', () => {
         .lte('price', 60000);
 
       expect(error).toBeNull();
+      expect(data).not.toBeNull();
       expect(
-        data.every((p: { price: number }) => p.price >= 30000 && p.price <= 60000)
+        data!.every((p: { price: number }) => p.price >= 30000 && p.price <= 60000)
       ).toBe(true);
     });
 
@@ -234,7 +247,8 @@ describe('Store - Product Browsing', () => {
         .gt('price', 60000);
 
       expect(error).toBeNull();
-      expect(data.every((p: { price: number }) => p.price > 60000)).toBe(true);
+      expect(data).not.toBeNull();
+      expect(data!.every((p: { price: number }) => p.price > 60000)).toBe(true);
     });
   });
 
@@ -247,7 +261,8 @@ describe('Store - Product Browsing', () => {
         .ilike('name', '%Dog%');
 
       expect(error).toBeNull();
-      expect(data.every((p: { name: string }) => p.name.toLowerCase().includes('dog'))).toBe(true);
+      expect(data).not.toBeNull();
+      expect(data!.every((p: { name: string }) => p.name.toLowerCase().includes('dog'))).toBe(true);
     });
 
     test('searches products by name containing "Premium"', async () => {
@@ -258,7 +273,8 @@ describe('Store - Product Browsing', () => {
         .ilike('name', '%Premium%');
 
       expect(error).toBeNull();
-      expect(data.length).toBeGreaterThan(0);
+      expect(data).not.toBeNull();
+      expect(data!.length).toBeGreaterThan(0);
     });
 
     test('search is case-insensitive', async () => {
@@ -274,7 +290,9 @@ describe('Store - Product Browsing', () => {
         .eq('tenant_id', DEFAULT_TENANT.id)
         .ilike('name', '%food%');
 
-      expect(uppercase.length).toBe(lowercase.length);
+      expect(uppercase).not.toBeNull();
+      expect(lowercase).not.toBeNull();
+      expect(uppercase!.length).toBe(lowercase!.length);
     });
 
     test('returns empty for non-matching search', async () => {
@@ -285,7 +303,8 @@ describe('Store - Product Browsing', () => {
         .ilike('name', '%XYZ123NonExistent%');
 
       expect(error).toBeNull();
-      expect(data.length).toBe(0);
+      expect(data).not.toBeNull();
+      expect(data!.length).toBe(0);
     });
   });
 
@@ -307,11 +326,12 @@ describe('Store - Product Browsing', () => {
         .range(pageSize, pageSize * 2 - 1)
         .order('name');
 
-      expect(page1.length).toBeLessThanOrEqual(pageSize);
+      expect(page1).not.toBeNull();
+      expect(page1!.length).toBeLessThanOrEqual(pageSize);
 
       // Pages should not overlap
-      if (page1.length > 0 && page2.length > 0) {
-        const page1Ids = page1.map((p: { id: string }) => p.id);
+      if (page1!.length > 0 && page2 && page2.length > 0) {
+        const page1Ids = page1!.map((p: { id: string }) => p.id);
         const hasOverlap = page2.some((p: { id: string }) => page1Ids.includes(p.id));
         expect(hasOverlap).toBe(false);
       }
@@ -337,15 +357,17 @@ describe('Store - Product Browsing', () => {
         .eq('tenant_id', DEFAULT_TENANT.id)
         .limit(1);
 
-      if (products.length > 0) {
+      expect(products).not.toBeNull();
+      if (products!.length > 0) {
         const { data, error } = await client
           .from('products')
           .select('*')
-          .eq('id', products[0].id)
+          .eq('id', products![0].id)
           .single();
 
         expect(error).toBeNull();
-        expect(data.id).toBe(products[0].id);
+        expect(data).not.toBeNull();
+        expect(data!.id).toBe(products![0].id);
       }
     });
 

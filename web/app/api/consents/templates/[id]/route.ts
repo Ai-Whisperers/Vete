@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import { apiError, HTTP_STATUS } from '@/lib/api/errors';
 
 interface ConsentField {
   id?: string;
@@ -20,7 +21,7 @@ export async function PUT(
   // Authentication check
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   // Get user profile - only admins can update templates
@@ -31,11 +32,13 @@ export async function PUT(
     .single();
 
   if (!profile) {
-    return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 });
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
+      details: { resource: 'profile' }
+    });
   }
 
   if (profile.role !== 'admin') {
-    return NextResponse.json({ error: 'Solo administradores pueden editar plantillas' }, { status: 403 });
+    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
   }
 
   // Get template ID from params
@@ -50,16 +53,20 @@ export async function PUT(
     .single();
 
   if (fetchError || !existingTemplate) {
-    return NextResponse.json({ error: 'Plantilla no encontrada' }, { status: 404 });
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
+      details: { resource: 'template' }
+    });
   }
 
   // Only allow editing tenant-specific templates (not global ones)
   if (!existingTemplate.tenant_id) {
-    return NextResponse.json({ error: 'No se pueden editar plantillas globales' }, { status: 403 });
+    return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN, {
+      details: { message: 'Cannot edit global templates' }
+    });
   }
 
   if (existingTemplate.tenant_id !== profile.clinic_id) {
-    return NextResponse.json({ error: 'No autorizado para editar esta plantilla' }, { status: 403 });
+    return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN);
   }
 
   // Parse body
@@ -67,7 +74,7 @@ export async function PUT(
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: 'JSON inválido' }, { status: 400 });
+    return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST);
   }
 
   const {
@@ -83,7 +90,9 @@ export async function PUT(
 
   // Validate required fields
   if (!name || !category || !content) {
-    return NextResponse.json({ error: 'name, category y content son requeridos' }, { status: 400 });
+    return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
+      details: { required: ['name', 'category', 'content'] }
+    });
   }
 
   // Update template
@@ -105,7 +114,7 @@ export async function PUT(
 
   if (error) {
     console.error('[API] consent templates PUT error:', error);
-    return NextResponse.json({ error: 'Error al actualizar plantilla' }, { status: 500 });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 
   // Handle fields update
@@ -154,7 +163,7 @@ export async function DELETE(
   // Authentication check
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   // Get user profile - only admins can delete templates
@@ -165,11 +174,13 @@ export async function DELETE(
     .single();
 
   if (!profile) {
-    return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 });
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
+      details: { resource: 'profile' }
+    });
   }
 
   if (profile.role !== 'admin') {
-    return NextResponse.json({ error: 'Solo administradores pueden eliminar plantillas' }, { status: 403 });
+    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
   }
 
   // Get template ID from params
@@ -184,16 +195,20 @@ export async function DELETE(
     .single();
 
   if (fetchError || !existingTemplate) {
-    return NextResponse.json({ error: 'Plantilla no encontrada' }, { status: 404 });
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
+      details: { resource: 'template' }
+    });
   }
 
   // Only allow deleting tenant-specific templates (not global ones)
   if (!existingTemplate.tenant_id) {
-    return NextResponse.json({ error: 'No se pueden eliminar plantillas globales' }, { status: 403 });
+    return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN, {
+      details: { message: 'Cannot delete global templates' }
+    });
   }
 
   if (existingTemplate.tenant_id !== profile.clinic_id) {
-    return NextResponse.json({ error: 'No autorizado para eliminar esta plantilla' }, { status: 403 });
+    return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN);
   }
 
   // Soft delete by setting is_active to false
@@ -204,7 +219,7 @@ export async function DELETE(
 
   if (error) {
     console.error('[API] consent templates DELETE error:', error);
-    return NextResponse.json({ error: 'Error al eliminar plantilla' }, { status: 500 });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 
   return NextResponse.json({ message: 'Plantilla eliminada correctamente' }, { status: 200 });

@@ -16,7 +16,7 @@ import {
 import { createClient } from "@/lib/supabase/client";
 import { useForm } from "@/hooks/use-form";
 import { useAsyncData } from "@/hooks/use-async-data";
-import { required, email } from "@/lib/utils/validation";
+import { required, email, createValidator } from "@/lib/utils/validation";
 import { ErrorBoundary } from "@/components/shared";
 
 interface ClientInviteFormProps {
@@ -46,7 +46,7 @@ export function ClientInviteForm({
     },
     validationRules: {
       fullName: required("El nombre completo es requerido"),
-      email: [required("El correo electrónico es requerido"), email("Correo electrónico inválido")],
+      email: createValidator(required("El correo electrónico es requerido"), email("Correo electrónico inválido")),
     },
   });
 

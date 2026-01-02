@@ -11,9 +11,9 @@ import type {
   ErrorContext,
   ErrorResponse,
   SuccessResponse,
-  ApiResponse,
-  ERROR_CODES
+  ApiResponse
 } from './types'
+import { ERROR_CODES } from './types'
 
 export class ErrorService {
   /**

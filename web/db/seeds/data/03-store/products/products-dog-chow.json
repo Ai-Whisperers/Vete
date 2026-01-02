@@ -36,7 +36,7 @@
           "sku_suffix": "-21KG"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop&q=dog-chow-adult-med-lg.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "age_range": "1+ años",
         "breed_size": "Mediano y Grande"
@@ -70,7 +70,7 @@
           "sku_suffix": "-8KG"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop&q=dog-chow-adult-small.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "age_range": "1+ años",
         "breed_size": "Pequeño"
@@ -104,7 +104,7 @@
           "sku_suffix": "-8KG"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop&q=dog-chow-puppy-small.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "age_range": "Hasta 1 año",
         "breed_size": "Pequeño"
@@ -144,7 +144,7 @@
           "sku_suffix": "-21KG"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop&q=dog-chow-puppy-med-lg.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "age_range": "Hasta 1 año",
         "breed_size": "Mediano y Grande"
@@ -172,7 +172,7 @@
           "sku_suffix": "-8KG"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop&q=dog-chow-senior.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "age_range": "7+ años",
         "special_need": "Senior"
@@ -200,7 +200,7 @@
           "sku_suffix": "-8KG"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop&q=dog-chow-light.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "special_need": "Control de peso",
         "low_calorie": true

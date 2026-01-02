@@ -13,6 +13,7 @@ import {
   ArrowRight,
   Clock,
   Command,
+  Loader2,
 } from "lucide-react";
 import { useDashboardLabels } from "@/lib/hooks/use-dashboard-labels";
 import { useCommandPalette } from "@/hooks/use-command-palette";
@@ -207,7 +208,7 @@ export function GlobalSearch({ clinic }: GlobalSearchProps): React.ReactElement 
                                 : "bg-gray-100 text-gray-500"
                             }`}
                           >
-                            {getIcon(result.type)}
+                            {getIcon(result.type as SearchResult["type"])}
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
@@ -215,7 +216,7 @@ export function GlobalSearch({ clinic }: GlobalSearchProps): React.ReactElement 
                                 {result.title}
                               </p>
                               <span className="flex-shrink-0 px-2 py-0.5 text-xs font-medium text-gray-500 bg-gray-100 rounded-full">
-                                {getTypeLabel(result.type)}
+                                {getTypeLabel(result.type as SearchResult["type"])}
                               </span>
                               {result.meta && (
                                 <span className="flex-shrink-0 px-2 py-0.5 text-xs font-medium text-yellow-700 bg-yellow-100 rounded-full">

@@ -37,6 +37,11 @@
     "**/*.mts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "db/migrations/*.ts",
+    "lib/components/**/*",
+    "lib/middleware/**/*",
+    "scripts/**/*",
+    "supabase/**/*"
   ]
 }

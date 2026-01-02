@@ -1,19 +1,19 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 
 /**
  * GET /api/notifications
  * Fetch in-app notifications for the authenticated user
- * Query params:
- *   - status: filter by status (optional, e.g., 'read', 'unread')
- * Returns latest 50 notifications with unread count
  *
- * Schema: notifications table
+ * NOTE: The in-app notifications table is not yet created.
+ * Currently returns empty list. When the table is created, this will work.
+ *
+ * Expected schema: notifications table
  * - user_id: UUID (auth user ID)
  * - type: notification type
  * - title, message: content
  * - read_at: NULL = unread, timestamp = read
- * - channels: TEXT[] (in_app, email, push, sms)
  */
 export async function GET(request: NextRequest) {
   const supabase = await createClient();
@@ -29,54 +29,58 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const statusFilter = searchParams.get('status');
 
-    // 3. Build query for notifications (use correct table and columns)
-    let query = supabase
+    // 3. Check if notifications table exists and query it
+    const { data: notifications, error: notificationsError } = await supabase
       .from("notifications")
       .select("id, title, message, type, priority, reference_type, reference_id, action_url, read_at, dismissed_at, created_at")
       .eq("user_id", user.id)
-      .is("dismissed_at", null); // Don't show dismissed notifications
-
-    // Apply status filter if provided
-    if (statusFilter === 'read') {
-      query = query.not("read_at", "is", null);
-    } else if (statusFilter === 'unread') {
-      query = query.is("read_at", null);
-    }
-
-    const { data: notifications, error: notificationsError } = await query
+      .is("dismissed_at", null)
       .order("created_at", { ascending: false })
       .limit(50);
 
+    // Handle table not existing (PGRST205) - return empty list gracefully
     if (notificationsError) {
-      console.error("Error fetching notifications:", notificationsError);
+      if (notificationsError.code === 'PGRST205') {
+        // Table doesn't exist yet - return empty notifications (not an error)
+        return NextResponse.json({
+          notifications: [],
+          unreadCount: 0,
+        });
+      }
+      logger.error("Error fetching notifications", {
+        error: notificationsError.message,
+        userId: user.id
+      });
       return NextResponse.json(
         { error: "Error al cargar notificaciones" },
         { status: 500 }
       );
     }
 
-    // 4. Count unread notifications (read_at IS NULL)
-    const { count: unreadCount, error: countError } = await supabase
-      .from("notifications")
-      .select("id", { count: 'exact', head: true })
-      .eq("user_id", user.id)
-      .is("read_at", null)
-      .is("dismissed_at", null);
-
-    if (countError) {
-      console.error("Error counting unread notifications:", countError);
+    // 4. Filter by status if provided
+    let filteredNotifications = notifications || [];
+    if (statusFilter === 'read') {
+      filteredNotifications = filteredNotifications.filter(n => n.read_at !== null);
+    } else if (statusFilter === 'unread') {
+      filteredNotifications = filteredNotifications.filter(n => n.read_at === null);
     }
 
-    // 5. Return response (map to consistent format)
+    // 5. Count unread
+    const unreadCount = (notifications || []).filter(n => n.read_at === null).length;
+
+    // 6. Return response (map to consistent format)
     return NextResponse.json({
-      notifications: (notifications || []).map(n => ({
+      notifications: filteredNotifications.map(n => ({
         ...n,
         status: n.read_at ? 'read' : 'unread',
       })),
-      unreadCount: unreadCount || 0,
+      unreadCount,
     });
   } catch (error) {
-    console.error("Unexpected error fetching notifications:", error);
+    logger.error("Unexpected error fetching notifications", {
+      error: error instanceof Error ? error.message : "Unknown",
+      userId: user?.id
+    });
     return NextResponse.json(
       { error: "Error inesperado al cargar notificaciones" },
       { status: 500 }
@@ -117,7 +121,18 @@ export async function PATCH(request: NextRequest) {
         .select();
 
       if (updateError) {
-        console.error("Error marking all notifications as read:", updateError);
+        // Handle table not existing gracefully
+        if (updateError.code === 'PGRST205') {
+          return NextResponse.json({
+            success: true,
+            updated: 0,
+            message: "No hay notificaciones",
+          });
+        }
+        logger.error("Error marking all notifications as read", {
+          error: updateError.message,
+          userId: user.id
+        });
         return NextResponse.json(
           { error: "Error al marcar todas las notificaciones como leídas" },
           { status: 500 }
@@ -158,7 +173,19 @@ export async function PATCH(request: NextRequest) {
       .select();
 
     if (updateError) {
-      console.error("Error updating notifications:", updateError);
+      // Handle table not existing gracefully
+      if (updateError.code === 'PGRST205') {
+        return NextResponse.json({
+          success: true,
+          updated: 0,
+          message: "No hay notificaciones",
+        });
+      }
+      logger.error("Error updating notifications", {
+        error: updateError.message,
+        userId: user.id,
+        notificationIds
+      });
       return NextResponse.json(
         { error: "Error al marcar notificaciones como leídas" },
         { status: 500 }
@@ -172,7 +199,10 @@ export async function PATCH(request: NextRequest) {
       message: "Notificaciones marcadas como leídas",
     });
   } catch (error) {
-    console.error("Unexpected error updating notifications:", error);
+    logger.error("Unexpected error updating notifications", {
+      error: error instanceof Error ? error.message : "Unknown",
+      userId: user?.id
+    });
     return NextResponse.json(
       { error: "Error inesperado al actualizar notificaciones" },
       { status: 500 }

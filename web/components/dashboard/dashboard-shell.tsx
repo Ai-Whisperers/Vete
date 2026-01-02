@@ -5,7 +5,7 @@ import { DashboardSidebar } from "./dashboard-sidebar";
 import { BottomNavigation } from "./bottom-navigation";
 import { QuickActionsHandler } from "./quick-actions-handler";
 import { CommandPalette, useCommandPalette } from "@/components/ui/command-palette";
-import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
+import { useKeyboardShortcuts, commonShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { RecentItemsProvider } from "./recent-items-provider";
 import { KeyboardShortcutsModal, useKeyboardShortcuts as useShortcutsModal } from "./keyboard-shortcuts-modal";
 import { DashboardLabelsProvider } from "@/lib/hooks/use-dashboard-labels";
@@ -22,11 +22,14 @@ export function DashboardShell({
   children,
 }: DashboardShellProps): React.ReactElement {
   const { isOpen, open, close } = useCommandPalette();
-  const { isOpen: isShortcutsOpen, closeShortcuts } = useShortcutsModal();
+  const { isOpen: isShortcutsOpen, closeShortcuts, openShortcuts } = useShortcutsModal();
 
   // Enable global keyboard shortcuts
   useKeyboardShortcuts({
-    onOpenCommandPalette: open,
+    shortcuts: [
+      commonShortcuts.openCommandPalette(open),
+      { key: '?', action: openShortcuts },
+    ],
     enabled: true,
   });
 

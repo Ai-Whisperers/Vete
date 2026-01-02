@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { ActionResult, FieldErrors } from "@/lib/types/action-result";
 import { z } from "zod";
+import { logger } from '@/lib/logger';
 
 // Validation schema for staff invite
 const inviteStaffSchema = z.object({
@@ -129,7 +130,12 @@ export async function inviteStaff(prevState: ActionResult | null, formData: Form
   });
 
   if (insertError) {
-    console.error("Invite staff error:", insertError);
+    logger.error('Failed to invite staff', {
+      error: insertError,
+      userId: user.id,
+      tenant: profile.tenant_id,
+      errorCode: insertError.code
+    });
 
     if (insertError.code === '23505') {
       return {
@@ -184,7 +190,12 @@ export async function removeInvite(formData: FormData): Promise<void> {
     .eq('tenant_id', clinic);
 
   if (deleteError) {
-    console.error("Delete invite error:", deleteError);
+    logger.error('Failed to delete staff invite', {
+      error: deleteError,
+      userId: user.id,
+      tenant: clinic,
+      inviteId: id
+    });
     throw new Error("No se pudo eliminar la invitacion. Por favor, intenta de nuevo.");
   }
 

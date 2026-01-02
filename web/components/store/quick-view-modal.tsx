@@ -22,28 +22,28 @@ import {
 } from 'lucide-react';
 import type { StoreProductWithDetails } from '@/lib/types/store';
 import { useCart } from '@/context/cart-context';
+import { useWishlist } from '@/context/wishlist-context';
 
 interface Props {
   product: StoreProductWithDetails;
   clinic: string;
-  isWishlisted?: boolean;
-  onWishlistToggle?: (productId: string) => void;
   onClose: () => void;
 }
 
 export default function QuickViewModal({
   product,
   clinic,
-  isWishlisted = false,
-  onWishlistToggle,
   onClose,
 }: Props) {
   const { addItem } = useCart();
+  const { isWishlisted, toggleWishlist } = useWishlist();
   const [quantity, setQuantity] = useState(1);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [addingToCart, setAddingToCart] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
-  const [localWishlisted, setLocalWishlisted] = useState(isWishlisted);
+  const [togglingWishlist, setTogglingWishlist] = useState(false);
+
+  const productIsWishlisted = isWishlisted(product.id);
 
   const stock = product.inventory?.stock_quantity || 0;
   const inStock = stock > 0;
@@ -104,9 +104,14 @@ export default function QuickViewModal({
     }, 300);
   };
 
-  const handleWishlistToggle = () => {
-    setLocalWishlisted(!localWishlisted);
-    onWishlistToggle?.(product.id);
+  const handleWishlistToggle = async () => {
+    if (togglingWishlist) return;
+    setTogglingWishlist(true);
+    try {
+      await toggleWishlist(product.id);
+    } finally {
+      setTogglingWishlist(false);
+    }
   };
 
   const nextImage = () => {
@@ -358,13 +363,19 @@ export default function QuickViewModal({
 
               <button
                 onClick={handleWishlistToggle}
+                disabled={togglingWishlist}
                 className={`p-3 rounded-xl border transition-colors ${
-                  localWishlisted
+                  productIsWishlisted
                     ? 'bg-red-50 border-red-200 text-red-500'
                     : 'border-[var(--border-default)] text-gray-500 hover:text-red-500 hover:border-red-200'
-                }`}
+                } disabled:opacity-50`}
+                aria-label={productIsWishlisted ? 'Quitar de lista de deseos' : 'Agregar a lista de deseos'}
               >
-                <Heart className={`w-5 h-5 ${localWishlisted ? 'fill-current' : ''}`} />
+                {togglingWishlist ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <Heart className={`w-5 h-5 ${productIsWishlisted ? 'fill-current' : ''}`} />
+                )}
               </button>
             </div>
 

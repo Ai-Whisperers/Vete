@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { ActionResult, FieldErrors } from "@/lib/types/action-result";
 import { z } from "zod";
+import { logger } from '@/lib/logger';
 
 // Validation schema for client invite
 const inviteClientSchema = z.object({
@@ -204,7 +205,12 @@ export async function inviteClient(
       });
 
     if (inviteError) {
-      console.error('Error creating invite:', inviteError);
+      logger.error('Failed to create client invite', {
+        error: inviteError,
+        userId: user.id,
+        tenant: profile.tenant_id,
+        errorCode: inviteError.code
+      });
 
       if (inviteError.code === "23505") {
         return {
@@ -226,7 +232,11 @@ export async function inviteClient(
     return { success: true };
 
   } catch (e) {
-    console.error('Error in inviteClient:', e);
+    logger.error('Unexpected error in inviteClient', {
+      error: e instanceof Error ? e : undefined,
+      userId: user.id,
+      tenant: profile.tenant_id
+    });
     return {
       success: false,
       error: "Ocurrió un error inesperado. Por favor, intenta de nuevo."
@@ -412,7 +422,13 @@ export async function createPetForClient(
       .single();
 
     if (petError) {
-      console.error('Error creating pet:', petError);
+      logger.error('Failed to create pet for client', {
+        error: petError,
+        userId: user.id,
+        tenant: profile.tenant_id,
+        clientId: validData.clientId,
+        errorCode: petError.code
+      });
 
       if (petError.code === "23505") {
         return {
@@ -431,7 +447,11 @@ export async function createPetForClient(
     return { success: true };
 
   } catch (e) {
-    console.error('Error in createPetForClient:', e);
+    logger.error('Unexpected error in createPetForClient', {
+      error: e instanceof Error ? e : undefined,
+      userId: user.id,
+      tenant: profile.tenant_id
+    });
     return {
       success: false,
       error: "Ocurrió un error inesperado. Por favor, intenta de nuevo."

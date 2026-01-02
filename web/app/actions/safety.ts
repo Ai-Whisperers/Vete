@@ -4,6 +4,7 @@ import { withActionAuth } from '@/lib/auth'
 import { actionSuccess, actionError } from '@/lib/errors'
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { logger } from '@/lib/logger'
 
 /**
  * Get lost pet reports for a clinic
@@ -38,7 +39,11 @@ export const getLostPets = withActionAuth(
     const { data, error } = await query
 
     if (error) {
-      console.error('Get lost pets error:', error)
+      logger.error('Failed to get lost pets', {
+        error,
+        tenant: clinicSlug,
+        status
+      })
       return actionError('Error al obtener reportes de mascotas perdidas')
     }
 
@@ -65,7 +70,12 @@ export const updateLostPetStatus = withActionAuth(
       .eq('tenant_id', clinicSlug)
 
     if (error) {
-      console.error('Update lost pet status error:', error)
+      logger.error('Failed to update lost pet status', {
+        error,
+        tenant: clinicSlug,
+        reportId,
+        newStatus
+      })
       return actionError('Error al actualizar el estado del reporte')
     }
 
@@ -96,7 +106,10 @@ export async function reportFoundPet(petId: string, location?: string, contact?:
     revalidatePath(`/scan/${petId}`)
     return actionSuccess()
   } catch (e) {
-    console.error('Error reporting found pet:', e)
+    logger.error('Failed to report found pet', {
+      error: e instanceof Error ? e : undefined,
+      petId
+    })
     return actionError(e instanceof Error ? e.message : 'Error desconocido')
   }
 }

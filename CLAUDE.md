@@ -146,12 +146,15 @@ refunds (id, payment_id, amount, reason, status)
 
 -- Inventory & Store
 store_categories (id, tenant_id, name, slug, parent_id)
-store_products (id, tenant_id, category_id, sku, name, base_price, is_active)
+store_products (id, tenant_id, category_id, sku, name, base_price, is_active, is_prescription_required)
 store_inventory (id, product_id, stock_quantity, reorder_point, weighted_average_cost)
-store_orders (id, tenant_id, customer_id, status, total, shipping_address)
-store_order_items (id, order_id, product_id, quantity, unit_price)
+store_orders (id, tenant_id, customer_id, status, total, requires_prescription_review, prescription_file_url)
+store_order_items (id, order_id, product_id, quantity, unit_price, requires_prescription, prescription_file_url)
 store_campaigns (id, tenant_id, name, discount_type, discount_value, valid_from, valid_to)
 store_coupons (id, tenant_id, code, discount_type, discount_value, usage_limit)
+store_carts (id, tenant_id, customer_id, items JSONB, updated_at)
+store_wishlists (id, tenant_id, user_id, product_id, created_at)
+store_stock_alerts (id, tenant_id, product_id, email, notified, created_at)
 
 -- Finance
 expenses (id, clinic_id, category, amount, description, date, proof_url)
@@ -499,11 +502,15 @@ The `.claude/SUPABASE_AUDIT.md` contains a comprehensive security audit with all
 - Invoice PDF generation and email sending
 
 ### E-Commerce / Store ✅
-- Product catalog with categories
-- Shopping cart with checkout flow
+- Product catalog with categories and brands
+- Shopping cart with database persistence (logged-in users)
+- Stock validation before cart add
+- Checkout flow with prescription upload support
+- Prescription order approval workflow (vet dashboard)
 - Coupon validation
 - Product reviews and ratings
-- Wishlist functionality
+- Wishlist with database persistence and dedicated page
+- "Notify when available" for out-of-stock products
 - Stock alerts for low inventory
 
 ### Communications ✅
@@ -539,8 +546,8 @@ The `.claude/SUPABASE_AUDIT.md` contains a comprehensive security audit with all
 - QR tag scanning and assignment
 
 ### API Coverage
-- **82 REST API endpoints** across all modules
-- **20 Server Actions** for form mutations
+- **87 REST API endpoints** across all modules
+- **22 Server Actions** for form mutations
 - Rate limiting on sensitive endpoints
 - Full Zod validation on inputs
 

@@ -113,7 +113,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           stock_quantity: initial_stock,
           min_stock_level: min_stock_level || 5,
           location: location || null,
-          weighted_average_cost: product.unit_cost || 0
+          weighted_average_cost: product.base_price || 0
         }, {
           onConflict: 'product_id'
         });
@@ -134,7 +134,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           product_id: catalog_product_id,
           type: 'purchase',
           quantity: initial_stock,
-          unit_cost: product.unit_cost || 0,
+          unit_cost: product.base_price || 0,
           notes: 'Stock inicial al asignar producto del catálogo'
         });
     }

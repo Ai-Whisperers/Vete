@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { logger } from '@/lib/logger';
+import { apiError, HTTP_STATUS } from '@/lib/api/errors';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -14,7 +16,9 @@ export async function GET(
   const clinic = searchParams.get('clinic');
 
   if (!clinic) {
-    return NextResponse.json({ error: 'Falta el parámetro clinic' }, { status: 400 });
+    return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
+      details: { message: 'Falta el parámetro clinic' }
+    });
   }
 
   const supabase = await createClient();
@@ -36,12 +40,20 @@ export async function GET(
       .single();
 
     if (pError) {
-      console.error('Product query error:', pError);
-      return NextResponse.json({ error: 'Producto no encontrado' }, { status: 404 });
+      logger.error('Product query error', {
+        error: pError.message,
+        productId: id,
+        tenantId: clinic
+      });
+      return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
+        details: { message: 'Producto no encontrado' }
+      });
     }
 
     if (!product) {
-      return NextResponse.json({ error: 'Producto no encontrado' }, { status: 404 });
+      return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
+        details: { message: 'Producto no encontrado' }
+      });
     }
 
     // Fetch active campaigns for discount
@@ -232,8 +244,14 @@ export async function GET(
       related_products: relatedProducts,
     });
   } catch (e) {
-    console.error('Error loading product details', e);
-    return NextResponse.json({ error: 'No se pudo cargar el producto' }, { status: 500 });
+    logger.error('Error loading product details', {
+      error: e instanceof Error ? e.message : 'Unknown',
+      productId: id,
+      tenantId: clinic
+    });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
+      details: { message: 'No se pudo cargar el producto' }
+    });
   }
 }
 
@@ -251,7 +269,7 @@ export async function DELETE(
   // Auth check - require staff
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   // Get user profile to verify tenant and role
@@ -262,7 +280,9 @@ export async function DELETE(
     .single();
 
   if (!profile || (profile.role !== 'admin' && profile.role !== 'vet')) {
-    return NextResponse.json({ error: 'No tienes permisos para esta acción' }, { status: 403 });
+    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN, {
+      details: { message: 'No tienes permisos para esta acción' }
+    });
   }
 
   try {
@@ -276,7 +296,9 @@ export async function DELETE(
       .single();
 
     if (findError || !product) {
-      return NextResponse.json({ error: 'Producto no encontrado' }, { status: 404 });
+      return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
+        details: { message: 'Producto no encontrado' }
+      });
     }
 
     // Check if product is used in any invoices
@@ -286,9 +308,9 @@ export async function DELETE(
       .eq('product_id', id);
 
     if (invoiceCount && invoiceCount > 0) {
-      return NextResponse.json({
-        error: 'No se puede eliminar: el producto tiene ventas registradas'
-      }, { status: 400 });
+      return apiError('CONFLICT', HTTP_STATUS.BAD_REQUEST, {
+        details: { message: 'No se puede eliminar: el producto tiene ventas registradas' }
+      });
     }
 
     // Check if product is in any active orders
@@ -298,9 +320,9 @@ export async function DELETE(
       .eq('product_id', id);
 
     if (orderCount && orderCount > 0) {
-      return NextResponse.json({
-        error: 'No se puede eliminar: el producto tiene pedidos pendientes'
-      }, { status: 400 });
+      return apiError('CONFLICT', HTTP_STATUS.BAD_REQUEST, {
+        details: { message: 'No se puede eliminar: el producto tiene pedidos pendientes' }
+      });
     }
 
     // Soft delete: set deleted_at and is_active = false
@@ -314,8 +336,15 @@ export async function DELETE(
       .eq('tenant_id', profile.tenant_id);
 
     if (deleteError) {
-      console.error('Error deleting product:', deleteError);
-      return NextResponse.json({ error: 'Error al eliminar el producto' }, { status: 500 });
+      logger.error('Error deleting product', {
+        error: deleteError.message,
+        productId: id,
+        tenantId: profile.tenant_id,
+        userId: user.id
+      });
+      return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
+        details: { message: 'Error al eliminar el producto' }
+      });
     }
 
     // Also delete inventory record
@@ -326,7 +355,11 @@ export async function DELETE(
 
     return NextResponse.json({ success: true, message: 'Producto eliminado' });
   } catch (e) {
-    console.error('Error deleting product', e);
-    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 });
+    logger.error('Error deleting product', {
+      error: e instanceof Error ? e.message : 'Unknown',
+      productId: id,
+      userId: user?.id
+    });
+    return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 }

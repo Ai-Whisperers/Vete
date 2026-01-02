@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { rateLimit } from '@/lib/rate-limit';
 import type { SearchSuggestion, SearchResponse } from '@/lib/types/store';
+import { apiError, HTTP_STATUS } from '@/lib/api/errors';
 
 // GET - Search products with autocomplete suggestions
 export async function GET(request: NextRequest) {
@@ -13,7 +14,9 @@ export async function GET(request: NextRequest) {
   const limit = Math.min(parseInt(searchParams.get('limit') || '10'), 20);
 
   if (!clinic) {
-    return NextResponse.json({ error: 'Falta parámetro clinic' }, { status: 400 });
+    return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
+      details: { message: 'Falta parámetro clinic' }
+    });
   }
 
   if (!query || query.length < 2) {
@@ -230,6 +233,8 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error('Store search error:', error);
-    return NextResponse.json({ error: 'Error en búsqueda' }, { status: 500 });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
+      details: { message: 'Error en búsqueda' }
+    });
   }
 }

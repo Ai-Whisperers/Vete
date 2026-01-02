@@ -138,62 +138,29 @@ export default function BookingWizard({
 
                         {/* Step 1: Service Selection */}
                         {step === 'service' && (
-                            <ServiceSelection
-                                services={services}
-                                selection={selection}
-                                onServiceSelect={(serviceId) => {
-                                    updateSelection({ serviceId });
-                                    setStep('pet');
-                                }}
-                            />
+                            <ServiceSelection />
                         )}
 
                         {/* Step 2: Pet Selection */}
                         {step === 'pet' && (
-                            <PetSelection
-                                pets={userPets}
-                                selection={selection}
-                                clinicId={clinic.config.id}
-                                onPetSelect={(petId) => {
-                                    updateSelection({ petId });
-                                    setStep('datetime');
-                                }}
-                                onBack={() => setStep('service')}
-                            />
+                            <PetSelection />
                         )}
 
                         {/* Step 3: Date & Time Selection */}
                         {step === 'datetime' && (
                             <DateTimeSelection
-                                selection={selection}
                                 clinicName={clinic.config.name}
-                                clinicId={clinic.config.id}
-                                onUpdate={updateSelection}
-                                onBack={() => setStep('pet')}
-                                onContinue={() => setStep('confirm')}
                             />
                         )}
 
                         {/* Step 4: Confirmation */}
                         {step === 'confirm' && (
-                            <Confirmation
-                                selection={selection}
-                                currentService={currentService}
-                                currentPet={currentPet}
-                                isSubmitting={isSubmitting}
-                                submitError={submitError}
-                                onUpdate={updateSelection}
-                                onBack={() => setStep('datetime')}
-                                onSubmit={() => submitBooking(clinic.config.id, currentService?.name)}
-                            />
+                            <Confirmation />
                         )}
                     </div>
 
                     {/* Sidebar Summary */}
                     <BookingSummary
-                        selection={selection}
-                        currentService={currentService}
-                        currentPet={currentPet}
                         labels={{
                             summary: 'Resumen',
                             service: 'Servicio',

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { withAuth } from '@/lib/api/with-auth';
+import { apiError, HTTP_STATUS } from '@/lib/api/errors';
 
 // GET /api/dashboard/stats - Get clinic dashboard stats from materialized view
 export const GET = withAuth(async ({ profile, supabase }) => {
@@ -51,6 +52,8 @@ export const GET = withAuth(async ({ profile, supabase }) => {
     return NextResponse.json(stats);
   } catch (e) {
     console.error('Error loading dashboard stats:', e);
-    return NextResponse.json({ error: 'Error al cargar estadísticas' }, { status: 500 });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
+      details: { message: e instanceof Error ? e.message : 'Unknown error' }
+    });
   }
 }, { roles: ['vet', 'admin'] });

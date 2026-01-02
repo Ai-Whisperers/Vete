@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { Download, Upload, FileSpreadsheet, AlertCircle, CheckCircle2, Loader2, Package, TrendingUp, Info, Tag, Search, Edit2, ChevronDown, ExternalLink, FileDown, ChevronLeft, ChevronRight, Filter } from 'lucide-react';
 import { useParams } from 'next/navigation';
-import DatePicker from '@/components/ui/date-picker';
+import { DatePicker } from '@/components/ui/date-picker';
 
 interface InventoryClientProps {
     googleSheetUrl: string | null;

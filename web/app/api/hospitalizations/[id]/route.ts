@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import { apiError, HTTP_STATUS } from '@/lib/api/errors';
 
 interface RouteParams {
   params: Promise<{
@@ -14,7 +15,7 @@ export async function GET(request: NextRequest, { params }: RouteParams): Promis
   // Authentication check
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   // Get user profile
@@ -25,12 +26,12 @@ export async function GET(request: NextRequest, { params }: RouteParams): Promis
     .single();
 
   if (!profile) {
-    return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 });
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, { details: { resource: 'profile' } });
   }
 
   // Only staff can view hospitalizations
   if (!['vet', 'admin'].includes(profile.role)) {
-    return NextResponse.json({ error: 'Solo el personal puede ver hospitalizaciones' }, { status: 403 });
+    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
   }
 
   // Get hospitalization with all related data
@@ -78,7 +79,7 @@ export async function GET(request: NextRequest, { params }: RouteParams): Promis
 
   if (error) {
     console.error('[API] hospitalization GET by ID error:', error);
-    return NextResponse.json({ error: 'Hospitalización no encontrada' }, { status: 404 });
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, { details: { resource: 'hospitalization' } });
   }
 
   return NextResponse.json(hospitalization);

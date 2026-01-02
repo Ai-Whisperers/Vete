@@ -276,7 +276,8 @@ describe('Medical Records CRUD', () => {
         .order('created_at', { ascending: false });
 
       expect(error).toBeNull();
-      expect(data.length).toBeGreaterThan(0);
+      expect(data).not.toBeNull();
+      expect(data!.length).toBeGreaterThan(0);
     });
 
     test('reads record with vet details', async () => {
@@ -302,7 +303,8 @@ describe('Medical Records CRUD', () => {
         .eq('type', 'consultation');
 
       expect(error).toBeNull();
-      expect(data.every((r: { type: string }) => r.type === 'consultation')).toBe(true);
+      expect(data).not.toBeNull();
+      expect(data!.every((r: { type: string }) => r.type === 'consultation')).toBe(true);
     });
 
     test('filters records by date range', async () => {
@@ -446,9 +448,10 @@ describe('Medical Records CRUD', () => {
         .eq('pet_id', petId);
 
       expect(error).toBeNull();
+      expect(data).not.toBeNull();
 
       // Count by type
-      const stats = data.reduce((acc: Record<string, number>, record: { type: string }) => {
+      const stats = data!.reduce((acc: Record<string, number>, record: { type: string }) => {
         acc[record.type] = (acc[record.type] || 0) + 1;
         return acc;
       }, {});

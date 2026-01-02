@@ -256,8 +256,9 @@ describe('Appointment Booking', () => {
 
       expect(error).toBeNull();
       expect(data).toBeDefined();
+      expect(data).not.toBeNull();
       expect(Array.isArray(data)).toBe(true);
-      expect(data.length).toBeGreaterThan(0);
+      expect(data!.length).toBeGreaterThan(0);
     });
 
     test('reads appointments by pet', async () => {
@@ -282,7 +283,8 @@ describe('Appointment Booking', () => {
 
       expect(error).toBeNull();
       expect(data).toBeDefined();
-      expect(data.every((a: { vet_id: string }) => a.vet_id === testVetId)).toBe(true);
+      expect(data).not.toBeNull();
+      expect(data!.every((a: { vet_id: string }) => a.vet_id === testVetId)).toBe(true);
     });
 
     test('reads appointment with pet and owner details (join)', async () => {
@@ -314,7 +316,8 @@ describe('Appointment Booking', () => {
         .eq('status', 'confirmed');
 
       expect(error).toBeNull();
-      expect(data.every((a: { status: string }) => a.status === 'confirmed')).toBe(true);
+      expect(data).not.toBeNull();
+      expect(data!.every((a: { status: string }) => a.status === 'confirmed')).toBe(true);
     });
 
     test('filters appointments by date range', async () => {
@@ -642,10 +645,12 @@ describe('Appointment Booking', () => {
         .eq('tenant_id', 'petlife');
 
       // Verify isolation
-      expect(adrisAppts.some((a: { id: string }) => a.id === adrisAppt.id)).toBe(true);
-      expect(adrisAppts.some((a: { id: string }) => a.id === petlifeAppt.id)).toBe(false);
-      expect(petlifeAppts.some((a: { id: string }) => a.id === petlifeAppt.id)).toBe(true);
-      expect(petlifeAppts.some((a: { id: string }) => a.id === adrisAppt.id)).toBe(false);
+      expect(adrisAppts).not.toBeNull();
+      expect(petlifeAppts).not.toBeNull();
+      expect(adrisAppts!.some((a: { id: string }) => a.id === adrisAppt.id)).toBe(true);
+      expect(adrisAppts!.some((a: { id: string }) => a.id === petlifeAppt.id)).toBe(false);
+      expect(petlifeAppts!.some((a: { id: string }) => a.id === petlifeAppt.id)).toBe(true);
+      expect(petlifeAppts!.some((a: { id: string }) => a.id === adrisAppt.id)).toBe(false);
     });
   });
 });

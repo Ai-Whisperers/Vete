@@ -510,6 +510,7 @@ describe('Shopping Cart Operations', () => {
         .eq('id', product.id)
         .single();
 
+      expect(data).not.toBeNull();
       const cart = new ShoppingCart();
 
       // Try to add more than available
@@ -517,8 +518,8 @@ describe('Shopping Cart Operations', () => {
         productId: product.id,
         productName: product.name,
         price: product.price,
-        maxStock: data.stock,
-      }, data.stock + 1);
+        maxStock: data!.stock,
+      }, data!.stock + 1);
 
       expect(result).toBe(false);
     });
@@ -536,24 +537,25 @@ describe('Shopping Cart Operations', () => {
         })
         .select()
         .single();
-      ctx.track('products', limitedProduct.id);
+      expect(limitedProduct).not.toBeNull();
+      ctx.track('products', limitedProduct!.id);
 
       const cart = new ShoppingCart();
 
       // Add maximum available
       cart.addItem({
-        productId: limitedProduct.id,
-        productName: limitedProduct.name,
-        price: limitedProduct.price,
-        maxStock: limitedProduct.stock,
+        productId: limitedProduct!.id,
+        productName: limitedProduct!.name,
+        price: limitedProduct!.price,
+        maxStock: limitedProduct!.stock,
       }, 2);
 
       // Try to add one more
       const result = cart.addItem({
-        productId: limitedProduct.id,
-        productName: limitedProduct.name,
-        price: limitedProduct.price,
-        maxStock: limitedProduct.stock,
+        productId: limitedProduct!.id,
+        productName: limitedProduct!.name,
+        price: limitedProduct!.price,
+        maxStock: limitedProduct!.stock,
       });
 
       expect(result).toBe(false);

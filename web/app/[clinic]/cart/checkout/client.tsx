@@ -1,11 +1,12 @@
 "use client";
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useParams } from 'next/navigation';
 import { useAuthRedirect } from '@/hooks/useAuthRedirect';
 import { useCart } from '@/context/cart-context';
 import Link from 'next/link';
-import { ShoppingBag, Printer, MessageCircle, Loader2, AlertCircle, CheckCircle } from 'lucide-react';
+import { ShoppingBag, Printer, MessageCircle, Loader2, AlertCircle, CheckCircle, FileWarning } from 'lucide-react';
 import type { ClinicConfig } from '@/lib/clinics';
+import { PrescriptionUpload } from '@/components/store/prescription-upload';
 
 // TICKET-BIZ-003: Proper checkout with stock validation
 
@@ -44,10 +45,45 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [stockErrors, setStockErrors] = useState<StockError[]>([]);
 
+  // Prescription tracking: map of item.id -> prescription file URL
+  const [prescriptions, setPrescriptions] = useState<Record<string, string>>({});
+
+  // Items that require prescriptions
+  const prescriptionItems = useMemo(
+    () => items.filter((item) => item.type === 'product' && item.requires_prescription),
+    [items]
+  );
+
+  // Check if all prescription items have uploads
+  const missingPrescriptions = useMemo(
+    () => prescriptionItems.filter((item) => !prescriptions[item.id]),
+    [prescriptionItems, prescriptions]
+  );
+
+  const canCheckout = items.length > 0 && missingPrescriptions.length === 0;
+
+  const handlePrescriptionUpload = (itemId: string, fileUrl: string) => {
+    setPrescriptions((prev) => ({ ...prev, [itemId]: fileUrl }));
+  };
+
+  const handlePrescriptionRemove = (itemId: string) => {
+    setPrescriptions((prev) => {
+      const next = { ...prev };
+      delete next[itemId];
+      return next;
+    });
+  };
+
   if (loading) return <div className="p-4">Loading...</div>;
   if (!user) return null;
 
   const handleCheckout = async () => {
+    // Validate prescriptions before checkout
+    if (missingPrescriptions.length > 0) {
+      setCheckoutError('Por favor, sube las recetas médicas requeridas para continuar.');
+      return;
+    }
+
     setIsProcessing(true);
     setCheckoutError(null);
     setStockErrors([]);
@@ -62,9 +98,12 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
             name: item.name,
             price: item.price,
             type: item.type,
-            quantity: item.quantity
+            quantity: item.quantity,
+            requires_prescription: item.requires_prescription,
+            prescription_file_url: prescriptions[item.id] || null,
           })),
-          clinic
+          clinic,
+          requires_prescription_review: prescriptionItems.length > 0,
         })
       });
 
@@ -191,24 +230,63 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
         <p className="text-[var(--text-secondary)]">{labels.empty || "No hay items en el carrito."}</p>
       ) : (
         <div className="space-y-4">
-          {items.map((item) => (
-            <div key={`${item.type}-${item.id}`} className="flex items-center justify-between bg-white p-4 rounded-xl shadow-sm">
-              <div className="flex items-center gap-4">
-                {item.image_url ? (
-                  <img src={item.image_url} alt={item.name} className="w-12 h-12 object-cover rounded" />
-                ) : (
-                  <ShoppingBag className="w-12 h-12 text-[var(--primary)]" />
-                )}
-                <div>
-                  <p className="font-medium text-[var(--text-primary)]">{item.name}</p>
-                  <p className="text-sm text-[var(--text-secondary)]">
-                    {item.type === 'service' ? 'Servicio' : 'Producto'} × {item.quantity}
-                  </p>
-                </div>
+          {/* Prescription warning banner */}
+          {prescriptionItems.length > 0 && (
+            <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-3">
+              <FileWarning className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+              <div>
+                <p className="font-bold text-amber-800">Receta Médica Requerida</p>
+                <p className="text-sm text-amber-700">
+                  {prescriptionItems.length === 1
+                    ? 'Un producto requiere receta médica para su despacho.'
+                    : `${prescriptionItems.length} productos requieren receta médica para su despacho.`}
+                </p>
               </div>
-              <span className="font-bold text-[var(--primary)]">
-                {new Intl.NumberFormat('es-PY', { style: 'currency', currency: currency }).format(item.price * item.quantity)}
-              </span>
+            </div>
+          )}
+
+          {items.map((item) => (
+            <div key={`${item.type}-${item.id}`} className="bg-white rounded-xl shadow-sm overflow-hidden">
+              <div className="flex items-center justify-between p-4">
+                <div className="flex items-center gap-4">
+                  {item.image_url ? (
+                    <img src={item.image_url} alt={item.name} className="w-12 h-12 object-cover rounded" />
+                  ) : (
+                    <ShoppingBag className="w-12 h-12 text-[var(--primary)]" />
+                  )}
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium text-[var(--text-primary)]">{item.name}</p>
+                      {item.requires_prescription && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-100 text-amber-700 text-xs font-medium rounded-full">
+                          <FileWarning className="w-3 h-3" />
+                          Receta
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-sm text-[var(--text-secondary)]">
+                      {item.type === 'service' ? 'Servicio' : 'Producto'} × {item.quantity}
+                    </p>
+                  </div>
+                </div>
+                <span className="font-bold text-[var(--primary)]">
+                  {new Intl.NumberFormat('es-PY', { style: 'currency', currency: currency }).format(item.price * item.quantity)}
+                </span>
+              </div>
+
+              {/* Prescription upload section for items that require it */}
+              {item.requires_prescription && (
+                <div className="px-4 pb-4 border-t border-gray-100 pt-3">
+                  <PrescriptionUpload
+                    clinic={clinic}
+                    productId={item.id}
+                    initialUrl={prescriptions[item.id]}
+                    onUpload={(url) => handlePrescriptionUpload(item.id, url)}
+                    onRemove={() => handlePrescriptionRemove(item.id)}
+                    compact={false}
+                  />
+                </div>
+              )}
             </div>
           ))}
 
@@ -232,12 +310,16 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
           <div className="flex flex-col sm:flex-row gap-3 pt-4">
             <button
               onClick={handleCheckout}
-              disabled={isProcessing}
-              className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 bg-[var(--primary)] text-white rounded-xl hover:brightness-110 transition font-bold shadow-md disabled:opacity-50"
+              disabled={isProcessing || !canCheckout}
+              className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 bg-[var(--primary)] text-white rounded-xl hover:brightness-110 transition font-bold shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isProcessing ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" /> Procesando...
+                </>
+              ) : missingPrescriptions.length > 0 ? (
+                <>
+                  <FileWarning className="w-5 h-5" /> Faltan {missingPrescriptions.length} receta{missingPrescriptions.length > 1 ? 's' : ''}
                 </>
               ) : (
                 <>

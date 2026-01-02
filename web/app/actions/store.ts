@@ -1,16 +1,16 @@
 'use server'
 
-import { withActionAuth, requireOwnership } from '@/lib/auth'
+import { withActionAuth } from '@/lib/auth'
 import { actionSuccess, actionError } from '@/lib/errors'
 import { revalidatePath } from 'next/cache'
-import { z } from 'zod'
-import type { SortOption, ProductFilters, StoreProductWithDetails } from '@/lib/types/store'
+import { logger } from '@/lib/logger'
+import type { SortOption } from '@/lib/types/store'
 
 /**
  * Get products for the store with filters
  */
 export const getStoreProducts = withActionAuth(
-  async ({ supabase }, clinicSlug: string, params: {
+  async ({ user, supabase }, clinicSlug: string, params: {
     page?: number
     limit?: number
     sort?: SortOption
@@ -30,24 +30,25 @@ export const getStoreProducts = withActionAuth(
     } = params
 
     let query = supabase
-      .from('products')
+      .from('store_products')
       .select('*', { count: 'exact' })
       .eq('tenant_id', clinicSlug)
+      .eq('is_active', true)
       .is('deleted_at', null)
 
     // Apply filters
     if (search) query = query.ilike('name', `%${search}%`)
-    if (category) query = query.eq('category', category)
-    if (brand) query = query.eq('brand', brand)
+    if (category) query = query.eq('category_id', category)
+    if (brand) query = query.eq('brand_id', brand)
     if (species && species.length > 0) query = query.contains('target_species', species)
 
     // Sort
     switch (sort) {
-      case 'price_asc':
-        query = query.order('price', { ascending: true })
+      case 'price_low_high':
+        query = query.order('base_price', { ascending: true })
         break
-      case 'price_desc':
-        query = query.order('price', { ascending: false })
+      case 'price_high_low':
+        query = query.order('base_price', { ascending: false })
         break
       case 'newest':
         query = query.order('created_at', { ascending: false })
@@ -64,7 +65,12 @@ export const getStoreProducts = withActionAuth(
     const { data: products, error, count } = await query
 
     if (error) {
-      console.error('Get store products error:', error)
+      logger.error('Error fetching store products', {
+        tenantId: clinicSlug,
+        userId: user.id,
+        filters: { page, limit, sort, search, category, brand, species },
+        error: error.message
+      })
       return actionError('Error al obtener productos')
     }
 
@@ -84,9 +90,9 @@ export const getStoreProducts = withActionAuth(
  * Get a single product with details
  */
 export const getStoreProduct = withActionAuth(
-  async ({ supabase }, clinicSlug: string, productId: string) => {
+  async ({ user, supabase }, clinicSlug: string, productId: string) => {
     const { data: product, error } = await supabase
-      .from('products')
+      .from('store_products')
       .select('*')
       .eq('id', productId)
       .eq('tenant_id', clinicSlug)
@@ -94,7 +100,12 @@ export const getStoreProduct = withActionAuth(
       .single()
 
     if (error || !product) {
-      console.error('Get store product error:', error)
+      logger.error('Error fetching store product', {
+        tenantId: clinicSlug,
+        userId: user.id,
+        productId,
+        error: error?.message || 'Product not found'
+      })
       return actionError('Producto no encontrado')
     }
 
@@ -108,13 +119,17 @@ export const getStoreProduct = withActionAuth(
 export const getWishlist = withActionAuth(
   async ({ user, supabase }, clinicSlug: string) => {
     const { data, error } = await supabase
-      .from('wishlists')
+      .from('store_wishlist')
       .select('product_id')
-      .eq('user_id', user.id)
+      .eq('customer_id', user.id)
       .eq('tenant_id', clinicSlug)
 
     if (error) {
-      console.error('Get wishlist error:', error)
+      logger.error('Error fetching wishlist', {
+        tenantId: clinicSlug,
+        userId: user.id,
+        error: error.message
+      })
       return actionError('Error al obtener lista de deseos')
     }
 
@@ -129,16 +144,16 @@ export const toggleWishlist = withActionAuth(
   async ({ user, supabase }, clinicSlug: string, productId: string) => {
     // Check if exists
     const { data: existing } = await supabase
-      .from('wishlists')
+      .from('store_wishlist')
       .select('id')
-      .eq('user_id', user.id)
+      .eq('customer_id', user.id)
       .eq('product_id', productId)
       .maybeSingle()
 
     if (existing) {
       // Remove
       const { error } = await supabase
-        .from('wishlists')
+        .from('store_wishlist')
         .delete()
         .eq('id', existing.id)
 
@@ -146,9 +161,9 @@ export const toggleWishlist = withActionAuth(
     } else {
       // Add
       const { error } = await supabase
-        .from('wishlists')
+        .from('store_wishlist')
         .insert({
-          user_id: user.id,
+          customer_id: user.id,
           product_id: productId,
           tenant_id: clinicSlug
         })
@@ -165,12 +180,12 @@ export const toggleWishlist = withActionAuth(
  * Process order checkout
  */
 export const checkoutOrder = withActionAuth(
-  async ({ user, profile, supabase }, clinicSlug: string, items: any[]) => {
+  async ({ user, supabase }, clinicSlug: string, items: { id: string; price: number; quantity: number; type: string; service_id?: string; name: string }[]) => {
     // 1. Create Order/Invoice
     const total = items.reduce((acc, item) => acc + (item.price * item.quantity), 0)
-    
+
     // In a real app, you would validate stock here
-    
+
     const { data: invoice, error: invoiceError } = await supabase
       .from('invoices')
       .insert({
@@ -184,7 +199,13 @@ export const checkoutOrder = withActionAuth(
       .single()
 
     if (invoiceError || !invoice) {
-      console.error('Checkout error:', invoiceError)
+      logger.error('Error creating checkout invoice', {
+        tenantId: clinicSlug,
+        userId: user.id,
+        totalAmount: total,
+        itemCount: items.length,
+        error: invoiceError?.message || 'Invoice creation failed'
+      })
       return actionError('Error al procesar el pedido')
     }
 
@@ -205,13 +226,19 @@ export const checkoutOrder = withActionAuth(
       .insert(invoiceItems)
 
     if (itemsError) {
-      console.error('Checkout items error:', itemsError)
+      logger.error('Error adding checkout invoice items', {
+        tenantId: clinicSlug,
+        userId: user.id,
+        invoiceId: invoice.id,
+        itemCount: invoiceItems.length,
+        error: itemsError.message
+      })
       // Note: In production, use a transaction or clean up the invoice
       return actionError('Error al registrar detalles del pedido')
     }
 
     revalidatePath(`/${clinicSlug}/portal/dashboard`)
-    
+
     return actionSuccess({
       id: invoice.id,
       invoice_number: invoice.invoice_number || invoice.id.slice(0, 8).toUpperCase(),

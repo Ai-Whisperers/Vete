@@ -129,7 +129,7 @@ export default function CartPageClient({ config }: CartPageClientProps) {
 
       <AuthGate
         clinic={clinic}
-        returnTo={`/${clinic}/cart`}
+        redirect={`/${clinic}/cart`}
         whatsappNumber={whatsappNumber}
         title="Inicia sesión para tu carrito"
         description="Necesitas una cuenta para completar tu compra y acumular puntos de fidelidad."

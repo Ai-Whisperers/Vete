@@ -75,8 +75,9 @@ describe('RLS Policies - Data Access Control', () => {
         .eq('owner_id', ownerId);
 
       expect(error).toBeNull();
-      expect(data.length).toBeGreaterThan(0);
-      expect(data.some((p: { id: string }) => p.id === petId)).toBe(true);
+      expect(data).not.toBeNull();
+      expect(data!.length).toBeGreaterThan(0);
+      expect(data!.some((p: { id: string }) => p.id === petId)).toBe(true);
     });
 
     test('owner cannot access other owner pets directly', async () => {
@@ -87,7 +88,8 @@ describe('RLS Policies - Data Access Control', () => {
         .select('*')
         .eq('owner_id', otherOwnerId);
 
-      expect(data.length).toBe(0);
+      expect(data).not.toBeNull();
+      expect(data!.length).toBe(0);
     });
 
     test('staff can access all tenant pets', async () => {
@@ -106,7 +108,8 @@ describe('RLS Policies - Data Access Control', () => {
         .eq('tenant_id', DEFAULT_TENANT.id);
 
       expect(error).toBeNull();
-      expect(data.length).toBeGreaterThan(0);
+      expect(data).not.toBeNull();
+      expect(data!.length).toBeGreaterThan(0);
     });
   });
 
@@ -161,7 +164,8 @@ describe('RLS Policies - Data Access Control', () => {
         .eq('pet_id', petId);
 
       expect(error).toBeNull();
-      expect(data.length).toBeGreaterThan(0);
+      expect(data).not.toBeNull();
+      expect(data!.length).toBeGreaterThan(0);
     });
 
     test('vet can create medical records', async () => {
@@ -202,7 +206,8 @@ describe('RLS Policies - Data Access Control', () => {
         .select('*, pet:pets(tenant_id)')
         .eq('tenant_id', 'adris');
 
-      const hasPetlifePet = adrisRecords.some(
+      expect(adrisRecords).not.toBeNull();
+      const hasPetlifePet = adrisRecords!.some(
         (r: { pet: { tenant_id: string } }) => r.pet?.tenant_id === 'petlife'
       );
       expect(hasPetlifePet).toBe(false);
@@ -280,8 +285,9 @@ describe('RLS Policies - Data Access Control', () => {
         .eq('tenant_id', 'petlife');
 
       // Adris expense should not appear in petlife query
+      expect(petlifeExpenses).not.toBeNull();
       expect(
-        petlifeExpenses.some((e: { id: string }) => e.id === adrisExpense.id)
+        petlifeExpenses!.some((e: { id: string }) => e.id === adrisExpense.id)
       ).toBe(false);
     });
 
@@ -322,8 +328,9 @@ describe('RLS Policies - Data Access Control', () => {
         .select('*')
         .eq('tenant_id', 'petlife');
 
+      expect(petlifeProducts).not.toBeNull();
       expect(
-        petlifeProducts.some((p: { id: string }) => p.id === adrisProduct.id)
+        petlifeProducts!.some((p: { id: string }) => p.id === adrisProduct.id)
       ).toBe(false);
     });
   });
@@ -392,8 +399,9 @@ describe('RLS Policies - Data Access Control', () => {
         .eq('pet_id', petId);
 
       expect(error).toBeNull();
-      expect(data.length).toBeGreaterThan(0);
-      expect(data.every((a: { pet: { owner_id: string } }) => a.pet.owner_id === ownerId)).toBe(true);
+      expect(data).not.toBeNull();
+      expect(data!.length).toBeGreaterThan(0);
+      expect(data!.every((a: { pet: { owner_id: string } }) => a.pet.owner_id === ownerId)).toBe(true);
     });
   });
 });
@@ -426,7 +434,8 @@ describe('RLS Policies - Role-Based Access', () => {
         .eq('id', owner.id)
         .single();
 
-      expect(data.role).toBe('owner');
+      expect(data).not.toBeNull();
+      expect(data!.role).toBe('owner');
     });
 
     test('vet role is correctly assigned', async () => {
@@ -443,7 +452,8 @@ describe('RLS Policies - Role-Based Access', () => {
         .eq('id', vet.id)
         .single();
 
-      expect(data.role).toBe('vet');
+      expect(data).not.toBeNull();
+      expect(data!.role).toBe('vet');
     });
 
     test('admin role is correctly assigned', async () => {
@@ -460,7 +470,8 @@ describe('RLS Policies - Role-Based Access', () => {
         .eq('id', admin.id)
         .single();
 
-      expect(data.role).toBe('admin');
+      expect(data).not.toBeNull();
+      expect(data!.role).toBe('admin');
     });
   });
 
@@ -490,8 +501,9 @@ describe('RLS Policies - Role-Based Access', () => {
         .select('*')
         .eq('tenant_id', 'adris');
 
+      expect(adrisProfiles).not.toBeNull();
       expect(
-        adrisProfiles.some((p: { id: string }) => p.id === petlifeProfile.id)
+        adrisProfiles!.some((p: { id: string }) => p.id === petlifeProfile.id)
       ).toBe(false);
     });
   });

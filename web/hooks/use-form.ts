@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 
 export type ValidationRule<T> = (value: T, formData?: Record<string, any>) => string | null;
 
@@ -34,7 +34,7 @@ export interface UseFormResult {
   validateField: (field: string) => boolean;
   validateForm: () => boolean;
   reset: (values?: Record<string, any>) => void;
-  handleSubmit: (onSubmit: (values: Record<string, any>) => Promise<void> | void) => Promise<void>;
+  handleSubmit: (onSubmit: (values: Record<string, any>) => Promise<void> | void) => (e?: React.FormEvent) => Promise<void>;
   getFieldProps: (field: string) => {
     value: any;
     onChange: (value: any) => void;
@@ -153,15 +153,20 @@ export function useForm(options: UseFormOptions = {}): UseFormResult {
     setIsSubmitting(false);
   }, []);
 
-  const handleSubmit = useCallback(async (onSubmit: (values: Record<string, any>) => Promise<void> | void) => {
-    setIsSubmitting(true);
+  const handleSubmit = useCallback((onSubmit: (values: Record<string, any>) => Promise<void> | void) => {
+    return async (e?: React.FormEvent) => {
+      if (e) {
+        e.preventDefault();
+      }
+      setIsSubmitting(true);
 
-    try {
-      const values = getValuesFromState(formState);
-      await onSubmit(values);
-    } finally {
-      setIsSubmitting(false);
-    }
+      try {
+        const values = getValuesFromState(formState);
+        await onSubmit(values);
+      } finally {
+        setIsSubmitting(false);
+      }
+    };
   }, [formState]);
 
   const getFieldProps = useCallback((field: string) => ({

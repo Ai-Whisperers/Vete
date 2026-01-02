@@ -60,7 +60,6 @@ export default defineConfig({
     retry: 1,
 
     // Watch mode configuration
-    watch: true,
-    watchExclude: ['node_modules/**', '.next/**'],
+    watch: false, // Disabled by default, enable with --watch flag
   },
 });

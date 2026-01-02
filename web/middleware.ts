@@ -3,6 +3,13 @@ import type { NextRequest } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 
 export async function middleware(request: NextRequest) {
+  const path = request.nextUrl.pathname
+
+  // Skip root path
+  if (path === '/') {
+    return NextResponse.next()
+  }
+
   // Create response with pathname header for layout
   let response = NextResponse.next({
     request: {
@@ -11,7 +18,17 @@ export async function middleware(request: NextRequest) {
   })
 
   // Add pathname to headers for layout to access
-  response.headers.set('x-pathname', request.nextUrl.pathname)
+  response.headers.set('x-pathname', path)
+
+  // OPTIMIZATION: Skip auth for public routes to reduce latency
+  // Public routes don't need session refresh (saves ~50-100ms per request)
+  const isPublicRoute = !path.includes('/portal') &&
+                        !path.includes('/dashboard') &&
+                        !path.includes('/cart/checkout')
+
+  if (isPublicRoute) {
+    return response
+  }
 
   // Refresh session - this is critical for Supabase SSR
   // Without this, session tokens can expire between requests
@@ -34,7 +51,7 @@ export async function middleware(request: NextRequest) {
               headers: request.headers,
             },
           })
-          response.headers.set('x-pathname', request.nextUrl.pathname)
+          response.headers.set('x-pathname', path)
           // Set cookies in the response for the browser
           cookiesToSet.forEach(({ name, value, options }) => {
             response.cookies.set(name, value, options)
@@ -49,12 +66,11 @@ export async function middleware(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
 
   const url = request.nextUrl.clone()
-  const path = url.pathname
 
   // Redirect authenticated users away from login page
   if (user && path.endsWith('/portal/login')) {
-    url.pathname = `/${path.split('/')[1]}/portal/dashboard`;
-    return NextResponse.redirect(url);
+    url.pathname = `/${path.split('/')[1]}/portal/dashboard`
+    return NextResponse.redirect(url)
   }
 
   // 1. Protected Routes Pattern Matching
@@ -62,18 +78,16 @@ export async function middleware(request: NextRequest) {
   const isPortal = path.includes('/portal')
   const isProtected = isDashboard || isPortal
 
-  // 2. Auth Check
-  if (isProtected && !user) {
-    // Redirect to login
-    // Extract clinic slug if possible, default to generic login or root
-    // Path format: /[clinic]/...
+  // 2. Auth Check - redirect unauthenticated users to login page
+  // EXCEPT if they're already trying to access the login or signup pages
+  const isAuthPage = path.endsWith('/portal/login') || path.endsWith('/portal/signup')
+  if (isProtected && !user && !isAuthPage) {
     const parts = path.split('/').filter(Boolean)
     const clinicSlug = parts[0]
 
-    // Avoid redirect loop if we are already at login (though login usually isn't under dashboard)
-    url.pathname = `/${clinicSlug}` // Redirect to clinic home/login
-    url.searchParams.set('login', 'true') // Helper to open login modal if implemented
-    url.searchParams.set('redirect_to', path)
+    // Redirect to the actual login page, not the home page
+    url.pathname = `/${clinicSlug}/portal/login`
+    url.searchParams.set('returnTo', path)
     return NextResponse.redirect(url)
   }
 
@@ -107,7 +121,14 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Match all pathnames except static files
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    /*
+     * Match all request paths except:
+     * - api (API routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - Files with extensions (.png, .jpg, etc.)
+     */
+    '/((?!api|_next/static|_next/image|favicon.ico|.*\\.[\\w]+$).*)',
   ],
 }

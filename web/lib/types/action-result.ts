@@ -34,13 +34,13 @@ export type FieldErrors = Record<string, string>
  * ```
  */
 export type ActionResult<T = void> =
-  | { success: true; data?: T }
+  | { success: true; data?: T; message?: string }
   | { success: false; error: string; fieldErrors?: FieldErrors }
 
 /**
  * Type guard to check if an action result is successful
  */
-export function isSuccess<T>(result: ActionResult<T>): result is { success: true; data?: T } {
+export function isSuccess<T>(result: ActionResult<T>): result is { success: true; data?: T; message?: string } {
   return result.success === true
 }
 

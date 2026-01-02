@@ -4,7 +4,21 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Keyboard, Command, Search, Calendar, Users, PawPrint, FileText, Settings, Plus } from "lucide-react";
 import { useDashboardLabels } from "@/lib/hooks/use-dashboard-labels";
 import { useModal } from "@/hooks/use-modal";
+import { useState, useCallback } from "react";
 import { ErrorBoundary } from "@/components/shared";
+
+/**
+ * Hook for managing keyboard shortcuts modal state
+ */
+export function useKeyboardShortcuts() {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const openShortcuts = useCallback(() => setIsOpen(true), []);
+  const closeShortcuts = useCallback(() => setIsOpen(false), []);
+  const toggleShortcuts = useCallback(() => setIsOpen(prev => !prev), []);
+
+  return { isOpen, openShortcuts, closeShortcuts, toggleShortcuts };
+}
 
 interface ShortcutCategory {
   title: string;
@@ -85,32 +99,43 @@ const shortcutCategories: ShortcutCategory[] = [
   },
 ];
 
-interface KeyboardShortcutsModalProps {
+export interface KeyboardShortcutsModalProps {
   trigger?: React.ReactNode;
+  /** Controlled mode: whether the modal is open */
+  isOpen?: boolean;
+  /** Controlled mode: callback when modal should close */
+  onClose?: () => void;
 }
 
 export function KeyboardShortcutsModal({
-  trigger
+  trigger,
+  isOpen: controlledIsOpen,
+  onClose: controlledOnClose
 }: KeyboardShortcutsModalProps = {}): React.ReactElement {
-  const modal = useModal();
+  const internalModal = useModal();
   const labels = useDashboardLabels();
+
+  // Support both controlled and uncontrolled mode
+  const isOpen = controlledIsOpen !== undefined ? controlledIsOpen : internalModal.isOpen;
+  const close = controlledOnClose || internalModal.close;
+  const open = controlledOnClose ? undefined : internalModal.open;
 
   return (
     <ErrorBoundary>
-      {trigger && (
-        <div onClick={modal.open} className="cursor-pointer">
+      {trigger && open && (
+        <div onClick={open} className="cursor-pointer">
           {trigger}
         </div>
       )}
       <AnimatePresence>
-        {modal.isOpen && (
+        {isOpen && (
         <>
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={modal.close}
+            onClick={close}
             className="fixed inset-0 bg-black/50 z-50"
           />
 
@@ -134,7 +159,7 @@ export function KeyboardShortcutsModal({
                 </div>
               </div>
               <button
-                onClick={modal.close}
+                onClick={close}
                 className="p-2 rounded-lg bg-white/20 hover:bg-white/30 transition-colors"
               >
                 <X className="w-5 h-5 text-white" />

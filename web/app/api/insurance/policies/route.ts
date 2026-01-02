@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import { apiError, HTTP_STATUS } from '@/lib/api/errors';
 
 // GET /api/insurance/policies - List insurance policies
 export async function GET(request: NextRequest) {
@@ -7,7 +8,7 @@ export async function GET(request: NextRequest) {
 
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   const { data: profile } = await supabase
@@ -17,12 +18,14 @@ export async function GET(request: NextRequest) {
     .single();
 
   if (!profile) {
-    return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 });
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
+      details: { resource: 'profile' }
+    });
   }
 
   const isStaff = ['vet', 'admin'].includes(profile.role);
   if (!isStaff) {
-    return NextResponse.json({ error: 'Solo el personal puede ver pólizas' }, { status: 403 });
+    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
   }
 
   const { searchParams } = new URL(request.url);
@@ -60,7 +63,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ data: policies });
   } catch (e) {
     console.error('Error loading insurance policies:', e);
-    return NextResponse.json({ error: 'Error al cargar pólizas' }, { status: 500 });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 }
 
@@ -70,7 +73,7 @@ export async function POST(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   const { data: profile } = await supabase
@@ -80,7 +83,7 @@ export async function POST(request: NextRequest) {
     .single();
 
   if (!profile || !['vet', 'admin'].includes(profile.role)) {
-    return NextResponse.json({ error: 'Solo el personal puede crear pólizas' }, { status: 403 });
+    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
   }
 
   try {
@@ -116,7 +119,9 @@ export async function POST(request: NextRequest) {
     } = body;
 
     if (!pet_id || !provider_id || !policy_number || !policyholder_name || !effective_date) {
-      return NextResponse.json({ error: 'Campos requeridos faltantes' }, { status: 400 });
+      return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
+        details: { required: ['pet_id', 'provider_id', 'policy_number', 'policyholder_name', 'effective_date'] }
+      });
     }
 
     // Verify pet belongs to clinic
@@ -128,7 +133,9 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (!pet) {
-      return NextResponse.json({ error: 'Mascota no encontrada' }, { status: 404 });
+      return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
+        details: { resource: 'pet' }
+      });
     }
 
     // Verify provider exists
@@ -139,7 +146,9 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (!provider) {
-      return NextResponse.json({ error: 'Proveedor no encontrado' }, { status: 404 });
+      return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
+        details: { resource: 'provider' }
+      });
     }
 
     const { data: policy, error } = await supabase
@@ -192,6 +201,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(policy, { status: 201 });
   } catch (e) {
     console.error('Error creating insurance policy:', e);
-    return NextResponse.json({ error: 'Error al crear póliza' }, { status: 500 });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 }

@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { logger } from '@/lib/logger';
+import { apiError, HTTP_STATUS } from '@/lib/api/errors';
 
 // POST - Create stock alert
 export async function POST(request: NextRequest) {
@@ -7,18 +9,30 @@ export async function POST(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser();
 
+  let product_id: string | undefined;
+  let clinic: string | undefined;
+  let email: string | undefined;
+  let variant_id: string | undefined;
+
   try {
     const body = await request.json();
-    const { product_id, clinic, email, variant_id } = body;
+    product_id = body.product_id;
+    clinic = body.clinic;
+    email = body.email;
+    variant_id = body.variant_id;
 
     if (!product_id || !clinic || !email) {
-      return NextResponse.json({ error: 'Faltan parámetros requeridos' }, { status: 400 });
+      return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
+        details: { message: 'Faltan parámetros requeridos' }
+      });
     }
 
     // Validate email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      return NextResponse.json({ error: 'Email inválido' }, { status: 400 });
+      return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST, {
+        details: { message: 'Email inválido' }
+      });
     }
 
     // Check if alert already exists
@@ -30,7 +44,9 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (existing) {
-      return NextResponse.json({ error: 'Ya estás suscrito para recibir alertas de este producto' }, { status: 409 });
+      return apiError('ALREADY_EXISTS', HTTP_STATUS.CONFLICT, {
+        details: { message: 'Ya estás suscrito para recibir alertas de este producto' }
+      });
     }
 
     const { data, error } = await supabase
@@ -50,8 +66,15 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, alert: data });
   } catch (e) {
-    console.error('Error creating stock alert', e);
-    return NextResponse.json({ error: 'No se pudo crear la alerta' }, { status: 500 });
+    logger.error('Error creating stock alert', {
+      productId: product_id,
+      clinic,
+      userId: user?.id,
+      error: e instanceof Error ? e.message : String(e)
+    });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
+      details: { message: 'No se pudo crear la alerta' }
+    });
   }
 }
 
@@ -62,7 +85,9 @@ export async function DELETE(request: NextRequest) {
   const email = searchParams.get('email');
 
   if (!alertId && !email) {
-    return NextResponse.json({ error: 'Falta id o email' }, { status: 400 });
+    return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
+      details: { message: 'Falta id o email' }
+    });
   }
 
   const supabase = await createClient();
@@ -82,7 +107,13 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (e) {
-    console.error('Error deleting stock alert', e);
-    return NextResponse.json({ error: 'No se pudo eliminar la alerta' }, { status: 500 });
+    logger.error('Error deleting stock alert', {
+      alertId,
+      email,
+      error: e instanceof Error ? e.message : String(e)
+    });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
+      details: { message: 'No se pudo eliminar la alerta' }
+    });
   }
 }

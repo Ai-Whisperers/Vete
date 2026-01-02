@@ -9,7 +9,7 @@
       "level": 1,
       "display_order": 1,
       "parent_slug": null,
-      "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=nutrition.jpg",
+      "image_url": "/placeholder-product.svg",
       "subcategories": [
         {
           "slug": "NUT-CAN",
@@ -19,7 +19,7 @@
           "level": 2,
           "display_order": 1,
           "parent_slug": "NUT",
-          "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=dog-food.jpg",
+          "image_url": "/placeholder-product.svg",
           "subcategories": [
             {
               "slug": "NUT-CAN-SEC",
@@ -29,7 +29,7 @@
               "level": 3,
               "display_order": 1,
               "parent_slug": "NUT-CAN",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=dog-dry-food.jpg"
+              "image_url": "/placeholder-product.svg"
             },
             {
               "slug": "NUT-CAN-HUM",
@@ -39,7 +39,7 @@
               "level": 3,
               "display_order": 2,
               "parent_slug": "NUT-CAN",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=dog-wet-food.jpg"
+              "image_url": "/placeholder-product.svg"
             },
             {
               "slug": "NUT-CAN-PRE",
@@ -49,7 +49,7 @@
               "level": 3,
               "display_order": 3,
               "parent_slug": "NUT-CAN",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=dog-vet-diet.jpg"
+              "image_url": "/placeholder-product.svg"
             },
             {
               "slug": "NUT-CAN-SNA",
@@ -59,7 +59,7 @@
               "level": 3,
               "display_order": 4,
               "parent_slug": "NUT-CAN",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=dog-treats.jpg"
+              "image_url": "/placeholder-product.svg"
             }
           ]
         },
@@ -71,7 +71,7 @@
           "level": 2,
           "display_order": 2,
           "parent_slug": "NUT",
-          "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=cat-food.jpg",
+          "image_url": "/placeholder-product.svg",
           "subcategories": [
             {
               "slug": "NUT-FEL-SEC",
@@ -81,7 +81,7 @@
               "level": 3,
               "display_order": 1,
               "parent_slug": "NUT-FEL",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=cat-dry-food.jpg"
+              "image_url": "/placeholder-product.svg"
             },
             {
               "slug": "NUT-FEL-HUM",
@@ -91,7 +91,7 @@
               "level": 3,
               "display_order": 2,
               "parent_slug": "NUT-FEL",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=cat-wet-food.jpg"
+              "image_url": "/placeholder-product.svg"
             },
             {
               "slug": "NUT-FEL-PRE",
@@ -101,7 +101,7 @@
               "level": 3,
               "display_order": 3,
               "parent_slug": "NUT-FEL",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=cat-vet-diet.jpg"
+              "image_url": "/placeholder-product.svg"
             },
             {
               "slug": "NUT-FEL-SNA",
@@ -111,7 +111,7 @@
               "level": 3,
               "display_order": 4,
               "parent_slug": "NUT-FEL",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=cat-treats.jpg"
+              "image_url": "/placeholder-product.svg"
             }
           ]
         },
@@ -123,7 +123,7 @@
           "level": 2,
           "display_order": 3,
           "parent_slug": "NUT",
-          "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=exotic-food.jpg",
+          "image_url": "/placeholder-product.svg",
           "subcategories": [
             {
               "slug": "NUT-EXO-AVE",
@@ -133,7 +133,7 @@
               "level": 3,
               "display_order": 1,
               "parent_slug": "NUT-EXO",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=bird-food.jpg"
+              "image_url": "/placeholder-product.svg"
             },
             {
               "slug": "NUT-EXO-PEC",
@@ -143,7 +143,7 @@
               "level": 3,
               "display_order": 2,
               "parent_slug": "NUT-EXO",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=fish-food.jpg"
+              "image_url": "/placeholder-product.svg"
             },
             {
               "slug": "NUT-EXO-ROE",
@@ -153,7 +153,7 @@
               "level": 3,
               "display_order": 3,
               "parent_slug": "NUT-EXO",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=rodent-food.jpg"
+              "image_url": "/placeholder-product.svg"
             }
           ]
         }
@@ -167,7 +167,7 @@
       "level": 1,
       "display_order": 2,
       "parent_slug": null,
-      "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=accessories.jpg",
+      "image_url": "/placeholder-product.svg",
       "subcategories": [
         {
           "slug": "ACC-HIG",
@@ -177,7 +177,7 @@
           "level": 2,
           "display_order": 1,
           "parent_slug": "ACC",
-          "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=grooming.jpg",
+          "image_url": "/placeholder-product.svg",
           "subcategories": [
             {
               "slug": "ACC-HIG-ARE",
@@ -187,7 +187,7 @@
               "level": 3,
               "display_order": 1,
               "parent_slug": "ACC-HIG",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=litter.jpg"
+              "image_url": "/placeholder-product.svg"
             },
             {
               "slug": "ACC-HIG-SHA",
@@ -197,7 +197,7 @@
               "level": 3,
               "display_order": 2,
               "parent_slug": "ACC-HIG",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=shampoos.jpg"
+              "image_url": "/placeholder-product.svg"
             },
             {
               "slug": "ACC-HIG-PAÑ",
@@ -207,7 +207,7 @@
               "level": 3,
               "display_order": 3,
               "parent_slug": "ACC-HIG",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=pads.jpg"
+              "image_url": "/placeholder-product.svg"
             },
             {
               "slug": "ACC-HIG-DEN",
@@ -217,7 +217,7 @@
               "level": 3,
               "display_order": 4,
               "parent_slug": "ACC-HIG",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=dental-care.jpg"
+              "image_url": "/placeholder-product.svg"
             },
             {
               "slug": "ACC-HIG-CEP",
@@ -227,7 +227,7 @@
               "level": 3,
               "display_order": 5,
               "parent_slug": "ACC-HIG",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=brushes.jpg"
+              "image_url": "/placeholder-product.svg"
             },
             {
               "slug": "ACC-HIG-OJO",
@@ -237,7 +237,7 @@
               "level": 3,
               "display_order": 6,
               "parent_slug": "ACC-HIG",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=ear-eye-care.jpg"
+              "image_url": "/placeholder-product.svg"
             },
             {
               "slug": "ACC-HIG-BAN",
@@ -247,7 +247,7 @@
               "level": 3,
               "display_order": 7,
               "parent_slug": "ACC-HIG",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=litter-boxes.jpg"
+              "image_url": "/placeholder-product.svg"
             }
           ]
         },
@@ -259,7 +259,7 @@
           "level": 2,
           "display_order": 2,
           "parent_slug": "ACC",
-          "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=travel.jpg",
+          "image_url": "/placeholder-product.svg",
           "subcategories": [
             {
               "slug": "ACC-PAS-COL",
@@ -269,7 +269,7 @@
               "level": 3,
               "display_order": 1,
               "parent_slug": "ACC-PAS",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=collars-leashes.jpg"
+              "image_url": "/placeholder-product.svg"
             },
             {
               "slug": "ACC-PAS-TRA",
@@ -279,7 +279,7 @@
               "level": 3,
               "display_order": 2,
               "parent_slug": "ACC-PAS",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=carriers.jpg"
+              "image_url": "/placeholder-product.svg"
             },
             {
               "slug": "ACC-PAS-ROP",
@@ -289,7 +289,7 @@
               "level": 3,
               "display_order": 3,
               "parent_slug": "ACC-PAS",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=pet-clothing.jpg"
+              "image_url": "/placeholder-product.svg"
             }
           ]
         },
@@ -301,7 +301,7 @@
           "level": 2,
           "display_order": 3,
           "parent_slug": "ACC",
-          "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=beds.jpg",
+          "image_url": "/placeholder-product.svg",
           "subcategories": [
             {
               "slug": "ACC-DES-CAM",
@@ -311,7 +311,7 @@
               "level": 3,
               "display_order": 1,
               "parent_slug": "ACC-DES",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=pet-beds.jpg"
+              "image_url": "/placeholder-product.svg"
             },
             {
               "slug": "ACC-DES-RAS",
@@ -321,7 +321,7 @@
               "level": 3,
               "display_order": 2,
               "parent_slug": "ACC-DES",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=scratchers.jpg"
+              "image_url": "/placeholder-product.svg"
             },
             {
               "slug": "ACC-DES-CUC",
@@ -331,7 +331,7 @@
               "level": 3,
               "display_order": 3,
               "parent_slug": "ACC-DES",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=dog-houses.jpg"
+              "image_url": "/placeholder-product.svg"
             }
           ]
         },
@@ -343,7 +343,7 @@
           "level": 2,
           "display_order": 4,
           "parent_slug": "ACC",
-          "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=toys.jpg",
+          "image_url": "/placeholder-product.svg",
           "subcategories": [
             {
               "slug": "ACC-JUG-INT",
@@ -353,7 +353,7 @@
               "level": 3,
               "display_order": 1,
               "parent_slug": "ACC-JUG",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=interactive-toys.jpg"
+              "image_url": "/placeholder-product.svg"
             },
             {
               "slug": "ACC-JUG-PEL",
@@ -363,7 +363,7 @@
               "level": 3,
               "display_order": 2,
               "parent_slug": "ACC-JUG",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=balls-ropes.jpg"
+              "image_url": "/placeholder-product.svg"
             },
             {
               "slug": "ACC-JUG-GAT",
@@ -373,7 +373,7 @@
               "level": 3,
               "display_order": 3,
               "parent_slug": "ACC-JUG",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=cat-toys.jpg"
+              "image_url": "/placeholder-product.svg"
             }
           ]
         },
@@ -385,7 +385,7 @@
           "level": 2,
           "display_order": 5,
           "parent_slug": "ACC",
-          "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=bowls.jpg",
+          "image_url": "/placeholder-product.svg",
           "subcategories": [
             {
               "slug": "ACC-COM-PER",
@@ -395,7 +395,7 @@
               "level": 3,
               "display_order": 1,
               "parent_slug": "ACC-COM",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=dog-bowls.jpg"
+              "image_url": "/placeholder-product.svg"
             },
             {
               "slug": "ACC-COM-GAT",
@@ -405,7 +405,7 @@
               "level": 3,
               "display_order": 2,
               "parent_slug": "ACC-COM",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=cat-bowls.jpg"
+              "image_url": "/placeholder-product.svg"
             }
           ]
         },
@@ -417,7 +417,7 @@
           "level": 2,
           "display_order": 6,
           "parent_slug": "ACC",
-          "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=exotic-accessories.jpg",
+          "image_url": "/placeholder-product.svg",
           "subcategories": [
             {
               "slug": "ACC-EXO-AVE",
@@ -427,7 +427,7 @@
               "level": 3,
               "display_order": 1,
               "parent_slug": "ACC-EXO",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=bird-accessories.jpg"
+              "image_url": "/placeholder-product.svg"
             },
             {
               "slug": "ACC-EXO-PEC",
@@ -437,7 +437,7 @@
               "level": 3,
               "display_order": 2,
               "parent_slug": "ACC-EXO",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=aquarium-accessories.jpg"
+              "image_url": "/placeholder-product.svg"
             },
             {
               "slug": "ACC-EXO-ROE",
@@ -447,7 +447,7 @@
               "level": 3,
               "display_order": 3,
               "parent_slug": "ACC-EXO",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=rodent-accessories.jpg"
+              "image_url": "/placeholder-product.svg"
             }
           ]
         }
@@ -461,7 +461,7 @@
       "level": 1,
       "display_order": 3,
       "parent_slug": null,
-      "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=pharmacy.jpg",
+      "image_url": "/placeholder-product.svg",
       "subcategories": [
         {
           "slug": "FAR-ANT",
@@ -471,7 +471,7 @@
           "level": 2,
           "display_order": 1,
           "parent_slug": "FAR",
-          "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=antiparasitics.jpg",
+          "image_url": "/placeholder-product.svg",
           "subcategories": [
             {
               "slug": "FAR-ANT-EXT",
@@ -481,7 +481,7 @@
               "level": 3,
               "display_order": 1,
               "parent_slug": "FAR-ANT",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=external-parasites.jpg"
+              "image_url": "/placeholder-product.svg"
             },
             {
               "slug": "FAR-ANT-INT",
@@ -491,7 +491,7 @@
               "level": 3,
               "display_order": 2,
               "parent_slug": "FAR-ANT",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=internal-parasites.jpg"
+              "image_url": "/placeholder-product.svg"
             }
           ]
         },
@@ -503,7 +503,7 @@
           "level": 2,
           "display_order": 2,
           "parent_slug": "FAR",
-          "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=supplements.jpg",
+          "image_url": "/placeholder-product.svg",
           "subcategories": [
             {
               "slug": "FAR-SUP-ART",
@@ -513,7 +513,7 @@
               "level": 3,
               "display_order": 1,
               "parent_slug": "FAR-SUP",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=joint-supplements.jpg"
+              "image_url": "/placeholder-product.svg"
             },
             {
               "slug": "FAR-SUP-DER",
@@ -523,7 +523,7 @@
               "level": 3,
               "display_order": 2,
               "parent_slug": "FAR-SUP",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=derma-supplements.jpg"
+              "image_url": "/placeholder-product.svg"
             },
             {
               "slug": "FAR-SUP-VIT",
@@ -533,7 +533,7 @@
               "level": 3,
               "display_order": 3,
               "parent_slug": "FAR-SUP",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=vitamins.jpg"
+              "image_url": "/placeholder-product.svg"
             },
             {
               "slug": "FAR-SUP-DIG",
@@ -543,7 +543,7 @@
               "level": 3,
               "display_order": 4,
               "parent_slug": "FAR-SUP",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=probiotics.jpg"
+              "image_url": "/placeholder-product.svg"
             }
           ]
         },
@@ -555,7 +555,7 @@
           "level": 2,
           "display_order": 3,
           "parent_slug": "FAR",
-          "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=dermatology.jpg",
+          "image_url": "/placeholder-product.svg",
           "subcategories": [
             {
               "slug": "FAR-DER-TOP",
@@ -565,7 +565,7 @@
               "level": 3,
               "display_order": 1,
               "parent_slug": "FAR-DER",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=topicals.jpg"
+              "image_url": "/placeholder-product.svg"
             },
             {
               "slug": "FAR-DER-OTI",
@@ -575,7 +575,7 @@
               "level": 3,
               "display_order": 2,
               "parent_slug": "FAR-DER",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=ear-eye-meds.jpg"
+              "image_url": "/placeholder-product.svg"
             }
           ]
         }
@@ -589,7 +589,7 @@
       "level": 1,
       "display_order": 4,
       "parent_slug": null,
-      "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=clinic.jpg",
+      "image_url": "/placeholder-product.svg",
       "subcategories": [
         {
           "slug": "CLI-FAR",
@@ -599,7 +599,7 @@
           "level": 2,
           "display_order": 1,
           "parent_slug": "CLI",
-          "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=hospital-pharmacy.jpg",
+          "image_url": "/placeholder-product.svg",
           "subcategories": [
             {
               "slug": "CLI-FAR-ANE",
@@ -609,7 +609,7 @@
               "level": 3,
               "display_order": 1,
               "parent_slug": "CLI-FAR",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=anesthesia.jpg"
+              "image_url": "/placeholder-product.svg"
             },
             {
               "slug": "CLI-FAR-VAC",
@@ -619,7 +619,7 @@
               "level": 3,
               "display_order": 2,
               "parent_slug": "CLI-FAR",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=vaccines.jpg"
+              "image_url": "/placeholder-product.svg"
             },
             {
               "slug": "CLI-FAR-ANB",
@@ -629,7 +629,7 @@
               "level": 3,
               "display_order": 3,
               "parent_slug": "CLI-FAR",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=antibiotics.jpg"
+              "image_url": "/placeholder-product.svg"
             },
             {
               "slug": "CLI-FAR-AIN",
@@ -639,7 +639,7 @@
               "level": 3,
               "display_order": 4,
               "parent_slug": "CLI-FAR",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=antiinflammatories.jpg"
+              "image_url": "/placeholder-product.svg"
             },
             {
               "slug": "CLI-FAR-FLU",
@@ -649,7 +649,7 @@
               "level": 3,
               "display_order": 5,
               "parent_slug": "CLI-FAR",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=fluids.jpg"
+              "image_url": "/placeholder-product.svg"
             },
             {
               "slug": "CLI-FAR-NEU",
@@ -659,7 +659,7 @@
               "level": 3,
               "display_order": 6,
               "parent_slug": "CLI-FAR",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=neurology.jpg"
+              "image_url": "/placeholder-product.svg"
             }
           ]
         },
@@ -671,7 +671,7 @@
           "level": 2,
           "display_order": 2,
           "parent_slug": "CLI",
-          "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=consumables.jpg",
+          "image_url": "/placeholder-product.svg",
           "subcategories": [
             {
               "slug": "CLI-INS-AGU",
@@ -681,7 +681,7 @@
               "level": 3,
               "display_order": 1,
               "parent_slug": "CLI-INS",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=syringes-needles.jpg"
+              "image_url": "/placeholder-product.svg"
             },
             {
               "slug": "CLI-INS-QUI",
@@ -691,7 +691,7 @@
               "level": 3,
               "display_order": 2,
               "parent_slug": "CLI-INS",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=surgical-supplies.jpg"
+              "image_url": "/placeholder-product.svg"
             },
             {
               "slug": "CLI-INS-VEN",
@@ -701,7 +701,7 @@
               "level": 3,
               "display_order": 3,
               "parent_slug": "CLI-INS",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=bandages.jpg"
+              "image_url": "/placeholder-product.svg"
             },
             {
               "slug": "CLI-INS-LAB",
@@ -711,7 +711,7 @@
               "level": 3,
               "display_order": 4,
               "parent_slug": "CLI-INS",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=lab-supplies.jpg"
+              "image_url": "/placeholder-product.svg"
             },
             {
               "slug": "CLI-INS-EPP",
@@ -721,7 +721,7 @@
               "level": 3,
               "display_order": 5,
               "parent_slug": "CLI-INS",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=ppe.jpg"
+              "image_url": "/placeholder-product.svg"
             }
           ]
         },
@@ -733,7 +733,7 @@
           "level": 2,
           "display_order": 3,
           "parent_slug": "CLI",
-          "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=equipment.jpg",
+          "image_url": "/placeholder-product.svg",
           "subcategories": [
             {
               "slug": "CLI-EQU-INS",
@@ -743,7 +743,7 @@
               "level": 3,
               "display_order": 1,
               "parent_slug": "CLI-EQU",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=instruments.jpg"
+              "image_url": "/placeholder-product.svg"
             },
             {
               "slug": "CLI-EQU-DIA",
@@ -753,7 +753,7 @@
               "level": 3,
               "display_order": 2,
               "parent_slug": "CLI-EQU",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=diagnostic-equipment.jpg"
+              "image_url": "/placeholder-product.svg"
             },
             {
               "slug": "CLI-EQU-ANE",
@@ -763,7 +763,7 @@
               "level": 3,
               "display_order": 3,
               "parent_slug": "CLI-EQU",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=anesthesia-equipment.jpg"
+              "image_url": "/placeholder-product.svg"
             },
             {
               "slug": "CLI-EQU-DEN",
@@ -773,7 +773,7 @@
               "level": 3,
               "display_order": 4,
               "parent_slug": "CLI-EQU",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=dental-equipment.jpg"
+              "image_url": "/placeholder-product.svg"
             },
             {
               "slug": "CLI-EQU-MOB",
@@ -783,7 +783,7 @@
               "level": 3,
               "display_order": 5,
               "parent_slug": "CLI-EQU",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=clinic-furniture.jpg"
+              "image_url": "/placeholder-product.svg"
             },
             {
               "slug": "CLI-EQU-EST",
@@ -793,7 +793,7 @@
               "level": 3,
               "display_order": 6,
               "parent_slug": "CLI-EQU",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=sterilization.jpg"
+              "image_url": "/placeholder-product.svg"
             },
             {
               "slug": "CLI-EQU-LAB",
@@ -803,7 +803,7 @@
               "level": 3,
               "display_order": 7,
               "parent_slug": "CLI-EQU",
-              "image_url": "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=400&h=300&fit=crop&q=lab-equipment.jpg"
+              "image_url": "/placeholder-product.svg"
             }
           ]
         }

@@ -25,7 +25,7 @@
           "sku_suffix": "-ML"
         }
       ],
-      "image_url": "https://www.virbac.com/images/anxitane.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "active_ingredient": "L-teanina",
         "indication": "Ansiedad, fobias",
@@ -54,7 +54,7 @@
           "sku_suffix": "-60MG"
         }
       ],
-      "image_url": "https://www.virbac.com/images/epiphen.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "active_ingredient": "Fenobarbital",
         "controlled_substance": true,
@@ -77,7 +77,7 @@
           "sku_suffix": "-10ML"
         }
       ],
-      "image_url": "https://www.virbac.com/images/easotic.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "active_ingredient": "Hidrocortisona, miconazol, gentamicina",
         "indication": "Otitis externa bacteriana y fúngica",
@@ -112,7 +112,7 @@
           "sku_suffix": "-L"
         }
       ],
-      "image_url": "https://www.virbac.com/images/effipro.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "active_ingredient": "Fipronil 10%",
         "duration_days": 30
@@ -141,7 +141,7 @@
           "sku_suffix": "-CAT"
         }
       ],
-      "image_url": "https://www.virbac.com/images/nutribound.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "indication": "Anorexia, convalecencia",
         "palatability": "Alta"
@@ -170,7 +170,7 @@
           "sku_suffix": "-CARNE"
         }
       ],
-      "image_url": "https://www.virbac.com/images/cet-toothpaste.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "enzymatic": true,
         "no_rinse": true
@@ -205,7 +205,7 @@
           "sku_suffix": "-L"
         }
       ],
-      "image_url": "https://www.virbac.com/images/allerderm.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "indication": "Dermatitis, piel seca",
         "application": "Semanal"
@@ -228,7 +228,7 @@
           "sku_suffix": "-125ML"
         }
       ],
-      "image_url": "https://www.virbac.com/images/epiotic.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "indication": "Limpieza ótica regular",
         "antiseptic": true

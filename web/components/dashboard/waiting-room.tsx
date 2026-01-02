@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   QueryClient,
   QueryClientProvider,
@@ -127,7 +128,9 @@ export function WaitingRoom({ clinic }: { clinic: string }): React.ReactElement 
     refetchInterval: 30000, // Refetch every 30 seconds
   });
 
-  const { mutate: updateStatus, isPending: isUpdatingStatus } = useMutation({
+  const [updatingAppointmentId, setUpdatingAppointmentId] = useState<string | null>(null);
+
+  const { mutate: updateStatus } = useMutation({
     mutationFn: ({
       appointmentId,
       newStatus,
@@ -135,8 +138,14 @@ export function WaitingRoom({ clinic }: { clinic: string }): React.ReactElement 
       appointmentId: string;
       newStatus: string;
     }) => updateAppointmentStatus(appointmentId, newStatus, clinic),
+    onMutate: ({ appointmentId }) => {
+      setUpdatingAppointmentId(appointmentId);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["waitingRoom", clinic] });
+    },
+    onSettled: () => {
+      setUpdatingAppointmentId(null);
     },
   });
 
@@ -233,7 +242,7 @@ export function WaitingRoom({ clinic }: { clinic: string }): React.ReactElement 
               key={apt.id}
               appointment={apt}
               clinic={clinic}
-              isUpdating={isUpdatingStatus && isUpdatingStatus.appointmentId === apt.id}
+              isUpdating={updatingAppointmentId === apt.id}
               onStatusChange={(appointmentId, newStatus) => updateStatus({ appointmentId, newStatus })}
               getNextStatuses={getNextStatuses}
               formatTime={formatTime}
@@ -256,7 +265,7 @@ export function WaitingRoom({ clinic }: { clinic: string }): React.ReactElement 
               key={apt.id}
               appointment={apt}
               clinic={clinic}
-              isUpdating={isUpdatingStatus && isUpdatingStatus.appointmentId === apt.id}
+              isUpdating={updatingAppointmentId === apt.id}
               onStatusChange={(appointmentId, newStatus) => updateStatus({ appointmentId, newStatus })}
               getNextStatuses={getNextStatuses}
               formatTime={formatTime}
@@ -279,7 +288,7 @@ export function WaitingRoom({ clinic }: { clinic: string }): React.ReactElement 
               key={apt.id}
               appointment={apt}
               clinic={clinic}
-              isUpdating={isUpdatingStatus && isUpdatingStatus.appointmentId === apt.id}
+              isUpdating={updatingAppointmentId === apt.id}
               onStatusChange={(appointmentId, newStatus) => updateStatus({ appointmentId, newStatus })}
               getNextStatuses={getNextStatuses}
               formatTime={formatTime}
@@ -318,7 +327,7 @@ export function WaitingRoom({ clinic }: { clinic: string }): React.ReactElement 
               key={apt.id}
               appointment={apt}
               clinic={clinic}
-              isUpdating={isUpdatingStatus && isUpdatingStatus.appointmentId === apt.id}
+              isUpdating={updatingAppointmentId === apt.id}
               onStatusChange={(appointmentId, newStatus) => updateStatus({ appointmentId, newStatus })}
               getNextStatuses={getNextStatuses}
               formatTime={formatTime}

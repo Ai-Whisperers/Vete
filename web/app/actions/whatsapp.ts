@@ -3,12 +3,13 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { sendWhatsAppMessage } from '@/lib/whatsapp/client'
-import { 
-  fillTemplateVariables, 
+import { logger } from '@/lib/logger'
+import {
+  fillTemplateVariables,
   formatParaguayPhone,
-  type WhatsAppMessage, 
-  type WhatsAppTemplate, 
-  type WhatsAppConversation 
+  type WhatsAppMessage,
+  type WhatsAppTemplate,
+  type WhatsAppConversation
 } from '@/lib/types/whatsapp'
 
 // Get conversations (grouped by phone number)
@@ -67,7 +68,11 @@ export async function getConversations(clinic: string): Promise<{ data: WhatsApp
 
     return { data: Array.from(conversationMap.values()) }
   } catch (e) {
-    console.error('Error loading conversations:', e)
+    logger.error('Error loading WhatsApp conversations', {
+      tenantId: profile.tenant_id,
+      userId: user.id,
+      error: e instanceof Error ? e.message : String(e)
+    })
     return { error: 'Error al cargar conversaciones' }
   }
 }
@@ -113,7 +118,12 @@ export async function getMessages(clinic: string, phoneNumber: string): Promise<
 
     return { data: transformed as WhatsAppMessage[] }
   } catch (e) {
-    console.error('Error loading messages:', e)
+    logger.error('Error loading WhatsApp messages', {
+      tenantId: profile.tenant_id,
+      userId: user.id,
+      phoneNumber,
+      error: e instanceof Error ? e.message : String(e)
+    })
     return { error: 'Error al cargar mensajes' }
   }
 }
@@ -179,7 +189,12 @@ export async function sendMessage(formData: FormData): Promise<{ success: boolea
   })
 
   if (dbError) {
-    console.error('Error logging message:', dbError)
+    logger.error('Error logging WhatsApp message to database', {
+      tenantId: profile.tenant_id,
+      userId: user.id,
+      phoneNumber: formatParaguayPhone(phone),
+      error: dbError.message
+    })
   }
 
   if (!result.success) {
@@ -221,7 +236,11 @@ export async function getTemplates(clinic: string): Promise<{ data: WhatsAppTemp
 
     return { data: templates as WhatsAppTemplate[] }
   } catch (e) {
-    console.error('Error loading templates:', e)
+    logger.error('Error loading WhatsApp templates', {
+      tenantId: profile.tenant_id,
+      userId: user.id,
+      error: e instanceof Error ? e.message : String(e)
+    })
     return { error: 'Error al cargar plantillas' }
   }
 }
@@ -281,7 +300,12 @@ export async function createTemplate(formData: FormData): Promise<{ success: boo
     revalidatePath(`/${profile.tenant_id}/dashboard/whatsapp/templates`)
     return { success: true, templateId: template.id }
   } catch (e) {
-    console.error('Error creating template:', e)
+    logger.error('Error creating WhatsApp template', {
+      tenantId: profile.tenant_id,
+      userId: user.id,
+      templateName: name,
+      error: e instanceof Error ? e.message : String(e)
+    })
     return { success: false, error: 'Error al crear plantilla' }
   }
 }
@@ -339,7 +363,12 @@ export async function updateTemplate(templateId: string, formData: FormData): Pr
     revalidatePath(`/${profile.tenant_id}/dashboard/whatsapp/templates`)
     return { success: true }
   } catch (e) {
-    console.error('Error updating template:', e)
+    logger.error('Error updating WhatsApp template', {
+      tenantId: profile.tenant_id,
+      userId: user.id,
+      templateId,
+      error: e instanceof Error ? e.message : String(e)
+    })
     return { success: false, error: 'Error al actualizar plantilla' }
   }
 }
@@ -375,7 +404,12 @@ export async function deleteTemplate(templateId: string): Promise<{ success: boo
     revalidatePath(`/${profile.tenant_id}/dashboard/whatsapp/templates`)
     return { success: true }
   } catch (e) {
-    console.error('Error deleting template:', e)
+    logger.error('Error deleting WhatsApp template', {
+      tenantId: profile.tenant_id,
+      userId: user.id,
+      templateId,
+      error: e instanceof Error ? e.message : String(e)
+    })
     return { success: false, error: 'Error al eliminar plantilla' }
   }
 }
@@ -457,7 +491,11 @@ export async function getWhatsAppStats(clinic: string): Promise<{ data: WhatsApp
       }
     }
   } catch (e) {
-    console.error('Error loading WhatsApp stats:', e)
+    logger.error('Error loading WhatsApp stats', {
+      tenantId: profile.tenant_id,
+      userId: user.id,
+      error: e instanceof Error ? e.message : String(e)
+    })
     return { error: 'Error al cargar estadísticas' }
   }
 }
@@ -492,7 +530,11 @@ export async function findClientByPhone(phone: string): Promise<{ data: ClientPr
 
     return { data: client }
   } catch (e) {
-    console.error('Error finding client:', e)
+    logger.error('Error finding client by phone', {
+      userId: user.id,
+      phoneSearched: formattedPhone,
+      error: e instanceof Error ? e.message : String(e)
+    })
     return { error: 'Error al buscar cliente' }
   }
 }

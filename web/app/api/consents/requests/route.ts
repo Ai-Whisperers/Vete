@@ -7,6 +7,8 @@ import {
   generateConsentRequestEmail,
   generateConsentRequestEmailText,
 } from '@/lib/email/templates/consent-request';
+import { logger } from '@/lib/logger';
+import { apiError, HTTP_STATUS } from '@/lib/api/errors';
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const supabase = await createClient();
@@ -14,7 +16,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   // Authentication check
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   // Get user profile
@@ -25,11 +27,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     .single();
 
   if (!profile) {
-    return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 });
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
+      details: { resource: 'profile' }
+    });
   }
 
   if (!['vet', 'admin'].includes(profile.role)) {
-    return NextResponse.json({ error: 'Solo personal autorizado puede enviar solicitudes de firma' }, { status: 403 });
+    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
   }
 
   // Parse body
@@ -42,7 +46,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: 'JSON inválido' }, { status: 400 });
+    return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST);
   }
 
   const {
@@ -57,17 +61,21 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   // Validate required fields
   if (!template_id || !pet_id || !owner_id || !delivery_method) {
-    return NextResponse.json({
-      error: 'template_id, pet_id, owner_id y delivery_method son requeridos'
-    }, { status: 400 });
+    return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
+      details: { required: ['template_id', 'pet_id', 'owner_id', 'delivery_method'] }
+    });
   }
 
   if (delivery_method === 'email' && !recipient_email) {
-    return NextResponse.json({ error: 'recipient_email es requerido para envío por email' }, { status: 400 });
+    return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
+      details: { required: ['recipient_email'] }
+    });
   }
 
   if (delivery_method === 'sms' && !recipient_phone) {
-    return NextResponse.json({ error: 'recipient_phone es requerido para envío por SMS' }, { status: 400 });
+    return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
+      details: { required: ['recipient_phone'] }
+    });
   }
 
   // Verify pet belongs to staff's clinic
@@ -78,16 +86,20 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     .single();
 
   if (!pet) {
-    return NextResponse.json({ error: 'Mascota no encontrada' }, { status: 404 });
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
+      details: { resource: 'pet' }
+    });
   }
 
   if (pet.tenant_id !== profile.clinic_id) {
-    return NextResponse.json({ error: 'No tienes acceso a esta mascota' }, { status: 403 });
+    return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN);
   }
 
   // Verify owner
   if (pet.owner_id !== owner_id) {
-    return NextResponse.json({ error: 'El dueño no coincide con la mascota' }, { status: 400 });
+    return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+      details: { message: 'Owner does not match pet' }
+    });
   }
 
   // Get owner info
@@ -98,7 +110,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     .single();
 
   if (!owner) {
-    return NextResponse.json({ error: 'Dueño no encontrado' }, { status: 404 });
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
+      details: { resource: 'owner' }
+    });
   }
 
   // Get template info
@@ -109,7 +123,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     .single();
 
   if (!template) {
-    return NextResponse.json({ error: 'Plantilla no encontrada' }, { status: 404 });
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
+      details: { resource: 'template' }
+    });
   }
 
   // Generate unique token
@@ -138,8 +154,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     .single();
 
   if (error) {
-    console.error('[API] consent requests POST error:', error);
-    return NextResponse.json({ error: 'Error al crear solicitud de consentimiento' }, { status: 500 });
+    logger.error('Error creating consent request', {
+      error: error.message,
+      tenantId: profile.clinic_id,
+      userId: user.id,
+      petId: pet_id,
+      templateId: template_id
+    });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 
   // Generate signing link
@@ -185,11 +207,19 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       });
 
       if (!emailResult.success) {
-        console.error('[Consent Request] Failed to send email:', emailResult.error);
+        logger.warn('Failed to send consent request email', {
+          error: emailResult.error,
+          tenantId: profile.clinic_id,
+          petId: pet_id
+        });
         // Don't fail the whole operation if email fails
       }
     } catch (emailError) {
-      console.error('[Consent Request] Exception sending email:', emailError);
+      logger.warn('Exception sending consent request email', {
+        error: emailError instanceof Error ? emailError.message : 'Unknown',
+        tenantId: profile.clinic_id,
+        petId: pet_id
+      });
       // Don't fail the whole operation if email fails
     }
   } else if (delivery_method === 'sms' && (recipient_phone || owner.phone)) {
@@ -238,14 +268,24 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         );
 
         if (!smsResponse.ok) {
-          const smsError = await smsResponse.json();
-          console.error('[Consent Request] Failed to send SMS:', smsError);
+          const smsErrorData = await smsResponse.json();
+          logger.warn('Failed to send consent request SMS', {
+            error: smsErrorData?.message || 'SMS failed',
+            tenantId: profile.clinic_id,
+            petId: pet_id
+          });
         }
       } else {
-        console.warn('[Consent Request] SMS not configured for this tenant');
+        logger.warn('SMS not configured for this tenant', {
+          tenantId: profile.clinic_id
+        });
       }
     } catch (smsError) {
-      console.error('[Consent Request] Exception sending SMS:', smsError);
+      logger.warn('Exception sending consent request SMS', {
+        error: smsError instanceof Error ? smsError.message : 'Unknown',
+        tenantId: profile.clinic_id,
+        petId: pet_id
+      });
       // Don't fail the whole operation if SMS fails
     }
   }
@@ -262,7 +302,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   // Authentication check
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   // Get user profile
@@ -273,11 +313,13 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     .single();
 
   if (!profile) {
-    return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 });
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
+      details: { resource: 'profile' }
+    });
   }
 
   if (!['vet', 'admin'].includes(profile.role)) {
-    return NextResponse.json({ error: 'Solo personal autorizado puede ver solicitudes' }, { status: 403 });
+    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
   }
 
   // Get consent requests
@@ -294,8 +336,12 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     .order('created_at', { ascending: false });
 
   if (error) {
-    console.error('[API] consent requests GET error:', error);
-    return NextResponse.json({ error: 'Error al obtener solicitudes' }, { status: 500 });
+    logger.error('Error fetching consent requests', {
+      error: error.message,
+      tenantId: profile.clinic_id,
+      userId: user.id
+    });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 
   return NextResponse.json(data);

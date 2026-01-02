@@ -18,7 +18,7 @@
       "weight_updated_at": "2024-12-01T10:00:00Z",
       "microchip_number": "PY123456789",
       "microchip_date": "2021-04-01",
-      "photo_url": "https://example.com/pets/luna.jpg",
+      "photo_url": "/placeholder-product.svg",
       "is_deceased": false
     },
     {
@@ -37,7 +37,7 @@
       "weight_updated_at": "2024-11-28T14:30:00Z",
       "microchip_number": "PY987654321",
       "microchip_date": "2020-09-01",
-      "photo_url": "https://example.com/pets/max.jpg",
+      "photo_url": "/placeholder-product.svg",
       "is_deceased": false
     },
     {
@@ -54,7 +54,7 @@
       "neutered_date": "2023-03-05",
       "weight_kg": 4.2,
       "weight_updated_at": "2024-12-15T09:15:00Z",
-      "photo_url": "https://example.com/pets/bella.jpg",
+      "photo_url": "/placeholder-product.svg",
       "is_deceased": false
     },
     {
@@ -73,7 +73,7 @@
       "weight_updated_at": "2024-11-20T16:45:00Z",
       "microchip_number": "PY456789123",
       "microchip_date": "2019-07-15",
-      "photo_url": "https://example.com/pets/rocky.jpg",
+      "photo_url": "/placeholder-product.svg",
       "is_deceased": false
     },
     {
@@ -91,7 +91,7 @@
       "weight_updated_at": "2024-12-10T11:20:00Z",
       "microchip_number": "PY789123456",
       "microchip_date": "2023-05-01",
-      "photo_url": "https://example.com/pets/coco.jpg",
+      "photo_url": "/placeholder-product.svg",
       "is_deceased": false
     },
     {
@@ -108,7 +108,7 @@
       "neutered_date": "2022-02-14",
       "weight_kg": 5.5,
       "weight_updated_at": "2024-12-05T13:10:00Z",
-      "photo_url": "https://example.com/pets/milo.jpg",
+      "photo_url": "/placeholder-product.svg",
       "is_deceased": false
     },
     {
@@ -127,7 +127,7 @@
       "weight_updated_at": "2024-11-25T08:30:00Z",
       "microchip_number": "PY321654987",
       "microchip_date": "2018-10-10",
-      "photo_url": "https://example.com/pets/toby.jpg",
+      "photo_url": "/placeholder-product.svg",
       "is_deceased": false
     },
     {
@@ -146,7 +146,7 @@
       "weight_updated_at": "2024-12-12T15:45:00Z",
       "microchip_number": "PY654987321",
       "microchip_date": "2020-12-20",
-      "photo_url": "https://example.com/pets/luna2.jpg",
+      "photo_url": "/placeholder-product.svg",
       "is_deceased": false
     },
     {
@@ -164,7 +164,7 @@
       "weight_updated_at": "2024-12-08T10:15:00Z",
       "microchip_number": "PY147258369",
       "microchip_date": "2022-08-01",
-      "photo_url": "https://example.com/pets/rex.jpg",
+      "photo_url": "/placeholder-product.svg",
       "is_deceased": false
     },
     {
@@ -183,7 +183,7 @@
       "weight_updated_at": "2024-11-18T12:00:00Z",
       "microchip_number": "PY963852741",
       "microchip_date": "2017-06-01",
-      "photo_url": "https://example.com/pets/buddy.jpg",
+      "photo_url": "/placeholder-product.svg",
       "is_deceased": false
     },
     {
@@ -201,7 +201,7 @@
       "weight_updated_at": "2024-12-14T14:20:00Z",
       "microchip_number": "PY852741963",
       "microchip_date": "2023-02-15",
-      "photo_url": "https://example.com/pets/whiskers.jpg",
+      "photo_url": "/placeholder-product.svg",
       "is_deceased": false
     },
     {
@@ -220,7 +220,7 @@
       "weight_updated_at": "2024-12-03T09:45:00Z",
       "microchip_number": "PY741963852",
       "microchip_date": "2021-10-20",
-      "photo_url": "https://example.com/pets/daisy.jpg",
+      "photo_url": "/placeholder-product.svg",
       "is_deceased": false
     },
     {
@@ -239,7 +239,7 @@
       "weight_updated_at": "2024-11-30T16:30:00Z",
       "microchip_number": "PY369258147",
       "microchip_date": "2020-05-01",
-      "photo_url": "https://example.com/pets/simba.jpg",
+      "photo_url": "/placeholder-product.svg",
       "is_deceased": false
     },
     {
@@ -258,7 +258,7 @@
       "weight_updated_at": "2024-12-07T11:00:00Z",
       "microchip_number": "PY258147369",
       "microchip_date": "2022-08-25",
-      "photo_url": "https://example.com/pets/charlie.jpg",
+      "photo_url": "/placeholder-product.svg",
       "is_deceased": false
     },
     {
@@ -276,7 +276,7 @@
       "weight_updated_at": "2024-12-11T13:25:00Z",
       "microchip_number": "PY147369258",
       "microchip_date": "2023-07-05",
-      "photo_url": "https://example.com/pets/molly.jpg",
+      "photo_url": "/placeholder-product.svg",
       "is_deceased": false
     }
   ],

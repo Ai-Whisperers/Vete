@@ -47,6 +47,21 @@ export default async function EditPetPage({ params }: Props): Promise<React.Reac
     redirect(`/${clinic}/portal/dashboard`)
   }
 
+  // Transform database fields to form-expected format
+  const formPet = {
+    ...pet,
+    // Map microchip_number to microchip_id (form field name)
+    microchip_id: pet.microchip_number || pet.microchip_id || null,
+    // Convert allergies array to comma-separated string
+    allergies: Array.isArray(pet.allergies)
+      ? pet.allergies.join(', ')
+      : pet.allergies || null,
+    // Convert chronic_conditions array to string (as existing_conditions)
+    existing_conditions: Array.isArray(pet.chronic_conditions)
+      ? pet.chronic_conditions.join(', ')
+      : pet.existing_conditions || pet.chronic_conditions || null,
+  }
+
   return (
     <div className="max-w-xl mx-auto">
       <div className="flex items-center gap-4 mb-8">
@@ -61,7 +76,7 @@ export default async function EditPetPage({ params }: Props): Promise<React.Reac
         </h1>
       </div>
 
-      <EditPetForm pet={pet} clinic={clinic} />
+      <EditPetForm pet={formPet} clinic={clinic} />
     </div>
   )
 }

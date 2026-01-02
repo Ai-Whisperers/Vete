@@ -30,7 +30,7 @@
           "sku_suffix": "-7.5KG"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop-adult-small.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "age_range": "1+ años",
         "breed_size": "Pequeño"
@@ -64,7 +64,7 @@
           "sku_suffix": "-15KG"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop-adult-med-lg.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "age_range": "1+ años",
         "breed_size": "Mediano y Grande"
@@ -98,7 +98,7 @@
           "sku_suffix": "-7.5KG"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop-puppy-small.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "age_range": "Hasta 12 meses",
         "breed_size": "Pequeño"
@@ -132,7 +132,7 @@
           "sku_suffix": "-15KG"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop-puppy-med-lg.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "age_range": "Hasta 18 meses",
         "breed_size": "Mediano y Grande"
@@ -166,7 +166,7 @@
           "sku_suffix": "-7.5KG"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop-cat-adult.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "age_range": "1+ años"
       }
@@ -193,7 +193,7 @@
           "sku_suffix": "-3KG"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop-cat-kitten.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "age_range": "Hasta 1 año",
         "lifestage": "Kitten"
@@ -227,7 +227,7 @@
           "sku_suffix": "-7.5KG"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop-cat-castrado.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "special_need": "Esterilizado",
         "weight_control": true

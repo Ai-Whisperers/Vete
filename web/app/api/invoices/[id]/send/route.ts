@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { apiError, HTTP_STATUS } from '@/lib/api/errors';
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -12,7 +13,7 @@ export async function POST(request: Request, { params }: RouteParams) {
 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   const { data: profile } = await supabase
@@ -22,7 +23,7 @@ export async function POST(request: Request, { params }: RouteParams) {
     .single();
 
   if (!profile || !['vet', 'admin'].includes(profile.role)) {
-    return NextResponse.json({ error: 'Solo el personal puede enviar facturas' }, { status: 403 });
+    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
   }
 
   try {
@@ -38,11 +39,11 @@ export async function POST(request: Request, { params }: RouteParams) {
       .single();
 
     if (invoiceError || !invoice) {
-      return NextResponse.json({ error: 'Factura no encontrada' }, { status: 404 });
+      return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND);
     }
 
     if (invoice.status === 'void') {
-      return NextResponse.json({ error: 'No se puede enviar una factura anulada' }, { status: 400 });
+      return apiError('CONFLICT', HTTP_STATUS.BAD_REQUEST, { details: { reason: 'No se puede enviar una factura anulada' } });
     }
 
     // Update status to sent if draft
@@ -89,6 +90,6 @@ export async function POST(request: Request, { params }: RouteParams) {
     });
   } catch (e) {
     console.error('Error sending invoice:', e);
-    return NextResponse.json({ error: 'Error al enviar factura' }, { status: 500 });
+    return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 }

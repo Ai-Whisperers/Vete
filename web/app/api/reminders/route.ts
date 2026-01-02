@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import { apiError, HTTP_STATUS } from '@/lib/api/errors';
 
 /**
  * GET /api/reminders
@@ -15,7 +16,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   // Auth check
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   // Staff check
@@ -26,7 +27,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     .single();
 
   if (!profile || !['vet', 'admin'].includes(profile.role)) {
-    return NextResponse.json({ error: 'Solo personal puede ver recordatorios' }, { status: 403 });
+    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
   }
 
   try {
@@ -57,7 +58,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ data: data || [] });
   } catch (e) {
     console.error('Error fetching reminders:', e);
-    return NextResponse.json({ error: 'Error al cargar recordatorios' }, { status: 500 });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 }
 
@@ -71,7 +72,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   // Auth check
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   // Staff check
@@ -82,7 +83,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     .single();
 
   if (!profile || !['vet', 'admin'].includes(profile.role)) {
-    return NextResponse.json({ error: 'Solo personal puede crear recordatorios' }, { status: 403 });
+    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
   }
 
   try {
@@ -97,9 +98,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     } = body;
 
     if (!client_id || !type || !scheduled_at) {
-      return NextResponse.json({
-        error: 'client_id, type y scheduled_at son requeridos'
-      }, { status: 400 });
+      return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, { details: { required: ['client_id', 'type', 'scheduled_at'] } });
     }
 
     const { data, error } = await supabase
@@ -126,6 +125,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ data }, { status: 201 });
   } catch (e) {
     console.error('Error creating reminder:', e);
-    return NextResponse.json({ error: 'Error al crear recordatorio' }, { status: 500 });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 }

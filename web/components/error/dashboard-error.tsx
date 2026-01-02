@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react'
 import Link from 'next/link'
+import { logger } from '@/lib/logger'
 
 interface DashboardErrorProps {
   error: Error & { digest?: string }
@@ -13,10 +14,10 @@ interface DashboardErrorProps {
 export default function DashboardError({ error, reset }: DashboardErrorProps) {
   useEffect(() => {
     // Log to error reporting service
-    console.error('Dashboard error:', {
-      message: error.message,
+    logger.error('Dashboard error occurred', {
+      error: error.message,
       digest: error.digest,
-      stack: error.stack,
+      context: 'DashboardError',
     })
   }, [error])
 

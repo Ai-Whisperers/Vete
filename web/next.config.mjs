@@ -1,6 +1,9 @@
 /** @type {import('next').NextConfig} */
+import createNextIntlPlugin from 'next-intl/plugin';
 import path from 'path';
 import { fileURLToPath } from 'url';
+
+const withNextIntl = createNextIntlPlugin('./i18n/request.ts');
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -73,9 +76,8 @@ const nextConfig = {
   outputFileTracingRoot: __dirname,
 
   // TypeScript and ESLint settings
-  // TODO: Set to false once all type errors are fixed
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
   eslint: {
     ignoreDuringBuilds: true,
@@ -238,4 +240,4 @@ const nextConfig = {
   },
 };
 
-export default nextConfig;
+export default withNextIntl(nextConfig);

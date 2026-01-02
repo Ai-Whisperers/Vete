@@ -5,6 +5,10 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { ActionResult, FieldErrors } from "@/lib/types/action-result";
 import { z } from "zod";
+import { logger } from "@/lib/logger";
+
+// Species categories for products
+const SPECIES_CATEGORIES = ["dog", "cat", "exotic", "other"] as const;
 
 // Validation schema for updating a product
 const updateProductSchema = z.object({
@@ -18,7 +22,7 @@ const updateProductSchema = z.object({
     .transform(val => val.trim()),
 
   category: z
-    .enum(["dog", "cat", "exotic", "other"], {
+    .enum(SPECIES_CATEGORIES, {
       message: "Selecciona una categoría válida"
     }),
 
@@ -120,9 +124,10 @@ export async function updateProduct(prevState: ActionResult | null, formData: Fo
 
   // Check product exists and belongs to this tenant
   const { data: existingProduct, error: fetchError } = await supabase
-    .from('products')
+    .from('store_products')
     .select('id, tenant_id')
     .eq('id', validData.id)
+    .is('deleted_at', null)
     .single();
 
   if (fetchError || !existingProduct) {
@@ -142,12 +147,13 @@ export async function updateProduct(prevState: ActionResult | null, formData: Fo
   // Check for duplicate SKU if provided (excluding current product)
   if (validData.sku) {
     const { data: existingSku } = await supabase
-      .from('products')
+      .from('store_products')
       .select('id, name')
       .eq('sku', validData.sku)
       .eq('tenant_id', profile.tenant_id)
       .neq('id', validData.id)
-      .single();
+      .is('deleted_at', null)
+      .maybeSingle();
 
     if (existingSku) {
       return {
@@ -201,18 +207,21 @@ export async function updateProduct(prevState: ActionResult | null, formData: Fo
         .getPublicUrl(fileName);
       imageUrl = publicUrl;
     } else {
-      console.warn("Product image upload failed:", uploadError);
+      logger.warn("Product image upload failed", { error: uploadError.message, tenantId: profile.tenant_id });
     }
   }
 
-  // Build update object
+  // Map category to target_species array
+  const targetSpecies = validData.category === 'other' ? [] : [validData.category];
+
+  // Build update object for store_products
   const updateData: Record<string, unknown> = {
     name: validData.name,
-    category: validData.category,
-    price: validData.price,
-    stock: validData.stock,
     description: validData.description,
+    short_description: validData.description?.substring(0, 150) || null,
+    base_price: validData.price,
     sku: validData.sku,
+    target_species: targetSpecies,
     updated_at: new Date().toISOString(),
   };
 
@@ -221,15 +230,20 @@ export async function updateProduct(prevState: ActionResult | null, formData: Fo
     updateData.image_url = imageUrl;
   }
 
-  // Update Product
+  // Update Product in store_products
   const { error: updateError } = await supabase
-    .from('products')
+    .from('store_products')
     .update(updateData)
     .eq('id', validData.id)
     .eq('tenant_id', profile.tenant_id);
 
   if (updateError) {
-    console.error("Update Product Error:", updateError);
+    logger.error("Update Product Error", {
+      error: updateError.message,
+      productId: validData.id,
+      tenantId: profile.tenant_id,
+      userId: user.id
+    });
 
     if (updateError.code === "23505") {
       if (updateError.message.includes("sku")) {
@@ -253,7 +267,28 @@ export async function updateProduct(prevState: ActionResult | null, formData: Fo
     };
   }
 
+  // Update or create inventory record
+  const { error: inventoryError } = await supabase
+    .from('store_inventory')
+    .upsert({
+      product_id: validData.id,
+      tenant_id: profile.tenant_id,
+      stock_quantity: validData.stock,
+    }, {
+      onConflict: 'product_id'
+    });
+
+  if (inventoryError) {
+    logger.warn("Failed to update inventory record", {
+      error: inventoryError.message,
+      productId: validData.id,
+      tenantId: profile.tenant_id
+    });
+    // Don't fail - product was updated, inventory can be set later
+  }
+
   revalidatePath(`/${clinic}/portal/products`);
   revalidatePath(`/${clinic}/portal/products/${validData.id}`);
+  revalidatePath(`/${clinic}/store`);
   redirect(`/${clinic}/portal/products?success=product_updated`);
 }

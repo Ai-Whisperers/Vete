@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 
 // GET /api/messages/templates - List message templates
 export async function GET(request: Request) {
@@ -42,7 +43,11 @@ export async function GET(request: Request) {
 
     return NextResponse.json(templates);
   } catch (e) {
-    console.error('Error loading templates:', e);
+    logger.error('Error loading templates', {
+      userId: user.id,
+      tenantId: profile.tenant_id,
+      error: e instanceof Error ? e.message : String(e)
+    });
     return NextResponse.json({ error: 'Error al cargar plantillas' }, { status: 500 });
   }
 }
@@ -93,7 +98,11 @@ export async function POST(request: Request) {
 
     return NextResponse.json(template, { status: 201 });
   } catch (e) {
-    console.error('Error creating template:', e);
+    logger.error('Error creating template', {
+      userId: user.id,
+      tenantId: profile.tenant_id,
+      error: e instanceof Error ? e.message : String(e)
+    });
     return NextResponse.json({ error: 'Error al crear plantilla' }, { status: 500 });
   }
 }

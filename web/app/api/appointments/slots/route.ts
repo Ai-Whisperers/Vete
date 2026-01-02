@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
+import { logger } from '@/lib/logger'
 
 interface TimeSlot {
   time: string
@@ -111,7 +112,12 @@ export async function GET(request: NextRequest) {
       })
 
     if (error) {
-      console.error('Error fetching available slots:', error)
+      logger.error('Error fetching available slots', {
+        tenantId: clinicSlug,
+        userId: user.id,
+        date,
+        error: error instanceof Error ? error.message : String(error)
+      })
       return NextResponse.json(
         { error: 'Error al obtener horarios disponibles' },
         { status: 500 }
@@ -134,7 +140,12 @@ export async function GET(request: NextRequest) {
       slots
     })
   } catch (e) {
-    console.error('Error generating slots:', e)
+    logger.error('Error generating slots', {
+      tenantId: clinicSlug,
+      userId: user?.id,
+      date,
+      error: e instanceof Error ? e.message : 'Unknown'
+    })
     return NextResponse.json(
       { error: 'Error al generar horarios disponibles' },
       { status: 500 }

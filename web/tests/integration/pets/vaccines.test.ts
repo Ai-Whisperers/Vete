@@ -229,7 +229,8 @@ describe('Vaccine Management', () => {
       expect(error).toBeNull();
       expect(data).toBeDefined();
       expect(Array.isArray(data)).toBe(true);
-      expect(data.length).toBeGreaterThan(0);
+      expect(data).not.toBeNull();
+      expect(data!.length).toBeGreaterThan(0);
     });
 
     test('reads vaccine with pet details (join)', async () => {
@@ -261,7 +262,8 @@ describe('Vaccine Management', () => {
 
       expect(error).toBeNull();
       expect(data).toBeDefined();
-      expect(data.every((v: { status: string }) => v.status === 'verified')).toBe(true);
+      expect(data).not.toBeNull();
+      expect(data!.every((v: { status: string }) => v.status === 'verified')).toBe(true);
     });
 
     test('filters upcoming vaccines by due date', async () => {

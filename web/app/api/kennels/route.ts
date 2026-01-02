@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import { apiError, HTTP_STATUS } from '@/lib/api/errors';
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   const supabase = await createClient();
@@ -7,7 +8,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   // Authentication check
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   // Get user profile
@@ -18,12 +19,12 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     .single();
 
   if (!profile) {
-    return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 });
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, { details: { resource: 'profile' } });
   }
 
   // Only staff can view kennels
   if (!['vet', 'admin'].includes(profile.role)) {
-    return NextResponse.json({ error: 'Solo el personal puede ver jaulas' }, { status: 403 });
+    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
   }
 
   const { searchParams } = new URL(request.url);
@@ -61,7 +62,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
   if (error) {
     console.error('[API] kennels GET error:', error);
-    return NextResponse.json({ error: 'Error al obtener jaulas' }, { status: 500 });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 
   return NextResponse.json(data);

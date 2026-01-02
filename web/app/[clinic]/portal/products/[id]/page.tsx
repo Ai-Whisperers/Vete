@@ -20,6 +20,12 @@ interface Product {
   image_url: string | null;
 }
 
+// Helper to get category from target_species
+function getCategoryFromSpecies(targetSpecies: string[] | null): string {
+  if (!targetSpecies || targetSpecies.length === 0) return 'other';
+  return targetSpecies[0];
+}
+
 // Helper component for field errors
 function FieldError({ error }: { error?: string }): React.ReactElement | null {
   if (!error) return null;
@@ -71,10 +77,23 @@ export default function EditProductPage(): React.ReactElement {
     async function fetchProduct(): Promise<void> {
       const supabase = createClient();
 
+      // Fetch product with inventory
       const { data, error: fetchError } = await supabase
-        .from('products')
-        .select('*')
+        .from('store_products')
+        .select(`
+          id,
+          name,
+          description,
+          base_price,
+          sku,
+          image_url,
+          target_species,
+          store_inventory (
+            stock_quantity
+          )
+        `)
         .eq('id', id)
+        .is('deleted_at', null)
         .single();
 
       if (fetchError || !data) {
@@ -83,7 +102,21 @@ export default function EditProductPage(): React.ReactElement {
         return;
       }
 
-      setProduct(data);
+      // Transform to expected format
+      const inventory = Array.isArray(data.store_inventory)
+        ? data.store_inventory[0]
+        : data.store_inventory;
+
+      setProduct({
+        id: data.id,
+        name: data.name,
+        category: getCategoryFromSpecies(data.target_species),
+        price: data.base_price,
+        stock: inventory?.stock_quantity ?? 0,
+        description: data.description,
+        sku: data.sku,
+        image_url: data.image_url,
+      });
       setLoading(false);
     }
 
@@ -97,7 +130,7 @@ export default function EditProductPage(): React.ReactElement {
     if (result.success) {
       router.push(`/${clinic}/portal/products?success=product_deleted`);
     } else {
-      setError(result.error);
+      setError(result.error ?? "Error al eliminar el producto");
       setShowDeleteModal(false);
       setIsDeleting(false);
     }

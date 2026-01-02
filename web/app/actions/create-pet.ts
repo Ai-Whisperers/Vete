@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { ActionResult, FieldErrors } from "@/lib/types/action-result";
 import { z } from "zod";
+import { logger } from '@/lib/logger';
 
 // Validation schema with detailed Spanish error messages
 const createPetSchema = z.object({
@@ -209,7 +210,11 @@ export async function createPet(prevState: ActionResult | null, formData: FormDa
       .upload(fileName, photo);
 
     if (uploadError) {
-      console.error("Upload error:", uploadError);
+      logger.error('Failed to upload pet photo', {
+        error: uploadError,
+        userId: user.id,
+        tenant: clinic
+      });
 
       // Provide helpful error message based on error type
       let photoErrorMessage = "No se pudo subir la foto. ";
@@ -250,14 +255,25 @@ export async function createPet(prevState: ActionResult | null, formData: FormDa
     is_neutered: validData.is_neutered,
     color: validData.color,
     temperament: validData.temperament,
-    allergies: validData.allergies ? [validData.allergies] : [], // Convert to array
-    chronic_conditions: validData.existing_conditions ? [validData.existing_conditions] : [], // Map and convert to array
-    notes: validData.existing_conditions, // Use existing_conditions as fallback for notes
-    date_of_birth: validData.date_of_birth,
+    // Convert comma-separated allergies to array
+    allergies: validData.allergies
+      ? validData.allergies.split(',').map(a => a.trim()).filter(a => a.length > 0)
+      : [],
+    // Store existing conditions as array in chronic_conditions
+    chronic_conditions: validData.existing_conditions
+      ? [validData.existing_conditions]
+      : [],
+    // Map form field date_of_birth to database column birth_date
+    birth_date: validData.date_of_birth,
   });
 
   if (insertError) {
-    console.error("Insert error:", insertError);
+    logger.error('Failed to create pet', {
+      error: insertError,
+      userId: user.id,
+      tenant: clinic,
+      errorCode: insertError.code
+    });
 
     // Map database errors to user-friendly messages
     let userMessage = "No se pudo guardar la mascota. ";

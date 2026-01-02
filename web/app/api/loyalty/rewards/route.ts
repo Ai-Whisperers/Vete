@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import { apiError, HTTP_STATUS } from '@/lib/api/errors';
 
 /**
  * GET /api/loyalty/rewards
@@ -11,13 +12,13 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const clinic = searchParams.get('clinic');
 
   if (!clinic) {
-    return NextResponse.json({ error: 'clinic es requerido' }, { status: 400 });
+    return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, { details: { field: 'clinic' } });
   }
 
   // Auth check
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   try {
@@ -63,7 +64,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ data: rewards || [] });
   } catch (e) {
     console.error('Error fetching rewards:', e);
-    return NextResponse.json({ error: 'Error al cargar recompensas' }, { status: 500 });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 }
 
@@ -77,7 +78,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   // Auth check
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   // Admin check
@@ -88,7 +89,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     .single();
 
   if (!profile || profile.role !== 'admin') {
-    return NextResponse.json({ error: 'Solo administradores pueden crear recompensas' }, { status: 403 });
+    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
   }
 
   try {
@@ -101,7 +102,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     } = body;
 
     if (!name || !points_cost) {
-      return NextResponse.json({ error: 'Nombre y costo en puntos son requeridos' }, { status: 400 });
+      return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, { details: { required: ['name', 'points_cost'] } });
     }
 
     const { data, error } = await supabase
@@ -133,6 +134,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ data }, { status: 201 });
   } catch (e) {
     console.error('Error creating reward:', e);
-    return NextResponse.json({ error: 'Error al crear recompensa' }, { status: 500 });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 }

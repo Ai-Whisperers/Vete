@@ -1,6 +1,7 @@
 interface ReminderPreference {
   type: 'email' | 'sms'; // Or both, or 'none'
   timeBefore: string; // e.g., '24h', '1h', '30m'
+  defaultPetId?: string; // Default pet for bookings
 }
 
 // In a real application, these would interact with a database

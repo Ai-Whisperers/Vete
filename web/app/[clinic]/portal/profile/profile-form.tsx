@@ -39,7 +39,7 @@ export function ProfileForm({ clinic, profile, success }: ProfileFormProps) {
         </div>
       )}
 
-      {state?.error && (
+      {state && !state.success && (
         <div className="mb-6 p-4 bg-red-50 text-red-700 rounded-xl flex items-center gap-3 border border-red-100">
           <Icons.AlertCircle className="w-5 h-5" />
           <span className="font-bold">{state.error}</span>
@@ -82,10 +82,10 @@ export function ProfileForm({ clinic, profile, success }: ProfileFormProps) {
               name="full_name"
               defaultValue={profile?.full_name || ""}
               className={`w-full p-3 min-h-[48px] rounded-xl border focus:border-[var(--primary)] outline-none font-bold text-gray-700 ${
-                state?.fieldErrors?.full_name ? "border-red-300" : "border-gray-200"
+                state && !state.success && state.fieldErrors?.full_name ? "border-red-300" : "border-gray-200"
               }`}
             />
-            {state?.fieldErrors?.full_name && (
+            {state && !state.success && state.fieldErrors?.full_name && (
               <p className="text-red-500 text-sm mt-1">{state.fieldErrors.full_name}</p>
             )}
           </div>
@@ -101,10 +101,10 @@ export function ProfileForm({ clinic, profile, success }: ProfileFormProps) {
               defaultValue={profile?.phone || ""}
               placeholder="+595 9..."
               className={`w-full p-3 min-h-[48px] rounded-xl border focus:border-[var(--primary)] outline-none font-bold text-gray-700 ${
-                state?.fieldErrors?.phone ? "border-red-300" : "border-gray-200"
+                state && !state.success && state.fieldErrors?.phone ? "border-red-300" : "border-gray-200"
               }`}
             />
-            {state?.fieldErrors?.phone && (
+            {state && !state.success && state.fieldErrors?.phone && (
                <p className="text-red-500 text-sm mt-1">{state.fieldErrors.phone}</p>
             )}
           </div>
@@ -117,10 +117,10 @@ export function ProfileForm({ clinic, profile, success }: ProfileFormProps) {
               defaultValue={profile?.secondary_phone || ""}
               placeholder="Opcional"
               className={`w-full p-3 min-h-[48px] rounded-xl border focus:border-[var(--primary)] outline-none font-bold text-gray-700 ${
-                 state?.fieldErrors?.secondary_phone ? "border-red-300" : "border-gray-200"
+                 state && !state.success && state.fieldErrors?.secondary_phone ? "border-red-300" : "border-gray-200"
               }`}
             />
-             {state?.fieldErrors?.secondary_phone && (
+             {state && !state.success && state.fieldErrors?.secondary_phone && (
                <p className="text-red-500 text-sm mt-1">{state.fieldErrors.secondary_phone}</p>
             )}
           </div>
@@ -134,10 +134,10 @@ export function ProfileForm({ clinic, profile, success }: ProfileFormProps) {
               defaultValue={profile?.address || ""}
               placeholder="Calle Principal 123"
               className={`w-full p-3 min-h-[48px] rounded-xl border focus:border-[var(--primary)] outline-none font-bold text-gray-700 ${
-                 state?.fieldErrors?.address ? "border-red-300" : "border-gray-200"
+                 state && !state.success && state.fieldErrors?.address ? "border-red-300" : "border-gray-200"
               }`}
             />
-             {state?.fieldErrors?.address && (
+             {state && !state.success && state.fieldErrors?.address && (
                <p className="text-red-500 text-sm mt-1">{state.fieldErrors.address}</p>
             )}
           </div>
@@ -151,10 +151,10 @@ export function ProfileForm({ clinic, profile, success }: ProfileFormProps) {
               defaultValue={profile?.city || ""}
               placeholder="Asunción"
               className={`w-full p-3 min-h-[48px] rounded-xl border focus:border-[var(--primary)] outline-none font-bold text-gray-700 ${
-                 state?.fieldErrors?.city ? "border-red-300" : "border-gray-200"
+                 state && !state.success && state.fieldErrors?.city ? "border-red-300" : "border-gray-200"
               }`}
             />
-             {state?.fieldErrors?.city && (
+             {state && !state.success && state.fieldErrors?.city && (
                <p className="text-red-500 text-sm mt-1">{state.fieldErrors.city}</p>
             )}
           </div>

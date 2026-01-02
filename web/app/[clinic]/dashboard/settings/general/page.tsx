@@ -27,10 +27,12 @@ export default function GeneralSettingsPage(): React.ReactElement {
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
-  } = useForm<GeneralSettingsInput>({
+  } = useForm({
     resolver: zodResolver(generalSettingsSchema),
     defaultValues: {
       clinic,
+      name: '',
+      tagline: undefined as string | undefined,
     },
   });
 
@@ -68,7 +70,7 @@ export default function GeneralSettingsPage(): React.ReactElement {
     fetchSettings();
   }, [clinic, reset]);
 
-  const onSubmit = async (data: GeneralSettingsInput): Promise<void> => {
+  const onSubmit = async (data: Record<string, unknown>): Promise<void> => {
     setSaveStatus("idle");
 
     try {

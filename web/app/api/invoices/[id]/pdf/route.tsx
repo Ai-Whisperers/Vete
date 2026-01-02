@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { renderToStream } from '@react-pdf/renderer';
 import { InvoicePDFDocument } from '@/components/invoices/invoice-pdf';
 import { Invoice } from '@/lib/types/invoicing';
+import { apiError, HTTP_STATUS } from '@/lib/api/errors';
 
 interface RouteParams {
   params: Promise<{
@@ -17,7 +18,7 @@ export async function GET(request: NextRequest, { params }: RouteParams): Promis
   // 1. Auth Check
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   // 2. Fetch Invoice
@@ -43,13 +44,13 @@ export async function GET(request: NextRequest, { params }: RouteParams): Promis
     .single();
 
   if (error || !invoice) {
-    return NextResponse.json({ error: 'Factura no encontrada' }, { status: 404 });
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND);
   }
 
   // 3. Authorization (Tenant check)
   const { data: profile } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single();
   if (invoice.tenant_id !== profile?.tenant_id) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
+    return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN);
   }
 
   // 4. Get Clinic Info
@@ -76,6 +77,6 @@ export async function GET(request: NextRequest, { params }: RouteParams): Promis
 
   } catch (err) {
     console.error('PDF Generation Error:', err);
-    return NextResponse.json({ error: 'Error generando PDF' }, { status: 500 });
+    return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 }

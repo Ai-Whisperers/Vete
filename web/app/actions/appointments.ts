@@ -1,9 +1,11 @@
 'use server'
 
 import { withActionAuth } from '@/lib/auth'
+import type { AuthContext } from '@/lib/auth'
 import { actionSuccess, actionError, handleActionError } from '@/lib/errors'
 import { getDomainFactory } from '@/lib/domain'
 import { revalidatePath } from 'next/cache'
+import { logger } from '@/lib/logger'
 import type { CancelAppointmentResult, RescheduleAppointmentResult } from '@/lib/types/appointments'
 
 /**
@@ -66,7 +68,7 @@ export const cancelAppointment = withActionAuth(
       .eq('id', appointmentId)
 
     if (updateError) {
-      console.error('Cancel appointment error:', updateError)
+      logger.error('Cancel appointment error', { appointmentId, tenantId: appointment.tenant_id, userId: user.id, error: updateError instanceof Error ? updateError.message : String(updateError) })
       return actionError('Error al cancelar la cita')
     }
 
@@ -157,7 +159,7 @@ export const rescheduleAppointment = withActionAuth(
       })
 
     if (overlapCheckError) {
-      console.error('Overlap check error:', overlapCheckError)
+      logger.error('Overlap check error', { appointmentId, tenantId: appointment.tenant_id, newDate, newTime, error: overlapCheckError instanceof Error ? overlapCheckError.message : String(overlapCheckError) })
       return actionError('Error al verificar disponibilidad del horario')
     }
 
@@ -176,7 +178,7 @@ export const rescheduleAppointment = withActionAuth(
       .eq('id', appointmentId)
 
     if (updateError) {
-      console.error('Reschedule appointment error:', updateError)
+      logger.error('Reschedule appointment error', { appointmentId, tenantId: appointment.tenant_id, newDate, newTime, error: updateError instanceof Error ? updateError.message : String(updateError) })
       return actionError('Error al reprogramar la cita')
     }
 
@@ -219,7 +221,7 @@ export const getOwnerAppointments = withActionAuth(
       .order('start_time', { ascending: false })
 
     if (error) {
-      console.error('Get appointments error:', error)
+      logger.error('Get appointments error', { clinicSlug, userId: user.id, error: error instanceof Error ? error.message : String(error) })
       return actionError('Error al obtener las citas')
     }
 
@@ -252,7 +254,7 @@ export const getOwnerAppointments = withActionAuth(
  * Staff only
  */
 export const checkInAppointment = withActionAuth(
-  async ({ user, profile, supabase }, appointmentId: string) => {
+  async ({ user, profile, supabase }: AuthContext, appointmentId: string) => {
     // Get appointment
     const { data: appointment, error: fetchError } = await supabase
       .from('appointments')
@@ -285,7 +287,7 @@ export const checkInAppointment = withActionAuth(
       .eq('id', appointmentId)
 
     if (updateError) {
-      console.error('Check-in error:', updateError)
+      logger.error('Check-in error', { appointmentId, tenantId: profile.tenant_id, userId: user.id, error: updateError instanceof Error ? updateError.message : String(updateError) })
       return actionError('Error al registrar llegada')
     }
 
@@ -293,7 +295,7 @@ export const checkInAppointment = withActionAuth(
     revalidatePath('/[clinic]/portal/appointments')
     return actionSuccess()
   },
-  { requireStaff: true }
+  { roles: ['vet', 'admin'] }
 )
 
 /**
@@ -301,7 +303,7 @@ export const checkInAppointment = withActionAuth(
  * Staff only
  */
 export const startAppointment = withActionAuth(
-  async ({ user, profile, supabase }, appointmentId: string) => {
+  async ({ user, profile, supabase }: AuthContext, appointmentId: string) => {
     const { data: appointment } = await supabase
       .from('appointments')
       .select('id, tenant_id, status')
@@ -329,14 +331,14 @@ export const startAppointment = withActionAuth(
       .eq('id', appointmentId)
 
     if (updateError) {
-      console.error('Start appointment error:', updateError)
+      logger.error('Start appointment error', { appointmentId, tenantId: profile.tenant_id, userId: user.id, error: updateError instanceof Error ? updateError.message : String(updateError) })
       return actionError('Error al iniciar consulta')
     }
 
     revalidatePath('/[clinic]/dashboard/appointments')
     return actionSuccess()
   },
-  { requireStaff: true }
+  { roles: ['vet', 'admin'] }
 )
 
 /**
@@ -344,7 +346,7 @@ export const startAppointment = withActionAuth(
  * Staff only
  */
 export const completeAppointment = withActionAuth(
-  async ({ user, profile, supabase }, appointmentId: string, notes?: string) => {
+  async ({ user, profile, supabase }: AuthContext, appointmentId: string, notes?: string) => {
     const { data: appointment } = await supabase
       .from('appointments')
       .select('id, tenant_id, status, notes')
@@ -381,7 +383,7 @@ export const completeAppointment = withActionAuth(
       .eq('id', appointmentId)
 
     if (updateError) {
-      console.error('Complete appointment error:', updateError)
+      logger.error('Complete appointment error', { appointmentId, tenantId: profile.tenant_id, userId: user.id, error: updateError instanceof Error ? updateError.message : String(updateError) })
       return actionError('Error al completar la cita')
     }
 
@@ -389,7 +391,7 @@ export const completeAppointment = withActionAuth(
     revalidatePath('/[clinic]/portal/appointments')
     return actionSuccess()
   },
-  { requireStaff: true }
+  { roles: ['vet', 'admin'] }
 )
 
 /**
@@ -397,7 +399,7 @@ export const completeAppointment = withActionAuth(
  * Staff only
  */
 export const markNoShow = withActionAuth(
-  async ({ profile, supabase }, appointmentId: string) => {
+  async ({ profile, supabase }: AuthContext, appointmentId: string) => {
     const { data: appointment } = await supabase
       .from('appointments')
       .select('id, tenant_id, status')
@@ -425,7 +427,7 @@ export const markNoShow = withActionAuth(
       .eq('id', appointmentId)
 
     if (updateError) {
-      console.error('Mark no-show error:', updateError)
+      logger.error('Mark no-show error', { appointmentId, tenantId: profile.tenant_id, error: updateError instanceof Error ? updateError.message : String(updateError) })
       return actionError('Error al marcar no presentado')
     }
 
@@ -433,7 +435,7 @@ export const markNoShow = withActionAuth(
     revalidatePath('/[clinic]/portal/appointments')
     return actionSuccess()
   },
-  { requireStaff: true }
+  { roles: ['vet', 'admin'] }
 )
 
 /**
@@ -441,7 +443,7 @@ export const markNoShow = withActionAuth(
  * Staff only
  */
 export const getStaffAppointments = withActionAuth(
-  async ({ profile, supabase }, clinicSlug: string, date?: string, statusFilter?: string) => {
+  async ({ profile, supabase }: AuthContext, clinicSlug: string, date?: string, statusFilter?: string) => {
     if (profile.tenant_id !== clinicSlug) {
       return actionError('Solo el personal puede ver esta información')
     }
@@ -484,7 +486,7 @@ export const getStaffAppointments = withActionAuth(
     const { data: appointments, error } = await query
 
     if (error) {
-      console.error('Get staff appointments error:', error)
+      logger.error('Get staff appointments error', { clinicSlug, tenantId: profile.tenant_id, date: targetDate, error: error instanceof Error ? error.message : String(error) })
       return actionError('Error al obtener citas')
     }
 
@@ -496,7 +498,7 @@ export const getStaffAppointments = withActionAuth(
 
     return actionSuccess(transformedAppointments)
   },
-  { requireStaff: true }
+  { roles: ['vet', 'admin'] }
 )
 
 // =============================================================================
@@ -567,7 +569,7 @@ export async function checkAvailableSlots(
       })
 
     if (error) {
-      console.error('Error fetching available slots:', error)
+      logger.error('Error fetching available slots', { clinicSlug, date, error: error instanceof Error ? error.message : String(error) })
       return { data: null, error: 'Error al obtener horarios disponibles' }
     }
 
@@ -582,7 +584,7 @@ export async function checkAvailableSlots(
 
     return { data: availableSlots, error: null }
   } catch (e) {
-    console.error('Unexpected error checking slots:', e)
+    logger.error('Unexpected error checking slots', { clinicSlug, date, error: e instanceof Error ? e.message : 'Unknown' })
     return { data: null, error: 'Error inesperado al verificar disponibilidad' }
   }
 }

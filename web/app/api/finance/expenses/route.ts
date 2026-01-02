@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { apiError, HTTP_STATUS } from '@/lib/api/errors';
 
 export async function GET(request: Request) {
     const supabase = await createClient();
@@ -7,7 +8,7 @@ export async function GET(request: Request) {
     // Authentication check
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
-        return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+        return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
     }
 
     // Get user profile - only staff can view expenses
@@ -18,7 +19,7 @@ export async function GET(request: Request) {
         .single();
 
     if (!profile || !['vet', 'admin'].includes(profile.role)) {
-        return NextResponse.json({ error: 'Solo el personal puede ver gastos' }, { status: 403 });
+        return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
     }
 
     const { searchParams } = new URL(request.url);
@@ -26,7 +27,7 @@ export async function GET(request: Request) {
 
     // Verify user belongs to the requested clinic
     if (clinic !== profile.clinic_id) {
-        return NextResponse.json({ error: 'No tienes acceso a esta clínica' }, { status: 403 });
+        return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN);
     }
 
     const { data: expenses, error } = await supabase
@@ -35,7 +36,7 @@ export async function GET(request: Request) {
         .eq('clinic_id', clinic)
         .order('date', { ascending: false });
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error) return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
 
     return NextResponse.json(expenses);
 }
@@ -46,7 +47,7 @@ export async function POST(request: Request) {
     // TICKET-SEC-005: Auth check first
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
-        return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+        return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
     }
 
     // Get user profile with tenant
@@ -57,7 +58,7 @@ export async function POST(request: Request) {
         .single();
 
     if (!profile || !['vet', 'admin'].includes(profile.role)) {
-        return NextResponse.json({ error: 'Solo el personal puede registrar gastos' }, { status: 403 });
+        return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
     }
 
     const body = await request.json();
@@ -67,12 +68,12 @@ export async function POST(request: Request) {
 
     // Validate required fields
     if (!amount || !category || !date) {
-        return NextResponse.json({ error: 'Monto, categoría y fecha son requeridos' }, { status: 400 });
+        return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, { details: { required: ['amount', 'category', 'date'] } });
     }
 
     // Validate amount is positive number
     if (typeof amount !== 'number' || amount <= 0) {
-        return NextResponse.json({ error: 'El monto debe ser un número positivo' }, { status: 400 });
+        return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, { details: { field: 'amount', reason: 'Must be a positive number' } });
     }
 
     const { data, error } = await supabase
@@ -91,7 +92,7 @@ export async function POST(request: Request) {
         .select()
         .single();
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error) return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
 
     // Audit Log
     const { logAudit } = await import('@/lib/audit');

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { logger } from '@/lib/logger';
 
 /**
  * GET /api/inventory/catalog
@@ -76,7 +77,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       .limit(1);
 
     if (testError) {
-      console.error('Table test error:', testError);
+      logger.error('Table test error', {
+        error: testError.message,
+        tenantId: clinic
+      });
       return NextResponse.json({
         error: 'Database table error',
         details: testError.message
@@ -92,8 +96,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       .eq('is_active', true);
 
     if (countError) {
-      console.error('Count query error:', countError);
-      console.error('Count query details:', JSON.stringify(countError, null, 2));
+      logger.error('Count query error', {
+        error: countError.message,
+        tenantId: clinic
+      });
       return NextResponse.json({
         error: 'Error al obtener el total',
         details: countError.message || 'Unknown error'
@@ -109,7 +115,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       .order('name', { ascending: true });
 
     if (productsError) {
-      console.error('Products query error:', productsError);
+      logger.error('Products query error', {
+        error: productsError.message,
+        tenantId: clinic
+      });
       return NextResponse.json({ error: 'Error al obtener productos' }, { status: 500 });
     }
 
@@ -122,7 +131,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       .in('catalog_product_id', productIds);
 
     if (assignmentsError) {
-      console.error('Assignments query error:', assignmentsError);
+      logger.error('Assignments query error', {
+        error: assignmentsError.message,
+        tenantId: clinic
+      });
       return NextResponse.json({ error: 'Error al verificar asignaciones' }, { status: 500 });
     }
 
@@ -172,7 +184,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     });
 
   } catch (error) {
-    console.error('Catalog API error:', error);
+    logger.error('Catalog API error', {
+      error: error instanceof Error ? error.message : 'Unknown',
+      tenantId: clinic
+    });
     return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 });
   }
 }

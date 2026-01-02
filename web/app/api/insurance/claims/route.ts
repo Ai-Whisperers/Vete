@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { rateLimit } from '@/lib/rate-limit';
+import { apiError, HTTP_STATUS } from '@/lib/api/errors';
 
 interface ClaimItem {
   service_date?: string;
@@ -19,7 +20,7 @@ export async function GET(request: NextRequest) {
   // Authentication check
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   // Get user profile
@@ -30,13 +31,15 @@ export async function GET(request: NextRequest) {
     .single();
 
   if (!profile) {
-    return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 });
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
+      details: { resource: 'profile' }
+    });
   }
 
   // Only staff can access insurance claims
   const isStaff = ['vet', 'admin'].includes(profile.role);
   if (!isStaff) {
-    return NextResponse.json({ error: 'Solo el personal puede ver reclamos' }, { status: 403 });
+    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
   }
 
   const { searchParams } = new URL(request.url);
@@ -93,7 +96,7 @@ export async function GET(request: NextRequest) {
     });
   } catch (e) {
     console.error('Error loading insurance claims:', e);
-    return NextResponse.json({ error: 'Error al cargar reclamos' }, { status: 500 });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 }
 
@@ -103,7 +106,7 @@ export async function POST(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   // Apply rate limiting for write endpoints (20 requests per minute)
@@ -119,7 +122,7 @@ export async function POST(request: NextRequest) {
     .single();
 
   if (!profile || !['vet', 'admin'].includes(profile.role)) {
-    return NextResponse.json({ error: 'Solo el personal puede crear reclamos' }, { status: 403 });
+    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
   }
 
   try {
@@ -138,7 +141,9 @@ export async function POST(request: NextRequest) {
     } = body;
 
     if (!policy_id || !pet_id || !claim_type || !date_of_service || !diagnosis || !treatment_description) {
-      return NextResponse.json({ error: 'Campos requeridos faltantes' }, { status: 400 });
+      return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
+        details: { required: ['policy_id', 'pet_id', 'claim_type', 'date_of_service', 'diagnosis', 'treatment_description'] }
+      });
     }
 
     // Verify policy belongs to clinic and pet
@@ -151,7 +156,9 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (!policy) {
-      return NextResponse.json({ error: 'Póliza no encontrada o no válida' }, { status: 404 });
+      return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
+        details: { resource: 'policy' }
+      });
     }
 
     // Generate claim number
@@ -226,6 +233,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(claim, { status: 201 });
   } catch (e) {
     console.error('Error creating insurance claim:', e);
-    return NextResponse.json({ error: 'Error al crear reclamo' }, { status: 500 });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 }

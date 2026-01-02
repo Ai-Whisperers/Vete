@@ -159,9 +159,10 @@ describe('UAT: Owner Registration and Pet Management', () => {
         .order('created_at', { ascending: true });
 
       expect(error).toBeNull();
-      expect(pets.length).toBe(2);
-      expect(pets[0].name).toBe('Toby');
-      expect(pets[1].name).toBe('Michi');
+      expect(pets).not.toBeNull();
+      expect(pets!.length).toBe(2);
+      expect(pets![0].name).toBe('Toby');
+      expect(pets![1].name).toBe('Michi');
     });
   });
 
@@ -281,8 +282,9 @@ describe('UAT: Owner Registration and Pet Management', () => {
         .order('date', { ascending: true });
 
       expect(error).toBeNull();
-      expect(upcoming.length).toBeGreaterThanOrEqual(1);
-      expect(upcoming[0].pet.name).toBe('Appointment Pet');
+      expect(upcoming).not.toBeNull();
+      expect(upcoming!.length).toBeGreaterThanOrEqual(1);
+      expect(upcoming![0].pet.name).toBe('Appointment Pet');
     });
 
     test('Step 5: Owner can reschedule appointment', async () => {
@@ -439,9 +441,10 @@ describe('UAT: Owner Registration and Pet Management', () => {
         .order('administered_date', { ascending: false });
 
       expect(error).toBeNull();
-      expect(vaccines.length).toBe(2);
-      expect(vaccines.some((v: { name: string }) => v.name === 'Rabia')).toBe(true);
-      expect(vaccines.some((v: { name: string }) => v.name === 'Sextuple')).toBe(true);
+      expect(vaccines).not.toBeNull();
+      expect(vaccines!.length).toBe(2);
+      expect(vaccines!.some((v: { name: string }) => v.name === 'Rabia')).toBe(true);
+      expect(vaccines!.some((v: { name: string }) => v.name === 'Sextuple')).toBe(true);
     });
 
     test('Owner views upcoming vaccine reminders', async () => {

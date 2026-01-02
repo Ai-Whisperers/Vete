@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { logger } from '@/lib/logger';
 
 // TICKET-TYPE-002: Define proper state interface for server actions
 interface ActionState {
@@ -53,7 +54,12 @@ export async function createMedicalRecord(prevState: ActionState | null, formDat
       if (error) throw error;
 
   } catch (error) {
-      console.error("Create Record Error:", error);
+      logger.error('Failed to create medical record', {
+        error: error instanceof Error ? error : undefined,
+        userId: user.id,
+        tenant: profile.tenant_id,
+        petId
+      });
       const message = error instanceof Error ? error.message : "Error al guardar registro";
       return { error: message };
   }

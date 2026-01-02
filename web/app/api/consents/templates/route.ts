@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import { apiError, HTTP_STATUS } from '@/lib/api/errors';
 
 interface ConsentField {
   field_name: string;
@@ -16,7 +17,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   // Authentication check
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   // Get user profile
@@ -27,11 +28,13 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     .single();
 
   if (!profile) {
-    return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 });
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
+      details: { resource: 'profile' }
+    });
   }
 
   if (!['vet', 'admin'].includes(profile.role)) {
-    return NextResponse.json({ error: 'Solo personal autorizado puede ver plantillas' }, { status: 403 });
+    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
   }
 
   const { searchParams } = new URL(request.url);
@@ -57,7 +60,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
   if (error) {
     console.error('[API] consent templates GET error:', error);
-    return NextResponse.json({ error: 'Error al obtener plantillas' }, { status: 500 });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 
   return NextResponse.json(data);
@@ -69,7 +72,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   // Authentication check
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   // Get user profile - only admins can create templates
@@ -80,11 +83,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     .single();
 
   if (!profile) {
-    return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 });
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
+      details: { resource: 'profile' }
+    });
   }
 
   if (profile.role !== 'admin') {
-    return NextResponse.json({ error: 'Solo administradores pueden crear plantillas' }, { status: 403 });
+    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
   }
 
   // Parse body
@@ -92,7 +97,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: 'JSON inválido' }, { status: 400 });
+    return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST);
   }
 
   const {
@@ -108,7 +113,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   // Validate required fields
   if (!name || !category || !content) {
-    return NextResponse.json({ error: 'name, category y content son requeridos' }, { status: 400 });
+    return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
+      details: { required: ['name', 'category', 'content'] }
+    });
   }
 
   // Insert template
@@ -130,7 +137,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   if (error) {
     console.error('[API] consent templates POST error:', error);
-    return NextResponse.json({ error: 'Error al crear plantilla' }, { status: 500 });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 
   // Insert fields if provided

@@ -1,78 +1,176 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { logger } from '@/lib/logger';
+import { apiError, HTTP_STATUS } from '@/lib/api/errors';
 
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const userId = searchParams.get('userId');
-  const clinic = searchParams.get('clinic');
+export const dynamic = 'force-dynamic';
 
-  if (!userId || !clinic) {
-    return NextResponse.json({ error: 'User or clinic not provided' }, { status: 400 });
+/**
+ * GET /api/store/wishlist
+ * Load wishlist product IDs for logged-in user
+ */
+export async function GET() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  // For unauthenticated users, return empty wishlist (not an error)
+  if (!user) {
+    return NextResponse.json({ items: [], productIds: [], authenticated: false });
   }
 
-  const supabase = await createClient();
+  // Get user's profile to determine tenant
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('tenant_id')
+    .eq('id', user.id)
+    .maybeSingle(); // Use maybeSingle to avoid 406
 
-  const { data, error } = await supabase
+  // If no profile, return empty wishlist (user might be new)
+  if (profileError || !profile) {
+    return NextResponse.json({ items: [], productIds: [], authenticated: true, no_profile: true });
+  }
+
+  // Get wishlist items with product details
+  const { data: wishlistItems, error } = await supabase
     .from('store_wishlist')
-    .select('product_id')
-    .eq('customer_id', userId)
-    .eq('tenant_id', clinic);
+    .select(`
+      id,
+      product_id,
+      created_at,
+      store_products (
+        id,
+        name,
+        sku,
+        short_description,
+        base_price,
+        sale_price,
+        image_url,
+        is_active
+      )
+    `)
+    .eq('customer_id', user.id)
+    .eq('tenant_id', profile.tenant_id)
+    .order('created_at', { ascending: false });
 
   if (error) {
-    console.error('Error fetching wishlist:', error);
-    return NextResponse.json({ error: 'Failed to fetch wishlist' }, { status: 500 });
+    logger.error('Error fetching wishlist', {
+      userId: user.id,
+      tenantId: profile.tenant_id,
+      error: error instanceof Error ? error.message : String(error)
+    });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
+      details: { message: 'Error al cargar lista de deseos' }
+    });
   }
 
-  return NextResponse.json(data, { status: 200 });
+  // Return just product IDs for the context, full data for the page
+  const productIds = wishlistItems?.map(item => item.product_id) ?? [];
+
+  return NextResponse.json({
+    items: wishlistItems ?? [],
+    productIds
+  });
 }
 
+/**
+ * POST /api/store/wishlist
+ * Add a product to wishlist
+ */
 export async function POST(request: Request) {
   const supabase = await createClient();
-  const { product_id, clinic } = await request.json();
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
-  const { error } = await supabase.from('store_wishlist').insert({
-    product_id,
-    tenant_id: clinic,
-    customer_id: user.id,
-  });
+  const { productId } = await request.json();
+
+  if (!productId) {
+    return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
+      details: { message: 'ID de producto requerido' }
+    });
+  }
+
+  // Get user's profile to determine tenant
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('tenant_id')
+    .eq('id', user.id)
+    .maybeSingle(); // Use maybeSingle to avoid 406
+
+  if (!profile) {
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
+      details: { message: 'Perfil no encontrado' }
+    });
+  }
+
+  // Add to wishlist
+  const { error } = await supabase
+    .from('store_wishlist')
+    .insert({
+      customer_id: user.id,
+      tenant_id: profile.tenant_id,
+      product_id: productId
+    });
 
   if (error) {
-    console.error('Error adding to wishlist:', error);
-    return NextResponse.json({ error: 'Failed to add to wishlist' }, { status: 500 });
+    // If duplicate, silently succeed
+    if (error.code === '23505') {
+      return NextResponse.json({ success: true, added: false });
+    }
+    logger.error('Error adding to wishlist', {
+      userId: user.id,
+      tenantId: profile.tenant_id,
+      productId,
+      error: error instanceof Error ? error.message : String(error)
+    });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
+      details: { message: 'Error al agregar a lista de deseos' }
+    });
   }
 
-  return NextResponse.json({ success: true }, { status: 201 });
+  return NextResponse.json({ success: true, added: true });
 }
 
+/**
+ * DELETE /api/store/wishlist
+ * Remove a product from wishlist
+ */
 export async function DELETE(request: Request) {
-    const { searchParams } = new URL(request.url);
-    const productId = searchParams.get('product_id');
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
 
-    if (!user) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+  if (!user) {
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
+  }
 
-    if (!productId) {
-        return NextResponse.json({ error: 'Product ID not provided' }, { status: 400 });
-    }
-    
-    const { error } = await supabase
-        .from('store_wishlist')
-        .delete()
-        .eq('customer_id', user.id)
-        .eq('product_id', productId);
-    
-    if (error) {
-        console.error('Error removing from wishlist:', error);
-        return NextResponse.json({ error: 'Failed to remove from wishlist' }, { status: 500 });
-    }
-    
-    return NextResponse.json({ success: true }, { status: 200 });
+  const { searchParams } = new URL(request.url);
+  const productId = searchParams.get('productId');
+
+  if (!productId) {
+    return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
+      details: { message: 'ID de producto requerido' }
+    });
+  }
+
+  // Delete from wishlist
+  const { error } = await supabase
+    .from('store_wishlist')
+    .delete()
+    .eq('customer_id', user.id)
+    .eq('product_id', productId);
+
+  if (error) {
+    logger.error('Error removing from wishlist', {
+      userId: user.id,
+      productId,
+      error: error instanceof Error ? error.message : String(error)
+    });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
+      details: { message: 'Error al eliminar de lista de deseos' }
+    });
+  }
+
+  return NextResponse.json({ success: true });
 }

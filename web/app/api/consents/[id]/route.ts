@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import { apiError, HTTP_STATUS } from '@/lib/api/errors';
 
 interface RouteParams {
   params: Promise<{
@@ -14,7 +15,7 @@ export async function GET(request: NextRequest, { params }: RouteParams): Promis
   // Authentication check
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   // Get user profile
@@ -25,7 +26,9 @@ export async function GET(request: NextRequest, { params }: RouteParams): Promis
     .single();
 
   if (!profile) {
-    return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 });
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
+      details: { resource: 'profile' }
+    });
   }
 
   // Get consent document with all relations
@@ -44,11 +47,13 @@ export async function GET(request: NextRequest, { params }: RouteParams): Promis
 
   if (error) {
     console.error('[API] consent GET error:', error);
-    return NextResponse.json({ error: 'Error al obtener consentimiento' }, { status: 500 });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 
   if (!data) {
-    return NextResponse.json({ error: 'Consentimiento no encontrado' }, { status: 404 });
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
+      details: { resource: 'consent' }
+    });
   }
 
   // Authorization check
@@ -58,12 +63,12 @@ export async function GET(request: NextRequest, { params }: RouteParams): Promis
   if (['vet', 'admin'].includes(profile.role)) {
     // Staff can only see consents from their clinic
     if (pet.tenant_id !== profile.clinic_id) {
-      return NextResponse.json({ error: 'No tienes acceso a este consentimiento' }, { status: 403 });
+      return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN);
     }
   } else {
     // Owners can only see their own consents
     if (data.owner_id !== user.id) {
-      return NextResponse.json({ error: 'No tienes acceso a este consentimiento' }, { status: 403 });
+      return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN);
     }
   }
 
@@ -77,7 +82,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams): Prom
   // Authentication check
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   // Get user profile
@@ -88,7 +93,9 @@ export async function PATCH(request: NextRequest, { params }: RouteParams): Prom
     .single();
 
   if (!profile) {
-    return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 });
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
+      details: { resource: 'profile' }
+    });
   }
 
   // Parse body
@@ -96,13 +103,15 @@ export async function PATCH(request: NextRequest, { params }: RouteParams): Prom
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: 'JSON inválido' }, { status: 400 });
+    return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST);
   }
 
   const { action, reason } = body;
 
   if (action !== 'revoke') {
-    return NextResponse.json({ error: 'Acción no válida' }, { status: 400 });
+    return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+      details: { message: 'Invalid action' }
+    });
   }
 
   // Get existing consent
@@ -119,7 +128,9 @@ export async function PATCH(request: NextRequest, { params }: RouteParams): Prom
     .single();
 
   if (!existing) {
-    return NextResponse.json({ error: 'Consentimiento no encontrado' }, { status: 404 });
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
+      details: { resource: 'consent' }
+    });
   }
 
   // Authorization check
@@ -131,19 +142,23 @@ export async function PATCH(request: NextRequest, { params }: RouteParams): Prom
 
   if (isStaff) {
     if (pet.tenant_id !== profile.clinic_id) {
-      return NextResponse.json({ error: 'No tienes acceso a este consentimiento' }, { status: 403 });
+      return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN);
     }
   } else if (!isOwner) {
-    return NextResponse.json({ error: 'No tienes acceso a este consentimiento' }, { status: 403 });
+    return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN);
   }
 
   // Check if can be revoked
   if (!existing.can_be_revoked) {
-    return NextResponse.json({ error: 'Este consentimiento no puede ser revocado' }, { status: 400 });
+    return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+      details: { message: 'This consent cannot be revoked' }
+    });
   }
 
   if (existing.status === 'revoked') {
-    return NextResponse.json({ error: 'Este consentimiento ya fue revocado' }, { status: 400 });
+    return apiError('CONFLICT', HTTP_STATUS.CONFLICT, {
+      details: { message: 'Consent already revoked' }
+    });
   }
 
   // Update consent document
@@ -162,7 +177,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams): Prom
 
   if (error) {
     console.error('[API] consent PATCH error:', error);
-    return NextResponse.json({ error: 'Error al revocar consentimiento' }, { status: 500 });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 
   // Create audit log entry

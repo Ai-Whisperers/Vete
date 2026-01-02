@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import { apiError, HTTP_STATUS } from '@/lib/api/errors';
 
 interface RouteParams {
   params: Promise<{
@@ -14,7 +15,7 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
   // Authentication check
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   // Get user profile - only vets/admins can add treatments
@@ -25,11 +26,11 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
     .single();
 
   if (!profile) {
-    return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 });
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, { details: { resource: 'profile' } });
   }
 
   if (!['vet', 'admin'].includes(profile.role)) {
-    return NextResponse.json({ error: 'Solo veterinarios pueden agregar tratamientos' }, { status: 403 });
+    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
   }
 
   // Verify hospitalization exists and belongs to clinic
@@ -40,13 +41,13 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
     .single();
 
   if (!hospitalization) {
-    return NextResponse.json({ error: 'Hospitalización no encontrada' }, { status: 404 });
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, { details: { resource: 'hospitalization' } });
   }
 
   const petData = Array.isArray(hospitalization.pet) ? hospitalization.pet[0] : hospitalization.pet;
   const pet = petData as { tenant_id: string };
   if (pet.tenant_id !== profile.clinic_id) {
-    return NextResponse.json({ error: 'No tienes acceso a esta hospitalización' }, { status: 403 });
+    return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN);
   }
 
   // Parse body
@@ -54,7 +55,7 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: 'JSON inválido' }, { status: 400 });
+    return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST);
   }
 
   const {
@@ -69,9 +70,9 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
 
   // Validate required fields
   if (!treatment_type || !scheduled_time) {
-    return NextResponse.json({
-      error: 'treatment_type y scheduled_time son requeridos'
-    }, { status: 400 });
+    return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
+      details: { required: ['treatment_type', 'scheduled_time'] }
+    });
   }
 
   // Insert treatment
@@ -93,7 +94,7 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
 
   if (error) {
     console.error('[API] treatments POST error:', error);
-    return NextResponse.json({ error: 'Error al agregar tratamiento' }, { status: 500 });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 
   return NextResponse.json(data, { status: 201 });
@@ -106,7 +107,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams): Prom
   // Authentication check
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   // Get user profile - only vets/admins can update treatments
@@ -117,7 +118,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams): Prom
     .single();
 
   if (!profile || !['vet', 'admin'].includes(profile.role)) {
-    return NextResponse.json({ error: 'Solo veterinarios pueden actualizar tratamientos' }, { status: 403 });
+    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
   }
 
   // Parse body
@@ -125,13 +126,13 @@ export async function PATCH(request: NextRequest, { params }: RouteParams): Prom
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: 'JSON inválido' }, { status: 400 });
+    return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST);
   }
 
   const { treatment_id, status, notes } = body;
 
   if (!treatment_id) {
-    return NextResponse.json({ error: 'treatment_id es requerido' }, { status: 400 });
+    return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, { details: { required: ['treatment_id'] } });
   }
 
   // Verify treatment belongs to staff's clinic
@@ -147,7 +148,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams): Prom
     .single();
 
   if (!treatment) {
-    return NextResponse.json({ error: 'Tratamiento no encontrado' }, { status: 404 });
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, { details: { resource: 'treatment' } });
   }
 
   // Build update
@@ -175,7 +176,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams): Prom
 
   if (error) {
     console.error('[API] treatments PATCH error:', error);
-    return NextResponse.json({ error: 'Error al actualizar tratamiento' }, { status: 500 });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 
   return NextResponse.json(data);

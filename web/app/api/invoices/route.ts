@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { withAuth, isStaff } from '@/lib/api/with-auth';
 import { apiError, apiSuccess, HTTP_STATUS } from '@/lib/api/errors';
 import { parsePagination, paginatedResponse } from '@/lib/api/pagination';
+import { logger } from '@/lib/logger';
 
 interface InvoiceItem {
   service_id?: string;
@@ -73,7 +74,11 @@ export const GET = withAuth(async ({ user, profile, supabase, request }) => {
 
     return NextResponse.json(paginatedResponse(invoices || [], count || 0, { page, limit, offset }));
   } catch (e) {
-    console.error('Error loading invoices:', e);
+    logger.error('Error loading invoices', {
+      tenantId: profile.tenant_id,
+      userId: user.id,
+      error: e instanceof Error ? e.message : 'Unknown'
+    });
     return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 });
@@ -179,7 +184,12 @@ export const POST = withAuth(
 
       return apiSuccess(invoice, 'Factura creada exitosamente', HTTP_STATUS.CREATED);
     } catch (e) {
-      console.error('Error creating invoice:', e);
+      logger.error('Error creating invoice', {
+        tenantId: profile.tenant_id,
+        userId: user.id,
+        operation: 'create_invoice',
+        error: e instanceof Error ? e.message : 'Unknown'
+      });
       return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
     }
   },

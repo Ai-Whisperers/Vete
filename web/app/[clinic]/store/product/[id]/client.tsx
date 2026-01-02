@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import type { StoreProductWithDetails, ReviewSummary, StoreProductQuestion } from '@/lib/types/store';
 import { useCart } from '@/context/cart-context';
+import { useWishlist } from '@/context/wishlist-context';
 import ProductGallery from '@/components/store/product-detail/product-gallery';
 import ProductTabs from '@/components/store/product-detail/product-tabs';
 import RelatedProducts from '@/components/store/product-detail/related-products';
@@ -69,14 +70,27 @@ interface Props {
 export default function ProductDetailClient({ clinic, productId, clinicConfig }: Props) {
   const router = useRouter();
   const { addItem, items } = useCart();
+  const { isWishlisted, toggleWishlist } = useWishlist();
   const [data, setData] = useState<ProductDetailResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [selectedVariant, setSelectedVariant] = useState<string | null>(null);
-  const [isWishlisted, setIsWishlisted] = useState(false);
+  const [togglingWishlist, setTogglingWishlist] = useState(false);
   const [addingToCart, setAddingToCart] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
+
+  const productIsWishlisted = isWishlisted(productId);
+
+  const handleWishlistToggle = async () => {
+    if (togglingWishlist) return;
+    setTogglingWishlist(true);
+    try {
+      await toggleWishlist(productId);
+    } finally {
+      setTogglingWishlist(false);
+    }
+  };
 
   const currencySymbol = clinicConfig.settings?.currency_symbol || 'Gs';
 
@@ -468,16 +482,21 @@ export default function ProductDetailClient({ clinic, productId, clinicConfig }:
             {/* Wishlist & Share */}
             <div className="flex gap-4 mb-6">
               <button
-                onClick={() => setIsWishlisted(!isWishlisted)}
-                className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-colors ${
-                  isWishlisted
+                onClick={handleWishlistToggle}
+                disabled={togglingWishlist}
+                className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-colors disabled:opacity-50 ${
+                  productIsWishlisted
                     ? 'border-red-500 text-red-500 bg-red-50'
                     : 'border-[var(--border-default)] text-[var(--text-secondary)] hover:border-red-500 hover:text-red-500'
                 }`}
               >
-                <Heart className={`w-5 h-5 ${isWishlisted ? 'fill-current' : ''}`} />
+                {togglingWishlist ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <Heart className={`w-5 h-5 ${productIsWishlisted ? 'fill-current' : ''}`} />
+                )}
                 <span className="hidden sm:inline">
-                  {isWishlisted ? 'En Lista de Deseos' : 'Agregar a Lista'}
+                  {productIsWishlisted ? 'En Lista de Deseos' : 'Agregar a Lista'}
                 </span>
               </button>
               <button

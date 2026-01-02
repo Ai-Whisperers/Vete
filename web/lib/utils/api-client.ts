@@ -4,10 +4,16 @@ interface ApiResponse<T = any> {
   status: number;
 }
 
-interface ApiError {
-  message: string;
+class ApiError extends Error {
   status: number;
-  details?: any;
+  details?: unknown;
+
+  constructor({ message, status, details }: { message: string; status: number; details?: unknown }) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+    this.details = details;
+  }
 }
 
 class ApiClient {
@@ -98,5 +104,5 @@ class ApiClient {
 export const apiClient = new ApiClient();
 
 // Export the class for custom instances
-export { ApiClient };
-export type { ApiResponse, ApiError };
+export { ApiClient, ApiError };
+export type { ApiResponse };

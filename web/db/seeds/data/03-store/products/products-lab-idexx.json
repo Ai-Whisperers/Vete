@@ -24,7 +24,7 @@
           "sku_suffix": "-30"
         }
       ],
-      "image_url": "https://www.idexx.com/images/snap-4dx.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "sample_type": "Sangre entera o suero",
         "result_time": "8 minutos",
@@ -53,7 +53,7 @@
           "sku_suffix": "-30"
         }
       ],
-      "image_url": "https://www.idexx.com/images/snap-parvo.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "sample_type": "Materia fecal",
         "result_time": "10 minutos",
@@ -83,7 +83,7 @@
           "sku_suffix": "-30"
         }
       ],
-      "image_url": "https://www.idexx.com/images/snap-giardia.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "sample_type": "Materia fecal",
         "result_time": "10 minutos"
@@ -111,7 +111,7 @@
           "sku_suffix": "-30"
         }
       ],
-      "image_url": "https://www.idexx.com/images/snap-fiv-felv.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "sample_type": "Sangre entera, suero o plasma",
         "result_time": "10 minutos"
@@ -133,7 +133,7 @@
           "sku_suffix": "-5"
         }
       ],
-      "image_url": "https://www.idexx.com/images/snap-cpl.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "sample_type": "Suero o plasma",
         "result_time": "10 minutos",
@@ -156,7 +156,7 @@
           "sku_suffix": "-5"
         }
       ],
-      "image_url": "https://www.idexx.com/images/snap-fpl.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "sample_type": "Suero o plasma",
         "result_time": "10 minutos",
@@ -180,7 +180,7 @@
           "sku_suffix": "-UNIT"
         }
       ],
-      "image_url": "https://www.idexx.com/images/catalyst-dx.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "parameters": "27 parámetros",
         "sample_volume": "100μL",
@@ -204,7 +204,7 @@
           "sku_suffix": "-UNIT"
         }
       ],
-      "image_url": "https://www.idexx.com/images/procyte-dx.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "parameters": "CBC completo + reticulocitos",
         "sample_volume": "17μL",
@@ -246,7 +246,7 @@
           "sku_suffix": "-LYTES"
         }
       ],
-      "image_url": "https://www.idexx.com/images/catalyst-clip.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "compatible": "Catalyst Dx/One",
         "storage": "2-8°C"
@@ -269,7 +269,7 @@
           "sku_suffix": "-UNIT"
         }
       ],
-      "image_url": "https://www.idexx.com/images/sedivue-dx.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "analysis_time": "3 minutos",
         "sample_volume": "165μL",
@@ -293,7 +293,7 @@
           "sku_suffix": "-100"
         }
       ],
-      "image_url": "https://www.idexx.com/images/ua-strips.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "parameters": "10 parámetros",
         "read_time": "60 segundos"
@@ -316,7 +316,7 @@
           "sku_suffix": "-UNIT"
         }
       ],
-      "image_url": "https://www.idexx.com/images/coag-dx.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "tests": "PT, aPTT, ACT",
         "sample_volume": "citrato"

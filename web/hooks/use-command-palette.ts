@@ -49,7 +49,7 @@ export interface UseCommandPaletteResult {
   clearHistory: () => void;
 
   // Refs
-  inputRef: React.RefObject<HTMLInputElement>;
+  inputRef: React.RefObject<HTMLInputElement | null>;
 }
 
 export function useCommandPalette({

@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { logger } from '@/lib/logger'
 import type {
   CalendarActionResult,
   StaffScheduleWithProfile,
@@ -79,7 +80,7 @@ export async function getStaffSchedules(clinicSlug: string): Promise<{
     .order('created_at', { ascending: false })
 
   if (error) {
-    console.error('Get staff schedules error:', error)
+    logger.error('Get staff schedules error', { tenantId: clinicSlug, error: error instanceof Error ? error.message : String(error) })
     return { schedules: [], error: 'Error al obtener horarios' }
   }
 
@@ -255,7 +256,7 @@ export async function createStaffSchedule(
     .single()
 
   if (scheduleError || !schedule) {
-    console.error('Create schedule error:', scheduleError)
+    logger.error('Create schedule error', { tenantId: clinicSlug, staffProfileId: data.staffProfileId, error: scheduleError instanceof Error ? scheduleError.message : String(scheduleError) })
     return { error: 'Error al crear horario' }
   }
 
@@ -276,7 +277,7 @@ export async function createStaffSchedule(
       .insert(entries)
 
     if (entriesError) {
-      console.error('Create schedule entries error:', entriesError)
+      logger.error('Create schedule entries error', { tenantId: clinicSlug, scheduleId: schedule.id, error: entriesError instanceof Error ? entriesError.message : String(entriesError) })
       // Clean up the schedule if entries fail
       await supabase.from('staff_schedules').delete().eq('id', schedule.id)
       return { error: 'Error al crear entradas del horario' }
@@ -341,7 +342,7 @@ export async function updateStaffSchedule(
       .eq('id', scheduleId)
 
     if (updateError) {
-      console.error('Update schedule error:', updateError)
+      logger.error('Update schedule error', { scheduleId, tenantId: schedule.tenant_id, error: updateError instanceof Error ? updateError.message : String(updateError) })
       return { error: 'Error al actualizar horario' }
     }
   }
@@ -355,7 +356,7 @@ export async function updateStaffSchedule(
       .eq('schedule_id', scheduleId)
 
     if (deleteError) {
-      console.error('Delete entries error:', deleteError)
+      logger.error('Delete entries error', { scheduleId, error: deleteError instanceof Error ? deleteError.message : String(deleteError) })
       return { error: 'Error al actualizar entradas' }
     }
 
@@ -376,7 +377,7 @@ export async function updateStaffSchedule(
         .insert(entries)
 
       if (insertError) {
-        console.error('Insert entries error:', insertError)
+        logger.error('Insert entries error', { scheduleId, error: insertError instanceof Error ? insertError.message : String(insertError) })
         return { error: 'Error al guardar entradas del horario' }
       }
     }
@@ -429,7 +430,7 @@ export async function deleteStaffSchedule(scheduleId: string): Promise<CalendarA
     .eq('id', scheduleId)
 
   if (updateError) {
-    console.error('Delete schedule error:', updateError)
+    logger.error('Delete schedule error', { scheduleId, tenantId: schedule.tenant_id, error: updateError instanceof Error ? updateError.message : String(updateError) })
     return { error: 'Error al eliminar horario' }
   }
 
@@ -503,7 +504,7 @@ export async function addScheduleEntry(
     .single()
 
   if (error || !newEntry) {
-    console.error('Add entry error:', error)
+    logger.error('Add entry error', { scheduleId, dayOfWeek: entry.dayOfWeek, error: error instanceof Error ? error.message : String(error) })
     return { error: 'Error al agregar entrada' }
   }
 
@@ -568,7 +569,7 @@ export async function updateScheduleEntry(
     .eq('id', entryId)
 
   if (updateError) {
-    console.error('Update entry error:', updateError)
+    logger.error('Update entry error', { entryId, error: updateError instanceof Error ? updateError.message : String(updateError) })
     return { error: 'Error al actualizar entrada' }
   }
 
@@ -622,7 +623,7 @@ export async function deleteScheduleEntry(entryId: string): Promise<CalendarActi
     .eq('id', entryId)
 
   if (deleteError) {
-    console.error('Delete entry error:', deleteError)
+    logger.error('Delete entry error', { entryId, error: deleteError instanceof Error ? deleteError.message : String(deleteError) })
     return { error: 'Error al eliminar entrada' }
   }
 
@@ -683,7 +684,7 @@ export async function getBookableStaff(clinicSlug: string): Promise<{
     .eq('employment_status', 'active')
 
   if (error) {
-    console.error('Get bookable staff error:', error)
+    logger.error('Get bookable staff error', { tenantId: clinicSlug, error: error instanceof Error ? error.message : String(error) })
     return { staff: [], error: 'Error al obtener personal' }
   }
 

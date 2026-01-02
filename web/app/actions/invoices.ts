@@ -3,6 +3,7 @@
 import { withActionAuth, actionSuccess, actionError } from '@/lib/actions'
 import { revalidatePath } from 'next/cache'
 import { sendEmail as sendEmailClient } from '@/lib/email/client'
+import { logger } from '@/lib/logger'
 import {
   generateInvoiceEmail,
   generateInvoiceEmailText,
@@ -98,7 +99,7 @@ export const createInvoice = withActionAuth(
         .single()
 
       if (invoiceError) {
-        console.error('Create invoice error:', invoiceError)
+        logger.error('Create invoice error', { tenantId: profile.tenant_id, error: invoiceError instanceof Error ? invoiceError.message : String(invoiceError) })
         return actionError('Error al crear la factura')
       }
 
@@ -117,7 +118,7 @@ export const createInvoice = withActionAuth(
       const { error: itemsError } = await supabase.from('invoice_items').insert(invoiceItems)
 
       if (itemsError) {
-        console.error('Create invoice items error:', itemsError)
+        logger.error('Create invoice items error', { tenantId: profile.tenant_id, invoiceId: invoice.id, error: itemsError instanceof Error ? itemsError.message : String(itemsError) })
         // Rollback invoice
         await supabase.from('invoices').delete().eq('id', invoice.id)
         return actionError('Error al crear los items de la factura')
@@ -128,7 +129,7 @@ export const createInvoice = withActionAuth(
 
       return actionSuccess(invoice as Invoice)
     } catch (e) {
-      console.error('Create invoice exception:', e)
+      logger.error('Create invoice exception', { tenantId: profile.tenant_id, error: e instanceof Error ? e.message : 'Unknown' })
       return actionError('Error inesperado al crear factura')
     }
   },
@@ -225,7 +226,7 @@ export const updateInvoice = withActionAuth(
         .single()
 
       if (invoiceError) {
-        console.error('Update invoice error:', invoiceError)
+        logger.error('Update invoice error', { tenantId: profile.tenant_id, invoiceId, error: invoiceError instanceof Error ? invoiceError.message : String(invoiceError) })
         return actionError('Error al actualizar la factura')
       }
 
@@ -246,7 +247,7 @@ export const updateInvoice = withActionAuth(
       const { error: itemsError } = await supabase.from('invoice_items').insert(invoiceItems)
 
       if (itemsError) {
-        console.error('Update invoice items error:', itemsError)
+        logger.error('Update invoice items error', { tenantId: profile.tenant_id, invoiceId, error: itemsError instanceof Error ? itemsError.message : String(itemsError) })
         return actionError('Error al actualizar los items de la factura')
       }
 
@@ -256,7 +257,7 @@ export const updateInvoice = withActionAuth(
 
       return actionSuccess(invoice as Invoice)
     } catch (e) {
-      console.error('Update invoice exception:', e)
+      logger.error('Update invoice exception', { tenantId: profile.tenant_id, invoiceId, error: e instanceof Error ? e.message : 'Unknown' })
       return actionError('Error inesperado al actualizar factura')
     }
   },
@@ -320,7 +321,7 @@ export const updateInvoiceStatus = withActionAuth(
       .eq('id', invoiceId)
 
     if (updateError) {
-      console.error('Update invoice status error:', updateError)
+      logger.error('Update invoice status error', { tenantId: profile.tenant_id, invoiceId, newStatus, error: updateError instanceof Error ? updateError.message : String(updateError) })
       return actionError('Error al actualizar el estado')
     }
 
@@ -394,7 +395,7 @@ export const sendInvoice = withActionAuth(
       .eq('id', invoiceId)
 
     if (updateError) {
-      console.error('Send invoice error:', updateError)
+      logger.error('Send invoice error', { tenantId: profile.tenant_id, invoiceId, error: updateError instanceof Error ? updateError.message : String(updateError) })
       return actionError('Error al enviar la factura')
     }
 
@@ -447,15 +448,15 @@ export const sendInvoice = withActionAuth(
           })
 
           if (!result.success) {
-            console.error('Failed to send invoice email:', result.error)
+            logger.error('Failed to send invoice email', { tenantId: profile.tenant_id, invoiceId, ownerEmail: owner.email, error: result.error ?? 'Unknown' })
             // Don't fail the whole operation if email fails
           }
         } catch (emailError) {
-          console.error('Exception sending invoice email:', emailError)
+          logger.error('Exception sending invoice email', { tenantId: profile.tenant_id, invoiceId, error: emailError instanceof Error ? emailError.message : 'Unknown' })
           // Don't fail the whole operation if email fails
         }
       } else {
-        console.warn('Cannot send email: owner email not found')
+        logger.warn('Cannot send email: owner email not found', { tenantId: profile.tenant_id, invoiceId })
       }
     }
 
@@ -523,7 +524,7 @@ export const recordPayment = withActionAuth(
       })
 
       if (paymentError) {
-        console.error('Create payment error:', paymentError)
+        logger.error('Create payment error', { tenantId: profile.tenant_id, invoiceId, error: paymentError instanceof Error ? paymentError.message : String(paymentError) })
         return actionError('Error al registrar el pago')
       }
 
@@ -544,7 +545,7 @@ export const recordPayment = withActionAuth(
         .eq('id', invoiceId)
 
       if (updateError) {
-        console.error('Update invoice after payment error:', updateError)
+        logger.error('Update invoice after payment error', { tenantId: profile.tenant_id, invoiceId, error: updateError instanceof Error ? updateError.message : String(updateError) })
         return actionError('Error al actualizar la factura')
       }
 
@@ -553,7 +554,7 @@ export const recordPayment = withActionAuth(
 
       return actionSuccess()
     } catch (e) {
-      console.error('Record payment exception:', e)
+      logger.error('Record payment exception', { tenantId: profile.tenant_id, invoiceId, error: e instanceof Error ? e.message : 'Unknown' })
       return actionError('Error inesperado al registrar pago')
     }
   },
@@ -609,7 +610,7 @@ export const voidInvoice = withActionAuth(
         .eq('id', invoiceId)
 
       if (updateError) {
-        console.error('Void invoice error:', updateError)
+        logger.error('Void invoice error', { tenantId: profile.tenant_id, invoiceId, userId: user.id, error: updateError instanceof Error ? updateError.message : String(updateError) })
         return actionError('Error al anular la factura')
       }
     }
@@ -643,7 +644,7 @@ export const getClinicServices = withActionAuth(
       .order('name')
 
     if (error) {
-      console.error('Get services error:', error)
+      logger.error('Get services error', { tenantId: profile.tenant_id, clinicSlug, error: error instanceof Error ? error.message : String(error) })
       return actionError('Error al cargar servicios')
     }
 
@@ -684,7 +685,7 @@ export const getClinicPets = withActionAuth(
     const { data: pets, error } = await query
 
     if (error) {
-      console.error('Get pets error:', error)
+      logger.error('Get pets error', { tenantId: profile.tenant_id, clinicSlug, error: error instanceof Error ? error.message : String(error) })
       return actionError('Error al cargar mascotas')
     }
 
@@ -735,7 +736,7 @@ export const getInvoices = withActionAuth(
     const { data: invoices, error, count } = await query
 
     if (error) {
-      console.error('Get invoices error:', error)
+      logger.error('Get invoices error', { tenantId: profile.tenant_id, clinic: params.clinic, error: error instanceof Error ? error.message : String(error) })
       return actionError('Error al cargar facturas')
     }
 
@@ -779,7 +780,7 @@ export const getInvoice = withActionAuth(
       .single()
 
     if (error) {
-      console.error('Get invoice error:', error)
+      logger.error('Get invoice error', { invoiceId, userId: user.id, error: error instanceof Error ? error.message : String(error) })
       return actionError('Factura no encontrada')
     }
 

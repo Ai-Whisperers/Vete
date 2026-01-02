@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { sendEmail } from '@/lib/email/client';
 import { generateSignedConsentEmail, generateSignedConsentEmailText } from '@/lib/email/templates/consent-signed';
+import { apiError, HTTP_STATUS } from '@/lib/api/errors';
 
 interface RouteParams {
   params: Promise<{
@@ -17,7 +18,7 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
   // Auth check
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   // Get profile
@@ -28,7 +29,7 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
     .single();
 
   if (!profile || !['vet', 'admin'].includes(profile.role)) {
-    return NextResponse.json({ error: 'Solo el personal puede enviar consentimientos' }, { status: 403 });
+    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
   }
 
   try {
@@ -47,18 +48,24 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
       .single();
 
     if (consentError || !consent) {
-      return NextResponse.json({ error: 'Consentimiento no encontrado' }, { status: 404 });
+      return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
+        details: { resource: 'consent' }
+      });
     }
 
     // Verify consent is signed
     if (!consent.signed_at || !consent.signature_data) {
-      return NextResponse.json({ error: 'El consentimiento no ha sido firmado aún' }, { status: 400 });
+      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+        details: { message: 'Consent not signed yet' }
+      });
     }
 
     // Get owner email
     const ownerEmail = consent.owner?.email;
     if (!ownerEmail) {
-      return NextResponse.json({ error: 'El propietario no tiene correo electrónico registrado' }, { status: 400 });
+      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+        details: { message: 'Owner has no email registered' }
+      });
     }
 
     // Get clinic info
@@ -97,7 +104,9 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
 
     if (!result.success) {
       console.error('Error sending consent email:', result.error);
-      return NextResponse.json({ error: `Error al enviar email: ${result.error}` }, { status: 500 });
+      return apiError('EXTERNAL_SERVICE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
+        details: { service: 'email', error: result.error }
+      });
     }
 
     // Log the action
@@ -125,6 +134,6 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
 
   } catch (e) {
     console.error('Error sending consent email:', e);
-    return NextResponse.json({ error: 'Error al enviar email' }, { status: 500 });
+    return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 }

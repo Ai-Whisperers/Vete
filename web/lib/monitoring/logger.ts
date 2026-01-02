@@ -1,6 +1,19 @@
 /**
- * Comprehensive logging system
- * Structured logging with multiple levels and context
+ * @deprecated This logger is deprecated. Use @/lib/logger instead.
+ *
+ * The main logger at @/lib/logger provides:
+ * - Structured JSON logging in production
+ * - Pretty console output in development
+ * - Request context (requestId, tenant, user)
+ * - createRequestLogger() for request-scoped logging
+ * - withTiming() for performance measurement
+ * - logQuery() for database query logging
+ *
+ * Example:
+ *   import { logger, createRequestLogger } from '@/lib/logger'
+ *   logger.info('Server started', { port: 3000 })
+ *
+ * This file will be removed in a future version.
  */
 
 import { ErrorContext } from '@/lib/errors'
@@ -16,6 +29,7 @@ export interface LogContext {
   resource?: string
   duration?: number
   metadata?: Record<string, unknown>
+  error?: Error
 }
 
 export interface LogEntry {
@@ -209,14 +223,21 @@ export function logApiRequest(
   duration: number,
   context?: LogContext
 ): void {
-  const level: LogLevel = statusCode >= 500 ? 'error' : statusCode >= 400 ? 'warn' : 'info'
-
-  logger.log(level, `API ${method} ${path} - ${statusCode}`, {
+  const message = `API ${method} ${path} - ${statusCode}`
+  const logContext = {
     ...context,
     operation: 'api_request',
     duration,
     metadata: { method, path, statusCode }
-  })
+  }
+
+  if (statusCode >= 500) {
+    logger.error(message, undefined, logContext)
+  } else if (statusCode >= 400) {
+    logger.warn(message, logContext)
+  } else {
+    logger.info(message, logContext)
+  }
 }
 
 // Helper function to log database operations
@@ -227,12 +248,17 @@ export function logDatabaseOperation(
   success: boolean,
   context?: LogContext
 ): void {
-  const level: LogLevel = success ? 'debug' : 'error'
-
-  logger.log(level, `DB ${operation} on ${table}`, {
+  const message = `DB ${operation} on ${table}`
+  const logContext = {
     ...context,
     operation: 'database_operation',
     duration,
     metadata: { operation, table, success }
-  })
+  }
+
+  if (success) {
+    logger.debug(message, logContext)
+  } else {
+    logger.error(message, undefined, logContext)
+  }
 }

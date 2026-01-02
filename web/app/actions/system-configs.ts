@@ -6,6 +6,7 @@ import { eq, and } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { actionSuccess, actionError } from "@/lib/errors";
 import { withActionAuth } from "@/lib/auth";
+import { logger } from '@/lib/logger';
 
 export const getSystemConfigs = withActionAuth(
   async ({ profile }, clinicSlug: string) => {
@@ -17,7 +18,10 @@ export const getSystemConfigs = withActionAuth(
 
       return actionSuccess(configs);
     } catch (error) {
-      console.error("Failed to fetch system configs:", error);
+      logger.error('Failed to fetch system configs', {
+        error: error instanceof Error ? error : undefined,
+        tenant: clinicSlug
+      });
       return actionError("No se pudieron cargar las configuraciones.");
     }
   },
@@ -56,7 +60,11 @@ export const setSystemConfig = withActionAuth(
       revalidatePath(`/${clinicSlug}/dashboard/settings`);
       return actionSuccess();
     } catch (error) {
-      console.error("Failed to set system config:", error);
+      logger.error('Failed to set system config', {
+        error: error instanceof Error ? error : undefined,
+        tenant: clinicSlug,
+        configKey: key
+      });
       return actionError("No se pudo guardar la configuración.");
     }
   },

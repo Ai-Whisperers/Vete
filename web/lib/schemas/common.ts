@@ -112,7 +112,6 @@ export function optionalString(maxLength: number = 255) {
     .string()
     .max(maxLength, `Texto muy largo (máx ${maxLength} caracteres)`)
     .optional()
-    .nullable()
     .transform((val) => val || undefined);
 }
 

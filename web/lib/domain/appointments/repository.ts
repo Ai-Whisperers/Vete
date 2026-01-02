@@ -17,6 +17,13 @@ export class AppointmentRepository {
   constructor(private supabase: SupabaseClient) {}
 
   /**
+   * Get the Supabase client for complex queries in the service layer
+   */
+  getClient(): SupabaseClient {
+    return this.supabase
+  }
+
+  /**
    * Find appointment by ID with full relations
    */
   async findById(id: string): Promise<Appointment | null> {

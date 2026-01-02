@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
+import { logger } from '@/lib/logger'
 
 /**
  * GET /api/staff/schedule
@@ -79,7 +80,11 @@ export async function GET(request: NextRequest) {
     const { data: staffData, error: staffError } = await staffQuery
 
     if (staffError) {
-      console.error('Error fetching staff schedules:', staffError)
+      logger.error('Error fetching staff schedules', {
+        error: staffError.message,
+        tenantId: clinicSlug,
+        userId: user.id
+      })
       return NextResponse.json(
         { error: 'Error al obtener horarios' },
         { status: 500 }
@@ -110,7 +115,11 @@ export async function GET(request: NextRequest) {
       clinic: clinicSlug
     })
   } catch (e) {
-    console.error('Error in schedule API:', e)
+    logger.error('Error in schedule API', {
+      error: e instanceof Error ? e.message : 'Unknown',
+      tenantId: clinicSlug,
+      userId: user?.id
+    })
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }
@@ -234,7 +243,11 @@ export async function POST(request: NextRequest) {
       .eq('is_active', true)
 
     if (deactivateError) {
-      console.error('Error deactivating old schedules:', deactivateError)
+      logger.warn('Error deactivating old schedules', {
+        error: deactivateError.message,
+        staffProfileId: staff_profile_id,
+        tenantId: clinic
+      })
       // Continue anyway - not critical
     }
 
@@ -252,7 +265,12 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (scheduleError || !schedule) {
-      console.error('Error creating schedule:', scheduleError)
+      logger.error('Error creating schedule', {
+        error: scheduleError?.message,
+        staffProfileId: staff_profile_id,
+        tenantId: clinic,
+        userId: user.id
+      })
       return NextResponse.json(
         { error: 'Error al crear horario' },
         { status: 500 }
@@ -282,7 +300,13 @@ export async function POST(request: NextRequest) {
       .insert(scheduleEntries)
 
     if (entriesError) {
-      console.error('Error creating schedule entries:', entriesError)
+      logger.error('Error creating schedule entries', {
+        error: entriesError.message,
+        scheduleId: schedule.id,
+        staffProfileId: staff_profile_id,
+        tenantId: clinic,
+        userId: user.id
+      })
       // Rollback - delete the schedule
       await supabase.from('staff_schedules').delete().eq('id', schedule.id)
       return NextResponse.json(
@@ -306,7 +330,10 @@ export async function POST(request: NextRequest) {
       message: 'Horario creado exitosamente'
     }, { status: 201 })
   } catch (e) {
-    console.error('Error in schedule POST:', e)
+    logger.error('Error in schedule POST', {
+      error: e instanceof Error ? e.message : 'Unknown',
+      userId: user?.id
+    })
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }
@@ -413,7 +440,12 @@ export async function PATCH(request: NextRequest) {
       .single()
 
     if (updateError) {
-      console.error('Error updating schedule:', updateError)
+      logger.error('Error updating schedule', {
+        error: updateError.message,
+        scheduleId: schedule_id,
+        tenantId: clinic,
+        userId: user.id
+      })
       return NextResponse.json(
         { error: 'Error al actualizar horario' },
         { status: 500 }
@@ -425,7 +457,10 @@ export async function PATCH(request: NextRequest) {
       message: 'Horario actualizado exitosamente'
     })
   } catch (e) {
-    console.error('Error in schedule PATCH:', e)
+    logger.error('Error in schedule PATCH', {
+      error: e instanceof Error ? e.message : 'Unknown',
+      userId: user?.id
+    })
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }
@@ -480,7 +515,12 @@ export async function DELETE(request: NextRequest) {
       .eq('id', scheduleId)
 
     if (deleteError) {
-      console.error('Error deleting schedule:', deleteError)
+      logger.error('Error deleting schedule', {
+        error: deleteError.message,
+        scheduleId,
+        tenantId: clinic,
+        userId: user.id
+      })
       return NextResponse.json(
         { error: 'Error al eliminar horario' },
         { status: 500 }
@@ -491,7 +531,10 @@ export async function DELETE(request: NextRequest) {
       message: 'Horario eliminado exitosamente'
     })
   } catch (e) {
-    console.error('Error in schedule DELETE:', e)
+    logger.error('Error in schedule DELETE', {
+      error: e instanceof Error ? e.message : 'Unknown',
+      userId: user?.id
+    })
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }

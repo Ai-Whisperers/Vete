@@ -2,10 +2,11 @@
  * Email Client
  *
  * Handles email delivery using Resend API
- * Falls back to console.log if RESEND_API_KEY is not configured
+ * Falls back to logging (without sensitive content) if RESEND_API_KEY is not configured
  */
 
 import { Resend } from 'resend'
+import { logger } from '@/lib/logger'
 
 // =============================================================================
 // Types
@@ -29,6 +30,31 @@ export interface EmailResult {
 }
 
 // =============================================================================
+// Helper Functions
+// =============================================================================
+
+/**
+ * Mask email address for logging (show only first 3 chars + domain)
+ * Example: "john.doe@example.com" -> "joh***@example.com"
+ */
+function maskEmail(email: string): string {
+  const [local, domain] = email.split('@')
+  if (!domain) return '***@***'
+  const visibleChars = Math.min(3, local.length)
+  return `${local.slice(0, visibleChars)}***@${domain}`
+}
+
+/**
+ * Mask email addresses (single or array)
+ */
+function maskEmails(emails: string | string[]): string {
+  if (Array.isArray(emails)) {
+    return emails.map(maskEmail).join(', ')
+  }
+  return maskEmail(emails)
+}
+
+// =============================================================================
 // Client Configuration
 // =============================================================================
 
@@ -41,12 +67,15 @@ let resendClient: Resend | null = null
 if (RESEND_API_KEY) {
   try {
     resendClient = new Resend(RESEND_API_KEY)
-    console.log('[Email] Resend client initialized')
+    logger.info('Email client initialized', { provider: 'resend' })
   } catch (error) {
-    console.error('[Email] Failed to initialize Resend client:', error)
+    logger.error('Failed to initialize email client', { error })
   }
 } else {
-  console.warn('[Email] RESEND_API_KEY not configured - emails will be logged to console')
+  logger.warn('Email service not configured', {
+    reason: 'RESEND_API_KEY not set',
+    mode: 'fallback'
+  })
 }
 
 // =============================================================================
@@ -54,7 +83,7 @@ if (RESEND_API_KEY) {
 // =============================================================================
 
 /**
- * Send an email using Resend or fallback to console.log
+ * Send an email using Resend or fallback to logging
  */
 export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
   const {
@@ -70,6 +99,7 @@ export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
 
   // Validate required fields
   if (!to || to.length === 0) {
+    logger.warn('Email send failed: missing recipient')
     return {
       success: false,
       error: 'Recipient email address is required',
@@ -77,6 +107,7 @@ export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
   }
 
   if (!subject) {
+    logger.warn('Email send failed: missing subject')
     return {
       success: false,
       error: 'Email subject is required',
@@ -84,10 +115,22 @@ export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
   }
 
   if (!html) {
+    logger.warn('Email send failed: missing content')
     return {
       success: false,
       error: 'Email HTML content is required',
     }
+  }
+
+  // Prepare log context (masked for security)
+  const logContext = {
+    to: maskEmails(to),
+    subject,
+    hasText: !!text,
+    hasCc: !!cc,
+    hasBcc: !!bcc,
+    hasReplyTo: !!replyTo,
+    contentLength: html.length,
   }
 
   // If Resend is configured, use it
@@ -105,19 +148,30 @@ export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
       })
 
       if (result.error) {
-        console.error('[Email] Resend error:', result.error)
+        logger.error('Email send failed', {
+          ...logContext,
+          error: result.error.message || 'Unknown Resend error'
+        })
         return {
           success: false,
           error: result.error.message || 'Failed to send email',
         }
       }
 
+      logger.info('Email sent successfully', {
+        ...logContext,
+        messageId: result.data?.id
+      })
+
       return {
         success: true,
         messageId: result.data?.id,
       }
     } catch (error) {
-      console.error('[Email] Exception sending email:', error)
+      logger.error('Email send exception', {
+        ...logContext,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      })
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
@@ -125,24 +179,23 @@ export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
     }
   }
 
-  // Fallback: Log to console
-  console.log('📧 [Email] FALLBACK MODE - Email not sent (missing RESEND_API_KEY)')
-  console.log('═══════════════════════════════════════════════════════════')
-  console.log('From:', from)
-  console.log('To:', Array.isArray(to) ? to.join(', ') : to)
-  if (cc) console.log('CC:', Array.isArray(cc) ? cc.join(', ') : cc)
-  if (bcc) console.log('BCC:', Array.isArray(bcc) ? bcc.join(', ') : bcc)
-  if (replyTo) console.log('Reply-To:', replyTo)
-  console.log('Subject:', subject)
-  console.log('───────────────────────────────────────────────────────────')
-  console.log('HTML Content:')
-  console.log(html)
-  if (text) {
-    console.log('───────────────────────────────────────────────────────────')
-    console.log('Text Content:')
-    console.log(text)
+  // Fallback: Log that email was received (without sensitive content)
+  logger.info('Email queued in fallback mode', {
+    ...logContext,
+    mode: 'fallback',
+    reason: 'RESEND_API_KEY not configured'
+  })
+
+  // In development, also show a summary to help debugging
+  if (process.env.NODE_ENV === 'development') {
+    logger.debug('Email fallback details', {
+      from: maskEmail(from),
+      to: maskEmails(to),
+      subject,
+      htmlLength: html.length,
+      textLength: text?.length ?? 0,
+    })
   }
-  console.log('═══════════════════════════════════════════════════════════')
 
   return {
     success: true,

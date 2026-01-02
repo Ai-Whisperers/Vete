@@ -19,7 +19,7 @@
           "sku_suffix": "-10"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=400&h=400&fit=crop-atlas-10.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "iata_approved": true,
         "max_weight_kg": 5,
@@ -44,7 +44,7 @@
           "sku_suffix": "-20"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=400&h=400&fit=crop-atlas-20.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "iata_approved": true,
         "max_weight_kg": 8,
@@ -68,7 +68,7 @@
           "sku_suffix": "-30"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=400&h=400&fit=crop-atlas-30.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "iata_approved": true,
         "max_weight_kg": 15,
@@ -92,7 +92,7 @@
           "sku_suffix": "-40"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=400&h=400&fit=crop-atlas-40.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "iata_approved": true,
         "max_weight_kg": 25,
@@ -134,7 +134,7 @@
           "sku_suffix": "-10"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=400&h=400&fit=crop-siesta.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "cushion_included": true,
         "washable_cushion": true,
@@ -176,7 +176,7 @@
           "sku_suffix": "-L"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=400&h=400&fit=crop-glam.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "material": "Acero inoxidable",
         "non_slip_base": true,
@@ -211,7 +211,7 @@
           "sku_suffix": "-L"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=400&h=400&fit=crop-amigo.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "length_meters": 5,
         "brake_system": true,
@@ -234,7 +234,7 @@
           "sku_suffix": "-STD"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=400&h=400&fit=crop-dama.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "carbon_filter": true,
         "swing_door": true,
@@ -257,7 +257,7 @@
           "sku_suffix": "-L"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=400&h=400&fit=crop-maxi-bella.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "carbon_filter": true,
         "swing_door": true,
@@ -299,7 +299,7 @@
           "sku_suffix": "-9"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=400&h=400&fit=crop-agila.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "padded": true,
         "reflective": true,

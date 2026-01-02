@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { logger } from '@/lib/logger'
 
 export async function updateAppointmentStatus(appointmentId: string, newStatus: string, clinic: string) {
   const supabase = await createClient()
@@ -12,7 +13,12 @@ export async function updateAppointmentStatus(appointmentId: string, newStatus: 
     .eq('id', appointmentId)
 
   if (error) {
-    console.error('Error updating appointment status:', error)
+    logger.error('Failed to update appointment status', {
+      error,
+      appointmentId,
+      newStatus,
+      tenant: clinic
+    })
     return { success: false, error: 'Failed to update appointment status' }
   }
 

@@ -55,8 +55,9 @@ describe('Pet Portal Functionality', () => {
         .single();
 
       expect(error).toBeNull();
-      expect(data.name).toBe('Simple Pet');
-      ctx.track('pets', data.id);
+      expect(data).not.toBeNull();
+      expect(data!.name).toBe('Simple Pet');
+      ctx.track('pets', data!.id);
     });
 
     test('registers pet with complete profile', async () => {
@@ -103,10 +104,11 @@ describe('Pet Portal Functionality', () => {
         .single();
 
       expect(error).toBeNull();
-      expect(data.name).toBe('Complete Pet');
-      expect(data.breed).toBe('Siames');
-      expect(data.allergies).toBe('Pollo');
-      ctx.track('pets', data.id);
+      expect(data).not.toBeNull();
+      expect(data!.name).toBe('Complete Pet');
+      expect(data!.breed).toBe('Siames');
+      expect(data!.allergies).toBe('Pollo');
+      ctx.track('pets', data!.id);
     });
 
     test('supports all pet species', async () => {
@@ -124,8 +126,9 @@ describe('Pet Portal Functionality', () => {
           .single();
 
         expect(error).toBeNull();
-        expect(data.species).toBe(species);
-        ctx.track('pets', data.id);
+        expect(data).not.toBeNull();
+        expect(data!.species).toBe(species);
+        ctx.track('pets', data!.id);
       }
     });
 
@@ -145,8 +148,9 @@ describe('Pet Portal Functionality', () => {
           .single();
 
         expect(error).toBeNull();
-        expect(data.temperament).toBe(temperament);
-        ctx.track('pets', data.id);
+        expect(data).not.toBeNull();
+        expect(data!.temperament).toBe(temperament);
+        ctx.track('pets', data!.id);
       }
     });
   });
@@ -177,8 +181,9 @@ describe('Pet Portal Functionality', () => {
         .single();
 
       expect(error).toBeNull();
-      expect(data.name).toBe('Updated Name');
-      expect(data.breed).toBe('Updated Breed');
+      expect(data).not.toBeNull();
+      expect(data!.name).toBe('Updated Name');
+      expect(data!.breed).toBe('Updated Breed');
     });
 
     test('updates weight tracking', async () => {
@@ -190,7 +195,8 @@ describe('Pet Portal Functionality', () => {
         .single();
 
       expect(error).toBeNull();
-      expect(data.weight_kg).toBe(16.5);
+      expect(data).not.toBeNull();
+      expect(data!.weight_kg).toBe(16.5);
     });
 
     test('updates medical notes', async () => {
@@ -206,8 +212,9 @@ describe('Pet Portal Functionality', () => {
         .single();
 
       expect(error).toBeNull();
-      expect(data.existing_conditions).toBe('Displasia de cadera leve');
-      expect(data.allergies).toBe('Polen, Pollo');
+      expect(data).not.toBeNull();
+      expect(data!.existing_conditions).toBe('Displasia de cadera leve');
+      expect(data!.allergies).toBe('Polen, Pollo');
     });
 
     test('updates diet information', async () => {
@@ -222,7 +229,8 @@ describe('Pet Portal Functionality', () => {
         .single();
 
       expect(error).toBeNull();
-      expect(data.diet_category).toBe('Hipoalergénica');
+      expect(data).not.toBeNull();
+      expect(data!.diet_category).toBe('Hipoalergénica');
     });
   });
 
@@ -249,7 +257,7 @@ describe('Pet Portal Functionality', () => {
           })
           .select()
           .single();
-        ctx.track('pets', data.id);
+        if (data) ctx.track('pets', data.id);
       }
     });
 
@@ -260,7 +268,8 @@ describe('Pet Portal Functionality', () => {
         .eq('owner_id', ownerId);
 
       expect(error).toBeNull();
-      expect(data.length).toBeGreaterThanOrEqual(4);
+      expect(data).not.toBeNull();
+      expect(data!.length).toBeGreaterThanOrEqual(4);
     });
 
     test('filters pets by species', async () => {
@@ -271,7 +280,8 @@ describe('Pet Portal Functionality', () => {
         .eq('species', 'dog');
 
       expect(error).toBeNull();
-      expect(data.every((p: { species: string }) => p.species === 'dog')).toBe(true);
+      expect(data).not.toBeNull();
+      expect(data!.every((p: { species: string }) => p.species === 'dog')).toBe(true);
     });
 
     test('searches pets by name', async () => {
@@ -282,7 +292,8 @@ describe('Pet Portal Functionality', () => {
         .ilike('name', '%Filter%');
 
       expect(error).toBeNull();
-      expect(data.length).toBeGreaterThanOrEqual(4);
+      expect(data).not.toBeNull();
+      expect(data!.length).toBeGreaterThanOrEqual(4);
     });
 
     test('orders pets by name', async () => {
@@ -293,9 +304,10 @@ describe('Pet Portal Functionality', () => {
         .order('name', { ascending: true });
 
       expect(error).toBeNull();
+      expect(data).not.toBeNull();
       // Verify alphabetical order
-      for (let i = 1; i < data.length; i++) {
-        expect(data[i].name >= data[i - 1].name).toBe(true);
+      for (let i = 1; i < data!.length; i++) {
+        expect(data![i].name >= data![i - 1].name).toBe(true);
       }
     });
   });
@@ -371,8 +383,9 @@ describe('Pet Portal Functionality', () => {
         .single();
 
       expect(error).toBeNull();
-      expect(data.microchip_id).toBe('985121004567890');
-      ctx.track('pets', data.id);
+      expect(data).not.toBeNull();
+      expect(data!.microchip_id).toBe('985121004567890');
+      ctx.track('pets', data!.id);
     });
   });
 });

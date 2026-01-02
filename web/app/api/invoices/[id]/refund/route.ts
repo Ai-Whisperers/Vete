@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { apiError, HTTP_STATUS } from '@/lib/api/errors';
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -12,7 +13,7 @@ export async function POST(request: Request, { params }: RouteParams) {
 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   const { data: profile } = await supabase
@@ -23,7 +24,7 @@ export async function POST(request: Request, { params }: RouteParams) {
 
   // Only admins can process refunds
   if (!profile || profile.role !== 'admin') {
-    return NextResponse.json({ error: 'Solo administradores pueden procesar reembolsos' }, { status: 403 });
+    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
   }
 
   try {
@@ -32,11 +33,11 @@ export async function POST(request: Request, { params }: RouteParams) {
 
     // Basic validation before calling RPC
     if (!amount || typeof amount !== 'number') {
-      return NextResponse.json({ error: 'Monto inválido' }, { status: 400 });
+      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, { details: { field: 'amount' } });
     }
 
     if (!reason || typeof reason !== 'string') {
-      return NextResponse.json({ error: 'Se requiere una razón para el reembolso' }, { status: 400 });
+      return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, { details: { field: 'reason' } });
     }
 
     // Use atomic RPC function to prevent race conditions
@@ -52,12 +53,12 @@ export async function POST(request: Request, { params }: RouteParams) {
 
     if (rpcError) {
       console.error('RPC error:', rpcError);
-      return NextResponse.json({ error: 'Error al procesar reembolso' }, { status: 500 });
+      return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
     }
 
     // RPC returns JSONB with success flag
     if (!result.success) {
-      return NextResponse.json({ error: result.error }, { status: 400 });
+      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, { details: { reason: result.error } });
     }
 
     // Audit log
@@ -78,6 +79,6 @@ export async function POST(request: Request, { params }: RouteParams) {
     }, { status: 201 });
   } catch (e) {
     console.error('Error processing refund:', e);
-    return NextResponse.json({ error: 'Error al procesar reembolso' }, { status: 500 });
+    return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 }

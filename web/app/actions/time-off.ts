@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { logger } from '@/lib/logger'
 import type {
   CalendarActionResult,
   TimeOffRequestWithDetails,
@@ -47,7 +48,11 @@ export async function getTimeOffTypes(clinicSlug: string): Promise<{
     .order('sort_order', { ascending: true })
 
   if (error) {
-    console.error('Get time off types error:', error)
+    logger.error('Failed to get time off types', {
+      error,
+      tenant: clinicSlug,
+      userId: user.id
+    })
     return { types: [], error: 'Error al obtener tipos de ausencia' }
   }
 
@@ -149,7 +154,11 @@ export async function getTimeOffRequests(
   const { data: requests, error } = await query
 
   if (error) {
-    console.error('Get time off requests error:', error)
+    logger.error('Failed to get time off requests', {
+      error,
+      tenant: clinicSlug,
+      userId: user.id
+    })
     return { requests: [], error: 'Error al obtener solicitudes' }
   }
 
@@ -333,7 +342,12 @@ export async function createTimeOffRequest(
     .single()
 
   if (error || !request) {
-    console.error('Create time off request error:', error)
+    logger.error('Failed to create time off request', {
+      error,
+      tenant: clinicSlug,
+      userId: user.id,
+      staffProfileId: staffProfile.id
+    })
     return { error: 'Error al crear solicitud' }
   }
 
@@ -398,7 +412,12 @@ export async function updateTimeOffRequestStatus(
     .eq('id', requestId)
 
   if (updateError) {
-    console.error('Update time off status error:', updateError)
+    logger.error('Failed to update time off request status', {
+      error: updateError,
+      requestId,
+      status,
+      reviewerId: user.id
+    })
     return { error: 'Error al actualizar solicitud' }
   }
 
@@ -467,7 +486,11 @@ export async function cancelTimeOffRequest(requestId: string): Promise<CalendarA
     .eq('id', requestId)
 
   if (updateError) {
-    console.error('Cancel time off error:', updateError)
+    logger.error('Failed to cancel time off request', {
+      error: updateError,
+      requestId,
+      userId: user.id
+    })
     return { error: 'Error al cancelar solicitud' }
   }
 
@@ -558,7 +581,12 @@ export async function getTimeOffBalances(
     .eq('year', currentYear)
 
   if (error) {
-    console.error('Get time off balances error:', error)
+    logger.error('Failed to get time off balances', {
+      error,
+      tenant: clinicSlug,
+      userId: user.id,
+      staffProfileId: targetStaffProfileId
+    })
     return { balances: [], error: 'Error al obtener saldos' }
   }
 
@@ -602,7 +630,11 @@ export async function getPendingTimeOffCount(clinicSlug: string): Promise<{
     .eq('status', 'pending')
 
   if (error) {
-    console.error('Get pending count error:', error)
+    logger.error('Failed to get pending time off count', {
+      error,
+      tenant: clinicSlug,
+      userId: user.id
+    })
     return { count: 0, error: 'Error al obtener conteo' }
   }
 

@@ -29,7 +29,9 @@ export function withLogging(options: LoggingOptions = {}) {
     const { pathname, searchParams } = request.nextUrl
     const method = request.method
     const userAgent = request.headers.get('user-agent') || 'unknown'
-    const ip = request.ip || request.headers.get('x-forwarded-for') || 'unknown'
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() ||
+                request.headers.get('x-real-ip') ||
+                'unknown'
     const timestamp = new Date().toISOString()
 
     // Skip logging for excluded paths

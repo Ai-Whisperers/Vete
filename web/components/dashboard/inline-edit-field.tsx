@@ -40,9 +40,7 @@ export function InlineEditField({
   // Form handling with validation
   const form = useForm({
     initialValues: { [field]: value },
-    validationRules: {
-      [field]: type === 'email' ? required('Email requerido') : undefined
-    }
+    validationRules: type === 'email' ? { [field]: required('Email requerido') } : {}
   });
 
   // Async data handling for save operation

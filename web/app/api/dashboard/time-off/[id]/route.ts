@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import { apiError, HTTP_STATUS } from '@/lib/api/errors';
 
 export async function PATCH(
   request: NextRequest,
@@ -11,7 +12,7 @@ export async function PATCH(
   // Auth check
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   // Get user profile and verify admin
@@ -22,7 +23,7 @@ export async function PATCH(
     .single();
 
   if (!profile || profile.role !== 'admin') {
-    return NextResponse.json({ error: 'Solo administradores pueden actualizar solicitudes' }, { status: 403 });
+    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
   }
 
   // Parse request body
@@ -30,7 +31,9 @@ export async function PATCH(
   const { status } = body;
 
   if (!['approved', 'rejected'].includes(status)) {
-    return NextResponse.json({ error: 'Estado inválido' }, { status: 400 });
+    return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+      details: { field: 'status', message: 'Estado inválido' }
+    });
   }
 
   // Get the time-off request to verify it belongs to the same tenant
@@ -46,13 +49,13 @@ export async function PATCH(
     .single();
 
   if (!timeOffRequest) {
-    return NextResponse.json({ error: 'Solicitud no encontrada' }, { status: 404 });
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND);
   }
 
   // Verify tenant match (staff_profiles is an object, not array in single query)
   const staffProfile = timeOffRequest.staff_profiles as unknown as { tenant_id: string };
   if (staffProfile.tenant_id !== profile.tenant_id) {
-    return NextResponse.json({ error: 'No autorizado para esta solicitud' }, { status: 403 });
+    return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN);
   }
 
   // Update the request
@@ -68,7 +71,9 @@ export async function PATCH(
 
   if (updateError) {
     console.error('Error updating time-off request:', updateError);
-    return NextResponse.json({ error: 'Error al actualizar' }, { status: 500 });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
+      details: { message: updateError.message }
+    });
   }
 
   return NextResponse.json({ success: true, status });

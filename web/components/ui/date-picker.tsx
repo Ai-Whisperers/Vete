@@ -10,7 +10,8 @@ interface DatePickerProps {
   className?: string;
 }
 
-export default function DatePicker({ value, onChange, placeholder = "Seleccionar fecha", className = "" }: DatePickerProps) {
+export type { DatePickerProps };
+export function DatePicker({ value, onChange, placeholder = "Seleccionar fecha", className = "" }: DatePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
   const dropdownRef = useRef<HTMLDivElement>(null);

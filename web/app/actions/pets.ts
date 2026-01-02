@@ -4,6 +4,7 @@ import { withActionAuth } from '@/lib/auth'
 import { actionSuccess, actionError } from '@/lib/errors'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
+import { logger } from '@/lib/logger'
 
 const updatePetSchema = z.object({
   name: z.string().min(1, 'El nombre es requerido').max(100).optional(),
@@ -23,10 +24,11 @@ const updatePetSchema = z.object({
 })
 
 /**
- * Get pets for the current user (pet owner)
+ * Get pets for the current user (pet owner) with enhanced data
  */
 export const getOwnerPets = withActionAuth(
   async ({ user, profile, supabase }, clinicSlug: string, query?: string) => {
+    // Fetch pets with vaccines
     let supabaseQuery = supabase
       .from('pets')
       .select(`
@@ -34,10 +36,19 @@ export const getOwnerPets = withActionAuth(
         name,
         species,
         breed,
-        date_of_birth,
+        birth_date,
         photo_url,
+        weight_kg,
+        allergies,
+        chronic_conditions,
         tenant_id,
-        owner_id
+        owner_id,
+        vaccines (
+          id,
+          name,
+          next_due_date,
+          status
+        )
       `)
       .eq('owner_id', user.id)
       .eq('tenant_id', clinicSlug)
@@ -51,11 +62,76 @@ export const getOwnerPets = withActionAuth(
     const { data: pets, error } = await supabaseQuery
 
     if (error) {
-      console.error('Get owner pets error:', error)
+      logger.error('Error fetching owner pets', {
+        tenantId: clinicSlug,
+        userId: user.id,
+        searchQuery: query,
+        error: error.message
+      })
       return actionError('Error al obtener las mascotas')
     }
 
-    return actionSuccess(pets || [])
+    if (!pets || pets.length === 0) {
+      return actionSuccess([])
+    }
+
+    // Fetch next upcoming appointment for each pet
+    const petIds = pets.map(p => p.id)
+    const now = new Date().toISOString()
+
+    const { data: appointments } = await supabase
+      .from('appointments')
+      .select(`
+        id,
+        pet_id,
+        start_time,
+        status,
+        services (name)
+      `)
+      .in('pet_id', petIds)
+      .eq('tenant_id', clinicSlug)
+      .gte('start_time', now)
+      .in('status', ['scheduled', 'confirmed'])
+      .order('start_time', { ascending: true })
+
+    // Create a map of pet_id -> next appointment
+    type AppointmentItem = NonNullable<typeof appointments>[number]
+    const nextAppointmentMap: Record<string, AppointmentItem> = {}
+    if (appointments) {
+      for (const apt of appointments) {
+        if (!nextAppointmentMap[apt.pet_id]) {
+          nextAppointmentMap[apt.pet_id] = apt
+        }
+      }
+    }
+
+    // Fetch last completed appointment for each pet
+    const { data: lastVisits } = await supabase
+      .from('appointments')
+      .select('pet_id, start_time')
+      .in('pet_id', petIds)
+      .eq('tenant_id', clinicSlug)
+      .eq('status', 'completed')
+      .order('start_time', { ascending: false })
+
+    // Create a map of pet_id -> last visit date
+    const lastVisitMap: Record<string, string> = {}
+    if (lastVisits) {
+      for (const visit of lastVisits) {
+        if (!lastVisitMap[visit.pet_id]) {
+          lastVisitMap[visit.pet_id] = visit.start_time
+        }
+      }
+    }
+
+    // Enhance pets with appointment data
+    const enhancedPets = pets.map(pet => ({
+      ...pet,
+      next_appointment: nextAppointmentMap[pet.id] || null,
+      last_visit_date: lastVisitMap[pet.id] || null
+    }))
+
+    return actionSuccess(enhancedPets)
   }
 )
 
@@ -65,13 +141,12 @@ export const getOwnerPets = withActionAuth(
 export const getPetProfile = withActionAuth(
   async ({ user, profile, supabase }, clinicSlug: string, petId: string) => {
     // Fetch full pet profile with related data
+    // Note: medical_records and prescriptions tables don't exist yet
     const { data: pet, error } = await supabase
       .from('pets')
       .select(`
         *,
         vaccines (*),
-        medical_records (*),
-        prescriptions (*),
         vaccine_reactions (*),
         profiles:owner_id (full_name, email, phone)
       `)
@@ -81,6 +156,11 @@ export const getPetProfile = withActionAuth(
       .single();
 
     if (error || !pet) {
+      logger.error('Error fetching pet profile', {
+        petId,
+        tenantId: clinicSlug,
+        error: error?.message
+      });
       return actionError('Mascota no encontrada');
     }
 
@@ -92,7 +172,12 @@ export const getPetProfile = withActionAuth(
         return actionError('No tienes permiso para ver esta mascota');
     }
 
-    return actionSuccess(pet);
+    // Add empty arrays for missing tables to maintain compatibility
+    return actionSuccess({
+      ...pet,
+      medical_records: [],
+      prescriptions: []
+    });
   }
 )
 
@@ -158,7 +243,13 @@ export const updatePet = withActionAuth(
         .upload(fileName, photo)
 
       if (uploadError) {
-        console.error('Upload error:', uploadError)
+        logger.error('Error uploading pet photo', {
+          tenantId: pet.tenant_id,
+          userId: user.id,
+          petId,
+          fileName,
+          error: uploadError.message
+        })
         return actionError('No se pudo subir la foto. Por favor intente de nuevo.')
       }
 
@@ -180,6 +271,31 @@ export const updatePet = withActionAuth(
       photo_url: photoUrl,
     }
 
+    // Convert allergies string to array format for the database
+    // The allergies column is an ARRAY type in PostgreSQL
+    if (updates.allergies !== undefined) {
+      const allergiesStr = updates.allergies as string | null
+      if (allergiesStr && allergiesStr.trim()) {
+        // Split by comma and trim each value
+        updates.allergies = allergiesStr.split(',').map(a => a.trim()).filter(a => a.length > 0)
+      } else {
+        updates.allergies = null
+      }
+    }
+
+    // Map microchip_id (form field) to microchip_number (database column)
+    if (updates.microchip_id !== undefined) {
+      updates.microchip_number = updates.microchip_id
+      delete updates.microchip_id
+    }
+
+    // Map existing_conditions (form field) to chronic_conditions (database column as array)
+    if (updates.existing_conditions !== undefined) {
+      const conditionsStr = updates.existing_conditions as string | null
+      updates.chronic_conditions = conditionsStr ? [conditionsStr] : []
+      delete updates.existing_conditions
+    }
+
     // Remove undefined values
     Object.keys(updates).forEach(key => {
       if (updates[key] === undefined) {
@@ -193,6 +309,14 @@ export const updatePet = withActionAuth(
       .eq('id', petId)
 
     if (error) {
+      logger.error('Error updating pet', {
+        petId,
+        tenantId: pet.tenant_id,
+        userId: user.id,
+        error: error.message,
+        code: error.code,
+        details: error.details
+      })
       return actionError('Error al guardar los cambios')
     }
 

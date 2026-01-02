@@ -1,5 +1,6 @@
 import { GET } from '@/app/api/drug_dosages/route';
 import { vi, expect, test } from 'vitest';
+import { NextRequest } from 'next/server';
 
 // Mock Next.js server modules
 vi.mock('next/server', () => {
@@ -28,7 +29,7 @@ vi.mock('@/lib/supabase/server', () => ({
 
 test('GET /api/drug_dosages returns data', async () => {
     // Mock request
-    const req = new Request('http://localhost/api/drug_dosages');
+    const req = new NextRequest('http://localhost/api/drug_dosages');
     const res = await GET(req);
     expect(res.status).toBe(200);
     const json = await res.json();

@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { logger } from '@/lib/logger';
+import { apiError, HTTP_STATUS } from '@/lib/api/errors';
 
 // TICKET-BIZ-003: Checkout API that validates stock and decrements inventory
 // TICKET-BIZ-004: Server-side stock validation
@@ -43,7 +45,7 @@ export async function POST(request: Request) {
   // 1. Authentication check
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   // Apply rate limiting for write endpoints (20 requests per minute)
@@ -61,7 +63,9 @@ export async function POST(request: Request) {
     .single();
 
   if (!profile) {
-    return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 });
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
+      details: { message: 'Perfil no encontrado' }
+    });
   }
 
   // 3. Parse request body
@@ -69,18 +73,24 @@ export async function POST(request: Request) {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: 'JSON inválido' }, { status: 400 });
+    return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST, {
+      details: { message: 'JSON inválido' }
+    });
   }
 
   const { items, clinic, notes } = body;
 
   if (!items || items.length === 0) {
-    return NextResponse.json({ error: 'El carrito está vacío' }, { status: 400 });
+    return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+      details: { message: 'El carrito está vacío' }
+    });
   }
 
   // Validate clinic matches user's tenant
   if (clinic !== profile.tenant_id) {
-    return NextResponse.json({ error: 'Clínica no válida' }, { status: 403 });
+    return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN, {
+      details: { message: 'Clínica no válida' }
+    });
   }
 
   // 4. Separate products and services for logging/metrics
@@ -106,11 +116,15 @@ export async function POST(request: Request) {
     });
 
     if (checkoutError) {
-      console.error('Atomic checkout failed:', checkoutError);
-      return NextResponse.json({
-        error: 'Error al procesar el pedido',
-        details: checkoutError.message
-      }, { status: 500 });
+      logger.error('Atomic checkout failed', {
+        userId: user.id,
+        tenantId: clinic,
+        itemCount: items.length,
+        error: checkoutError instanceof Error ? checkoutError.message : String(checkoutError)
+      });
+      return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
+        details: { message: checkoutError.message }
+      });
     }
 
     // Parse the result from the database function
@@ -130,22 +144,26 @@ export async function POST(request: Request) {
     // Handle stock errors returned by the function
     if (!result.success) {
       if (result.stock_errors && result.stock_errors.length > 0) {
-        return NextResponse.json({
-          error: result.error || 'Stock insuficiente para algunos productos',
-          stockErrors: result.stock_errors
-        }, { status: 400 });
+        return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+          details: {
+            message: result.error || 'Stock insuficiente para algunos productos',
+            stockErrors: result.stock_errors
+          }
+        });
       }
 
       if (result.prescription_errors && result.prescription_errors.length > 0) {
-        return NextResponse.json({
-          error: result.error || 'Falta receta médica para algunos productos',
-          prescriptionErrors: result.prescription_errors
-        }, { status: 400 });
+        return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+          details: {
+            message: result.error || 'Falta receta médica para algunos productos',
+            prescriptionErrors: result.prescription_errors
+          }
+        });
       }
 
-      return NextResponse.json({
-        error: result.error || 'Error al procesar el pedido'
-      }, { status: 500 });
+      return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
+        details: { message: result.error || 'Error al procesar el pedido' }
+      });
     }
 
     // Success - log the transaction
@@ -163,9 +181,14 @@ export async function POST(request: Request) {
     }, { status: 201 });
 
   } catch (e) {
-    console.error('Checkout error:', e);
-    return NextResponse.json({
-      error: e instanceof Error ? e.message : 'Error al procesar el pedido'
-    }, { status: 500 });
+    logger.error('Checkout error', {
+      userId: user.id,
+      tenantId: clinic,
+      itemCount: items.length,
+      error: e instanceof Error ? e.message : String(e)
+    });
+    return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
+      details: { message: e instanceof Error ? e.message : 'Error al procesar el pedido' }
+    });
   }
 }

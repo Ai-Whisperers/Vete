@@ -68,7 +68,8 @@ describe('Multi-Tenant Data Isolation', () => {
         .select('*')
         .eq('tenant_id', TENANT_B);
 
-      const hasProfileA = data.some(
+      expect(data).not.toBeNull();
+      const hasProfileA = data!.some(
         (p: { id: string }) => p.id === tenantAProfileId
       );
       expect(hasProfileA).toBe(false);
@@ -80,7 +81,8 @@ describe('Multi-Tenant Data Isolation', () => {
         .select('*')
         .eq('tenant_id', TENANT_A);
 
-      const hasProfileB = data.some(
+      expect(data).not.toBeNull();
+      const hasProfileB = data!.some(
         (p: { id: string }) => p.id === tenantBProfileId
       );
       expect(hasProfileB).toBe(false);
@@ -98,13 +100,15 @@ describe('Multi-Tenant Data Isolation', () => {
         .eq('tenant_id', TENANT_B);
 
       // All tenant A profiles should have tenant A
+      expect(tenantAProfiles).not.toBeNull();
       expect(
-        tenantAProfiles.every((p: { tenant_id: string }) => p.tenant_id === TENANT_A)
+        tenantAProfiles!.every((p: { tenant_id: string }) => p.tenant_id === TENANT_A)
       ).toBe(true);
 
       // All tenant B profiles should have tenant B
+      expect(tenantBProfiles).not.toBeNull();
       expect(
-        tenantBProfiles.every((p: { tenant_id: string }) => p.tenant_id === TENANT_B)
+        tenantBProfiles!.every((p: { tenant_id: string }) => p.tenant_id === TENANT_B)
       ).toBe(true);
     });
   });
@@ -151,8 +155,9 @@ describe('Multi-Tenant Data Isolation', () => {
         .select('*')
         .eq('tenant_id', TENANT_A);
 
-      expect(data.every((p: { tenant_id: string }) => p.tenant_id === TENANT_A)).toBe(true);
-      expect(data.some((p: { id: string }) => p.id === tenantBPetId)).toBe(false);
+      expect(data).not.toBeNull();
+      expect(data!.every((p: { tenant_id: string }) => p.tenant_id === TENANT_A)).toBe(true);
+      expect(data!.some((p: { id: string }) => p.id === tenantBPetId)).toBe(false);
     });
 
     test('tenant B pets are isolated', async () => {
@@ -161,8 +166,9 @@ describe('Multi-Tenant Data Isolation', () => {
         .select('*')
         .eq('tenant_id', TENANT_B);
 
-      expect(data.every((p: { tenant_id: string }) => p.tenant_id === TENANT_B)).toBe(true);
-      expect(data.some((p: { id: string }) => p.id === tenantAPetId)).toBe(false);
+      expect(data).not.toBeNull();
+      expect(data!.every((p: { tenant_id: string }) => p.tenant_id === TENANT_B)).toBe(true);
+      expect(data!.some((p: { id: string }) => p.id === tenantAPetId)).toBe(false);
     });
 
     test('cross-tenant pet query returns empty', async () => {
@@ -173,7 +179,8 @@ describe('Multi-Tenant Data Isolation', () => {
         .eq('tenant_id', TENANT_B)
         .eq('id', tenantAPetId);
 
-      expect(data.length).toBe(0);
+      expect(data).not.toBeNull();
+      expect(data!.length).toBe(0);
     });
   });
 
@@ -243,8 +250,10 @@ describe('Multi-Tenant Data Isolation', () => {
         .eq('tenant_id', TENANT_B);
 
       // Verify isolation
-      expect(tenantARecords.some((r: { id: string }) => r.id === tenantBRecordId)).toBe(false);
-      expect(tenantBRecords.some((r: { id: string }) => r.id === tenantARecordId)).toBe(false);
+      expect(tenantARecords).not.toBeNull();
+      expect(tenantBRecords).not.toBeNull();
+      expect(tenantARecords!.some((r: { id: string }) => r.id === tenantBRecordId)).toBe(false);
+      expect(tenantBRecords!.some((r: { id: string }) => r.id === tenantARecordId)).toBe(false);
     });
   });
 
@@ -288,11 +297,12 @@ describe('Multi-Tenant Data Isolation', () => {
         .select('*')
         .eq('tenant_id', TENANT_A);
 
+      expect(tenantAProducts).not.toBeNull();
       expect(
-        tenantAProducts.every((p: { tenant_id: string }) => p.tenant_id === TENANT_A)
+        tenantAProducts!.every((p: { tenant_id: string }) => p.tenant_id === TENANT_A)
       ).toBe(true);
       expect(
-        tenantAProducts.some((p: { id: string }) => p.id === tenantBProductId)
+        tenantAProducts!.some((p: { id: string }) => p.id === tenantBProductId)
       ).toBe(false);
     });
   });
@@ -337,11 +347,12 @@ describe('Multi-Tenant Data Isolation', () => {
         .select('*')
         .eq('tenant_id', TENANT_A);
 
+      expect(tenantAExpenses).not.toBeNull();
       expect(
-        tenantAExpenses.every((e: { tenant_id: string }) => e.tenant_id === TENANT_A)
+        tenantAExpenses!.every((e: { tenant_id: string }) => e.tenant_id === TENANT_A)
       ).toBe(true);
       expect(
-        tenantAExpenses.some((e: { id: string }) => e.id === tenantBExpenseId)
+        tenantAExpenses!.some((e: { id: string }) => e.id === tenantBExpenseId)
       ).toBe(false);
     });
   });
@@ -378,8 +389,9 @@ describe('Multi-Tenant Data Isolation', () => {
         .select('*')
         .eq('tenant_id', TENANT_B);
 
+      expect(tenantBAppointments).not.toBeNull();
       expect(
-        tenantBAppointments.some((a: { id: string }) => a.id === aptA.id)
+        tenantBAppointments!.some((a: { id: string }) => a.id === aptA.id)
       ).toBe(false);
     });
   });

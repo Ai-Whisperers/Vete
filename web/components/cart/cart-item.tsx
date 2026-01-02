@@ -1,7 +1,8 @@
 "use client";
 
-import { Minus, Plus, Trash2, PawPrint, Package, Stethoscope } from "lucide-react";
+import { Minus, Plus, Trash2, PawPrint, Package, Stethoscope, AlertTriangle } from "lucide-react";
 import { useCart, type CartItem as CartItemType } from "@/context/cart-context";
+import { useToast } from "@/components/ui/Toast";
 import {
   formatPriceGs,
   SIZE_SHORT_LABELS,
@@ -22,20 +23,23 @@ interface CartItemProps {
  * Shows pet info for services that were added with pet selection.
  */
 export function CartItem({ item, compact = false }: CartItemProps) {
-  const { updateQuantity, removeItem } = useCart();
+  const { updateQuantity, removeItem, getStockStatus } = useCart();
+  const { showToast } = useToast();
 
   const isService = item.type === "service";
   const hasPetInfo = isService && item.pet_id && item.pet_name && item.pet_size;
+  const stockStatus = getStockStatus(item.id);
 
   const handleIncrement = () => {
-    if (!item.stock || item.quantity < item.stock) {
-      updateQuantity(item.id, item.quantity + 1);
+    const result = updateQuantity(item.id, 1);
+    if (result.limitedByStock) {
+      showToast(result.message || `Solo hay ${result.availableStock} unidades disponibles`);
     }
   };
 
   const handleDecrement = () => {
     if (item.quantity > 1) {
-      updateQuantity(item.id, item.quantity - 1);
+      updateQuantity(item.id, -1);
     } else {
       removeItem(item.id);
     }
@@ -90,6 +94,19 @@ export function CartItem({ item, compact = false }: CartItemProps) {
             </div>
           )}
 
+          {/* Stock Warning Badge - Compact */}
+          {stockStatus?.atLimit && (
+            <div className="flex items-center gap-1 mt-1 text-amber-600">
+              <AlertTriangle className="w-3 h-3" />
+              <span className="text-[10px] font-medium">Limite de stock</span>
+            </div>
+          )}
+          {stockStatus?.nearLimit && !stockStatus.atLimit && (
+            <div className="flex items-center gap-1 mt-1 text-amber-500">
+              <span className="text-[10px]">Quedan {stockStatus.available}</span>
+            </div>
+          )}
+
           {/* Price & Quantity */}
           <div className="flex items-center justify-between mt-2">
             <span className="text-sm font-bold text-[var(--primary)]">
@@ -103,14 +120,14 @@ export function CartItem({ item, compact = false }: CartItemProps) {
               >
                 <Minus className="w-3 h-3" />
               </button>
-              <span className="w-6 text-center text-sm font-bold">
+              <span className={`w-6 text-center text-sm font-bold ${stockStatus?.atLimit ? "text-amber-600" : ""}`}>
                 {item.quantity}
               </span>
               <button
                 type="button"
                 onClick={handleIncrement}
-                disabled={!!item.stock && item.quantity >= item.stock}
-                className="w-6 h-6 rounded bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors disabled:opacity-50"
+                disabled={stockStatus?.atLimit}
+                className="w-6 h-6 rounded bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Plus className="w-3 h-3" />
               </button>
@@ -205,6 +222,24 @@ export function CartItem({ item, compact = false }: CartItemProps) {
           </p>
         )}
 
+        {/* Stock Warning - Full Size */}
+        {stockStatus?.atLimit && (
+          <div className="flex items-center gap-2 mt-3 p-2 bg-amber-50 border border-amber-200 rounded-lg">
+            <AlertTriangle className="w-4 h-4 text-amber-600" />
+            <span className="text-sm text-amber-700 font-medium">
+              Has alcanzado el limite de stock disponible
+            </span>
+          </div>
+        )}
+        {stockStatus?.nearLimit && !stockStatus.atLimit && (
+          <div className="flex items-center gap-2 mt-3 p-2 bg-amber-50/50 border border-amber-100 rounded-lg">
+            <AlertTriangle className="w-4 h-4 text-amber-500" />
+            <span className="text-sm text-amber-600">
+              Quedan solo {stockStatus.available} unidades disponibles
+            </span>
+          </div>
+        )}
+
         {/* Price & Quantity Controls */}
         <div className="flex items-center justify-between mt-4">
           <div className="flex items-center gap-2">
@@ -215,19 +250,19 @@ export function CartItem({ item, compact = false }: CartItemProps) {
             >
               <Minus className="w-4 h-4" />
             </button>
-            <span className="w-10 text-center text-lg font-bold">
+            <span className={`w-10 text-center text-lg font-bold ${stockStatus?.atLimit ? "text-amber-600" : ""}`}>
               {item.quantity}
             </span>
             <button
               type="button"
               onClick={handleIncrement}
-              disabled={!!item.stock && item.quantity >= item.stock}
+              disabled={stockStatus?.atLimit}
               className="w-8 h-8 rounded-lg border border-gray-200 hover:border-[var(--primary)] hover:bg-[var(--primary)]/5 flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Plus className="w-4 h-4" />
             </button>
-            {item.stock && (
-              <span className="text-xs text-[var(--text-muted)] ml-2">
+            {item.stock !== undefined && (
+              <span className={`text-xs ml-2 ${stockStatus?.atLimit ? "text-amber-600 font-medium" : "text-[var(--text-muted)]"}`}>
                 ({item.stock} disponibles)
               </span>
             )}

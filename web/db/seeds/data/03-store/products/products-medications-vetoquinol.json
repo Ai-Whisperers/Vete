@@ -25,7 +25,7 @@
           "sku_suffix": "-30ML"
         }
       ],
-      "image_url": "https://www.vetoquinol.com/images/tolfedine.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "active_ingredient": "Ácido tolfenámico 4%",
         "route": "SC, IM, IV",
@@ -62,7 +62,7 @@
           "sku_suffix": "-60MG"
         }
       ],
-      "image_url": "https://www.vetoquinol.com/images/tolfedine-tab.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "active_ingredient": "Ácido tolfenámico",
         "route": "Oral",
@@ -92,7 +92,7 @@
           "sku_suffix": "-180G"
         }
       ],
-      "image_url": "https://www.vetoquinol.com/images/ipakitine.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "active_ingredient": "Quitosano, carbonato de calcio",
         "indication": "Enfermedad renal crónica",
@@ -128,7 +128,7 @@
           "sku_suffix": "-450MG"
         }
       ],
-      "image_url": "https://www.vetoquinol.com/images/zylkene.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "active_ingredient": "Alfa-casozepina",
         "indication": "Ansiedad, estrés",
@@ -158,7 +158,7 @@
           "sku_suffix": "-100ML"
         }
       ],
-      "image_url": "https://www.vetoquinol.com/images/marbocyl.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "active_ingredient": "Marbofloxacina 10%",
         "route": "SC, IM, IV",
@@ -195,7 +195,7 @@
           "sku_suffix": "-80MG"
         }
       ],
-      "image_url": "https://www.vetoquinol.com/images/marbocyl-tab.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "active_ingredient": "Marbofloxacina",
         "route": "Oral",
@@ -224,7 +224,7 @@
           "sku_suffix": "-20ML"
         }
       ],
-      "image_url": "https://www.vetoquinol.com/images/aurizon.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "active_ingredient": "Marbofloxacina, clotrimazol, dexametasona",
         "indication": "Otitis externa",

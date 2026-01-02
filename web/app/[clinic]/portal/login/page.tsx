@@ -11,7 +11,8 @@ export default async function LoginPage({
 }) {
   const { clinic } = await params;
   const sp = await searchParams;
-  const redirectTo = (sp.redirect as string) ?? (sp.returnTo as string) ?? `/${clinic}/portal/dashboard`;
+  // Default redirect to /portal which routes based on user role
+  const redirectTo = (sp.redirect as string) ?? (sp.returnTo as string) ?? `/${clinic}/portal`;
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();

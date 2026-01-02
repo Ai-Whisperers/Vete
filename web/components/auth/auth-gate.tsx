@@ -5,6 +5,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { ShoppingCart, User, Lock, MessageCircle, Loader2 } from "lucide-react";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
+import { logger } from "@/lib/logger";
 
 interface AuthGateProps {
   clinic: string;
@@ -50,11 +51,17 @@ export function AuthGate({
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
         if (error) {
-          console.error('AuthGate session error:', error);
+          logger.warn('AuthGate session error', {
+            error: error.message,
+            context: 'AuthGate'
+          });
         }
         setUser(session?.user ?? null);
       } catch (err) {
-        console.error('AuthGate failed to get session:', err);
+        logger.error('AuthGate failed to get session', {
+          error: err instanceof Error ? err.message : 'Unknown',
+          context: 'AuthGate'
+        });
         setUser(null);
       } finally {
         setLoading(false);

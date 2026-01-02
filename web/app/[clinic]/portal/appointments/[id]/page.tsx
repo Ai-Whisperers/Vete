@@ -229,6 +229,7 @@ export default async function AppointmentDetailPage({ params }: PageProps) {
               {canReschedule && (
                 <RescheduleDialog
                   appointmentId={appointmentWithPet.id}
+                  clinicId={clinic}
                   currentDate={appointmentWithPet.start_time.split('T')[0]}
                   currentTime={formatAppointmentTime(appointmentWithPet.start_time)}
                 />

@@ -5,6 +5,10 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { ActionResult, FieldErrors } from "@/lib/types/action-result";
 import { z } from "zod";
+import { logger } from "@/lib/logger";
+
+// Species categories for products
+const SPECIES_CATEGORIES = ["dog", "cat", "exotic", "other"] as const;
 
 // Validation schema for creating a product
 const createProductSchema = z.object({
@@ -16,7 +20,7 @@ const createProductSchema = z.object({
     .transform(val => val.trim()),
 
   category: z
-    .enum(["dog", "cat", "exotic", "other"], {
+    .enum(SPECIES_CATEGORIES, {
       message: "Selecciona una categoría válida"
     }),
 
@@ -118,11 +122,12 @@ export async function createProduct(prevState: ActionResult | null, formData: Fo
   // Check for duplicate SKU if provided
   if (validData.sku) {
     const { data: existingSku } = await supabase
-      .from('products')
+      .from('store_products')
       .select('id, name')
       .eq('sku', validData.sku)
       .eq('tenant_id', profile.tenant_id)
-      .single();
+      .is('deleted_at', null)
+      .maybeSingle();
 
     if (existingSku) {
       return {
@@ -166,7 +171,7 @@ export async function createProduct(prevState: ActionResult | null, formData: Fo
     const fileExt = photo.name.split('.').pop()?.toLowerCase() || 'jpg';
     const fileName = `products/${profile.tenant_id}/${Date.now()}.${fileExt}`;
 
-    // Try to upload to products bucket, fall back to vaccines if not available
+    // Try to upload to products bucket
     const { error: uploadError } = await supabase.storage
       .from('products')
       .upload(fileName, photo);
@@ -178,27 +183,40 @@ export async function createProduct(prevState: ActionResult | null, formData: Fo
       imageUrl = publicUrl;
     } else {
       // Log but don't fail - products can be created without images
-      console.warn("Product image upload failed:", uploadError);
+      logger.warn("Product image upload failed", { error: uploadError.message, tenantId: profile.tenant_id });
     }
   }
 
-  // Insert Product
-  const { error: insertError } = await supabase.from('products').insert({
-    tenant_id: profile.tenant_id,
-    name: validData.name,
-    category: validData.category,
-    price: validData.price,
-    stock: validData.stock,
-    description: validData.description,
-    sku: validData.sku,
-    image_url: imageUrl,
-    created_by: user.id
-  });
+  // Map category to target_species array
+  const targetSpecies = validData.category === 'other' ? [] : [validData.category];
 
-  if (insertError) {
-    console.error("Create Product Error:", insertError);
+  // Insert Product into store_products
+  const { data: newProduct, error: insertError } = await supabase
+    .from('store_products')
+    .insert({
+      tenant_id: profile.tenant_id,
+      name: validData.name,
+      description: validData.description,
+      short_description: validData.description?.substring(0, 150) || null,
+      base_price: validData.price,
+      sku: validData.sku,
+      image_url: imageUrl,
+      target_species: targetSpecies,
+      is_active: true,
+      is_featured: false,
+      requires_prescription: false,
+    })
+    .select('id')
+    .single();
 
-    if (insertError.code === "23505") {
+  if (insertError || !newProduct) {
+    logger.error("Create Product Error", {
+      error: insertError?.message,
+      tenantId: profile.tenant_id,
+      userId: user.id
+    });
+
+    if (insertError?.code === "23505") {
       if (insertError.message.includes("sku")) {
         return {
           success: false,
@@ -220,6 +238,26 @@ export async function createProduct(prevState: ActionResult | null, formData: Fo
     };
   }
 
+  // Insert initial inventory record
+  const { error: inventoryError } = await supabase
+    .from('store_inventory')
+    .insert({
+      product_id: newProduct.id,
+      tenant_id: profile.tenant_id,
+      stock_quantity: validData.stock,
+      min_stock_level: 0,
+    });
+
+  if (inventoryError) {
+    logger.warn("Failed to create initial inventory record", {
+      error: inventoryError.message,
+      productId: newProduct.id,
+      tenantId: profile.tenant_id
+    });
+    // Don't fail - product was created, inventory can be set later
+  }
+
   revalidatePath(`/${clinic}/portal/products`);
+  revalidatePath(`/${clinic}/store`);
   redirect(`/${clinic}/portal/products?success=product_created`);
 }

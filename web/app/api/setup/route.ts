@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { execSync } from 'child_process';
 import { readFileSync } from 'fs';
 import { join } from 'path';
+import { logger } from '@/lib/logger';
 
 interface SetupResponse {
   success: boolean;
@@ -77,10 +78,15 @@ export async function POST(request: NextRequest): Promise<NextResponse<SetupResp
     }
 
     return NextResponse.json(result);
-  } catch (error) {
-    console.error('Setup error:', error);
+  } catch (error: unknown) {
+    logger.error('Setup error', {
+      error: error instanceof Error ? error.message : 'Unknown',
+      action,
+      clinic
+    });
+    const message = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json(
-      { success: false, message: 'Setup failed', details: error.message },
+      { success: false, message: 'Setup failed', details: message },
       { status: 500 }
     );
   }
@@ -133,9 +139,10 @@ export async function GET(): Promise<NextResponse> {
         products: (productCount || 0) > 0
       }
     });
-  } catch (error) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json(
-      { error: 'Failed to check setup status', details: error.message },
+      { error: 'Failed to check setup status', details: message },
       { status: 500 }
     );
   }
@@ -143,7 +150,7 @@ export async function GET(): Promise<NextResponse> {
 
 async function runSchemaSetup(): Promise<SetupResponse> {
   try {
-    console.log('Running schema setup via API...');
+    logger.info('Running schema setup via API');
 
     // Use the existing setup script via spawn
     const { spawn } = await import('child_process');
@@ -189,18 +196,19 @@ async function runSchemaSetup(): Promise<SetupResponse> {
         });
       });
     });
-  } catch (error) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
     return {
       success: false,
       message: 'Schema setup failed',
-      details: error.message
+      details: message
     };
   }
 }
 
 async function runSeeds(): Promise<SetupResponse> {
   try {
-    console.log('Running database seeding via API...');
+    logger.info('Running database seeding via API');
 
     const { spawn } = await import('child_process');
 
@@ -245,18 +253,19 @@ async function runSeeds(): Promise<SetupResponse> {
         });
       });
     });
-  } catch (error) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
     return {
       success: false,
       message: 'Database seeding failed',
-      details: error.message
+      details: message
     };
   }
 }
 
 async function runFullSetup(): Promise<SetupResponse> {
   try {
-    console.log('Running full setup (schema + seeds) via API...');
+    logger.info('Running full setup (schema + seeds) via API');
 
     const { spawn } = await import('child_process');
 
@@ -301,11 +310,12 @@ async function runFullSetup(): Promise<SetupResponse> {
         });
       });
     });
-  } catch (error) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
     return {
       success: false,
       message: 'Full setup failed',
-      details: error.message
+      details: message
     };
   }
 }
@@ -314,7 +324,7 @@ async function setupClinicData(clinicSlug: string): Promise<SetupResponse> {
   const supabase = await createClient();
 
   try {
-    console.log(`Setting up clinic data for: ${clinicSlug}`);
+    logger.info('Setting up clinic data', { clinicSlug });
 
     // Check if clinic exists
     const { data: clinic, error: clinicError } = await supabase
@@ -338,7 +348,10 @@ async function setupClinicData(clinicSlug: string): Promise<SetupResponse> {
       const assignmentsData = JSON.parse(readFileSync(assignmentsPath, 'utf-8'));
       const assignments = assignmentsData.products;
 
-      console.log(`Creating ${assignments.length} product assignments for ${clinicSlug}...`);
+      logger.info('Creating product assignments', {
+        clinicSlug,
+        assignmentCount: assignments.length
+      });
 
       for (const assignment of assignments) {
         // Get product ID by SKU
@@ -388,18 +401,20 @@ async function setupClinicData(clinicSlug: string): Promise<SetupResponse> {
           assignments_created: assignments.length
         }
       };
-    } catch (fileError) {
+    } catch (fileError: unknown) {
+      const message = fileError instanceof Error ? fileError.message : 'Unknown error';
       return {
         success: false,
         message: `Clinic setup file not found: ${clinicSlug}.json`,
-        details: fileError.message
+        details: message
       };
     }
-  } catch (error) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
     return {
       success: false,
       message: 'Clinic setup failed',
-      details: error.message
+      details: message
     };
   }
 }

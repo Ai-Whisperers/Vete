@@ -141,7 +141,8 @@ describe('Prescriptions CRUD', () => {
         .select('*')
         .eq('pet_id', petId);
 
-      expect(allRx.length).toBeGreaterThanOrEqual(2);
+      expect(allRx).not.toBeNull();
+      expect(allRx!.length).toBeGreaterThanOrEqual(2);
     });
 
     test('fails without drug name', async () => {
@@ -220,7 +221,8 @@ describe('Prescriptions CRUD', () => {
         .order('signed_at', { ascending: false });
 
       expect(error).toBeNull();
-      expect(data.length).toBeGreaterThan(0);
+      expect(data).not.toBeNull();
+      expect(data!.length).toBeGreaterThan(0);
     });
 
     test('reads prescription with pet and vet details', async () => {
@@ -248,7 +250,8 @@ describe('Prescriptions CRUD', () => {
         .eq('signed_by', vetId);
 
       expect(error).toBeNull();
-      expect(data.every((rx: { signed_by: string }) => rx.signed_by === vetId)).toBe(true);
+      expect(data).not.toBeNull();
+      expect(data!.every((rx: { signed_by: string }) => rx.signed_by === vetId)).toBe(true);
     });
 
     test('filters prescriptions by date', async () => {

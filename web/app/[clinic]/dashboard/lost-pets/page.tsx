@@ -329,7 +329,7 @@ function LostPetsPage(): JSX.Element {
                 <div className="flex flex-col gap-2">
                   {report.status === 'lost' && (
                     <button
-                      onClick={() => updateStatus(report.id, 'found')}
+                      onClick={() => handleUpdateStatus(report.id, 'found')}
                       disabled={updating}
                       className="px-3 py-1.5 bg-yellow-100 text-yellow-800 rounded-lg text-sm font-medium hover:bg-yellow-200 disabled:opacity-50"
                     >
@@ -339,7 +339,7 @@ function LostPetsPage(): JSX.Element {
 
                   {(report.status === 'lost' || report.status === 'found') && (
                     <button
-                      onClick={() => updateStatus(report.id, 'reunited')}
+                      onClick={() => handleUpdateStatus(report.id, 'reunited')}
                       disabled={updating}
                       className="px-3 py-1.5 bg-green-100 text-green-800 rounded-lg text-sm font-medium hover:bg-green-200 disabled:opacity-50"
                     >

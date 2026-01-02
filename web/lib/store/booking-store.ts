@@ -144,6 +144,12 @@ export const useBookingStore = create<BookingState>((set, get) => ({
         const { isSubmitting, selection, clinicId } = get();
         if (isSubmitting) return false;
 
+        // Validate required fields
+        if (!selection.petId) {
+            set({ submitError: 'Por favor selecciona una mascota' });
+            return false;
+        }
+
         set({ isSubmitting: true, submitError: null });
 
         try {

@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import { apiError, HTTP_STATUS } from '@/lib/api/errors';
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   const supabase = await createClient();
@@ -7,7 +8,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   // Authentication check
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   // Get user profile
@@ -18,7 +19,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     .single();
 
   if (!profile) {
-    return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 });
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
+      details: { resource: 'profile' }
+    });
   }
 
   const { searchParams } = new URL(request.url);
@@ -57,7 +60,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
   if (error) {
     console.error('[API] blanket consents GET error:', error);
-    return NextResponse.json({ error: 'Error al obtener consentimientos permanentes' }, { status: 500 });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 
   return NextResponse.json(data);
@@ -69,7 +72,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   // Authentication check
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   // Get user profile
@@ -80,11 +83,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     .single();
 
   if (!profile) {
-    return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 });
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
+      details: { resource: 'profile' }
+    });
   }
 
   if (!['vet', 'admin'].includes(profile.role)) {
-    return NextResponse.json({ error: 'Solo personal autorizado puede crear consentimientos permanentes' }, { status: 403 });
+    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
   }
 
   // Parse body
@@ -92,7 +97,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: 'JSON inválido' }, { status: 400 });
+    return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST);
   }
 
   const {
@@ -107,9 +112,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   // Validate required fields
   if (!pet_id || !owner_id || !consent_type || !scope || !signature_data) {
-    return NextResponse.json({
-      error: 'pet_id, owner_id, consent_type, scope y signature_data son requeridos'
-    }, { status: 400 });
+    return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
+      details: { required: ['pet_id', 'owner_id', 'consent_type', 'scope', 'signature_data'] }
+    });
   }
 
   // Verify pet belongs to staff's clinic
@@ -120,16 +125,20 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     .single();
 
   if (!pet) {
-    return NextResponse.json({ error: 'Mascota no encontrada' }, { status: 404 });
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
+      details: { resource: 'pet' }
+    });
   }
 
   if (pet.tenant_id !== profile.clinic_id) {
-    return NextResponse.json({ error: 'No tienes acceso a esta mascota' }, { status: 403 });
+    return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN);
   }
 
   // Verify owner
   if (pet.owner_id !== owner_id) {
-    return NextResponse.json({ error: 'El dueño no coincide con la mascota' }, { status: 400 });
+    return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+      details: { message: 'Owner does not match pet' }
+    });
   }
 
   // Insert blanket consent
@@ -152,7 +161,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   if (error) {
     console.error('[API] blanket consents POST error:', error);
-    return NextResponse.json({ error: 'Error al crear consentimiento permanente' }, { status: 500 });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 
   return NextResponse.json(data, { status: 201 });
@@ -164,7 +173,7 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
   // Authentication check
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   // Get user profile
@@ -175,7 +184,9 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
     .single();
 
   if (!profile) {
-    return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 });
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
+      details: { resource: 'profile' }
+    });
   }
 
   // Parse body
@@ -183,13 +194,15 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: 'JSON inválido' }, { status: 400 });
+    return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST);
   }
 
   const { id, action, reason } = body;
 
   if (!id || action !== 'revoke') {
-    return NextResponse.json({ error: 'id y action=revoke son requeridos' }, { status: 400 });
+    return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+      details: { message: 'id and action=revoke are required' }
+    });
   }
 
   // Get existing blanket consent
@@ -205,7 +218,9 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
     .single();
 
   if (!existing) {
-    return NextResponse.json({ error: 'Consentimiento permanente no encontrado' }, { status: 404 });
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
+      details: { resource: 'blanket_consent' }
+    });
   }
 
   // Authorization check
@@ -217,10 +232,10 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
 
   if (isStaff) {
     if (pet.tenant_id !== profile.clinic_id) {
-      return NextResponse.json({ error: 'No tienes acceso a este consentimiento' }, { status: 403 });
+      return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN);
     }
   } else if (!isOwner) {
-    return NextResponse.json({ error: 'No tienes acceso a este consentimiento' }, { status: 403 });
+    return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN);
   }
 
   // Update blanket consent
@@ -239,7 +254,7 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
 
   if (error) {
     console.error('[API] blanket consents PATCH error:', error);
-    return NextResponse.json({ error: 'Error al revocar consentimiento permanente' }, { status: 500 });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 
   return NextResponse.json(data);

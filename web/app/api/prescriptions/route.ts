@@ -1,5 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
+import { apiError, HTTP_STATUS } from '@/lib/api/errors';
 
 export async function GET(request: NextRequest) {
   const supabase = await createClient();
@@ -7,7 +9,7 @@ export async function GET(request: NextRequest) {
   // Authentication check
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   // Get user profile
@@ -18,7 +20,7 @@ export async function GET(request: NextRequest) {
     .single();
 
   if (!profile) {
-    return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 });
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND);
   }
 
   const { searchParams } = new URL(request.url);
@@ -49,8 +51,8 @@ export async function GET(request: NextRequest) {
   const { data, error } = await query;
 
   if (error) {
-    console.error('[API] prescriptions GET error:', error);
-    return NextResponse.json({ error: 'Error al obtener recetas' }, { status: 500 });
+    logger.error('Prescriptions GET error', { userId: user.id, tenantId: profile.clinic_id, petId, error: error instanceof Error ? error.message : String(error) });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 
   return NextResponse.json(data);
@@ -62,7 +64,7 @@ export async function POST(request: NextRequest) {
   // Authentication check
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   // Apply rate limiting for write endpoints (20 requests per minute)
@@ -80,11 +82,11 @@ export async function POST(request: NextRequest) {
     .single();
 
   if (!profile) {
-    return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 });
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND);
   }
 
   if (!['vet', 'admin'].includes(profile.role)) {
-    return NextResponse.json({ error: 'Solo veterinarios pueden crear recetas' }, { status: 403 });
+    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
   }
 
   // Parse body
@@ -92,14 +94,14 @@ export async function POST(request: NextRequest) {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: 'JSON inválido' }, { status: 400 });
+    return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST);
   }
 
   const { pet_id, drugs, notes, signature_hash, qr_code_url } = body;
 
   // Validate required fields
   if (!pet_id || !drugs || drugs.length === 0) {
-    return NextResponse.json({ error: 'pet_id y drugs son requeridos' }, { status: 400 });
+    return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, { details: { required: ['pet_id', 'drugs'] } });
   }
 
   // Verify pet belongs to staff's clinic
@@ -110,11 +112,11 @@ export async function POST(request: NextRequest) {
     .single();
 
   if (!pet) {
-    return NextResponse.json({ error: 'Mascota no encontrada' }, { status: 404 });
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND);
   }
 
   if (pet.tenant_id !== profile.clinic_id) {
-    return NextResponse.json({ error: 'No tienes acceso a esta mascota' }, { status: 403 });
+    return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN);
   }
 
   // Insert prescription with authenticated vet
@@ -132,8 +134,8 @@ export async function POST(request: NextRequest) {
     .single();
 
   if (error) {
-    console.error('[API] prescriptions POST error:', error);
-    return NextResponse.json({ error: 'Error al crear receta' }, { status: 500 });
+    logger.error('Prescriptions POST error', { userId: user.id, tenantId: profile.clinic_id, petId: pet_id, error: error instanceof Error ? error.message : String(error) });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 
   return NextResponse.json(data, { status: 201 });
@@ -145,7 +147,7 @@ export async function PUT(request: NextRequest) {
   // Authentication check
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   // Apply rate limiting for write endpoints (20 requests per minute)
@@ -163,7 +165,7 @@ export async function PUT(request: NextRequest) {
     .single();
 
   if (!profile || !['vet', 'admin'].includes(profile.role)) {
-    return NextResponse.json({ error: 'Solo veterinarios pueden modificar recetas' }, { status: 403 });
+    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
   }
 
   // Parse body
@@ -171,13 +173,13 @@ export async function PUT(request: NextRequest) {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: 'JSON inválido' }, { status: 400 });
+    return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST);
   }
 
   const { id, drugs, notes, status } = body;
 
   if (!id) {
-    return NextResponse.json({ error: 'ID es requerido' }, { status: 400 });
+    return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, { details: { required: ['id'] } });
   }
 
   // Verify prescription belongs to staff's clinic
@@ -188,13 +190,13 @@ export async function PUT(request: NextRequest) {
     .single();
 
   if (!existing) {
-    return NextResponse.json({ error: 'Receta no encontrada' }, { status: 404 });
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND);
   }
 
   const petData = Array.isArray(existing.pet) ? existing.pet[0] : existing.pet;
   const pet = petData as { tenant_id: string };
   if (pet.tenant_id !== profile.clinic_id) {
-    return NextResponse.json({ error: 'No tienes acceso a esta receta' }, { status: 403 });
+    return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN);
   }
 
   // Build update
@@ -211,8 +213,8 @@ export async function PUT(request: NextRequest) {
     .single();
 
   if (error) {
-    console.error('[API] prescriptions PUT error:', error);
-    return NextResponse.json({ error: 'Error al actualizar receta' }, { status: 500 });
+    logger.error('Prescriptions PUT error', { userId: user.id, tenantId: profile.clinic_id, prescriptionId: id, error: error instanceof Error ? error.message : String(error) });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 
   return NextResponse.json(data);
@@ -224,7 +226,7 @@ export async function DELETE(request: NextRequest) {
   // Authentication check
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   // Only admins can delete prescriptions
@@ -235,14 +237,14 @@ export async function DELETE(request: NextRequest) {
     .single();
 
   if (!profile || profile.role !== 'admin') {
-    return NextResponse.json({ error: 'Solo administradores pueden eliminar recetas' }, { status: 403 });
+    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
   }
 
   const { searchParams } = new URL(request.url);
   const id = searchParams.get('id');
 
   if (!id) {
-    return NextResponse.json({ error: 'ID es requerido' }, { status: 400 });
+    return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, { details: { required: ['id'] } });
   }
 
   // Verify prescription belongs to admin's clinic
@@ -253,13 +255,13 @@ export async function DELETE(request: NextRequest) {
     .single();
 
   if (!existing) {
-    return NextResponse.json({ error: 'Receta no encontrada' }, { status: 404 });
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND);
   }
 
   const petData = Array.isArray(existing.pet) ? existing.pet[0] : existing.pet;
   const pet = petData as { tenant_id: string };
   if (pet.tenant_id !== profile.clinic_id) {
-    return NextResponse.json({ error: 'No tienes acceso a esta receta' }, { status: 403 });
+    return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN);
   }
 
   const { error } = await supabase
@@ -268,8 +270,8 @@ export async function DELETE(request: NextRequest) {
     .eq('id', id);
 
   if (error) {
-    console.error('[API] prescriptions DELETE error:', error);
-    return NextResponse.json({ error: 'Error al eliminar receta' }, { status: 500 });
+    logger.error('Prescriptions DELETE error', { userId: user.id, tenantId: profile.clinic_id, prescriptionId: id, error: error instanceof Error ? error.message : String(error) });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 
   return new NextResponse(null, { status: 204 });

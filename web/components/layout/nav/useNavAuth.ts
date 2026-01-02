@@ -58,12 +58,13 @@ export function useNavAuth(clinic: string): UseNavAuthReturn {
           .from('profiles')
           .select('id, tenant_id, role, full_name, email, phone')
           .eq('id', userId)
-          .single();
+          .maybeSingle(); // Use maybeSingle to avoid 406 when profile doesn't exist
 
         if (error) {
+          console.warn('Profile fetch error:', error.message);
           return null;
         }
-        return prof as UserProfile;
+        return prof as UserProfile | null;
       } catch {
         return null;
       }

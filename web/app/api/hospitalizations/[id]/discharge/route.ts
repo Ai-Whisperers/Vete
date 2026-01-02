@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { generateHospitalizationInvoice } from '@/lib/billing/hospitalization';
+import { apiError, HTTP_STATUS } from '@/lib/api/errors';
 
 interface RouteParams {
   params: Promise<{
@@ -17,7 +18,7 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
   // 1. Authentication
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   // 2. Authorization
@@ -28,7 +29,7 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
     .single();
 
   if (!profile || !['vet', 'admin'].includes(profile.role)) {
-    return NextResponse.json({ error: 'Solo el personal puede dar de alta pacientes' }, { status: 403 });
+    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
   }
 
   try {
@@ -52,10 +53,9 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
       // If error is NOT "already exists", we abort discharge to prevent revenue loss.
       // We check the error message string (brittle but effective for now)
       if (invoiceResult.error && !invoiceResult.error.includes('Ya existe una factura')) {
-        return NextResponse.json({ 
-          error: 'No se pudo generar la factura. El alta ha sido cancelada.', 
-          details: invoiceResult.error 
-        }, { status: 400 });
+        return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+          details: { reason: 'invoice_generation_failed', message: invoiceResult.error }
+        });
       }
       
       // If invoice exists, we fetch it just to return it in response
@@ -79,7 +79,7 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
 
     if (updateError) {
       console.error('Error updating hospitalization:', updateError);
-      return NextResponse.json({ error: 'Error al actualizar estado de hospitalización' }, { status: 500 });
+      return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
     }
 
     // 5. Free up the Kennel
@@ -105,6 +105,6 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
 
   } catch (e) {
     console.error('Error interacting with database:', e);
-    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 });
+    return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 }

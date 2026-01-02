@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { generateHospitalizationInvoice } from '@/lib/billing/hospitalization';
+import { apiError, HTTP_STATUS } from '@/lib/api/errors';
 
 interface RouteParams {
   params: Promise<{
@@ -16,7 +17,7 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
   // Authentication check
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   // Get user profile
@@ -27,7 +28,7 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
     .single();
 
   if (!profile || !['vet', 'admin'].includes(profile.role)) {
-    return NextResponse.json({ error: 'Solo el personal puede generar facturas' }, { status: 403 });
+    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
   }
 
   try {
@@ -39,7 +40,9 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
     );
 
     if (!result.success) {
-      return NextResponse.json({ error: result.error }, { status: 400 });
+      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+        details: { message: result.error }
+      });
     }
 
     // Audit log (using the shared logic logic implicitly or explicit here if not in lib)
@@ -61,6 +64,6 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
 
   } catch (e) {
     console.error('Error generating hospitalization invoice:', e);
-    return NextResponse.json({ error: 'Error al generar factura' }, { status: 500 });
+    return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 }

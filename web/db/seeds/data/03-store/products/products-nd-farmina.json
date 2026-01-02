@@ -24,7 +24,7 @@
           "sku_suffix": "-12KG"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop-chicken-pome-med.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "line": "Ancestral Grain",
         "grain_free": false,
@@ -54,7 +54,7 @@
           "sku_suffix": "-12KG"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop-lamb-blueberry.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "line": "Prime",
         "grain_free": true,
@@ -83,7 +83,7 @@
           "sku_suffix": "-12KG"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop-pumpkin-boar.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "line": "Pumpkin",
         "grain_free": true,
@@ -113,7 +113,7 @@
           "sku_suffix": "-7KG"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop-quinoa-digestion.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "line": "Quinoa",
         "functional": "Digestión",
@@ -142,7 +142,7 @@
           "sku_suffix": "-12KG"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop-puppy-chicken.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "lifestage": "Puppy",
         "breed_size": "Mediano"
@@ -176,7 +176,7 @@
           "sku_suffix": "-10KG"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop-cat-chicken-pome.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "line": "Prime",
         "grain_free": true
@@ -204,7 +204,7 @@
           "sku_suffix": "-5KG"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop-cat-fish-orange.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "line": "Prime",
         "grain_free": true,
@@ -233,7 +233,7 @@
           "sku_suffix": "-5KG"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop-cat-neutered.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "special_need": "Esterilizado",
         "weight_control": true
@@ -261,7 +261,7 @@
           "sku_suffix": "-5KG"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop-kitten.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "lifestage": "Kitten",
         "grain_free": true

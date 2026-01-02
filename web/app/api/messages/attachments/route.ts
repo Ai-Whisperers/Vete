@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 
 const ALLOWED_TYPES = [
   'image/jpeg',
@@ -109,7 +110,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         });
 
       if (uploadError) {
-        console.error('Upload error:', uploadError);
+        logger.error('Upload error', {
+          userId: user.id,
+          tenantId: profile.tenant_id,
+          conversationId,
+          fileName: file.name,
+          error: uploadError instanceof Error ? uploadError.message : String(uploadError)
+        });
         return NextResponse.json({
           error: `Error al subir "${file.name}": ${uploadError.message}`
         }, { status: 500 });
@@ -133,7 +140,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       attachments: uploadedAttachments
     });
   } catch (e) {
-    console.error('Error uploading attachments:', e);
+    logger.error('Error uploading attachments', {
+      userId: user?.id,
+      error: e instanceof Error ? e.message : String(e)
+    });
     return NextResponse.json({ error: 'Error al subir archivos' }, { status: 500 });
   }
 }

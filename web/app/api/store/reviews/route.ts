@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { apiError, HTTP_STATUS } from '@/lib/api/errors';
 
 // GET - Get reviews for a product
 export async function GET(request: NextRequest) {
@@ -15,7 +16,9 @@ export async function GET(request: NextRequest) {
   const withImages = searchParams.get('with_images') === 'true';
 
   if (!productId) {
-    return NextResponse.json({ error: 'Falta product_id' }, { status: 400 });
+    return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
+      details: { message: 'Falta product_id' }
+    });
   }
 
   try {
@@ -127,7 +130,9 @@ export async function GET(request: NextRequest) {
     });
   } catch (e) {
     console.error('Error fetching reviews', e);
-    return NextResponse.json({ error: 'No se pudieron cargar las reseñas' }, { status: 500 });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
+      details: { message: 'No se pudieron cargar las reseñas' }
+    });
   }
 }
 
@@ -137,7 +142,7 @@ export async function POST(request: NextRequest) {
 
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   try {
@@ -145,11 +150,15 @@ export async function POST(request: NextRequest) {
     const { product_id, clinic, rating, title, content, images } = body;
 
     if (!product_id || !clinic || !rating) {
-      return NextResponse.json({ error: 'Faltan parámetros requeridos' }, { status: 400 });
+      return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
+        details: { message: 'Faltan parámetros requeridos' }
+      });
     }
 
     if (rating < 1 || rating > 5) {
-      return NextResponse.json({ error: 'Calificación debe ser entre 1 y 5' }, { status: 400 });
+      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+        details: { message: 'Calificación debe ser entre 1 y 5' }
+      });
     }
 
     // Check if user already reviewed this product
@@ -161,7 +170,9 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (existing) {
-      return NextResponse.json({ error: 'Ya escribiste una reseña para este producto' }, { status: 409 });
+      return apiError('ALREADY_EXISTS', HTTP_STATUS.CONFLICT, {
+        details: { message: 'Ya escribiste una reseña para este producto' }
+      });
     }
 
     // Check if user purchased this product (for verified badge)
@@ -206,6 +217,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true, review });
   } catch (e) {
     console.error('Error creating review', e);
-    return NextResponse.json({ error: 'No se pudo crear la reseña' }, { status: 500 });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
+      details: { message: 'No se pudo crear la reseña' }
+    });
   }
 }

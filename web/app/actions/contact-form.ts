@@ -1,6 +1,7 @@
 "use server";
 
 import { z } from 'zod';
+import { logger } from '@/lib/logger';
 
 type FormState = { success: true; message?: string } | { success: false; error: string } | null;
 
@@ -40,7 +41,9 @@ export async function submitContactForm(
       message: '¡Gracias! Te contactaremos pronto para confirmar tu cita.'
     };
   } catch (error) {
-    console.error('Error submitting contact form:', error);
+    logger.error('Failed to submit contact form', {
+      error: error instanceof Error ? error : undefined
+    });
     return { success: false, error: 'Error al enviar el formulario. Intenta de nuevo.' };
   }
 }

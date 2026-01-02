@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import { apiError, HTTP_STATUS } from '@/lib/api/errors';
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -19,7 +20,7 @@ export async function GET(
   // Auth check
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   // Admin check
@@ -30,7 +31,7 @@ export async function GET(
     .single();
 
   if (!profile || !['vet', 'admin'].includes(profile.role)) {
-    return NextResponse.json({ error: 'Solo personal puede ver versiones' }, { status: 403 });
+    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
   }
 
   try {
@@ -42,7 +43,9 @@ export async function GET(
       .single();
 
     if (templateError || !template) {
-      return NextResponse.json({ error: 'Plantilla no encontrada' }, { status: 404 });
+      return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
+        details: { resource: 'template' }
+      });
     }
 
     // Get all versions of this template (same code)
@@ -80,7 +83,7 @@ export async function GET(
     return NextResponse.json({ data: versionsWithCounts || [] });
   } catch (e) {
     console.error('Error fetching versions:', e);
-    return NextResponse.json({ error: 'Error al cargar versiones' }, { status: 500 });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 }
 
@@ -98,7 +101,7 @@ export async function POST(
   // Auth check
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   // Admin check
@@ -109,7 +112,7 @@ export async function POST(
     .single();
 
   if (!profile || profile.role !== 'admin') {
-    return NextResponse.json({ error: 'Solo administradores pueden crear versiones' }, { status: 403 });
+    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
   }
 
   try {
@@ -117,7 +120,9 @@ export async function POST(
     const { content_html, title, description, change_summary } = body;
 
     if (!content_html) {
-      return NextResponse.json({ error: 'content_html es requerido' }, { status: 400 });
+      return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
+        details: { required: ['content_html'] }
+      });
     }
 
     // Get current template
@@ -128,16 +133,20 @@ export async function POST(
       .single();
 
     if (templateError || !template) {
-      return NextResponse.json({ error: 'Plantilla no encontrada' }, { status: 404 });
+      return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
+        details: { resource: 'template' }
+      });
     }
 
     // Can only version tenant-specific templates
     if (!template.tenant_id) {
-      return NextResponse.json({ error: 'No se pueden versionar plantillas globales' }, { status: 403 });
+      return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN, {
+        details: { message: 'Cannot version global templates' }
+      });
     }
 
     if (template.tenant_id !== profile.tenant_id) {
-      return NextResponse.json({ error: 'No tienes acceso a esta plantilla' }, { status: 403 });
+      return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN);
     }
 
     // Get next version number
@@ -226,6 +235,6 @@ export async function POST(
     }, { status: 201 });
   } catch (e) {
     console.error('Error creating version:', e);
-    return NextResponse.json({ error: 'Error al crear versión' }, { status: 500 });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
 }

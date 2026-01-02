@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { apiError, HTTP_STATUS } from '@/lib/api/errors';
 
 // GET /api/dashboard/inventory-alerts - Get low stock and expiring products
 export async function GET(request: Request) {
@@ -7,7 +8,7 @@ export async function GET(request: Request) {
 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
   }
 
   const { data: profile } = await supabase
@@ -17,7 +18,7 @@ export async function GET(request: Request) {
     .single();
 
   if (!profile || !['vet', 'admin'].includes(profile.role)) {
-    return NextResponse.json({ error: 'Solo el personal puede ver alertas de inventario' }, { status: 403 });
+    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
   }
 
   try {
@@ -41,13 +42,16 @@ export async function GET(request: Request) {
           .eq('tenant_id', profile.tenant_id)
           .lt('stock_quantity', supabase.rpc('get_min_stock_level')),
 
-        // Expiring products (within 30 days)
+        // Expiring products (within 30 days) - using store_products with inventory join
         supabase
-          .from('products')
-          .select('id, name, sku, expiry_date, stock')
+          .from('store_products')
+          .select(`
+            id, name, sku, expiry_date,
+            store_inventory(stock_quantity)
+          `)
           .eq('tenant_id', profile.tenant_id)
+          .not('expiry_date', 'is', null)
           .lte('expiry_date', new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString())
-          .gt('stock', 0)
       ]);
 
       const result = {
@@ -62,14 +66,17 @@ export async function GET(request: Request) {
             alert_type: 'low_stock'
           };
         }) || [],
-        expiring_soon: expiring.data?.map(item => ({
-          product_id: item.id,
-          product_name: item.name,
-          sku: item.sku,
-          expiry_date: item.expiry_date,
-          current_stock: item.stock,
-          alert_type: 'expiring'
-        })) || []
+        expiring_soon: expiring.data?.map(item => {
+          const inventory = Array.isArray(item.store_inventory) ? item.store_inventory[0] : item.store_inventory;
+          return {
+            product_id: item.id,
+            product_name: item.name,
+            sku: item.sku,
+            expiry_date: item.expiry_date,
+            current_stock: inventory?.stock_quantity ?? 0,
+            alert_type: 'expiring'
+          };
+        }) || []
       };
 
       return NextResponse.json(result);
@@ -85,6 +92,8 @@ export async function GET(request: Request) {
     return NextResponse.json(grouped);
   } catch (e) {
     console.error('Error loading inventory alerts:', e);
-    return NextResponse.json({ error: 'Error al cargar alertas de inventario' }, { status: 500 });
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
+      details: { message: e instanceof Error ? e.message : 'Unknown error' }
+    });
   }
 }

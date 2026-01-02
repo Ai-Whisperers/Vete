@@ -4,11 +4,13 @@ import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Calendar, Phone, PawPrint, User, Settings, LogOut, Calculator, Apple, HelpCircle, Gift } from "lucide-react";
+import { Menu, X, Calendar, Phone, PawPrint, User, Settings, LogOut, Calculator, Apple, HelpCircle, Gift, Globe } from "lucide-react";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 import type { ClinicConfig } from "@/lib/clinics";
 import type { UserProfile } from "./useNavAuth";
 import type { LucideIcon } from "lucide-react";
+import { LanguageSelector } from "@/components/ui/language-selector";
+import { useLocale } from "@/i18n/hooks";
 
 interface MobileMenuProps {
   clinic: string;
@@ -42,6 +44,7 @@ export function MobileMenu({
   const [mounted, setMounted] = useState(false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const mobileMenuTriggerRef = useRef<HTMLButtonElement>(null);
+  const currentLocale = useLocale();
 
   const toolsItems = [
     { label: config.ui_labels?.tools?.age_calculator?.title || "Calculadora de Edad", href: `/${clinic}/tools/age-calculator`, icon: Calculator },
@@ -270,6 +273,15 @@ export function MobileMenu({
                   <span className="font-bold">Cerrar sesión</span>
                 </button>
               )}
+
+              {/* Language Selection */}
+              <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mt-6 mb-3">
+                <Globe className="w-4 h-4 inline-block mr-2" />
+                Idioma
+              </p>
+              <div className="py-2">
+                <LanguageSelector currentLocale={currentLocale} variant="inline" />
+              </div>
             </div>
 
             <div className="mt-auto px-4 sm:px-6 py-6 bg-[var(--bg-subtle)] border-t border-[var(--border,#e5e7eb)]">

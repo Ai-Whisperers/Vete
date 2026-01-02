@@ -138,34 +138,9 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
               </div>
             </div>
           ) : (
-            /* Cart Items - Organized by Owner & Pets */
+            /* Cart Items - Organized by Services first, then Products */
             <div className="px-4 py-4 space-y-5">
-              {/* Products Section (For the Owner) */}
-              {organizedCart.products.length > 0 && (
-                <div>
-                  <div className="flex items-center gap-2 mb-3 px-1">
-                    <div className="w-7 h-7 rounded-full bg-[var(--bg-subtle)] flex items-center justify-center">
-                      <User className="w-4 h-4 text-[var(--text-secondary)]" />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-bold text-[var(--text-primary)]">
-                        Productos
-                      </h3>
-                      <p className="text-xs text-[var(--text-muted)]">Para ti</p>
-                    </div>
-                    <span className="ml-auto text-sm font-bold text-[var(--primary)]">
-                      {formatPriceGs(organizedCart.productsSubtotal)}
-                    </span>
-                  </div>
-                  <div className="space-y-1 bg-[var(--bg-subtle)]/50 rounded-xl p-3">
-                    {organizedCart.products.map((item) => (
-                      <CartItem key={item.id} item={item} compact />
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Services by Pet */}
+              {/* Services by Pet (displayed first) */}
               {organizedCart.petGroups.length > 0 && (
                 <div>
                   <div className="flex items-center gap-2 mb-3 px-1">
@@ -211,6 +186,65 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                   </div>
                   <div className="space-y-1 bg-[var(--bg-subtle)]/50 rounded-xl p-3">
                     {organizedCart.ungroupedServices.map((item) => (
+                      <CartItem key={item.id} item={item} compact />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Products by Pet */}
+              {organizedCart.petProducts.length > 0 && (
+                <div>
+                  <div className="flex items-center gap-2 mb-3 px-1">
+                    <div className="w-7 h-7 rounded-full bg-[var(--bg-subtle)] flex items-center justify-center">
+                      <Package className="w-4 h-4 text-[var(--text-secondary)]" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-bold text-[var(--text-primary)]">
+                        Productos por Mascota
+                      </h3>
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    {organizedCart.petProducts.map((group) => (
+                      <div key={group.pet_id} className="bg-[var(--bg-subtle)]/50 rounded-xl p-3">
+                        <div className="flex items-center gap-2 mb-2">
+                          <PawPrint className="w-4 h-4 text-[var(--primary)]" />
+                          <span className="text-sm font-semibold text-[var(--text-primary)]">{group.pet_name}</span>
+                          <span className="ml-auto text-sm font-bold text-[var(--primary)]">
+                            {formatPriceGs(group.subtotal)}
+                          </span>
+                        </div>
+                        <div className="space-y-1">
+                          {group.products.map((item) => (
+                            <CartItem key={item.id} item={item} compact />
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Unassigned Products (displayed last) */}
+              {organizedCart.unassignedProducts.length > 0 && (
+                <div>
+                  <div className="flex items-center gap-2 mb-3 px-1">
+                    <div className="w-7 h-7 rounded-full bg-[var(--bg-subtle)] flex items-center justify-center">
+                      <User className="w-4 h-4 text-[var(--text-secondary)]" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-bold text-[var(--text-primary)]">
+                        Productos
+                      </h3>
+                      <p className="text-xs text-[var(--text-muted)]">Para ti</p>
+                    </div>
+                    <span className="ml-auto text-sm font-bold text-[var(--primary)]">
+                      {formatPriceGs(organizedCart.productsSubtotal)}
+                    </span>
+                  </div>
+                  <div className="space-y-1 bg-[var(--bg-subtle)]/50 rounded-xl p-3">
+                    {organizedCart.unassignedProducts.map((item) => (
                       <CartItem key={item.id} item={item} compact />
                     ))}
                   </div>

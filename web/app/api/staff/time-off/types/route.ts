@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
+import { logger } from '@/lib/logger'
 
 /**
  * GET /api/staff/time-off/types
@@ -43,7 +44,11 @@ export async function GET(request: NextRequest) {
     const { data, error } = await query
 
     if (error) {
-      console.error('Error fetching time off types:', error)
+      logger.error('Error fetching time off types', {
+        error: error.message,
+        tenantId: clinicSlug,
+        userId: user.id
+      })
       return NextResponse.json(
         { error: 'Error al obtener tipos de ausencia' },
         { status: 500 }
@@ -54,7 +59,10 @@ export async function GET(request: NextRequest) {
       data: data || []
     })
   } catch (e) {
-    console.error('Error in time-off types GET:', e)
+    logger.error('Error in time-off types GET', {
+      error: e instanceof Error ? e.message : 'Unknown',
+      userId: user?.id
+    })
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }
@@ -124,13 +132,20 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (error) {
-      console.error('Error creating time off type:', error)
+      logger.error('Error creating time off type', {
+        error: error.message,
+        tenantId: profile.tenant_id,
+        userId: user.id
+      })
       return NextResponse.json({ error: 'Error al crear tipo de ausencia' }, { status: 500 })
     }
 
     return NextResponse.json({ data }, { status: 201 })
   } catch (e) {
-    console.error('Error in time-off types POST:', e)
+    logger.error('Error in time-off types POST', {
+      error: e instanceof Error ? e.message : 'Unknown',
+      userId: user?.id
+    })
     return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
   }
 }
@@ -199,13 +214,21 @@ export async function PATCH(request: NextRequest) {
       .single()
 
     if (error) {
-      console.error('Error updating time off type:', error)
+      logger.error('Error updating time off type', {
+        error: error.message,
+        typeId: id,
+        tenantId: profile.tenant_id,
+        userId: user.id
+      })
       return NextResponse.json({ error: 'Error al actualizar tipo de ausencia' }, { status: 500 })
     }
 
     return NextResponse.json({ data })
   } catch (e) {
-    console.error('Error in time-off types PATCH:', e)
+    logger.error('Error in time-off types PATCH', {
+      error: e instanceof Error ? e.message : 'Unknown',
+      userId: user?.id
+    })
     return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
   }
 }
@@ -284,13 +307,21 @@ export async function DELETE(request: NextRequest) {
       .eq('id', id)
 
     if (error) {
-      console.error('Error deleting time off type:', error)
+      logger.error('Error deleting time off type', {
+        error: error.message,
+        typeId: id,
+        tenantId: profile.tenant_id,
+        userId: user.id
+      })
       return NextResponse.json({ error: 'Error al eliminar tipo de ausencia' }, { status: 500 })
     }
 
     return NextResponse.json({ message: 'Tipo eliminado exitosamente' })
   } catch (e) {
-    console.error('Error in time-off types DELETE:', e)
+    logger.error('Error in time-off types DELETE', {
+      error: e instanceof Error ? e.message : 'Unknown',
+      userId: user?.id
+    })
     return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
   }
 }

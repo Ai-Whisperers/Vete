@@ -18,7 +18,9 @@ interface SetupStatus {
 interface SetupResponse {
   success: boolean;
   message: string;
-  details?: any;
+  details?: unknown;
+  action?: string;
+  timestamp?: Date;
 }
 
 export default function SetupPage() {
@@ -57,11 +59,12 @@ export default function SetupPage() {
       if (result.success) {
         await checkStatus();
       }
-    } catch (error) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
       setResults(prev => [...prev, {
         success: false,
         message: 'Network error',
-        details: error.message,
+        details: message,
         action,
         timestamp: new Date()
       }]);
@@ -262,17 +265,17 @@ export default function SetupPage() {
                     )}
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <Badge variant={result.success ? 'default' : 'destructive'}>
+                        <Badge variant={result.success ? 'default' : 'danger'}>
                           {result.action}
                         </Badge>
                         <span className="text-xs text-gray-500">
-                          {new Date(result.timestamp).toLocaleTimeString()}
+                          {result.timestamp ? new Date(result.timestamp).toLocaleTimeString() : ''}
                         </span>
                       </div>
                       <p className={`text-sm ${result.success ? 'text-green-700' : 'text-red-700'}`}>
                         {result.message}
                       </p>
-                      {result.details && (
+                      {result.details !== undefined && result.details !== null && (
                         <details className="mt-2">
                           <summary className="text-xs cursor-pointer text-gray-500">Details</summary>
                           <pre className="text-xs mt-1 p-2 bg-gray-100 rounded overflow-auto max-h-32">

@@ -2,12 +2,12 @@
 
 Comprehensive list of all implemented features in the Vete platform.
 
-> **Last Updated**: December 2024
-> **Total API Endpoints**: 83
+> **Last Updated**: January 2025
+> **Total API Endpoints**: 87
 > **Total Server Actions**: 22
-> **Total Pages**: 98
-> **Database Tables**: 94
-> **React Components**: 120+
+> **Total Pages**: 100
+> **Database Tables**: 96
+> **React Components**: 125+
 
 ---
 
@@ -159,13 +159,20 @@ Comprehensive list of all implemented features in the Vete platform.
 | Product Catalog | ✅ Live | API: `/api/store/products` |
 | Product Search | ✅ Live | API: `/api/store/search` |
 | Product Details | ✅ Live | API: `/api/store/products/[id]` |
+| Product Creation (Staff) | ✅ Live | API: `POST /api/store/products` |
 | Shopping Cart | ✅ Live | `/[clinic]/cart` |
+| Cart Persistence | ✅ Live | API: `/api/store/cart` |
 | Checkout | ✅ Live | API: `/api/store/checkout` |
 | Order Management | ✅ Live | API: `/api/store/orders` |
 | Coupon Validation | ✅ Live | API: `/api/store/coupons/validate` |
 | Product Reviews | ✅ Live | API: `/api/store/reviews` |
-| Wishlist | ✅ Live | API: `/api/store/wishlist` |
+| Wishlist Page | ✅ Live | `/[clinic]/portal/wishlist` |
+| Wishlist API | ✅ Live | API: `/api/store/wishlist` |
 | Stock Alerts | ✅ Live | API: `/api/store/stock-alerts` |
+| Notify When Available | ✅ Live | Component: `NotifyWhenAvailable` |
+| Prescription Upload | ✅ Live | API: `/api/store/prescriptions/upload` |
+| Prescription Approval | ✅ Live | API: `/api/store/orders/[id]/prescription` |
+| Prescription Orders Dashboard | ✅ Live | `/[clinic]/dashboard/orders/prescriptions` |
 
 ### Staff Management
 

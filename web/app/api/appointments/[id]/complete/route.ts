@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
+import { logger } from '@/lib/logger'
 
 /**
  * POST /api/appointments/[id]/complete
@@ -90,7 +91,12 @@ export async function POST(
     .eq('id', id)
 
   if (updateError) {
-    console.error('Complete appointment error:', updateError)
+    logger.error('Complete appointment error', {
+      tenantId: appointment.tenant_id,
+      userId: user.id,
+      appointmentId: id,
+      error: updateError instanceof Error ? updateError.message : String(updateError)
+    })
     return NextResponse.json(
       { error: 'Error al completar la cita' },
       { status: 500 }

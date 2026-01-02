@@ -31,7 +31,7 @@
           "sku_suffix": "-BRG"
         }
       ],
-      "image_url": "https://www.littmann.com/3M/images/classic-iii.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "diaphragm": "Doble cara",
         "tubing_length": "69cm",
@@ -61,7 +61,7 @@
           "sku_suffix": "-NVY"
         }
       ],
-      "image_url": "https://www.littmann.com/3M/images/cardiology-iv.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "diaphragm": "Doble cara sintonizable",
         "tubing_length": "69cm",
@@ -86,7 +86,7 @@
           "sku_suffix": "-BLK"
         }
       ],
-      "image_url": "https://www.littmann.com/3M/images/lightweight.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "weight": "118g",
         "tubing_length": "71cm",

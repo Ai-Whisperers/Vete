@@ -9,6 +9,18 @@ interface ProductsPageProps {
   searchParams: Promise<{ success?: string }>;
 }
 
+// Helper to get category display name from target_species
+function getCategoryDisplay(targetSpecies: string[] | null): string {
+  if (!targetSpecies || targetSpecies.length === 0) return 'Otro';
+  const species = targetSpecies[0];
+  const categoryLabels: Record<string, string> = {
+    'dog': 'Perros',
+    'cat': 'Gatos',
+    'exotic': 'Exóticos',
+  };
+  return categoryLabels[species] || 'Otro';
+}
+
 export default async function ProductsPage({ params, searchParams }: ProductsPageProps): Promise<React.ReactElement> {
   const supabase = await createClient();
   const { clinic } = await params;
@@ -32,7 +44,7 @@ export default async function ProductsPage({ params, searchParams }: ProductsPag
     .single();
 
   const isStaff = profile?.role === 'vet' || profile?.role === 'admin';
-  
+
   if (!isStaff) {
       return (
         <div className="text-center py-20">
@@ -45,12 +57,38 @@ export default async function ProductsPage({ params, searchParams }: ProductsPag
       )
   }
 
-  // 2. Fetch Products
+  // 2. Fetch Products with inventory
   const { data: products } = await supabase
-    .from('products')
-    .select('*')
-    .eq('tenant_id', profile.tenant_id) // Extra safety, RLS covers it
+    .from('store_products')
+    .select(`
+      id,
+      name,
+      description,
+      base_price,
+      sku,
+      image_url,
+      target_species,
+      is_active,
+      store_inventory (
+        stock_quantity
+      )
+    `)
+    .eq('tenant_id', profile.tenant_id)
+    .is('deleted_at', null)
     .order('name', { ascending: true });
+
+  // Transform products to include stock from inventory
+  const productsWithStock = products?.map(product => {
+    const inventory = Array.isArray(product.store_inventory)
+      ? product.store_inventory[0]
+      : product.store_inventory;
+    return {
+      ...product,
+      price: product.base_price,
+      stock: inventory?.stock_quantity ?? 0,
+      category: getCategoryDisplay(product.target_species),
+    };
+  }) || [];
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
@@ -67,7 +105,7 @@ export default async function ProductsPage({ params, searchParams }: ProductsPag
                 </h1>
                 <p className="text-[var(--text-secondary)]">Gestiona el stock y precios de la clínica.</p>
              </div>
-             
+
              <div className="flex gap-3">
                  <Link href={`/${clinic}/portal/products/new`} className="flex items-center justify-center gap-2 text-[var(--primary)] font-bold bg-[var(--primary)]/10 hover:bg-[var(--primary)] hover:text-white px-6 py-3 rounded-xl transition-all shrink-0">
                      <Icons.Plus className="w-5 h-5" /> <span className="hidden md:inline">Nuevo Producto</span>
@@ -76,7 +114,7 @@ export default async function ProductsPage({ params, searchParams }: ProductsPag
         </div>
 
         {/* Empty State */}
-        {(!products || products.length === 0) && (
+        {productsWithStock.length === 0 && (
             <div className="text-center py-16 bg-white rounded-3xl border border-dashed border-gray-300">
                 <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto text-gray-400 mb-4">
                     <Icons.Package className="w-10 h-10" />
@@ -88,7 +126,7 @@ export default async function ProductsPage({ params, searchParams }: ProductsPag
 
         {/* Product Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {products?.map((product) => (
+            {productsWithStock.map((product) => (
                 <div key={product.id} className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden group hover:shadow-md transition-all">
                     {/* Image / Placeholder */}
                     <div className="h-48 bg-gray-100 relative">
@@ -111,7 +149,7 @@ export default async function ProductsPage({ params, searchParams }: ProductsPag
                                 ${product.price}
                             </span>
                         </div>
-                        
+
                         <div className="flex items-center gap-2 text-sm text-[var(--text-secondary)] mb-4">
                             <Icons.Package className="w-4 h-4" />
                             <span>Stock: <span className={product.stock < 5 ? "text-red-500 font-bold" : "font-bold"}>{product.stock}</span> u.</span>

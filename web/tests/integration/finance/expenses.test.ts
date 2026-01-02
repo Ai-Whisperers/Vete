@@ -210,7 +210,8 @@ describe('Finance - Expenses CRUD', () => {
         .eq('tenant_id', DEFAULT_TENANT.id);
 
       expect(error).toBeNull();
-      expect(data.length).toBeGreaterThan(0);
+      expect(data).not.toBeNull();
+      expect(data!.length).toBeGreaterThan(0);
     });
 
     test('filters expenses by category', async () => {
@@ -221,7 +222,8 @@ describe('Finance - Expenses CRUD', () => {
         .eq('category', 'Inventario');
 
       expect(error).toBeNull();
-      expect(data.every((e: { category: string }) => e.category === 'Inventario')).toBe(true);
+      expect(data).not.toBeNull();
+      expect(data!.every((e: { category: string }) => e.category === 'Inventario')).toBe(true);
     });
 
     test('filters expenses by date range', async () => {
@@ -247,10 +249,11 @@ describe('Finance - Expenses CRUD', () => {
         .order('date', { ascending: false });
 
       expect(error).toBeNull();
+      expect(data).not.toBeNull();
       // Verify descending order
-      for (let i = 1; i < data.length; i++) {
-        expect(new Date(data[i].date).getTime()).toBeLessThanOrEqual(
-          new Date(data[i - 1].date).getTime()
+      for (let i = 1; i < data!.length; i++) {
+        expect(new Date(data![i].date).getTime()).toBeLessThanOrEqual(
+          new Date(data![i - 1].date).getTime()
         );
       }
     });
@@ -263,7 +266,8 @@ describe('Finance - Expenses CRUD', () => {
         .range(0, 4);
 
       expect(error1).toBeNull();
-      expect(page1.length).toBeLessThanOrEqual(5);
+      expect(page1).not.toBeNull();
+      expect(page1!.length).toBeLessThanOrEqual(5);
     });
   });
 
@@ -383,8 +387,9 @@ describe('Finance - Expenses CRUD', () => {
         .gte('date', startDate.toISOString().split('T')[0]);
 
       expect(error).toBeNull();
+      expect(data).not.toBeNull();
 
-      const total = data.reduce(
+      const total = data!.reduce(
         (sum: number, e: { amount: number }) => sum + e.amount,
         0
       );
@@ -399,8 +404,9 @@ describe('Finance - Expenses CRUD', () => {
         .eq('tenant_id', DEFAULT_TENANT.id);
 
       expect(error).toBeNull();
+      expect(data).not.toBeNull();
 
-      const byCategory = data.reduce(
+      const byCategory = data!.reduce(
         (acc: Record<string, number>, e: { category: string; amount: number }) => {
           acc[e.category] = (acc[e.category] || 0) + e.amount;
           return acc;
@@ -418,8 +424,9 @@ describe('Finance - Expenses CRUD', () => {
         .eq('tenant_id', DEFAULT_TENANT.id);
 
       expect(error).toBeNull();
+      expect(data).not.toBeNull();
 
-      const byMonth = data.reduce(
+      const byMonth = data!.reduce(
         (acc: Record<string, number>, e: { date: string; amount: number }) => {
           const month = e.date.substring(0, 7); // YYYY-MM
           acc[month] = (acc[month] || 0) + e.amount;
@@ -438,8 +445,9 @@ describe('Finance - Expenses CRUD', () => {
         .eq('tenant_id', DEFAULT_TENANT.id);
 
       expect(error).toBeNull();
+      expect(data).not.toBeNull();
 
-      const categoryTotals = data.reduce(
+      const categoryTotals = data!.reduce(
         (acc: Record<string, number>, e: { category: string; amount: number }) => {
           acc[e.category] = (acc[e.category] || 0) + e.amount;
           return acc;
@@ -483,8 +491,10 @@ describe('Finance - Expenses CRUD', () => {
         .eq('tenant_id', 'petlife');
 
       // Verify isolation
-      expect(adrisExpenses.some((e: { id: string }) => e.id === petlifeExpense.id)).toBe(false);
-      expect(petlifeExpenses.some((e: { id: string }) => e.id === petlifeExpense.id)).toBe(true);
+      expect(adrisExpenses).not.toBeNull();
+      expect(petlifeExpenses).not.toBeNull();
+      expect(adrisExpenses!.some((e: { id: string }) => e.id === petlifeExpense.id)).toBe(false);
+      expect(petlifeExpenses!.some((e: { id: string }) => e.id === petlifeExpense.id)).toBe(true);
     });
   });
 });

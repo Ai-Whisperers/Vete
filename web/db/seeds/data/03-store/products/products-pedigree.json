@@ -36,7 +36,7 @@
           "sku_suffix": "-21KG"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop&q=pedigree-adulto.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "age_range": "1+ años",
         "main_ingredient": "Carne"
@@ -70,7 +70,7 @@
           "sku_suffix": "-21KG"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop&q=pedigree-carne.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "flavor": "Carne",
         "age_range": "1+ años"
@@ -110,7 +110,7 @@
           "sku_suffix": "-21KG"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop&q=pedigree-cachorro.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "age_range": "Hasta 1 año",
         "lifestage": "Puppy"
@@ -138,7 +138,7 @@
           "sku_suffix": "-15KG"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop&q=pedigree-senior.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "age_range": "7+ años",
         "special_need": "Senior"
@@ -172,7 +172,7 @@
           "sku_suffix": "-6KG"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop&q=pedigree-mini.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "breed_size": "Pequeño",
         "kibble_size": "Mini"
@@ -194,7 +194,7 @@
           "sku_suffix": "-290G"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop&q=pedigree-wet-carne.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "format": "Lata",
         "flavor": "Carne"
@@ -216,7 +216,7 @@
           "sku_suffix": "-290G"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop&q=pedigree-wet-pollo.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "format": "Lata",
         "flavor": "Pollo"
@@ -244,7 +244,7 @@
           "sku_suffix": "-28"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop&q=pedigree-dentastix.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "purpose": "Salud dental",
         "texture": "Masticable"
@@ -272,7 +272,7 @@
           "sku_suffix": "-1KG"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1568640347023-a616a30bc3bd?w=400&h=400&fit=crop&q=pedigree-biscrok.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "type": "Galletas",
         "texture": "Crujiente"

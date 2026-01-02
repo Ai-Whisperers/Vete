@@ -13,6 +13,9 @@ import { useToast } from '@/components/ui/Toast';
 
 const queryClient = new QueryClient();
 
+/** Points value in currency (e.g., 100 points = 1 unit of currency) */
+const POINT_VALUE = 100;
+
 export default function LoyaltyRedemptionWrapper(props: LoyaltyRedemptionProps) {
   return (
     <QueryClientProvider client={queryClient}>

@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { apiError, HTTP_STATUS } from '@/lib/api/errors';
 
 // TICKET-TYPE-005: Type definitions for P&L calculations
 interface ExpenseBreakdown {
@@ -17,7 +18,7 @@ export async function GET(request: Request) {
     // Authentication check
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
-        return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+        return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
     }
 
     // Get user profile - only staff can view financial data
@@ -28,7 +29,7 @@ export async function GET(request: Request) {
         .single();
 
     if (!profile || !['vet', 'admin'].includes(profile.role)) {
-        return NextResponse.json({ error: 'Solo el personal puede ver datos financieros' }, { status: 403 });
+        return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
     }
 
     const { searchParams } = new URL(request.url);
@@ -38,7 +39,7 @@ export async function GET(request: Request) {
 
     // Verify user belongs to the requested clinic
     if (clinic !== profile.clinic_id) {
-        return NextResponse.json({ error: 'No tienes acceso a esta clínica' }, { status: 403 });
+        return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN);
     }
 
     // 1. Get Revenue (Paid Carts)

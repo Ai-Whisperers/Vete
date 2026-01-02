@@ -48,12 +48,12 @@ export function PetServiceGroup({
   const { updateQuantity, removeItem } = useCart();
 
   const handleIncrement = (item: CartItem) => {
-    updateQuantity(item.id, item.quantity + 1);
+    updateQuantity(item.id, 1);
   };
 
   const handleDecrement = (item: CartItem) => {
     if (item.quantity > 1) {
-      updateQuantity(item.id, item.quantity - 1);
+      updateQuantity(item.id, -1);
     } else {
       removeItem(item.id);
     }

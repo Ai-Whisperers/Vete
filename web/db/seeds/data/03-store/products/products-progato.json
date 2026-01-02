@@ -30,7 +30,7 @@
           "sku_suffix": "-20KG"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1574158622682-e40e69881006?w=400&h=400&fit=crop-piedra.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "type": "Piedra sanitaria",
         "clumping": false,
@@ -59,7 +59,7 @@
           "sku_suffix": "-10KG"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1574158622682-e40e69881006?w=400&h=400&fit=crop-arena.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "type": "Bentonita",
         "clumping": true,
@@ -88,7 +88,7 @@
           "sku_suffix": "-10KG"
         }
       ],
-      "image_url": "https://images.unsplash.com/photo-1574158622682-e40e69881006?w=400&h=400&fit=crop-perfumada.png",
+      "image_url": "/placeholder-product.svg",
       "attributes": {
         "type": "Bentonita",
         "clumping": true,

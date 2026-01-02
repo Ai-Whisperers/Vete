@@ -104,14 +104,16 @@ describe('Multi-Tenant Isolation', () => {
         .eq('tenant_id', 'petlife');
 
       // Adris profiles should not include PetLife users
-      const adrisIds = adrisProfiles.map((p: { id: string }) => p.id);
+      expect(adrisProfiles).not.toBeNull();
+      const adrisIds = adrisProfiles!.map((p: { id: string }) => p.id);
       expect(adrisIds).toContain(adrisOwnerId);
       expect(adrisIds).toContain(adrisVetId);
       expect(adrisIds).not.toContain(petlifeOwnerId);
       expect(adrisIds).not.toContain(petlifeVetId);
 
       // PetLife profiles should not include Adris users
-      const petlifeIds = petlifeProfiles.map((p: { id: string }) => p.id);
+      expect(petlifeProfiles).not.toBeNull();
+      const petlifeIds = petlifeProfiles!.map((p: { id: string }) => p.id);
       expect(petlifeIds).toContain(petlifeOwnerId);
       expect(petlifeIds).toContain(petlifeVetId);
       expect(petlifeIds).not.toContain(adrisOwnerId);
@@ -132,8 +134,10 @@ describe('Multi-Tenant Isolation', () => {
         .eq('tenant_id', 'petlife');
 
       // Verify isolation
-      const adrisPetIds = adrisPets.map((p: { id: string }) => p.id);
-      const petlifePetIds = petlifePets.map((p: { id: string }) => p.id);
+      expect(adrisPets).not.toBeNull();
+      expect(petlifePets).not.toBeNull();
+      const adrisPetIds = adrisPets!.map((p: { id: string }) => p.id);
+      const petlifePetIds = petlifePets!.map((p: { id: string }) => p.id);
 
       expect(adrisPetIds).toContain(adrisPetId);
       expect(adrisPetIds).not.toContain(petlifePetId);
@@ -195,8 +199,10 @@ describe('Multi-Tenant Isolation', () => {
         .select('*')
         .eq('tenant_id', 'petlife');
 
-      const adrisIds = adrisAppts.map((a: { id: string }) => a.id);
-      const petlifeIds = petlifeAppts.map((a: { id: string }) => a.id);
+      expect(adrisAppts).not.toBeNull();
+      expect(petlifeAppts).not.toBeNull();
+      const adrisIds = adrisAppts!.map((a: { id: string }) => a.id);
+      const petlifeIds = petlifeAppts!.map((a: { id: string }) => a.id);
 
       expect(adrisIds).toContain(adrisAppointmentId);
       expect(adrisIds).not.toContain(petlifeAppointmentId);
@@ -252,8 +258,10 @@ describe('Multi-Tenant Isolation', () => {
         .select('*')
         .eq('tenant_id', 'petlife');
 
-      const adrisIds = adrisRecords.map((r: { id: string }) => r.id);
-      const petlifeIds = petlifeRecords.map((r: { id: string }) => r.id);
+      expect(adrisRecords).not.toBeNull();
+      expect(petlifeRecords).not.toBeNull();
+      const adrisIds = adrisRecords!.map((r: { id: string }) => r.id);
+      const petlifeIds = petlifeRecords!.map((r: { id: string }) => r.id);
 
       expect(adrisIds).toContain(adrisRecordId);
       expect(adrisIds).not.toContain(petlifeRecordId);
@@ -309,8 +317,10 @@ describe('Multi-Tenant Isolation', () => {
         .select('*')
         .eq('tenant_id', 'petlife');
 
-      const adrisIds = adrisProducts.map((p: { id: string }) => p.id);
-      const petlifeIds = petlifeProducts.map((p: { id: string }) => p.id);
+      expect(adrisProducts).not.toBeNull();
+      expect(petlifeProducts).not.toBeNull();
+      const adrisIds = adrisProducts!.map((p: { id: string }) => p.id);
+      const petlifeIds = petlifeProducts!.map((p: { id: string }) => p.id);
 
       expect(adrisIds).toContain(adrisProductId);
       expect(adrisIds).not.toContain(petlifeProductId);

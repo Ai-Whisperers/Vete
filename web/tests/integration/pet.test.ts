@@ -10,7 +10,7 @@ test('creates a pet via Supabase client', async () => {
     name: 'TestDog',
     species: 'dog',
     weight_kg: 10,
-  });
+  }).select();
   expect(error).toBeNull();
   expect(data).toBeDefined();
   // Cleanup

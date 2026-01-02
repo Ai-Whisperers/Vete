@@ -3,6 +3,7 @@
 import { withActionAuth, actionSuccess, actionError } from '@/lib/actions'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { logger } from '@/lib/logger'
 
 export const createMedicalRecord = withActionAuth(
   async ({ profile, user, supabase }, formData: FormData) => {
@@ -35,7 +36,13 @@ export const createMedicalRecord = withActionAuth(
           .upload(fileName, file)
 
         if (uploadError) {
-          console.error('Upload Error:', uploadError)
+          logger.error('Error uploading medical record attachment', {
+            tenantId: profile.tenant_id,
+            userId: user.id,
+            petId,
+            fileName,
+            error: uploadError.message
+          })
           continue // Skip failed uploads but continue
         }
 
@@ -77,7 +84,13 @@ export const createMedicalRecord = withActionAuth(
     })
 
     if (error) {
-      console.error('Create Record Error:', error)
+      logger.error('Error creating medical record', {
+        tenantId: profile.tenant_id,
+        userId: user.id,
+        petId,
+        recordType: type,
+        error: error.message
+      })
       return actionError('Failed to create record')
     }
 

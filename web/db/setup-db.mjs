@@ -71,6 +71,10 @@ const SCHEMA_ORDER = [
   "60_store/inventory/01_inventory.sql",
   "60_store/orders/01_orders.sql",
   "60_store/reviews/01_reviews.sql",
+  // Store customer features
+  "60_store/cart/01_cart.sql",
+  "60_store/wishlist/01_wishlist.sql",
+  "60_store/stock_alerts/01_stock_alerts.sql",
   // Store intelligence (B2B features)
   "60_store/procurement/01_procurement.sql",
   // Store utilities
@@ -95,7 +99,7 @@ const SCHEMA_ORDER = [
 
   // Phase 14: System
   "85_system/01_staff.sql",
-  // '85_system/02_audit.sql', // Temporarily disabled - has issues
+  "85_system/02_audit.sql",
 
   // Phase 15: Infrastructure
   "90_infrastructure/01_storage.sql",

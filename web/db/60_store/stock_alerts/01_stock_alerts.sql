@@ -59,16 +59,19 @@ CREATE INDEX IF NOT EXISTS idx_store_stock_alerts_pending
 ALTER TABLE public.store_stock_alerts ENABLE ROW LEVEL SECURITY;
 
 -- Users can manage their own alerts
+DROP POLICY IF EXISTS "Users manage own alerts" ON public.store_stock_alerts;
 CREATE POLICY "Users manage own alerts" ON public.store_stock_alerts
     FOR ALL
     USING (user_id = auth.uid() OR user_id IS NULL);
 
 -- Staff can view all alerts in their tenant
+DROP POLICY IF EXISTS "Staff view tenant alerts" ON public.store_stock_alerts;
 CREATE POLICY "Staff view tenant alerts" ON public.store_stock_alerts
     FOR SELECT
     USING (is_staff_of(tenant_id));
 
 -- Anyone can create an alert (for guest users)
+DROP POLICY IF EXISTS "Anyone can create alert" ON public.store_stock_alerts;
 CREATE POLICY "Anyone can create alert" ON public.store_stock_alerts
     FOR INSERT
     WITH CHECK (true);

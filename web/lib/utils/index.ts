@@ -1,3 +1,15 @@
+// Core utilities
 export * from './api-client';
 export * from './formatting';
 export * from './validation';
+
+// Domain-specific utilities
+export * from './pet-size';
+export * from './cart-utils';
+
+// Performance utilities
+export * from './memoize';
+
+// Note: format-compat.ts provides backward compatibility shims.
+// It's intentionally NOT re-exported here to avoid conflicts.
+// Files using old formatting imports should update to use '@/lib/formatting'.

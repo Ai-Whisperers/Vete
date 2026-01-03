@@ -40,9 +40,9 @@ interface Vaccine {
 }
 
 const statusConfig = {
-  verified: { label: 'Verificada', color: 'bg-green-100 text-green-700', icon: CheckCircle2 },
-  pending: { label: 'Pendiente', color: 'bg-amber-100 text-amber-700', icon: Clock },
-  rejected: { label: 'Rechazada', color: 'bg-red-100 text-red-700', icon: AlertTriangle },
+  verified: { label: 'Verificada', bgColor: 'var(--status-success-bg)', textColor: 'var(--status-success-dark)', icon: CheckCircle2 },
+  pending: { label: 'Pendiente', bgColor: 'var(--status-warning-bg)', textColor: 'var(--status-warning-dark)', icon: Clock },
+  rejected: { label: 'Rechazada', bgColor: 'var(--status-error-bg)', textColor: 'var(--status-error-dark)', icon: AlertTriangle },
 };
 
 export default async function VaccinesPage({ params, searchParams }: Props): Promise<React.ReactElement> {
@@ -176,35 +176,35 @@ export default async function VaccinesPage({ params, searchParams }: Props): Pro
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <div className="bg-red-50 border border-red-100 rounded-xl p-4">
-          <div className="flex items-center gap-2 text-red-600 mb-1">
+        <div className="rounded-xl p-4" style={{ backgroundColor: "var(--status-error-bg)", border: "1px solid var(--status-error-light)" }}>
+          <div className="flex items-center gap-2 mb-1" style={{ color: "var(--status-error)" }}>
             <AlertTriangle className="w-4 h-4" />
             <span className="text-xs font-bold uppercase">Vencidas</span>
           </div>
-          <p className="text-2xl font-black text-red-700">{overdueVaccines.length}</p>
+          <p className="text-2xl font-black" style={{ color: "var(--status-error-dark)" }}>{overdueVaccines.length}</p>
         </div>
-        <div className="bg-amber-50 border border-amber-100 rounded-xl p-4">
-          <div className="flex items-center gap-2 text-amber-600 mb-1">
+        <div className="rounded-xl p-4" style={{ backgroundColor: "var(--status-warning-bg)", border: "1px solid var(--status-warning)" }}>
+          <div className="flex items-center gap-2 mb-1" style={{ color: "var(--status-warning-dark)" }}>
             <Clock className="w-4 h-4" />
             <span className="text-xs font-bold uppercase">Próximas 30 días</span>
           </div>
-          <p className="text-2xl font-black text-amber-700">{upcomingVaccines.length}</p>
+          <p className="text-2xl font-black" style={{ color: "var(--status-warning-dark)" }}>{upcomingVaccines.length}</p>
         </div>
-        <div className="bg-blue-50 border border-blue-100 rounded-xl p-4">
-          <div className="flex items-center gap-2 text-blue-600 mb-1">
+        <div className="rounded-xl p-4" style={{ backgroundColor: "var(--status-info-bg)", border: "1px solid var(--status-info)" }}>
+          <div className="flex items-center gap-2 mb-1" style={{ color: "var(--status-info)" }}>
             <Syringe className="w-4 h-4" />
             <span className="text-xs font-bold uppercase">Pendientes</span>
           </div>
-          <p className="text-2xl font-black text-blue-700">
+          <p className="text-2xl font-black" style={{ color: "var(--status-info-dark)" }}>
             {typedVaccines.filter((v) => v.status === 'pending').length}
           </p>
         </div>
-        <div className="bg-green-50 border border-green-100 rounded-xl p-4">
-          <div className="flex items-center gap-2 text-green-600 mb-1">
+        <div className="rounded-xl p-4" style={{ backgroundColor: "var(--status-success-bg)", border: "1px solid var(--status-success)" }}>
+          <div className="flex items-center gap-2 mb-1" style={{ color: "var(--status-success)" }}>
             <CheckCircle2 className="w-4 h-4" />
             <span className="text-xs font-bold uppercase">Verificadas</span>
           </div>
-          <p className="text-2xl font-black text-green-700">
+          <p className="text-2xl font-black" style={{ color: "var(--status-success-dark)" }}>
             {typedVaccines.filter((v) => v.status === 'verified').length}
           </p>
         </div>
@@ -213,13 +213,13 @@ export default async function VaccinesPage({ params, searchParams }: Props): Pro
       {/* Filters */}
       <div className="bg-white rounded-xl p-4 mb-6 flex flex-col sm:flex-row gap-4">
         <form className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--text-muted)]" />
           <input
             type="text"
             name="query"
             defaultValue={query}
             placeholder="Buscar por vacuna, mascota o dueño..."
-            className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none"
+            className="w-full pl-10 pr-4 py-2 rounded-lg border border-[var(--border)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none"
           />
         </form>
         <VaccinesFilter clinic={clinic} currentStatus={filterStatus || 'all'} />
@@ -228,7 +228,7 @@ export default async function VaccinesPage({ params, searchParams }: Props): Pro
       {/* Overdue Section */}
       {overdueVaccines.length > 0 && (
         <div className="mb-8">
-          <h2 className="text-lg font-bold text-red-700 flex items-center gap-2 mb-4">
+          <h2 className="text-lg font-bold flex items-center gap-2 mb-4" style={{ color: "var(--status-error-dark)" }}>
             <AlertTriangle className="w-5 h-5" />
             Vacunas Vencidas ({overdueVaccines.length})
           </h2>
@@ -251,7 +251,7 @@ export default async function VaccinesPage({ params, searchParams }: Props): Pro
       {/* Upcoming Section */}
       {upcomingVaccines.length > 0 && (
         <div className="mb-8">
-          <h2 className="text-lg font-bold text-amber-700 flex items-center gap-2 mb-4">
+          <h2 className="text-lg font-bold flex items-center gap-2 mb-4" style={{ color: "var(--status-warning-dark)" }}>
             <Clock className="w-5 h-5" />
             Próximas a Vencer ({upcomingVaccines.length})
           </h2>
@@ -276,9 +276,9 @@ export default async function VaccinesPage({ params, searchParams }: Props): Pro
           Todas las Vacunas ({typedVaccines.length})
         </h2>
         {typedVaccines.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-xl border border-dashed border-gray-300">
-            <Syringe className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-500">No se encontraron vacunas</p>
+          <div className="text-center py-12 bg-white rounded-xl border border-dashed border-[var(--border)]">
+            <Syringe className="w-12 h-12 text-[var(--text-muted)] mx-auto mb-4" />
+            <p className="text-[var(--text-secondary)]">No se encontraron vacunas</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -319,16 +319,19 @@ function VaccineCard({
   const StatusIcon = status.icon;
   const daysUntil = vaccine.next_due_date ? getDaysUntilDue(vaccine.next_due_date) : null;
 
+  const borderStyle = isOverdue
+    ? { border: "1px solid var(--status-error-light)" }
+    : { border: "1px solid var(--border-light)" };
+
   return (
     <Link
       href={`/${clinic}/portal/pets/${vaccine.pets.id}`}
-      className={`block bg-white rounded-xl p-4 border hover:shadow-md transition-all ${
-        isOverdue ? 'border-red-200' : 'border-gray-100'
-      }`}
+      className="block bg-white rounded-xl p-4 hover:shadow-md transition-all"
+      style={borderStyle}
     >
       <div className="flex items-center gap-4">
         {/* Pet Photo */}
-        <div className="w-12 h-12 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0">
+        <div className="w-12 h-12 rounded-xl overflow-hidden bg-[var(--bg-subtle)] flex-shrink-0">
           {vaccine.pets.photo_url ? (
             <Image
               src={vaccine.pets.photo_url}
@@ -338,7 +341,7 @@ function VaccineCard({
               className="w-full h-full object-cover"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-gray-300">
+            <div className="w-full h-full flex items-center justify-center text-[var(--text-muted)]">
               {getSpeciesIcon(vaccine.pets.species)}
             </div>
           )}
@@ -348,7 +351,10 @@ function VaccineCard({
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
             <span className="font-bold text-[var(--text-primary)]">{vaccine.name}</span>
-            <span className={`px-2 py-0.5 rounded-full text-xs font-bold flex items-center gap-1 ${status.color}`}>
+            <span
+              className="px-2 py-0.5 rounded-full text-xs font-bold flex items-center gap-1"
+              style={{ backgroundColor: status.bgColor, color: status.textColor }}
+            >
               <StatusIcon className="w-3 h-3" />
               {status.label}
             </span>
@@ -360,14 +366,20 @@ function VaccineCard({
 
         {/* Due Date */}
         <div className="text-right flex-shrink-0">
-          <p className="text-xs text-gray-400">Próxima dosis</p>
+          <p className="text-xs text-[var(--text-muted)]">Próxima dosis</p>
           {vaccine.next_due_date ? (
             <>
-              <p className={`font-bold ${isOverdue ? 'text-red-600' : daysUntil && daysUntil <= 7 ? 'text-amber-600' : 'text-[var(--text-primary)]'}`}>
+              <p
+                className="font-bold"
+                style={{ color: isOverdue ? 'var(--status-error)' : daysUntil && daysUntil <= 7 ? 'var(--status-warning-dark)' : 'var(--text-primary)' }}
+              >
                 {formatDate(vaccine.next_due_date)}
               </p>
               {daysUntil !== null && (
-                <p className={`text-xs ${isOverdue ? 'text-red-500' : 'text-gray-400'}`}>
+                <p
+                  className="text-xs"
+                  style={{ color: isOverdue ? 'var(--status-error)' : 'var(--text-muted)' }}
+                >
                   {isOverdue
                     ? `Vencida hace ${Math.abs(daysUntil)} días`
                     : `En ${daysUntil} días`}
@@ -375,7 +387,7 @@ function VaccineCard({
               )}
             </>
           ) : (
-            <p className="text-gray-400 text-sm">-</p>
+            <p className="text-[var(--text-muted)] text-sm">-</p>
           )}
         </div>
       </div>

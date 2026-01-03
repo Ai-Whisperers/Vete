@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import * as Icons from 'lucide-react'
 import { rescheduleAppointment, checkAvailableSlots } from '@/app/actions/appointments'
+import { useFormSubmit } from '@/hooks'
 import { useQuery } from '@tanstack/react-query'
 
 interface RescheduleDialogProps {
@@ -11,6 +12,11 @@ interface RescheduleDialogProps {
   currentDate: string
   currentTime: string
   onSuccess?: () => void
+}
+
+interface RescheduleData {
+  date: string
+  time: string
 }
 
 export function RescheduleDialog({
@@ -23,8 +29,22 @@ export function RescheduleDialog({
   const [showDialog, setShowDialog] = useState(false)
   const [newDate, setNewDate] = useState(currentDate)
   const [newTime, setNewTime] = useState('')
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [submitError, setSubmitError] = useState<string | null>(null)
+
+  // Use the new useFormSubmit hook for submission handling
+  const { submit, isSubmitting, error: submitError, reset: resetSubmit } = useFormSubmit(
+    async (data: RescheduleData) => {
+      const result = await rescheduleAppointment(appointmentId, data.date, data.time)
+      return result
+    },
+    {
+      onSuccess: () => {
+        setShowDialog(false)
+        setNewDate('')
+        setNewTime('')
+        onSuccess?.()
+      }
+    }
+  )
 
   // Get tomorrow's date as minimum
   const tomorrow = new Date()
@@ -48,25 +68,10 @@ export function RescheduleDialog({
 
   async function handleReschedule() {
     if (!newDate || !newTime) {
-      setSubmitError('Selecciona una fecha y hora')
       return
     }
 
-    setIsSubmitting(true)
-    setSubmitError(null)
-
-    const result = await rescheduleAppointment(appointmentId, newDate, newTime)
-
-    if (!result.success) {
-      setSubmitError(result.error)
-      setIsSubmitting(false)
-    } else {
-      setShowDialog(false)
-      setNewDate('')
-      setNewTime('')
-      onSuccess?.()
-      setIsSubmitting(false)
-    }
+    await submit({ date: newDate, time: newTime })
   }
 
   function handleClose() {
@@ -74,7 +79,7 @@ export function RescheduleDialog({
       setShowDialog(false)
       setNewDate(currentDate)
       setNewTime('')
-      setSubmitError(null)
+      resetSubmit()
     }
   }
 

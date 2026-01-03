@@ -51,6 +51,7 @@ const LazyQuickViewModal = lazy(() =>
 
 // Dynamically import components that aren't needed immediately
 import { useCart } from '@/context/cart-context';
+import BuyAgainSection from '@/components/store/buy-again-section';
 
 const queryClient = new QueryClient();
 
@@ -358,6 +359,9 @@ function StorePageClient({ config, heroImage, initialProductData }: StorePageCli
           </div>
         </div>
       </div>
+
+      {/* Buy Again Section - Only shown for logged in users with purchase history */}
+      <BuyAgainSection maxItems={4} />
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8 md:py-12">

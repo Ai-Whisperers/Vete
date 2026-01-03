@@ -171,7 +171,7 @@ CREATE TABLE IF NOT EXISTS public.vaccine_protocols (
 );
 
 COMMENT ON TABLE public.vaccine_protocols IS 'Standard vaccination protocols by species and vaccine type';
-COMMENT ON COLUMN public.vaccine_protocols.type IS 'Vaccine type: core (essential), non-core (recommended), lifestyle (optional)';
+COMMENT ON COLUMN public.vaccine_protocols.protocol_type IS 'Vaccine type: core (essential), non-core (recommended), lifestyle (optional)';
 COMMENT ON COLUMN public.vaccine_protocols.diseases_prevented IS 'Array of diseases this vaccine prevents';
 COMMENT ON COLUMN public.vaccine_protocols.booster_intervals_months IS 'Array of booster intervals in months';
 

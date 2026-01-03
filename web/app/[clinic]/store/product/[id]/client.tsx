@@ -26,6 +26,7 @@ import { useWishlist } from '@/context/wishlist-context';
 import ProductGallery from '@/components/store/product-detail/product-gallery';
 import ProductTabs from '@/components/store/product-detail/product-tabs';
 import RelatedProducts from '@/components/store/product-detail/related-products';
+import SubscribeButton from '@/components/store/subscribe-button';
 
 interface ProductDetailResponse {
   product: StoreProductWithDetails;
@@ -436,7 +437,7 @@ export default function ProductDetailClient({ clinic, productId, clinicConfig }:
 
             {/* Quantity & Add to Cart */}
             {inStock && (
-              <div className="flex flex-col sm:flex-row gap-4 mb-6">
+              <div className="flex flex-col sm:flex-row gap-4 mb-4">
                 {/* Quantity Selector */}
                 <div className="flex items-center border border-[var(--border-default)] rounded-lg">
                   <button
@@ -476,6 +477,19 @@ export default function ProductDetailClient({ clinic, productId, clinicConfig }:
                     </>
                   )}
                 </button>
+              </div>
+            )}
+
+            {/* Subscribe Button - Only for products that make sense for subscriptions */}
+            {inStock && !product.is_prescription_required && (
+              <div className="mb-6">
+                <SubscribeButton
+                  productId={product.id}
+                  productName={product.name}
+                  price={currentPrice}
+                  variantId={selectedVariant}
+                  variantName={selectedVariant ? product.variants.find(v => v.id === selectedVariant)?.name : null}
+                />
               </div>
             )}
 

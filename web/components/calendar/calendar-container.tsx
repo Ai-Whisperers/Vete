@@ -44,7 +44,6 @@ interface CalendarContainerProps {
   services?: Service[]
   staff?: Staff[]
   clinicSlug: string
-  isAdmin?: boolean
   onCreateAppointment?: (data: {
     petId: string
     serviceId?: string
@@ -191,7 +190,6 @@ export function CalendarContainer({
   services = [],
   staff = [],
   clinicSlug,
-  isAdmin = false,
   onCreateAppointment,
   onDeleteEvent,
   onEventEdit,
@@ -295,16 +293,14 @@ export function CalendarContainer({
 
   return (
     <div className="flex flex-col h-full">
-      {/* Filter toolbar */}
-      {(staff.length > 0 || isAdmin) && (
-        <FilterToolbar
-          staff={staff}
-          selectedStaff={selectedStaff}
-          selectedEventTypes={selectedEventTypes}
-          onStaffChange={setSelectedStaff}
-          onEventTypeChange={setSelectedEventTypes}
-        />
-      )}
+      {/* Filter toolbar - always show since event type filters are always useful */}
+      <FilterToolbar
+        staff={staff}
+        selectedStaff={selectedStaff}
+        selectedEventTypes={selectedEventTypes}
+        onStaffChange={setSelectedStaff}
+        onEventTypeChange={setSelectedEventTypes}
+      />
 
       {/* Calendar */}
       <div className="flex-1 min-h-0">

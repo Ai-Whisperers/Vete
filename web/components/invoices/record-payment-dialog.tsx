@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import * as Icons from 'lucide-react'
 import { recordPayment } from '@/app/actions/invoices'
+import { useFormSubmit } from '@/hooks'
 import { formatCurrency, paymentMethodLabels, type PaymentMethod, type RecordPaymentData } from '@/lib/types/invoicing'
 
 interface RecordPaymentDialogProps {
@@ -15,19 +16,29 @@ interface RecordPaymentDialogProps {
 
 export function RecordPaymentDialog({ invoiceId, amountDue, isOpen, onClose }: RecordPaymentDialogProps) {
   const router = useRouter()
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
   const [amount, setAmount] = useState(amountDue.toString())
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cash')
   const [referenceNumber, setReferenceNumber] = useState('')
   const [notes, setNotes] = useState('')
 
+  // Use the new useFormSubmit hook to handle form submission
+  const { submit, isSubmitting: loading, error } = useFormSubmit(
+    async (paymentData: RecordPaymentData) => {
+      const result = await recordPayment(invoiceId, paymentData)
+      return result
+    },
+    {
+      onSuccess: () => {
+        router.refresh()
+        onClose()
+      }
+    }
+  )
+
   if (!isOpen) return null
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
-    setError(null)
 
     // Build typed payment data object
     const paymentData: RecordPaymentData = {
@@ -38,16 +49,7 @@ export function RecordPaymentDialog({ invoiceId, amountDue, isOpen, onClose }: R
       notes: notes || undefined
     }
 
-    const result = await recordPayment(invoiceId, paymentData)
-
-    if (!result.success) {
-      setError(result.error || 'Error al registrar pago')
-      setLoading(false)
-      return
-    }
-
-    router.refresh()
-    onClose()
+    await submit(paymentData)
   }
 
   const payFullAmount = () => {

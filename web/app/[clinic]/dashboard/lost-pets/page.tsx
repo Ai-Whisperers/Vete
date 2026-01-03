@@ -119,16 +119,32 @@ function LostPetsPage(): JSX.Element {
     return labels[status] || status;
   };
 
-  const getStatusColor = (status: string): string => {
+  const getStatusStyle = (status: string): React.CSSProperties => {
     switch (status) {
       case 'lost':
-        return 'bg-red-100 text-red-800 border-red-200';
+        return {
+          backgroundColor: "var(--status-error-bg)",
+          color: "var(--status-error-dark)",
+          borderColor: "var(--status-error-light)"
+        };
       case 'found':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+        return {
+          backgroundColor: "var(--status-warning-bg)",
+          color: "var(--status-warning-dark)",
+          borderColor: "var(--status-warning)"
+        };
       case 'reunited':
-        return 'bg-green-100 text-green-800 border-green-200';
+        return {
+          backgroundColor: "var(--status-success-bg)",
+          color: "var(--status-success-dark)",
+          borderColor: "var(--status-success)"
+        };
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return {
+          backgroundColor: "var(--bg-subtle)",
+          color: "var(--text-secondary)",
+          borderColor: "var(--border)"
+        };
     }
   };
 
@@ -185,36 +201,36 @@ function LostPetsPage(): JSX.Element {
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
-          <div className="flex items-center gap-2 text-gray-600 mb-1">
+        <div className="bg-white rounded-xl p-4 border border-[var(--border-light)]">
+          <div className="flex items-center gap-2 text-[var(--text-secondary)] mb-1">
             <AlertCircle className="w-4 h-4" />
             <span className="text-xs font-medium">Total</span>
           </div>
           <p className="text-2xl font-bold text-[var(--text-primary)]">{stats.total}</p>
         </div>
 
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
-          <div className="flex items-center gap-2 text-red-600 mb-1">
+        <div className="bg-white rounded-xl p-4 border border-[var(--border-light)]">
+          <div className="flex items-center gap-2 mb-1" style={{ color: "var(--status-error)" }}>
             <AlertCircle className="w-4 h-4" />
             <span className="text-xs font-medium">Perdidos</span>
           </div>
-          <p className="text-2xl font-bold text-red-600">{stats.lost}</p>
+          <p className="text-2xl font-bold" style={{ color: "var(--status-error)" }}>{stats.lost}</p>
         </div>
 
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
-          <div className="flex items-center gap-2 text-yellow-600 mb-1">
+        <div className="bg-white rounded-xl p-4 border border-[var(--border-light)]">
+          <div className="flex items-center gap-2 mb-1" style={{ color: "var(--status-warning-dark)" }}>
             <Eye className="w-4 h-4" />
             <span className="text-xs font-medium">Encontrados</span>
           </div>
-          <p className="text-2xl font-bold text-yellow-600">{stats.found}</p>
+          <p className="text-2xl font-bold" style={{ color: "var(--status-warning-dark)" }}>{stats.found}</p>
         </div>
 
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
-          <div className="flex items-center gap-2 text-green-600 mb-1">
+        <div className="bg-white rounded-xl p-4 border border-[var(--border-light)]">
+          <div className="flex items-center gap-2 mb-1" style={{ color: "var(--status-success)" }}>
             <Heart className="w-4 h-4" />
             <span className="text-xs font-medium">Reunidos</span>
           </div>
-          <p className="text-2xl font-bold text-green-600">{stats.reunited}</p>
+          <p className="text-2xl font-bold" style={{ color: "var(--status-success)" }}>{stats.reunited}</p>
         </div>
       </div>
 
@@ -285,7 +301,10 @@ function LostPetsPage(): JSX.Element {
                     <h3 className="font-semibold text-[var(--text-primary)]">
                       {report.pet.name}
                     </h3>
-                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(report.status)}`}>
+                    <span
+                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border"
+                      style={getStatusStyle(report.status)}
+                    >
                       {getStatusIcon(report.status)}
                       {getStatusLabel(report.status)}
                     </span>
@@ -318,9 +337,12 @@ function LostPetsPage(): JSX.Element {
                   </div>
 
                   {report.finder_contact && (
-                    <div className="mt-2 p-2 bg-yellow-50 rounded-lg text-sm">
-                      <strong className="text-yellow-800">Contacto del que encontró:</strong>{' '}
-                      <span className="text-yellow-700">{report.finder_contact}</span>
+                    <div
+                      className="mt-2 p-2 rounded-lg text-sm"
+                      style={{ backgroundColor: "var(--status-warning-bg)" }}
+                    >
+                      <strong style={{ color: "var(--status-warning-dark)" }}>Contacto del que encontró:</strong>{' '}
+                      <span style={{ color: "var(--status-warning-dark)" }}>{report.finder_contact}</span>
                     </div>
                   )}
                 </div>
@@ -331,7 +353,11 @@ function LostPetsPage(): JSX.Element {
                     <button
                       onClick={() => handleUpdateStatus(report.id, 'found')}
                       disabled={updating}
-                      className="px-3 py-1.5 bg-yellow-100 text-yellow-800 rounded-lg text-sm font-medium hover:bg-yellow-200 disabled:opacity-50"
+                      className="px-3 py-1.5 rounded-lg text-sm font-medium disabled:opacity-50 transition-colors"
+                      style={{
+                        backgroundColor: "var(--status-warning-bg)",
+                        color: "var(--status-warning-dark)"
+                      }}
                     >
                       Marcar Encontrado
                     </button>
@@ -341,14 +367,18 @@ function LostPetsPage(): JSX.Element {
                     <button
                       onClick={() => handleUpdateStatus(report.id, 'reunited')}
                       disabled={updating}
-                      className="px-3 py-1.5 bg-green-100 text-green-800 rounded-lg text-sm font-medium hover:bg-green-200 disabled:opacity-50"
+                      className="px-3 py-1.5 rounded-lg text-sm font-medium disabled:opacity-50 transition-colors"
+                      style={{
+                        backgroundColor: "var(--status-success-bg)",
+                        color: "var(--status-success-dark)"
+                      }}
                     >
                       Marcar Reunido
                     </button>
                   )}
 
                   {report.status === 'reunited' && report.resolved_at && (
-                    <div className="text-xs text-center text-green-600">
+                    <div className="text-xs text-center" style={{ color: "var(--status-success)" }}>
                       <CheckCircle className="h-4 w-4 mx-auto mb-1" />
                       {formatDate(report.resolved_at)}
                     </div>

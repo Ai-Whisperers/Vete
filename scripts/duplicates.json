@@ -1,0 +1,15 @@
+{
+  "duplicates": [
+    {
+      "hash": "32182037815bd78793101cde1a9689b171389160ea4e8fccc1ca7fddc4999dd3",
+      "original": "public\\branding\\adris\\images\\apple-touch-icon.png",
+      "duplicate": "public\\branding\\adris\\images\\favicon.ico"
+    },
+    {
+      "hash": "32182037815bd78793101cde1a9689b171389160ea4e8fccc1ca7fddc4999dd3",
+      "original": "public\\branding\\adris\\images\\apple-touch-icon.png",
+      "duplicate": "public\\branding\\adris\\images\\logo-dark.png"
+    }
+  ],
+  "totalFiles": 56
+}

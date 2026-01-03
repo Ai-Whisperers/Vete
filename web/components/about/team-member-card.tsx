@@ -71,9 +71,9 @@ export function TeamMemberCard({ member, gradient, badgeClass, iconName }: TeamM
       {/* Content */}
       <div className="p-6">
         {/* Role badge - Show full role */}
-        <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-3 ${badgeClass}`}>
-          <IconComponent className="w-3 h-3 flex-shrink-0" />
-          <span className="truncate max-w-[180px]" title={member.role}>
+        <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-bold uppercase tracking-wider mb-3 ${badgeClass}`}>
+          <IconComponent className="w-3.5 h-3.5 flex-shrink-0" />
+          <span className="truncate max-w-[200px]" title={member.role}>
             {member.role}
           </span>
         </div>
@@ -84,7 +84,7 @@ export function TeamMemberCard({ member, gradient, badgeClass, iconName }: TeamM
 
         {/* Bio - With expand/collapse for mobile */}
         <div className="relative">
-          <p className={`text-[var(--text-secondary)] text-sm leading-relaxed transition-all duration-300 ${
+          <p className={`text-[var(--text-primary)] text-base leading-relaxed transition-all duration-300 ${
             expanded ? '' : 'line-clamp-3'
           }`}>
             {member.bio}
@@ -112,14 +112,14 @@ export function TeamMemberCard({ member, gradient, badgeClass, iconName }: TeamM
         {/* Specialties tags */}
         {expanded && member.specialties && member.specialties.length > 0 && (
           <div className="mt-4 pt-4 border-t border-gray-100">
-            <p className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-2">
+            <p className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-2">
               Especialidades
             </p>
-            <div className="flex flex-wrap gap-1.5">
+            <div className="flex flex-wrap gap-2">
               {member.specialties.map((specialty, idx) => (
                 <span
                   key={idx}
-                  className="px-2 py-1 bg-[var(--bg-subtle)] text-[var(--text-secondary)] text-xs rounded-full"
+                  className="px-3 py-1.5 bg-[var(--bg-subtle)] text-[var(--text-primary)] text-sm rounded-full font-medium"
                 >
                   {specialty}
                 </span>

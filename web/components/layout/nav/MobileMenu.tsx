@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Calendar, Phone, PawPrint, User, Settings, LogOut, Calculator, Apple, HelpCircle, Gift, Globe } from "lucide-react";
+import { Menu, X, Calendar, Phone, PawPrint, User, Settings, LogOut, Calculator, Apple, HelpCircle, Gift, Globe, LayoutDashboard, Package } from "lucide-react";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 import type { ClinicConfig } from "@/lib/clinics";
 import type { UserProfile } from "./useNavAuth";
@@ -259,6 +259,39 @@ export function MobileMenu({
                   </>
                 )}
               </div>
+
+              {/* Staff-only section: Dashboard & Inventory */}
+              {user && profile && (profile.role === 'admin' || profile.role === 'vet') && (
+                <>
+                  <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mt-6 mb-3">Staff</p>
+                  <div className="flex flex-col gap-1">
+                    <Link
+                      href={`/${clinic}/dashboard`}
+                      onClick={() => setIsOpen(false)}
+                      className={`flex items-center gap-4 py-4 px-4 min-h-[48px] rounded-xl transition-colors ${
+                        isActive(`/${clinic}/dashboard`)
+                          ? "bg-[var(--primary)]/10 text-[var(--primary)]"
+                          : "text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
+                      }`}
+                    >
+                      <LayoutDashboard className="w-5 h-5" />
+                      <span className="font-bold">Dashboard</span>
+                    </Link>
+                    <Link
+                      href={`/${clinic}/portal/inventory`}
+                      onClick={() => setIsOpen(false)}
+                      className={`flex items-center gap-4 py-4 px-4 min-h-[48px] rounded-xl transition-colors ${
+                        isActive(`/${clinic}/portal/inventory`)
+                          ? "bg-[var(--primary)]/10 text-[var(--primary)]"
+                          : "text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]"
+                      }`}
+                    >
+                      <Package className="w-5 h-5" />
+                      <span className="font-bold">Inventario</span>
+                    </Link>
+                  </div>
+                </>
+              )}
 
               {user && (
                 <button

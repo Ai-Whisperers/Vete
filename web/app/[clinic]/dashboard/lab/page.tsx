@@ -130,7 +130,7 @@ export default async function LabOrdersPage({ params, searchParams }: Props) {
         >
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-[var(--text-secondary)]">Pendientes</span>
-            <Icons.Clock className="w-5 h-5 text-blue-500" />
+            <Icons.Clock className="w-5 h-5" style={{ color: "var(--status-info)" }} />
           </div>
           <p className="text-2xl font-bold text-[var(--text-primary)]">{stats.pending}</p>
         </Link>
@@ -145,7 +145,7 @@ export default async function LabOrdersPage({ params, searchParams }: Props) {
         >
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-[var(--text-secondary)]">En Proceso</span>
-            <Icons.Activity className="w-5 h-5 text-yellow-500" />
+            <Icons.Activity className="w-5 h-5" style={{ color: "var(--status-warning)" }} />
           </div>
           <p className="text-2xl font-bold text-[var(--text-primary)]">{stats.in_progress}</p>
         </Link>
@@ -160,22 +160,22 @@ export default async function LabOrdersPage({ params, searchParams }: Props) {
         >
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-[var(--text-secondary)]">Completados</span>
-            <Icons.CheckCircle className="w-5 h-5 text-green-500" />
+            <Icons.CheckCircle className="w-5 h-5" style={{ color: "var(--status-success)" }} />
           </div>
           <p className="text-2xl font-bold text-[var(--text-primary)]">{stats.completed}</p>
         </Link>
 
         <Link
           href={`/${clinic}/dashboard/lab?critical=true`}
-          className={`p-4 rounded-xl border-2 transition-all ${
-            searchQuery === 'critical'
-              ? 'border-red-500 bg-red-50'
-              : 'border-gray-200 hover:border-gray-300 bg-white'
-          }`}
+          className="p-4 rounded-xl border-2 transition-all border-gray-200 hover:border-gray-300 bg-white"
+          style={searchQuery === 'critical' ? {
+            borderColor: "var(--status-error)",
+            backgroundColor: "var(--status-error-bg)"
+          } : undefined}
         >
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-[var(--text-secondary)]">Valores Críticos</span>
-            <Icons.AlertTriangle className="w-5 h-5 text-red-500" />
+            <Icons.AlertTriangle className="w-5 h-5" style={{ color: "var(--status-error)" }} />
           </div>
           <p className="text-2xl font-bold text-[var(--text-primary)]">{stats.critical}</p>
         </Link>

@@ -20,14 +20,20 @@ import {
   MapPin,
   CreditCard,
   RotateCcw,
+  RefreshCw,
+  Plus,
+  FileText,
 } from 'lucide-react';
+import { OrderInvoicePDFButton } from '@/components/store/order-invoice-pdf';
 import { clsx } from 'clsx';
 import type { ClinicConfig } from '@/lib/clinics';
+import { useCart } from '@/context/cart-context';
 
 interface OrderItem {
   id: string;
   product_id: string;
   product_name: string;
+  variant_id: string | null;
   variant_name: string | null;
   quantity: number;
   unit_price: number;
@@ -90,6 +96,7 @@ const PAYMENT_METHOD_LABELS: Record<string, string> = {
 export default function OrderHistoryClient({ config }: Props) {
   const { clinic } = useParams() as { clinic: string };
   const router = useRouter();
+  const { addItem } = useCart();
 
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -98,6 +105,9 @@ export default function OrderHistoryClient({ config }: Props) {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [reorderingItem, setReorderingItem] = useState<string | null>(null);
+  const [reorderingOrder, setReorderingOrder] = useState<string | null>(null);
+  const [reorderFeedback, setReorderFeedback] = useState<{ type: 'success' | 'warning' | 'error'; message: string } | null>(null);
 
   const fetchOrders = useCallback(async () => {
     setLoading(true);
@@ -165,10 +175,143 @@ export default function OrderHistoryClient({ config }: Props) {
     setExpandedOrder(expandedOrder === orderId ? null : orderId);
   };
 
+  // Add single item to cart
+  const handleAddToCart = async (item: OrderItem) => {
+    setReorderingItem(item.id);
+    setReorderFeedback(null);
+
+    try {
+      // Fetch current stock for the product
+      const res = await fetch(`/api/store/products/${item.product_id}?clinic=${clinic}`);
+      if (!res.ok) {
+        setReorderFeedback({ type: 'error', message: 'Producto no disponible' });
+        return;
+      }
+
+      const product = await res.json();
+      const stock = product.store_inventory?.stock_quantity || 0;
+
+      if (stock <= 0) {
+        setReorderFeedback({ type: 'error', message: `${item.product_name} sin stock` });
+        return;
+      }
+
+      const result = addItem({
+        id: item.product_id,
+        name: item.product_name,
+        price: item.unit_price,
+        type: 'product',
+        image_url: item.store_products?.image_url || undefined,
+        stock,
+        variant_id: item.variant_id || undefined,
+      });
+
+      if (result.success) {
+        if (result.limitedByStock) {
+          setReorderFeedback({ type: 'warning', message: result.message || 'Cantidad limitada por stock' });
+        } else {
+          setReorderFeedback({ type: 'success', message: `${item.product_name} agregado al carrito` });
+        }
+      } else {
+        setReorderFeedback({ type: 'error', message: result.message || 'No se pudo agregar' });
+      }
+    } catch (e) {
+      console.error('Error adding to cart:', e);
+      setReorderFeedback({ type: 'error', message: 'Error al agregar al carrito' });
+    } finally {
+      setReorderingItem(null);
+      // Clear feedback after 3 seconds
+      setTimeout(() => setReorderFeedback(null), 3000);
+    }
+  };
+
+  // Reorder entire order
+  const handleReorderAll = async (order: Order) => {
+    setReorderingOrder(order.id);
+    setReorderFeedback(null);
+
+    try {
+      let addedCount = 0;
+      let skippedCount = 0;
+      const skippedItems: string[] = [];
+
+      for (const item of order.store_order_items) {
+        // Fetch current stock
+        const res = await fetch(`/api/store/products/${item.product_id}?clinic=${clinic}`);
+        if (!res.ok) {
+          skippedCount++;
+          skippedItems.push(item.product_name);
+          continue;
+        }
+
+        const product = await res.json();
+        const stock = product.store_inventory?.stock_quantity || 0;
+
+        if (stock <= 0) {
+          skippedCount++;
+          skippedItems.push(item.product_name);
+          continue;
+        }
+
+        const result = addItem({
+          id: item.product_id,
+          name: item.product_name,
+          price: item.unit_price,
+          type: 'product',
+          image_url: item.store_products?.image_url || undefined,
+          stock,
+          variant_id: item.variant_id || undefined,
+        }, item.quantity);
+
+        if (result.success) {
+          addedCount++;
+        } else {
+          skippedCount++;
+          skippedItems.push(item.product_name);
+        }
+      }
+
+      if (addedCount > 0 && skippedCount === 0) {
+        setReorderFeedback({
+          type: 'success',
+          message: `${addedCount} producto${addedCount > 1 ? 's' : ''} agregado${addedCount > 1 ? 's' : ''} al carrito`
+        });
+      } else if (addedCount > 0 && skippedCount > 0) {
+        setReorderFeedback({
+          type: 'warning',
+          message: `${addedCount} agregado${addedCount > 1 ? 's' : ''}, ${skippedCount} sin stock`
+        });
+      } else {
+        setReorderFeedback({
+          type: 'error',
+          message: 'Ningún producto disponible'
+        });
+      }
+    } catch (e) {
+      console.error('Error reordering:', e);
+      setReorderFeedback({ type: 'error', message: 'Error al reordenar' });
+    } finally {
+      setReorderingOrder(null);
+      setTimeout(() => setReorderFeedback(null), 4000);
+    }
+  };
+
   if (!clinic) return null;
 
   return (
     <div className="min-h-screen bg-[var(--bg-subtle)] pb-20">
+      {/* Feedback Toast */}
+      {reorderFeedback && (
+        <div className={clsx(
+          'fixed top-20 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-xl shadow-lg font-medium transition-all',
+          reorderFeedback.type === 'success' && 'bg-green-500 text-white',
+          reorderFeedback.type === 'warning' && 'bg-amber-500 text-white',
+          reorderFeedback.type === 'error' && 'bg-red-500 text-white',
+        )}>
+          {reorderFeedback.message}
+        </div>
+      )}
+
       {/* Header */}
       <div className="bg-white border-b border-gray-100 sticky top-0 z-10 shadow-sm">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
@@ -360,9 +503,26 @@ export default function OrderHistoryClient({ config }: Props) {
                                 {item.quantity} x {formatPrice(item.unit_price)}
                               </p>
                             </div>
-                            <span className="font-medium text-[var(--text-primary)]">
-                              {formatPrice(item.line_total)}
-                            </span>
+                            <div className="flex items-center gap-3">
+                              <span className="font-medium text-[var(--text-primary)]">
+                                {formatPrice(item.line_total)}
+                              </span>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleAddToCart(item);
+                                }}
+                                disabled={reorderingItem === item.id}
+                                className="p-2 text-[var(--primary)] hover:bg-[var(--primary)]/10 rounded-lg transition-colors disabled:opacity-50"
+                                title="Agregar al carrito"
+                              >
+                                {reorderingItem === item.id ? (
+                                  <Loader2 className="w-5 h-5 animate-spin" />
+                                ) : (
+                                  <Plus className="w-5 h-5" />
+                                )}
+                              </button>
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -478,14 +638,28 @@ export default function OrderHistoryClient({ config }: Props) {
                       )}
 
                       {/* Actions */}
-                      <div className="px-4 md:px-6 pb-4 md:pb-6 flex gap-3">
-                        <Link
-                          href={`/${clinic}/store/orders/${order.id}`}
-                          className="flex items-center gap-2 px-4 py-2 bg-[var(--primary)] text-white font-medium rounded-lg hover:opacity-90 transition-opacity"
+                      <div className="px-4 md:px-6 pb-4 md:pb-6 flex flex-wrap gap-3">
+                        <button
+                          onClick={() => handleReorderAll(order)}
+                          disabled={reorderingOrder === order.id}
+                          className="flex items-center gap-2 px-4 py-2 bg-[var(--primary)] text-white font-medium rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
                         >
-                          Ver Detalles
-                          <ChevronRight className="w-4 h-4" />
-                        </Link>
+                          {reorderingOrder === order.id ? (
+                            <>
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                              Agregando...
+                            </>
+                          ) : (
+                            <>
+                              <RefreshCw className="w-4 h-4" />
+                              Reordenar Todo
+                            </>
+                          )}
+                        </button>
+                        <OrderInvoicePDFButton
+                          order={order}
+                          clinicName={config.name}
+                        />
                         {order.status === 'pending' && (
                           <button className="px-4 py-2 border border-red-200 text-red-600 font-medium rounded-lg hover:bg-red-50 transition-colors">
                             Cancelar

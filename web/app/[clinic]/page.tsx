@@ -165,9 +165,9 @@ export default async function ClinicHomePage({ params }: { params: Promise<{ cli
 
             <Link
               href={`/${clinic}/tools/toxic-food`}
-              className="group inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-red-600 to-red-500 rounded-full font-bold text-white shadow-lg hover:shadow-xl hover:from-red-700 hover:to-red-600 transition-all duration-300 transform hover:-translate-y-1"
+              className="group inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-[var(--primary)] to-[var(--primary-dark)] rounded-full font-bold text-white shadow-lg hover:shadow-xl hover:opacity-90 transition-all duration-300 transform hover:-translate-y-1"
             >
-              <Icons.AlertTriangle className="w-6 h-6 group-hover:scale-110 transition-transform" />
+              <Icons.Search className="w-6 h-6 group-hover:scale-110 transition-transform" />
               {home.interactive_tools_section.toxic_food_cta}
               <Icons.ArrowRight className="w-5 h-5 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all" />
             </Link>
@@ -217,7 +217,7 @@ export default async function ClinicHomePage({ params }: { params: Promise<{ cli
                   </div>
 
                   {/* Testimonial text */}
-                  <p className="text-[var(--text-secondary)] mb-6 leading-relaxed line-clamp-4">
+                  <p className="text-[var(--text-primary)] mb-6 leading-relaxed line-clamp-4 text-base">
                     "{t.text}"
                   </p>
 
@@ -302,7 +302,7 @@ export default async function ClinicHomePage({ params }: { params: Promise<{ cli
             <div className="h-[300px] sm:h-[400px] lg:h-full lg:min-h-[600px] w-full rounded-2xl shadow-xl overflow-hidden border border-gray-200 relative group">
               <div
                 className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
-                style={{ backgroundImage: `url('/branding/${clinic}/static-map.jpg')` }}
+                style={{ backgroundImage: `url('/branding/${clinic}/images/static-map.jpg')` }}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
 

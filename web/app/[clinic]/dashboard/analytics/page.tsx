@@ -15,7 +15,10 @@ import {
   BarChart3,
   ArrowUpRight,
   ArrowDownRight,
+  ShoppingCart,
+  ArrowRight,
 } from "lucide-react";
+import Link from "next/link";
 import {
   AreaChart,
   Area,
@@ -163,11 +166,14 @@ export default function AnalyticsPage(): React.ReactElement {
         </div>
         <div className="flex items-center gap-1 mt-4">
           {isPositive ? (
-            <ArrowUpRight className="w-4 h-4 text-green-600" />
+            <ArrowUpRight className="w-4 h-4" style={{ color: "var(--status-success)" }} />
           ) : (
-            <ArrowDownRight className="w-4 h-4 text-red-600" />
+            <ArrowDownRight className="w-4 h-4" style={{ color: "var(--status-error)" }} />
           )}
-          <span className={`text-sm font-medium ${isPositive ? "text-green-600" : "text-red-600"}`}>
+          <span
+            className="text-sm font-medium"
+            style={{ color: isPositive ? "var(--status-success)" : "var(--status-error)" }}
+          >
             {isPositive ? "+" : ""}{change.toFixed(1)}%
           </span>
           <span className="text-sm text-[var(--text-secondary)]">{labels.analytics.stats.vs_previous}</span>
@@ -201,7 +207,7 @@ export default function AnalyticsPage(): React.ReactElement {
         </div>
 
         {/* Period Selector */}
-        <div className="flex items-center gap-2 bg-gray-100 rounded-lg p-1">
+        <div className="flex items-center gap-2 rounded-lg p-1" style={{ backgroundColor: "var(--bg-subtle)" }}>
           {(["week", "month", "quarter"] as const).map((p) => (
             <button
               key={p}
@@ -367,27 +373,50 @@ export default function AnalyticsPage(): React.ReactElement {
 
       {/* Quick Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-4 text-white">
+        <div className="rounded-xl p-4 text-white" style={{ background: "var(--gradient-blue)" }}>
           <Activity className="w-8 h-8 mb-2 opacity-80" />
           <p className="text-2xl font-bold">98%</p>
           <p className="text-sm opacity-80">{labels.analytics.quick_stats.satisfaction}</p>
         </div>
-        <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-4 text-white">
+        <div className="rounded-xl p-4 text-white" style={{ background: "var(--gradient-green)" }}>
           <Calendar className="w-8 h-8 mb-2 opacity-80" />
           <p className="text-2xl font-bold">15 min</p>
           <p className="text-sm opacity-80">{labels.analytics.quick_stats.wait_time}</p>
         </div>
-        <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-4 text-white">
+        <div className="rounded-xl p-4 text-white" style={{ background: "var(--gradient-purple)" }}>
           <Users className="w-8 h-8 mb-2 opacity-80" />
           <p className="text-2xl font-bold">89%</p>
           <p className="text-sm opacity-80">{labels.analytics.quick_stats.retention}</p>
         </div>
-        <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl p-4 text-white">
+        <div className="rounded-xl p-4 text-white" style={{ background: "var(--gradient-orange)" }}>
           <Package className="w-8 h-8 mb-2 opacity-80" />
           <p className="text-2xl font-bold">12</p>
           <p className="text-sm opacity-80">{labels.analytics.quick_stats.low_stock}</p>
         </div>
       </div>
+
+      {/* Store Analytics Link */}
+      <Link
+        href={`/${clinic}/dashboard/analytics/store`}
+        className="block bg-white rounded-xl shadow-sm border border-[var(--border-color)] p-6 hover:shadow-md transition-shadow group"
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-[var(--primary)] bg-opacity-10 rounded-xl">
+              <ShoppingCart className="w-8 h-8 text-[var(--primary)]" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-[var(--text-primary)]">
+                Analíticas de Tienda
+              </h3>
+              <p className="text-sm text-[var(--text-secondary)]">
+                Ventas, productos más vendidos, cupones y más
+              </p>
+            </div>
+          </div>
+          <ArrowRight className="w-6 h-6 text-[var(--text-secondary)] group-hover:text-[var(--primary)] transition-colors" />
+        </div>
+      </Link>
     </div>
   );
 }

@@ -112,8 +112,8 @@ export default async function PatientsPage({ params }: Props): Promise<React.Rea
     console.error("Error fetching owners:", error);
     return (
       <div className="container mx-auto px-4 py-8">
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <p className="text-red-800">Error al cargar los datos. Por favor, intente nuevamente.</p>
+        <div className="rounded-lg p-4" style={{ backgroundColor: "var(--status-error-bg)", border: "1px solid var(--status-error-light)" }}>
+          <p style={{ color: "var(--status-error-dark)" }}>Error al cargar los datos. Por favor, intente nuevamente.</p>
         </div>
       </div>
     );

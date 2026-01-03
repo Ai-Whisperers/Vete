@@ -3,12 +3,13 @@
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { X, ShoppingBag, ShoppingCart, ArrowRight, Stethoscope, Package, PawPrint, User } from "lucide-react";
+import { X, ShoppingBag, ShoppingCart, ArrowRight, Stethoscope, Package, PawPrint, User, Star } from "lucide-react";
 import { useCart } from "@/context/cart-context";
 import { CartItem } from "./cart-item";
 import { PetServiceGroup } from "./pet-service-group";
 import { formatPriceGs } from "@/lib/utils/pet-size";
 import { organizeCart } from "@/lib/utils/cart-utils";
+import { createClient } from "@/lib/supabase/client";
 
 interface CartDrawerProps {
   /** Controlled open state */
@@ -26,11 +27,42 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
   const { clinic } = useParams<{ clinic: string }>();
   const { items, itemCount: totalItems, total: subtotal, clearCart } = useCart();
   const [mounted, setMounted] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [loyaltyPoints, setLoyaltyPoints] = useState<number | null>(null);
 
   // Handle hydration mismatch
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Fetch user and loyalty points
+  useEffect(() => {
+    const fetchUserAndPoints = async () => {
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (session?.user) {
+        setUserId(session.user.id);
+        // Fetch loyalty points
+        try {
+          const res = await fetch(`/api/loyalty/points?userId=${session.user.id}`);
+          if (res.ok) {
+            const data = await res.json();
+            setLoyaltyPoints(data.points || 0);
+          }
+        } catch (e) {
+          console.error('Error fetching loyalty points:', e);
+        }
+      } else {
+        setUserId(null);
+        setLoyaltyPoints(null);
+      }
+    };
+
+    if (isOpen) {
+      fetchUserAndPoints();
+    }
+  }, [isOpen]);
 
   // Close on escape key
   useEffect(() => {
@@ -266,6 +298,25 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
         {/* Footer */}
         {items.length > 0 && (
           <div className="border-t border-gray-100 px-6 py-4 bg-[var(--bg-subtle)]/30">
+            {/* Loyalty Points Display */}
+            {userId && loyaltyPoints !== null && loyaltyPoints > 0 && (
+              <Link
+                href={`/${clinic}/portal/loyalty`}
+                onClick={onClose}
+                className="flex items-center justify-between py-2.5 px-3 mb-4 bg-purple-50 rounded-xl hover:bg-purple-100 transition group"
+              >
+                <div className="flex items-center gap-2">
+                  <Star className="w-4 h-4 text-purple-600" />
+                  <span className="text-sm font-bold text-purple-900">
+                    {loyaltyPoints.toLocaleString()} puntos
+                  </span>
+                </div>
+                <span className="text-xs text-purple-600 font-medium group-hover:underline">
+                  Usar puntos →
+                </span>
+              </Link>
+            )}
+
             {/* Subtotal */}
             <div className="flex items-center justify-between mb-4">
               <span className="text-[var(--text-secondary)] font-medium">

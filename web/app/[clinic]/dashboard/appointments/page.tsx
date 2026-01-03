@@ -60,13 +60,14 @@ export default async function StaffAppointmentsPage({ params, searchParams }: Pr
     console.error('Error fetching appointments:', error)
     return (
       <div className="p-6 max-w-7xl mx-auto">
-        <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
-          <Icons.AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
-          <h3 className="text-lg font-bold text-red-800 mb-2">Error al cargar citas</h3>
-          <p className="text-red-600 mb-4">No se pudieron cargar las citas. Por favor intenta de nuevo.</p>
+        <div className="rounded-xl p-6 text-center" style={{ backgroundColor: "var(--status-error-bg)", border: "1px solid var(--status-error-light)" }}>
+          <Icons.AlertCircle className="w-12 h-12 mx-auto mb-4" style={{ color: "var(--status-error)" }} />
+          <h3 className="text-lg font-bold mb-2" style={{ color: "var(--status-error-dark)" }}>Error al cargar citas</h3>
+          <p className="mb-4" style={{ color: "var(--status-error)" }}>No se pudieron cargar las citas. Por favor intenta de nuevo.</p>
           <a
             href={`/${clinic}/dashboard/appointments`}
-            className="inline-block px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors"
+            className="inline-block px-4 py-2 text-white font-medium rounded-lg transition-colors hover:opacity-90"
+            style={{ backgroundColor: "var(--status-error)" }}
           >
             Reintentar
           </a>
@@ -127,40 +128,40 @@ export default async function StaffAppointmentsPage({ params, searchParams }: Pr
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
-          <div className="flex items-center gap-2 text-blue-600 mb-1">
+        <div className="bg-white rounded-xl p-4 border border-[var(--border-light)]">
+          <div className="flex items-center gap-2 mb-1" style={{ color: "var(--status-info)" }}>
             <Icons.Calendar className="w-4 h-4" />
             <span className="text-xs font-medium">En Espera</span>
           </div>
           <p className="text-2xl font-bold text-[var(--text-primary)]">{stats.pending}</p>
         </div>
 
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
-          <div className="flex items-center gap-2 text-yellow-600 mb-1">
+        <div className="bg-white rounded-xl p-4 border border-[var(--border-light)]">
+          <div className="flex items-center gap-2 mb-1" style={{ color: "var(--status-warning-dark)" }}>
             <Icons.UserCheck className="w-4 h-4" />
             <span className="text-xs font-medium">Registrados</span>
           </div>
           <p className="text-2xl font-bold text-[var(--text-primary)]">{stats.checkedIn}</p>
         </div>
 
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
-          <div className="flex items-center gap-2 text-purple-600 mb-1">
+        <div className="bg-white rounded-xl p-4 border border-[var(--border-light)]">
+          <div className="flex items-center gap-2 mb-1" style={{ color: "var(--accent-purple)" }}>
             <Icons.Stethoscope className="w-4 h-4" />
             <span className="text-xs font-medium">En Consulta</span>
           </div>
           <p className="text-2xl font-bold text-[var(--text-primary)]">{stats.inProgress}</p>
         </div>
 
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
-          <div className="flex items-center gap-2 text-green-600 mb-1">
+        <div className="bg-white rounded-xl p-4 border border-[var(--border-light)]">
+          <div className="flex items-center gap-2 mb-1" style={{ color: "var(--status-success)" }}>
             <Icons.CheckCircle className="w-4 h-4" />
             <span className="text-xs font-medium">Completadas</span>
           </div>
           <p className="text-2xl font-bold text-[var(--text-primary)]">{stats.completed}</p>
         </div>
 
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
-          <div className="flex items-center gap-2 text-orange-600 mb-1">
+        <div className="bg-white rounded-xl p-4 border border-[var(--border-light)]">
+          <div className="flex items-center gap-2 mb-1" style={{ color: "var(--accent-orange)" }}>
             <Icons.UserX className="w-4 h-4" />
             <span className="text-xs font-medium">No Presentados</span>
           </div>
@@ -170,8 +171,8 @@ export default async function StaffAppointmentsPage({ params, searchParams }: Pr
 
       {/* Appointment Queue */}
       {transformedAppointments.length === 0 ? (
-        <div className="bg-white rounded-xl border border-gray-100 p-12 text-center">
-          <Icons.CalendarX className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+        <div className="bg-white rounded-xl border border-[var(--border-light)] p-12 text-center">
+          <Icons.CalendarX className="w-12 h-12 text-[var(--text-muted)] mx-auto mb-4" />
           <h3 className="text-lg font-bold text-[var(--text-primary)] mb-2">
             No hay citas programadas
           </h3>

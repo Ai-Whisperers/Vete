@@ -54,7 +54,7 @@ export default async function DashboardTeamPage({ params }: Props) {
       </div>
 
       {/* Invite Form */}
-      <div className="bg-white p-6 rounded-xl border border-gray-200 mb-8">
+      <div className="bg-white p-6 rounded-xl border border-[var(--border)] mb-8">
         <h2 className="font-bold text-lg mb-4 flex items-center gap-2">
           <Icons.UserPlus className="w-5 h-5 text-[var(--primary)]" />
           Invitar Nuevo Miembro
@@ -63,14 +63,14 @@ export default async function DashboardTeamPage({ params }: Props) {
       </div>
 
       {/* Team Members */}
-      <div className="bg-white rounded-xl border border-gray-200 mb-8">
-        <div className="p-4 border-b border-gray-100">
+      <div className="bg-white rounded-xl border border-[var(--border)] mb-8">
+        <div className="p-4 border-b border-[var(--border-light)]">
           <h3 className="font-bold text-[var(--text-primary)] flex items-center gap-2">
             <Icons.Users className="w-5 h-5 text-[var(--primary)]" />
             Miembros del Equipo
           </h3>
         </div>
-        <div className="divide-y divide-gray-100">
+        <div className="divide-y divide-[var(--border-light)]">
           {teamMembers && teamMembers.length > 0 ? (
             teamMembers.map((member) => (
               <div key={member.id} className="p-4 flex items-center justify-between">
@@ -83,11 +83,13 @@ export default async function DashboardTeamPage({ params }: Props) {
                     <p className="text-sm text-[var(--text-secondary)]">{member.email}</p>
                   </div>
                 </div>
-                <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                  member.role === 'admin'
-                    ? 'bg-purple-100 text-purple-700'
-                    : 'bg-blue-100 text-blue-700'
-                }`}>
+                <span
+                  className="px-3 py-1 rounded-full text-xs font-bold"
+                  style={member.role === 'admin'
+                    ? { backgroundColor: "var(--accent-purple-light)", color: "var(--accent-purple-dark)" }
+                    : { backgroundColor: "var(--accent-blue-light)", color: "var(--accent-blue-dark)" }
+                  }
+                >
                   {member.role === 'admin' ? 'Administrador' : 'Veterinario'}
                 </span>
               </div>
@@ -101,20 +103,20 @@ export default async function DashboardTeamPage({ params }: Props) {
       </div>
 
       {/* Pending Invites */}
-      <div className="bg-white rounded-xl border border-gray-200">
-        <div className="p-4 border-b border-gray-100">
+      <div className="bg-white rounded-xl border border-[var(--border)]">
+        <div className="p-4 border-b border-[var(--border-light)]">
           <h3 className="font-bold text-[var(--text-primary)] flex items-center gap-2">
             <Icons.Mail className="w-5 h-5 text-[var(--primary)]" />
             Invitaciones Pendientes
           </h3>
         </div>
-        <div className="divide-y divide-gray-100">
+        <div className="divide-y divide-[var(--border-light)]">
           {invites && invites.length > 0 ? (
             invites.map((invite: any) => (
               <div key={invite.id} className="p-4 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center">
-                    <Icons.Clock className="w-5 h-5 text-amber-600" />
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: "var(--status-warning-bg)" }}>
+                    <Icons.Clock className="w-5 h-5" style={{ color: "var(--status-warning-dark)" }} />
                   </div>
                   <div>
                     <p className="font-medium text-[var(--text-primary)]">{invite.email}</p>
@@ -128,7 +130,8 @@ export default async function DashboardTeamPage({ params }: Props) {
                   <input type="hidden" name="clinic" value={clinic} />
                   <button
                     type="submit"
-                    className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                    className="p-2 rounded-lg transition-colors hover:opacity-80"
+                    style={{ color: "var(--status-error)" }}
                     title="Cancelar invitación"
                   >
                     <Icons.Trash2 className="w-4 h-4" />

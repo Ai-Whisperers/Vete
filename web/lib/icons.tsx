@@ -61,13 +61,22 @@ import Users from 'lucide-react/dist/esm/icons/users'
 import Receipt from 'lucide-react/dist/esm/icons/receipt'
 import TrendingUp from 'lucide-react/dist/esm/icons/trending-up'
 import TrendingDown from 'lucide-react/dist/esm/icons/trending-down'
+import ExternalLink from 'lucide-react/dist/esm/icons/external-link'
+import ArrowUpRight from 'lucide-react/dist/esm/icons/arrow-up-right'
+import Minus from 'lucide-react/dist/esm/icons/minus'
+import DollarSign from 'lucide-react/dist/esm/icons/dollar-sign'
+import Bell from 'lucide-react/dist/esm/icons/bell'
+import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle'
+import CalendarCheck from 'lucide-react/dist/esm/icons/calendar-check'
+import ClipboardList from 'lucide-react/dist/esm/icons/clipboard-list'
 
 // Re-export all icons for external use
 export {
   Calendar, Clock, ArrowLeft, ArrowRight, ChevronRight, Check, Info, AlertCircle,
   Loader2, Download, Layers, Dog, ShoppingBag, Zap, Syringe, Stethoscope, Scissors,
   UserCircle, Activity, Heart, Microscope, Sparkles, FileText, Building2, Leaf,
-  PawPrint, Users, Receipt, TrendingUp, TrendingDown
+  PawPrint, Users, Receipt, TrendingUp, TrendingDown, ExternalLink, ArrowUpRight,
+  Minus, DollarSign, Bell, AlertTriangle, CalendarCheck, ClipboardList
 }
 
 // Type definition for Lucide icon component
@@ -134,6 +143,16 @@ export const DASHBOARD_ICONS = {
   receipt: Receipt,
   trendingUp: TrendingUp,
   trendingDown: TrendingDown,
+  externalLink: ExternalLink,
+  arrowUpRight: ArrowUpRight,
+  minus: Minus,
+  dollarSign: DollarSign,
+  bell: Bell,
+  alertTriangle: AlertTriangle,
+  calendarCheck: CalendarCheck,
+  clipboardList: ClipboardList,
+  pawPrint: PawPrint,
+  clock: Clock,
 } as const
 
 /**

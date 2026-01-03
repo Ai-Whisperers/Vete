@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -32,6 +32,7 @@ interface NavItem {
   label: string;
   href: string;
   badge?: number;
+  adminOnly?: boolean;
 }
 
 interface NavSection {
@@ -39,25 +40,28 @@ interface NavSection {
   icon: LucideIcon;
   items: NavItem[];
   defaultOpen?: boolean;
+  adminOnly?: boolean;
 }
 
 interface DashboardSidebarProps {
   clinic: string;
   clinicName: string;
+  isAdmin?: boolean;
   onOpenCommandPalette?: () => void;
 }
 
 export function DashboardSidebar({
   clinic,
   clinicName,
+  isAdmin = false,
   onOpenCommandPalette
 }: DashboardSidebarProps): React.ReactElement {
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
 
-  // Reorganized into 5 main sections
-  const sections: NavSection[] = [
+  // Navigation sections with admin-only flags
+  const allSections: NavSection[] = useMemo(() => [
     {
       title: "Agenda",
       icon: Calendar,
@@ -93,18 +97,30 @@ export function DashboardSidebar({
       ],
     },
     {
-      title: "Configuración",
+      title: "Administración",
       icon: Settings,
       defaultOpen: false,
+      adminOnly: true, // Entire section is admin-only
       items: [
-        { icon: Settings, label: "Ajustes", href: `/${clinic}/dashboard/settings` },
-        { icon: Users, label: "Equipo", href: `/${clinic}/dashboard/team` },
-        { icon: CalendarClock, label: "Horarios", href: `/${clinic}/dashboard/schedules` },
-        { icon: Calendar, label: "Ausencias", href: `/${clinic}/dashboard/time-off` },
-        { icon: Settings, label: "Auditoría", href: `/${clinic}/dashboard/audit` },
+        { icon: Settings, label: "Ajustes", href: `/${clinic}/dashboard/settings`, adminOnly: true },
+        { icon: Users, label: "Equipo", href: `/${clinic}/dashboard/team`, adminOnly: true },
+        { icon: CalendarClock, label: "Horarios", href: `/${clinic}/dashboard/schedules`, adminOnly: true },
+        { icon: Calendar, label: "Ausencias", href: `/${clinic}/dashboard/time-off`, adminOnly: true },
+        { icon: Settings, label: "Auditoría", href: `/${clinic}/dashboard/audit`, adminOnly: true },
       ],
     },
-  ];
+  ], [clinic]);
+
+  // Filter sections based on admin status
+  const sections = useMemo(() => {
+    return allSections
+      .filter(section => !section.adminOnly || isAdmin)
+      .map(section => ({
+        ...section,
+        items: section.items.filter(item => !item.adminOnly || isAdmin)
+      }))
+      .filter(section => section.items.length > 0);
+  }, [allSections, isAdmin]);
 
   // Initialize open sections based on current path
   useEffect(() => {
@@ -117,7 +133,7 @@ export function DashboardSidebar({
     });
     setOpenSections(initialOpen);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname]);
+  }, [pathname, sections]);
 
   const isActive = (href: string): boolean => pathname === href || pathname.startsWith(href + "/");
 

@@ -30,7 +30,7 @@ export default async function InvoicesPage({ params, searchParams }: Props) {
   if (!result.success) {
     return (
       <div className="p-6 max-w-7xl mx-auto">
-        <div className="bg-red-50 text-red-700 p-4 rounded-lg">
+        <div className="p-4 rounded-lg" style={{ backgroundColor: "var(--status-error-bg)", color: "var(--status-error-dark)" }}>
           {result.error}
         </div>
       </div>
@@ -76,32 +76,32 @@ export default async function InvoicesPage({ params, searchParams }: Props) {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
-          <div className="flex items-center gap-2 text-gray-600 mb-1">
+        <div className="bg-white rounded-xl p-4 border border-[var(--border-light)]">
+          <div className="flex items-center gap-2 text-[var(--text-secondary)] mb-1">
             <Icons.FileEdit className="w-4 h-4" />
             <span className="text-xs font-medium">Borradores</span>
           </div>
           <p className="text-2xl font-bold text-[var(--text-primary)]">{stats.draft}</p>
         </div>
 
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
-          <div className="flex items-center gap-2 text-blue-600 mb-1">
+        <div className="bg-white rounded-xl p-4 border border-[var(--border-light)]">
+          <div className="flex items-center gap-2 mb-1" style={{ color: "var(--status-info)" }}>
             <Icons.Clock className="w-4 h-4" />
             <span className="text-xs font-medium">Pendientes</span>
           </div>
           <p className="text-2xl font-bold text-[var(--text-primary)]">{stats.pending}</p>
         </div>
 
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
-          <div className="flex items-center gap-2 text-green-600 mb-1">
+        <div className="bg-white rounded-xl p-4 border border-[var(--border-light)]">
+          <div className="flex items-center gap-2 mb-1" style={{ color: "var(--status-success)" }}>
             <Icons.CheckCircle className="w-4 h-4" />
             <span className="text-xs font-medium">Pagadas</span>
           </div>
           <p className="text-2xl font-bold text-[var(--text-primary)]">{stats.paid}</p>
         </div>
 
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
-          <div className="flex items-center gap-2 text-red-600 mb-1">
+        <div className="bg-white rounded-xl p-4 border border-[var(--border-light)]">
+          <div className="flex items-center gap-2 mb-1" style={{ color: "var(--status-error)" }}>
             <Icons.AlertCircle className="w-4 h-4" />
             <span className="text-xs font-medium">Vencidas</span>
           </div>

@@ -79,51 +79,18 @@ COMMENT ON COLUMN public.notifications.channels IS 'Delivery channels: in_app, e
 COMMENT ON COLUMN public.notifications.read_at IS 'When user read the notification (NULL = unread)';
 
 -- =============================================================================
--- QR TAGS
+-- QR TAGS - Extended columns (base table in 20_pets/01_pets.sql)
 -- =============================================================================
+-- Add columns for theft prevention and scan tracking
 
-CREATE TABLE IF NOT EXISTS public.qr_tags (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    tenant_id TEXT NOT NULL REFERENCES public.tenants(id),
+ALTER TABLE public.qr_tags ADD COLUMN IF NOT EXISTS previous_pet_id UUID REFERENCES public.pets(id);
+ALTER TABLE public.qr_tags ADD COLUMN IF NOT EXISTS reassigned_at TIMESTAMPTZ;
+ALTER TABLE public.qr_tags ADD COLUMN IF NOT EXISTS reassigned_reason TEXT;
+ALTER TABLE public.qr_tags ADD COLUMN IF NOT EXISTS last_scanned_at TIMESTAMPTZ;
+ALTER TABLE public.qr_tags ADD COLUMN IF NOT EXISTS scan_count INTEGER DEFAULT 0;
+ALTER TABLE public.qr_tags ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMPTZ;
+ALTER TABLE public.qr_tags ADD COLUMN IF NOT EXISTS deleted_by UUID REFERENCES public.profiles(id);
 
-    -- Tag code (globally unique)
-    code TEXT NOT NULL UNIQUE,
-
-    -- Assignment
-    pet_id UUID REFERENCES public.pets(id),
-    assigned_at TIMESTAMPTZ,
-    assigned_by UUID REFERENCES public.profiles(id),
-
-    -- Batch tracking
-    batch_id TEXT,
-
-    -- Previous owner tracking (for theft prevention)
-    previous_pet_id UUID REFERENCES public.pets(id),
-    reassigned_at TIMESTAMPTZ,
-    reassigned_reason TEXT,
-
-    -- Status
-    is_active BOOLEAN DEFAULT true,
-    is_registered BOOLEAN DEFAULT false,
-
-    -- Scan tracking
-    last_scanned_at TIMESTAMPTZ,
-    scan_count INTEGER DEFAULT 0,
-
-    -- Creation
-    batch_id TEXT,
-
-    -- Soft delete
-    deleted_at TIMESTAMPTZ,
-    deleted_by UUID REFERENCES public.profiles(id),
-
-    -- Timestamps
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-);
-
-COMMENT ON TABLE public.qr_tags IS 'Physical QR tags for pet identification. Tracks assignments and theft prevention.';
-COMMENT ON COLUMN public.qr_tags.code IS 'Unique code printed on physical tag (globally unique)';
 COMMENT ON COLUMN public.qr_tags.previous_pet_id IS 'Previous pet for theft prevention tracking';
 COMMENT ON COLUMN public.qr_tags.reassigned_reason IS 'Why tag was reassigned (lost, new owner, etc.)';
 COMMENT ON COLUMN public.qr_tags.scan_count IS 'Total times this tag has been scanned';
@@ -161,59 +128,19 @@ COMMENT ON COLUMN public.qr_tag_scans.contact_attempted IS 'TRUE if finder attem
 COMMENT ON COLUMN public.qr_tag_scans.location_accuracy IS 'GPS accuracy in meters';
 
 -- =============================================================================
--- LOST PETS
+-- LOST PETS - Extended columns (base table in 20_pets/01_pets.sql)
 -- =============================================================================
+-- Add columns for enhanced lost pet features
 
-CREATE TABLE IF NOT EXISTS public.lost_pets (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    pet_id UUID NOT NULL REFERENCES public.pets(id),
-    tenant_id TEXT NOT NULL REFERENCES public.tenants(id),
+ALTER TABLE public.lost_pets ADD COLUMN IF NOT EXISTS description TEXT;
+ALTER TABLE public.lost_pets ADD COLUMN IF NOT EXISTS distinctive_features TEXT;
+ALTER TABLE public.lost_pets ADD COLUMN IF NOT EXISTS wearing TEXT;
+ALTER TABLE public.lost_pets ADD COLUMN IF NOT EXISTS reward_offered BOOLEAN DEFAULT false;
+ALTER TABLE public.lost_pets ADD COLUMN IF NOT EXISTS reward_amount NUMERIC(12,2);
+ALTER TABLE public.lost_pets ADD COLUMN IF NOT EXISTS is_public BOOLEAN DEFAULT true;
+ALTER TABLE public.lost_pets ADD COLUMN IF NOT EXISTS share_url TEXT;
+ALTER TABLE public.lost_pets ADD COLUMN IF NOT EXISTS photos TEXT[] DEFAULT '{}';
 
-    -- Report info
-    reported_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    reported_by UUID REFERENCES public.profiles(id),
-
-    -- Last seen
-    last_seen_at TIMESTAMPTZ,
-    last_seen_location TEXT,
-    last_seen_latitude NUMERIC(10,7),
-    last_seen_longitude NUMERIC(10,7),
-
-    -- Description
-    description TEXT,
-    distinctive_features TEXT,
-    wearing TEXT,  -- Collar, clothes, etc.
-
-    -- Contact
-    contact_phone TEXT,
-    contact_email TEXT,
-    reward_offered BOOLEAN DEFAULT false,
-    reward_amount NUMERIC(12,2),
-
-    -- Status
-    status TEXT NOT NULL DEFAULT 'lost'
-        CHECK (status IN ('lost', 'found', 'reunited', 'cancelled')),
-    found_at TIMESTAMPTZ,
-    found_by TEXT,
-    found_location TEXT,
-
-    -- Public visibility
-    is_public BOOLEAN DEFAULT true,
-    share_url TEXT,
-
-    -- Photos
-    photos TEXT[] DEFAULT '{}',
-
-    -- Notes
-    notes TEXT,
-
-    -- Timestamps
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-);
-
-COMMENT ON TABLE public.lost_pets IS 'Lost and found pet reports with location tracking and public visibility';
-COMMENT ON COLUMN public.lost_pets.status IS 'Report status: lost, found (located not returned), reunited, cancelled';
 COMMENT ON COLUMN public.lost_pets.is_public IS 'TRUE to show on public lost pet board';
 COMMENT ON COLUMN public.lost_pets.distinctive_features IS 'Notable features to identify the pet';
 
@@ -454,7 +381,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_one_lost_report_per_pet ON public.lost_pet
     WHERE status = 'lost';
 CREATE INDEX IF NOT EXISTS idx_lost_pets_public ON public.lost_pets(is_public)
     WHERE is_public = true AND status = 'lost';
-CREATE INDEX IF NOT EXISTS idx_lost_pets_location ON public.lost_pets(last_seen_latitude, last_seen_longitude)
+CREATE INDEX IF NOT EXISTS idx_lost_pets_location ON public.lost_pets(last_seen_lat, last_seen_lng)
     WHERE status = 'lost';
 
 -- Disease reports

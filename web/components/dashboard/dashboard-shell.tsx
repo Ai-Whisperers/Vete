@@ -13,12 +13,14 @@ import { DashboardLabelsProvider } from "@/lib/hooks/use-dashboard-labels";
 interface DashboardShellProps {
   clinic: string;
   clinicName: string;
+  isAdmin?: boolean;
   children: React.ReactNode;
 }
 
 export function DashboardShell({
   clinic,
   clinicName,
+  isAdmin = false,
   children,
 }: DashboardShellProps): React.ReactElement {
   const { isOpen, open, close } = useCommandPalette();
@@ -52,12 +54,13 @@ export function DashboardShell({
           <DashboardSidebar
             clinic={clinic}
             clinicName={clinicName}
+            isAdmin={isAdmin}
             onOpenCommandPalette={open}
           />
 
           {/* Main Content */}
           <main className="flex-1 overflow-auto lg:pb-0 pb-20">
-            <div className="container mx-auto px-4 md:px-6 py-6 md:py-8 max-w-7xl">
+            <div className="page-container-xl py-6 md:py-8">
               {children}
             </div>
           </main>

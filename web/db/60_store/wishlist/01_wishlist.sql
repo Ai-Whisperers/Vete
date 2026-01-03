@@ -50,11 +50,13 @@ CREATE INDEX IF NOT EXISTS idx_store_wishlists_user_created
 ALTER TABLE public.store_wishlists ENABLE ROW LEVEL SECURITY;
 
 -- Users can only manage their own wishlist
+DROP POLICY IF EXISTS "Users manage own wishlist" ON public.store_wishlists;
 CREATE POLICY "Users manage own wishlist" ON public.store_wishlists
     FOR ALL
     USING (user_id = auth.uid());
 
 -- Staff can view wishlists in their tenant (for analytics)
+DROP POLICY IF EXISTS "Staff view tenant wishlists" ON public.store_wishlists;
 CREATE POLICY "Staff view tenant wishlists" ON public.store_wishlists
     FOR SELECT
     USING (is_staff_of(tenant_id));

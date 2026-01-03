@@ -68,8 +68,8 @@ export default async function ClientsPage({ params, searchParams }: Props) {
     console.error('Error fetching clients:', error)
     return (
       <div className="container mx-auto px-4 py-8">
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <p className="text-red-800">Error al cargar clientes. Por favor, intente nuevamente.</p>
+        <div className="rounded-lg p-4" style={{ backgroundColor: "var(--status-error-bg)", border: "1px solid var(--status-error-light)" }}>
+          <p style={{ color: "var(--status-error-dark)" }}>Error al cargar clientes. Por favor, intente nuevamente.</p>
         </div>
       </div>
     )
@@ -148,8 +148,8 @@ export default async function ClientsPage({ params, searchParams }: Props) {
               <p className="text-sm text-[var(--text-secondary)] mb-1">Total Clientes</p>
               <p className="text-3xl font-bold text-[var(--text-primary)]">{clients.length}</p>
             </div>
-            <div className="p-3 bg-blue-100 rounded-lg">
-              <Users className="h-8 w-8 text-blue-600" />
+            <div className="p-3 rounded-lg" style={{ backgroundColor: "var(--accent-blue-light)" }}>
+              <Users className="h-8 w-8" style={{ color: "var(--accent-blue)" }} />
             </div>
           </div>
         </div>
@@ -160,8 +160,8 @@ export default async function ClientsPage({ params, searchParams }: Props) {
               <p className="text-sm text-[var(--text-secondary)] mb-1">Clientes Activos</p>
               <p className="text-3xl font-bold text-[var(--text-primary)]">{activeClients.length}</p>
             </div>
-            <div className="p-3 bg-green-100 rounded-lg">
-              <CheckCircle className="h-8 w-8 text-green-600" />
+            <div className="p-3 rounded-lg" style={{ backgroundColor: "var(--status-success-bg)" }}>
+              <CheckCircle className="h-8 w-8" style={{ color: "var(--status-success)" }} />
             </div>
           </div>
         </div>
@@ -172,8 +172,8 @@ export default async function ClientsPage({ params, searchParams }: Props) {
               <p className="text-sm text-[var(--text-secondary)] mb-1">Clientes Inactivos</p>
               <p className="text-3xl font-bold text-[var(--text-primary)]">{inactiveClients.length}</p>
             </div>
-            <div className="p-3 bg-orange-100 rounded-lg">
-              <AlertCircle className="h-8 w-8 text-orange-600" />
+            <div className="p-3 rounded-lg" style={{ backgroundColor: "var(--accent-orange-light)" }}>
+              <AlertCircle className="h-8 w-8" style={{ color: "var(--accent-orange)" }} />
             </div>
           </div>
         </div>
@@ -297,12 +297,12 @@ export default async function ClientsPage({ params, searchParams }: Props) {
                     </td>
                     <td className="px-6 py-4">
                       {isClientActive(client.last_visit) ? (
-                        <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
+                        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium" style={{ backgroundColor: "var(--status-success-bg)", color: "var(--status-success-dark)" }}>
                           <CheckCircle className="h-3 w-3" />
                           Activo
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm font-medium">
+                        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium" style={{ backgroundColor: "var(--accent-orange-light)", color: "var(--accent-orange-dark)" }}>
                           <AlertCircle className="h-3 w-3" />
                           Inactivo
                         </span>
@@ -350,12 +350,12 @@ export default async function ClientsPage({ params, searchParams }: Props) {
                     </div>
                   </div>
                   {isClientActive(client.last_visit) ? (
-                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: "var(--status-success-bg)", color: "var(--status-success-dark)" }}>
                       <CheckCircle className="h-3 w-3" />
                       Activo
                     </span>
                   ) : (
-                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-medium">
+                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: "var(--accent-orange-light)", color: "var(--accent-orange-dark)" }}>
                       <AlertCircle className="h-3 w-3" />
                       Inactivo
                     </span>

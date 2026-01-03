@@ -1,8 +1,8 @@
 -- =============================================================================
 -- VETE SEED DATA (Generated from JSON v2)
--- Generated: 2025-12-21T14:15:40.461Z
+-- Generated: 2026-01-03T15:53:04.758Z
+-- Note: Transaction is managed by setup-db.mjs, not in this SQL
 -- =============================================================================
-BEGIN;
 
 -- Loading tenants: 2 tenants
 -- TENANTS
@@ -342,7 +342,7 @@ INSERT INTO public.profiles (id, full_name, email, phone, avatar_url, role, crea
 ('550e8400-e29b-41d4-a716-446655440007', 'Laura Patricia Benítez Castillo', 'laura.benitez@email.com', '+595 985 678 901', NULL, 'owner', NOW(), NOW()),
 ('550e8400-e29b-41d4-a716-446655440004', 'Dra. Silvia Carolina Sánchez', 'dra.sanchez@adris.vet', '+595 21 600 123', NULL, 'vet', NOW(), NOW()),
 ('550e8400-e29b-41d4-a716-446655440005', 'Dr. Roberto Javier Díaz', 'dr.diaz@adris.vet', '+595 21 600 124', NULL, 'vet', NOW(), NOW()),
-('550e8400-e29b-41d4-a716-446655440008', 'Dra. Patricia Elena Morales', 'dra.morales@petlife.vet', '+595 21 500 456', NULL, 'vet', NOW(), NOW());
+('550e8400-e29b-41d4-a716-446655440008', 'Dra. Patricia Elena Morales', 'dra.morales@petlife.vet', '+595 21 500 456', NULL, 'vet', NOW(), NOW()) ON CONFLICT (id) DO NOTHING;
 
 
 INSERT INTO public.clinic_profiles (id, profile_id, tenant_id, role, joined_at) VALUES
@@ -373,7 +373,7 @@ INSERT INTO public.pets (id, owner_id, name, species, breed, color, sex, birth_d
 ('660e8400-e29b-41d4-a716-446655440012', '550e8400-e29b-41d4-a716-446655440006', 'Daisy', 'dog', 'Cocker Spaniel', 'Negro', 'female', '2021-10-05', false, true, 14.2, 'PY741963852', NOW(), NOW()),
 ('660e8400-e29b-41d4-a716-446655440013', '550e8400-e29b-41d4-a716-446655440007', 'Simba', 'cat', 'Bengal', 'Atigrado', 'male', '2020-04-17', true, true, 5.9, 'PY369258147', NOW(), NOW()),
 ('660e8400-e29b-41d4-a716-446655440014', '550e8400-e29b-41d4-a716-446655440007', 'Charlie', 'dog', 'Poodle', 'Blanco', 'male', '2022-08-09', false, true, 8.7, 'PY258147369', NOW(), NOW()),
-('660e8400-e29b-41d4-a716-446655440015', '550e8400-e29b-41d4-a716-446655440007', 'Molly', 'dog', 'Shih Tzu', 'Dorado claro', 'female', '2023-06-21', false, false, 5.3, 'PY147369258', NOW(), NOW());
+('660e8400-e29b-41d4-a716-446655440015', '550e8400-e29b-41d4-a716-446655440007', 'Molly', 'dog', 'Shih Tzu', 'Dorado claro', 'female', '2023-06-21', false, false, 5.3, 'PY147369258', NOW(), NOW()) ON CONFLICT (id) DO NOTHING;
 
 
 INSERT INTO public.clinic_pets (id, pet_id, tenant_id, first_visit_date, is_active) VALUES
@@ -418,7 +418,7 @@ INSERT INTO public.medical_records (
 ('770e8400-e29b-41d4-a716-446655440011', '660e8400-e29b-41d4-a716-446655440012', 'adris', '550e8400-e29b-41d4-a716-446655440004', 'consultation', '2024-12-03', 'Control post-parto', 'Perra adulta post-cesárea. Cicatriz abdominal limpia. Leche presente. Temperatura 38.4°C.', 'Recuperación post-quirúrgica adecuada. Lactancia normal.', 'Analgésicos (meloxicam 0.1mg/kg SID x 3 días más). Control de cachorros. Revisión en 7 días.', 'POST-OP-001', 4, 14.2, 38.4, 90, 22, false, true, '2024-12-10', 'Recuperación post-cesárea buena. Lactancia estable.', '2024-12-03T09:45:00Z', '2024-12-03T10:30:00Z'),
 ('770e8400-e29b-41d4-a716-446655440012', '660e8400-e29b-41d4-a716-446655440013', 'adris', '550e8400-e29b-41d4-a716-446655440005', 'consultation', '2024-11-30', 'Problemas de conducta', 'Gato agresivo, difícil manipular. Temperatura 38.9°C. Mucosas inyectadas. Peso 5.9kg.', 'Comportamiento agresivo posiblemente por dolor crónico o ansiedad. Requiere evaluación conductual.', 'Examen físico completo incluyendo oral. Analgésicos si hay dolor. Referencia a etólogo veterinario.', 'BEHAVIOR-001', 5, 5.9, 38.9, 160, 45, false, true, '2024-12-14', 'Problema conductual identificado. Requiere evaluación especializada.', '2024-11-30T16:30:00Z', '2024-11-30T17:15:00Z'),
 ('770e8400-e29b-41d4-a716-446655440013', '660e8400-e29b-41d4-a716-446655440014', 'adris', '550e8400-e29b-41d4-a716-446655440004', 'consultation', '2024-12-07', 'Control pediátrico', 'Caniche cachorro activo. Peso 8.7kg. Dentición en cambio. Temperatura 38.7°C. Mucosas rosadas.', 'Desarrollo normal para edad. Buena condición corporal.', 'Continuar vacunación según calendario. Desparasitación mensual. Control crecimiento.', 'PEDIATRIC-001', 5, 8.7, 38.7, 110, 25, false, true, '2025-01-07', 'Control pediátrico normal. Desarrollo adecuado.', '2024-12-07T11:00:00Z', '2024-12-07T11:45:00Z'),
-('770e8400-e29b-41d4-a716-446655440014', '660e8400-e29b-41d4-a716-446655440015', 'adris', '550e8400-e29b-41d4-a716-446655440005', 'consultation', '2023-07-05', 'Primera consulta - cachorra', 'Shih Tzu cachorra sana. Peso 5.3kg. Pelo suave, ojos claros. Temperatura 38.5°C.', 'Cachorra sana, desarrollo adecuado.', 'Programa de vacunación completo. Desparasitación interna y externa. Control en 3 semanas.', 'WELL-001', 5, 5.3, 38.5, 120, 30, false, true, '2023-07-26', 'Primera consulta cachorra. Desarrollo normal.', '2023-07-05T13:25:00Z', '2023-07-05T14:10:00Z');
+('770e8400-e29b-41d4-a716-446655440014', '660e8400-e29b-41d4-a716-446655440015', 'adris', '550e8400-e29b-41d4-a716-446655440005', 'consultation', '2023-07-05', 'Primera consulta - cachorra', 'Shih Tzu cachorra sana. Peso 5.3kg. Pelo suave, ojos claros. Temperatura 38.5°C.', 'Cachorra sana, desarrollo adecuado.', 'Programa de vacunación completo. Desparasitación interna y externa. Control en 3 semanas.', 'WELL-001', 5, 5.3, 38.5, 120, 30, false, true, '2023-07-26', 'Primera consulta cachorra. Desarrollo normal.', '2023-07-05T13:25:00Z', '2023-07-05T14:10:00Z') ON CONFLICT (id) DO NOTHING;
 
 
 INSERT INTO public.vaccines (
@@ -451,10 +451,12 @@ INSERT INTO public.vaccines (
 ('870e8400-e29b-41d4-a716-446655440023', '660e8400-e29b-41d4-a716-446655440014', 'Vacuna Antirrábica', '2024-04-25', '2025-04-25', 'RAB202404', '550e8400-e29b-41d4-a716-446655440005', 'adris', 'SC', '1ml', 'completed', NULL, 'Vacuna anual obligatoria - perro pequeño', 'https://example.com/certificates/rabies-pet-014-2024.pdf', '2024-04-25T10:45:00Z'),
 ('870e8400-e29b-41d4-a716-446655440024', '660e8400-e29b-41d4-a716-446655440014', 'Vacuna Séxtuple Canina', '2024-04-25', '2025-04-25', 'DHPP202404', '550e8400-e29b-41d4-a716-446655440005', 'adris', 'SC', '1ml', 'completed', NULL, 'Vacuna anual - perro pequeño', 'https://example.com/certificates/dhpp-pet-014-2024.pdf', '2024-04-25T10:45:00Z'),
 ('870e8400-e29b-41d4-a716-446655440025', '660e8400-e29b-41d4-a716-446655440015', 'Vacuna Antirrábica', '2024-09-28', '2025-09-28', 'RAB202409', '550e8400-e29b-41d4-a716-446655440004', 'adris', 'SC', '1ml', 'completed', NULL, 'Primera vacuna - perrita pequeña', 'https://example.com/certificates/rabies-pet-015-2024.pdf', '2024-09-28T13:40:00Z'),
-('870e8400-e29b-41d4-a716-446655440026', '660e8400-e29b-41d4-a716-446655440015', 'Vacuna Séxtuple Canina', '2024-09-28', '2025-09-28', 'DHPP202409', '550e8400-e29b-41d4-a716-446655440004', 'adris', 'SC', '1ml', 'completed', NULL, 'Primera vacuna - perrita pequeña', 'https://example.com/certificates/dhpp-pet-015-2024.pdf', '2024-09-28T13:40:00Z');
+('870e8400-e29b-41d4-a716-446655440026', '660e8400-e29b-41d4-a716-446655440015', 'Vacuna Séxtuple Canina', '2024-09-28', '2025-09-28', 'DHPP202409', '550e8400-e29b-41d4-a716-446655440004', 'adris', 'SC', '1ml', 'completed', NULL, 'Primera vacuna - perrita pequeña', 'https://example.com/certificates/dhpp-pet-015-2024.pdf', '2024-09-28T13:40:00Z') ON CONFLICT (id) DO NOTHING;
 
 
 -- CONSENT TEMPLATES (global)
+-- Delete existing global templates first (deferrable constraints don't support ON CONFLICT)
+DELETE FROM public.consent_templates WHERE tenant_id IS NULL;
 INSERT INTO public.consent_templates (tenant_id, code, name, category, title, content_html, requires_witness, validity_days, version) VALUES
     (NULL, 'SURG_GENERAL', 'Consentimiento Quirúrgico General', 'surgical', 'Consentimiento Informado para Procedimiento Quirúrgico', '<h2>Consentimiento Quirúrgico</h2><p>Yo, <strong>{{owner_name}}</strong>, documento de identidad <strong>{{owner_id}}</strong>, propietario/a de <strong>{{pet_name}}</strong> ({{pet_species}}, {{pet_breed}}), autorizo al equipo veterinario de <strong>{{clinic_name}}</strong> a realizar el siguiente procedimiento quirúrgico:</p><p><strong>Procedimiento: {{procedure_name}}</strong></p><h3>Declaro que:</h3><ul><li>He sido informado/a sobre la naturaleza del procedimiento, sus beneficios esperados, riesgos potenciales y alternativas disponibles.</li><li>Comprendo que toda intervención quirúrgica conlleva riesgos inherentes, incluyendo pero no limitados a: reacciones adversas a la anestesia, sangrado, infección, y en casos excepcionales, muerte.</li><li>He informado al veterinario sobre cualquier condición médica previa, medicamentos actuales y alergias conocidas de mi mascota.</li><li>Autorizo cualquier procedimiento adicional que el veterinario considere necesario durante la cirugía para salvaguardar la salud de mi mascota.</li><li>Entiendo que el ayuno pre-quirúrgico es esencial y confirmo que mi mascota ha cumplido con las instrucciones recibidas.</li></ul><p>Contacto de emergencia: {{emergency_contact}} - Tel: {{emergency_phone}}</p>', FALSE, 1, '1.0'),
     (NULL, 'ANEST_GENERAL', 'Consentimiento Anestésico', 'anesthetic', 'Consentimiento para Anestesia', '<h2>Consentimiento Anestésico</h2><p>Yo, <strong>{{owner_name}}</strong>, autorizo la administración de anestesia a <strong>{{pet_name}}</strong>.</p><h3>He sido informado/a que:</h3><ul><li>La anestesia general conlleva riesgos, incluyendo reacciones adversas, complicaciones cardiovasculares o respiratorias, y en casos raros, muerte.</li><li>Se realizará una evaluación pre-anestésica para minimizar riesgos.</li><li>El protocolo anestésico será seleccionado según la condición de mi mascota.</li><li>Mi mascota será monitoreada durante todo el procedimiento.</li></ul><p><strong>Confirmo que:</strong></p><ul><li>Mi mascota ha cumplido con el ayuno pre-quirúrgico indicado ({{fasting_hours}} horas sin alimento sólido, {{water_hours}} horas sin agua).</li><li>He informado sobre cualquier medicamento que mi mascota esté tomando.</li></ul>', FALSE, 1, '1.0'),
@@ -484,8 +486,9 @@ INSERT INTO public.time_off_types (tenant_id, name, code, is_paid, max_days_per_
     (NULL, 'Cita Médica', 'MED', TRUE, NULL, TRUE, TRUE, '#FF5722'),
     (NULL, 'Examen Académico', 'EXAM', TRUE, 12, TRUE, TRUE, '#795548'),
     (NULL, 'Mudanza', 'MOVE', TRUE, 1, TRUE, FALSE, '#9E9E9E')
-;
+ON CONFLICT DO NOTHING;
 
+-- Processing tenant: adris
 -- SERVICES (adris)
 INSERT INTO public.services (tenant_id, name, category, base_price, duration_minutes, description, is_active, display_order, color, available_days, available_start_time, available_end_time, requires_deposit, deposit_percentage, species_allowed) VALUES
     ('adris', 'Consulta General', 'consultation', 150000, 30, 'Consulta médica general con evaluación completa', TRUE, 1, '#4CAF50', ARRAY[1, 2, 3, 4, 5, 6], '08:00', '18:00', FALSE, NULL, NULL),
@@ -590,6 +593,8 @@ INSERT INTO public.qr_tags (tenant_id, code, is_active, is_registered, batch_id)
 ON CONFLICT (code) DO NOTHING;
 
 -- APPOINTMENTS (adris)
+-- Delete existing appointments to avoid trigger conflicts
+DELETE FROM public.appointments WHERE tenant_id = 'adris';
 INSERT INTO public.appointments (id, tenant_id, pet_id, vet_id, service_id, start_time, end_time, duration_minutes, status, notes, created_at) VALUES
     (gen_random_uuid(), 'adris', '660e8400-e29b-41d4-a716-446655440001', '550e8400-e29b-41d4-a716-446655440004', (SELECT id FROM public.services WHERE tenant_id = 'adris' ORDER BY display_order LIMIT 1 OFFSET 0), '2024-12-20T09:00:00Z', '2024-12-20T09:30:00Z', 30, 'scheduled', 'Consulta de rutina anual', '2024-12-15T10:00:00Z'),
     (gen_random_uuid(), 'adris', '660e8400-e29b-41d4-a716-446655440004', '550e8400-e29b-41d4-a716-446655440005', (SELECT id FROM public.services WHERE tenant_id = 'adris' ORDER BY display_order LIMIT 1 OFFSET 0), '2024-12-21T10:00:00Z', '2024-12-21T10:30:00Z', 30, 'confirmed', 'Consulta por problemas respiratorios', '2024-12-16T14:30:00Z'),
@@ -620,12 +625,433 @@ ON CONFLICT DO NOTHING;
 
 -- HOSPITALIZATIONS (adris)
 INSERT INTO public.hospitalizations (id, tenant_id, pet_id, kennel_id, primary_vet_id, admission_number, admitted_at, status, acuity_level, actual_discharge, reason, diagnosis, discharge_instructions) VALUES
-    (gen_random_uuid(), 'adris', '660e8400-e29b-41d4-a716-446655440004', (SELECT id FROM public.kennels WHERE tenant_id = 'adris' ORDER BY code LIMIT 1 OFFSET 0), '550e8400-e29b-41d4-a716-446655440005', 'HOSP-2025-001', '2024-11-15T17:00:00Z', 'discharged', 'critical', '2024-11-18T10:00:00Z', 'Crisis respiratoria por braquicefalia', 'Síndrome braquicefálico resuelto', 'Reposo 7 días. Continuar medicación por 5 días. Control en 48 horas.'),
-    (gen_random_uuid(), 'adris', '660e8400-e29b-41d4-a716-446655440001', (SELECT id FROM public.kennels WHERE tenant_id = 'adris' ORDER BY code LIMIT 1 OFFSET 1), '550e8400-e29b-41d4-a716-446655440004', 'HOSP-2025-002', '2024-05-20T14:00:00Z', 'discharged', 'normal', '2024-05-22T09:00:00Z', 'Cirugía de esterilización', 'Ovariohisterectomía sin complicaciones', 'Puntos se retiran en 10 días. Actividad restringida 7 días. Control post-operatorio en 3 días.'),
-    (gen_random_uuid(), 'adris', '660e8400-e29b-41d4-a716-446655440003', (SELECT id FROM public.kennels WHERE tenant_id = 'adris' ORDER BY code LIMIT 1 OFFSET 2), '550e8400-e29b-41d4-a716-446655440004', 'HOSP-2025-003', '2024-12-15T08:00:00Z', 'admitted', 'normal', NULL, 'Deshidratación y vómitos persistentes', NULL, NULL),
-    (gen_random_uuid(), 'adris', '660e8400-e29b-41d4-a716-446655440009', NULL, '550e8400-e29b-41d4-a716-446655440005', 'HOSP-2025-004', '2024-12-20T13:00:00Z', 'admitted', 'normal', NULL, 'Cirugía de castración programada', NULL, NULL)
+    (gen_random_uuid(), 'adris', '660e8400-e29b-41d4-a716-446655440004', (SELECT id FROM public.kennels WHERE tenant_id = 'adris' ORDER BY code LIMIT 1 OFFSET 0), '550e8400-e29b-41d4-a716-446655440005', 'HOSP-2026-001', '2024-11-15T17:00:00Z', 'discharged', 'critical', '2024-11-18T10:00:00Z', 'Crisis respiratoria por braquicefalia', 'Síndrome braquicefálico resuelto', 'Reposo 7 días. Continuar medicación por 5 días. Control en 48 horas.'),
+    (gen_random_uuid(), 'adris', '660e8400-e29b-41d4-a716-446655440001', (SELECT id FROM public.kennels WHERE tenant_id = 'adris' ORDER BY code LIMIT 1 OFFSET 1), '550e8400-e29b-41d4-a716-446655440004', 'HOSP-2026-002', '2024-05-20T14:00:00Z', 'discharged', 'normal', '2024-05-22T09:00:00Z', 'Cirugía de esterilización', 'Ovariohisterectomía sin complicaciones', 'Puntos se retiran en 10 días. Actividad restringida 7 días. Control post-operatorio en 3 días.'),
+    (gen_random_uuid(), 'adris', '660e8400-e29b-41d4-a716-446655440003', (SELECT id FROM public.kennels WHERE tenant_id = 'adris' ORDER BY code LIMIT 1 OFFSET 2), '550e8400-e29b-41d4-a716-446655440004', 'HOSP-2026-003', '2024-12-15T08:00:00Z', 'admitted', 'normal', NULL, 'Deshidratación y vómitos persistentes', NULL, NULL),
+    (gen_random_uuid(), 'adris', '660e8400-e29b-41d4-a716-446655440009', NULL, '550e8400-e29b-41d4-a716-446655440005', 'HOSP-2026-004', '2024-12-20T13:00:00Z', 'admitted', 'normal', NULL, 'Cirugía de castración programada', NULL, NULL)
 ON CONFLICT DO NOTHING;
 
+-- STAFF PROFILES (adris)
+INSERT INTO public.staff_profiles (id, profile_id, tenant_id, license_number, license_expiry, specializations, education, bio, hire_date, employment_type, department, title, hourly_rate, daily_rate, signature_url, is_active) VALUES
+    ('a0000001-0001-0001-0001-000000000001', '550e8400-e29b-41d4-a716-446655440004', 'adris', 'MV-PY-2018-0456', '2026-12-31', ARRAY['Medicina General', 'Dermatología'], 'Universidad Nacional de Asunción - Medicina Veterinaria', 'Especialista en dermatología veterinaria con más de 6 años de experiencia. Enfoque en tratamiento de alergias y enfermedades de la piel.', '2018-03-15', 'full_time', NULL, 'Veterinario Senior', NULL, NULL, NULL, TRUE),
+    ('a0000001-0001-0001-0001-000000000002', '550e8400-e29b-41d4-a716-446655440005', 'adris', 'MV-PY-2015-0234', '2026-12-31', ARRAY['Cirugía General', 'Traumatología'], 'Universidad Nacional de Asunción - Medicina Veterinaria, Especialización en Cirugía', 'Cirujano veterinario con especialización en ortopedia y traumatología. Más de 9 años realizando cirugías complejas.', '2015-06-01', 'full_time', NULL, 'Cirujano Veterinario', NULL, NULL, NULL, TRUE)
+ON CONFLICT (profile_id) DO NOTHING;
+
+-- STAFF SCHEDULES (adris)
+INSERT INTO public.staff_schedules (id, staff_id, tenant_id, name, is_default, effective_from, effective_until, is_active) VALUES
+    ('c0000001-0001-0001-0001-000000000001', 'a0000001-0001-0001-0001-000000000001', 'adris', 'Horario Regular', TRUE, '2024-01-01', NULL, TRUE),
+    ('c0000001-0001-0001-0001-000000000002', 'a0000001-0001-0001-0001-000000000002', 'adris', 'Horario Cirugía', TRUE, '2024-01-01', NULL, TRUE)
+ON CONFLICT (id) DO NOTHING;
+
+-- STAFF SCHEDULE ENTRIES (adris)
+INSERT INTO public.staff_schedule_entries (id, schedule_id, tenant_id, day_of_week, start_time, end_time, break_start, break_end, location) VALUES
+    ('d0000001-0001-0001-0001-000000000001', 'c0000001-0001-0001-0001-000000000001', 'adris', 1, '08:00', '18:00', '12:00', '13:00', NULL),
+    ('d0000001-0001-0001-0001-000000000002', 'c0000001-0001-0001-0001-000000000001', 'adris', 2, '08:00', '18:00', '12:00', '13:00', NULL),
+    ('d0000001-0001-0001-0001-000000000003', 'c0000001-0001-0001-0001-000000000001', 'adris', 3, '08:00', '18:00', '12:00', '13:00', NULL),
+    ('d0000001-0001-0001-0001-000000000004', 'c0000001-0001-0001-0001-000000000001', 'adris', 4, '08:00', '18:00', '12:00', '13:00', NULL),
+    ('d0000001-0001-0001-0001-000000000005', 'c0000001-0001-0001-0001-000000000001', 'adris', 5, '08:00', '18:00', '12:00', '13:00', NULL),
+    ('d0000001-0001-0001-0001-000000000006', 'c0000001-0001-0001-0001-000000000001', 'adris', 6, '08:00', '13:00', NULL, NULL, NULL),
+    ('d0000001-0001-0001-0001-000000000007', 'c0000001-0001-0001-0001-000000000002', 'adris', 1, '09:00', '17:00', '12:00', '13:00', NULL),
+    ('d0000001-0001-0001-0001-000000000008', 'c0000001-0001-0001-0001-000000000002', 'adris', 2, '08:00', '14:00', NULL, NULL, 'Quirófano'),
+    ('d0000001-0001-0001-0001-000000000009', 'c0000001-0001-0001-0001-000000000002', 'adris', 3, '09:00', '17:00', '12:00', '13:00', NULL),
+    ('d0000001-0001-0001-0001-000000000010', 'c0000001-0001-0001-0001-000000000002', 'adris', 4, '08:00', '14:00', NULL, NULL, 'Quirófano'),
+    ('d0000001-0001-0001-0001-000000000011', 'c0000001-0001-0001-0001-000000000002', 'adris', 5, '09:00', '17:00', '12:00', '13:00', NULL)
+ON CONFLICT (id) DO NOTHING;
+
+-- STAFF TIME OFF (adris)
+DO $$
+DECLARE v_type_id UUID;
+BEGIN
+    SELECT id INTO v_type_id FROM public.time_off_types WHERE code = 'VAC' AND (tenant_id IS NULL OR tenant_id = 'adris') LIMIT 1;
+    INSERT INTO public.staff_time_off (id, staff_id, tenant_id, type_id, start_date, end_date, status, reason, notes, approved_by, approved_at) VALUES ('e0000001-0001-0001-0001-000000000001', 'a0000001-0001-0001-0001-000000000001', 'adris', v_type_id, '2026-01-17T15:53:04.773Z', '2026-01-24T15:53:04.773Z', 'approved', 'Vacaciones de verano planificadas', NULL, '550e8400-e29b-41d4-a716-446655440005', '2025-12-04T15:53:04.773Z') ON CONFLICT (id) DO NOTHING;
+    SELECT id INTO v_type_id FROM public.time_off_types WHERE code = 'SICK' AND (tenant_id IS NULL OR tenant_id = 'adris') LIMIT 1;
+    INSERT INTO public.staff_time_off (id, staff_id, tenant_id, type_id, start_date, end_date, status, reason, notes, approved_by, approved_at) VALUES ('e0000001-0001-0001-0001-000000000002', 'a0000001-0001-0001-0001-000000000002', 'adris', v_type_id, '2025-12-29T15:53:04.773Z', '2025-12-29T15:53:04.773Z', 'approved', 'Enfermedad leve', 'Reposo médico indicado', '550e8400-e29b-41d4-a716-446655440004', '2025-12-29T15:53:04.773Z') ON CONFLICT (id) DO NOTHING;
+    SELECT id INTO v_type_id FROM public.time_off_types WHERE code = 'PERS' AND (tenant_id IS NULL OR tenant_id = 'adris') LIMIT 1;
+    INSERT INTO public.staff_time_off (id, staff_id, tenant_id, type_id, start_date, end_date, status, reason, notes, approved_by, approved_at) VALUES ('e0000001-0001-0001-0001-000000000003', 'a0000001-0001-0001-0001-000000000002', 'adris', v_type_id, '2026-02-02T15:53:04.773Z', '2026-02-03T15:53:04.773Z', 'pending', 'Asuntos personales', NULL, NULL, NULL) ON CONFLICT (id) DO NOTHING;
+END $$;
+
+-- INVOICES (adris)
+INSERT INTO public.invoices (id, tenant_id, client_id, invoice_number, status, subtotal, discount_amount, tax_amount, total, amount_paid, invoice_date, due_date, notes, created_at) VALUES
+    ('696e762d-3030-412d-a164-726973000000', 'adris', '550e8400-e29b-41d4-a716-446655440001', 'INV-2025-0001', 'paid', 230000, 0, 23000, 253000, 0, '2025-12-19T15:53:04.773Z', '2026-01-03T15:53:04.773Z', 'Consulta general + vacuna antirrábica', '2025-12-19T15:53:04.773Z'),
+    ('696e762d-3030-422d-a164-726973000000', 'adris', '550e8400-e29b-41d4-a716-446655440002', 'INV-2025-0002', 'paid', 350000, 35000, 31500, 346500, 0, '2025-12-22T15:53:04.773Z', '2026-01-03T15:53:04.773Z', 'Limpieza dental profesional con 10% descuento', '2025-12-22T15:53:04.773Z'),
+    ('696e762d-3030-432d-a164-726973000000', 'adris', '550e8400-e29b-41d4-a716-446655440001', 'INV-2025-0003', 'sent', 450000, 0, 45000, 495000, 0, '2025-12-29T15:53:04.773Z', '2026-01-28T15:53:04.773Z', 'Esterilización hembra mediana', '2025-12-29T15:53:04.773Z'),
+    ('696e762d-3030-442d-a164-726973000000', 'adris', '550e8400-e29b-41d4-a716-446655440006', 'INV-2025-0004', 'partial', 600000, 0, 60000, 660000, 0, '2025-12-14T15:53:04.773Z', '2026-01-13T15:53:04.773Z', 'Cirugía de tejidos blandos - pago en cuotas', '2025-12-14T15:53:04.773Z'),
+    ('696e762d-3030-452d-a164-726973000000', 'adris', '550e8400-e29b-41d4-a716-446655440007', 'INV-2025-0005', 'sent', 180000, 0, 18000, 198000, 0, '2025-12-31T15:53:04.773Z', '2026-01-30T15:53:04.773Z', 'Consulta general + desparasitación', '2025-12-31T15:53:04.773Z'),
+    ('696e762d-3030-462d-a164-726973000000', 'adris', '550e8400-e29b-41d4-a716-446655440002', 'INV-2025-0006', 'overdue', 280000, 0, 28000, 308000, 0, '2025-11-19T15:53:04.773Z', '2025-12-19T15:53:04.773Z', 'Consulta especializada + radiografía', '2025-11-19T15:53:04.773Z'),
+    ('696e762d-3030-472d-a164-726973000000', 'adris', '550e8400-e29b-41d4-a716-446655440001', 'INV-2025-0007', 'draft', 160000, 0, 16000, 176000, 0, '2026-01-02T15:53:04.773Z', NULL, 'Vacuna triple felina + consulta', '2026-01-02T15:53:04.773Z'),
+    ('696e762d-3030-482d-a164-726973000000', 'adris', '550e8400-e29b-41d4-a716-446655440006', 'INV-2025-0008', 'paid', 120000, 12000, 10800, 118800, 0, '2025-12-27T15:53:04.773Z', '2026-01-03T15:53:04.773Z', 'Vacuna séxtuple + microchip (10% dto cliente frecuente)', '2025-12-27T15:53:04.773Z'),
+    ('696e762d-3030-492d-a164-726973000000', 'adris', '550e8400-e29b-41d4-a716-446655440007', 'INV-2025-0009', 'sent', 95000, 0, 9500, 104500, 0, '2026-01-01T15:53:04.773Z', '2026-01-31T15:53:04.773Z', 'Baño + corte de uñas', '2026-01-01T15:53:04.773Z'),
+    ('696e762d-3031-402d-a164-726973000000', 'adris', '550e8400-e29b-41d4-a716-446655440001', 'INV-2025-0010', 'paid', 200000, 0, 20000, 220000, 0, '2025-12-09T15:53:04.773Z', '2025-12-24T15:53:04.773Z', 'Ecografía abdominal', '2025-12-09T15:53:04.773Z')
+ON CONFLICT (id) DO NOTHING;
+
+-- INVOICE ITEMS (adris)
+INSERT INTO public.invoice_items (id, invoice_id, item_type, description, quantity, unit_price, total) VALUES
+    ('69692d30-3031-4d30-a100-000000000000', '696e762d-3030-412d-a164-726973000000', 'service', 'Consulta General', 1, 150000, 150000),
+    ('69692d30-3031-4d30-a200-000000000000', '696e762d-3030-412d-a164-726973000000', 'service', 'Vacuna Antirrábica', 1, 80000, 80000),
+    ('69692d30-3032-4d30-a100-000000000000', '696e762d-3030-422d-a164-726973000000', 'service', 'Limpieza Dental Profesional', 1, 350000, 315000),
+    ('69692d30-3033-4d30-a100-000000000000', '696e762d-3030-432d-a164-726973000000', 'service', 'Esterilización Hembra Mediana (10-25kg)', 1, 450000, 450000),
+    ('69692d30-3034-4d30-a100-000000000000', '696e762d-3030-442d-a164-726973000000', 'service', 'Cirugía de Tejidos Blandos', 1, 600000, 600000),
+    ('69692d30-3035-4d30-a100-000000000000', '696e762d-3030-452d-a164-726973000000', 'service', 'Consulta General', 1, 150000, 150000),
+    ('69692d30-3035-4d30-a200-000000000000', '696e762d-3030-452d-a164-726973000000', 'service', 'Desparasitación Interna', 1, 35000, 35000),
+    ('69692d30-3036-4d30-a100-000000000000', '696e762d-3030-462d-a164-726973000000', 'service', 'Consulta Especializada', 1, 200000, 200000),
+    ('69692d30-3036-4d30-a200-000000000000', '696e762d-3030-462d-a164-726973000000', 'service', 'Radiografía Simple', 1, 150000, 80000),
+    ('69692d30-3037-4d30-a100-000000000000', '696e762d-3030-472d-a164-726973000000', 'service', 'Consulta General', 1, 150000, 60000),
+    ('69692d30-3037-4d30-a200-000000000000', '696e762d-3030-472d-a164-726973000000', 'service', 'Vacuna Triple Felina', 1, 100000, 100000),
+    ('69692d30-3038-4d30-a100-000000000000', '696e762d-3030-482d-a164-726973000000', 'service', 'Vacuna Séxtuple Canina', 1, 120000, 108000),
+    ('69692d30-3038-4d30-a200-000000000000', '696e762d-3030-482d-a164-726973000000', 'product', 'Collar Antipulgas Frontline', 1, 85000, 85000),
+    ('69692d30-3039-4d30-a100-000000000000', '696e762d-3030-492d-a164-726973000000', 'service', 'Baño Perro Pequeño (<10kg)', 1, 50000, 50000),
+    ('69692d30-3039-4d30-a200-000000000000', '696e762d-3030-492d-a164-726973000000', 'service', 'Corte de Uñas', 1, 25000, 25000),
+    ('69692d30-3039-4d30-a300-000000000000', '696e762d-3030-492d-a164-726973000000', 'product', 'Shampoo Medicado', 1, 45000, 20000),
+    ('69692d30-3130-4d30-a100-000000000000', '696e762d-3031-402d-a164-726973000000', 'service', 'Ecografía Abdominal', 1, 200000, 200000)
+ON CONFLICT (id) DO NOTHING;
+
+-- PAYMENTS (adris)
+INSERT INTO public.payments (id, tenant_id, invoice_id, amount, payment_method_name, payment_date, status, reference_number, notes) VALUES
+    ('7061792d-3030-412d-a164-726973000000', 'adris', '696e762d-3030-412d-a164-726973000000', 253000, 'Efectivo', '2025-12-24T15:53:04.774Z', 'completed', NULL, 'Pago en efectivo'),
+    ('7061792d-3030-422d-a164-726973000000', 'adris', '696e762d-3030-422d-a164-726973000000', 346500, 'Tarjeta de Débito', '2025-12-26T15:53:04.774Z', 'completed', 'TXN-2025-00234', 'Tarjeta de débito'),
+    ('7061792d-3030-432d-a164-726973000000', 'adris', '696e762d-3030-442d-a164-726973000000', 330000, 'Transferencia Bancaria', '2025-12-16T15:53:04.774Z', 'completed', 'TRF-2025-00567', 'Primera cuota (50%)'),
+    ('7061792d-3030-442d-a164-726973000000', 'adris', '696e762d-3030-482d-a164-726973000000', 118800, 'Efectivo', '2025-12-27T15:53:04.774Z', 'completed', NULL, 'Efectivo'),
+    ('7061792d-3030-452d-a164-726973000000', 'adris', '696e762d-3031-402d-a164-726973000000', 220000, 'Tarjeta de Crédito', '2025-12-14T15:53:04.774Z', 'completed', 'TXN-2025-00189', 'Tarjeta de crédito')
+ON CONFLICT (id) DO NOTHING;
+
+-- STORE ORDERS (adris)
+INSERT INTO public.store_orders (id, tenant_id, customer_id, order_number, status, subtotal, discount_amount, coupon_code, shipping_cost, tax_amount, total, payment_method, shipping_method, shipping_address, created_at, confirmed_at, shipped_at, delivered_at, cancelled_at, cancellation_reason) VALUES
+    ('6f72642d-3030-412d-a164-726973000000', 'adris', '550e8400-e29b-41d4-a716-446655440001', 'ORD-2025-0001', 'delivered', 610000, 0, NULL, 25000, 61000, 696000, 'cash_on_delivery', 'delivery', '{"recipient_name":"Ana María González","street":"Av. España 1234","city":"Asunción","phone":"+595 981 234 567"}'::JSONB, '2025-12-19T15:53:04.775Z', NULL, '2025-12-20T15:53:04.775Z', '2025-12-22T15:53:04.775Z', NULL, NULL),
+    ('6f72642d-3030-422d-a164-726973000000', 'adris', '550e8400-e29b-41d4-a716-446655440002', 'ORD-2025-0002', 'delivered', 290000, 29000, 'VERANO10', 0, 26100, 287100, 'card', 'pickup', NULL, '2025-12-24T15:53:04.775Z', NULL, NULL, '2025-12-26T15:53:04.775Z', NULL, NULL),
+    ('6f72642d-3030-432d-a164-726973000000', 'adris', '550e8400-e29b-41d4-a716-446655440006', 'ORD-2025-0003', 'shipped', 520000, 0, NULL, 25000, 52000, 597000, 'bank_transfer', 'delivery', '{"recipient_name":"José Martínez","street":"Calle 14 de Mayo 456","city":"Encarnación","phone":"+595 984 567 890"}'::JSONB, '2025-12-31T15:53:04.775Z', NULL, '2026-01-02T15:53:04.775Z', NULL, NULL, NULL),
+    ('6f72642d-3030-442d-a164-726973000000', 'adris', '550e8400-e29b-41d4-a716-446655440007', 'ORD-2025-0004', 'processing', 180000, 0, NULL, 15000, 18000, 213000, 'cash_on_delivery', 'delivery', '{"recipient_name":"Laura Benítez","street":"Av. Santísima Trinidad 234","city":"Asunción","phone":"+595 985 678 901"}'::JSONB, '2026-01-02T15:53:04.775Z', NULL, NULL, NULL, NULL, NULL),
+    ('6f72642d-3030-452d-a164-726973000000', 'adris', '550e8400-e29b-41d4-a716-446655440001', 'ORD-2025-0005', 'confirmed', 350000, 52500, 'VIP15', 0, 29750, 327250, 'card', 'pickup', NULL, '2026-01-03T07:53:04.775Z', NULL, NULL, NULL, NULL, NULL),
+    ('6f72642d-3030-462d-a164-726973000000', 'adris', '550e8400-e29b-41d4-a716-446655440002', 'ORD-2025-0006', 'pending', 145000, 0, NULL, 25000, 14500, 184500, 'cash_on_delivery', 'delivery', '{"recipient_name":"Carlos Rodríguez","street":"Calle Palma 567","city":"Luque","phone":"+595 982 345 678"}'::JSONB, '2026-01-03T13:53:04.775Z', NULL, NULL, NULL, NULL, NULL),
+    ('6f72642d-3030-472d-a164-726973000000', 'adris', '550e8400-e29b-41d4-a716-446655440006', 'ORD-2025-0007', 'cancelled', 85000, 0, NULL, 25000, 8500, 118500, 'card', 'delivery', NULL, '2025-12-27T15:53:04.775Z', NULL, NULL, NULL, '2025-12-29T15:53:04.775Z', 'Cliente solicitó cancelación - producto incorrecto'),
+    ('6f72642d-3030-482d-a164-726973000000', 'adris', '550e8400-e29b-41d4-a716-446655440007', 'ORD-2025-0008', 'delivered', 485000, 0, NULL, 0, 48500, 533500, 'bank_transfer', 'pickup', NULL, '2025-12-14T15:53:04.775Z', NULL, NULL, '2025-12-16T15:53:04.775Z', NULL, NULL),
+    ('6f72642d-3030-492d-a164-726973000000', 'adris', '550e8400-e29b-41d4-a716-446655440001', 'ORD-2025-0009', 'delivered', 165000, 0, NULL, 15000, 16500, 196500, 'cash_on_delivery', 'delivery', '{"recipient_name":"Ana González","street":"Av. España 1234","city":"Asunción","phone":"+595 981 234 567"}'::JSONB, '2025-12-09T15:53:04.775Z', NULL, '2025-12-10T15:53:04.775Z', '2025-12-12T15:53:04.775Z', NULL, NULL),
+    ('6f72642d-3031-402d-a164-726973000000', 'adris', '550e8400-e29b-41d4-a716-446655440002', 'ORD-2025-0010', 'delivered', 250000, 25000, 'WELCOME10', 25000, 22500, 272500, 'card', 'delivery', '{"recipient_name":"Carlos R. Silva","street":"Calle Palma 567","city":"Luque","phone":"+595 982 345 678"}'::JSONB, '2025-12-04T15:53:04.775Z', NULL, '2025-12-05T15:53:04.775Z', '2025-12-07T15:53:04.775Z', NULL, NULL),
+    ('6f72642d-3031-412d-a164-726973000000', 'adris', '550e8400-e29b-41d4-a716-446655440001', 'ORD-2025-0011', 'ready', 125000, 0, NULL, 0, 12500, 137500, 'card', 'pickup', NULL, '2026-01-03T11:53:04.775Z', NULL, NULL, NULL, NULL, NULL),
+    ('6f72642d-3031-422d-a164-726973000000', 'adris', '550e8400-e29b-41d4-a716-446655440006', 'ORD-2025-0012', 'delivered', 195000, 0, NULL, 25000, 19500, 239500, 'cash_on_delivery', 'delivery', NULL, '2025-11-29T15:53:04.775Z', NULL, '2025-11-30T15:53:04.775Z', '2025-12-02T15:53:04.775Z', NULL, NULL),
+    ('6f72642d-3031-432d-a164-726973000000', 'adris', '550e8400-e29b-41d4-a716-446655440007', 'ORD-2025-0013', 'delivered', 320000, 48000, 'VIP15', 0, 27200, 299200, 'bank_transfer', 'pickup', NULL, '2025-11-24T15:53:04.775Z', NULL, NULL, '2025-11-26T15:53:04.775Z', NULL, NULL),
+    ('6f72642d-3031-442d-a164-726973000000', 'adris', '550e8400-e29b-41d4-a716-446655440002', 'ORD-2025-0014', 'refunded', 145000, 0, NULL, 25000, 14500, 184500, 'card', 'delivery', NULL, '2025-12-12T15:53:04.775Z', NULL, '2025-12-13T15:53:04.775Z', '2025-12-15T15:53:04.775Z', NULL, NULL),
+    ('6f72642d-3031-452d-a164-726973000000', 'adris', '550e8400-e29b-41d4-a716-446655440001', 'ORD-2025-0015', 'delivered', 210000, 0, NULL, 15000, 21000, 246000, 'cash_on_delivery', 'delivery', NULL, '2025-12-26T15:53:04.775Z', NULL, '2025-12-28T15:53:04.775Z', '2025-12-29T15:53:04.775Z', NULL, NULL)
+ON CONFLICT (id) DO NOTHING;
+
+-- STORE ORDER ITEMS (adris)
+DO $$
+DECLARE v_product_id UUID;
+BEGIN
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'RC-DOG-ADULT-MED-15KG' LIMIT 1;
+    IF v_product_id IS NOT NULL THEN
+        INSERT INTO public.store_order_items (id, tenant_id, order_id, product_id, product_name, quantity, unit_price, total_price) VALUES ('6f692d30-3031-4d30-a100-000000000000', 'adris', '6f72642d-3030-412d-a164-726973000000', v_product_id, 'Royal Canin Medium Adult 15kg', 1, 485000, 485000) ON CONFLICT (id) DO NOTHING;
+    END IF;
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'RC-DOG-ADULT-MED-3KG' LIMIT 1;
+    IF v_product_id IS NOT NULL THEN
+        INSERT INTO public.store_order_items (id, tenant_id, order_id, product_id, product_name, quantity, unit_price, total_price) VALUES ('6f692d30-3031-4d30-a200-000000000000', 'adris', '6f72642d-3030-412d-a164-726973000000', v_product_id, 'Royal Canin Medium Adult 3kg', 1, 125000, 125000) ON CONFLICT (id) DO NOTHING;
+    END IF;
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'NEXGARD-M-3' LIMIT 1;
+    IF v_product_id IS NOT NULL THEN
+        INSERT INTO public.store_order_items (id, tenant_id, order_id, product_id, product_name, quantity, unit_price, total_price) VALUES ('6f692d30-3032-4d30-a100-000000000000', 'adris', '6f72642d-3030-422d-a164-726973000000', v_product_id, 'NexGard Mediano (10-25kg) x3', 1, 165000, 165000) ON CONFLICT (id) DO NOTHING;
+    END IF;
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'RC-DOG-ADULT-MED-3KG' LIMIT 1;
+    IF v_product_id IS NOT NULL THEN
+        INSERT INTO public.store_order_items (id, tenant_id, order_id, product_id, product_name, quantity, unit_price, total_price) VALUES ('6f692d30-3032-4d30-a200-000000000000', 'adris', '6f72642d-3030-422d-a164-726973000000', v_product_id, 'Royal Canin Medium Adult 3kg', 1, 125000, 125000) ON CONFLICT (id) DO NOTHING;
+    END IF;
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'HILLS-SD-ADULT-12KG' LIMIT 1;
+    IF v_product_id IS NOT NULL THEN
+        INSERT INTO public.store_order_items (id, tenant_id, order_id, product_id, product_name, quantity, unit_price, total_price) VALUES ('6f692d30-3033-4d30-a100-000000000000', 'adris', '6f72642d-3030-432d-a164-726973000000', v_product_id, 'Hills Science Diet Adult 12kg', 1, 520000, 520000) ON CONFLICT (id) DO NOTHING;
+    END IF;
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'NEXGARD-L-3' LIMIT 1;
+    IF v_product_id IS NOT NULL THEN
+        INSERT INTO public.store_order_items (id, tenant_id, order_id, product_id, product_name, quantity, unit_price, total_price) VALUES ('6f692d30-3034-4d30-a100-000000000000', 'adris', '6f72642d-3030-442d-a164-726973000000', v_product_id, 'NexGard Grande (25-50kg) x3', 1, 180000, 180000) ON CONFLICT (id) DO NOTHING;
+    END IF;
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'RC-CAT-ADULT-4KG' LIMIT 1;
+    IF v_product_id IS NOT NULL THEN
+        INSERT INTO public.store_order_items (id, tenant_id, order_id, product_id, product_name, quantity, unit_price, total_price) VALUES ('6f692d30-3035-4d30-a100-000000000000', 'adris', '6f72642d-3030-452d-a164-726973000000', v_product_id, 'Royal Canin Cat Adult 4kg', 1, 195000, 195000) ON CONFLICT (id) DO NOTHING;
+    END IF;
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'NEXGARD-S-3' LIMIT 1;
+    IF v_product_id IS NOT NULL THEN
+        INSERT INTO public.store_order_items (id, tenant_id, order_id, product_id, product_name, quantity, unit_price, total_price) VALUES ('6f692d30-3035-4d30-a200-000000000000', 'adris', '6f72642d-3030-452d-a164-726973000000', v_product_id, 'NexGard Pequeño (2-4kg) x3', 1, 145000, 145000) ON CONFLICT (id) DO NOTHING;
+    END IF;
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'NEXGARD-S-3' LIMIT 1;
+    IF v_product_id IS NOT NULL THEN
+        INSERT INTO public.store_order_items (id, tenant_id, order_id, product_id, product_name, quantity, unit_price, total_price) VALUES ('6f692d30-3036-4d30-a100-000000000000', 'adris', '6f72642d-3030-462d-a164-726973000000', v_product_id, 'NexGard Pequeño (2-4kg) x3', 1, 145000, 145000) ON CONFLICT (id) DO NOTHING;
+    END IF;
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'RC-DOG-PUPPY-MED-3KG' LIMIT 1;
+    IF v_product_id IS NOT NULL THEN
+        INSERT INTO public.store_order_items (id, tenant_id, order_id, product_id, product_name, quantity, unit_price, total_price) VALUES ('6f692d30-3037-4d30-a100-000000000000', 'adris', '6f72642d-3030-472d-a164-726973000000', v_product_id, 'Royal Canin Medium Puppy 3kg', 1, 135000, 135000) ON CONFLICT (id) DO NOTHING;
+    END IF;
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'RC-DOG-ADULT-MED-15KG' LIMIT 1;
+    IF v_product_id IS NOT NULL THEN
+        INSERT INTO public.store_order_items (id, tenant_id, order_id, product_id, product_name, quantity, unit_price, total_price) VALUES ('6f692d30-3038-4d30-a100-000000000000', 'adris', '6f72642d-3030-482d-a164-726973000000', v_product_id, 'Royal Canin Medium Adult 15kg', 1, 485000, 485000) ON CONFLICT (id) DO NOTHING;
+    END IF;
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'NEXGARD-M-3' LIMIT 1;
+    IF v_product_id IS NOT NULL THEN
+        INSERT INTO public.store_order_items (id, tenant_id, order_id, product_id, product_name, quantity, unit_price, total_price) VALUES ('6f692d30-3039-4d30-a100-000000000000', 'adris', '6f72642d-3030-492d-a164-726973000000', v_product_id, 'NexGard Mediano (10-25kg) x3', 1, 165000, 165000) ON CONFLICT (id) DO NOTHING;
+    END IF;
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'RC-CAT-KITTEN-4KG' LIMIT 1;
+    IF v_product_id IS NOT NULL THEN
+        INSERT INTO public.store_order_items (id, tenant_id, order_id, product_id, product_name, quantity, unit_price, total_price) VALUES ('6f692d30-3130-4d30-a100-000000000000', 'adris', '6f72642d-3031-402d-a164-726973000000', v_product_id, 'Royal Canin Kitten 4kg', 1, 210000, 210000) ON CONFLICT (id) DO NOTHING;
+    END IF;
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'RC-DOG-ADULT-MED-3KG' LIMIT 1;
+    IF v_product_id IS NOT NULL THEN
+        INSERT INTO public.store_order_items (id, tenant_id, order_id, product_id, product_name, quantity, unit_price, total_price) VALUES ('6f692d30-3131-4d30-a100-000000000000', 'adris', '6f72642d-3031-412d-a164-726973000000', v_product_id, 'Royal Canin Medium Adult 3kg', 1, 125000, 125000) ON CONFLICT (id) DO NOTHING;
+    END IF;
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'RC-CAT-ADULT-4KG' LIMIT 1;
+    IF v_product_id IS NOT NULL THEN
+        INSERT INTO public.store_order_items (id, tenant_id, order_id, product_id, product_name, quantity, unit_price, total_price) VALUES ('6f692d30-3132-4d30-a100-000000000000', 'adris', '6f72642d-3031-422d-a164-726973000000', v_product_id, 'Royal Canin Cat Adult 4kg', 1, 195000, 195000) ON CONFLICT (id) DO NOTHING;
+    END IF;
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'HILLS-SD-PUPPY-12KG' LIMIT 1;
+    IF v_product_id IS NOT NULL THEN
+        INSERT INTO public.store_order_items (id, tenant_id, order_id, product_id, product_name, quantity, unit_price, total_price) VALUES ('6f692d30-3133-4d30-a100-000000000000', 'adris', '6f72642d-3031-432d-a164-726973000000', v_product_id, 'Hills Science Diet Puppy 12kg', 1, 550000, 550000) ON CONFLICT (id) DO NOTHING;
+    END IF;
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'NEXGARD-S-3' LIMIT 1;
+    IF v_product_id IS NOT NULL THEN
+        INSERT INTO public.store_order_items (id, tenant_id, order_id, product_id, product_name, quantity, unit_price, total_price) VALUES ('6f692d30-3134-4d30-a100-000000000000', 'adris', '6f72642d-3031-442d-a164-726973000000', v_product_id, 'NexGard Pequeño (2-4kg) x3', 1, 145000, 145000) ON CONFLICT (id) DO NOTHING;
+    END IF;
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'RC-CAT-KITTEN-4KG' LIMIT 1;
+    IF v_product_id IS NOT NULL THEN
+        INSERT INTO public.store_order_items (id, tenant_id, order_id, product_id, product_name, quantity, unit_price, total_price) VALUES ('6f692d30-3135-4d30-a100-000000000000', 'adris', '6f72642d-3031-452d-a164-726973000000', v_product_id, 'Royal Canin Kitten 4kg', 1, 210000, 210000) ON CONFLICT (id) DO NOTHING;
+    END IF;
+END $$;
+
+-- STORE CARTS (adris)
+INSERT INTO public.store_carts (id, tenant_id, customer_id, items, updated_at) VALUES
+    ('63617274-2d30-4031-ad61-647269730000', 'adris', '550e8400-e29b-41d4-a716-446655440001', '[{"product_id":"prod-rc-dog-adult-med-15kg","sku":"RC-DOG-ADULT-MED-15KG","name":"Royal Canin Medium Adult 15kg","quantity":1,"price":485000,"image_url":"/products/royal-canin-adult.jpg"},{"product_id":"prod-nexgard-m-3","sku":"NEXGARD-M-3","name":"NexGard Mediano (10-25kg) x3","quantity":2,"price":165000,"image_url":"/products/nexgard-m.jpg"}]'::JSONB, '2026-01-03T13:53:04.776Z'),
+    ('63617274-2d30-4032-ad61-647269730000', 'adris', '550e8400-e29b-41d4-a716-446655440006', '[{"product_id":"prod-hills-sd-adult-12kg","sku":"HILLS-SD-ADULT-12KG","name":"Hills Science Diet Adult 12kg","quantity":1,"price":520000,"image_url":"/products/hills-adult.jpg"}]'::JSONB, '2026-01-02T15:53:04.776Z'),
+    ('63617274-2d30-4033-ad61-647269730000', 'adris', '550e8400-e29b-41d4-a716-446655440007', '[{"product_id":"prod-rc-cat-adult-4kg","sku":"RC-CAT-ADULT-4KG","name":"Royal Canin Cat Adult 4kg","quantity":2,"price":195000,"image_url":"/products/royal-canin-cat.jpg"},{"product_id":"prod-nexgard-s-3","sku":"NEXGARD-S-3","name":"NexGard Pequeño (2-4kg) x3","quantity":1,"price":145000,"image_url":"/products/nexgard-s.jpg"}]'::JSONB, '2025-12-31T15:53:04.776Z')
+ON CONFLICT (id) DO UPDATE SET items = EXCLUDED.items, updated_at = EXCLUDED.updated_at;
+
+-- STORE REVIEWS (adris)
+DO $$
+DECLARE v_product_id UUID;
+BEGIN
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = NULL LIMIT 1;
+    IF v_product_id IS NOT NULL THEN
+        INSERT INTO public.store_reviews (id, tenant_id, product_id, customer_id, rating, title, content, is_approved, approved_at, approved_by, created_at) VALUES ('7265762d-3030-412d-a164-726973000000', 'adris', v_product_id, '550e8400-e29b-41d4-a716-446655440001', 5, 'Excelente alimento', 'Mi perro Luna lo ama, su pelaje está mucho más brillante desde que empezamos a usar este alimento. Muy recomendado.', TRUE, NULL, NULL, '2025-12-14T15:53:04.776Z') ON CONFLICT (id) DO NOTHING;
+    END IF;
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = NULL LIMIT 1;
+    IF v_product_id IS NOT NULL THEN
+        INSERT INTO public.store_reviews (id, tenant_id, product_id, customer_id, rating, title, content, is_approved, approved_at, approved_by, created_at) VALUES ('7265762d-3030-422d-a164-726973000000', 'adris', v_product_id, '550e8400-e29b-41d4-a716-446655440002', 5, 'Funciona perfectamente', 'Muy fácil de dar, mi perro se lo come como si fuera un premio. No he visto ninguna pulga o garrapata desde que empecé a usarlo.', TRUE, NULL, NULL, '2025-12-19T15:53:04.776Z') ON CONFLICT (id) DO NOTHING;
+    END IF;
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = NULL LIMIT 1;
+    IF v_product_id IS NOT NULL THEN
+        INSERT INTO public.store_reviews (id, tenant_id, product_id, customer_id, rating, title, content, is_approved, approved_at, approved_by, created_at) VALUES ('7265762d-3030-432d-a164-726973000000', 'adris', v_product_id, '550e8400-e29b-41d4-a716-446655440006', 4, 'Buena calidad pero caro', 'El producto es muy bueno y mi perro lo digiere bien, pero el precio es un poco alto comparado con otras opciones.', TRUE, NULL, NULL, '2025-12-22T15:53:04.776Z') ON CONFLICT (id) DO NOTHING;
+    END IF;
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = NULL LIMIT 1;
+    IF v_product_id IS NOT NULL THEN
+        INSERT INTO public.store_reviews (id, tenant_id, product_id, customer_id, rating, title, content, is_approved, approved_at, approved_by, created_at) VALUES ('7265762d-3030-442d-a164-726973000000', 'adris', v_product_id, '550e8400-e29b-41d4-a716-446655440007', 5, 'Mi gato lo adora', 'Bella es muy exigente con la comida pero este alimento le encanta. La calidad es excelente.', TRUE, NULL, NULL, '2025-12-24T15:53:04.776Z') ON CONFLICT (id) DO NOTHING;
+    END IF;
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = NULL LIMIT 1;
+    IF v_product_id IS NOT NULL THEN
+        INSERT INTO public.store_reviews (id, tenant_id, product_id, customer_id, rating, title, content, is_approved, approved_at, approved_by, created_at) VALUES ('7265762d-3030-452d-a164-726973000000', 'adris', v_product_id, '550e8400-e29b-41d4-a716-446655440001', 5, 'Perfecto para cachorros', 'Mi cachorro creció muy sano con este alimento. Los croquetas son del tamaño perfecto.', TRUE, NULL, NULL, '2025-11-19T15:53:04.776Z') ON CONFLICT (id) DO NOTHING;
+    END IF;
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = NULL LIMIT 1;
+    IF v_product_id IS NOT NULL THEN
+        INSERT INTO public.store_reviews (id, tenant_id, product_id, customer_id, rating, title, content, is_approved, approved_at, approved_by, created_at) VALUES ('7265762d-3030-462d-a164-726973000000', 'adris', v_product_id, '550e8400-e29b-41d4-a716-446655440007', 4, 'Efectivo', 'Funciona bien pero mi perro pequeño tardó un poco en aceptarlo. Ahora ya se lo come sin problemas.', TRUE, NULL, NULL, '2025-12-26T15:53:04.776Z') ON CONFLICT (id) DO NOTHING;
+    END IF;
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = NULL LIMIT 1;
+    IF v_product_id IS NOT NULL THEN
+        INSERT INTO public.store_reviews (id, tenant_id, product_id, customer_id, rating, title, content, is_approved, approved_at, approved_by, created_at) VALUES ('7265762d-3030-472d-a164-726973000000', 'adris', v_product_id, '550e8400-e29b-41d4-a716-446655440002', 5, 'Tamaño ideal para probar', 'Compré este tamaño para probar antes de comprar el grande. Mi perro lo acepta muy bien.', TRUE, NULL, NULL, '2025-12-29T15:53:04.776Z') ON CONFLICT (id) DO NOTHING;
+    END IF;
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = NULL LIMIT 1;
+    IF v_product_id IS NOT NULL THEN
+        INSERT INTO public.store_reviews (id, tenant_id, product_id, customer_id, rating, title, content, is_approved, approved_at, approved_by, created_at) VALUES ('7265762d-3030-482d-a164-726973000000', 'adris', v_product_id, '550e8400-e29b-41d4-a716-446655440006', 3, 'Regular', 'A mi cachorro no le gustó mucho al principio pero eventualmente se acostumbró. Buena calidad general.', TRUE, NULL, NULL, '2025-12-09T15:53:04.776Z') ON CONFLICT (id) DO NOTHING;
+    END IF;
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = NULL LIMIT 1;
+    IF v_product_id IS NOT NULL THEN
+        INSERT INTO public.store_reviews (id, tenant_id, product_id, customer_id, rating, title, content, is_approved, approved_at, approved_by, created_at) VALUES ('7265762d-3030-492d-a164-726973000000', 'adris', v_product_id, '550e8400-e29b-41d4-a716-446655440001', 5, 'Mi gatito lo ama', 'Desde el primer día mi gatito comió con ganas. Se nota que es un alimento de calidad.', TRUE, NULL, NULL, '2025-12-16T15:53:04.776Z') ON CONFLICT (id) DO NOTHING;
+    END IF;
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = NULL LIMIT 1;
+    IF v_product_id IS NOT NULL THEN
+        INSERT INTO public.store_reviews (id, tenant_id, product_id, customer_id, rating, title, content, is_approved, approved_at, approved_by, created_at) VALUES ('7265762d-3031-402d-a164-726973000000', 'adris', v_product_id, '550e8400-e29b-41d4-a716-446655440006', 5, 'El mejor antiparasitario', 'Tengo un Pastor Alemán y este producto es perfecto. Fácil de administrar y muy efectivo.', TRUE, NULL, NULL, '2025-12-04T15:53:04.776Z') ON CONFLICT (id) DO NOTHING;
+    END IF;
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = NULL LIMIT 1;
+    IF v_product_id IS NOT NULL THEN
+        INSERT INTO public.store_reviews (id, tenant_id, product_id, customer_id, rating, title, content, is_approved, approved_at, approved_by, created_at) VALUES ('7265762d-3031-412d-a164-726973000000', 'adris', v_product_id, '550e8400-e29b-41d4-a716-446655440006', 4, 'Buena relación calidad-precio', 'Llevo años usando esta marca. El bolso de 15kg rinde bastante para mi perro mediano.', TRUE, NULL, NULL, '2025-11-14T15:53:04.776Z') ON CONFLICT (id) DO NOTHING;
+    END IF;
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = NULL LIMIT 1;
+    IF v_product_id IS NOT NULL THEN
+        INSERT INTO public.store_reviews (id, tenant_id, product_id, customer_id, rating, title, content, is_approved, approved_at, approved_by, created_at) VALUES ('7265762d-3031-422d-a164-726973000000', 'adris', v_product_id, '550e8400-e29b-41d4-a716-446655440001', 5, 'Super recomendado', 'Lo uso hace más de un año y nunca tuve problemas. Mi perra está libre de parásitos.', TRUE, NULL, NULL, '2025-11-04T15:53:04.776Z') ON CONFLICT (id) DO NOTHING;
+    END IF;
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = NULL LIMIT 1;
+    IF v_product_id IS NOT NULL THEN
+        INSERT INTO public.store_reviews (id, tenant_id, product_id, customer_id, rating, title, content, is_approved, approved_at, approved_by, created_at) VALUES ('7265762d-3031-432d-a164-726973000000', 'adris', v_product_id, '550e8400-e29b-41d4-a716-446655440007', 5, 'Pendiente de aprobación', 'Excelente producto, mi perro lo come muy bien. Entrega rápida también.', FALSE, NULL, NULL, '2026-01-02T15:53:04.776Z') ON CONFLICT (id) DO NOTHING;
+    END IF;
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = NULL LIMIT 1;
+    IF v_product_id IS NOT NULL THEN
+        INSERT INTO public.store_reviews (id, tenant_id, product_id, customer_id, rating, title, content, is_approved, approved_at, approved_by, created_at) VALUES ('7265762d-3031-442d-a164-726973000000', 'adris', v_product_id, '550e8400-e29b-41d4-a716-446655440002', 2, 'No le gustó a mi perro', 'A diferencia de otros usuarios, mi perro no quiso comer este alimento. Tuve que cambiarlo.', TRUE, NULL, NULL, '2025-11-29T15:53:04.776Z') ON CONFLICT (id) DO NOTHING;
+    END IF;
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = NULL LIMIT 1;
+    IF v_product_id IS NOT NULL THEN
+        INSERT INTO public.store_reviews (id, tenant_id, product_id, customer_id, rating, title, content, is_approved, approved_at, approved_by, created_at) VALUES ('7265762d-3031-452d-a164-726973000000', 'adris', v_product_id, '550e8400-e29b-41d4-a716-446655440001', 4, 'Buen producto', 'Mis dos gatas lo comen sin problemas. La calidad es consistente.', TRUE, NULL, NULL, '2025-11-24T15:53:04.776Z') ON CONFLICT (id) DO NOTHING;
+    END IF;
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = NULL LIMIT 1;
+    IF v_product_id IS NOT NULL THEN
+        INSERT INTO public.store_reviews (id, tenant_id, product_id, customer_id, rating, title, content, is_approved, approved_at, approved_by, created_at) VALUES ('7265762d-3031-462d-a164-726973000000', 'adris', v_product_id, '550e8400-e29b-41d4-a716-446655440002', 5, 'Lo mejor para perros pequeños', 'Mi chihuahua lo toma sin problemas. El tamaño de la tableta es perfecto.', TRUE, NULL, NULL, '2025-12-12T15:53:04.776Z') ON CONFLICT (id) DO NOTHING;
+    END IF;
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = NULL LIMIT 1;
+    IF v_product_id IS NOT NULL THEN
+        INSERT INTO public.store_reviews (id, tenant_id, product_id, customer_id, rating, title, content, is_approved, approved_at, approved_by, created_at) VALUES ('7265762d-3031-472d-a164-726973000000', 'adris', v_product_id, '550e8400-e29b-41d4-a716-446655440007', 5, 'Perfecto para empezar', 'Ideal para probar con un cachorro nuevo. Mi cachorra creció muy sana.', TRUE, NULL, NULL, '2025-11-09T15:53:04.776Z') ON CONFLICT (id) DO NOTHING;
+    END IF;
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = NULL LIMIT 1;
+    IF v_product_id IS NOT NULL THEN
+        INSERT INTO public.store_reviews (id, tenant_id, product_id, customer_id, rating, title, content, is_approved, approved_at, approved_by, created_at) VALUES ('7265762d-3031-482d-a164-726973000000', 'adris', v_product_id, '550e8400-e29b-41d4-a716-446655440002', 5, 'Compra recurrente', 'Ya lo compro hace 3 años. La mejor opción para mi labrador.', TRUE, NULL, NULL, '2025-10-25T15:53:04.776Z') ON CONFLICT (id) DO NOTHING;
+    END IF;
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = NULL LIMIT 1;
+    IF v_product_id IS NOT NULL THEN
+        INSERT INTO public.store_reviews (id, tenant_id, product_id, customer_id, rating, title, content, is_approved, approved_at, approved_by, created_at) VALUES ('7265762d-3031-492d-a164-726973000000', 'adris', v_product_id, '550e8400-e29b-41d4-a716-446655440007', 4, 'Buen producto', 'Funciona bien pero es un poco caro. Ojalá hubiera presentación de 6 tabletas con descuento.', TRUE, NULL, NULL, '2025-12-20T15:53:04.776Z') ON CONFLICT (id) DO NOTHING;
+    END IF;
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = NULL LIMIT 1;
+    IF v_product_id IS NOT NULL THEN
+        INSERT INTO public.store_reviews (id, tenant_id, product_id, customer_id, rating, title, content, is_approved, approved_at, approved_by, created_at) VALUES ('7265762d-3032-402d-a164-726973000000', 'adris', v_product_id, '550e8400-e29b-41d4-a716-446655440001', 5, 'Excelente para crecimiento', 'Mi cachorro Golden está creciendo muy bien con este alimento. El veterinario también lo recomienda.', TRUE, NULL, NULL, '2025-12-06T15:53:04.776Z') ON CONFLICT (id) DO NOTHING;
+    END IF;
+END $$;
+
+-- STORE CAMPAIGNS (adris)
+INSERT INTO public.store_campaigns (id, tenant_id, name, description, campaign_type, start_date, end_date, discount_type, discount_value, is_active, created_at) VALUES
+    ('63616d70-2d30-4031-ad61-647269730000', 'adris', 'Descuento de Verano', 'Promoción especial de verano en alimentos y accesorios para mascotas', 'sale', '2025-12-19T15:53:04.777Z', '2026-02-17T15:53:04.777Z', 'percentage', 15, TRUE, '2025-12-14T15:53:04.777Z'),
+    ('63616d70-2d30-4032-ad61-647269730000', 'adris', '2x1 en Antiparasitarios', 'Compra un antiparasitario y lleva el segundo gratis', 'bogo', '2025-12-29T15:53:04.777Z', '2026-01-28T15:53:04.777Z', 'percentage', 50, TRUE, '2025-12-24T15:53:04.777Z'),
+    ('63616d70-2d30-4033-ad61-647269730000', 'adris', 'Flash Sale - Solo Hoy', 'Descuento especial de 24 horas en productos seleccionados', 'flash', '2026-01-03T09:53:04.777Z', '2026-01-04T09:53:04.777Z', 'percentage', 25, TRUE, '2026-01-03T03:53:04.777Z'),
+    ('63616d70-2d30-4034-ad61-647269730000', 'adris', 'Bundle Cachorro Feliz', 'Pack completo para cachorros: alimento + juguete + collar con 20% de descuento', 'bundle', '2025-12-04T15:53:04.777Z', '2026-03-04T15:53:04.777Z', 'percentage', 20, TRUE, '2025-11-29T15:53:04.777Z'),
+    ('63616d70-2d30-4035-ad61-647269730000', 'adris', 'Navidad para Mascotas', 'Promoción navideña en juguetes y premios', 'seasonal', '2025-11-04T15:53:04.777Z', '2025-12-04T15:53:04.777Z', 'fixed_amount', 25000, FALSE, '2025-10-30T15:53:04.777Z'),
+    ('63616d70-2d30-4036-ad61-647269730000', 'adris', 'Semana del Gato', 'Descuentos especiales en productos para gatos', 'sale', '2026-01-10T15:53:04.777Z', '2026-01-17T15:53:04.777Z', 'percentage', 10, TRUE, '2026-01-03')
+ON CONFLICT (id) DO NOTHING;
+
+-- STORE COUPONS (adris)
+INSERT INTO public.store_coupons (id, tenant_id, code, name, description, type, value, minimum_order_amount, usage_limit, usage_limit_per_user, used_count, starts_at, expires_at, is_active, created_by, created_at) VALUES
+    ('636f7570-2d30-4031-ad61-647269730000', 'adris', 'WELCOME10', 'Cupón de Bienvenida', '10% de descuento en tu primera compra', 'percentage', 10, 100000, 500, 1, 45, '2025-10-05T15:53:04.777Z', '2026-04-03T15:53:04.777Z', TRUE, '550e8400-e29b-41d4-a716-446655440004', '2025-10-05T15:53:04.777Z'),
+    ('636f7570-2d30-4032-ad61-647269730000', 'adris', 'VERANO10', 'Descuento Verano', '10% de descuento en compras de verano', 'percentage', 10, 150000, 200, 2, 78, '2025-12-04T15:53:04.777Z', '2026-03-04T15:53:04.777Z', TRUE, '550e8400-e29b-41d4-a716-446655440004', '2025-12-04T15:53:04.777Z'),
+    ('636f7570-2d30-4033-ad61-647269730000', 'adris', 'VIP15', 'Descuento VIP', '15% de descuento para clientes VIP', 'percentage', 15, 200000, NULL, 5, 23, '2025-11-04T15:53:04.777Z', '2026-05-03T15:53:04.777Z', TRUE, '550e8400-e29b-41d4-a716-446655440005', '2025-11-04T15:53:04.777Z'),
+    ('636f7570-2d30-4034-ad61-647269730000', 'adris', 'ENVIOGRATIS', 'Envío Gratis', 'Envío gratis en compras mayores a Gs. 300.000', 'free_shipping', 25000, 300000, 100, 3, 34, '2025-12-14T15:53:04.777Z', '2026-02-12T15:53:04.777Z', TRUE, '550e8400-e29b-41d4-a716-446655440004', '2025-12-14T15:53:04.777Z'),
+    ('636f7570-2d30-4035-ad61-647269730000', 'adris', 'MASCOTAS50K', 'Descuento Fijo 50.000', 'Gs. 50.000 de descuento en compras mayores a Gs. 500.000', 'fixed_amount', 50000, 500000, 50, 1, 12, '2025-12-24T15:53:04.777Z', '2026-02-22T15:53:04.777Z', TRUE, '550e8400-e29b-41d4-a716-446655440005', '2025-12-24T15:53:04.777Z'),
+    ('636f7570-2d30-4036-ad61-647269730000', 'adris', 'PRIMAVERA20', 'Descuento Primavera', '20% de descuento - Promoción de primavera (expirado)', 'percentage', 20, 100000, 100, 2, 87, '2025-09-05T15:53:04.777Z', '2025-11-04T15:53:04.777Z', FALSE, '550e8400-e29b-41d4-a716-446655440004', '2025-09-05T15:53:04.777Z'),
+    ('636f7570-2d30-4037-ad61-647269730000', 'adris', 'NEXGARD25', 'Descuento NexGard', '25% en productos NexGard antiparasitarios', 'percentage', 25, NULL, 75, 2, 18, '2025-12-27T15:53:04.777Z', '2026-01-26T15:53:04.777Z', TRUE, '550e8400-e29b-41d4-a716-446655440004', '2025-12-27T15:53:04.777Z'),
+    ('636f7570-2d30-4038-ad61-647269730000', 'adris', 'CUMPLE10', 'Cupón Cumpleaños', '10% de descuento por cumpleaños de tu mascota', 'percentage', 10, NULL, NULL, 1, 156, '2025-07-07T15:53:04.777Z', NULL, TRUE, '550e8400-e29b-41d4-a716-446655440005', '2025-07-07T15:53:04.777Z')
+ON CONFLICT (id) DO NOTHING;
+
+-- LOYALTY POINTS (adris)
+INSERT INTO public.loyalty_points (id, tenant_id, client_id, balance, lifetime_earned, lifetime_redeemed, tier, created_at, updated_at) VALUES
+    ('6c702d30-3031-4d61-a472-697300000000', 'adris', '550e8400-e29b-41d4-a716-446655440001', 2450, 3200, 750, 'gold', '2025-07-07T15:53:04.778Z', '2026-01-01T15:53:04.778Z'),
+    ('6c702d30-3032-4d61-a472-697300000000', 'adris', '550e8400-e29b-41d4-a716-446655440002', 890, 1240, 350, 'silver', '2025-08-06T15:53:04.778Z', '2025-12-29T15:53:04.778Z'),
+    ('6c702d30-3033-4d61-a472-697300000000', 'adris', '550e8400-e29b-41d4-a716-446655440006', 320, 420, 100, 'bronze', '2025-10-05T15:53:04.778Z', '2025-12-24T15:53:04.778Z'),
+    ('6c702d30-3034-4d61-a472-697300000000', 'adris', '550e8400-e29b-41d4-a716-446655440007', 5680, 6500, 820, 'platinum', '2025-01-03T15:53:04.778Z', '2026-01-02T15:53:04.778Z')
+ON CONFLICT (id) DO UPDATE SET balance = EXCLUDED.balance, lifetime_earned = EXCLUDED.lifetime_earned, tier = EXCLUDED.tier;
+
+-- LOYALTY TRANSACTIONS (adris)
+INSERT INTO public.loyalty_transactions (id, tenant_id, client_id, type, points, description, invoice_id, order_id, balance_after, expires_at, created_at) VALUES
+    ('6c742d30-3031-4d61-a472-697300000000', 'adris', '550e8400-e29b-41d4-a716-446655440001', 'earn', 250, 'Puntos por consulta veterinaria', '696e762d-3030-412d-a164-726973000000', NULL, 2250, NULL, '2025-12-24T15:53:04.778Z'),
+    ('6c742d30-3032-4d61-a472-697300000000', 'adris', '550e8400-e29b-41d4-a716-446655440001', 'earn', 350, 'Puntos por compra en tienda', NULL, '6f72642d-3030-412d-a164-726973000000', 2600, NULL, '2025-12-26T15:53:04.778Z'),
+    ('6c742d30-3033-4d61-a472-697300000000', 'adris', '550e8400-e29b-41d4-a716-446655440001', 'redeem', -150, 'Canje por descuento en productos', NULL, NULL, 2450, NULL, '2026-01-01T15:53:04.778Z'),
+    ('6c742d30-3034-4d61-a472-697300000000', 'adris', '550e8400-e29b-41d4-a716-446655440002', 'earn', 145, 'Puntos por consulta de seguimiento', '696e762d-3030-422d-a164-726973000000', NULL, 745, NULL, '2025-12-26T15:53:04.778Z'),
+    ('6c742d30-3035-4d61-a472-697300000000', 'adris', '550e8400-e29b-41d4-a716-446655440002', 'bonus', 200, 'Bono por cumpleaños de mascota', NULL, NULL, 945, '2026-02-02T15:53:04.778Z', '2025-12-27T15:53:04.778Z'),
+    ('6c742d30-3036-4d61-a472-697300000000', 'adris', '550e8400-e29b-41d4-a716-446655440002', 'redeem', -55, 'Canje por descuento en servicio', NULL, NULL, 890, NULL, '2025-12-29T15:53:04.778Z'),
+    ('6c742d30-3037-4d61-a472-697300000000', 'adris', '550e8400-e29b-41d4-a716-446655440006', 'earn', 120, 'Puntos por primera compra', NULL, '6f72642d-3030-432d-a164-726973000000', 220, NULL, '2025-12-04T15:53:04.778Z'),
+    ('6c742d30-3038-4d61-a472-697300000000', 'adris', '550e8400-e29b-41d4-a716-446655440006', 'bonus', 100, 'Bono de bienvenida', NULL, NULL, 320, '2026-03-04T15:53:04.778Z', '2025-12-24T15:53:04.778Z'),
+    ('6c742d30-3039-4d61-a472-697300000000', 'adris', '550e8400-e29b-41d4-a716-446655440007', 'earn', 450, 'Puntos por cirugía mayor', '696e762d-3030-442d-a164-726973000000', NULL, 5230, NULL, '2025-12-16T15:53:04.778Z'),
+    ('6c742d30-3130-4d61-a472-697300000000', 'adris', '550e8400-e29b-41d4-a716-446655440007', 'earn', 280, 'Puntos por compra de alimentos premium', NULL, '6f72642d-3030-482d-a164-726973000000', 5510, NULL, '2025-12-19T15:53:04.778Z'),
+    ('6c742d30-3131-4d61-a472-697300000000', 'adris', '550e8400-e29b-41d4-a716-446655440007', 'bonus', 500, 'Bono por alcanzar nivel Platinum', NULL, NULL, 6010, NULL, '2025-12-24T15:53:04.778Z'),
+    ('6c742d30-3132-4d61-a472-697300000000', 'adris', '550e8400-e29b-41d4-a716-446655440007', 'redeem', -330, 'Canje por baño gratis', NULL, NULL, 5680, NULL, '2026-01-02T15:53:04.778Z'),
+    ('6c742d30-3133-4d61-a472-697300000000', 'adris', '550e8400-e29b-41d4-a716-446655440001', 'bonus', 100, 'Bono por referir amigo', NULL, NULL, 2100, NULL, '2025-12-14T15:53:04.778Z'),
+    ('6c742d30-3134-4d61-a472-697300000000', 'adris', '550e8400-e29b-41d4-a716-446655440001', 'expire', -50, 'Puntos expirados (no utilizados)', NULL, NULL, 2050, NULL, '2025-12-19T15:53:04.778Z'),
+    ('6c742d30-3135-4d61-a472-697300000000', 'adris', '550e8400-e29b-41d4-a716-446655440002', 'earn', 180, 'Puntos por vacunación anual', '696e762d-3030-462d-a164-726973000000', NULL, 600, NULL, '2025-12-09T15:53:04.778Z'),
+    ('6c742d30-3136-4d61-a472-697300000000', 'adris', '550e8400-e29b-41d4-a716-446655440001', 'adjust', 50, 'Ajuste por error en cálculo anterior', NULL, NULL, 2100, NULL, '2025-12-22T15:53:04.778Z')
+ON CONFLICT (id) DO NOTHING;
+
+-- CONVERSATIONS (adris)
+INSERT INTO public.conversations (id, tenant_id, client_id, pet_id, channel, status, subject, priority, assigned_to, assigned_at, last_message_at, created_at) VALUES
+    ('636f6e76-2d30-4031-ad61-647269730000', 'adris', '550e8400-e29b-41d4-a716-446655440001', '660e8400-e29b-41d4-a716-446655440001', 'in_app', 'open', 'Consulta sobre vacunación de Luna', 'normal', '550e8400-e29b-41d4-a716-446655440004', '2026-01-03T12:53:04.779Z', '2026-01-03T14:53:04.779Z', '2026-01-03T10:53:04.779Z'),
+    ('636f6e76-2d30-4032-ad61-647269730000', 'adris', '550e8400-e29b-41d4-a716-446655440002', '660e8400-e29b-41d4-a716-446655440002', 'whatsapp', 'resolved', 'Seguimiento post-operatorio Max', 'high', '550e8400-e29b-41d4-a716-446655440005', '2025-12-29T15:53:04.779Z', '2026-01-01T15:53:04.779Z', '2025-12-26T15:53:04.779Z'),
+    ('636f6e76-2d30-4033-ad61-647269730000', 'adris', '550e8400-e29b-41d4-a716-446655440006', NULL, 'in_app', 'closed', 'Pregunta sobre horarios de atención', 'low', NULL, NULL, '2025-12-24T15:53:04.779Z', '2025-12-19T15:53:04.779Z'),
+    ('636f6e76-2d30-4034-ad61-647269730000', 'adris', '550e8400-e29b-41d4-a716-446655440007', '660e8400-e29b-41d4-a716-446655440004', 'whatsapp', 'pending', 'Emergencia - Rocky no come', 'urgent', '550e8400-e29b-41d4-a716-446655440004', '2026-01-03T09:53:04.779Z', '2026-01-03T11:53:04.779Z', '2026-01-03T07:53:04.779Z'),
+    ('636f6e76-2d30-4035-ad61-647269730000', 'adris', '550e8400-e29b-41d4-a716-446655440001', '660e8400-e29b-41d4-a716-446655440003', 'in_app', 'open', 'Consulta sobre alimentación Michi', 'normal', '550e8400-e29b-41d4-a716-446655440004', '2026-01-02T15:53:04.779Z', '2026-01-03T03:53:04.779Z', '2025-12-31T15:53:04.779Z')
+ON CONFLICT (id) DO NOTHING;
+
+-- MESSAGES (adris)
+INSERT INTO public.messages (id, conversation_id, sender_id, sender_type, content, status, created_at, read_at) VALUES
+    ('6d73672d-3030-412d-a164-726973000000', '636f6e76-2d30-4031-ad61-647269730000', '550e8400-e29b-41d4-a716-446655440001', 'client', 'Hola, quería consultar sobre la vacuna que le toca a Luna. ¿Cuándo debería traerla?', 'read', '2026-01-03T10:53:04.779Z', '2026-01-03T11:53:04.779Z'),
+    ('6d73672d-3030-422d-a164-726973000000', '636f6e76-2d30-4031-ad61-647269730000', '550e8400-e29b-41d4-a716-446655440004', 'staff', 'Hola Ana María! Revisando el historial de Luna, le corresponde la vacuna antirrábica. Puede traerla cualquier día de esta semana de 9:00 a 17:00.', 'read', '2026-01-03T11:53:04.779Z', '2026-01-03T12:53:04.779Z'),
+    ('6d73672d-3030-432d-a164-726973000000', '636f6e76-2d30-4031-ad61-647269730000', '550e8400-e29b-41d4-a716-446655440004', 'staff', '¿Le parece bien el miércoles a las 10:00?', 'read', '2026-01-03T11:53:04.779Z', '2026-01-03T12:53:04.779Z'),
+    ('6d73672d-3030-442d-a164-726973000000', '636f6e76-2d30-4031-ad61-647269730000', '550e8400-e29b-41d4-a716-446655440001', 'client', 'Perfecto, el miércoles a las 10:00 está bien. ¿Necesita estar en ayunas?', 'delivered', '2026-01-03T14:53:04.779Z', NULL),
+    ('6d73672d-3030-452d-a164-726973000000', '636f6e76-2d30-4032-ad61-647269730000', '550e8400-e29b-41d4-a716-446655440005', 'staff', 'Buen día Carlos. ¿Cómo está Max después de la cirugía? ¿Está comiendo bien?', 'read', '2025-12-29T15:53:04.779Z', '2025-12-29T15:53:04.779Z'),
+    ('6d73672d-3030-462d-a164-726973000000', '636f6e76-2d30-4032-ad61-647269730000', '550e8400-e29b-41d4-a716-446655440002', 'client', 'Doctor, Max está mucho mejor! Ya come normal y camina sin cojear. Gracias por todo.', 'read', '2025-12-31T15:53:04.779Z', '2025-12-31T15:53:04.779Z'),
+    ('6d73672d-3030-472d-a164-726973000000', '636f6e76-2d30-4032-ad61-647269730000', '550e8400-e29b-41d4-a716-446655440002', 'client', 'Le mando foto de cómo está la herida', 'read', '2025-12-31T15:53:04.779Z', '2025-12-31T15:53:04.779Z'),
+    ('6d73672d-3030-482d-a164-726973000000', '636f6e76-2d30-4032-ad61-647269730000', '550e8400-e29b-41d4-a716-446655440005', 'staff', 'Excelente! La herida se ve muy bien, está cicatrizando perfectamente. Puede venir la próxima semana para retirar los puntos.', 'read', '2026-01-01T15:53:04.779Z', '2026-01-01T15:53:04.779Z'),
+    ('6d73672d-3030-492d-a164-726973000000', '636f6e76-2d30-4033-ad61-647269730000', '550e8400-e29b-41d4-a716-446655440006', 'client', 'Buenas tardes, ¿cuáles son los horarios de atención de la clínica?', 'read', '2025-12-22T15:53:04.779Z', '2025-12-22T15:53:04.779Z'),
+    ('6d73672d-3031-402d-a164-726973000000', '636f6e76-2d30-4033-ad61-647269730000', NULL, 'system', 'Nuestros horarios de atención son: Lunes a Viernes de 8:00 a 18:00, Sábados de 8:00 a 14:00. Para emergencias las 24 horas llamar al 021-555-1234.', 'read', '2025-12-24T15:53:04.779Z', '2025-12-24T15:53:04.779Z'),
+    ('6d73672d-3031-412d-a164-726973000000', '636f6e76-2d30-4034-ad61-647269730000', '550e8400-e29b-41d4-a716-446655440007', 'client', 'Doctora! Rocky no quiere comer desde ayer. Está muy decaído y solo duerme. Estoy preocupada.', 'read', '2026-01-03T07:53:04.779Z', '2026-01-03T08:53:04.779Z'),
+    ('6d73672d-3031-422d-a164-726973000000', '636f6e76-2d30-4034-ad61-647269730000', '550e8400-e29b-41d4-a716-446655440004', 'staff', 'Hola Laura, entiendo tu preocupación. ¿Rocky ha vomitado o tiene diarrea? ¿Bebió agua?', 'read', '2026-01-03T08:53:04.779Z', '2026-01-03T09:53:04.779Z'),
+    ('6d73672d-3031-432d-a164-726973000000', '636f6e76-2d30-4034-ad61-647269730000', '550e8400-e29b-41d4-a716-446655440007', 'client', 'No vomitó, pero sí tomó un poco de agua. También tiene la nariz seca.', 'read', '2026-01-03T09:53:04.779Z', '2026-01-03T10:53:04.779Z'),
+    ('6d73672d-3031-442d-a164-726973000000', '636f6e76-2d30-4034-ad61-647269730000', '550e8400-e29b-41d4-a716-446655440004', 'staff', 'Te recomiendo traerlo hoy para revisarlo. ¿Puedes venir a las 14:00?', 'read', '2026-01-03T10:53:04.779Z', '2026-01-03T10:53:04.779Z'),
+    ('6d73672d-3031-452d-a164-726973000000', '636f6e76-2d30-4034-ad61-647269730000', '550e8400-e29b-41d4-a716-446655440007', 'client', 'Sí, perfecto. Vamos a las 14:00. Gracias doctora!', 'delivered', '2026-01-03T11:53:04.779Z', NULL),
+    ('6d73672d-3031-462d-a164-726973000000', '636f6e76-2d30-4034-ad61-647269730000', '550e8400-e29b-41d4-a716-446655440007', 'client', 'Doctora, Rocky acaba de vomitar. ¿Qué hago?', 'delivered', '2026-01-03T11:53:04.779Z', NULL),
+    ('6d73672d-3031-472d-a164-726973000000', '636f6e76-2d30-4035-ad61-647269730000', '550e8400-e29b-41d4-a716-446655440001', 'client', 'Hola, quería preguntarle sobre qué alimento es mejor para mi gato Michi. Tiene 2 años.', 'read', '2026-01-02T15:53:04.779Z', '2026-01-02T15:53:04.779Z'),
+    ('6d73672d-3031-482d-a164-726973000000', '636f6e76-2d30-4035-ad61-647269730000', '550e8400-e29b-41d4-a716-446655440004', 'staff', 'Hola Ana María! Para un gato adulto de 2 años, te recomiendo Royal Canin Adult o Hills Science Diet. Son alimentos de excelente calidad nutricional. Los tenemos disponibles en nuestra tienda.', 'delivered', '2026-01-03T03:53:04.779Z', NULL)
+ON CONFLICT (id) DO NOTHING;
+
+-- INSURANCE POLICIES (adris)
+DO $$
+DECLARE v_provider_id UUID;
+BEGIN
+    SELECT id INTO v_provider_id FROM public.insurance_providers WHERE code = 'MAPFRE_PY' LIMIT 1;
+    INSERT INTO public.insurance_policies (id, tenant_id, pet_id, provider_id, policy_number, group_number, coverage_type, coverage_details, annual_limit, deductible, copay_percentage, effective_date, expiry_date, status, claims_contact_name, claims_contact_phone, claims_contact_email, created_at) VALUES ('69706f6c-2d30-4031-ad61-647269730000', 'adris', '660e8400-e29b-41d4-a716-446655440001', v_provider_id, 'PET-2024-001234', NULL, 'standard', '{"accident_coverage":true,"illness_coverage":true,"wellness_coverage":false,"dental_coverage":false,"hereditary_conditions":false,"emergency_care":true}'::JSONB, 15000000, 500000, 20, '2025-01-03T15:53:04.780Z', '2026-04-03T15:53:04.780Z', 'active', 'María García', '+595 21 6174000', 'reclamos@mapfre.com.py', '2025-01-03T15:53:04.780Z') ON CONFLICT (id) DO NOTHING;
+    SELECT id INTO v_provider_id FROM public.insurance_providers WHERE code = 'SANCOR_PY' LIMIT 1;
+    INSERT INTO public.insurance_policies (id, tenant_id, pet_id, provider_id, policy_number, group_number, coverage_type, coverage_details, annual_limit, deductible, copay_percentage, effective_date, expiry_date, status, claims_contact_name, claims_contact_phone, claims_contact_email, created_at) VALUES ('69706f6c-2d30-4032-ad61-647269730000', 'adris', '660e8400-e29b-41d4-a716-446655440002', v_provider_id, 'PET-2024-005678', 'GRP-CORP-01', 'premium', '{"accident_coverage":true,"illness_coverage":true,"wellness_coverage":true,"dental_coverage":true,"hereditary_conditions":true,"emergency_care":true,"alternative_therapy":true}'::JSONB, 30000000, 300000, 10, '2025-07-07T15:53:04.780Z', '2026-07-07T15:53:04.780Z', 'active', 'Roberto Pérez', '+595 21 4180900', 'siniestros@sancorseguros.com.py', '2025-07-07T15:53:04.780Z') ON CONFLICT (id) DO NOTHING;
+    SELECT id INTO v_provider_id FROM public.insurance_providers WHERE code = 'MAPFRE_PY' LIMIT 1;
+    INSERT INTO public.insurance_policies (id, tenant_id, pet_id, provider_id, policy_number, group_number, coverage_type, coverage_details, annual_limit, deductible, copay_percentage, effective_date, expiry_date, status, claims_contact_name, claims_contact_phone, claims_contact_email, created_at) VALUES ('69706f6c-2d30-4033-ad61-647269730000', 'adris', '660e8400-e29b-41d4-a716-446655440003', v_provider_id, 'PET-2023-009012', NULL, 'basic', '{"accident_coverage":true,"illness_coverage":false,"wellness_coverage":false,"dental_coverage":false,"emergency_care":true}'::JSONB, 8000000, 750000, 30, '2024-08-21T15:53:04.780Z', '2025-08-21T15:53:04.780Z', 'expired', 'María García', '+595 21 6174000', 'reclamos@mapfre.com.py', '2024-08-21T15:53:04.780Z') ON CONFLICT (id) DO NOTHING;
+    SELECT id INTO v_provider_id FROM public.insurance_providers WHERE code = 'MAPFRE_PY' LIMIT 1;
+    INSERT INTO public.insurance_policies (id, tenant_id, pet_id, provider_id, policy_number, group_number, coverage_type, coverage_details, annual_limit, deductible, copay_percentage, effective_date, expiry_date, status, claims_contact_name, claims_contact_phone, claims_contact_email, created_at) VALUES ('69706f6c-2d30-4034-ad61-647269730000', 'adris', '660e8400-e29b-41d4-a716-446655440004', v_provider_id, 'PET-2025-000123', NULL, 'comprehensive', '{"accident_coverage":true,"illness_coverage":true,"wellness_coverage":true,"dental_coverage":true,"hereditary_conditions":true,"emergency_care":true,"alternative_therapy":true,"behavioral_therapy":true,"prescription_food":true}'::JSONB, 50000000, 200000, 5, '2025-12-04T15:53:04.780Z', '2026-12-04T15:53:04.780Z', 'active', 'María García', '+595 21 6174000', 'reclamos@mapfre.com.py', '2025-12-04T15:53:04.780Z') ON CONFLICT (id) DO NOTHING;
+    SELECT id INTO v_provider_id FROM public.insurance_providers WHERE code = 'SANCOR_PY' LIMIT 1;
+    INSERT INTO public.insurance_policies (id, tenant_id, pet_id, provider_id, policy_number, group_number, coverage_type, coverage_details, annual_limit, deductible, copay_percentage, effective_date, expiry_date, status, claims_contact_name, claims_contact_phone, claims_contact_email, created_at) VALUES ('69706f6c-2d30-4035-ad61-647269730000', 'adris', '660e8400-e29b-41d4-a716-446655440001', v_provider_id, 'PET-2025-000456', NULL, 'standard', '{"accident_coverage":true,"illness_coverage":true,"wellness_coverage":false,"dental_coverage":false,"emergency_care":true}'::JSONB, 12000000, 400000, 15, '2026-01-08T15:53:04.780Z', '2027-01-08T15:53:04.780Z', 'pending', 'Roberto Pérez', '+595 21 4180900', 'siniestros@sancorseguros.com.py', '2026-01-01T15:53:04.780Z') ON CONFLICT (id) DO NOTHING;
+END $$;
+
+-- INSURANCE CLAIMS (adris)
+INSERT INTO public.insurance_claims (id, tenant_id, policy_id, pet_id, claim_number, claim_type, service_date, submitted_at, processed_at, claimed_amount, approved_amount, paid_amount, status, denial_reason, notes, provider_notes, submitted_by, created_at) VALUES
+    ('69636c6d-2d30-4031-ad61-647269730000', 'adris', '69706f6c-2d30-4031-ad61-647269730000', '660e8400-e29b-41d4-a716-446655440001', 'CLM-2025-001234', 'treatment', '2025-12-04T15:53:04.781Z', '2025-12-06T15:53:04.781Z', '2025-12-14T15:53:04.781Z', 450000, 405000, 405000, 'paid', NULL, 'Tratamiento dermatológico - alergia estacional', 'Aprobado según cobertura. Copago 10% aplicado.', '550e8400-e29b-41d4-a716-446655440004', '2025-12-04T15:53:04.781Z'),
+    ('69636c6d-2d30-4032-ad61-647269730000', 'adris', '69706f6c-2d30-4032-ad61-647269730000', '660e8400-e29b-41d4-a716-446655440002', 'CLM-2025-001567', 'surgery', '2025-12-19T15:53:04.781Z', '2025-12-22T15:53:04.781Z', '2025-12-29T15:53:04.781Z', 2500000, 2250000, NULL, 'approved', NULL, 'Cirugía ortopédica - reparación de ligamento', 'Aprobado. Cobertura del 90% según póliza premium.', '550e8400-e29b-41d4-a716-446655440005', '2025-12-19T15:53:04.781Z'),
+    ('69636c6d-2d30-4033-ad61-647269730000', 'adris', '69706f6c-2d30-4031-ad61-647269730000', '660e8400-e29b-41d4-a716-446655440001', 'CLM-2025-002345', 'diagnostic', '2025-12-29T15:53:04.781Z', '2025-12-31T15:53:04.781Z', NULL, 380000, NULL, NULL, 'under_review', NULL, 'Estudios de laboratorio y radiografías', NULL, '550e8400-e29b-41d4-a716-446655440004', '2025-12-29T15:53:04.781Z'),
+    ('69636c6d-2d30-4034-ad61-647269730000', 'adris', '69706f6c-2d30-4034-ad61-647269730000', '660e8400-e29b-41d4-a716-446655440004', NULL, 'medication', '2026-01-01T15:53:04.781Z', NULL, NULL, 185000, NULL, NULL, 'draft', NULL, 'Medicamentos antiparasitarios y antibióticos', NULL, NULL, '2026-01-01T15:53:04.781Z'),
+    ('69636c6d-2d30-4035-ad61-647269730000', 'adris', '69706f6c-2d30-4032-ad61-647269730000', '660e8400-e29b-41d4-a716-446655440002', 'CLM-2024-009876', 'hospitalization', '2025-11-04T15:53:04.781Z', '2025-11-09T15:53:04.781Z', '2025-11-24T15:53:04.781Z', 1800000, 1200000, 1200000, 'paid', NULL, 'Hospitalización 3 días por gastroenteritis severa', 'Aprobación parcial. Algunos tratamientos no cubiertos.', '550e8400-e29b-41d4-a716-446655440004', '2025-11-04T15:53:04.781Z'),
+    ('69636c6d-2d30-4036-ad61-647269730000', 'adris', '69706f6c-2d30-4031-ad61-647269730000', '660e8400-e29b-41d4-a716-446655440001', 'CLM-2024-008765', 'treatment', '2025-10-05T15:53:04.781Z', '2025-10-10T15:53:04.781Z', '2025-10-25T15:53:04.781Z', 320000, 0, NULL, 'denied', 'Condición preexistente no cubierta por la póliza', 'Tratamiento para displasia de cadera', 'Denegado. Condición documentada antes del inicio de la póliza.', '550e8400-e29b-41d4-a716-446655440004', '2025-10-05T15:53:04.781Z'),
+    ('69636c6d-2d30-4037-ad61-647269730000', 'adris', '69706f6c-2d30-4034-ad61-647269730000', '660e8400-e29b-41d4-a716-446655440004', 'CLM-2025-003456', 'treatment', '2026-01-03T09:53:04.781Z', '2026-01-03T11:53:04.781Z', NULL, 275000, NULL, NULL, 'submitted', NULL, 'Consulta de emergencia y medicación', NULL, '550e8400-e29b-41d4-a716-446655440004', '2026-01-03T09:53:04.781Z')
+ON CONFLICT (id) DO NOTHING;
+
+-- EXPENSES (adris)
+INSERT INTO public.expenses (id, tenant_id, description, amount, currency, category, subcategory, expense_date, payment_date, payment_method, reference_number, vendor_name, receipt_url, notes, approved_by, approved_at, status, created_by, created_at) VALUES
+    ('6578702d-3030-412d-a164-726973000000', 'adris', 'Compra de insumos médicos - jeringuillas, gasas, vendas', 850000, 'PYG', 'supplies', 'medical_supplies', '2025-12-29T15:53:04.781Z', '2025-12-29T15:53:04.781Z', 'bank_transfer', 'TRF-2025-0123', 'Distribuidora Médica Paraguay', '/uploads/receipts/exp-001-receipt.pdf', NULL, '550e8400-e29b-41d4-a716-446655440005', '2025-12-28T15:53:04.781Z', 'paid', '550e8400-e29b-41d4-a716-446655440004', '2025-12-27T15:53:04.781Z'),
+    ('6578702d-3030-422d-a164-726973000000', 'adris', 'Pago de electricidad - ANDE', 1250000, 'PYG', 'utilities', 'electricity', '2025-12-24T15:53:04.781Z', '2025-12-24T15:53:04.781Z', 'cash', NULL, 'ANDE', '/uploads/receipts/exp-002-receipt.pdf', NULL, '550e8400-e29b-41d4-a716-446655440005', '2025-12-23T15:53:04.781Z', 'paid', '550e8400-e29b-41d4-a716-446655440005', '2025-12-22T15:53:04.781Z'),
+    ('6578702d-3030-432d-a164-726973000000', 'adris', 'Pago de agua - ESSAP', 320000, 'PYG', 'utilities', 'water', '2025-12-24T15:53:04.781Z', '2025-12-24T15:53:04.781Z', 'cash', NULL, 'ESSAP', '/uploads/receipts/exp-003-receipt.pdf', NULL, '550e8400-e29b-41d4-a716-446655440005', '2025-12-23T15:53:04.781Z', 'paid', '550e8400-e29b-41d4-a716-446655440005', '2025-12-22T15:53:04.781Z'),
+    ('6578702d-3030-442d-a164-726973000000', 'adris', 'Alquiler mensual del local', 8500000, 'PYG', 'rent', NULL, '2026-01-02T15:53:04.781Z', NULL, NULL, NULL, 'Inmobiliaria Central', NULL, 'Alquiler correspondiente al mes actual', '550e8400-e29b-41d4-a716-446655440005', '2026-01-02T15:53:04.781Z', 'approved', '550e8400-e29b-41d4-a716-446655440005', '2026-01-01T15:53:04.781Z'),
+    ('6578702d-3030-452d-a164-726973000000', 'adris', 'Compra de alimentos para pacientes hospitalizados', 450000, 'PYG', 'supplies', 'food_supplies', '2025-12-31T15:53:04.781Z', '2025-12-31T15:53:04.781Z', 'card', 'TXN-2025-4567', 'Royal Canin Paraguay', '/uploads/receipts/exp-005-receipt.pdf', NULL, '550e8400-e29b-41d4-a716-446655440004', '2025-12-30T15:53:04.781Z', 'paid', '550e8400-e29b-41d4-a716-446655440004', '2025-12-29T15:53:04.781Z'),
+    ('6578702d-3030-462d-a164-726973000000', 'adris', 'Mantenimiento del equipo de rayos X', 2500000, 'PYG', 'maintenance', 'equipment_maintenance', '2025-12-19T15:53:04.781Z', '2025-12-20T15:53:04.781Z', 'bank_transfer', 'TRF-2025-0098', 'TecnoMed Servicios', '/uploads/receipts/exp-006-receipt.pdf', NULL, '550e8400-e29b-41d4-a716-446655440005', '2025-12-18T15:53:04.781Z', 'paid', '550e8400-e29b-41d4-a716-446655440004', '2025-12-16T15:53:04.781Z'),
+    ('6578702d-3030-472d-a164-726973000000', 'adris', 'Publicidad en redes sociales - Facebook/Instagram', 750000, 'PYG', 'marketing', 'digital_marketing', '2025-12-27T15:53:04.781Z', '2025-12-27T15:53:04.781Z', 'card', 'FB-ADS-2025-001', 'Meta Platforms', NULL, NULL, '550e8400-e29b-41d4-a716-446655440005', '2025-12-26T15:53:04.781Z', 'paid', '550e8400-e29b-41d4-a716-446655440005', '2025-12-24T15:53:04.781Z'),
+    ('6578702d-3030-482d-a164-726973000000', 'adris', 'Compra de nuevo equipo de ultrasonido portátil', 15000000, 'PYG', 'equipment', 'diagnostic_equipment', '2025-12-04T15:53:04.781Z', '2025-12-06T15:53:04.781Z', 'bank_transfer', 'TRF-2025-0045', 'Equipos Médicos SA', '/uploads/receipts/exp-008-receipt.pdf', 'Equipo para mejorar diagnóstico in-situ', '550e8400-e29b-41d4-a716-446655440005', '2025-12-02T15:53:04.781Z', 'paid', '550e8400-e29b-41d4-a716-446655440005', '2025-11-29T15:53:04.781Z'),
+    ('6578702d-3030-492d-a164-726973000000', 'adris', 'Capacitación en cirugía laparoscópica', 3500000, 'PYG', 'training', 'professional_development', '2025-11-19T15:53:04.781Z', '2025-11-19T15:53:04.781Z', 'bank_transfer', 'TRF-2025-0012', 'Academia Veterinaria Paraguay', NULL, 'Curso para Dr. Roberto Acosta', '550e8400-e29b-41d4-a716-446655440005', '2025-11-17T15:53:04.781Z', 'paid', '550e8400-e29b-41d4-a716-446655440005', '2025-11-14T15:53:04.781Z'),
+    ('6578702d-3031-402d-a164-726973000000', 'adris', 'Servicio de contabilidad mensual', 1800000, 'PYG', 'professional_services', 'accounting', '2025-12-26T15:53:04.781Z', '2025-12-26T15:53:04.781Z', 'bank_transfer', 'TRF-2025-0134', 'Estudio Contable González', NULL, NULL, '550e8400-e29b-41d4-a716-446655440005', '2025-12-25T15:53:04.781Z', 'paid', '550e8400-e29b-41d4-a716-446655440005', '2025-12-24T15:53:04.781Z'),
+    ('6578702d-3031-412d-a164-726973000000', 'adris', 'Seguro de responsabilidad civil profesional', 4500000, 'PYG', 'insurance', 'liability_insurance', '2025-11-04T15:53:04.781Z', '2025-11-04T15:53:04.781Z', 'bank_transfer', 'POL-2025-VET-001', 'Mapfre Seguros', NULL, 'Renovación anual de póliza', '550e8400-e29b-41d4-a716-446655440005', '2025-11-02T15:53:04.781Z', 'paid', '550e8400-e29b-41d4-a716-446655440005', '2025-10-30T15:53:04.781Z'),
+    ('6578702d-3031-422d-a164-726973000000', 'adris', 'Compra de medicamentos - lote mensual', 2800000, 'PYG', 'supplies', 'medications', '2026-01-03T09:53:04.781Z', NULL, NULL, NULL, 'Droguería San Roque', NULL, 'Pendiente de aprobación - urgente', NULL, NULL, 'pending', '550e8400-e29b-41d4-a716-446655440004', '2026-01-03T09:53:04.781Z'),
+    ('6578702d-3031-432d-a164-726973000000', 'adris', 'Pago de IVA - declaración mensual', 1500000, 'PYG', 'taxes', 'iva', '2025-12-14T15:53:04.781Z', '2025-12-14T15:53:04.781Z', 'bank_transfer', 'SET-IVA-2025-01', 'SET Paraguay', NULL, NULL, '550e8400-e29b-41d4-a716-446655440005', '2025-12-13T15:53:04.781Z', 'paid', '550e8400-e29b-41d4-a716-446655440005', '2025-12-12T15:53:04.781Z'),
+    ('6578702d-3031-442d-a164-726973000000', 'adris', 'Reparación de aire acondicionado', 650000, 'PYG', 'maintenance', 'hvac', '2025-12-22T15:53:04.781Z', '2025-12-22T15:53:04.781Z', 'cash', NULL, 'Climatización Total', '/uploads/receipts/exp-014-receipt.pdf', NULL, '550e8400-e29b-41d4-a716-446655440005', '2025-12-21T15:53:04.781Z', 'paid', '550e8400-e29b-41d4-a716-446655440004', '2025-12-20T15:53:04.781Z'),
+    ('6578702d-3031-452d-a164-726973000000', 'adris', 'Viaje a conferencia de veterinarios - Montevideo', 5200000, 'PYG', 'travel', 'conference', '2025-11-24T15:53:04.781Z', '2025-11-26T15:53:04.781Z', 'card', 'TXN-2025-8901', 'Viajes Platinum', '/uploads/receipts/exp-015-receipt.pdf', 'Participación de Dra. Silvia en Congreso Latinoamericano de Veterinaria', '550e8400-e29b-41d4-a716-446655440005', '2025-11-22T15:53:04.781Z', 'paid', '550e8400-e29b-41d4-a716-446655440004', '2025-11-19T15:53:04.781Z'),
+    ('6578702d-3031-462d-a164-726973000000', 'adris', 'Solicitud de compra de microscopio rechazada', 12000000, 'PYG', 'equipment', 'lab_equipment', '2025-12-09T15:53:04.781Z', NULL, NULL, NULL, 'Laboratorios SA', NULL, 'Rechazado - excede presupuesto trimestral. Re-evaluar próximo trimestre.', '550e8400-e29b-41d4-a716-446655440005', '2025-12-11T15:53:04.781Z', 'rejected', '550e8400-e29b-41d4-a716-446655440004', '2025-12-07T15:53:04.781Z')
+ON CONFLICT (id) DO NOTHING;
+
+-- AUDIT LOGS (adris)
+INSERT INTO public.audit_logs (id, tenant_id, user_id, action, resource, resource_id, old_values, new_values, metadata, ip_address, user_agent, created_at) VALUES
+    ('61756469-742d-4030-a12d-616472697300', 'adris', '550e8400-e29b-41d4-a716-446655440004', 'create', 'prescription', '72782d30-3031-4d61-a472-697300000000', NULL, '{"pet_id":"660e8400-e29b-41d4-a716-446655440001","medications":["Amoxicilina 500mg"]}'::JSONB, '{"pet_name":"Luna","owner_name":"Ana María González"}'::JSONB, '192.168.1.100', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0', '2026-01-03T13:53:04.782Z'),
+    ('61756469-742d-4030-a22d-616472697300', 'adris', '550e8400-e29b-41d4-a716-446655440005', 'update', 'medical_record', '6d722d30-3031-4d61-a472-697300000000', '{"diagnosis":"Otitis externa"}'::JSONB, '{"diagnosis":"Otitis externa bilateral","notes":"Se agregó tratamiento adicional"}'::JSONB, '{"pet_name":"Max"}'::JSONB, '192.168.1.101', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Safari/605.1.15', '2026-01-03T11:53:04.782Z'),
+    ('61756469-742d-4030-a32d-616472697300', 'adris', '550e8400-e29b-41d4-a716-446655440001', 'login', 'session', NULL, NULL, NULL, '{"method":"email_password","device":"mobile"}'::JSONB, '181.120.45.67', 'VeteApp/1.0 (Android 14)', '2026-01-03T14:53:04.782Z'),
+    ('61756469-742d-4030-a42d-616472697300', 'adris', '550e8400-e29b-41d4-a716-446655440005', 'export', 'invoice', '696e762d-3030-412d-a164-726973000000', NULL, NULL, '{"format":"pdf","reason":"client_request"}'::JSONB, '192.168.1.101', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0', '2026-01-03T09:53:04.782Z'),
+    ('61756469-742d-4030-a52d-616472697300', 'adris', '550e8400-e29b-41d4-a716-446655440004', 'create', 'appointment', '6170742d-6e65-472d-a030-310000000000', NULL, '{"pet_id":"660e8400-e29b-41d4-a716-446655440002","service":"Consulta general","date":"2026-01-06T15:53:04.782Z"}'::JSONB, '{"booked_by":"staff"}'::JSONB, '192.168.1.100', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0', '2026-01-03T07:53:04.782Z'),
+    ('61756469-742d-4030-a62d-616472697300', 'adris', '550e8400-e29b-41d4-a716-446655440005', 'delete', 'expense', '6578702d-6465-4c65-a465-642d30303100', '{"description":"Gasto duplicado","amount":150000}'::JSONB, NULL, '{"reason":"duplicate_entry"}'::JSONB, '192.168.1.101', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0', '2026-01-02T15:53:04.782Z'),
+    ('61756469-742d-4030-a72d-616472697300', 'adris', '550e8400-e29b-41d4-a716-446655440004', 'view', 'patient_history', '660e8400-e29b-41d4-a716-446655440001', NULL, NULL, '{"pet_name":"Luna","sections_viewed":["vaccines","medical_records","prescriptions"]}'::JSONB, '192.168.1.100', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0', '2026-01-03T12:53:04.782Z'),
+    ('61756469-742d-4030-a82d-616472697300', 'adris', '550e8400-e29b-41d4-a716-446655440005', 'update', 'invoice', '696e762d-3030-422d-a164-726973000000', '{"status":"sent"}'::JSONB, '{"status":"paid","payment_method":"card"}'::JSONB, '{"payment_reference":"TXN-2025-00234"}'::JSONB, '192.168.1.101', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0', '2026-01-01T15:53:04.782Z'),
+    ('61756469-742d-4030-a92d-616472697300', 'adris', '550e8400-e29b-41d4-a716-446655440002', 'login', 'session', NULL, NULL, NULL, '{"method":"email_password","device":"desktop"}'::JSONB, '181.120.56.78', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Firefox/121.0', '2026-01-02T15:53:04.782Z'),
+    ('61756469-742d-4031-a02d-616472697300', 'adris', '550e8400-e29b-41d4-a716-446655440004', 'create', 'hospitalization', '686f7370-2d30-4031-ad61-647269730000', NULL, '{"pet_id":"660e8400-e29b-41d4-a716-446655440002","kennel":"K-01","acuity":"medium"}'::JSONB, '{"pet_name":"Max","reason":"Post-surgical observation"}'::JSONB, '192.168.1.100', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0', '2025-12-29T15:53:04.782Z'),
+    ('61756469-742d-4031-a12d-616472697300', 'adris', '550e8400-e29b-41d4-a716-446655440005', 'approve', 'expense', '6578702d-3030-412d-a164-726973000000', '{"status":"pending"}'::JSONB, '{"status":"approved"}'::JSONB, '{"amount":850000,"category":"supplies"}'::JSONB, '192.168.1.101', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0', '2025-12-28T15:53:04.782Z'),
+    ('61756469-742d-4031-a22d-616472697300', 'adris', '550e8400-e29b-41d4-a716-446655440004', 'update', 'store_order', '6f72642d-3030-432d-a164-726973000000', '{"status":"processing"}'::JSONB, '{"status":"shipped","tracking_number":"PY2025123456"}'::JSONB, '{"shipping_method":"delivery"}'::JSONB, '192.168.1.100', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0', '2026-01-02T15:53:04.782Z'),
+    ('61756469-742d-4031-a32d-616472697300', 'adris', NULL, 'system', 'backup', NULL, NULL, NULL, '{"type":"database","status":"completed","size_mb":245}'::JSONB, NULL, 'BackupService/1.0', '2026-01-02T15:53:04.782Z'),
+    ('61756469-742d-4031-a42d-616472697300', 'adris', '550e8400-e29b-41d4-a716-446655440005', 'create', 'staff_invite', NULL, NULL, '{"email":"nuevo.vet@adris.com","role":"vet"}'::JSONB, '{"sent_to":"nuevo.vet@adris.com"}'::JSONB, '192.168.1.101', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0', '2025-12-31T15:53:04.782Z'),
+    ('61756469-742d-4031-a52d-616472697300', 'adris', '550e8400-e29b-41d4-a716-446655440004', 'approve', 'prescription_order', '6f72642d-3031-452d-a164-726973000000', '{"prescription_status":"pending"}'::JSONB, '{"prescription_status":"approved"}'::JSONB, '{"requires_prescription":true,"approved_by_vet":true}'::JSONB, '192.168.1.100', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0', '2025-12-27T15:53:04.782Z')
+ON CONFLICT (id) DO NOTHING;
+
+-- Processing tenant: petlife
 -- SERVICES (petlife)
 INSERT INTO public.services (tenant_id, name, category, base_price, duration_minutes, description, is_active, display_order, color, available_days, available_start_time, available_end_time, requires_deposit, deposit_percentage, species_allowed) VALUES
     ('petlife', 'Consulta General', 'consultation', 100000, 30, 'Consulta médica general', TRUE, 1, '#4CAF50', ARRAY[1, 2, 3, 4, 5], '09:00', '18:00', FALSE, NULL, ARRAY['all']),
@@ -675,110 +1101,153 @@ INSERT INTO public.qr_tags (tenant_id, code, is_active, is_registered, batch_id)
     ('petlife', 'PL010YZA', TRUE, FALSE, 'BATCH-PL-2024-001')
 ON CONFLICT (code) DO NOTHING;
 
+-- STAFF PROFILES (petlife)
+INSERT INTO public.staff_profiles (id, profile_id, tenant_id, license_number, license_expiry, specializations, education, bio, hire_date, employment_type, department, title, hourly_rate, daily_rate, signature_url, is_active) VALUES
+    ('b0000001-0001-0001-0001-000000000001', '550e8400-e29b-41d4-a716-446655440008', 'petlife', 'MV-PY-2015-0234', '2026-12-31', ARRAY['Cardiología', 'Medicina Interna'], 'Universidad Nacional de Asunción - Especialización en Cardiología Veterinaria', 'Especialista en cardiología veterinaria con 10 años de experiencia.', '2015-01-10', 'full_time', NULL, 'Cardiólogo Veterinario', NULL, NULL, NULL, TRUE)
+ON CONFLICT (profile_id) DO NOTHING;
+
+-- STAFF SCHEDULES (petlife)
+INSERT INTO public.staff_schedules (id, staff_id, tenant_id, name, is_default, effective_from, effective_until, is_active) VALUES
+    ('c0000002-0001-0001-0001-000000000001', 'b0000001-0001-0001-0001-000000000001', 'petlife', 'Horario Cardiología', TRUE, '2024-01-01', NULL, TRUE)
+ON CONFLICT (id) DO NOTHING;
+
+-- STAFF SCHEDULE ENTRIES (petlife)
+INSERT INTO public.staff_schedule_entries (id, schedule_id, tenant_id, day_of_week, start_time, end_time, break_start, break_end, location) VALUES
+    ('d0000002-0001-0001-0001-000000000001', 'c0000002-0001-0001-0001-000000000001', 'petlife', 1, '09:00', '17:00', '12:30', '13:30', NULL),
+    ('d0000002-0001-0001-0001-000000000002', 'c0000002-0001-0001-0001-000000000001', 'petlife', 2, '09:00', '17:00', '12:30', '13:30', NULL),
+    ('d0000002-0001-0001-0001-000000000003', 'c0000002-0001-0001-0001-000000000001', 'petlife', 3, '09:00', '17:00', '12:30', '13:30', NULL),
+    ('d0000002-0001-0001-0001-000000000004', 'c0000002-0001-0001-0001-000000000001', 'petlife', 4, '09:00', '17:00', '12:30', '13:30', NULL),
+    ('d0000002-0001-0001-0001-000000000005', 'c0000002-0001-0001-0001-000000000001', 'petlife', 5, '09:00', '13:00', NULL, NULL, NULL)
+ON CONFLICT (id) DO NOTHING;
+
+-- INVOICES (petlife)
+INSERT INTO public.invoices (id, tenant_id, client_id, invoice_number, status, subtotal, discount_amount, tax_amount, total, amount_paid, invoice_date, due_date, notes, created_at) VALUES
+    ('696e762d-3030-412d-a065-746c69666500', 'petlife', '550e8400-e29b-41d4-a716-446655440003', 'PL-2025-0001', 'paid', 350000, 0, 35000, 385000, 385000, '2025-12-22T15:53:04.784Z', '2025-12-29T15:53:04.784Z', 'Consulta cardiológica + Ecocardiograma', '2025-12-22T15:53:04.784Z'),
+    ('696e762d-3030-422d-a065-746c69666500', 'petlife', '550e8400-e29b-41d4-a716-446655440001', 'PL-2025-0002', 'sent', 280000, 28000, 25200, 277200, 0, '2025-12-31T15:53:04.784Z', '2026-01-10T15:53:04.784Z', 'Control de seguimiento cardiológico', '2025-12-31T15:53:04.784Z'),
+    ('696e762d-3030-432d-a065-746c69666500', 'petlife', '550e8400-e29b-41d4-a716-446655440006', 'PL-2025-0003', 'paid', 520000, 0, 52000, 572000, 572000, '2025-12-12T15:53:04.784Z', '2025-12-19T15:53:04.784Z', 'Holter 24 horas + interpretación', '2025-12-12T15:53:04.784Z'),
+    ('696e762d-3030-442d-a065-746c69666500', 'petlife', '550e8400-e29b-41d4-a716-446655440003', 'PL-2025-0004', 'draft', 180000, 0, 18000, 198000, 0, '2026-01-03T11:53:04.784Z', NULL, 'Consulta de control - pendiente de facturar', '2026-01-03T11:53:04.784Z'),
+    ('696e762d-3030-452d-a065-746c69666500', 'petlife', '550e8400-e29b-41d4-a716-446655440001', 'PL-2025-0005', 'overdue', 450000, 0, 45000, 495000, 0, '2025-12-09T15:53:04.784Z', '2025-12-24T15:53:04.784Z', 'Electrocardiograma + Consulta', '2025-12-09T15:53:04.784Z')
+ON CONFLICT (id) DO NOTHING;
+
+-- STORE ORDERS (petlife)
+INSERT INTO public.store_orders (id, tenant_id, customer_id, order_number, status, subtotal, discount_amount, coupon_code, shipping_cost, tax_amount, total, payment_method, shipping_method, shipping_address, created_at, confirmed_at, shipped_at, delivered_at, cancelled_at, cancellation_reason) VALUES
+    ('6f72642d-3030-412d-a065-746c69666500', 'petlife', '550e8400-e29b-41d4-a716-446655440003', 'PL-ORD-2025-0001', 'delivered', 320000, 0, NULL, 20000, 32000, 372000, 'card', 'delivery', '{"recipient_name":"María Fernanda López","street":"Av. Mcal. López 1500","city":"Asunción","phone":"+595 983 456 789"}'::JSONB, '2025-12-22T15:53:04.784Z', NULL, '2025-12-23T15:53:04.784Z', '2025-12-25T15:53:04.784Z', NULL, NULL),
+    ('6f72642d-3030-422d-a065-746c69666500', 'petlife', '550e8400-e29b-41d4-a716-446655440001', 'PL-ORD-2025-0002', 'processing', 185000, 0, NULL, 0, 18500, 203500, 'cash_on_delivery', 'pickup', NULL, '2026-01-02T15:53:04.784Z', NULL, NULL, NULL, NULL, NULL),
+    ('6f72642d-3030-432d-a065-746c69666500', 'petlife', '550e8400-e29b-41d4-a716-446655440006', 'PL-ORD-2025-0003', 'delivered', 480000, 48000, 'CARDIO10', 20000, 43200, 495200, 'bank_transfer', 'delivery', '{"recipient_name":"José Martínez","street":"Calle 14 de Mayo 456","city":"Encarnación","phone":"+595 984 567 890"}'::JSONB, '2025-12-14T15:53:04.784Z', NULL, '2025-12-16T15:53:04.784Z', '2025-12-19T15:53:04.784Z', NULL, NULL),
+    ('6f72642d-3030-442d-a065-746c69666500', 'petlife', '550e8400-e29b-41d4-a716-446655440003', 'PL-ORD-2025-0004', 'pending', 145000, 0, NULL, 20000, 14500, 179500, 'card', 'delivery', '{"recipient_name":"María Fernanda López","street":"Av. Mcal. López 1500","city":"Asunción","phone":"+595 983 456 789"}'::JSONB, '2026-01-03T12:53:04.784Z', NULL, NULL, NULL, NULL, NULL),
+    ('6f72642d-3030-452d-a065-746c69666500', 'petlife', '550e8400-e29b-41d4-a716-446655440001', 'PL-ORD-2025-0005', 'cancelled', 220000, 0, NULL, 20000, 22000, 262000, 'card', 'delivery', NULL, '2025-12-27T15:53:04.784Z', NULL, NULL, NULL, '2025-12-29T15:53:04.784Z', 'Cliente cambió de opinión')
+ON CONFLICT (id) DO NOTHING;
+
+-- STORE COUPONS (petlife)
+INSERT INTO public.store_coupons (id, tenant_id, code, name, description, type, value, minimum_order_amount, usage_limit, usage_limit_per_user, used_count, starts_at, expires_at, is_active, created_by, created_at) VALUES
+    ('636f7570-2d30-4031-ad70-65746c696665', 'petlife', 'CARDIO10', 'Descuento Cardiología', '10% de descuento en productos cardiológicos', 'percentage', 10, 200000, 100, 3, 12, '2025-11-04T15:53:04.784Z', '2026-05-03T15:53:04.784Z', TRUE, '550e8400-e29b-41d4-a716-446655440008', '2025-11-04T15:53:04.784Z'),
+    ('636f7570-2d30-4032-ad70-65746c696665', 'petlife', 'PETLIFE20', 'Descuento PetLife', '20% de descuento por ser cliente PetLife', 'percentage', 20, 300000, 50, 1, 8, '2025-12-04T15:53:04.784Z', '2026-03-04T15:53:04.784Z', TRUE, '550e8400-e29b-41d4-a716-446655440008', '2025-12-04T15:53:04.784Z')
+ON CONFLICT (id) DO NOTHING;
+
 -- STORE BRANDS (GLOBAL CATALOG)
 -- Brands are inserted as global entries (tenant_id = NULL)
 INSERT INTO public.store_brands (tenant_id, slug, name, description, logo_url, website, country_origin, is_global_catalog, is_active) VALUES
-    (NULL, 'royal-canin', 'Royal Canin', 'Nutrición a medida basada en ciencia para perros y gatos, con fórmulas específicas por raza, tamaño y necesidades', 'https://upload.wikimedia.org/wikipedia/commons/4/45/Royal-Canin-Logo.svg', '/placeholder-product.svg', 'Francia', TRUE, TRUE),
-    (NULL, 'pro-plan', 'Pro Plan', 'Nutrición avanzada respaldada por 90+ años de investigación de Purina con ingredientes de alta calidad', '/placeholder-product.svg', '/placeholder-product.svg', 'Estados Unidos', TRUE, TRUE),
-    (NULL, 'hills', 'Hill''s Science Diet', 'Nutrición clínica desarrollada por veterinarios para mantener la salud óptima de mascotas', '/placeholder-product.svg', '/placeholder-product.svg', 'Estados Unidos', TRUE, TRUE),
-    (NULL, 'nd-farmina', 'N&D Farmina', 'Natural & Delicious - Alimento super premium italiano con ingredientes naturales y sin cereales', '/placeholder-product.svg', '/placeholder-product.svg', 'Italia', TRUE, TRUE),
-    (NULL, 'matisse', 'Matisse', 'Alimento premium italiano de Farmina diseñado para gatos con sabores gourmet', '/placeholder-product.svg', '/placeholder-product.svg', 'Italia', TRUE, TRUE),
-    (NULL, 'cibau', 'Cibau', 'Alimento super premium italiano con proteínas de alta calidad y ingredientes naturales', '/placeholder-product.svg', '/placeholder-product.svg', 'Italia', TRUE, TRUE),
-    (NULL, 'vet-life', 'Vet Life', 'Dietas veterinarias de Farmina formuladas para condiciones médicas específicas', '/placeholder-product.svg', '/placeholder-product.svg', 'Italia', TRUE, TRUE),
-    (NULL, 'nexgard', 'NexGard', 'Antiparasitario masticable mensual contra pulgas y garrapatas con afoxolaner', '/placeholder-product.svg', '/placeholder-product.svg', 'Alemania', TRUE, TRUE),
-    (NULL, 'bravecto', 'Bravecto', 'Protección antiparasitaria de 12 semanas con fluralaner en tableta masticable o spot-on', '/placeholder-product.svg', '/placeholder-product.svg', 'Países Bajos', TRUE, TRUE),
-    (NULL, 'simparica', 'Simparica', 'Antiparasitario oral mensual de rápida acción con sarolaner de Zoetis', '/placeholder-product.svg', '/placeholder-product.svg', 'Estados Unidos', TRUE, TRUE),
-    (NULL, 'kong', 'Kong', 'Juguetes interactivos de goma resistente diseñados para enriquecimiento canino', '/placeholder-product.svg', '/placeholder-product.svg', 'Estados Unidos', TRUE, TRUE),
-    (NULL, 'zeedog', 'Zee.Dog', 'Accesorios de diseño con patrones únicos y materiales de alta calidad desde Brasil', '/placeholder-product.svg', '/placeholder-product.svg', 'Brasil', TRUE, TRUE),
-    (NULL, 'pedigree', 'Pedigree', 'Nutrición completa y balanceada para perros de todas las edades a precio accesible', '/placeholder-product.svg', '/placeholder-product.svg', 'Estados Unidos', TRUE, TRUE),
-    (NULL, 'whiskas', 'Whiskas', 'Alimento para gatos con nutrición balanceada y sabores irresistibles', '/placeholder-product.svg', '/placeholder-product.svg', 'Estados Unidos', TRUE, TRUE),
-    (NULL, 'dog-chow', 'Dog Chow', 'Nutrición completa de Purina con ingredientes seleccionados para perros', '/placeholder-product.svg', '/placeholder-product.svg', 'Estados Unidos', TRUE, TRUE),
-    (NULL, 'cat-chow', 'Cat Chow', 'Alimento completo de Purina para gatos con taurina para salud visual y cardíaca', '/placeholder-product.svg', '/placeholder-product.svg', 'Estados Unidos', TRUE, TRUE),
-    (NULL, 'excellent', 'Excellent', 'Línea premium de Purina con proteínas de alta calidad y fórmulas especializadas', '/placeholder-product.svg', '/placeholder-product.svg', 'Argentina', TRUE, TRUE),
-    (NULL, 'monello', 'Monello', 'Alimento premium brasileño con ingredientes seleccionados y alta palatabilidad', '/placeholder-product.svg', '/placeholder-product.svg', 'Brasil', TRUE, TRUE),
-    (NULL, 'birbo', 'Birbo', 'Alimento económico brasileño con nutrición básica para mascotas', '/placeholder-product.svg', '/placeholder-product.svg', 'Brasil', TRUE, TRUE),
-    (NULL, 'three-dogs', 'Three Dogs', 'Nutrición balanceada brasileña con ingredientes seleccionados para perros', '/placeholder-product.svg', '/placeholder-product.svg', 'Brasil', TRUE, TRUE),
-    (NULL, 'three-cats', 'Three Cats', 'Alimento balanceado brasileño formulado para las necesidades de los gatos', '/placeholder-product.svg', '/placeholder-product.svg', 'Brasil', TRUE, TRUE),
-    (NULL, 'primocao', 'Primocão', 'Alimento económico brasileño para perros con nutrición básica', '/placeholder-product.svg', '/placeholder-product.svg', 'Brasil', TRUE, TRUE),
-    (NULL, 'primogato', 'Primogato', 'Alimento económico brasileño para gatos con taurina añadida', '/placeholder-product.svg', '/placeholder-product.svg', 'Brasil', TRUE, TRUE),
-    (NULL, 'formula-natural', 'Fórmula Natural', 'Alimento super premium brasileño con ingredientes naturales sin transgénicos', '/placeholder-product.svg', '/placeholder-product.svg', 'Brasil', TRUE, TRUE),
-    (NULL, 'catron', 'Catron', 'Arena sanitaria premium turca con tecnología de carbón activado para control de olores', '/placeholder-product.svg', '/placeholder-product.svg', 'Turquía', TRUE, TRUE),
-    (NULL, 'kets', 'Kets', 'Arena sanitaria brasileña de alta absorción con control de olores', '/placeholder-product.svg', '/placeholder-product.svg', 'Brasil', TRUE, TRUE),
-    (NULL, 'progato', 'Progato', 'Arena y piedra sanitaria brasileña económica para gatos', '/placeholder-product.svg', '/placeholder-product.svg', 'Brasil', TRUE, TRUE),
-    (NULL, 'scalibor', 'Scalibor', 'Collar antiparasitario de larga duración con deltametrina contra leishmaniasis', 'https://www.msd-animal-health.com/wp-content/uploads/scalibor-logo.png', '/placeholder-product.svg', 'Países Bajos', TRUE, TRUE),
-    (NULL, 'vetnil', 'Vetnil', 'Suplementos y vitaminas veterinarias de alta calidad fabricados en Brasil', '/placeholder-product.svg', '/placeholder-product.svg', 'Brasil', TRUE, TRUE),
-    (NULL, 'nuxcell', 'Nuxcell', 'Suplementos de terapia celular y regenerativa para mascotas', '/placeholder-product.svg', '/placeholder-product.svg', 'Brasil', TRUE, TRUE),
-    (NULL, 'tropiclean', 'TropiClean', 'Productos de higiene naturales con ingredientes derivados de plantas tropicales', '/placeholder-product.svg', '/placeholder-product.svg', 'Estados Unidos', TRUE, TRUE),
-    (NULL, 'soft-care', 'Soft Care', 'Dermocosmética veterinaria de alta gama con ingredientes de calidad', '/placeholder-product.svg', '/placeholder-product.svg', 'Brasil', TRUE, TRUE),
-    (NULL, 'barky', 'Barky Snacks', 'Snacks naturales deshidratados 100% carne paraguaya sin aditivos', '/placeholder-product.svg', 'https://www.4pets.com.py/collections/barky', 'Paraguay', TRUE, TRUE),
-    (NULL, 'pet-gourmet', 'Pet Gourmet', 'Snacks gourmet artesanales premium para mascotas exigentes', '/placeholder-product.svg', 'https://www.4pets.com.py/collections/pet-gourmet', 'Paraguay', TRUE, TRUE),
-    (NULL, 'nutreats', 'NuTreats', 'Snacks nutritivos naturales con ingredientes funcionales', '/placeholder-product.svg', 'https://www.4pets.com.py/collections/nutreats', 'Paraguay', TRUE, TRUE),
-    (NULL, 'premier', 'Premier Pet', 'Alimentos y snacks premium brasileños con recetas especiales', '/placeholder-product.svg', '/placeholder-product.svg', 'Brasil', TRUE, TRUE),
-    (NULL, 'john-martin', 'John Martin', 'Suplementos veterinarios argentinos de alta calidad desde 1920', '/placeholder-product.svg', '/placeholder-product.svg', 'Argentina', TRUE, TRUE),
-    (NULL, 'biomont', 'Biomont', 'Laboratorio veterinario peruano con amplio portafolio farmacéutico', '/placeholder-product.svg', '/placeholder-product.svg', 'Perú', TRUE, TRUE),
-    (NULL, '4pets', '4Pets', 'Marca propia de 4Pets Paraguay con productos seleccionados', '/placeholder-product.svg', 'https://www.4pets.com.py', 'Paraguay', TRUE, TRUE),
-    (NULL, 'eukanuba', 'Eukanuba', 'Nutrición de alto rendimiento para perros activos y de trabajo', '/placeholder-product.svg', '/placeholder-product.svg', 'Estados Unidos', TRUE, TRUE),
-    (NULL, 'taste-of-the-wild', 'Taste of the Wild', 'Alimento premium inspirado en la dieta ancestral con proteínas novedosas', '/placeholder-product.svg', '/placeholder-product.svg', 'Estados Unidos', TRUE, TRUE),
-    (NULL, 'biofresh', 'Biofresh', 'Alimento super premium brasileño con carne fresca como primer ingrediente', '/placeholder-product.svg', '/placeholder-product.svg', 'Brasil', TRUE, TRUE),
-    (NULL, 'vitalcan', 'Vitalcan', 'Alimento premium argentino con ingredientes naturales seleccionados', '/placeholder-product.svg', '/placeholder-product.svg', 'Argentina', TRUE, TRUE),
-    (NULL, 'ganador', 'Ganador', 'Alimento económico de Purina con nutrición básica para perros', '/placeholder-product.svg', '/placeholder-product.svg', 'Argentina', TRUE, TRUE),
-    (NULL, 'frontline', 'Frontline', 'Pipetas antiparasitarias con fipronil líder mundial en el mercado', 'https://www.boehringer-ingelheim.com/sites/default/files/frontline-logo.png', '/placeholder-product.svg', 'Francia', TRUE, TRUE),
-    (NULL, 'advantage', 'Advantage', 'Pipetas antipulgas con imidacloprid de acción rápida', '/placeholder-product.svg', 'https://www.advantage-vets.com', 'Alemania', TRUE, TRUE),
-    (NULL, 'seresto', 'Seresto', 'Collar antiparasitario de 8 meses con imidacloprid y flumetrina', '/placeholder-product.svg', '/placeholder-product.svg', 'Alemania', TRUE, TRUE),
-    (NULL, 'felix', 'Felix', 'Alimento húmedo y snacks para gatos con sabores irresistibles de Purina', '/placeholder-product.svg', '/placeholder-product.svg', 'Estados Unidos', TRUE, TRUE),
-    (NULL, 'sheba', 'Sheba', 'Alimento húmedo premium para gatos exigentes con recetas gourmet', '/placeholder-product.svg', '/placeholder-product.svg', 'Estados Unidos', TRUE, TRUE),
-    (NULL, 'cesar', 'Cesar', 'Alimento húmedo gourmet para perros pequeños con recetas refinadas', '/placeholder-product.svg', '/placeholder-product.svg', 'Estados Unidos', TRUE, TRUE),
-    (NULL, 'gourmet', 'Gourmet', 'Alimento húmedo premium de Purina con recetas de inspiración culinaria', '/placeholder-product.svg', '/placeholder-product.svg', 'Francia', TRUE, TRUE),
-    (NULL, 'chuckit', 'Chuckit!', 'Juguetes de lanzamiento y búsqueda diseñados para juego activo', '/placeholder-product.svg', '/placeholder-product.svg', 'Estados Unidos', TRUE, TRUE),
-    (NULL, 'outward-hound', 'Outward Hound', 'Juguetes interactivos y puzzles de enriquecimiento mental para perros', '/placeholder-product.svg', '/placeholder-product.svg', 'Estados Unidos', TRUE, TRUE),
-    (NULL, 'furminator', 'FURminator', 'Herramientas profesionales de deslanado y control de muda', '/placeholder-product.svg', '/placeholder-product.svg', 'Estados Unidos', TRUE, TRUE),
-    (NULL, 'catit', 'Catit', 'Productos innovadores diseñados específicamente para las necesidades de los gatos', '/placeholder-product.svg', '/placeholder-product.svg', 'Canadá', TRUE, TRUE),
+    (NULL, 'royal-canin', 'Royal Canin', 'Nutrición a medida basada en ciencia para perros y gatos, con fórmulas específicas por raza, tamaño y necesidades', 'https://upload.wikimedia.org/wikipedia/commons/4/45/Royal-Canin-Logo.svg', 'https://www.royalcanin.com/py', 'Francia', TRUE, TRUE),
+    (NULL, 'pro-plan', 'Pro Plan', 'Nutrición avanzada respaldada por 90+ años de investigación de Purina con ingredientes de alta calidad', 'https://www.purina.com.py/sites/default/files/2020-11/proplan-logo.png', 'https://www.purina.com.py/pro-plan', 'Estados Unidos', TRUE, TRUE),
+    (NULL, 'hills', 'Hill''s Science Diet', 'Nutrición clínica desarrollada por veterinarios para mantener la salud óptima de mascotas', 'https://www.hillspet.com/content/dam/cp-sites/hills/hills-pet/en_us/logos/hills-logo.svg', 'https://www.hillspet.com', 'Estados Unidos', TRUE, TRUE),
+    (NULL, 'nd-farmina', 'N&D Farmina', 'Natural & Delicious - Alimento super premium italiano con ingredientes naturales y sin cereales', 'https://www.farmina.com/media/logo/stores/1/farmina-logo.svg', 'https://www.farmina.com', 'Italia', TRUE, TRUE),
+    (NULL, 'matisse', 'Matisse', 'Alimento premium italiano de Farmina diseñado para gatos con sabores gourmet', 'https://www.farmina.com/media/logo/stores/1/matisse-logo.png', 'https://www.farmina.com', 'Italia', TRUE, TRUE),
+    (NULL, 'cibau', 'Cibau', 'Alimento super premium italiano con proteínas de alta calidad y ingredientes naturales', 'https://www.farmina.com/media/logo/stores/1/cibau-logo.png', 'https://www.farmina.com', 'Italia', TRUE, TRUE),
+    (NULL, 'vet-life', 'Vet Life', 'Dietas veterinarias de Farmina formuladas para condiciones médicas específicas', 'https://www.farmina.com/media/logo/stores/1/vetlife-logo.png', 'https://www.farmina.com', 'Italia', TRUE, TRUE),
+    (NULL, 'nexgard', 'NexGard', 'Antiparasitario masticable mensual contra pulgas y garrapatas con afoxolaner', 'https://www.nexgard.com/sites/default/files/nexgard-logo.png', 'https://www.nexgard.com', 'Alemania', TRUE, TRUE),
+    (NULL, 'bravecto', 'Bravecto', 'Protección antiparasitaria de 12 semanas con fluralaner en tableta masticable o spot-on', 'https://www.bravecto.com/sites/default/files/bravecto-logo.png', 'https://www.bravecto.com', 'Países Bajos', TRUE, TRUE),
+    (NULL, 'simparica', 'Simparica', 'Antiparasitario oral mensual de rápida acción con sarolaner de Zoetis', 'https://www.zoetis.com/sites/default/files/simparica-logo.png', 'https://www.simparica.com', 'Estados Unidos', TRUE, TRUE),
+    (NULL, 'kong', 'Kong', 'Juguetes interactivos de goma resistente diseñados para enriquecimiento canino', 'https://www.kongcompany.com/sites/all/themes/kong/logo.svg', 'https://www.kongcompany.com', 'Estados Unidos', TRUE, TRUE),
+    (NULL, 'zeedog', 'Zee.Dog', 'Accesorios de diseño con patrones únicos y materiales de alta calidad desde Brasil', 'https://www.zeedog.com.br/static/logo-zeedog.svg', 'https://www.zeedog.com.br', 'Brasil', TRUE, TRUE),
+    (NULL, 'pedigree', 'Pedigree', 'Nutrición completa y balanceada para perros de todas las edades a precio accesible', 'https://www.pedigree.com/sites/default/files/pedigree-logo.svg', 'https://www.pedigree.com', 'Estados Unidos', TRUE, TRUE),
+    (NULL, 'whiskas', 'Whiskas', 'Alimento para gatos con nutrición balanceada y sabores irresistibles', 'https://www.whiskas.com/sites/default/files/whiskas-logo.svg', 'https://www.whiskas.com', 'Estados Unidos', TRUE, TRUE),
+    (NULL, 'dog-chow', 'Dog Chow', 'Nutrición completa de Purina con ingredientes seleccionados para perros', 'https://www.purina.com.py/sites/default/files/dogchow-logo.png', 'https://www.purina.com.py/dog-chow', 'Estados Unidos', TRUE, TRUE),
+    (NULL, 'cat-chow', 'Cat Chow', 'Alimento completo de Purina para gatos con taurina para salud visual y cardíaca', 'https://www.purina.com.py/sites/default/files/catchow-logo.png', 'https://www.purina.com.py/cat-chow', 'Estados Unidos', TRUE, TRUE),
+    (NULL, 'excellent', 'Excellent', 'Línea premium de Purina con proteínas de alta calidad y fórmulas especializadas', 'https://www.purina.com.py/sites/default/files/excellent-logo.png', 'https://www.purina.com.py', 'Argentina', TRUE, TRUE),
+    (NULL, 'monello', 'Monello', 'Alimento premium brasileño con ingredientes seleccionados y alta palatabilidad', 'https://www.monello.com.br/wp-content/uploads/logo-monello.png', 'https://www.monello.com.br', 'Brasil', TRUE, TRUE),
+    (NULL, 'birbo', 'Birbo', 'Alimento económico brasileño con nutrición básica para mascotas', 'https://placehold.co/200x100/1a365d/ffffff?text=birbo-logo.png', 'https://www.nutriara.com.br', 'Brasil', TRUE, TRUE),
+    (NULL, 'three-dogs', 'Three Dogs', 'Nutrición balanceada brasileña con ingredientes seleccionados para perros', 'https://www.hercosul.com.br/wp-content/uploads/logo-three-dogs.png', 'https://www.hercosul.com.br', 'Brasil', TRUE, TRUE),
+    (NULL, 'three-cats', 'Three Cats', 'Alimento balanceado brasileño formulado para las necesidades de los gatos', 'https://www.hercosul.com.br/wp-content/uploads/logo-three-cats.png', 'https://www.hercosul.com.br', 'Brasil', TRUE, TRUE),
+    (NULL, 'primocao', 'Primocão', 'Alimento económico brasileño para perros con nutrición básica', 'https://www.hercosul.com.br/wp-content/uploads/logo-primocao.png', 'https://www.hercosul.com.br', 'Brasil', TRUE, TRUE),
+    (NULL, 'primogato', 'Primogato', 'Alimento económico brasileño para gatos con taurina añadida', 'https://www.hercosul.com.br/wp-content/uploads/logo-primogato.png', 'https://www.hercosul.com.br', 'Brasil', TRUE, TRUE),
+    (NULL, 'formula-natural', 'Fórmula Natural', 'Alimento super premium brasileño con ingredientes naturales sin transgénicos', 'https://placehold.co/200x100/1a365d/ffffff?text=formula-natural-logo.png', 'https://www.formulanatural.com.br', 'Brasil', TRUE, TRUE),
+    (NULL, 'catron', 'Catron', 'Arena sanitaria premium turca con tecnología de carbón activado para control de olores', 'https://placehold.co/200x100/1a365d/ffffff?text=catron-logo.png', 'https://www.catronpetcare.com', 'Turquía', TRUE, TRUE),
+    (NULL, 'kets', 'Kets', 'Arena sanitaria brasileña de alta absorción con control de olores', 'https://placehold.co/200x100/1a365d/ffffff?text=kets-logo.png', 'https://www.kets.com.br', 'Brasil', TRUE, TRUE),
+    (NULL, 'progato', 'Progato', 'Arena y piedra sanitaria brasileña económica para gatos', 'https://placehold.co/200x100/1a365d/ffffff?text=progato-logo.png', 'https://www.progato.com.br', 'Brasil', TRUE, TRUE),
+    (NULL, 'scalibor', 'Scalibor', 'Collar antiparasitario de larga duración con deltametrina contra leishmaniasis', 'https://www.msd-animal-health.com/wp-content/uploads/scalibor-logo.png', 'https://www.scalibor.com', 'Países Bajos', TRUE, TRUE),
+    (NULL, 'vetnil', 'Vetnil', 'Suplementos y vitaminas veterinarias de alta calidad fabricados en Brasil', 'https://www.vetnil.com.br/images/logo.png', 'https://www.vetnil.com.br', 'Brasil', TRUE, TRUE),
+    (NULL, 'nuxcell', 'Nuxcell', 'Suplementos de terapia celular y regenerativa para mascotas', 'https://placehold.co/200x100/1a365d/ffffff?text=nuxcell-logo.png', 'https://www.nuxcell.com.br', 'Brasil', TRUE, TRUE),
+    (NULL, 'tropiclean', 'TropiClean', 'Productos de higiene naturales con ingredientes derivados de plantas tropicales', 'https://www.tropiclean.com/images/logo.svg', 'https://www.tropiclean.com', 'Estados Unidos', TRUE, TRUE),
+    (NULL, 'soft-care', 'Soft Care', 'Dermocosmética veterinaria de alta gama con ingredientes de calidad', 'https://placehold.co/200x100/1a365d/ffffff?text=softcare-logo.png', 'https://www.softcare.com.br', 'Brasil', TRUE, TRUE),
+    (NULL, 'barky', 'Barky Snacks', 'Snacks naturales deshidratados 100% carne paraguaya sin aditivos', 'https://placehold.co/200x100/1a365d/ffffff?text=barky-logo.png', 'https://www.4pets.com.py/collections/barky', 'Paraguay', TRUE, TRUE),
+    (NULL, 'pet-gourmet', 'Pet Gourmet', 'Snacks gourmet artesanales premium para mascotas exigentes', 'https://placehold.co/200x100/1a365d/ffffff?text=petgourmet-logo.png', 'https://www.4pets.com.py/collections/pet-gourmet', 'Paraguay', TRUE, TRUE),
+    (NULL, 'nutreats', 'NuTreats', 'Snacks nutritivos naturales con ingredientes funcionales', 'https://placehold.co/200x100/1a365d/ffffff?text=nutreats-logo.png', 'https://www.4pets.com.py/collections/nutreats', 'Paraguay', TRUE, TRUE),
+    (NULL, 'premier', 'Premier Pet', 'Alimentos y snacks premium brasileños con recetas especiales', 'https://www.premierpet.com.br/images/logo.png', 'https://www.premierpet.com.br', 'Brasil', TRUE, TRUE),
+    (NULL, 'john-martin', 'John Martin', 'Suplementos veterinarios argentinos de alta calidad desde 1920', 'https://placehold.co/200x100/1a365d/ffffff?text=johnmartin-logo.png', 'https://www.johnmartin.com.ar', 'Argentina', TRUE, TRUE),
+    (NULL, 'biomont', 'Biomont', 'Laboratorio veterinario peruano con amplio portafolio farmacéutico', 'https://www.biomont.com.pe/images/logo.png', 'https://www.biomont.com.pe', 'Perú', TRUE, TRUE),
+    (NULL, '4pets', '4Pets', 'Marca propia de 4Pets Paraguay con productos seleccionados', 'https://placehold.co/200x100/1a365d/ffffff?text=logo-4pets.png', 'https://www.4pets.com.py', 'Paraguay', TRUE, TRUE),
+    (NULL, 'eukanuba', 'Eukanuba', 'Nutrición de alto rendimiento para perros activos y de trabajo', 'https://www.eukanuba.com/sites/default/files/eukanuba-logo.svg', 'https://www.eukanuba.com', 'Estados Unidos', TRUE, TRUE),
+    (NULL, 'taste-of-the-wild', 'Taste of the Wild', 'Alimento premium inspirado en la dieta ancestral con proteínas novedosas', 'https://www.tasteofthewildpetfood.com/wp-content/themes/totw/images/logo.svg', 'https://www.tasteofthewildpetfood.com', 'Estados Unidos', TRUE, TRUE),
+    (NULL, 'biofresh', 'Biofresh', 'Alimento super premium brasileño con carne fresca como primer ingrediente', 'https://www.biofresh.com.br/wp-content/uploads/logo-biofresh.png', 'https://www.biofresh.com.br', 'Brasil', TRUE, TRUE),
+    (NULL, 'vitalcan', 'Vitalcan', 'Alimento premium argentino con ingredientes naturales seleccionados', 'https://www.vitalcan.com.ar/wp-content/uploads/vitalcan-logo.png', 'https://www.vitalcan.com.ar', 'Argentina', TRUE, TRUE),
+    (NULL, 'ganador', 'Ganador', 'Alimento económico de Purina con nutrición básica para perros', 'https://www.purina.com.py/sites/default/files/ganador-logo.png', 'https://www.purina.com.py', 'Argentina', TRUE, TRUE),
+    (NULL, 'frontline', 'Frontline', 'Pipetas antiparasitarias con fipronil líder mundial en el mercado', 'https://www.boehringer-ingelheim.com/sites/default/files/frontline-logo.png', 'https://www.frontline.com', 'Francia', TRUE, TRUE),
+    (NULL, 'advantage', 'Advantage', 'Pipetas antipulgas con imidacloprid de acción rápida', 'https://www.bayer.com/sites/default/files/advantage-logo.png', 'https://www.advantage-vets.com', 'Alemania', TRUE, TRUE),
+    (NULL, 'seresto', 'Seresto', 'Collar antiparasitario de 8 meses con imidacloprid y flumetrina', 'https://www.seresto.com/sites/default/files/seresto-logo.png', 'https://www.seresto.com', 'Alemania', TRUE, TRUE),
+    (NULL, 'felix', 'Felix', 'Alimento húmedo y snacks para gatos con sabores irresistibles de Purina', 'https://www.purina.com/sites/default/files/felix-logo.png', 'https://www.purina.com/felix', 'Estados Unidos', TRUE, TRUE),
+    (NULL, 'sheba', 'Sheba', 'Alimento húmedo premium para gatos exigentes con recetas gourmet', 'https://www.sheba.com/sites/default/files/sheba-logo.png', 'https://www.sheba.com', 'Estados Unidos', TRUE, TRUE),
+    (NULL, 'cesar', 'Cesar', 'Alimento húmedo gourmet para perros pequeños con recetas refinadas', 'https://www.cesar.com/sites/default/files/cesar-logo.png', 'https://www.cesar.com', 'Estados Unidos', TRUE, TRUE),
+    (NULL, 'gourmet', 'Gourmet', 'Alimento húmedo premium de Purina con recetas de inspiración culinaria', 'https://www.purina.com/sites/default/files/gourmet-logo.png', 'https://www.purina.com/gourmet', 'Francia', TRUE, TRUE),
+    (NULL, 'chuckit', 'Chuckit!', 'Juguetes de lanzamiento y búsqueda diseñados para juego activo', 'https://www.chuckit.com/sites/default/files/chuckit-logo.png', 'https://www.chuckit.com', 'Estados Unidos', TRUE, TRUE),
+    (NULL, 'outward-hound', 'Outward Hound', 'Juguetes interactivos y puzzles de enriquecimiento mental para perros', 'https://www.outwardhound.com/sites/default/files/outwardhound-logo.png', 'https://www.outwardhound.com', 'Estados Unidos', TRUE, TRUE),
+    (NULL, 'furminator', 'FURminator', 'Herramientas profesionales de deslanado y control de muda', 'https://www.furminator.com/sites/default/files/furminator-logo.png', 'https://www.furminator.com', 'Estados Unidos', TRUE, TRUE),
+    (NULL, 'catit', 'Catit', 'Productos innovadores diseñados específicamente para las necesidades de los gatos', 'https://www.catit.com/sites/default/files/catit-logo.png', 'https://www.catit.com', 'Canadá', TRUE, TRUE),
     (NULL, 'trixie', 'Trixie', 'Accesorios y juguetes alemanes de alta calidad para todo tipo de mascotas', 'https://www.trixie.de/sites/default/files/trixie-logo.png', 'https://www.trixie.de', 'Alemania', TRUE, TRUE),
-    (NULL, 'ferplast', 'Ferplast', 'Accesorios, transportadoras y jaulas italianas de diseño y calidad', '/placeholder-product.svg', '/placeholder-product.svg', 'Italia', TRUE, TRUE),
-    (NULL, 'littmann', '3M Littmann', 'Estetoscopios de precisión superior reconocidos mundialmente', '/placeholder-product.svg', '/placeholder-product.svg', 'Estados Unidos', TRUE, TRUE),
-    (NULL, 'welch-allyn', 'Welch Allyn', 'Equipos de diagnóstico médico de alta precisión', '/placeholder-product.svg', '/placeholder-product.svg', 'Estados Unidos', TRUE, TRUE),
-    (NULL, 'bd', 'BD (Becton Dickinson)', 'Líder mundial en jeringas, agujas y productos de recolección de muestras', '/placeholder-product.svg', '/placeholder-product.svg', 'Estados Unidos', TRUE, TRUE),
-    (NULL, 'braun', 'B. Braun', 'Soluciones médicas, fluidoterapia y dispositivos de infusión', '/placeholder-product.svg', '/placeholder-product.svg', 'Alemania', TRUE, TRUE),
-    (NULL, 'idexx', 'IDEXX Laboratories', 'Líder mundial en diagnóstico veterinario y equipos de laboratorio in-house', '/placeholder-product.svg', '/placeholder-product.svg', 'Estados Unidos', TRUE, TRUE),
-    (NULL, 'abaxis', 'Abaxis (Zoetis)', 'Analizadores portátiles de bioquímica y hematología para point-of-care', '/placeholder-product.svg', '/placeholder-product.svg', 'Estados Unidos', TRUE, TRUE),
-    (NULL, 'eickemeyer', 'Eickemeyer', 'Instrumental quirúrgico y equipos veterinarios de precisión alemana', '/placeholder-product.svg', '/placeholder-product.svg', 'Alemania', TRUE, TRUE),
-    (NULL, 'kruuse', 'Kruuse', 'Suministros veterinarios y vendajes de alta calidad de Dinamarca', '/placeholder-product.svg', '/placeholder-product.svg', 'Dinamarca', TRUE, TRUE),
-    (NULL, 'vetoquinol', 'Vetoquinol', 'Laboratorio farmacéutico veterinario francés con amplio portafolio', '/placeholder-product.svg', '/placeholder-product.svg', 'Francia', TRUE, TRUE),
-    (NULL, 'virbac', 'Virbac', 'Laboratorio global dedicado exclusivamente a la salud animal', '/placeholder-product.svg', '/placeholder-product.svg', 'Francia', TRUE, TRUE),
+    (NULL, 'ferplast', 'Ferplast', 'Accesorios, transportadoras y jaulas italianas de diseño y calidad', 'https://www.ferplast.com/sites/default/files/ferplast-logo.png', 'https://www.ferplast.com', 'Italia', TRUE, TRUE),
+    (NULL, 'littmann', '3M Littmann', 'Estetoscopios de precisión superior reconocidos mundialmente', 'https://www.littmann.com/3M/en_US/littmann-stethoscopes-us/images/logo.png', 'https://www.littmann.com', 'Estados Unidos', TRUE, TRUE),
+    (NULL, 'welch-allyn', 'Welch Allyn', 'Equipos de diagnóstico médico de alta precisión', 'https://www.hillrom.com/content/dam/hillrom-aem/logos/welch-allyn-logo.svg', 'https://www.hillrom.com/welch-allyn', 'Estados Unidos', TRUE, TRUE),
+    (NULL, 'bd', 'BD (Becton Dickinson)', 'Líder mundial en jeringas, agujas y productos de recolección de muestras', 'https://placehold.co/200x100/1a365d/ffffff?text=BD', 'https://www.bd.com', 'Estados Unidos', TRUE, TRUE),
+    (NULL, 'braun', 'B. Braun', 'Soluciones médicas, fluidoterapia y dispositivos de infusión', 'https://www.bbraun.com/content/dam/b-braun/global/website/logos/bb_logo.svg', 'https://www.bbraun.com', 'Alemania', TRUE, TRUE),
+    (NULL, 'idexx', 'IDEXX Laboratories', 'Líder mundial en diagnóstico veterinario y equipos de laboratorio in-house', 'https://www.idexx.com/files/idexx-logo.svg', 'https://www.idexx.com', 'Estados Unidos', TRUE, TRUE),
+    (NULL, 'abaxis', 'Abaxis (Zoetis)', 'Analizadores portátiles de bioquímica y hematología para point-of-care', 'https://www.zoetis.com/sites/default/files/abaxis-logo.png', 'https://www.zoetis.com/diagnostics', 'Estados Unidos', TRUE, TRUE),
+    (NULL, 'eickemeyer', 'Eickemeyer', 'Instrumental quirúrgico y equipos veterinarios de precisión alemana', 'https://www.eickemeyer.com/images/logo.svg', 'https://www.eickemeyer.com', 'Alemania', TRUE, TRUE),
+    (NULL, 'kruuse', 'Kruuse', 'Suministros veterinarios y vendajes de alta calidad de Dinamarca', 'https://www.kruuse.com/images/kruuse-logo.svg', 'https://www.kruuse.com', 'Dinamarca', TRUE, TRUE),
+    (NULL, 'vetoquinol', 'Vetoquinol', 'Laboratorio farmacéutico veterinario francés con amplio portafolio', 'https://www.vetoquinol.com/images/logo.svg', 'https://www.vetoquinol.com', 'Francia', TRUE, TRUE),
+    (NULL, 'virbac', 'Virbac', 'Laboratorio global dedicado exclusivamente a la salud animal', 'https://www.virbac.com/sites/default/files/virbac-logo.svg', 'https://www.virbac.com', 'Francia', TRUE, TRUE),
     (NULL, 'merial', 'Merial (Boehringer)', 'División de vacunas de Boehringer Ingelheim, líder en biológicos veterinarios', 'https://www.boehringer-ingelheim.com/sites/default/files/merial-logo.png', 'https://www.boehringer-ingelheim.com', 'Francia', TRUE, TRUE),
     (NULL, 'nobivac', 'Nobivac', 'Línea completa de vacunas de MSD Animal Health para perros y gatos', 'https://www.msd-animal-health.com/wp-content/uploads/nobivac-logo.png', 'https://www.msd-animal-health.com', 'Países Bajos', TRUE, TRUE),
-    (NULL, 'zoetis', 'Zoetis', 'Mayor empresa de salud animal del mundo, escindida de Pfizer en 2013', '/placeholder-product.svg', '/placeholder-product.svg', 'Estados Unidos', TRUE, TRUE),
-    (NULL, 'elanco', 'Elanco Animal Health', 'Segunda mayor empresa de salud animal, incluye ex división de Bayer', '/placeholder-product.svg', '/placeholder-product.svg', 'Estados Unidos', TRUE, TRUE),
-    (NULL, 'dechra', 'Dechra Pharmaceuticals', 'Especialista en medicamentos veterinarios para animales de compañía', '/placeholder-product.svg', '/placeholder-product.svg', 'Reino Unido', TRUE, TRUE),
-    (NULL, 'covetrus', 'Covetrus', 'Distribuidor global de productos veterinarios y soluciones tecnológicas', '/placeholder-product.svg', '/placeholder-product.svg', 'Estados Unidos', TRUE, TRUE),
-    (NULL, 'medline', 'Medline Industries', 'Mayor fabricante privado de suministros médicos de Estados Unidos', '/placeholder-product.svg', '/placeholder-product.svg', 'Estados Unidos', TRUE, TRUE),
-    (NULL, 'ethicon', 'Ethicon', 'Líder mundial en suturas y dispositivos quirúrgicos de Johnson & Johnson', '/placeholder-product.svg', '/placeholder-product.svg', 'Estados Unidos', TRUE, TRUE),
-    (NULL, 'covidien', 'Covidien (Medtronic)', 'Suturas y dispositivos quirúrgicos de Medtronic', '/placeholder-product.svg', '/placeholder-product.svg', 'Irlanda', TRUE, TRUE),
-    (NULL, 'surgivet', 'SurgiVet', 'Equipos de anestesia y monitorización veterinaria de Smiths Medical', '/placeholder-product.svg', '/placeholder-product.svg', 'Estados Unidos', TRUE, TRUE),
-    (NULL, 'midmark', 'Midmark', 'Mesas de examen y mobiliario clínico de diseño ergonómico', '/placeholder-product.svg', '/placeholder-product.svg', 'Estados Unidos', TRUE, TRUE),
+    (NULL, 'zoetis', 'Zoetis', 'Mayor empresa de salud animal del mundo, escindida de Pfizer en 2013', 'https://www.zoetis.com/sites/default/files/zoetis-logo.svg', 'https://www.zoetis.com', 'Estados Unidos', TRUE, TRUE),
+    (NULL, 'elanco', 'Elanco Animal Health', 'Segunda mayor empresa de salud animal, incluye ex división de Bayer', 'https://www.elanco.com/sites/default/files/elanco-logo.svg', 'https://www.elanco.com', 'Estados Unidos', TRUE, TRUE),
+    (NULL, 'dechra', 'Dechra Pharmaceuticals', 'Especialista en medicamentos veterinarios para animales de compañía', 'https://www.dechra.com/sites/default/files/dechra-logo.svg', 'https://www.dechra.com', 'Reino Unido', TRUE, TRUE),
+    (NULL, 'covetrus', 'Covetrus', 'Distribuidor global de productos veterinarios y soluciones tecnológicas', 'https://www.covetrus.com/images/covetrus-logo.svg', 'https://www.covetrus.com', 'Estados Unidos', TRUE, TRUE),
+    (NULL, 'medline', 'Medline Industries', 'Mayor fabricante privado de suministros médicos de Estados Unidos', 'https://www.medline.com/images/medline-logo.svg', 'https://www.medline.com', 'Estados Unidos', TRUE, TRUE),
+    (NULL, 'ethicon', 'Ethicon', 'Líder mundial en suturas y dispositivos quirúrgicos de Johnson & Johnson', 'https://www.ethicon.com/images/ethicon-logo.svg', 'https://www.ethicon.com', 'Estados Unidos', TRUE, TRUE),
+    (NULL, 'covidien', 'Covidien (Medtronic)', 'Suturas y dispositivos quirúrgicos de Medtronic', 'https://www.medtronic.com/covidien-logo.svg', 'https://www.medtronic.com', 'Irlanda', TRUE, TRUE),
+    (NULL, 'surgivet', 'SurgiVet', 'Equipos de anestesia y monitorización veterinaria de Smiths Medical', 'https://www.smithsmedical.com/surgivet-logo.png', 'https://www.smithsmedical.com', 'Estados Unidos', TRUE, TRUE),
+    (NULL, 'midmark', 'Midmark', 'Mesas de examen y mobiliario clínico de diseño ergonómico', 'https://www.midmark.com/images/midmark-logo.svg', 'https://www.midmark.com', 'Estados Unidos', TRUE, TRUE),
     (NULL, 'shor-line', 'Shor-Line', 'Jaulas de hospitalización y mobiliario de acero inoxidable veterinario', 'https://www.shor-line.com/images/logo.png', 'https://www.shor-line.com', 'Estados Unidos', TRUE, TRUE),
-    (NULL, 'easyvet', 'EasyVet', 'Equipamiento veterinario económico de calidad para Paraguay', '/placeholder-product.svg', '/placeholder-product.svg', 'Paraguay', TRUE, TRUE),
+    (NULL, 'easyvet', 'EasyVet', 'Equipamiento veterinario económico de calidad para Paraguay', 'https://www.easyvet.com.py/images/logo.png', 'https://www.easyvet.com.py', 'Paraguay', TRUE, TRUE),
     (NULL, 'veterquimica', 'Veterquímica', 'Laboratorio veterinario chileno con amplio portafolio para Latinoamérica', 'https://www.veterquimica.cl/images/logo.png', 'https://www.veterquimica.cl', 'Chile', TRUE, TRUE),
-    (NULL, 'over', 'Over', 'Laboratorio veterinario argentino con productos de calidad', '/placeholder-product.svg', '/placeholder-product.svg', 'Argentina', TRUE, TRUE),
+    (NULL, 'over', 'Over', 'Laboratorio veterinario argentino con productos de calidad', 'https://www.over.com.ar/images/logo.png', 'https://www.over.com.ar', 'Argentina', TRUE, TRUE),
     (NULL, 'holliday-scott', 'Holliday Scott', 'Laboratorio farmacéutico veterinario argentino desde 1950', 'https://www.holliday-scott.com/images/logo.png', 'https://www.holliday-scott.com', 'Argentina', TRUE, TRUE),
-    (NULL, 'richmond', 'Richmond Vet Pharma', 'Productos veterinarios de calidad de laboratorio argentino', '/placeholder-product.svg', '/placeholder-product.svg', 'Argentina', TRUE, TRUE),
-    (NULL, 'brouwer', 'Brouwer', 'Laboratorio veterinario argentino con casi 100 años de experiencia', '/placeholder-product.svg', '/placeholder-product.svg', 'Argentina', TRUE, TRUE),
-    (NULL, 'agrovet-market', 'Agrovet Market', 'Laboratorio peruano líder en productos veterinarios y agrícolas', '/placeholder-product.svg', '/placeholder-product.svg', 'Perú', TRUE, TRUE),
+    (NULL, 'richmond', 'Richmond Vet Pharma', 'Productos veterinarios de calidad de laboratorio argentino', 'https://www.richmond.com.ar/images/logo.png', 'https://www.richmond.com.ar', 'Argentina', TRUE, TRUE),
+    (NULL, 'brouwer', 'Brouwer', 'Laboratorio veterinario argentino con casi 100 años de experiencia', 'https://www.brouwer.com.ar/images/logo.png', 'https://www.brouwer.com.ar', 'Argentina', TRUE, TRUE),
+    (NULL, 'agrovet-market', 'Agrovet Market', 'Laboratorio peruano líder en productos veterinarios y agrícolas', 'https://www.agrovetmarket.com/images/logo.png', 'https://www.agrovetmarket.com', 'Perú', TRUE, TRUE),
     (NULL, 'drag-pharma', 'Drag Pharma', 'Laboratorio veterinario chileno de Invetec especializado en pequeñas especies', 'https://www.dragpharma.cl/images/logo.png', 'https://www.dragpharma.cl', 'Chile', TRUE, TRUE),
-    (NULL, 'konig', 'König', 'Laboratorio argentino con fuerte presencia en antiparasitarios', '/placeholder-product.svg', '/placeholder-product.svg', 'Argentina', TRUE, TRUE),
+    (NULL, 'konig', 'König', 'Laboratorio argentino con fuerte presencia en antiparasitarios', 'https://www.konig.com.ar/images/logo.png', 'https://www.konig.com.ar', 'Argentina', TRUE, TRUE),
     (NULL, 'boehringer-ingelheim', 'Boehringer Ingelheim Animal Health', 'Segunda mayor empresa de salud animal del mundo', 'https://www.boehringer-ingelheim.com/sites/default/files/bi-logo.svg', 'https://www.boehringer-ingelheim-animal.com', 'Alemania', TRUE, TRUE),
     (NULL, 'msd-animal-health', 'MSD Animal Health', 'División veterinaria de Merck & Co. con portafolio global', 'https://www.msd-animal-health.com/images/msd-logo.svg', 'https://www.msd-animal-health.com', 'Estados Unidos', TRUE, TRUE),
-    (NULL, 'ceva', 'Ceva Santé Animale', '5to laboratorio veterinario mundial, francés, especialista en aves y cerdos', '/placeholder-product.svg', '/placeholder-product.svg', 'Francia', TRUE, TRUE),
-    (NULL, 'orion-pharma', 'Orion Pharma Animal Health', 'División veterinaria del grupo finlandés Orion especializada en sedación', '/placeholder-product.svg', 'https://www.orionpharma-animalhealth.com', 'Finlandia', TRUE, TRUE),
+    (NULL, 'ceva', 'Ceva Santé Animale', '5to laboratorio veterinario mundial, francés, especialista en aves y cerdos', 'https://www.ceva.com/sites/default/files/ceva-logo.svg', 'https://www.ceva.com', 'Francia', TRUE, TRUE),
+    (NULL, 'orion-pharma', 'Orion Pharma Animal Health', 'División veterinaria del grupo finlandés Orion especializada en sedación', 'https://www.orionpharma.com/images/logo.svg', 'https://www.orionpharma-animalhealth.com', 'Finlandia', TRUE, TRUE),
     (NULL, 'vetplus', 'VetPlus', 'Especialistas británicos en suplementos nutricionales veterinarios', 'https://www.vetplus.co.uk/images/logo.svg', 'https://www.vetplus.co.uk', 'Reino Unido', TRUE, TRUE),
-    (NULL, 'nutramax', 'Nutramax Laboratories', 'Líder estadounidense en suplementos para articulaciones de mascotas', '/placeholder-product.svg', '/placeholder-product.svg', 'Estados Unidos', TRUE, TRUE),
-    (NULL, 'greetmed', 'Greetmed', 'Insumos médicos y hospitalarios de calidad', '/placeholder-product.svg', '/placeholder-product.svg', 'China', TRUE, TRUE),
-    (NULL, 'shalon-medical', 'Shalon Medical', 'Suturas quirúrgicas de alta calidad', '/placeholder-product.svg', '/placeholder-product.svg', 'Israel', TRUE, TRUE),
-    (NULL, 'ambu', 'AMBU', 'Equipos de reanimación y emergencia', '/placeholder-product.svg', '/placeholder-product.svg', 'Dinamarca', TRUE, TRUE),
-    (NULL, 'sumed', 'SUMED', 'Muebles y equipamiento hospitalario de fabricación propia', '/placeholder-product.svg', '/placeholder-product.svg', 'Paraguay', TRUE, TRUE),
+    (NULL, 'nutramax', 'Nutramax Laboratories', 'Líder estadounidense en suplementos para articulaciones de mascotas', 'https://www.nutramaxlabs.com/images/logo.svg', 'https://www.nutramaxlabs.com', 'Estados Unidos', TRUE, TRUE),
+    (NULL, 'greetmed', 'Greetmed', 'Insumos médicos y hospitalarios de calidad', 'https://www.sumed.com.py/images/greetmed-logo.png', 'https://www.greetmed.com', 'China', TRUE, TRUE),
+    (NULL, 'shalon-medical', 'Shalon Medical', 'Suturas quirúrgicas de alta calidad', 'https://www.sumed.com.py/images/shalon-logo.png', 'https://www.shalonmedical.com', 'Israel', TRUE, TRUE),
+    (NULL, 'ambu', 'AMBU', 'Equipos de reanimación y emergencia', 'https://www.ambu.com/images/logo.svg', 'https://www.ambu.com', 'Dinamarca', TRUE, TRUE),
+    (NULL, 'sumed', 'SUMED', 'Muebles y equipamiento hospitalario de fabricación propia', 'https://www.sumed.com.py/images/logo.png', 'https://www.sumed.com.py', 'Paraguay', TRUE, TRUE),
     (NULL, 'shantal', 'Shantal', 'Equipos de laboratorio, hospitalarios y veterinarios', 'https://shantalparaguay.com.py/images/logo.png', 'https://shantalparaguay.com.py', 'Paraguay', TRUE, TRUE),
-    (NULL, 'rural-center', 'Rural Center', 'Distribuidor de productos veterinarios y agrícolas', '/placeholder-product.svg', '/placeholder-product.svg', 'Paraguay', TRUE, TRUE)
-;
+    (NULL, 'rural-center', 'Rural Center', 'Distribuidor de productos veterinarios y agrícolas', 'https://www.ruralcenter.com.py/images/logo.png', 'https://www.ruralcenter.com.py', 'Paraguay', TRUE, TRUE)
+ON CONFLICT DO NOTHING;
 
 -- STORE CATEGORIES (GLOBAL CATALOG)
 -- Categories are inserted as global entries (tenant_id = NULL)
@@ -860,7 +1329,7 @@ INSERT INTO public.store_categories (tenant_id, slug, name, description, level, 
     (NULL, 'CLI-EQU-MOB', 'Mobiliario Clínico', 'Mesas, jaulas y muebles clínicos', 3, 5, '/placeholder-product.svg', TRUE, TRUE),
     (NULL, 'CLI-EQU-EST', 'Esterilización', 'Autoclaves y esterilizadores', 3, 6, '/placeholder-product.svg', TRUE, TRUE),
     (NULL, 'CLI-EQU-LAB', 'Equipos Laboratorio', 'Equipamiento para análisis clínicos', 3, 7, '/placeholder-product.svg', TRUE, TRUE)
-ON CONFLICT (slug) WHERE tenant_id IS NULL DO NOTHING;
+ON CONFLICT DO NOTHING;
 
 UPDATE public.store_categories SET parent_id = (SELECT id FROM public.store_categories WHERE slug = 'NUT' AND tenant_id IS NULL LIMIT 1) WHERE slug = 'NUT-CAN' AND tenant_id IS NULL;
 UPDATE public.store_categories SET parent_id = (SELECT id FROM public.store_categories WHERE slug = 'NUT-CAN' AND tenant_id IS NULL LIMIT 1) WHERE slug = 'NUT-CAN-SEC' AND tenant_id IS NULL;
@@ -3588,385 +4057,198 @@ END $$;
 -- SUPPLIERS
 -- Suppliers for tenant: adris
 INSERT INTO public.suppliers (tenant_id, name, legal_name, tax_id, contact_info, website, supplier_type, minimum_order_amount, payment_terms, delivery_time_days, verification_status, is_active) VALUES
-    ('adris', 'Distribuidora Veterinaria PY', 'DIVET Paraguay S.R.L.', '80012345-6', '{"phone":"+595 21 555 1234","whatsapp":"+595 981 555 123","email":"ventas@divetpy.com.py","address":"Av. Eusebio Ayala 3456","city":"Asuncion","contact_person":"Carlos Gonzalez","contact_position":"Gerente Comercial","notes":"Principal distribuidor de alimentos premium. Entrega gratis >2M Gs.","brands":["Royal Canin","Pro Plan","Hill''s","Nexgard","Bravecto"]}'::JSONB, '/placeholder-product.svg', 'products', 500000, '30 dias', 3, 'verified', TRUE),
+    ('adris', 'Distribuidora Veterinaria PY', 'DIVET Paraguay S.R.L.', '80012345-6', '{"phone":"+595 21 555 1234","whatsapp":"+595 981 555 123","email":"ventas@divetpy.com.py","address":"Av. Eusebio Ayala 3456","city":"Asuncion","contact_person":"Carlos Gonzalez","contact_position":"Gerente Comercial","notes":"Principal distribuidor de alimentos premium. Entrega gratis >2M Gs.","brands":["Royal Canin","Pro Plan","Hill''s","Nexgard","Bravecto"]}'::JSONB, 'https://www.divetpy.com.py', 'products', 500000, '30 dias', 3, 'verified', TRUE),
     ('adris', '4Pets Distribuidora', '4Pets Paraguay S.A.', '80098765-1', '{"phone":"+595 21 611 4738","whatsapp":"+595 971 611 473","email":"mayorista@4pets.com.py","address":"Av. Mariscal Lopez 5678","city":"Asuncion","contact_person":"Maria Fernandez","contact_position":"Coordinadora de Ventas","notes":"Stock permanente. Promociones mensuales. App para pedidos.","brands":["Royal Canin","Monello","Catron","Kets","Kong","Zeedog","Tropiclean"]}'::JSONB, 'https://www.4pets.com.py', 'products', 300000, '15 dias', 2, 'verified', TRUE),
-    ('adris', 'Agrofield S.R.L.', 'Agrofield Importadora S.R.L.', '80045678-2', '{"phone":"+595 21 608 4500","whatsapp":"+595 982 608 450","email":"pedidos@agrofield.com.py","address":"Ruta Transchaco Km 12","city":"Mariano Roque Alonso","contact_person":"Roberto Villalba","contact_position":"Director Comercial","notes":"Especialistas en nutricion premium. Capacitaciones tecnicas.","brands":["N&D Farmina","Monello","Three Dogs","Soft Care","Vetnil"]}'::JSONB, '/placeholder-product.svg', 'products', 1000000, '30 dias', 5, 'verified', TRUE),
+    ('adris', 'Agrofield S.R.L.', 'Agrofield Importadora S.R.L.', '80045678-2', '{"phone":"+595 21 608 4500","whatsapp":"+595 982 608 450","email":"pedidos@agrofield.com.py","address":"Ruta Transchaco Km 12","city":"Mariano Roque Alonso","contact_person":"Roberto Villalba","contact_position":"Director Comercial","notes":"Especialistas en nutricion premium. Capacitaciones tecnicas.","brands":["N&D Farmina","Monello","Three Dogs","Soft Care","Vetnil"]}'::JSONB, 'https://www.agrofield.com.py', 'products', 1000000, '30 dias', 5, 'verified', TRUE),
     ('adris', 'Veterinarias Reunidas', 'Veterinarias Reunidas del Paraguay S.A.', '80056789-3', '{"phone":"+595 21 445 6789","whatsapp":"+595 991 445 678","email":"comercial@vetreunidas.com.py","address":"Calle Palma 890","city":"Asuncion","contact_person":"Ana Benitez","contact_position":"Jefa de Compras","notes":"Entrega en el dia para zona centro. Descuento 5% pago contado.","brands":["Pedigree","Whiskas","Scalibor","Biomont"]}'::JSONB, NULL, 'both', 200000, 'Contado', 1, 'verified', TRUE),
-    ('adris', 'FarmaVet Paraguay', 'Farmaceutica Veterinaria Paraguay S.A.', '80067890-4', '{"phone":"+595 21 292 5500","whatsapp":"+595 972 292 550","email":"ventas@farmavet.com.py","address":"Av. Espana 2345","city":"Asuncion","contact_person":"Dr. Pedro Martinez","contact_position":"Director Tecnico","notes":"Medicamentos con receta. Cadena de frio garantizada.","brands":["Nexgard","Bravecto","Scalibor","Vetnil","John Martin"]}'::JSONB, '/placeholder-product.svg', 'products', 800000, '60 dias', 4, 'verified', TRUE),
+    ('adris', 'FarmaVet Paraguay', 'Farmaceutica Veterinaria Paraguay S.A.', '80067890-4', '{"phone":"+595 21 292 5500","whatsapp":"+595 972 292 550","email":"ventas@farmavet.com.py","address":"Av. Espana 2345","city":"Asuncion","contact_person":"Dr. Pedro Martinez","contact_position":"Director Tecnico","notes":"Medicamentos con receta. Cadena de frio garantizada.","brands":["Nexgard","Bravecto","Scalibor","Vetnil","John Martin"]}'::JSONB, 'https://www.farmavet.com.py', 'products', 800000, '60 dias', 4, 'verified', TRUE),
     ('adris', 'Pet Import', 'Pet Import Paraguay S.R.L.', '80078901-5', '{"phone":"+595 21 334 7890","whatsapp":"+595 983 334 789","email":"importaciones@petimport.com.py","address":"Av. Santa Teresa 4567","city":"Luque","contact_person":"Sandra Acosta","contact_position":"Gerente General","notes":"Importador directo. Precios competitivos en volumen.","brands":["Eukanuba","Taste of the Wild","Biofresh","Premier"]}'::JSONB, NULL, 'products', 1500000, '30 dias', 7, 'verified', TRUE),
     ('adris', 'Boehringer Ingelheim Paraguay', 'Boehringer Ingelheim Animal Health S.A.', '80034567-7', '{"phone":"+595 21 611 8000","whatsapp":"+595 984 611 800","email":"animalhealth.py@boehringer-ingelheim.com","address":"Av. Aviadores del Chaco 2050","city":"Asuncion","contact_person":"Dr. Luis Ramirez","contact_position":"Representante Tecnico","notes":"Laboratorio internacional. Material promocional incluido.","brands":["Nexgard","Nexgard Spectra","Frontline"]}'::JSONB, 'https://www.boehringer-ingelheim.com.py', 'products', 2000000, '60 dias', 5, 'verified', TRUE),
     ('adris', 'MSD Animal Health Paraguay', 'MSD Animal Health S.A.', '80045678-8', '{"phone":"+595 21 612 9000","whatsapp":"+595 985 612 900","email":"pedidos.py@merck.com","address":"Av. Denis Roa 1234","city":"Asuncion","contact_person":"Dra. Carolina Lopez","contact_position":"Gerente de Ventas","notes":"Vacunas y antiparasitarios premium. Programa de fidelidad.","brands":["Bravecto","Scalibor","Nobivac"]}'::JSONB, 'https://www.msd-animal-health.com.py', 'products', 2500000, '90 dias', 7, 'verified', TRUE),
-    ('adris', 'Purina Nestle Paraguay', 'Nestle Paraguay S.A. - Division Pet Care', '80001234-0', '{"phone":"+595 21 617 7000","whatsapp":"+595 971 617 700","email":"petcare.py@nestle.com","address":"Av. Primer Presidente 5000","city":"Asuncion","contact_person":"Jorge Duarte","contact_position":"Key Account Manager","notes":"Multinacional. Programa Pro Plan Excellence para clinicas.","brands":["Pro Plan","Dog Chow","Cat Chow","Fancy Feast"]}'::JSONB, '/placeholder-product.svg', 'products', 1000000, '30 dias', 3, 'verified', TRUE),
-    ('adris', 'Mars Petcare Paraguay', 'Mars Paraguay S.A.', '80002345-1', '{"phone":"+595 21 618 8000","whatsapp":"+595 972 618 800","email":"petcare.py@mars.com","address":"Av. Madame Lynch 3456","city":"Asuncion","contact_person":"Patricia Gimenez","contact_position":"Ejecutiva de Cuenta","notes":"Portafolio completo Mars. Descuentos por volumen.","brands":["Royal Canin","Pedigree","Whiskas","Eukanuba","Cesar"]}'::JSONB, '/placeholder-product.svg', 'products', 800000, '30 dias', 3, 'verified', TRUE),
+    ('adris', 'Purina Nestle Paraguay', 'Nestle Paraguay S.A. - Division Pet Care', '80001234-0', '{"phone":"+595 21 617 7000","whatsapp":"+595 971 617 700","email":"petcare.py@nestle.com","address":"Av. Primer Presidente 5000","city":"Asuncion","contact_person":"Jorge Duarte","contact_position":"Key Account Manager","notes":"Multinacional. Programa Pro Plan Excellence para clinicas.","brands":["Pro Plan","Dog Chow","Cat Chow","Fancy Feast"]}'::JSONB, 'https://www.purina.com.py', 'products', 1000000, '30 dias', 3, 'verified', TRUE),
+    ('adris', 'Mars Petcare Paraguay', 'Mars Paraguay S.A.', '80002345-1', '{"phone":"+595 21 618 8000","whatsapp":"+595 972 618 800","email":"petcare.py@mars.com","address":"Av. Madame Lynch 3456","city":"Asuncion","contact_person":"Patricia Gimenez","contact_position":"Ejecutiva de Cuenta","notes":"Portafolio completo Mars. Descuentos por volumen.","brands":["Royal Canin","Pedigree","Whiskas","Eukanuba","Cesar"]}'::JSONB, 'https://www.mars.com/paraguay', 'products', 800000, '30 dias', 3, 'verified', TRUE),
     ('adris', 'Accesorios Pet PY', 'Accesorios para Mascotas Paraguay S.R.L.', '80089012-6', '{"phone":"+595 21 223 4567","whatsapp":"+595 986 223 456","email":"ventas@accesorioспетpy.com.py","address":"Calle 14 de Mayo 567","city":"Fernando de la Mora","contact_person":"Laura Ortiz","contact_position":"Propietaria","notes":"Especialista en accesorios y juguetes. Precios mayoristas.","brands":["Kong","Zeedog","4Pets"]}'::JSONB, NULL, 'products', 150000, 'Contado', 2, 'pending', TRUE),
     ('adris', 'Higiene Pet', 'Productos de Higiene Animal S.R.L.', '80090123-7', '{"phone":"+595 21 556 7890","whatsapp":"+595 987 556 789","email":"contacto@higienepet.com.py","address":"Av. Republica Argentina 789","city":"Asuncion","contact_person":"Miguel Caceres","contact_position":"Vendedor","notes":"Arena sanitaria y productos de higiene. Stock permanente.","brands":["Tropiclean","Soft Care","Catron","Kets","Progato"]}'::JSONB, NULL, 'products', 100000, 'Contado', 1, 'verified', TRUE),
     ('adris', 'Snacks Naturales PY', 'Alimentos Naturales para Mascotas S.R.L.', '80101234-8', '{"phone":"+595 21 445 1234","whatsapp":"+595 988 445 123","email":"pedidos@snacksnaturales.com.py","address":"Barrio Obrero, Calle 10","city":"Asuncion","contact_person":"Fatima Rojas","contact_position":"Administradora","notes":"Productos artesanales paraguayos. Produccion fresca semanal.","brands":["Barky Snacks","Pet Gourmet","NuTreats"]}'::JSONB, NULL, 'products', 80000, 'Contado', 2, 'verified', TRUE),
-    ('adris', 'Laboratorio Chimiray', 'Chimiray S.A.', '80112345-9', '{"phone":"+595 21 509 4500","whatsapp":"+595 989 509 450","email":"ventas@chimiray.com.py","address":"Ruta 2 Km 25","city":"Capiata","contact_person":"Dr. Ricardo Gauto","contact_position":"Director de Ventas","notes":"Laboratorio argentino con sede en Paraguay. Suplementos y vitaminas.","brands":["John Martin","Chimiray"]}'::JSONB, '/placeholder-product.svg', 'products', 500000, '30 dias', 4, 'verified', TRUE),
-    ('adris', 'Hercosul Paraguay', 'Hercosul Alimentos del Paraguay S.A.', '80123456-0', '{"phone":"+595 21 520 6000","whatsapp":"+595 990 520 600","email":"comercial@hercosul.com.py","address":"Av. Artigas 2500","city":"Asuncion","contact_person":"Fernando Silva","contact_position":"Gerente Comercial","notes":"Importador oficial de alimentos brasileros premium.","brands":["Three Dogs","Biofresh","Monello"]}'::JSONB, '/placeholder-product.svg', 'products', 1200000, '30 dias', 5, 'verified', TRUE),
-    ('adris', 'SUMED S.R.L.', 'SUMED S.R.L.', '80023456-7', '{"phone":"+595 21 390272","whatsapp":"+595 981 152 672","email":"ventas@sumed.com.py","address":"Yataity Corá 220","city":"Asunción","contact_person":"Representante de Ventas","contact_position":"Ventas","notes":"28 años brindando productos de calidad. Representantes de Greetmed en Paraguay. Importadores de Suturas Shalon Medical. Especialistas en insumos hospitalarios. Envíos gratis a Gran Asunción a partir de 150.000 Gs.","brands":["Greetmed","Shalon Medical","AMBU"]}'::JSONB, '/placeholder-product.svg', 'both', 150000, '30 dias', 2, 'verified', TRUE),
+    ('adris', 'Laboratorio Chimiray', 'Chimiray S.A.', '80112345-9', '{"phone":"+595 21 509 4500","whatsapp":"+595 989 509 450","email":"ventas@chimiray.com.py","address":"Ruta 2 Km 25","city":"Capiata","contact_person":"Dr. Ricardo Gauto","contact_position":"Director de Ventas","notes":"Laboratorio argentino con sede en Paraguay. Suplementos y vitaminas.","brands":["John Martin","Chimiray"]}'::JSONB, 'https://www.chimiray.com.py', 'products', 500000, '30 dias', 4, 'verified', TRUE),
+    ('adris', 'Hercosul Paraguay', 'Hercosul Alimentos del Paraguay S.A.', '80123456-0', '{"phone":"+595 21 520 6000","whatsapp":"+595 990 520 600","email":"comercial@hercosul.com.py","address":"Av. Artigas 2500","city":"Asuncion","contact_person":"Fernando Silva","contact_position":"Gerente Comercial","notes":"Importador oficial de alimentos brasileros premium.","brands":["Three Dogs","Biofresh","Monello"]}'::JSONB, 'https://www.hercosul.com.br', 'products', 1200000, '30 dias', 5, 'verified', TRUE),
+    ('adris', 'SUMED S.R.L.', 'SUMED S.R.L.', '80023456-7', '{"phone":"+595 21 390272","whatsapp":"+595 981 152 672","email":"ventas@sumed.com.py","address":"Yataity Corá 220","city":"Asunción","contact_person":"Representante de Ventas","contact_position":"Ventas","notes":"28 años brindando productos de calidad. Representantes de Greetmed en Paraguay. Importadores de Suturas Shalon Medical. Especialistas en insumos hospitalarios. Envíos gratis a Gran Asunción a partir de 150.000 Gs.","brands":["Greetmed","Shalon Medical","AMBU"]}'::JSONB, 'https://www.sumed.com.py', 'both', 150000, '30 dias', 2, 'verified', TRUE),
     ('adris', 'Shantal', 'Shantal S.A.', '80034567-8', '{"phone":"+595 21 390272","whatsapp":"+595 981 390272","email":"shantalsa@hotmail.com","address":"Yegros Nº 2284 esq. Ita Pirú","city":"Asunción","contact_person":"Representante de Ventas","contact_position":"Ventas","notes":"Equipos de laboratorio, hospitalarios y veterinarios. Insumos, reactivos y soluciones. Horarios: Lunes a Viernes 08:00-16:00.","brands":["Shantal"]}'::JSONB, 'https://shantalparaguay.com.py', 'both', 200000, '30 dias', 3, 'verified', TRUE),
-    ('adris', 'Rural Center', 'Rural Center S.R.L.', '80045678-9', '{"phone":"+595 21 555 0000","whatsapp":"+595 981 555 000","email":"ventas@ruralcenter.com.py","address":"Av. Principal","city":"Asunción","contact_person":"Representante de Ventas","contact_position":"Ventas","notes":"Distribuidor de productos veterinarios, alimentos, medicamentos e insumos para clínicas veterinarias.","brands":["Rural Center","Frontline"]}'::JSONB, '/placeholder-product.svg', 'both', 100000, '30 dias', 2, 'verified', TRUE)
+    ('adris', 'Rural Center', 'Rural Center S.R.L.', '80045678-9', '{"phone":"+595 21 555 0000","whatsapp":"+595 981 555 000","email":"ventas@ruralcenter.com.py","address":"Av. Principal","city":"Asunción","contact_person":"Representante de Ventas","contact_position":"Ventas","notes":"Distribuidor de productos veterinarios, alimentos, medicamentos e insumos para clínicas veterinarias.","brands":["Rural Center","Frontline"]}'::JSONB, 'https://www.ruralcenter.com.py', 'both', 100000, '30 dias', 2, 'verified', TRUE)
 ON CONFLICT DO NOTHING;
 
 -- Suppliers for tenant: petlife
 INSERT INTO public.suppliers (tenant_id, name, legal_name, tax_id, contact_info, website, supplier_type, minimum_order_amount, payment_terms, delivery_time_days, verification_status, is_active) VALUES
-    ('petlife', 'Distribuidora Veterinaria PY', 'DIVET Paraguay S.R.L.', '80012345-6', '{"phone":"+595 21 555 1234","whatsapp":"+595 981 555 123","email":"ventas@divetpy.com.py","address":"Av. Eusebio Ayala 3456","city":"Asuncion","contact_person":"Carlos Gonzalez","contact_position":"Gerente Comercial","notes":"Principal distribuidor de alimentos premium. Entrega gratis >2M Gs.","brands":["Royal Canin","Pro Plan","Hill''s","Nexgard","Bravecto"]}'::JSONB, '/placeholder-product.svg', 'products', 500000, '30 dias', 3, 'verified', TRUE),
+    ('petlife', 'Distribuidora Veterinaria PY', 'DIVET Paraguay S.R.L.', '80012345-6', '{"phone":"+595 21 555 1234","whatsapp":"+595 981 555 123","email":"ventas@divetpy.com.py","address":"Av. Eusebio Ayala 3456","city":"Asuncion","contact_person":"Carlos Gonzalez","contact_position":"Gerente Comercial","notes":"Principal distribuidor de alimentos premium. Entrega gratis >2M Gs.","brands":["Royal Canin","Pro Plan","Hill''s","Nexgard","Bravecto"]}'::JSONB, 'https://www.divetpy.com.py', 'products', 500000, '30 dias', 3, 'verified', TRUE),
     ('petlife', '4Pets Distribuidora', '4Pets Paraguay S.A.', '80098765-1', '{"phone":"+595 21 611 4738","whatsapp":"+595 971 611 473","email":"mayorista@4pets.com.py","address":"Av. Mariscal Lopez 5678","city":"Asuncion","contact_person":"Maria Fernandez","contact_position":"Coordinadora de Ventas","notes":"Stock permanente. Promociones mensuales. App para pedidos.","brands":["Royal Canin","Monello","Catron","Kets","Kong","Zeedog","Tropiclean"]}'::JSONB, 'https://www.4pets.com.py', 'products', 300000, '15 dias', 2, 'verified', TRUE),
-    ('petlife', 'Agrofield S.R.L.', 'Agrofield Importadora S.R.L.', '80045678-2', '{"phone":"+595 21 608 4500","whatsapp":"+595 982 608 450","email":"pedidos@agrofield.com.py","address":"Ruta Transchaco Km 12","city":"Mariano Roque Alonso","contact_person":"Roberto Villalba","contact_position":"Director Comercial","notes":"Especialistas en nutricion premium. Capacitaciones tecnicas.","brands":["N&D Farmina","Monello","Three Dogs","Soft Care","Vetnil"]}'::JSONB, '/placeholder-product.svg', 'products', 1000000, '30 dias', 5, 'verified', TRUE),
+    ('petlife', 'Agrofield S.R.L.', 'Agrofield Importadora S.R.L.', '80045678-2', '{"phone":"+595 21 608 4500","whatsapp":"+595 982 608 450","email":"pedidos@agrofield.com.py","address":"Ruta Transchaco Km 12","city":"Mariano Roque Alonso","contact_person":"Roberto Villalba","contact_position":"Director Comercial","notes":"Especialistas en nutricion premium. Capacitaciones tecnicas.","brands":["N&D Farmina","Monello","Three Dogs","Soft Care","Vetnil"]}'::JSONB, 'https://www.agrofield.com.py', 'products', 1000000, '30 dias', 5, 'verified', TRUE),
     ('petlife', 'Veterinarias Reunidas', 'Veterinarias Reunidas del Paraguay S.A.', '80056789-3', '{"phone":"+595 21 445 6789","whatsapp":"+595 991 445 678","email":"comercial@vetreunidas.com.py","address":"Calle Palma 890","city":"Asuncion","contact_person":"Ana Benitez","contact_position":"Jefa de Compras","notes":"Entrega en el dia para zona centro. Descuento 5% pago contado.","brands":["Pedigree","Whiskas","Scalibor","Biomont"]}'::JSONB, NULL, 'both', 200000, 'Contado', 1, 'verified', TRUE),
-    ('petlife', 'FarmaVet Paraguay', 'Farmaceutica Veterinaria Paraguay S.A.', '80067890-4', '{"phone":"+595 21 292 5500","whatsapp":"+595 972 292 550","email":"ventas@farmavet.com.py","address":"Av. Espana 2345","city":"Asuncion","contact_person":"Dr. Pedro Martinez","contact_position":"Director Tecnico","notes":"Medicamentos con receta. Cadena de frio garantizada.","brands":["Nexgard","Bravecto","Scalibor","Vetnil","John Martin"]}'::JSONB, '/placeholder-product.svg', 'products', 800000, '60 dias', 4, 'verified', TRUE),
+    ('petlife', 'FarmaVet Paraguay', 'Farmaceutica Veterinaria Paraguay S.A.', '80067890-4', '{"phone":"+595 21 292 5500","whatsapp":"+595 972 292 550","email":"ventas@farmavet.com.py","address":"Av. Espana 2345","city":"Asuncion","contact_person":"Dr. Pedro Martinez","contact_position":"Director Tecnico","notes":"Medicamentos con receta. Cadena de frio garantizada.","brands":["Nexgard","Bravecto","Scalibor","Vetnil","John Martin"]}'::JSONB, 'https://www.farmavet.com.py', 'products', 800000, '60 dias', 4, 'verified', TRUE),
     ('petlife', 'Pet Import', 'Pet Import Paraguay S.R.L.', '80078901-5', '{"phone":"+595 21 334 7890","whatsapp":"+595 983 334 789","email":"importaciones@petimport.com.py","address":"Av. Santa Teresa 4567","city":"Luque","contact_person":"Sandra Acosta","contact_position":"Gerente General","notes":"Importador directo. Precios competitivos en volumen.","brands":["Eukanuba","Taste of the Wild","Biofresh","Premier"]}'::JSONB, NULL, 'products', 1500000, '30 dias', 7, 'verified', TRUE),
     ('petlife', 'Boehringer Ingelheim Paraguay', 'Boehringer Ingelheim Animal Health S.A.', '80034567-7', '{"phone":"+595 21 611 8000","whatsapp":"+595 984 611 800","email":"animalhealth.py@boehringer-ingelheim.com","address":"Av. Aviadores del Chaco 2050","city":"Asuncion","contact_person":"Dr. Luis Ramirez","contact_position":"Representante Tecnico","notes":"Laboratorio internacional. Material promocional incluido.","brands":["Nexgard","Nexgard Spectra","Frontline"]}'::JSONB, 'https://www.boehringer-ingelheim.com.py', 'products', 2000000, '60 dias', 5, 'verified', TRUE),
     ('petlife', 'MSD Animal Health Paraguay', 'MSD Animal Health S.A.', '80045678-8', '{"phone":"+595 21 612 9000","whatsapp":"+595 985 612 900","email":"pedidos.py@merck.com","address":"Av. Denis Roa 1234","city":"Asuncion","contact_person":"Dra. Carolina Lopez","contact_position":"Gerente de Ventas","notes":"Vacunas y antiparasitarios premium. Programa de fidelidad.","brands":["Bravecto","Scalibor","Nobivac"]}'::JSONB, 'https://www.msd-animal-health.com.py', 'products', 2500000, '90 dias', 7, 'verified', TRUE),
-    ('petlife', 'Purina Nestle Paraguay', 'Nestle Paraguay S.A. - Division Pet Care', '80001234-0', '{"phone":"+595 21 617 7000","whatsapp":"+595 971 617 700","email":"petcare.py@nestle.com","address":"Av. Primer Presidente 5000","city":"Asuncion","contact_person":"Jorge Duarte","contact_position":"Key Account Manager","notes":"Multinacional. Programa Pro Plan Excellence para clinicas.","brands":["Pro Plan","Dog Chow","Cat Chow","Fancy Feast"]}'::JSONB, '/placeholder-product.svg', 'products', 1000000, '30 dias', 3, 'verified', TRUE),
-    ('petlife', 'Mars Petcare Paraguay', 'Mars Paraguay S.A.', '80002345-1', '{"phone":"+595 21 618 8000","whatsapp":"+595 972 618 800","email":"petcare.py@mars.com","address":"Av. Madame Lynch 3456","city":"Asuncion","contact_person":"Patricia Gimenez","contact_position":"Ejecutiva de Cuenta","notes":"Portafolio completo Mars. Descuentos por volumen.","brands":["Royal Canin","Pedigree","Whiskas","Eukanuba","Cesar"]}'::JSONB, '/placeholder-product.svg', 'products', 800000, '30 dias', 3, 'verified', TRUE),
+    ('petlife', 'Purina Nestle Paraguay', 'Nestle Paraguay S.A. - Division Pet Care', '80001234-0', '{"phone":"+595 21 617 7000","whatsapp":"+595 971 617 700","email":"petcare.py@nestle.com","address":"Av. Primer Presidente 5000","city":"Asuncion","contact_person":"Jorge Duarte","contact_position":"Key Account Manager","notes":"Multinacional. Programa Pro Plan Excellence para clinicas.","brands":["Pro Plan","Dog Chow","Cat Chow","Fancy Feast"]}'::JSONB, 'https://www.purina.com.py', 'products', 1000000, '30 dias', 3, 'verified', TRUE),
+    ('petlife', 'Mars Petcare Paraguay', 'Mars Paraguay S.A.', '80002345-1', '{"phone":"+595 21 618 8000","whatsapp":"+595 972 618 800","email":"petcare.py@mars.com","address":"Av. Madame Lynch 3456","city":"Asuncion","contact_person":"Patricia Gimenez","contact_position":"Ejecutiva de Cuenta","notes":"Portafolio completo Mars. Descuentos por volumen.","brands":["Royal Canin","Pedigree","Whiskas","Eukanuba","Cesar"]}'::JSONB, 'https://www.mars.com/paraguay', 'products', 800000, '30 dias', 3, 'verified', TRUE),
     ('petlife', 'Accesorios Pet PY', 'Accesorios para Mascotas Paraguay S.R.L.', '80089012-6', '{"phone":"+595 21 223 4567","whatsapp":"+595 986 223 456","email":"ventas@accesorioспетpy.com.py","address":"Calle 14 de Mayo 567","city":"Fernando de la Mora","contact_person":"Laura Ortiz","contact_position":"Propietaria","notes":"Especialista en accesorios y juguetes. Precios mayoristas.","brands":["Kong","Zeedog","4Pets"]}'::JSONB, NULL, 'products', 150000, 'Contado', 2, 'pending', TRUE),
     ('petlife', 'Higiene Pet', 'Productos de Higiene Animal S.R.L.', '80090123-7', '{"phone":"+595 21 556 7890","whatsapp":"+595 987 556 789","email":"contacto@higienepet.com.py","address":"Av. Republica Argentina 789","city":"Asuncion","contact_person":"Miguel Caceres","contact_position":"Vendedor","notes":"Arena sanitaria y productos de higiene. Stock permanente.","brands":["Tropiclean","Soft Care","Catron","Kets","Progato"]}'::JSONB, NULL, 'products', 100000, 'Contado', 1, 'verified', TRUE),
     ('petlife', 'Snacks Naturales PY', 'Alimentos Naturales para Mascotas S.R.L.', '80101234-8', '{"phone":"+595 21 445 1234","whatsapp":"+595 988 445 123","email":"pedidos@snacksnaturales.com.py","address":"Barrio Obrero, Calle 10","city":"Asuncion","contact_person":"Fatima Rojas","contact_position":"Administradora","notes":"Productos artesanales paraguayos. Produccion fresca semanal.","brands":["Barky Snacks","Pet Gourmet","NuTreats"]}'::JSONB, NULL, 'products', 80000, 'Contado', 2, 'verified', TRUE),
-    ('petlife', 'Laboratorio Chimiray', 'Chimiray S.A.', '80112345-9', '{"phone":"+595 21 509 4500","whatsapp":"+595 989 509 450","email":"ventas@chimiray.com.py","address":"Ruta 2 Km 25","city":"Capiata","contact_person":"Dr. Ricardo Gauto","contact_position":"Director de Ventas","notes":"Laboratorio argentino con sede en Paraguay. Suplementos y vitaminas.","brands":["John Martin","Chimiray"]}'::JSONB, '/placeholder-product.svg', 'products', 500000, '30 dias', 4, 'verified', TRUE),
-    ('petlife', 'Hercosul Paraguay', 'Hercosul Alimentos del Paraguay S.A.', '80123456-0', '{"phone":"+595 21 520 6000","whatsapp":"+595 990 520 600","email":"comercial@hercosul.com.py","address":"Av. Artigas 2500","city":"Asuncion","contact_person":"Fernando Silva","contact_position":"Gerente Comercial","notes":"Importador oficial de alimentos brasileros premium.","brands":["Three Dogs","Biofresh","Monello"]}'::JSONB, '/placeholder-product.svg', 'products', 1200000, '30 dias', 5, 'verified', TRUE),
-    ('petlife', 'SUMED S.R.L.', 'SUMED S.R.L.', '80023456-7', '{"phone":"+595 21 390272","whatsapp":"+595 981 152 672","email":"ventas@sumed.com.py","address":"Yataity Corá 220","city":"Asunción","contact_person":"Representante de Ventas","contact_position":"Ventas","notes":"28 años brindando productos de calidad. Representantes de Greetmed en Paraguay. Importadores de Suturas Shalon Medical. Especialistas en insumos hospitalarios. Envíos gratis a Gran Asunción a partir de 150.000 Gs.","brands":["Greetmed","Shalon Medical","AMBU"]}'::JSONB, '/placeholder-product.svg', 'both', 150000, '30 dias', 2, 'verified', TRUE),
+    ('petlife', 'Laboratorio Chimiray', 'Chimiray S.A.', '80112345-9', '{"phone":"+595 21 509 4500","whatsapp":"+595 989 509 450","email":"ventas@chimiray.com.py","address":"Ruta 2 Km 25","city":"Capiata","contact_person":"Dr. Ricardo Gauto","contact_position":"Director de Ventas","notes":"Laboratorio argentino con sede en Paraguay. Suplementos y vitaminas.","brands":["John Martin","Chimiray"]}'::JSONB, 'https://www.chimiray.com.py', 'products', 500000, '30 dias', 4, 'verified', TRUE),
+    ('petlife', 'Hercosul Paraguay', 'Hercosul Alimentos del Paraguay S.A.', '80123456-0', '{"phone":"+595 21 520 6000","whatsapp":"+595 990 520 600","email":"comercial@hercosul.com.py","address":"Av. Artigas 2500","city":"Asuncion","contact_person":"Fernando Silva","contact_position":"Gerente Comercial","notes":"Importador oficial de alimentos brasileros premium.","brands":["Three Dogs","Biofresh","Monello"]}'::JSONB, 'https://www.hercosul.com.br', 'products', 1200000, '30 dias', 5, 'verified', TRUE),
+    ('petlife', 'SUMED S.R.L.', 'SUMED S.R.L.', '80023456-7', '{"phone":"+595 21 390272","whatsapp":"+595 981 152 672","email":"ventas@sumed.com.py","address":"Yataity Corá 220","city":"Asunción","contact_person":"Representante de Ventas","contact_position":"Ventas","notes":"28 años brindando productos de calidad. Representantes de Greetmed en Paraguay. Importadores de Suturas Shalon Medical. Especialistas en insumos hospitalarios. Envíos gratis a Gran Asunción a partir de 150.000 Gs.","brands":["Greetmed","Shalon Medical","AMBU"]}'::JSONB, 'https://www.sumed.com.py', 'both', 150000, '30 dias', 2, 'verified', TRUE),
     ('petlife', 'Shantal', 'Shantal S.A.', '80034567-8', '{"phone":"+595 21 390272","whatsapp":"+595 981 390272","email":"shantalsa@hotmail.com","address":"Yegros Nº 2284 esq. Ita Pirú","city":"Asunción","contact_person":"Representante de Ventas","contact_position":"Ventas","notes":"Equipos de laboratorio, hospitalarios y veterinarios. Insumos, reactivos y soluciones. Horarios: Lunes a Viernes 08:00-16:00.","brands":["Shantal"]}'::JSONB, 'https://shantalparaguay.com.py', 'both', 200000, '30 dias', 3, 'verified', TRUE),
-    ('petlife', 'Rural Center', 'Rural Center S.R.L.', '80045678-9', '{"phone":"+595 21 555 0000","whatsapp":"+595 981 555 000","email":"ventas@ruralcenter.com.py","address":"Av. Principal","city":"Asunción","contact_person":"Representante de Ventas","contact_position":"Ventas","notes":"Distribuidor de productos veterinarios, alimentos, medicamentos e insumos para clínicas veterinarias.","brands":["Rural Center","Frontline"]}'::JSONB, '/placeholder-product.svg', 'both', 100000, '30 dias', 2, 'verified', TRUE)
+    ('petlife', 'Rural Center', 'Rural Center S.R.L.', '80045678-9', '{"phone":"+595 21 555 0000","whatsapp":"+595 981 555 000","email":"ventas@ruralcenter.com.py","address":"Av. Principal","city":"Asunción","contact_person":"Representante de Ventas","contact_position":"Ventas","notes":"Distribuidor de productos veterinarios, alimentos, medicamentos e insumos para clínicas veterinarias.","brands":["Rural Center","Frontline"]}'::JSONB, 'https://www.ruralcenter.com.py', 'both', 100000, '30 dias', 2, 'verified', TRUE)
 ON CONFLICT DO NOTHING;
 
 -- Processing tenant products from: C:\Users\Alejandro\Documents\Ivan\Adris\Vete\web\db\seeds\data\03-store\tenant-products
 -- Found tenant product files: [ 'adris.json', 'petlife.json' ]
--- Loading tenant products for adris: 22 products
+-- Loading tenant products for adris: 13 products
 -- CLINIC PRODUCT ASSIGNMENTS (adris)
 -- Links global catalog products to this clinic with custom pricing
 DO $$
 DECLARE v_product_id UUID;
 BEGIN
-    -- Product: RC-DOG-ADULT-MED-15KG
-    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'RC-DOG-ADULT-MED-15KG' AND tenant_id IS NULL LIMIT 1;
+    -- Product: MON-DOG-ADULT-25KG
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'MON-DOG-ADULT-25KG' AND tenant_id IS NULL LIMIT 1;
     IF v_product_id IS NOT NULL THEN
-        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('adris', v_product_id, 485000, 5, 'Estante A1', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
+        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('adris', v_product_id, 578500, 5, 'Estante A1', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
+        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('adris', v_product_id, 8, 5, 10) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
+    END IF;
+    -- Product: MON-DOG-ADULT-15KG
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'MON-DOG-ADULT-15KG' AND tenant_id IS NULL LIMIT 1;
+    IF v_product_id IS NOT NULL THEN
+        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('adris', v_product_id, 383500, 5, 'Estante A1', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
         INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('adris', v_product_id, 12, 5, 10) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
     END IF;
-    -- Product: RC-DOG-ADULT-MED-3KG
-    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'RC-DOG-ADULT-MED-3KG' AND tenant_id IS NULL LIMIT 1;
+    -- Product: PP-DOG-PUPPY-LARGE-3KG
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'PP-DOG-PUPPY-LARGE-3KG' AND tenant_id IS NULL LIMIT 1;
     IF v_product_id IS NOT NULL THEN
-        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('adris', v_product_id, 125000, 8, 'Estante A1', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
-        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('adris', v_product_id, 20, 8, 16) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
-    END IF;
-    -- Product: RC-DOG-PUPPY-MED-15KG
-    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'RC-DOG-PUPPY-MED-15KG' AND tenant_id IS NULL LIMIT 1;
-    IF v_product_id IS NOT NULL THEN
-        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('adris', v_product_id, 520000, 4, 'Estante A2', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
-        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('adris', v_product_id, 8, 4, 8) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
-    END IF;
-    -- Product: RC-DOG-PUPPY-MED-3KG
-    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'RC-DOG-PUPPY-MED-3KG' AND tenant_id IS NULL LIMIT 1;
-    IF v_product_id IS NOT NULL THEN
-        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('adris', v_product_id, 135000, 10, 'Estante A2', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
-        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('adris', v_product_id, 15, 10, 20) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
-    END IF;
-    -- Product: RC-CAT-ADULT-4KG
-    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'RC-CAT-ADULT-4KG' AND tenant_id IS NULL LIMIT 1;
-    IF v_product_id IS NOT NULL THEN
-        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('adris', v_product_id, 195000, 6, 'Estante B1', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
-        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('adris', v_product_id, 10, 6, 12) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
-    END IF;
-    -- Product: RC-CAT-KITTEN-4KG
-    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'RC-CAT-KITTEN-4KG' AND tenant_id IS NULL LIMIT 1;
-    IF v_product_id IS NOT NULL THEN
-        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('adris', v_product_id, 210000, 5, 'Estante B1', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
-        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('adris', v_product_id, 8, 5, 10) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
-    END IF;
-    -- Product: HILLS-SD-ADULT-12KG
-    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'HILLS-SD-ADULT-12KG' AND tenant_id IS NULL LIMIT 1;
-    IF v_product_id IS NOT NULL THEN
-        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('adris', v_product_id, 520000, 3, 'Estante A3', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
-        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('adris', v_product_id, 6, 3, 6) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
-    END IF;
-    -- Product: HILLS-SD-PUPPY-12KG
-    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'HILLS-SD-PUPPY-12KG' AND tenant_id IS NULL LIMIT 1;
-    IF v_product_id IS NOT NULL THEN
-        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('adris', v_product_id, 550000, 3, 'Estante A3', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
-        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('adris', v_product_id, 5, 3, 6) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
-    END IF;
-    -- Product: NEXGARD-S-3
-    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'NEXGARD-S-3' AND tenant_id IS NULL LIMIT 1;
-    IF v_product_id IS NOT NULL THEN
-        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('adris', v_product_id, 145000, 10, 'Vitrina 1', FALSE, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
-        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('adris', v_product_id, 25, 10, 20) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
-    END IF;
-    -- Product: NEXGARD-M-3
-    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'NEXGARD-M-3' AND tenant_id IS NULL LIMIT 1;
-    IF v_product_id IS NOT NULL THEN
-        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('adris', v_product_id, 165000, 15, 'Vitrina 1', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
-        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('adris', v_product_id, 30, 15, 30) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
-    END IF;
-    -- Product: NEXGARD-L-3
-    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'NEXGARD-L-3' AND tenant_id IS NULL LIMIT 1;
-    IF v_product_id IS NOT NULL THEN
-        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('adris', v_product_id, 180000, 12, 'Vitrina 1', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
-        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('adris', v_product_id, 25, 12, 24) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
-    END IF;
-    -- Product: NEXGARD-XL-3
-    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'NEXGARD-XL-3' AND tenant_id IS NULL LIMIT 1;
-    IF v_product_id IS NOT NULL THEN
-        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('adris', v_product_id, 195000, 8, 'Vitrina 1', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
+        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('adris', v_product_id, 266500, 8, 'Estante A2', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
         INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('adris', v_product_id, 15, 8, 16) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
     END IF;
-    -- Product: BRAVECTO-S-1
-    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'BRAVECTO-S-1' AND tenant_id IS NULL LIMIT 1;
+    -- Product: FN-DOG-PUPPY-LARGE-14KG
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'FN-DOG-PUPPY-LARGE-14KG' AND tenant_id IS NULL LIMIT 1;
     IF v_product_id IS NOT NULL THEN
-        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('adris', v_product_id, 185000, 8, 'Vitrina 1', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
-        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('adris', v_product_id, 12, 8, 16) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
-    END IF;
-    -- Product: BRAVECTO-M-1
-    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'BRAVECTO-M-1' AND tenant_id IS NULL LIMIT 1;
-    IF v_product_id IS NOT NULL THEN
-        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('adris', v_product_id, 210000, 10, 'Vitrina 1', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
-        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('adris', v_product_id, 15, 10, 20) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
-    END IF;
-    -- Product: BRAVECTO-L-1
-    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'BRAVECTO-L-1' AND tenant_id IS NULL LIMIT 1;
-    IF v_product_id IS NOT NULL THEN
-        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('adris', v_product_id, 235000, 10, 'Vitrina 1', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
-        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('adris', v_product_id, 18, 10, 20) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
-    END IF;
-    -- Product: BRAVECTO-XL-1
-    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'BRAVECTO-XL-1' AND tenant_id IS NULL LIMIT 1;
-    IF v_product_id IS NOT NULL THEN
-        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('adris', v_product_id, 260000, 6, 'Vitrina 1', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
-        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('adris', v_product_id, 10, 6, 12) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
-    END IF;
-    -- Product: FRONTLINE-S-3
-    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'FRONTLINE-S-3' AND tenant_id IS NULL LIMIT 1;
-    IF v_product_id IS NOT NULL THEN
-        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('adris', v_product_id, 85000, 15, 'Vitrina 2', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
-        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('adris', v_product_id, 30, 15, 30) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
-    END IF;
-    -- Product: FRONTLINE-M-3
-    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'FRONTLINE-M-3' AND tenant_id IS NULL LIMIT 1;
-    IF v_product_id IS NOT NULL THEN
-        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('adris', v_product_id, 95000, 15, 'Vitrina 2', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
-        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('adris', v_product_id, 30, 15, 30) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
-    END IF;
-    -- Product: FRONTLINE-L-3
-    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'FRONTLINE-L-3' AND tenant_id IS NULL LIMIT 1;
-    IF v_product_id IS NOT NULL THEN
-        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('adris', v_product_id, 105000, 12, 'Vitrina 2', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
-        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('adris', v_product_id, 25, 12, 24) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
-    END IF;
-    -- Product: PP-DOG-ADULT-15KG
-    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'PP-DOG-ADULT-15KG' AND tenant_id IS NULL LIMIT 1;
-    IF v_product_id IS NOT NULL THEN
-        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('adris', v_product_id, 450000, 4, 'Estante A4', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
-        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('adris', v_product_id, 8, 4, 8) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
-    END IF;
-    -- Product: PP-DOG-PUPPY-15KG
-    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'PP-DOG-PUPPY-15KG' AND tenant_id IS NULL LIMIT 1;
-    IF v_product_id IS NOT NULL THEN
-        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('adris', v_product_id, 480000, 4, 'Estante A4', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
+        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('adris', v_product_id, 643500, 4, 'Estante A2', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
         INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('adris', v_product_id, 6, 4, 8) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
     END IF;
-    -- Product: PP-CAT-ADULT-7KG
-    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'PP-CAT-ADULT-7KG' AND tenant_id IS NULL LIMIT 1;
+    -- Product: FN-DOG-PUPPY-SMALL-7KG
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'FN-DOG-PUPPY-SMALL-7KG' AND tenant_id IS NULL LIMIT 1;
     IF v_product_id IS NOT NULL THEN
-        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('adris', v_product_id, 295000, 5, 'Estante B2', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
-        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('adris', v_product_id, 8, 5, 10) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
+        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('adris', v_product_id, 388700, 6, 'Estante A3', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
+        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('adris', v_product_id, 10, 6, 12) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
+    END IF;
+    -- Product: VIR-ANXITANE-S
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'VIR-ANXITANE-S' AND tenant_id IS NULL LIMIT 1;
+    IF v_product_id IS NOT NULL THEN
+        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('adris', v_product_id, 240500, 3, 'Vitrina B1', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
+        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('adris', v_product_id, 8, 3, 6) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
+    END IF;
+    -- Product: MED-GLOVE-NITRILE-S
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'MED-GLOVE-NITRILE-S' AND tenant_id IS NULL LIMIT 1;
+    IF v_product_id IS NOT NULL THEN
+        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('adris', v_product_id, 110500, 10, 'Almacen C1', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
+        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('adris', v_product_id, 50, 10, 20) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
+    END IF;
+    -- Product: MED-SHOE-COVER-100
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'MED-SHOE-COVER-100' AND tenant_id IS NULL LIMIT 1;
+    IF v_product_id IS NOT NULL THEN
+        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('adris', v_product_id, 71500, 5, 'Almacen C1', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
+        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('adris', v_product_id, 30, 5, 10) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
+    END IF;
+    -- Product: BRAUN-EXTENSION-SET-15CM
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'BRAUN-EXTENSION-SET-15CM' AND tenant_id IS NULL LIMIT 1;
+    IF v_product_id IS NOT NULL THEN
+        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('adris', v_product_id, 123500, 5, 'Almacen C2', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
+        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('adris', v_product_id, 20, 5, 10) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
+    END IF;
+    -- Product: LIT-CARDIO-IV-BLK
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'LIT-CARDIO-IV-BLK' AND tenant_id IS NULL LIMIT 1;
+    IF v_product_id IS NOT NULL THEN
+        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('adris', v_product_id, 1625000, 1, 'Equipo D1', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
+        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('adris', v_product_id, 2, 1, 2) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
+    END IF;
+    -- Product: BD-SYRINGE-1ML-27G
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'BD-SYRINGE-1ML-27G' AND tenant_id IS NULL LIMIT 1;
+    IF v_product_id IS NOT NULL THEN
+        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('adris', v_product_id, 85000, 10, 'Almacen C1', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
+        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('adris', v_product_id, 40, 10, 20) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
+    END IF;
+    -- Product: BD-SYRINGE-3ML-23G
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'BD-SYRINGE-3ML-23G' AND tenant_id IS NULL LIMIT 1;
+    IF v_product_id IS NOT NULL THEN
+        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('adris', v_product_id, 75000, 10, 'Almacen C1', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
+        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('adris', v_product_id, 40, 10, 20) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
+    END IF;
+    -- Product: BD-SYRINGE-5ML-21G
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'BD-SYRINGE-5ML-21G' AND tenant_id IS NULL LIMIT 1;
+    IF v_product_id IS NOT NULL THEN
+        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('adris', v_product_id, 80000, 10, 'Almacen C1', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
+        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('adris', v_product_id, 40, 10, 20) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
     END IF;
 END $$;
 
--- Loading tenant products for petlife: 31 products
+-- Loading tenant products for petlife: 9 products
 -- CLINIC PRODUCT ASSIGNMENTS (petlife)
 -- Links global catalog products to this clinic with custom pricing
 DO $$
 DECLARE v_product_id UUID;
 BEGIN
-    -- Product: RC-DOG-ADULT-MED-15KG
-    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'RC-DOG-ADULT-MED-15KG' AND tenant_id IS NULL LIMIT 1;
+    -- Product: MON-DOG-ADULT-25KG
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'MON-DOG-ADULT-25KG' AND tenant_id IS NULL LIMIT 1;
     IF v_product_id IS NOT NULL THEN
-        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('petlife', v_product_id, 495000, 8, 'Pasillo 1-A', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
-        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('petlife', v_product_id, 20, 8, 16) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
+        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('petlife', v_product_id, 595000, 3, 'Pasillo 1', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
+        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('petlife', v_product_id, 5, 3, 6) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
     END IF;
-    -- Product: RC-DOG-ADULT-MED-3KG
-    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'RC-DOG-ADULT-MED-3KG' AND tenant_id IS NULL LIMIT 1;
+    -- Product: MON-DOG-ADULT-15KG
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'MON-DOG-ADULT-15KG' AND tenant_id IS NULL LIMIT 1;
     IF v_product_id IS NOT NULL THEN
-        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('petlife', v_product_id, 130000, 12, 'Pasillo 1-A', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
-        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('petlife', v_product_id, 30, 12, 24) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
-    END IF;
-    -- Product: RC-DOG-ADULT-LARGE-15KG
-    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'RC-DOG-ADULT-LARGE-15KG' AND tenant_id IS NULL LIMIT 1;
-    IF v_product_id IS NOT NULL THEN
-        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('petlife', v_product_id, 510000, 6, 'Pasillo 1-B', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
-        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('petlife', v_product_id, 15, 6, 12) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
-    END IF;
-    -- Product: RC-DOG-PUPPY-MED-15KG
-    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'RC-DOG-PUPPY-MED-15KG' AND tenant_id IS NULL LIMIT 1;
-    IF v_product_id IS NOT NULL THEN
-        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('petlife', v_product_id, 535000, 6, 'Pasillo 1-C', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
-        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('petlife', v_product_id, 12, 6, 12) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
-    END IF;
-    -- Product: RC-DOG-PUPPY-MED-3KG
-    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'RC-DOG-PUPPY-MED-3KG' AND tenant_id IS NULL LIMIT 1;
-    IF v_product_id IS NOT NULL THEN
-        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('petlife', v_product_id, 140000, 15, 'Pasillo 1-C', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
-        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('petlife', v_product_id, 25, 15, 30) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
-    END IF;
-    -- Product: RC-CAT-ADULT-4KG
-    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'RC-CAT-ADULT-4KG' AND tenant_id IS NULL LIMIT 1;
-    IF v_product_id IS NOT NULL THEN
-        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('petlife', v_product_id, 205000, 10, 'Pasillo 2-A', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
-        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('petlife', v_product_id, 18, 10, 20) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
-    END IF;
-    -- Product: RC-CAT-ADULT-10KG
-    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'RC-CAT-ADULT-10KG' AND tenant_id IS NULL LIMIT 1;
-    IF v_product_id IS NOT NULL THEN
-        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('petlife', v_product_id, 450000, 4, 'Pasillo 2-A', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
+        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('petlife', v_product_id, 395000, 4, 'Pasillo 1', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
         INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('petlife', v_product_id, 8, 4, 8) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
     END IF;
-    -- Product: RC-CAT-KITTEN-4KG
-    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'RC-CAT-KITTEN-4KG' AND tenant_id IS NULL LIMIT 1;
+    -- Product: PP-DOG-PUPPY-LARGE-3KG
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'PP-DOG-PUPPY-LARGE-3KG' AND tenant_id IS NULL LIMIT 1;
     IF v_product_id IS NOT NULL THEN
-        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('petlife', v_product_id, 220000, 8, 'Pasillo 2-B', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
-        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('petlife', v_product_id, 12, 8, 16) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
-    END IF;
-    -- Product: RC-VET-GASTRO-DOG-10KG
-    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'RC-VET-GASTRO-DOG-10KG' AND tenant_id IS NULL LIMIT 1;
-    IF v_product_id IS NOT NULL THEN
-        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('petlife', v_product_id, 680000, 3, 'Area Veterinaria', TRUE, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
-        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('petlife', v_product_id, 5, 3, 6) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
-    END IF;
-    -- Product: RC-VET-RENAL-DOG-7KG
-    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'RC-VET-RENAL-DOG-7KG' AND tenant_id IS NULL LIMIT 1;
-    IF v_product_id IS NOT NULL THEN
-        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('petlife', v_product_id, 620000, 3, 'Area Veterinaria', TRUE, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
-        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('petlife', v_product_id, 4, 3, 6) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
-    END IF;
-    -- Product: RC-VET-HYPO-DOG-7KG
-    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'RC-VET-HYPO-DOG-7KG' AND tenant_id IS NULL LIMIT 1;
-    IF v_product_id IS NOT NULL THEN
-        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('petlife', v_product_id, 650000, 2, 'Area Veterinaria', TRUE, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
-        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('petlife', v_product_id, 4, 2, 4) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
-    END IF;
-    -- Product: HILLS-SD-ADULT-12KG
-    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'HILLS-SD-ADULT-12KG' AND tenant_id IS NULL LIMIT 1;
-    IF v_product_id IS NOT NULL THEN
-        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('petlife', v_product_id, 535000, 5, 'Pasillo 3-A', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
+        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('petlife', v_product_id, 275000, 5, 'Pasillo 2', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
         INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('petlife', v_product_id, 10, 5, 10) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
     END IF;
-    -- Product: HILLS-SD-PUPPY-12KG
-    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'HILLS-SD-PUPPY-12KG' AND tenant_id IS NULL LIMIT 1;
+    -- Product: FN-DOG-PUPPY-LARGE-14KG
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'FN-DOG-PUPPY-LARGE-14KG' AND tenant_id IS NULL LIMIT 1;
     IF v_product_id IS NOT NULL THEN
-        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('petlife', v_product_id, 565000, 5, 'Pasillo 3-A', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
-        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('petlife', v_product_id, 8, 5, 10) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
+        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('petlife', v_product_id, 660000, 3, 'Pasillo 2', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
+        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('petlife', v_product_id, 4, 3, 6) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
     END IF;
-    -- Product: HILLS-ID-DOG-8KG
-    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'HILLS-ID-DOG-8KG' AND tenant_id IS NULL LIMIT 1;
+    -- Product: FN-DOG-PUPPY-SMALL-7KG
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'FN-DOG-PUPPY-SMALL-7KG' AND tenant_id IS NULL LIMIT 1;
     IF v_product_id IS NOT NULL THEN
-        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('petlife', v_product_id, 580000, 3, 'Area Veterinaria', TRUE, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
-        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('petlife', v_product_id, 5, 3, 6) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
+        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('petlife', v_product_id, 399000, 4, 'Pasillo 2', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
+        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('petlife', v_product_id, 6, 4, 8) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
     END IF;
-    -- Product: HILLS-KD-DOG-8KG
-    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'HILLS-KD-DOG-8KG' AND tenant_id IS NULL LIMIT 1;
+    -- Product: VIR-ANXITANE-S
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'VIR-ANXITANE-S' AND tenant_id IS NULL LIMIT 1;
     IF v_product_id IS NOT NULL THEN
-        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('petlife', v_product_id, 610000, 2, 'Area Veterinaria', TRUE, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
-        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('petlife', v_product_id, 4, 2, 4) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
+        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('petlife', v_product_id, 250000, 2, 'Farmacia', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
+        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('petlife', v_product_id, 5, 2, 4) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
     END IF;
-    -- Product: NEXGARD-S-3
-    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'NEXGARD-S-3' AND tenant_id IS NULL LIMIT 1;
+    -- Product: MED-GLOVE-NITRILE-S
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'MED-GLOVE-NITRILE-S' AND tenant_id IS NULL LIMIT 1;
     IF v_product_id IS NOT NULL THEN
-        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('petlife', v_product_id, 150000, 15, 'Mostrador', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
-        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('petlife', v_product_id, 40, 15, 30) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
+        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('petlife', v_product_id, 115000, 8, 'Bodega', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
+        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('petlife', v_product_id, 30, 8, 16) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
     END IF;
-    -- Product: NEXGARD-M-3
-    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'NEXGARD-M-3' AND tenant_id IS NULL LIMIT 1;
+    -- Product: BD-SYRINGE-1ML-27G
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'BD-SYRINGE-1ML-27G' AND tenant_id IS NULL LIMIT 1;
     IF v_product_id IS NOT NULL THEN
-        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('petlife', v_product_id, 170000, 20, 'Mostrador', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
-        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('petlife', v_product_id, 50, 20, 40) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
+        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('petlife', v_product_id, 90000, 8, 'Bodega', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
+        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('petlife', v_product_id, 25, 8, 16) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
     END IF;
-    -- Product: NEXGARD-L-3
-    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'NEXGARD-L-3' AND tenant_id IS NULL LIMIT 1;
+    -- Product: BD-SYRINGE-3ML-23G
+    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'BD-SYRINGE-3ML-23G' AND tenant_id IS NULL LIMIT 1;
     IF v_product_id IS NOT NULL THEN
-        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('petlife', v_product_id, 185000, 18, 'Mostrador', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
-        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('petlife', v_product_id, 45, 18, 36) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
-    END IF;
-    -- Product: NEXGARD-XL-3
-    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'NEXGARD-XL-3' AND tenant_id IS NULL LIMIT 1;
-    IF v_product_id IS NOT NULL THEN
-        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('petlife', v_product_id, 200000, 12, 'Mostrador', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
-        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('petlife', v_product_id, 30, 12, 24) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
-    END IF;
-    -- Product: NEXGARD-SPECTRA-S-3
-    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'NEXGARD-SPECTRA-S-3' AND tenant_id IS NULL LIMIT 1;
-    IF v_product_id IS NOT NULL THEN
-        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('petlife', v_product_id, 220000, 10, 'Mostrador Premium', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
-        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('petlife', v_product_id, 20, 10, 20) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
-    END IF;
-    -- Product: NEXGARD-SPECTRA-M-3
-    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'NEXGARD-SPECTRA-M-3' AND tenant_id IS NULL LIMIT 1;
-    IF v_product_id IS NOT NULL THEN
-        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('petlife', v_product_id, 245000, 12, 'Mostrador Premium', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
-        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('petlife', v_product_id, 25, 12, 24) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
-    END IF;
-    -- Product: NEXGARD-SPECTRA-L-3
-    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'NEXGARD-SPECTRA-L-3' AND tenant_id IS NULL LIMIT 1;
-    IF v_product_id IS NOT NULL THEN
-        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('petlife', v_product_id, 270000, 10, 'Mostrador Premium', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
-        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('petlife', v_product_id, 20, 10, 20) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
-    END IF;
-    -- Product: BRAVECTO-S-1
-    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'BRAVECTO-S-1' AND tenant_id IS NULL LIMIT 1;
-    IF v_product_id IS NOT NULL THEN
-        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('petlife', v_product_id, 195000, 12, 'Mostrador', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
-        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('petlife', v_product_id, 20, 12, 24) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
-    END IF;
-    -- Product: BRAVECTO-M-1
-    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'BRAVECTO-M-1' AND tenant_id IS NULL LIMIT 1;
-    IF v_product_id IS NOT NULL THEN
-        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('petlife', v_product_id, 220000, 15, 'Mostrador', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
-        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('petlife', v_product_id, 25, 15, 30) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
-    END IF;
-    -- Product: BRAVECTO-L-1
-    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'BRAVECTO-L-1' AND tenant_id IS NULL LIMIT 1;
-    IF v_product_id IS NOT NULL THEN
-        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('petlife', v_product_id, 245000, 15, 'Mostrador', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
-        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('petlife', v_product_id, 25, 15, 30) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
-    END IF;
-    -- Product: BRAVECTO-XL-1
-    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'BRAVECTO-XL-1' AND tenant_id IS NULL LIMIT 1;
-    IF v_product_id IS NOT NULL THEN
-        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('petlife', v_product_id, 270000, 10, 'Mostrador', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
-        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('petlife', v_product_id, 18, 10, 20) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
-    END IF;
-    -- Product: PP-DOG-ADULT-15KG
-    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'PP-DOG-ADULT-15KG' AND tenant_id IS NULL LIMIT 1;
-    IF v_product_id IS NOT NULL THEN
-        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('petlife', v_product_id, 465000, 6, 'Pasillo 4-A', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
-        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('petlife', v_product_id, 12, 6, 12) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
-    END IF;
-    -- Product: PP-DOG-PUPPY-15KG
-    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'PP-DOG-PUPPY-15KG' AND tenant_id IS NULL LIMIT 1;
-    IF v_product_id IS NOT NULL THEN
-        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('petlife', v_product_id, 495000, 6, 'Pasillo 4-A', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
-        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('petlife', v_product_id, 10, 6, 12) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
-    END IF;
-    -- Product: PP-CAT-ADULT-7KG
-    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'PP-CAT-ADULT-7KG' AND tenant_id IS NULL LIMIT 1;
-    IF v_product_id IS NOT NULL THEN
-        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('petlife', v_product_id, 310000, 8, 'Pasillo 4-B', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
-        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('petlife', v_product_id, 12, 8, 16) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
-    END IF;
-    -- Product: KONG-CLASSIC-M
-    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'KONG-CLASSIC-M' AND tenant_id IS NULL LIMIT 1;
-    IF v_product_id IS NOT NULL THEN
-        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('petlife', v_product_id, 85000, 10, 'Accesorios', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
-        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('petlife', v_product_id, 20, 10, 20) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
-    END IF;
-    -- Product: KONG-CLASSIC-L
-    SELECT id INTO v_product_id FROM public.store_products WHERE sku = 'KONG-CLASSIC-L' AND tenant_id IS NULL LIMIT 1;
-    IF v_product_id IS NOT NULL THEN
-        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('petlife', v_product_id, 95000, 8, 'Accesorios', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
-        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('petlife', v_product_id, 15, 8, 16) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
+        INSERT INTO public.clinic_product_assignments (tenant_id, catalog_product_id, sale_price, min_stock_level, location, requires_prescription, is_active) VALUES ('petlife', v_product_id, 80000, 8, 'Bodega', NULL, TRUE) ON CONFLICT (tenant_id, catalog_product_id) DO UPDATE SET sale_price = EXCLUDED.sale_price, min_stock_level = EXCLUDED.min_stock_level, location = EXCLUDED.location;
+        INSERT INTO public.store_inventory (tenant_id, product_id, stock_quantity, min_stock_level, reorder_quantity) VALUES ('petlife', v_product_id, 25, 8, 16) ON CONFLICT (product_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity;
     END IF;
 END $$;
 
-COMMIT;
 -- =============================================================================
 -- END OF GENERATED SQL
 -- =============================================================================

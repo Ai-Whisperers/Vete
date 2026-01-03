@@ -31,9 +31,9 @@ export default async function PortalPetsPage({ params, searchParams }: Props): P
   const pets = result.data ?? [];
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 pb-20">
+    <div className="page-container-md pb-20">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 page-header">
         <div>
           <h1 className="text-3xl font-black text-[var(--text-primary)]">Mis Mascotas</h1>
           <p className="text-[var(--text-secondary)] mt-1">
@@ -42,7 +42,7 @@ export default async function PortalPetsPage({ params, searchParams }: Props): P
         </div>
         <Link
           href={`/${clinic}/portal/pets/new`}
-          className="flex items-center justify-center gap-2 px-6 py-3 bg-[var(--primary)] text-white font-bold rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all"
+          className="btn btn-lg btn-primary-solid"
         >
           <Plus className="w-5 h-5" />
           Nueva Mascota
@@ -50,7 +50,7 @@ export default async function PortalPetsPage({ params, searchParams }: Props): P
       </div>
 
       {/* Search */}
-      <form className="mb-6">
+      <form className="page-header-sm">
         <div className="relative group">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-[var(--primary)] transition-colors" />
           <input
@@ -58,30 +58,27 @@ export default async function PortalPetsPage({ params, searchParams }: Props): P
             name="query"
             defaultValue={query}
             placeholder="Buscar mascota por nombre..."
-            className="w-full pl-12 pr-4 py-4 rounded-2xl border border-gray-200 focus:border-[var(--primary)] focus:ring-4 focus:ring-[var(--primary)]/10 outline-none transition-all bg-white"
+            className="input-base input-with-icon"
           />
         </div>
       </form>
 
       {/* Empty State */}
       {pets.length === 0 && (
-        <div className="text-center py-16 bg-white rounded-3xl border-2 border-dashed border-gray-200">
-          <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto text-gray-300 mb-6">
+        <div className="card-base border-2 border-dashed empty-state">
+          <div className="empty-state-icon w-20 h-20">
             <PawPrint className="w-10 h-10" />
           </div>
-          <h3 className="text-xl font-bold text-gray-900 mb-2">
+          <h3 className="empty-state-title text-xl">
             {query ? 'No se encontraron resultados' : 'Aún no tienes mascotas'}
           </h3>
-          <p className="text-gray-500 mb-6 max-w-xs mx-auto">
+          <p className="empty-state-description">
             {query
               ? `No encontramos ninguna mascota llamada "${query}"`
               : 'Registra a tus compañeros peludos para llevar un mejor control de su salud'}
           </p>
           {!query && (
-            <Link
-              href={`/${clinic}/portal/pets/new`}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--primary)] text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all"
-            >
+            <Link href={`/${clinic}/portal/pets/new`} className="btn btn-lg btn-primary-solid">
               <Plus className="w-5 h-5" />
               Registrar Mascota
             </Link>

@@ -5,6 +5,13 @@ export { RevenueChart } from './revenue-chart';
 export { InventoryAlerts } from './inventory-alerts';
 export { UpcomingVaccines } from './upcoming-vaccines';
 
+// Dashboard Home Widgets
+export { TodayFocus } from './today-focus';
+export { ActivityFeed } from './activity-feed';
+export { RevenueWidget } from './revenue-widget';
+export { AlertsPanel } from './alerts-panel';
+export { QuickSearch } from './quick-search';
+
 // Shell & Navigation
 export { DashboardShell } from './dashboard-shell';
 export { DashboardSidebar } from './dashboard-sidebar';

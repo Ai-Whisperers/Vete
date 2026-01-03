@@ -4,9 +4,10 @@ import { useParams } from 'next/navigation';
 import { useAuthRedirect } from '@/hooks/useAuthRedirect';
 import { useCart } from '@/context/cart-context';
 import Link from 'next/link';
-import { ShoppingBag, Printer, MessageCircle, Loader2, AlertCircle, CheckCircle, FileWarning } from 'lucide-react';
+import { ShoppingBag, Printer, MessageCircle, Loader2, AlertCircle, CheckCircle, FileWarning, Star, Gift } from 'lucide-react';
 import type { ClinicConfig } from '@/lib/clinics';
 import { PrescriptionUpload } from '@/components/store/prescription-upload';
+import LoyaltyRedemption from '@/components/commerce/loyalty-redemption';
 
 // TICKET-BIZ-003: Proper checkout with stock validation
 
@@ -35,7 +36,7 @@ interface CheckoutClientProps {
 export default function CheckoutClient({ config }: CheckoutClientProps) {
   const { clinic } = useParams() as { clinic: string };
   const { user, loading } = useAuthRedirect();
-  const { items, total, clearCart } = useCart();
+  const { items, total, clearCart, discount } = useCart();
   const labels = config.ui_labels?.checkout || {};
   const currency = config.settings?.currency || 'PYG';
   const whatsappNumber = config.contact?.whatsapp_number;
@@ -290,19 +291,33 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
             </div>
           ))}
 
+          {/* Loyalty Points Redemption */}
+          {user && (
+            <LoyaltyRedemption userId={user.id} />
+          )}
+
           <div className="bg-white p-6 rounded-xl shadow-sm">
             <div className="flex justify-between items-center mb-4">
               <span className="text-[var(--text-secondary)]">Subtotal</span>
               <span className="font-medium">{new Intl.NumberFormat('es-PY', { style: 'currency', currency: currency }).format(total)}</span>
             </div>
+            {discount > 0 && (
+              <div className="flex justify-between items-center mb-4 text-green-600">
+                <span className="flex items-center gap-2">
+                  <Gift className="w-4 h-4" />
+                  Descuento Puntos
+                </span>
+                <span className="font-medium">-{new Intl.NumberFormat('es-PY', { style: 'currency', currency: currency }).format(discount)}</span>
+              </div>
+            )}
             <div className="flex justify-between items-center mb-4">
               <span className="text-[var(--text-secondary)]">IVA (10%)</span>
-              <span className="font-medium">{new Intl.NumberFormat('es-PY', { style: 'currency', currency: currency }).format(total * 0.1)}</span>
+              <span className="font-medium">{new Intl.NumberFormat('es-PY', { style: 'currency', currency: currency }).format((total - discount) * 0.1)}</span>
             </div>
             <div className="flex justify-between items-center pt-4 border-t">
               <span className="text-xl font-bold text-[var(--text-primary)]">Total</span>
               <span className="text-xl font-bold text-[var(--primary)]">
-                {new Intl.NumberFormat('es-PY', { style: 'currency', currency: currency }).format(total * 1.1)}
+                {new Intl.NumberFormat('es-PY', { style: 'currency', currency: currency }).format(Math.max(0, total - discount) * 1.1)}
               </span>
             </div>
           </div>

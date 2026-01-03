@@ -1,147 +1,428 @@
-"use client";
+'use client';
 
-import { Image } from 'lucide-react';
-import { AddToCartButton } from '../cart/add-to-cart-button';
 import { useState } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import {
+  Heart,
+  ShoppingCart,
+  Star,
+  Eye,
+  Sparkles,
+  Trophy,
+  Percent,
+  Loader2,
+  Check,
+  Truck,
+  AlertCircle,
+  ImageIcon,
+} from 'lucide-react';
+import type { StoreProductWithDetails } from '@/lib/types/store';
+import { useCart } from '@/context/cart-context';
+import { useWishlist } from '@/context/wishlist-context';
+import { NotifyWhenAvailable } from './notify-when-available';
 
-interface Product {
-  id: string;
-  name: string;
-  description?: string;
-  category?: string;
-  price: number;
-  // Support both formats: API uses discount_price/image_url, legacy uses originalPrice/image
-  originalPrice?: number;
-  discount_price?: number;
-  image?: string;
-  image_url?: string;
-  stock: number;
-  hasDiscount?: boolean;
+/**
+ * Props for the unified ProductCard component
+ */
+export interface ProductCardProps {
+  /** Product data */
+  product: StoreProductWithDetails;
+  /** Clinic slug for routing */
+  clinic: string;
+  /** Card variant - 'minimal' shows basic info, 'full' shows all features */
+  variant?: 'minimal' | 'full';
+  /** Currency symbol (default: 'Gs') */
+  currencySymbol?: string;
+  /** Show wishlist button (default: true for 'full' variant) */
+  showWishlist?: boolean;
+  /** Show quick view button on hover (default: true for 'full' variant) */
+  showQuickView?: boolean;
+  /** Show ratings/reviews (default: true for 'full' variant) */
+  showRatings?: boolean;
+  /** Show brand name (default: true for 'full' variant) */
+  showBrand?: boolean;
+  /** Show loyalty points info (default: true for 'full' variant) */
+  showLoyaltyPoints?: boolean;
+  /** Show quantity selector (default: true for 'minimal' variant) */
+  showQuantitySelector?: boolean;
+  /** Callback for quick view action */
+  onQuickView?: (product: StoreProductWithDetails) => void;
 }
 
-interface ProductCardConfig {
-  ui_labels?: {
-    store?: {
-      product_card?: {
-        add?: string;
-        added?: string;
-      };
-      [key: string]: unknown;
-    };
-    [key: string]: unknown;
-  };
-  settings?: {
-    currency?: string;
-    [key: string]: unknown;
-  };
-  [key: string]: unknown;
-}
+/**
+ * Unified ProductCard component that replaces both ProductCard and EnhancedProductCard.
+ * Use variant='minimal' for simple listings, variant='full' for feature-rich display.
+ *
+ * @example
+ * ```tsx
+ * // Minimal variant (simple listing)
+ * <ProductCard product={product} clinic="adris" variant="minimal" />
+ *
+ * // Full variant (with wishlist, quick view, ratings)
+ * <ProductCard
+ *   product={product}
+ *   clinic="adris"
+ *   variant="full"
+ *   onQuickView={(p) => setQuickViewProduct(p)}
+ * />
+ *
+ * // Custom feature selection
+ * <ProductCard
+ *   product={product}
+ *   clinic="adris"
+ *   showWishlist={false}
+ *   showQuickView={true}
+ *   showRatings={true}
+ * />
+ * ```
+ */
+export function ProductCard({
+  product,
+  clinic,
+  variant = 'full',
+  currencySymbol = 'Gs',
+  showWishlist,
+  showQuickView,
+  showRatings,
+  showBrand,
+  showLoyaltyPoints,
+  showQuantitySelector,
+  onQuickView,
+}: ProductCardProps): React.ReactElement {
+  // Determine feature visibility based on variant (can be overridden by explicit props)
+  const isMinimal = variant === 'minimal';
+  const displayWishlist = showWishlist ?? !isMinimal;
+  const displayQuickView = showQuickView ?? (!isMinimal && !!onQuickView);
+  const displayRatings = showRatings ?? !isMinimal;
+  const displayBrand = showBrand ?? !isMinimal;
+  const displayLoyaltyPoints = showLoyaltyPoints ?? !isMinimal;
+  const displayQuantitySelector = showQuantitySelector ?? isMinimal;
 
-interface ProductCardProps {
-  readonly product: Product;
-  readonly config: ProductCardConfig;
-}
+  // Hooks
+  const { addItem } = useCart();
+  const { isWishlisted, toggleWishlist } = useWishlist();
 
-export function ProductCard({ product, config }: ProductCardProps) {
+  // Local state
+  const [isHovered, setIsHovered] = useState(false);
+  const [addingToCart, setAddingToCart] = useState(false);
+  const [addedToCart, setAddedToCart] = useState(false);
+  const [togglingWishlist, setTogglingWishlist] = useState(false);
   const [quantity, setQuantity] = useState(1);
-  const labels = config.ui_labels?.store?.product_card || { add: "Agregar", added: "Agregado" };
-  const currency = config.settings?.currency || 'PYG';
 
-  // Normalize product properties - support both API format and legacy format
-  const productImage = product.image || product.image_url;
-  const productOriginalPrice = product.originalPrice || product.discount_price;
-  const hasDiscount = product.hasDiscount ?? (productOriginalPrice != null && productOriginalPrice > product.price);
+  // Derived values
+  const productIsWishlisted = isWishlisted(product.id);
+  const stock = product.inventory?.stock_quantity || 0;
+  const inStock = stock > 0;
+  const lowStock = stock > 0 && stock <= 5;
+
+  // Formatters
+  const formatPrice = (price: number | null | undefined): string => {
+    if (price === null || price === undefined) return `${currencySymbol} 0`;
+    return `${currencySymbol} ${price.toLocaleString('es-PY')}`;
+  };
+
+  // Handlers
+  const handleAddToCart = async (e: React.MouseEvent): Promise<void> => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!inStock || addingToCart) return;
+
+    setAddingToCart(true);
+
+    addItem(
+      {
+        id: product.id,
+        name: product.name,
+        price: product.current_price,
+        type: 'product',
+        image_url: product.image_url || undefined,
+        description: product.short_description || undefined,
+        stock,
+        sku: product.sku || undefined,
+      },
+      displayQuantitySelector ? quantity : 1
+    );
+
+    setTimeout(() => {
+      setAddingToCart(false);
+      setAddedToCart(true);
+      setTimeout(() => setAddedToCart(false), 2000);
+    }, 300);
+  };
+
+  const handleWishlistToggle = async (e: React.MouseEvent): Promise<void> => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (togglingWishlist) return;
+
+    setTogglingWishlist(true);
+    try {
+      await toggleWishlist(product.id);
+    } finally {
+      setTogglingWishlist(false);
+    }
+  };
+
+  const handleQuickView = (e: React.MouseEvent): void => {
+    e.preventDefault();
+    e.stopPropagation();
+    onQuickView?.(product);
+  };
+
+  const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    const value = parseInt(e.target.value, 10) || 1;
+    setQuantity(Math.max(1, Math.min(stock, value)));
+  };
 
   return (
-    <div className="bg-white rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden group flex flex-col h-full">
-        <div className="h-64 overflow-hidden relative bg-white flex items-center justify-center p-4">
-            {productImage ? (
-                <img src={productImage} alt={product.name} className="object-contain w-full h-full group-hover:scale-110 transition-transform duration-500" />
+    <Link
+      href={`/${clinic}/store/product/${product.id}`}
+      className="group block bg-white rounded-xl border border-[var(--border-default)] overflow-hidden hover:shadow-lg hover:border-[var(--primary)]/30 transition-all duration-300"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {/* Image Container */}
+      <div className="relative aspect-square bg-gray-50 overflow-hidden">
+        {/* Wishlist Button */}
+        {displayWishlist && (
+          <button
+            onClick={handleWishlistToggle}
+            disabled={togglingWishlist}
+            className={`absolute top-3 right-3 z-10 p-2 rounded-full transition-all ${
+              productIsWishlisted
+                ? 'bg-red-50 text-red-500'
+                : 'bg-white/80 backdrop-blur text-gray-400 hover:text-red-500'
+            } shadow-sm disabled:opacity-50`}
+            aria-label={productIsWishlisted ? 'Quitar de lista de deseos' : 'Agregar a lista de deseos'}
+          >
+            {togglingWishlist ? (
+              <Loader2 className="w-5 h-5 animate-spin" />
             ) : (
-                <div className="w-full h-full bg-gray-50 flex items-center justify-center text-gray-300">
-                    <Image className="w-12 h-12" />
-                </div>
+              <Heart className={`w-5 h-5 ${productIsWishlisted ? 'fill-current' : ''}`} />
             )}
-            
-            {/* Top Info Tags */}
-            <div className="absolute top-4 left-4 flex flex-col gap-2">
-                <span className="bg-white/90 backdrop-blur-sm text-gray-800 text-[10px] font-black px-2.5 py-1 rounded-lg uppercase tracking-wider shadow-sm border border-gray-100 italic">
-                    {product.category}
-                </span>
-                {hasDiscount && (
-                    <span className="bg-red-600 text-white text-[10px] font-black px-2.5 py-1 rounded-lg uppercase tracking-wider shadow-md animate-pulse">
-                        ¡Oferta!
-                    </span>
-                )}
-            </div>
+          </button>
+        )}
 
-            {product.stock <= 5 && product.stock > 0 && (
-                <div className="absolute bottom-4 left-4 bg-orange-500 text-white text-[10px] font-black px-2.5 py-1 rounded-lg uppercase shadow-sm">
-                    Últimas {product.stock} unidades
-                </div>
-            )}
-            
-            {product.stock <= 0 && (
-                <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] flex items-center justify-center z-10">
-                    <span className="bg-gray-900 text-white text-xs font-black px-4 py-2 rounded-xl uppercase tracking-widest shadow-2xl">
-                        Agotado
-                    </span>
-                </div>
-            )}
+        {/* Badges */}
+        <div className="absolute top-3 left-3 z-10 flex flex-col gap-1.5">
+          {product.has_discount && product.discount_percentage && (
+            <span className="inline-flex items-center gap-1 px-2 py-1 bg-red-500 text-white text-xs font-bold rounded-full">
+              <Percent className="w-3 h-3" />
+              -{product.discount_percentage}%
+            </span>
+          )}
+          {product.is_new_arrival && (
+            <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-500 text-white text-xs font-bold rounded-full">
+              <Sparkles className="w-3 h-3" />
+              Nuevo
+            </span>
+          )}
+          {product.is_best_seller && (
+            <span className="inline-flex items-center gap-1 px-2 py-1 bg-amber-500 text-white text-xs font-bold rounded-full">
+              <Trophy className="w-3 h-3" />
+              Top
+            </span>
+          )}
+          {/* Category badge for minimal variant */}
+          {isMinimal && product.category && (
+            <span className="bg-white/90 backdrop-blur-sm text-gray-800 text-[10px] font-black px-2.5 py-1 rounded-lg uppercase tracking-wider shadow-sm border border-gray-100">
+              {product.category.name}
+            </span>
+          )}
         </div>
-        
-        <div className="p-6 flex-1 flex flex-col">
-            <h3 className="font-bold text-xl text-gray-800 mb-2 leading-tight group-hover:text-[var(--primary)] transition-colors">
-                {product.name}
-            </h3>
-            {/* Quantity Selector - Only if in stock */}
-            {product.stock > 0 && (
-                <div className="flex items-center gap-3 mb-4 bg-gray-50 p-2 rounded-2xl w-fit">
-                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-2">CANT.</span>
-                    <input
-                        type="number"
-                        min="1"
-                        max={product.stock}
-                        value={quantity}
-                        onChange={(e) => setQuantity(Math.max(1, Math.min(product.stock, Number.parseInt(e.target.value) || 1)))}
-                        className="w-12 bg-transparent text-center font-bold text-gray-800 focus:outline-none"
-                    />
-                </div>
-            )}
-            <p className="text-sm text-gray-500 mb-6 line-clamp-2 flex-1">
-                {product.description}
-            </p>
-            
-            <div className="flex flex-col gap-0.5 pt-4 border-t border-gray-100 mt-auto">
-                {productOriginalPrice && hasDiscount && (
-                    <span className="text-sm text-gray-400 line-through font-medium">
-                        {new Intl.NumberFormat('es-PY', { style: 'currency', currency: currency, maximumSignificantDigits: 3 }).format(productOriginalPrice)}
-                    </span>
-                )}
-                <div className="flex items-center justify-between">
-                    <span className="text-2xl font-black text-[var(--primary)]">
-                        {product.price ? new Intl.NumberFormat('es-PY', { style: 'currency', currency: currency, maximumSignificantDigits: 3 }).format(product.price) : '0'}
-                    </span>
-                    
-                    {product.stock > 0 && (
-                        <AddToCartButton
-                            item={{
-                                id: product.id,
-                                name: product.name,
-                                price: product.price || 0,
-                                type: 'product',
-                                description: product.description,
-                                image_url: productImage
-                            }}
-                            quantity={quantity}
-                            iconOnly
-                            label={labels.add}
-                            addedLabel={labels.added}
-                        />
-                    )}
-                </div>
+
+        {/* Low stock badge for minimal variant */}
+        {isMinimal && lowStock && (
+          <div className="absolute bottom-4 left-4 bg-orange-500 text-white text-[10px] font-black px-2.5 py-1 rounded-lg uppercase shadow-sm z-10">
+            Últimas {stock} unidades
+          </div>
+        )}
+
+        {/* Product Image */}
+        <div className="relative w-full h-full">
+          {product.image_url ? (
+            <Image
+              src={product.image_url}
+              alt={product.name}
+              fill
+              className={`object-contain p-4 transition-transform duration-300 ${
+                isHovered ? 'scale-110' : 'scale-100'
+              }`}
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-gray-300">
+              <ImageIcon className="w-12 h-12" />
             </div>
+          )}
         </div>
-    </div>
+
+        {/* Out of Stock Overlay */}
+        {!inStock && (
+          <div className="absolute inset-0 bg-white/70 backdrop-blur-sm flex items-center justify-center z-10">
+            <span className="px-4 py-2 bg-gray-800 text-white text-sm font-medium rounded-full flex items-center gap-2">
+              <AlertCircle className="w-4 h-4" />
+              {isMinimal ? 'Agotado' : 'Sin Stock'}
+            </span>
+          </div>
+        )}
+
+        {/* Quick View Button */}
+        {displayQuickView && isHovered && inStock && onQuickView && (
+          <button
+            onClick={handleQuickView}
+            className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-2 px-4 py-2 bg-white/90 backdrop-blur text-sm font-medium rounded-full shadow-lg hover:bg-white transition-colors z-10"
+          >
+            <Eye className="w-4 h-4" />
+            Vista Rápida
+          </button>
+        )}
+      </div>
+
+      {/* Product Info */}
+      <div className="p-4">
+        {/* Brand */}
+        {displayBrand && product.brand && (
+          <span className="text-xs font-semibold text-[var(--primary)] uppercase tracking-wide">
+            {product.brand.name}
+          </span>
+        )}
+
+        {/* Name */}
+        <h3
+          className={`font-medium text-[var(--text-primary)] line-clamp-2 group-hover:text-[var(--primary)] transition-colors ${
+            displayBrand ? 'mt-1' : ''
+          } ${isMinimal ? 'text-xl font-bold' : 'min-h-[2.5rem]'}`}
+        >
+          {product.name}
+        </h3>
+
+        {/* Quantity Selector (minimal variant) */}
+        {displayQuantitySelector && inStock && (
+          <div className="flex items-center gap-3 my-3 bg-gray-50 p-2 rounded-2xl w-fit">
+            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-2">
+              CANT.
+            </span>
+            <input
+              type="number"
+              min="1"
+              max={stock}
+              value={quantity}
+              onChange={handleQuantityChange}
+              onClick={(e) => e.preventDefault()}
+              className="w-12 bg-transparent text-center font-bold text-gray-800 focus:outline-none"
+            />
+          </div>
+        )}
+
+        {/* Description (minimal variant) */}
+        {isMinimal && product.short_description && (
+          <p className="text-sm text-gray-500 mb-4 line-clamp-2">{product.short_description}</p>
+        )}
+
+        {/* Rating */}
+        {displayRatings && product.review_count > 0 && (
+          <div className="flex items-center gap-1.5 mt-2">
+            <div className="flex items-center gap-0.5">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <Star
+                  key={star}
+                  className={`w-4 h-4 ${
+                    star <= Math.round(product.avg_rating)
+                      ? 'text-yellow-400 fill-yellow-400'
+                      : 'text-gray-200'
+                  }`}
+                />
+              ))}
+            </div>
+            <span className="text-xs font-medium text-[var(--text-secondary)]">
+              {product.avg_rating.toFixed(1)} ({product.review_count})
+            </span>
+          </div>
+        )}
+
+        {/* Price */}
+        <div className={`${displayRatings || displayQuantitySelector ? 'mt-3' : 'mt-2'}`}>
+          <div className="flex items-baseline gap-2 flex-wrap">
+            <span className={`font-black text-[var(--text-primary)] ${isMinimal ? 'text-2xl' : 'text-xl'}`}>
+              {formatPrice(product.current_price)}
+            </span>
+            {product.original_price && product.original_price > product.current_price && (
+              <span className="text-sm text-[var(--text-muted)] line-through">
+                {formatPrice(product.original_price)}
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Stock Status */}
+        {!isMinimal && (
+          <div className="mt-2 flex items-center gap-1 text-xs">
+            {inStock ? (
+              lowStock ? (
+                <span className="text-amber-600 font-semibold flex items-center gap-1">
+                  <AlertCircle className="w-3 h-3" />
+                  ¡Últimos {stock}!
+                </span>
+              ) : (
+                <span className="text-green-600 flex items-center gap-1 font-medium">
+                  <Truck className="w-3.5 h-3.5" />
+                  Envío disponible
+                </span>
+              )
+            ) : (
+              <span className="text-red-500 font-semibold flex items-center gap-1">
+                <AlertCircle className="w-3 h-3" />
+                Sin Stock
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Add to Cart Button or Notify Component */}
+        {inStock ? (
+          <button
+            onClick={handleAddToCart}
+            disabled={addingToCart}
+            className={`w-full mt-3 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-semibold transition-all ${
+              addedToCart
+                ? 'bg-green-500 text-white shadow-md'
+                : 'bg-[var(--primary)] text-white hover:shadow-md hover:scale-[1.02] active:scale-[0.98]'
+            }`}
+          >
+            {addingToCart ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : addedToCart ? (
+              <>
+                <Check className="w-4 h-4" />
+                ¡Agregado!
+              </>
+            ) : (
+              <>
+                <ShoppingCart className="w-4 h-4" />
+                {isMinimal ? 'Agregar' : 'Agregar al carrito'}
+              </>
+            )}
+          </button>
+        ) : (
+          <div className="mt-3" onClick={(e) => e.preventDefault()}>
+            <NotifyWhenAvailable productId={product.id} clinic={clinic} variant="inline" />
+          </div>
+        )}
+
+        {/* Loyalty Points */}
+        {displayLoyaltyPoints && inStock && product.current_price > 10000 && (
+          <p className="mt-2 text-xs text-center text-[var(--text-muted)] flex items-center justify-center gap-1">
+            <Sparkles className="w-3 h-3 text-amber-500" />
+            Gana {Math.floor(product.current_price / 10000)} puntos
+          </p>
+        )}
+      </div>
+    </Link>
   );
 }
+
+// Re-export as default for backwards compatibility with EnhancedProductCard imports
+export default ProductCard;

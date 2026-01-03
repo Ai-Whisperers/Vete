@@ -56,6 +56,7 @@
     "env:reset": "npm run env:clear && npm run env:setup:demo",
     "env:reset:basic": "npm run env:clear && npm run env:setup:basic",
     "env:reset:full": "npm run env:clear && npm run env:setup:full",
+    "seed:dashboard": "npx tsx scripts/seed-dashboard-test-data.ts",
     "db:fixes": "node db/setup-db.mjs fixes",
     "reset-dev": "powershell -ExecutionPolicy Bypass -File reset-dev.ps1",
     "kill-node": "powershell -ExecutionPolicy Bypass -File kill-node.ps1 -Force"
@@ -78,6 +79,7 @@
     "dotenv": "^17.2.3",
     "drizzle-orm": "^0.45.1",
     "framer-motion": "^12.23.26",
+    "html5-qrcode": "^2.3.8",
     "inngest": "^3.48.1",
     "lodash.merge": "^4.6.2",
     "lucide-react": "^0.561.0",

@@ -8,7 +8,8 @@ import {
   Palette,
   ToggleRight,
   DollarSign,
-  ArrowLeft
+  ArrowLeft,
+  Bell
 } from "lucide-react";
 
 interface SettingsLayoutProps {
@@ -41,6 +42,12 @@ const settingsNav = [
     icon: DollarSign,
     description: "Catálogo de servicios"
   },
+  {
+    href: "alerts",
+    label: "Alertas de Inventario",
+    icon: Bell,
+    description: "Notificaciones de stock"
+  },
 ];
 
 export default async function SettingsLayout({
@@ -68,8 +75,8 @@ export default async function SettingsLayout({
     .eq("id", user.id)
     .single();
 
-  // Only admins can access settings
-  if (!profile || profile.role !== "admin") {
+  // Only admins of this clinic can access settings
+  if (!profile || profile.role !== "admin" || profile.tenant_id !== clinic) {
     redirect(`/${clinic}/dashboard`);
   }
 

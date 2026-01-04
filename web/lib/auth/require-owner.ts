@@ -27,7 +27,10 @@ export async function requireOwner(tenantId?: string): Promise<OwnerUser> {
   const supabase = await createClient()
 
   // Check authentication
-  const { data: { user }, error } = await supabase.auth.getUser()
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser()
   if (error || !user) {
     redirect('/auth/login')
   }

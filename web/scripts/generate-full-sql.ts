@@ -23,7 +23,7 @@ const ALL_FILES = [
   '01_extensions.sql',
   '02_schema_core.sql',
   '03_schema_pets.sql',
-  '05_schema_clinical.sql',  // Must come before medical (diagnosis_codes dependency)
+  '05_schema_clinical.sql', // Must come before medical (diagnosis_codes dependency)
   '04_schema_medical.sql',
   '06_schema_appointments.sql',
   '07_schema_inventory.sql',

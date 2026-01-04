@@ -51,10 +51,7 @@ export function isPlainObject(value: unknown): value is Record<string, unknown> 
 /**
  * Check if an object has a specific property
  */
-export function hasProperty<K extends string>(
-  obj: unknown,
-  key: K
-): obj is Record<K, unknown> {
+export function hasProperty<K extends string>(obj: unknown, key: K): obj is Record<K, unknown> {
   return isPlainObject(obj) && key in obj
 }
 
@@ -86,9 +83,7 @@ export function isStaffRole(role: unknown): role is 'vet' | 'admin' {
  * Safely narrow array element type after filter
  * Use: arr.filter(isType(schema)) instead of arr.filter(...) as T[]
  */
-export function isType<T>(
-  validator: (value: unknown) => boolean
-): (value: unknown) => value is T {
+export function isType<T>(validator: (value: unknown) => boolean): (value: unknown) => value is T {
   return (value: unknown): value is T => validator(value)
 }
 
@@ -108,10 +103,7 @@ export function assertDefined<T>(
 /**
  * Assert a condition is true
  */
-export function assert(
-  condition: boolean,
-  message = 'Assertion failed'
-): asserts condition {
+export function assert(condition: boolean, message = 'Assertion failed'): asserts condition {
   if (!condition) {
     throw new Error(message)
   }
@@ -155,10 +147,14 @@ export interface CategoryJoin {
 
 export function isCategoryJoin(value: unknown): value is CategoryJoin {
   if (!isPlainObject(value)) return false
-  return 'id' in value && 'name' in value && 'slug' in value &&
+  return (
+    'id' in value &&
+    'name' in value &&
+    'slug' in value &&
     typeof value.id === 'string' &&
     typeof value.name === 'string' &&
     typeof value.slug === 'string'
+  )
 }
 
 /**
@@ -171,9 +167,12 @@ export interface BrandJoin {
 
 export function isBrandJoin(value: unknown): value is BrandJoin {
   if (!isPlainObject(value)) return false
-  return 'id' in value && 'name' in value &&
+  return (
+    'id' in value &&
+    'name' in value &&
     typeof value.id === 'string' &&
     typeof value.name === 'string'
+  )
 }
 
 /**
@@ -216,9 +215,7 @@ export function typedKeys<T extends object>(obj: T): (keyof T)[] {
 /**
  * Type-safe Object.entries
  */
-export function typedEntries<T extends object>(
-  obj: T
-): [keyof T, T[keyof T]][] {
+export function typedEntries<T extends object>(obj: T): [keyof T, T[keyof T]][] {
   return Object.entries(obj) as [keyof T, T[keyof T]][]
 }
 

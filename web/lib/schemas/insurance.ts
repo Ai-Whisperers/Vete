@@ -22,19 +22,13 @@ export const COVERAGE_TYPES = [
   'accident_only',
   'wellness',
 ] as const
-export type CoverageType = typeof COVERAGE_TYPES[number]
+export type CoverageType = (typeof COVERAGE_TYPES)[number]
 
 /**
  * Policy statuses
  */
-export const POLICY_STATUSES = [
-  'pending',
-  'active',
-  'expired',
-  'cancelled',
-  'suspended',
-] as const
-export type PolicyStatus = typeof POLICY_STATUSES[number]
+export const POLICY_STATUSES = ['pending', 'active', 'expired', 'cancelled', 'suspended'] as const
+export type PolicyStatus = (typeof POLICY_STATUSES)[number]
 
 /**
  * Schema for creating an insurance policy
@@ -87,7 +81,7 @@ export const CLAIM_TYPES = [
   'wellness',
   'other',
 ] as const
-export type ClaimType = typeof CLAIM_TYPES[number]
+export type ClaimType = (typeof CLAIM_TYPES)[number]
 
 /**
  * Schema for creating an insurance claim
@@ -195,14 +189,8 @@ export type UpdateInsuranceProviderInput = z.infer<typeof updateInsuranceProvide
 /**
  * Pre-authorization request statuses
  */
-export const PREAUTH_STATUSES = [
-  'pending',
-  'approved',
-  'denied',
-  'expired',
-  'cancelled',
-] as const
-export type PreAuthStatus = typeof PREAUTH_STATUSES[number]
+export const PREAUTH_STATUSES = ['pending', 'approved', 'denied', 'expired', 'cancelled'] as const
+export type PreAuthStatus = (typeof PREAUTH_STATUSES)[number]
 
 /**
  * Schema for creating a pre-authorization request

@@ -1,47 +1,47 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
-import { sendEmail } from '@/lib/email/client';
-import { sendWhatsAppMessage } from '@/lib/whatsapp/client';
-import { logger } from '@/lib/logger';
+import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@/lib/supabase/server'
+import { sendEmail } from '@/lib/email/client'
+import { sendWhatsAppMessage } from '@/lib/whatsapp/client'
+import { logger } from '@/lib/logger'
 
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force-dynamic'
 
 interface LowStockProduct {
-  id: string;
-  name: string;
-  sku: string | null;
-  stock_quantity: number;
-  min_stock_level: number;
-  tenant_id: string;
+  id: string
+  name: string
+  sku: string | null
+  stock_quantity: number
+  min_stock_level: number
+  tenant_id: string
 }
 
 interface ExpiringProduct {
-  id: string;
-  name: string;
-  sku: string | null;
-  expiry_date: string;
-  days_until_expiry: number;
-  tenant_id: string;
+  id: string
+  name: string
+  sku: string | null
+  expiry_date: string
+  days_until_expiry: number
+  tenant_id: string
 }
 
 interface StaffPreference {
-  id: string;
-  profile_id: string;
-  tenant_id: string;
-  low_stock_alerts: boolean;
-  expiry_alerts: boolean;
-  out_of_stock_alerts: boolean;
-  email_enabled: boolean;
-  whatsapp_enabled: boolean;
-  notification_email: string | null;
-  notification_phone: string | null;
-  digest_frequency: string;
-  last_digest_sent_at: string | null;
+  id: string
+  profile_id: string
+  tenant_id: string
+  low_stock_alerts: boolean
+  expiry_alerts: boolean
+  out_of_stock_alerts: boolean
+  email_enabled: boolean
+  whatsapp_enabled: boolean
+  notification_email: string | null
+  notification_phone: string | null
+  digest_frequency: string
+  last_digest_sent_at: string | null
   profile: {
-    full_name: string;
-    email: string;
-    phone: string | null;
-  };
+    full_name: string
+    email: string
+    phone: string | null
+  }
 }
 
 /**
@@ -53,23 +53,21 @@ interface StaffPreference {
  * - Expiring products
  */
 export async function GET(request: NextRequest): Promise<NextResponse> {
-  const supabase = await createClient();
+  const supabase = await createClient()
 
   try {
     // 1. Get all tenants with products
-    const { data: tenants, error: tenantsError } = await supabase
-      .from('tenants')
-      .select('id, name');
+    const { data: tenants, error: tenantsError } = await supabase.from('tenants').select('id, name')
 
     if (tenantsError) {
-      throw tenantsError;
+      throw tenantsError
     }
 
     const results = {
       tenantsProcessed: 0,
       alertsSent: 0,
       errors: [] as string[],
-    };
+    }
 
     // 2. Process each tenant
     for (const tenant of tenants || []) {
@@ -78,59 +76,63 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         const { data: lowStockProducts } = await supabase
           .from('low_stock_products')
           .select('*')
-          .eq('tenant_id', tenant.id);
+          .eq('tenant_id', tenant.id)
 
         // Get expiring products for this tenant
         const { data: expiringProducts } = await supabase
           .from('expiring_products')
           .select('*')
-          .eq('tenant_id', tenant.id);
+          .eq('tenant_id', tenant.id)
 
         // Get out of stock products
         const { data: outOfStockProducts } = await supabase
           .from('store_inventory')
-          .select(`
+          .select(
+            `
             id,
             stock_quantity,
             store_products!inner (id, name, sku, tenant_id)
-          `)
+          `
+          )
           .eq('stock_quantity', 0)
-          .eq('store_products.tenant_id', tenant.id);
+          .eq('store_products.tenant_id', tenant.id)
 
         const hasAlerts =
           (lowStockProducts?.length || 0) > 0 ||
           (expiringProducts?.length || 0) > 0 ||
-          (outOfStockProducts?.length || 0) > 0;
+          (outOfStockProducts?.length || 0) > 0
 
         if (!hasAlerts) {
-          continue;
+          continue
         }
 
         // 3. Get staff with alert preferences for this tenant
         const { data: staffPreferences } = await supabase
           .from('staff_alert_preferences')
-          .select(`
+          .select(
+            `
             *,
             profile:profiles!staff_alert_preferences_profile_id_fkey (
               full_name,
               email,
               phone
             )
-          `)
-          .eq('tenant_id', tenant.id);
+          `
+          )
+          .eq('tenant_id', tenant.id)
 
         // If no preferences exist, get all admins/vets with default preferences
-        let staffToNotify: StaffPreference[] = [];
+        let staffToNotify: StaffPreference[] = []
 
         if (!staffPreferences || staffPreferences.length === 0) {
           const { data: staff } = await supabase
             .from('profiles')
             .select('id, full_name, email, phone')
             .eq('tenant_id', tenant.id)
-            .in('role', ['admin', 'vet']);
+            .in('role', ['admin', 'vet'])
 
           // Create default preferences for staff
-          staffToNotify = (staff || []).map(s => ({
+          staffToNotify = (staff || []).map((s) => ({
             id: '',
             profile_id: s.id,
             tenant_id: tenant.id,
@@ -148,47 +150,47 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
               email: s.email,
               phone: s.phone,
             },
-          }));
+          }))
         } else {
-          staffToNotify = staffPreferences as StaffPreference[];
+          staffToNotify = staffPreferences as StaffPreference[]
         }
 
         // 4. Send notifications to each staff member
         for (const staff of staffToNotify) {
-          const alertsToSend: string[] = [];
+          const alertsToSend: string[] = []
 
           if (staff.low_stock_alerts && (lowStockProducts?.length || 0) > 0) {
-            alertsToSend.push('low_stock');
+            alertsToSend.push('low_stock')
           }
           if (staff.out_of_stock_alerts && (outOfStockProducts?.length || 0) > 0) {
-            alertsToSend.push('out_of_stock');
+            alertsToSend.push('out_of_stock')
           }
           if (staff.expiry_alerts && (expiringProducts?.length || 0) > 0) {
-            alertsToSend.push('expiring');
+            alertsToSend.push('expiring')
           }
 
           if (alertsToSend.length === 0) {
-            continue;
+            continue
           }
 
           // Check digest frequency
           if (staff.digest_frequency === 'daily') {
-            const lastSent = staff.last_digest_sent_at ? new Date(staff.last_digest_sent_at) : null;
-            const now = new Date();
-            if (lastSent && (now.getTime() - lastSent.getTime()) < 24 * 60 * 60 * 1000) {
-              continue;
+            const lastSent = staff.last_digest_sent_at ? new Date(staff.last_digest_sent_at) : null
+            const now = new Date()
+            if (lastSent && now.getTime() - lastSent.getTime() < 24 * 60 * 60 * 1000) {
+              continue
             }
           } else if (staff.digest_frequency === 'weekly') {
-            const lastSent = staff.last_digest_sent_at ? new Date(staff.last_digest_sent_at) : null;
-            const now = new Date();
-            if (lastSent && (now.getTime() - lastSent.getTime()) < 7 * 24 * 60 * 60 * 1000) {
-              continue;
+            const lastSent = staff.last_digest_sent_at ? new Date(staff.last_digest_sent_at) : null
+            const now = new Date()
+            if (lastSent && now.getTime() - lastSent.getTime() < 7 * 24 * 60 * 60 * 1000) {
+              continue
             }
           }
 
           // Send email if enabled
           if (staff.email_enabled) {
-            const email = staff.notification_email || staff.profile?.email;
+            const email = staff.notification_email || staff.profile?.email
             if (email) {
               const emailResult = await sendStaffAlertEmail({
                 to: email,
@@ -197,32 +199,32 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
                 lowStockProducts: staff.low_stock_alerts ? lowStockProducts : [],
                 outOfStockProducts: staff.out_of_stock_alerts ? outOfStockProducts : [],
                 expiringProducts: staff.expiry_alerts ? expiringProducts : [],
-              });
+              })
 
               if (emailResult.success) {
-                results.alertsSent++;
+                results.alertsSent++
               } else {
-                results.errors.push(`Email to ${email}: ${emailResult.error}`);
+                results.errors.push(`Email to ${email}: ${emailResult.error}`)
               }
             }
           }
 
           // Send WhatsApp if enabled
           if (staff.whatsapp_enabled) {
-            const phone = staff.notification_phone || staff.profile?.phone;
+            const phone = staff.notification_phone || staff.profile?.phone
             if (phone) {
               const whatsappResult = await sendStaffAlertWhatsApp({
                 to: phone,
                 staffName: staff.profile?.full_name || 'Staff',
-                lowStockCount: staff.low_stock_alerts ? (lowStockProducts?.length || 0) : 0,
-                outOfStockCount: staff.out_of_stock_alerts ? (outOfStockProducts?.length || 0) : 0,
-                expiringCount: staff.expiry_alerts ? (expiringProducts?.length || 0) : 0,
-              });
+                lowStockCount: staff.low_stock_alerts ? lowStockProducts?.length || 0 : 0,
+                outOfStockCount: staff.out_of_stock_alerts ? outOfStockProducts?.length || 0 : 0,
+                expiringCount: staff.expiry_alerts ? expiringProducts?.length || 0 : 0,
+              })
 
               if (whatsappResult.success) {
-                results.alertsSent++;
+                results.alertsSent++
               } else {
-                results.errors.push(`WhatsApp to ${phone}: ${whatsappResult.error}`);
+                results.errors.push(`WhatsApp to ${phone}: ${whatsappResult.error}`)
               }
             }
           }
@@ -232,57 +234,61 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
             await supabase
               .from('staff_alert_preferences')
               .update({ last_digest_sent_at: new Date().toISOString() })
-              .eq('id', staff.id);
+              .eq('id', staff.id)
           }
         }
 
-        results.tenantsProcessed++;
+        results.tenantsProcessed++
       } catch (tenantError) {
-        results.errors.push(`Tenant ${tenant.id}: ${tenantError instanceof Error ? tenantError.message : String(tenantError)}`);
+        results.errors.push(
+          `Tenant ${tenant.id}: ${tenantError instanceof Error ? tenantError.message : String(tenantError)}`
+        )
       }
     }
 
-    logger.info('Staff stock alerts cron completed', results);
+    logger.info('Staff stock alerts cron completed', results)
 
     return NextResponse.json({
       success: true,
       message: 'Staff stock alerts processed',
       ...results,
-    });
-
+    })
   } catch (error) {
     logger.error('Staff stock alerts cron error', {
       error: error instanceof Error ? error.message : String(error),
-    });
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    })
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
 interface SendEmailParams {
-  to: string;
-  staffName: string;
-  clinicName: string;
-  lowStockProducts: LowStockProduct[] | null;
-  outOfStockProducts: unknown[] | null;
-  expiringProducts: ExpiringProduct[] | null;
+  to: string
+  staffName: string
+  clinicName: string
+  lowStockProducts: LowStockProduct[] | null
+  outOfStockProducts: unknown[] | null
+  expiringProducts: ExpiringProduct[] | null
 }
 
-async function sendStaffAlertEmail(params: SendEmailParams): Promise<{ success: boolean; error?: string }> {
-  const { to, staffName, clinicName, lowStockProducts, outOfStockProducts, expiringProducts } = params;
+async function sendStaffAlertEmail(
+  params: SendEmailParams
+): Promise<{ success: boolean; error?: string }> {
+  const { to, staffName, clinicName, lowStockProducts, outOfStockProducts, expiringProducts } =
+    params
 
-  const hasLowStock = (lowStockProducts?.length || 0) > 0;
-  const hasOutOfStock = (outOfStockProducts?.length || 0) > 0;
-  const hasExpiring = (expiringProducts?.length || 0) > 0;
+  const hasLowStock = (lowStockProducts?.length || 0) > 0
+  const hasOutOfStock = (outOfStockProducts?.length || 0) > 0
+  const hasExpiring = (expiringProducts?.length || 0) > 0
 
-  let subject = '⚠️ Alerta de Inventario';
+  let subject = '⚠️ Alerta de Inventario'
   if (hasOutOfStock) {
-    subject = '🔴 Productos sin Stock';
+    subject = '🔴 Productos sin Stock'
   } else if (hasLowStock) {
-    subject = '🟠 Stock Bajo';
+    subject = '🟠 Stock Bajo'
   } else if (hasExpiring) {
-    subject = '📅 Productos por Vencer';
+    subject = '📅 Productos por Vencer'
   }
-  subject += ` - ${clinicName}`;
+  subject += ` - ${clinicName}`
 
   const html = `
     <!DOCTYPE html>
@@ -301,7 +307,9 @@ async function sendStaffAlertEmail(params: SendEmailParams): Promise<{ success: 
 
       <p>Te notificamos sobre el estado de tu inventario:</p>
 
-      ${hasOutOfStock ? `
+      ${
+        hasOutOfStock
+          ? `
         <div style="background-color: #fef2f2; border-radius: 12px; padding: 20px; margin: 20px 0; border: 1px solid #fecaca;">
           <h2 style="color: #dc2626; margin: 0 0 15px 0; font-size: 16px;">
             🔴 Productos Sin Stock (${outOfStockProducts?.length})
@@ -310,15 +318,22 @@ async function sendStaffAlertEmail(params: SendEmailParams): Promise<{ success: 
             Estos productos necesitan reabastecimiento urgente.
           </p>
         </div>
-      ` : ''}
+      `
+          : ''
+      }
 
-      ${hasLowStock ? `
+      ${
+        hasLowStock
+          ? `
         <div style="background-color: #fffbeb; border-radius: 12px; padding: 20px; margin: 20px 0; border: 1px solid #fde68a;">
           <h2 style="color: #d97706; margin: 0 0 15px 0; font-size: 16px;">
             🟠 Stock Bajo (${lowStockProducts?.length})
           </h2>
           <table style="width: 100%; font-size: 14px; border-collapse: collapse;">
-            ${(lowStockProducts || []).slice(0, 10).map(p => `
+            ${(lowStockProducts || [])
+              .slice(0, 10)
+              .map(
+                (p) => `
               <tr>
                 <td style="padding: 8px 0; border-bottom: 1px solid #fde68a;">
                   <strong>${p.name}</strong>
@@ -328,23 +343,36 @@ async function sendStaffAlertEmail(params: SendEmailParams): Promise<{ success: 
                   ${p.stock_quantity} / ${p.min_stock_level}
                 </td>
               </tr>
-            `).join('')}
+            `
+              )
+              .join('')}
           </table>
-          ${(lowStockProducts?.length || 0) > 10 ? `
+          ${
+            (lowStockProducts?.length || 0) > 10
+              ? `
             <p style="color: #92400e; font-size: 12px; margin-top: 10px;">
               ... y ${(lowStockProducts?.length || 0) - 10} productos más
             </p>
-          ` : ''}
+          `
+              : ''
+          }
         </div>
-      ` : ''}
+      `
+          : ''
+      }
 
-      ${hasExpiring ? `
+      ${
+        hasExpiring
+          ? `
         <div style="background-color: #f0f9ff; border-radius: 12px; padding: 20px; margin: 20px 0; border: 1px solid #bae6fd;">
           <h2 style="color: #0369a1; margin: 0 0 15px 0; font-size: 16px;">
             📅 Productos por Vencer (${expiringProducts?.length})
           </h2>
           <table style="width: 100%; font-size: 14px; border-collapse: collapse;">
-            ${(expiringProducts || []).slice(0, 10).map(p => `
+            ${(expiringProducts || [])
+              .slice(0, 10)
+              .map(
+                (p) => `
               <tr>
                 <td style="padding: 8px 0; border-bottom: 1px solid #bae6fd;">
                   <strong>${p.name}</strong>
@@ -353,10 +381,14 @@ async function sendStaffAlertEmail(params: SendEmailParams): Promise<{ success: 
                   ${p.days_until_expiry} días (${new Date(p.expiry_date).toLocaleDateString('es-PY')})
                 </td>
               </tr>
-            `).join('')}
+            `
+              )
+              .join('')}
           </table>
         </div>
-      ` : ''}
+      `
+          : ''
+      }
 
       <div style="text-align: center; margin: 30px 0;">
         <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://vete.app'}/dashboard/inventory"
@@ -371,44 +403,46 @@ async function sendStaffAlertEmail(params: SendEmailParams): Promise<{ success: 
       </p>
     </body>
     </html>
-  `;
+  `
 
   return sendEmail({
     to,
     subject,
     html,
     text: `Alerta de Inventario - ${clinicName}\n\nHola ${staffName},\n\nStock bajo: ${lowStockProducts?.length || 0} productos\nSin stock: ${outOfStockProducts?.length || 0} productos\nPor vencer: ${expiringProducts?.length || 0} productos`,
-  });
+  })
 }
 
 interface SendWhatsAppParams {
-  to: string;
-  staffName: string;
-  lowStockCount: number;
-  outOfStockCount: number;
-  expiringCount: number;
+  to: string
+  staffName: string
+  lowStockCount: number
+  outOfStockCount: number
+  expiringCount: number
 }
 
-async function sendStaffAlertWhatsApp(params: SendWhatsAppParams): Promise<{ success: boolean; error?: string }> {
-  const { to, staffName, lowStockCount, outOfStockCount, expiringCount } = params;
+async function sendStaffAlertWhatsApp(
+  params: SendWhatsAppParams
+): Promise<{ success: boolean; error?: string }> {
+  const { to, staffName, lowStockCount, outOfStockCount, expiringCount } = params
 
-  const lines: string[] = ['⚠️ *Alerta de Inventario*', ''];
+  const lines: string[] = ['⚠️ *Alerta de Inventario*', '']
 
   if (outOfStockCount > 0) {
-    lines.push(`🔴 *Sin Stock:* ${outOfStockCount} productos`);
+    lines.push(`🔴 *Sin Stock:* ${outOfStockCount} productos`)
   }
   if (lowStockCount > 0) {
-    lines.push(`🟠 *Stock Bajo:* ${lowStockCount} productos`);
+    lines.push(`🟠 *Stock Bajo:* ${lowStockCount} productos`)
   }
   if (expiringCount > 0) {
-    lines.push(`📅 *Por Vencer:* ${expiringCount} productos`);
+    lines.push(`📅 *Por Vencer:* ${expiringCount} productos`)
   }
 
-  lines.push('');
-  lines.push('Revisa el inventario en el panel de administración.');
+  lines.push('')
+  lines.push('Revisa el inventario en el panel de administración.')
 
   return sendWhatsAppMessage({
     to,
     body: lines.join('\n'),
-  });
+  })
 }

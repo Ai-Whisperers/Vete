@@ -5,7 +5,12 @@ import { useRouter } from 'next/navigation'
 import * as Icons from 'lucide-react'
 import { recordPayment } from '@/app/actions/invoices'
 import { useFormSubmit } from '@/hooks'
-import { formatCurrency, paymentMethodLabels, type PaymentMethod, type RecordPaymentData } from '@/lib/types/invoicing'
+import {
+  formatCurrency,
+  paymentMethodLabels,
+  type PaymentMethod,
+  type RecordPaymentData,
+} from '@/lib/types/invoicing'
 
 interface RecordPaymentDialogProps {
   invoiceId: string
@@ -14,7 +19,12 @@ interface RecordPaymentDialogProps {
   onClose: () => void
 }
 
-export function RecordPaymentDialog({ invoiceId, amountDue, isOpen, onClose }: RecordPaymentDialogProps) {
+export function RecordPaymentDialog({
+  invoiceId,
+  amountDue,
+  isOpen,
+  onClose,
+}: RecordPaymentDialogProps) {
   const router = useRouter()
   const [amount, setAmount] = useState(amountDue.toString())
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cash')
@@ -22,7 +32,11 @@ export function RecordPaymentDialog({ invoiceId, amountDue, isOpen, onClose }: R
   const [notes, setNotes] = useState('')
 
   // Use the new useFormSubmit hook to handle form submission
-  const { submit, isSubmitting: loading, error } = useFormSubmit(
+  const {
+    submit,
+    isSubmitting: loading,
+    error,
+  } = useFormSubmit(
     async (paymentData: RecordPaymentData) => {
       // recordPayment takes paymentData with invoice_id included
       const result = await recordPayment(paymentData)
@@ -32,7 +46,7 @@ export function RecordPaymentDialog({ invoiceId, amountDue, isOpen, onClose }: R
       onSuccess: () => {
         router.refresh()
         onClose()
-      }
+      },
     }
   )
 
@@ -47,7 +61,7 @@ export function RecordPaymentDialog({ invoiceId, amountDue, isOpen, onClose }: R
       amount: parseFloat(amount),
       payment_method: paymentMethod,
       reference_number: referenceNumber || undefined,
-      notes: notes || undefined
+      notes: notes || undefined,
     }
 
     await submit(paymentData)
@@ -58,28 +72,19 @@ export function RecordPaymentDialog({ invoiceId, amountDue, isOpen, onClose }: R
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl max-w-md w-full p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-[var(--text-primary)]">
-            Registrar Pago
-          </h2>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            <Icons.X className="w-5 h-5" />
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className="w-full max-w-md rounded-xl bg-white p-6">
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-lg font-bold text-[var(--text-primary)]">Registrar Pago</h2>
+          <button onClick={onClose} className="rounded-lg p-2 transition-colors hover:bg-gray-100">
+            <Icons.X className="h-5 w-5" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {error && (
-            <div className="p-3 bg-red-50 text-red-700 rounded-lg text-sm">
-              {error}
-            </div>
-          )}
+          {error && <div className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</div>}
 
-          <div className="p-3 bg-gray-50 rounded-lg">
+          <div className="rounded-lg bg-gray-50 p-3">
             <p className="text-sm text-[var(--text-secondary)]">Saldo pendiente</p>
             <p className="text-xl font-bold text-[var(--text-primary)]">
               {formatCurrency(amountDue)}
@@ -88,7 +93,7 @@ export function RecordPaymentDialog({ invoiceId, amountDue, isOpen, onClose }: R
 
           {/* Amount */}
           <div>
-            <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">
+            <label className="mb-1 block text-sm font-medium text-[var(--text-primary)]">
               Monto a pagar *
             </label>
             <div className="flex gap-2">
@@ -101,13 +106,13 @@ export function RecordPaymentDialog({ invoiceId, amountDue, isOpen, onClose }: R
                 step="1"
                 required
                 disabled={loading}
-                className="flex-1 p-3 border border-gray-200 rounded-lg focus:border-[var(--primary)] outline-none"
+                className="flex-1 rounded-lg border border-gray-200 p-3 outline-none focus:border-[var(--primary)]"
               />
               <button
                 type="button"
                 onClick={payFullAmount}
                 disabled={loading}
-                className="px-3 py-2 text-sm text-[var(--primary)] hover:bg-[var(--primary)]/10 rounded-lg"
+                className="hover:bg-[var(--primary)]/10 rounded-lg px-3 py-2 text-sm text-[var(--primary)]"
               >
                 Total
               </button>
@@ -116,17 +121,19 @@ export function RecordPaymentDialog({ invoiceId, amountDue, isOpen, onClose }: R
 
           {/* Payment Method */}
           <div>
-            <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">
+            <label className="mb-1 block text-sm font-medium text-[var(--text-primary)]">
               Método de pago *
             </label>
             <select
               value={paymentMethod}
               onChange={(e) => setPaymentMethod(e.target.value as PaymentMethod)}
               disabled={loading}
-              className="w-full p-3 border border-gray-200 rounded-lg focus:border-[var(--primary)] outline-none"
+              className="w-full rounded-lg border border-gray-200 p-3 outline-none focus:border-[var(--primary)]"
             >
               {Object.entries(paymentMethodLabels).map(([value, label]) => (
-                <option key={value} value={value}>{label}</option>
+                <option key={value} value={value}>
+                  {label}
+                </option>
               ))}
             </select>
           </div>
@@ -134,7 +141,7 @@ export function RecordPaymentDialog({ invoiceId, amountDue, isOpen, onClose }: R
           {/* Reference Number */}
           {paymentMethod !== 'cash' && (
             <div>
-              <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">
+              <label className="mb-1 block text-sm font-medium text-[var(--text-primary)]">
                 Número de referencia
               </label>
               <input
@@ -143,14 +150,14 @@ export function RecordPaymentDialog({ invoiceId, amountDue, isOpen, onClose }: R
                 onChange={(e) => setReferenceNumber(e.target.value)}
                 disabled={loading}
                 placeholder="Número de transacción, cheque, etc."
-                className="w-full p-3 border border-gray-200 rounded-lg focus:border-[var(--primary)] outline-none"
+                className="w-full rounded-lg border border-gray-200 p-3 outline-none focus:border-[var(--primary)]"
               />
             </div>
           )}
 
           {/* Notes */}
           <div>
-            <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">
+            <label className="mb-1 block text-sm font-medium text-[var(--text-primary)]">
               Notas
             </label>
             <textarea
@@ -159,7 +166,7 @@ export function RecordPaymentDialog({ invoiceId, amountDue, isOpen, onClose }: R
               disabled={loading}
               rows={2}
               placeholder="Notas adicionales..."
-              className="w-full p-3 border border-gray-200 rounded-lg focus:border-[var(--primary)] outline-none resize-none"
+              className="w-full resize-none rounded-lg border border-gray-200 p-3 outline-none focus:border-[var(--primary)]"
             />
           </div>
 
@@ -169,19 +176,19 @@ export function RecordPaymentDialog({ invoiceId, amountDue, isOpen, onClose }: R
               type="button"
               onClick={onClose}
               disabled={loading}
-              className="px-4 py-2 text-[var(--text-secondary)] hover:bg-gray-100 rounded-lg"
+              className="rounded-lg px-4 py-2 text-[var(--text-secondary)] hover:bg-gray-100"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 disabled:opacity-50 flex items-center gap-2"
+              className="flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 font-medium text-white hover:bg-green-700 disabled:opacity-50"
             >
               {loading ? (
-                <Icons.Loader2 className="w-4 h-4 animate-spin" />
+                <Icons.Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                <Icons.DollarSign className="w-4 h-4" />
+                <Icons.DollarSign className="h-4 w-4" />
               )}
               Registrar pago
             </button>

@@ -1,8 +1,8 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
+import { useState } from 'react'
+import Image from 'next/image'
+import Link from 'next/link'
 import {
   Package,
   Calendar,
@@ -15,28 +15,28 @@ import {
   Loader2,
   CheckCircle,
   Clock,
-} from 'lucide-react';
-import { clsx } from 'clsx';
+} from 'lucide-react'
+import { clsx } from 'clsx'
 
 interface Subscription {
-  id: string;
-  productId: string;
-  productName: string;
-  productImage: string | null;
-  variantId: string | null;
-  variantName: string | null;
-  quantity: number;
-  frequencyDays: number;
-  nextOrderDate: string;
-  status: 'active' | 'paused' | 'cancelled';
-  subscribedPrice: number;
-  currentPrice: number;
-  priceChanged: boolean;
+  id: string
+  productId: string
+  productName: string
+  productImage: string | null
+  variantId: string | null
+  variantName: string | null
+  quantity: number
+  frequencyDays: number
+  nextOrderDate: string
+  status: 'active' | 'paused' | 'cancelled'
+  subscribedPrice: number
+  currentPrice: number
+  priceChanged: boolean
 }
 
 interface SubscriptionsClientProps {
-  clinic: string;
-  initialSubscriptions: Subscription[];
+  clinic: string
+  initialSubscriptions: Subscription[]
 }
 
 const FREQUENCY_OPTIONS = [
@@ -47,17 +47,19 @@ const FREQUENCY_OPTIONS = [
   { value: 45, label: 'Cada 6 semanas' },
   { value: 60, label: 'Cada 2 meses' },
   { value: 90, label: 'Cada 3 meses' },
-];
+]
 
 export function SubscriptionsClient({ clinic, initialSubscriptions }: SubscriptionsClientProps) {
-  const [subscriptions, setSubscriptions] = useState(initialSubscriptions);
-  const [loadingId, setLoadingId] = useState<string | null>(null);
-  const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [subscriptions, setSubscriptions] = useState(initialSubscriptions)
+  const [loadingId, setLoadingId] = useState<string | null>(null)
+  const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(
+    null
+  )
 
   const formatPrice = (price: number): string => {
-    return `Gs ${price.toLocaleString('es-PY')}`;
-  };
+    return `Gs ${price.toLocaleString('es-PY')}`
+  }
 
   const formatDate = (dateStr: string): string => {
     return new Date(dateStr).toLocaleDateString('es-PY', {
@@ -65,188 +67,196 @@ export function SubscriptionsClient({ clinic, initialSubscriptions }: Subscripti
       year: 'numeric',
       month: 'long',
       day: 'numeric',
-    });
-  };
+    })
+  }
 
   const getFrequencyLabel = (days: number): string => {
-    const option = FREQUENCY_OPTIONS.find(o => o.value === days);
-    return option?.label || `Cada ${days} días`;
-  };
+    const option = FREQUENCY_OPTIONS.find((o) => o.value === days)
+    return option?.label || `Cada ${days} días`
+  }
 
   const showFeedback = (type: 'success' | 'error', message: string) => {
-    setFeedback({ type, message });
-    setTimeout(() => setFeedback(null), 4000);
-  };
+    setFeedback({ type, message })
+    setTimeout(() => setFeedback(null), 4000)
+  }
 
   const handlePauseResume = async (subscription: Subscription) => {
-    setLoadingId(subscription.id);
+    setLoadingId(subscription.id)
 
     try {
-      const newStatus = subscription.status === 'active' ? 'paused' : 'active';
+      const newStatus = subscription.status === 'active' ? 'paused' : 'active'
       const res = await fetch(`/api/store/subscriptions?id=${subscription.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus }),
-      });
+      })
 
-      if (!res.ok) throw new Error('Error al actualizar');
+      if (!res.ok) throw new Error('Error al actualizar')
 
-      setSubscriptions(prev =>
-        prev.map(s => s.id === subscription.id ? { ...s, status: newStatus } : s)
-      );
+      setSubscriptions((prev) =>
+        prev.map((s) => (s.id === subscription.id ? { ...s, status: newStatus } : s))
+      )
 
-      showFeedback('success', newStatus === 'paused' ? 'Suscripción pausada' : 'Suscripción reactivada');
+      showFeedback(
+        'success',
+        newStatus === 'paused' ? 'Suscripción pausada' : 'Suscripción reactivada'
+      )
     } catch (e) {
       // Client-side error logging - only in development
       if (process.env.NODE_ENV === 'development') {
-        console.error('Error:', e);
+        console.error('Error:', e)
       }
-      showFeedback('error', 'Error al actualizar suscripción');
+      showFeedback('error', 'Error al actualizar suscripción')
     } finally {
-      setLoadingId(null);
+      setLoadingId(null)
     }
-  };
+  }
 
   const handleSkip = async (subscription: Subscription) => {
-    setLoadingId(subscription.id);
+    setLoadingId(subscription.id)
 
     try {
       const res = await fetch(`/api/store/subscriptions/${subscription.id}/skip`, {
         method: 'POST',
-      });
+      })
 
-      if (!res.ok) throw new Error('Error al saltar pedido');
+      if (!res.ok) throw new Error('Error al saltar pedido')
 
-      const data = await res.json();
+      const data = await res.json()
 
-      setSubscriptions(prev =>
-        prev.map(s => s.id === subscription.id
-          ? { ...s, nextOrderDate: data.subscription.next_order_date }
-          : s
+      setSubscriptions((prev) =>
+        prev.map((s) =>
+          s.id === subscription.id ? { ...s, nextOrderDate: data.subscription.next_order_date } : s
         )
-      );
+      )
 
-      showFeedback('success', data.message);
+      showFeedback('success', data.message)
     } catch (e) {
       // Client-side error logging - only in development
       if (process.env.NODE_ENV === 'development') {
-        console.error('Error:', e);
+        console.error('Error:', e)
       }
-      showFeedback('error', 'Error al saltar pedido');
+      showFeedback('error', 'Error al saltar pedido')
     } finally {
-      setLoadingId(null);
+      setLoadingId(null)
     }
-  };
+  }
 
   const handleCancel = async (subscription: Subscription) => {
     if (!confirm('¿Estás seguro de cancelar esta suscripción? Esta acción no se puede deshacer.')) {
-      return;
+      return
     }
 
-    setLoadingId(subscription.id);
+    setLoadingId(subscription.id)
 
     try {
       const res = await fetch(`/api/store/subscriptions?id=${subscription.id}`, {
         method: 'DELETE',
-      });
+      })
 
-      if (!res.ok) throw new Error('Error al cancelar');
+      if (!res.ok) throw new Error('Error al cancelar')
 
-      setSubscriptions(prev => prev.filter(s => s.id !== subscription.id));
-      showFeedback('success', 'Suscripción cancelada');
+      setSubscriptions((prev) => prev.filter((s) => s.id !== subscription.id))
+      showFeedback('success', 'Suscripción cancelada')
     } catch (e) {
       // Client-side error logging - only in development
       if (process.env.NODE_ENV === 'development') {
-        console.error('Error:', e);
+        console.error('Error:', e)
       }
-      showFeedback('error', 'Error al cancelar suscripción');
+      showFeedback('error', 'Error al cancelar suscripción')
     } finally {
-      setLoadingId(null);
+      setLoadingId(null)
     }
-  };
+  }
 
   const handleFrequencyChange = async (subscription: Subscription, newFrequency: number) => {
-    setLoadingId(subscription.id);
+    setLoadingId(subscription.id)
 
     try {
       const res = await fetch(`/api/store/subscriptions?id=${subscription.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ frequency_days: newFrequency }),
-      });
+      })
 
-      if (!res.ok) throw new Error('Error al actualizar');
+      if (!res.ok) throw new Error('Error al actualizar')
 
-      setSubscriptions(prev =>
-        prev.map(s => s.id === subscription.id ? { ...s, frequencyDays: newFrequency } : s)
-      );
+      setSubscriptions((prev) =>
+        prev.map((s) => (s.id === subscription.id ? { ...s, frequencyDays: newFrequency } : s))
+      )
 
-      showFeedback('success', 'Frecuencia actualizada');
+      showFeedback('success', 'Frecuencia actualizada')
     } catch (e) {
       // Client-side error logging - only in development
       if (process.env.NODE_ENV === 'development') {
-        console.error('Error:', e);
+        console.error('Error:', e)
       }
-      showFeedback('error', 'Error al actualizar frecuencia');
+      showFeedback('error', 'Error al actualizar frecuencia')
     } finally {
-      setLoadingId(null);
+      setLoadingId(null)
     }
-  };
+  }
 
   const handleQuantityChange = async (subscription: Subscription, newQuantity: number) => {
-    if (newQuantity < 1 || newQuantity > 100) return;
+    if (newQuantity < 1 || newQuantity > 100) return
 
-    setLoadingId(subscription.id);
+    setLoadingId(subscription.id)
 
     try {
       const res = await fetch(`/api/store/subscriptions?id=${subscription.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ quantity: newQuantity }),
-      });
+      })
 
-      if (!res.ok) throw new Error('Error al actualizar');
+      if (!res.ok) throw new Error('Error al actualizar')
 
-      setSubscriptions(prev =>
-        prev.map(s => s.id === subscription.id ? { ...s, quantity: newQuantity } : s)
-      );
+      setSubscriptions((prev) =>
+        prev.map((s) => (s.id === subscription.id ? { ...s, quantity: newQuantity } : s))
+      )
 
-      showFeedback('success', 'Cantidad actualizada');
+      showFeedback('success', 'Cantidad actualizada')
     } catch (e) {
       // Client-side error logging - only in development
       if (process.env.NODE_ENV === 'development') {
-        console.error('Error:', e);
+        console.error('Error:', e)
       }
-      showFeedback('error', 'Error al actualizar cantidad');
+      showFeedback('error', 'Error al actualizar cantidad')
     } finally {
-      setLoadingId(null);
+      setLoadingId(null)
     }
-  };
+  }
 
   return (
     <div className="space-y-4">
       {/* Feedback Toast */}
       {feedback && (
-        <div className={clsx(
-          'fixed top-4 right-4 z-50 px-6 py-3 rounded-xl shadow-lg font-medium flex items-center gap-2',
-          feedback.type === 'success' && 'bg-green-500 text-white',
-          feedback.type === 'error' && 'bg-red-500 text-white',
-        )}>
-          {feedback.type === 'success' ? <CheckCircle className="w-5 h-5" /> : <AlertTriangle className="w-5 h-5" />}
+        <div
+          className={clsx(
+            'fixed right-4 top-4 z-50 flex items-center gap-2 rounded-xl px-6 py-3 font-medium shadow-lg',
+            feedback.type === 'success' && 'bg-green-500 text-white',
+            feedback.type === 'error' && 'bg-red-500 text-white'
+          )}
+        >
+          {feedback.type === 'success' ? (
+            <CheckCircle className="h-5 w-5" />
+          ) : (
+            <AlertTriangle className="h-5 w-5" />
+          )}
           {feedback.message}
         </div>
       )}
 
       {subscriptions.map((subscription) => {
-        const isLoading = loadingId === subscription.id;
-        const isExpanded = expandedId === subscription.id;
-        const isPaused = subscription.status === 'paused';
+        const isLoading = loadingId === subscription.id
+        const isExpanded = expandedId === subscription.id
+        const isPaused = subscription.status === 'paused'
 
         return (
           <div
             key={subscription.id}
             className={clsx(
-              'bg-white rounded-2xl border shadow-sm overflow-hidden transition-all',
+              'overflow-hidden rounded-2xl border bg-white shadow-sm transition-all',
               isPaused ? 'border-amber-200 bg-amber-50/30' : 'border-gray-100'
             )}
           >
@@ -255,7 +265,7 @@ export function SubscriptionsClient({ clinic, initialSubscriptions }: Subscripti
               <div className="flex items-start gap-4">
                 {/* Product Image */}
                 <Link href={`/${clinic}/store/product/${subscription.productId}`}>
-                  <div className="relative w-20 h-20 md:w-24 md:h-24 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0">
+                  <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl bg-gray-100 md:h-24 md:w-24">
                     {subscription.productImage ? (
                       <Image
                         src={subscription.productImage}
@@ -265,38 +275,42 @@ export function SubscriptionsClient({ clinic, initialSubscriptions }: Subscripti
                         sizes="96px"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <Package className="w-8 h-8 text-gray-400" />
+                      <div className="flex h-full w-full items-center justify-center">
+                        <Package className="h-8 w-8 text-gray-400" />
                       </div>
                     )}
                     {isPaused && (
-                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                        <Pause className="w-8 h-8 text-white" />
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                        <Pause className="h-8 w-8 text-white" />
                       </div>
                     )}
                   </div>
                 </Link>
 
                 {/* Product Info */}
-                <div className="flex-1 min-w-0">
+                <div className="min-w-0 flex-1">
                   <div className="flex items-start justify-between gap-2">
                     <div>
                       <Link
                         href={`/${clinic}/store/product/${subscription.productId}`}
-                        className="font-bold text-[var(--text-primary)] hover:text-[var(--primary)] line-clamp-1"
+                        className="line-clamp-1 font-bold text-[var(--text-primary)] hover:text-[var(--primary)]"
                       >
                         {subscription.productName}
                       </Link>
                       {subscription.variantName && (
-                        <p className="text-sm text-[var(--text-muted)]">{subscription.variantName}</p>
+                        <p className="text-sm text-[var(--text-muted)]">
+                          {subscription.variantName}
+                        </p>
                       )}
                     </div>
 
                     {/* Status Badge */}
-                    <span className={clsx(
-                      'px-3 py-1 rounded-full text-xs font-medium flex-shrink-0',
-                      isPaused ? 'bg-amber-100 text-amber-700' : 'bg-green-100 text-green-700'
-                    )}>
+                    <span
+                      className={clsx(
+                        'flex-shrink-0 rounded-full px-3 py-1 text-xs font-medium',
+                        isPaused ? 'bg-amber-100 text-amber-700' : 'bg-green-100 text-green-700'
+                      )}
+                    >
                       {isPaused ? 'Pausada' : 'Activa'}
                     </span>
                   </div>
@@ -316,19 +330,22 @@ export function SubscriptionsClient({ clinic, initialSubscriptions }: Subscripti
 
                   {/* Price Change Warning */}
                   {subscription.priceChanged && (
-                    <div className="mt-2 flex items-center gap-2 text-sm text-amber-600 bg-amber-50 px-3 py-1.5 rounded-lg">
-                      <AlertTriangle className="w-4 h-4" />
+                    <div className="mt-2 flex items-center gap-2 rounded-lg bg-amber-50 px-3 py-1.5 text-sm text-amber-600">
+                      <AlertTriangle className="h-4 w-4" />
                       <span>
-                        El precio cambió de {formatPrice(subscription.subscribedPrice)} a {formatPrice(subscription.currentPrice)}
+                        El precio cambió de {formatPrice(subscription.subscribedPrice)} a{' '}
+                        {formatPrice(subscription.currentPrice)}
                       </span>
                     </div>
                   )}
 
                   {/* Next Order */}
                   <div className="mt-3 flex items-center gap-2 text-sm">
-                    <Calendar className="w-4 h-4 text-[var(--text-muted)]" />
+                    <Calendar className="h-4 w-4 text-[var(--text-muted)]" />
                     <span className="text-[var(--text-secondary)]">
-                      {isPaused ? 'Pausada' : `Próximo pedido: ${formatDate(subscription.nextOrderDate)}`}
+                      {isPaused
+                        ? 'Pausada'
+                        : `Próximo pedido: ${formatDate(subscription.nextOrderDate)}`}
                     </span>
                   </div>
                 </div>
@@ -340,9 +357,13 @@ export function SubscriptionsClient({ clinic, initialSubscriptions }: Subscripti
                   <button
                     onClick={() => handleSkip(subscription)}
                     disabled={isLoading}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-[var(--text-primary)] font-medium rounded-lg hover:bg-gray-200 transition disabled:opacity-50"
+                    className="inline-flex items-center gap-2 rounded-lg bg-gray-100 px-4 py-2 font-medium text-[var(--text-primary)] transition hover:bg-gray-200 disabled:opacity-50"
                   >
-                    {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <SkipForward className="w-4 h-4" />}
+                    {isLoading ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <SkipForward className="h-4 w-4" />
+                    )}
                     Saltar Pedido
                   </button>
                 )}
@@ -351,36 +372,42 @@ export function SubscriptionsClient({ clinic, initialSubscriptions }: Subscripti
                   onClick={() => handlePauseResume(subscription)}
                   disabled={isLoading}
                   className={clsx(
-                    'inline-flex items-center gap-2 px-4 py-2 font-medium rounded-lg transition disabled:opacity-50',
+                    'inline-flex items-center gap-2 rounded-lg px-4 py-2 font-medium transition disabled:opacity-50',
                     isPaused
                       ? 'bg-green-100 text-green-700 hover:bg-green-200'
                       : 'bg-amber-100 text-amber-700 hover:bg-amber-200'
                   )}
                 >
                   {isLoading ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <Loader2 className="h-4 w-4 animate-spin" />
                   ) : isPaused ? (
-                    <Play className="w-4 h-4" />
+                    <Play className="h-4 w-4" />
                   ) : (
-                    <Pause className="w-4 h-4" />
+                    <Pause className="h-4 w-4" />
                   )}
                   {isPaused ? 'Reactivar' : 'Pausar'}
                 </button>
 
                 <button
                   onClick={() => setExpandedId(isExpanded ? null : subscription.id)}
-                  className="inline-flex items-center gap-2 px-4 py-2 border border-gray-200 text-[var(--text-primary)] font-medium rounded-lg hover:bg-gray-50 transition"
+                  className="inline-flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-2 font-medium text-[var(--text-primary)] transition hover:bg-gray-50"
                 >
                   Editar
-                  <ChevronDown className={clsx('w-4 h-4 transition-transform', isExpanded && 'rotate-180')} />
+                  <ChevronDown
+                    className={clsx('h-4 w-4 transition-transform', isExpanded && 'rotate-180')}
+                  />
                 </button>
 
                 <button
                   onClick={() => handleCancel(subscription)}
                   disabled={isLoading}
-                  className="inline-flex items-center gap-2 px-4 py-2 border border-red-200 text-red-600 font-medium rounded-lg hover:bg-red-50 transition disabled:opacity-50"
+                  className="inline-flex items-center gap-2 rounded-lg border border-red-200 px-4 py-2 font-medium text-red-600 transition hover:bg-red-50 disabled:opacity-50"
                 >
-                  {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                  {isLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Trash2 className="h-4 w-4" />
+                  )}
                   Cancelar
                 </button>
               </div>
@@ -389,25 +416,31 @@ export function SubscriptionsClient({ clinic, initialSubscriptions }: Subscripti
             {/* Expanded Edit Section */}
             {isExpanded && (
               <div className="border-t border-gray-100 bg-gray-50 p-4 md:p-6">
-                <div className="grid md:grid-cols-2 gap-6">
+                <div className="grid gap-6 md:grid-cols-2">
                   {/* Quantity */}
                   <div>
-                    <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
+                    <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">
                       Cantidad por pedido
                     </label>
                     <div className="flex items-center gap-2">
                       <button
-                        onClick={() => handleQuantityChange(subscription, subscription.quantity - 1)}
+                        onClick={() =>
+                          handleQuantityChange(subscription, subscription.quantity - 1)
+                        }
                         disabled={isLoading || subscription.quantity <= 1}
-                        className="w-10 h-10 rounded-lg border border-gray-200 flex items-center justify-center hover:bg-gray-100 disabled:opacity-50"
+                        className="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 hover:bg-gray-100 disabled:opacity-50"
                       >
                         -
                       </button>
-                      <span className="w-16 text-center font-bold text-lg">{subscription.quantity}</span>
+                      <span className="w-16 text-center text-lg font-bold">
+                        {subscription.quantity}
+                      </span>
                       <button
-                        onClick={() => handleQuantityChange(subscription, subscription.quantity + 1)}
+                        onClick={() =>
+                          handleQuantityChange(subscription, subscription.quantity + 1)
+                        }
                         disabled={isLoading || subscription.quantity >= 100}
-                        className="w-10 h-10 rounded-lg border border-gray-200 flex items-center justify-center hover:bg-gray-100 disabled:opacity-50"
+                        className="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 hover:bg-gray-100 disabled:opacity-50"
                       >
                         +
                       </button>
@@ -416,16 +449,18 @@ export function SubscriptionsClient({ clinic, initialSubscriptions }: Subscripti
 
                   {/* Frequency */}
                   <div>
-                    <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
+                    <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">
                       Frecuencia de entrega
                     </label>
                     <select
                       value={subscription.frequencyDays}
-                      onChange={(e) => handleFrequencyChange(subscription, parseInt(e.target.value))}
+                      onChange={(e) =>
+                        handleFrequencyChange(subscription, parseInt(e.target.value))
+                      }
                       disabled={isLoading}
-                      className="w-full px-4 py-2.5 border border-gray-200 rounded-lg bg-white focus:ring-2 focus:ring-[var(--primary)] outline-none disabled:opacity-50"
+                      className="w-full rounded-lg border border-gray-200 bg-white px-4 py-2.5 outline-none focus:ring-2 focus:ring-[var(--primary)] disabled:opacity-50"
                     >
-                      {FREQUENCY_OPTIONS.map(option => (
+                      {FREQUENCY_OPTIONS.map((option) => (
                         <option key={option.value} value={option.value}>
                           {option.label}
                         </option>
@@ -435,22 +470,23 @@ export function SubscriptionsClient({ clinic, initialSubscriptions }: Subscripti
                 </div>
 
                 {/* Price Summary */}
-                <div className="mt-6 p-4 bg-white rounded-lg border border-gray-200">
+                <div className="mt-6 rounded-lg border border-gray-200 bg-white p-4">
                   <div className="flex items-center justify-between">
                     <span className="text-[var(--text-secondary)]">Total por pedido:</span>
                     <span className="text-xl font-bold text-[var(--primary)]">
                       {formatPrice(subscription.currentPrice * subscription.quantity)}
                     </span>
                   </div>
-                  <p className="text-xs text-[var(--text-muted)] mt-1">
-                    {subscription.quantity} x {formatPrice(subscription.currentPrice)} = {formatPrice(subscription.currentPrice * subscription.quantity)}
+                  <p className="mt-1 text-xs text-[var(--text-muted)]">
+                    {subscription.quantity} x {formatPrice(subscription.currentPrice)} ={' '}
+                    {formatPrice(subscription.currentPrice * subscription.quantity)}
                   </p>
                 </div>
               </div>
             )}
           </div>
-        );
+        )
       })}
     </div>
-  );
+  )
 }

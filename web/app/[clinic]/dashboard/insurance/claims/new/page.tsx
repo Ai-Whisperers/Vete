@@ -1,33 +1,33 @@
-"use client";
+'use client'
 
-import { useRouter } from 'next/navigation';
-import ClaimForm from '@/components/insurance/claim-form';
-import { ArrowLeft } from 'lucide-react';
+import { useRouter } from 'next/navigation'
+import ClaimForm from '@/components/insurance/claim-form'
+import { ArrowLeft } from 'lucide-react'
 
 export default function NewClaimPage() {
-  const router = useRouter();
+  const router = useRouter()
 
   const handleSuccess = (claimId: string) => {
-    router.push(`../claims/${claimId}`);
-  };
+    router.push(`../claims/${claimId}`)
+  }
 
   return (
     <div className="min-h-screen bg-[var(--bg-default)] p-6">
-      <div className="max-w-4xl mx-auto">
+      <div className="mx-auto max-w-4xl">
         <button
           onClick={() => router.back()}
-          className="flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] mb-6"
+          className="mb-6 flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
         >
-          <ArrowLeft className="w-5 h-5" />
+          <ArrowLeft className="h-5 w-5" />
           Volver
         </button>
 
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+        <div className="rounded-lg border border-gray-200 bg-white p-8 shadow-sm">
           <div className="mb-6">
             <h1 className="text-2xl font-bold text-[var(--text-primary)]">
               Nuevo Reclamo de Seguro
             </h1>
-            <p className="text-[var(--text-secondary)] mt-1">
+            <p className="mt-1 text-[var(--text-secondary)]">
               Complete la información del reclamo para enviar a la aseguradora
             </p>
           </div>
@@ -36,5 +36,5 @@ export default function NewClaimPage() {
         </div>
       </div>
     </div>
-  );
+  )
 }

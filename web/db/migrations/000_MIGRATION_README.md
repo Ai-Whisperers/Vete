@@ -4,18 +4,18 @@ This directory contains incremental migrations to improve the database schema.
 
 ## Migration Files
 
-| # | File | Description | Priority |
-|---|------|-------------|----------|
-| 001 | `001_add_tenant_id_to_child_tables.sql` | Adds `tenant_id` to child tables for better RLS performance | HIGH |
-| 002 | `002_add_missing_foreign_keys.sql` | Adds missing FK constraints (invoice_items.product_id, etc.) | HIGH |
-| 003 | `003_fix_sequence_generation.sql` | Fixes race conditions in invoice/admission number generation | HIGH |
-| 004 | `004_fix_handle_new_user.sql` | Removes hardcoded demo emails from auth trigger | HIGH |
-| 005 | `005_add_brin_indexes.sql` | Adds BRIN indexes for time-series tables | MEDIUM |
-| 006 | `006_add_constraints.sql` | Adds CHECK constraints and unique constraints | MEDIUM |
-| 007 | `007_optimize_rls_policies.sql` | Optimizes RLS policies to use direct tenant_id | MEDIUM |
-| 008 | `008_add_covering_indexes.sql` | Adds covering indexes for common query patterns | MEDIUM |
-| 009 | `009_fix_invoice_totals.sql` | Fixes invoice total calculation logic | MEDIUM |
-| 010 | `010_add_soft_delete.sql` | Adds soft delete to remaining tables | LOW |
+| #   | File                                    | Description                                                  | Priority |
+| --- | --------------------------------------- | ------------------------------------------------------------ | -------- |
+| 001 | `001_add_tenant_id_to_child_tables.sql` | Adds `tenant_id` to child tables for better RLS performance  | HIGH     |
+| 002 | `002_add_missing_foreign_keys.sql`      | Adds missing FK constraints (invoice_items.product_id, etc.) | HIGH     |
+| 003 | `003_fix_sequence_generation.sql`       | Fixes race conditions in invoice/admission number generation | HIGH     |
+| 004 | `004_fix_handle_new_user.sql`           | Removes hardcoded demo emails from auth trigger              | HIGH     |
+| 005 | `005_add_brin_indexes.sql`              | Adds BRIN indexes for time-series tables                     | MEDIUM   |
+| 006 | `006_add_constraints.sql`               | Adds CHECK constraints and unique constraints                | MEDIUM   |
+| 007 | `007_optimize_rls_policies.sql`         | Optimizes RLS policies to use direct tenant_id               | MEDIUM   |
+| 008 | `008_add_covering_indexes.sql`          | Adds covering indexes for common query patterns              | MEDIUM   |
+| 009 | `009_fix_invoice_totals.sql`            | Fixes invoice total calculation logic                        | MEDIUM   |
+| 010 | `010_add_soft_delete.sql`               | Adds soft delete to remaining tables                         | LOW      |
 
 ## Running Migrations
 
@@ -106,6 +106,7 @@ LIMIT 20;
 Each migration is wrapped in a transaction (BEGIN/COMMIT). If a migration fails, it will automatically rollback.
 
 For manual rollback, you'll need to:
+
 1. Drop added columns/indexes
 2. Restore original functions
 3. Restore original RLS policies
@@ -117,6 +118,7 @@ For manual rollback, you'll need to:
 ### Before deploying to production:
 
 1. **Remove demo accounts**:
+
    ```sql
    DELETE FROM public.demo_accounts;
    -- Or disable them:
@@ -128,6 +130,7 @@ For manual rollback, you'll need to:
 
 3. **Monitor performance**:
    After adding indexes, run `ANALYZE` on affected tables:
+
    ```sql
    ANALYZE public.appointments;
    ANALYZE public.invoices;
@@ -144,21 +147,25 @@ For manual rollback, you'll need to:
 ## Changes Summary
 
 ### Security Fixes
+
 - Removed hardcoded demo email logic from `handle_new_user()`
 - Added demo accounts table for configurable development accounts
 
 ### Data Integrity
+
 - Added missing FK constraint on `invoice_items.product_id`
 - Added unique constraints for business rules (one active hospitalization per pet, etc.)
 - Added CHECK constraints for valid data ranges
 
 ### Performance
+
 - Added `tenant_id` to child tables for direct RLS checks
 - Added BRIN indexes for time-series data
 - Added covering indexes for common queries
 - Optimized RLS policies to eliminate subqueries
 
 ### Consistency
+
 - Added soft delete columns to all relevant tables
 - Fixed invoice totals calculation
 - Fixed sequence generation race conditions

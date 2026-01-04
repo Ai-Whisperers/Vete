@@ -1,71 +1,73 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { useParams } from 'next/navigation';
-import { RefreshCw, Plus, Package, ChevronRight, Loader2, ShoppingBag } from 'lucide-react';
-import { useCart } from '@/context/cart-context';
+import { useState, useEffect } from 'react'
+import Image from 'next/image'
+import Link from 'next/link'
+import { useParams } from 'next/navigation'
+import { RefreshCw, Plus, Package, ChevronRight, Loader2, ShoppingBag } from 'lucide-react'
+import { useCart } from '@/context/cart-context'
 
 interface ReorderProduct {
-  id: string;
-  name: string;
-  image_url: string | null;
-  base_price: number;
-  sale_price: number | null;
-  stock_quantity: number;
-  is_available: boolean;
-  last_ordered_at: string;
-  total_times_ordered: number;
+  id: string
+  name: string
+  image_url: string | null
+  base_price: number
+  sale_price: number | null
+  stock_quantity: number
+  is_available: boolean
+  last_ordered_at: string
+  total_times_ordered: number
 }
 
 interface BuyAgainSectionProps {
-  maxItems?: number;
+  maxItems?: number
 }
 
 export default function BuyAgainSection({ maxItems = 4 }: BuyAgainSectionProps) {
-  const { clinic } = useParams() as { clinic: string };
-  const { addItem } = useCart();
+  const { clinic } = useParams() as { clinic: string }
+  const { addItem } = useCart()
 
-  const [products, setProducts] = useState<ReorderProduct[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [addingId, setAddingId] = useState<string | null>(null);
-  const [addedIds, setAddedIds] = useState<Set<string>>(new Set());
+  const [products, setProducts] = useState<ReorderProduct[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [addingId, setAddingId] = useState<string | null>(null)
+  const [addedIds, setAddedIds] = useState<Set<string>>(new Set())
 
   useEffect(() => {
     const fetchReorderSuggestions = async () => {
       try {
-        const res = await fetch(`/api/store/reorder-suggestions?clinic=${clinic}&limit=${maxItems + 2}`);
+        const res = await fetch(
+          `/api/store/reorder-suggestions?clinic=${clinic}&limit=${maxItems + 2}`
+        )
 
         if (res.status === 401) {
           // User not logged in - don't show section
-          setProducts([]);
-          return;
+          setProducts([])
+          return
         }
 
         if (!res.ok) {
-          throw new Error('Error al cargar sugerencias');
+          throw new Error('Error al cargar sugerencias')
         }
 
-        const data = await res.json();
-        setProducts(data.products || []);
+        const data = await res.json()
+        setProducts(data.products || [])
       } catch (e) {
         // Client-side error logging - only in development
         if (process.env.NODE_ENV === 'development') {
-          console.error('Error fetching reorder suggestions:', e);
+          console.error('Error fetching reorder suggestions:', e)
         }
-        setError(e instanceof Error ? e.message : 'Error');
+        setError(e instanceof Error ? e.message : 'Error')
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
-    fetchReorderSuggestions();
-  }, [clinic, maxItems]);
+    fetchReorderSuggestions()
+  }, [clinic, maxItems])
 
   const handleAddToCart = async (product: ReorderProduct) => {
-    setAddingId(product.id);
+    setAddingId(product.id)
 
     try {
       const result = addItem({
@@ -75,70 +77,72 @@ export default function BuyAgainSection({ maxItems = 4 }: BuyAgainSectionProps) 
         type: 'product',
         image_url: product.image_url || undefined,
         stock: product.stock_quantity,
-      });
+      })
 
       if (result.success) {
-        setAddedIds(prev => new Set(prev).add(product.id));
+        setAddedIds((prev) => new Set(prev).add(product.id))
         setTimeout(() => {
-          setAddedIds(prev => {
-            const next = new Set(prev);
-            next.delete(product.id);
-            return next;
-          });
-        }, 2000);
+          setAddedIds((prev) => {
+            const next = new Set(prev)
+            next.delete(product.id)
+            return next
+          })
+        }, 2000)
       }
     } catch (e) {
       // Client-side error logging - only in development
       if (process.env.NODE_ENV === 'development') {
-        console.error('Error adding to cart:', e);
+        console.error('Error adding to cart:', e)
       }
     } finally {
-      setAddingId(null);
+      setAddingId(null)
     }
-  };
+  }
 
   const formatPrice = (price: number): string => {
-    return `Gs ${price.toLocaleString('es-PY')}`;
-  };
+    return `Gs ${price.toLocaleString('es-PY')}`
+  }
 
   // Don't show section if loading, error, or no products
   if (loading || error || products.length === 0) {
-    return null;
+    return null
   }
 
-  const displayProducts = products.slice(0, maxItems);
+  const displayProducts = products.slice(0, maxItems)
 
   return (
-    <section className="bg-white border-b border-gray-100">
+    <section className="border-b border-gray-100 bg-white">
       <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-6">
+        <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[var(--primary)]/10 flex items-center justify-center">
-              <RefreshCw className="w-5 h-5 text-[var(--primary)]" />
+            <div className="bg-[var(--primary)]/10 flex h-10 w-10 items-center justify-center rounded-xl">
+              <RefreshCw className="h-5 w-5 text-[var(--primary)]" />
             </div>
             <div>
-              <h2 className="font-bold text-lg text-[var(--text-primary)]">Comprar de Nuevo</h2>
-              <p className="text-sm text-[var(--text-muted)]">Productos de tus pedidos anteriores</p>
+              <h2 className="text-lg font-bold text-[var(--text-primary)]">Comprar de Nuevo</h2>
+              <p className="text-sm text-[var(--text-muted)]">
+                Productos de tus pedidos anteriores
+              </p>
             </div>
           </div>
           <Link
             href={`/${clinic}/store/orders`}
-            className="text-sm font-medium text-[var(--primary)] hover:underline flex items-center gap-1"
+            className="flex items-center gap-1 text-sm font-medium text-[var(--primary)] hover:underline"
           >
             Ver Pedidos
-            <ChevronRight className="w-4 h-4" />
+            <ChevronRight className="h-4 w-4" />
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
           {displayProducts.map((product) => (
             <div
               key={product.id}
-              className="bg-gray-50 rounded-xl p-4 border border-gray-100 hover:border-[var(--primary)]/30 transition-colors"
+              className="hover:border-[var(--primary)]/30 rounded-xl border border-gray-100 bg-gray-50 p-4 transition-colors"
             >
               {/* Product Image */}
-              <Link href={`/${clinic}/store/product/${product.id}`} className="block mb-3">
-                <div className="relative aspect-square rounded-lg overflow-hidden bg-white">
+              <Link href={`/${clinic}/store/product/${product.id}`} className="mb-3 block">
+                <div className="relative aspect-square overflow-hidden rounded-lg bg-white">
                   {product.image_url ? (
                     <Image
                       src={product.image_url}
@@ -148,13 +152,13 @@ export default function BuyAgainSection({ maxItems = 4 }: BuyAgainSectionProps) 
                       sizes="(max-width: 768px) 50vw, 25vw"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <Package className="w-8 h-8 text-gray-300" />
+                    <div className="flex h-full w-full items-center justify-center">
+                      <Package className="h-8 w-8 text-gray-300" />
                     </div>
                   )}
                   {!product.is_available && (
-                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                      <span className="text-white text-xs font-medium px-2 py-1 bg-red-500 rounded">
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                      <span className="rounded bg-red-500 px-2 py-1 text-xs font-medium text-white">
                         Sin Stock
                       </span>
                     </div>
@@ -164,16 +168,16 @@ export default function BuyAgainSection({ maxItems = 4 }: BuyAgainSectionProps) 
 
               {/* Product Info */}
               <Link href={`/${clinic}/store/product/${product.id}`} className="block">
-                <h3 className="font-medium text-sm text-[var(--text-primary)] line-clamp-2 mb-1 hover:text-[var(--primary)]">
+                <h3 className="mb-1 line-clamp-2 text-sm font-medium text-[var(--text-primary)] hover:text-[var(--primary)]">
                   {product.name}
                 </h3>
               </Link>
 
-              <div className="flex items-center justify-between mt-2">
+              <div className="mt-2 flex items-center justify-between">
                 <div>
                   {product.sale_price ? (
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-sm text-[var(--primary)]">
+                      <span className="text-sm font-bold text-[var(--primary)]">
                         {formatPrice(product.sale_price)}
                       </span>
                       <span className="text-xs text-gray-400 line-through">
@@ -181,7 +185,7 @@ export default function BuyAgainSection({ maxItems = 4 }: BuyAgainSectionProps) 
                       </span>
                     </div>
                   ) : (
-                    <span className="font-bold text-sm text-[var(--text-primary)]">
+                    <span className="text-sm font-bold text-[var(--text-primary)]">
                       {formatPrice(product.base_price)}
                     </span>
                   )}
@@ -190,22 +194,26 @@ export default function BuyAgainSection({ maxItems = 4 }: BuyAgainSectionProps) 
                 <button
                   onClick={() => handleAddToCart(product)}
                   disabled={!product.is_available || addingId === product.id}
-                  className={`p-2 rounded-lg transition-all ${
+                  className={`rounded-lg p-2 transition-all ${
                     addedIds.has(product.id)
                       ? 'bg-green-500 text-white'
                       : product.is_available
-                      ? 'bg-[var(--primary)] text-white hover:opacity-90'
-                      : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                        ? 'bg-[var(--primary)] text-white hover:opacity-90'
+                        : 'cursor-not-allowed bg-gray-200 text-gray-400'
                   }`}
                   title={product.is_available ? 'Agregar al carrito' : 'Sin stock'}
-                  aria-label={product.is_available ? `Agregar ${product.name} al carrito` : `${product.name} sin stock`}
+                  aria-label={
+                    product.is_available
+                      ? `Agregar ${product.name} al carrito`
+                      : `${product.name} sin stock`
+                  }
                 >
                   {addingId === product.id ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <Loader2 className="h-4 w-4 animate-spin" />
                   ) : addedIds.has(product.id) ? (
-                    <ShoppingBag className="w-4 h-4" />
+                    <ShoppingBag className="h-4 w-4" />
                   ) : (
-                    <Plus className="w-4 h-4" />
+                    <Plus className="h-4 w-4" />
                   )}
                 </button>
               </div>
@@ -214,5 +222,5 @@ export default function BuyAgainSection({ maxItems = 4 }: BuyAgainSectionProps) 
         </div>
       </div>
     </section>
-  );
+  )
 }

@@ -150,7 +150,9 @@ export function generateInvoiceEmail(data: InvoiceEmailData): string {
                   </tr>
                 </thead>
                 <tbody>
-                  ${items.map((item, index) => `
+                  ${items
+                    .map(
+                      (item, index) => `
                     <tr style="border-bottom: 1px solid #e0e0e0;">
                       <td style="padding: 12px; color: #333333; font-size: 14px;">
                         ${item.description}
@@ -160,7 +162,9 @@ export function generateInvoiceEmail(data: InvoiceEmailData): string {
                       <td style="padding: 12px; text-align: right; color: #666666; font-size: 14px;">${formatCurrency(item.unitPrice)}</td>
                       <td style="padding: 12px; text-align: right; color: #333333; font-size: 14px; font-weight: 600;">${formatCurrency(item.lineTotal)}</td>
                     </tr>
-                  `).join('')}
+                  `
+                    )
+                    .join('')}
                 </tbody>
               </table>
             </td>
@@ -178,7 +182,9 @@ export function generateInvoiceEmail(data: InvoiceEmailData): string {
                   <td style="padding: 8px 0; color: #666666; font-size: 14px;">IVA (${taxRate}%):</td>
                   <td style="padding: 8px 0; text-align: right; color: #333333; font-size: 14px;">${formatCurrency(taxAmount)}</td>
                 </tr>
-                ${amountPaid > 0 ? `
+                ${
+                  amountPaid > 0
+                    ? `
                   <tr style="border-top: 1px solid #e0e0e0;">
                     <td style="padding: 8px 0; color: #666666; font-size: 14px; font-weight: 600;">Total:</td>
                     <td style="padding: 8px 0; text-align: right; color: #333333; font-size: 16px; font-weight: 600;">${formatCurrency(total)}</td>
@@ -191,18 +197,22 @@ export function generateInvoiceEmail(data: InvoiceEmailData): string {
                     <td style="padding: 12px 0; color: #333333; font-size: 16px; font-weight: 700;">Saldo Pendiente:</td>
                     <td style="padding: 12px 0; text-align: right; color: #ef4444; font-size: 18px; font-weight: 700;">${formatCurrency(amountDue)}</td>
                   </tr>
-                ` : `
+                `
+                    : `
                   <tr style="border-top: 2px solid #333333;">
                     <td style="padding: 12px 0; color: #333333; font-size: 16px; font-weight: 700;">Total a Pagar:</td>
                     <td style="padding: 12px 0; text-align: right; color: #333333; font-size: 18px; font-weight: 700;">${formatCurrency(total)}</td>
                   </tr>
-                `}
+                `
+                }
               </table>
             </td>
           </tr>
 
           <!-- Notes -->
-          ${notes ? `
+          ${
+            notes
+              ? `
             <tr>
               <td style="padding: 0 40px 20px;">
                 <div style="background-color: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; border-radius: 4px;">
@@ -211,10 +221,14 @@ export function generateInvoiceEmail(data: InvoiceEmailData): string {
                 </div>
               </td>
             </tr>
-          ` : ''}
+          `
+              : ''
+          }
 
           <!-- Payment Instructions -->
-          ${paymentInstructions ? `
+          ${
+            paymentInstructions
+              ? `
             <tr>
               <td style="padding: 0 40px 30px;">
                 <div style="background-color: #f0fdf4; border-left: 4px solid #10b981; padding: 15px; border-radius: 4px;">
@@ -223,10 +237,14 @@ export function generateInvoiceEmail(data: InvoiceEmailData): string {
                 </div>
               </td>
             </tr>
-          ` : ''}
+          `
+              : ''
+          }
 
           <!-- CTA Button -->
-          ${viewUrl ? `
+          ${
+            viewUrl
+              ? `
             <tr>
               <td style="padding: 0 40px 30px; text-align: center;">
                 <a href="${viewUrl}" style="display: inline-block; padding: 14px 32px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px;">
@@ -234,7 +252,9 @@ export function generateInvoiceEmail(data: InvoiceEmailData): string {
                 </a>
               </td>
             </tr>
-          ` : ''}
+          `
+              : ''
+          }
 
           <!-- Footer -->
           <tr>
@@ -245,11 +265,15 @@ export function generateInvoiceEmail(data: InvoiceEmailData): string {
               <p style="margin: 0; color: #999999; font-size: 12px; text-align: center; line-height: 1.5;">
                 Si tienes alguna pregunta sobre esta factura, no dudes en contactarnos.
               </p>
-              ${clinicPhone || clinicEmail ? `
+              ${
+                clinicPhone || clinicEmail
+                  ? `
                 <p style="margin: 10px 0 0; color: #999999; font-size: 12px; text-align: center;">
                   ${clinicPhone ? `📞 ${clinicPhone}` : ''} ${clinicPhone && clinicEmail ? '|' : ''} ${clinicEmail ? `✉️ ${clinicEmail}` : ''}
                 </p>
-              ` : ''}
+              `
+                  : ''
+              }
             </td>
           </tr>
 

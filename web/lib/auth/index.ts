@@ -12,7 +12,7 @@ export type {
   AppAuthContext,
   AuthOptions,
   Permission,
-  AuthResult
+  AuthResult,
 } from './types'
 
 // Core service
@@ -25,7 +25,7 @@ export {
   requireOwnership as requireApiOwnership,
   requireTenantAccess as requireApiTenantAccess,
   type ApiHandlerContext,
-  type ApiRouteOptions
+  type ApiRouteOptions,
 } from './api-wrapper'
 
 // Server action wrappers
@@ -34,7 +34,7 @@ export {
   requireOwnership as requireActionOwnership,
   requireTenantAccess as requireActionTenantAccess,
   createTenantQuery,
-  type ActionOptions
+  type ActionOptions,
 } from './action-wrapper'
 
 // Role-based authorization

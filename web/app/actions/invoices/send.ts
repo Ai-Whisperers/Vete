@@ -4,10 +4,7 @@ import { withActionAuth, actionSuccess, actionError } from '@/lib/actions'
 import { revalidatePath } from 'next/cache'
 import { sendEmail as sendEmailClient } from '@/lib/email/client'
 import { logger } from '@/lib/logger'
-import {
-  generateInvoiceEmail,
-  generateInvoiceEmailText,
-} from '@/lib/email/templates/invoice-email'
+import { generateInvoiceEmail, generateInvoiceEmailText } from '@/lib/email/templates/invoice-email'
 
 /**
  * Send an invoice (change status to 'sent')
@@ -83,11 +80,7 @@ export const sendInvoice = withActionAuth(
     // Send email to owner if requested
     if (sendEmail && invoice.pets) {
       const pet = Array.isArray(invoice.pets) ? invoice.pets[0] : invoice.pets
-      const owner = pet?.owner
-        ? Array.isArray(pet.owner)
-          ? pet.owner[0]
-          : pet.owner
-        : null
+      const owner = pet?.owner ? (Array.isArray(pet.owner) ? pet.owner[0] : pet.owner) : null
 
       if (owner && owner.email) {
         try {

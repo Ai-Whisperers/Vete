@@ -120,7 +120,14 @@
   "seo": {
     "meta_title": "PetLife Center | Centro de Diagnóstico Veterinario - Mariano Roque Alonso",
     "meta_description": "Centro veterinario especializado en diagnóstico por imágenes. Ecografía Doppler, radiología digital, ecocardiografía. Recibimos derivaciones. Ruta 2 Km 14, Gran Asunción.",
-    "keywords": ["ecografia veterinaria", "radiografia digital mascotas", "ecocardiograma perros", "centro referencia veterinario", "derivacion veterinaria", "diagnostico veterinario asuncion"],
+    "keywords": [
+      "ecografia veterinaria",
+      "radiografia digital mascotas",
+      "ecocardiograma perros",
+      "centro referencia veterinario",
+      "derivacion veterinaria",
+      "diagnostico veterinario asuncion"
+    ],
     "og_type": "website",
     "og_locale": "es_PY"
   }

@@ -11,18 +11,18 @@
 export const LEVEL1_CODES: Record<string, string> = {
   'alimento-perros': 'ALP',
   'alimento-gatos': 'ALG',
-  'antiparasitarios': 'ANT',
-  'higiene': 'HIG',
+  antiparasitarios: 'ANT',
+  higiene: 'HIG',
   'arena-sanitaria': 'ARE',
-  'juguetes': 'JUG',
+  juguetes: 'JUG',
   'snacks-premios': 'SNK',
-  'accesorios': 'ACC',
+  accesorios: 'ACC',
   'camas-casas': 'CAM',
-  'suplementos': 'SUP',
-  'farmacia': 'FAR',
-  'aves': 'AVE',
-  'peces': 'PEC',
-  'roedores': 'ROE',
+  suplementos: 'SUP',
+  farmacia: 'FAR',
+  aves: 'AVE',
+  peces: 'PEC',
+  roedores: 'ROE',
   'equipos-veterinarios': 'EQV',
   'instrumental-quirurgico': 'INQ',
   'consumibles-medicos': 'CON',
@@ -30,11 +30,11 @@ export const LEVEL1_CODES: Record<string, string> = {
   'anestesia-sedacion': 'ANE',
   'laboratorio-veterinario': 'LAB',
   'odontologia-veterinaria': 'ODO',
-  'fluidoterapia': 'FLU',
+  fluidoterapia: 'FLU',
   'mobiliario-clinico': 'MOB',
-  'esterilizacion': 'EST',
+  esterilizacion: 'EST',
   'uniformes-epp': 'UNI',
-};
+}
 
 // Level 2 category codes (old slug → new code)
 export const LEVEL2_CODES: Record<string, { code: string; parent: string }> = {
@@ -60,7 +60,7 @@ export const LEVEL2_CODES: Record<string, { code: string; parent: string }> = {
 
   // === HIG (Higiene) ===
   'higiene-mascotas': { code: 'HIG-GEN', parent: 'HIG' },
-  'shampoos': { code: 'HIG-SHA', parent: 'HIG' },
+  shampoos: { code: 'HIG-SHA', parent: 'HIG' },
   'cuidado-dental': { code: 'HIG-DEN', parent: 'HIG' },
   'cuidado-oidos-ojos': { code: 'HIG-OJO', parent: 'HIG' },
   'cepillos-peines': { code: 'HIG-CEP', parent: 'HIG' },
@@ -75,7 +75,7 @@ export const LEVEL2_CODES: Record<string, { code: string; parent: string }> = {
   'juguetes-perros': { code: 'JUG-PER', parent: 'JUG' },
   'juguetes-gatos': { code: 'JUG-GAT', parent: 'JUG' },
   'juguetes-rellenables': { code: 'JUG-REL', parent: 'JUG' },
-  'pelotas': { code: 'JUG-PEL', parent: 'JUG' },
+  pelotas: { code: 'JUG-PEL', parent: 'JUG' },
 
   // === SNK (Snacks y Premios) ===
   'snacks-perros': { code: 'SNK-PER', parent: 'SNK' },
@@ -86,7 +86,7 @@ export const LEVEL2_CODES: Record<string, { code: string; parent: string }> = {
   // === ACC (Accesorios) ===
   'collares-correas': { code: 'ACC-COL', parent: 'ACC' },
   'comederos-bebederos': { code: 'ACC-COM', parent: 'ACC' },
-  'transportadoras': { code: 'ACC-TRA', parent: 'ACC' },
+  transportadoras: { code: 'ACC-TRA', parent: 'ACC' },
   'ropa-mascotas': { code: 'ACC-ROP', parent: 'ACC' },
   'accesorios-gatos': { code: 'ACC-GAT', parent: 'ACC' },
   'accesorios-perros': { code: 'ACC-PER', parent: 'ACC' },
@@ -96,20 +96,20 @@ export const LEVEL2_CODES: Record<string, { code: string; parent: string }> = {
   // === CAM (Camas y Casas) ===
   'camas-perros': { code: 'CAM-PER', parent: 'CAM' },
   'camas-gatos': { code: 'CAM-GAT', parent: 'CAM' },
-  'rascadores': { code: 'CAM-RAS', parent: 'CAM' },
+  rascadores: { code: 'CAM-RAS', parent: 'CAM' },
   'rascadores-gatos': { code: 'CAM-RGT', parent: 'CAM' },
   'cuchas-exterior': { code: 'CAM-EXT', parent: 'CAM' },
 
   // === SUP (Suplementos) ===
-  'vitaminas': { code: 'SUP-VIT', parent: 'SUP' },
+  vitaminas: { code: 'SUP-VIT', parent: 'SUP' },
   'omega-piel': { code: 'SUP-OME', parent: 'SUP' },
-  'articulaciones': { code: 'SUP-ART', parent: 'SUP' },
-  'probioticos': { code: 'SUP-PRO', parent: 'SUP' },
+  articulaciones: { code: 'SUP-ART', parent: 'SUP' },
+  probioticos: { code: 'SUP-PRO', parent: 'SUP' },
 
   // === FAR (Farmacia) ===
-  'antibioticos': { code: 'FAR-ANT', parent: 'FAR' },
-  'antiinflamatorios': { code: 'FAR-INF', parent: 'FAR' },
-  'dermatologicos': { code: 'FAR-DER', parent: 'FAR' },
+  antibioticos: { code: 'FAR-ANT', parent: 'FAR' },
+  antiinflamatorios: { code: 'FAR-INF', parent: 'FAR' },
+  dermatologicos: { code: 'FAR-DER', parent: 'FAR' },
   'oftalmicos-oticos': { code: 'FAR-OFT', parent: 'FAR' },
 
   // === AVE (Aves) ===
@@ -119,7 +119,7 @@ export const LEVEL2_CODES: Record<string, { code: string; parent: string }> = {
 
   // === PEC (Peces) ===
   'alimento-peces': { code: 'PEC-ALI', parent: 'PEC' },
-  'acuarios': { code: 'PEC-ACU', parent: 'PEC' },
+  acuarios: { code: 'PEC-ACU', parent: 'PEC' },
   'filtros-bombas': { code: 'PEC-FIL', parent: 'PEC' },
   'decoracion-acuarios': { code: 'PEC-DEC', parent: 'PEC' },
 
@@ -130,8 +130,8 @@ export const LEVEL2_CODES: Record<string, { code: string; parent: string }> = {
   'sustrato-roedores': { code: 'ROE-SUS', parent: 'ROE' },
 
   // === EQV (Equipos Veterinarios) ===
-  'diagnostico': { code: 'EQV-DIA', parent: 'EQV' },
-  'monitorizacion': { code: 'EQV-MON', parent: 'EQV' },
+  diagnostico: { code: 'EQV-DIA', parent: 'EQV' },
+  monitorizacion: { code: 'EQV-MON', parent: 'EQV' },
   'termometros-basculas': { code: 'EQV-TER', parent: 'EQV' },
   'iluminacion-medica': { code: 'EQV-ILU', parent: 'EQV' },
 
@@ -162,10 +162,10 @@ export const LEVEL2_CODES: Record<string, { code: string; parent: string }> = {
 
   // === LAB (Laboratorio) ===
   'tests-rapidos': { code: 'LAB-TES', parent: 'LAB' },
-  'hematologia': { code: 'LAB-HEM', parent: 'LAB' },
-  'bioquimica': { code: 'LAB-BIO', parent: 'LAB' },
-  'microscopia': { code: 'LAB-MIC', parent: 'LAB' },
-  'centrifugas': { code: 'LAB-CEN', parent: 'LAB' },
+  hematologia: { code: 'LAB-HEM', parent: 'LAB' },
+  bioquimica: { code: 'LAB-BIO', parent: 'LAB' },
+  microscopia: { code: 'LAB-MIC', parent: 'LAB' },
+  centrifugas: { code: 'LAB-CEN', parent: 'LAB' },
 
   // === ODO (Odontología) ===
   'instrumental-dental': { code: 'ODO-INS', parent: 'ODO' },
@@ -184,7 +184,7 @@ export const LEVEL2_CODES: Record<string, { code: string; parent: string }> = {
   'carros-instrumentos': { code: 'MOB-CAR', parent: 'MOB' },
 
   // === EST (Esterilización) ===
-  'autoclaves': { code: 'EST-AUT', parent: 'EST' },
+  autoclaves: { code: 'EST-AUT', parent: 'EST' },
   'indicadores-esterilizacion': { code: 'EST-IND', parent: 'EST' },
   'bolsas-esterilizacion': { code: 'EST-BOL', parent: 'EST' },
 
@@ -192,46 +192,44 @@ export const LEVEL2_CODES: Record<string, { code: string; parent: string }> = {
   'batas-scrubs': { code: 'UNI-BAT', parent: 'UNI' },
   'proteccion-radiologica': { code: 'UNI-RAD', parent: 'UNI' },
   'calzado-medico': { code: 'UNI-CAL', parent: 'UNI' },
-};
+}
 
 // Combined mapping (old slug → new code)
 export const SLUG_TO_CODE: Record<string, string> = {
   ...LEVEL1_CODES,
-  ...Object.fromEntries(
-    Object.entries(LEVEL2_CODES).map(([slug, { code }]) => [slug, code])
-  ),
-};
+  ...Object.fromEntries(Object.entries(LEVEL2_CODES).map(([slug, { code }]) => [slug, code])),
+}
 
 // Reverse mapping (new code → old slug)
 export const CODE_TO_SLUG: Record<string, string> = Object.fromEntries(
   Object.entries(SLUG_TO_CODE).map(([slug, code]) => [code, slug])
-);
+)
 
 // Get parent code for a Level 2 category
 export function getParentCode(code: string): string | null {
-  const entry = Object.entries(LEVEL2_CODES).find(([, v]) => v.code === code);
-  return entry ? entry[1].parent : null;
+  const entry = Object.entries(LEVEL2_CODES).find(([, v]) => v.code === code)
+  return entry ? entry[1].parent : null
 }
 
 // Convert old slug to new code
 export function slugToCode(slug: string): string {
-  return SLUG_TO_CODE[slug] || slug;
+  return SLUG_TO_CODE[slug] || slug
 }
 
 // Convert new code to old slug
 export function codeToSlug(code: string): string {
-  return CODE_TO_SLUG[code] || code;
+  return CODE_TO_SLUG[code] || code
 }
 
 // Test/validation
 if (process.argv[1]?.includes('category-migration')) {
-  console.log('\n=== Category Code Migration ===\n');
-  console.log(`Level 1 categories: ${Object.keys(LEVEL1_CODES).length}`);
-  console.log(`Level 2 categories: ${Object.keys(LEVEL2_CODES).length}`);
-  console.log(`Total categories: ${Object.keys(SLUG_TO_CODE).length}`);
+  console.log('\n=== Category Code Migration ===\n')
+  console.log(`Level 1 categories: ${Object.keys(LEVEL1_CODES).length}`)
+  console.log(`Level 2 categories: ${Object.keys(LEVEL2_CODES).length}`)
+  console.log(`Total categories: ${Object.keys(SLUG_TO_CODE).length}`)
 
-  console.log('\n--- Sample mappings ---');
-  console.log('alimento-seco-perros →', slugToCode('alimento-seco-perros'));
-  console.log('ALP-SEC →', codeToSlug('ALP-SEC'));
-  console.log('Parent of ALP-SEC:', getParentCode('ALP-SEC'));
+  console.log('\n--- Sample mappings ---')
+  console.log('alimento-seco-perros →', slugToCode('alimento-seco-perros'))
+  console.log('ALP-SEC →', codeToSlug('ALP-SEC'))
+  console.log('Parent of ALP-SEC:', getParentCode('ALP-SEC'))
 }

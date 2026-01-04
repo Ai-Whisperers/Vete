@@ -38,7 +38,11 @@ export function databaseError(operation: string, context?: ErrorContext) {
 
 // External service error helpers
 export function externalServiceError(service: string, context?: ErrorContext) {
-  return ErrorService.create('EXTERNAL_SERVICE_ERROR', `Error en servicio externo: ${service}`, context)
+  return ErrorService.create(
+    'EXTERNAL_SERVICE_ERROR',
+    `Error en servicio externo: ${service}`,
+    context
+  )
 }
 
 // Authentication helpers

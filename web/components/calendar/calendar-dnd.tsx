@@ -80,49 +80,49 @@ export function CalendarDnD({
   className = '',
 }: CalendarDnDProps) {
   // Use custom hook for state management
-  const {
-    currentView,
-    currentDate,
-    filteredEvents,
-    defaultMinTime,
-    defaultMaxTime,
-    handlers,
-  } = useCalendarState({
-    events,
-    initialView: view,
-    initialDate: date,
-    staffFilters,
-    eventTypeFilters,
-    minTime,
-    maxTime,
-    onNavigate,
-    onViewChange,
-    onSelectEvent,
-    onSelectSlot,
-    onRangeChange,
-    selectable,
-  })
+  const { currentView, currentDate, filteredEvents, defaultMinTime, defaultMaxTime, handlers } =
+    useCalendarState({
+      events,
+      initialView: view,
+      initialDate: date,
+      staffFilters,
+      eventTypeFilters,
+      minTime,
+      maxTime,
+      onNavigate,
+      onViewChange,
+      onSelectEvent,
+      onSelectSlot,
+      onRangeChange,
+      selectable,
+    })
 
   // Custom title accessor - show pet name for appointments
-  const titleAccessor = useMemo(() => (event: CalendarEvent) => {
-    const resource = event.resource as CalendarEventResource | undefined
-    if (resource?.type === 'appointment' && resource.petName) {
-      return resource.petName
-    }
-    return event.title
-  }, [])
+  const titleAccessor = useMemo(
+    () => (event: CalendarEvent) => {
+      const resource = event.resource as CalendarEventResource | undefined
+      if (resource?.type === 'appointment' && resource.petName) {
+        return resource.petName
+      }
+      return event.title
+    },
+    []
+  )
 
   // Tooltip accessor - show full details on hover
-  const tooltipAccessor = useMemo(() => (event: CalendarEvent) => {
-    const resource = event.resource as CalendarEventResource | undefined
-    if (resource?.type === 'appointment') {
-      const parts = [resource.petName || event.title]
-      if (resource.reason) parts.push(resource.reason)
-      if (resource.ownerName) parts.push(`Dueño: ${resource.ownerName}`)
-      return parts.join('\n')
-    }
-    return event.title
-  }, [])
+  const tooltipAccessor = useMemo(
+    () => (event: CalendarEvent) => {
+      const resource = event.resource as CalendarEventResource | undefined
+      if (resource?.type === 'appointment') {
+        const parts = [resource.petName || event.title]
+        if (resource.reason) parts.push(resource.reason)
+        if (resource.ownerName) parts.push(`Dueño: ${resource.ownerName}`)
+        return parts.join('\n')
+      }
+      return event.title
+    },
+    []
+  )
 
   // Pre-compute daily appointment counts for O(1) lookup
   const dailyAppointmentCounts = useMemo(() => {
@@ -145,32 +145,35 @@ export function CalendarDnD({
   }, [])
 
   // Date cell wrapper for month view capacity indicator
-  const DateCellWrapper = useCallback(({ value, children }: DateCellWrapperProps) => {
-    const dateKey = value.toISOString().split('T')[0]
-    const dayEventCount = dailyAppointmentCounts.get(dateKey) || 0
-    const capacityWidth = Math.min((dayEventCount / 15) * 100, 100)
-    const capacityColor = getCapacityColor(dayEventCount)
+  const DateCellWrapper = useCallback(
+    ({ value, children }: DateCellWrapperProps) => {
+      const dateKey = value.toISOString().split('T')[0]
+      const dayEventCount = dailyAppointmentCounts.get(dateKey) || 0
+      const capacityWidth = Math.min((dayEventCount / 15) * 100, 100)
+      const capacityColor = getCapacityColor(dayEventCount)
 
-    return (
-      <div className="rbc-day-bg relative h-full">
-        {children}
-        {dayEventCount > 0 && (
-          <div
-            className="absolute bottom-1 left-1 right-1 h-1.5 rounded-full overflow-hidden bg-gray-100"
-            title={`${dayEventCount} cita${dayEventCount !== 1 ? 's' : ''}`}
-          >
+      return (
+        <div className="rbc-day-bg relative h-full">
+          {children}
+          {dayEventCount > 0 && (
             <div
-              className="h-full rounded-full transition-all duration-300"
-              style={{
-                width: `${capacityWidth}%`,
-                backgroundColor: capacityColor,
-              }}
-            />
-          </div>
-        )}
-      </div>
-    )
-  }, [dailyAppointmentCounts, getCapacityColor])
+              className="absolute bottom-1 left-1 right-1 h-1.5 overflow-hidden rounded-full bg-gray-100"
+              title={`${dayEventCount} cita${dayEventCount !== 1 ? 's' : ''}`}
+            >
+              <div
+                className="h-full rounded-full transition-all duration-300"
+                style={{
+                  width: `${capacityWidth}%`,
+                  backgroundColor: capacityColor,
+                }}
+              />
+            </div>
+          )}
+        </div>
+      )
+    },
+    [dailyAppointmentCounts, getCapacityColor]
+  )
 
   // Determine if an event is draggable
   const draggableAccessor = useCallback((event: CalendarEvent): boolean => {
@@ -246,7 +249,7 @@ export function CalendarDnD({
           display: block;
         }
         /* Non-draggable events */
-        .rbc-addons-dnd .rbc-event[data-draggable="false"] {
+        .rbc-addons-dnd .rbc-event[data-draggable='false'] {
           cursor: default;
         }
       `}</style>

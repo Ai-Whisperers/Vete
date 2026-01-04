@@ -1,47 +1,47 @@
-"use client";
+'use client'
 
-import { useActionState } from "react";
-import * as Icons from "lucide-react";
-import { updateProfile } from "@/app/actions/update-profile";
+import { useActionState } from 'react'
+import * as Icons from 'lucide-react'
+import { updateProfile } from '@/app/actions/update-profile'
 
 function SubmitButton({ isPending }: { isPending: boolean }) {
   return (
     <button
       type="submit"
       disabled={isPending}
-      className="bg-[var(--primary)] text-white font-bold py-3 px-6 sm:px-8 min-h-[48px] rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all flex items-center gap-2 disabled:opacity-70 disabled:pointer-events-none"
+      className="flex min-h-[48px] items-center gap-2 rounded-xl bg-[var(--primary)] px-6 py-3 font-bold text-white shadow-lg transition-all hover:-translate-y-1 hover:shadow-xl disabled:pointer-events-none disabled:opacity-70 sm:px-8"
     >
       {isPending ? (
-        <Icons.Loader2 className="animate-spin w-5 h-5" />
+        <Icons.Loader2 className="h-5 w-5 animate-spin" />
       ) : (
-        <Icons.Save className="w-5 h-5" />
+        <Icons.Save className="h-5 w-5" />
       )}
       Guardar Cambios
     </button>
-  );
+  )
 }
 
 interface ProfileFormProps {
-  clinic: string;
-  profile: any; // Using any for simplicity as I don't have the Profile type definition handy, but ideally should be imported
-  success?: boolean;
+  clinic: string
+  profile: any // Using any for simplicity as I don't have the Profile type definition handy, but ideally should be imported
+  success?: boolean
 }
 
 export function ProfileForm({ clinic, profile, success }: ProfileFormProps) {
-  const [state, formAction, isPending] = useActionState(updateProfile, null);
+  const [state, formAction, isPending] = useActionState(updateProfile, null)
 
   return (
-    <div className="bg-white rounded-3xl shadow-lg border border-gray-100 p-4 sm:p-6 md:p-8">
+    <div className="rounded-3xl border border-gray-100 bg-white p-4 shadow-lg sm:p-6 md:p-8">
       {success && (
-        <div className="mb-6 p-4 bg-green-50 text-green-700 rounded-xl flex items-center gap-3 border border-green-100">
-          <Icons.CheckCircle2 className="w-5 h-5" />
+        <div className="mb-6 flex items-center gap-3 rounded-xl border border-green-100 bg-green-50 p-4 text-green-700">
+          <Icons.CheckCircle2 className="h-5 w-5" />
           <span className="font-bold">¡Perfil actualizado correctamente!</span>
         </div>
       )}
 
       {state && !state.success && (
-        <div className="mb-6 p-4 bg-red-50 text-red-700 rounded-xl flex items-center gap-3 border border-red-100">
-          <Icons.AlertCircle className="w-5 h-5" />
+        <div className="mb-6 flex items-center gap-3 rounded-xl border border-red-100 bg-red-50 p-4 text-red-700">
+          <Icons.AlertCircle className="h-5 w-5" />
           <span className="font-bold">{state.error}</span>
         </div>
       )}
@@ -49,121 +49,121 @@ export function ProfileForm({ clinic, profile, success }: ProfileFormProps) {
       <form action={formAction} className="space-y-6">
         <input type="hidden" name="clinic" value={clinic} />
 
-        <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 pb-6 border-b border-gray-100">
-          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gray-100 flex items-center justify-center text-gray-300 font-bold text-2xl sm:text-3xl flex-shrink-0">
+        <div className="flex flex-col items-center gap-4 border-b border-gray-100 pb-6 sm:flex-row sm:gap-6">
+          <div className="flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 text-2xl font-bold text-gray-300 sm:h-24 sm:w-24 sm:text-3xl">
             {profile?.avatar_url ? (
               <img
                 src={profile.avatar_url}
-                className="w-full h-full rounded-full object-cover"
+                className="h-full w-full rounded-full object-cover"
                 alt=""
               />
             ) : (
-              profile?.full_name?.[0] || (
-                <Icons.User className="w-8 h-8 sm:w-10 sm:h-10" />
-              )
+              profile?.full_name?.[0] || <Icons.User className="h-8 w-8 sm:h-10 sm:w-10" />
             )}
           </div>
           <div className="text-center sm:text-left">
-            <h3 className="font-bold text-base sm:text-lg text-gray-800 break-all">
+            <h3 className="break-all text-base font-bold text-gray-800 sm:text-lg">
               {profile?.email}
             </h3>
-            <span className="inline-block px-3 py-1 bg-[var(--primary)]/10 text-[var(--primary)] text-xs font-bold rounded-full uppercase mt-1">
-              {profile?.role === "owner" ? "Propietario" : profile?.role}
+            <span className="bg-[var(--primary)]/10 mt-1 inline-block rounded-full px-3 py-1 text-xs font-bold uppercase text-[var(--primary)]">
+              {profile?.role === 'owner' ? 'Propietario' : profile?.role}
             </span>
           </div>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid gap-6 md:grid-cols-2">
           <div>
-            <label className="block text-sm font-bold text-gray-500 mb-2">
-              Nombre Completo
-            </label>
+            <label className="mb-2 block text-sm font-bold text-gray-500">Nombre Completo</label>
             <input
               name="full_name"
-              defaultValue={profile?.full_name || ""}
-              className={`w-full p-3 min-h-[48px] rounded-xl border focus:border-[var(--primary)] outline-none font-bold text-gray-700 ${
-                state && !state.success && state.fieldErrors?.full_name ? "border-red-300" : "border-gray-200"
+              defaultValue={profile?.full_name || ''}
+              className={`min-h-[48px] w-full rounded-xl border p-3 font-bold text-gray-700 outline-none focus:border-[var(--primary)] ${
+                state && !state.success && state.fieldErrors?.full_name
+                  ? 'border-red-300'
+                  : 'border-gray-200'
               }`}
             />
             {state && !state.success && state.fieldErrors?.full_name && (
-              <p className="text-red-500 text-sm mt-1">{state.fieldErrors.full_name}</p>
+              <p className="mt-1 text-sm text-red-500">{state.fieldErrors.full_name}</p>
             )}
           </div>
           {/* Empty col for spacing or future use */}
           <div className="hidden md:block"></div>
 
           <div>
-            <label className="block text-sm font-bold text-gray-500 mb-2">
-              Teléfono Principal
-            </label>
+            <label className="mb-2 block text-sm font-bold text-gray-500">Teléfono Principal</label>
             <input
               name="phone"
-              defaultValue={profile?.phone || ""}
+              defaultValue={profile?.phone || ''}
               placeholder="+595 9..."
-              className={`w-full p-3 min-h-[48px] rounded-xl border focus:border-[var(--primary)] outline-none font-bold text-gray-700 ${
-                state && !state.success && state.fieldErrors?.phone ? "border-red-300" : "border-gray-200"
+              className={`min-h-[48px] w-full rounded-xl border p-3 font-bold text-gray-700 outline-none focus:border-[var(--primary)] ${
+                state && !state.success && state.fieldErrors?.phone
+                  ? 'border-red-300'
+                  : 'border-gray-200'
               }`}
             />
             {state && !state.success && state.fieldErrors?.phone && (
-               <p className="text-red-500 text-sm mt-1">{state.fieldErrors.phone}</p>
+              <p className="mt-1 text-sm text-red-500">{state.fieldErrors.phone}</p>
             )}
           </div>
           <div>
-            <label className="block text-sm font-bold text-gray-500 mb-2">
+            <label className="mb-2 block text-sm font-bold text-gray-500">
               Teléfono Secundario
             </label>
             <input
               name="secondary_phone"
-              defaultValue={profile?.secondary_phone || ""}
+              defaultValue={profile?.secondary_phone || ''}
               placeholder="Opcional"
-              className={`w-full p-3 min-h-[48px] rounded-xl border focus:border-[var(--primary)] outline-none font-bold text-gray-700 ${
-                 state && !state.success && state.fieldErrors?.secondary_phone ? "border-red-300" : "border-gray-200"
+              className={`min-h-[48px] w-full rounded-xl border p-3 font-bold text-gray-700 outline-none focus:border-[var(--primary)] ${
+                state && !state.success && state.fieldErrors?.secondary_phone
+                  ? 'border-red-300'
+                  : 'border-gray-200'
               }`}
             />
-             {state && !state.success && state.fieldErrors?.secondary_phone && (
-               <p className="text-red-500 text-sm mt-1">{state.fieldErrors.secondary_phone}</p>
+            {state && !state.success && state.fieldErrors?.secondary_phone && (
+              <p className="mt-1 text-sm text-red-500">{state.fieldErrors.secondary_phone}</p>
             )}
           </div>
 
           <div className="md:col-span-2">
-            <label className="block text-sm font-bold text-gray-500 mb-2">
-              Dirección
-            </label>
+            <label className="mb-2 block text-sm font-bold text-gray-500">Dirección</label>
             <input
               name="address"
-              defaultValue={profile?.address || ""}
+              defaultValue={profile?.address || ''}
               placeholder="Calle Principal 123"
-              className={`w-full p-3 min-h-[48px] rounded-xl border focus:border-[var(--primary)] outline-none font-bold text-gray-700 ${
-                 state && !state.success && state.fieldErrors?.address ? "border-red-300" : "border-gray-200"
+              className={`min-h-[48px] w-full rounded-xl border p-3 font-bold text-gray-700 outline-none focus:border-[var(--primary)] ${
+                state && !state.success && state.fieldErrors?.address
+                  ? 'border-red-300'
+                  : 'border-gray-200'
               }`}
             />
-             {state && !state.success && state.fieldErrors?.address && (
-               <p className="text-red-500 text-sm mt-1">{state.fieldErrors.address}</p>
+            {state && !state.success && state.fieldErrors?.address && (
+              <p className="mt-1 text-sm text-red-500">{state.fieldErrors.address}</p>
             )}
           </div>
 
           <div className="md:col-span-2">
-            <label className="block text-sm font-bold text-gray-500 mb-2">
-              Ciudad / Barrio
-            </label>
+            <label className="mb-2 block text-sm font-bold text-gray-500">Ciudad / Barrio</label>
             <input
               name="city"
-              defaultValue={profile?.city || ""}
+              defaultValue={profile?.city || ''}
               placeholder="Asunción"
-              className={`w-full p-3 min-h-[48px] rounded-xl border focus:border-[var(--primary)] outline-none font-bold text-gray-700 ${
-                 state && !state.success && state.fieldErrors?.city ? "border-red-300" : "border-gray-200"
+              className={`min-h-[48px] w-full rounded-xl border p-3 font-bold text-gray-700 outline-none focus:border-[var(--primary)] ${
+                state && !state.success && state.fieldErrors?.city
+                  ? 'border-red-300'
+                  : 'border-gray-200'
               }`}
             />
-             {state && !state.success && state.fieldErrors?.city && (
-               <p className="text-red-500 text-sm mt-1">{state.fieldErrors.city}</p>
+            {state && !state.success && state.fieldErrors?.city && (
+              <p className="mt-1 text-sm text-red-500">{state.fieldErrors.city}</p>
             )}
           </div>
         </div>
 
-        <div className="pt-4 flex justify-center sm:justify-end">
+        <div className="flex justify-center pt-4 sm:justify-end">
           <SubmitButton isPending={isPending} />
         </div>
       </form>
     </div>
-  );
+  )
 }

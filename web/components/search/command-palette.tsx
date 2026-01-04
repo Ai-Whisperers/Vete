@@ -1,7 +1,7 @@
-"use client";
+'use client'
 
-import { useState, useEffect, useCallback, useRef } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useState, useEffect, useCallback, useRef } from 'react'
+import { useRouter, useParams } from 'next/navigation'
 import {
   Search,
   X,
@@ -16,221 +16,230 @@ import {
   Syringe,
   Loader2,
   ArrowRight,
-  Command
-} from "lucide-react";
+  Command,
+} from 'lucide-react'
 
 interface SearchResult {
-  id: string;
-  type: "pet" | "appointment" | "product" | "page" | "action";
-  title: string;
-  subtitle?: string;
-  icon?: string;
-  url?: string;
-  action?: () => void;
+  id: string
+  type: 'pet' | 'appointment' | 'product' | 'page' | 'action'
+  title: string
+  subtitle?: string
+  icon?: string
+  url?: string
+  action?: () => void
 }
 
 interface CommandPaletteProps {
-  isOpen: boolean;
-  onClose: () => void;
+  isOpen: boolean
+  onClose: () => void
 }
 
 const QUICK_ACTIONS: SearchResult[] = [
   {
-    id: "new-pet",
-    type: "action",
-    title: "Nueva Mascota",
-    subtitle: "Registrar nueva mascota",
-    icon: "dog",
+    id: 'new-pet',
+    type: 'action',
+    title: 'Nueva Mascota',
+    subtitle: 'Registrar nueva mascota',
+    icon: 'dog',
   },
   {
-    id: "new-appointment",
-    type: "action",
-    title: "Nueva Cita",
-    subtitle: "Agendar una cita",
-    icon: "calendar",
+    id: 'new-appointment',
+    type: 'action',
+    title: 'Nueva Cita',
+    subtitle: 'Agendar una cita',
+    icon: 'calendar',
   },
   {
-    id: "dashboard",
-    type: "page",
-    title: "Dashboard",
-    subtitle: "Ir al panel principal",
-    icon: "user",
+    id: 'dashboard',
+    type: 'page',
+    title: 'Dashboard',
+    subtitle: 'Ir al panel principal',
+    icon: 'user',
   },
   {
-    id: "store",
-    type: "page",
-    title: "Tienda",
-    subtitle: "Ver productos",
-    icon: "package",
+    id: 'store',
+    type: 'page',
+    title: 'Tienda',
+    subtitle: 'Ver productos',
+    icon: 'package',
   },
-];
+]
 
 function getIcon(iconName: string | undefined, species?: string): React.ReactNode {
-  const iconClass = "w-5 h-5";
+  const iconClass = 'w-5 h-5'
 
   switch (iconName || species) {
-    case "dog":
-      return <Dog className={iconClass} />;
-    case "cat":
-      return <Cat className={iconClass} />;
-    case "calendar":
-      return <Calendar className={iconClass} />;
-    case "user":
-      return <User className={iconClass} />;
-    case "package":
-      return <Package className={iconClass} />;
-    case "settings":
-      return <Settings className={iconClass} />;
-    case "file":
-      return <FileText className={iconClass} />;
-    case "pill":
-      return <Pill className={iconClass} />;
-    case "syringe":
-      return <Syringe className={iconClass} />;
+    case 'dog':
+      return <Dog className={iconClass} />
+    case 'cat':
+      return <Cat className={iconClass} />
+    case 'calendar':
+      return <Calendar className={iconClass} />
+    case 'user':
+      return <User className={iconClass} />
+    case 'package':
+      return <Package className={iconClass} />
+    case 'settings':
+      return <Settings className={iconClass} />
+    case 'file':
+      return <FileText className={iconClass} />
+    case 'pill':
+      return <Pill className={iconClass} />
+    case 'syringe':
+      return <Syringe className={iconClass} />
     default:
-      return <Search className={iconClass} />;
+      return <Search className={iconClass} />
   }
 }
 
-export function CommandPalette({ isOpen, onClose }: CommandPaletteProps): React.ReactElement | null {
-  const router = useRouter();
-  const params = useParams();
-  const clinic = params?.clinic as string;
+export function CommandPalette({
+  isOpen,
+  onClose,
+}: CommandPaletteProps): React.ReactElement | null {
+  const router = useRouter()
+  const params = useParams()
+  const clinic = params?.clinic as string
 
-  const [query, setQuery] = useState("");
-  const [results, setResults] = useState<SearchResult[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [query, setQuery] = useState('')
+  const [results, setResults] = useState<SearchResult[]>([])
+  const [loading, setLoading] = useState(false)
+  const [selectedIndex, setSelectedIndex] = useState(0)
 
-  const inputRef = useRef<HTMLInputElement>(null);
-  const listRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null)
+  const listRef = useRef<HTMLDivElement>(null)
 
   // Reset state when opening
   useEffect(() => {
     if (isOpen) {
-      setQuery("");
-      setResults([]);
-      setSelectedIndex(0);
-      setTimeout(() => inputRef.current?.focus(), 50);
+      setQuery('')
+      setResults([])
+      setSelectedIndex(0)
+      setTimeout(() => inputRef.current?.focus(), 50)
     }
-  }, [isOpen]);
+  }, [isOpen])
 
   // Search when query changes
   useEffect(() => {
     const searchTimeout = setTimeout(async () => {
       if (!query.trim()) {
-        setResults([]);
-        return;
+        setResults([])
+        return
       }
 
-      setLoading(true);
+      setLoading(true)
       try {
-        const res = await fetch(`/api/search?q=${encodeURIComponent(query)}&clinic=${clinic}`);
+        const res = await fetch(`/api/search?q=${encodeURIComponent(query)}&clinic=${clinic}`)
         if (res.ok) {
-          const data = await res.json();
-          setResults(data.results || []);
+          const data = await res.json()
+          setResults(data.results || [])
         }
       } catch {
         // Search error - silently fail
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    }, 300);
+    }, 300)
 
-    return () => clearTimeout(searchTimeout);
-  }, [query, clinic]);
+    return () => clearTimeout(searchTimeout)
+  }, [query, clinic])
 
   // Keyboard navigation
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    const items = query.trim() ? results : QUICK_ACTIONS;
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      const items = query.trim() ? results : QUICK_ACTIONS
 
-    switch (e.key) {
-      case "ArrowDown":
-        e.preventDefault();
-        setSelectedIndex((prev) => (prev + 1) % items.length);
-        break;
-      case "ArrowUp":
-        e.preventDefault();
-        setSelectedIndex((prev) => (prev - 1 + items.length) % items.length);
-        break;
-      case "Enter":
-        e.preventDefault();
-        if (items[selectedIndex]) {
-          handleSelect(items[selectedIndex]);
-        }
-        break;
-      case "Escape":
-        e.preventDefault();
-        onClose();
-        break;
-    }
-  }, [query, results, selectedIndex, onClose]);
+      switch (e.key) {
+        case 'ArrowDown':
+          e.preventDefault()
+          setSelectedIndex((prev) => (prev + 1) % items.length)
+          break
+        case 'ArrowUp':
+          e.preventDefault()
+          setSelectedIndex((prev) => (prev - 1 + items.length) % items.length)
+          break
+        case 'Enter':
+          e.preventDefault()
+          if (items[selectedIndex]) {
+            handleSelect(items[selectedIndex])
+          }
+          break
+        case 'Escape':
+          e.preventDefault()
+          onClose()
+          break
+      }
+    },
+    [query, results, selectedIndex, onClose]
+  )
 
   // Handle selection
-  const handleSelect = useCallback((item: SearchResult) => {
-    onClose();
+  const handleSelect = useCallback(
+    (item: SearchResult) => {
+      onClose()
 
-    if (item.action) {
-      item.action();
-      return;
-    }
+      if (item.action) {
+        item.action()
+        return
+      }
 
-    if (item.url) {
-      router.push(item.url);
-      return;
-    }
+      if (item.url) {
+        router.push(item.url)
+        return
+      }
 
-    // Default navigation based on type and id
-    switch (item.type) {
-      case "pet":
-        router.push(`/${clinic}/portal/pets/${item.id}`);
-        break;
-      case "appointment":
-        router.push(`/${clinic}/portal/appointments/${item.id}`);
-        break;
-      case "product":
-        router.push(`/${clinic}/store/products/${item.id}`);
-        break;
-      case "page":
-        switch (item.id) {
-          case "dashboard":
-            router.push(`/${clinic}/portal/dashboard`);
-            break;
-          case "store":
-            router.push(`/${clinic}/store`);
-            break;
-          case "new-pet":
-            router.push(`/${clinic}/portal/pets/new`);
-            break;
-          case "new-appointment":
-            router.push(`/${clinic}/book`);
-            break;
-        }
-        break;
-      case "action":
-        switch (item.id) {
-          case "new-pet":
-            router.push(`/${clinic}/portal/pets/new`);
-            break;
-          case "new-appointment":
-            router.push(`/${clinic}/book`);
-            break;
-        }
-        break;
-    }
-  }, [clinic, router, onClose]);
+      // Default navigation based on type and id
+      switch (item.type) {
+        case 'pet':
+          router.push(`/${clinic}/portal/pets/${item.id}`)
+          break
+        case 'appointment':
+          router.push(`/${clinic}/portal/appointments/${item.id}`)
+          break
+        case 'product':
+          router.push(`/${clinic}/store/products/${item.id}`)
+          break
+        case 'page':
+          switch (item.id) {
+            case 'dashboard':
+              router.push(`/${clinic}/portal/dashboard`)
+              break
+            case 'store':
+              router.push(`/${clinic}/store`)
+              break
+            case 'new-pet':
+              router.push(`/${clinic}/portal/pets/new`)
+              break
+            case 'new-appointment':
+              router.push(`/${clinic}/book`)
+              break
+          }
+          break
+        case 'action':
+          switch (item.id) {
+            case 'new-pet':
+              router.push(`/${clinic}/portal/pets/new`)
+              break
+            case 'new-appointment':
+              router.push(`/${clinic}/book`)
+              break
+          }
+          break
+      }
+    },
+    [clinic, router, onClose]
+  )
 
   // Scroll selected item into view
   useEffect(() => {
     if (listRef.current) {
-      const selectedEl = listRef.current.querySelector(`[data-index="${selectedIndex}"]`);
-      selectedEl?.scrollIntoView({ block: "nearest" });
+      const selectedEl = listRef.current.querySelector(`[data-index="${selectedIndex}"]`)
+      selectedEl?.scrollIntoView({ block: 'nearest' })
     }
-  }, [selectedIndex]);
+  }, [selectedIndex])
 
-  if (!isOpen) return null;
+  if (!isOpen) return null
 
-  const displayItems = query.trim() ? results : QUICK_ACTIONS;
+  const displayItems = query.trim() ? results : QUICK_ACTIONS
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
@@ -247,35 +256,35 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps): React.
           role="dialog"
           aria-modal="true"
           aria-label="Búsqueda global"
-          className="relative w-full max-w-xl bg-[var(--bg-paper)] rounded-2xl shadow-2xl overflow-hidden transform transition-all"
+          className="relative w-full max-w-xl transform overflow-hidden rounded-2xl bg-[var(--bg-paper)] shadow-2xl transition-all"
         >
           {/* Search Input */}
-          <div className="flex items-center gap-3 px-4 py-4 border-b border-[var(--border-light,#f3f4f6)]">
-            <Search className="w-5 h-5 text-[var(--text-muted)] flex-shrink-0" aria-hidden="true" />
+          <div className="flex items-center gap-3 border-b border-[var(--border-light,#f3f4f6)] px-4 py-4">
+            <Search className="h-5 w-5 flex-shrink-0 text-[var(--text-muted)]" aria-hidden="true" />
             <input
               ref={inputRef}
               type="text"
               value={query}
               onChange={(e) => {
-                setQuery(e.target.value);
-                setSelectedIndex(0);
+                setQuery(e.target.value)
+                setSelectedIndex(0)
               }}
               onKeyDown={handleKeyDown}
               placeholder="Buscar mascotas, citas, productos..."
-              className="flex-1 text-base outline-none bg-transparent text-[var(--text-primary)] placeholder:text-[var(--text-muted)]"
+              className="flex-1 bg-transparent text-base text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)]"
               aria-label="Buscar"
               aria-autocomplete="list"
               aria-controls="search-results"
             />
             {loading && (
-              <Loader2 className="w-5 h-5 text-[var(--primary)] animate-spin" aria-hidden="true" />
+              <Loader2 className="h-5 w-5 animate-spin text-[var(--primary)]" aria-hidden="true" />
             )}
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg hover:bg-[var(--bg-subtle)] transition-colors"
+              className="rounded-lg p-1.5 transition-colors hover:bg-[var(--bg-subtle)]"
               aria-label="Cerrar búsqueda"
             >
-              <X className="w-5 h-5 text-[var(--text-muted)]" />
+              <X className="h-5 w-5 text-[var(--text-muted)]" />
             </button>
           </div>
 
@@ -288,7 +297,7 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps): React.
           >
             {!query.trim() && (
               <div className="px-4 py-2">
-                <p className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">
+                <p className="text-xs font-medium uppercase tracking-wider text-[var(--text-muted)]">
                   Acciones Rápidas
                 </p>
               </div>
@@ -296,9 +305,14 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps): React.
 
             {query.trim() && results.length === 0 && !loading && (
               <div className="px-4 py-8 text-center">
-                <Search className="w-12 h-12 text-[var(--border,#e5e7eb)] mx-auto mb-3" aria-hidden="true" />
-                <p className="text-[var(--text-secondary)] font-medium">No se encontraron resultados</p>
-                <p className="text-sm text-[var(--text-muted)] mt-1">
+                <Search
+                  className="mx-auto mb-3 h-12 w-12 text-[var(--border,#e5e7eb)]"
+                  aria-hidden="true"
+                />
+                <p className="font-medium text-[var(--text-secondary)]">
+                  No se encontraron resultados
+                </p>
+                <p className="mt-1 text-sm text-[var(--text-muted)]">
                   Intenta con otro término de búsqueda
                 </p>
               </div>
@@ -312,30 +326,33 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps): React.
                 aria-selected={index === selectedIndex}
                 onClick={() => handleSelect(item)}
                 onMouseEnter={() => setSelectedIndex(index)}
-                className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors ${
+                className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-colors ${
                   index === selectedIndex
-                    ? "bg-[var(--primary)]/10 text-[var(--primary)]"
-                    : "hover:bg-[var(--bg-subtle)]"
+                    ? 'bg-[var(--primary)]/10 text-[var(--primary)]'
+                    : 'hover:bg-[var(--bg-subtle)]'
                 }`}
               >
                 <div
-                  className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                  className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl ${
                     index === selectedIndex
-                      ? "bg-[var(--primary)] text-white"
-                      : "bg-[var(--bg-subtle)] text-[var(--text-secondary)]"
+                      ? 'bg-[var(--primary)] text-white'
+                      : 'bg-[var(--bg-subtle)] text-[var(--text-secondary)]'
                   }`}
                 >
-                  {getIcon(item.icon, item.type === "pet" ? item.subtitle?.toLowerCase() : undefined)}
+                  {getIcon(
+                    item.icon,
+                    item.type === 'pet' ? item.subtitle?.toLowerCase() : undefined
+                  )}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium truncate">{item.title}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-medium">{item.title}</p>
                   {item.subtitle && (
-                    <p className="text-sm text-[var(--text-muted)] truncate">{item.subtitle}</p>
+                    <p className="truncate text-sm text-[var(--text-muted)]">{item.subtitle}</p>
                   )}
                 </div>
                 <ArrowRight
-                  className={`w-4 h-4 flex-shrink-0 transition-opacity ${
-                    index === selectedIndex ? "opacity-100" : "opacity-0"
+                  className={`h-4 w-4 flex-shrink-0 transition-opacity ${
+                    index === selectedIndex ? 'opacity-100' : 'opacity-0'
                   }`}
                   aria-hidden="true"
                 />
@@ -344,19 +361,27 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps): React.
           </div>
 
           {/* Footer */}
-          <div className="flex items-center justify-between px-4 py-3 border-t border-[var(--border-light,#f3f4f6)] bg-[var(--bg-subtle)] text-xs text-[var(--text-muted)]">
+          <div className="flex items-center justify-between border-t border-[var(--border-light,#f3f4f6)] bg-[var(--bg-subtle)] px-4 py-3 text-xs text-[var(--text-muted)]">
             <div className="flex items-center gap-4">
               <span className="flex items-center gap-1">
-                <kbd className="px-1.5 py-0.5 bg-[var(--bg-paper)] border border-[var(--border,#e5e7eb)] rounded text-[var(--text-secondary)]">↑</kbd>
-                <kbd className="px-1.5 py-0.5 bg-[var(--bg-paper)] border border-[var(--border,#e5e7eb)] rounded text-[var(--text-secondary)]">↓</kbd>
+                <kbd className="rounded border border-[var(--border,#e5e7eb)] bg-[var(--bg-paper)] px-1.5 py-0.5 text-[var(--text-secondary)]">
+                  ↑
+                </kbd>
+                <kbd className="rounded border border-[var(--border,#e5e7eb)] bg-[var(--bg-paper)] px-1.5 py-0.5 text-[var(--text-secondary)]">
+                  ↓
+                </kbd>
                 <span className="ml-1">navegar</span>
               </span>
               <span className="flex items-center gap-1">
-                <kbd className="px-1.5 py-0.5 bg-[var(--bg-paper)] border border-[var(--border,#e5e7eb)] rounded text-[var(--text-secondary)]">↵</kbd>
+                <kbd className="rounded border border-[var(--border,#e5e7eb)] bg-[var(--bg-paper)] px-1.5 py-0.5 text-[var(--text-secondary)]">
+                  ↵
+                </kbd>
                 <span className="ml-1">seleccionar</span>
               </span>
               <span className="flex items-center gap-1">
-                <kbd className="px-1.5 py-0.5 bg-[var(--bg-paper)] border border-[var(--border,#e5e7eb)] rounded text-[var(--text-secondary)]">esc</kbd>
+                <kbd className="rounded border border-[var(--border,#e5e7eb)] bg-[var(--bg-paper)] px-1.5 py-0.5 text-[var(--text-secondary)]">
+                  esc
+                </kbd>
                 <span className="ml-1">cerrar</span>
               </span>
             </div>
@@ -364,30 +389,30 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps): React.
         </div>
       </div>
     </div>
-  );
+  )
 }
 
 // Hook to manage command palette state
 export function useCommandPalette() {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false)
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Cmd+K or Ctrl+K
-      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
-        e.preventDefault();
-        setIsOpen((prev) => !prev);
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault()
+        setIsOpen((prev) => !prev)
       }
-    };
+    }
 
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, []);
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [])
 
   return {
     isOpen,
     open: () => setIsOpen(true),
     close: () => setIsOpen(false),
     toggle: () => setIsOpen((prev) => !prev),
-  };
+  }
 }

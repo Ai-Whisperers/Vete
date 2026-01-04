@@ -23,7 +23,7 @@ export function SendInvoiceDialog({
   clientEmail,
   clientName,
   isOpen,
-  onClose
+  onClose,
 }: SendInvoiceDialogProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
@@ -48,29 +48,20 @@ export function SendInvoiceDialog({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl max-w-md w-full p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-[var(--text-primary)]">
-            Enviar Factura
-          </h2>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            <Icons.X className="w-5 h-5" />
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className="w-full max-w-md rounded-xl bg-white p-6">
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-lg font-bold text-[var(--text-primary)]">Enviar Factura</h2>
+          <button onClick={onClose} className="rounded-lg p-2 transition-colors hover:bg-gray-100">
+            <Icons.X className="h-5 w-5" />
           </button>
         </div>
 
-        {error && (
-          <div className="p-3 bg-red-50 text-red-700 rounded-lg text-sm mb-4">
-            {error}
-          </div>
-        )}
+        {error && <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</div>}
 
         <div className="space-y-4">
           {/* Invoice Preview */}
-          <div className="p-4 bg-gray-50 rounded-lg space-y-2">
+          <div className="space-y-2 rounded-lg bg-gray-50 p-4">
             <div className="flex justify-between">
               <span className="text-[var(--text-secondary)]">Factura</span>
               <span className="font-medium">{invoiceNumber}</span>
@@ -82,11 +73,11 @@ export function SendInvoiceDialog({
           </div>
 
           {/* Recipient */}
-          <div className="p-4 border border-gray-200 rounded-lg">
-            <p className="text-sm text-[var(--text-secondary)] mb-1">Enviar a:</p>
+          <div className="rounded-lg border border-gray-200 p-4">
+            <p className="mb-1 text-sm text-[var(--text-secondary)]">Enviar a:</p>
             {clientEmail ? (
               <div className="flex items-center gap-2">
-                <Icons.Mail className="w-4 h-4 text-[var(--primary)]" />
+                <Icons.Mail className="h-4 w-4 text-[var(--primary)]" />
                 <div>
                   <p className="font-medium text-[var(--text-primary)]">{clientName}</p>
                   <p className="text-sm text-[var(--text-secondary)]">{clientEmail}</p>
@@ -94,36 +85,36 @@ export function SendInvoiceDialog({
               </div>
             ) : (
               <div className="flex items-center gap-2 text-orange-600">
-                <Icons.AlertTriangle className="w-4 h-4" />
+                <Icons.AlertTriangle className="h-4 w-4" />
                 <p className="text-sm">El cliente no tiene email registrado</p>
               </div>
             )}
           </div>
 
           <p className="text-sm text-[var(--text-secondary)]">
-            Se enviará un correo electrónico al cliente con los detalles de la factura
-            y un enlace para verla en el portal.
+            Se enviará un correo electrónico al cliente con los detalles de la factura y un enlace
+            para verla en el portal.
           </p>
         </div>
 
         {/* Actions */}
-        <div className="flex justify-end gap-3 pt-4 mt-4 border-t border-gray-100">
+        <div className="mt-4 flex justify-end gap-3 border-t border-gray-100 pt-4">
           <button
             onClick={onClose}
             disabled={loading}
-            className="px-4 py-2 text-[var(--text-secondary)] hover:bg-gray-100 rounded-lg"
+            className="rounded-lg px-4 py-2 text-[var(--text-secondary)] hover:bg-gray-100"
           >
             Cancelar
           </button>
           <button
             onClick={handleSend}
             disabled={loading || !clientEmail}
-            className="px-4 py-2 bg-[var(--primary)] text-white rounded-lg font-medium hover:opacity-90 disabled:opacity-50 flex items-center gap-2"
+            className="flex items-center gap-2 rounded-lg bg-[var(--primary)] px-4 py-2 font-medium text-white hover:opacity-90 disabled:opacity-50"
           >
             {loading ? (
-              <Icons.Loader2 className="w-4 h-4 animate-spin" />
+              <Icons.Loader2 className="h-4 w-4 animate-spin" />
             ) : (
-              <Icons.Send className="w-4 h-4" />
+              <Icons.Send className="h-4 w-4" />
             )}
             Enviar factura
           </button>

@@ -4,21 +4,21 @@
  * Pre-defined user data for testing authentication and role-based access.
  */
 
-export type UserRole = 'owner' | 'vet' | 'admin';
+export type UserRole = 'owner' | 'vet' | 'admin'
 
 export interface UserFixture {
-  id: string;
-  email: string;
-  password: string;
-  fullName: string;
-  phone: string;
-  role: UserRole;
-  tenantId: string;
-  clientCode?: string;
+  id: string
+  email: string
+  password: string
+  fullName: string
+  phone: string
+  role: UserRole
+  tenantId: string
+  clientCode?: string
 }
 
 /** Test user credentials - DO NOT USE IN PRODUCTION */
-const TEST_PASSWORD = 'TestPassword123!';
+const TEST_PASSWORD = 'TestPassword123!'
 
 /** Pre-defined test users by role */
 export const USERS: Record<string, UserFixture> = {
@@ -93,47 +93,47 @@ export const USERS: Record<string, UserFixture> = {
     role: 'admin',
     tenantId: 'petlife',
   },
-};
+}
 
 /** Get user by key */
 export function getUser(key: string): UserFixture {
-  const user = USERS[key];
+  const user = USERS[key]
   if (!user) {
-    throw new Error(`Unknown user: ${key}`);
+    throw new Error(`Unknown user: ${key}`)
   }
-  return user;
+  return user
 }
 
 /** Get users by role */
 export function getUsersByRole(role: UserRole): UserFixture[] {
-  return Object.values(USERS).filter((user) => user.role === role);
+  return Object.values(USERS).filter((user) => user.role === role)
 }
 
 /** Get users by tenant */
 export function getUsersByTenant(tenantId: string): UserFixture[] {
-  return Object.values(USERS).filter((user) => user.tenantId === tenantId);
+  return Object.values(USERS).filter((user) => user.tenantId === tenantId)
 }
 
 /** Default users for quick access */
-export const DEFAULT_OWNER = USERS.owner1;
-export const DEFAULT_VET = USERS.vet1;
-export const DEFAULT_ADMIN = USERS.admin1;
+export const DEFAULT_OWNER = USERS.owner1
+export const DEFAULT_VET = USERS.vet1
+export const DEFAULT_ADMIN = USERS.admin1
 
 /** Invalid credentials for testing auth failures */
 export const INVALID_CREDENTIALS = {
   email: 'nonexistent@test.local',
   password: 'WrongPassword123!',
-};
+}
 
 /** Generate unique test email */
 export function generateTestEmail(prefix: string = 'test'): string {
-  const timestamp = Date.now();
-  const random = Math.random().toString(36).substring(7);
-  return `${prefix}-${timestamp}-${random}@test.local`;
+  const timestamp = Date.now()
+  const random = Math.random().toString(36).substring(7)
+  return `${prefix}-${timestamp}-${random}@test.local`
 }
 
 /** Generate unique phone number */
 export function generateTestPhone(): string {
-  const random = Math.floor(Math.random() * 900000000) + 100000000;
-  return `+595${random}`;
+  const random = Math.floor(Math.random() * 900000000) + 100000000
+  return `+595${random}`
 }

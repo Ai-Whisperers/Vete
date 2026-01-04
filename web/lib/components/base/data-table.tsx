@@ -38,7 +38,7 @@ export function DataTable<T extends Record<string, any>>({
   pagination = false,
   pageSize = 10,
   emptyMessage = 'No se encontraron resultados',
-  className = ''
+  className = '',
 }: DataTableProps<T>) {
   const [searchTerm, setSearchTerm] = useState('')
   const [sortColumn, setSortColumn] = useState<string | null>(null)
@@ -49,8 +49,8 @@ export function DataTable<T extends Record<string, any>>({
   const filteredData = useMemo(() => {
     if (!searchTerm) return data
 
-    return data.filter(item =>
-      Object.values(item).some(value =>
+    return data.filter((item) =>
+      Object.values(item).some((value) =>
         String(value).toLowerCase().includes(searchTerm.toLowerCase())
       )
     )
@@ -81,7 +81,7 @@ export function DataTable<T extends Record<string, any>>({
   const totalPages = Math.ceil(sortedData.length / pageSize)
 
   const handleSort = (columnKey: string) => {
-    const column = columns.find(col => col.key === columnKey)
+    const column = columns.find((col) => col.key === columnKey)
     if (!column?.sortable) return
 
     if (sortColumn === columnKey) {
@@ -99,10 +99,10 @@ export function DataTable<T extends Record<string, any>>({
   }
 
   const getSortIcon = (columnKey: string) => {
-    if (sortColumn !== columnKey) return <ChevronsUpDown className="w-4 h-4" />
-    if (sortDirection === 'asc') return <ChevronUp className="w-4 h-4" />
-    if (sortDirection === 'desc') return <ChevronDown className="w-4 h-4" />
-    return <ChevronsUpDown className="w-4 h-4" />
+    if (sortColumn !== columnKey) return <ChevronsUpDown className="h-4 w-4" />
+    if (sortDirection === 'asc') return <ChevronUp className="h-4 w-4" />
+    if (sortDirection === 'desc') return <ChevronDown className="h-4 w-4" />
+    return <ChevronsUpDown className="h-4 w-4" />
   }
 
   return (
@@ -117,11 +117,7 @@ export function DataTable<T extends Record<string, any>>({
             className="max-w-sm"
           />
           {searchTerm && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setSearchTerm('')}
-            >
+            <Button variant="outline" size="sm" onClick={() => setSearchTerm('')}>
               Limpiar
             </Button>
           )}
@@ -129,9 +125,9 @@ export function DataTable<T extends Record<string, any>>({
       )}
 
       {/* Table */}
-      <div className="border rounded-lg overflow-hidden">
+      <div className="overflow-hidden rounded-lg border">
         <table className="w-full">
-          <thead className="bg-gray-50 border-b">
+          <thead className="border-b bg-gray-50">
             <tr>
               {columns.map((column) => (
                 <th
@@ -156,10 +152,7 @@ export function DataTable<T extends Record<string, any>>({
           <tbody className="divide-y divide-gray-200">
             {paginatedData.length === 0 ? (
               <tr>
-                <td
-                  colSpan={columns.length}
-                  className="px-4 py-8 text-center text-gray-500"
-                >
+                <td colSpan={columns.length} className="px-4 py-8 text-center text-gray-500">
                   {emptyMessage}
                 </td>
               </tr>
@@ -173,8 +166,7 @@ export function DataTable<T extends Record<string, any>>({
                     >
                       {column.render
                         ? column.render(item[column.key as keyof T], item)
-                        : String(item[column.key as keyof T] || '')
-                      }
+                        : String(item[column.key as keyof T] || '')}
                     </td>
                   ))}
                 </tr>
@@ -188,13 +180,14 @@ export function DataTable<T extends Record<string, any>>({
       {pagination && totalPages > 1 && (
         <div className="flex items-center justify-between">
           <div className="text-sm text-gray-700">
-            Mostrando {((currentPage - 1) * pageSize) + 1} a {Math.min(currentPage * pageSize, sortedData.length)} de {sortedData.length} resultados
+            Mostrando {(currentPage - 1) * pageSize + 1} a{' '}
+            {Math.min(currentPage * pageSize, sortedData.length)} de {sortedData.length} resultados
           </div>
           <div className="flex items-center space-x-2">
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
               disabled={currentPage === 1}
             >
               Anterior
@@ -205,7 +198,7 @@ export function DataTable<T extends Record<string, any>>({
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
               disabled={currentPage === totalPages}
             >
               Siguiente

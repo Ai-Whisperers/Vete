@@ -15,8 +15,8 @@ export function getClinicSlugs(): string[] {
   try {
     const entries = fs.readdirSync(contentDir, { withFileTypes: true })
     clinicSlugsCache = entries
-      .filter(entry => entry.isDirectory() && !entry.name.startsWith('_'))
-      .map(entry => entry.name)
+      .filter((entry) => entry.isDirectory() && !entry.name.startsWith('_'))
+      .map((entry) => entry.name)
 
     return clinicSlugsCache
   } catch {
@@ -31,7 +31,7 @@ export function getClinicSlugs(): string[] {
  */
 export async function generateClinicParams() {
   const slugs = getClinicSlugs()
-  return slugs.map(clinic => ({ clinic }))
+  return slugs.map((clinic) => ({ clinic }))
 }
 
 /**
@@ -41,9 +41,7 @@ export async function generateNestedClinicParams<T extends Record<string, string
   nestedParams: T[]
 ) {
   const slugs = getClinicSlugs()
-  return slugs.flatMap(clinic =>
-    nestedParams.map(params => ({ clinic, ...params }))
-  )
+  return slugs.flatMap((clinic) => nestedParams.map((params) => ({ clinic, ...params })))
 }
 
 // Re-export for convenience

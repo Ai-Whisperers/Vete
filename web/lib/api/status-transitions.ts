@@ -3,8 +3,8 @@
  * API-010: Create Status Transitions Utility
  */
 
-import { apiError, HTTP_STATUS } from './errors';
-import { NextResponse } from 'next/server';
+import { apiError, HTTP_STATUS } from './errors'
+import { NextResponse } from 'next/server'
 
 /**
  * Valid invoice status transitions
@@ -24,7 +24,7 @@ const INVOICE_TRANSITIONS: Record<string, string[]> = {
   overdue: ['paid', 'partial', 'cancelled'],
   cancelled: [],
   void: [],
-};
+}
 
 /**
  * Valid appointment status transitions
@@ -44,7 +44,7 @@ const APPOINTMENT_TRANSITIONS: Record<string, string[]> = {
   completed: [],
   cancelled: [],
   no_show: [],
-};
+}
 
 /**
  * Valid lab order status transitions
@@ -60,7 +60,7 @@ const LAB_ORDER_TRANSITIONS: Record<string, string[]> = {
   processing: ['completed', 'cancelled'],
   completed: [],
   cancelled: [],
-};
+}
 
 /**
  * Valid hospitalization status transitions
@@ -76,9 +76,9 @@ const HOSPITALIZATION_TRANSITIONS: Record<string, string[]> = {
   discharged: [],
   transferred: [],
   deceased: [],
-};
+}
 
-type EntityType = 'invoice' | 'appointment' | 'lab_order' | 'hospitalization';
+type EntityType = 'invoice' | 'appointment' | 'lab_order' | 'hospitalization'
 
 /**
  * Check if a status transition is valid for an entity type
@@ -105,9 +105,9 @@ export function canTransitionTo(
     appointment: APPOINTMENT_TRANSITIONS,
     lab_order: LAB_ORDER_TRANSITIONS,
     hospitalization: HOSPITALIZATION_TRANSITIONS,
-  }[entityType];
+  }[entityType]
 
-  return transitions[currentStatus]?.includes(newStatus) ?? false;
+  return transitions[currentStatus]?.includes(newStatus) ?? false
 }
 
 /**
@@ -136,9 +136,9 @@ export function validateStatusTransition(
       field_errors: {
         status: [`No se puede cambiar de "${currentStatus}" a "${newStatus}"`],
       },
-    });
+    })
   }
-  return null;
+  return null
 }
 
 /**
@@ -148,16 +148,13 @@ export function validateStatusTransition(
  * @param entityType - Type of entity
  * @returns Array of valid next statuses
  */
-export function getValidTransitions(
-  currentStatus: string,
-  entityType: EntityType
-): string[] {
+export function getValidTransitions(currentStatus: string, entityType: EntityType): string[] {
   const transitions = {
     invoice: INVOICE_TRANSITIONS,
     appointment: APPOINTMENT_TRANSITIONS,
     lab_order: LAB_ORDER_TRANSITIONS,
     hospitalization: HOSPITALIZATION_TRANSITIONS,
-  }[entityType];
+  }[entityType]
 
-  return transitions[currentStatus] ?? [];
+  return transitions[currentStatus] ?? []
 }

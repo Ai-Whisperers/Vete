@@ -23,10 +23,12 @@ export interface PageContext {
 export async function getPageContext(clinic: string): Promise<PageContext> {
   const supabase = await createClient()
 
-  const [clinicData, { data: { user } }] = await Promise.all([
-    getClinicData(clinic),
-    supabase.auth.getUser(),
-  ])
+  const [
+    clinicData,
+    {
+      data: { user },
+    },
+  ] = await Promise.all([getClinicData(clinic), supabase.auth.getUser()])
 
   if (!clinicData) {
     notFound()

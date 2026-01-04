@@ -1,4 +1,4 @@
-import { Metadata } from 'next';
+import { Metadata } from 'next'
 import {
   LandingNav,
   LandingFooter,
@@ -20,17 +20,28 @@ import {
   ROICalculator,
   FloatingWhatsApp,
   PricingQuiz,
-  TrialOffer
-} from '@/components/landing';
+  TrialOffer,
+} from '@/components/landing'
 
 export const metadata: Metadata = {
   title: 'VetePy - La Red Veterinaria Digital de Paraguay',
-  description: 'Sitios web profesionales para veterinarias paraguayas. Una plataforma, multiples clinicas. Diseno de primer mundo, precio local. Sistema completo de gestion veterinaria con citas online, historial medico digital y mas.',
-  keywords: ['veterinaria', 'paraguay', 'sitio web veterinario', 'gestion veterinaria', 'citas online', 'mascotas', 'veterinaria asuncion', 'software veterinario'],
+  description:
+    'Sitios web profesionales para veterinarias paraguayas. Una plataforma, multiples clinicas. Diseno de primer mundo, precio local. Sistema completo de gestion veterinaria con citas online, historial medico digital y mas.',
+  keywords: [
+    'veterinaria',
+    'paraguay',
+    'sitio web veterinario',
+    'gestion veterinaria',
+    'citas online',
+    'mascotas',
+    'veterinaria asuncion',
+    'software veterinario',
+  ],
   authors: [{ name: 'VetePy' }],
   openGraph: {
     title: 'VetePy - La Red Veterinaria Digital de Paraguay',
-    description: 'Sitios web profesionales para veterinarias paraguayas. Una plataforma, multiples clinicas. Sistema completo de gestion veterinaria.',
+    description:
+      'Sitios web profesionales para veterinarias paraguayas. Una plataforma, multiples clinicas. Sistema completo de gestion veterinaria.',
     type: 'website',
     locale: 'es_PY',
     siteName: 'VetePy',
@@ -44,7 +55,7 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
-};
+}
 
 export default function LandingPage() {
   return (
@@ -112,5 +123,5 @@ export default function LandingPage() {
       {/* Floating WhatsApp Button */}
       <FloatingWhatsApp />
     </main>
-  );
+  )
 }

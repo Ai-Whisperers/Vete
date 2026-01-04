@@ -7,10 +7,7 @@
       "name": "Anxitane",
       "description": "Suplemento ansiolítico natural (L-teanina)",
       "category_slug": "FAR-SUP-VIT",
-      "target_species": [
-        "dog",
-        "cat"
-      ],
+      "target_species": ["dog", "cat"],
       "variants": [
         {
           "size": "Caja x 30 comp (S)",
@@ -37,9 +34,7 @@
       "name": "Epiphen (Fenobarbital)",
       "description": "Anticonvulsivante para epilepsia canina",
       "category_slug": "CLI-FAR-NEU",
-      "target_species": [
-        "dog"
-      ],
+      "target_species": ["dog"],
       "variants": [
         {
           "size": "Frasco x 100 comp (30mg)",
@@ -66,9 +61,7 @@
       "name": "Easotic Gotas Óticas",
       "description": "Tratamiento ótico completo para otitis",
       "category_slug": "FAR-DER-OTI",
-      "target_species": [
-        "dog"
-      ],
+      "target_species": ["dog"],
       "variants": [
         {
           "size": "Frasco 10ml",
@@ -89,9 +82,7 @@
       "name": "Effipro Spot-On",
       "description": "Pipeta antiparasitaria con fipronil",
       "category_slug": "FAR-ANT-EXT",
-      "target_species": [
-        "dog"
-      ],
+      "target_species": ["dog"],
       "variants": [
         {
           "size": "2-10kg x 4 pipetas",
@@ -123,10 +114,7 @@
       "name": "Nutribound",
       "description": "Soporte nutricional líquido para convalecencia",
       "category_slug": "FAR-SUP-VIT",
-      "target_species": [
-        "dog",
-        "cat"
-      ],
+      "target_species": ["dog", "cat"],
       "variants": [
         {
           "size": "Frasco 150ml (Perros)",
@@ -152,10 +140,7 @@
       "name": "C.E.T. Enzymatic Toothpaste",
       "description": "Pasta dental enzimática veterinaria",
       "category_slug": "ACC-HIG-DEN",
-      "target_species": [
-        "dog",
-        "cat"
-      ],
+      "target_species": ["dog", "cat"],
       "variants": [
         {
           "size": "Tubo 70g (Pollo)",
@@ -181,10 +166,7 @@
       "name": "Allerderm Spot-On",
       "description": "Pipetas dermatológicas para piel sensible",
       "category_slug": "FAR-DER-TOP",
-      "target_species": [
-        "dog",
-        "cat"
-      ],
+      "target_species": ["dog", "cat"],
       "variants": [
         {
           "size": "Caja x 6 pipetas (hasta 10kg)",
@@ -216,10 +198,7 @@
       "name": "Epi-Otic Limpiador Ótico",
       "description": "Limpiador auricular de rutina",
       "category_slug": "FAR-DER-OTI",
-      "target_species": [
-        "dog",
-        "cat"
-      ],
+      "target_species": ["dog", "cat"],
       "variants": [
         {
           "size": "Frasco 125ml",

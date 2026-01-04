@@ -1,16 +1,16 @@
-import { type LucideIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { type LucideIcon } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 interface InfoCardProps {
-  icon?: LucideIcon;
-  title: string;
-  value: string | number;
-  subtitle?: string;
+  icon?: LucideIcon
+  title: string
+  value: string | number
+  subtitle?: string
   trend?: {
-    value: number;
-    isPositive: boolean;
-  };
-  className?: string;
+    value: number
+    isPositive: boolean
+  }
+  className?: string
 }
 
 /**
@@ -39,45 +39,35 @@ export function InfoCard({
   return (
     <div
       className={cn(
-        "rounded-2xl border border-[var(--border,#e5e7eb)] bg-[var(--bg-card)] p-6 shadow-sm transition-shadow hover:shadow-md",
+        'rounded-2xl border border-[var(--border,#e5e7eb)] bg-[var(--bg-card)] p-6 shadow-sm transition-shadow hover:shadow-md',
         className
       )}
     >
       <div className="flex items-start justify-between">
-        <div className="space-y-2 flex-1">
-          <p className="text-sm font-medium text-[var(--text-secondary)]">
-            {title}
-          </p>
+        <div className="flex-1 space-y-2">
+          <p className="text-sm font-medium text-[var(--text-secondary)]">{title}</p>
           <p className="text-3xl font-bold text-[var(--text-primary)]">
-            {typeof value === "number" ? value.toLocaleString("es-PY") : value}
+            {typeof value === 'number' ? value.toLocaleString('es-PY') : value}
           </p>
-          {subtitle && (
-            <p className="text-xs text-[var(--text-muted)]">{subtitle}</p>
-          )}
+          {subtitle && <p className="text-xs text-[var(--text-muted)]">{subtitle}</p>}
         </div>
         {Icon && (
-          <div className="p-3 rounded-xl bg-[var(--primary)]/10">
-            <Icon className="w-6 h-6 text-[var(--primary)]" />
+          <div className="bg-[var(--primary)]/10 rounded-xl p-3">
+            <Icon className="h-6 w-6 text-[var(--primary)]" />
           </div>
         )}
       </div>
       {trend && (
         <div
           className={cn(
-            "mt-4 flex items-center gap-1 text-sm font-semibold",
-            trend.isPositive
-              ? "text-green-600"
-              : "text-red-600"
+            'mt-4 flex items-center gap-1 text-sm font-semibold',
+            trend.isPositive ? 'text-green-600' : 'text-red-600'
           )}
         >
-          <span className="text-lg">
-            {trend.isPositive ? "↑" : "↓"}
-          </span>
-          <span>
-            {Math.abs(trend.value)}% vs mes anterior
-          </span>
+          <span className="text-lg">{trend.isPositive ? '↑' : '↓'}</span>
+          <span>{Math.abs(trend.value)}% vs mes anterior</span>
         </div>
       )}
     </div>
-  );
+  )
 }

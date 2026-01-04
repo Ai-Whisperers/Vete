@@ -112,7 +112,7 @@ class Logger {
     this.info(`Performance: ${operation}`, {
       ...context,
       operation,
-      duration
+      duration,
     })
   }
 
@@ -122,7 +122,7 @@ class Logger {
   security(event: string, context?: Partial<LogContext>): void {
     this.warn(`Security: ${event}`, {
       ...context,
-      operation: 'security_event'
+      operation: 'security_event',
     })
   }
 
@@ -132,7 +132,7 @@ class Logger {
   business(event: string, context?: Partial<LogContext>): void {
     this.info(`Business: ${event}`, {
       ...context,
-      operation: 'business_event'
+      operation: 'business_event',
     })
   }
 
@@ -141,7 +141,7 @@ class Logger {
       timestamp: new Date().toISOString(),
       level,
       message,
-      context: { ...this.context, ...context }
+      context: { ...this.context, ...context },
     }
 
     // Add error details if present
@@ -149,7 +149,7 @@ class Logger {
       entry.error = {
         name: context.error.name,
         message: context.error.message,
-        stack: context.error.stack
+        stack: context.error.stack,
       }
     }
 
@@ -211,7 +211,7 @@ export function createRequestLogger(context: ErrorContext): Logger {
   return logger.child({
     requestId: context.requestId,
     userId: context.userId,
-    tenantId: context.tenantId
+    tenantId: context.tenantId,
   })
 }
 
@@ -228,7 +228,7 @@ export function logApiRequest(
     ...context,
     operation: 'api_request',
     duration,
-    metadata: { method, path, statusCode }
+    metadata: { method, path, statusCode },
   }
 
   if (statusCode >= 500) {
@@ -253,7 +253,7 @@ export function logDatabaseOperation(
     ...context,
     operation: 'database_operation',
     duration,
-    metadata: { operation, table, success }
+    metadata: { operation, table, success },
   }
 
   if (success) {

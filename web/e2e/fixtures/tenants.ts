@@ -8,7 +8,7 @@ export const DEFAULT_TENANT = {
   id: 'adris',
   slug: 'adris',
   name: 'Veterinaria Adris',
-};
+}
 
 export const TENANTS = {
   adris: {
@@ -21,8 +21,8 @@ export const TENANTS = {
     slug: 'petlife',
     name: 'PetLife',
   },
-};
+}
 
 export const getRoute = (tenant: keyof typeof TENANTS, path: string): string => {
-  return `/${TENANTS[tenant].slug}${path}`;
-};
+  return `/${TENANTS[tenant].slug}${path}`
+}

@@ -111,13 +111,17 @@ export function generateAppointmentReminderEmail(data: AppointmentReminderEmailD
           </tr>
 
           <!-- Pet Photo (if available) -->
-          ${petPhotoUrl ? `
+          ${
+            petPhotoUrl
+              ? `
             <tr>
               <td style="padding: 0 40px 25px; text-align: center;">
                 <img src="${petPhotoUrl}" alt="${petName}" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 4px solid #10b981; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
               </td>
             </tr>
-          ` : ''}
+          `
+              : ''
+          }
 
           <!-- Appointment Details Card -->
           <tr>
@@ -162,7 +166,9 @@ export function generateAppointmentReminderEmail(data: AppointmentReminderEmailD
                 </div>
 
                 <!-- Vet Info -->
-                ${vetName ? `
+                ${
+                  vetName
+                    ? `
                   <div>
                     <div style="color: #065f46; font-size: 13px; font-weight: 600; text-transform: uppercase; margin-bottom: 6px;">
                       👨‍⚕️ Veterinario
@@ -171,14 +177,18 @@ export function generateAppointmentReminderEmail(data: AppointmentReminderEmailD
                       ${vetName}
                     </div>
                   </div>
-                ` : ''}
+                `
+                    : ''
+                }
 
               </div>
             </td>
           </tr>
 
           <!-- Special Instructions -->
-          ${specialInstructions ? `
+          ${
+            specialInstructions
+              ? `
             <tr>
               <td style="padding: 0 40px 25px;">
                 <div style="background-color: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; border-radius: 4px;">
@@ -187,13 +197,17 @@ export function generateAppointmentReminderEmail(data: AppointmentReminderEmailD
                 </div>
               </td>
             </tr>
-          ` : ''}
+          `
+              : ''
+          }
 
           <!-- Action Buttons -->
           <tr>
             <td style="padding: 0 40px 30px;">
               <table role="presentation" style="width: 100%; border-collapse: collapse;">
-                ${confirmationUrl ? `
+                ${
+                  confirmationUrl
+                    ? `
                   <tr>
                     <td style="padding-bottom: 12px; text-align: center;">
                       <a href="${confirmationUrl}" style="display: inline-block; width: 100%; max-width: 300px; padding: 14px 24px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 6px rgba(16, 185, 129, 0.3);">
@@ -201,8 +215,12 @@ export function generateAppointmentReminderEmail(data: AppointmentReminderEmailD
                       </a>
                     </td>
                   </tr>
-                ` : ''}
-                ${rescheduleUrl ? `
+                `
+                    : ''
+                }
+                ${
+                  rescheduleUrl
+                    ? `
                   <tr>
                     <td style="padding-bottom: 12px; text-align: center;">
                       <a href="${rescheduleUrl}" style="display: inline-block; width: 100%; max-width: 300px; padding: 12px 24px; background-color: #f3f4f6; color: #374151; text-decoration: none; border: 2px solid #d1d5db; border-radius: 6px; font-weight: 600; font-size: 14px;">
@@ -210,8 +228,12 @@ export function generateAppointmentReminderEmail(data: AppointmentReminderEmailD
                       </a>
                     </td>
                   </tr>
-                ` : ''}
-                ${cancellationUrl ? `
+                `
+                    : ''
+                }
+                ${
+                  cancellationUrl
+                    ? `
                   <tr>
                     <td style="text-align: center;">
                       <a href="${cancellationUrl}" style="display: inline-block; width: 100%; max-width: 300px; padding: 12px 24px; background-color: #fef2f2; color: #991b1b; text-decoration: none; border: 2px solid #fecaca; border-radius: 6px; font-weight: 600; font-size: 14px;">
@@ -219,7 +241,9 @@ export function generateAppointmentReminderEmail(data: AppointmentReminderEmailD
                       </a>
                     </td>
                   </tr>
-                ` : ''}
+                `
+                    : ''
+                }
               </table>
             </td>
           </tr>
@@ -247,11 +271,15 @@ export function generateAppointmentReminderEmail(data: AppointmentReminderEmailD
               <p style="margin: 0; color: #999999; font-size: 12px; text-align: center; line-height: 1.5;">
                 Si necesitas hacer cambios o tienes alguna pregunta, no dudes en contactarnos.
               </p>
-              ${clinicPhone || clinicEmail ? `
+              ${
+                clinicPhone || clinicEmail
+                  ? `
                 <p style="margin: 10px 0 0; color: #999999; font-size: 12px; text-align: center;">
                   ${clinicPhone ? `📞 ${clinicPhone}` : ''} ${clinicPhone && clinicEmail ? '|' : ''} ${clinicEmail ? `✉️ ${clinicEmail}` : ''}
                 </p>
-              ` : ''}
+              `
+                  : ''
+              }
             </td>
           </tr>
 

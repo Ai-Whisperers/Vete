@@ -1,137 +1,141 @@
-"use client";
+'use client'
 
-import type { JSX } from 'react';
-import { useState, useRef, useEffect } from 'react';
-import { X, Check, Edit3, Type, RotateCcw } from 'lucide-react';
+import type { JSX } from 'react'
+import { useState, useRef, useEffect } from 'react'
+import { X, Check, Edit3, Type, RotateCcw } from 'lucide-react'
 
 interface AddConsentModalProps {
-  isOpen: boolean;
-  onClose: () => void;
+  isOpen: boolean
+  onClose: () => void
   onSubmit: (data: {
-    consent_type: string;
-    scope: string;
-    conditions: string;
-    signature_data: string;
-    expires_at: string;
-  }) => Promise<void>;
+    consent_type: string
+    scope: string
+    conditions: string
+    signature_data: string
+    expires_at: string
+  }) => Promise<void>
 }
 
 export default function AddConsentModal({
   isOpen,
   onClose,
-  onSubmit
+  onSubmit,
 }: AddConsentModalProps): JSX.Element | null {
-  const [consentType, setConsentType] = useState('');
-  const [scope, setScope] = useState('');
-  const [conditions, setConditions] = useState('');
-  const [expiresAt, setExpiresAt] = useState('');
-  const [signatureMode, setSignatureMode] = useState<'draw' | 'type'>('draw');
-  const [signatureText, setSignatureText] = useState('');
-  const [isDrawing, setIsDrawing] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
+  const [consentType, setConsentType] = useState('')
+  const [scope, setScope] = useState('')
+  const [conditions, setConditions] = useState('')
+  const [expiresAt, setExpiresAt] = useState('')
+  const [signatureMode, setSignatureMode] = useState<'draw' | 'type'>('draw')
+  const [signatureText, setSignatureText] = useState('')
+  const [isDrawing, setIsDrawing] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
 
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const canvasContainerRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const canvasContainerRef = useRef<HTMLDivElement>(null)
 
   // Resize canvas to match container
   const resizeCanvas = (): void => {
-    const canvas = canvasRef.current;
-    const container = canvasContainerRef.current;
-    if (!canvas || !container) return;
-    const rect = container.getBoundingClientRect();
-    const dpr = window.devicePixelRatio || 1;
-    canvas.width = rect.width * dpr;
-    canvas.height = Math.min(rect.width * 0.3, 150) * dpr;
-    const ctx = canvas.getContext('2d');
+    const canvas = canvasRef.current
+    const container = canvasContainerRef.current
+    if (!canvas || !container) return
+    const rect = container.getBoundingClientRect()
+    const dpr = window.devicePixelRatio || 1
+    canvas.width = rect.width * dpr
+    canvas.height = Math.min(rect.width * 0.3, 150) * dpr
+    const ctx = canvas.getContext('2d')
     if (ctx) {
-      ctx.scale(dpr, dpr);
-      ctx.strokeStyle = '#000';
-      ctx.lineWidth = 2;
-      ctx.lineCap = 'round';
+      ctx.scale(dpr, dpr)
+      ctx.strokeStyle = '#000'
+      ctx.lineWidth = 2
+      ctx.lineCap = 'round'
     }
-  };
+  }
 
   useEffect(() => {
     if (signatureMode === 'draw' && isOpen) {
-      setTimeout(resizeCanvas, 100);
+      setTimeout(resizeCanvas, 100)
     }
-  }, [signatureMode, isOpen]);
+  }, [signatureMode, isOpen])
 
   useEffect(() => {
     const handleResize = (): void => {
       if (signatureMode === 'draw' && isOpen) {
-        resizeCanvas();
+        resizeCanvas()
       }
-    };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [signatureMode, isOpen]);
+    }
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [signatureMode, isOpen])
 
-  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>): void => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+  const startDrawing = (
+    e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>
+  ): void => {
+    const canvas = canvasRef.current
+    if (!canvas) return
 
-    const rect = canvas.getBoundingClientRect();
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    const rect = canvas.getBoundingClientRect()
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
 
-    setIsDrawing(true);
+    setIsDrawing(true)
 
-    const x = 'touches' in e ? e.touches[0].clientX - rect.left : e.clientX - rect.left;
-    const y = 'touches' in e ? e.touches[0].clientY - rect.top : e.clientY - rect.top;
+    const x = 'touches' in e ? e.touches[0].clientX - rect.left : e.clientX - rect.left
+    const y = 'touches' in e ? e.touches[0].clientY - rect.top : e.clientY - rect.top
 
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-  };
+    ctx.beginPath()
+    ctx.moveTo(x, y)
+  }
 
-  const draw = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>): void => {
-    if (!isDrawing) return;
+  const draw = (
+    e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>
+  ): void => {
+    if (!isDrawing) return
 
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    const canvas = canvasRef.current
+    if (!canvas) return
 
-    const rect = canvas.getBoundingClientRect();
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    const rect = canvas.getBoundingClientRect()
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
 
-    const x = 'touches' in e ? e.touches[0].clientX - rect.left : e.clientX - rect.left;
-    const y = 'touches' in e ? e.touches[0].clientY - rect.top : e.clientY - rect.top;
+    const x = 'touches' in e ? e.touches[0].clientX - rect.left : e.clientX - rect.left
+    const y = 'touches' in e ? e.touches[0].clientY - rect.top : e.clientY - rect.top
 
-    ctx.lineTo(x, y);
-    ctx.stroke();
-  };
+    ctx.lineTo(x, y)
+    ctx.stroke()
+  }
 
   const stopDrawing = (): void => {
-    setIsDrawing(false);
-  };
+    setIsDrawing(false)
+  }
 
   const clearSignature = (): void => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    const canvas = canvasRef.current
+    if (!canvas) return
 
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-  };
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+  }
 
   const getSignatureData = (): string => {
     if (signatureMode === 'draw') {
-      return canvasRef.current?.toDataURL() || '';
+      return canvasRef.current?.toDataURL() || ''
     }
-    return signatureText;
-  };
+    return signatureText
+  }
 
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
-    e.preventDefault();
+    e.preventDefault()
 
-    const signatureData = getSignatureData();
+    const signatureData = getSignatureData()
     if (!signatureData) {
-      alert('Debe proporcionar una firma');
-      return;
+      alert('Debe proporcionar una firma')
+      return
     }
 
-    setSubmitting(true);
+    setSubmitting(true)
 
     try {
       await onSubmit({
@@ -139,53 +143,53 @@ export default function AddConsentModal({
         scope,
         conditions,
         signature_data: signatureData,
-        expires_at: expiresAt
-      });
+        expires_at: expiresAt,
+      })
 
       // Reset form
-      setConsentType('');
-      setScope('');
-      setConditions('');
-      setExpiresAt('');
-      setSignatureText('');
-      clearSignature();
-      onClose();
+      setConsentType('')
+      setScope('')
+      setConditions('')
+      setExpiresAt('')
+      setSignatureText('')
+      clearSignature()
+      onClose()
     } catch (error) {
-      alert('Error al crear el consentimiento permanente');
+      alert('Error al crear el consentimiento permanente')
     } finally {
-      setSubmitting(false);
+      setSubmitting(false)
     }
-  };
+  }
 
-  if (!isOpen) return null;
+  if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-2 sm:p-4">
-      <div className="bg-[var(--bg-paper)] rounded-lg w-full max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
-        <div className="sticky top-0 bg-[var(--bg-paper)] border-b border-[var(--primary)]/20 p-4 sm:p-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-2 sm:p-4">
+      <div className="max-h-[95vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-[var(--bg-paper)] sm:max-h-[90vh]">
+        <div className="border-[var(--primary)]/20 sticky top-0 border-b bg-[var(--bg-paper)] p-4 sm:p-6">
           <div className="flex items-center justify-between gap-4">
-            <h2 className="text-lg sm:text-2xl font-bold text-[var(--text-primary)]">
+            <h2 className="text-lg font-bold text-[var(--text-primary)] sm:text-2xl">
               Nuevo Consentimiento Permanente
             </h2>
             <button
               onClick={onClose}
-              className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] p-2 -m-2 min-h-[44px] min-w-[44px] flex items-center justify-center"
+              className="-m-2 flex min-h-[44px] min-w-[44px] items-center justify-center p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
             >
-              <X className="w-6 h-6" />
+              <X className="h-6 w-6" />
             </button>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4 p-4 sm:space-y-6 sm:p-6">
           <div>
-            <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
+            <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">
               Tipo de consentimiento <span className="text-red-600">*</span>
             </label>
             <select
               value={consentType}
               onChange={(e) => setConsentType(e.target.value)}
               required
-              className="w-full px-4 py-2 border border-[var(--primary)]/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] bg-[var(--bg-default)] text-[var(--text-primary)]"
+              className="border-[var(--primary)]/20 w-full rounded-lg border bg-[var(--bg-default)] px-4 py-2 text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
             >
               <option value="">Seleccionar...</option>
               <option value="emergency_treatment">Tratamiento de Emergencia</option>
@@ -199,7 +203,7 @@ export default function AddConsentModal({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
+            <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">
               Alcance <span className="text-red-600">*</span>
             </label>
             <textarea
@@ -208,12 +212,12 @@ export default function AddConsentModal({
               required
               rows={3}
               placeholder="Describa el alcance de este consentimiento..."
-              className="w-full px-4 py-2 border border-[var(--primary)]/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] bg-[var(--bg-default)] text-[var(--text-primary)]"
+              className="border-[var(--primary)]/20 w-full rounded-lg border bg-[var(--bg-default)] px-4 py-2 text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
+            <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">
               Condiciones (opcional)
             </label>
             <textarea
@@ -221,53 +225,53 @@ export default function AddConsentModal({
               onChange={(e) => setConditions(e.target.value)}
               rows={2}
               placeholder="Condiciones especiales o limitaciones..."
-              className="w-full px-4 py-2 border border-[var(--primary)]/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] bg-[var(--bg-default)] text-[var(--text-primary)]"
+              className="border-[var(--primary)]/20 w-full rounded-lg border bg-[var(--bg-default)] px-4 py-2 text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
+            <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">
               Fecha de expiración (opcional)
             </label>
             <input
               type="date"
               value={expiresAt}
               onChange={(e) => setExpiresAt(e.target.value)}
-              className="w-full px-4 py-2 border border-[var(--primary)]/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] bg-[var(--bg-default)] text-[var(--text-primary)]"
+              className="border-[var(--primary)]/20 w-full rounded-lg border bg-[var(--bg-default)] px-4 py-2 text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
             />
-            <p className="text-xs text-[var(--text-secondary)] mt-1">
+            <p className="mt-1 text-xs text-[var(--text-secondary)]">
               Dejar vacío para consentimiento sin fecha de expiración
             </p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
+            <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">
               Firma <span className="text-red-600">*</span>
             </label>
 
-            <div className="flex gap-2 mb-4">
+            <div className="mb-4 flex gap-2">
               <button
                 type="button"
                 onClick={() => setSignatureMode('draw')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                className={`flex items-center gap-2 rounded-lg px-4 py-2 transition-colors ${
                   signatureMode === 'draw'
                     ? 'bg-[var(--primary)] text-white'
-                    : 'bg-[var(--bg-default)] text-[var(--text-primary)] border border-[var(--primary)]/20'
+                    : 'border-[var(--primary)]/20 border bg-[var(--bg-default)] text-[var(--text-primary)]'
                 }`}
               >
-                <Edit3 className="w-4 h-4" />
+                <Edit3 className="h-4 w-4" />
                 Dibujar
               </button>
               <button
                 type="button"
                 onClick={() => setSignatureMode('type')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                className={`flex items-center gap-2 rounded-lg px-4 py-2 transition-colors ${
                   signatureMode === 'type'
                     ? 'bg-[var(--primary)] text-white'
-                    : 'bg-[var(--bg-default)] text-[var(--text-primary)] border border-[var(--primary)]/20'
+                    : 'border-[var(--primary)]/20 border bg-[var(--bg-default)] text-[var(--text-primary)]'
                 }`}
               >
-                <Type className="w-4 h-4" />
+                <Type className="h-4 w-4" />
                 Escribir
               </button>
             </div>
@@ -281,19 +285,25 @@ export default function AddConsentModal({
                     onMouseMove={draw}
                     onMouseUp={stopDrawing}
                     onMouseLeave={stopDrawing}
-                    onTouchStart={(e) => { e.preventDefault(); startDrawing(e); }}
-                    onTouchMove={(e) => { e.preventDefault(); draw(e); }}
+                    onTouchStart={(e) => {
+                      e.preventDefault()
+                      startDrawing(e)
+                    }}
+                    onTouchMove={(e) => {
+                      e.preventDefault()
+                      draw(e)
+                    }}
                     onTouchEnd={stopDrawing}
-                    className="w-full border-2 border-dashed border-[var(--primary)]/20 rounded-lg cursor-crosshair bg-white touch-none"
+                    className="border-[var(--primary)]/20 w-full cursor-crosshair touch-none rounded-lg border-2 border-dashed bg-white"
                     style={{ height: 'min(30vw, 150px)', minHeight: '100px' }}
                   />
                 </div>
                 <button
                   type="button"
                   onClick={clearSignature}
-                  className="flex items-center gap-2 px-4 py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] min-h-[44px]"
+                  className="flex min-h-[44px] items-center gap-2 px-4 py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                 >
-                  <RotateCcw className="w-4 h-4" />
+                  <RotateCcw className="h-4 w-4" />
                   Limpiar firma
                 </button>
               </div>
@@ -303,34 +313,34 @@ export default function AddConsentModal({
                 value={signatureText}
                 onChange={(e) => setSignatureText(e.target.value)}
                 placeholder="Escriba su nombre completo"
-                className="w-full px-4 py-3 text-2xl font-serif border-2 border-dashed border-[var(--primary)]/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] bg-white text-black"
+                className="border-[var(--primary)]/20 w-full rounded-lg border-2 border-dashed bg-white px-4 py-3 font-serif text-2xl text-black focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
                 style={{ fontFamily: 'cursive' }}
               />
             )}
           </div>
 
-          <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4 border-t border-[var(--primary)]/20">
+          <div className="border-[var(--primary)]/20 flex flex-col-reverse justify-end gap-3 border-t pt-4 sm:flex-row">
             <button
               type="button"
               onClick={onClose}
               disabled={submitting}
-              className="px-4 sm:px-6 py-3 bg-[var(--bg-default)] text-[var(--text-primary)] rounded-lg hover:bg-[var(--primary)]/10 transition-colors border border-[var(--primary)]/20 disabled:opacity-50 min-h-[48px]"
+              className="hover:bg-[var(--primary)]/10 border-[var(--primary)]/20 min-h-[48px] rounded-lg border bg-[var(--bg-default)] px-4 py-3 text-[var(--text-primary)] transition-colors disabled:opacity-50 sm:px-6"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={submitting}
-              className="inline-flex items-center justify-center gap-2 px-4 sm:px-6 py-3 bg-[var(--primary)] text-white rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 min-h-[48px]"
+              className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-lg bg-[var(--primary)] px-4 py-3 text-white transition-opacity hover:opacity-90 disabled:opacity-50 sm:px-6"
             >
               {submitting ? (
                 <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  <div className="h-4 w-4 animate-spin rounded-full border-b-2 border-white"></div>
                   Guardando...
                 </>
               ) : (
                 <>
-                  <Check className="w-4 h-4" />
+                  <Check className="h-4 w-4" />
                   Guardar
                 </>
               )}
@@ -339,5 +349,5 @@ export default function AddConsentModal({
         </form>
       </div>
     </div>
-  );
+  )
 }

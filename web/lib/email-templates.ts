@@ -5,11 +5,11 @@ export function generateAppointmentConfirmationEmail({
   dateTime,
   clinicName,
 }: {
-  userName: string;
-  petName: string;
-  reason: string;
-  dateTime: string;
-  clinicName: string;
+  userName: string
+  petName: string
+  reason: string
+  dateTime: string
+  clinicName: string
 }) {
   return `
     Hola ${userName},
@@ -25,5 +25,5 @@ export function generateAppointmentConfirmationEmail({
 
     Saludos,
     El equipo de la Clínica Veterinaria
-  `;
+  `
 }

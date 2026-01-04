@@ -22,20 +22,21 @@ export function withLogging(options: LoggingOptions = {}) {
     includeHeaders = false,
     includeBody = false,
     excludePaths = ['/_next/', '/favicon.ico', '/public/'],
-    maskSensitiveHeaders = SENSITIVE_HEADERS
+    maskSensitiveHeaders = SENSITIVE_HEADERS,
   } = options
 
   return async function middleware(request: NextRequest) {
     const { pathname, searchParams } = request.nextUrl
     const method = request.method
     const userAgent = request.headers.get('user-agent') || 'unknown'
-    const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() ||
-                request.headers.get('x-real-ip') ||
-                'unknown'
+    const ip =
+      request.headers.get('x-forwarded-for')?.split(',')[0].trim() ||
+      request.headers.get('x-real-ip') ||
+      'unknown'
     const timestamp = new Date().toISOString()
 
     // Skip logging for excluded paths
-    if (excludePaths.some(path => pathname.startsWith(path))) {
+    if (excludePaths.some((path) => pathname.startsWith(path))) {
       return NextResponse.next()
     }
 
@@ -47,7 +48,7 @@ export function withLogging(options: LoggingOptions = {}) {
       query: Object.fromEntries(searchParams),
       ip,
       userAgent: userAgent.substring(0, 200), // Truncate long user agents
-      requestId: request.headers.get('x-request-id') || 'unknown'
+      requestId: request.headers.get('x-request-id') || 'unknown',
     }
 
     // Add headers if enabled
@@ -69,7 +70,7 @@ export function withLogging(options: LoggingOptions = {}) {
         const body = await request.clone().json()
         if (body && typeof body === 'object') {
           const sanitizedBody = { ...body }
-          SENSITIVE_BODY_KEYS.forEach(key => {
+          SENSITIVE_BODY_KEYS.forEach((key) => {
             if (sanitizedBody[key]) {
               sanitizedBody[key] = '[REDACTED]'
             }
@@ -91,7 +92,7 @@ export function withLogging(options: LoggingOptions = {}) {
           method: logData.method,
           path: logData.path,
           ip: logData.ip,
-          timestamp: logData.timestamp
+          timestamp: logData.timestamp,
         })
         break
       case 'warn':
@@ -116,12 +117,12 @@ export function withLogging(options: LoggingOptions = {}) {
 export const requestLogger = withLogging({
   logLevel: 'info',
   includeHeaders: false,
-  includeBody: false
+  includeBody: false,
 })
 
 export const debugLogger = withLogging({
   logLevel: 'debug',
   includeHeaders: true,
   includeBody: true,
-  excludePaths: ['/_next/', '/favicon.ico', '/public/', '/api/health']
+  excludePaths: ['/_next/', '/favicon.ico', '/public/', '/api/health'],
 })

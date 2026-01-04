@@ -1,20 +1,20 @@
-"use client";
+'use client'
 
-import { useEffect, useCallback, useRef } from "react";
-import { X } from "lucide-react";
-import { clsx } from "clsx";
+import { useEffect, useCallback, useRef } from 'react'
+import { X } from 'lucide-react'
+import { clsx } from 'clsx'
 
 export interface ModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  title?: string;
-  description?: string;
-  children: React.ReactNode;
-  size?: "sm" | "md" | "lg" | "xl" | "full";
-  showCloseButton?: boolean;
-  closeOnBackdrop?: boolean;
-  closeOnEscape?: boolean;
-  className?: string;
+  isOpen: boolean
+  onClose: () => void
+  title?: string
+  description?: string
+  children: React.ReactNode
+  size?: 'sm' | 'md' | 'lg' | 'xl' | 'full'
+  showCloseButton?: boolean
+  closeOnBackdrop?: boolean
+  closeOnEscape?: boolean
+  className?: string
 }
 
 export function Modal({
@@ -23,71 +23,71 @@ export function Modal({
   title,
   description,
   children,
-  size = "md",
+  size = 'md',
   showCloseButton = true,
   closeOnBackdrop = true,
   closeOnEscape = true,
   className,
 }: ModalProps): React.ReactElement | null {
-  const modalRef = useRef<HTMLDivElement>(null);
-  const previousActiveElement = useRef<Element | null>(null);
+  const modalRef = useRef<HTMLDivElement>(null)
+  const previousActiveElement = useRef<Element | null>(null)
 
   // Handle escape key
   useEffect(() => {
-    if (!closeOnEscape) return;
+    if (!closeOnEscape) return
 
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && isOpen) {
-        onClose();
+      if (e.key === 'Escape' && isOpen) {
+        onClose()
       }
-    };
+    }
 
-    document.addEventListener("keydown", handleEscape);
-    return () => document.removeEventListener("keydown", handleEscape);
-  }, [isOpen, onClose, closeOnEscape]);
+    document.addEventListener('keydown', handleEscape)
+    return () => document.removeEventListener('keydown', handleEscape)
+  }, [isOpen, onClose, closeOnEscape])
 
   // Lock body scroll and manage focus
   useEffect(() => {
     if (isOpen) {
-      previousActiveElement.current = document.activeElement;
-      document.body.style.overflow = "hidden";
-      modalRef.current?.focus();
+      previousActiveElement.current = document.activeElement
+      document.body.style.overflow = 'hidden'
+      modalRef.current?.focus()
     } else {
-      document.body.style.overflow = "";
+      document.body.style.overflow = ''
       if (previousActiveElement.current instanceof HTMLElement) {
-        previousActiveElement.current.focus();
+        previousActiveElement.current.focus()
       }
     }
 
     return () => {
-      document.body.style.overflow = "";
-    };
-  }, [isOpen]);
+      document.body.style.overflow = ''
+    }
+  }, [isOpen])
 
   const handleBackdropClick = useCallback(
     (e: React.MouseEvent) => {
       if (closeOnBackdrop && e.target === e.currentTarget) {
-        onClose();
+        onClose()
       }
     },
     [closeOnBackdrop, onClose]
-  );
+  )
 
-  if (!isOpen) return null;
+  if (!isOpen) return null
 
   const sizes = {
-    sm: "max-w-sm",
-    md: "max-w-md",
-    lg: "max-w-lg",
-    xl: "max-w-xl",
-    full: "max-w-4xl",
-  };
+    sm: 'max-w-sm',
+    md: 'max-w-md',
+    lg: 'max-w-lg',
+    xl: 'max-w-xl',
+    full: 'max-w-4xl',
+  }
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity animate-fade-in"
+        className="animate-fade-in fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
         onClick={handleBackdropClick}
         aria-hidden="true"
       />
@@ -101,11 +101,11 @@ export function Modal({
           ref={modalRef}
           role="dialog"
           aria-modal="true"
-          aria-labelledby={title ? "modal-title" : undefined}
-          aria-describedby={description ? "modal-description" : undefined}
+          aria-labelledby={title ? 'modal-title' : undefined}
+          aria-describedby={description ? 'modal-description' : undefined}
           tabIndex={-1}
           className={clsx(
-            "relative w-full bg-[var(--bg-paper)] rounded-3xl shadow-2xl transform transition-all animate-scale-in",
+            'animate-scale-in relative w-full transform rounded-3xl bg-[var(--bg-paper)] shadow-2xl transition-all',
             sizes[size],
             className
           )}
@@ -115,18 +115,12 @@ export function Modal({
             <div className="flex items-start justify-between p-6 pb-0">
               <div>
                 {title && (
-                  <h2
-                    id="modal-title"
-                    className="text-xl font-bold text-[var(--text-primary)]"
-                  >
+                  <h2 id="modal-title" className="text-xl font-bold text-[var(--text-primary)]">
                     {title}
                   </h2>
                 )}
                 {description && (
-                  <p
-                    id="modal-description"
-                    className="mt-1 text-sm text-[var(--text-secondary)]"
-                  >
+                  <p id="modal-description" className="mt-1 text-sm text-[var(--text-secondary)]">
                     {description}
                   </p>
                 )}
@@ -134,10 +128,10 @@ export function Modal({
               {showCloseButton && (
                 <button
                   onClick={onClose}
-                  className="p-2 rounded-xl hover:bg-[var(--bg-subtle)] text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors -mr-2 -mt-2"
+                  className="-mr-2 -mt-2 rounded-xl p-2 text-[var(--text-muted)] transition-colors hover:bg-[var(--bg-subtle)] hover:text-[var(--text-secondary)]"
                   aria-label="Cerrar"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="h-5 w-5" />
                 </button>
               )}
             </div>
@@ -148,39 +142,39 @@ export function Modal({
         </div>
       </div>
     </div>
-  );
+  )
 }
 
 // Modal Footer component for consistent action buttons
 interface ModalFooterProps {
-  children: React.ReactNode;
-  className?: string;
+  children: React.ReactNode
+  className?: string
 }
 
 export function ModalFooter({ children, className }: ModalFooterProps): React.ReactElement {
   return (
     <div
       className={clsx(
-        "flex items-center justify-end gap-3 pt-4 border-t border-[var(--border-light,#f3f4f6)]",
+        'flex items-center justify-end gap-3 border-t border-[var(--border-light,#f3f4f6)] pt-4',
         className
       )}
     >
       {children}
     </div>
-  );
+  )
 }
 
 // Confirm Modal - a pre-built confirmation dialog
 interface ConfirmModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onConfirm: () => void;
-  title: string;
-  message: string;
-  confirmLabel?: string;
-  cancelLabel?: string;
-  variant?: "danger" | "warning" | "info";
-  isLoading?: boolean;
+  isOpen: boolean
+  onClose: () => void
+  onConfirm: () => void
+  title: string
+  message: string
+  confirmLabel?: string
+  cancelLabel?: string
+  variant?: 'danger' | 'warning' | 'info'
+  isLoading?: boolean
 }
 
 export function ConfirmModal({
@@ -189,25 +183,27 @@ export function ConfirmModal({
   onConfirm,
   title,
   message,
-  confirmLabel = "Confirmar",
-  cancelLabel = "Cancelar",
-  variant = "danger",
+  confirmLabel = 'Confirmar',
+  cancelLabel = 'Cancelar',
+  variant = 'danger',
   isLoading = false,
 }: ConfirmModalProps): React.ReactElement {
   const variantStyles = {
-    danger: "bg-[var(--status-error,#ef4444)] hover:bg-[var(--status-error-dark,#dc2626)] text-white",
-    warning: "bg-[var(--status-warning,#eab308)] hover:bg-[var(--status-warning-dark,#ca8a04)] text-white",
-    info: "bg-[var(--status-info,#3b82f6)] hover:bg-[var(--status-info-dark,#2563eb)] text-white",
-  };
+    danger:
+      'bg-[var(--status-error,#ef4444)] hover:bg-[var(--status-error-dark,#dc2626)] text-white',
+    warning:
+      'bg-[var(--status-warning,#eab308)] hover:bg-[var(--status-warning-dark,#ca8a04)] text-white',
+    info: 'bg-[var(--status-info,#3b82f6)] hover:bg-[var(--status-info-dark,#2563eb)] text-white',
+  }
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={title} size="sm">
-      <p className="text-[var(--text-secondary)] mb-6">{message}</p>
+      <p className="mb-6 text-[var(--text-secondary)]">{message}</p>
       <ModalFooter>
         <button
           onClick={onClose}
           disabled={isLoading}
-          className="px-4 py-2 text-[var(--text-secondary)] font-medium hover:bg-[var(--bg-subtle)] rounded-xl transition-colors"
+          className="rounded-xl px-4 py-2 font-medium text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-subtle)]"
         >
           {cancelLabel}
         </button>
@@ -215,13 +211,13 @@ export function ConfirmModal({
           onClick={onConfirm}
           disabled={isLoading}
           className={clsx(
-            "px-4 py-2 font-bold rounded-xl transition-colors disabled:opacity-50",
+            'rounded-xl px-4 py-2 font-bold transition-colors disabled:opacity-50',
             variantStyles[variant]
           )}
         >
-          {isLoading ? "Procesando..." : confirmLabel}
+          {isLoading ? 'Procesando...' : confirmLabel}
         </button>
       </ModalFooter>
     </Modal>
-  );
+  )
 }

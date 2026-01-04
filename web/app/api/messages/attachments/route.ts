@@ -1,6 +1,6 @@
-import { createClient } from '@/lib/supabase/server';
-import { NextRequest, NextResponse } from 'next/server';
-import { logger } from '@/lib/logger';
+import { createClient } from '@/lib/supabase/server'
+import { NextRequest, NextResponse } from 'next/server'
+import { logger } from '@/lib/logger'
 
 const ALLOWED_TYPES = [
   'image/jpeg',
@@ -10,43 +10,46 @@ const ALLOWED_TYPES = [
   'application/pdf',
   'text/plain',
   'application/msword',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-];
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+]
 
-const MAX_SIZE = 10 * 1024 * 1024; // 10MB
+const MAX_SIZE = 10 * 1024 * 1024 // 10MB
 
 interface UploadedAttachment {
-  url: string;
-  name: string;
-  type: string;
-  size: number;
+  url: string
+  name: string
+  type: string
+  size: number
 }
 
 // POST /api/messages/attachments - Upload file(s) for message
 export async function POST(request: NextRequest): Promise<NextResponse> {
-  const supabase = await createClient();
+  const supabase = await createClient()
 
   // Auth check
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
   }
 
   try {
-    const formData = await request.formData();
-    const conversationId = formData.get('conversation_id') as string;
-    const files = formData.getAll('files') as File[];
+    const formData = await request.formData()
+    const conversationId = formData.get('conversation_id') as string
+    const files = formData.getAll('files') as File[]
 
     if (!conversationId) {
-      return NextResponse.json({ error: 'conversation_id requerido' }, { status: 400 });
+      return NextResponse.json({ error: 'conversation_id requerido' }, { status: 400 })
     }
 
     if (!files || files.length === 0) {
-      return NextResponse.json({ error: 'No se proporcionaron archivos' }, { status: 400 });
+      return NextResponse.json({ error: 'No se proporcionaron archivos' }, { status: 400 })
     }
 
     if (files.length > 5) {
-      return NextResponse.json({ error: 'Máximo 5 archivos por mensaje' }, { status: 400 });
+      return NextResponse.json({ error: 'Máximo 5 archivos por mensaje' }, { status: 400 })
     }
 
     // Verify user has access to conversation
@@ -54,60 +57,66 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       .from('profiles')
       .select('tenant_id, role')
       .eq('id', user.id)
-      .single();
+      .single()
 
     if (!profile) {
-      return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 });
+      return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 })
     }
 
     const { data: conversation } = await supabase
       .from('conversations')
       .select('id, client_id, tenant_id')
       .eq('id', conversationId)
-      .single();
+      .single()
 
     if (!conversation) {
-      return NextResponse.json({ error: 'Conversación no encontrada' }, { status: 404 });
+      return NextResponse.json({ error: 'Conversación no encontrada' }, { status: 404 })
     }
 
-    const isStaff = ['vet', 'admin'].includes(profile.role);
+    const isStaff = ['vet', 'admin'].includes(profile.role)
     if (!isStaff && conversation.client_id !== user.id) {
-      return NextResponse.json({ error: 'No tienes acceso a esta conversación' }, { status: 403 });
+      return NextResponse.json({ error: 'No tienes acceso a esta conversación' }, { status: 403 })
     }
 
     // Upload files
-    const uploadedAttachments: UploadedAttachment[] = [];
+    const uploadedAttachments: UploadedAttachment[] = []
 
     for (const file of files) {
       // Validate type
       if (!ALLOWED_TYPES.includes(file.type)) {
-        return NextResponse.json({
-          error: `Tipo de archivo no permitido: ${file.type}. Tipos permitidos: imágenes, PDF, documentos de texto.`
-        }, { status: 400 });
+        return NextResponse.json(
+          {
+            error: `Tipo de archivo no permitido: ${file.type}. Tipos permitidos: imágenes, PDF, documentos de texto.`,
+          },
+          { status: 400 }
+        )
       }
 
       // Validate size
       if (file.size > MAX_SIZE) {
-        return NextResponse.json({
-          error: `Archivo "${file.name}" excede el tamaño máximo de 10MB`
-        }, { status: 400 });
+        return NextResponse.json(
+          {
+            error: `Archivo "${file.name}" excede el tamaño máximo de 10MB`,
+          },
+          { status: 400 }
+        )
       }
 
       // Generate unique filename
-      const timestamp = Date.now();
-      const randomSuffix = Math.random().toString(36).substring(7);
-      const extension = file.name.split('.').pop() || 'bin';
-      const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-      const storagePath = `${user.id}/${conversationId}/${timestamp}-${randomSuffix}.${extension}`;
+      const timestamp = Date.now()
+      const randomSuffix = Math.random().toString(36).substring(7)
+      const extension = file.name.split('.').pop() || 'bin'
+      const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_')
+      const storagePath = `${user.id}/${conversationId}/${timestamp}-${randomSuffix}.${extension}`
 
       // Upload to Supabase Storage
-      const arrayBuffer = await file.arrayBuffer();
+      const arrayBuffer = await file.arrayBuffer()
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('message-attachments')
         .upload(storagePath, arrayBuffer, {
           contentType: file.type,
-          upsert: false
-        });
+          upsert: false,
+        })
 
       if (uploadError) {
         logger.error('Upload error', {
@@ -115,35 +124,38 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           tenantId: profile.tenant_id,
           conversationId,
           fileName: file.name,
-          error: uploadError instanceof Error ? uploadError.message : String(uploadError)
-        });
-        return NextResponse.json({
-          error: `Error al subir "${file.name}": ${uploadError.message}`
-        }, { status: 500 });
+          error: uploadError instanceof Error ? uploadError.message : String(uploadError),
+        })
+        return NextResponse.json(
+          {
+            error: `Error al subir "${file.name}": ${uploadError.message}`,
+          },
+          { status: 500 }
+        )
       }
 
       // Get public URL
       const { data: urlData } = supabase.storage
         .from('message-attachments')
-        .getPublicUrl(uploadData.path);
+        .getPublicUrl(uploadData.path)
 
       uploadedAttachments.push({
         url: urlData.publicUrl,
         name: sanitizedName,
         type: file.type,
-        size: file.size
-      });
+        size: file.size,
+      })
     }
 
     return NextResponse.json({
       success: true,
-      attachments: uploadedAttachments
-    });
+      attachments: uploadedAttachments,
+    })
   } catch (e) {
     logger.error('Error uploading attachments', {
       userId: user?.id,
-      error: e instanceof Error ? e.message : String(e)
-    });
-    return NextResponse.json({ error: 'Error al subir archivos' }, { status: 500 });
+      error: e instanceof Error ? e.message : String(e),
+    })
+    return NextResponse.json({ error: 'Error al subir archivos' }, { status: 500 })
   }
 }

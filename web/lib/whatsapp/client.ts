@@ -25,12 +25,16 @@ export interface SendWhatsAppResult {
 /**
  * Send a WhatsApp message via Twilio
  */
-export async function sendWhatsAppMessage({ to, body, mediaUrl }: SendWhatsAppParams): Promise<SendWhatsAppResult> {
+export async function sendWhatsAppMessage({
+  to,
+  body,
+  mediaUrl,
+}: SendWhatsAppParams): Promise<SendWhatsAppResult> {
   if (!client) {
     console.error('Twilio client not configured. Check TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN.')
     return {
       success: false,
-      error: 'Twilio no está configurado'
+      error: 'Twilio no está configurado',
     }
   }
 

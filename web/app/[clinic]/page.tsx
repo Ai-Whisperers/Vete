@@ -1,40 +1,38 @@
-
-import { getClinicData } from '@/lib/clinics';
-import { notFound } from 'next/navigation';
-import Link from 'next/link';
-import * as Icons from 'lucide-react';
-import { AppointmentForm } from '@/components/forms/appointment-form';
-import { HeroImage } from '@/components/seo/hero-image';
+import { getClinicData } from '@/lib/clinics'
+import { notFound } from 'next/navigation'
+import Link from 'next/link'
+import * as Icons from 'lucide-react'
+import { AppointmentForm } from '@/components/forms/appointment-form'
+import { HeroImage } from '@/components/seo/hero-image'
 
 // Dynamic Icon Component - safely handles icon name lookup
 const DynamicIcon = ({ name, className }: { name: string; className?: string }) => {
   if (!name || typeof name !== 'string') {
-    return <Icons.HelpCircle className={className} />;
+    return <Icons.HelpCircle className={className} />
   }
 
   // Convert kebab-case to PascalCase for Lucide icon lookup
-  const iconName = name
-    .charAt(0).toUpperCase() +
-    name.slice(1).replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
+  const iconName =
+    name.charAt(0).toUpperCase() +
+    name.slice(1).replace(/-([a-z])/g, (_, letter) => letter.toUpperCase())
 
-  const IconsMap = Icons as unknown as Record<string, React.ComponentType<{ className?: string }>>;
-  const Icon = IconsMap[iconName] || Icons.HelpCircle;
-  return <Icon className={className} />;
-};
+  const IconsMap = Icons as unknown as Record<string, React.ComponentType<{ className?: string }>>
+  const Icon = IconsMap[iconName] || Icons.HelpCircle
+  return <Icon className={className} />
+}
 
 export default async function ClinicHomePage({ params }: { params: Promise<{ clinic: string }> }) {
-  const { clinic } = await params;
-  const data = await getClinicData(clinic);
+  const { clinic } = await params
+  const data = await getClinicData(clinic)
 
-  if (!data) notFound();
+  if (!data) notFound()
 
-  const { home, config } = data;
+  const { home, config } = data
 
   return (
-    <div className="flex flex-col min-h-screen">
-
+    <div className="flex min-h-screen flex-col">
       {/* HERO SECTION - Improved overlay and visual hierarchy */}
-      <section className="relative min-h-[85vh] flex items-center overflow-hidden">
+      <section className="relative flex min-h-[85vh] items-center overflow-hidden">
         {/* Background Image with optimized next/image */}
         {config.branding?.hero_image_url ? (
           <HeroImage
@@ -46,59 +44,63 @@ export default async function ClinicHomePage({ params }: { params: Promise<{ cli
         )}
 
         {/* Subtle pattern overlay */}
-        <div className="absolute inset-0 z-0 opacity-[0.03]"
-             style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '40px 40px' }}
+        <div
+          className="absolute inset-0 z-0 opacity-[0.03]"
+          style={{
+            backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)',
+            backgroundSize: '40px 40px',
+          }}
         />
 
         {/* Emergency Badge - Positioned as corner ribbon */}
-        <div className="absolute top-24 md:top-28 right-0 z-20">
-          <div className="bg-[var(--accent)] text-[var(--secondary-contrast)] px-6 py-2 pr-8 rounded-l-full font-bold text-sm tracking-wide shadow-lg flex items-center gap-2">
-            <Icons.Zap className="w-4 h-4" />
+        <div className="absolute right-0 top-24 z-20 md:top-28">
+          <div className="flex items-center gap-2 rounded-l-full bg-[var(--accent)] px-6 py-2 pr-8 text-sm font-bold tracking-wide text-[var(--secondary-contrast)] shadow-lg">
+            <Icons.Zap className="h-4 w-4" />
             {home.hero.badge_text || 'Urgencias 24hs'}
           </div>
         </div>
 
-        <div className="container mx-auto px-4 md:px-6 relative z-10 py-20">
+        <div className="container relative z-10 mx-auto px-4 py-20 md:px-6">
           <div className="max-w-4xl">
-            <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-heading font-black tracking-tight mb-6 leading-[1.1] text-white drop-shadow-2xl text-balance animate-fade-in">
+            <h1 className="font-heading animate-fade-in mb-6 text-balance text-3xl font-black leading-[1.1] tracking-tight text-white drop-shadow-2xl sm:text-4xl md:text-6xl lg:text-7xl">
               {home.hero.headline}
             </h1>
-            <p className="max-w-2xl text-lg md:text-xl text-white/90 mb-10 leading-relaxed font-medium drop-shadow-md text-balance animate-fade-in stagger-1">
+            <p className="animate-fade-in stagger-1 mb-10 max-w-2xl text-balance text-lg font-medium leading-relaxed text-white/90 drop-shadow-md md:text-xl">
               {home.hero.subhead}
             </p>
 
             {/* CTAs - Improved visual hierarchy */}
-            <div className="flex flex-col sm:flex-row gap-4 animate-fade-in stagger-2">
+            <div className="animate-fade-in stagger-2 flex flex-col gap-4 sm:flex-row">
               <a
                 href={`https://wa.me/${config.contact.whatsapp_number}`}
                 target="_blank"
-                className="group inline-flex h-14 md:h-16 items-center justify-center rounded-full px-8 md:px-10 text-base md:text-lg font-bold shadow-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl active:scale-95 bg-[var(--accent)] text-[var(--secondary-contrast)] gap-3"
+                className="group inline-flex h-14 items-center justify-center gap-3 rounded-full bg-[var(--accent)] px-8 text-base font-bold text-[var(--secondary-contrast)] shadow-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl active:scale-95 md:h-16 md:px-10 md:text-lg"
               >
-                <Icons.MessageCircle className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                <Icons.MessageCircle className="h-5 w-5 transition-transform group-hover:scale-110" />
                 {home.hero.cta_primary}
               </a>
               <Link
                 href={`/${clinic}/services`}
-                className="inline-flex h-14 md:h-16 items-center justify-center rounded-full border-2 border-white/50 bg-white/10 backdrop-blur-md px-8 md:px-10 text-base md:text-lg font-bold text-white shadow-lg transition-all duration-300 hover:bg-white/20 hover:border-white hover:-translate-y-1 active:scale-95 gap-2"
+                className="inline-flex h-14 items-center justify-center gap-2 rounded-full border-2 border-white/50 bg-white/10 px-8 text-base font-bold text-white shadow-lg backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-white hover:bg-white/20 active:scale-95 md:h-16 md:px-10 md:text-lg"
               >
                 {home.hero.cta_secondary}
-                <Icons.ArrowRight className="w-5 h-5" />
+                <Icons.ArrowRight className="h-5 w-5" />
               </Link>
             </div>
           </div>
         </div>
 
         {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 animate-bounce hidden md:block">
-          <Icons.ChevronDown className="w-8 h-8 text-white/60" />
+        <div className="absolute bottom-8 left-1/2 z-10 hidden -translate-x-1/2 animate-bounce md:block">
+          <Icons.ChevronDown className="h-8 w-8 text-white/60" />
         </div>
       </section>
 
       {/* PROMO BANNER - Improved as floating card */}
       {home.promo_banner?.enabled && (
-        <div className="relative z-20 -mt-6 mx-4 md:mx-auto md:max-w-4xl">
-          <div className="bg-gradient-to-r from-[var(--accent)] to-[var(--secondary-light)] text-[var(--secondary-contrast)] py-4 px-6 md:px-8 rounded-2xl font-bold text-center shadow-xl flex items-center justify-center gap-3 text-sm md:text-base">
-            <Icons.Sparkles className="w-5 h-5 flex-shrink-0" />
+        <div className="relative z-20 mx-4 -mt-6 md:mx-auto md:max-w-4xl">
+          <div className="flex items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-[var(--accent)] to-[var(--secondary-light)] px-6 py-4 text-center text-sm font-bold text-[var(--secondary-contrast)] shadow-xl md:px-8 md:text-base">
+            <Icons.Sparkles className="h-5 w-5 flex-shrink-0" />
             <span>{home.promo_banner.text}</span>
           </div>
         </div>
@@ -107,69 +109,69 @@ export default async function ClinicHomePage({ params }: { params: Promise<{ cli
       {/* FEATURES GRID - Improved cards and layout */}
       <section className="section-padding bg-[var(--bg-subtle)]">
         <div className="container mx-auto px-4 md:px-6">
-          <div className="text-center mb-12 md:mb-16">
-            <span className="inline-block text-[var(--primary)] font-bold tracking-widest uppercase text-sm mb-3">
+          <div className="mb-12 text-center md:mb-16">
+            <span className="mb-3 inline-block text-sm font-bold uppercase tracking-widest text-[var(--primary)]">
               Nuestros Servicios
             </span>
-            <h2 className="text-3xl md:text-4xl font-heading font-black text-[var(--text-primary)] mb-4">
+            <h2 className="font-heading mb-4 text-3xl font-black text-[var(--text-primary)] md:text-4xl">
               {config.ui_labels?.home?.features_title}
             </h2>
-            <p className="text-[var(--text-secondary)] max-w-2xl mx-auto text-lg">
+            <p className="mx-auto max-w-2xl text-lg text-[var(--text-secondary)]">
               {config.ui_labels?.home?.features_subtitle}
             </p>
           </div>
 
-          <div className="grid gap-6 md:gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {(home.features ?? []).map((feature: { icon: string; title: string; text: string }, idx: number) => (
-              <div
-                key={idx}
-                className="group relative overflow-hidden rounded-2xl bg-white p-6 md:p-8 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] transition-all duration-300 hover:-translate-y-2 border border-gray-100"
-              >
-                {/* Icon with gradient background */}
-                <div className="mb-5 inline-flex items-center justify-center w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-gradient-to-br from-[var(--primary)] to-[var(--primary-dark)] text-white shadow-lg group-hover:scale-110 transition-transform duration-300">
-                  <DynamicIcon name={feature.icon} className="w-7 h-7 md:w-8 md:h-8" />
+          <div className="grid gap-6 sm:grid-cols-2 md:gap-8 lg:grid-cols-3">
+            {(home.features ?? []).map(
+              (feature: { icon: string; title: string; text: string }, idx: number) => (
+                <div
+                  key={idx}
+                  className="group relative overflow-hidden rounded-2xl border border-gray-100 bg-white p-6 shadow-[var(--shadow-card)] transition-all duration-300 hover:-translate-y-2 hover:shadow-[var(--shadow-card-hover)] md:p-8"
+                >
+                  {/* Icon with gradient background */}
+                  <div className="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[var(--primary)] to-[var(--primary-dark)] text-white shadow-lg transition-transform duration-300 group-hover:scale-110 md:h-16 md:w-16">
+                    <DynamicIcon name={feature.icon} className="h-7 w-7 md:h-8 md:w-8" />
+                  </div>
+
+                  <h3 className="mb-3 text-xl font-bold text-[var(--text-primary)] transition-colors group-hover:text-[var(--primary)]">
+                    {feature.title}
+                  </h3>
+                  <p className="leading-relaxed text-[var(--text-secondary)]">{feature.text}</p>
+
+                  {/* Decorative corner accent */}
+                  <div className="from-[var(--primary)]/5 absolute right-0 top-0 h-20 w-20 rounded-bl-[100px] bg-gradient-to-bl to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                 </div>
-
-                <h3 className="text-xl font-bold mb-3 text-[var(--text-primary)] group-hover:text-[var(--primary)] transition-colors">
-                  {feature.title}
-                </h3>
-                <p className="text-[var(--text-secondary)] leading-relaxed">
-                  {feature.text}
-                </p>
-
-                {/* Decorative corner accent */}
-                <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-[var(--primary)]/5 to-transparent rounded-bl-[100px] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              </div>
-            ))}
+              )
+            )}
           </div>
         </div>
       </section>
 
       {/* INTERACTIVE TOOLS */}
       {home.interactive_tools_section && (
-        <section className="section-padding bg-white relative overflow-hidden">
+        <section className="section-padding relative overflow-hidden bg-white">
           {/* Decorative blobs */}
-          <div className="absolute top-0 right-0 w-48 sm:w-72 lg:w-96 h-48 sm:h-72 lg:h-96 bg-[var(--primary)]/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-          <div className="absolute bottom-0 left-0 w-32 sm:w-48 lg:w-64 h-32 sm:h-48 lg:h-64 bg-[var(--accent)]/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+          <div className="bg-[var(--primary)]/5 absolute right-0 top-0 h-48 w-48 -translate-y-1/2 translate-x-1/2 rounded-full blur-3xl sm:h-72 sm:w-72 lg:h-96 lg:w-96" />
+          <div className="bg-[var(--accent)]/10 absolute bottom-0 left-0 h-32 w-32 -translate-x-1/2 translate-y-1/2 rounded-full blur-3xl sm:h-48 sm:w-48 lg:h-64 lg:w-64" />
 
-          <div className="container mx-auto px-4 text-center relative z-10">
-            <span className="inline-block bg-[var(--accent)]/10 text-[var(--secondary-dark)] font-bold uppercase tracking-widest text-sm px-4 py-2 rounded-full mb-4">
+          <div className="container relative z-10 mx-auto px-4 text-center">
+            <span className="bg-[var(--accent)]/10 mb-4 inline-block rounded-full px-4 py-2 text-sm font-bold uppercase tracking-widest text-[var(--secondary-dark)]">
               {config.ui_labels?.home?.tools_badge}
             </span>
-            <h2 className="text-3xl md:text-4xl font-heading font-black mb-4 text-[var(--text-primary)]">
+            <h2 className="font-heading mb-4 text-3xl font-black text-[var(--text-primary)] md:text-4xl">
               {home.interactive_tools_section.title}
             </h2>
-            <p className="mb-10 text-[var(--text-secondary)] max-w-2xl mx-auto text-lg">
+            <p className="mx-auto mb-10 max-w-2xl text-lg text-[var(--text-secondary)]">
               {home.interactive_tools_section.subtitle}
             </p>
 
             <Link
               href={`/${clinic}/tools/toxic-food`}
-              className="group inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-[var(--primary)] to-[var(--primary-dark)] rounded-full font-bold text-white shadow-lg hover:shadow-xl hover:opacity-90 transition-all duration-300 transform hover:-translate-y-1"
+              className="group inline-flex transform items-center gap-3 rounded-full bg-gradient-to-r from-[var(--primary)] to-[var(--primary-dark)] px-8 py-4 font-bold text-white shadow-lg transition-all duration-300 hover:-translate-y-1 hover:opacity-90 hover:shadow-xl"
             >
-              <Icons.Search className="w-6 h-6 group-hover:scale-110 transition-transform" />
+              <Icons.Search className="h-6 w-6 transition-transform group-hover:scale-110" />
               {home.interactive_tools_section.toxic_food_cta}
-              <Icons.ArrowRight className="w-5 h-5 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all" />
+              <Icons.ArrowRight className="-ml-2 h-5 w-5 opacity-0 transition-all group-hover:ml-0 group-hover:opacity-100" />
             </Link>
           </div>
         </section>
@@ -177,61 +179,61 @@ export default async function ClinicHomePage({ params }: { params: Promise<{ cli
 
       {/* TESTIMONIALS - Completely redesigned */}
       {home.testimonials_section?.enabled && data.testimonials && (
-        <section className="section-padding bg-gradient-to-b from-[var(--bg-subtle)] to-white relative overflow-hidden">
+        <section className="section-padding relative overflow-hidden bg-gradient-to-b from-[var(--bg-subtle)] to-white">
           {/* Decorative elements */}
-          <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-[var(--primary)]/20 to-transparent" />
+          <div className="via-[var(--primary)]/20 absolute left-0 top-0 h-px w-full bg-gradient-to-r from-transparent to-transparent" />
 
           <div className="container mx-auto px-4 md:px-6">
-            <div className="text-center mb-12 md:mb-16">
-              <span className="inline-block text-[var(--primary)] font-bold tracking-widest uppercase text-sm mb-3">
+            <div className="mb-12 text-center md:mb-16">
+              <span className="mb-3 inline-block text-sm font-bold uppercase tracking-widest text-[var(--primary)]">
                 Testimonios
               </span>
-              <h2 className="text-3xl md:text-4xl font-heading font-black mb-4 text-[var(--text-primary)]">
+              <h2 className="font-heading mb-4 text-3xl font-black text-[var(--text-primary)] md:text-4xl">
                 {home.testimonials_section.title}
               </h2>
-              <p className="text-[var(--text-secondary)] max-w-2xl mx-auto text-lg">
+              <p className="mx-auto max-w-2xl text-lg text-[var(--text-secondary)]">
                 {home.testimonials_section.subtitle}
               </p>
             </div>
 
             {/* Testimonials Grid - Show 3 max on desktop */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+            <div className="grid gap-6 md:grid-cols-2 md:gap-8 lg:grid-cols-3">
               {(data.testimonials ?? []).slice(0, 6).map((t, idx) => (
                 <div
                   key={t.id}
-                  className="group bg-white p-6 md:p-8 rounded-2xl shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] transition-all duration-300 hover:-translate-y-1 border border-gray-100 relative"
+                  className="group relative rounded-2xl border border-gray-100 bg-white p-6 shadow-[var(--shadow-card)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[var(--shadow-card-hover)] md:p-8"
                 >
                   {/* Quote icon */}
-                  <div className="absolute -top-3 left-6 bg-[var(--primary)] p-2.5 rounded-xl shadow-lg">
-                    <Icons.Quote className="w-4 h-4 text-white" />
+                  <div className="absolute -top-3 left-6 rounded-xl bg-[var(--primary)] p-2.5 shadow-lg">
+                    <Icons.Quote className="h-4 w-4 text-white" />
                   </div>
 
                   {/* Stars */}
-                  <div className="flex gap-1 mb-4 mt-2">
+                  <div className="mb-4 mt-2 flex gap-1">
                     {[...Array(5)].map((_, i) => (
                       <Icons.Star
                         key={i}
-                        className={`w-5 h-5 ${i < t.rating ? 'fill-[var(--accent)] text-[var(--accent)]' : 'text-gray-200'}`}
+                        className={`h-5 w-5 ${i < t.rating ? 'fill-[var(--accent)] text-[var(--accent)]' : 'text-gray-200'}`}
                       />
                     ))}
                   </div>
 
                   {/* Testimonial text */}
-                  <p className="text-[var(--text-primary)] mb-6 leading-relaxed line-clamp-4 text-base">
+                  <p className="mb-6 line-clamp-4 text-base leading-relaxed text-[var(--text-primary)]">
                     "{t.text}"
                   </p>
 
                   {/* Author */}
-                  <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                  <div className="flex items-center justify-between border-t border-gray-100 pt-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--primary)] to-[var(--primary-dark)] flex items-center justify-center text-white font-bold text-sm">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[var(--primary)] to-[var(--primary-dark)] text-sm font-bold text-white">
                         {t.author.charAt(0)}
                       </div>
-                      <span className="font-bold text-[var(--text-primary)] text-sm">
+                      <span className="text-sm font-bold text-[var(--text-primary)]">
                         {t.author}
                       </span>
                     </div>
-                    <span className="text-xs text-[var(--text-muted)] font-medium uppercase tracking-wider bg-gray-100 px-2 py-1 rounded-full">
+                    <span className="rounded-full bg-gray-100 px-2 py-1 text-xs font-medium uppercase tracking-wider text-[var(--text-muted)]">
                       {t.source}
                     </span>
                   </div>
@@ -245,52 +247,58 @@ export default async function ClinicHomePage({ params }: { params: Promise<{ cli
       {/* LOCATION / CONTACT - Improved layout */}
       <section className="section-padding bg-white">
         <div className="container mx-auto px-4 md:px-6">
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-start">
+          <div className="grid items-start gap-12 lg:grid-cols-2 lg:gap-16">
             {/* Contact Form Side */}
             <div>
-              <span className="inline-block text-[var(--primary)] font-bold tracking-widest uppercase text-sm mb-3">
+              <span className="mb-3 inline-block text-sm font-bold uppercase tracking-widest text-[var(--primary)]">
                 {config.ui_labels?.home?.contact_badge}
               </span>
-              <h2 className="text-3xl md:text-4xl font-heading font-black mb-8 text-[var(--text-primary)]">
+              <h2 className="font-heading mb-8 text-3xl font-black text-[var(--text-primary)] md:text-4xl">
                 {config.ui_labels?.home?.visit_us || 'Visítanos'}
               </h2>
 
               {/* Contact Info Cards */}
-              <div className="grid sm:grid-cols-2 gap-4 mb-8">
-                <div className="flex items-center gap-4 p-4 bg-[var(--bg-subtle)] rounded-xl">
-                  <div className="w-12 h-12 rounded-xl bg-[var(--primary)]/10 flex items-center justify-center flex-shrink-0">
-                    <Icons.MapPin className="w-6 h-6 text-[var(--primary)]" />
+              <div className="mb-8 grid gap-4 sm:grid-cols-2">
+                <div className="flex items-center gap-4 rounded-xl bg-[var(--bg-subtle)] p-4">
+                  <div className="bg-[var(--primary)]/10 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl">
+                    <Icons.MapPin className="h-6 w-6 text-[var(--primary)]" />
                   </div>
                   <div>
-                    <p className="font-bold text-[var(--text-primary)] text-sm">Dirección</p>
-                    <p className="text-[var(--text-secondary)] text-sm">{config.contact.address}</p>
+                    <p className="text-sm font-bold text-[var(--text-primary)]">Dirección</p>
+                    <p className="text-sm text-[var(--text-secondary)]">{config.contact.address}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-4 p-4 bg-[var(--bg-subtle)] rounded-xl">
-                  <div className="w-12 h-12 rounded-xl bg-[var(--primary)]/10 flex items-center justify-center flex-shrink-0">
-                    <Icons.Phone className="w-6 h-6 text-[var(--primary)]" />
+                <div className="flex items-center gap-4 rounded-xl bg-[var(--bg-subtle)] p-4">
+                  <div className="bg-[var(--primary)]/10 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl">
+                    <Icons.Phone className="h-6 w-6 text-[var(--primary)]" />
                   </div>
                   <div>
-                    <p className="font-bold text-[var(--text-primary)] text-sm">Teléfono</p>
-                    <p className="text-[var(--text-secondary)] text-sm">{config.contact.phone_display}</p>
+                    <p className="text-sm font-bold text-[var(--text-primary)]">Teléfono</p>
+                    <p className="text-sm text-[var(--text-secondary)]">
+                      {config.contact.phone_display}
+                    </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-4 p-4 bg-[var(--bg-subtle)] rounded-xl">
-                  <div className="w-12 h-12 rounded-xl bg-[var(--primary)]/10 flex items-center justify-center flex-shrink-0">
-                    <Icons.Clock className="w-6 h-6 text-[var(--primary)]" />
+                <div className="flex items-center gap-4 rounded-xl bg-[var(--bg-subtle)] p-4">
+                  <div className="bg-[var(--primary)]/10 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl">
+                    <Icons.Clock className="h-6 w-6 text-[var(--primary)]" />
                   </div>
                   <div>
-                    <p className="font-bold text-[var(--text-primary)] text-sm">Horarios</p>
-                    <p className="text-[var(--text-secondary)] text-sm">Lun-Vie: {config.hours?.weekdays || 'Consultar'}</p>
+                    <p className="text-sm font-bold text-[var(--text-primary)]">Horarios</p>
+                    <p className="text-sm text-[var(--text-secondary)]">
+                      Lun-Vie: {config.hours?.weekdays || 'Consultar'}
+                    </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-4 p-4 bg-[var(--accent)]/10 rounded-xl border border-[var(--accent)]/20">
-                  <div className="w-12 h-12 rounded-xl bg-[var(--accent)]/20 flex items-center justify-center flex-shrink-0">
-                    <Icons.Zap className="w-6 h-6 text-[var(--secondary-dark)]" />
+                <div className="bg-[var(--accent)]/10 border-[var(--accent)]/20 flex items-center gap-4 rounded-xl border p-4">
+                  <div className="bg-[var(--accent)]/20 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl">
+                    <Icons.Zap className="h-6 w-6 text-[var(--secondary-dark)]" />
                   </div>
                   <div>
-                    <p className="font-bold text-[var(--text-primary)] text-sm">Urgencias</p>
-                    <p className="text-[var(--secondary-dark)] text-sm font-medium">24 horas, 365 días</p>
+                    <p className="text-sm font-bold text-[var(--text-primary)]">Urgencias</p>
+                    <p className="text-sm font-medium text-[var(--secondary-dark)]">
+                      24 horas, 365 días
+                    </p>
                   </div>
                 </div>
               </div>
@@ -299,7 +307,7 @@ export default async function ClinicHomePage({ params }: { params: Promise<{ cli
             </div>
 
             {/* Map Side */}
-            <div className="h-[300px] sm:h-[400px] lg:h-full lg:min-h-[600px] w-full rounded-2xl shadow-xl overflow-hidden border border-gray-200 relative group">
+            <div className="group relative h-[300px] w-full overflow-hidden rounded-2xl border border-gray-200 shadow-xl sm:h-[400px] lg:h-full lg:min-h-[600px]">
               <div
                 className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
                 style={{ backgroundImage: `url('/branding/${clinic}/images/static-map.jpg')` }}
@@ -311,18 +319,17 @@ export default async function ClinicHomePage({ params }: { params: Promise<{ cli
                   href={`https://www.google.com/maps/place/?q=place_id:${config.contact.google_maps_id}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="bg-white text-[var(--text-primary)] px-8 py-4 rounded-full font-bold shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 flex items-center gap-3"
+                  className="flex items-center gap-3 rounded-full bg-white px-8 py-4 font-bold text-[var(--text-primary)] shadow-xl transition-all duration-300 hover:scale-105 hover:shadow-2xl active:scale-95"
                 >
-                  <Icons.MapPin className="w-5 h-5 text-[var(--primary)]" />
+                  <Icons.MapPin className="h-5 w-5 text-[var(--primary)]" />
                   {config.ui_labels?.home?.map_button}
-                  <Icons.ExternalLink className="w-4 h-4 text-[var(--text-muted)]" />
+                  <Icons.ExternalLink className="h-4 w-4 text-[var(--text-muted)]" />
                 </a>
               </div>
             </div>
           </div>
         </div>
       </section>
-
     </div>
-  );
+  )
 }

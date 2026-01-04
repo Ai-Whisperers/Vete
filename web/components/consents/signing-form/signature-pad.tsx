@@ -1,21 +1,23 @@
-"use client";
+'use client'
 
-import type { JSX } from 'react';
-import { Edit3, Type, RotateCcw } from 'lucide-react';
+import type { JSX } from 'react'
+import { Edit3, Type, RotateCcw } from 'lucide-react'
 
 interface SignaturePadProps {
-  signatureMode: 'draw' | 'type';
-  onModeChange: (mode: 'draw' | 'type') => void;
-  signatureText: string;
-  onSignatureTextChange: (text: string) => void;
-  canvasRef: React.RefObject<HTMLCanvasElement | null>;
-  canvasContainerRef: React.RefObject<HTMLDivElement | null>;
-  onStartDrawing: (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => void;
-  onDraw: (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => void;
-  onStopDrawing: () => void;
-  onClearSignature: () => void;
-  label: string;
-  required?: boolean;
+  signatureMode: 'draw' | 'type'
+  onModeChange: (mode: 'draw' | 'type') => void
+  signatureText: string
+  onSignatureTextChange: (text: string) => void
+  canvasRef: React.RefObject<HTMLCanvasElement | null>
+  canvasContainerRef: React.RefObject<HTMLDivElement | null>
+  onStartDrawing: (
+    e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>
+  ) => void
+  onDraw: (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => void
+  onStopDrawing: () => void
+  onClearSignature: () => void
+  label: string
+  required?: boolean
 }
 
 export default function SignaturePad({
@@ -33,34 +35,34 @@ export default function SignaturePad({
   required = true,
 }: SignaturePadProps): JSX.Element {
   return (
-    <div className="bg-[var(--bg-paper)] rounded-lg border border-[var(--primary)]/20 p-6">
-      <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4">
+    <div className="border-[var(--primary)]/20 rounded-lg border bg-[var(--bg-paper)] p-6">
+      <h3 className="mb-4 text-lg font-semibold text-[var(--text-primary)]">
         {label} {required && <span className="text-red-600">*</span>}
       </h3>
 
-      <div className="flex gap-2 mb-4">
+      <div className="mb-4 flex gap-2">
         <button
           type="button"
           onClick={() => onModeChange('draw')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+          className={`flex items-center gap-2 rounded-lg px-4 py-2 transition-colors ${
             signatureMode === 'draw'
               ? 'bg-[var(--primary)] text-white'
-              : 'bg-[var(--bg-default)] text-[var(--text-primary)] border border-[var(--primary)]/20'
+              : 'border-[var(--primary)]/20 border bg-[var(--bg-default)] text-[var(--text-primary)]'
           }`}
         >
-          <Edit3 className="w-4 h-4" />
+          <Edit3 className="h-4 w-4" />
           Dibujar
         </button>
         <button
           type="button"
           onClick={() => onModeChange('type')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+          className={`flex items-center gap-2 rounded-lg px-4 py-2 transition-colors ${
             signatureMode === 'type'
               ? 'bg-[var(--primary)] text-white'
-              : 'bg-[var(--bg-default)] text-[var(--text-primary)] border border-[var(--primary)]/20'
+              : 'border-[var(--primary)]/20 border bg-[var(--bg-default)] text-[var(--text-primary)]'
           }`}
         >
-          <Type className="w-4 h-4" />
+          <Type className="h-4 w-4" />
           Escribir
         </button>
       </div>
@@ -74,19 +76,25 @@ export default function SignaturePad({
               onMouseMove={onDraw}
               onMouseUp={onStopDrawing}
               onMouseLeave={onStopDrawing}
-              onTouchStart={(e) => { e.preventDefault(); onStartDrawing(e); }}
-              onTouchMove={(e) => { e.preventDefault(); onDraw(e); }}
+              onTouchStart={(e) => {
+                e.preventDefault()
+                onStartDrawing(e)
+              }}
+              onTouchMove={(e) => {
+                e.preventDefault()
+                onDraw(e)
+              }}
               onTouchEnd={onStopDrawing}
-              className="w-full border-2 border-dashed border-[var(--primary)]/20 rounded-lg cursor-crosshair bg-white touch-none"
+              className="border-[var(--primary)]/20 w-full cursor-crosshair touch-none rounded-lg border-2 border-dashed bg-white"
               style={{ height: 'min(35vw, 200px)', minHeight: '120px' }}
             />
           </div>
           <button
             type="button"
             onClick={onClearSignature}
-            className="flex items-center gap-2 px-4 py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] min-h-[44px]"
+            className="flex min-h-[44px] items-center gap-2 px-4 py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
           >
-            <RotateCcw className="w-4 h-4" />
+            <RotateCcw className="h-4 w-4" />
             Limpiar firma
           </button>
         </div>
@@ -96,10 +104,10 @@ export default function SignaturePad({
           value={signatureText}
           onChange={(e) => onSignatureTextChange(e.target.value)}
           placeholder="Escriba su nombre completo"
-          className="w-full px-4 py-3 text-2xl font-serif border-2 border-dashed border-[var(--primary)]/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] bg-white text-black"
+          className="border-[var(--primary)]/20 w-full rounded-lg border-2 border-dashed bg-white px-4 py-3 font-serif text-2xl text-black focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
           style={{ fontFamily: 'cursive' }}
         />
       )}
     </div>
-  );
+  )
 }

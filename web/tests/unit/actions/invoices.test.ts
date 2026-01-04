@@ -1,21 +1,25 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
-// Mock the Supabase client
+// Helper to create chainable mock query builder
+const createMockQueryBuilder = (overrides = {}) => ({
+  select: vi.fn().mockReturnThis(),
+  insert: vi.fn().mockReturnThis(),
+  update: vi.fn().mockReturnThis(),
+  delete: vi.fn().mockReturnThis(),
+  eq: vi.fn().mockReturnThis(),
+  in: vi.fn().mockReturnThis(),
+  single: vi.fn(),
+  order: vi.fn().mockReturnThis(),
+  limit: vi.fn().mockReturnThis(),
+  ...overrides,
+})
+
+// Mock the Supabase client - use 'as any' to allow partial mocking in tests
 const mockSupabaseClient = {
   auth: {
     getUser: vi.fn(),
   },
-  from: vi.fn(() => ({
-    select: vi.fn().mockReturnThis(),
-    insert: vi.fn().mockReturnThis(),
-    update: vi.fn().mockReturnThis(),
-    delete: vi.fn().mockReturnThis(),
-    eq: vi.fn().mockReturnThis(),
-    in: vi.fn().mockReturnThis(),
-    single: vi.fn(),
-    order: vi.fn().mockReturnThis(),
-    limit: vi.fn().mockReturnThis(),
-  })),
+  from: vi.fn(() => createMockQueryBuilder()) as any,
   rpc: vi.fn(),
 }
 
@@ -57,7 +61,10 @@ describe('Invoice Server Actions', () => {
         items: [{ description: 'Consulta', quantity: 1, unit_price: 100000 }],
       })
 
-      expect(result).toEqual({ error: 'No autorizado' })
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error).toBe('No autorizado')
+      }
     })
 
     it('should return error when user is not staff', async () => {
@@ -74,14 +81,18 @@ describe('Invoice Server Actions', () => {
           error: null,
         }),
       }))
-      mockSupabaseClient.from = mockFrom
+      mockSupabaseClient.from = mockFrom as any
 
       const result = await createInvoice({
         pet_id: 'pet-123',
         items: [{ description: 'Consulta', quantity: 1, unit_price: 100000 }],
       })
 
-      expect(result).toEqual({ error: 'Solo el personal puede crear facturas' })
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        // withActionAuth returns 'Acceso denegado' for non-staff users
+        expect(result.error).toBe('Acceso denegado')
+      }
     })
 
     it('should return error when no pet_id is provided', async () => {
@@ -98,14 +109,17 @@ describe('Invoice Server Actions', () => {
           error: null,
         }),
       }))
-      mockSupabaseClient.from = mockFrom
+      mockSupabaseClient.from = mockFrom as any
 
       const result = await createInvoice({
         pet_id: '',
         items: [{ description: 'Consulta', quantity: 1, unit_price: 100000 }],
       })
 
-      expect(result).toEqual({ error: 'Debe seleccionar una mascota' })
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error).toBe('Debe seleccionar una mascota')
+      }
     })
 
     it('should return error when no items are provided', async () => {
@@ -122,14 +136,17 @@ describe('Invoice Server Actions', () => {
           error: null,
         }),
       }))
-      mockSupabaseClient.from = mockFrom
+      mockSupabaseClient.from = mockFrom as any
 
       const result = await createInvoice({
         pet_id: 'pet-123',
         items: [],
       })
 
-      expect(result).toEqual({ error: 'Debe agregar al menos un item' })
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error).toBe('Debe agregar al menos un item')
+      }
     })
 
     it('should successfully create invoice when all validations pass', async () => {
@@ -188,7 +205,7 @@ describe('Invoice Server Actions', () => {
           single: vi.fn().mockResolvedValue({ data: null, error: null }),
         }
       })
-      mockSupabaseClient.from = mockFrom
+      mockSupabaseClient.from = mockFrom as any
 
       const result = await createInvoice({
         pet_id: 'pet-123',
@@ -196,7 +213,9 @@ describe('Invoice Server Actions', () => {
       })
 
       expect(result.success).toBe(true)
-      expect(result.data).toBeDefined()
+      if (result.success) {
+        expect(result.data).toBeDefined()
+      }
     })
   })
 
@@ -213,7 +232,10 @@ describe('Invoice Server Actions', () => {
         payment_method: 'cash',
       })
 
-      expect(result).toEqual({ error: 'No autorizado' })
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error).toBe('No autorizado')
+      }
     })
 
     it('should return error when user is not staff', async () => {
@@ -230,7 +252,7 @@ describe('Invoice Server Actions', () => {
           error: null,
         }),
       }))
-      mockSupabaseClient.from = mockFrom
+      mockSupabaseClient.from = mockFrom as any
 
       const result = await recordPayment({
         invoice_id: 'invoice-123',
@@ -238,7 +260,11 @@ describe('Invoice Server Actions', () => {
         payment_method: 'cash',
       })
 
-      expect(result).toEqual({ error: 'Solo el personal puede registrar pagos' })
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        // withActionAuth returns 'Acceso denegado' for non-staff users
+        expect(result.error).toBe('Acceso denegado')
+      }
     })
 
     it('should return error when invoice is not found', async () => {
@@ -267,7 +293,7 @@ describe('Invoice Server Actions', () => {
           })
         }),
       }))
-      mockSupabaseClient.from = mockFrom
+      mockSupabaseClient.from = mockFrom as any
 
       const result = await recordPayment({
         invoice_id: 'invoice-123',
@@ -275,7 +301,10 @@ describe('Invoice Server Actions', () => {
         payment_method: 'cash',
       })
 
-      expect(result).toEqual({ error: 'Factura no encontrada' })
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error).toBe('Factura no encontrada')
+      }
     })
 
     it('should return error when invoice is void', async () => {
@@ -297,12 +326,19 @@ describe('Invoice Server Actions', () => {
             })
           }
           return Promise.resolve({
-            data: { id: 'invoice-123', status: 'void', total: 100000, amount_paid: 0, amount_due: 100000, tenant_id: 'adris' },
+            data: {
+              id: 'invoice-123',
+              status: 'void',
+              total: 100000,
+              amount_paid: 0,
+              amount_due: 100000,
+              tenant_id: 'adris',
+            },
             error: null,
           })
         }),
       }))
-      mockSupabaseClient.from = mockFrom
+      mockSupabaseClient.from = mockFrom as any
 
       const result = await recordPayment({
         invoice_id: 'invoice-123',
@@ -310,7 +346,10 @@ describe('Invoice Server Actions', () => {
         payment_method: 'cash',
       })
 
-      expect(result).toEqual({ error: 'No se puede registrar pago en una factura anulada o cancelada' })
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error).toBe('No se puede registrar pago en una factura anulada o cancelada')
+      }
     })
 
     it('should return error when invoice is already paid', async () => {
@@ -332,12 +371,19 @@ describe('Invoice Server Actions', () => {
             })
           }
           return Promise.resolve({
-            data: { id: 'invoice-123', status: 'paid', total: 100000, amount_paid: 100000, amount_due: 0, tenant_id: 'adris' },
+            data: {
+              id: 'invoice-123',
+              status: 'paid',
+              total: 100000,
+              amount_paid: 100000,
+              amount_due: 0,
+              tenant_id: 'adris',
+            },
             error: null,
           })
         }),
       }))
-      mockSupabaseClient.from = mockFrom
+      mockSupabaseClient.from = mockFrom as any
 
       const result = await recordPayment({
         invoice_id: 'invoice-123',
@@ -345,7 +391,10 @@ describe('Invoice Server Actions', () => {
         payment_method: 'cash',
       })
 
-      expect(result).toEqual({ error: 'Esta factura ya está completamente pagada' })
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error).toBe('Esta factura ya está completamente pagada')
+      }
     })
 
     it('should return error when amount is zero or negative', async () => {
@@ -367,12 +416,19 @@ describe('Invoice Server Actions', () => {
             })
           }
           return Promise.resolve({
-            data: { id: 'invoice-123', status: 'sent', total: 100000, amount_paid: 0, amount_due: 100000, tenant_id: 'adris' },
+            data: {
+              id: 'invoice-123',
+              status: 'sent',
+              total: 100000,
+              amount_paid: 0,
+              amount_due: 100000,
+              tenant_id: 'adris',
+            },
             error: null,
           })
         }),
       }))
-      mockSupabaseClient.from = mockFrom
+      mockSupabaseClient.from = mockFrom as any
 
       const result = await recordPayment({
         invoice_id: 'invoice-123',
@@ -380,7 +436,10 @@ describe('Invoice Server Actions', () => {
         payment_method: 'cash',
       })
 
-      expect(result).toEqual({ error: 'El monto debe ser mayor a 0' })
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error).toBe('El monto debe ser mayor a 0')
+      }
     })
 
     it('should return error when amount exceeds due amount', async () => {
@@ -402,12 +461,19 @@ describe('Invoice Server Actions', () => {
             })
           }
           return Promise.resolve({
-            data: { id: 'invoice-123', status: 'sent', total: 100000, amount_paid: 50000, amount_due: 50000, tenant_id: 'adris' },
+            data: {
+              id: 'invoice-123',
+              status: 'sent',
+              total: 100000,
+              amount_paid: 50000,
+              amount_due: 50000,
+              tenant_id: 'adris',
+            },
             error: null,
           })
         }),
       }))
-      mockSupabaseClient.from = mockFrom
+      mockSupabaseClient.from = mockFrom as any
 
       const result = await recordPayment({
         invoice_id: 'invoice-123',
@@ -415,7 +481,10 @@ describe('Invoice Server Actions', () => {
         payment_method: 'cash',
       })
 
-      expect(result.error).toContain('excede el saldo pendiente')
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error).toContain('excede el saldo pendiente')
+      }
     })
   })
 
@@ -428,7 +497,10 @@ describe('Invoice Server Actions', () => {
 
       const result = await updateInvoiceStatus('invoice-123', 'sent')
 
-      expect(result).toEqual({ error: 'No autorizado' })
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error).toBe('No autorizado')
+      }
     })
 
     it('should return error for invalid status transition', async () => {
@@ -456,11 +528,14 @@ describe('Invoice Server Actions', () => {
           })
         }),
       }))
-      mockSupabaseClient.from = mockFrom
+      mockSupabaseClient.from = mockFrom as any
 
       const result = await updateInvoiceStatus('invoice-123', 'sent')
 
-      expect(result.error).toContain('No se puede cambiar')
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error).toContain('No se puede cambiar')
+      }
     })
   })
 
@@ -473,7 +548,10 @@ describe('Invoice Server Actions', () => {
 
       const result = await sendInvoice('invoice-123')
 
-      expect(result).toEqual({ error: 'No autorizado' })
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error).toBe('No autorizado')
+      }
     })
 
     it('should return error when invoice cannot be sent', async () => {
@@ -501,11 +579,14 @@ describe('Invoice Server Actions', () => {
           })
         }),
       }))
-      mockSupabaseClient.from = mockFrom
+      mockSupabaseClient.from = mockFrom as any
 
       const result = await sendInvoice('invoice-123')
 
-      expect(result).toEqual({ error: 'Esta factura no puede ser enviada' })
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error).toBe('Esta factura no puede ser enviada')
+      }
     })
   })
 
@@ -518,7 +599,10 @@ describe('Invoice Server Actions', () => {
 
       const result = await voidInvoice('invoice-123')
 
-      expect(result).toEqual({ error: 'No autorizado' })
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error).toBe('No autorizado')
+      }
     })
 
     it('should return error when invoice is already void', async () => {
@@ -545,11 +629,14 @@ describe('Invoice Server Actions', () => {
           })
         }),
       }))
-      mockSupabaseClient.from = mockFrom
+      mockSupabaseClient.from = mockFrom as any
 
       const result = await voidInvoice('invoice-123')
 
-      expect(result).toEqual({ error: 'Esta factura ya está anulada' })
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error).toBe('Esta factura ya está anulada')
+      }
     })
 
     it('should return error when non-admin tries to void invoice with payments', async () => {
@@ -576,11 +663,16 @@ describe('Invoice Server Actions', () => {
           })
         }),
       }))
-      mockSupabaseClient.from = mockFrom
+      mockSupabaseClient.from = mockFrom as any
 
       const result = await voidInvoice('invoice-123')
 
-      expect(result).toEqual({ error: 'Solo un administrador puede anular facturas con pagos registrados' })
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error).toBe(
+          'Solo un administrador puede anular facturas con pagos registrados'
+        )
+      }
     })
   })
 })
@@ -633,8 +725,20 @@ describe('Invoice Utility Functions', () => {
       const { calculateInvoiceTotals } = await import('@/lib/types/invoicing')
 
       const items = [
-        { description: 'Service 1', quantity: 1, unit_price: 100000, discount_percent: 20, line_total: 80000 },
-        { description: 'Service 2', quantity: 2, unit_price: 50000, discount_percent: 10, line_total: 90000 },
+        {
+          description: 'Service 1',
+          quantity: 1,
+          unit_price: 100000,
+          discount_percent: 20,
+          line_total: 80000,
+        },
+        {
+          description: 'Service 2',
+          quantity: 2,
+          unit_price: 50000,
+          discount_percent: 10,
+          line_total: 90000,
+        },
       ] as any
 
       const result = calculateInvoiceTotals(items, 10)

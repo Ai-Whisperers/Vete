@@ -2,4 +2,4 @@
  * Form components barrel export
  */
 
-export { AppointmentForm } from './appointment-form';
+export { AppointmentForm } from './appointment-form'

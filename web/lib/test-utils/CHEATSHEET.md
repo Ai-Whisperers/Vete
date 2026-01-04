@@ -20,8 +20,16 @@ import {
   createSupabaseMock,
 
   // Re-exported testing utilities
-  describe, it, expect, beforeEach, afterEach, vi,
-  render, screen, fireEvent, waitFor
+  describe,
+  it,
+  expect,
+  beforeEach,
+  afterEach,
+  vi,
+  render,
+  screen,
+  fireEvent,
+  waitFor,
 } from '@/lib/test-utils'
 ```
 
@@ -82,7 +90,9 @@ await supabase.from('pets').select('*') // Returns [pet1, pet2]
 
 ```typescript
 helpers.setUser({ id: 'user-123', email: 'test@example.com' })
-const { data: { user } } = await supabase.auth.getUser()
+const {
+  data: { user },
+} = await supabase.auth.getUser()
 ```
 
 ### Set Error
@@ -179,6 +189,7 @@ it('isolates tenant data', async () => {
 ## Default Values Reference
 
 ### createMockPet
+
 - `species`: 'dog'
 - `breed`: 'Mixed'
 - `sex`: Random male/female
@@ -186,12 +197,14 @@ it('isolates tenant data', async () => {
 - `tenant_id`: 'test-tenant'
 
 ### createMockProfile
+
 - `role`: 'owner'
 - `email`: 'user{id}@test.com'
 - `phone`: Random PY number
 - `tenant_id`: 'test-tenant'
 
 ### createMockAppointment
+
 - `status`: 'pending'
 - `start_time`: Random next 7 days
 - `end_time`: 30 min after start
@@ -199,6 +212,7 @@ it('isolates tenant data', async () => {
 - `tenant_id`: 'test-tenant'
 
 ### createMockInvoice
+
 - `status`: 'draft'
 - `subtotal`: Random 0-500,000
 - `tax_rate`: 0.1 (10%)
@@ -207,6 +221,7 @@ it('isolates tenant data', async () => {
 - `tenant_id`: 'test-tenant'
 
 ### createMockService
+
 - `category`: 'consultation'
 - `base_price`: Random 0-200,000
 - `duration_minutes`: 30

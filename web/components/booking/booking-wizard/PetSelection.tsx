@@ -1,69 +1,67 @@
-"use client";
+'use client'
 
-import React from 'react';
-import { ArrowLeft, ChevronRight, Dog } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useBookingStore } from '@/lib/store/booking-store';
+import React from 'react'
+import { ArrowLeft, ChevronRight, Dog } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { useBookingStore } from '@/lib/store/booking-store'
 
 /**
  * Step 2: Pet selection component
  */
 export function PetSelection() {
-    const router = useRouter();
-    const { pets, clinicId, updateSelection, setStep } = useBookingStore();
+  const router = useRouter()
+  const { pets, clinicId, updateSelection, setStep } = useBookingStore()
 
-    const handlePetSelect = (petId: string) => {
-        updateSelection({ petId });
-        setStep('datetime');
-    };
+  const handlePetSelect = (petId: string) => {
+    updateSelection({ petId })
+    setStep('datetime')
+  }
 
-    return (
-        <div className="relative z-10 animate-in slide-in-from-right-8 duration-500">
-            <div className="flex items-center gap-4 mb-10">
-                <button
-                    onClick={() => setStep('service')}
-                    className="p-3 bg-gray-50 text-gray-400 rounded-2xl hover:bg-gray-100 transition-all"
-                >
-                    <ArrowLeft className="w-5 h-5" />
-                </button>
-                <h2 className="text-3xl font-black text-gray-900">¿Para quién es la cita?</h2>
-            </div>
+  return (
+    <div className="animate-in slide-in-from-right-8 relative z-10 duration-500">
+      <div className="mb-10 flex items-center gap-4">
+        <button
+          onClick={() => setStep('service')}
+          className="rounded-2xl bg-gray-50 p-3 text-gray-400 transition-all hover:bg-gray-100"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </button>
+        <h2 className="text-3xl font-black text-gray-900">¿Para quién es la cita?</h2>
+      </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {pets.length > 0 ? (
-                    pets.map(p => (
-                        <button
-                            key={p.id}
-                            onClick={() => handlePetSelect(p.id)}
-                            className="p-6 bg-white border border-gray-100 rounded-[2rem] hover:border-[var(--primary)] hover:shadow-xl hover:-translate-y-1 transition-all text-left group flex items-center gap-5"
-                        >
-                            <div className="w-16 h-16 bg-[var(--primary)] text-white rounded-[1.5rem] flex items-center justify-center font-black text-2xl shadow-lg shadow-[var(--primary)]/20">
-                                {p.name[0]}
-                            </div>
-                            <div className="flex-1">
-                                <h3 className="font-black text-gray-900 text-xl mb-1">{p.name}</h3>
-                                <p className="text-sm text-gray-500 font-bold uppercase tracking-widest">
-                                    {p.species} • {p.breed}
-                                </p>
-                            </div>
-                            <ChevronRight className="w-6 h-6 text-gray-200 group-hover:text-[var(--primary)] group-hover:translate-x-1 transition-all" />
-                        </button>
-                    ))
-                ) : (
-                    <div className="col-span-2 text-center py-20 bg-gray-50 rounded-[2.5rem] border-2 border-dashed border-gray-200">
-                        <Dog className="w-16 h-16 text-gray-200 mx-auto mb-6" />
-                        <p className="text-gray-500 mb-8 font-bold text-lg">
-                            No tienes mascotas registradas.
-                        </p>
-                        <button
-                            onClick={() => router.push(`/${clinicId}/portal/pets/new`)}
-                            className="px-8 py-4 bg-[var(--primary)] text-white font-black rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all"
-                        >
-                            + Registrar Mascota
-                        </button>
-                    </div>
-                )}
-            </div>
-        </div>
-    );
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        {pets.length > 0 ? (
+          pets.map((p) => (
+            <button
+              key={p.id}
+              onClick={() => handlePetSelect(p.id)}
+              className="group flex items-center gap-5 rounded-[2rem] border border-gray-100 bg-white p-6 text-left transition-all hover:-translate-y-1 hover:border-[var(--primary)] hover:shadow-xl"
+            >
+              <div className="shadow-[var(--primary)]/20 flex h-16 w-16 items-center justify-center rounded-[1.5rem] bg-[var(--primary)] text-2xl font-black text-white shadow-lg">
+                {p.name[0]}
+              </div>
+              <div className="flex-1">
+                <h3 className="mb-1 text-xl font-black text-gray-900">{p.name}</h3>
+                <p className="text-sm font-bold uppercase tracking-widest text-gray-500">
+                  {p.species} • {p.breed}
+                </p>
+              </div>
+              <ChevronRight className="h-6 w-6 text-gray-200 transition-all group-hover:translate-x-1 group-hover:text-[var(--primary)]" />
+            </button>
+          ))
+        ) : (
+          <div className="col-span-2 rounded-[2.5rem] border-2 border-dashed border-gray-200 bg-gray-50 py-20 text-center">
+            <Dog className="mx-auto mb-6 h-16 w-16 text-gray-200" />
+            <p className="mb-8 text-lg font-bold text-gray-500">No tienes mascotas registradas.</p>
+            <button
+              onClick={() => router.push(`/${clinicId}/portal/pets/new`)}
+              className="rounded-2xl bg-[var(--primary)] px-8 py-4 font-black text-white shadow-xl transition-all hover:-translate-y-1 hover:shadow-2xl"
+            >
+              + Registrar Mascota
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  )
 }

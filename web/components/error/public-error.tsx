@@ -10,12 +10,12 @@ interface PublicErrorProps {
 
 export default function PublicError({ error, reset }: PublicErrorProps) {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[300px] gap-4 p-8 text-center">
+    <div className="flex min-h-[300px] flex-col items-center justify-center gap-4 p-8 text-center">
       <h2 className="text-lg font-medium text-[var(--text-primary)]">
         Error al cargar el contenido
       </h2>
       <Button onClick={reset} size="sm">
-        <RefreshCw className="w-4 h-4 mr-2" />
+        <RefreshCw className="mr-2 h-4 w-4" />
         Reintentar
       </Button>
     </div>

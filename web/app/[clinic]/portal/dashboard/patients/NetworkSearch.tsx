@@ -1,35 +1,35 @@
-'use client';
+'use client'
 
-import { Search, Globe, Building2 } from 'lucide-react';
-import { useSearchParams, usePathname, useRouter } from 'next/navigation';
-import { useDebouncedCallback } from 'use-debounce';
+import { Search, Globe, Building2 } from 'lucide-react'
+import { useSearchParams, usePathname, useRouter } from 'next/navigation'
+import { useDebouncedCallback } from 'use-debounce'
 
 export default function NetworkSearch() {
-  const searchParams = useSearchParams();
-  const pathname = usePathname();
-  const { replace } = useRouter();
+  const searchParams = useSearchParams()
+  const pathname = usePathname()
+  const { replace } = useRouter()
 
   const handleSearch = useDebouncedCallback((term: string) => {
-    const params = new URLSearchParams(searchParams);
+    const params = new URLSearchParams(searchParams)
     if (term) {
-      params.set('query', term);
+      params.set('query', term)
     } else {
-      params.delete('query');
+      params.delete('query')
     }
-    replace(`${pathname}?${params.toString()}`);
-  }, 300);
+    replace(`${pathname}?${params.toString()}`)
+  }, 300)
 
   const handleScopeChange = (scope: 'local' | 'global') => {
-    const params = new URLSearchParams(searchParams);
-    params.set('scope', scope);
-    replace(`${pathname}?${params.toString()}`);
-  };
+    const params = new URLSearchParams(searchParams)
+    params.set('scope', scope)
+    replace(`${pathname}?${params.toString()}`)
+  }
 
-  const currentScope = searchParams.get('scope') || 'local';
+  const currentScope = searchParams.get('scope') || 'local'
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col md:flex-row gap-4">
+      <div className="flex flex-col gap-4 md:flex-row">
         {/* Search Input */}
         <div className="relative flex-1">
           <label htmlFor="search" className="sr-only">
@@ -45,31 +45,31 @@ export default function NetworkSearch() {
         </div>
 
         {/* Scope Toggle */}
-        <div className="flex bg-gray-100 p-1 rounded-xl">
-            <button
-                onClick={() => handleScopeChange('local')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${
-                    currentScope === 'local' 
-                    ? 'bg-white text-[var(--primary)] shadow-sm' 
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
-            >
-                <Building2 className="w-4 h-4" />
-                Mi Clínica
-            </button>
-            <button
-                onClick={() => handleScopeChange('global')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${
-                    currentScope === 'global' 
-                    ? 'bg-white text-indigo-600 shadow-sm' 
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
-            >
-                <Globe className="w-4 h-4" />
-                Red Global
-            </button>
+        <div className="flex rounded-xl bg-gray-100 p-1">
+          <button
+            onClick={() => handleScopeChange('local')}
+            className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-bold transition-all ${
+              currentScope === 'local'
+                ? 'bg-white text-[var(--primary)] shadow-sm'
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            <Building2 className="h-4 w-4" />
+            Mi Clínica
+          </button>
+          <button
+            onClick={() => handleScopeChange('global')}
+            className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-bold transition-all ${
+              currentScope === 'global'
+                ? 'bg-white text-indigo-600 shadow-sm'
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            <Globe className="h-4 w-4" />
+            Red Global
+          </button>
         </div>
       </div>
     </div>
-  );
+  )
 }

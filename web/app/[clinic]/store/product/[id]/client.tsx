@@ -1,8 +1,8 @@
-'use client';
+'use client'
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import {
   ArrowLeft,
   ShoppingCart,
@@ -19,237 +19,244 @@ import {
   Minus,
   Plus,
   FileText,
-} from 'lucide-react';
-import type { StoreProductWithDetails, ReviewSummary, StoreProductQuestion } from '@/lib/types/store';
-import { useCart } from '@/context/cart-context';
-import { useWishlist } from '@/context/wishlist-context';
-import ProductGallery from '@/components/store/product-detail/product-gallery';
-import ProductTabs from '@/components/store/product-detail/product-tabs';
-import RelatedProducts from '@/components/store/product-detail/related-products';
-import SubscribeButton from '@/components/store/subscribe-button';
+} from 'lucide-react'
+import type {
+  StoreProductWithDetails,
+  ReviewSummary,
+  StoreProductQuestion,
+} from '@/lib/types/store'
+import { useCart } from '@/context/cart-context'
+import { useWishlist } from '@/context/wishlist-context'
+import ProductGallery from '@/components/store/product-detail/product-gallery'
+import ProductTabs from '@/components/store/product-detail/product-tabs'
+import RelatedProducts from '@/components/store/product-detail/related-products'
+import SubscribeButton from '@/components/store/subscribe-button'
 
 interface ProductDetailResponse {
-  product: StoreProductWithDetails;
-  review_summary: ReviewSummary;
+  product: StoreProductWithDetails
+  review_summary: ReviewSummary
   related_products: Array<{
-    relation_type: string;
+    relation_type: string
     product: {
-      id: string;
-      name: string;
-      short_description: string | null;
-      image_url: string | null;
-      base_price: number;
-      avg_rating: number;
-      review_count: number;
-      is_new_arrival: boolean;
-      is_best_seller: boolean;
-      store_inventory: { stock_quantity: number } | null;
-    };
-  }>;
+      id: string
+      name: string
+      short_description: string | null
+      image_url: string | null
+      base_price: number
+      avg_rating: number
+      review_count: number
+      is_new_arrival: boolean
+      is_best_seller: boolean
+      store_inventory: { stock_quantity: number } | null
+    }
+  }>
   questions: Array<{
-    id: string;
-    question: string;
-    answer: string;
-    created_at: string;
-    user_name: string;
-    answerer_name: string;
-    answered_at: string;
-  }>;
+    id: string
+    question: string
+    answer: string
+    created_at: string
+    user_name: string
+    answerer_name: string
+    answered_at: string
+  }>
 }
 
 interface Props {
-  clinic: string;
-  productId: string;
+  clinic: string
+  productId: string
   clinicConfig: {
-    name: string;
+    name: string
     settings?: {
-      currency_symbol?: string;
-    };
-  };
+      currency_symbol?: string
+    }
+  }
 }
 
 export default function ProductDetailClient({ clinic, productId, clinicConfig }: Props) {
-  const router = useRouter();
-  const { addItem, items } = useCart();
-  const { isWishlisted, toggleWishlist } = useWishlist();
-  const [data, setData] = useState<ProductDetailResponse | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [quantity, setQuantity] = useState(1);
-  const [selectedVariant, setSelectedVariant] = useState<string | null>(null);
-  const [togglingWishlist, setTogglingWishlist] = useState(false);
-  const [addingToCart, setAddingToCart] = useState(false);
-  const [addedToCart, setAddedToCart] = useState(false);
+  const router = useRouter()
+  const { addItem, items } = useCart()
+  const { isWishlisted, toggleWishlist } = useWishlist()
+  const [data, setData] = useState<ProductDetailResponse | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [quantity, setQuantity] = useState(1)
+  const [selectedVariant, setSelectedVariant] = useState<string | null>(null)
+  const [togglingWishlist, setTogglingWishlist] = useState(false)
+  const [addingToCart, setAddingToCart] = useState(false)
+  const [addedToCart, setAddedToCart] = useState(false)
 
-  const productIsWishlisted = isWishlisted(productId);
+  const productIsWishlisted = isWishlisted(productId)
 
   const handleWishlistToggle = async () => {
-    if (togglingWishlist) return;
-    setTogglingWishlist(true);
+    if (togglingWishlist) return
+    setTogglingWishlist(true)
     try {
-      await toggleWishlist(productId);
+      await toggleWishlist(productId)
     } finally {
-      setTogglingWishlist(false);
+      setTogglingWishlist(false)
     }
-  };
+  }
 
-  const currencySymbol = clinicConfig.settings?.currency_symbol || 'Gs';
+  const currencySymbol = clinicConfig.settings?.currency_symbol || 'Gs'
 
   useEffect(() => {
-    fetchProduct();
-  }, [productId, clinic]);
+    fetchProduct()
+  }, [productId, clinic])
 
   const fetchProduct = async () => {
-    setLoading(true);
-    setError(null);
+    setLoading(true)
+    setError(null)
     try {
-      const res = await fetch(`/api/store/products/${productId}?clinic=${clinic}`);
+      const res = await fetch(`/api/store/products/${productId}?clinic=${clinic}`)
       if (!res.ok) {
         if (res.status === 404) {
-          setError('Producto no encontrado');
+          setError('Producto no encontrado')
         } else {
-          throw new Error('Error al cargar el producto');
+          throw new Error('Error al cargar el producto')
         }
-        return;
+        return
       }
-      const productData = await res.json();
-      setData(productData);
+      const productData = await res.json()
+      setData(productData)
 
       // Set default variant if exists
-      const defaultVariant = productData.product.variants?.find((v: { is_default: boolean }) => v.is_default);
+      const defaultVariant = productData.product.variants?.find(
+        (v: { is_default: boolean }) => v.is_default
+      )
       if (defaultVariant) {
-        setSelectedVariant(defaultVariant.id);
+        setSelectedVariant(defaultVariant.id)
       }
     } catch (err) {
-      setError('No se pudo cargar el producto');
-      console.error(err);
+      setError('No se pudo cargar el producto')
+      console.error(err)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleAddToCart = async () => {
-    if (!data?.product) return;
+    if (!data?.product) return
 
-    setAddingToCart(true);
-    const product = data.product;
-    const variant = selectedVariant
-      ? product.variants.find(v => v.id === selectedVariant)
-      : null;
+    setAddingToCart(true)
+    const product = data.product
+    const variant = selectedVariant ? product.variants.find((v) => v.id === selectedVariant) : null
 
-    const price = variant
-      ? product.current_price + variant.price_modifier
-      : product.current_price;
+    const price = variant ? product.current_price + variant.price_modifier : product.current_price
 
-    addItem({
-      id: variant ? `${product.id}-${variant.id}` : product.id,
-      name: variant ? `${product.name} - ${variant.name}` : product.name,
-      price,
-      type: 'product',
-      image_url: product.image_url || undefined,
-      description: product.short_description || undefined,
-      stock: variant ? variant.stock_quantity : (product.inventory?.stock_quantity || 0),
-      variant_id: variant?.id,
-      sku: variant?.sku || product.sku || undefined,
-    }, quantity);
+    addItem(
+      {
+        id: variant ? `${product.id}-${variant.id}` : product.id,
+        name: variant ? `${product.name} - ${variant.name}` : product.name,
+        price,
+        type: 'product',
+        image_url: product.image_url || undefined,
+        description: product.short_description || undefined,
+        stock: variant ? variant.stock_quantity : product.inventory?.stock_quantity || 0,
+        variant_id: variant?.id,
+        sku: variant?.sku || product.sku || undefined,
+      },
+      quantity
+    )
 
-    setAddingToCart(false);
-    setAddedToCart(true);
-    setTimeout(() => setAddedToCart(false), 2000);
-  };
+    setAddingToCart(false)
+    setAddedToCart(true)
+    setTimeout(() => setAddedToCart(false), 2000)
+  }
 
   const handleQuantityChange = (delta: number) => {
-    const newQty = quantity + delta;
+    const newQty = quantity + delta
     const maxStock = selectedVariant
-      ? data?.product.variants.find(v => v.id === selectedVariant)?.stock_quantity || 0
-      : data?.product.inventory?.stock_quantity || 0;
+      ? data?.product.variants.find((v) => v.id === selectedVariant)?.stock_quantity || 0
+      : data?.product.inventory?.stock_quantity || 0
 
     if (newQty >= 1 && newQty <= Math.min(maxStock, 99)) {
-      setQuantity(newQty);
+      setQuantity(newQty)
     }
-  };
+  }
 
   const formatPrice = (price: number) => {
-    return `${currencySymbol} ${price.toLocaleString('es-PY')}`;
-  };
+    return `${currencySymbol} ${price.toLocaleString('es-PY')}`
+  }
 
   const getStock = () => {
     if (selectedVariant) {
-      return data?.product.variants.find(v => v.id === selectedVariant)?.stock_quantity || 0;
+      return data?.product.variants.find((v) => v.id === selectedVariant)?.stock_quantity || 0
     }
-    return data?.product.inventory?.stock_quantity || 0;
-  };
+    return data?.product.inventory?.stock_quantity || 0
+  }
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[var(--bg-default)] flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-[var(--bg-default)]">
         <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin text-[var(--primary)] mx-auto mb-4" />
+          <Loader2 className="mx-auto mb-4 h-8 w-8 animate-spin text-[var(--primary)]" />
           <p className="text-[var(--text-secondary)]">Cargando producto...</p>
         </div>
       </div>
-    );
+    )
   }
 
   if (error || !data?.product) {
     return (
-      <div className="min-h-screen bg-[var(--bg-default)] flex items-center justify-center">
-        <div className="text-center max-w-md mx-auto px-4">
-          <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <h1 className="text-xl font-bold text-[var(--text-primary)] mb-2">
+      <div className="flex min-h-screen items-center justify-center bg-[var(--bg-default)]">
+        <div className="mx-auto max-w-md px-4 text-center">
+          <AlertCircle className="mx-auto mb-4 h-12 w-12 text-red-500" />
+          <h1 className="mb-2 text-xl font-bold text-[var(--text-primary)]">
             {error || 'Producto no encontrado'}
           </h1>
-          <p className="text-[var(--text-secondary)] mb-6">
+          <p className="mb-6 text-[var(--text-secondary)]">
             El producto que buscas no existe o no está disponible.
           </p>
           <Link
             href={`/${clinic}/store`}
-            className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--primary)] text-white rounded-lg hover:opacity-90 transition-opacity"
+            className="inline-flex items-center gap-2 rounded-lg bg-[var(--primary)] px-6 py-3 text-white transition-opacity hover:opacity-90"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="h-4 w-4" />
             Volver a la tienda
           </Link>
         </div>
       </div>
-    );
+    )
   }
 
-  const product = data.product;
-  const stock = getStock();
-  const inStock = stock > 0;
-  const lowStock = stock > 0 && stock <= 5;
+  const product = data.product
+  const stock = getStock()
+  const inStock = stock > 0
+  const lowStock = stock > 0 && stock <= 5
 
   const currentPrice = selectedVariant
-    ? product.current_price + (product.variants.find(v => v.id === selectedVariant)?.price_modifier || 0)
-    : product.current_price;
+    ? product.current_price +
+      (product.variants.find((v) => v.id === selectedVariant)?.price_modifier || 0)
+    : product.current_price
 
   const originalPrice = product.original_price
-    ? (selectedVariant
-      ? product.original_price + (product.variants.find(v => v.id === selectedVariant)?.price_modifier || 0)
-      : product.original_price)
-    : null;
+    ? selectedVariant
+      ? product.original_price +
+        (product.variants.find((v) => v.id === selectedVariant)?.price_modifier || 0)
+      : product.original_price
+    : null
 
   return (
     <div className="min-h-screen bg-[var(--bg-default)]">
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-[var(--bg-elevated)] border-b border-[var(--border-default)] shadow-sm">
+      <header className="sticky top-0 z-40 border-b border-[var(--border-default)] bg-[var(--bg-elevated)] shadow-sm">
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <button
               onClick={() => router.back()}
-              className="flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+              className="flex items-center gap-2 text-[var(--text-secondary)] transition-colors hover:text-[var(--text-primary)]"
             >
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="h-5 w-5" />
               <span className="hidden sm:inline">Volver</span>
             </button>
 
             <Link
               href={`/${clinic}/cart`}
-              className="relative p-2 hover:bg-[var(--bg-subtle)] rounded-full transition-colors"
+              className="relative rounded-full p-2 transition-colors hover:bg-[var(--bg-subtle)]"
             >
-              <ShoppingCart className="w-6 h-6 text-[var(--text-primary)]" />
+              <ShoppingCart className="h-6 w-6 text-[var(--text-primary)]" />
               {items.length > 0 && (
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-[var(--primary)] text-white text-xs font-bold rounded-full flex items-center justify-center">
+                <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-[var(--primary)] text-xs font-bold text-white">
                   {items.reduce((sum, item) => sum + item.quantity, 0)}
                 </span>
               )}
@@ -260,7 +267,7 @@ export default function ProductDetailClient({ clinic, productId, clinicConfig }:
 
       {/* Breadcrumb */}
       <nav className="container mx-auto px-4 py-3">
-        <ol className="flex items-center gap-2 text-sm text-[var(--text-secondary)] flex-wrap">
+        <ol className="flex flex-wrap items-center gap-2 text-sm text-[var(--text-secondary)]">
           <li>
             <Link href={`/${clinic}/store`} className="hover:text-[var(--primary)]">
               Tienda
@@ -268,7 +275,7 @@ export default function ProductDetailClient({ clinic, productId, clinicConfig }:
           </li>
           {product.category && (
             <>
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className="h-4 w-4" />
               <li>
                 <Link
                   href={`/${clinic}/store?category=${product.category.slug}`}
@@ -281,7 +288,7 @@ export default function ProductDetailClient({ clinic, productId, clinicConfig }:
           )}
           {product.subcategory && (
             <>
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className="h-4 w-4" />
               <li>
                 <Link
                   href={`/${clinic}/store?subcategory=${product.subcategory.slug}`}
@@ -292,8 +299,8 @@ export default function ProductDetailClient({ clinic, productId, clinicConfig }:
               </li>
             </>
           )}
-          <ChevronRight className="w-4 h-4" />
-          <li className="text-[var(--text-primary)] font-medium truncate max-w-[200px]">
+          <ChevronRight className="h-4 w-4" />
+          <li className="max-w-[200px] truncate font-medium text-[var(--text-primary)]">
             {product.name}
           </li>
         </ol>
@@ -301,11 +308,26 @@ export default function ProductDetailClient({ clinic, productId, clinicConfig }:
 
       {/* Main Content */}
       <main className="container mx-auto px-4 pb-24">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-12">
           {/* Left Column - Gallery */}
           <div>
             <ProductGallery
-              images={product.images.length > 0 ? product.images : [{ id: '1', image_url: product.image_url || '/placeholder-product.png', alt_text: product.name, is_primary: true, sort_order: 0, product_id: product.id, tenant_id: product.tenant_id, created_at: '' }]}
+              images={
+                product.images.length > 0
+                  ? product.images
+                  : [
+                      {
+                        id: '1',
+                        image_url: product.image_url || '/placeholder-product.png',
+                        alt_text: product.name,
+                        is_primary: true,
+                        sort_order: 0,
+                        product_id: product.id,
+                        tenant_id: product.tenant_id,
+                        created_at: '',
+                      },
+                    ]
+              }
               productName={product.name}
               hasDiscount={product.has_discount}
               discountPercentage={product.discount_percentage}
@@ -320,30 +342,34 @@ export default function ProductDetailClient({ clinic, productId, clinicConfig }:
             {product.brand && (
               <Link
                 href={`/${clinic}/store?brand=${product.brand.slug}`}
-                className="inline-flex items-center gap-2 text-sm text-[var(--text-secondary)] hover:text-[var(--primary)] mb-2"
+                className="mb-2 inline-flex items-center gap-2 text-sm text-[var(--text-secondary)] hover:text-[var(--primary)]"
               >
                 {product.brand.logo_url && (
-                  <img src={product.brand.logo_url} alt={product.brand.name} className="h-5 w-auto" />
+                  <img
+                    src={product.brand.logo_url}
+                    alt={product.brand.name}
+                    className="h-5 w-auto"
+                  />
                 )}
                 <span>{product.brand.name}</span>
               </Link>
             )}
 
             {/* Title */}
-            <h1 className="text-2xl lg:text-3xl font-bold text-[var(--text-primary)] mb-2">
+            <h1 className="mb-2 text-2xl font-bold text-[var(--text-primary)] lg:text-3xl">
               {product.name}
             </h1>
 
             {/* Rating */}
             {product.review_count > 0 && (
-              <div className="flex items-center gap-2 mb-4">
+              <div className="mb-4 flex items-center gap-2">
                 <div className="flex items-center">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <Star
                       key={star}
-                      className={`w-4 h-4 ${
+                      className={`h-4 w-4 ${
                         star <= Math.round(product.avg_rating)
-                          ? 'text-yellow-400 fill-yellow-400'
+                          ? 'fill-yellow-400 text-yellow-400'
                           : 'text-gray-300'
                       }`}
                     />
@@ -357,9 +383,7 @@ export default function ProductDetailClient({ clinic, productId, clinicConfig }:
 
             {/* SKU */}
             {product.sku && (
-              <p className="text-sm text-[var(--text-muted)] mb-4">
-                SKU: {product.sku}
-              </p>
+              <p className="mb-4 text-sm text-[var(--text-muted)]">SKU: {product.sku}</p>
             )}
 
             {/* Price */}
@@ -375,8 +399,9 @@ export default function ProductDetailClient({ clinic, productId, clinicConfig }:
                 )}
               </div>
               {product.has_discount && product.discount_percentage && (
-                <p className="text-sm text-green-600 font-medium mt-1">
-                  Ahorrás {formatPrice(originalPrice! - currentPrice)} ({product.discount_percentage}% OFF)
+                <p className="mt-1 text-sm font-medium text-green-600">
+                  Ahorrás {formatPrice(originalPrice! - currentPrice)} (
+                  {product.discount_percentage}% OFF)
                 </p>
               )}
             </div>
@@ -384,32 +409,37 @@ export default function ProductDetailClient({ clinic, productId, clinicConfig }:
             {/* Variants */}
             {product.variants.length > 0 && (
               <div className="mb-6">
-                <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                  {product.variants[0].variant_type === 'size' ? 'Tamaño' :
-                   product.variants[0].variant_type === 'flavor' ? 'Sabor' :
-                   product.variants[0].variant_type === 'color' ? 'Color' : 'Variante'}
+                <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">
+                  {product.variants[0].variant_type === 'size'
+                    ? 'Tamaño'
+                    : product.variants[0].variant_type === 'flavor'
+                      ? 'Sabor'
+                      : product.variants[0].variant_type === 'color'
+                        ? 'Color'
+                        : 'Variante'}
                 </label>
                 <div className="flex flex-wrap gap-2">
                   {product.variants.map((variant) => (
                     <button
                       key={variant.id}
                       onClick={() => {
-                        setSelectedVariant(variant.id);
-                        setQuantity(1);
+                        setSelectedVariant(variant.id)
+                        setQuantity(1)
                       }}
                       disabled={variant.stock_quantity === 0}
-                      className={`px-4 py-2 rounded-lg border-2 transition-all ${
+                      className={`rounded-lg border-2 px-4 py-2 transition-all ${
                         selectedVariant === variant.id
-                          ? 'border-[var(--primary)] bg-[var(--primary)]/10 text-[var(--primary)]'
+                          ? 'bg-[var(--primary)]/10 border-[var(--primary)] text-[var(--primary)]'
                           : variant.stock_quantity === 0
-                          ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'
-                          : 'border-[var(--border-default)] hover:border-[var(--primary)] text-[var(--text-primary)]'
+                            ? 'cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400'
+                            : 'border-[var(--border-default)] text-[var(--text-primary)] hover:border-[var(--primary)]'
                       }`}
                     >
                       {variant.name}
                       {variant.price_modifier !== 0 && (
-                        <span className="text-xs ml-1">
-                          ({variant.price_modifier > 0 ? '+' : ''}{formatPrice(variant.price_modifier)})
+                        <span className="ml-1 text-xs">
+                          ({variant.price_modifier > 0 ? '+' : ''}
+                          {formatPrice(variant.price_modifier)})
                         </span>
                       )}
                     </button>
@@ -422,14 +452,14 @@ export default function ProductDetailClient({ clinic, productId, clinicConfig }:
             <div className="mb-6">
               {inStock ? (
                 <div className="flex items-center gap-2 text-green-600">
-                  <Check className="w-5 h-5" />
+                  <Check className="h-5 w-5" />
                   <span className="font-medium">
                     {lowStock ? `¡Últimas ${stock} unidades!` : 'En Stock'}
                   </span>
                 </div>
               ) : (
                 <div className="flex items-center gap-2 text-red-500">
-                  <AlertCircle className="w-5 h-5" />
+                  <AlertCircle className="h-5 w-5" />
                   <span className="font-medium">Sin Stock</span>
                 </div>
               )}
@@ -437,23 +467,23 @@ export default function ProductDetailClient({ clinic, productId, clinicConfig }:
 
             {/* Quantity & Add to Cart */}
             {inStock && (
-              <div className="flex flex-col sm:flex-row gap-4 mb-4">
+              <div className="mb-4 flex flex-col gap-4 sm:flex-row">
                 {/* Quantity Selector */}
-                <div className="flex items-center border border-[var(--border-default)] rounded-lg">
+                <div className="flex items-center rounded-lg border border-[var(--border-default)]">
                   <button
                     onClick={() => handleQuantityChange(-1)}
                     disabled={quantity <= 1}
-                    className="p-3 hover:bg-[var(--bg-subtle)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="p-3 transition-colors hover:bg-[var(--bg-subtle)] disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    <Minus className="w-4 h-4" />
+                    <Minus className="h-4 w-4" />
                   </button>
                   <span className="w-12 text-center font-medium">{quantity}</span>
                   <button
                     onClick={() => handleQuantityChange(1)}
                     disabled={quantity >= Math.min(stock, 99)}
-                    className="p-3 hover:bg-[var(--bg-subtle)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="p-3 transition-colors hover:bg-[var(--bg-subtle)] disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    <Plus className="w-4 h-4" />
+                    <Plus className="h-4 w-4" />
                   </button>
                 </div>
 
@@ -461,18 +491,18 @@ export default function ProductDetailClient({ clinic, productId, clinicConfig }:
                 <button
                   onClick={handleAddToCart}
                   disabled={addingToCart || !inStock}
-                  className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-[var(--primary)] text-white font-semibold rounded-lg hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-[var(--primary)] px-6 py-3 font-semibold text-white transition-all hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {addingToCart ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <Loader2 className="h-5 w-5 animate-spin" />
                   ) : addedToCart ? (
                     <>
-                      <Check className="w-5 h-5" />
+                      <Check className="h-5 w-5" />
                       Agregado
                     </>
                   ) : (
                     <>
-                      <ShoppingCart className="w-5 h-5" />
+                      <ShoppingCart className="h-5 w-5" />
                       Agregar al Carrito
                     </>
                   )}
@@ -488,26 +518,30 @@ export default function ProductDetailClient({ clinic, productId, clinicConfig }:
                   productName={product.name}
                   price={currentPrice}
                   variantId={selectedVariant}
-                  variantName={selectedVariant ? product.variants.find(v => v.id === selectedVariant)?.name : null}
+                  variantName={
+                    selectedVariant
+                      ? product.variants.find((v) => v.id === selectedVariant)?.name
+                      : null
+                  }
                 />
               </div>
             )}
 
             {/* Wishlist & Share */}
-            <div className="flex gap-4 mb-6">
+            <div className="mb-6 flex gap-4">
               <button
                 onClick={handleWishlistToggle}
                 disabled={togglingWishlist}
-                className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-colors disabled:opacity-50 ${
+                className={`flex items-center gap-2 rounded-lg border px-4 py-2 transition-colors disabled:opacity-50 ${
                   productIsWishlisted
-                    ? 'border-red-500 text-red-500 bg-red-50'
+                    ? 'border-red-500 bg-red-50 text-red-500'
                     : 'border-[var(--border-default)] text-[var(--text-secondary)] hover:border-red-500 hover:text-red-500'
                 }`}
               >
                 {togglingWishlist ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <Loader2 className="h-5 w-5 animate-spin" />
                 ) : (
-                  <Heart className={`w-5 h-5 ${productIsWishlisted ? 'fill-current' : ''}`} />
+                  <Heart className={`h-5 w-5 ${productIsWishlisted ? 'fill-current' : ''}`} />
                 )}
                 <span className="hidden sm:inline">
                   {productIsWishlisted ? 'En Lista de Deseos' : 'Agregar a Lista'}
@@ -520,25 +554,26 @@ export default function ProductDetailClient({ clinic, productId, clinicConfig }:
                       title: product.name,
                       text: product.short_description || '',
                       url: window.location.href,
-                    });
+                    })
                   }
                 }}
-                className="flex items-center gap-2 px-4 py-2 border border-[var(--border-default)] rounded-lg text-[var(--text-secondary)] hover:border-[var(--primary)] hover:text-[var(--primary)] transition-colors"
+                className="flex items-center gap-2 rounded-lg border border-[var(--border-default)] px-4 py-2 text-[var(--text-secondary)] transition-colors hover:border-[var(--primary)] hover:text-[var(--primary)]"
               >
-                <Share2 className="w-5 h-5" />
+                <Share2 className="h-5 w-5" />
                 <span className="hidden sm:inline">Compartir</span>
               </button>
             </div>
 
             {/* Prescription Warning */}
             {product.is_prescription_required && (
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
+              <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-4">
                 <div className="flex items-start gap-3">
-                  <FileText className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                  <FileText className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-600" />
                   <div>
                     <p className="font-medium text-amber-800">Requiere Receta Veterinaria</p>
-                    <p className="text-sm text-amber-700 mt-1">
-                      Este producto requiere una receta válida. Deberás presentarla al momento de la compra.
+                    <p className="mt-1 text-sm text-amber-700">
+                      Este producto requiere una receta válida. Deberás presentarla al momento de la
+                      compra.
                     </p>
                   </div>
                 </div>
@@ -546,23 +581,23 @@ export default function ProductDetailClient({ clinic, productId, clinicConfig }:
             )}
 
             {/* Trust Badges */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 bg-[var(--bg-subtle)] rounded-lg">
+            <div className="grid grid-cols-1 gap-4 rounded-lg bg-[var(--bg-subtle)] p-4 sm:grid-cols-3">
               <div className="flex items-center gap-3">
-                <Truck className="w-6 h-6 text-[var(--primary)]" />
+                <Truck className="h-6 w-6 text-[var(--primary)]" />
                 <div>
                   <p className="text-sm font-medium text-[var(--text-primary)]">Envío Rápido</p>
                   <p className="text-xs text-[var(--text-muted)]">Recibí mañana</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <Shield className="w-6 h-6 text-[var(--primary)]" />
+                <Shield className="h-6 w-6 text-[var(--primary)]" />
                 <div>
                   <p className="text-sm font-medium text-[var(--text-primary)]">Compra Segura</p>
                   <p className="text-xs text-[var(--text-muted)]">100% protegida</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <RotateCcw className="w-6 h-6 text-[var(--primary)]" />
+                <RotateCcw className="h-6 w-6 text-[var(--primary)]" />
                 <div>
                   <p className="text-sm font-medium text-[var(--text-primary)]">Devolución</p>
                   <p className="text-xs text-[var(--text-muted)]">15 días gratis</p>
@@ -597,7 +632,7 @@ export default function ProductDetailClient({ clinic, productId, clinicConfig }:
 
       {/* Mobile Sticky Add to Cart */}
       {inStock && (
-        <div className="fixed bottom-0 left-0 right-0 bg-[var(--bg-elevated)] border-t border-[var(--border-default)] p-4 lg:hidden z-50">
+        <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-[var(--border-default)] bg-[var(--bg-elevated)] p-4 lg:hidden">
           <div className="flex items-center gap-4">
             <div>
               <span className="text-xl font-bold text-[var(--text-primary)]">
@@ -607,18 +642,18 @@ export default function ProductDetailClient({ clinic, productId, clinicConfig }:
             <button
               onClick={handleAddToCart}
               disabled={addingToCart}
-              className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-[var(--primary)] text-white font-semibold rounded-lg"
+              className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-[var(--primary)] px-6 py-3 font-semibold text-white"
             >
               {addingToCart ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
+                <Loader2 className="h-5 w-5 animate-spin" />
               ) : addedToCart ? (
                 <>
-                  <Check className="w-5 h-5" />
+                  <Check className="h-5 w-5" />
                   Agregado
                 </>
               ) : (
                 <>
-                  <ShoppingCart className="w-5 h-5" />
+                  <ShoppingCart className="h-5 w-5" />
                   Agregar
                 </>
               )}
@@ -627,5 +662,5 @@ export default function ProductDetailClient({ clinic, productId, clinicConfig }:
         </div>
       )}
     </div>
-  );
+  )
 }

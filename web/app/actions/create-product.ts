@@ -1,68 +1,73 @@
-"use server";
+'use server'
 
-import { createClient } from "@/lib/supabase/server";
-import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
-import { ActionResult, FieldErrors } from "@/lib/types/action-result";
-import { z } from "zod";
-import { logger } from "@/lib/logger";
+import { createClient } from '@/lib/supabase/server'
+import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
+import { ActionResult, FieldErrors } from '@/lib/types/action-result'
+import { z } from 'zod'
+import { logger } from '@/lib/logger'
 
 // Species categories for products
-const SPECIES_CATEGORIES = ["dog", "cat", "exotic", "other"] as const;
+const SPECIES_CATEGORIES = ['dog', 'cat', 'exotic', 'other'] as const
 
 // Validation schema for creating a product
 const createProductSchema = z.object({
   name: z
     .string()
-    .min(1, "El nombre del producto es obligatorio")
-    .min(2, "El nombre debe tener al menos 2 caracteres")
-    .max(100, "El nombre no puede exceder 100 caracteres")
-    .transform(val => val.trim()),
+    .min(1, 'El nombre del producto es obligatorio')
+    .min(2, 'El nombre debe tener al menos 2 caracteres')
+    .max(100, 'El nombre no puede exceder 100 caracteres')
+    .transform((val) => val.trim()),
 
-  category: z
-    .enum(SPECIES_CATEGORIES, {
-      message: "Selecciona una categoría válida"
-    }),
+  category: z.enum(SPECIES_CATEGORIES, {
+    message: 'Selecciona una categoría válida',
+  }),
 
   price: z
     .string()
-    .min(1, "El precio es obligatorio")
-    .transform(val => parseFloat(val))
-    .refine(val => !isNaN(val), { message: "Ingresa un precio válido" })
-    .refine(val => val > 0, { message: "El precio debe ser mayor a 0" })
-    .refine(val => val <= 99999999, { message: "El precio es demasiado alto" }),
+    .min(1, 'El precio es obligatorio')
+    .transform((val) => parseFloat(val))
+    .refine((val) => !isNaN(val), { message: 'Ingresa un precio válido' })
+    .refine((val) => val > 0, { message: 'El precio debe ser mayor a 0' })
+    .refine((val) => val <= 99999999, { message: 'El precio es demasiado alto' }),
 
   stock: z
     .string()
-    .min(1, "El stock inicial es obligatorio")
-    .transform(val => parseInt(val, 10))
-    .refine(val => !isNaN(val), { message: "Ingresa un número válido" })
-    .refine(val => val >= 0, { message: "El stock no puede ser negativo" })
-    .refine(val => val <= 999999, { message: "El stock es demasiado alto" }),
+    .min(1, 'El stock inicial es obligatorio')
+    .transform((val) => parseInt(val, 10))
+    .refine((val) => !isNaN(val), { message: 'Ingresa un número válido' })
+    .refine((val) => val >= 0, { message: 'El stock no puede ser negativo' })
+    .refine((val) => val <= 999999, { message: 'El stock es demasiado alto' }),
 
   description: z
     .string()
-    .max(500, "La descripción no puede exceder 500 caracteres")
+    .max(500, 'La descripción no puede exceder 500 caracteres')
     .optional()
-    .transform(val => val?.trim() || null),
+    .transform((val) => val?.trim() || null),
 
   sku: z
     .string()
-    .max(50, "El código SKU no puede exceder 50 caracteres")
+    .max(50, 'El código SKU no puede exceder 50 caracteres')
     .optional()
-    .transform(val => val?.trim() || null),
-});
+    .transform((val) => val?.trim() || null),
+})
 
-export async function createProduct(prevState: ActionResult | null, formData: FormData): Promise<ActionResult> {
-  const supabase = await createClient();
+export async function createProduct(
+  prevState: ActionResult | null,
+  formData: FormData
+): Promise<ActionResult> {
+  const supabase = await createClient()
 
   // Auth Check
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
   if (authError || !user) {
     return {
       success: false,
-      error: "Debes iniciar sesión para crear productos."
-    };
+      error: 'Debes iniciar sesión para crear productos.',
+    }
   }
 
   // Validate Staff Role
@@ -70,54 +75,54 @@ export async function createProduct(prevState: ActionResult | null, formData: Fo
     .from('profiles')
     .select('role, tenant_id')
     .eq('id', user.id)
-    .single();
+    .single()
 
   if (!profile || !['vet', 'admin'].includes(profile.role)) {
     return {
       success: false,
-      error: "Solo veterinarios y administradores pueden crear productos."
-    };
+      error: 'Solo veterinarios y administradores pueden crear productos.',
+    }
   }
 
   if (!profile.tenant_id) {
     return {
       success: false,
-      error: "No se encontró tu perfil de clínica. Contacta a soporte."
-    };
+      error: 'No se encontró tu perfil de clínica. Contacta a soporte.',
+    }
   }
 
-  const clinic = formData.get("clinic") as string;
+  const clinic = formData.get('clinic') as string
 
   // Extract form data
   const rawData = {
-    name: formData.get("name") as string,
-    category: formData.get("category") as string,
-    price: formData.get("price") as string,
-    stock: formData.get("stock") as string,
-    description: formData.get("description") as string,
-    sku: formData.get("sku") as string,
-  };
+    name: formData.get('name') as string,
+    category: formData.get('category') as string,
+    price: formData.get('price') as string,
+    stock: formData.get('stock') as string,
+    description: formData.get('description') as string,
+    sku: formData.get('sku') as string,
+  }
 
   // Validate
-  const validation = createProductSchema.safeParse(rawData);
+  const validation = createProductSchema.safeParse(rawData)
 
   if (!validation.success) {
-    const fieldErrors: FieldErrors = {};
+    const fieldErrors: FieldErrors = {}
     for (const issue of validation.error.issues) {
-      const fieldName = issue.path[0] as string;
+      const fieldName = issue.path[0] as string
       if (!fieldErrors[fieldName]) {
-        fieldErrors[fieldName] = issue.message;
+        fieldErrors[fieldName] = issue.message
       }
     }
 
     return {
       success: false,
-      error: "Por favor, revisa los campos marcados en rojo.",
-      fieldErrors
-    };
+      error: 'Por favor, revisa los campos marcados en rojo.',
+      fieldErrors,
+    }
   }
 
-  const validData = validation.data;
+  const validData = validation.data
 
   // Check for duplicate SKU if provided
   if (validData.sku) {
@@ -127,68 +132,69 @@ export async function createProduct(prevState: ActionResult | null, formData: Fo
       .eq('sku', validData.sku)
       .eq('tenant_id', profile.tenant_id)
       .is('deleted_at', null)
-      .maybeSingle();
+      .maybeSingle()
 
     if (existingSku) {
       return {
         success: false,
-        error: "Este código SKU ya está en uso.",
+        error: 'Este código SKU ya está en uso.',
         fieldErrors: {
-          sku: `El código "${validData.sku}" ya está asignado al producto "${existingSku.name}".`
-        }
-      };
+          sku: `El código "${validData.sku}" ya está asignado al producto "${existingSku.name}".`,
+        },
+      }
     }
   }
 
   // Handle Photo Upload
-  const photo = formData.get("photo") as File;
-  let imageUrl = null;
+  const photo = formData.get('photo') as File
+  let imageUrl = null
 
   if (photo && photo.size > 0) {
     // Validate file size (5MB max)
     if (photo.size > 5 * 1024 * 1024) {
       return {
         success: false,
-        error: "La imagen es demasiado grande.",
+        error: 'La imagen es demasiado grande.',
         fieldErrors: {
-          photo: `La imagen debe pesar menos de 5MB. Tu archivo pesa ${(photo.size / 1024 / 1024).toFixed(1)}MB.`
-        }
-      };
+          photo: `La imagen debe pesar menos de 5MB. Tu archivo pesa ${(photo.size / 1024 / 1024).toFixed(1)}MB.`,
+        },
+      }
     }
 
     // Validate file type
-    const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
     if (!allowedTypes.includes(photo.type)) {
       return {
         success: false,
-        error: "Formato de imagen no soportado.",
+        error: 'Formato de imagen no soportado.',
         fieldErrors: {
-          photo: "Solo se permiten imágenes JPG, PNG, GIF o WebP."
-        }
-      };
+          photo: 'Solo se permiten imágenes JPG, PNG, GIF o WebP.',
+        },
+      }
     }
 
-    const fileExt = photo.name.split('.').pop()?.toLowerCase() || 'jpg';
-    const fileName = `products/${profile.tenant_id}/${Date.now()}.${fileExt}`;
+    const fileExt = photo.name.split('.').pop()?.toLowerCase() || 'jpg'
+    const fileName = `products/${profile.tenant_id}/${Date.now()}.${fileExt}`
 
     // Try to upload to products bucket
-    const { error: uploadError } = await supabase.storage
-      .from('products')
-      .upload(fileName, photo);
+    const { error: uploadError } = await supabase.storage.from('products').upload(fileName, photo)
 
     if (!uploadError) {
-      const { data: { publicUrl } } = supabase.storage
-        .from('products')
-        .getPublicUrl(fileName);
-      imageUrl = publicUrl;
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from('products').getPublicUrl(fileName)
+      imageUrl = publicUrl
     } else {
       // Log but don't fail - products can be created without images
-      logger.warn("Product image upload failed", { error: uploadError.message, tenantId: profile.tenant_id });
+      logger.warn('Product image upload failed', {
+        error: uploadError.message,
+        tenantId: profile.tenant_id,
+      })
     }
   }
 
   // Map category to target_species array
-  const targetSpecies = validData.category === 'other' ? [] : [validData.category];
+  const targetSpecies = validData.category === 'other' ? [] : [validData.category]
 
   // Insert Product into store_products
   const { data: newProduct, error: insertError } = await supabase
@@ -207,57 +213,55 @@ export async function createProduct(prevState: ActionResult | null, formData: Fo
       requires_prescription: false,
     })
     .select('id')
-    .single();
+    .single()
 
   if (insertError || !newProduct) {
-    logger.error("Create Product Error", {
+    logger.error('Create Product Error', {
       error: insertError?.message,
       tenantId: profile.tenant_id,
-      userId: user.id
-    });
+      userId: user.id,
+    })
 
-    if (insertError?.code === "23505") {
-      if (insertError.message.includes("sku")) {
+    if (insertError?.code === '23505') {
+      if (insertError.message.includes('sku')) {
         return {
           success: false,
-          error: "Este código SKU ya está en uso.",
+          error: 'Este código SKU ya está en uso.',
           fieldErrors: {
-            sku: "Elige otro código SKU para este producto."
-          }
-        };
+            sku: 'Elige otro código SKU para este producto.',
+          },
+        }
       }
       return {
         success: false,
-        error: "Ya existe un producto con estos datos."
-      };
+        error: 'Ya existe un producto con estos datos.',
+      }
     }
 
     return {
       success: false,
-      error: "No se pudo crear el producto. Por favor, intenta de nuevo."
-    };
+      error: 'No se pudo crear el producto. Por favor, intenta de nuevo.',
+    }
   }
 
   // Insert initial inventory record
-  const { error: inventoryError } = await supabase
-    .from('store_inventory')
-    .insert({
-      product_id: newProduct.id,
-      tenant_id: profile.tenant_id,
-      stock_quantity: validData.stock,
-      min_stock_level: 0,
-    });
+  const { error: inventoryError } = await supabase.from('store_inventory').insert({
+    product_id: newProduct.id,
+    tenant_id: profile.tenant_id,
+    stock_quantity: validData.stock,
+    min_stock_level: 0,
+  })
 
   if (inventoryError) {
-    logger.warn("Failed to create initial inventory record", {
+    logger.warn('Failed to create initial inventory record', {
       error: inventoryError.message,
       productId: newProduct.id,
-      tenantId: profile.tenant_id
-    });
+      tenantId: profile.tenant_id,
+    })
     // Don't fail - product was created, inventory can be set later
   }
 
-  revalidatePath(`/${clinic}/portal/products`);
-  revalidatePath(`/${clinic}/store`);
-  redirect(`/${clinic}/portal/products?success=product_created`);
+  revalidatePath(`/${clinic}/portal/products`)
+  revalidatePath(`/${clinic}/store`)
+  redirect(`/${clinic}/portal/products?success=product_created`)
 }

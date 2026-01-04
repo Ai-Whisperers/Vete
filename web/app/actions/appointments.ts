@@ -17,13 +17,15 @@ export const cancelAppointment = withActionAuth(
     // Get appointment with pet to verify ownership
     const { data: appointment, error: fetchError } = await supabase
       .from('appointments')
-      .select(`
+      .select(
+        `
         id,
         tenant_id,
         start_time,
         status,
         pets!inner(owner_id)
-      `)
+      `
+      )
       .eq('id', appointmentId)
       .single()
 
@@ -63,12 +65,17 @@ export const cancelAppointment = withActionAuth(
           ? `[Cancelado] ${reason}`
           : appointment.status === 'pending'
             ? '[Cancelado por el cliente]'
-            : '[Cancelado]'
+            : '[Cancelado]',
       })
       .eq('id', appointmentId)
 
     if (updateError) {
-      logger.error('Cancel appointment error', { appointmentId, tenantId: appointment.tenant_id, userId: user.id, error: updateError instanceof Error ? updateError.message : String(updateError) })
+      logger.error('Cancel appointment error', {
+        appointmentId,
+        tenantId: appointment.tenant_id,
+        userId: user.id,
+        error: updateError instanceof Error ? updateError.message : String(updateError),
+      })
       return actionError('Error al cancelar la cita')
     }
 
@@ -86,23 +93,20 @@ export const cancelAppointment = withActionAuth(
  * Only pet owners can reschedule their own appointments
  */
 export const rescheduleAppointment = withActionAuth(
-  async (
-    { user, profile, supabase },
-    appointmentId: string,
-    newDate: string,
-    newTime: string
-  ) => {
+  async ({ user, profile, supabase }, appointmentId: string, newDate: string, newTime: string) => {
     // Get appointment with pet to verify ownership
     const { data: appointment, error: fetchError } = await supabase
       .from('appointments')
-      .select(`
+      .select(
+        `
         id,
         tenant_id,
         start_time,
         end_time,
         status,
         pets!inner(owner_id)
-      `)
+      `
+      )
       .eq('id', appointmentId)
       .single()
 
@@ -148,18 +152,29 @@ export const rescheduleAppointment = withActionAuth(
     const newEndTimeStr = newEndDateTime.toTimeString().slice(0, 5) // HH:MM
 
     // Use the database function to check for overlaps
-    const { data: hasOverlap, error: overlapCheckError } = await supabase
-      .rpc('check_appointment_overlap', {
+    const { data: hasOverlap, error: overlapCheckError } = await supabase.rpc(
+      'check_appointment_overlap',
+      {
         p_tenant_id: appointment.tenant_id,
         p_date: newDate,
         p_start_time: newStartTimeStr,
         p_end_time: newEndTimeStr,
         p_vet_id: null, // Check across all vets for now
-        p_exclude_id: appointmentId // Exclude current appointment being rescheduled
-      })
+        p_exclude_id: appointmentId, // Exclude current appointment being rescheduled
+      }
+    )
 
     if (overlapCheckError) {
-      logger.error('Overlap check error', { appointmentId, tenantId: appointment.tenant_id, newDate, newTime, error: overlapCheckError instanceof Error ? overlapCheckError.message : String(overlapCheckError) })
+      logger.error('Overlap check error', {
+        appointmentId,
+        tenantId: appointment.tenant_id,
+        newDate,
+        newTime,
+        error:
+          overlapCheckError instanceof Error
+            ? overlapCheckError.message
+            : String(overlapCheckError),
+      })
       return actionError('Error al verificar disponibilidad del horario')
     }
 
@@ -173,12 +188,18 @@ export const rescheduleAppointment = withActionAuth(
       .update({
         start_time: newDateTime.toISOString(),
         end_time: newEndDateTime.toISOString(),
-        status: 'pending' // Reset to pending for re-confirmation
+        status: 'pending', // Reset to pending for re-confirmation
       })
       .eq('id', appointmentId)
 
     if (updateError) {
-      logger.error('Reschedule appointment error', { appointmentId, tenantId: appointment.tenant_id, newDate, newTime, error: updateError instanceof Error ? updateError.message : String(updateError) })
+      logger.error('Reschedule appointment error', {
+        appointmentId,
+        tenantId: appointment.tenant_id,
+        newDate,
+        newTime,
+        error: updateError instanceof Error ? updateError.message : String(updateError),
+      })
       return actionError('Error al reprogramar la cita')
     }
 
@@ -200,7 +221,8 @@ export const getOwnerAppointments = withActionAuth(
     // Get all appointments for pets owned by this user in this clinic
     const { data: appointments, error } = await supabase
       .from('appointments')
-      .select(`
+      .select(
+        `
         id,
         tenant_id,
         start_time,
@@ -215,30 +237,36 @@ export const getOwnerAppointments = withActionAuth(
           photo_url,
           owner_id
         )
-      `)
+      `
+      )
       .eq('tenant_id', clinicSlug)
       .eq('pets.owner_id', user.id)
       .order('start_time', { ascending: false })
 
     if (error) {
-      logger.error('Get appointments error', { clinicSlug, userId: user.id, error: error instanceof Error ? error.message : String(error) })
+      logger.error('Get appointments error', {
+        clinicSlug,
+        userId: user.id,
+        error: error instanceof Error ? error.message : String(error),
+      })
       return actionError('Error al obtener las citas')
     }
 
     // Transform pets array to single pet object (Supabase returns array from join)
-    const transformedAppointments = appointments?.map(a => ({
-      ...a,
-      pets: Array.isArray(a.pets) ? a.pets[0] : a.pets
-    })) || []
+    const transformedAppointments =
+      appointments?.map((a) => ({
+        ...a,
+        pets: Array.isArray(a.pets) ? a.pets[0] : a.pets,
+      })) || []
 
     // Split into upcoming and past
     const now = new Date()
     const upcoming = transformedAppointments
-      .filter(a => new Date(a.start_time) >= now && a.status !== 'cancelled')
+      .filter((a) => new Date(a.start_time) >= now && a.status !== 'cancelled')
       .sort((a, b) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime())
 
     const past = transformedAppointments
-      .filter(a => new Date(a.start_time) < now || a.status === 'cancelled')
+      .filter((a) => new Date(a.start_time) < now || a.status === 'cancelled')
       .sort((a, b) => new Date(b.start_time).getTime() - new Date(a.start_time).getTime())
 
     return actionSuccess({ upcoming, past })
@@ -282,12 +310,17 @@ export const checkInAppointment = withActionAuth(
       .update({
         status: 'checked_in',
         checked_in_at: new Date().toISOString(),
-        checked_in_by: user.id
+        checked_in_by: user.id,
       })
       .eq('id', appointmentId)
 
     if (updateError) {
-      logger.error('Check-in error', { appointmentId, tenantId: profile.tenant_id, userId: user.id, error: updateError instanceof Error ? updateError.message : String(updateError) })
+      logger.error('Check-in error', {
+        appointmentId,
+        tenantId: profile.tenant_id,
+        userId: user.id,
+        error: updateError instanceof Error ? updateError.message : String(updateError),
+      })
       return actionError('Error al registrar llegada')
     }
 
@@ -326,12 +359,17 @@ export const startAppointment = withActionAuth(
       .from('appointments')
       .update({
         status: 'in_progress',
-        started_at: new Date().toISOString()
+        started_at: new Date().toISOString(),
       })
       .eq('id', appointmentId)
 
     if (updateError) {
-      logger.error('Start appointment error', { appointmentId, tenantId: profile.tenant_id, userId: user.id, error: updateError instanceof Error ? updateError.message : String(updateError) })
+      logger.error('Start appointment error', {
+        appointmentId,
+        tenantId: profile.tenant_id,
+        userId: user.id,
+        error: updateError instanceof Error ? updateError.message : String(updateError),
+      })
       return actionError('Error al iniciar consulta')
     }
 
@@ -368,7 +406,7 @@ export const completeAppointment = withActionAuth(
     const updateData: Record<string, unknown> = {
       status: 'completed',
       completed_at: new Date().toISOString(),
-      completed_by: user.id
+      completed_by: user.id,
     }
 
     if (notes) {
@@ -383,7 +421,12 @@ export const completeAppointment = withActionAuth(
       .eq('id', appointmentId)
 
     if (updateError) {
-      logger.error('Complete appointment error', { appointmentId, tenantId: profile.tenant_id, userId: user.id, error: updateError instanceof Error ? updateError.message : String(updateError) })
+      logger.error('Complete appointment error', {
+        appointmentId,
+        tenantId: profile.tenant_id,
+        userId: user.id,
+        error: updateError instanceof Error ? updateError.message : String(updateError),
+      })
       return actionError('Error al completar la cita')
     }
 
@@ -422,12 +465,16 @@ export const markNoShow = withActionAuth(
       .from('appointments')
       .update({
         status: 'no_show',
-        notes: '[No se presentó]'
+        notes: '[No se presentó]',
       })
       .eq('id', appointmentId)
 
     if (updateError) {
-      logger.error('Mark no-show error', { appointmentId, tenantId: profile.tenant_id, error: updateError instanceof Error ? updateError.message : String(updateError) })
+      logger.error('Mark no-show error', {
+        appointmentId,
+        tenantId: profile.tenant_id,
+        error: updateError instanceof Error ? updateError.message : String(updateError),
+      })
       return actionError('Error al marcar no presentado')
     }
 
@@ -443,7 +490,12 @@ export const markNoShow = withActionAuth(
  * Staff only
  */
 export const getStaffAppointments = withActionAuth(
-  async ({ profile, supabase }: AuthContext, clinicSlug: string, date?: string, statusFilter?: string) => {
+  async (
+    { profile, supabase }: AuthContext,
+    clinicSlug: string,
+    date?: string,
+    statusFilter?: string
+  ) => {
     if (profile.tenant_id !== clinicSlug) {
       return actionError('Solo el personal puede ver esta información')
     }
@@ -452,7 +504,8 @@ export const getStaffAppointments = withActionAuth(
 
     let query = supabase
       .from('appointments')
-      .select(`
+      .select(
+        `
         id,
         tenant_id,
         start_time,
@@ -473,7 +526,8 @@ export const getStaffAppointments = withActionAuth(
             phone
           )
         )
-      `)
+      `
+      )
       .eq('tenant_id', clinicSlug)
       .gte('start_time', `${targetDate}T00:00:00`)
       .lt('start_time', `${targetDate}T23:59:59`)
@@ -486,15 +540,21 @@ export const getStaffAppointments = withActionAuth(
     const { data: appointments, error } = await query
 
     if (error) {
-      logger.error('Get staff appointments error', { clinicSlug, tenantId: profile.tenant_id, date: targetDate, error: error instanceof Error ? error.message : String(error) })
+      logger.error('Get staff appointments error', {
+        clinicSlug,
+        tenantId: profile.tenant_id,
+        date: targetDate,
+        error: error instanceof Error ? error.message : String(error),
+      })
       return actionError('Error al obtener citas')
     }
 
     // Transform the nested data
-    const transformedAppointments = appointments?.map(apt => ({
-      ...apt,
-      pets: Array.isArray(apt.pets) ? apt.pets[0] : apt.pets
-    })) || []
+    const transformedAppointments =
+      appointments?.map((apt) => ({
+        ...apt,
+        pets: Array.isArray(apt.pets) ? apt.pets[0] : apt.pets,
+      })) || []
 
     return actionSuccess(transformedAppointments)
   },
@@ -538,7 +598,7 @@ export async function checkAvailableSlots(
     workEnd = '18:00',
     breakStart = '12:00',
     breakEnd = '14:00',
-    vetId
+    vetId,
   } = params
 
   // Validate date format
@@ -549,42 +609,51 @@ export async function checkAvailableSlots(
 
   // Validate time formats
   const timeRegex = /^\d{2}:\d{2}$/
-  if (!timeRegex.test(workStart) || !timeRegex.test(workEnd) ||
-      !timeRegex.test(breakStart) || !timeRegex.test(breakEnd)) {
+  if (
+    !timeRegex.test(workStart) ||
+    !timeRegex.test(workEnd) ||
+    !timeRegex.test(breakStart) ||
+    !timeRegex.test(breakEnd)
+  ) {
     return { data: null, error: 'Formato de hora inválido' }
   }
 
   try {
     // Call the database function to get available slots
-    const { data: slots, error } = await supabase
-      .rpc('get_available_slots', {
-        p_tenant_id: clinicSlug,
-        p_date: date,
-        p_slot_duration_minutes: slotDurationMinutes,
-        p_work_start: workStart,
-        p_work_end: workEnd,
-        p_break_start: breakStart,
-        p_break_end: breakEnd,
-        p_vet_id: vetId || null
-      })
+    const { data: slots, error } = await supabase.rpc('get_available_slots', {
+      p_tenant_id: clinicSlug,
+      p_date: date,
+      p_slot_duration_minutes: slotDurationMinutes,
+      p_work_start: workStart,
+      p_work_end: workEnd,
+      p_break_start: breakStart,
+      p_break_end: breakEnd,
+      p_vet_id: vetId || null,
+    })
 
     if (error) {
-      logger.error('Error fetching available slots', { clinicSlug, date, error: error instanceof Error ? error.message : String(error) })
+      logger.error('Error fetching available slots', {
+        clinicSlug,
+        date,
+        error: error instanceof Error ? error.message : String(error),
+      })
       return { data: null, error: 'Error al obtener horarios disponibles' }
     }
 
     // Transform the response to match the expected format
-    const availableSlots: AvailabilitySlot[] = slots?.map((slot: {
-      slot_time: string
-      is_available: boolean
-    }) => ({
-      time: slot.slot_time,
-      available: slot.is_available
-    })) || []
+    const availableSlots: AvailabilitySlot[] =
+      slots?.map((slot: { slot_time: string; is_available: boolean }) => ({
+        time: slot.slot_time,
+        available: slot.is_available,
+      })) || []
 
     return { data: availableSlots, error: null }
   } catch (e) {
-    logger.error('Unexpected error checking slots', { clinicSlug, date, error: e instanceof Error ? e.message : 'Unknown' })
+    logger.error('Unexpected error checking slots', {
+      clinicSlug,
+      date,
+      error: e instanceof Error ? e.message : 'Unknown',
+    })
     return { data: null, error: 'Error inesperado al verificar disponibilidad' }
   }
 }
@@ -603,14 +672,16 @@ export const rescheduleAppointmentByDrag = withActionAuth(
     // Get appointment to verify ownership/permissions
     const { data: appointment, error: fetchError } = await supabase
       .from('appointments')
-      .select(`
+      .select(
+        `
         id,
         tenant_id,
         start_time,
         end_time,
         status,
         vet_id
-      `)
+      `
+      )
       .eq('id', appointmentId)
       .single()
 
@@ -666,7 +737,7 @@ export const rescheduleAppointmentByDrag = withActionAuth(
         appointmentId,
         tenantId: profile.tenant_id,
         userId: user.id,
-        error: updateError instanceof Error ? updateError.message : String(updateError)
+        error: updateError instanceof Error ? updateError.message : String(updateError),
       })
       return actionError('Error al reprogramar la cita')
     }

@@ -1,32 +1,32 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { Star, ThumbsUp, MessageSquare, ChevronDown, ChevronUp, User } from 'lucide-react';
-import type { StoreProductWithDetails, ReviewSummary } from '@/lib/types/store';
+import { useState } from 'react'
+import { Star, ThumbsUp, MessageSquare, ChevronDown, ChevronUp, User } from 'lucide-react'
+import type { StoreProductWithDetails, ReviewSummary } from '@/lib/types/store'
 import {
   SPECIES_LABELS,
   LIFE_STAGE_LABELS,
   BREED_SIZE_LABELS,
   HEALTH_CONDITION_LABELS,
-} from '@/lib/types/store';
+} from '@/lib/types/store'
 
 interface Props {
-  product: StoreProductWithDetails;
-  reviewSummary: ReviewSummary;
+  product: StoreProductWithDetails
+  reviewSummary: ReviewSummary
   questions: Array<{
-    id: string;
-    question: string;
-    answer: string;
-    created_at: string;
-    user_name: string;
-    answerer_name: string;
-    answered_at: string;
-  }>;
-  clinic: string;
-  currencySymbol: string;
+    id: string
+    question: string
+    answer: string
+    created_at: string
+    user_name: string
+    answerer_name: string
+    answered_at: string
+  }>
+  clinic: string
+  currencySymbol: string
 }
 
-type TabId = 'description' | 'specifications' | 'reviews' | 'questions';
+type TabId = 'description' | 'specifications' | 'reviews' | 'questions'
 
 export default function ProductTabs({
   product,
@@ -35,49 +35,51 @@ export default function ProductTabs({
   clinic,
   currencySymbol,
 }: Props) {
-  const [activeTab, setActiveTab] = useState<TabId>('description');
-  const [expandedQuestions, setExpandedQuestions] = useState<Set<string>>(new Set());
+  const [activeTab, setActiveTab] = useState<TabId>('description')
+  const [expandedQuestions, setExpandedQuestions] = useState<Set<string>>(new Set())
 
   const tabs: { id: TabId; label: string; count?: number }[] = [
     { id: 'description', label: 'Descripción' },
     { id: 'specifications', label: 'Especificaciones' },
     { id: 'reviews', label: 'Reseñas', count: product.review_count },
     { id: 'questions', label: 'Preguntas', count: questions.length },
-  ];
+  ]
 
   const toggleQuestion = (id: string) => {
     setExpandedQuestions((prev) => {
-      const next = new Set(prev);
+      const next = new Set(prev)
       if (next.has(id)) {
-        next.delete(id);
+        next.delete(id)
       } else {
-        next.add(id);
+        next.add(id)
       }
-      return next;
-    });
-  };
+      return next
+    })
+  }
 
   return (
-    <div className="bg-[var(--bg-elevated)] rounded-2xl border border-[var(--border-default)] overflow-hidden">
+    <div className="overflow-hidden rounded-2xl border border-[var(--border-default)] bg-[var(--bg-elevated)]">
       {/* Tab Headers */}
-      <div className="flex border-b border-[var(--border-default)] overflow-x-auto">
+      <div className="flex overflow-x-auto border-b border-[var(--border-default)]">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center gap-2 px-6 py-4 text-sm font-medium whitespace-nowrap transition-colors ${
+            className={`flex items-center gap-2 whitespace-nowrap px-6 py-4 text-sm font-medium transition-colors ${
               activeTab === tab.id
-                ? 'text-[var(--primary)] border-b-2 border-[var(--primary)] bg-[var(--bg-subtle)]'
-                : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-subtle)]'
+                ? 'border-b-2 border-[var(--primary)] bg-[var(--bg-subtle)] text-[var(--primary)]'
+                : 'text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)] hover:text-[var(--text-primary)]'
             }`}
           >
             {tab.label}
             {tab.count !== undefined && tab.count > 0 && (
-              <span className={`px-2 py-0.5 text-xs rounded-full ${
-                activeTab === tab.id
-                  ? 'bg-[var(--primary)] text-white'
-                  : 'bg-[var(--bg-subtle)] text-[var(--text-muted)]'
-              }`}>
+              <span
+                className={`rounded-full px-2 py-0.5 text-xs ${
+                  activeTab === tab.id
+                    ? 'bg-[var(--primary)] text-white'
+                    : 'bg-[var(--bg-subtle)] text-[var(--text-muted)]'
+                }`}
+              >
                 {tab.count}
               </span>
             )}
@@ -91,7 +93,7 @@ export default function ProductTabs({
         {activeTab === 'description' && (
           <div className="space-y-6">
             {product.short_description && (
-              <p className="text-lg text-[var(--text-secondary)] leading-relaxed">
+              <p className="text-lg leading-relaxed text-[var(--text-secondary)]">
                 {product.short_description}
               </p>
             )}
@@ -105,15 +107,25 @@ export default function ProductTabs({
 
             {product.features && product.features.length > 0 && (
               <div className="mt-6">
-                <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4">
+                <h3 className="mb-4 text-lg font-semibold text-[var(--text-primary)]">
                   Beneficios
                 </h3>
                 <ul className="space-y-2">
                   {product.features.map((feature, index) => (
                     <li key={index} className="flex items-start gap-3">
-                      <span className="w-5 h-5 bg-green-100 text-green-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                      <span className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-green-100 text-green-600">
+                        <svg
+                          className="h-3 w-3"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={3}
+                            d="M5 13l4 4L19 7"
+                          />
                         </svg>
                       </span>
                       <span className="text-[var(--text-secondary)]">{feature}</span>
@@ -125,10 +137,10 @@ export default function ProductTabs({
 
             {product.ingredients && (
               <div className="mt-6">
-                <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4">
+                <h3 className="mb-4 text-lg font-semibold text-[var(--text-primary)]">
                   Ingredientes
                 </h3>
-                <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                <p className="text-sm leading-relaxed text-[var(--text-secondary)]">
                   {product.ingredients}
                 </p>
               </div>
@@ -140,13 +152,16 @@ export default function ProductTabs({
         {activeTab === 'specifications' && (
           <div className="space-y-6">
             {/* Pet Attributes */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               {product.species.length > 0 && (
                 <div>
-                  <h4 className="text-sm font-medium text-[var(--text-muted)] mb-2">Especie</h4>
+                  <h4 className="mb-2 text-sm font-medium text-[var(--text-muted)]">Especie</h4>
                   <div className="flex flex-wrap gap-2">
                     {product.species.map((species) => (
-                      <span key={species} className="px-3 py-1 bg-[var(--bg-subtle)] rounded-full text-sm">
+                      <span
+                        key={species}
+                        className="rounded-full bg-[var(--bg-subtle)] px-3 py-1 text-sm"
+                      >
                         {SPECIES_LABELS[species] || species}
                       </span>
                     ))}
@@ -156,10 +171,15 @@ export default function ProductTabs({
 
               {product.life_stages.length > 0 && (
                 <div>
-                  <h4 className="text-sm font-medium text-[var(--text-muted)] mb-2">Etapa de Vida</h4>
+                  <h4 className="mb-2 text-sm font-medium text-[var(--text-muted)]">
+                    Etapa de Vida
+                  </h4>
                   <div className="flex flex-wrap gap-2">
                     {product.life_stages.map((stage) => (
-                      <span key={stage} className="px-3 py-1 bg-[var(--bg-subtle)] rounded-full text-sm">
+                      <span
+                        key={stage}
+                        className="rounded-full bg-[var(--bg-subtle)] px-3 py-1 text-sm"
+                      >
                         {LIFE_STAGE_LABELS[stage] || stage}
                       </span>
                     ))}
@@ -169,10 +189,15 @@ export default function ProductTabs({
 
               {product.breed_sizes.length > 0 && (
                 <div>
-                  <h4 className="text-sm font-medium text-[var(--text-muted)] mb-2">Tamaño de Raza</h4>
+                  <h4 className="mb-2 text-sm font-medium text-[var(--text-muted)]">
+                    Tamaño de Raza
+                  </h4>
                   <div className="flex flex-wrap gap-2">
                     {product.breed_sizes.map((size) => (
-                      <span key={size} className="px-3 py-1 bg-[var(--bg-subtle)] rounded-full text-sm">
+                      <span
+                        key={size}
+                        className="rounded-full bg-[var(--bg-subtle)] px-3 py-1 text-sm"
+                      >
                         {BREED_SIZE_LABELS[size] || size}
                       </span>
                     ))}
@@ -182,10 +207,15 @@ export default function ProductTabs({
 
               {product.health_conditions.length > 0 && (
                 <div>
-                  <h4 className="text-sm font-medium text-[var(--text-muted)] mb-2">Condiciones de Salud</h4>
+                  <h4 className="mb-2 text-sm font-medium text-[var(--text-muted)]">
+                    Condiciones de Salud
+                  </h4>
                   <div className="flex flex-wrap gap-2">
                     {product.health_conditions.map((condition) => (
-                      <span key={condition} className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm">
+                      <span
+                        key={condition}
+                        className="rounded-full bg-blue-50 px-3 py-1 text-sm text-blue-700"
+                      >
                         {HEALTH_CONDITION_LABELS[condition] || condition}
                       </span>
                     ))}
@@ -197,16 +227,16 @@ export default function ProductTabs({
             {/* Technical Specs */}
             {Object.keys(product.specifications).length > 0 && (
               <div className="mt-6">
-                <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4">
+                <h3 className="mb-4 text-lg font-semibold text-[var(--text-primary)]">
                   Especificaciones Técnicas
                 </h3>
-                <div className="border border-[var(--border-default)] rounded-lg overflow-hidden">
+                <div className="overflow-hidden rounded-lg border border-[var(--border-default)]">
                   {Object.entries(product.specifications).map(([key, value], index) => (
                     <div
                       key={key}
                       className={`flex ${index % 2 === 0 ? 'bg-[var(--bg-subtle)]' : ''}`}
                     >
-                      <span className="w-1/3 px-4 py-3 text-sm font-medium text-[var(--text-secondary)] border-r border-[var(--border-default)]">
+                      <span className="w-1/3 border-r border-[var(--border-default)] px-4 py-3 text-sm font-medium text-[var(--text-secondary)]">
                         {key}
                       </span>
                       <span className="flex-1 px-4 py-3 text-sm text-[var(--text-primary)]">
@@ -221,12 +251,12 @@ export default function ProductTabs({
             {/* Nutritional Info */}
             {Object.keys(product.nutritional_info).length > 0 && (
               <div className="mt-6">
-                <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4">
+                <h3 className="mb-4 text-lg font-semibold text-[var(--text-primary)]">
                   Información Nutricional
                 </h3>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
                   {Object.entries(product.nutritional_info).map(([key, value]) => (
-                    <div key={key} className="bg-[var(--bg-subtle)] rounded-lg p-4 text-center">
+                    <div key={key} className="rounded-lg bg-[var(--bg-subtle)] p-4 text-center">
                       <span className="block text-2xl font-bold text-[var(--primary)]">
                         {typeof value === 'number' ? `${value}%` : value}
                       </span>
@@ -238,9 +268,9 @@ export default function ProductTabs({
             )}
 
             {/* Physical Attributes */}
-            <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 gap-4">
+            <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3">
               {product.weight_grams && (
-                <div className="bg-[var(--bg-subtle)] rounded-lg p-4">
+                <div className="rounded-lg bg-[var(--bg-subtle)] p-4">
                   <span className="text-sm text-[var(--text-muted)]">Peso</span>
                   <span className="block text-lg font-semibold text-[var(--text-primary)]">
                     {product.weight_grams >= 1000
@@ -250,7 +280,7 @@ export default function ProductTabs({
                 </div>
               )}
               {product.sku && (
-                <div className="bg-[var(--bg-subtle)] rounded-lg p-4">
+                <div className="rounded-lg bg-[var(--bg-subtle)] p-4">
                   <span className="text-sm text-[var(--text-muted)]">SKU</span>
                   <span className="block text-lg font-semibold text-[var(--text-primary)]">
                     {product.sku}
@@ -258,7 +288,7 @@ export default function ProductTabs({
                 </div>
               )}
               {product.barcode && (
-                <div className="bg-[var(--bg-subtle)] rounded-lg p-4">
+                <div className="rounded-lg bg-[var(--bg-subtle)] p-4">
                   <span className="text-sm text-[var(--text-muted)]">Código de Barras</span>
                   <span className="block text-lg font-semibold text-[var(--text-primary)]">
                     {product.barcode}
@@ -273,18 +303,18 @@ export default function ProductTabs({
         {activeTab === 'reviews' && (
           <div className="space-y-6">
             {/* Review Summary */}
-            <div className="flex flex-col md:flex-row gap-8 p-6 bg-[var(--bg-subtle)] rounded-xl">
+            <div className="flex flex-col gap-8 rounded-xl bg-[var(--bg-subtle)] p-6 md:flex-row">
               <div className="text-center md:border-r md:border-[var(--border-default)] md:pr-8">
                 <div className="text-5xl font-black text-[var(--text-primary)]">
                   {reviewSummary.avg_rating.toFixed(1)}
                 </div>
-                <div className="flex justify-center mt-2">
+                <div className="mt-2 flex justify-center">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <Star
                       key={star}
-                      className={`w-5 h-5 ${
+                      className={`h-5 w-5 ${
                         star <= Math.round(reviewSummary.avg_rating)
-                          ? 'text-yellow-400 fill-yellow-400'
+                          ? 'fill-yellow-400 text-yellow-400'
                           : 'text-gray-300'
                       }`}
                     />
@@ -297,39 +327,43 @@ export default function ProductTabs({
 
               <div className="flex-1 space-y-2">
                 {[5, 4, 3, 2, 1].map((rating) => {
-                  const count = reviewSummary.rating_distribution[rating as keyof typeof reviewSummary.rating_distribution];
-                  const percentage = reviewSummary.total_reviews > 0
-                    ? (count / reviewSummary.total_reviews) * 100
-                    : 0;
+                  const count =
+                    reviewSummary.rating_distribution[
+                      rating as keyof typeof reviewSummary.rating_distribution
+                    ]
+                  const percentage =
+                    reviewSummary.total_reviews > 0
+                      ? (count / reviewSummary.total_reviews) * 100
+                      : 0
 
                   return (
                     <div key={rating} className="flex items-center gap-3">
                       <span className="w-8 text-sm text-[var(--text-secondary)]">{rating}★</span>
-                      <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                      <div className="h-2 flex-1 overflow-hidden rounded-full bg-gray-200">
                         <div
-                          className="h-full bg-yellow-400 rounded-full transition-all"
+                          className="h-full rounded-full bg-yellow-400 transition-all"
                           style={{ width: `${percentage}%` }}
                         />
                       </div>
                       <span className="w-8 text-sm text-[var(--text-muted)]">{count}</span>
                     </div>
-                  );
+                  )
                 })}
               </div>
             </div>
 
             {/* Write Review Button */}
             <div className="text-center">
-              <button className="px-6 py-3 bg-[var(--primary)] text-white font-medium rounded-lg hover:opacity-90 transition-opacity">
+              <button className="rounded-lg bg-[var(--primary)] px-6 py-3 font-medium text-white transition-opacity hover:opacity-90">
                 Escribir una Reseña
               </button>
             </div>
 
             {/* Reviews List */}
             {reviewSummary.total_reviews === 0 ? (
-              <div className="text-center py-12">
-                <MessageSquare className="w-12 h-12 text-[var(--text-muted)] mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-[var(--text-primary)] mb-2">
+              <div className="py-12 text-center">
+                <MessageSquare className="mx-auto mb-4 h-12 w-12 text-[var(--text-muted)]" />
+                <h3 className="mb-2 text-lg font-medium text-[var(--text-primary)]">
                   Sin reseñas todavía
                 </h3>
                 <p className="text-[var(--text-muted)]">
@@ -350,15 +384,15 @@ export default function ProductTabs({
         {activeTab === 'questions' && (
           <div className="space-y-6">
             {/* Ask Question */}
-            <div className="p-4 bg-[var(--bg-subtle)] rounded-lg">
-              <h3 className="font-medium text-[var(--text-primary)] mb-2">¿Tenés una pregunta?</h3>
+            <div className="rounded-lg bg-[var(--bg-subtle)] p-4">
+              <h3 className="mb-2 font-medium text-[var(--text-primary)]">¿Tenés una pregunta?</h3>
               <div className="flex gap-2">
                 <input
                   type="text"
                   placeholder="Escribí tu pregunta sobre este producto..."
-                  className="flex-1 px-4 py-2 border border-[var(--border-default)] rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+                  className="flex-1 rounded-lg border border-[var(--border-default)] bg-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
                 />
-                <button className="px-6 py-2 bg-[var(--primary)] text-white font-medium rounded-lg hover:opacity-90 transition-opacity">
+                <button className="rounded-lg bg-[var(--primary)] px-6 py-2 font-medium text-white transition-opacity hover:opacity-90">
                   Preguntar
                 </button>
               </div>
@@ -366,9 +400,9 @@ export default function ProductTabs({
 
             {/* Questions List */}
             {questions.length === 0 ? (
-              <div className="text-center py-12">
-                <MessageSquare className="w-12 h-12 text-[var(--text-muted)] mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-[var(--text-primary)] mb-2">
+              <div className="py-12 text-center">
+                <MessageSquare className="mx-auto mb-4 h-12 w-12 text-[var(--text-muted)]" />
+                <h3 className="mb-2 text-lg font-medium text-[var(--text-primary)]">
                   Sin preguntas todavía
                 </h3>
                 <p className="text-[var(--text-muted)]">
@@ -378,13 +412,16 @@ export default function ProductTabs({
             ) : (
               <div className="space-y-4">
                 {questions.map((q) => (
-                  <div key={q.id} className="border border-[var(--border-default)] rounded-lg overflow-hidden">
+                  <div
+                    key={q.id}
+                    className="overflow-hidden rounded-lg border border-[var(--border-default)]"
+                  >
                     <button
                       onClick={() => toggleQuestion(q.id)}
-                      className="w-full flex items-center justify-between p-4 text-left hover:bg-[var(--bg-subtle)] transition-colors"
+                      className="flex w-full items-center justify-between p-4 text-left transition-colors hover:bg-[var(--bg-subtle)]"
                     >
                       <div className="flex items-start gap-3">
-                        <User className="w-5 h-5 text-[var(--text-muted)] mt-0.5" />
+                        <User className="mt-0.5 h-5 w-5 text-[var(--text-muted)]" />
                         <div>
                           <p className="font-medium text-[var(--text-primary)]">{q.question}</p>
                           <p className="text-sm text-[var(--text-muted)]">
@@ -393,18 +430,19 @@ export default function ProductTabs({
                         </div>
                       </div>
                       {expandedQuestions.has(q.id) ? (
-                        <ChevronUp className="w-5 h-5 text-[var(--text-muted)]" />
+                        <ChevronUp className="h-5 w-5 text-[var(--text-muted)]" />
                       ) : (
-                        <ChevronDown className="w-5 h-5 text-[var(--text-muted)]" />
+                        <ChevronDown className="h-5 w-5 text-[var(--text-muted)]" />
                       )}
                     </button>
 
                     {expandedQuestions.has(q.id) && (
-                      <div className="px-4 pb-4 ml-8">
-                        <div className="p-4 bg-[var(--bg-subtle)] rounded-lg">
+                      <div className="ml-8 px-4 pb-4">
+                        <div className="rounded-lg bg-[var(--bg-subtle)] p-4">
                           <p className="text-[var(--text-primary)]">{q.answer}</p>
-                          <p className="text-sm text-[var(--text-muted)] mt-2">
-                            {q.answerer_name} · {new Date(q.answered_at).toLocaleDateString('es-PY')}
+                          <p className="mt-2 text-sm text-[var(--text-muted)]">
+                            {q.answerer_name} ·{' '}
+                            {new Date(q.answered_at).toLocaleDateString('es-PY')}
                           </p>
                         </div>
                       </div>
@@ -417,5 +455,5 @@ export default function ProductTabs({
         )}
       </div>
     </div>
-  );
+  )
 }

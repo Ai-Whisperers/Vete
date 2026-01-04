@@ -1,16 +1,16 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import { ConfirmModal } from "./modal";
+import { useState } from 'react'
+import { ConfirmModal } from './modal'
 
 interface ConfirmDialogProps {
-  trigger: React.ReactNode;
-  title: string;
-  description: string;
-  confirmLabel?: string;
-  cancelLabel?: string;
-  variant?: "danger" | "warning" | "info";
-  onConfirm: () => Promise<void> | void;
+  trigger: React.ReactNode
+  title: string
+  description: string
+  confirmLabel?: string
+  cancelLabel?: string
+  variant?: 'danger' | 'warning' | 'info'
+  onConfirm: () => Promise<void> | void
 }
 
 /**
@@ -32,23 +32,23 @@ export function ConfirmDialog({
   trigger,
   title,
   description,
-  confirmLabel = "Confirmar",
-  cancelLabel = "Cancelar",
-  variant = "danger",
+  confirmLabel = 'Confirmar',
+  cancelLabel = 'Cancelar',
+  variant = 'danger',
   onConfirm,
 }: ConfirmDialogProps): React.ReactElement {
-  const [isOpen, setIsOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isOpen, setIsOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
   async function handleConfirm() {
-    setIsLoading(true);
+    setIsLoading(true)
     try {
-      await onConfirm();
-      setIsOpen(false);
+      await onConfirm()
+      setIsOpen(false)
     } catch (error) {
-      console.error("Confirm action failed:", error);
+      console.error('Confirm action failed:', error)
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
   }
 
@@ -67,5 +67,5 @@ export function ConfirmDialog({
         isLoading={isLoading}
       />
     </>
-  );
+  )
 }

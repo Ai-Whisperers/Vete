@@ -16,32 +16,29 @@ All clinic configuration data is strongly typed to ensure type safety across the
 ### Import from the clinics library
 
 ```typescript
-import { getClinicData } from '@/lib/clinics';
-import type { ClinicData, Service, TeamMember } from '@/lib/clinics';
+import { getClinicData } from '@/lib/clinics'
+import type { ClinicData, Service, TeamMember } from '@/lib/clinics'
 
-const clinicData = await getClinicData('adris');
+const clinicData = await getClinicData('adris')
 ```
 
 ### Import directly from types
 
 ```typescript
-import type {
-  ClinicConfig,
-  HomeData,
-  ServicesData,
-  UiLabels
-} from '@/lib/types';
+import type { ClinicConfig, HomeData, ServicesData, UiLabels } from '@/lib/types'
 ```
 
 ## Type Categories
 
 ### Core Configuration
+
 - `ClinicConfig` - Main clinic configuration (contact, settings, branding)
 - `ClinicTheme` - Theme colors, fonts, gradients
 - `ClinicImages` - Image manifest and placeholders
 - `ClinicData` - Complete clinic data structure
 
 ### UI Labels
+
 - `UiLabels` - All user-facing text labels
   - `NavLabels` - Navigation menu labels
   - `FooterLabels` - Footer section labels
@@ -57,6 +54,7 @@ import type {
   - `ErrorLabels` - Error page labels
 
 ### Content Types
+
 - `HomeData` - Homepage content structure
 - `ServicesData` - Services catalog with pricing
 - `AboutData` - About page with team, facilities, certifications
@@ -65,6 +63,7 @@ import type {
 - `LegalData` - Privacy policy, terms, cookie policy
 
 ### Component Types
+
 - `Service` - Individual service with variants and booking options
 - `TeamMember` - Veterinarian profile with specialties
 - `Testimonial` - Client review with rating
@@ -76,16 +75,16 @@ import type {
 
 ```typescript
 interface Service {
-  id: string;
-  visible: boolean;
-  category: string;
-  title: string;
-  icon: string;
-  summary: string;
-  image: string;
-  details: ServiceDetails;
-  variants: ServiceVariant[];
-  booking: ServiceBooking;
+  id: string
+  visible: boolean
+  category: string
+  title: string
+  icon: string
+  summary: string
+  image: string
+  details: ServiceDetails
+  variants: ServiceVariant[]
+  booking: ServiceBooking
 }
 ```
 
@@ -93,13 +92,13 @@ interface Service {
 
 ```typescript
 interface NavLabels {
-  home: string;
-  services: string;
-  about: string;
-  store: string;
-  book: string;
-  contact: string;
-  owners_zone: string;
+  home: string
+  services: string
+  about: string
+  store: string
+  book: string
+  contact: string
+  owners_zone: string
   // ... more labels
 }
 ```

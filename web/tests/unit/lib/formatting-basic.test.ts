@@ -7,7 +7,13 @@
 import { describe, it, expect } from 'vitest'
 
 // Currency formatting
-import { formatPrice, formatCurrency, formatPriceGs, parseCurrency, formatPriceRange } from '@/lib/formatting/currency'
+import {
+  formatPrice,
+  formatCurrency,
+  formatPriceGs,
+  parseCurrency,
+  formatPriceRange,
+} from '@/lib/formatting/currency'
 
 // Date formatting
 import { formatDate, formatAge, formatTime } from '@/lib/formatting/date'

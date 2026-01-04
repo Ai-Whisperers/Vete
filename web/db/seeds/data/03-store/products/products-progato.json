@@ -7,9 +7,7 @@
       "name": "Progato Piedra Sanitaria",
       "description": "Piedra sanitaria económica para gatos",
       "category_slug": "ACC-HIG-ARE",
-      "target_species": [
-        "cat"
-      ],
+      "target_species": ["cat"],
       "variants": [
         {
           "size": "4kg",
@@ -42,9 +40,7 @@
       "name": "Progato Arena Aglomerante",
       "description": "Arena sanitaria aglomerante económica",
       "category_slug": "ACC-HIG-ARE",
-      "target_species": [
-        "cat"
-      ],
+      "target_species": ["cat"],
       "variants": [
         {
           "size": "4kg",
@@ -71,9 +67,7 @@
       "name": "Progato Arena Perfumada",
       "description": "Arena sanitaria aglomerante con perfume",
       "category_slug": "ACC-HIG-ARE",
-      "target_species": [
-        "cat"
-      ],
+      "target_species": ["cat"],
       "variants": [
         {
           "size": "4kg",

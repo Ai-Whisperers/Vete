@@ -5,40 +5,32 @@
  * @tags functionality, portal, pets, critical
  */
 
-import { describe, test, expect, beforeAll, afterAll } from 'vitest';
-import {
-  getTestClient,
-  TestContext,
-  waitForDatabase,
-} from '../../__helpers__/db';
-import {
-  createProfile,
-  createPet,
-  buildPet,
-} from '../../__helpers__/factories';
-import { DEFAULT_TENANT } from '../../__fixtures__/tenants';
-import { ALL_SPECIES, ALL_TEMPERAMENTS } from '../../__fixtures__/pets';
+import { describe, test, expect, beforeAll, afterAll } from 'vitest'
+import { getTestClient, TestContext, waitForDatabase } from '../../__helpers__/db'
+import { createProfile, createPet, buildPet } from '../../__helpers__/factories'
+import { DEFAULT_TENANT } from '../../__fixtures__/tenants'
+import { ALL_SPECIES, ALL_TEMPERAMENTS } from '../../__fixtures__/pets'
 
 describe('Pet Portal Functionality', () => {
-  const ctx = new TestContext();
-  let client: ReturnType<typeof getTestClient>;
-  let ownerId: string;
+  const ctx = new TestContext()
+  let client: ReturnType<typeof getTestClient>
+  let ownerId: string
 
   beforeAll(async () => {
-    await waitForDatabase();
-    client = getTestClient();
+    await waitForDatabase()
+    client = getTestClient()
 
     const owner = await createProfile({
       tenantId: DEFAULT_TENANT.id,
       role: 'owner',
-    });
-    ownerId = owner.id;
-    ctx.track('profiles', ownerId);
-  });
+    })
+    ownerId = owner.id
+    ctx.track('profiles', ownerId)
+  })
 
   afterAll(async () => {
-    await ctx.cleanup();
-  });
+    await ctx.cleanup()
+  })
 
   describe('Pet Registration', () => {
     test('registers pet with minimal information', async () => {
@@ -52,13 +44,13 @@ describe('Pet Portal Functionality', () => {
           weight_kg: 10,
         })
         .select()
-        .single();
+        .single()
 
-      expect(error).toBeNull();
-      expect(data).not.toBeNull();
-      expect(data!.name).toBe('Simple Pet');
-      ctx.track('pets', data!.id);
-    });
+      expect(error).toBeNull()
+      expect(data).not.toBeNull()
+      expect(data!.name).toBe('Simple Pet')
+      ctx.track('pets', data!.id)
+    })
 
     test('registers pet with complete profile', async () => {
       const petData = buildPet({
@@ -78,7 +70,7 @@ describe('Pet Portal Functionality', () => {
         notes: 'Le gusta esconderse',
         dietCategory: 'Premium',
         dietNotes: 'Solo comida húmeda',
-      });
+      })
 
       const { data, error } = await client
         .from('pets')
@@ -101,15 +93,15 @@ describe('Pet Portal Functionality', () => {
           diet_notes: petData.dietNotes,
         })
         .select()
-        .single();
+        .single()
 
-      expect(error).toBeNull();
-      expect(data).not.toBeNull();
-      expect(data!.name).toBe('Complete Pet');
-      expect(data!.breed).toBe('Siames');
-      expect(data!.allergies).toBe('Pollo');
-      ctx.track('pets', data!.id);
-    });
+      expect(error).toBeNull()
+      expect(data).not.toBeNull()
+      expect(data!.name).toBe('Complete Pet')
+      expect(data!.breed).toBe('Siames')
+      expect(data!.allergies).toBe('Pollo')
+      ctx.track('pets', data!.id)
+    })
 
     test('supports all pet species', async () => {
       for (const species of ALL_SPECIES) {
@@ -123,14 +115,14 @@ describe('Pet Portal Functionality', () => {
             weight_kg: 5,
           })
           .select()
-          .single();
+          .single()
 
-        expect(error).toBeNull();
-        expect(data).not.toBeNull();
-        expect(data!.species).toBe(species);
-        ctx.track('pets', data!.id);
+        expect(error).toBeNull()
+        expect(data).not.toBeNull()
+        expect(data!.species).toBe(species)
+        ctx.track('pets', data!.id)
       }
-    });
+    })
 
     test('supports all temperament types', async () => {
       for (const temperament of ALL_TEMPERAMENTS) {
@@ -145,18 +137,18 @@ describe('Pet Portal Functionality', () => {
             temperament,
           })
           .select()
-          .single();
+          .single()
 
-        expect(error).toBeNull();
-        expect(data).not.toBeNull();
-        expect(data!.temperament).toBe(temperament);
-        ctx.track('pets', data!.id);
+        expect(error).toBeNull()
+        expect(data).not.toBeNull()
+        expect(data!.temperament).toBe(temperament)
+        ctx.track('pets', data!.id)
       }
-    });
-  });
+    })
+  })
 
   describe('Pet Profile Updates', () => {
-    let testPetId: string;
+    let testPetId: string
 
     beforeAll(async () => {
       const pet = await createPet({
@@ -164,10 +156,10 @@ describe('Pet Portal Functionality', () => {
         tenantId: DEFAULT_TENANT.id,
         name: 'Update Test Pet',
         weightKg: 15,
-      });
-      testPetId = pet.id;
-      ctx.track('pets', testPetId);
-    });
+      })
+      testPetId = pet.id
+      ctx.track('pets', testPetId)
+    })
 
     test('updates basic information', async () => {
       const { data, error } = await client
@@ -178,13 +170,13 @@ describe('Pet Portal Functionality', () => {
         })
         .eq('id', testPetId)
         .select()
-        .single();
+        .single()
 
-      expect(error).toBeNull();
-      expect(data).not.toBeNull();
-      expect(data!.name).toBe('Updated Name');
-      expect(data!.breed).toBe('Updated Breed');
-    });
+      expect(error).toBeNull()
+      expect(data).not.toBeNull()
+      expect(data!.name).toBe('Updated Name')
+      expect(data!.breed).toBe('Updated Breed')
+    })
 
     test('updates weight tracking', async () => {
       const { data, error } = await client
@@ -192,12 +184,12 @@ describe('Pet Portal Functionality', () => {
         .update({ weight_kg: 16.5 })
         .eq('id', testPetId)
         .select()
-        .single();
+        .single()
 
-      expect(error).toBeNull();
-      expect(data).not.toBeNull();
-      expect(data!.weight_kg).toBe(16.5);
-    });
+      expect(error).toBeNull()
+      expect(data).not.toBeNull()
+      expect(data!.weight_kg).toBe(16.5)
+    })
 
     test('updates medical notes', async () => {
       const { data, error } = await client
@@ -209,13 +201,13 @@ describe('Pet Portal Functionality', () => {
         })
         .eq('id', testPetId)
         .select()
-        .single();
+        .single()
 
-      expect(error).toBeNull();
-      expect(data).not.toBeNull();
-      expect(data!.existing_conditions).toBe('Displasia de cadera leve');
-      expect(data!.allergies).toBe('Polen, Pollo');
-    });
+      expect(error).toBeNull()
+      expect(data).not.toBeNull()
+      expect(data!.existing_conditions).toBe('Displasia de cadera leve')
+      expect(data!.allergies).toBe('Polen, Pollo')
+    })
 
     test('updates diet information', async () => {
       const { data, error } = await client
@@ -226,13 +218,13 @@ describe('Pet Portal Functionality', () => {
         })
         .eq('id', testPetId)
         .select()
-        .single();
+        .single()
 
-      expect(error).toBeNull();
-      expect(data).not.toBeNull();
-      expect(data!.diet_category).toBe('Hipoalergénica');
-    });
-  });
+      expect(error).toBeNull()
+      expect(data).not.toBeNull()
+      expect(data!.diet_category).toBe('Hipoalergénica')
+    })
+  })
 
   describe('Pet Listing and Filtering', () => {
     beforeAll(async () => {
@@ -242,7 +234,7 @@ describe('Pet Portal Functionality', () => {
         { name: 'Filter Dog 2', species: 'dog', breed: 'Poodle' },
         { name: 'Filter Cat 1', species: 'cat', breed: 'Persa' },
         { name: 'Filter Cat 2', species: 'cat', breed: 'Siames' },
-      ];
+      ]
 
       for (const pet of pets) {
         const { data } = await client
@@ -256,117 +248,110 @@ describe('Pet Portal Functionality', () => {
             weight_kg: 10,
           })
           .select()
-          .single();
-        if (data) ctx.track('pets', data.id);
+          .single()
+        if (data) ctx.track('pets', data.id)
       }
-    });
+    })
 
     test('lists all pets for owner', async () => {
-      const { data, error } = await client
-        .from('pets')
-        .select('*')
-        .eq('owner_id', ownerId);
+      const { data, error } = await client.from('pets').select('*').eq('owner_id', ownerId)
 
-      expect(error).toBeNull();
-      expect(data).not.toBeNull();
-      expect(data!.length).toBeGreaterThanOrEqual(4);
-    });
+      expect(error).toBeNull()
+      expect(data).not.toBeNull()
+      expect(data!.length).toBeGreaterThanOrEqual(4)
+    })
 
     test('filters pets by species', async () => {
       const { data, error } = await client
         .from('pets')
         .select('*')
         .eq('owner_id', ownerId)
-        .eq('species', 'dog');
+        .eq('species', 'dog')
 
-      expect(error).toBeNull();
-      expect(data).not.toBeNull();
-      expect(data!.every((p: { species: string }) => p.species === 'dog')).toBe(true);
-    });
+      expect(error).toBeNull()
+      expect(data).not.toBeNull()
+      expect(data!.every((p: { species: string }) => p.species === 'dog')).toBe(true)
+    })
 
     test('searches pets by name', async () => {
       const { data, error } = await client
         .from('pets')
         .select('*')
         .eq('owner_id', ownerId)
-        .ilike('name', '%Filter%');
+        .ilike('name', '%Filter%')
 
-      expect(error).toBeNull();
-      expect(data).not.toBeNull();
-      expect(data!.length).toBeGreaterThanOrEqual(4);
-    });
+      expect(error).toBeNull()
+      expect(data).not.toBeNull()
+      expect(data!.length).toBeGreaterThanOrEqual(4)
+    })
 
     test('orders pets by name', async () => {
       const { data, error } = await client
         .from('pets')
         .select('*')
         .eq('owner_id', ownerId)
-        .order('name', { ascending: true });
+        .order('name', { ascending: true })
 
-      expect(error).toBeNull();
-      expect(data).not.toBeNull();
+      expect(error).toBeNull()
+      expect(data).not.toBeNull()
       // Verify alphabetical order
       for (let i = 1; i < data!.length; i++) {
-        expect(data![i].name >= data![i - 1].name).toBe(true);
+        expect(data![i].name >= data![i - 1].name).toBe(true)
       }
-    });
-  });
+    })
+  })
 
   describe('Pet Age Calculation', () => {
     test('calculates age from birth date', () => {
       const calculateAge = (birthDate: string): { years: number; months: number } => {
-        const birth = new Date(birthDate);
-        const now = new Date();
+        const birth = new Date(birthDate)
+        const now = new Date()
 
-        let years = now.getFullYear() - birth.getFullYear();
-        let months = now.getMonth() - birth.getMonth();
+        let years = now.getFullYear() - birth.getFullYear()
+        let months = now.getMonth() - birth.getMonth()
 
         if (months < 0 || (months === 0 && now.getDate() < birth.getDate())) {
-          years--;
-          months += 12;
+          years--
+          months += 12
         }
 
-        return { years, months };
-      };
+        return { years, months }
+      }
 
       // Test with known date
-      const twoYearsAgo = new Date();
-      twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
-      const age = calculateAge(twoYearsAgo.toISOString().split('T')[0]);
+      const twoYearsAgo = new Date()
+      twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2)
+      const age = calculateAge(twoYearsAgo.toISOString().split('T')[0])
 
-      expect(age.years).toBe(2);
-      expect(age.months).toBe(0);
-    });
-  });
+      expect(age.years).toBe(2)
+      expect(age.months).toBe(0)
+    })
+  })
 
   describe('Data Validation', () => {
     test('rejects negative weight', async () => {
-      const { error } = await client
-        .from('pets')
-        .insert({
-          owner_id: ownerId,
-          tenant_id: DEFAULT_TENANT.id,
-          name: 'Negative Weight Pet',
-          species: 'dog',
-          weight_kg: -5,
-        });
+      const { error } = await client.from('pets').insert({
+        owner_id: ownerId,
+        tenant_id: DEFAULT_TENANT.id,
+        name: 'Negative Weight Pet',
+        species: 'dog',
+        weight_kg: -5,
+      })
 
-      expect(error).not.toBeNull();
-    });
+      expect(error).not.toBeNull()
+    })
 
     test('rejects empty name', async () => {
-      const { error } = await client
-        .from('pets')
-        .insert({
-          owner_id: ownerId,
-          tenant_id: DEFAULT_TENANT.id,
-          name: '',
-          species: 'dog',
-          weight_kg: 10,
-        });
+      const { error } = await client.from('pets').insert({
+        owner_id: ownerId,
+        tenant_id: DEFAULT_TENANT.id,
+        name: '',
+        species: 'dog',
+        weight_kg: 10,
+      })
 
-      expect(error).not.toBeNull();
-    });
+      expect(error).not.toBeNull()
+    })
 
     test('accepts valid microchip format', async () => {
       const { data, error } = await client
@@ -380,12 +365,12 @@ describe('Pet Portal Functionality', () => {
           microchip_id: '985121004567890',
         })
         .select()
-        .single();
+        .single()
 
-      expect(error).toBeNull();
-      expect(data).not.toBeNull();
-      expect(data!.microchip_id).toBe('985121004567890');
-      ctx.track('pets', data!.id);
-    });
-  });
-});
+      expect(error).toBeNull()
+      expect(data).not.toBeNull()
+      expect(data!.microchip_id).toBe('985121004567890')
+      ctx.track('pets', data!.id)
+    })
+  })
+})

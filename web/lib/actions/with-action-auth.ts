@@ -31,7 +31,10 @@ export function withActionAuth<T = void, Args extends unknown[] = []>(
   return async (...args: Args): Promise<ActionResult<T>> => {
     const supabase = await createClient()
 
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
     if (authError || !user) {
       return { success: false, error: 'No autorizado' }
     }

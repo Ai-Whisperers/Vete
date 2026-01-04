@@ -74,7 +74,7 @@ if (RESEND_API_KEY) {
 } else {
   logger.warn('Email service not configured', {
     reason: 'RESEND_API_KEY not set',
-    mode: 'fallback'
+    mode: 'fallback',
   })
 }
 
@@ -86,16 +86,7 @@ if (RESEND_API_KEY) {
  * Send an email using Resend or fallback to logging
  */
 export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
-  const {
-    to,
-    subject,
-    html,
-    text,
-    from = DEFAULT_FROM,
-    replyTo,
-    cc,
-    bcc,
-  } = options
+  const { to, subject, html, text, from = DEFAULT_FROM, replyTo, cc, bcc } = options
 
   // Validate required fields
   if (!to || to.length === 0) {
@@ -150,7 +141,7 @@ export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
       if (result.error) {
         logger.error('Email send failed', {
           ...logContext,
-          error: result.error.message || 'Unknown Resend error'
+          error: result.error.message || 'Unknown Resend error',
         })
         return {
           success: false,
@@ -160,7 +151,7 @@ export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
 
       logger.info('Email sent successfully', {
         ...logContext,
-        messageId: result.data?.id
+        messageId: result.data?.id,
       })
 
       return {
@@ -170,7 +161,7 @@ export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
     } catch (error) {
       logger.error('Email send exception', {
         ...logContext,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       })
       return {
         success: false,
@@ -183,7 +174,7 @@ export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
   logger.info('Email queued in fallback mode', {
     ...logContext,
     mode: 'fallback',
-    reason: 'RESEND_API_KEY not configured'
+    reason: 'RESEND_API_KEY not configured',
   })
 
   // In development, also show a summary to help debugging

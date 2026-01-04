@@ -22,7 +22,9 @@ export default async function InviteClientPage({ params }: Props) {
   const supabase = await createClient()
 
   // Check authentication
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) redirect(`/${clinic}/portal/login?redirect=/${clinic}/dashboard/clients/invite`)
 
   // Check staff role
@@ -37,27 +39,26 @@ export default async function InviteClientPage({ params }: Props) {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-2xl">
+    <div className="container mx-auto max-w-2xl px-4 py-8">
       {/* Header */}
       <div className="mb-8">
         <Link
           href={`/${clinic}/dashboard/clients`}
-          className="inline-flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--primary)] mb-4 transition-colors"
+          className="mb-4 inline-flex items-center gap-2 text-[var(--text-secondary)] transition-colors hover:text-[var(--primary)]"
         >
           <ArrowLeft className="h-4 w-4" />
           Volver al directorio
         </Link>
 
-        <div className="flex items-center gap-3 mb-2">
-          <div className="p-2 bg-[var(--primary)] bg-opacity-10 rounded-lg">
+        <div className="mb-2 flex items-center gap-3">
+          <div className="rounded-lg bg-[var(--primary)] bg-opacity-10 p-2">
             <UserPlus className="h-6 w-6 text-[var(--primary)]" />
           </div>
-          <h1 className="text-3xl font-bold text-[var(--text-primary)]">
-            Agregar Nuevo Cliente
-          </h1>
+          <h1 className="text-3xl font-bold text-[var(--text-primary)]">Agregar Nuevo Cliente</h1>
         </div>
         <p className="text-[var(--text-secondary)]">
-          Registra un nuevo cliente que contactó por WhatsApp. Puedes agregar su mascota ahora o después.
+          Registra un nuevo cliente que contactó por WhatsApp. Puedes agregar su mascota ahora o
+          después.
         </p>
       </div>
 

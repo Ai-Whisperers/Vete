@@ -1,52 +1,45 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { Printer, Download, Loader2 } from 'lucide-react';
-import {
-  Document,
-  Page,
-  Text,
-  View,
-  StyleSheet,
-  pdf
-} from '@react-pdf/renderer';
+import { useState } from 'react'
+import { Printer, Download, Loader2 } from 'lucide-react'
+import { Document, Page, Text, View, StyleSheet, pdf } from '@react-pdf/renderer'
 
 interface InvoiceItem {
-  id: string;
-  description: string;
-  quantity: number;
-  unit_price: number;
-  total: number;
+  id: string
+  description: string
+  quantity: number
+  unit_price: number
+  total: number
 }
 
 interface PortalInvoice {
-  id: string;
-  invoice_number: string;
-  status: string;
-  subtotal: number;
-  tax_amount: number;
-  tax_rate?: number;
-  discount_amount: number;
-  total: number;
-  notes: string | null;
-  due_date: string | null;
-  created_at: string;
-  paid_at: string | null;
-  invoice_items: InvoiceItem[];
+  id: string
+  invoice_number: string
+  status: string
+  subtotal: number
+  tax_amount: number
+  tax_rate?: number
+  discount_amount: number
+  total: number
+  notes: string | null
+  due_date: string | null
+  created_at: string
+  paid_at: string | null
+  invoice_items: InvoiceItem[]
   owner?: {
-    full_name: string;
-    email: string;
-    phone?: string;
-  };
+    full_name: string
+    email: string
+    phone?: string
+  }
   pet?: {
-    name: string;
-    species: string;
-  };
+    name: string
+    species: string
+  }
 }
 
 interface InvoiceActionsProps {
-  invoice: PortalInvoice;
-  clinicName: string;
+  invoice: PortalInvoice
+  clinicName: string
 }
 
 // PDF Styles
@@ -54,60 +47,60 @@ const styles = StyleSheet.create({
   page: {
     padding: 40,
     fontSize: 10,
-    fontFamily: 'Helvetica'
+    fontFamily: 'Helvetica',
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 30
+    marginBottom: 30,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#1a1a2e'
+    color: '#1a1a2e',
   },
   invoiceInfo: {
-    textAlign: 'right'
+    textAlign: 'right',
   },
   invoiceNumber: {
     fontSize: 14,
     fontWeight: 'bold',
-    marginBottom: 4
+    marginBottom: 4,
   },
   section: {
-    marginBottom: 20
+    marginBottom: 20,
   },
   sectionTitle: {
     fontSize: 12,
     fontWeight: 'bold',
     marginBottom: 8,
-    color: '#1a1a2e'
+    color: '#1a1a2e',
   },
   row: {
     flexDirection: 'row',
-    marginBottom: 4
+    marginBottom: 4,
   },
   label: {
     color: '#666',
-    width: 80
+    width: 80,
   },
   value: {
-    flex: 1
+    flex: 1,
   },
   table: {
-    marginTop: 10
+    marginTop: 10,
   },
   tableHeader: {
     flexDirection: 'row',
     backgroundColor: '#f5f5f5',
     padding: 8,
-    fontWeight: 'bold'
+    fontWeight: 'bold',
   },
   tableRow: {
     flexDirection: 'row',
     padding: 8,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee'
+    borderBottomColor: '#eee',
   },
   col1: { width: '50%' },
   col2: { width: '15%', textAlign: 'right' },
@@ -115,25 +108,25 @@ const styles = StyleSheet.create({
   col4: { width: '20%', textAlign: 'right' },
   totals: {
     marginTop: 20,
-    alignItems: 'flex-end'
+    alignItems: 'flex-end',
   },
   totalRow: {
     flexDirection: 'row',
     width: 200,
     justifyContent: 'space-between',
-    marginBottom: 4
+    marginBottom: 4,
   },
   totalLabel: {
-    color: '#666'
+    color: '#666',
   },
   totalValue: {
-    fontWeight: 'bold'
+    fontWeight: 'bold',
   },
   grandTotal: {
     borderTopWidth: 1,
     borderTopColor: '#333',
     paddingTop: 8,
-    marginTop: 8
+    marginTop: 8,
   },
   footer: {
     position: 'absolute',
@@ -142,24 +135,30 @@ const styles = StyleSheet.create({
     right: 40,
     textAlign: 'center',
     color: '#999',
-    fontSize: 8
-  }
-});
+    fontSize: 8,
+  },
+})
 
 function formatCurrency(amount: number): string {
-  return `Gs. ${amount.toLocaleString('es-PY')}`;
+  return `Gs. ${amount.toLocaleString('es-PY')}`
 }
 
 function formatDate(dateString: string): string {
   return new Date(dateString).toLocaleDateString('es-PY', {
     day: '2-digit',
     month: 'short',
-    year: 'numeric'
-  });
+    year: 'numeric',
+  })
 }
 
 // PDF Document Component for Portal
-function PortalInvoicePDF({ invoice, clinicName }: { invoice: PortalInvoice; clinicName: string }): React.ReactElement {
+function PortalInvoicePDF({
+  invoice,
+  clinicName,
+}: {
+  invoice: PortalInvoice
+  clinicName: string
+}): React.ReactElement {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
@@ -172,9 +171,7 @@ function PortalInvoicePDF({ invoice, clinicName }: { invoice: PortalInvoice; cli
           <View style={styles.invoiceInfo}>
             <Text style={styles.invoiceNumber}>{invoice.invoice_number}</Text>
             <Text>Fecha: {formatDate(invoice.created_at)}</Text>
-            {invoice.due_date && (
-              <Text>Vencimiento: {formatDate(invoice.due_date)}</Text>
-            )}
+            {invoice.due_date && <Text>Vencimiento: {formatDate(invoice.due_date)}</Text>}
           </View>
         </View>
 
@@ -200,7 +197,9 @@ function PortalInvoicePDF({ invoice, clinicName }: { invoice: PortalInvoice; cli
           {invoice.pet && (
             <View style={styles.row}>
               <Text style={styles.label}>Mascota:</Text>
-              <Text style={styles.value}>{invoice.pet.name} ({invoice.pet.species})</Text>
+              <Text style={styles.value}>
+                {invoice.pet.name} ({invoice.pet.species})
+              </Text>
             </View>
           )}
         </View>
@@ -259,64 +258,58 @@ function PortalInvoicePDF({ invoice, clinicName }: { invoice: PortalInvoice; cli
         )}
 
         {/* Footer */}
-        <Text style={styles.footer}>
-          Gracias por confiar en {clinicName}
-        </Text>
+        <Text style={styles.footer}>Gracias por confiar en {clinicName}</Text>
       </Page>
     </Document>
-  );
+  )
 }
 
 export function InvoiceActions({ invoice, clinicName }: InvoiceActionsProps): React.ReactElement {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false)
 
   const handlePrint = (): void => {
-    window.print();
-  };
+    window.print()
+  }
 
   const handleDownload = async (): Promise<void> => {
-    setLoading(true);
+    setLoading(true)
     try {
       const blob = await pdf(
         <PortalInvoicePDF invoice={invoice} clinicName={clinicName} />
-      ).toBlob();
+      ).toBlob()
 
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `${invoice.invoice_number}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `${invoice.invoice_number}.pdf`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
     } catch {
-      alert('Error al generar PDF. Por favor intente de nuevo.');
+      alert('Error al generar PDF. Por favor intente de nuevo.')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
     <>
       <button
         onClick={handlePrint}
-        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+        className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100"
       >
-        <Printer className="w-4 h-4" />
+        <Printer className="h-4 w-4" />
         Imprimir
       </button>
       <button
         onClick={handleDownload}
         disabled={loading}
-        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
+        className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 disabled:opacity-50"
       >
-        {loading ? (
-          <Loader2 className="w-4 h-4 animate-spin" />
-        ) : (
-          <Download className="w-4 h-4" />
-        )}
+        {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
         Descargar PDF
       </button>
     </>
-  );
+  )
 }

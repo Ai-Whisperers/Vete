@@ -1,21 +1,24 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
-import { apiError, HTTP_STATUS } from '@/lib/api/errors';
+import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@/lib/supabase/server'
+import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 
 /**
  * GET /api/loyalty/transactions
  * Get current user's loyalty transaction history
  */
 export async function GET(request: NextRequest): Promise<NextResponse> {
-  const supabase = await createClient();
-  const { searchParams } = new URL(request.url);
-  const limit = parseInt(searchParams.get('limit') || '50', 10);
-  const offset = parseInt(searchParams.get('offset') || '0', 10);
+  const supabase = await createClient()
+  const { searchParams } = new URL(request.url)
+  const limit = parseInt(searchParams.get('limit') || '50', 10)
+  const offset = parseInt(searchParams.get('offset') || '0', 10)
 
   // Auth check
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
   if (authError || !user) {
-    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED)
   }
 
   // Get user's profile for tenant
@@ -23,10 +26,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     .from('profiles')
     .select('tenant_id')
     .eq('id', user.id)
-    .single();
+    .single()
 
   if (!profile) {
-    return NextResponse.json({ data: [], total: 0 });
+    return NextResponse.json({ data: [], total: 0 })
   }
 
   try {
@@ -35,12 +38,13 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       .from('loyalty_transactions')
       .select('id', { count: 'exact', head: true })
       .eq('client_id', user.id)
-      .eq('tenant_id', profile.tenant_id);
+      .eq('tenant_id', profile.tenant_id)
 
     // Get transactions with pagination
     const { data: transactions, error } = await supabase
       .from('loyalty_transactions')
-      .select(`
+      .select(
+        `
         id,
         type,
         points,
@@ -49,22 +53,23 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         invoice_id,
         order_id,
         created_at
-      `)
+      `
+      )
       .eq('client_id', user.id)
       .eq('tenant_id', profile.tenant_id)
       .order('created_at', { ascending: false })
-      .range(offset, offset + limit - 1);
+      .range(offset, offset + limit - 1)
 
-    if (error) throw error;
+    if (error) throw error
 
     return NextResponse.json({
       data: transactions || [],
       total: count || 0,
       limit,
-      offset
-    });
+      offset,
+    })
   } catch (e) {
-    console.error('Error fetching transactions:', e);
-    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
+    console.error('Error fetching transactions:', e)
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
   }
 }

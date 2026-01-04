@@ -25,7 +25,8 @@ export default async function StaffAppointmentsPage({ params, searchParams }: Pr
   // Fetch appointments for the day
   let query = supabase
     .from('appointments')
-    .select(`
+    .select(
+      `
       id,
       tenant_id,
       start_time,
@@ -44,7 +45,8 @@ export default async function StaffAppointmentsPage({ params, searchParams }: Pr
           phone
         )
       )
-    `)
+    `
+    )
     .eq('tenant_id', clinic)
     .gte('start_time', `${today}T00:00:00`)
     .lt('start_time', `${today}T23:59:59`)
@@ -60,15 +62,28 @@ export default async function StaffAppointmentsPage({ params, searchParams }: Pr
   if (error) {
     logger.error('Error fetching appointments', { error: error.message })
     return (
-      <div className="p-6 max-w-7xl mx-auto">
-        <div className="rounded-xl p-6 text-center" style={{ backgroundColor: "var(--status-error-bg)", border: "1px solid var(--status-error-light)" }}>
-          <Icons.AlertCircle className="w-12 h-12 mx-auto mb-4" style={{ color: "var(--status-error)" }} />
-          <h3 className="text-lg font-bold mb-2" style={{ color: "var(--status-error-dark)" }}>Error al cargar citas</h3>
-          <p className="mb-4" style={{ color: "var(--status-error)" }}>No se pudieron cargar las citas. Por favor intenta de nuevo.</p>
+      <div className="mx-auto max-w-7xl p-6">
+        <div
+          className="rounded-xl p-6 text-center"
+          style={{
+            backgroundColor: 'var(--status-error-bg)',
+            border: '1px solid var(--status-error-light)',
+          }}
+        >
+          <Icons.AlertCircle
+            className="mx-auto mb-4 h-12 w-12"
+            style={{ color: 'var(--status-error)' }}
+          />
+          <h3 className="mb-2 text-lg font-bold" style={{ color: 'var(--status-error-dark)' }}>
+            Error al cargar citas
+          </h3>
+          <p className="mb-4" style={{ color: 'var(--status-error)' }}>
+            No se pudieron cargar las citas. Por favor intenta de nuevo.
+          </p>
           <a
             href={`/${clinic}/dashboard/appointments`}
-            className="inline-block px-4 py-2 text-white font-medium rounded-lg transition-colors hover:opacity-90"
-            style={{ backgroundColor: "var(--status-error)" }}
+            className="inline-block rounded-lg px-4 py-2 font-medium text-white transition-colors hover:opacity-90"
+            style={{ backgroundColor: 'var(--status-error)' }}
           >
             Reintentar
           </a>
@@ -78,35 +93,41 @@ export default async function StaffAppointmentsPage({ params, searchParams }: Pr
   }
 
   // Transform pets data (Supabase returns arrays from joins)
-  const transformedAppointments = appointments?.map(apt => {
-    const pets = Array.isArray(apt.pets) ? apt.pets[0] : apt.pets
-    // Also transform nested owner (use undefined instead of null for type compatibility)
-    const owner = pets?.owner ? (Array.isArray(pets.owner) ? pets.owner[0] : pets.owner) : undefined
-    return {
-      ...apt,
-      pets: {
-        ...pets,
-        owner
+  const transformedAppointments =
+    appointments?.map((apt) => {
+      const pets = Array.isArray(apt.pets) ? apt.pets[0] : apt.pets
+      // Also transform nested owner (use undefined instead of null for type compatibility)
+      const owner = pets?.owner
+        ? Array.isArray(pets.owner)
+          ? pets.owner[0]
+          : pets.owner
+        : undefined
+      return {
+        ...apt,
+        pets: {
+          ...pets,
+          owner,
+        },
       }
-    }
-  }) || []
+    }) || []
 
   // Calculate stats
   const stats = {
     total: transformedAppointments.length,
-    pending: transformedAppointments.filter(a => ['pending', 'confirmed'].includes(a.status)).length,
-    checkedIn: transformedAppointments.filter(a => a.status === 'checked_in').length,
-    inProgress: transformedAppointments.filter(a => a.status === 'in_progress').length,
-    completed: transformedAppointments.filter(a => a.status === 'completed').length,
-    noShow: transformedAppointments.filter(a => a.status === 'no_show').length
+    pending: transformedAppointments.filter((a) => ['pending', 'confirmed'].includes(a.status))
+      .length,
+    checkedIn: transformedAppointments.filter((a) => a.status === 'checked_in').length,
+    inProgress: transformedAppointments.filter((a) => a.status === 'in_progress').length,
+    completed: transformedAppointments.filter((a) => a.status === 'completed').length,
+    noShow: transformedAppointments.filter((a) => a.status === 'no_show').length,
   }
 
   const isToday = today === new Date().toISOString().split('T')[0]
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
+    <div className="mx-auto max-w-7xl p-6">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+      <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-[var(--text-primary)]">
             {isToday ? 'Citas de Hoy' : 'Citas del Día'}
@@ -116,54 +137,57 @@ export default async function StaffAppointmentsPage({ params, searchParams }: Pr
               weekday: 'long',
               year: 'numeric',
               month: 'long',
-              day: 'numeric'
+              day: 'numeric',
             })}
           </p>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-3">
+        <div className="flex flex-col gap-3 sm:flex-row">
           <DateFilter currentDate={today} clinic={clinic} />
           <StatusFilter currentStatus={status || 'all'} clinic={clinic} currentDate={today} />
         </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-        <div className="bg-white rounded-xl p-4 border border-[var(--border-light)]">
-          <div className="flex items-center gap-2 mb-1" style={{ color: "var(--status-info)" }}>
-            <Icons.Calendar className="w-4 h-4" />
+      <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-5">
+        <div className="rounded-xl border border-[var(--border-light)] bg-white p-4">
+          <div className="mb-1 flex items-center gap-2" style={{ color: 'var(--status-info)' }}>
+            <Icons.Calendar className="h-4 w-4" />
             <span className="text-xs font-medium">En Espera</span>
           </div>
           <p className="text-2xl font-bold text-[var(--text-primary)]">{stats.pending}</p>
         </div>
 
-        <div className="bg-white rounded-xl p-4 border border-[var(--border-light)]">
-          <div className="flex items-center gap-2 mb-1" style={{ color: "var(--status-warning-dark)" }}>
-            <Icons.UserCheck className="w-4 h-4" />
+        <div className="rounded-xl border border-[var(--border-light)] bg-white p-4">
+          <div
+            className="mb-1 flex items-center gap-2"
+            style={{ color: 'var(--status-warning-dark)' }}
+          >
+            <Icons.UserCheck className="h-4 w-4" />
             <span className="text-xs font-medium">Registrados</span>
           </div>
           <p className="text-2xl font-bold text-[var(--text-primary)]">{stats.checkedIn}</p>
         </div>
 
-        <div className="bg-white rounded-xl p-4 border border-[var(--border-light)]">
-          <div className="flex items-center gap-2 mb-1" style={{ color: "var(--accent-purple)" }}>
-            <Icons.Stethoscope className="w-4 h-4" />
+        <div className="rounded-xl border border-[var(--border-light)] bg-white p-4">
+          <div className="mb-1 flex items-center gap-2" style={{ color: 'var(--accent-purple)' }}>
+            <Icons.Stethoscope className="h-4 w-4" />
             <span className="text-xs font-medium">En Consulta</span>
           </div>
           <p className="text-2xl font-bold text-[var(--text-primary)]">{stats.inProgress}</p>
         </div>
 
-        <div className="bg-white rounded-xl p-4 border border-[var(--border-light)]">
-          <div className="flex items-center gap-2 mb-1" style={{ color: "var(--status-success)" }}>
-            <Icons.CheckCircle className="w-4 h-4" />
+        <div className="rounded-xl border border-[var(--border-light)] bg-white p-4">
+          <div className="mb-1 flex items-center gap-2" style={{ color: 'var(--status-success)' }}>
+            <Icons.CheckCircle className="h-4 w-4" />
             <span className="text-xs font-medium">Completadas</span>
           </div>
           <p className="text-2xl font-bold text-[var(--text-primary)]">{stats.completed}</p>
         </div>
 
-        <div className="bg-white rounded-xl p-4 border border-[var(--border-light)]">
-          <div className="flex items-center gap-2 mb-1" style={{ color: "var(--accent-orange)" }}>
-            <Icons.UserX className="w-4 h-4" />
+        <div className="rounded-xl border border-[var(--border-light)] bg-white p-4">
+          <div className="mb-1 flex items-center gap-2" style={{ color: 'var(--accent-orange)' }}>
+            <Icons.UserX className="h-4 w-4" />
             <span className="text-xs font-medium">No Presentados</span>
           </div>
           <p className="text-2xl font-bold text-[var(--text-primary)]">{stats.noShow}</p>
@@ -172,9 +196,9 @@ export default async function StaffAppointmentsPage({ params, searchParams }: Pr
 
       {/* Appointment Queue */}
       {transformedAppointments.length === 0 ? (
-        <div className="bg-white rounded-xl border border-[var(--border-light)] p-12 text-center">
-          <Icons.CalendarX className="w-12 h-12 text-[var(--text-muted)] mx-auto mb-4" />
-          <h3 className="text-lg font-bold text-[var(--text-primary)] mb-2">
+        <div className="rounded-xl border border-[var(--border-light)] bg-white p-12 text-center">
+          <Icons.CalendarX className="mx-auto mb-4 h-12 w-12 text-[var(--text-muted)]" />
+          <h3 className="mb-2 text-lg font-bold text-[var(--text-primary)]">
             No hay citas programadas
           </h3>
           <p className="text-[var(--text-secondary)]">

@@ -14,7 +14,9 @@ export default async function NewInvoicePage({ params }: Props) {
   const supabase = await createClient()
 
   // Auth check
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) {
     redirect(`/${clinic}/portal/login`)
   }
@@ -33,40 +35,31 @@ export default async function NewInvoicePage({ params }: Props) {
   // Fetch services and pets
   const [servicesResult, petsResult] = await Promise.all([
     getClinicServices(clinic),
-    getClinicPets(clinic)
+    getClinicPets(clinic),
   ])
 
   const services = servicesResult.success && servicesResult.data ? servicesResult.data : []
   const pets = petsResult.success && petsResult.data ? petsResult.data : []
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
+    <div className="mx-auto max-w-5xl p-6">
       {/* Header */}
-      <div className="flex items-center gap-4 mb-6">
+      <div className="mb-6 flex items-center gap-4">
         <Link
           href={`/${clinic}/dashboard/invoices`}
-          className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+          className="rounded-lg p-2 transition-colors hover:bg-gray-100"
         >
-          <Icons.ArrowLeft className="w-5 h-5 text-[var(--text-secondary)]" />
+          <Icons.ArrowLeft className="h-5 w-5 text-[var(--text-secondary)]" />
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-[var(--text-primary)]">
-            Nueva Factura
-          </h1>
-          <p className="text-[var(--text-secondary)]">
-            Crea una nueva factura para un cliente
-          </p>
+          <h1 className="text-2xl font-bold text-[var(--text-primary)]">Nueva Factura</h1>
+          <p className="text-[var(--text-secondary)]">Crea una nueva factura para un cliente</p>
         </div>
       </div>
 
       {/* Form */}
-      <div className="bg-white rounded-xl border border-gray-100 p-6">
-        <InvoiceForm
-          clinic={clinic}
-          pets={pets}
-          services={services}
-          mode="create"
-        />
+      <div className="rounded-xl border border-gray-100 bg-white p-6">
+        <InvoiceForm clinic={clinic} pets={pets} services={services} mode="create" />
       </div>
     </div>
   )

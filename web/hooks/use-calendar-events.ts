@@ -2,7 +2,15 @@
 
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo, useCallback } from 'react'
-import { format, addDays, subDays, startOfMonth, endOfMonth, startOfWeek, endOfWeek } from 'date-fns'
+import {
+  format,
+  addDays,
+  subDays,
+  startOfMonth,
+  endOfMonth,
+  startOfWeek,
+  endOfWeek,
+} from 'date-fns'
 import type { CalendarEvent, CalendarView } from '@/lib/types/calendar'
 
 /**
@@ -75,7 +83,7 @@ function getDateRangeForView(date: Date, view: CalendarView): { start: string; e
 
 // Parse events from API response (convert date strings to Date objects)
 function parseEvents(events: CalendarEvent[]): CalendarEvent[] {
-  return events.map(event => ({
+  return events.map((event) => ({
     ...event,
     start: new Date(event.start),
     end: new Date(event.end),
@@ -100,33 +108,28 @@ export function useCalendarEvents({
   const queryKey = ['calendar-events', dateRange.start, dateRange.end]
 
   // Fetch events from API
-  const {
-    data,
-    isLoading,
-    isError,
-    error,
-    refetch,
-    isFetching,
-  } = useQuery<CalendarEventsResponse>({
-    queryKey,
-    queryFn: async () => {
-      const response = await fetch(
-        `/api/calendar/events?start=${dateRange.start}&end=${dateRange.end}`
-      )
+  const { data, isLoading, isError, error, refetch, isFetching } = useQuery<CalendarEventsResponse>(
+    {
+      queryKey,
+      queryFn: async () => {
+        const response = await fetch(
+          `/api/calendar/events?start=${dateRange.start}&end=${dateRange.end}`
+        )
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}))
-        throw new Error(errorData.error || 'Error al cargar eventos')
-      }
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}))
+          throw new Error(errorData.error || 'Error al cargar eventos')
+        }
 
-      return response.json()
-    },
-    enabled,
-    staleTime: 1000 * 60 * 2, // Consider data stale after 2 minutes
-    gcTime: 1000 * 60 * 10, // Keep in cache for 10 minutes
-    refetchOnWindowFocus: false, // Don't refetch on window focus
-    retry: 2, // Retry failed requests twice
-  })
+        return response.json()
+      },
+      enabled,
+      staleTime: 1000 * 60 * 2, // Consider data stale after 2 minutes
+      gcTime: 1000 * 60 * 10, // Keep in cache for 10 minutes
+      refetchOnWindowFocus: false, // Don't refetch on window focus
+      retry: 2, // Retry failed requests twice
+    }
+  )
 
   // Merge initial events with fetched events
   // For SSR hydration, initial events take priority for the first render
@@ -139,7 +142,7 @@ export function useCalendarEvents({
     const fetchedEvents = parseEvents(data.events)
 
     // Create a map of fetched events by ID for efficient lookup
-    const fetchedEventMap = new Map(fetchedEvents.map(e => [e.id, e]))
+    const fetchedEventMap = new Map(fetchedEvents.map((e) => [e.id, e]))
 
     // Merge: fetched events take priority over initial events
     const mergedEvents: CalendarEvent[] = []
@@ -180,9 +183,7 @@ export function useCalendarEvents({
       await queryClient.prefetchQuery({
         queryKey: ['calendar-events', range.start, range.end],
         queryFn: async () => {
-          const response = await fetch(
-            `/api/calendar/events?start=${range.start}&end=${range.end}`
-          )
+          const response = await fetch(`/api/calendar/events?start=${range.start}&end=${range.end}`)
           if (!response.ok) throw new Error('Prefetch failed')
           return response.json()
         },

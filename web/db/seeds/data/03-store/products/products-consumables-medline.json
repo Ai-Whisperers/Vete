@@ -7,10 +7,7 @@
       "name": "Guantes de Nitrilo Sin Polvo",
       "description": "Guantes de examen de nitrilo hipoalergénicos",
       "category_slug": "CLI-INS-EPP",
-      "target_species": [
-        "dog",
-        "cat"
-      ],
+      "target_species": ["dog", "cat"],
       "variants": [
         {
           "size": "S - Caja x 100",
@@ -50,10 +47,7 @@
       "name": "Guantes de Látex Sin Polvo",
       "description": "Guantes de examen de látex natural",
       "category_slug": "CLI-INS-EPP",
-      "target_species": [
-        "dog",
-        "cat"
-      ],
+      "target_species": ["dog", "cat"],
       "variants": [
         {
           "size": "S - Caja x 100",
@@ -86,10 +80,7 @@
       "name": "Guantes Quirúrgicos Estériles",
       "description": "Guantes estériles para procedimientos quirúrgicos",
       "category_slug": "CLI-INS-EPP",
-      "target_species": [
-        "dog",
-        "cat"
-      ],
+      "target_species": ["dog", "cat"],
       "variants": [
         {
           "size": "6.5 - Caja x 50 pares",
@@ -128,10 +119,7 @@
       "name": "Gasa en Rollo Estéril",
       "description": "Gasa de algodón para vendaje",
       "category_slug": "CLI-INS-VEN",
-      "target_species": [
-        "dog",
-        "cat"
-      ],
+      "target_species": ["dog", "cat"],
       "variants": [
         {
           "size": "5cm x 5m - Paq x 12",
@@ -158,10 +146,7 @@
       "name": "Gasas Estériles 4x4",
       "description": "Gasas absorbentes para limpieza de heridas",
       "category_slug": "CLI-INS-VEN",
-      "target_species": [
-        "dog",
-        "cat"
-      ],
+      "target_species": ["dog", "cat"],
       "variants": [
         {
           "size": "Caja x 200",
@@ -182,10 +167,7 @@
       "name": "Venda Elástica Cohesiva",
       "description": "Venda autoadherente para vendajes",
       "category_slug": "CLI-INS-VEN",
-      "target_species": [
-        "dog",
-        "cat"
-      ],
+      "target_species": ["dog", "cat"],
       "variants": [
         {
           "size": "5cm x 4.5m - Caja x 12",
@@ -210,12 +192,7 @@
       "attributes": {
         "self_adherent": true,
         "latex_free": true,
-        "colors_available": [
-          "Azul",
-          "Verde",
-          "Rojo",
-          "Blanco"
-        ]
+        "colors_available": ["Azul", "Verde", "Rojo", "Blanco"]
       }
     },
     {
@@ -223,10 +200,7 @@
       "name": "Algodón Hidrófilo en Rollo",
       "description": "Algodón absorbente para acolchado",
       "category_slug": "CLI-INS-VEN",
-      "target_species": [
-        "dog",
-        "cat"
-      ],
+      "target_species": ["dog", "cat"],
       "variants": [
         {
           "size": "500g",
@@ -252,10 +226,7 @@
       "name": "Cinta Quirúrgica Microporosa",
       "description": "Cinta adhesiva hipoalergénica",
       "category_slug": "CLI-INS-VEN",
-      "target_species": [
-        "dog",
-        "cat"
-      ],
+      "target_species": ["dog", "cat"],
       "variants": [
         {
           "size": "1.25cm x 9m - Caja x 24",
@@ -282,10 +253,7 @@
       "name": "Torundas de Alcohol",
       "description": "Algodón con alcohol isopropílico 70%",
       "category_slug": "CLI-INS-VEN",
-      "target_species": [
-        "dog",
-        "cat"
-      ],
+      "target_species": ["dog", "cat"],
       "variants": [
         {
           "size": "Caja x 200",
@@ -305,10 +273,7 @@
       "name": "Mascarillas Quirúrgicas 3 Capas",
       "description": "Mascarillas desechables para procedimientos",
       "category_slug": "CLI-INS-EPP",
-      "target_species": [
-        "dog",
-        "cat"
-      ],
+      "target_species": ["dog", "cat"],
       "variants": [
         {
           "size": "Caja x 50",
@@ -329,10 +294,7 @@
       "name": "Bata Quirúrgica Desechable",
       "description": "Bata estéril para procedimientos",
       "category_slug": "CLI-INS-EPP",
-      "target_species": [
-        "dog",
-        "cat"
-      ],
+      "target_species": ["dog", "cat"],
       "variants": [
         {
           "size": "M - Paq x 10",
@@ -365,10 +327,7 @@
       "name": "Gorros Quirúrgicos Desechables",
       "description": "Gorros tipo bouffant para quirófano",
       "category_slug": "CLI-INS-EPP",
-      "target_species": [
-        "dog",
-        "cat"
-      ],
+      "target_species": ["dog", "cat"],
       "variants": [
         {
           "size": "Caja x 100",
@@ -388,10 +347,7 @@
       "name": "Cubre Zapatos Desechables",
       "description": "Cubre calzado antideslizante",
       "category_slug": "CLI-INS-EPP",
-      "target_species": [
-        "dog",
-        "cat"
-      ],
+      "target_species": ["dog", "cat"],
       "variants": [
         {
           "size": "Caja x 100 pares",
@@ -411,10 +367,7 @@
       "name": "Campos Quirúrgicos Estériles",
       "description": "Campos estériles con fenestración",
       "category_slug": "CLI-INS-EPP",
-      "target_species": [
-        "dog",
-        "cat"
-      ],
+      "target_species": ["dog", "cat"],
       "variants": [
         {
           "size": "75x90cm - Paq x 10",

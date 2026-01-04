@@ -7,11 +7,7 @@ import { EventDetailModal } from './event-detail-modal'
 import { QuickAddModal } from './quick-add-modal'
 import { useCalendarShortcuts } from '@/hooks/use-calendar-shortcuts'
 import { useCalendarEvents } from '@/hooks/use-calendar-events'
-import type {
-  CalendarEvent,
-  CalendarView,
-  CalendarEventType,
-} from '@/lib/types/calendar'
+import type { CalendarEvent, CalendarView, CalendarEventType } from '@/lib/types/calendar'
 
 // =============================================================================
 // TYPES
@@ -100,7 +96,7 @@ function FilterToolbar({
 
   const toggleStaff = (staffId: string) => {
     if (selectedStaff.includes(staffId)) {
-      onStaffChange(selectedStaff.filter(id => id !== staffId))
+      onStaffChange(selectedStaff.filter((id) => id !== staffId))
     } else {
       onStaffChange([...selectedStaff, staffId])
     }
@@ -108,7 +104,7 @@ function FilterToolbar({
 
   const toggleEventType = (type: CalendarEventType) => {
     if (selectedEventTypes.includes(type)) {
-      onEventTypeChange(selectedEventTypes.filter(t => t !== type))
+      onEventTypeChange(selectedEventTypes.filter((t) => t !== type))
     } else {
       onEventTypeChange([...selectedEventTypes, type])
     }
@@ -116,7 +112,7 @@ function FilterToolbar({
 
   return (
     <div
-      className="flex flex-wrap items-center gap-3 mb-2 px-1 py-2 border-b border-[var(--border-light)]"
+      className="mb-2 flex flex-wrap items-center gap-3 border-b border-[var(--border-light)] px-1 py-2"
       role="toolbar"
       aria-label="Filtros del calendario"
     >
@@ -125,12 +121,12 @@ function FilterToolbar({
         <div className="flex items-center gap-2" role="group" aria-labelledby="staff-filter-label">
           <span
             id="staff-filter-label"
-            className="text-xs font-medium text-[var(--text-muted)] whitespace-nowrap"
+            className="whitespace-nowrap text-xs font-medium text-[var(--text-muted)]"
           >
             Personal:
           </span>
           <div className="flex flex-wrap gap-1.5" role="group">
-            {staff.map(member => {
+            {staff.map((member) => {
               const isSelected = selectedStaff.length === 0 || selectedStaff.includes(member.id)
               return (
                 <button
@@ -138,10 +134,8 @@ function FilterToolbar({
                   onClick={() => toggleStaff(member.id)}
                   aria-pressed={selectedStaff.includes(member.id)}
                   aria-label={`Filtrar por ${member.full_name}`}
-                  className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium transition-colors ${
-                    isSelected
-                      ? 'ring-1 ring-offset-0'
-                      : 'opacity-40'
+                  className={`inline-flex items-center rounded px-2 py-1 text-xs font-medium transition-colors ${
+                    isSelected ? 'ring-1 ring-offset-0' : 'opacity-40'
                   }`}
                   style={{
                     backgroundColor: member.color_code + '15',
@@ -151,7 +145,7 @@ function FilterToolbar({
                   }}
                 >
                   <span
-                    className="w-1.5 h-1.5 rounded-full mr-1.5"
+                    className="mr-1.5 h-1.5 w-1.5 rounded-full"
                     aria-hidden="true"
                     style={{ backgroundColor: member.color_code }}
                   />
@@ -162,7 +156,7 @@ function FilterToolbar({
             {selectedStaff.length > 0 && (
               <button
                 onClick={() => onStaffChange([])}
-                className="text-[10px] text-[var(--text-muted)] hover:text-[var(--primary)] ml-1"
+                className="ml-1 text-[10px] text-[var(--text-muted)] hover:text-[var(--primary)]"
                 aria-label="Limpiar filtro de personal"
                 title="Limpiar filtro"
               >
@@ -174,19 +168,21 @@ function FilterToolbar({
       )}
 
       {/* Divider */}
-      {staff.length > 0 && (
-        <div className="h-4 w-px bg-[var(--border-light)]" />
-      )}
+      {staff.length > 0 && <div className="h-4 w-px bg-[var(--border-light)]" />}
 
       {/* Event type filters - toggle style */}
-      <div className="flex items-center gap-2" role="group" aria-labelledby="event-type-filter-label">
+      <div
+        className="flex items-center gap-2"
+        role="group"
+        aria-labelledby="event-type-filter-label"
+      >
         <span
           id="event-type-filter-label"
-          className="text-xs font-medium text-[var(--text-muted)] whitespace-nowrap"
+          className="whitespace-nowrap text-xs font-medium text-[var(--text-muted)]"
         >
           Ver:
         </span>
-        <div className="flex gap-1 bg-[var(--bg-subtle)] p-0.5 rounded-lg" role="group">
+        <div className="flex gap-1 rounded-lg bg-[var(--bg-subtle)] p-0.5" role="group">
           {eventTypes.map(({ type, label }) => {
             const isActive = selectedEventTypes.length === 0 || selectedEventTypes.includes(type)
             return (
@@ -195,14 +191,14 @@ function FilterToolbar({
                 onClick={() => toggleEventType(type)}
                 aria-pressed={selectedEventTypes.includes(type)}
                 aria-label={`Mostrar ${label.toLowerCase()}`}
-                className={`px-2.5 py-1 rounded text-xs font-medium transition-all ${
+                className={`rounded px-2.5 py-1 text-xs font-medium transition-all ${
                   isActive
                     ? 'bg-white text-[var(--text-primary)] shadow-sm'
                     : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
                 }`}
               >
                 <span
-                  className={`inline-block w-1.5 h-1.5 rounded-full mr-1.5 ${
+                  className={`mr-1.5 inline-block h-1.5 w-1.5 rounded-full ${
                     isActive ? 'bg-[var(--primary)]' : 'bg-gray-300'
                   }`}
                   aria-hidden="true"
@@ -309,131 +305,160 @@ export function CalendarContainer({
   const [isLoading, setIsLoading] = useState(false)
 
   // Handlers
-  const handleNavigate = useCallback((date: Date) => {
-    setCurrentDate(date)
-    onDateChange?.(date)
-  }, [onDateChange])
+  const handleNavigate = useCallback(
+    (date: Date) => {
+      setCurrentDate(date)
+      onDateChange?.(date)
+    },
+    [onDateChange]
+  )
 
   // Keyboard shortcuts navigation handler
-  const handleShortcutNavigate = useCallback((direction: 'today' | 'prev' | 'next') => {
-    let newDate: Date
+  const handleShortcutNavigate = useCallback(
+    (direction: 'today' | 'prev' | 'next') => {
+      let newDate: Date
 
-    switch (direction) {
-      case 'today':
-        newDate = new Date()
-        break
-      case 'prev':
-        newDate = new Date(currentDate)
-        if (currentView === 'month') {
-          newDate.setMonth(newDate.getMonth() - 1)
-        } else if (currentView === 'week') {
-          newDate.setDate(newDate.getDate() - 7)
-        } else {
-          newDate.setDate(newDate.getDate() - 1)
-        }
-        break
-      case 'next':
-        newDate = new Date(currentDate)
-        if (currentView === 'month') {
-          newDate.setMonth(newDate.getMonth() + 1)
-        } else if (currentView === 'week') {
-          newDate.setDate(newDate.getDate() + 7)
-        } else {
-          newDate.setDate(newDate.getDate() + 1)
-        }
-        break
-    }
+      switch (direction) {
+        case 'today':
+          newDate = new Date()
+          break
+        case 'prev':
+          newDate = new Date(currentDate)
+          if (currentView === 'month') {
+            newDate.setMonth(newDate.getMonth() - 1)
+          } else if (currentView === 'week') {
+            newDate.setDate(newDate.getDate() - 7)
+          } else {
+            newDate.setDate(newDate.getDate() - 1)
+          }
+          break
+        case 'next':
+          newDate = new Date(currentDate)
+          if (currentView === 'month') {
+            newDate.setMonth(newDate.getMonth() + 1)
+          } else if (currentView === 'week') {
+            newDate.setDate(newDate.getDate() + 7)
+          } else {
+            newDate.setDate(newDate.getDate() + 1)
+          }
+          break
+      }
 
-    handleNavigate(newDate)
-  }, [currentDate, currentView, handleNavigate])
+      handleNavigate(newDate)
+    },
+    [currentDate, currentView, handleNavigate]
+  )
 
-  const handleViewChange = useCallback((view: CalendarView) => {
-    setCurrentView(view)
-    onViewChange?.(view)
-  }, [onViewChange])
+  const handleViewChange = useCallback(
+    (view: CalendarView) => {
+      setCurrentView(view)
+      onViewChange?.(view)
+    },
+    [onViewChange]
+  )
 
   const handleSelectEvent = useCallback((event: CalendarEvent) => {
     setSelectedEvent(event)
     setIsEventModalOpen(true)
   }, [])
 
-  const handleSelectSlot = useCallback((slotInfo: { start: Date; end: Date; action: string }) => {
-    // Only open quick add on click or select, not drag in month view
-    if (slotInfo.action === 'doubleClick' || (slotInfo.action === 'select' && currentView !== 'month')) {
-      setQuickAddSlot({ start: slotInfo.start, end: slotInfo.end })
-      setIsQuickAddOpen(true)
-    }
-  }, [currentView])
+  const handleSelectSlot = useCallback(
+    (slotInfo: { start: Date; end: Date; action: string }) => {
+      // Only open quick add on click or select, not drag in month view
+      if (
+        slotInfo.action === 'doubleClick' ||
+        (slotInfo.action === 'select' && currentView !== 'month')
+      ) {
+        setQuickAddSlot({ start: slotInfo.start, end: slotInfo.end })
+        setIsQuickAddOpen(true)
+      }
+    },
+    [currentView]
+  )
 
-  const handleRangeChange = useCallback((range: Date[] | { start: Date; end: Date }) => {
-    onRangeChange?.(range)
-  }, [onRangeChange])
+  const handleRangeChange = useCallback(
+    (range: Date[] | { start: Date; end: Date }) => {
+      onRangeChange?.(range)
+    },
+    [onRangeChange]
+  )
 
-  const handleEventEdit = useCallback((event: CalendarEvent) => {
-    onEventEdit?.(event)
-    setIsEventModalOpen(false)
-  }, [onEventEdit])
-
-  const handleEventDelete = useCallback(async (event: CalendarEvent) => {
-    if (!onDeleteEvent) return
-
-    setIsLoading(true)
-    try {
-      await onDeleteEvent(event)
+  const handleEventEdit = useCallback(
+    (event: CalendarEvent) => {
+      onEventEdit?.(event)
       setIsEventModalOpen(false)
-      // Refresh events after deletion
-      if (enableDynamicLoading) {
-        invalidateEvents()
-      }
-    } finally {
-      setIsLoading(false)
-    }
-  }, [onDeleteEvent, enableDynamicLoading, invalidateEvents])
+    },
+    [onEventEdit]
+  )
 
-  const handleQuickAddSave = useCallback(async (data: {
-    petId: string
-    serviceId?: string
-    vetId?: string
-    startTime: Date
-    endTime: Date
-    reason: string
-    notes?: string
-  }) => {
-    if (!onCreateAppointment) return
+  const handleEventDelete = useCallback(
+    async (event: CalendarEvent) => {
+      if (!onDeleteEvent) return
 
-    setIsLoading(true)
-    try {
-      await onCreateAppointment(data)
-      setIsQuickAddOpen(false)
-      setQuickAddSlot(null)
-      // Refresh events after creation
-      if (enableDynamicLoading) {
-        invalidateEvents()
+      setIsLoading(true)
+      try {
+        await onDeleteEvent(event)
+        setIsEventModalOpen(false)
+        // Refresh events after deletion
+        if (enableDynamicLoading) {
+          invalidateEvents()
+        }
+      } finally {
+        setIsLoading(false)
       }
-    } finally {
-      setIsLoading(false)
-    }
-  }, [onCreateAppointment, enableDynamicLoading, invalidateEvents])
+    },
+    [onDeleteEvent, enableDynamicLoading, invalidateEvents]
+  )
+
+  const handleQuickAddSave = useCallback(
+    async (data: {
+      petId: string
+      serviceId?: string
+      vetId?: string
+      startTime: Date
+      endTime: Date
+      reason: string
+      notes?: string
+    }) => {
+      if (!onCreateAppointment) return
+
+      setIsLoading(true)
+      try {
+        await onCreateAppointment(data)
+        setIsQuickAddOpen(false)
+        setQuickAddSlot(null)
+        // Refresh events after creation
+        if (enableDynamicLoading) {
+          invalidateEvents()
+        }
+      } finally {
+        setIsLoading(false)
+      }
+    },
+    [onCreateAppointment, enableDynamicLoading, invalidateEvents]
+  )
 
   // Prepare staff for quick add modal (convert to expected format)
-  const staffForQuickAdd = useMemo(() =>
-    staff.map(s => ({
-      id: s.id,
-      full_name: s.full_name,
-      color_code: s.color_code,
-    })),
+  const staffForQuickAdd = useMemo(
+    () =>
+      staff.map((s) => ({
+        id: s.id,
+        full_name: s.full_name,
+        color_code: s.color_code,
+      })),
     [staff]
   )
 
   // Prepare resources for calendar resource view
-  const calendarResources = useMemo(() =>
-    staff.map(s => ({
-      id: s.id,
-      title: s.full_name,
-      colorCode: s.color_code,
-      jobTitle: s.job_title,
-      avatarUrl: s.avatar_url,
-    })),
+  const calendarResources = useMemo(
+    () =>
+      staff.map((s) => ({
+        id: s.id,
+        title: s.full_name,
+        colorCode: s.color_code,
+        jobTitle: s.job_title,
+        avatarUrl: s.avatar_url,
+      })),
     [staff]
   )
 
@@ -471,7 +496,7 @@ export function CalendarContainer({
   })
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex h-full flex-col">
       {/* Filter toolbar - always show since event type filters are always useful */}
       <FilterToolbar
         staff={staff}
@@ -486,17 +511,28 @@ export function CalendarContainer({
 
       {/* Loading/Fetching indicator */}
       {isFetchingEvents && !isLoadingEvents && (
-        <div className="flex items-center gap-2 px-3 py-1.5 text-xs text-[var(--text-muted)] bg-[var(--bg-subtle)] border-b border-[var(--border-light)]">
-          <svg className="animate-spin h-3 w-3" fill="none" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+        <div className="flex items-center gap-2 border-b border-[var(--border-light)] bg-[var(--bg-subtle)] px-3 py-1.5 text-xs text-[var(--text-muted)]">
+          <svg className="h-3 w-3 animate-spin" fill="none" viewBox="0 0 24 24">
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            />
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            />
           </svg>
           Actualizando eventos...
         </div>
       )}
 
       {/* Calendar or Skeleton */}
-      <div className="flex-1 min-h-0">
+      <div className="min-h-0 flex-1">
         {isLoadingEvents ? (
           <CalendarSkeleton view={currentView} />
         ) : (

@@ -7,7 +7,10 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
 
     // Auth check
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
     if (authError || !user) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
@@ -30,9 +33,14 @@ export async function GET(request: NextRequest) {
 
     // If phone is provided, get messages for that conversation
     if (phone) {
-      const { data: messages, error, count } = await supabase
+      const {
+        data: messages,
+        error,
+        count,
+      } = await supabase
         .from('whatsapp_messages')
-        .select(`
+        .select(
+          `
           id,
           phone_number,
           direction,
@@ -46,7 +54,9 @@ export async function GET(request: NextRequest) {
           client:profiles!whatsapp_messages_client_id_fkey(id, full_name),
           pet:pets(id, name),
           sender:profiles!whatsapp_messages_sent_by_fkey(id, full_name)
-        `, { count: 'exact' })
+        `,
+          { count: 'exact' }
+        )
         .eq('tenant_id', profile.tenant_id)
         .eq('phone_number', phone)
         .order('sent_at', { ascending: true })
@@ -71,14 +81,16 @@ export async function GET(request: NextRequest) {
     // Otherwise, get conversations (grouped by phone)
     const { data: conversations, error } = await supabase
       .from('whatsapp_messages')
-      .select(`
+      .select(
+        `
         phone_number,
         content,
         direction,
         status,
         sent_at,
         client:profiles!whatsapp_messages_client_id_fkey(id, full_name, phone)
-      `)
+      `
+      )
       .eq('tenant_id', profile.tenant_id)
       .order('sent_at', { ascending: false })
 
@@ -88,7 +100,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Group by phone number, keeping only latest message
-    const conversationMap = new Map<string, typeof conversations[0] & { unread_count: number }>()
+    const conversationMap = new Map<string, (typeof conversations)[0] & { unread_count: number }>()
 
     for (const msg of conversations || []) {
       if (!conversationMap.has(msg.phone_number)) {
@@ -117,9 +129,6 @@ export async function GET(request: NextRequest) {
     })
   } catch (error) {
     console.error('WhatsApp API error:', error)
-    return NextResponse.json(
-      { error: 'Error interno del servidor' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
   }
 }

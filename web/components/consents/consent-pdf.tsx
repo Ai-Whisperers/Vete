@@ -1,4 +1,4 @@
-import { Page, Text, View, Document, StyleSheet, Image } from '@react-pdf/renderer';
+import { Page, Text, View, Document, StyleSheet, Image } from '@react-pdf/renderer'
 
 const styles = StyleSheet.create({
   page: {
@@ -170,28 +170,28 @@ const styles = StyleSheet.create({
     color: '#2e7d32',
     textTransform: 'uppercase',
   },
-});
+})
 
 interface ConsentPDFProps {
-  clinicName: string;
-  templateName: string;
-  templateCategory: string;
-  documentNumber: string;
-  petName: string;
-  petSpecies: string;
-  petBreed: string;
-  ownerName: string;
-  ownerEmail: string;
-  ownerPhone: string;
-  content: string;
-  fieldValues: Record<string, any>;
-  signatureData: string;
-  signedAt: string;
-  witnessName?: string;
-  witnessSignatureData?: string;
-  idVerificationType?: string;
-  idVerificationNumber?: string;
-  status: string;
+  clinicName: string
+  templateName: string
+  templateCategory: string
+  documentNumber: string
+  petName: string
+  petSpecies: string
+  petBreed: string
+  ownerName: string
+  ownerEmail: string
+  ownerPhone: string
+  content: string
+  fieldValues: Record<string, any>
+  signatureData: string
+  signedAt: string
+  witnessName?: string
+  witnessSignatureData?: string
+  idVerificationType?: string
+  idVerificationNumber?: string
+  status: string
 }
 
 const getCategoryLabel = (category: string): string => {
@@ -204,9 +204,9 @@ const getCategoryLabel = (category: string): string => {
     vaccination: 'Vacunación',
     diagnostic: 'Diagnóstico',
     other: 'Otro',
-  };
-  return labels[category] || category;
-};
+  }
+  return labels[category] || category
+}
 
 const stripHtmlTags = (html: string): string => {
   return html
@@ -232,8 +232,8 @@ const stripHtmlTags = (html: string): string => {
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
     .replace(/&amp;/g, '&')
-    .trim();
-};
+    .trim()
+}
 
 export const ConsentPDF = ({
   clinicName,
@@ -256,14 +256,14 @@ export const ConsentPDF = ({
   idVerificationNumber,
   status,
 }: ConsentPDFProps) => {
-  const plainContent = stripHtmlTags(content);
+  const plainContent = stripHtmlTags(content)
   const formattedDate = new Date(signedAt).toLocaleString('es-PY', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
-  });
+  })
 
   return (
     <Document>
@@ -388,12 +388,10 @@ export const ConsentPDF = ({
 
         {/* Footer */}
         <View style={styles.footer}>
-          <Text style={styles.footerText}>
-            Generado el: {new Date().toLocaleString('es-PY')}
-          </Text>
+          <Text style={styles.footerText}>Generado el: {new Date().toLocaleString('es-PY')}</Text>
           <Text style={styles.footerText}>{clinicName}</Text>
         </View>
       </Page>
     </Document>
-  );
-};
+  )
+}

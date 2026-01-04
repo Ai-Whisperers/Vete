@@ -1,81 +1,66 @@
-'use client';
+'use client'
 
-import {
-  createContext,
-  useContext,
-  useState,
-  useCallback,
-  useMemo,
-  type ReactNode,
-} from 'react';
-import {
-  CheckCircle,
-  XCircle,
-  AlertTriangle,
-  Info,
-  X,
-} from 'lucide-react';
+import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from 'react'
+import { CheckCircle, XCircle, AlertTriangle, Info, X } from 'lucide-react'
 
 /**
  * Notification types for visual distinction
  */
-export type NotificationType = 'success' | 'error' | 'warning' | 'info';
+export type NotificationType = 'success' | 'error' | 'warning' | 'info'
 
 /**
  * Notification object structure
  */
 export interface Notification {
-  id: string;
-  type: NotificationType;
-  title?: string;
-  message: string;
-  duration?: number;
-  dismissible?: boolean;
+  id: string
+  type: NotificationType
+  title?: string
+  message: string
+  duration?: number
+  dismissible?: boolean
   action?: {
-    label: string;
-    onClick: () => void;
-  };
+    label: string
+    onClick: () => void
+  }
 }
 
 /**
  * Input for creating a notification
  */
 export interface NotificationInput {
-  type?: NotificationType;
-  title?: string;
-  message: string;
-  duration?: number;
-  dismissible?: boolean;
+  type?: NotificationType
+  title?: string
+  message: string
+  duration?: number
+  dismissible?: boolean
   action?: {
-    label: string;
-    onClick: () => void;
-  };
+    label: string
+    onClick: () => void
+  }
 }
 
 /**
  * Context value type
  */
 interface NotificationContextType {
-  notifications: Notification[];
-  addNotification: (notification: NotificationInput) => string;
-  removeNotification: (id: string) => void;
-  clearAll: () => void;
+  notifications: Notification[]
+  addNotification: (notification: NotificationInput) => string
+  removeNotification: (id: string) => void
+  clearAll: () => void
   // Convenience methods
-  success: (message: string, options?: Partial<NotificationInput>) => string;
-  error: (message: string, options?: Partial<NotificationInput>) => string;
-  warning: (message: string, options?: Partial<NotificationInput>) => string;
-  info: (message: string, options?: Partial<NotificationInput>) => string;
+  success: (message: string, options?: Partial<NotificationInput>) => string
+  error: (message: string, options?: Partial<NotificationInput>) => string
+  warning: (message: string, options?: Partial<NotificationInput>) => string
+  info: (message: string, options?: Partial<NotificationInput>) => string
 }
 
-const NotificationContext = createContext<NotificationContextType | undefined>(
-  undefined
-);
+const NotificationContext = createContext<NotificationContextType | undefined>(undefined)
 
 /**
  * Generate unique ID for notifications
  */
 function generateId(): string {
-  return `notification-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+  return `notification-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
 }
 
 /**
@@ -86,7 +71,7 @@ const DEFAULT_DURATIONS: Record<NotificationType, number> = {
   error: 5000,
   warning: 4000,
   info: 3000,
-};
+}
 
 /**
  * Icon configuration per notification type
@@ -119,7 +104,7 @@ const NOTIFICATION_CONFIG: Record<
     iconColor: 'text-blue-500',
     borderColor: 'border-blue-200',
   },
-};
+}
 
 /**
  * Notification Provider Component
@@ -148,18 +133,18 @@ const NOTIFICATION_CONFIG: Record<
  * ```
  */
 export function NotificationProvider({ children }: { children: ReactNode }) {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([])
 
   const removeNotification = useCallback((id: string) => {
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
-  }, []);
+    setNotifications((prev) => prev.filter((n) => n.id !== id))
+  }, [])
 
   const addNotification = useCallback(
     (input: NotificationInput): string => {
-      const id = generateId();
-      const type = input.type || 'info';
-      const duration = input.duration ?? DEFAULT_DURATIONS[type];
-      const dismissible = input.dismissible ?? true;
+      const id = generateId()
+      const type = input.type || 'info'
+      const duration = input.duration ?? DEFAULT_DURATIONS[type]
+      const dismissible = input.dismissible ?? true
 
       const notification: Notification = {
         id,
@@ -169,50 +154,50 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         duration,
         dismissible,
         action: input.action,
-      };
+      }
 
-      setNotifications((prev) => [...prev, notification]);
+      setNotifications((prev) => [...prev, notification])
 
       // Auto-remove after duration (unless duration is 0)
       if (duration > 0) {
         setTimeout(() => {
-          removeNotification(id);
-        }, duration);
+          removeNotification(id)
+        }, duration)
       }
 
-      return id;
+      return id
     },
     [removeNotification]
-  );
+  )
 
   const clearAll = useCallback(() => {
-    setNotifications([]);
-  }, []);
+    setNotifications([])
+  }, [])
 
   // Convenience methods
   const success = useCallback(
     (message: string, options?: Partial<NotificationInput>) =>
       addNotification({ ...options, message, type: 'success' }),
     [addNotification]
-  );
+  )
 
   const error = useCallback(
     (message: string, options?: Partial<NotificationInput>) =>
       addNotification({ ...options, message, type: 'error' }),
     [addNotification]
-  );
+  )
 
   const warning = useCallback(
     (message: string, options?: Partial<NotificationInput>) =>
       addNotification({ ...options, message, type: 'warning' }),
     [addNotification]
-  );
+  )
 
   const info = useCallback(
     (message: string, options?: Partial<NotificationInput>) =>
       addNotification({ ...options, message, type: 'info' }),
     [addNotification]
-  );
+  )
 
   const contextValue = useMemo(
     () => ({
@@ -225,27 +210,15 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       warning,
       info,
     }),
-    [
-      notifications,
-      addNotification,
-      removeNotification,
-      clearAll,
-      success,
-      error,
-      warning,
-      info,
-    ]
-  );
+    [notifications, addNotification, removeNotification, clearAll, success, error, warning, info]
+  )
 
   return (
     <NotificationContext.Provider value={contextValue}>
       {children}
-      <NotificationContainer
-        notifications={notifications}
-        onDismiss={removeNotification}
-      />
+      <NotificationContainer notifications={notifications} onDismiss={removeNotification} />
     </NotificationContext.Provider>
-  );
+  )
 }
 
 /**
@@ -263,13 +236,11 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
  * ```
  */
 export function useNotifications(): NotificationContextType {
-  const context = useContext(NotificationContext);
+  const context = useContext(NotificationContext)
   if (!context) {
-    throw new Error(
-      'useNotifications must be used within a NotificationProvider'
-    );
+    throw new Error('useNotifications must be used within a NotificationProvider')
   }
-  return context;
+  return context
 }
 
 /**
@@ -279,14 +250,14 @@ function NotificationContainer({
   notifications,
   onDismiss,
 }: {
-  notifications: Notification[];
-  onDismiss: (id: string) => void;
+  notifications: Notification[]
+  onDismiss: (id: string) => void
 }) {
-  if (notifications.length === 0) return null;
+  if (notifications.length === 0) return null
 
   return (
     <div
-      className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"
+      className="pointer-events-none fixed bottom-4 right-4 z-50 flex w-full max-w-sm flex-col gap-2"
       aria-live="polite"
       aria-atomic="false"
     >
@@ -298,7 +269,7 @@ function NotificationContainer({
         />
       ))}
     </div>
-  );
+  )
 }
 
 /**
@@ -308,37 +279,30 @@ function NotificationItem({
   notification,
   onDismiss,
 }: {
-  notification: Notification;
-  onDismiss: () => void;
+  notification: Notification
+  onDismiss: () => void
 }) {
-  const config = NOTIFICATION_CONFIG[notification.type];
-  const Icon = config.icon;
+  const config = NOTIFICATION_CONFIG[notification.type]
+  const Icon = config.icon
 
   return (
     <div
-      className={`
-        pointer-events-auto
-        flex items-start gap-3 p-4 rounded-xl border shadow-lg
-        animate-in slide-in-from-right-full fade-in duration-300
-        ${config.bgColor} ${config.borderColor}
-      `}
+      className={`animate-in slide-in-from-right-full fade-in pointer-events-auto flex items-start gap-3 rounded-xl border p-4 shadow-lg duration-300 ${config.bgColor} ${config.borderColor} `}
       role="alert"
     >
-      <Icon className={`w-5 h-5 flex-shrink-0 mt-0.5 ${config.iconColor}`} />
+      <Icon className={`mt-0.5 h-5 w-5 flex-shrink-0 ${config.iconColor}`} />
 
-      <div className="flex-1 min-w-0">
+      <div className="min-w-0 flex-1">
         {notification.title && (
-          <p className="font-semibold text-gray-900 text-sm mb-0.5">
-            {notification.title}
-          </p>
+          <p className="mb-0.5 text-sm font-semibold text-gray-900">{notification.title}</p>
         )}
         <p className="text-sm text-gray-700">{notification.message}</p>
 
         {notification.action && (
           <button
             onClick={() => {
-              notification.action?.onClick();
-              onDismiss();
+              notification.action?.onClick()
+              onDismiss()
             }}
             className={`mt-2 text-sm font-medium underline-offset-2 hover:underline ${config.iconColor}`}
           >
@@ -350,12 +314,12 @@ function NotificationItem({
       {notification.dismissible && (
         <button
           onClick={onDismiss}
-          className="p-1 -m-1 text-gray-400 hover:text-gray-600 transition-colors"
+          className="-m-1 p-1 text-gray-400 transition-colors hover:text-gray-600"
           aria-label="Cerrar"
         >
-          <X className="w-4 h-4" />
+          <X className="h-4 w-4" />
         </button>
       )}
     </div>
-  );
+  )
 }

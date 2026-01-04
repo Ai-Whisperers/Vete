@@ -23,14 +23,14 @@ export async function GET(request: NextRequest) {
   const endDate = searchParams.get('end_date')
 
   if (!clinicSlug) {
-    return NextResponse.json(
-      { error: 'Falta el parámetro clinic' },
-      { status: 400 }
-    )
+    return NextResponse.json({ error: 'Falta el parámetro clinic' }, { status: 400 })
   }
 
   // Auth check
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
   if (authError || !user) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
   }
@@ -54,7 +54,8 @@ export async function GET(request: NextRequest) {
     // Build query
     let query = supabase
       .from('time_off_requests')
-      .select(`
+      .select(
+        `
         *,
         staff_profiles!inner (
           id,
@@ -79,7 +80,8 @@ export async function GET(request: NextRequest) {
             full_name
           )
         )
-      `)
+      `
+      )
       .eq('tenant_id', clinicSlug)
       .order('start_date', { ascending: true })
 
@@ -119,68 +121,70 @@ export async function GET(request: NextRequest) {
       logger.error('Error fetching time off requests', {
         error: error.message,
         tenantId: clinicSlug,
-        userId: user.id
+        userId: user.id,
       })
-      return NextResponse.json(
-        { error: 'Error al obtener solicitudes' },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: 'Error al obtener solicitudes' }, { status: 500 })
     }
 
     // Transform data
-    const requests = data?.map(req => {
-      const staffProfiles = req.staff_profiles as {
-        id: string
-        user_id: string
-        job_title: string
-        profiles: { full_name: string; email: string } | null
-      }
-      const timeOffType = req.time_off_types as { code: string; name: string; color_code: string; is_paid: boolean } | null
-      const reviewer = req.reviewer as { full_name: string } | null
-      const coveringStaff = req.covering_staff as { profiles: { full_name: string } | null } | null
+    const requests =
+      data?.map((req) => {
+        const staffProfiles = req.staff_profiles as {
+          id: string
+          user_id: string
+          job_title: string
+          profiles: { full_name: string; email: string } | null
+        }
+        const timeOffType = req.time_off_types as {
+          code: string
+          name: string
+          color_code: string
+          is_paid: boolean
+        } | null
+        const reviewer = req.reviewer as { full_name: string } | null
+        const coveringStaff = req.covering_staff as {
+          profiles: { full_name: string } | null
+        } | null
 
-      return {
-        id: req.id,
-        staff_profile_id: req.staff_profile_id,
-        staff_name: staffProfiles?.profiles?.full_name || 'Sin nombre',
-        staff_email: staffProfiles?.profiles?.email,
-        job_title: staffProfiles?.job_title,
-        type: {
-          code: timeOffType?.code || 'UNKNOWN',
-          name: timeOffType?.name || 'Desconocido',
-          color: timeOffType?.color_code || '#6B7280',
-          is_paid: timeOffType?.is_paid ?? true
-        },
-        start_date: req.start_date,
-        end_date: req.end_date,
-        start_half_day: req.start_half_day,
-        end_half_day: req.end_half_day,
-        total_days: req.total_days,
-        reason: req.reason,
-        status: req.status,
-        requested_at: req.requested_at,
-        reviewed_by: reviewer?.full_name,
-        reviewed_at: req.reviewed_at,
-        review_notes: req.review_notes,
-        coverage_notes: req.coverage_notes,
-        covering_staff_name: coveringStaff?.profiles?.full_name
-      }
-    }) || []
+        return {
+          id: req.id,
+          staff_profile_id: req.staff_profile_id,
+          staff_name: staffProfiles?.profiles?.full_name || 'Sin nombre',
+          staff_email: staffProfiles?.profiles?.email,
+          job_title: staffProfiles?.job_title,
+          type: {
+            code: timeOffType?.code || 'UNKNOWN',
+            name: timeOffType?.name || 'Desconocido',
+            color: timeOffType?.color_code || '#6B7280',
+            is_paid: timeOffType?.is_paid ?? true,
+          },
+          start_date: req.start_date,
+          end_date: req.end_date,
+          start_half_day: req.start_half_day,
+          end_half_day: req.end_half_day,
+          total_days: req.total_days,
+          reason: req.reason,
+          status: req.status,
+          requested_at: req.requested_at,
+          reviewed_by: reviewer?.full_name,
+          reviewed_at: req.reviewed_at,
+          review_notes: req.review_notes,
+          coverage_notes: req.coverage_notes,
+          covering_staff_name: coveringStaff?.profiles?.full_name,
+        }
+      }) || []
 
     return NextResponse.json({
       data: requests,
-      clinic: clinicSlug
+      clinic: clinicSlug,
     })
   } catch (e) {
     logger.error('Error in time-off GET', {
       error: e instanceof Error ? e.message : 'Unknown',
       tenantId: clinicSlug,
-      userId: user?.id
+      userId: user?.id,
     })
-    return NextResponse.json(
-      { error: 'Error interno del servidor' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
   }
 }
 
@@ -203,7 +207,10 @@ export async function POST(request: NextRequest) {
   const supabase = await createClient()
 
   // Auth check
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
   if (authError || !user) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
   }
@@ -219,15 +226,12 @@ export async function POST(request: NextRequest) {
       end_half_day = false,
       reason,
       coverage_notes,
-      covering_staff_id
+      covering_staff_id,
     } = body
 
     // Validate required fields
     if (!clinic || !time_off_type_id || !start_date || !end_date) {
-      return NextResponse.json(
-        { error: 'Faltan campos requeridos' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Faltan campos requeridos' }, { status: 400 })
     }
 
     // Verify staff access
@@ -245,10 +249,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (profileError || !staffProfile) {
-      return NextResponse.json(
-        { error: 'No se encontró perfil de empleado' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'No se encontró perfil de empleado' }, { status: 404 })
     }
 
     // Validate dates
@@ -263,7 +264,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Calculate total days
-    const daysDiff = Math.ceil((endDateObj.getTime() - startDateObj.getTime()) / (1000 * 60 * 60 * 24)) + 1
+    const daysDiff =
+      Math.ceil((endDateObj.getTime() - startDateObj.getTime()) / (1000 * 60 * 60 * 24)) + 1
     let totalDays = daysDiff
     if (start_half_day) totalDays -= 0.5
     if (end_half_day) totalDays -= 0.5
@@ -276,10 +278,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (typeError || !timeOffType) {
-      return NextResponse.json(
-        { error: 'Tipo de ausencia no válido' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Tipo de ausencia no válido' }, { status: 400 })
     }
 
     // Check minimum notice
@@ -325,7 +324,7 @@ export async function POST(request: NextRequest) {
         reason: reason || null,
         status: timeOffType.requires_approval ? 'pending' : 'approved',
         coverage_notes: coverage_notes || null,
-        covering_staff_id: covering_staff_id || null
+        covering_staff_id: covering_staff_id || null,
       })
       .select()
       .single()
@@ -334,29 +333,26 @@ export async function POST(request: NextRequest) {
       logger.error('Error creating time off request', {
         error: createError.message,
         tenantId: clinic,
-        userId: user.id
+        userId: user.id,
       })
-      return NextResponse.json(
-        { error: 'Error al crear solicitud' },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: 'Error al crear solicitud' }, { status: 500 })
     }
 
-    return NextResponse.json({
-      data: newRequest,
-      message: timeOffType.requires_approval
-        ? 'Solicitud enviada para aprobación'
-        : 'Ausencia registrada exitosamente'
-    }, { status: 201 })
+    return NextResponse.json(
+      {
+        data: newRequest,
+        message: timeOffType.requires_approval
+          ? 'Solicitud enviada para aprobación'
+          : 'Ausencia registrada exitosamente',
+      },
+      { status: 201 }
+    )
   } catch (e) {
     logger.error('Error in time-off POST', {
       error: e instanceof Error ? e.message : 'Unknown',
-      userId: user?.id
+      userId: user?.id,
     })
-    return NextResponse.json(
-      { error: 'Error interno del servidor' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
   }
 }
 
@@ -374,7 +370,10 @@ export async function PATCH(request: NextRequest) {
   const supabase = await createClient()
 
   // Auth check
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
   if (authError || !user) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
   }
@@ -384,18 +383,12 @@ export async function PATCH(request: NextRequest) {
     const { request_id, clinic, action, review_notes } = body
 
     if (!request_id || !clinic || !action) {
-      return NextResponse.json(
-        { error: 'Faltan campos requeridos' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Faltan campos requeridos' }, { status: 400 })
     }
 
     const validActions = ['approve', 'deny', 'withdraw', 'cancel']
     if (!validActions.includes(action)) {
-      return NextResponse.json(
-        { error: 'Acción no válida' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Acción no válida' }, { status: 400 })
     }
 
     // Verify staff access
@@ -416,21 +409,20 @@ export async function PATCH(request: NextRequest) {
     // Get the request
     const { data: timeOffRequest, error: requestError } = await supabase
       .from('time_off_requests')
-      .select(`
+      .select(
+        `
         *,
         staff_profiles!inner (
           user_id
         )
-      `)
+      `
+      )
       .eq('id', request_id)
       .eq('tenant_id', clinic)
       .single()
 
     if (requestError || !timeOffRequest) {
-      return NextResponse.json(
-        { error: 'Solicitud no encontrada' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'Solicitud no encontrada' }, { status: 404 })
     }
 
     const staffProfiles = timeOffRequest.staff_profiles as { user_id: string }
@@ -487,12 +479,12 @@ export async function PATCH(request: NextRequest) {
       approve: 'approved',
       deny: 'denied',
       withdraw: 'withdrawn',
-      cancel: 'cancelled'
+      cancel: 'cancelled',
     }
 
     // Update request
     const updates: Record<string, unknown> = {
-      status: statusMap[action]
+      status: statusMap[action],
     }
 
     if (action === 'approve' || action === 'deny') {
@@ -516,34 +508,28 @@ export async function PATCH(request: NextRequest) {
         requestId: request_id,
         action,
         tenantId: clinic,
-        userId: user.id
+        userId: user.id,
       })
-      return NextResponse.json(
-        { error: 'Error al actualizar solicitud' },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: 'Error al actualizar solicitud' }, { status: 500 })
     }
 
     const actionMessages: Record<string, string> = {
       approve: 'Solicitud aprobada',
       deny: 'Solicitud denegada',
       withdraw: 'Solicitud retirada',
-      cancel: 'Ausencia cancelada'
+      cancel: 'Ausencia cancelada',
     }
 
     return NextResponse.json({
       data: updatedRequest,
-      message: actionMessages[action]
+      message: actionMessages[action],
     })
   } catch (e) {
     logger.error('Error in time-off PATCH', {
       error: e instanceof Error ? e.message : 'Unknown',
-      userId: user?.id
+      userId: user?.id,
     })
-    return NextResponse.json(
-      { error: 'Error interno del servidor' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
   }
 }
 

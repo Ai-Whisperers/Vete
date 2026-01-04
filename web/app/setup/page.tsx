@@ -1,91 +1,97 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Loader2, CheckCircle, XCircle, Database, Settings, Package } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Loader2, CheckCircle, XCircle, Database, Settings, Package } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 interface SetupStatus {
-  tables_exist: Record<string, boolean>;
+  tables_exist: Record<string, boolean>
   has_data: {
-    tenants: boolean;
-    products: boolean;
-  };
+    tenants: boolean
+    products: boolean
+  }
 }
 
 interface SetupResponse {
-  success: boolean;
-  message: string;
-  details?: unknown;
-  action?: string;
-  timestamp?: Date;
+  success: boolean
+  message: string
+  details?: unknown
+  action?: string
+  timestamp?: Date
 }
 
 export default function SetupPage() {
-  const [status, setStatus] = useState<SetupStatus | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [currentAction, setCurrentAction] = useState<string>('');
-  const [results, setResults] = useState<SetupResponse[]>([]);
-  const router = useRouter();
+  const [status, setStatus] = useState<SetupStatus | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [currentAction, setCurrentAction] = useState<string>('')
+  const [results, setResults] = useState<SetupResponse[]>([])
+  const router = useRouter()
 
   useEffect(() => {
-    checkStatus();
-  }, []);
+    checkStatus()
+  }, [])
 
   const checkStatus = async () => {
     try {
-      const response = await fetch('/api/setup');
-      const data = await response.json();
-      setStatus(data);
+      const response = await fetch('/api/setup')
+      const data = await response.json()
+      setStatus(data)
     } catch (error) {
-      console.error('Failed to check status:', error);
+      console.error('Failed to check status:', error)
     }
-  };
+  }
 
   const runSetup = async (action: string, clinic?: string) => {
-    setLoading(true);
-    setCurrentAction(action);
+    setLoading(true)
+    setCurrentAction(action)
 
     try {
-      const url = clinic ? `/api/setup?action=${action}&clinic=${clinic}` : `/api/setup?action=${action}`;
-      const response = await fetch(url, { method: 'POST' });
-      const result: SetupResponse = await response.json();
+      const url = clinic
+        ? `/api/setup?action=${action}&clinic=${clinic}`
+        : `/api/setup?action=${action}`
+      const response = await fetch(url, { method: 'POST' })
+      const result: SetupResponse = await response.json()
 
-      setResults(prev => [...prev, { ...result, action, timestamp: new Date() }]);
+      setResults((prev) => [...prev, { ...result, action, timestamp: new Date() }])
 
       // Refresh status after setup
       if (result.success) {
-        await checkStatus();
+        await checkStatus()
       }
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'Unknown error';
-      setResults(prev => [...prev, {
-        success: false,
-        message: 'Network error',
-        details: message,
-        action,
-        timestamp: new Date()
-      }]);
+      const message = error instanceof Error ? error.message : 'Unknown error'
+      setResults((prev) => [
+        ...prev,
+        {
+          success: false,
+          message: 'Network error',
+          details: message,
+          action,
+          timestamp: new Date(),
+        },
+      ])
     } finally {
-      setLoading(false);
-      setCurrentAction('');
+      setLoading(false)
+      setCurrentAction('')
     }
-  };
+  }
 
-  const isFullySetup = status?.tables_exist && Object.values(status.tables_exist).every(Boolean) && status.has_data.tenants;
+  const isFullySetup =
+    status?.tables_exist &&
+    Object.values(status.tables_exist).every(Boolean) &&
+    status.has_data.tenants
 
   if (isFullySetup) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
-            <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
+            <CheckCircle className="mx-auto mb-4 h-16 w-16 text-green-500" />
             <CardTitle className="text-2xl text-green-700">Setup Complete!</CardTitle>
-            <CardDescription>
-              Your database is fully configured and ready to use.
-            </CardDescription>
+            <CardDescription>Your database is fully configured and ready to use.</CardDescription>
           </CardHeader>
           <CardContent className="text-center">
             <Button onClick={() => router.push('/adris/portal/dashboard')} className="w-full">
@@ -94,17 +100,15 @@ export default function SetupPage() {
           </CardContent>
         </Card>
       </div>
-    );
+    )
   }
 
   return (
     <div className="min-h-screen bg-gray-50 p-4">
-      <div className="max-w-4xl mx-auto space-y-6">
+      <div className="mx-auto max-w-4xl space-y-6">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Database Setup</h1>
-          <p className="text-gray-600">
-            Configure your VetePy database and seed initial data
-          </p>
+          <h1 className="mb-2 text-3xl font-bold text-gray-900">Database Setup</h1>
+          <p className="text-gray-600">Configure your VetePy database and seed initial data</p>
         </div>
 
         {/* Status Overview */}
@@ -112,29 +116,30 @@ export default function SetupPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Database className="w-5 h-5" />
+                <Database className="h-5 w-5" />
                 Setup Status
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
                 {Object.entries(status.tables_exist).map(([table, exists]) => (
                   <div key={table} className="flex items-center gap-2">
                     {exists ? (
-                      <CheckCircle className="w-4 h-4 text-green-500" />
+                      <CheckCircle className="h-4 w-4 text-green-500" />
                     ) : (
-                      <XCircle className="w-4 h-4 text-red-500" />
+                      <XCircle className="h-4 w-4 text-red-500" />
                     )}
                     <span className="text-sm capitalize">{table.replace('_', ' ')}</span>
                   </div>
                 ))}
               </div>
 
-              <div className="mt-4 pt-4 border-t">
+              <div className="mt-4 border-t pt-4">
                 <div className="flex items-center gap-2">
-                  <Package className="w-4 h-4" />
+                  <Package className="h-4 w-4" />
                   <span className="text-sm">
-                    Data: {status.has_data.tenants ? 'Tenants ✓' : 'Tenants ✗'} | {status.has_data.products ? 'Products ✓' : 'Products ✗'}
+                    Data: {status.has_data.tenants ? 'Tenants ✓' : 'Tenants ✗'} |{' '}
+                    {status.has_data.products ? 'Products ✓' : 'Products ✗'}
                   </span>
                 </div>
               </div>
@@ -143,11 +148,11 @@ export default function SetupPage() {
         )}
 
         {/* Setup Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Settings className="w-5 h-5" />
+                <Settings className="h-5 w-5" />
                 Database Schema
               </CardTitle>
               <CardDescription>
@@ -162,7 +167,7 @@ export default function SetupPage() {
                 variant="outline"
               >
                 {loading && currentAction === 'schema' && (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 )}
                 Run Schema Setup
               </Button>
@@ -172,7 +177,7 @@ export default function SetupPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Package className="w-5 h-5" />
+                <Package className="h-5 w-5" />
                 Seed Data
               </CardTitle>
               <CardDescription>
@@ -187,7 +192,7 @@ export default function SetupPage() {
                 variant="outline"
               >
                 {loading && currentAction === 'seeds' && (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 )}
                 Run Data Seeding
               </Button>
@@ -197,9 +202,7 @@ export default function SetupPage() {
           <Card>
             <CardHeader>
               <CardTitle>Clinic Setup</CardTitle>
-              <CardDescription>
-                Configure specific clinic data (Adris, PetLife)
-              </CardDescription>
+              <CardDescription>Configure specific clinic data (Adris, PetLife)</CardDescription>
             </CardHeader>
             <CardContent className="space-y-2">
               <Button
@@ -210,7 +213,7 @@ export default function SetupPage() {
                 size="sm"
               >
                 {loading && currentAction === 'clinic' && (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 )}
                 Setup Adris Clinic
               </Button>
@@ -229,18 +232,12 @@ export default function SetupPage() {
           <Card>
             <CardHeader>
               <CardTitle>Full Setup</CardTitle>
-              <CardDescription>
-                Run complete setup: schema + seeds + clinics
-              </CardDescription>
+              <CardDescription>Run complete setup: schema + seeds + clinics</CardDescription>
             </CardHeader>
             <CardContent>
-              <Button
-                onClick={() => runSetup('full')}
-                disabled={loading}
-                className="w-full"
-              >
+              <Button onClick={() => runSetup('full')} disabled={loading} className="w-full">
                 {loading && currentAction === 'full' && (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 )}
                 Run Full Setup
               </Button>
@@ -257,14 +254,14 @@ export default function SetupPage() {
             <CardContent>
               <div className="space-y-3">
                 {results.map((result, index) => (
-                  <div key={index} className="flex items-start gap-3 p-3 rounded-lg border">
+                  <div key={index} className="flex items-start gap-3 rounded-lg border p-3">
                     {result.success ? (
-                      <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
+                      <CheckCircle className="mt-0.5 h-5 w-5 text-green-500" />
                     ) : (
-                      <XCircle className="w-5 h-5 text-red-500 mt-0.5" />
+                      <XCircle className="mt-0.5 h-5 w-5 text-red-500" />
                     )}
                     <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
+                      <div className="mb-1 flex items-center gap-2">
                         <Badge variant={result.success ? 'default' : 'danger'}>
                           {result.action}
                         </Badge>
@@ -272,17 +269,20 @@ export default function SetupPage() {
                           {result.timestamp ? new Date(result.timestamp).toLocaleTimeString() : ''}
                         </span>
                       </div>
-                      <p className={`text-sm ${result.success ? 'text-green-700' : 'text-red-700'}`}>
+                      <p
+                        className={`text-sm ${result.success ? 'text-green-700' : 'text-red-700'}`}
+                      >
                         {result.message}
                       </p>
                       {result.details !== undefined && result.details !== null && (
                         <details className="mt-2">
-                          <summary className="text-xs cursor-pointer text-gray-500">Details</summary>
-                          <pre className="text-xs mt-1 p-2 bg-gray-100 rounded overflow-auto max-h-32">
+                          <summary className="cursor-pointer text-xs text-gray-500">
+                            Details
+                          </summary>
+                          <pre className="mt-1 max-h-32 overflow-auto rounded bg-gray-100 p-2 text-xs">
                             {typeof result.details === 'string'
                               ? result.details
-                              : JSON.stringify(result.details, null, 2)
-                            }
+                              : JSON.stringify(result.details, null, 2)}
                           </pre>
                         </details>
                       )}
@@ -302,5 +302,5 @@ export default function SetupPage() {
         </div>
       </div>
     </div>
-  );
+  )
 }

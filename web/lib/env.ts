@@ -73,7 +73,9 @@ function numberEnv(name: string, defaultValue: number): number {
   if (value === undefined) return defaultValue
   const parsed = parseInt(value, 10)
   if (isNaN(parsed)) {
-    console.warn(`[ENV WARNING] Invalid number for ${name}: "${value}", using default: ${defaultValue}`)
+    console.warn(
+      `[ENV WARNING] Invalid number for ${name}: "${value}", using default: ${defaultValue}`
+    )
     return defaultValue
   }
   return parsed

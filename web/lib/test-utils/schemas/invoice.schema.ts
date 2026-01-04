@@ -1,29 +1,31 @@
-import { z } from 'zod';
+import { z } from 'zod'
 
 /**
  * Payment Method Schema
  */
 // Schema matching actual database columns
-export const PaymentMethodSchema = z.object({
-  id: z.string().uuid().optional(),
-  tenant_id: z.string().min(1),
-  name: z.string().min(1),
-  type: z.enum(['cash', 'card', 'transfer', 'check', 'credit', 'qr', 'other']),
-  description: z.string().optional().nullable(),
-  is_default: z.boolean().default(false),
-  is_active: z.boolean().default(true),
-  requires_reference: z.boolean().default(false),
-  fee_percentage: z.number().min(0).max(100).optional().nullable(),
-  min_amount: z.number().min(0).optional().nullable(),
-  max_amount: z.number().min(0).optional().nullable(),
-  instructions: z.string().optional().nullable(),
-  display_order: z.number().int().min(0).default(100),
-  icon: z.string().optional().nullable(),
-  created_at: z.string().datetime().optional(),
-}).passthrough(); // Allow extra fields from JSON
+export const PaymentMethodSchema = z
+  .object({
+    id: z.string().uuid().optional(),
+    tenant_id: z.string().min(1),
+    name: z.string().min(1),
+    type: z.enum(['cash', 'card', 'transfer', 'check', 'credit', 'qr', 'other']),
+    description: z.string().optional().nullable(),
+    is_default: z.boolean().default(false),
+    is_active: z.boolean().default(true),
+    requires_reference: z.boolean().default(false),
+    fee_percentage: z.number().min(0).max(100).optional().nullable(),
+    min_amount: z.number().min(0).optional().nullable(),
+    max_amount: z.number().min(0).optional().nullable(),
+    instructions: z.string().optional().nullable(),
+    display_order: z.number().int().min(0).default(100),
+    icon: z.string().optional().nullable(),
+    created_at: z.string().datetime().optional(),
+  })
+  .passthrough() // Allow extra fields from JSON
 
-export type PaymentMethodInput = z.input<typeof PaymentMethodSchema>;
-export type PaymentMethod = z.output<typeof PaymentMethodSchema>;
+export type PaymentMethodInput = z.input<typeof PaymentMethodSchema>
+export type PaymentMethod = z.output<typeof PaymentMethodSchema>
 
 /**
  * Invoice Schema
@@ -38,10 +40,9 @@ export const InvoiceSchema = z.object({
   // UNIQUE per tenant
   invoice_number: z.string().min(1),
 
-  status: z.enum([
-    'draft', 'sent', 'viewed', 'partial',
-    'paid', 'overdue', 'void', 'refunded'
-  ]).default('draft'),
+  status: z
+    .enum(['draft', 'sent', 'viewed', 'partial', 'paid', 'overdue', 'void', 'refunded'])
+    .default('draft'),
 
   subtotal: z.number().min(0).default(0),
   discount_amount: z.number().min(0).default(0),
@@ -63,10 +64,10 @@ export const InvoiceSchema = z.object({
   created_by: z.string().uuid().optional().nullable(),
   created_at: z.string().datetime().optional(),
   updated_at: z.string().datetime().optional(),
-});
+})
 
-export type InvoiceInput = z.input<typeof InvoiceSchema>;
-export type Invoice = z.output<typeof InvoiceSchema>;
+export type InvoiceInput = z.input<typeof InvoiceSchema>
+export type Invoice = z.output<typeof InvoiceSchema>
 
 /**
  * Invoice Item Schema
@@ -89,10 +90,10 @@ export const InvoiceItemSchema = z.object({
   total: z.number().min(0),
 
   created_at: z.string().datetime().optional(),
-});
+})
 
-export type InvoiceItemInput = z.input<typeof InvoiceItemSchema>;
-export type InvoiceItem = z.output<typeof InvoiceItemSchema>;
+export type InvoiceItemInput = z.input<typeof InvoiceItemSchema>
+export type InvoiceItem = z.output<typeof InvoiceItemSchema>
 
 /**
  * Payment Schema
@@ -112,10 +113,10 @@ export const PaymentSchema = z.object({
 
   processed_by: z.string().uuid().optional().nullable(),
   created_at: z.string().datetime().optional(),
-});
+})
 
-export type PaymentInput = z.input<typeof PaymentSchema>;
-export type Payment = z.output<typeof PaymentSchema>;
+export type PaymentInput = z.input<typeof PaymentSchema>
+export type Payment = z.output<typeof PaymentSchema>
 
 /**
  * Refund Schema
@@ -132,10 +133,10 @@ export const RefundSchema = z.object({
   refunded_at: z.string().datetime().optional().nullable(),
   processed_by: z.string().uuid().optional().nullable(),
   created_at: z.string().datetime().optional(),
-});
+})
 
-export type RefundInput = z.input<typeof RefundSchema>;
-export type Refund = z.output<typeof RefundSchema>;
+export type RefundInput = z.input<typeof RefundSchema>
+export type Refund = z.output<typeof RefundSchema>
 
 /**
  * Expense Schema
@@ -158,10 +159,10 @@ export const ExpenseSchema = z.object({
 
   created_by: z.string().uuid().optional().nullable(),
   created_at: z.string().datetime().optional(),
-});
+})
 
-export type ExpenseInput = z.input<typeof ExpenseSchema>;
-export type Expense = z.output<typeof ExpenseSchema>;
+export type ExpenseInput = z.input<typeof ExpenseSchema>
+export type Expense = z.output<typeof ExpenseSchema>
 
 /**
  * Loyalty Points Schema
@@ -175,10 +176,10 @@ export const LoyaltyPointsSchema = z.object({
   tier: z.enum(['bronze', 'silver', 'gold', 'platinum']).default('bronze'),
   created_at: z.string().datetime().optional(),
   updated_at: z.string().datetime().optional(),
-});
+})
 
-export type LoyaltyPointsInput = z.input<typeof LoyaltyPointsSchema>;
-export type LoyaltyPoints = z.output<typeof LoyaltyPointsSchema>;
+export type LoyaltyPointsInput = z.input<typeof LoyaltyPointsSchema>
+export type LoyaltyPoints = z.output<typeof LoyaltyPointsSchema>
 
 /**
  * Loyalty Transaction Schema
@@ -196,16 +197,16 @@ export const LoyaltyTransactionSchema = z.object({
   reference_type: z.string().optional().nullable(),
 
   created_at: z.string().datetime().optional(),
-});
+})
 
-export type LoyaltyTransactionInput = z.input<typeof LoyaltyTransactionSchema>;
-export type LoyaltyTransaction = z.output<typeof LoyaltyTransactionSchema>;
+export type LoyaltyTransactionInput = z.input<typeof LoyaltyTransactionSchema>
+export type LoyaltyTransaction = z.output<typeof LoyaltyTransactionSchema>
 
 /**
  * Helper: Generate invoice number
  */
 export function generateInvoiceNumber(index: number, date?: Date): string {
-  const d = date || new Date();
-  const year = d.getFullYear();
-  return `INV-${year}-${String(index).padStart(6, '0')}`;
+  const d = date || new Date()
+  const year = d.getFullYear()
+  return `INV-${year}-${String(index).padStart(6, '0')}`
 }

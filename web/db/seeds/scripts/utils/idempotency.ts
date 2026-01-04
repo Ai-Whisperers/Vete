@@ -5,16 +5,16 @@
  * Ensures running seeds multiple times produces the same result.
  */
 
-import type { SupabaseClient } from '@supabase/supabase-js';
+import type { SupabaseClient } from '@supabase/supabase-js'
 
 /**
  * Unique key configuration for a table
  */
 export interface UniqueKeyConfig {
   /** Column names that form the unique key */
-  columns: string[];
+  columns: string[]
   /** Optional custom key extraction function */
-  extractKey?: (record: Record<string, unknown>) => Record<string, unknown>;
+  extractKey?: (record: Record<string, unknown>) => Record<string, unknown>
 }
 
 /**
@@ -124,15 +124,15 @@ export const UNIQUE_KEYS: Record<string, UniqueKeyConfig> = {
   },
   vaccine_protocols: { columns: ['vaccine_code'] },
   insurance_providers: { columns: ['name'] },
-};
+}
 
 /**
  * Result of an idempotent upsert operation
  */
 export interface UpsertResult<T> {
-  created: T[];
-  skipped: T[];
-  errors: Array<{ record: T; error: Error }>;
+  created: T[]
+  skipped: T[]
+  errors: Array<{ record: T; error: Error }>
 }
 
 /**
@@ -144,57 +144,59 @@ export async function checkExists(
   record: Record<string, unknown>,
   uniqueKey?: UniqueKeyConfig
 ): Promise<{ exists: boolean; existingId?: string }> {
-  const config = uniqueKey || UNIQUE_KEYS[table];
+  const config = uniqueKey || UNIQUE_KEYS[table]
 
   if (!config) {
     // No unique key defined - can't check
-    return { exists: false };
+    return { exists: false }
   }
 
   // Extract the key values
-  const keyExtractor = config.extractKey || ((r: Record<string, unknown>) => {
-    const key: Record<string, unknown> = {};
-    for (const col of config.columns) {
-      key[col] = r[col];
-    }
-    return key;
-  });
+  const keyExtractor =
+    config.extractKey ||
+    ((r: Record<string, unknown>) => {
+      const key: Record<string, unknown> = {}
+      for (const col of config.columns) {
+        key[col] = r[col]
+      }
+      return key
+    })
 
-  const whereClause = keyExtractor(record);
+  const whereClause = keyExtractor(record)
 
   // Check for null/undefined values in key - skip check if incomplete
   for (const [, value] of Object.entries(whereClause)) {
     if (value === undefined) {
-      return { exists: false };
+      return { exists: false }
     }
   }
 
   try {
-    let query = client.from(table).select('id');
+    let query = client.from(table).select('id')
 
     // Build where clause
     for (const [key, value] of Object.entries(whereClause)) {
       if (value === null) {
-        query = query.is(key, null);
+        query = query.is(key, null)
       } else {
-        query = query.eq(key, value);
+        query = query.eq(key, value)
       }
     }
 
-    const { data, error } = await query.maybeSingle();
+    const { data, error } = await query.maybeSingle()
 
     if (error) {
-      console.warn(`  Check exists error for ${table}:`, error.message);
-      return { exists: false };
+      console.warn(`  Check exists error for ${table}:`, error.message)
+      return { exists: false }
     }
 
     return {
       exists: !!data,
       existingId: data?.id,
-    };
+    }
   } catch (e) {
-    console.warn(`  Check exists exception for ${table}:`, e);
-    return { exists: false };
+    console.warn(`  Check exists exception for ${table}:`, e)
+    return { exists: false }
   }
 }
 
@@ -207,69 +209,65 @@ export async function upsertWithIdempotency<T extends Record<string, unknown>>(
   table: string,
   records: T[],
   options?: {
-    uniqueKey?: UniqueKeyConfig;
-    trackFn?: (table: string, id: string, tenantId?: string) => void;
-    verbose?: boolean;
+    uniqueKey?: UniqueKeyConfig
+    trackFn?: (table: string, id: string, tenantId?: string) => void
+    verbose?: boolean
   }
 ): Promise<UpsertResult<T>> {
   const result: UpsertResult<T> = {
     created: [],
     skipped: [],
     errors: [],
-  };
+  }
 
-  const uniqueKey = options?.uniqueKey || UNIQUE_KEYS[table];
-  const verbose = options?.verbose ?? false;
+  const uniqueKey = options?.uniqueKey || UNIQUE_KEYS[table]
+  const verbose = options?.verbose ?? false
 
   for (const record of records) {
     try {
       // Check if exists
-      const { exists, existingId } = await checkExists(client, table, record, uniqueKey);
+      const { exists, existingId } = await checkExists(client, table, record, uniqueKey)
 
       if (exists) {
         if (verbose) {
-          console.log(`    Skipped (exists): ${table} id=${existingId}`);
+          console.log(`    Skipped (exists): ${table} id=${existingId}`)
         }
-        result.skipped.push({ ...record, id: existingId } as T);
-        continue;
+        result.skipped.push({ ...record, id: existingId } as T)
+        continue
       }
 
       // Insert new record
-      const { data, error } = await client
-        .from(table)
-        .insert(record)
-        .select()
-        .single();
+      const { data, error } = await client.from(table).insert(record).select().single()
 
       if (error) {
         result.errors.push({
           record,
           error: new Error(`Insert failed: ${error.message}`),
-        });
-        continue;
+        })
+        continue
       }
 
       if (data) {
-        result.created.push(data as T);
+        result.created.push(data as T)
 
         // Track for cleanup if function provided
         if (options?.trackFn) {
-          options.trackFn(table, data.id, record.tenant_id as string | undefined);
+          options.trackFn(table, data.id, record.tenant_id as string | undefined)
         }
 
         if (verbose) {
-          console.log(`    Created: ${table} id=${data.id}`);
+          console.log(`    Created: ${table} id=${data.id}`)
         }
       }
     } catch (e) {
       result.errors.push({
         record,
         error: e instanceof Error ? e : new Error(String(e)),
-      });
+      })
     }
   }
 
-  return result;
+  return result
 }
 
 /**
@@ -281,67 +279,67 @@ export async function batchUpsertWithIdempotency<T extends Record<string, unknow
   table: string,
   records: T[],
   options?: {
-    uniqueKey?: UniqueKeyConfig;
-    trackFn?: (table: string, id: string, tenantId?: string) => void;
-    batchSize?: number;
-    verbose?: boolean;
+    uniqueKey?: UniqueKeyConfig
+    trackFn?: (table: string, id: string, tenantId?: string) => void
+    batchSize?: number
+    verbose?: boolean
   }
 ): Promise<UpsertResult<T>> {
   const result: UpsertResult<T> = {
     created: [],
     skipped: [],
     errors: [],
-  };
+  }
 
-  const uniqueKey = options?.uniqueKey || UNIQUE_KEYS[table];
-  const batchSize = options?.batchSize ?? 100;
+  const uniqueKey = options?.uniqueKey || UNIQUE_KEYS[table]
+  const batchSize = options?.batchSize ?? 100
 
   if (!uniqueKey || records.length === 0) {
     // No unique key - just insert all
     for (let i = 0; i < records.length; i += batchSize) {
-      const batch = records.slice(i, i + batchSize);
-      const { data, error } = await client.from(table).insert(batch).select();
+      const batch = records.slice(i, i + batchSize)
+      const { data, error } = await client.from(table).insert(batch).select()
 
       if (error) {
         batch.forEach((record) => {
-          result.errors.push({ record, error: new Error(error.message) });
-        });
+          result.errors.push({ record, error: new Error(error.message) })
+        })
       } else if (data) {
-        result.created.push(...(data as T[]));
+        result.created.push(...(data as T[]))
 
         if (options?.trackFn) {
           data.forEach((d) => {
-            options.trackFn!(table, d.id, (d as Record<string, unknown>).tenant_id as string);
-          });
+            options.trackFn!(table, d.id, (d as Record<string, unknown>).tenant_id as string)
+          })
         }
       }
     }
-    return result;
+    return result
   }
 
   // Process in batches
   for (let i = 0; i < records.length; i += batchSize) {
-    const batch = records.slice(i, i + batchSize);
-    const batchResult = await upsertWithIdempotency(client, table, batch, options);
+    const batch = records.slice(i, i + batchSize)
+    const batchResult = await upsertWithIdempotency(client, table, batch, options)
 
-    result.created.push(...batchResult.created);
-    result.skipped.push(...batchResult.skipped);
-    result.errors.push(...batchResult.errors);
+    result.created.push(...batchResult.created)
+    result.skipped.push(...batchResult.skipped)
+    result.errors.push(...batchResult.errors)
   }
 
-  return result;
+  return result
 }
 
 /**
  * Get the unique key for a specific table
  */
 export function getUniqueKey(table: string): UniqueKeyConfig | undefined {
-  return UNIQUE_KEYS[table];
+  return UNIQUE_KEYS[table]
 }
 
 /**
  * Check if a table has a unique key configured
  */
 export function hasUniqueKey(table: string): boolean {
-  return table in UNIQUE_KEYS;
+  return table in UNIQUE_KEYS
 }

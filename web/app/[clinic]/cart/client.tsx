@@ -1,137 +1,163 @@
-"use client";
-import { useParams } from 'next/navigation';
-import { useCart } from '@/context/cart-context';
-import Link from 'next/link';
-import { ShoppingBag, X, ArrowRight, Trash2, ArrowLeft, ShieldCheck, Plus, Minus, Tag, AlertCircle, Calendar, Package, PawPrint } from 'lucide-react';
-import { DynamicIcon } from '@/lib/icons';
-import LoyaltyRedemption from '@/components/commerce/loyalty-redemption';
-import { createClient } from '@/lib/supabase/client';
-import { useEffect, useState, useMemo, useCallback } from 'react';
-import { ClinicConfig } from '@/lib/clinics';
-import type { User as SupabaseUser } from '@supabase/supabase-js';
-import { AuthGate } from '@/components/auth/auth-gate';
-import { ServiceGroup } from '@/components/cart/service-group';
-import { organizeCart } from '@/lib/utils/cart-utils';
+'use client'
+import { useParams } from 'next/navigation'
+import { useCart } from '@/context/cart-context'
+import Link from 'next/link'
+import {
+  ShoppingBag,
+  X,
+  ArrowRight,
+  Trash2,
+  ArrowLeft,
+  ShieldCheck,
+  Plus,
+  Minus,
+  Tag,
+  AlertCircle,
+  Calendar,
+  Package,
+  PawPrint,
+} from 'lucide-react'
+import { DynamicIcon } from '@/lib/icons'
+import LoyaltyRedemption from '@/components/commerce/loyalty-redemption'
+import { createClient } from '@/lib/supabase/client'
+import { useEffect, useState, useMemo, useCallback } from 'react'
+import { ClinicConfig } from '@/lib/clinics'
+import type { User as SupabaseUser } from '@supabase/supabase-js'
+import { AuthGate } from '@/components/auth/auth-gate'
+import { ServiceGroup } from '@/components/cart/service-group'
+import { organizeCart } from '@/lib/utils/cart-utils'
 
 interface CartPageClientProps {
-  readonly config: ClinicConfig;
+  readonly config: ClinicConfig
 }
 
 // Maximum quantity per item to prevent abuse
-const MAX_QUANTITY_PER_ITEM = 99;
+const MAX_QUANTITY_PER_ITEM = 99
 
 export default function CartPageClient({ config }: CartPageClientProps) {
-  const { clinic } = useParams() as { clinic: string };
-  const { items, clearCart, total, removeItem, updateQuantity, discount } = useCart();
-  const [user, setUser] = useState<SupabaseUser | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [quantityWarning, setQuantityWarning] = useState<string | null>(null);
+  const { clinic } = useParams() as { clinic: string }
+  const { items, clearCart, total, removeItem, updateQuantity, discount } = useCart()
+  const [user, setUser] = useState<SupabaseUser | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [quantityWarning, setQuantityWarning] = useState<string | null>(null)
 
   // Memoize supabase client
-  const supabase = useMemo(() => createClient(), []);
+  const supabase = useMemo(() => createClient(), [])
 
   useEffect(() => {
     const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user ?? null);
-      setLoading(false);
-    };
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
+      setUser(session?.user ?? null)
+      setLoading(false)
+    }
 
-    checkUser();
+    checkUser()
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setUser(session?.user ?? null);
-        setLoading(false);
-      }
-    );
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null)
+      setLoading(false)
+    })
 
-    return () => subscription.unsubscribe();
-  }, [supabase]);
+    return () => subscription.unsubscribe()
+  }, [supabase])
 
-  const finalTotal = Math.max(0, total - discount);
-  const labels = config.ui_labels?.cart || {};
-  const currency = config.settings?.currency || 'PYG';
-  const whatsappNumber = config.contact?.whatsapp_number;
+  const finalTotal = Math.max(0, total - discount)
+  const labels = config.ui_labels?.cart || {}
+  const currency = config.settings?.currency || 'PYG'
+  const whatsappNumber = config.contact?.whatsapp_number
 
   // Organize cart items into service groups and products
-  const organizedCart = useMemo(() => organizeCart(items), [items]);
+  const organizedCart = useMemo(() => organizeCart(items), [items])
 
   // Safe quantity update with validation
-  const handleQuantityUpdate = useCallback((itemId: string, delta: number) => {
-    const item = items.find(i => i.id === itemId);
-    if (!item) return;
+  const handleQuantityUpdate = useCallback(
+    (itemId: string, delta: number) => {
+      const item = items.find((i) => i.id === itemId)
+      if (!item) return
 
-    const newQuantity = item.quantity + delta;
+      const newQuantity = item.quantity + delta
 
-    // Validate against maximum
-    if (newQuantity > MAX_QUANTITY_PER_ITEM) {
-      setQuantityWarning(`Máximo ${MAX_QUANTITY_PER_ITEM} unidades por producto`);
-      setTimeout(() => setQuantityWarning(null), 3000);
-      return;
-    }
+      // Validate against maximum
+      if (newQuantity > MAX_QUANTITY_PER_ITEM) {
+        setQuantityWarning(`Máximo ${MAX_QUANTITY_PER_ITEM} unidades por producto`)
+        setTimeout(() => setQuantityWarning(null), 3000)
+        return
+      }
 
-    // Validate against stock if available
-    if (item.stock !== undefined && newQuantity > item.stock) {
-      setQuantityWarning(`Solo hay ${item.stock} unidades disponibles`);
-      setTimeout(() => setQuantityWarning(null), 3000);
-      return;
-    }
+      // Validate against stock if available
+      if (item.stock !== undefined && newQuantity > item.stock) {
+        setQuantityWarning(`Solo hay ${item.stock} unidades disponibles`)
+        setTimeout(() => setQuantityWarning(null), 3000)
+        return
+      }
 
-    updateQuantity(itemId, delta);
-  }, [items, updateQuantity]);
+      updateQuantity(itemId, delta)
+    },
+    [items, updateQuantity]
+  )
 
-  if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="animate-pulse flex flex-col items-center">
-            <div className="w-12 h-12 bg-gray-200 rounded-full mb-4"></div>
-            <div className="h-4 w-32 bg-gray-200 rounded"></div>
-        </div>
-    </div>
-  );
-
-  // Cart preview for unauthenticated users
-  const cartPreview = items.length > 0 ? (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
-      <div className="space-y-3">
-        {items.slice(0, 3).map((item) => (
-          <div key={item.id} className="flex items-center gap-3 text-sm">
-            <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-              {item.image_url ? (
-                <img src={item.image_url} alt={item.name} className="w-8 h-8 object-contain" />
-              ) : item.type === 'service' ? (
-                <DynamicIcon name={item.service_icon} className="w-5 h-5 text-[var(--primary)]" />
-              ) : (
-                <Package className="w-4 h-4 text-gray-400" />
-              )}
-            </div>
-            <span className="flex-1 truncate text-gray-700">{item.name}</span>
-            <span className="text-gray-500">x{item.quantity}</span>
-          </div>
-        ))}
-        {items.length > 3 && (
-          <p className="text-xs text-gray-400 text-center">+{items.length - 3} productos más</p>
-        )}
-        <div className="pt-3 border-t border-gray-100 flex justify-between font-bold">
-          <span>Total:</span>
-          <span className="text-[var(--primary)]">
-            {new Intl.NumberFormat('es-PY', { style: 'currency', currency: currency }).format(total)}
-          </span>
+  if (loading)
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+        <div className="flex animate-pulse flex-col items-center">
+          <div className="mb-4 h-12 w-12 rounded-full bg-gray-200"></div>
+          <div className="h-4 w-32 rounded bg-gray-200"></div>
         </div>
       </div>
-    </div>
-  ) : null;
+    )
+
+  // Cart preview for unauthenticated users
+  const cartPreview =
+    items.length > 0 ? (
+      <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+        <div className="space-y-3">
+          {items.slice(0, 3).map((item) => (
+            <div key={item.id} className="flex items-center gap-3 text-sm">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100">
+                {item.image_url ? (
+                  <img src={item.image_url} alt={item.name} className="h-8 w-8 object-contain" />
+                ) : item.type === 'service' ? (
+                  <DynamicIcon name={item.service_icon} className="h-5 w-5 text-[var(--primary)]" />
+                ) : (
+                  <Package className="h-4 w-4 text-gray-400" />
+                )}
+              </div>
+              <span className="flex-1 truncate text-gray-700">{item.name}</span>
+              <span className="text-gray-500">x{item.quantity}</span>
+            </div>
+          ))}
+          {items.length > 3 && (
+            <p className="text-center text-xs text-gray-400">+{items.length - 3} productos más</p>
+          )}
+          <div className="flex justify-between border-t border-gray-100 pt-3 font-bold">
+            <span>Total:</span>
+            <span className="text-[var(--primary)]">
+              {new Intl.NumberFormat('es-PY', { style: 'currency', currency: currency }).format(
+                total
+              )}
+            </span>
+          </div>
+        </div>
+      </div>
+    ) : null
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
-      <div className="bg-white border-b border-gray-100 sticky top-0 z-10 shadow-sm mb-8">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-            <Link href={`/${clinic}/store`} className="flex items-center gap-2 font-bold text-gray-400 hover:text-[var(--primary)] transition-all">
-                <ArrowLeft className="w-5 h-5" />
-                <span className="hidden sm:inline">Tienda</span>
-            </Link>
-            <h1 className="text-xl font-bold text-gray-900">{labels.title || "Tu Carrito"}</h1>
-            <div className="w-20"></div>
+      <div className="sticky top-0 z-10 mb-8 border-b border-gray-100 bg-white shadow-sm">
+        <div className="container mx-auto flex h-16 items-center justify-between px-4">
+          <Link
+            href={`/${clinic}/store`}
+            className="flex items-center gap-2 font-bold text-gray-400 transition-all hover:text-[var(--primary)]"
+          >
+            <ArrowLeft className="h-5 w-5" />
+            <span className="hidden sm:inline">Tienda</span>
+          </Link>
+          <h1 className="text-xl font-bold text-gray-900">{labels.title || 'Tu Carrito'}</h1>
+          <div className="w-20"></div>
         </div>
       </div>
 
@@ -145,48 +171,58 @@ export default function CartPageClient({ config }: CartPageClientProps) {
         preview={cartPreview}
       >
         <div className="container mx-auto px-4">
-        {items.length === 0 ? (
-        <div className="text-center py-24 bg-white rounded-[2rem] shadow-sm border border-gray-100 max-w-2xl mx-auto px-6">
-             <div className="bg-gray-50 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-8">
-                <ShoppingBag className="w-10 h-10 text-gray-300" />
+          {items.length === 0 ? (
+            <div className="mx-auto max-w-2xl rounded-[2rem] border border-gray-100 bg-white px-6 py-24 text-center shadow-sm">
+              <div className="mx-auto mb-8 flex h-24 w-24 items-center justify-center rounded-full bg-gray-50">
+                <ShoppingBag className="h-10 w-10 text-gray-300" />
+              </div>
+              <h2 className="mb-3 text-3xl font-black text-gray-900">
+                {labels.empty || 'Tu carrito está vacío'}
+              </h2>
+              <p className="mx-auto mb-10 max-w-md text-lg leading-relaxed text-gray-500">
+                Parece que aún no has agregado productos. Explora nuestra tienda para encontrar lo
+                mejor para tu mascota.
+              </p>
+              <Link
+                href={`/${clinic}/store`}
+                className="inline-flex items-center gap-3 rounded-2xl bg-gray-900 px-10 py-4 font-bold text-white shadow-xl transition-all hover:-translate-y-1 hover:bg-[var(--primary)] hover:shadow-2xl active:scale-95"
+              >
+                Ir a la Tienda <ArrowRight className="h-5 w-5" />
+              </Link>
             </div>
-            <h2 className="text-3xl font-black text-gray-900 mb-3">{labels.empty || "Tu carrito está vacío"}</h2>
-            <p className="text-gray-500 mb-10 max-w-md mx-auto text-lg leading-relaxed">Parece que aún no has agregado productos. Explora nuestra tienda para encontrar lo mejor para tu mascota.</p>
-            <Link href={`/${clinic}/store`} className="inline-flex items-center gap-3 px-10 py-4 bg-gray-900 text-white font-bold rounded-2xl hover:bg-[var(--primary)] transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1 active:scale-95">
-                Ir a la Tienda <ArrowRight className="w-5 h-5" />
-            </Link>
-        </div>
-      ) : (
-        <div className="grid lg:grid-cols-[1fr_380px] gap-10 items-start max-w-7xl mx-auto">
-            {/* Left Column: Items */}
-            <div className="space-y-4">
-                <div className="flex items-center justify-between mb-4 px-4">
-                    <span className="font-bold text-gray-400 uppercase tracking-wider text-xs">{items.reduce((acc, i) => acc + i.quantity, 0)} items</span>
-                    <button onClick={clearCart} className="text-xs text-red-400 hover:text-red-500 font-bold flex items-center gap-1.5 transition-colors uppercase tracking-wider">
-                        <Trash2 className="w-3.5 h-3.5" /> {labels.clear_btn || "Vaciar todo"}
-                    </button>
+          ) : (
+            <div className="mx-auto grid max-w-7xl items-start gap-10 lg:grid-cols-[1fr_380px]">
+              {/* Left Column: Items */}
+              <div className="space-y-4">
+                <div className="mb-4 flex items-center justify-between px-4">
+                  <span className="text-xs font-bold uppercase tracking-wider text-gray-400">
+                    {items.reduce((acc, i) => acc + i.quantity, 0)} items
+                  </span>
+                  <button
+                    onClick={clearCart}
+                    className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-red-400 transition-colors hover:text-red-500"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" /> {labels.clear_btn || 'Vaciar todo'}
+                  </button>
                 </div>
 
                 {/* Quantity warning toast */}
                 {quantityWarning && (
-                  <div className="mb-4 mx-4 p-3 bg-amber-50 border border-amber-200 rounded-xl flex items-center gap-2 text-amber-700 text-sm font-medium animate-in slide-in-from-top">
-                    <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                  <div className="animate-in slide-in-from-top mx-4 mb-4 flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm font-medium text-amber-700">
+                    <AlertCircle className="h-4 w-4 flex-shrink-0" />
                     {quantityWarning}
                   </div>
                 )}
 
                 {/* Service Groups - Service-centric view */}
                 {organizedCart.serviceGroups.length > 0 && (
-                  <div className="space-y-4 mb-6">
-                    <div className="flex items-center gap-2 text-sm font-bold text-gray-500 uppercase tracking-wider px-2">
-                      <PawPrint className="w-4 h-4" />
+                  <div className="mb-6 space-y-4">
+                    <div className="flex items-center gap-2 px-2 text-sm font-bold uppercase tracking-wider text-gray-500">
+                      <PawPrint className="h-4 w-4" />
                       <span>Servicios</span>
                     </div>
                     {organizedCart.serviceGroups.map((group) => (
-                      <ServiceGroup
-                        key={`${group.service_id}-${group.variant_name}`}
-                        {...group}
-                      />
+                      <ServiceGroup key={`${group.service_id}-${group.variant_name}`} {...group} />
                     ))}
                   </div>
                 )}
@@ -195,141 +231,184 @@ export default function CartPageClient({ config }: CartPageClientProps) {
                 {organizedCart.unassignedProducts.length > 0 && (
                   <div className="space-y-3">
                     {organizedCart.serviceGroups.length > 0 && (
-                      <div className="flex items-center gap-2 text-sm font-bold text-gray-500 uppercase tracking-wider px-2 mt-8">
-                        <Package className="w-4 h-4" />
+                      <div className="mt-8 flex items-center gap-2 px-2 text-sm font-bold uppercase tracking-wider text-gray-500">
+                        <Package className="h-4 w-4" />
                         <span>Productos</span>
                       </div>
                     )}
                     {organizedCart.unassignedProducts.map((item) => (
-                        <div key={`product-${item.id}`} className="flex items-center gap-4 sm:gap-6 bg-white p-4 sm:p-5 rounded-3xl shadow-sm border border-gray-50 hover:border-gray-100 hover:shadow-md transition-all group">
-                            {/* Image Container */}
-                            <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gray-50 rounded-2xl flex items-center justify-center shrink-0 overflow-hidden relative border border-gray-100/50">
-                                {item.image_url ? (
-                                <img src={item.image_url} alt={item.name} className="w-full h-full object-contain p-3 group-hover:scale-110 transition-transform" />
-                                ) : (
-                                <Package className="w-8 h-8 text-gray-300" />
-                                )}
-                            </div>
-
-                            {/* Details */}
-                            <div className="flex-1 min-w-0">
-                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
-                                    <h3 className="font-bold text-gray-900 truncate pr-4 sm:text-lg leading-tight">{item.name}</h3>
-                                    <span className="font-black text-gray-900 sm:text-lg shrink-0">
-                                        {new Intl.NumberFormat('es-PY', { style: 'currency', currency: currency }).format(item.price * item.quantity)}
-                                    </span>
-                                </div>
-
-                                <div className="flex items-center justify-between gap-4">
-                                     <div className="flex flex-col gap-1">
-                                        <span className="text-[10px] font-black uppercase tracking-widest text-[var(--primary)] bg-[var(--primary)]/5 px-2 py-0.5 rounded-md inline-block">
-                                            {labels.item_product || 'Producto'}
-                                        </span>
-                                        {item.quantity > 1 && (
-                                            <span className="text-[10px] text-gray-400 font-medium">
-                                                {new Intl.NumberFormat('es-PY', { style: 'currency', currency: currency }).format(item.price)} c/u
-                                            </span>
-                                        )}
-                                     </div>
-
-                                     {/* Quantity Control */}
-                                     <div className="flex items-center gap-3 bg-gray-50 p-1.5 rounded-xl border border-gray-100">
-                                        <button
-                                            onClick={() => handleQuantityUpdate(item.id, -1)}
-                                            className="w-8 h-8 flex items-center justify-center bg-white text-gray-500 rounded-lg shadow-sm hover:text-red-500 active:scale-90 transition-all disabled:opacity-50"
-                                            disabled={item.quantity <= 1}
-                                            aria-label="Reducir cantidad"
-                                        >
-                                            <Minus className="w-4 h-4" />
-                                        </button>
-                                        <span className="w-6 text-center font-bold text-gray-700 text-sm">{item.quantity}</span>
-                                        <button
-                                            onClick={() => handleQuantityUpdate(item.id, 1)}
-                                            className="w-8 h-8 flex items-center justify-center bg-white text-gray-500 rounded-lg shadow-sm hover:text-[var(--primary)] active:scale-90 transition-all disabled:opacity-50"
-                                            disabled={item.quantity >= MAX_QUANTITY_PER_ITEM || (item.stock !== undefined && item.quantity >= item.stock)}
-                                            aria-label="Aumentar cantidad"
-                                        >
-                                            <Plus className="w-4 h-4" />
-                                        </button>
-                                     </div>
-                                </div>
-                            </div>
-
-                            {/* Remove button */}
-                            <button
-                                onClick={() => removeItem(item.id)}
-                                className="text-gray-200 hover:text-red-400 p-2 hover:bg-red-50 rounded-full transition-all group-hover:text-gray-300"
-                                aria-label="Eliminar"
-                            >
-                                <X className="w-5 h-5 text-current" strokeWidth={3} />
-                            </button>
+                      <div
+                        key={`product-${item.id}`}
+                        className="group flex items-center gap-4 rounded-3xl border border-gray-50 bg-white p-4 shadow-sm transition-all hover:border-gray-100 hover:shadow-md sm:gap-6 sm:p-5"
+                      >
+                        {/* Image Container */}
+                        <div className="relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-gray-100/50 bg-gray-50 sm:h-24 sm:w-24">
+                          {item.image_url ? (
+                            <img
+                              src={item.image_url}
+                              alt={item.name}
+                              className="h-full w-full object-contain p-3 transition-transform group-hover:scale-110"
+                            />
+                          ) : (
+                            <Package className="h-8 w-8 text-gray-300" />
+                          )}
                         </div>
+
+                        {/* Details */}
+                        <div className="min-w-0 flex-1">
+                          <div className="mb-2 flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
+                            <h3 className="truncate pr-4 font-bold leading-tight text-gray-900 sm:text-lg">
+                              {item.name}
+                            </h3>
+                            <span className="shrink-0 font-black text-gray-900 sm:text-lg">
+                              {new Intl.NumberFormat('es-PY', {
+                                style: 'currency',
+                                currency: currency,
+                              }).format(item.price * item.quantity)}
+                            </span>
+                          </div>
+
+                          <div className="flex items-center justify-between gap-4">
+                            <div className="flex flex-col gap-1">
+                              <span className="bg-[var(--primary)]/5 inline-block rounded-md px-2 py-0.5 text-[10px] font-black uppercase tracking-widest text-[var(--primary)]">
+                                {labels.item_product || 'Producto'}
+                              </span>
+                              {item.quantity > 1 && (
+                                <span className="text-[10px] font-medium text-gray-400">
+                                  {new Intl.NumberFormat('es-PY', {
+                                    style: 'currency',
+                                    currency: currency,
+                                  }).format(item.price)}{' '}
+                                  c/u
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Quantity Control */}
+                            <div className="flex items-center gap-3 rounded-xl border border-gray-100 bg-gray-50 p-1.5">
+                              <button
+                                onClick={() => handleQuantityUpdate(item.id, -1)}
+                                className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-gray-500 shadow-sm transition-all hover:text-red-500 active:scale-90 disabled:opacity-50"
+                                disabled={item.quantity <= 1}
+                                aria-label="Reducir cantidad"
+                              >
+                                <Minus className="h-4 w-4" />
+                              </button>
+                              <span className="w-6 text-center text-sm font-bold text-gray-700">
+                                {item.quantity}
+                              </span>
+                              <button
+                                onClick={() => handleQuantityUpdate(item.id, 1)}
+                                className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-gray-500 shadow-sm transition-all hover:text-[var(--primary)] active:scale-90 disabled:opacity-50"
+                                disabled={
+                                  item.quantity >= MAX_QUANTITY_PER_ITEM ||
+                                  (item.stock !== undefined && item.quantity >= item.stock)
+                                }
+                                aria-label="Aumentar cantidad"
+                              >
+                                <Plus className="h-4 w-4" />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Remove button */}
+                        <button
+                          onClick={() => removeItem(item.id)}
+                          className="rounded-full p-2 text-gray-200 transition-all hover:bg-red-50 hover:text-red-400 group-hover:text-gray-300"
+                          aria-label="Eliminar"
+                        >
+                          <X className="h-5 w-5 text-current" strokeWidth={3} />
+                        </button>
+                      </div>
                     ))}
                   </div>
                 )}
-            </div>
+              </div>
 
-            {/* Right Column: Summary Card */}
-            <div className="lg:sticky lg:top-24 mt-6 lg:mt-0">
-                <div className="bg-white p-8 rounded-[2.5rem] shadow-2xl shadow-gray-200/50 border border-gray-50 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--primary)]/5 rounded-full -mr-16 -mt-16 blur-3xl"></div>
-                    
-                    <h3 className="font-bold text-2xl text-gray-900 mb-8 flex items-center gap-3">
-                        <ShoppingBag className="w-6 h-6 text-[var(--primary)]" /> Resumen
-                    </h3>
-                    
-                    <div className="space-y-4 mb-8">
-                        <div className="flex justify-between text-gray-500 font-medium">
-                            <span>Subtotal</span>
-                            <span className="text-gray-900">{new Intl.NumberFormat('es-PY', { style: 'currency', currency: currency }).format(total)}</span>
-                        </div>
-                        {discount > 0 && (
-                            <div className="flex justify-between text-green-600 font-bold items-center">
-                                <div className="flex items-center gap-2">
-                                    <Tag className="w-4 h-4" />
-                                    <span>Descuento Puntos</span>
-                                </div>
-                                <span>-{new Intl.NumberFormat('es-PY', { style: 'currency', currency: currency }).format(discount)}</span>
-                            </div>
-                        )}
-                         <div className="flex justify-between text-gray-400 text-sm">
-                            <span>Envío/Gestión</span>
-                            <span className="font-bold text-[var(--primary)] uppercase tracking-tighter text-xs">Por WhatsApp</span>
-                        </div>
-                        <div className="h-px bg-gray-100 my-4"></div>
-                        <div className="flex justify-between items-end">
-                            <div>
-                                <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">{labels.total_label || "Total Estimado"}</p>
-                                <span className="text-3xl font-black text-gray-900 leading-none">
-                                    {new Intl.NumberFormat('es-PY', { style: 'currency', currency: currency }).format(finalTotal)}
-                                </span>
-                            </div>
-                        </div>
+              {/* Right Column: Summary Card */}
+              <div className="mt-6 lg:sticky lg:top-24 lg:mt-0">
+                <div className="relative overflow-hidden rounded-[2.5rem] border border-gray-50 bg-white p-8 shadow-2xl shadow-gray-200/50">
+                  <div className="bg-[var(--primary)]/5 absolute right-0 top-0 -mr-16 -mt-16 h-32 w-32 rounded-full blur-3xl"></div>
+
+                  <h3 className="mb-8 flex items-center gap-3 text-2xl font-bold text-gray-900">
+                    <ShoppingBag className="h-6 w-6 text-[var(--primary)]" /> Resumen
+                  </h3>
+
+                  <div className="mb-8 space-y-4">
+                    <div className="flex justify-between font-medium text-gray-500">
+                      <span>Subtotal</span>
+                      <span className="text-gray-900">
+                        {new Intl.NumberFormat('es-PY', {
+                          style: 'currency',
+                          currency: currency,
+                        }).format(total)}
+                      </span>
                     </div>
-
-                    {user && <LoyaltyRedemption userId={user.id} />}
-
-                    <Link 
-                        href={`/${clinic}/cart/checkout`} 
-                        className="w-full flex items-center justify-center gap-3 px-8 py-5 bg-gray-900 text-white font-bold rounded-2xl hover:bg-[var(--primary)] transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1 active:scale-95 duration-200"
-                    >
-                         {labels.checkout_btn || "Continuar compra"} <ArrowRight className="w-5 h-5" />
-                    </Link>
-                    
-                    <div className="mt-8 space-y-3">
-                        <div className="flex items-center gap-3 text-xs text-gray-500 bg-gray-50 p-3 rounded-xl border border-gray-100">
-                           <ShieldCheck className="w-5 h-5 text-green-500 shrink-0" />
-                           <p>Tu pedido será procesado de forma segura vía **WhatsApp** directamente con la clínica.</p>
+                    {discount > 0 && (
+                      <div className="flex items-center justify-between font-bold text-green-600">
+                        <div className="flex items-center gap-2">
+                          <Tag className="h-4 w-4" />
+                          <span>Descuento Puntos</span>
                         </div>
-                        <p className="text-[10px] text-gray-300 text-center uppercase tracking-tighter">Precios sujetos a disponibilidad local</p>
+                        <span>
+                          -
+                          {new Intl.NumberFormat('es-PY', {
+                            style: 'currency',
+                            currency: currency,
+                          }).format(discount)}
+                        </span>
+                      </div>
+                    )}
+                    <div className="flex justify-between text-sm text-gray-400">
+                      <span>Envío/Gestión</span>
+                      <span className="text-xs font-bold uppercase tracking-tighter text-[var(--primary)]">
+                        Por WhatsApp
+                      </span>
                     </div>
+                    <div className="my-4 h-px bg-gray-100"></div>
+                    <div className="flex items-end justify-between">
+                      <div>
+                        <p className="mb-1 text-xs font-black uppercase tracking-widest text-gray-400">
+                          {labels.total_label || 'Total Estimado'}
+                        </p>
+                        <span className="text-3xl font-black leading-none text-gray-900">
+                          {new Intl.NumberFormat('es-PY', {
+                            style: 'currency',
+                            currency: currency,
+                          }).format(finalTotal)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {user && <LoyaltyRedemption userId={user.id} />}
+
+                  <Link
+                    href={`/${clinic}/cart/checkout`}
+                    className="flex w-full items-center justify-center gap-3 rounded-2xl bg-gray-900 px-8 py-5 font-bold text-white shadow-xl transition-all duration-200 hover:-translate-y-1 hover:bg-[var(--primary)] hover:shadow-2xl active:scale-95"
+                  >
+                    {labels.checkout_btn || 'Continuar compra'} <ArrowRight className="h-5 w-5" />
+                  </Link>
+
+                  <div className="mt-8 space-y-3">
+                    <div className="flex items-center gap-3 rounded-xl border border-gray-100 bg-gray-50 p-3 text-xs text-gray-500">
+                      <ShieldCheck className="h-5 w-5 shrink-0 text-green-500" />
+                      <p>
+                        Tu pedido será procesado de forma segura vía **WhatsApp** directamente con
+                        la clínica.
+                      </p>
+                    </div>
+                    <p className="text-center text-[10px] uppercase tracking-tighter text-gray-300">
+                      Precios sujetos a disponibilidad local
+                    </p>
+                  </div>
                 </div>
+              </div>
             </div>
-        </div>
-      )}
+          )}
         </div>
       </AuthGate>
     </div>
-  );
+  )
 }
-

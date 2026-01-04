@@ -15,7 +15,8 @@ export class PetRepository {
   async findById(id: string): Promise<Pet | null> {
     const { data, error } = await this.supabase
       .from('pets')
-      .select(`
+      .select(
+        `
         *,
         profiles!pets_owner_id_fkey (
           id,
@@ -23,7 +24,8 @@ export class PetRepository {
           phone,
           email
         )
-      `)
+      `
+      )
       .eq('id', id)
       .single()
 
@@ -32,9 +34,7 @@ export class PetRepository {
   }
 
   async findMany(filters: PetFilters = {}): Promise<Pet[]> {
-    let query = this.supabase
-      .from('pets')
-      .select(`
+    let query = this.supabase.from('pets').select(`
         *,
         profiles!pets_owner_id_fkey (
           id,
@@ -72,7 +72,7 @@ export class PetRepository {
         ...data,
         owner_id: ownerId,
         tenant_id: tenantId,
-        is_active: true
+        is_active: true,
       })
       .select()
       .single()
@@ -102,10 +102,7 @@ export class PetRepository {
   }
 
   async delete(id: string): Promise<void> {
-    const { error } = await this.supabase
-      .from('pets')
-      .delete()
-      .eq('id', id)
+    const { error } = await this.supabase.from('pets').delete().eq('id', id)
 
     if (error) throw error
   }
@@ -122,10 +119,10 @@ export class PetRepository {
       total: pets.length,
       by_species: { dog: 0, cat: 0, bird: 0, rabbit: 0, other: 0 },
       active: 0,
-      inactive: 0
+      inactive: 0,
     }
 
-    pets.forEach(pet => {
+    pets.forEach((pet) => {
       const species = (pet.species as PetSpecies) || 'other'
       if (species in stats.by_species) {
         stats.by_species[species]++
@@ -158,12 +155,14 @@ export class PetRepository {
       is_active: data.is_active,
       created_at: new Date(data.created_at),
       updated_at: new Date(data.updated_at),
-      owner: data.profiles ? {
-        id: data.profiles.id,
-        full_name: data.profiles.full_name,
-        phone: data.profiles.phone,
-        email: data.profiles.email
-      } : undefined
+      owner: data.profiles
+        ? {
+            id: data.profiles.id,
+            full_name: data.profiles.full_name,
+            phone: data.profiles.phone,
+            email: data.profiles.email,
+          }
+        : undefined,
     }
   }
 }

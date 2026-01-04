@@ -7,6 +7,7 @@ This document outlines the modular, professional React component architecture im
 The component architecture follows a **modular, centralized, and professional** approach with clear separation of concerns:
 
 ### Core Principles
+
 - **Modular**: Components are broken into focused, reusable modules
 - **Centralized**: Shared logic lives in dedicated hooks and utilities
 - **Professional**: TypeScript-first, error boundaries, accessibility, and best practices
@@ -38,31 +39,33 @@ web/components/
 ### Core Hooks
 
 #### `useAsyncData<T>`
+
 Generic data fetching with loading/error states and retry logic.
 
 ```typescript
-const { data, isLoading, error, refetch } = useAsyncData(
-  () => fetch('/api/data'),
-  [dependencies],
-  { retryCount: 3, refetchOnWindowFocus: true }
-);
+const { data, isLoading, error, refetch } = useAsyncData(() => fetch('/api/data'), [dependencies], {
+  retryCount: 3,
+  refetchOnWindowFocus: true,
+})
 ```
 
 #### `useForm`
+
 Complete form state management with validation.
 
 ```typescript
 const form = useForm({
   initialValues: { email: '' },
   validationRules: {
-    email: required('Email required')
-  }
-});
+    email: required('Email required'),
+  },
+})
 
-const { value, onChange, onBlur, error } = form.getFieldProps('email');
+const { value, onChange, onBlur, error } = form.getFieldProps('email')
 ```
 
 #### `useModal`
+
 Simple modal state management.
 
 ```typescript
@@ -74,29 +77,32 @@ return (
 ```
 
 #### `useExpandableSections`
+
 Manages collapsible sections state.
 
 ```typescript
 const { expandedSections, toggleSection } = useExpandableSections({
   section1: true,
-  section2: false
-});
+  section2: false,
+})
 ```
 
 #### `useFilterData`
+
 Specialized hook for filter data fetching.
 
 ```typescript
-const { categories, brands, isLoading, error } = useFilterData(clinicId);
+const { categories, brands, isLoading, error } = useFilterData(clinicId)
 ```
 
 ### Utility Hooks
 
 #### `useDebounce`
+
 Debounces values (already existed).
 
 ```typescript
-const debouncedValue = useDebounce(value, 500);
+const debouncedValue = useDebounce(value, 500)
 ```
 
 ## 🧩 Shared Components (`/shared/`)
@@ -104,6 +110,7 @@ const debouncedValue = useDebounce(value, 500);
 ### Error Handling
 
 #### `ErrorBoundary`
+
 Catches JavaScript errors in component tree.
 
 ```typescript
@@ -113,6 +120,7 @@ Catches JavaScript errors in component tree.
 ```
 
 #### `LoadingSpinner`
+
 Consistent loading indicators.
 
 ```typescript
@@ -121,6 +129,7 @@ Consistent loading indicators.
 ```
 
 #### `EmptyState`
+
 Professional empty state displays.
 
 ```typescript
@@ -135,6 +144,7 @@ Professional empty state displays.
 ### Filter Components
 
 #### `FilterSection`
+
 Reusable filter sections with expand/collapse.
 
 ```typescript
@@ -151,6 +161,7 @@ Reusable filter sections with expand/collapse.
 ```
 
 #### `ActiveFilters`
+
 Displays currently active filters with remove buttons.
 
 ```typescript
@@ -167,63 +178,68 @@ Displays currently active filters with remove buttons.
 ## 🛠️ Utilities (`/lib/utils/`)
 
 ### API Client (`api-client.ts`)
+
 Centralized API communication with error handling.
 
 ```typescript
-import { apiClient } from '@/lib/utils';
+import { apiClient } from '@/lib/utils'
 
 // GET request
-const response = await apiClient.get('/api/data');
+const response = await apiClient.get('/api/data')
 
 // POST request
-const result = await apiClient.post('/api/create', { name: 'John' });
+const result = await apiClient.post('/api/create', { name: 'John' })
 ```
 
 ### Formatting (`formatting.ts`)
+
 Consistent data formatting utilities.
 
 ```typescript
-import { formatCurrency, formatPhoneNumber, formatDate } from '@/lib/utils';
+import { formatCurrency, formatPhoneNumber, formatDate } from '@/lib/utils'
 
-formatCurrency(1000000, 'PYG'); // ₲ 1.000.000
-formatPhoneNumber('0981123456'); // 0981 123 456
-formatDate(new Date()); // "21 dic 2025"
+formatCurrency(1000000, 'PYG') // ₲ 1.000.000
+formatPhoneNumber('0981123456') // 0981 123 456
+formatDate(new Date()) // "21 dic 2025"
 ```
 
 ### Validation (`validation.ts`)
+
 Reusable validation rules.
 
 ```typescript
-import { required, email, minLength, createValidator } from '@/lib/utils';
+import { required, email, minLength, createValidator } from '@/lib/utils'
 
 const rules = {
   email: createValidator(required(), email()),
-  password: createValidator(required(), minLength(8))
-};
+  password: createValidator(required(), minLength(8)),
+}
 ```
 
 ## 🔄 Refactoring Patterns
 
 ### Before: Monolithic Component
+
 ```typescript
 function CatalogFilters() {
-  const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [categories, setCategories] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
     fetch('/api/categories')
-      .then(res => res.json())
+      .then((res) => res.json())
       .then(setCategories)
       .catch(setError)
-      .finally(() => setLoading(false));
-  }, []);
+      .finally(() => setLoading(false))
+  }, [])
 
   // 200+ lines of mixed UI and logic...
 }
 ```
 
 ### After: Modular Architecture
+
 ```typescript
 function CatalogFilters() {
   const { categories, isLoading, error } = useFilterData(clinic);
@@ -252,6 +268,7 @@ function CatalogFilters() {
 ## 📋 Implementation Checklist
 
 ### Component Refactoring
+
 - [ ] Extract data fetching to `useAsyncData` or custom hooks
 - [ ] Use `useForm` for form state management
 - [ ] Wrap in `ErrorBoundary` for error handling
@@ -260,6 +277,7 @@ function CatalogFilters() {
 - [ ] Break large components into smaller, focused modules
 
 ### Code Quality
+
 - [ ] TypeScript interfaces for all props and state
 - [ ] Proper error handling with user-friendly messages
 - [ ] Accessibility attributes (ARIA labels, keyboard navigation)
@@ -267,6 +285,7 @@ function CatalogFilters() {
 - [ ] Performance optimizations (memo, callbacks)
 
 ### Testing
+
 - [ ] Unit tests for custom hooks
 - [ ] Component tests with different states
 - [ ] Error boundary tests
@@ -275,23 +294,27 @@ function CatalogFilters() {
 ## 🎯 Benefits
 
 ### Developer Experience
+
 - **Faster Development**: Reusable hooks and components reduce boilerplate
 - **Easier Testing**: Isolated logic in hooks, focused components
 - **Better DX**: Clear patterns, consistent APIs
 - **Type Safety**: Full TypeScript coverage
 
 ### Code Quality
+
 - **Maintainable**: Small, focused modules
 - **DRY**: No code duplication
 - **Reliable**: Error boundaries prevent crashes
 - **Accessible**: Built-in accessibility patterns
 
 ### Performance
+
 - **Smaller Bundles**: Tree-shakable utilities
 - **Efficient Re-renders**: Proper memoization patterns
 - **Loading States**: Better perceived performance
 
 ### User Experience
+
 - **Error Recovery**: Graceful error handling
 - **Loading Feedback**: Consistent loading indicators
 - **Accessibility**: Screen reader support, keyboard navigation

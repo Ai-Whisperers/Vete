@@ -5,19 +5,19 @@
  */
 
 // Tenants
-export * from './tenants';
+export * from './tenants'
 
 // Users
-export * from './users';
+export * from './users'
 
 // Pets
-export * from './pets';
+export * from './pets'
 
 // Vaccines
-export * from './vaccines';
+export * from './vaccines'
 
 // Appointments
-export * from './appointments';
+export * from './appointments'
 
 /**
  * Quick Reference:

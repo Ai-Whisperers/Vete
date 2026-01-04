@@ -14,7 +14,9 @@ import fs from 'fs'
 import path from 'path'
 
 const SUPABASE_URL = 'https://okddppczckbjdotrxiev.supabase.co'
-const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9rZGRwcGN6Y2tiamRvdHJ4aWV2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NTkxODM2OCwiZXhwIjoyMDgxNDk0MzY4fQ.dYdMe_yFgwUmgslf0FXV7nrEhtLqvkOK7qPIl_rx90c'
+const SUPABASE_SERVICE_KEY =
+  process.env.SUPABASE_SERVICE_ROLE_KEY ||
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9rZGRwcGN6Y2tiamRvdHJ4aWV2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NTkxODM2OCwiZXhwIjoyMDgxNDk0MzY4fQ.dYdMe_yFgwUmgslf0FXV7nrEhtLqvkOK7qPIl_rx90c'
 
 const DB_DIR = path.resolve(__dirname, '../db')
 
@@ -37,7 +39,9 @@ async function main() {
     console.log('1. Open Supabase SQL Editor:')
     console.log(`   https://supabase.com/dashboard/project/okddppczckbjdotrxiev/sql/new\n`)
     console.log('2. Copy the contents of: web/db/_FULL_SETUP.sql')
-    console.log(`   File size: ${(fs.statSync(path.join(DB_DIR, '_FULL_SETUP.sql')).size / 1024).toFixed(1)} KB\n`)
+    console.log(
+      `   File size: ${(fs.statSync(path.join(DB_DIR, '_FULL_SETUP.sql')).size / 1024).toFixed(1)} KB\n`
+    )
     console.log('3. Paste into SQL Editor and click "Run"\n')
     console.log('='.repeat(60))
     console.log('\nOnce complete, you can use these demo accounts:')

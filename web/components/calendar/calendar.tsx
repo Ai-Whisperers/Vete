@@ -1,7 +1,12 @@
 'use client'
 
 import { useMemo, useCallback } from 'react'
-import { Calendar as BigCalendar, Views, type DateCellWrapperProps, type Components } from 'react-big-calendar'
+import {
+  Calendar as BigCalendar,
+  Views,
+  type DateCellWrapperProps,
+  type Components,
+} from 'react-big-calendar'
 import type {
   CalendarEvent,
   CalendarView,
@@ -89,69 +94,72 @@ export function Calendar({
   resources = [],
 }: CalendarProps) {
   // Use custom hook for state management
-  const {
-    currentView,
-    currentDate,
-    filteredEvents,
-    defaultMinTime,
-    defaultMaxTime,
-    handlers,
-  } = useCalendarState({
-    events,
-    initialView: view,
-    initialDate: date,
-    staffFilters,
-    eventTypeFilters,
-    minTime,
-    maxTime,
-    onNavigate,
-    onViewChange,
-    onSelectEvent,
-    onSelectSlot,
-    onRangeChange,
-    selectable,
-  })
+  const { currentView, currentDate, filteredEvents, defaultMinTime, defaultMaxTime, handlers } =
+    useCalendarState({
+      events,
+      initialView: view,
+      initialDate: date,
+      staffFilters,
+      eventTypeFilters,
+      minTime,
+      maxTime,
+      onNavigate,
+      onViewChange,
+      onSelectEvent,
+      onSelectSlot,
+      onRangeChange,
+      selectable,
+    })
 
   // Custom title accessor - show pet name for appointments
-  const titleAccessor = useMemo(() => (event: CalendarEvent) => {
-    const resource = event.resource as CalendarEventResource | undefined
-    if (resource?.type === 'appointment' && resource.petName) {
-      return resource.petName
-    }
-    return event.title
-  }, [])
+  const titleAccessor = useMemo(
+    () => (event: CalendarEvent) => {
+      const resource = event.resource as CalendarEventResource | undefined
+      if (resource?.type === 'appointment' && resource.petName) {
+        return resource.petName
+      }
+      return event.title
+    },
+    []
+  )
 
   // Tooltip accessor - show full details on hover
-  const tooltipAccessor = useMemo(() => (event: CalendarEvent) => {
-    const resource = event.resource as CalendarEventResource | undefined
-    if (resource?.type === 'appointment') {
-      const parts = [resource.petName || event.title]
-      if (resource.reason) parts.push(resource.reason)
-      if (resource.ownerName) parts.push(`Dueño: ${resource.ownerName}`)
-      return parts.join('\n')
-    }
-    return event.title
-  }, [])
+  const tooltipAccessor = useMemo(
+    () => (event: CalendarEvent) => {
+      const resource = event.resource as CalendarEventResource | undefined
+      if (resource?.type === 'appointment') {
+        const parts = [resource.petName || event.title]
+        if (resource.reason) parts.push(resource.reason)
+        if (resource.ownerName) parts.push(`Dueño: ${resource.ownerName}`)
+        return parts.join('\n')
+      }
+      return event.title
+    },
+    []
+  )
 
   // Capacity color helper - extracted to avoid recreation
   const getCapacityColor = useCallback((count: number): string => {
     if (count === 0) return 'transparent'
-    if (count <= 3) return 'var(--status-success, #22C55E)'      // Green (low)
-    if (count <= 6) return 'var(--status-warning, #F59E0B)'      // Amber (medium)
-    if (count <= 10) return 'var(--status-error, #EF4444)'       // Red (high)
-    return 'var(--status-error-dark, #DC2626)'                    // Dark red (overbooked)
+    if (count <= 3) return 'var(--status-success, #22C55E)' // Green (low)
+    if (count <= 6) return 'var(--status-warning, #F59E0B)' // Amber (medium)
+    if (count <= 10) return 'var(--status-error, #EF4444)' // Red (high)
+    return 'var(--status-error-dark, #DC2626)' // Dark red (overbooked)
   }, [])
 
   // Pre-compute daily event details for month view summary
   const dailyEventDetails = useMemo(() => {
-    const details = new Map<string, {
-      appointments: Array<{ petName: string; time: string; service?: string }>
-      shifts: number
-      timeOff: Array<{ staffName: string }>
-      blocks: number
-      firstTime?: string
-      lastTime?: string
-    }>()
+    const details = new Map<
+      string,
+      {
+        appointments: Array<{ petName: string; time: string; service?: string }>
+        shifts: number
+        timeOff: Array<{ staffName: string }>
+        blocks: number
+        firstTime?: string
+        lastTime?: string
+      }
+    >()
 
     for (const event of filteredEvents) {
       const dateKey = event.start.toISOString().split('T')[0]
@@ -186,7 +194,7 @@ export function Calendar({
     }
 
     // Sort appointments by time
-    details.forEach(day => {
+    details.forEach((day) => {
       day.appointments.sort((a, b) => a.time.localeCompare(b.time))
     })
 
@@ -194,118 +202,128 @@ export function Calendar({
   }, [filteredEvents])
 
   // Custom date cell wrapper for month view - shows readable day summary
-  const DateCellWrapper = useCallback(({ value, children }: DateCellWrapperProps) => {
-    const dateKey = value.toISOString().split('T')[0]
-    const dayDetails = dailyEventDetails.get(dateKey)
-    const appointmentCount = dayDetails?.appointments.length || 0
+  const DateCellWrapper = useCallback(
+    ({ value, children }: DateCellWrapperProps) => {
+      const dateKey = value.toISOString().split('T')[0]
+      const dayDetails = dailyEventDetails.get(dateKey)
+      const appointmentCount = dayDetails?.appointments.length || 0
 
-    const capacityWidth = Math.min((appointmentCount / 15) * 100, 100)
-    const capacityColor = getCapacityColor(appointmentCount)
+      const capacityWidth = Math.min((appointmentCount / 15) * 100, 100)
+      const capacityColor = getCapacityColor(appointmentCount)
 
-    // Get unique pet names (max 3 for display)
-    const petNames = dayDetails?.appointments.map(a => a.petName) || []
-    const uniquePets = [...new Set(petNames)]
-    const displayPets = uniquePets.slice(0, 3)
-    const morePets = uniquePets.length - 3
+      // Get unique pet names (max 3 for display)
+      const petNames = dayDetails?.appointments.map((a) => a.petName) || []
+      const uniquePets = [...new Set(petNames)]
+      const displayPets = uniquePets.slice(0, 3)
+      const morePets = uniquePets.length - 3
 
-    const hasEvents = dayDetails && (
-      dayDetails.appointments.length > 0 ||
-      dayDetails.shifts > 0 ||
-      dayDetails.timeOff.length > 0 ||
-      dayDetails.blocks > 0
-    )
+      const hasEvents =
+        dayDetails &&
+        (dayDetails.appointments.length > 0 ||
+          dayDetails.shifts > 0 ||
+          dayDetails.timeOff.length > 0 ||
+          dayDetails.blocks > 0)
 
-    return (
-      <div className="rbc-day-bg relative h-full flex flex-col">
-        {children}
+      return (
+        <div className="rbc-day-bg relative flex h-full flex-col">
+          {children}
 
-        {/* Readable day summary - only in month view */}
-        {currentView === 'month' && hasEvents && (
-          <div className="month-day-summary">
-            {/* Appointments section */}
-            {dayDetails.appointments.length > 0 && (
-              <div className="day-section appointments-section">
-                <div className="section-header">
-                  <span className="section-icon">🐾</span>
-                  <span className="section-count">{appointmentCount}</span>
-                  <span className="section-label">
-                    {appointmentCount === 1 ? 'cita' : 'citas'}
+          {/* Readable day summary - only in month view */}
+          {currentView === 'month' && hasEvents && (
+            <div className="month-day-summary">
+              {/* Appointments section */}
+              {dayDetails.appointments.length > 0 && (
+                <div className="day-section appointments-section">
+                  <div className="section-header">
+                    <span className="section-icon">🐾</span>
+                    <span className="section-count">{appointmentCount}</span>
+                    <span className="section-label">
+                      {appointmentCount === 1 ? 'cita' : 'citas'}
+                    </span>
+                  </div>
+                  {dayDetails.firstTime && (
+                    <div className="time-range">
+                      {dayDetails.firstTime}
+                      {dayDetails.lastTime && dayDetails.lastTime !== dayDetails.firstTime && (
+                        <> - {dayDetails.lastTime}</>
+                      )}
+                    </div>
+                  )}
+                  <div className="pet-names">
+                    {displayPets.join(', ')}
+                    {morePets > 0 && <span className="more-pets">+{morePets}</span>}
+                  </div>
+                </div>
+              )}
+
+              {/* Staff time off */}
+              {dayDetails.timeOff.length > 0 && (
+                <div className="day-section timeoff-section">
+                  <span className="section-icon">🏖️</span>
+                  <span className="section-text">
+                    {dayDetails.timeOff.length === 1
+                      ? dayDetails.timeOff[0].staffName
+                      : `${dayDetails.timeOff.length} ausencias`}
                   </span>
                 </div>
-                {dayDetails.firstTime && (
-                  <div className="time-range">
-                    {dayDetails.firstTime}
-                    {dayDetails.lastTime && dayDetails.lastTime !== dayDetails.firstTime && (
-                      <> - {dayDetails.lastTime}</>
-                    )}
-                  </div>
-                )}
-                <div className="pet-names">
-                  {displayPets.join(', ')}
-                  {morePets > 0 && <span className="more-pets">+{morePets}</span>}
+              )}
+
+              {/* Shifts */}
+              {dayDetails.shifts > 0 && (
+                <div className="day-section shifts-section">
+                  <span className="section-icon">👤</span>
+                  <span className="section-text">
+                    {dayDetails.shifts} {dayDetails.shifts === 1 ? 'turno' : 'turnos'}
+                  </span>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
+          )}
 
-            {/* Staff time off */}
-            {dayDetails.timeOff.length > 0 && (
-              <div className="day-section timeoff-section">
-                <span className="section-icon">🏖️</span>
-                <span className="section-text">
-                  {dayDetails.timeOff.length === 1
-                    ? dayDetails.timeOff[0].staffName
-                    : `${dayDetails.timeOff.length} ausencias`
-                  }
-                </span>
-              </div>
-            )}
-
-            {/* Shifts */}
-            {dayDetails.shifts > 0 && (
-              <div className="day-section shifts-section">
-                <span className="section-icon">👤</span>
-                <span className="section-text">
-                  {dayDetails.shifts} {dayDetails.shifts === 1 ? 'turno' : 'turnos'}
-                </span>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Capacity indicator bar at bottom of cell */}
-        {appointmentCount > 0 && (
-          <div
-            className="capacity-bar"
-            title={`${appointmentCount} cita${appointmentCount !== 1 ? 's' : ''} - ${
-              appointmentCount <= 3 ? 'Disponible' :
-              appointmentCount <= 6 ? 'Moderado' :
-              appointmentCount <= 10 ? 'Ocupado' : 'Muy ocupado'
-            }`}
-          >
+          {/* Capacity indicator bar at bottom of cell */}
+          {appointmentCount > 0 && (
             <div
-              className="capacity-fill"
-              style={{
-                width: `${capacityWidth}%`,
-                backgroundColor: capacityColor,
-              }}
-            />
-          </div>
-        )}
-      </div>
-    )
-  }, [dailyEventDetails, getCapacityColor, currentView])
+              className="capacity-bar"
+              title={`${appointmentCount} cita${appointmentCount !== 1 ? 's' : ''} - ${
+                appointmentCount <= 3
+                  ? 'Disponible'
+                  : appointmentCount <= 6
+                    ? 'Moderado'
+                    : appointmentCount <= 10
+                      ? 'Ocupado'
+                      : 'Muy ocupado'
+              }`}
+            >
+              <div
+                className="capacity-fill"
+                style={{
+                  width: `${capacityWidth}%`,
+                  backgroundColor: capacityColor,
+                }}
+              />
+            </div>
+          )}
+        </div>
+      )
+    },
+    [dailyEventDetails, getCapacityColor, currentView]
+  )
 
   // Resource view only works in day/week views
-  const showResourceView = resourceMode && resources.length > 0 && (currentView === 'day' || currentView === 'week')
+  const showResourceView =
+    resourceMode && resources.length > 0 && (currentView === 'day' || currentView === 'week')
 
   // Calendar components - add resource header when in resource mode
-  const calendarComponents = useMemo((): Components<CalendarEvent, CalendarResourceData> => ({
-    event: CalendarEventComponent,
-    dateCellWrapper: DateCellWrapper,
-    ...(showResourceView && {
-      resourceHeader: ResourceHeader,
+  const calendarComponents = useMemo(
+    (): Components<CalendarEvent, CalendarResourceData> => ({
+      event: CalendarEventComponent,
+      dateCellWrapper: DateCellWrapper,
+      ...(showResourceView && {
+        resourceHeader: ResourceHeader,
+      }),
     }),
-  }), [DateCellWrapper, showResourceView])
+    [DateCellWrapper, showResourceView]
+  )
 
   // Resource-specific props
   const resourceProps = showResourceView

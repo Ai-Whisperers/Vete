@@ -48,10 +48,16 @@ export function generateConsentRequestEmail(data: ConsentRequestEmailData): stri
     })
   }
 
-  const categoryEmoji = consentCategory === 'surgery' ? '🏥' :
-    consentCategory === 'anesthesia' ? '💉' :
-    consentCategory === 'euthanasia' ? '🕊️' :
-    consentCategory === 'treatment' ? '💊' : '📋'
+  const categoryEmoji =
+    consentCategory === 'surgery'
+      ? '🏥'
+      : consentCategory === 'anesthesia'
+        ? '💉'
+        : consentCategory === 'euthanasia'
+          ? '🕊️'
+          : consentCategory === 'treatment'
+            ? '💊'
+            : '📋'
 
   return `
 <!DOCTYPE html>
@@ -112,17 +118,23 @@ export function generateConsentRequestEmail(data: ConsentRequestEmailData): stri
                 <div style="color: #3b82f6; font-size: 14px; margin-top: 10px;">
                   <strong>Mascota:</strong> ${petName}
                 </div>
-                ${requestedBy ? `
+                ${
+                  requestedBy
+                    ? `
                   <div style="color: #3b82f6; font-size: 14px; margin-top: 6px;">
                     <strong>Solicitado por:</strong> ${requestedBy}
                   </div>
-                ` : ''}
+                `
+                    : ''
+                }
               </div>
             </td>
           </tr>
 
           <!-- Additional Message -->
-          ${additionalMessage ? `
+          ${
+            additionalMessage
+              ? `
             <tr>
               <td style="padding: 0 40px 25px;">
                 <div style="background-color: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; border-radius: 4px;">
@@ -131,7 +143,9 @@ export function generateConsentRequestEmail(data: ConsentRequestEmailData): stri
                 </div>
               </td>
             </tr>
-          ` : ''}
+          `
+              : ''
+          }
 
           <!-- CTA Button -->
           <tr>
@@ -188,11 +202,15 @@ export function generateConsentRequestEmail(data: ConsentRequestEmailData): stri
               <p style="margin: 0; color: #999999; font-size: 12px; text-align: center; line-height: 1.5;">
                 Si tienes alguna pregunta o necesitas más información, no dudes en contactarnos.
               </p>
-              ${clinicPhone || clinicEmail ? `
+              ${
+                clinicPhone || clinicEmail
+                  ? `
                 <p style="margin: 10px 0 0; color: #999999; font-size: 12px; text-align: center;">
                   ${clinicPhone ? `📞 ${clinicPhone}` : ''} ${clinicPhone && clinicEmail ? '|' : ''} ${clinicEmail ? `✉️ ${clinicEmail}` : ''}
                 </p>
-              ` : ''}
+              `
+                  : ''
+              }
             </td>
           </tr>
 

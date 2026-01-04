@@ -61,7 +61,11 @@ export function withActionAuth<T = void, Args extends unknown[] = []>(
  */
 export function requireOwnership(resourceOwnerId: string, context: AuthContext): boolean {
   if (AuthService.isAdmin(context.profile)) return true
-  if (AuthService.isStaff(context.profile) && AuthService.belongsToTenant(context.profile, context.profile.tenant_id)) return true
+  if (
+    AuthService.isStaff(context.profile) &&
+    AuthService.belongsToTenant(context.profile, context.profile.tenant_id)
+  )
+    return true
   return AuthService.ownsResource(context.profile, resourceOwnerId)
 }
 
@@ -69,7 +73,9 @@ export function requireOwnership(resourceOwnerId: string, context: AuthContext):
  * Utility function to check tenant access within actions
  */
 export function requireTenantAccess(tenantId: string, context: AuthContext): boolean {
-  return AuthService.belongsToTenant(context.profile, tenantId) || AuthService.isAdmin(context.profile)
+  return (
+    AuthService.belongsToTenant(context.profile, tenantId) || AuthService.isAdmin(context.profile)
+  )
 }
 
 /**
@@ -77,9 +83,13 @@ export function requireTenantAccess(tenantId: string, context: AuthContext): boo
  */
 export function createTenantQuery(context: AuthContext) {
   return {
-    select: (table: string) => context.supabase.from(table).select('*').eq('tenant_id', context.profile.tenant_id),
-    insert: (table: string, data: any) => context.supabase.from(table).insert({ ...data, tenant_id: context.profile.tenant_id }),
-    update: (table: string, data: any) => context.supabase.from(table).update(data).eq('tenant_id', context.profile.tenant_id),
-    delete: (table: string) => context.supabase.from(table).delete().eq('tenant_id', context.profile.tenant_id)
+    select: (table: string) =>
+      context.supabase.from(table).select('*').eq('tenant_id', context.profile.tenant_id),
+    insert: (table: string, data: any) =>
+      context.supabase.from(table).insert({ ...data, tenant_id: context.profile.tenant_id }),
+    update: (table: string, data: any) =>
+      context.supabase.from(table).update(data).eq('tenant_id', context.profile.tenant_id),
+    delete: (table: string) =>
+      context.supabase.from(table).delete().eq('tenant_id', context.profile.tenant_id),
   }
 }

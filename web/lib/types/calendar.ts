@@ -167,7 +167,7 @@ export interface StaffAvailability {
 
 export interface AvailabilitySlot {
   start: string // HH:MM
-  end: string   // HH:MM
+  end: string // HH:MM
   type: 'working' | 'break' | 'blocked'
 }
 
@@ -253,7 +253,13 @@ export interface TimeOffRequestWithDetails extends TimeOffRequest {
 // =============================================================================
 
 export type ShiftType = 'regular' | 'overtime' | 'on_call' | 'emergency' | 'training' | 'meeting'
-export type ShiftStatus = 'scheduled' | 'confirmed' | 'in_progress' | 'completed' | 'no_show' | 'cancelled'
+export type ShiftStatus =
+  | 'scheduled'
+  | 'confirmed'
+  | 'in_progress'
+  | 'completed'
+  | 'no_show'
+  | 'cancelled'
 
 export interface StaffShift {
   id: string
@@ -522,10 +528,7 @@ export function appointmentToCalendarEvent(appointment: {
 /**
  * Convert time off request to calendar event
  */
-export function timeOffToCalendarEvent(
-  request: TimeOffRequest,
-  staffName: string
-): CalendarEvent {
+export function timeOffToCalendarEvent(request: TimeOffRequest, staffName: string): CalendarEvent {
   const typeName = request.time_off_type?.name || 'Ausencia'
 
   return {
@@ -569,10 +572,7 @@ export function shiftToCalendarEvent(shift: StaffShift): CalendarEvent {
 /**
  * Get date range for calendar view
  */
-export function getViewDateRange(
-  date: Date,
-  view: CalendarView
-): { start: Date; end: Date } {
+export function getViewDateRange(date: Date, view: CalendarView): { start: Date; end: Date } {
   const start = new Date(date)
   const end = new Date(date)
 
@@ -609,10 +609,7 @@ export function getViewDateRange(
 /**
  * Check if a time slot is within working hours
  */
-export function isWithinSchedule(
-  time: Date,
-  entries: StaffScheduleEntry[]
-): boolean {
+export function isWithinSchedule(time: Date, entries: StaffScheduleEntry[]): boolean {
   const dayOfWeek = time.getDay()
   const timeString = time.toTimeString().slice(0, 5) // HH:MM
 
@@ -625,12 +622,7 @@ export function isWithinSchedule(
 /**
  * Check if dates overlap
  */
-export function datesOverlap(
-  start1: Date,
-  end1: Date,
-  start2: Date,
-  end2: Date
-): boolean {
+export function datesOverlap(start1: Date, end1: Date, start2: Date, end2: Date): boolean {
   return start1 < end2 && end1 > start2
 }
 
@@ -648,10 +640,7 @@ export function isStaffAvailable(
 
   // Check for approved time off
   const hasTimeOff = timeOffRequests.some(
-    (req) =>
-      req.status === 'approved' &&
-      dateStr >= req.start_date &&
-      dateStr <= req.end_date
+    (req) => req.status === 'approved' && dateStr >= req.start_date && dateStr <= req.end_date
   )
   if (hasTimeOff) return false
 
@@ -727,8 +716,11 @@ export function getAvailableTimeSlots(
   while (currentMinutes + slotDurationMinutes <= endMinutes) {
     // Skip if slot falls within break
     const slotEnd = currentMinutes + slotDurationMinutes
-    const isDuringBreak = entry.break_start && entry.break_end &&
-      currentMinutes < breakEndMinutes && slotEnd > breakStartMinutes
+    const isDuringBreak =
+      entry.break_start &&
+      entry.break_end &&
+      currentMinutes < breakEndMinutes &&
+      slotEnd > breakStartMinutes
 
     if (!isDuringBreak) {
       const hours = Math.floor(currentMinutes / 60)

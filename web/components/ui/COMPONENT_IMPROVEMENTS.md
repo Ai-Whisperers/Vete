@@ -19,6 +19,7 @@ Added three new reusable UI components to enhance form handling and file managem
 **Purpose**: Provide consistent form field labels with required/optional indicators and error states.
 
 **Features**:
+
 - Required indicator (red asterisk)
 - Optional indicator (gray text)
 - Error state styling (red color)
@@ -26,6 +27,7 @@ Added three new reusable UI components to enhance form handling and file managem
 - Accessible with proper ARIA attributes
 
 **Usage Example**:
+
 ```tsx
 import { Label } from '@/components/ui'
 
@@ -43,7 +45,8 @@ import { Label } from '@/components/ui'
 ```
 
 **Props**:
-- `required?: boolean` - Shows red asterisk (*)
+
+- `required?: boolean` - Shows red asterisk (\*)
 - `optional?: boolean` - Shows "(opcional)" text
 - `error?: boolean` - Applies error styling
 - All standard HTML label attributes
@@ -57,6 +60,7 @@ import { Label } from '@/components/ui'
 **Purpose**: Provide a consistent, accessible date input using native browser date pickers.
 
 **Features**:
+
 - Native browser date picker (optimized for mobile)
 - Built on top of existing Input component
 - Label, error, and hint support
@@ -66,6 +70,7 @@ import { Label } from '@/components/ui'
 - Fully accessible
 
 **Usage Example**:
+
 ```tsx
 import { DatePicker } from '@/components/ui'
 
@@ -89,6 +94,7 @@ import { DatePicker } from '@/components/ui'
 ```
 
 **Props**:
+
 - `value?: string` - ISO date string (YYYY-MM-DD)
 - `onChange?: (value: string) => void` - Change handler
 - `label?: string` - Field label
@@ -99,6 +105,7 @@ import { DatePicker } from '@/components/ui'
 - All standard input attributes (disabled, required, etc.)
 
 **Why Native Date Input?**:
+
 - Better mobile UX (native mobile date pickers)
 - Built-in validation
 - Consistent browser behavior
@@ -114,6 +121,7 @@ import { DatePicker } from '@/components/ui'
 **Purpose**: Provide a modern drag-and-drop file upload experience with validation and preview.
 
 **Features**:
+
 - Drag and drop support with visual feedback
 - Click to browse files (accessible)
 - Multiple file support
@@ -126,6 +134,7 @@ import { DatePicker } from '@/components/ui'
 - Proper ARIA labels
 
 **Usage Example**:
+
 ```tsx
 import { FileUpload } from '@/components/ui'
 
@@ -159,7 +168,8 @@ import { FileUpload } from '@/components/ui'
 ```
 
 **Props**:
-- `accept?: string` - File type filter (e.g., "image/*", ".pdf")
+
+- `accept?: string` - File type filter (e.g., "image/\*", ".pdf")
 - `maxSize?: number` - Max file size in bytes (default: 5MB)
 - `multiple?: boolean` - Allow multiple files (default: false)
 - `onUpload: (files: File[]) => void` - Upload handler (required)
@@ -171,11 +181,13 @@ import { FileUpload } from '@/components/ui'
 - `className?: string` - Additional CSS classes
 
 **File Validation**:
+
 - Size validation with user-friendly error messages
 - Type filtering via accept attribute
 - Shows file size in human-readable format (uses `formatBytes` from `@/lib/formatting`)
 
 **Accessibility**:
+
 - Keyboard navigation support (Enter/Space to open file browser)
 - Proper ARIA labels and descriptions
 - Role attributes for screen readers
@@ -188,6 +200,7 @@ import { FileUpload } from '@/components/ui'
 The barrel export file (`web/components/ui/index.ts`) has been updated to include:
 
 ### New Exports:
+
 ```typescript
 // Form Components
 export { Label } from './label'
@@ -201,6 +214,7 @@ export type { FileUploadProps } from './file-upload'
 ```
 
 ### Also Re-exported (for convenience):
+
 ```typescript
 // Tab Components
 export {
@@ -229,16 +243,19 @@ export { SROnly } from './sr-only'
 All components follow these established patterns:
 
 ### 1. Theme Variables
+
 All colors use CSS variables for theme consistency:
+
 ```tsx
 // Good
-className="text-[var(--text-primary)] bg-[var(--bg-muted)]"
+className = 'text-[var(--text-primary)] bg-[var(--bg-muted)]'
 
 // Bad
-className="text-gray-900 bg-gray-100"
+className = 'text-gray-900 bg-gray-100'
 ```
 
 ### 2. Accessibility
+
 - Proper ARIA attributes
 - Semantic HTML
 - Keyboard navigation
@@ -246,18 +263,21 @@ className="text-gray-900 bg-gray-100"
 - Focus management
 
 ### 3. TypeScript
+
 - Full type safety
 - Exported prop types
 - Generic constraints where appropriate
 - Proper event typing
 
 ### 4. Error Handling
+
 - User-friendly error messages
 - Validation feedback
 - Error state styling
 - ARIA error announcements
 
 ### 5. Responsive Design
+
 - Mobile-first approach
 - Touch-friendly targets (min 44px)
 - Responsive spacing
@@ -270,6 +290,7 @@ className="text-gray-900 bg-gray-100"
 ### Using Label Instead of Inline Labels
 
 **Before**:
+
 ```tsx
 <label htmlFor="name" className="block text-sm font-bold text-[var(--text-secondary)] mb-2">
   Nombre {required && <span className="text-red-500">*</span>}
@@ -278,6 +299,7 @@ className="text-gray-900 bg-gray-100"
 ```
 
 **After**:
+
 ```tsx
 import { Label, Input } from '@/components/ui'
 
@@ -288,6 +310,7 @@ import { Label, Input } from '@/components/ui'
 ### Using DatePicker Instead of Manual Date Inputs
 
 **Before**:
+
 ```tsx
 <Input
   type="date"
@@ -299,10 +322,11 @@ import { Label, Input } from '@/components/ui'
 ```
 
 **After**:
+
 ```tsx
 import { DatePicker } from '@/components/ui'
 
-<DatePicker
+;<DatePicker
   label="Fecha de nacimiento"
   value={date}
   onChange={setDate}

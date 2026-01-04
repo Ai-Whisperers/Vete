@@ -1,146 +1,164 @@
-'use client';
+'use client'
 
-import Link from 'next/link';
-import * as Icons from 'lucide-react';
-import { QRGenerator } from '@/components/safety/qr-generator';
+import Link from 'next/link'
+import * as Icons from 'lucide-react'
+import { QRGenerator } from '@/components/safety/qr-generator'
 
 interface PetProfileHeaderProps {
   pet: {
-    id: string;
-    name: string;
-    photo_url?: string;
-    species: string;
-    breed?: string;
-    sex?: string;
-    birth_date?: string | null;
-    is_neutered?: boolean;
-    color?: string;
-    weight_kg?: number | null;
-    microchip_number?: string | null;
+    id: string
+    name: string
+    photo_url?: string
+    species: string
+    breed?: string
+    sex?: string
+    birth_date?: string | null
+    is_neutered?: boolean
+    color?: string
+    weight_kg?: number | null
+    microchip_number?: string | null
     profiles?: {
-      full_name: string;
-      phone?: string;
-    };
-  };
-  clinic: string;
-  isStaff: boolean;
+      full_name: string
+      phone?: string
+    }
+  }
+  clinic: string
+  isStaff: boolean
 }
 
 export function PetProfileHeader({ pet, clinic, isStaff }: PetProfileHeaderProps) {
   // Calculate age
   const calculateAge = (): string => {
-    if (!pet.birth_date) return '';
-    const birth = new Date(pet.birth_date);
-    const today = new Date();
-    let years = today.getFullYear() - birth.getFullYear();
-    let months = today.getMonth() - birth.getMonth();
+    if (!pet.birth_date) return ''
+    const birth = new Date(pet.birth_date)
+    const today = new Date()
+    let years = today.getFullYear() - birth.getFullYear()
+    let months = today.getMonth() - birth.getMonth()
     if (months < 0) {
-      years--;
-      months += 12;
+      years--
+      months += 12
     }
     if (years > 0) {
-      return months > 0 ? `${years} años, ${months} meses` : `${years} años`;
+      return months > 0 ? `${years} años, ${months} meses` : `${years} años`
     }
-    return months > 0 ? `${months} meses` : 'Menos de 1 mes';
-  };
+    return months > 0 ? `${months} meses` : 'Menos de 1 mes'
+  }
 
-  const age = calculateAge();
+  const age = calculateAge()
 
   return (
-    <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden relative">
-      <div className="h-32 bg-[var(--primary)]/10 w-full absolute top-0 left-0 z-0"></div>
-      <div className="relative z-10 px-4 sm:px-8 pt-12 pb-6 sm:pb-8">
+    <div className="relative overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm">
+      <div className="bg-[var(--primary)]/10 absolute left-0 top-0 z-0 h-32 w-full"></div>
+      <div className="relative z-10 px-4 pb-6 pt-12 sm:px-8 sm:pb-8">
         {/* Top row: Avatar + Info + Desktop Actions */}
-        <div className="flex flex-col md:flex-row items-start md:items-end gap-4 sm:gap-6">
+        <div className="flex flex-col items-start gap-4 sm:gap-6 md:flex-row md:items-end">
           {/* Avatar */}
-          <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full border-4 border-white shadow-lg bg-white flex items-center justify-center shrink-0">
+          <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full border-4 border-white bg-white shadow-lg sm:h-32 sm:w-32">
             {pet.photo_url ? (
-              <img src={pet.photo_url} alt={`Foto de ${pet.name}`} className="w-full h-full rounded-full object-cover" />
+              <img
+                src={pet.photo_url}
+                alt={`Foto de ${pet.name}`}
+                className="h-full w-full rounded-full object-cover"
+              />
             ) : (
-              <Icons.PawPrint className="w-12 sm:w-16 h-12 sm:h-16 text-gray-300" aria-hidden="true" />
+              <Icons.PawPrint
+                className="h-12 w-12 text-gray-300 sm:h-16 sm:w-16"
+                aria-hidden="true"
+              />
             )}
           </div>
 
           {/* Info */}
-          <div className="flex-1 min-w-0">
-            <h1 className="text-2xl sm:text-4xl font-black text-[var(--text-primary)] mb-1">{pet.name}</h1>
-            <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-[var(--text-secondary)] font-medium mb-3 sm:mb-4">
-              <span className="flex items-center gap-1 uppercase text-xs sm:text-sm tracking-wider bg-gray-100 px-2 sm:px-3 py-1 rounded-full">
-                {pet.species === 'dog' ? <Icons.Dog className="w-3 sm:w-4 h-3 sm:h-4"/> : <Icons.Cat className="w-3 sm:w-4 h-3 sm:h-4"/>}
+          <div className="min-w-0 flex-1">
+            <h1 className="mb-1 text-2xl font-black text-[var(--text-primary)] sm:text-4xl">
+              {pet.name}
+            </h1>
+            <div className="mb-3 flex flex-wrap items-center gap-2 font-medium text-[var(--text-secondary)] sm:mb-4 sm:gap-3">
+              <span className="flex items-center gap-1 rounded-full bg-gray-100 px-2 py-1 text-xs uppercase tracking-wider sm:px-3 sm:text-sm">
+                {pet.species === 'dog' ? (
+                  <Icons.Dog className="h-3 w-3 sm:h-4 sm:w-4" />
+                ) : (
+                  <Icons.Cat className="h-3 w-3 sm:h-4 sm:w-4" />
+                )}
                 {pet.breed || 'Mestizo'}
               </span>
               {age && (
-                <span className="flex items-center gap-1 text-xs sm:text-sm bg-gray-100 px-2 sm:px-3 py-1 rounded-full">
-                  <Icons.Calendar className="w-3 sm:w-4 h-3 sm:h-4"/> {age}
+                <span className="flex items-center gap-1 rounded-full bg-gray-100 px-2 py-1 text-xs sm:px-3 sm:text-sm">
+                  <Icons.Calendar className="h-3 w-3 sm:h-4 sm:w-4" /> {age}
                 </span>
               )}
-              <span className="flex items-center gap-1 text-xs sm:text-sm bg-gray-100 px-2 sm:px-3 py-1 rounded-full capitalize">
+              <span className="flex items-center gap-1 rounded-full bg-gray-100 px-2 py-1 text-xs capitalize sm:px-3 sm:text-sm">
                 {pet.sex === 'male' ? 'Macho' : pet.sex === 'female' ? 'Hembra' : 'Sexo desc.'}
                 {pet.is_neutered && ' (Castrado)'}
               </span>
               {pet.color && (
-                <span className="hidden sm:flex items-center gap-1 text-sm bg-gray-100 px-3 py-1 rounded-full">
-                  <Icons.Palette className="w-4 h-4"/> {pet.color}
+                <span className="hidden items-center gap-1 rounded-full bg-gray-100 px-3 py-1 text-sm sm:flex">
+                  <Icons.Palette className="h-4 w-4" /> {pet.color}
                 </span>
               )}
               {pet.weight_kg && (
-                <span className="flex items-center gap-1 text-xs sm:text-sm bg-gray-100 px-2 sm:px-3 py-1 rounded-full">
-                  <Icons.Weight className="w-3 sm:w-4 h-3 sm:h-4"/> {pet.weight_kg} kg
+                <span className="flex items-center gap-1 rounded-full bg-gray-100 px-2 py-1 text-xs sm:px-3 sm:text-sm">
+                  <Icons.Weight className="h-3 w-3 sm:h-4 sm:w-4" /> {pet.weight_kg} kg
                 </span>
               )}
               {pet.microchip_number && (
-                <span className="hidden sm:flex items-center gap-1 text-sm bg-blue-50 text-blue-700 px-3 py-1 rounded-full border border-blue-100">
-                  <Icons.QrCode className="w-4 h-4"/> {pet.microchip_number}
+                <span className="hidden items-center gap-1 rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-sm text-blue-700 sm:flex">
+                  <Icons.QrCode className="h-4 w-4" /> {pet.microchip_number}
                 </span>
               )}
             </div>
 
             {/* Owner Info (Staff Only) */}
             {isStaff && pet.profiles && (
-              <div className="flex items-center gap-4 text-sm text-gray-500 bg-gray-50 p-3 rounded-xl border border-gray-100 inline-flex">
+              <div className="flex inline-flex items-center gap-4 rounded-xl border border-gray-100 bg-gray-50 p-3 text-sm text-gray-500">
                 <div className="flex items-center gap-2">
-                  <Icons.User className="w-4 h-4"/> <span className="font-bold">{pet.profiles.full_name}</span>
+                  <Icons.User className="h-4 w-4" />{' '}
+                  <span className="font-bold">{pet.profiles.full_name}</span>
                 </div>
-                <div className="w-px h-4 bg-gray-300"></div>
+                <div className="h-4 w-px bg-gray-300"></div>
                 <div className="flex items-center gap-2">
-                  <Icons.Phone className="w-4 h-4"/> <span>{pet.profiles.phone || 'Sin teléfono'}</span>
+                  <Icons.Phone className="h-4 w-4" />{' '}
+                  <span>{pet.profiles.phone || 'Sin teléfono'}</span>
                 </div>
               </div>
             )}
           </div>
 
           {/* Desktop Actions */}
-          <div className="hidden md:flex gap-2 flex-wrap">
+          <div className="hidden flex-wrap gap-2 md:flex">
             <Link
               href={`/${clinic}/book?pet=${pet.id}`}
-              className="bg-[var(--primary)] text-white px-4 py-2 rounded-xl font-bold shadow-md hover:shadow-lg hover:opacity-90 flex items-center gap-2 transition-all"
+              className="flex items-center gap-2 rounded-xl bg-[var(--primary)] px-4 py-2 font-bold text-white shadow-md transition-all hover:opacity-90 hover:shadow-lg"
             >
-              <Icons.CalendarPlus className="w-4 h-4"/> Agendar Cita
+              <Icons.CalendarPlus className="h-4 w-4" /> Agendar Cita
             </Link>
-            <Link href={`/${clinic}/portal/pets/${pet.id}/edit`} className="bg-white border border-gray-200 text-gray-600 px-4 py-2 rounded-xl font-bold shadow-sm hover:bg-gray-50 flex items-center gap-2">
-              <Icons.Edit2 className="w-4 h-4"/> Editar
+            <Link
+              href={`/${clinic}/portal/pets/${pet.id}/edit`}
+              className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2 font-bold text-gray-600 shadow-sm hover:bg-gray-50"
+            >
+              <Icons.Edit2 className="h-4 w-4" /> Editar
             </Link>
             <QRGenerator petId={pet.id} petName={pet.name} />
           </div>
         </div>
 
         {/* Mobile Actions */}
-        <div className="md:hidden mt-4 flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+        <div className="scrollbar-hide mt-4 flex gap-2 overflow-x-auto pb-2 md:hidden">
           <Link
             href={`/${clinic}/book?pet=${pet.id}`}
-            className="flex-1 bg-[var(--primary)] text-white px-4 py-2.5 rounded-xl font-bold shadow-md flex items-center justify-center gap-2 whitespace-nowrap"
+            className="flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-[var(--primary)] px-4 py-2.5 font-bold text-white shadow-md"
           >
-            <Icons.CalendarPlus className="w-4 h-4"/> Agendar
+            <Icons.CalendarPlus className="h-4 w-4" /> Agendar
           </Link>
           <Link
             href={`/${clinic}/portal/pets/${pet.id}/edit`}
-            className="bg-white border border-gray-200 text-gray-600 px-4 py-2.5 rounded-xl font-bold shadow-sm flex items-center gap-2 whitespace-nowrap"
+            className="flex items-center gap-2 whitespace-nowrap rounded-xl border border-gray-200 bg-white px-4 py-2.5 font-bold text-gray-600 shadow-sm"
           >
-            <Icons.Edit2 className="w-4 h-4"/> Editar
+            <Icons.Edit2 className="h-4 w-4" /> Editar
           </Link>
           <QRGenerator petId={pet.id} petName={pet.name} />
         </div>
       </div>
     </div>
-  );
+  )
 }

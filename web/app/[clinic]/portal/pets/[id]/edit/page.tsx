@@ -14,7 +14,9 @@ export default async function EditPetPage({ params }: Props): Promise<React.Reac
   const supabase = await createClient()
 
   // Auth check
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) {
     redirect(`/${clinic}/portal/login`)
   }
@@ -53,9 +55,7 @@ export default async function EditPetPage({ params }: Props): Promise<React.Reac
     // Map microchip_number to microchip_id (form field name)
     microchip_id: pet.microchip_number || pet.microchip_id || null,
     // Convert allergies array to comma-separated string
-    allergies: Array.isArray(pet.allergies)
-      ? pet.allergies.join(', ')
-      : pet.allergies || null,
+    allergies: Array.isArray(pet.allergies) ? pet.allergies.join(', ') : pet.allergies || null,
     // Convert chronic_conditions array to string (as existing_conditions)
     existing_conditions: Array.isArray(pet.chronic_conditions)
       ? pet.chronic_conditions.join(', ')
@@ -63,15 +63,15 @@ export default async function EditPetPage({ params }: Props): Promise<React.Reac
   }
 
   return (
-    <div className="max-w-xl mx-auto">
-      <div className="flex items-center gap-4 mb-8">
+    <div className="mx-auto max-w-xl">
+      <div className="mb-8 flex items-center gap-4">
         <Link
           href={`/${clinic}/portal/pets/${id}`}
-          className="p-2 rounded-xl hover:bg-white transition-colors"
+          className="rounded-xl p-2 transition-colors hover:bg-white"
         >
-          <Icons.ArrowLeft className="w-6 h-6 text-[var(--text-secondary)]" />
+          <Icons.ArrowLeft className="h-6 w-6 text-[var(--text-secondary)]" />
         </Link>
-        <h1 className="text-3xl font-black font-heading text-[var(--text-primary)]">
+        <h1 className="font-heading text-3xl font-black text-[var(--text-primary)]">
           Editar Mascota
         </h1>
       </div>

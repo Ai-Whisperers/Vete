@@ -22,7 +22,7 @@ const defaultOptions: Required<CORSOptions> = {
   exposedHeaders: [],
   credentials: false,
   maxAge: 86400, // 24 hours
-  optionsSuccessStatus: 204
+  optionsSuccessStatus: 204,
 }
 
 export function withCORS(options: CORSOptions = {}) {
@@ -89,13 +89,14 @@ function setCORSHeaders(
 
 // Pre-configured CORS middleware for different environments
 export const apiCORS = withCORS({
-  origin: process.env.NODE_ENV === 'production'
-    ? ['https://vetepy.vercel.app', 'https://www.vetepy.vercel.app']
-    : '*',
+  origin:
+    process.env.NODE_ENV === 'production'
+      ? ['https://vetepy.vercel.app', 'https://www.vetepy.vercel.app']
+      : '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-Request-ID'],
   credentials: false,
-  maxAge: 86400
+  maxAge: 86400,
 })
 
 export const webhookCORS = withCORS({
@@ -103,5 +104,5 @@ export const webhookCORS = withCORS({
   methods: ['POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'X-Webhook-Signature', 'X-Request-ID'],
   credentials: false,
-  maxAge: 3600
+  maxAge: 3600,
 })

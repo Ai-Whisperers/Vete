@@ -1,17 +1,20 @@
-import { createClient } from '@/lib/supabase/server';
-import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@/lib/supabase/server'
+import { NextRequest, NextResponse } from 'next/server'
 
 /**
  * POST /api/sms/send
  * Send an SMS message directly
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
-  const supabase = await createClient();
+  const supabase = await createClient()
 
   // Auth check
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
   }
 
   // Staff check
@@ -19,27 +22,30 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     .from('profiles')
     .select('tenant_id, role')
     .eq('id', user.id)
-    .single();
+    .single()
 
   if (!profile || !['vet', 'admin'].includes(profile.role)) {
-    return NextResponse.json({ error: 'Solo personal puede enviar SMS' }, { status: 403 });
+    return NextResponse.json({ error: 'Solo personal puede enviar SMS' }, { status: 403 })
   }
 
   try {
-    const body = await request.json();
-    const { to, message, template_name, variables, client_id, pet_id } = body;
+    const body = await request.json()
+    const { to, message, template_name, variables, client_id, pet_id } = body
 
     if (!to || (!message && !template_name)) {
-      return NextResponse.json({
-        error: 'Número de teléfono y mensaje son requeridos'
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          error: 'Número de teléfono y mensaje son requeridos',
+        },
+        { status: 400 }
+      )
     }
 
     // Normalize phone number (Paraguay format)
-    const normalizedPhone = normalizePhoneNumber(to);
+    const normalizedPhone = normalizePhoneNumber(to)
 
     // Get message content
-    let smsBody = message;
+    let smsBody = message
 
     if (template_name && !message) {
       // Fetch template
@@ -49,18 +55,18 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         .eq('tenant_id', profile.tenant_id)
         .eq('name', template_name)
         .eq('channel_type', 'sms')
-        .single();
+        .single()
 
       if (template) {
-        smsBody = renderTemplate(template.body, variables || {});
+        smsBody = renderTemplate(template.body, variables || {})
       } else {
-        return NextResponse.json({ error: 'Plantilla no encontrada' }, { status: 404 });
+        return NextResponse.json({ error: 'Plantilla no encontrada' }, { status: 404 })
       }
     }
 
     // Truncate if too long
     if (smsBody.length > 160) {
-      smsBody = smsBody.substring(0, 157) + '...';
+      smsBody = smsBody.substring(0, 157) + '...'
     }
 
     // Get SMS config from tenant
@@ -68,17 +74,20 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       .from('tenants')
       .select('config, name')
       .eq('id', profile.tenant_id)
-      .single();
+      .single()
 
-    const config = tenant?.config || {};
-    const accountSid = config.sms_api_key || process.env.TWILIO_ACCOUNT_SID;
-    const authToken = config.sms_api_secret || process.env.TWILIO_AUTH_TOKEN;
-    const fromNumber = config.sms_from || process.env.TWILIO_PHONE_NUMBER;
+    const config = tenant?.config || {}
+    const accountSid = config.sms_api_key || process.env.TWILIO_ACCOUNT_SID
+    const authToken = config.sms_api_secret || process.env.TWILIO_AUTH_TOKEN
+    const fromNumber = config.sms_from || process.env.TWILIO_PHONE_NUMBER
 
     if (!accountSid || !authToken || !fromNumber) {
-      return NextResponse.json({
-        error: 'SMS no está configurado para esta clínica'
-      }, { status: 500 });
+      return NextResponse.json(
+        {
+          error: 'SMS no está configurado para esta clínica',
+        },
+        { status: 500 }
+      )
     }
 
     // Send via Twilio
@@ -87,27 +96,30 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       {
         method: 'POST',
         headers: {
-          'Authorization': 'Basic ' + Buffer.from(`${accountSid}:${authToken}`).toString('base64'),
-          'Content-Type': 'application/x-www-form-urlencoded'
+          Authorization: 'Basic ' + Buffer.from(`${accountSid}:${authToken}`).toString('base64'),
+          'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: new URLSearchParams({
           From: fromNumber,
           To: normalizedPhone,
           Body: smsBody,
-          StatusCallback: `${process.env.NEXT_PUBLIC_APP_URL || ''}/api/sms/webhook`
-        })
+          StatusCallback: `${process.env.NEXT_PUBLIC_APP_URL || ''}/api/sms/webhook`,
+        }),
       }
-    );
+    )
 
     if (!twilioResponse.ok) {
-      const error = await twilioResponse.json();
-      console.error('Twilio error:', error);
-      return NextResponse.json({
-        error: `Error de Twilio: ${error.message || 'Error desconocido'}`
-      }, { status: 500 });
+      const error = await twilioResponse.json()
+      console.error('Twilio error:', error)
+      return NextResponse.json(
+        {
+          error: `Error de Twilio: ${error.message || 'Error desconocido'}`,
+        },
+        { status: 500 }
+      )
     }
 
-    const result = await twilioResponse.json();
+    const result = await twilioResponse.json()
 
     // Log to notification_log
     await supabase.from('notification_log').insert({
@@ -117,8 +129,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       destination: normalizedPhone,
       body: smsBody,
       status: 'sent',
-      sent_at: new Date().toISOString()
-    });
+      sent_at: new Date().toISOString(),
+    })
 
     // Also log as whatsapp_message for unified messaging history
     await supabase.from('whatsapp_messages').insert({
@@ -129,24 +141,24 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       content: smsBody,
       status: 'sent',
       external_id: result.sid,
-      sent_by: user.id
-    });
+      sent_by: user.id,
+    })
 
     return NextResponse.json({
       success: true,
       message_id: result.sid,
       to: normalizedPhone,
-      status: result.status
-    });
+      status: result.status,
+    })
   } catch (e) {
-    console.error('Error sending SMS:', e);
-    return NextResponse.json({ error: 'Error al enviar SMS' }, { status: 500 });
+    console.error('Error sending SMS:', e)
+    return NextResponse.json({ error: 'Error al enviar SMS' }, { status: 500 })
   }
 }
 
 function normalizePhoneNumber(phone: string): string {
   // Remove all non-digit characters
-  let cleaned = phone.replace(/\D/g, '');
+  let cleaned = phone.replace(/\D/g, '')
 
   // Paraguay phone numbers
   // Mobile: 09xx xxx xxx (10 digits starting with 09)
@@ -154,21 +166,21 @@ function normalizePhoneNumber(phone: string): string {
 
   // If starts with 0, assume local Paraguay number
   if (cleaned.startsWith('0')) {
-    cleaned = '595' + cleaned.substring(1);
+    cleaned = '595' + cleaned.substring(1)
   }
 
   // If doesn't have country code, add Paraguay's
   if (!cleaned.startsWith('595') && cleaned.length === 9) {
-    cleaned = '595' + cleaned;
+    cleaned = '595' + cleaned
   }
 
-  return '+' + cleaned;
+  return '+' + cleaned
 }
 
 function renderTemplate(template: string, variables: Record<string, string>): string {
-  let result = template;
+  let result = template
   for (const [key, value] of Object.entries(variables)) {
-    result = result.replace(new RegExp(`{{${key}}}`, 'g'), value);
+    result = result.replace(new RegExp(`{{${key}}}`, 'g'), value)
   }
-  return result;
+  return result
 }

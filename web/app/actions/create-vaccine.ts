@@ -1,56 +1,63 @@
-"use server"
+'use server'
 
-import { withActionAuth, actionSuccess, actionError } from "@/lib/actions"
-import { revalidatePath } from "next/cache"
-import { redirect } from "next/navigation"
-import type { ActionResult, FieldErrors } from "@/lib/types/action-result"
-import { z } from "zod"
+import { withActionAuth, actionSuccess, actionError } from '@/lib/actions'
+import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
+import type { ActionResult, FieldErrors } from '@/lib/types/action-result'
+import { z } from 'zod'
 import { logger } from '@/lib/logger'
 
 // Validation schema with detailed Spanish error messages
 const createVaccineSchema = z.object({
   name: z
     .string()
-    .min(1, "El nombre de la vacuna es obligatorio")
-    .min(2, "El nombre debe tener al menos 2 caracteres")
-    .max(100, "El nombre no puede exceder 100 caracteres"),
+    .min(1, 'El nombre de la vacuna es obligatorio')
+    .min(2, 'El nombre debe tener al menos 2 caracteres')
+    .max(100, 'El nombre no puede exceder 100 caracteres'),
 
   date: z
     .string()
-    .min(1, "La fecha de aplicación es obligatoria")
-    .refine(val => {
-      const date = new Date(val)
-      const now = new Date()
-      now.setHours(23, 59, 59, 999)
-      return date <= now
-    }, { message: "La fecha de aplicación no puede ser en el futuro" }),
+    .min(1, 'La fecha de aplicación es obligatoria')
+    .refine(
+      (val) => {
+        const date = new Date(val)
+        const now = new Date()
+        now.setHours(23, 59, 59, 999)
+        return date <= now
+      },
+      { message: 'La fecha de aplicación no puede ser en el futuro' }
+    ),
 
   nextDate: z
     .string()
     .optional()
-    .transform(val => val || null),
+    .transform((val) => val || null),
 
   batch: z
     .string()
-    .max(50, "El número de lote no puede exceder 50 caracteres")
+    .max(50, 'El número de lote no puede exceder 50 caracteres')
     .optional()
-    .transform(val => val || null),
+    .transform((val) => val || null),
 })
 
 export const createVaccine = withActionAuth(
-  async ({ user, profile, isStaff, supabase }, prevState: ActionResult | null, formData: FormData): Promise<ActionResult> => {
-    const petId = formData.get("petId") as string
-    const clinic = formData.get("clinic") as string
+  async (
+    { user, profile, isStaff, supabase },
+    prevState: ActionResult | null,
+    formData: FormData
+  ): Promise<ActionResult> => {
+    const petId = formData.get('petId') as string
+    const clinic = formData.get('clinic') as string
 
     if (!petId) {
       return actionError(
-        "No se pudo identificar la mascota. Por favor, vuelve al perfil de la mascota e intenta de nuevo."
+        'No se pudo identificar la mascota. Por favor, vuelve al perfil de la mascota e intenta de nuevo.'
       )
     }
 
     if (!clinic) {
       return actionError(
-        "No se pudo identificar la clínica. Por favor, recarga la página e intenta de nuevo."
+        'No se pudo identificar la clínica. Por favor, recarga la página e intenta de nuevo.'
       )
     }
 
@@ -63,7 +70,7 @@ export const createVaccine = withActionAuth(
 
     if (!pet) {
       return actionError(
-        "Mascota no encontrada. Es posible que haya sido eliminada o que no tengas acceso a ella."
+        'Mascota no encontrada. Es posible que haya sido eliminada o que no tengas acceso a ella.'
       )
     }
 
@@ -73,16 +80,16 @@ export const createVaccine = withActionAuth(
 
     if (!isAuthorized) {
       return actionError(
-        "No tienes permiso para agregar vacunas a esta mascota. Solo el dueño o el personal de la clínica pueden hacerlo."
+        'No tienes permiso para agregar vacunas a esta mascota. Solo el dueño o el personal de la clínica pueden hacerlo.'
       )
     }
 
     // Extract and validate form data
     const rawData = {
-      name: formData.get("name") as string,
-      date: formData.get("date") as string,
-      nextDate: formData.get("nextDate") as string,
-      batch: formData.get("batch") as string,
+      name: formData.get('name') as string,
+      date: formData.get('date') as string,
+      nextDate: formData.get('nextDate') as string,
+      batch: formData.get('batch') as string,
     }
 
     const validation = createVaccineSchema.safeParse(rawData)
@@ -97,7 +104,7 @@ export const createVaccine = withActionAuth(
       }
 
       return actionError(
-        "Por favor, revisa los campos marcados en rojo y corrige los errores.",
+        'Por favor, revisa los campos marcados en rojo y corrige los errores.',
         fieldErrors
       )
     }
@@ -106,39 +113,30 @@ export const createVaccine = withActionAuth(
 
     // Validate next_due_date is after administered_date
     if (nextDate && new Date(nextDate) <= new Date(date)) {
-      return actionError(
-        "La fecha de próxima dosis debe ser posterior a la fecha de aplicación.",
-        {
-          nextDate: "Esta fecha debe ser posterior a la fecha de aplicación. Revisa ambas fechas."
-        }
-      )
+      return actionError('La fecha de próxima dosis debe ser posterior a la fecha de aplicación.', {
+        nextDate: 'Esta fecha debe ser posterior a la fecha de aplicación. Revisa ambas fechas.',
+      })
     }
 
     // Handle Multiple Photos
     const photos: string[] = []
-    const files = formData.getAll("photos") as File[]
+    const files = formData.getAll('photos') as File[]
 
     for (const file of files) {
       if (file.size > 0) {
         // Validate file size (5MB max per photo)
         if (file.size > 5 * 1024 * 1024) {
-          return actionError(
-            "Una de las fotos es demasiado grande.",
-            {
-              photos: `Cada foto debe pesar menos de 5MB. El archivo "${file.name}" pesa ${(file.size / 1024 / 1024).toFixed(1)}MB.`
-            }
-          )
+          return actionError('Una de las fotos es demasiado grande.', {
+            photos: `Cada foto debe pesar menos de 5MB. El archivo "${file.name}" pesa ${(file.size / 1024 / 1024).toFixed(1)}MB.`,
+          })
         }
 
         // Validate file type
-        const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"]
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
         if (!allowedTypes.includes(file.type)) {
-          return actionError(
-            "Formato de imagen no soportado.",
-            {
-              photos: `Solo se permiten imágenes JPG, PNG, GIF o WebP. El archivo "${file.name}" tiene un formato no válido.`
-            }
-          )
+          return actionError('Formato de imagen no soportado.', {
+            photos: `Solo se permiten imágenes JPG, PNG, GIF o WebP. El archivo "${file.name}" tiene un formato no válido.`,
+          })
         }
 
         const fileExt = file.name.split('.').pop()?.toLowerCase() || 'jpg'
@@ -153,13 +151,13 @@ export const createVaccine = withActionAuth(
             error: uploadError,
             userId: user.id,
             petId,
-            fileName: file.name
+            fileName: file.name,
           })
           // Continue with other photos, don't fail the entire operation
         } else {
-          const { data: { publicUrl } } = supabase.storage
-            .from('vaccines')
-            .getPublicUrl(fileName)
+          const {
+            data: { publicUrl },
+          } = supabase.storage.from('vaccines').getPublicUrl(fileName)
           photos.push(publicUrl)
         }
       }
@@ -167,27 +165,27 @@ export const createVaccine = withActionAuth(
 
     // Handle Certificate Upload
     let certificateUrl = null
-    const certificate = formData.get("certificate") as File
+    const certificate = formData.get('certificate') as File
 
     if (certificate && certificate.size > 0) {
       // Validate certificate size (10MB max)
       if (certificate.size > 10 * 1024 * 1024) {
-        return actionError(
-          "El certificado es demasiado grande.",
-          {
-            certificate: `El certificado debe pesar menos de 10MB. Tu archivo pesa ${(certificate.size / 1024 / 1024).toFixed(1)}MB.`
-          }
-        )
+        return actionError('El certificado es demasiado grande.', {
+          certificate: `El certificado debe pesar menos de 10MB. Tu archivo pesa ${(certificate.size / 1024 / 1024).toFixed(1)}MB.`,
+        })
       }
 
-      const allowedCertTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/gif', 'image/webp']
+      const allowedCertTypes = [
+        'application/pdf',
+        'image/jpeg',
+        'image/png',
+        'image/gif',
+        'image/webp',
+      ]
       if (!allowedCertTypes.includes(certificate.type)) {
-        return actionError(
-          "Formato de certificado no válido.",
-          {
-            certificate: "Solo se permiten archivos PDF, JPG, PNG o WebP para el certificado."
-          }
-        )
+        return actionError('Formato de certificado no válido.', {
+          certificate: 'Solo se permiten archivos PDF, JPG, PNG o WebP para el certificado.',
+        })
       }
 
       const certExt = certificate.name.split('.').pop()?.toLowerCase() || 'pdf'
@@ -198,9 +196,9 @@ export const createVaccine = withActionAuth(
         .upload(certFileName, certificate)
 
       if (!certUploadError) {
-        const { data: { publicUrl } } = supabase.storage
-          .from('vaccines')
-          .getPublicUrl(certFileName)
+        const {
+          data: { publicUrl },
+        } = supabase.storage.from('vaccines').getPublicUrl(certFileName)
         certificateUrl = publicUrl
       }
     }
@@ -208,7 +206,7 @@ export const createVaccine = withActionAuth(
     // Set status based on creator's role
     const status = isStaff ? 'verified' : 'pending'
 
-    const { error: insertError } = await supabase.from("vaccines").insert({
+    const { error: insertError } = await supabase.from('vaccines').insert({
       pet_id: petId,
       name,
       administered_date: date,
@@ -218,7 +216,7 @@ export const createVaccine = withActionAuth(
       photos: photos.length > 0 ? photos : null,
       certificate_url: certificateUrl,
       verified_by: isStaff ? user.id : null,
-      verified_at: isStaff ? new Date().toISOString() : null
+      verified_at: isStaff ? new Date().toISOString() : null,
     })
 
     if (insertError) {
@@ -227,19 +225,20 @@ export const createVaccine = withActionAuth(
         userId: user.id,
         petId,
         tenant: clinic,
-        errorCode: insertError.code
+        errorCode: insertError.code,
       })
 
-      let userMessage = "No se pudo guardar la vacuna. "
+      let userMessage = 'No se pudo guardar la vacuna. '
 
-      if (insertError.code === "23505") {
-        userMessage = "Ya existe un registro de esta vacuna para esta fecha. Verifica si ya fue registrada."
-      } else if (insertError.code === "23503") {
-        userMessage += "La mascota ya no existe en el sistema."
-      } else if (insertError.code === "42501") {
-        userMessage += "No tienes permiso para agregar vacunas. Contacta a la clínica."
+      if (insertError.code === '23505') {
+        userMessage =
+          'Ya existe un registro de esta vacuna para esta fecha. Verifica si ya fue registrada.'
+      } else if (insertError.code === '23503') {
+        userMessage += 'La mascota ya no existe en el sistema.'
+      } else if (insertError.code === '42501') {
+        userMessage += 'No tienes permiso para agregar vacunas. Contacta a la clínica.'
       } else {
-        userMessage += "Por favor, intenta de nuevo. Si el problema persiste, contacta a soporte."
+        userMessage += 'Por favor, intenta de nuevo. Si el problema persiste, contacta a soporte.'
       }
 
       return actionError(userMessage)

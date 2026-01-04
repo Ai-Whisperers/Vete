@@ -1,7 +1,7 @@
-"use client";
+'use client'
 
-import { useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import {
   CheckCircle2,
   Dog,
@@ -12,29 +12,29 @@ import {
   PawPrint,
   Camera,
   Mail,
-  Check
-} from "lucide-react";
-import { PhotoUpload } from "@/components/pets/photo-upload";
+  Check,
+} from 'lucide-react'
+import { PhotoUpload } from '@/components/pets/photo-upload'
 
 interface OnboardingWizardProps {
-  clinic: string;
-  userEmail?: string;
-  userName?: string;
+  clinic: string
+  userEmail?: string
+  userName?: string
 }
 
-type Step = "welcome" | "add-pet" | "preferences" | "complete";
+type Step = 'welcome' | 'add-pet' | 'preferences' | 'complete'
 
 interface PetData {
-  name: string;
-  species: "dog" | "cat";
-  breed: string;
-  photo?: File;
+  name: string
+  species: 'dog' | 'cat'
+  breed: string
+  photo?: File
 }
 
 interface Preferences {
-  vaccineReminders: boolean;
-  appointmentReminders: boolean;
-  promotions: boolean;
+  vaccineReminders: boolean
+  appointmentReminders: boolean
+  promotions: boolean
 }
 
 export function OnboardingWizard({
@@ -42,117 +42,113 @@ export function OnboardingWizard({
   userEmail,
   userName,
 }: OnboardingWizardProps): React.ReactElement {
-  const router = useRouter();
-  const [currentStep, setCurrentStep] = useState<Step>("welcome");
+  const router = useRouter()
+  const [currentStep, setCurrentStep] = useState<Step>('welcome')
   const [petData, setPetData] = useState<PetData>({
-    name: "",
-    species: "dog",
-    breed: "",
-  });
+    name: '',
+    species: 'dog',
+    breed: '',
+  })
   const [preferences, setPreferences] = useState<Preferences>({
     vaccineReminders: true,
     appointmentReminders: true,
     promotions: false,
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  })
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const steps: { id: Step; label: string; icon: React.ReactNode }[] = [
-    { id: "welcome", label: "Bienvenida", icon: <Sparkles className="w-5 h-5" /> },
-    { id: "add-pet", label: "Tu Mascota", icon: <PawPrint className="w-5 h-5" /> },
-    { id: "preferences", label: "Preferencias", icon: <Bell className="w-5 h-5" /> },
-    { id: "complete", label: "Listo", icon: <CheckCircle2 className="w-5 h-5" /> },
-  ];
+    { id: 'welcome', label: 'Bienvenida', icon: <Sparkles className="h-5 w-5" /> },
+    { id: 'add-pet', label: 'Tu Mascota', icon: <PawPrint className="h-5 w-5" /> },
+    { id: 'preferences', label: 'Preferencias', icon: <Bell className="h-5 w-5" /> },
+    { id: 'complete', label: 'Listo', icon: <CheckCircle2 className="h-5 w-5" /> },
+  ]
 
-  const currentStepIndex = steps.findIndex((s) => s.id === currentStep);
+  const currentStepIndex = steps.findIndex((s) => s.id === currentStep)
 
   const goNext = useCallback(() => {
-    const nextIndex = currentStepIndex + 1;
+    const nextIndex = currentStepIndex + 1
     if (nextIndex < steps.length) {
-      setCurrentStep(steps[nextIndex].id);
+      setCurrentStep(steps[nextIndex].id)
     }
-  }, [currentStepIndex, steps]);
+  }, [currentStepIndex, steps])
 
   const goBack = useCallback(() => {
-    const prevIndex = currentStepIndex - 1;
+    const prevIndex = currentStepIndex - 1
     if (prevIndex >= 0) {
-      setCurrentStep(steps[prevIndex].id);
+      setCurrentStep(steps[prevIndex].id)
     }
-  }, [currentStepIndex, steps]);
+  }, [currentStepIndex, steps])
 
   const handleComplete = useCallback(async () => {
-    setIsSubmitting(true);
+    setIsSubmitting(true)
     try {
       // Save pet if provided
       if (petData.name) {
-        const formData = new FormData();
-        formData.append("clinic", clinic);
-        formData.append("name", petData.name);
-        formData.append("species", petData.species);
-        formData.append("breed", petData.breed);
+        const formData = new FormData()
+        formData.append('clinic', clinic)
+        formData.append('name', petData.name)
+        formData.append('species', petData.species)
+        formData.append('breed', petData.breed)
         if (petData.photo) {
-          formData.append("photo", petData.photo);
+          formData.append('photo', petData.photo)
         }
 
-        await fetch("/api/pets", {
-          method: "POST",
+        await fetch('/api/pets', {
+          method: 'POST',
           body: formData,
-        });
+        })
       }
 
       // Save preferences
-      await fetch("/api/user/preferences", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      await fetch('/api/user/preferences', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           clinic,
           preferences,
         }),
-      });
+      })
 
       // Mark onboarding as complete
-      await fetch("/api/user/onboarding-complete", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      await fetch('/api/user/onboarding-complete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ clinic }),
-      });
+      })
 
-      setCurrentStep("complete");
+      setCurrentStep('complete')
     } catch {
       // Onboarding error - silently fail
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false)
     }
-  }, [clinic, petData, preferences]);
+  }, [clinic, petData, preferences])
 
   const goToDashboard = useCallback(() => {
-    router.push(`/${clinic}/portal/dashboard`);
-  }, [clinic, router]);
+    router.push(`/${clinic}/portal/dashboard`)
+  }, [clinic, router])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[var(--bg-subtle)] to-white">
-      <div className="container mx-auto px-4 py-8 max-w-2xl">
+      <div className="container mx-auto max-w-2xl px-4 py-8">
         {/* Progress Bar */}
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
+          <div className="mb-4 flex items-center justify-between">
             {steps.map((step, index) => (
               <div key={step.id} className="flex items-center">
                 <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
+                  className={`flex h-10 w-10 items-center justify-center rounded-full transition-all ${
                     index <= currentStepIndex
-                      ? "bg-[var(--primary)] text-white"
-                      : "bg-[var(--bg-subtle)] text-[var(--text-muted)]"
+                      ? 'bg-[var(--primary)] text-white'
+                      : 'bg-[var(--bg-subtle)] text-[var(--text-muted)]'
                   }`}
                 >
-                  {index < currentStepIndex ? (
-                    <Check className="w-5 h-5" />
-                  ) : (
-                    step.icon
-                  )}
+                  {index < currentStepIndex ? <Check className="h-5 w-5" /> : step.icon}
                 </div>
                 {index < steps.length - 1 && (
                   <div
-                    className={`w-12 md:w-20 h-1 mx-2 rounded transition-colors ${
-                      index < currentStepIndex ? "bg-[var(--primary)]" : "bg-gray-200"
+                    className={`mx-2 h-1 w-12 rounded transition-colors md:w-20 ${
+                      index < currentStepIndex ? 'bg-[var(--primary)]' : 'bg-gray-200'
                     }`}
                   />
                 )}
@@ -165,47 +161,45 @@ export function OnboardingWizard({
         </div>
 
         {/* Step Content */}
-        <div className="bg-white rounded-3xl shadow-xl p-8">
+        <div className="rounded-3xl bg-white p-8 shadow-xl">
           {/* Welcome Step */}
-          {currentStep === "welcome" && (
-            <div className="text-center space-y-6">
-              <div className="w-20 h-20 mx-auto bg-[var(--primary)]/10 rounded-full flex items-center justify-center">
-                <Sparkles className="w-10 h-10 text-[var(--primary)]" />
+          {currentStep === 'welcome' && (
+            <div className="space-y-6 text-center">
+              <div className="bg-[var(--primary)]/10 mx-auto flex h-20 w-20 items-center justify-center rounded-full">
+                <Sparkles className="h-10 w-10 text-[var(--primary)]" />
               </div>
               <h1 className="text-3xl font-black text-[var(--text-primary)]">
-                ¡Bienvenido{userName ? `, ${userName}` : ""}!
+                ¡Bienvenido{userName ? `, ${userName}` : ''}!
               </h1>
-              <p className="text-gray-600 max-w-md mx-auto">
-                Estamos felices de tenerte aquí. Vamos a configurar tu cuenta en
-                solo unos pasos para que puedas aprovechar todas las funciones.
+              <p className="mx-auto max-w-md text-gray-600">
+                Estamos felices de tenerte aquí. Vamos a configurar tu cuenta en solo unos pasos
+                para que puedas aprovechar todas las funciones.
               </p>
               {userEmail && (
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-50 text-green-700 rounded-full text-sm">
-                  <Mail className="w-4 h-4" />
+                <div className="inline-flex items-center gap-2 rounded-full bg-green-50 px-4 py-2 text-sm text-green-700">
+                  <Mail className="h-4 w-4" />
                   {userEmail}
-                  <CheckCircle2 className="w-4 h-4" />
+                  <CheckCircle2 className="h-4 w-4" />
                 </div>
               )}
               <button
                 onClick={goNext}
-                className="w-full max-w-xs mx-auto bg-[var(--primary)] text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all flex items-center justify-center gap-2"
+                className="mx-auto flex w-full max-w-xs items-center justify-center gap-2 rounded-xl bg-[var(--primary)] py-4 font-bold text-white shadow-lg transition-all hover:-translate-y-1 hover:shadow-xl"
               >
                 Comenzar
-                <ArrowRight className="w-5 h-5" />
+                <ArrowRight className="h-5 w-5" />
               </button>
             </div>
           )}
 
           {/* Add Pet Step */}
-          {currentStep === "add-pet" && (
+          {currentStep === 'add-pet' && (
             <div className="space-y-6">
-              <div className="text-center mb-8">
+              <div className="mb-8 text-center">
                 <h2 className="text-2xl font-black text-[var(--text-primary)]">
                   Cuéntanos sobre tu mascota
                 </h2>
-                <p className="text-gray-500 mt-2">
-                  Puedes agregar más mascotas después
-                </p>
+                <p className="mt-2 text-gray-500">Puedes agregar más mascotas después</p>
               </div>
 
               {/* Photo Upload */}
@@ -222,29 +216,37 @@ export function OnboardingWizard({
               <div className="flex justify-center gap-4">
                 <button
                   type="button"
-                  onClick={() => setPetData((p) => ({ ...p, species: "dog" }))}
-                  className={`flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all ${
-                    petData.species === "dog"
-                      ? "border-[var(--primary)] bg-[var(--primary)]/5"
-                      : "border-gray-200 hover:border-gray-300"
+                  onClick={() => setPetData((p) => ({ ...p, species: 'dog' }))}
+                  className={`flex flex-col items-center gap-2 rounded-2xl border-2 p-4 transition-all ${
+                    petData.species === 'dog'
+                      ? 'bg-[var(--primary)]/5 border-[var(--primary)]'
+                      : 'border-gray-200 hover:border-gray-300'
                   }`}
                 >
-                  <Dog className={`w-8 h-8 ${petData.species === "dog" ? "text-[var(--primary)]" : "text-gray-400"}`} />
-                  <span className={`font-bold ${petData.species === "dog" ? "text-[var(--primary)]" : "text-gray-600"}`}>
+                  <Dog
+                    className={`h-8 w-8 ${petData.species === 'dog' ? 'text-[var(--primary)]' : 'text-gray-400'}`}
+                  />
+                  <span
+                    className={`font-bold ${petData.species === 'dog' ? 'text-[var(--primary)]' : 'text-gray-600'}`}
+                  >
                     Perro
                   </span>
                 </button>
                 <button
                   type="button"
-                  onClick={() => setPetData((p) => ({ ...p, species: "cat" }))}
-                  className={`flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all ${
-                    petData.species === "cat"
-                      ? "border-[var(--primary)] bg-[var(--primary)]/5"
-                      : "border-gray-200 hover:border-gray-300"
+                  onClick={() => setPetData((p) => ({ ...p, species: 'cat' }))}
+                  className={`flex flex-col items-center gap-2 rounded-2xl border-2 p-4 transition-all ${
+                    petData.species === 'cat'
+                      ? 'bg-[var(--primary)]/5 border-[var(--primary)]'
+                      : 'border-gray-200 hover:border-gray-300'
                   }`}
                 >
-                  <PawPrint className={`w-8 h-8 ${petData.species === "cat" ? "text-[var(--primary)]" : "text-gray-400"}`} />
-                  <span className={`font-bold ${petData.species === "cat" ? "text-[var(--primary)]" : "text-gray-600"}`}>
+                  <PawPrint
+                    className={`h-8 w-8 ${petData.species === 'cat' ? 'text-[var(--primary)]' : 'text-gray-400'}`}
+                  />
+                  <span
+                    className={`font-bold ${petData.species === 'cat' ? 'text-[var(--primary)]' : 'text-gray-600'}`}
+                  >
                     Gato
                   </span>
                 </button>
@@ -253,7 +255,7 @@ export function OnboardingWizard({
               {/* Name & Breed */}
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-bold text-gray-600 mb-2">
+                  <label className="mb-2 block text-sm font-bold text-gray-600">
                     Nombre de tu mascota
                   </label>
                   <input
@@ -261,11 +263,11 @@ export function OnboardingWizard({
                     value={petData.name}
                     onChange={(e) => setPetData((p) => ({ ...p, name: e.target.value }))}
                     placeholder="Ej: Firulais"
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[var(--primary)] outline-none"
+                    className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-[var(--primary)]"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-gray-600 mb-2">
+                  <label className="mb-2 block text-sm font-bold text-gray-600">
                     Raza (opcional)
                   </label>
                   <input
@@ -273,7 +275,7 @@ export function OnboardingWizard({
                     value={petData.breed}
                     onChange={(e) => setPetData((p) => ({ ...p, breed: e.target.value }))}
                     placeholder="Ej: Golden Retriever"
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[var(--primary)] outline-none"
+                    className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-[var(--primary)]"
                   />
                 </div>
               </div>
@@ -282,43 +284,43 @@ export function OnboardingWizard({
               <div className="flex gap-4 pt-4">
                 <button
                   onClick={goBack}
-                  className="flex-1 px-6 py-4 border border-gray-200 rounded-xl font-bold text-gray-600 hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
+                  className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-gray-200 px-6 py-4 font-bold text-gray-600 transition-colors hover:bg-gray-50"
                 >
-                  <ArrowLeft className="w-5 h-5" />
+                  <ArrowLeft className="h-5 w-5" />
                   Atrás
                 </button>
                 <button
                   onClick={goNext}
-                  className="flex-1 bg-[var(--primary)] text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2"
+                  className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[var(--primary)] py-4 font-bold text-white shadow-lg transition-all hover:shadow-xl"
                 >
-                  {petData.name ? "Continuar" : "Saltar"}
-                  <ArrowRight className="w-5 h-5" />
+                  {petData.name ? 'Continuar' : 'Saltar'}
+                  <ArrowRight className="h-5 w-5" />
                 </button>
               </div>
             </div>
           )}
 
           {/* Preferences Step */}
-          {currentStep === "preferences" && (
+          {currentStep === 'preferences' && (
             <div className="space-y-6">
-              <div className="text-center mb-8">
+              <div className="mb-8 text-center">
                 <h2 className="text-2xl font-black text-[var(--text-primary)]">
                   Configura tus notificaciones
                 </h2>
-                <p className="text-gray-500 mt-2">
-                  Elige qué información quieres recibir
-                </p>
+                <p className="mt-2 text-gray-500">Elige qué información quieres recibir</p>
               </div>
 
               <div className="space-y-4">
-                <label className="flex items-center justify-between p-4 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors">
+                <label className="flex cursor-pointer items-center justify-between rounded-xl bg-gray-50 p-4 transition-colors hover:bg-gray-100">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                      <Bell className="w-5 h-5 text-blue-600" />
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
+                      <Bell className="h-5 w-5 text-blue-600" />
                     </div>
                     <div>
                       <p className="font-bold text-gray-800">Recordatorios de vacunas</p>
-                      <p className="text-sm text-gray-500">Te avisamos cuando una vacuna está por vencer</p>
+                      <p className="text-sm text-gray-500">
+                        Te avisamos cuando una vacuna está por vencer
+                      </p>
                     </div>
                   </div>
                   <input
@@ -327,18 +329,20 @@ export function OnboardingWizard({
                     onChange={(e) =>
                       setPreferences((p) => ({ ...p, vaccineReminders: e.target.checked }))
                     }
-                    className="w-6 h-6 rounded text-[var(--primary)] focus:ring-[var(--primary)]"
+                    className="h-6 w-6 rounded text-[var(--primary)] focus:ring-[var(--primary)]"
                   />
                 </label>
 
-                <label className="flex items-center justify-between p-4 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors">
+                <label className="flex cursor-pointer items-center justify-between rounded-xl bg-gray-50 p-4 transition-colors hover:bg-gray-100">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
-                      <CheckCircle2 className="w-5 h-5 text-green-600" />
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100">
+                      <CheckCircle2 className="h-5 w-5 text-green-600" />
                     </div>
                     <div>
                       <p className="font-bold text-gray-800">Recordatorios de citas</p>
-                      <p className="text-sm text-gray-500">Confirmaciones y recordatorios de tus citas</p>
+                      <p className="text-sm text-gray-500">
+                        Confirmaciones y recordatorios de tus citas
+                      </p>
                     </div>
                   </div>
                   <input
@@ -347,14 +351,14 @@ export function OnboardingWizard({
                     onChange={(e) =>
                       setPreferences((p) => ({ ...p, appointmentReminders: e.target.checked }))
                     }
-                    className="w-6 h-6 rounded text-[var(--primary)] focus:ring-[var(--primary)]"
+                    className="h-6 w-6 rounded text-[var(--primary)] focus:ring-[var(--primary)]"
                   />
                 </label>
 
-                <label className="flex items-center justify-between p-4 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors">
+                <label className="flex cursor-pointer items-center justify-between rounded-xl bg-gray-50 p-4 transition-colors hover:bg-gray-100">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
-                      <Sparkles className="w-5 h-5 text-purple-600" />
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-100">
+                      <Sparkles className="h-5 w-5 text-purple-600" />
                     </div>
                     <div>
                       <p className="font-bold text-gray-800">Ofertas y promociones</p>
@@ -367,7 +371,7 @@ export function OnboardingWizard({
                     onChange={(e) =>
                       setPreferences((p) => ({ ...p, promotions: e.target.checked }))
                     }
-                    className="w-6 h-6 rounded text-[var(--primary)] focus:ring-[var(--primary)]"
+                    className="h-6 w-6 rounded text-[var(--primary)] focus:ring-[var(--primary)]"
                   />
                 </label>
               </div>
@@ -376,52 +380,48 @@ export function OnboardingWizard({
               <div className="flex gap-4 pt-4">
                 <button
                   onClick={goBack}
-                  className="flex-1 px-6 py-4 border border-gray-200 rounded-xl font-bold text-gray-600 hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
+                  className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-gray-200 px-6 py-4 font-bold text-gray-600 transition-colors hover:bg-gray-50"
                 >
-                  <ArrowLeft className="w-5 h-5" />
+                  <ArrowLeft className="h-5 w-5" />
                   Atrás
                 </button>
                 <button
                   onClick={handleComplete}
                   disabled={isSubmitting}
-                  className="flex-1 bg-[var(--primary)] text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                  className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[var(--primary)] py-4 font-bold text-white shadow-lg transition-all hover:shadow-xl disabled:opacity-50"
                 >
-                  {isSubmitting ? "Guardando..." : "Finalizar"}
-                  <ArrowRight className="w-5 h-5" />
+                  {isSubmitting ? 'Guardando...' : 'Finalizar'}
+                  <ArrowRight className="h-5 w-5" />
                 </button>
               </div>
             </div>
           )}
 
           {/* Complete Step */}
-          {currentStep === "complete" && (
-            <div className="text-center space-y-6 py-8">
-              <div className="w-24 h-24 mx-auto bg-green-100 rounded-full flex items-center justify-center">
-                <CheckCircle2 className="w-12 h-12 text-green-600" />
+          {currentStep === 'complete' && (
+            <div className="space-y-6 py-8 text-center">
+              <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-green-100">
+                <CheckCircle2 className="h-12 w-12 text-green-600" />
               </div>
-              <h2 className="text-3xl font-black text-[var(--text-primary)]">
-                ¡Todo listo!
-              </h2>
-              <p className="text-gray-600 max-w-md mx-auto">
-                Tu cuenta está configurada. Ahora puedes explorar todas las
-                funciones del portal de mascotas.
+              <h2 className="text-3xl font-black text-[var(--text-primary)]">¡Todo listo!</h2>
+              <p className="mx-auto max-w-md text-gray-600">
+                Tu cuenta está configurada. Ahora puedes explorar todas las funciones del portal de
+                mascotas.
               </p>
 
-              <div className="bg-[var(--primary)]/5 rounded-2xl p-6 text-left max-w-sm mx-auto">
-                <h3 className="font-bold text-[var(--primary)] mb-3">
-                  Próximos pasos:
-                </h3>
+              <div className="bg-[var(--primary)]/5 mx-auto max-w-sm rounded-2xl p-6 text-left">
+                <h3 className="mb-3 font-bold text-[var(--primary)]">Próximos pasos:</h3>
                 <ul className="space-y-2 text-sm text-gray-600">
                   <li className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-green-500" />
+                    <Check className="h-4 w-4 text-green-500" />
                     Agendar tu primera cita
                   </li>
                   <li className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-green-500" />
+                    <Check className="h-4 w-4 text-green-500" />
                     Completar el perfil de tu mascota
                   </li>
                   <li className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-green-500" />
+                    <Check className="h-4 w-4 text-green-500" />
                     Explorar nuestra tienda
                   </li>
                 </ul>
@@ -429,15 +429,15 @@ export function OnboardingWizard({
 
               <button
                 onClick={goToDashboard}
-                className="w-full max-w-xs mx-auto bg-[var(--primary)] text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all flex items-center justify-center gap-2"
+                className="mx-auto flex w-full max-w-xs items-center justify-center gap-2 rounded-xl bg-[var(--primary)] py-4 font-bold text-white shadow-lg transition-all hover:-translate-y-1 hover:shadow-xl"
               >
                 Ir al Dashboard
-                <ArrowRight className="w-5 h-5" />
+                <ArrowRight className="h-5 w-5" />
               </button>
             </div>
           )}
         </div>
       </div>
     </div>
-  );
+  )
 }

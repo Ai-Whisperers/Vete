@@ -30,7 +30,7 @@ export const LIMITS = {
 // =============================================================================
 
 export const USER_ROLES = ['owner', 'vet', 'admin'] as const
-export type UserRole = typeof USER_ROLES[number]
+export type UserRole = (typeof USER_ROLES)[number]
 
 export const USER_ROLE_LABELS: Record<UserRole, string> = {
   owner: 'Dueño de Mascota',
@@ -53,7 +53,7 @@ export const SPECIES = [
   'fish',
   'other',
 ] as const
-export type Species = typeof SPECIES[number]
+export type Species = (typeof SPECIES)[number]
 
 export const SPECIES_LABELS: Record<Species, string> = {
   dog: 'Perro',
@@ -68,8 +68,17 @@ export const SPECIES_LABELS: Record<Species, string> = {
 }
 
 // Store species (Spanish naming convention for e-commerce)
-export const STORE_SPECIES = ['perro', 'gato', 'ave', 'reptil', 'pez', 'roedor', 'conejo', 'otro'] as const
-export type StoreSpecies = typeof STORE_SPECIES[number]
+export const STORE_SPECIES = [
+  'perro',
+  'gato',
+  'ave',
+  'reptil',
+  'pez',
+  'roedor',
+  'conejo',
+  'otro',
+] as const
+export type StoreSpecies = (typeof STORE_SPECIES)[number]
 
 export const STORE_SPECIES_LABELS: Record<StoreSpecies, string> = {
   perro: 'Perro',
@@ -87,7 +96,7 @@ export const STORE_SPECIES_LABELS: Record<StoreSpecies, string> = {
 // =============================================================================
 
 export const PET_SIZES = ['mini', 'pequeño', 'mediano', 'grande', 'gigante'] as const
-export type PetSize = typeof PET_SIZES[number]
+export type PetSize = (typeof PET_SIZES)[number]
 
 export const PET_SIZE_LABELS: Record<PetSize, string> = {
   mini: 'Mini (0-5 kg)',
@@ -102,7 +111,7 @@ export const PET_SIZE_LABELS: Record<PetSize, string> = {
 // =============================================================================
 
 export const GENDERS = ['male', 'female', 'unknown'] as const
-export type Gender = typeof GENDERS[number]
+export type Gender = (typeof GENDERS)[number]
 
 export const GENDER_LABELS: Record<Gender, string> = {
   male: 'Macho',
@@ -114,8 +123,16 @@ export const GENDER_LABELS: Record<Gender, string> = {
 // PAYMENT METHODS
 // =============================================================================
 
-export const PAYMENT_METHODS = ['cash', 'card', 'transfer', 'qr', 'check', 'credit', 'other'] as const
-export type PaymentMethod = typeof PAYMENT_METHODS[number]
+export const PAYMENT_METHODS = [
+  'cash',
+  'card',
+  'transfer',
+  'qr',
+  'check',
+  'credit',
+  'other',
+] as const
+export type PaymentMethod = (typeof PAYMENT_METHODS)[number]
 
 export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
   cash: 'Efectivo',
@@ -139,7 +156,7 @@ export const APPOINTMENT_STATUSES = [
   'cancelled',
   'no_show',
 ] as const
-export type AppointmentStatus = typeof APPOINTMENT_STATUSES[number]
+export type AppointmentStatus = (typeof APPOINTMENT_STATUSES)[number]
 
 export const APPOINTMENT_STATUS_LABELS: Record<AppointmentStatus, string> = {
   scheduled: 'Programado',
@@ -164,7 +181,7 @@ export const APPOINTMENT_STATUS_COLORS: Record<AppointmentStatus, string> = {
 // =============================================================================
 
 export const INVOICE_STATUSES = ['draft', 'sent', 'paid', 'overdue', 'void', 'cancelled'] as const
-export type InvoiceStatus = typeof INVOICE_STATUSES[number]
+export type InvoiceStatus = (typeof INVOICE_STATUSES)[number]
 
 export const INVOICE_STATUS_LABELS: Record<InvoiceStatus, string> = {
   draft: 'Borrador',
@@ -189,7 +206,7 @@ export const INVOICE_STATUS_COLORS: Record<InvoiceStatus, string> = {
 // =============================================================================
 
 export const VACCINE_STATUSES = ['pending', 'administered', 'overdue', 'waived'] as const
-export type VaccineStatus = typeof VACCINE_STATUSES[number]
+export type VaccineStatus = (typeof VACCINE_STATUSES)[number]
 
 export const VACCINE_STATUS_LABELS: Record<VaccineStatus, string> = {
   pending: 'Pendiente',
@@ -231,7 +248,7 @@ export const RECORD_TYPES = [
   'follow_up',
   'other',
 ] as const
-export type RecordType = typeof RECORD_TYPES[number]
+export type RecordType = (typeof RECORD_TYPES)[number]
 
 export const RECORD_TYPE_LABELS: Record<RecordType, string> = {
   consultation: 'Consulta',
@@ -249,7 +266,7 @@ export const RECORD_TYPE_LABELS: Record<RecordType, string> = {
 // =============================================================================
 
 export const PRIORITY_LEVELS = ['low', 'medium', 'high', 'urgent'] as const
-export type PriorityLevel = typeof PRIORITY_LEVELS[number]
+export type PriorityLevel = (typeof PRIORITY_LEVELS)[number]
 
 export const PRIORITY_LABELS: Record<PriorityLevel, string> = {
   low: 'Baja',
@@ -299,7 +316,7 @@ export const BUSINESS_HOURS = {
 // =============================================================================
 
 export const NOTIFICATION_CHANNELS = ['email', 'sms', 'whatsapp', 'in_app'] as const
-export type NotificationChannel = typeof NOTIFICATION_CHANNELS[number]
+export type NotificationChannel = (typeof NOTIFICATION_CHANNELS)[number]
 
 export const NOTIFICATION_CHANNEL_LABELS: Record<NotificationChannel, string> = {
   email: 'Correo Electrónico',

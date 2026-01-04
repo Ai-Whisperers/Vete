@@ -4,7 +4,7 @@ import {
   createMockProfile,
   createMockAppointment,
   createSupabaseMock,
-  resetIdCounter
+  resetIdCounter,
 } from '@/lib/test-utils'
 
 describe('Test Utilities', () => {
@@ -26,7 +26,7 @@ describe('Test Utilities', () => {
       const pet = createMockPet({
         name: 'Fido',
         species: 'cat',
-        weight_kg: 5
+        weight_kg: 5,
       })
 
       expect(pet.name).toBe('Fido')
@@ -55,7 +55,7 @@ describe('Test Utilities', () => {
     it('allows overriding values', () => {
       const profile = createMockProfile({
         role: 'vet',
-        full_name: 'Dr. Smith'
+        full_name: 'Dr. Smith',
       })
 
       expect(profile.role).toBe('vet')

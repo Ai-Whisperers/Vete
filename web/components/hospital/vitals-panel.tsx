@@ -1,49 +1,53 @@
-'use client';
+'use client'
 
-import type { JSX } from 'react';
-import { useState } from 'react';
-import { Save, Heart, Thermometer, Activity, Weight } from 'lucide-react';
+import type { JSX } from 'react'
+import { useState } from 'react'
+import { Save, Heart, Thermometer, Activity, Weight } from 'lucide-react'
 
 interface Vital {
-  id: string;
-  recorded_at: string;
-  temperature?: number;
-  heart_rate?: number;
-  respiratory_rate?: number;
-  weight?: number;
-  blood_pressure_systolic?: number;
-  blood_pressure_diastolic?: number;
-  mucous_membrane_color?: string;
-  capillary_refill_time?: string;
-  pain_score?: number;
-  notes?: string;
+  id: string
+  recorded_at: string
+  temperature?: number
+  heart_rate?: number
+  respiratory_rate?: number
+  weight?: number
+  blood_pressure_systolic?: number
+  blood_pressure_diastolic?: number
+  mucous_membrane_color?: string
+  capillary_refill_time?: string
+  pain_score?: number
+  notes?: string
   recorded_by?: {
-    full_name: string;
-  };
+    full_name: string
+  }
 }
 
 interface VitalsForm {
-  temperature: string;
-  heart_rate: string;
-  respiratory_rate: string;
-  weight: string;
-  blood_pressure_systolic: string;
-  blood_pressure_diastolic: string;
-  mucous_membrane_color: string;
-  capillary_refill_time: string;
-  pain_score: string;
-  notes: string;
+  temperature: string
+  heart_rate: string
+  respiratory_rate: string
+  weight: string
+  blood_pressure_systolic: string
+  blood_pressure_diastolic: string
+  mucous_membrane_color: string
+  capillary_refill_time: string
+  pain_score: string
+  notes: string
 }
 
 interface VitalsPanelProps {
-  hospitalizationId: string;
-  vitals: Vital[];
-  onVitalsSaved: () => void;
+  hospitalizationId: string
+  vitals: Vital[]
+  onVitalsSaved: () => void
 }
 
-export function VitalsPanel({ hospitalizationId, vitals, onVitalsSaved }: VitalsPanelProps): JSX.Element {
-  const [showForm, setShowForm] = useState(false);
-  const [saving, setSaving] = useState(false);
+export function VitalsPanel({
+  hospitalizationId,
+  vitals,
+  onVitalsSaved,
+}: VitalsPanelProps): JSX.Element {
+  const [showForm, setShowForm] = useState(false)
+  const [saving, setSaving] = useState(false)
   const [form, setForm] = useState<VitalsForm>({
     temperature: '',
     heart_rate: '',
@@ -55,34 +59,36 @@ export function VitalsPanel({ hospitalizationId, vitals, onVitalsSaved }: Vitals
     capillary_refill_time: '',
     pain_score: '',
     notes: '',
-  });
+  })
 
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
-    e.preventDefault();
-    setSaving(true);
+    e.preventDefault()
+    setSaving(true)
 
     try {
-      const vitalsData: Record<string, unknown> = {};
-      if (form.temperature) vitalsData.temperature = parseFloat(form.temperature);
-      if (form.heart_rate) vitalsData.heart_rate = parseInt(form.heart_rate, 10);
-      if (form.respiratory_rate) vitalsData.respiratory_rate = parseInt(form.respiratory_rate, 10);
-      if (form.weight) vitalsData.weight = parseFloat(form.weight);
-      if (form.blood_pressure_systolic) vitalsData.blood_pressure_systolic = parseInt(form.blood_pressure_systolic, 10);
-      if (form.blood_pressure_diastolic) vitalsData.blood_pressure_diastolic = parseInt(form.blood_pressure_diastolic, 10);
-      if (form.mucous_membrane_color) vitalsData.mucous_membrane_color = form.mucous_membrane_color;
-      if (form.capillary_refill_time) vitalsData.capillary_refill_time = form.capillary_refill_time;
-      if (form.pain_score) vitalsData.pain_score = parseInt(form.pain_score, 10);
-      if (form.notes) vitalsData.notes = form.notes;
+      const vitalsData: Record<string, unknown> = {}
+      if (form.temperature) vitalsData.temperature = parseFloat(form.temperature)
+      if (form.heart_rate) vitalsData.heart_rate = parseInt(form.heart_rate, 10)
+      if (form.respiratory_rate) vitalsData.respiratory_rate = parseInt(form.respiratory_rate, 10)
+      if (form.weight) vitalsData.weight = parseFloat(form.weight)
+      if (form.blood_pressure_systolic)
+        vitalsData.blood_pressure_systolic = parseInt(form.blood_pressure_systolic, 10)
+      if (form.blood_pressure_diastolic)
+        vitalsData.blood_pressure_diastolic = parseInt(form.blood_pressure_diastolic, 10)
+      if (form.mucous_membrane_color) vitalsData.mucous_membrane_color = form.mucous_membrane_color
+      if (form.capillary_refill_time) vitalsData.capillary_refill_time = form.capillary_refill_time
+      if (form.pain_score) vitalsData.pain_score = parseInt(form.pain_score, 10)
+      if (form.notes) vitalsData.notes = form.notes
 
       const response = await fetch(`/api/hospitalizations/${hospitalizationId}/vitals`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(vitalsData),
-      });
+      })
 
-      if (!response.ok) throw new Error('Error al guardar signos vitales');
+      if (!response.ok) throw new Error('Error al guardar signos vitales')
 
-      setShowForm(false);
+      setShowForm(false)
       setForm({
         temperature: '',
         heart_rate: '',
@@ -94,15 +100,15 @@ export function VitalsPanel({ hospitalizationId, vitals, onVitalsSaved }: Vitals
         capillary_refill_time: '',
         pain_score: '',
         notes: '',
-      });
-      onVitalsSaved();
+      })
+      onVitalsSaved()
     } catch (error) {
-      console.error('Error saving vitals:', error);
-      alert('Error al guardar signos vitales');
+      console.error('Error saving vitals:', error)
+      alert('Error al guardar signos vitales')
     } finally {
-      setSaving(false);
+      setSaving(false)
     }
-  };
+  }
 
   const formatDateTime = (isoString: string): string => {
     return new Date(isoString).toLocaleString('es-PY', {
@@ -111,28 +117,29 @@ export function VitalsPanel({ hospitalizationId, vitals, onVitalsSaved }: Vitals
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
-    });
-  };
+    })
+  }
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold text-[var(--text-primary)]">
-          Signos Vitales
-        </h3>
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-semibold text-[var(--text-primary)]">Signos Vitales</h3>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="px-4 py-2 bg-[var(--primary)] text-white rounded-lg hover:opacity-90"
+          className="rounded-lg bg-[var(--primary)] px-4 py-2 text-white hover:opacity-90"
         >
           {showForm ? 'Cancelar' : 'Registrar Vitales'}
         </button>
       </div>
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="bg-[var(--bg-default)] p-4 rounded-lg border border-[var(--border)]">
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <form
+          onSubmit={handleSubmit}
+          className="rounded-lg border border-[var(--border)] bg-[var(--bg-default)] p-4"
+        >
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
             <div>
-              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">
+              <label className="mb-1 block text-sm font-medium text-[var(--text-secondary)]">
                 Temperatura (°C)
               </label>
               <input
@@ -140,36 +147,36 @@ export function VitalsPanel({ hospitalizationId, vitals, onVitalsSaved }: Vitals
                 step="0.1"
                 value={form.temperature}
                 onChange={(e) => setForm({ ...form, temperature: e.target.value })}
-                className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--bg-default)] text-[var(--text-primary)]"
+                className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-default)] px-3 py-2 text-[var(--text-primary)]"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">
+              <label className="mb-1 block text-sm font-medium text-[var(--text-secondary)]">
                 FC (lpm)
               </label>
               <input
                 type="number"
                 value={form.heart_rate}
                 onChange={(e) => setForm({ ...form, heart_rate: e.target.value })}
-                className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--bg-default)] text-[var(--text-primary)]"
+                className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-default)] px-3 py-2 text-[var(--text-primary)]"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">
+              <label className="mb-1 block text-sm font-medium text-[var(--text-secondary)]">
                 FR (rpm)
               </label>
               <input
                 type="number"
                 value={form.respiratory_rate}
                 onChange={(e) => setForm({ ...form, respiratory_rate: e.target.value })}
-                className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--bg-default)] text-[var(--text-primary)]"
+                className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-default)] px-3 py-2 text-[var(--text-primary)]"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">
+              <label className="mb-1 block text-sm font-medium text-[var(--text-secondary)]">
                 Peso (kg)
               </label>
               <input
@@ -177,42 +184,42 @@ export function VitalsPanel({ hospitalizationId, vitals, onVitalsSaved }: Vitals
                 step="0.1"
                 value={form.weight}
                 onChange={(e) => setForm({ ...form, weight: e.target.value })}
-                className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--bg-default)] text-[var(--text-primary)]"
+                className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-default)] px-3 py-2 text-[var(--text-primary)]"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">
+              <label className="mb-1 block text-sm font-medium text-[var(--text-secondary)]">
                 PA Sistólica
               </label>
               <input
                 type="number"
                 value={form.blood_pressure_systolic}
                 onChange={(e) => setForm({ ...form, blood_pressure_systolic: e.target.value })}
-                className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--bg-default)] text-[var(--text-primary)]"
+                className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-default)] px-3 py-2 text-[var(--text-primary)]"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">
+              <label className="mb-1 block text-sm font-medium text-[var(--text-secondary)]">
                 PA Diastólica
               </label>
               <input
                 type="number"
                 value={form.blood_pressure_diastolic}
                 onChange={(e) => setForm({ ...form, blood_pressure_diastolic: e.target.value })}
-                className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--bg-default)] text-[var(--text-primary)]"
+                className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-default)] px-3 py-2 text-[var(--text-primary)]"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">
+              <label className="mb-1 block text-sm font-medium text-[var(--text-secondary)]">
                 Color de Mucosas
               </label>
               <select
                 value={form.mucous_membrane_color}
                 onChange={(e) => setForm({ ...form, mucous_membrane_color: e.target.value })}
-                className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--bg-default)] text-[var(--text-primary)]"
+                className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-default)] px-3 py-2 text-[var(--text-primary)]"
               >
                 <option value="">Seleccionar</option>
                 <option value="pink">Rosado</option>
@@ -223,7 +230,7 @@ export function VitalsPanel({ hospitalizationId, vitals, onVitalsSaved }: Vitals
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">
+              <label className="mb-1 block text-sm font-medium text-[var(--text-secondary)]">
                 TLLC
               </label>
               <input
@@ -231,12 +238,12 @@ export function VitalsPanel({ hospitalizationId, vitals, onVitalsSaved }: Vitals
                 placeholder="ej: <2s"
                 value={form.capillary_refill_time}
                 onChange={(e) => setForm({ ...form, capillary_refill_time: e.target.value })}
-                className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--bg-default)] text-[var(--text-primary)]"
+                className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-default)] px-3 py-2 text-[var(--text-primary)]"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">
+              <label className="mb-1 block text-sm font-medium text-[var(--text-secondary)]">
                 Dolor (0-10)
               </label>
               <input
@@ -245,19 +252,19 @@ export function VitalsPanel({ hospitalizationId, vitals, onVitalsSaved }: Vitals
                 max="10"
                 value={form.pain_score}
                 onChange={(e) => setForm({ ...form, pain_score: e.target.value })}
-                className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--bg-default)] text-[var(--text-primary)]"
+                className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-default)] px-3 py-2 text-[var(--text-primary)]"
               />
             </div>
 
             <div className="md:col-span-3">
-              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">
+              <label className="mb-1 block text-sm font-medium text-[var(--text-secondary)]">
                 Notas
               </label>
               <textarea
                 rows={2}
                 value={form.notes}
                 onChange={(e) => setForm({ ...form, notes: e.target.value })}
-                className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--bg-default)] text-[var(--text-primary)]"
+                className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-default)] px-3 py-2 text-[var(--text-primary)]"
               />
             </div>
           </div>
@@ -265,7 +272,7 @@ export function VitalsPanel({ hospitalizationId, vitals, onVitalsSaved }: Vitals
           <button
             type="submit"
             disabled={saving}
-            className="mt-4 flex items-center gap-2 px-6 py-2 bg-[var(--primary)] text-white rounded-lg hover:opacity-90 disabled:opacity-50"
+            className="mt-4 flex items-center gap-2 rounded-lg bg-[var(--primary)] px-6 py-2 text-white hover:opacity-90 disabled:opacity-50"
           >
             <Save className="h-4 w-4" />
             {saving ? 'Guardando...' : 'Guardar Signos Vitales'}
@@ -275,20 +282,23 @@ export function VitalsPanel({ hospitalizationId, vitals, onVitalsSaved }: Vitals
 
       <div className="space-y-3">
         {vitals?.length === 0 ? (
-          <p className="text-center text-[var(--text-secondary)] py-8">
+          <p className="py-8 text-center text-[var(--text-secondary)]">
             No hay registros de signos vitales
           </p>
         ) : (
           vitals?.map((vital) => (
-            <div key={vital.id} className="bg-[var(--bg-default)] p-4 rounded-lg border border-[var(--border)]">
-              <div className="flex justify-between items-start mb-3">
+            <div
+              key={vital.id}
+              className="rounded-lg border border-[var(--border)] bg-[var(--bg-default)] p-4"
+            >
+              <div className="mb-3 flex items-start justify-between">
                 <div className="text-sm text-[var(--text-secondary)]">
                   {formatDateTime(vital.recorded_at)}
                   {vital.recorded_by && ` - ${vital.recorded_by.full_name}`}
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+              <div className="grid grid-cols-2 gap-3 text-sm md:grid-cols-4">
                 {vital.temperature && (
                   <div className="flex items-center gap-2">
                     <Thermometer className="h-4 w-4 text-[var(--text-secondary)]" />
@@ -330,12 +340,12 @@ export function VitalsPanel({ hospitalizationId, vitals, onVitalsSaved }: Vitals
               </div>
 
               {vital.notes && (
-                <p className="mt-2 text-sm text-[var(--text-secondary)] italic">{vital.notes}</p>
+                <p className="mt-2 text-sm italic text-[var(--text-secondary)]">{vital.notes}</p>
               )}
             </div>
           ))
         )}
       </div>
     </div>
-  );
+  )
 }

@@ -177,12 +177,14 @@ const faqItems = [
 ## Best Practices
 
 ### Title Tags
+
 - Keep under 60 characters
 - Include clinic name: `"Service | Clinic Name"`
 - Use specific, descriptive titles
 - Avoid keyword stuffing
 
 ### Meta Descriptions
+
 - Keep between 150-160 characters
 - Include a call-to-action
 - Use active voice
@@ -190,18 +192,21 @@ const faqItems = [
 - Make it compelling to click
 
 ### Images
+
 - Use 1200x630 for OpenGraph images
 - Provide alt text
 - Optimize file size
 - Use descriptive filenames
 
 ### Canonical URLs
+
 - Always set for public pages
 - Use absolute URLs
 - Match the page's actual URL
 - Prevent duplicate content issues
 
 ### Structured Data
+
 - Use appropriate schema types
 - Fill all required properties
 - Test with Schema.org validator
@@ -301,6 +306,7 @@ NEXT_PUBLIC_BASE_URL=https://vetepy.vercel.app
 ## Common Pitfalls
 
 ### ❌ Don't
+
 - Hardcode clinic names
 - Use relative URLs in canonical tags
 - Skip meta descriptions
@@ -309,6 +315,7 @@ NEXT_PUBLIC_BASE_URL=https://vetepy.vercel.app
 - Include sensitive data in meta tags
 
 ### ✅ Do
+
 - Use dynamic clinic data
 - Use absolute URLs
 - Write unique descriptions for each page

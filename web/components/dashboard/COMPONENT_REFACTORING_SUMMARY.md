@@ -50,17 +50,17 @@ pets-by-owner/
 
 ```typescript
 // Main component (backwards compatible)
-import { PetsByOwner } from "@/components/dashboard/pets-by-owner";
+import { PetsByOwner } from '@/components/dashboard/pets-by-owner'
 
 // Individual components
-import { PetCard } from "@/components/dashboard/pets-by-owner/PetCard";
-import { OwnerDetailsCard } from "@/components/dashboard/pets-by-owner/OwnerDetailsCard";
+import { PetCard } from '@/components/dashboard/pets-by-owner/PetCard'
+import { OwnerDetailsCard } from '@/components/dashboard/pets-by-owner/OwnerDetailsCard'
 
 // Utilities
-import { formatDate, calculateAge } from "@/components/dashboard/pets-by-owner/utils";
+import { formatDate, calculateAge } from '@/components/dashboard/pets-by-owner/utils'
 
 // Types
-import type { Owner, Pet } from "@/components/dashboard/pets-by-owner/types";
+import type { Owner, Pet } from '@/components/dashboard/pets-by-owner/types'
 
 // Everything via central export
 import {
@@ -70,8 +70,8 @@ import {
   useOwnerFiltering,
   formatDate,
   type Owner,
-  type Pet
-} from "@/components/dashboard/pets-by-owner/exports";
+  type Pet,
+} from '@/components/dashboard/pets-by-owner/exports'
 ```
 
 ### Benefits Achieved
@@ -103,17 +103,18 @@ import {
 
 ### Metrics
 
-| Metric | Before | After | Improvement |
-|--------|--------|-------|-------------|
-| Files | 1 | 15 (11 code + 4 docs) | Modular |
-| Avg Lines/File | 464 | ~53 | -88% |
-| Max Component | 464 | 120 | -74% |
-| Reusable Units | 1 | 11 components + 4 utils | +1400% |
-| Test Coverage | 0% | Ready for testing | N/A |
+| Metric         | Before | After                   | Improvement |
+| -------------- | ------ | ----------------------- | ----------- |
+| Files          | 1      | 15 (11 code + 4 docs)   | Modular     |
+| Avg Lines/File | 464    | ~53                     | -88%        |
+| Max Component  | 464    | 120                     | -74%        |
+| Reusable Units | 1      | 11 components + 4 utils | +1400%      |
+| Test Coverage  | 0%     | Ready for testing       | N/A         |
 
 ### Next Steps (Recommended)
 
 1. **Add Unit Tests**
+
    ```
    __tests__/
    ├── utils.test.ts
@@ -123,6 +124,7 @@ import {
    ```
 
 2. **Add Storybook Stories**
+
    ```
    stories/
    ├── PetCard.stories.tsx
@@ -143,6 +145,7 @@ import {
 ### Rollback Plan
 
 If needed, restore original:
+
 ```bash
 git checkout HEAD~1 -- web/components/dashboard/pets-by-owner.tsx
 rm -rf web/components/dashboard/pets-by-owner/

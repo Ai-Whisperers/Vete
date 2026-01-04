@@ -61,12 +61,12 @@ npx tsx db/seeds/scripts/seed.ts --clear --type demo
 
 ## Seed Types
 
-| Type | Description | What's Seeded |
-|------|-------------|---------------|
-| `basic` | Minimal clinic setup | Services, kennels, payment methods |
-| `reference` | Reference data only | Diagnosis codes, drug dosages, growth standards, lab tests |
-| `full` | Complete setup | Reference data + clinic data + store products + inventory |
-| `demo` | Full demo environment | Everything from `full` + demo owners, pets, appointments, invoices |
+| Type        | Description           | What's Seeded                                                      |
+| ----------- | --------------------- | ------------------------------------------------------------------ |
+| `basic`     | Minimal clinic setup  | Services, kennels, payment methods                                 |
+| `reference` | Reference data only   | Diagnosis codes, drug dosages, growth standards, lab tests         |
+| `full`      | Complete setup        | Reference data + clinic data + store products + inventory          |
+| `demo`      | Full demo environment | Everything from `full` + demo owners, pets, appointments, invoices |
 
 ## Factory System
 
@@ -74,24 +74,24 @@ Seeding uses builder-pattern factories located in `lib/test-utils/factories/`:
 
 ### Available Factories
 
-| Factory | Purpose |
-|---------|---------|
-| `OwnerFactory` | Create pet owner profiles with personas (VIP, budget, new, etc.) |
-| `PetFactory` | Create pets with species, breeds, vaccines, and health profiles |
+| Factory              | Purpose                                                               |
+| -------------------- | --------------------------------------------------------------------- |
+| `OwnerFactory`       | Create pet owner profiles with personas (VIP, budget, new, etc.)      |
+| `PetFactory`         | Create pets with species, breeds, vaccines, and health profiles       |
 | `AppointmentFactory` | Create appointments with various scenarios (routine, emergency, etc.) |
-| `InvoiceFactory` | Create invoices with line items and payments |
-| `LoyaltyFactory` | Create loyalty points and transaction history |
-| `StoreOrderFactory` | Create store orders with items |
-| `CartFactory` | Create shopping carts (abandoned cart scenarios) |
+| `InvoiceFactory`     | Create invoices with line items and payments                          |
+| `LoyaltyFactory`     | Create loyalty points and transaction history                         |
+| `StoreOrderFactory`  | Create store orders with items                                        |
+| `CartFactory`        | Create shopping carts (abandoned cart scenarios)                      |
 
 ### Factory Usage Example
 
 ```typescript
-import { OwnerFactory, PetFactory, createAppointmentHistory } from '@/lib/test-utils/factories';
-import { setMode } from '@/lib/test-utils/context';
+import { OwnerFactory, PetFactory, createAppointmentHistory } from '@/lib/test-utils/factories'
+import { setMode } from '@/lib/test-utils/context'
 
 // Set mode: 'seed' (persist) or 'test' (cleanup after)
-setMode('seed');
+setMode('seed')
 
 // Create an owner with VIP persona
 const owner = await OwnerFactory.create()
@@ -99,7 +99,7 @@ const owner = await OwnerFactory.create()
   .withPersona('vip')
   .withName('Carlos Benítez')
   .withAddress()
-  .build();
+  .build()
 
 // Create a pet with vaccines
 const { pet, vaccines } = await PetFactory.create()
@@ -108,16 +108,14 @@ const { pet, vaccines } = await PetFactory.create()
   .asDog('Labrador Retriever')
   .withProfile('healthy')
   .withVaccines()
-  .build();
+  .build()
 
 // Create appointment history
-const appointments = await createAppointmentHistory(
-  pet.id,
-  owner.id,
-  vetId,
-  'adris',
-  { past: 5, future: 2, includeRecords: true }
-);
+const appointments = await createAppointmentHistory(pet.id, owner.id, vetId, 'adris', {
+  past: 5,
+  future: 2,
+  includeRecords: true,
+})
 ```
 
 ## Data Structure
@@ -176,30 +174,30 @@ The factory system supports two modes:
 - **`seed` mode**: Resources persist (for development/demo data)
 
 ```typescript
-import { setMode, testContext } from '@/lib/test-utils/context';
+import { setMode, testContext } from '@/lib/test-utils/context'
 
 // For development seeding
-setMode('seed');
+setMode('seed')
 
 // For tests (auto-cleanup)
-setMode('test');
+setMode('test')
 
 // Manual cleanup (in test mode)
-await testContext.cleanup();
+await testContext.cleanup()
 ```
 
 ## Data Volumes
 
 When running `seed:demo`, the following is created:
 
-| Entity | Count | Notes |
-|--------|-------|-------|
-| Owners | 10 | With distinct personas (VIP, budget, new, etc.) |
-| Pets | 20 | 2 per owner, with vaccines and health profiles |
-| Appointments | ~50 | Past and future, with medical records |
-| Invoices | ~20 | With line items and payments |
-| Store Products | 1000+ | From 64 brands |
-| Diagnosis Codes | 100+ | VeNom standard codes |
+| Entity          | Count | Notes                                           |
+| --------------- | ----- | ----------------------------------------------- |
+| Owners          | 10    | With distinct personas (VIP, budget, new, etc.) |
+| Pets            | 20    | 2 per owner, with vaccines and health profiles  |
+| Appointments    | ~50   | Past and future, with medical records           |
+| Invoices        | ~20   | With line items and payments                    |
+| Store Products  | 1000+ | From 64 brands                                  |
+| Diagnosis Codes | 100+  | VeNom standard codes                            |
 
 ## Troubleshooting
 

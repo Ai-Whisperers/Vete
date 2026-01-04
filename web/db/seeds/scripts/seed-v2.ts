@@ -14,27 +14,27 @@
  *   npx tsx db/seeds/scripts/seed-v2.ts --variant basic --dry-run
  */
 
-import { config } from 'dotenv';
-import { resolve } from 'path';
+import { config } from 'dotenv'
+import { resolve } from 'path'
 
 // Load environment variables
-config({ path: resolve(process.cwd(), '.env.local') });
+config({ path: resolve(process.cwd(), '.env.local') })
 
-import { runSeed, printHelp } from './orchestrator';
-import { VariantName, getVariantNames } from './variants';
+import { runSeed, printHelp } from './orchestrator'
+import { VariantName, getVariantNames } from './variants'
 
 /**
  * Parse command line arguments
  */
 function parseArgs(): {
-  variant: VariantName;
-  tenants: string[];
-  clear: boolean;
-  dryRun: boolean;
-  verbose: boolean;
-  help: boolean;
+  variant: VariantName
+  tenants: string[]
+  clear: boolean
+  dryRun: boolean
+  verbose: boolean
+  help: boolean
 } {
-  const args = process.argv.slice(2);
+  const args = process.argv.slice(2)
   const result = {
     variant: 'demo' as VariantName,
     tenants: ['adris'],
@@ -42,82 +42,82 @@ function parseArgs(): {
     dryRun: false,
     verbose: false,
     help: false,
-  };
+  }
 
   for (let i = 0; i < args.length; i++) {
-    const arg = args[i];
-    const nextArg = args[i + 1];
+    const arg = args[i]
+    const nextArg = args[i + 1]
 
     switch (arg) {
       case '--variant':
       case '-v':
         if (nextArg && !nextArg.startsWith('-')) {
-          const validVariants = getVariantNames();
+          const validVariants = getVariantNames()
           if (validVariants.includes(nextArg as VariantName)) {
-            result.variant = nextArg as VariantName;
+            result.variant = nextArg as VariantName
           } else {
-            console.error(`Invalid variant: ${nextArg}. Valid: ${validVariants.join(', ')}`);
-            process.exit(1);
+            console.error(`Invalid variant: ${nextArg}. Valid: ${validVariants.join(', ')}`)
+            process.exit(1)
           }
-          i++;
+          i++
         }
-        break;
+        break
 
       case '--tenant':
       case '-t':
         if (nextArg && !nextArg.startsWith('-')) {
-          result.tenants = [nextArg];
-          i++;
+          result.tenants = [nextArg]
+          i++
         }
-        break;
+        break
 
       case '--tenants':
         if (nextArg && !nextArg.startsWith('-')) {
-          result.tenants = nextArg.split(',').map((t) => t.trim());
-          i++;
+          result.tenants = nextArg.split(',').map((t) => t.trim())
+          i++
         }
-        break;
+        break
 
       case '--clear':
-        result.clear = true;
-        break;
+        result.clear = true
+        break
 
       case '--dry-run':
-        result.dryRun = true;
-        break;
+        result.dryRun = true
+        break
 
       case '--verbose':
-        result.verbose = true;
-        break;
+        result.verbose = true
+        break
 
       case '--help':
       case '-h':
-        result.help = true;
-        break;
+        result.help = true
+        break
     }
   }
 
-  return result;
+  return result
 }
 
 /**
  * Main entry point
  */
 async function main(): Promise<void> {
-  const args = parseArgs();
+  const args = parseArgs()
 
   if (args.help) {
-    printHelp();
-    process.exit(0);
+    printHelp()
+    process.exit(0)
   }
 
   // Validate environment
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-    console.error('❌ Missing environment variables:');
-    console.error('   NEXT_PUBLIC_SUPABASE_URL');
-    console.error('   SUPABASE_SERVICE_ROLE_KEY');
-    console.error('\nMake sure .env.local exists with these values.');
-    process.exit(1);
+    console.error('❌ Missing environment variables:')
+    console.error('   NEXT_PUBLIC_SUPABASE_URL')
+    console.error('   SUPABASE_SERVICE_ROLE_KEY')
+    console.error('\nMake sure .env.local exists with these values.')
+    process.exit(1)
   }
 
   try {
@@ -128,17 +128,17 @@ async function main(): Promise<void> {
       dryRun: args.dryRun,
       verbose: args.verbose,
       clear: args.clear,
-    });
+    })
 
     // Exit with error code if there were errors
     if (report.summary.totalErrors > 0) {
-      process.exit(1);
+      process.exit(1)
     }
   } catch (e) {
-    console.error('❌ Seed failed:', e);
-    process.exit(1);
+    console.error('❌ Seed failed:', e)
+    process.exit(1)
   }
 }
 
 // Run
-main();
+main()

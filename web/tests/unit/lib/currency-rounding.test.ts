@@ -121,7 +121,12 @@ describe('Currency Rounding', () => {
     it('should handle Paraguay IVA (10%) correctly', () => {
       // Real-world Paraguay prices
       const items: InvoiceItem[] = [
-        { description: 'Consulta veterinaria', quantity: 1, unit_price: 150000, line_total: 150000 },
+        {
+          description: 'Consulta veterinaria',
+          quantity: 1,
+          unit_price: 150000,
+          line_total: 150000,
+        },
         { description: 'Vacuna rabia', quantity: 1, unit_price: 80000, line_total: 80000 },
         { description: 'Desparasitante', quantity: 2, unit_price: 35000, line_total: 70000 },
       ]
@@ -136,9 +141,21 @@ describe('Currency Rounding', () => {
       // Items with discounts already applied to line_total
       const items: InvoiceItem[] = [
         // 2 x 100 = 200, 10% discount = 180
-        { description: 'Item 1', quantity: 2, unit_price: 100, discount_percent: 10, line_total: 180 },
+        {
+          description: 'Item 1',
+          quantity: 2,
+          unit_price: 100,
+          discount_percent: 10,
+          line_total: 180,
+        },
         // 3 x 50 = 150, 20% discount = 120
-        { description: 'Item 2', quantity: 3, unit_price: 50, discount_percent: 20, line_total: 120 },
+        {
+          description: 'Item 2',
+          quantity: 3,
+          unit_price: 50,
+          discount_percent: 20,
+          line_total: 120,
+        },
       ]
 
       const result = calculateInvoiceTotals(items, 10)
@@ -170,9 +187,9 @@ describe('Currency Rounding', () => {
     it('should calculate complete invoice correctly', () => {
       // Simulate real invoice creation flow
       const items = [
-        { quantity: 2, unit_price: 150.50, discount_percent: 5 },
+        { quantity: 2, unit_price: 150.5, discount_percent: 5 },
         { quantity: 1, unit_price: 99.99, discount_percent: 0 },
-        { quantity: 3, unit_price: 45.00, discount_percent: 10 },
+        { quantity: 3, unit_price: 45.0, discount_percent: 10 },
       ]
 
       // Calculate line totals

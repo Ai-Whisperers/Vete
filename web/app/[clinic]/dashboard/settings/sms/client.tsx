@@ -1,83 +1,91 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react'
 import {
-  Phone, Save, Send, CheckCircle, XCircle, AlertTriangle,
-  Settings, BarChart2, RefreshCw, ExternalLink
-} from 'lucide-react';
+  Phone,
+  Save,
+  Send,
+  CheckCircle,
+  XCircle,
+  AlertTriangle,
+  Settings,
+  BarChart2,
+  RefreshCw,
+  ExternalLink,
+} from 'lucide-react'
 
 interface SmsConfig {
-  configured: boolean;
-  provider: string;
-  from_number: string | null;
-  api_key_set: boolean;
-  api_secret_set: boolean;
+  configured: boolean
+  provider: string
+  from_number: string | null
+  api_key_set: boolean
+  api_secret_set: boolean
 }
 
 interface SmsStats {
   stats: {
-    total: number;
-    sent: number;
-    delivered: number;
-    failed: number;
-    total_cost: number;
-  };
-  daily: Array<{ date: string; count: number }>;
+    total: number
+    sent: number
+    delivered: number
+    failed: number
+    total_cost: number
+  }
+  daily: Array<{ date: string; count: number }>
 }
 
 interface Props {
-  clinic: string;
-  userPhone: string | null;
+  clinic: string
+  userPhone: string | null
 }
 
 export default function SmsSettings({ clinic, userPhone }: Props) {
-  const [config, setConfig] = useState<SmsConfig | null>(null);
-  const [stats, setStats] = useState<SmsStats | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [testing, setTesting] = useState(false);
-  const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null);
-  const [activeTab, setActiveTab] = useState<'config' | 'stats'>('config');
+  const [config, setConfig] = useState<SmsConfig | null>(null)
+  const [stats, setStats] = useState<SmsStats | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [testing, setTesting] = useState(false)
+  const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null)
+  const [activeTab, setActiveTab] = useState<'config' | 'stats'>('config')
 
   // Form state
   const [formData, setFormData] = useState({
     sms_api_key: '',
     sms_api_secret: '',
     sms_from: '',
-    test_phone: userPhone || ''
-  });
+    test_phone: userPhone || '',
+  })
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    fetchData()
+  }, [])
 
   const fetchData = async () => {
-    setLoading(true);
+    setLoading(true)
     try {
       const [configRes, statsRes] = await Promise.all([
         fetch('/api/sms/config'),
-        fetch('/api/sms?view=stats&days=30')
-      ]);
+        fetch('/api/sms?view=stats&days=30'),
+      ])
 
       if (configRes.ok) {
-        setConfig(await configRes.json());
+        setConfig(await configRes.json())
       }
       if (statsRes.ok) {
-        setStats(await statsRes.json());
+        setStats(await statsRes.json())
       }
     } catch (e) {
       // Client-side error logging - only in development
       if (process.env.NODE_ENV === 'development') {
-        console.error('Error fetching data:', e);
+        console.error('Error fetching data:', e)
       }
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleSave = async () => {
-    setSaving(true);
-    setTestResult(null);
+    setSaving(true)
+    setTestResult(null)
 
     try {
       const res = await fetch('/api/sms/config', {
@@ -86,71 +94,73 @@ export default function SmsSettings({ clinic, userPhone }: Props) {
         body: JSON.stringify({
           sms_api_key: formData.sms_api_key || undefined,
           sms_api_secret: formData.sms_api_secret || undefined,
-          sms_from: formData.sms_from || undefined
-        })
-      });
+          sms_from: formData.sms_from || undefined,
+        }),
+      })
 
-      const json = await res.json();
+      const json = await res.json()
 
       if (res.ok) {
         setTestResult({
           success: true,
-          message: json.warning || 'Configuración guardada correctamente'
-        });
-        fetchData();
-        setFormData({ ...formData, sms_api_key: '', sms_api_secret: '' });
+          message: json.warning || 'Configuración guardada correctamente',
+        })
+        fetchData()
+        setFormData({ ...formData, sms_api_key: '', sms_api_secret: '' })
       } else {
-        setTestResult({ success: false, message: json.error });
+        setTestResult({ success: false, message: json.error })
       }
     } catch (e) {
-      setTestResult({ success: false, message: 'Error al guardar' });
+      setTestResult({ success: false, message: 'Error al guardar' })
     } finally {
-      setSaving(false);
+      setSaving(false)
     }
-  };
+  }
 
   const handleTest = async () => {
-    setTesting(true);
-    setTestResult(null);
+    setTesting(true)
+    setTestResult(null)
 
     try {
       const res = await fetch('/api/sms/config', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ test_phone: formData.test_phone })
-      });
+        body: JSON.stringify({ test_phone: formData.test_phone }),
+      })
 
-      const json = await res.json();
+      const json = await res.json()
 
       setTestResult({
         success: res.ok,
-        message: json.message || json.error
-      });
+        message: json.message || json.error,
+      })
     } catch (e) {
-      setTestResult({ success: false, message: 'Error al enviar prueba' });
+      setTestResult({ success: false, message: 'Error al enviar prueba' })
     } finally {
-      setTesting(false);
+      setTesting(false)
     }
-  };
+  }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 pb-12">
+    <div className="mx-auto max-w-4xl space-y-6 pb-12">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
         <div>
           <h1 className="text-2xl font-bold text-[var(--text-primary)]">Configuración de SMS</h1>
-          <p className="text-[var(--text-secondary)]">Integración con Twilio para envío de mensajes</p>
+          <p className="text-[var(--text-secondary)]">
+            Integración con Twilio para envío de mensajes
+          </p>
         </div>
 
         <div className="flex items-center gap-3">
           {config?.configured ? (
-            <span className="flex items-center gap-2 px-3 py-1.5 bg-green-100 text-green-700 rounded-full text-sm font-medium">
-              <CheckCircle className="w-4 h-4" />
+            <span className="flex items-center gap-2 rounded-full bg-green-100 px-3 py-1.5 text-sm font-medium text-green-700">
+              <CheckCircle className="h-4 w-4" />
               Configurado
             </span>
           ) : (
-            <span className="flex items-center gap-2 px-3 py-1.5 bg-yellow-100 text-yellow-700 rounded-full text-sm font-medium">
-              <AlertTriangle className="w-4 h-4" />
+            <span className="flex items-center gap-2 rounded-full bg-yellow-100 px-3 py-1.5 text-sm font-medium text-yellow-700">
+              <AlertTriangle className="h-4 w-4" />
               No configurado
             </span>
           )}
@@ -161,57 +171,57 @@ export default function SmsSettings({ clinic, userPhone }: Props) {
       <div className="flex gap-2 border-b border-gray-200">
         <button
           onClick={() => setActiveTab('config')}
-          className={`flex items-center gap-2 px-4 py-3 font-medium border-b-2 transition-colors ${
+          className={`flex items-center gap-2 border-b-2 px-4 py-3 font-medium transition-colors ${
             activeTab === 'config'
               ? 'border-[var(--primary)] text-[var(--primary)]'
               : 'border-transparent text-gray-500 hover:text-gray-700'
           }`}
         >
-          <Settings className="w-4 h-4" />
+          <Settings className="h-4 w-4" />
           Configuración
         </button>
         <button
           onClick={() => setActiveTab('stats')}
-          className={`flex items-center gap-2 px-4 py-3 font-medium border-b-2 transition-colors ${
+          className={`flex items-center gap-2 border-b-2 px-4 py-3 font-medium transition-colors ${
             activeTab === 'stats'
               ? 'border-[var(--primary)] text-[var(--primary)]'
               : 'border-transparent text-gray-500 hover:text-gray-700'
           }`}
         >
-          <BarChart2 className="w-4 h-4" />
+          <BarChart2 className="h-4 w-4" />
           Estadísticas
         </button>
       </div>
 
       {loading ? (
-        <div className="h-64 bg-gray-100 rounded-2xl animate-pulse" />
+        <div className="h-64 animate-pulse rounded-2xl bg-gray-100" />
       ) : (
         <>
           {/* Config Tab */}
           {activeTab === 'config' && (
             <div className="space-y-6">
               {/* Twilio Info */}
-              <div className="bg-blue-50 border border-blue-100 rounded-2xl p-6">
-                <h3 className="font-bold text-blue-900 mb-2">Acerca de Twilio</h3>
-                <p className="text-blue-700 text-sm mb-4">
-                  VetePy usa Twilio para enviar mensajes SMS. Necesitarás una cuenta de Twilio
-                  con un número de teléfono habilitado para SMS.
+              <div className="rounded-2xl border border-blue-100 bg-blue-50 p-6">
+                <h3 className="mb-2 font-bold text-blue-900">Acerca de Twilio</h3>
+                <p className="mb-4 text-sm text-blue-700">
+                  VetePy usa Twilio para enviar mensajes SMS. Necesitarás una cuenta de Twilio con
+                  un número de teléfono habilitado para SMS.
                 </p>
                 <a
                   href="https://www.twilio.com/console"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-blue-700 hover:text-blue-800 font-medium text-sm"
+                  className="inline-flex items-center gap-2 text-sm font-medium text-blue-700 hover:text-blue-800"
                 >
                   Ir a Twilio Console
-                  <ExternalLink className="w-4 h-4" />
+                  <ExternalLink className="h-4 w-4" />
                 </a>
               </div>
 
               {/* Current Config */}
               {config?.configured && (
-                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-                  <h3 className="font-bold text-gray-900 mb-4">Configuración Actual</h3>
+                <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+                  <h3 className="mb-4 font-bold text-gray-900">Configuración Actual</h3>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <span className="text-sm text-gray-500">Proveedor</span>
@@ -223,25 +233,29 @@ export default function SmsSettings({ clinic, userPhone }: Props) {
                     </div>
                     <div>
                       <span className="text-sm text-gray-500">API Key</span>
-                      <p className="font-mono">{config.api_key_set ? '••••••••' : 'No configurado'}</p>
+                      <p className="font-mono">
+                        {config.api_key_set ? '••••••••' : 'No configurado'}
+                      </p>
                     </div>
                     <div>
                       <span className="text-sm text-gray-500">API Secret</span>
-                      <p className="font-mono">{config.api_secret_set ? '••••••••' : 'No configurado'}</p>
+                      <p className="font-mono">
+                        {config.api_secret_set ? '••••••••' : 'No configurado'}
+                      </p>
                     </div>
                   </div>
                 </div>
               )}
 
               {/* Config Form */}
-              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-                <h3 className="font-bold text-gray-900 mb-4">
+              <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+                <h3 className="mb-4 font-bold text-gray-900">
                   {config?.configured ? 'Actualizar Credenciales' : 'Configurar Twilio'}
                 </h3>
 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="mb-1 block text-sm font-medium text-gray-700">
                       Account SID
                     </label>
                     <input
@@ -249,13 +263,13 @@ export default function SmsSettings({ clinic, userPhone }: Props) {
                       value={formData.sms_api_key}
                       onChange={(e) => setFormData({ ...formData, sms_api_key: e.target.value })}
                       placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-                      className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--primary)] font-mono text-sm"
+                      className="w-full rounded-xl border border-gray-200 px-4 py-2 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
                     />
-                    <p className="text-xs text-gray-500 mt-1">Encontrado en Twilio Console</p>
+                    <p className="mt-1 text-xs text-gray-500">Encontrado en Twilio Console</p>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="mb-1 block text-sm font-medium text-gray-700">
                       Auth Token
                     </label>
                     <input
@@ -263,12 +277,12 @@ export default function SmsSettings({ clinic, userPhone }: Props) {
                       value={formData.sms_api_secret}
                       onChange={(e) => setFormData({ ...formData, sms_api_secret: e.target.value })}
                       placeholder="••••••••••••••••••••••••••••••••"
-                      className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--primary)] font-mono text-sm"
+                      className="w-full rounded-xl border border-gray-200 px-4 py-2 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="mb-1 block text-sm font-medium text-gray-700">
                       Número de Twilio (From)
                     </label>
                     <input
@@ -276,17 +290,19 @@ export default function SmsSettings({ clinic, userPhone }: Props) {
                       value={formData.sms_from}
                       onChange={(e) => setFormData({ ...formData, sms_from: e.target.value })}
                       placeholder="+1234567890"
-                      className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--primary)] font-mono text-sm"
+                      className="w-full rounded-xl border border-gray-200 px-4 py-2 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
                     />
-                    <p className="text-xs text-gray-500 mt-1">Número de teléfono de Twilio en formato E.164</p>
+                    <p className="mt-1 text-xs text-gray-500">
+                      Número de teléfono de Twilio en formato E.164
+                    </p>
                   </div>
 
                   <button
                     onClick={handleSave}
                     disabled={saving}
-                    className="flex items-center gap-2 px-6 py-2 bg-[var(--primary)] text-white rounded-xl font-medium hover:opacity-90 disabled:opacity-50"
+                    className="flex items-center gap-2 rounded-xl bg-[var(--primary)] px-6 py-2 font-medium text-white hover:opacity-90 disabled:opacity-50"
                   >
-                    <Save className="w-4 h-4" />
+                    <Save className="h-4 w-4" />
                     {saving ? 'Guardando...' : 'Guardar Configuración'}
                   </button>
                 </div>
@@ -294,8 +310,8 @@ export default function SmsSettings({ clinic, userPhone }: Props) {
 
               {/* Test SMS */}
               {config?.configured && (
-                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-                  <h3 className="font-bold text-gray-900 mb-4">Enviar SMS de Prueba</h3>
+                <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+                  <h3 className="mb-4 font-bold text-gray-900">Enviar SMS de Prueba</h3>
 
                   <div className="flex gap-4">
                     <div className="flex-1">
@@ -304,15 +320,15 @@ export default function SmsSettings({ clinic, userPhone }: Props) {
                         value={formData.test_phone}
                         onChange={(e) => setFormData({ ...formData, test_phone: e.target.value })}
                         placeholder="0981 123 456"
-                        className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+                        className="w-full rounded-xl border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
                       />
                     </div>
                     <button
                       onClick={handleTest}
                       disabled={testing || !formData.test_phone}
-                      className="flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-xl font-medium hover:bg-green-700 disabled:opacity-50"
+                      className="flex items-center gap-2 rounded-xl bg-green-600 px-6 py-2 font-medium text-white hover:bg-green-700 disabled:opacity-50"
                     >
-                      <Send className="w-4 h-4" />
+                      <Send className="h-4 w-4" />
                       {testing ? 'Enviando...' : 'Enviar Prueba'}
                     </button>
                   </div>
@@ -321,13 +337,15 @@ export default function SmsSettings({ clinic, userPhone }: Props) {
 
               {/* Result Message */}
               {testResult && (
-                <div className={`rounded-2xl p-4 flex items-center gap-3 ${
-                  testResult.success ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
-                }`}>
+                <div
+                  className={`flex items-center gap-3 rounded-2xl p-4 ${
+                    testResult.success ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
+                  }`}
+                >
                   {testResult.success ? (
-                    <CheckCircle className="w-5 h-5 flex-shrink-0" />
+                    <CheckCircle className="h-5 w-5 flex-shrink-0" />
                   ) : (
-                    <XCircle className="w-5 h-5 flex-shrink-0" />
+                    <XCircle className="h-5 w-5 flex-shrink-0" />
                   )}
                   <span>{testResult.message}</span>
                 </div>
@@ -339,74 +357,73 @@ export default function SmsSettings({ clinic, userPhone }: Props) {
           {activeTab === 'stats' && stats && (
             <div className="space-y-6">
               {/* Key Metrics */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2 bg-blue-100 rounded-xl">
-                      <Phone className="w-5 h-5 text-blue-600" />
+              <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+                <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+                  <div className="mb-2 flex items-center gap-3">
+                    <div className="rounded-xl bg-blue-100 p-2">
+                      <Phone className="h-5 w-5 text-blue-600" />
                     </div>
-                    <span className="text-gray-500 text-sm font-medium">Total (30d)</span>
+                    <span className="text-sm font-medium text-gray-500">Total (30d)</span>
                   </div>
                   <p className="text-3xl font-bold text-gray-900">{stats.stats.total}</p>
                 </div>
 
-                <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2 bg-green-100 rounded-xl">
-                      <CheckCircle className="w-5 h-5 text-green-600" />
+                <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+                  <div className="mb-2 flex items-center gap-3">
+                    <div className="rounded-xl bg-green-100 p-2">
+                      <CheckCircle className="h-5 w-5 text-green-600" />
                     </div>
-                    <span className="text-gray-500 text-sm font-medium">Entregados</span>
+                    <span className="text-sm font-medium text-gray-500">Entregados</span>
                   </div>
                   <p className="text-3xl font-bold text-green-600">{stats.stats.delivered}</p>
                 </div>
 
-                <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2 bg-red-100 rounded-xl">
-                      <XCircle className="w-5 h-5 text-red-600" />
+                <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+                  <div className="mb-2 flex items-center gap-3">
+                    <div className="rounded-xl bg-red-100 p-2">
+                      <XCircle className="h-5 w-5 text-red-600" />
                     </div>
-                    <span className="text-gray-500 text-sm font-medium">Fallidos</span>
+                    <span className="text-sm font-medium text-gray-500">Fallidos</span>
                   </div>
                   <p className="text-3xl font-bold text-red-600">{stats.stats.failed}</p>
                 </div>
 
-                <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2 bg-purple-100 rounded-xl">
-                      <BarChart2 className="w-5 h-5 text-purple-600" />
+                <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+                  <div className="mb-2 flex items-center gap-3">
+                    <div className="rounded-xl bg-purple-100 p-2">
+                      <BarChart2 className="h-5 w-5 text-purple-600" />
                     </div>
-                    <span className="text-gray-500 text-sm font-medium">Tasa Éxito</span>
+                    <span className="text-sm font-medium text-gray-500">Tasa Éxito</span>
                   </div>
                   <p className="text-3xl font-bold text-gray-900">
                     {stats.stats.total > 0
                       ? Math.round((stats.stats.delivered / stats.stats.total) * 100)
-                      : 0}%
+                      : 0}
+                    %
                   </p>
                 </div>
               </div>
 
               {/* Daily Chart */}
-              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-                <h3 className="font-bold text-gray-900 mb-4">Mensajes por Día (últimos 30 días)</h3>
+              <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+                <h3 className="mb-4 font-bold text-gray-900">Mensajes por Día (últimos 30 días)</h3>
                 {stats.daily.length > 0 ? (
-                  <div className="h-48 flex items-end gap-1">
+                  <div className="flex h-48 items-end gap-1">
                     {stats.daily.slice(-30).map((day, i) => {
-                      const maxCount = Math.max(...stats.daily.map(d => d.count));
-                      const height = maxCount > 0 ? (day.count / maxCount) * 100 : 0;
+                      const maxCount = Math.max(...stats.daily.map((d) => d.count))
+                      const height = maxCount > 0 ? (day.count / maxCount) * 100 : 0
                       return (
                         <div
                           key={i}
-                          className="flex-1 bg-[var(--primary)] rounded-t opacity-80 hover:opacity-100 transition-opacity"
+                          className="flex-1 rounded-t bg-[var(--primary)] opacity-80 transition-opacity hover:opacity-100"
                           style={{ height: `${Math.max(height, 2)}%` }}
                           title={`${day.date}: ${day.count} mensajes`}
                         />
-                      );
+                      )
                     })}
                   </div>
                 ) : (
-                  <p className="text-gray-500 text-center py-8">
-                    No hay datos para mostrar
-                  </p>
+                  <p className="py-8 text-center text-gray-500">No hay datos para mostrar</p>
                 )}
               </div>
             </div>
@@ -414,5 +431,5 @@ export default function SmsSettings({ clinic, userPhone }: Props) {
         </>
       )}
     </div>
-  );
+  )
 }

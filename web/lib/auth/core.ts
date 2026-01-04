@@ -4,11 +4,18 @@
  */
 
 import { createClient } from '@/lib/supabase/server'
-import type { UserRole, UserProfile, AuthContext, UnauthenticatedContext, AppAuthContext, AuthResult } from './types'
+import type {
+  UserRole,
+  UserProfile,
+  AuthContext,
+  UnauthenticatedContext,
+  AppAuthContext,
+  AuthResult,
+} from './types'
 import { drizzleProfileToUserProfile, type DrizzleProfileRow } from './mappers'
-import { db } from "@/db"
-import { profiles } from "@/db/schema"
-import { eq } from "drizzle-orm"
+import { db } from '@/db'
+import { profiles } from '@/db/schema'
+import { eq } from 'drizzle-orm'
 
 export class AuthService {
   /**
@@ -18,25 +25,24 @@ export class AuthService {
     const supabase = await createClient()
 
     try {
-      const { data: { user }, error: authError } = await supabase.auth.getUser()
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser()
 
       if (authError || !user) {
         return {
           user: null,
           profile: null,
           supabase,
-          isAuthenticated: false
+          isAuthenticated: false,
         }
       }
 
       // Refactored to use Drizzle with type-safe mapping
-      const result = await db
-        .select()
-        .from(profiles)
-        .where(eq(profiles.id, user.id))
-        .limit(1);
+      const result = await db.select().from(profiles).where(eq(profiles.id, user.id)).limit(1)
 
-      const row = result[0];
+      const row = result[0]
 
       if (!row) {
         console.warn('Profile not found for authenticated user:', user.id)
@@ -44,7 +50,7 @@ export class AuthService {
           user: null,
           profile: null,
           supabase,
-          isAuthenticated: false
+          isAuthenticated: false,
         }
       }
 
@@ -57,7 +63,7 @@ export class AuthService {
           user: null,
           profile: null,
           supabase,
-          isAuthenticated: false
+          isAuthenticated: false,
         }
       }
 
@@ -65,7 +71,7 @@ export class AuthService {
         user,
         profile,
         supabase,
-        isAuthenticated: true
+        isAuthenticated: true,
       }
     } catch (error) {
       console.error('Auth context error:', error)
@@ -73,7 +79,7 @@ export class AuthService {
         user: null,
         profile: null,
         supabase,
-        isAuthenticated: false
+        isAuthenticated: false,
       }
     }
   }
@@ -81,12 +87,14 @@ export class AuthService {
   /**
    * Validate authentication and authorization for API routes
    */
-  static async validateAuth(options: {
-    roles?: UserRole[]
-    requireTenant?: boolean
-    tenantId?: string
-    requireActive?: boolean
-  } = {}): Promise<AuthResult> {
+  static async validateAuth(
+    options: {
+      roles?: UserRole[]
+      requireTenant?: boolean
+      tenantId?: string
+      requireActive?: boolean
+    } = {}
+  ): Promise<AuthResult> {
     const context = await this.getContext()
 
     if (!context.isAuthenticated) {
@@ -95,8 +103,8 @@ export class AuthService {
         error: {
           code: 'UNAUTHORIZED',
           message: 'Authentication required',
-          statusCode: 401
-        }
+          statusCode: 401,
+        },
       }
     }
 
@@ -109,8 +117,8 @@ export class AuthService {
         error: {
           code: 'ACCOUNT_INACTIVE',
           message: 'Account is inactive',
-          statusCode: 403
-        }
+          statusCode: 403,
+        },
       }
     }
 
@@ -122,8 +130,8 @@ export class AuthService {
           error: {
             code: 'INSUFFICIENT_ROLE',
             message: 'Insufficient permissions',
-            statusCode: 403
-          }
+            statusCode: 403,
+          },
         }
       }
     }
@@ -136,15 +144,15 @@ export class AuthService {
           error: {
             code: 'TENANT_MISMATCH',
             message: 'Access denied for this tenant',
-            statusCode: 403
-          }
+            statusCode: 403,
+          },
         }
       }
     }
 
     return {
       success: true,
-      context
+      context,
     }
   }
 

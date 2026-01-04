@@ -27,14 +27,14 @@ export const LAB_CATEGORIES = [
   'genetics',
   'other',
 ] as const
-export type LabCategory = typeof LAB_CATEGORIES[number]
+export type LabCategory = (typeof LAB_CATEGORIES)[number]
 
 // =============================================================================
 // LAB ORDER PRIORITY
 // =============================================================================
 
 export const LAB_PRIORITIES = ['routine', 'urgent', 'stat'] as const
-export type LabPriority = typeof LAB_PRIORITIES[number]
+export type LabPriority = (typeof LAB_PRIORITIES)[number]
 
 // =============================================================================
 // LAB RESULT FLAGS
@@ -48,7 +48,7 @@ export const LAB_RESULT_FLAGS = [
   'critical_high',
   'abnormal',
 ] as const
-export type LabResultFlag = typeof LAB_RESULT_FLAGS[number]
+export type LabResultFlag = (typeof LAB_RESULT_FLAGS)[number]
 
 // =============================================================================
 // LAB ORDER CREATION
@@ -209,7 +209,7 @@ export type UpdateLabPanelInput = z.infer<typeof updateLabPanelSchema>
  * File types for lab result attachments
  */
 export const LAB_FILE_TYPES = ['pdf', 'image', 'document'] as const
-export type LabFileType = typeof LAB_FILE_TYPES[number]
+export type LabFileType = (typeof LAB_FILE_TYPES)[number]
 
 /**
  * Schema for uploading lab result attachments

@@ -1,13 +1,13 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@/lib/supabase/server'
 
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force-dynamic'
 
 interface DateRange {
-  start: Date;
-  end: Date;
-  previousStart: Date;
-  previousEnd: Date;
+  start: Date
+  end: Date
+  previousStart: Date
+  previousEnd: Date
 }
 
 /**
@@ -15,15 +15,18 @@ interface DateRange {
  * Fetch analytics data for a clinic
  */
 export async function GET(request: NextRequest): Promise<NextResponse> {
-  const supabase = await createClient();
-  const { searchParams } = new URL(request.url);
-  const period = searchParams.get('period') || 'month';
+  const supabase = await createClient()
+  const { searchParams } = new URL(request.url)
+  const period = searchParams.get('period') || 'month'
 
   try {
     // 1. Auth check
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
     if (authError || !user) {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
 
     // 2. Get user profile and tenant
@@ -31,16 +34,16 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       .from('profiles')
       .select('tenant_id, role')
       .eq('id', user.id)
-      .single();
+      .single()
 
     if (!profile || !['vet', 'admin'].includes(profile.role)) {
-      return NextResponse.json({ error: 'Acceso denegado' }, { status: 403 });
+      return NextResponse.json({ error: 'Acceso denegado' }, { status: 403 })
     }
 
-    const tenantId = profile.tenant_id;
+    const tenantId = profile.tenant_id
 
     // 3. Calculate date ranges
-    const dateRange = getDateRange(period as 'week' | 'month' | 'quarter');
+    const dateRange = getDateRange(period as 'week' | 'month' | 'quarter')
 
     // 4. Fetch all analytics data in parallel
     const [
@@ -59,7 +62,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       getDailyRevenue(supabase, tenantId, dateRange),
       getAppointmentsByType(supabase, tenantId, dateRange),
       getTopServices(supabase, tenantId, dateRange),
-    ]);
+    ])
 
     return NextResponse.json({
       stats: {
@@ -73,10 +76,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         appointmentsByType,
         topServices,
       },
-    });
+    })
   } catch (error) {
-    console.error('Analytics error:', error);
-    return NextResponse.json({ error: 'Error al cargar analytics' }, { status: 500 });
+    console.error('Analytics error:', error)
+    return NextResponse.json({ error: 'Error al cargar analytics' }, { status: 500 })
   }
 }
 
@@ -84,60 +87,60 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
  * Get date range based on period
  */
 function getDateRange(period: 'week' | 'month' | 'quarter'): DateRange {
-  const now = new Date();
-  const end = new Date(now);
-  end.setHours(23, 59, 59, 999);
+  const now = new Date()
+  const end = new Date(now)
+  end.setHours(23, 59, 59, 999)
 
-  let start: Date;
-  let previousStart: Date;
-  let previousEnd: Date;
+  let start: Date
+  let previousStart: Date
+  let previousEnd: Date
 
   switch (period) {
     case 'week':
-      start = new Date(now);
-      start.setDate(now.getDate() - 6);
-      start.setHours(0, 0, 0, 0);
+      start = new Date(now)
+      start.setDate(now.getDate() - 6)
+      start.setHours(0, 0, 0, 0)
 
-      previousEnd = new Date(start);
-      previousEnd.setDate(previousEnd.getDate() - 1);
-      previousEnd.setHours(23, 59, 59, 999);
+      previousEnd = new Date(start)
+      previousEnd.setDate(previousEnd.getDate() - 1)
+      previousEnd.setHours(23, 59, 59, 999)
 
-      previousStart = new Date(previousEnd);
-      previousStart.setDate(previousStart.getDate() - 6);
-      previousStart.setHours(0, 0, 0, 0);
-      break;
+      previousStart = new Date(previousEnd)
+      previousStart.setDate(previousStart.getDate() - 6)
+      previousStart.setHours(0, 0, 0, 0)
+      break
 
     case 'quarter':
-      start = new Date(now);
-      start.setMonth(now.getMonth() - 2);
-      start.setDate(1);
-      start.setHours(0, 0, 0, 0);
+      start = new Date(now)
+      start.setMonth(now.getMonth() - 2)
+      start.setDate(1)
+      start.setHours(0, 0, 0, 0)
 
-      previousEnd = new Date(start);
-      previousEnd.setDate(previousEnd.getDate() - 1);
-      previousEnd.setHours(23, 59, 59, 999);
+      previousEnd = new Date(start)
+      previousEnd.setDate(previousEnd.getDate() - 1)
+      previousEnd.setHours(23, 59, 59, 999)
 
-      previousStart = new Date(previousEnd);
-      previousStart.setMonth(previousStart.getMonth() - 2);
-      previousStart.setDate(1);
-      previousStart.setHours(0, 0, 0, 0);
-      break;
+      previousStart = new Date(previousEnd)
+      previousStart.setMonth(previousStart.getMonth() - 2)
+      previousStart.setDate(1)
+      previousStart.setHours(0, 0, 0, 0)
+      break
 
     case 'month':
     default:
-      start = new Date(now.getFullYear(), now.getMonth(), 1);
-      start.setHours(0, 0, 0, 0);
+      start = new Date(now.getFullYear(), now.getMonth(), 1)
+      start.setHours(0, 0, 0, 0)
 
-      previousEnd = new Date(start);
-      previousEnd.setDate(previousEnd.getDate() - 1);
-      previousEnd.setHours(23, 59, 59, 999);
+      previousEnd = new Date(start)
+      previousEnd.setDate(previousEnd.getDate() - 1)
+      previousEnd.setHours(23, 59, 59, 999)
 
-      previousStart = new Date(previousEnd.getFullYear(), previousEnd.getMonth(), 1);
-      previousStart.setHours(0, 0, 0, 0);
-      break;
+      previousStart = new Date(previousEnd.getFullYear(), previousEnd.getMonth(), 1)
+      previousStart.setHours(0, 0, 0, 0)
+      break
   }
 
-  return { start, end, previousStart, previousEnd };
+  return { start, end, previousStart, previousEnd }
 }
 
 /**
@@ -155,9 +158,9 @@ async function getRevenueStats(
     .eq('tenant_id', tenantId)
     .eq('status', 'paid')
     .gte('created_at', dateRange.start.toISOString())
-    .lte('created_at', dateRange.end.toISOString());
+    .lte('created_at', dateRange.end.toISOString())
 
-  const current = currentData?.reduce((sum, inv) => sum + (inv.total || 0), 0) || 0;
+  const current = currentData?.reduce((sum, inv) => sum + (inv.total || 0), 0) || 0
 
   // Previous period
   const { data: previousData } = await supabase
@@ -166,12 +169,12 @@ async function getRevenueStats(
     .eq('tenant_id', tenantId)
     .eq('status', 'paid')
     .gte('created_at', dateRange.previousStart.toISOString())
-    .lte('created_at', dateRange.previousEnd.toISOString());
+    .lte('created_at', dateRange.previousEnd.toISOString())
 
-  const previous = previousData?.reduce((sum, inv) => sum + (inv.total || 0), 0) || 0;
-  const change = previous > 0 ? ((current - previous) / previous) * 100 : 0;
+  const previous = previousData?.reduce((sum, inv) => sum + (inv.total || 0), 0) || 0
+  const change = previous > 0 ? ((current - previous) / previous) * 100 : 0
 
-  return { current, previous, change };
+  return { current, previous, change }
 }
 
 /**
@@ -188,7 +191,7 @@ async function getAppointmentStats(
     .select('*', { count: 'exact', head: true })
     .eq('tenant_id', tenantId)
     .gte('start_time', dateRange.start.toISOString())
-    .lte('start_time', dateRange.end.toISOString());
+    .lte('start_time', dateRange.end.toISOString())
 
   // Previous period
   const { count: previous } = await supabase
@@ -196,13 +199,13 @@ async function getAppointmentStats(
     .select('*', { count: 'exact', head: true })
     .eq('tenant_id', tenantId)
     .gte('start_time', dateRange.previousStart.toISOString())
-    .lte('start_time', dateRange.previousEnd.toISOString());
+    .lte('start_time', dateRange.previousEnd.toISOString())
 
-  const currentCount = current || 0;
-  const previousCount = previous || 0;
-  const change = previousCount > 0 ? ((currentCount - previousCount) / previousCount) * 100 : 0;
+  const currentCount = current || 0
+  const previousCount = previous || 0
+  const change = previousCount > 0 ? ((currentCount - previousCount) / previousCount) * 100 : 0
 
-  return { current: currentCount, previous: previousCount, change };
+  return { current: currentCount, previous: previousCount, change }
 }
 
 /**
@@ -220,7 +223,7 @@ async function getClientStats(
     .eq('tenant_id', tenantId)
     .eq('role', 'owner')
     .gte('created_at', dateRange.start.toISOString())
-    .lte('created_at', dateRange.end.toISOString());
+    .lte('created_at', dateRange.end.toISOString())
 
   // Previous period
   const { count: previous } = await supabase
@@ -229,13 +232,13 @@ async function getClientStats(
     .eq('tenant_id', tenantId)
     .eq('role', 'owner')
     .gte('created_at', dateRange.previousStart.toISOString())
-    .lte('created_at', dateRange.previousEnd.toISOString());
+    .lte('created_at', dateRange.previousEnd.toISOString())
 
-  const currentCount = current || 0;
-  const previousCount = previous || 0;
-  const change = previousCount > 0 ? ((currentCount - previousCount) / previousCount) * 100 : 0;
+  const currentCount = current || 0
+  const previousCount = previous || 0
+  const change = previousCount > 0 ? ((currentCount - previousCount) / previousCount) * 100 : 0
 
-  return { current: currentCount, previous: previousCount, change };
+  return { current: currentCount, previous: previousCount, change }
 }
 
 /**
@@ -252,7 +255,7 @@ async function getPetStats(
     .select('*', { count: 'exact', head: true })
     .eq('tenant_id', tenantId)
     .gte('created_at', dateRange.start.toISOString())
-    .lte('created_at', dateRange.end.toISOString());
+    .lte('created_at', dateRange.end.toISOString())
 
   // Previous period
   const { count: previous } = await supabase
@@ -260,13 +263,13 @@ async function getPetStats(
     .select('*', { count: 'exact', head: true })
     .eq('tenant_id', tenantId)
     .gte('created_at', dateRange.previousStart.toISOString())
-    .lte('created_at', dateRange.previousEnd.toISOString());
+    .lte('created_at', dateRange.previousEnd.toISOString())
 
-  const currentCount = current || 0;
-  const previousCount = previous || 0;
-  const change = previousCount > 0 ? ((currentCount - previousCount) / previousCount) * 100 : 0;
+  const currentCount = current || 0
+  const previousCount = previous || 0
+  const change = previousCount > 0 ? ((currentCount - previousCount) / previousCount) * 100 : 0
 
-  return { current: currentCount, previous: previousCount, change };
+  return { current: currentCount, previous: previousCount, change }
 }
 
 /**
@@ -284,21 +287,21 @@ async function getDailyRevenue(
     .eq('status', 'paid')
     .gte('created_at', dateRange.start.toISOString())
     .lte('created_at', dateRange.end.toISOString())
-    .order('created_at', { ascending: true });
+    .order('created_at', { ascending: true })
 
   if (!invoices || invoices.length === 0) {
-    return [];
+    return []
   }
 
   // Group by day
-  const dailyTotals = new Map<string, number>();
-  const dayNames = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+  const dailyTotals = new Map<string, number>()
+  const dayNames = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
 
   invoices.forEach((inv) => {
-    const date = new Date(inv.created_at);
-    const dayKey = dayNames[date.getDay()];
-    dailyTotals.set(dayKey, (dailyTotals.get(dayKey) || 0) + (inv.total || 0));
-  });
+    const date = new Date(inv.created_at)
+    const dayKey = dayNames[date.getDay()]
+    dailyTotals.set(dayKey, (dailyTotals.get(dayKey) || 0) + (inv.total || 0))
+  })
 
   // Return in order
   return dayNames
@@ -306,7 +309,7 @@ async function getDailyRevenue(
     .map((day) => ({
       date: day,
       amount: dailyTotals.get(day) || 0,
-    }));
+    }))
 }
 
 /**
@@ -317,25 +320,25 @@ async function getAppointmentsByType(
   tenantId: string,
   dateRange: DateRange
 ) {
-  const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
+  const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899']
 
   const { data: appointments } = await supabase
     .from('appointments')
     .select('type')
     .eq('tenant_id', tenantId)
     .gte('start_time', dateRange.start.toISOString())
-    .lte('start_time', dateRange.end.toISOString());
+    .lte('start_time', dateRange.end.toISOString())
 
   if (!appointments || appointments.length === 0) {
-    return [];
+    return []
   }
 
   // Count by type
-  const typeCounts = new Map<string, number>();
+  const typeCounts = new Map<string, number>()
   appointments.forEach((apt) => {
-    const type = apt.type || 'Otro';
-    typeCounts.set(type, (typeCounts.get(type) || 0) + 1);
-  });
+    const type = apt.type || 'Otro'
+    typeCounts.set(type, (typeCounts.get(type) || 0) + 1)
+  })
 
   // Convert to array and add colors
   return Array.from(typeCounts.entries())
@@ -345,7 +348,7 @@ async function getAppointmentsByType(
       color: COLORS[index % COLORS.length],
     }))
     .sort((a, b) => b.count - a.count)
-    .slice(0, 6); // Top 6
+    .slice(0, 6) // Top 6
 }
 
 /**
@@ -358,37 +361,42 @@ async function getTopServices(
 ) {
   const { data: items } = await supabase
     .from('invoice_items')
-    .select(`
+    .select(
+      `
       quantity,
       unit_price,
       total,
       service:services(id, name),
       invoice:invoices!inner(id, tenant_id, status, created_at)
-    `)
+    `
+    )
     .eq('invoice.tenant_id', tenantId)
     .eq('invoice.status', 'paid')
     .gte('invoice.created_at', dateRange.start.toISOString())
     .lte('invoice.created_at', dateRange.end.toISOString())
-    .not('service_id', 'is', null);
+    .not('service_id', 'is', null)
 
   if (!items || items.length === 0) {
-    return [];
+    return []
   }
 
   // Aggregate by service
-  const serviceStats = new Map<string, { revenue: number; count: number }>();
+  const serviceStats = new Map<string, { revenue: number; count: number }>()
 
   items.forEach((item) => {
-    const service = item.service as { id: string; name: string } | { id: string; name: string }[] | null;
-    const serviceName = Array.isArray(service) ? service[0]?.name : service?.name;
-    if (!serviceName) return;
+    const service = item.service as
+      | { id: string; name: string }
+      | { id: string; name: string }[]
+      | null
+    const serviceName = Array.isArray(service) ? service[0]?.name : service?.name
+    if (!serviceName) return
 
-    const current = serviceStats.get(serviceName) || { revenue: 0, count: 0 };
+    const current = serviceStats.get(serviceName) || { revenue: 0, count: 0 }
     serviceStats.set(serviceName, {
       revenue: current.revenue + (item.total || item.unit_price * item.quantity || 0),
       count: current.count + (item.quantity || 1),
-    });
-  });
+    })
+  })
 
   // Convert to array and sort
   return Array.from(serviceStats.entries())
@@ -398,7 +406,7 @@ async function getTopServices(
       count: stats.count,
     }))
     .sort((a, b) => b.revenue - a.revenue)
-    .slice(0, 5); // Top 5
+    .slice(0, 5) // Top 5
 }
 
 /**
@@ -416,6 +424,6 @@ function formatAppointmentType(type: string): string {
     lab: 'Laboratorio',
     imaging: 'Imagen',
     other: 'Otro',
-  };
-  return typeNames[type.toLowerCase()] || type;
+  }
+  return typeNames[type.toLowerCase()] || type
 }

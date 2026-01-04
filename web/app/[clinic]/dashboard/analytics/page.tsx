@@ -1,7 +1,7 @@
-"use client";
+'use client'
 
-import { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
+import { useState, useEffect } from 'react'
+import { useParams } from 'next/navigation'
 import {
   TrendingUp,
   TrendingDown,
@@ -17,8 +17,8 @@ import {
   ArrowDownRight,
   ShoppingCart,
   ArrowRight,
-} from "lucide-react";
-import Link from "next/link";
+} from 'lucide-react'
+import Link from 'next/link'
 import {
   AreaChart,
   Area,
@@ -33,58 +33,58 @@ import {
   Pie,
   Cell,
   Legend,
-} from "recharts";
-import { useDashboardLabels } from "@/lib/hooks/use-dashboard-labels";
+} from 'recharts'
+import { useDashboardLabels } from '@/lib/hooks/use-dashboard-labels'
 
 interface Stats {
   revenue: {
-    current: number;
-    previous: number;
-    change: number;
-  };
+    current: number
+    previous: number
+    change: number
+  }
   appointments: {
-    current: number;
-    previous: number;
-    change: number;
-  };
+    current: number
+    previous: number
+    change: number
+  }
   newClients: {
-    current: number;
-    previous: number;
-    change: number;
-  };
+    current: number
+    previous: number
+    change: number
+  }
   newPets: {
-    current: number;
-    previous: number;
-    change: number;
-  };
+    current: number
+    previous: number
+    change: number
+  }
 }
 
 interface ChartData {
-  revenueByDay: Array<{ date: string; amount: number }>;
-  appointmentsByType: Array<{ type: string; count: number; color: string }>;
-  topServices: Array<{ name: string; revenue: number; count: number }>;
+  revenueByDay: Array<{ date: string; amount: number }>
+  appointmentsByType: Array<{ type: string; count: number; color: string }>
+  topServices: Array<{ name: string; revenue: number; count: number }>
 }
 
-const COLORS = ["#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6", "#EC4899"];
+const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899']
 
 export default function AnalyticsPage(): React.ReactElement {
-  const params = useParams();
-  const clinic = params?.clinic as string;
-  const [period, setPeriod] = useState<"week" | "month" | "quarter">("month");
-  const [isLoading, setIsLoading] = useState(true);
-  const [stats, setStats] = useState<Stats | null>(null);
-  const [chartData, setChartData] = useState<ChartData | null>(null);
-  const labels = useDashboardLabels();
+  const params = useParams()
+  const clinic = params?.clinic as string
+  const [period, setPeriod] = useState<'week' | 'month' | 'quarter'>('month')
+  const [isLoading, setIsLoading] = useState(true)
+  const [stats, setStats] = useState<Stats | null>(null)
+  const [chartData, setChartData] = useState<ChartData | null>(null)
+  const labels = useDashboardLabels()
 
   useEffect(() => {
     const fetchAnalytics = async (): Promise<void> => {
-      setIsLoading(true);
+      setIsLoading(true)
       try {
-        const response = await fetch(`/api/analytics?clinic=${clinic}&period=${period}`);
+        const response = await fetch(`/api/analytics?clinic=${clinic}&period=${period}`)
         if (response.ok) {
-          const data = await response.json();
-          setStats(data.stats);
-          setChartData(data.chartData);
+          const data = await response.json()
+          setStats(data.stats)
+          setChartData(data.chartData)
         } else {
           // Use mock data for demo
           setStats({
@@ -92,133 +92,140 @@ export default function AnalyticsPage(): React.ReactElement {
             appointments: { current: 156, previous: 142, change: 9.9 },
             newClients: { current: 23, previous: 18, change: 27.8 },
             newPets: { current: 31, previous: 25, change: 24.0 },
-          });
+          })
           setChartData({
             revenueByDay: [
-              { date: "Lun", amount: 5200000 },
-              { date: "Mar", amount: 7100000 },
-              { date: "Mié", amount: 6800000 },
-              { date: "Jue", amount: 8500000 },
-              { date: "Vie", amount: 9200000 },
-              { date: "Sáb", amount: 6500000 },
-              { date: "Dom", amount: 2380000 },
+              { date: 'Lun', amount: 5200000 },
+              { date: 'Mar', amount: 7100000 },
+              { date: 'Mié', amount: 6800000 },
+              { date: 'Jue', amount: 8500000 },
+              { date: 'Vie', amount: 9200000 },
+              { date: 'Sáb', amount: 6500000 },
+              { date: 'Dom', amount: 2380000 },
             ],
             appointmentsByType: [
-              { type: "Consulta General", count: 45, color: "#3B82F6" },
-              { type: "Vacunación", count: 32, color: "#10B981" },
-              { type: "Cirugía", count: 12, color: "#F59E0B" },
-              { type: "Emergencia", count: 8, color: "#EF4444" },
-              { type: "Laboratorio", count: 25, color: "#8B5CF6" },
-              { type: "Grooming", count: 34, color: "#EC4899" },
+              { type: 'Consulta General', count: 45, color: '#3B82F6' },
+              { type: 'Vacunación', count: 32, color: '#10B981' },
+              { type: 'Cirugía', count: 12, color: '#F59E0B' },
+              { type: 'Emergencia', count: 8, color: '#EF4444' },
+              { type: 'Laboratorio', count: 25, color: '#8B5CF6' },
+              { type: 'Grooming', count: 34, color: '#EC4899' },
             ],
             topServices: [
-              { name: "Consulta General", revenue: 12500000, count: 45 },
-              { name: "Vacuna Polivalente", revenue: 8600000, count: 32 },
-              { name: "Cirugía Menor", revenue: 7200000, count: 12 },
-              { name: "Hemograma", revenue: 4500000, count: 25 },
-              { name: "Baño y Corte", revenue: 3400000, count: 34 },
+              { name: 'Consulta General', revenue: 12500000, count: 45 },
+              { name: 'Vacuna Polivalente', revenue: 8600000, count: 32 },
+              { name: 'Cirugía Menor', revenue: 7200000, count: 12 },
+              { name: 'Hemograma', revenue: 4500000, count: 25 },
+              { name: 'Baño y Corte', revenue: 3400000, count: 34 },
             ],
-          });
+          })
         }
       } catch (error) {
         // Client-side error logging - only in development
         if (process.env.NODE_ENV === 'development') {
-          console.error("Error fetching analytics:", error);
+          console.error('Error fetching analytics:', error)
         }
       } finally {
-        setIsLoading(false);
+        setIsLoading(false)
       }
-    };
+    }
 
-    fetchAnalytics();
-  }, [clinic, period]);
+    fetchAnalytics()
+  }, [clinic, period])
 
   const formatCurrency = (value: number): string => {
     if (value >= 1000000) {
-      return `${(value / 1000000).toFixed(1)}M Gs.`;
+      return `${(value / 1000000).toFixed(1)}M Gs.`
     }
-    return `${value.toLocaleString("es-PY")} Gs.`;
-  };
+    return `${value.toLocaleString('es-PY')} Gs.`
+  }
 
   const StatCard = ({
     title,
     value,
     change,
     icon: Icon,
-    format = "number",
+    format = 'number',
   }: {
-    title: string;
-    value: number;
-    change: number;
-    icon: React.ElementType;
-    format?: "number" | "currency";
+    title: string
+    value: number
+    change: number
+    icon: React.ElementType
+    format?: 'number' | 'currency'
   }): React.ReactElement => {
-    const isPositive = change >= 0;
-    const displayValue = format === "currency" ? formatCurrency(value) : value.toLocaleString("es-PY");
+    const isPositive = change >= 0
+    const displayValue =
+      format === 'currency' ? formatCurrency(value) : value.toLocaleString('es-PY')
 
     return (
-      <div className="bg-white rounded-xl shadow-sm border border-[var(--border-color)] p-6">
+      <div className="rounded-xl border border-[var(--border-color)] bg-white p-6 shadow-sm">
         <div className="flex items-start justify-between">
           <div>
             <p className="text-sm font-medium text-[var(--text-secondary)]">{title}</p>
-            <p className="text-2xl font-bold text-[var(--text-primary)] mt-1">{displayValue}</p>
+            <p className="mt-1 text-2xl font-bold text-[var(--text-primary)]">{displayValue}</p>
           </div>
-          <div className="p-3 bg-[var(--primary)] bg-opacity-10 rounded-lg">
-            <Icon className="w-6 h-6 text-[var(--primary)]" />
+          <div className="rounded-lg bg-[var(--primary)] bg-opacity-10 p-3">
+            <Icon className="h-6 w-6 text-[var(--primary)]" />
           </div>
         </div>
-        <div className="flex items-center gap-1 mt-4">
+        <div className="mt-4 flex items-center gap-1">
           {isPositive ? (
-            <ArrowUpRight className="w-4 h-4" style={{ color: "var(--status-success)" }} />
+            <ArrowUpRight className="h-4 w-4" style={{ color: 'var(--status-success)' }} />
           ) : (
-            <ArrowDownRight className="w-4 h-4" style={{ color: "var(--status-error)" }} />
+            <ArrowDownRight className="h-4 w-4" style={{ color: 'var(--status-error)' }} />
           )}
           <span
             className="text-sm font-medium"
-            style={{ color: isPositive ? "var(--status-success)" : "var(--status-error)" }}
+            style={{ color: isPositive ? 'var(--status-success)' : 'var(--status-error)' }}
           >
-            {isPositive ? "+" : ""}{change.toFixed(1)}%
+            {isPositive ? '+' : ''}
+            {change.toFixed(1)}%
           </span>
-          <span className="text-sm text-[var(--text-secondary)]">{labels.analytics.stats.vs_previous}</span>
+          <span className="text-sm text-[var(--text-secondary)]">
+            {labels.analytics.stats.vs_previous}
+          </span>
         </div>
       </div>
-    );
-  };
+    )
+  }
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="w-8 h-8 text-[var(--primary)] animate-spin" />
+      <div className="flex min-h-[400px] items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-[var(--primary)]" />
       </div>
-    );
+    )
   }
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-[var(--primary)] bg-opacity-10 rounded-lg">
-            <BarChart3 className="w-6 h-6 text-[var(--primary)]" />
+          <div className="rounded-lg bg-[var(--primary)] bg-opacity-10 p-2">
+            <BarChart3 className="h-6 w-6 text-[var(--primary)]" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-[var(--text-primary)]">{labels.analytics.title}</h1>
-            <p className="text-sm text-[var(--text-secondary)]">
-              {labels.analytics.subtitle}
-            </p>
+            <h1 className="text-2xl font-bold text-[var(--text-primary)]">
+              {labels.analytics.title}
+            </h1>
+            <p className="text-sm text-[var(--text-secondary)]">{labels.analytics.subtitle}</p>
           </div>
         </div>
 
         {/* Period Selector */}
-        <div className="flex items-center gap-2 rounded-lg p-1" style={{ backgroundColor: "var(--bg-subtle)" }}>
-          {(["week", "month", "quarter"] as const).map((p) => (
+        <div
+          className="flex items-center gap-2 rounded-lg p-1"
+          style={{ backgroundColor: 'var(--bg-subtle)' }}
+        >
+          {(['week', 'month', 'quarter'] as const).map((p) => (
             <button
               key={p}
               onClick={() => setPeriod(p)}
-              className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+              className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
                 period === p
-                  ? "bg-white text-[var(--text-primary)] shadow-sm"
-                  : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                  ? 'bg-white text-[var(--text-primary)] shadow-sm'
+                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`}
             >
               {labels.analytics.period[p]}
@@ -229,7 +236,7 @@ export default function AnalyticsPage(): React.ReactElement {
 
       {/* Stats Cards */}
       {stats && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
           <StatCard
             title={labels.analytics.stats.revenue}
             value={stats.revenue.current}
@@ -260,10 +267,10 @@ export default function AnalyticsPage(): React.ReactElement {
 
       {/* Charts Row */}
       {chartData && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           {/* Revenue Chart */}
-          <div className="bg-white rounded-xl shadow-sm border border-[var(--border-color)] p-6">
-            <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4">
+          <div className="rounded-xl border border-[var(--border-color)] bg-white p-6 shadow-sm">
+            <h3 className="mb-4 text-lg font-semibold text-[var(--text-primary)]">
               {labels.analytics.charts.revenue_by_day}
             </h3>
             <div className="h-[300px]">
@@ -282,10 +289,13 @@ export default function AnalyticsPage(): React.ReactElement {
                     tickFormatter={(value) => `${(value / 1000000).toFixed(1)}M`}
                   />
                   <Tooltip
-                    formatter={(value) => [formatCurrency(value as number), labels.analytics.stats.revenue]}
+                    formatter={(value) => [
+                      formatCurrency(value as number),
+                      labels.analytics.stats.revenue,
+                    ]}
                     contentStyle={{
-                      borderRadius: "8px",
-                      border: "1px solid #e5e7eb",
+                      borderRadius: '8px',
+                      border: '1px solid #e5e7eb',
                     }}
                   />
                   <Area
@@ -302,8 +312,8 @@ export default function AnalyticsPage(): React.ReactElement {
           </div>
 
           {/* Appointments by Type */}
-          <div className="bg-white rounded-xl shadow-sm border border-[var(--border-color)] p-6">
-            <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4">
+          <div className="rounded-xl border border-[var(--border-color)] bg-white p-6 shadow-sm">
+            <h3 className="mb-4 text-lg font-semibold text-[var(--text-primary)]">
               {labels.analytics.charts.appointments_by_type}
             </h3>
             <div className="h-[300px]">
@@ -318,18 +328,21 @@ export default function AnalyticsPage(): React.ReactElement {
                     fill="#8884d8"
                     dataKey="count"
                     label={({ name, percent }) =>
-                      `${(name as string)?.split(" ")[0] || ''} ${((percent || 0) * 100).toFixed(0)}%`
+                      `${(name as string)?.split(' ')[0] || ''} ${((percent || 0) * 100).toFixed(0)}%`
                     }
                   >
                     {chartData.appointmentsByType.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color || COLORS[index % COLORS.length]} />
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={entry.color || COLORS[index % COLORS.length]}
+                      />
                     ))}
                   </Pie>
                   <Tooltip
                     formatter={(value) => [value as number, labels.analytics.stats.appointments]}
                     contentStyle={{
-                      borderRadius: "8px",
-                      border: "1px solid #e5e7eb",
+                      borderRadius: '8px',
+                      border: '1px solid #e5e7eb',
                     }}
                   />
                 </PieChart>
@@ -341,8 +354,8 @@ export default function AnalyticsPage(): React.ReactElement {
 
       {/* Top Services */}
       {chartData && (
-        <div className="bg-white rounded-xl shadow-sm border border-[var(--border-color)] p-6">
-          <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4">
+        <div className="rounded-xl border border-[var(--border-color)] bg-white p-6 shadow-sm">
+          <h3 className="mb-4 text-lg font-semibold text-[var(--text-primary)]">
             {labels.analytics.charts.top_services}
           </h3>
           <div className="h-[300px]">
@@ -354,17 +367,15 @@ export default function AnalyticsPage(): React.ReactElement {
                   tick={{ fontSize: 12 }}
                   tickFormatter={(value) => `${(value / 1000000).toFixed(1)}M`}
                 />
-                <YAxis
-                  type="category"
-                  dataKey="name"
-                  tick={{ fontSize: 12 }}
-                  width={120}
-                />
+                <YAxis type="category" dataKey="name" tick={{ fontSize: 12 }} width={120} />
                 <Tooltip
-                  formatter={(value) => [formatCurrency(value as number), labels.analytics.stats.revenue]}
+                  formatter={(value) => [
+                    formatCurrency(value as number),
+                    labels.analytics.stats.revenue,
+                  ]}
                   contentStyle={{
-                    borderRadius: "8px",
-                    border: "1px solid #e5e7eb",
+                    borderRadius: '8px',
+                    border: '1px solid #e5e7eb',
                   }}
                 />
                 <Bar dataKey="revenue" fill="var(--primary)" radius={[0, 4, 4, 0]} />
@@ -375,24 +386,24 @@ export default function AnalyticsPage(): React.ReactElement {
       )}
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="rounded-xl p-4 text-white" style={{ background: "var(--gradient-blue)" }}>
-          <Activity className="w-8 h-8 mb-2 opacity-80" />
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <div className="rounded-xl p-4 text-white" style={{ background: 'var(--gradient-blue)' }}>
+          <Activity className="mb-2 h-8 w-8 opacity-80" />
           <p className="text-2xl font-bold">98%</p>
           <p className="text-sm opacity-80">{labels.analytics.quick_stats.satisfaction}</p>
         </div>
-        <div className="rounded-xl p-4 text-white" style={{ background: "var(--gradient-green)" }}>
-          <Calendar className="w-8 h-8 mb-2 opacity-80" />
+        <div className="rounded-xl p-4 text-white" style={{ background: 'var(--gradient-green)' }}>
+          <Calendar className="mb-2 h-8 w-8 opacity-80" />
           <p className="text-2xl font-bold">15 min</p>
           <p className="text-sm opacity-80">{labels.analytics.quick_stats.wait_time}</p>
         </div>
-        <div className="rounded-xl p-4 text-white" style={{ background: "var(--gradient-purple)" }}>
-          <Users className="w-8 h-8 mb-2 opacity-80" />
+        <div className="rounded-xl p-4 text-white" style={{ background: 'var(--gradient-purple)' }}>
+          <Users className="mb-2 h-8 w-8 opacity-80" />
           <p className="text-2xl font-bold">89%</p>
           <p className="text-sm opacity-80">{labels.analytics.quick_stats.retention}</p>
         </div>
-        <div className="rounded-xl p-4 text-white" style={{ background: "var(--gradient-orange)" }}>
-          <Package className="w-8 h-8 mb-2 opacity-80" />
+        <div className="rounded-xl p-4 text-white" style={{ background: 'var(--gradient-orange)' }}>
+          <Package className="mb-2 h-8 w-8 opacity-80" />
           <p className="text-2xl font-bold">12</p>
           <p className="text-sm opacity-80">{labels.analytics.quick_stats.low_stock}</p>
         </div>
@@ -401,12 +412,12 @@ export default function AnalyticsPage(): React.ReactElement {
       {/* Store Analytics Link */}
       <Link
         href={`/${clinic}/dashboard/analytics/store`}
-        className="block bg-white rounded-xl shadow-sm border border-[var(--border-color)] p-6 hover:shadow-md transition-shadow group"
+        className="group block rounded-xl border border-[var(--border-color)] bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="p-3 bg-[var(--primary)] bg-opacity-10 rounded-xl">
-              <ShoppingCart className="w-8 h-8 text-[var(--primary)]" />
+            <div className="rounded-xl bg-[var(--primary)] bg-opacity-10 p-3">
+              <ShoppingCart className="h-8 w-8 text-[var(--primary)]" />
             </div>
             <div>
               <h3 className="text-lg font-semibold text-[var(--text-primary)]">
@@ -417,9 +428,9 @@ export default function AnalyticsPage(): React.ReactElement {
               </p>
             </div>
           </div>
-          <ArrowRight className="w-6 h-6 text-[var(--text-secondary)] group-hover:text-[var(--primary)] transition-colors" />
+          <ArrowRight className="h-6 w-6 text-[var(--text-secondary)] transition-colors group-hover:text-[var(--primary)]" />
         </div>
       </Link>
     </div>
-  );
+  )
 }

@@ -1,46 +1,46 @@
-'use client';
+'use client'
 
-import type { JSX } from 'react';
-import { User, Phone, MapPin } from 'lucide-react';
+import type { JSX } from 'react'
+import { User, Phone, MapPin } from 'lucide-react'
 
 interface PatientInfoCardProps {
   hospitalization: {
     pet: {
-      species: string;
-      breed: string;
-      date_of_birth: string;
-      weight: number;
+      species: string
+      breed: string
+      date_of_birth: string
+      weight: number
       owner: {
-        full_name: string;
-        phone: string;
-      };
-    };
+        full_name: string
+        phone: string
+      }
+    }
     kennel: {
-      kennel_number: string;
-      kennel_type: string;
-      location: string;
-    };
-  };
+      kennel_number: string
+      kennel_type: string
+      location: string
+    }
+  }
 }
 
 export function PatientInfoCard({ hospitalization }: PatientInfoCardProps): JSX.Element {
   const calculateAge = (dateOfBirth: string): string => {
-    const birth = new Date(dateOfBirth);
-    const now = new Date();
-    const years = now.getFullYear() - birth.getFullYear();
-    const months = now.getMonth() - birth.getMonth();
+    const birth = new Date(dateOfBirth)
+    const now = new Date()
+    const years = now.getFullYear() - birth.getFullYear()
+    const months = now.getMonth() - birth.getMonth()
 
     if (years > 0) {
-      return `${years} año${years > 1 ? 's' : ''}`;
+      return `${years} año${years > 1 ? 's' : ''}`
     }
-    return `${months} mes${months !== 1 ? 'es' : ''}`;
-  };
+    return `${months} mes${months !== 1 ? 'es' : ''}`
+  }
 
   return (
-    <div className="bg-[var(--bg-secondary)] p-6 rounded-lg border border-[var(--border)]">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-secondary)] p-6">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         <div>
-          <h3 className="font-semibold text-[var(--text-primary)] mb-3">
+          <h3 className="mb-3 font-semibold text-[var(--text-primary)]">
             Información del Paciente
           </h3>
           <div className="space-y-2 text-sm">
@@ -66,9 +66,7 @@ export function PatientInfoCard({ hospitalization }: PatientInfoCardProps): JSX.
         </div>
 
         <div>
-          <h3 className="font-semibold text-[var(--text-primary)] mb-3">
-            Propietario
-          </h3>
+          <h3 className="mb-3 font-semibold text-[var(--text-primary)]">Propietario</h3>
           <div className="space-y-2 text-sm">
             <div className="flex items-center gap-2">
               <User className="h-4 w-4 text-[var(--text-secondary)]" />
@@ -78,17 +76,13 @@ export function PatientInfoCard({ hospitalization }: PatientInfoCardProps): JSX.
             </div>
             <div className="flex items-center gap-2">
               <Phone className="h-4 w-4 text-[var(--text-secondary)]" />
-              <span className="text-[var(--text-primary)]">
-                {hospitalization.pet.owner.phone}
-              </span>
+              <span className="text-[var(--text-primary)]">{hospitalization.pet.owner.phone}</span>
             </div>
           </div>
         </div>
 
         <div>
-          <h3 className="font-semibold text-[var(--text-primary)] mb-3">
-            Ubicación
-          </h3>
+          <h3 className="mb-3 font-semibold text-[var(--text-primary)]">Ubicación</h3>
           <div className="space-y-2 text-sm">
             <div className="flex items-center gap-2">
               <MapPin className="h-4 w-4 text-[var(--text-secondary)]" />
@@ -98,7 +92,9 @@ export function PatientInfoCard({ hospitalization }: PatientInfoCardProps): JSX.
             </div>
             <div>
               <span className="text-[var(--text-secondary)]">Tipo:</span>{' '}
-              <span className="text-[var(--text-primary)]">{hospitalization.kennel.kennel_type}</span>
+              <span className="text-[var(--text-primary)]">
+                {hospitalization.kennel.kennel_type}
+              </span>
             </div>
             <div>
               <span className="text-[var(--text-secondary)]">Ubicación:</span>{' '}
@@ -108,5 +104,5 @@ export function PatientInfoCard({ hospitalization }: PatientInfoCardProps): JSX.
         </div>
       </div>
     </div>
-  );
+  )
 }

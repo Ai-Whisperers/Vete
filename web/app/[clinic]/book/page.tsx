@@ -1,22 +1,25 @@
+import { getClinicData } from '@/lib/clinics'
+import { createClient } from '@/lib/supabase/server'
+import { notFound } from 'next/navigation'
+import { Metadata } from 'next'
+import BookingWizard from '@/components/booking/booking-wizard'
+import { BreadcrumbSchema } from '@/components/seo/structured-data'
 
-import { getClinicData } from '@/lib/clinics';
-import { createClient } from '@/lib/supabase/server';
-import { notFound } from 'next/navigation';
-import { Metadata } from 'next';
-import BookingWizard from '@/components/booking/booking-wizard';
-import { BreadcrumbSchema } from '@/components/seo/structured-data';
+const BASE_URL = 'https://vetepy.vercel.app'
 
-const BASE_URL = 'https://vetepy.vercel.app';
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ clinic: string }>
+}): Promise<Metadata> {
+  const { clinic } = await params
+  const data = await getClinicData(clinic)
+  if (!data) return { title: 'Página no encontrada' }
 
-export async function generateMetadata({ params }: { params: Promise<{ clinic: string }> }): Promise<Metadata> {
-  const { clinic } = await params;
-  const data = await getClinicData(clinic);
-  if (!data) return { title: 'Página no encontrada' };
-
-  const title = `Reservar Cita Online | ${data.config.name}`;
-  const description = `Agenda tu cita veterinaria en ${data.config.name}. Reserva online 24/7, elige horario, servicio y recibe confirmación al instante. ${data.config.contact?.address || ''}`;
-  const canonicalUrl = `${BASE_URL}/${clinic}/book`;
-  const ogImage = data.config.branding?.og_image_url || '/branding/default-og.jpg';
+  const title = `Reservar Cita Online | ${data.config.name}`
+  const description = `Agenda tu cita veterinaria en ${data.config.name}. Reserva online 24/7, elige horario, servicio y recibe confirmación al instante. ${data.config.contact?.address || ''}`
+  const canonicalUrl = `${BASE_URL}/${clinic}/book`
+  const ogImage = data.config.branding?.og_image_url || '/branding/default-og.jpg'
 
   return {
     title,
@@ -45,65 +48,65 @@ export async function generateMetadata({ params }: { params: Promise<{ clinic: s
       title,
       description,
     },
-  };
+  }
 }
 
-export default async function BookingPage({ params, searchParams }: { 
-    params: Promise<{ clinic: string }>;
-    searchParams: Promise<{ service?: string }>;
+export default async function BookingPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ clinic: string }>
+  searchParams: Promise<{ service?: string }>
 }) {
-    const { clinic } = await params;
-    const { service } = await searchParams; // Pre-select service if passed
+  const { clinic } = await params
+  const { service } = await searchParams // Pre-select service if passed
 
-    const data = await getClinicData(clinic);
-    if (!data) notFound();
+  const data = await getClinicData(clinic)
+  if (!data) notFound()
 
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
-    // Require authentication for booking
-    if (!user) {
-        return (
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-                <div className="bg-white rounded-3xl shadow-xl p-8 max-w-md text-center">
-                    <h2 className="text-2xl font-black text-gray-900 mb-4">Autenticación Requerida</h2>
-                    <p className="text-gray-600 mb-6">Por favor inicia sesión para reservar una cita.</p>
-                    <a
-                        href={`/${clinic}/portal/login?redirect=/${clinic}/book`}
-                        className="px-8 py-4 bg-[var(--primary)] text-white font-bold rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all inline-block"
-                    >
-                        Iniciar Sesión
-                    </a>
-                </div>
-            </div>
-        );
-    }
-
-    // Fetch user's pets if logged in to speed up booking
-    const { data: pets } = await supabase
-        .from('pets')
-        .select('id, name, species, breed')
-        .eq('owner_id', user.id);
-
-    const userPets = pets || [];
-
-    // Breadcrumb items for structured data
-    const breadcrumbItems = [
-        { name: 'Inicio', url: `/${clinic}` },
-        { name: 'Reservar Cita', url: `/${clinic}/book` },
-    ];
-
+  // Require authentication for booking
+  if (!user) {
     return (
-        <>
-            <BreadcrumbSchema items={breadcrumbItems} />
-            <div className="min-h-screen bg-gray-50">
-                <BookingWizard
-                    clinic={data}
-                    user={user}
-                    userPets={userPets}
-                    initialService={service}
-                />
-            </div>
-        </>
-    );
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
+        <div className="max-w-md rounded-3xl bg-white p-8 text-center shadow-xl">
+          <h2 className="mb-4 text-2xl font-black text-gray-900">Autenticación Requerida</h2>
+          <p className="mb-6 text-gray-600">Por favor inicia sesión para reservar una cita.</p>
+          <a
+            href={`/${clinic}/portal/login?redirect=/${clinic}/book`}
+            className="inline-block rounded-2xl bg-[var(--primary)] px-8 py-4 font-bold text-white shadow-xl transition-all hover:-translate-y-1 hover:shadow-2xl"
+          >
+            Iniciar Sesión
+          </a>
+        </div>
+      </div>
+    )
+  }
+
+  // Fetch user's pets if logged in to speed up booking
+  const { data: pets } = await supabase
+    .from('pets')
+    .select('id, name, species, breed')
+    .eq('owner_id', user.id)
+
+  const userPets = pets || []
+
+  // Breadcrumb items for structured data
+  const breadcrumbItems = [
+    { name: 'Inicio', url: `/${clinic}` },
+    { name: 'Reservar Cita', url: `/${clinic}/book` },
+  ]
+
+  return (
+    <>
+      <BreadcrumbSchema items={breadcrumbItems} />
+      <div className="min-h-screen bg-gray-50">
+        <BookingWizard clinic={data} user={user} userPets={userPets} initialService={service} />
+      </div>
+    </>
+  )
 }

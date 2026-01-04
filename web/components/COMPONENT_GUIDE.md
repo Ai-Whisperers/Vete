@@ -9,6 +9,7 @@ Quick reference for using the refactored and new components.
 ## Shared Components & Hooks
 
 ### ErrorBoundary
+
 ```typescript
 import { ErrorBoundary } from '@/components/shared';
 
@@ -21,6 +22,7 @@ import { ErrorBoundary } from '@/components/shared';
 ```
 
 ### LoadingSpinner
+
 ```typescript
 import { LoadingSpinner } from '@/components/shared';
 
@@ -29,6 +31,7 @@ import { LoadingSpinner } from '@/components/shared';
 ```
 
 ### EmptyState
+
 ```typescript
 import { EmptyState } from '@/components/shared';
 
@@ -41,17 +44,19 @@ import { EmptyState } from '@/components/shared';
 ```
 
 ### useAsyncData Hook
+
 ```typescript
-import { useAsyncData } from '@/hooks';
+import { useAsyncData } from '@/hooks'
 
 const { data, isLoading, error, refetch } = useAsyncData(
-  () => fetch('/api/data').then(res => res.json()),
+  () => fetch('/api/data').then((res) => res.json()),
   [dependency],
   { retryCount: 3, refetchOnWindowFocus: true }
-);
+)
 ```
 
 ### useForm Hook
+
 ```typescript
 import { useForm } from '@/hooks';
 import { required, email } from '@/lib/utils';
@@ -75,6 +80,7 @@ const handleSubmit = form.handleSubmit(async (values) => {
 ```
 
 ### useModal Hook
+
 ```typescript
 import { useModal } from '@/hooks';
 
@@ -89,12 +95,13 @@ return (
 ```
 
 ### Utility Functions
-```typescript
-import { formatCurrency, formatDate, formatPhoneNumber } from '@/lib/utils';
 
-formatCurrency(1000000, 'PYG'); // ₲ 1.000.000
-formatDate(new Date()); // "21 dic 2025"
-formatPhoneNumber('0981123456'); // 0981 123 456
+```typescript
+import { formatCurrency, formatDate, formatPhoneNumber } from '@/lib/utils'
+
+formatCurrency(1000000, 'PYG') // ₲ 1.000.000
+formatDate(new Date()) // "21 dic 2025"
+formatPhoneNumber('0981123456') // 0981 123 456
 ```
 
 ---
@@ -102,6 +109,7 @@ formatPhoneNumber('0981123456'); // 0981 123 456
 ## SearchField Component
 
 ### Basic Usage
+
 ```typescript
 import { SearchField } from '@/components/ui';
 
@@ -122,6 +130,7 @@ import { SearchField } from '@/components/ui';
 ```
 
 ### Advanced Options
+
 ```typescript
 <SearchField
   minChars={3}              // Minimum characters before search (default: 2)
@@ -137,6 +146,7 @@ import { SearchField } from '@/components/ui';
 ## DataTable Component
 
 ### Basic Usage
+
 ```typescript
 import { DataTable } from '@/components/ui';
 
@@ -151,6 +161,7 @@ import { DataTable } from '@/components/ui';
 ```
 
 ### Custom Cell Rendering
+
 ```typescript
 <DataTable<Client>
   data={clients}
@@ -186,6 +197,7 @@ import { DataTable } from '@/components/ui';
 ```
 
 ### With Pagination
+
 ```typescript
 <DataTable
   data={largeDataset}
@@ -196,6 +208,7 @@ import { DataTable } from '@/components/ui';
 ```
 
 ### With Row Click
+
 ```typescript
 <DataTable
   data={clients}
@@ -205,6 +218,7 @@ import { DataTable } from '@/components/ui';
 ```
 
 ### Custom Mobile Layout
+
 ```typescript
 <DataTable
   data={clients}
@@ -220,6 +234,7 @@ import { DataTable } from '@/components/ui';
 ```
 
 ### Empty State
+
 ```typescript
 <DataTable
   data={[]}
@@ -234,6 +249,7 @@ import { DataTable } from '@/components/ui';
 ## Age Calculator Components
 
 ### Full Component (Easy)
+
 ```typescript
 import { AgeCalculator } from '@/components/tools/age-calculator';
 
@@ -245,6 +261,7 @@ import { AgeCalculator } from '@/components/tools/age-calculator';
 ```
 
 ### Using Individual Components (Advanced)
+
 ```typescript
 import { useAgeCalculation } from '@/hooks/use-age-calculation';
 import { SpeciesSelector, AgeInput, ResultDisplay } from '@/components/tools/age-calculator';
@@ -284,6 +301,7 @@ function MyCustomCalculator() {
 ```
 
 ### Using Just the Calculation Logic
+
 ```typescript
 import { useAgeCalculation } from '@/hooks/use-age-calculation';
 
@@ -310,6 +328,7 @@ function AgeCalculatorAPI() {
 ## Hooks
 
 ### useDebounce
+
 ```typescript
 import { useDebounce } from '@/hooks/use-debounce';
 
@@ -328,26 +347,32 @@ function SearchComponent() {
 ```
 
 ### useAgeCalculation
+
 ```typescript
-import { useAgeCalculation } from '@/hooks/use-age-calculation';
+import { useAgeCalculation } from '@/hooks/use-age-calculation'
 
 const { result, calculate, reset } = useAgeCalculation(
-  species, dogSize, catType, birdCategory, turtleType, fishType
-);
+  species,
+  dogSize,
+  catType,
+  birdCategory,
+  turtleType,
+  fishType
+)
 
 // Calculate age
-calculate(ageInYears, formulaType); // formulaType: 'classic' | 'logarithmic'
+calculate(ageInYears, formulaType) // formulaType: 'classic' | 'logarithmic'
 
 // Reset result
-reset();
+reset()
 
 // Access result
 if (result) {
-  console.log(result.humanAge);       // Rounded human age
-  console.log(result.exactHumanAge);  // Precise decimal
-  console.log(result.lifeStage);      // Life stage info
-  console.log(result.healthTips);     // Health recommendations
-  console.log(result.milestones);     // Age milestones
+  console.log(result.humanAge) // Rounded human age
+  console.log(result.exactHumanAge) // Precise decimal
+  console.log(result.lifeStage) // Life stage info
+  console.log(result.healthTips) // Health recommendations
+  console.log(result.milestones) // Age milestones
 }
 ```
 
@@ -356,35 +381,38 @@ if (result) {
 ## Configuration Data
 
 ### Species Config
+
 ```typescript
-import { SPECIES_CONFIG, Species } from '@/lib/age-calculator/configs';
+import { SPECIES_CONFIG, Species } from '@/lib/age-calculator/configs'
 
-const species: Species = 'dog';
-const config = SPECIES_CONFIG[species];
+const species: Species = 'dog'
+const config = SPECIES_CONFIG[species]
 
-console.log(config.label);        // "Perro"
-console.log(config.emoji);        // "🐕"
-console.log(config.avgLifespan);  // { min: 10, max: 13 }
+console.log(config.label) // "Perro"
+console.log(config.emoji) // "🐕"
+console.log(config.avgLifespan) // { min: 10, max: 13 }
 ```
 
 ### Dog Size Config
-```typescript
-import { DOG_SIZE_CONFIG } from '@/lib/age-calculator/configs';
 
-const sizeConfig = DOG_SIZE_CONFIG['large'];
-console.log(sizeConfig.multiplier);   // 5.5 years per year after age 2
-console.log(sizeConfig.seniorAge);    // 7 years
-console.log(sizeConfig.year1Equiv);   // 15 human years
+```typescript
+import { DOG_SIZE_CONFIG } from '@/lib/age-calculator/configs'
+
+const sizeConfig = DOG_SIZE_CONFIG['large']
+console.log(sizeConfig.multiplier) // 5.5 years per year after age 2
+console.log(sizeConfig.seniorAge) // 7 years
+console.log(sizeConfig.year1Equiv) // 15 human years
 ```
 
 ### Age Presets
-```typescript
-import { getAgePresets } from '@/lib/age-calculator/configs';
 
-const presets = getAgePresets('dog');
+```typescript
+import { getAgePresets } from '@/lib/age-calculator/configs'
+
+const presets = getAgePresets('dog')
 // [{ value: 6, unit: 'months' }, { value: 1, unit: 'years' }, ...]
 
-const hamsterPresets = getAgePresets('hamster');
+const hamsterPresets = getAgePresets('hamster')
 // [{ value: 3, unit: 'months' }, { value: 6, unit: 'months' }, ...]
 ```
 
@@ -393,66 +421,79 @@ const hamsterPresets = getAgePresets('hamster');
 ## TypeScript Types
 
 ### SearchField
+
 ```typescript
 interface SearchFieldProps<T> {
-  placeholder?: string;
-  onSearch: (query: string) => Promise<T[]>;
-  renderItem: (item: T, index: number) => React.ReactNode;
-  onSelect: (item: T) => void;
-  minChars?: number;
-  debounceMs?: number;
-  emptyMessage?: string;
-  className?: string;
-  autoFocus?: boolean;
+  placeholder?: string
+  onSearch: (query: string) => Promise<T[]>
+  renderItem: (item: T, index: number) => React.ReactNode
+  onSelect: (item: T) => void
+  minChars?: number
+  debounceMs?: number
+  emptyMessage?: string
+  className?: string
+  autoFocus?: boolean
 }
 ```
 
 ### DataTable
+
 ```typescript
 interface Column<T> {
-  key: string;
-  label: string;
-  sortable?: boolean;
-  render?: (item: T, index: number) => React.ReactNode;
-  className?: string;
-  headerClassName?: string;
+  key: string
+  label: string
+  sortable?: boolean
+  render?: (item: T, index: number) => React.ReactNode
+  className?: string
+  headerClassName?: string
 }
 
 interface DataTableProps<T> {
-  data: T[];
-  columns: Column<T>[];
-  keyExtractor?: (item: T, index: number) => string;
-  onRowClick?: (item: T) => void;
-  emptyMessage?: string;
-  emptyIcon?: React.ReactNode;
-  pageSize?: number;
-  showPagination?: boolean;
-  className?: string;
-  rowClassName?: string | ((item: T, index: number) => string);
-  mobileRender?: (item: T, index: number) => React.ReactNode;
+  data: T[]
+  columns: Column<T>[]
+  keyExtractor?: (item: T, index: number) => string
+  onRowClick?: (item: T) => void
+  emptyMessage?: string
+  emptyIcon?: React.ReactNode
+  pageSize?: number
+  showPagination?: boolean
+  className?: string
+  rowClassName?: string | ((item: T, index: number) => string)
+  mobileRender?: (item: T, index: number) => React.ReactNode
 }
 ```
 
 ### Age Calculator
+
 ```typescript
 interface CalculationResult {
-  humanAge: number;
-  exactHumanAge: number;
-  breakdown: CalculationStep[];
-  formula: string;
-  lifeStage: LifeStage;
-  healthTips: string[];
-  milestones: Milestone[];
+  humanAge: number
+  exactHumanAge: number
+  breakdown: CalculationStep[]
+  formula: string
+  lifeStage: LifeStage
+  healthTips: string[]
+  milestones: Milestone[]
   lifeExpectancy: {
-    min: number;
-    max: number;
-    remaining: { min: number; max: number };
-  };
+    min: number
+    max: number
+    remaining: { min: number; max: number }
+  }
 }
 
-type Species = "dog" | "cat" | "rabbit" | "hamster" | "guinea_pig" | "bird" | "ferret" | "horse" | "turtle" | "fish";
-type DogSize = "toy" | "small" | "medium" | "large" | "giant";
-type FormulaType = "classic" | "logarithmic";
+type Species =
+  | 'dog'
+  | 'cat'
+  | 'rabbit'
+  | 'hamster'
+  | 'guinea_pig'
+  | 'bird'
+  | 'ferret'
+  | 'horse'
+  | 'turtle'
+  | 'fish'
+type DogSize = 'toy' | 'small' | 'medium' | 'large' | 'giant'
+type FormulaType = 'classic' | 'logarithmic'
 ```
 
 ---
@@ -460,15 +501,18 @@ type FormulaType = "classic" | "logarithmic";
 ## Examples in the Codebase
 
 ### SearchField Usage
+
 - See `web/app/[clinic]/dashboard/clients/client-search.tsx` (can be refactored to use SearchField)
 
 ### DataTable Usage
+
 - Replace manual tables in:
   - `web/app/[clinic]/dashboard/clients/page.tsx`
   - `web/app/[clinic]/dashboard/appointments/page.tsx`
   - `web/app/[clinic]/dashboard/audit/audit-logs-list.tsx`
 
 ### Age Calculator Usage
+
 - Current: `web/app/[clinic]/tools/age-calculator/page.tsx`
 
 ---
@@ -476,6 +520,7 @@ type FormulaType = "classic" | "logarithmic";
 ## Best Practices
 
 1. **Always specify generic types**
+
    ```typescript
    // Good
    <SearchField<Client> ... />
@@ -485,6 +530,7 @@ type FormulaType = "classic" | "logarithmic";
    ```
 
 2. **Extract render functions for complex cells**
+
    ```typescript
    // Good - Readable
    const renderClientCell = (client: Client) => (
@@ -502,13 +548,13 @@ type FormulaType = "classic" | "logarithmic";
    ```
 
 3. **Use memoization for expensive renders**
+
    ```typescript
-   const columns = useMemo(() => [
-     { key: 'name', label: 'Name', render: expensiveRender }
-   ], []);
+   const columns = useMemo(() => [{ key: 'name', label: 'Name', render: expensiveRender }], [])
    ```
 
 4. **Provide meaningful empty states**
+
    ```typescript
    <DataTable
      emptyMessage="No se encontraron clientes. Intenta agregar uno nuevo."
@@ -517,6 +563,7 @@ type FormulaType = "classic" | "logarithmic";
    ```
 
 5. **Use TypeScript interfaces for data shapes**
+
    ```typescript
    interface Client {
      id: string;

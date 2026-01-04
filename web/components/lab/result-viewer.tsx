@@ -15,7 +15,7 @@ import {
   FileText,
   Download,
   AlertTriangle,
-  Clock
+  Clock,
 } from 'lucide-react'
 
 interface LabResult {
@@ -51,7 +51,12 @@ interface ResultViewerProps {
 
 type ResultFlag = 'normal' | 'low' | 'high' | 'critical_low' | 'critical_high'
 
-export function ResultViewer({ orderId, petId, showHistory = true, onDownloadPdf }: ResultViewerProps) {
+export function ResultViewer({
+  orderId,
+  petId,
+  showHistory = true,
+  onDownloadPdf,
+}: ResultViewerProps) {
   const [results, setResults] = useState<LabResult[]>([])
   const [historicalData, setHistoricalData] = useState<Record<string, HistoricalResult[]>>({})
   const [loading, setLoading] = useState(true)
@@ -71,7 +76,8 @@ export function ResultViewer({ orderId, petId, showHistory = true, onDownloadPdf
     try {
       const { data } = await supabase
         .from('lab_results')
-        .select(`
+        .select(
+          `
           id,
           value_numeric,
           value_text,
@@ -83,28 +89,35 @@ export function ResultViewer({ orderId, petId, showHistory = true, onDownloadPdf
             test:lab_test_catalog!inner(id, code, name, unit),
             order:lab_orders!inner(id)
           )
-        `)
+        `
+        )
         .eq('lab_order_items.order.id', orderId)
         .order('result_date', { ascending: false })
 
       // Supabase returns arrays for joined tables, extract first element
-      const formattedResults = data?.map(r => {
-        const orderItems = r.lab_order_items as unknown as Array<{ test: unknown[]; order: unknown[] }>
-        const firstOrderItem = orderItems?.[0]
-        const testData = Array.isArray(firstOrderItem?.test) ? firstOrderItem.test[0] : firstOrderItem?.test
-        return {
-          id: r.id,
-          value_numeric: r.value_numeric,
-          value_text: r.value_text,
-          flag: r.flag,
-          verified_at: r.verified_at,
-          verified_by: r.verified_by,
-          result_date: r.result_date,
-          order_item: {
-            test: testData as { id: string; code: string; name: string; unit: string }
+      const formattedResults =
+        data?.map((r) => {
+          const orderItems = r.lab_order_items as unknown as Array<{
+            test: unknown[]
+            order: unknown[]
+          }>
+          const firstOrderItem = orderItems?.[0]
+          const testData = Array.isArray(firstOrderItem?.test)
+            ? firstOrderItem.test[0]
+            : firstOrderItem?.test
+          return {
+            id: r.id,
+            value_numeric: r.value_numeric,
+            value_text: r.value_text,
+            flag: r.flag,
+            verified_at: r.verified_at,
+            verified_by: r.verified_by,
+            result_date: r.result_date,
+            order_item: {
+              test: testData as { id: string; code: string; name: string; unit: string },
+            },
           }
-        }
-      }) || []
+        }) || []
 
       setResults(formattedResults)
     } catch {
@@ -118,11 +131,12 @@ export function ResultViewer({ orderId, petId, showHistory = true, onDownloadPdf
     if (!petId) return
 
     try {
-      const testIds = results.map(r => r.order_item.test.id)
+      const testIds = results.map((r) => r.order_item.test.id)
 
       const { data } = await supabase
         .from('lab_results')
-        .select(`
+        .select(
+          `
           id,
           value_numeric,
           flag,
@@ -131,7 +145,8 @@ export function ResultViewer({ orderId, petId, showHistory = true, onDownloadPdf
             test_id,
             order:lab_orders!inner(pet_id)
           )
-        `)
+        `
+        )
         .eq('lab_order_items.order.pet_id', petId)
         .in('lab_order_items.test_id', testIds)
         .not('value_numeric', 'is', null)
@@ -139,9 +154,12 @@ export function ResultViewer({ orderId, petId, showHistory = true, onDownloadPdf
         .limit(50)
 
       const grouped: Record<string, HistoricalResult[]> = {}
-      data?.forEach(result => {
+      data?.forEach((result) => {
         // Supabase returns arrays for joined tables
-        const orderItems = result.lab_order_items as unknown as Array<{ test_id: string; order: unknown[] }>
+        const orderItems = result.lab_order_items as unknown as Array<{
+          test_id: string
+          order: unknown[]
+        }>
         const firstOrderItem = orderItems?.[0]
         const testId = firstOrderItem?.test_id
         if (!testId) return
@@ -150,7 +168,7 @@ export function ResultViewer({ orderId, petId, showHistory = true, onDownloadPdf
           grouped[testId].push({
             date: result.result_date,
             value: result.value_numeric,
-            flag: result.flag || 'normal'
+            flag: result.flag || 'normal',
           })
         }
       })
@@ -179,17 +197,17 @@ export function ResultViewer({ orderId, petId, showHistory = true, onDownloadPdf
   const getFlagIcon = (flag?: string) => {
     switch (flag) {
       case 'normal':
-        return <CheckCircle className="w-5 h-5" />
+        return <CheckCircle className="h-5 w-5" />
       case 'low':
-        return <ArrowDown className="w-5 h-5" />
+        return <ArrowDown className="h-5 w-5" />
       case 'high':
-        return <ArrowUp className="w-5 h-5" />
+        return <ArrowUp className="h-5 w-5" />
       case 'critical_low':
-        return <ArrowDownToLine className="w-5 h-5" />
+        return <ArrowDownToLine className="h-5 w-5" />
       case 'critical_high':
-        return <ArrowUpToLine className="w-5 h-5" />
+        return <ArrowUpToLine className="h-5 w-5" />
       default:
-        return <Minus className="w-5 h-5" />
+        return <Minus className="h-5 w-5" />
     }
   }
 
@@ -223,20 +241,18 @@ export function ResultViewer({ orderId, petId, showHistory = true, onDownloadPdf
 
     if (!isSignificant) {
       return (
-        <span className="text-xs text-[var(--text-secondary)] flex items-center gap-1">
-          <Minus className="w-3 h-3" />
+        <span className="flex items-center gap-1 text-xs text-[var(--text-secondary)]">
+          <Minus className="h-3 w-3" />
           Estable
         </span>
       )
     }
 
     return (
-      <span className={`text-xs flex items-center gap-1 ${isIncreasing ? 'text-[var(--status-error,#dc2626)]' : 'text-[var(--status-info,#2563eb)]'}`}>
-        {isIncreasing ? (
-          <TrendingUp className="w-3 h-3" />
-        ) : (
-          <TrendingDown className="w-3 h-3" />
-        )}
+      <span
+        className={`flex items-center gap-1 text-xs ${isIncreasing ? 'text-[var(--status-error,#dc2626)]' : 'text-[var(--status-info,#2563eb)]'}`}
+      >
+        {isIncreasing ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
         {Math.abs(percentChange).toFixed(1)}%
       </span>
     )
@@ -245,18 +261,21 @@ export function ResultViewer({ orderId, petId, showHistory = true, onDownloadPdf
   const renderMiniChart = (history: HistoricalResult[]) => {
     if (history.length < 2) return null
 
-    const values = history.map(h => h.value)
+    const values = history.map((h) => h.value)
     const min = Math.min(...values)
     const max = Math.max(...values)
     const range = max - min
 
     return (
-      <div className="h-12 flex items-end gap-1">
+      <div className="flex h-12 items-end gap-1">
         {history.map((point, idx) => {
           const height = range > 0 ? ((point.value - min) / range) * 100 : 50
-          const color = point.flag === 'normal' ? 'bg-green-500' :
-                       point.flag === 'low' || point.flag === 'high' ? 'bg-yellow-500' :
-                       'bg-red-500'
+          const color =
+            point.flag === 'normal'
+              ? 'bg-green-500'
+              : point.flag === 'low' || point.flag === 'high'
+                ? 'bg-yellow-500'
+                : 'bg-red-500'
 
           return (
             <div
@@ -274,15 +293,15 @@ export function ResultViewer({ orderId, petId, showHistory = true, onDownloadPdf
   if (loading) {
     return (
       <div className="flex items-center justify-center p-12">
-        <Loader2 className="w-8 h-8 animate-spin text-[var(--primary)]" />
+        <Loader2 className="h-8 w-8 animate-spin text-[var(--primary)]" />
       </div>
     )
   }
 
   if (results.length === 0) {
     return (
-      <div className="text-center py-12 bg-[var(--bg-subtle)] rounded-xl">
-        <FileText className="w-16 h-16 mx-auto mb-4 text-[var(--text-secondary)]" />
+      <div className="rounded-xl bg-[var(--bg-subtle)] py-12 text-center">
+        <FileText className="mx-auto mb-4 h-16 w-16 text-[var(--text-secondary)]" />
         <p className="text-[var(--text-secondary)]">No hay resultados disponibles</p>
       </div>
     )
@@ -295,44 +314,44 @@ export function ResultViewer({ orderId, petId, showHistory = true, onDownloadPdf
         <div className="flex justify-end">
           <button
             onClick={onDownloadPdf}
-            className="flex items-center gap-2 px-4 py-2 bg-[var(--primary)] text-white rounded-lg font-medium hover:opacity-90 transition-opacity"
+            className="flex items-center gap-2 rounded-lg bg-[var(--primary)] px-4 py-2 font-medium text-white transition-opacity hover:opacity-90"
           >
-            <Download className="w-4 h-4" />
+            <Download className="h-4 w-4" />
             Descargar PDF
           </button>
         </div>
       )}
 
       {/* Results Table */}
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-200">
+            <thead className="border-b border-gray-200 bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-[var(--text-primary)] uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-[var(--text-primary)]">
                   Prueba
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-[var(--text-primary)] uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-[var(--text-primary)]">
                   Resultado
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-[var(--text-primary)] uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-[var(--text-primary)]">
                   Unidad
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-[var(--text-primary)] uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-[var(--text-primary)]">
                   Estado
                 </th>
                 {showHistory && (
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-[var(--text-primary)] uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-[var(--text-primary)]">
                     Tendencia
                   </th>
                 )}
-                <th className="px-6 py-3 text-left text-xs font-semibold text-[var(--text-primary)] uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-[var(--text-primary)]">
                   Verificado
                 </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {results.map(result => {
+              {results.map((result) => {
                 const testId = result.order_item.test.id
                 const history = historicalData[testId] || []
                 const isExpanded = expandedTest === testId
@@ -341,8 +360,12 @@ export function ResultViewer({ orderId, petId, showHistory = true, onDownloadPdf
                   <>
                     <tr
                       key={result.id}
-                      className={`hover:bg-gray-50 cursor-pointer ${getFlagColor(result.flag)} bg-opacity-30`}
-                      onClick={() => showHistory && history.length > 0 && setExpandedTest(isExpanded ? null : testId)}
+                      className={`cursor-pointer hover:bg-gray-50 ${getFlagColor(result.flag)} bg-opacity-30`}
+                      onClick={() =>
+                        showHistory &&
+                        history.length > 0 &&
+                        setExpandedTest(isExpanded ? null : testId)
+                      }
                     >
                       <td className="px-6 py-4">
                         <div>
@@ -365,7 +388,9 @@ export function ResultViewer({ orderId, petId, showHistory = true, onDownloadPdf
                         {result.order_item.test.unit || '-'}
                       </td>
                       <td className="px-6 py-4">
-                        <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium border ${getFlagColor(result.flag)}`}>
+                        <span
+                          className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-sm font-medium ${getFlagColor(result.flag)}`}
+                        >
                           {getFlagIcon(result.flag)}
                           {getFlagLabel(result.flag)}
                         </span>
@@ -378,12 +403,12 @@ export function ResultViewer({ orderId, petId, showHistory = true, onDownloadPdf
                       <td className="px-6 py-4">
                         {result.verified_at ? (
                           <div className="flex items-center gap-2 text-sm text-[var(--status-success,#16a34a)]">
-                            <CheckCircle className="w-4 h-4" />
+                            <CheckCircle className="h-4 w-4" />
                             Sí
                           </div>
                         ) : (
                           <div className="flex items-center gap-2 text-sm text-[var(--text-muted)]">
-                            <Clock className="w-4 h-4" />
+                            <Clock className="h-4 w-4" />
                             Pendiente
                           </div>
                         )}
@@ -391,7 +416,7 @@ export function ResultViewer({ orderId, petId, showHistory = true, onDownloadPdf
                     </tr>
                     {isExpanded && history.length > 0 && (
                       <tr>
-                        <td colSpan={showHistory ? 6 : 5} className="px-6 py-4 bg-gray-50">
+                        <td colSpan={showHistory ? 6 : 5} className="bg-gray-50 px-6 py-4">
                           <div className="space-y-3">
                             <h4 className="text-sm font-semibold text-[var(--text-primary)]">
                               Historial (últimos {history.length} resultados)
@@ -401,7 +426,10 @@ export function ResultViewer({ orderId, petId, showHistory = true, onDownloadPdf
                               {history.slice(-6).map((point, idx) => (
                                 <div key={idx} className="text-center">
                                   <div className="text-[var(--text-secondary)]">
-                                    {new Date(point.date).toLocaleDateString('es-PY', { month: 'short', day: 'numeric' })}
+                                    {new Date(point.date).toLocaleDateString('es-PY', {
+                                      month: 'short',
+                                      day: 'numeric',
+                                    })}
                                   </div>
                                   <div className="font-semibold text-[var(--text-primary)]">
                                     {point.value.toFixed(1)}
@@ -422,12 +450,14 @@ export function ResultViewer({ orderId, petId, showHistory = true, onDownloadPdf
       </div>
 
       {/* Critical Values Warning */}
-      {results.some(r => r.flag === 'critical_low' || r.flag === 'critical_high') && (
-        <div className="flex items-start gap-3 p-4 bg-[var(--status-error-bg,#fee2e2)] border border-[var(--status-error,#ef4444)]/30 rounded-xl">
-          <AlertTriangle className="w-5 h-5 text-[var(--status-error,#dc2626)] flex-shrink-0 mt-0.5" />
+      {results.some((r) => r.flag === 'critical_low' || r.flag === 'critical_high') && (
+        <div className="border-[var(--status-error,#ef4444)]/30 flex items-start gap-3 rounded-xl border bg-[var(--status-error-bg,#fee2e2)] p-4">
+          <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-[var(--status-error,#dc2626)]" />
           <div>
-            <h4 className="font-semibold text-[var(--status-error,#dc2626)] mb-1">Valores Críticos Detectados</h4>
-            <p className="text-sm text-[var(--status-error,#dc2626)]/80">
+            <h4 className="mb-1 font-semibold text-[var(--status-error,#dc2626)]">
+              Valores Críticos Detectados
+            </h4>
+            <p className="text-[var(--status-error,#dc2626)]/80 text-sm">
               Esta orden contiene valores críticos que requieren atención inmediata del veterinario.
             </p>
           </div>

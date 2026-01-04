@@ -1,11 +1,11 @@
-import EpidemiologyClient from './client';
-import { requireStaff } from '@/lib/auth';
+import EpidemiologyClient from './client'
+import { requireStaff } from '@/lib/auth'
 
 export default async function Page({ params }: { params: Promise<{ clinic: string }> }) {
-    const { clinic } = await params;
-    
-    // SEC-008: Require staff authentication
-    await requireStaff(clinic);
+  const { clinic } = await params
 
-    return <EpidemiologyClient params={{ clinic }} />;
+  // SEC-008: Require staff authentication
+  await requireStaff(clinic)
+
+  return <EpidemiologyClient params={{ clinic }} />
 }

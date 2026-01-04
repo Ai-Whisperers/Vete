@@ -31,7 +31,7 @@ formatCurrency(99.99, 'USD') // "$99.99"
 formatCurrency(150000, 'PYG') // "₲ 150.000"
 
 // Parse currency strings
-parseCurrency("₲ 150.000") // 150000
+parseCurrency('₲ 150.000') // 150000
 
 // Price ranges
 formatPriceRange(50000, 150000) // "₲ 50.000 - ₲ 150.000"
@@ -75,7 +75,13 @@ getLocalDateString(new Date('2024-12-19')) // "2024-12-19"
 ### Number Formatting (`@/lib/formatting/number.ts`)
 
 ```typescript
-import { formatNumber, formatPercentage, formatBytes, formatWeight, formatTemperature } from '@/lib/formatting'
+import {
+  formatNumber,
+  formatPercentage,
+  formatBytes,
+  formatWeight,
+  formatTemperature,
+} from '@/lib/formatting'
 
 // Basic number formatting
 formatNumber(1500) // "1.500"
@@ -101,10 +107,10 @@ formatVolume(250) // "250 ml"
 formatVolume(1500) // "1,5 L"
 
 // Phone numbers (Paraguay)
-formatPhoneNumber("0981123456") // "+595 981 123 456"
+formatPhoneNumber('0981123456') // "+595 981 123 456"
 
 // Parse numbers
-parseNumber("1.500,50") // 1500.50
+parseNumber('1.500,50') // 1500.50
 
 // Compact numbers
 formatCompactNumber(1500000) // "1,5M"
@@ -116,31 +122,31 @@ formatCompactNumber(1500000) // "1,5M"
 import { truncate, capitalize, titleCase, slugify, initials, pluralize } from '@/lib/formatting'
 
 // Text manipulation
-truncate("This is a long text", 10) // "This is..."
-capitalize("hello world") // "Hello world"
-titleCase("hello world") // "Hello World"
+truncate('This is a long text', 10) // "This is..."
+capitalize('hello world') // "Hello world"
+titleCase('hello world') // "Hello World"
 
 // URL slugs
-slugify("Veterinaria Adris") // "veterinaria-adris"
+slugify('Veterinaria Adris') // "veterinaria-adris"
 
 // Initials
-initials("Juan Pérez") // "JP"
+initials('Juan Pérez') // "JP"
 
 // Pluralization (Spanish)
-pluralize(1, "mascota") // "mascota"
-pluralize(2, "mascota") // "mascotas"
-formatCount(5, "mascota") // "5 mascotas"
+pluralize(1, 'mascota') // "mascota"
+pluralize(2, 'mascota') // "mascotas"
+formatCount(5, 'mascota') // "5 mascotas"
 
 // List formatting
-joinList(["perro", "gato", "loro"]) // "perro, gato y loro"
+joinList(['perro', 'gato', 'loro']) // "perro, gato y loro"
 
 // Utilities
-removeAccents("María José Pérez") // "Maria Jose Perez"
-highlight("Hello World", "world") // "Hello <mark>World</mark>"
-camelToSentence("camelCaseText") // "Camel case text"
-maskText("sensitive@email.com", 3) // "sen*******com"
-sanitizeFilename("My File: Version 2.pdf") // "My File Version 2.pdf"
-nl2br("Line 1\nLine 2") // "Line 1<br>Line 2"
+removeAccents('María José Pérez') // "Maria Jose Perez"
+highlight('Hello World', 'world') // "Hello <mark>World</mark>"
+camelToSentence('camelCaseText') // "Camel case text"
+maskText('sensitive@email.com', 3) // "sen*******com"
+sanitizeFilename('My File: Version 2.pdf') // "My File Version 2.pdf"
+nl2br('Line 1\nLine 2') // "Line 1<br>Line 2"
 ```
 
 ## Constants Module

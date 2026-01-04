@@ -11,7 +11,9 @@ export default async function DashboardAuditPage({ params }: Props) {
   const supabase = await createClient()
 
   // Auth check
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) {
     redirect(`/${clinic}/portal/login`)
   }
@@ -30,10 +32,12 @@ export default async function DashboardAuditPage({ params }: Props) {
   // Fetch audit logs server-side with tenant filter
   const { data: logs } = await supabase
     .from('audit_logs')
-    .select(`
+    .select(
+      `
       *,
       profiles:user_id (email, full_name, role)
-    `)
+    `
+    )
     .eq('tenant_id', clinic)
     .order('created_at', { ascending: false })
     .limit(100)

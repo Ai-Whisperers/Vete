@@ -7,9 +7,7 @@
       "name": "N&D Chicken & Pomegranate Adult Medium",
       "description": "Alimento super premium sin cereales con pollo y granada",
       "category_slug": "NUT-CAN-SEC",
-      "target_species": [
-        "dog"
-      ],
+      "target_species": ["dog"],
       "variants": [
         {
           "size": "2.5kg",
@@ -37,9 +35,7 @@
       "name": "N&D Lamb & Blueberry Adult Medium",
       "description": "Alimento super premium sin cereales con cordero y arándano",
       "category_slug": "NUT-CAN-SEC",
-      "target_species": [
-        "dog"
-      ],
+      "target_species": ["dog"],
       "variants": [
         {
           "size": "2.5kg",
@@ -66,9 +62,7 @@
       "name": "N&D Pumpkin Boar & Apple Adult",
       "description": "Alimento súper premium con jabalí, calabaza y manzana",
       "category_slug": "NUT-CAN-SEC",
-      "target_species": [
-        "dog"
-      ],
+      "target_species": ["dog"],
       "variants": [
         {
           "size": "2.5kg",
@@ -96,9 +90,7 @@
       "name": "N&D Quinoa Digestion Lamb",
       "description": "Alimento funcional con quinoa para digestión sensible",
       "category_slug": "NUT-CAN-SEC",
-      "target_species": [
-        "dog"
-      ],
+      "target_species": ["dog"],
       "variants": [
         {
           "size": "2.5kg",
@@ -125,9 +117,7 @@
       "name": "N&D Chicken & Pomegranate Puppy Medium",
       "description": "Alimento super premium para cachorros medianos",
       "category_slug": "NUT-CAN-SEC",
-      "target_species": [
-        "dog"
-      ],
+      "target_species": ["dog"],
       "variants": [
         {
           "size": "2.5kg",
@@ -153,9 +143,7 @@
       "name": "N&D Chicken & Pomegranate Adult Cat",
       "description": "Alimento super premium para gatos adultos",
       "category_slug": "NUT-FEL-SEC",
-      "target_species": [
-        "cat"
-      ],
+      "target_species": ["cat"],
       "variants": [
         {
           "size": "1.5kg",
@@ -187,9 +175,7 @@
       "name": "N&D Fish & Orange Adult Cat",
       "description": "Alimento super premium con pescado y naranja para gatos",
       "category_slug": "NUT-FEL-SEC",
-      "target_species": [
-        "cat"
-      ],
+      "target_species": ["cat"],
       "variants": [
         {
           "size": "1.5kg",
@@ -216,9 +202,7 @@
       "name": "N&D Chicken & Pomegranate Neutered Cat",
       "description": "Alimento para gatos esterilizados con control de peso",
       "category_slug": "NUT-FEL-SEC",
-      "target_species": [
-        "cat"
-      ],
+      "target_species": ["cat"],
       "variants": [
         {
           "size": "1.5kg",
@@ -244,9 +228,7 @@
       "name": "N&D Chicken & Pomegranate Kitten",
       "description": "Alimento super premium para gatitos",
       "category_slug": "NUT-FEL-SEC",
-      "target_species": [
-        "cat"
-      ],
+      "target_species": ["cat"],
       "variants": [
         {
           "size": "1.5kg",

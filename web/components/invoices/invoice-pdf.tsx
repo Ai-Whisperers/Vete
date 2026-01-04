@@ -2,75 +2,73 @@
 
 import { useState } from 'react'
 import { Loader2, Download } from 'lucide-react'
+import { Document, Page, Text, View, StyleSheet, pdf } from '@react-pdf/renderer'
 import {
-  Document,
-  Page,
-  Text,
-  View,
-  StyleSheet,
-  pdf
-} from '@react-pdf/renderer'
-import { formatCurrency, formatDate, type Invoice, paymentMethodLabels } from '@/lib/types/invoicing'
+  formatCurrency,
+  formatDate,
+  type Invoice,
+  paymentMethodLabels,
+} from '@/lib/types/invoicing'
 
 // PDF Styles
 const styles = StyleSheet.create({
   page: {
     padding: 40,
     fontSize: 10,
-    fontFamily: 'Helvetica'
+    fontFamily: 'Helvetica',
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 30
+    marginBottom: 30,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#1a1a2e'
+    color: '#1a1a2e',
   },
   invoiceInfo: {
-    textAlign: 'right'
+    textAlign: 'right',
   },
   invoiceNumber: {
     fontSize: 14,
     fontWeight: 'bold',
-    marginBottom: 4
+    marginBottom: 4,
   },
   section: {
-    marginBottom: 20
+    marginBottom: 20,
   },
   sectionTitle: {
     fontSize: 12,
     fontWeight: 'bold',
     marginBottom: 8,
-    color: '#1a1a2e'
+    color: '#1a1a2e',
   },
   row: {
     flexDirection: 'row',
-    marginBottom: 4
+    marginBottom: 4,
   },
   label: {
     color: '#666',
-    width: 80
+    width: 80,
   },
   value: {
-    flex: 1
+    flex: 1,
   },
   table: {
-    marginTop: 10
+    marginTop: 10,
   },
   tableHeader: {
     flexDirection: 'row',
     backgroundColor: '#f5f5f5',
     padding: 8,
-    fontWeight: 'bold'
+    fontWeight: 'bold',
   },
   tableRow: {
     flexDirection: 'row',
     padding: 8,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee'
+    borderBottomColor: '#eee',
   },
   col1: { width: '40%' },
   col2: { width: '10%', textAlign: 'right' },
@@ -79,25 +77,25 @@ const styles = StyleSheet.create({
   col5: { width: '20%', textAlign: 'right' },
   totals: {
     marginTop: 20,
-    alignItems: 'flex-end'
+    alignItems: 'flex-end',
   },
   totalRow: {
     flexDirection: 'row',
     width: 200,
     justifyContent: 'space-between',
-    marginBottom: 4
+    marginBottom: 4,
   },
   totalLabel: {
-    color: '#666'
+    color: '#666',
   },
   totalValue: {
-    fontWeight: 'bold'
+    fontWeight: 'bold',
   },
   grandTotal: {
     borderTopWidth: 1,
     borderTopColor: '#333',
     paddingTop: 8,
-    marginTop: 8
+    marginTop: 8,
   },
   footer: {
     position: 'absolute',
@@ -106,12 +104,18 @@ const styles = StyleSheet.create({
     right: 40,
     textAlign: 'center',
     color: '#999',
-    fontSize: 8
-  }
+    fontSize: 8,
+  },
 })
 
 // PDF Document Component
-export function InvoicePDFDocument({ invoice, clinicName }: { invoice: Invoice; clinicName: string }) {
+export function InvoicePDFDocument({
+  invoice,
+  clinicName,
+}: {
+  invoice: Invoice
+  clinicName: string
+}) {
   const owner = invoice.pets?.owner
 
   return (
@@ -126,9 +130,7 @@ export function InvoicePDFDocument({ invoice, clinicName }: { invoice: Invoice; 
           <View style={styles.invoiceInfo}>
             <Text style={styles.invoiceNumber}>{invoice.invoice_number}</Text>
             <Text>Fecha: {formatDate(invoice.created_at)}</Text>
-            {invoice.due_date && (
-              <Text>Vencimiento: {formatDate(invoice.due_date)}</Text>
-            )}
+            {invoice.due_date && <Text>Vencimiento: {formatDate(invoice.due_date)}</Text>}
           </View>
         </View>
 
@@ -154,7 +156,9 @@ export function InvoicePDFDocument({ invoice, clinicName }: { invoice: Invoice; 
           {invoice.pets && (
             <View style={styles.row}>
               <Text style={styles.label}>Mascota:</Text>
-              <Text style={styles.value}>{invoice.pets.name} ({invoice.pets.species})</Text>
+              <Text style={styles.value}>
+                {invoice.pets.name} ({invoice.pets.species})
+              </Text>
             </View>
           )}
         </View>
@@ -175,7 +179,9 @@ export function InvoicePDFDocument({ invoice, clinicName }: { invoice: Invoice; 
                 <Text style={styles.col1}>{item.description}</Text>
                 <Text style={styles.col2}>{item.quantity}</Text>
                 <Text style={styles.col3}>{formatCurrency(item.unit_price)}</Text>
-                <Text style={styles.col4}>{item.discount_percent ? `${item.discount_percent}%` : '-'}</Text>
+                <Text style={styles.col4}>
+                  {item.discount_percent ? `${item.discount_percent}%` : '-'}
+                </Text>
                 <Text style={styles.col5}>{formatCurrency(item.line_total)}</Text>
               </View>
             ))}
@@ -204,7 +210,9 @@ export function InvoicePDFDocument({ invoice, clinicName }: { invoice: Invoice; 
               </View>
               <View style={styles.totalRow}>
                 <Text style={styles.totalValue}>Pendiente</Text>
-                <Text style={{ color: 'orange', fontWeight: 'bold' }}>{formatCurrency(invoice.amount_due)}</Text>
+                <Text style={{ color: 'orange', fontWeight: 'bold' }}>
+                  {formatCurrency(invoice.amount_due)}
+                </Text>
               </View>
             </>
           )}
@@ -235,9 +243,7 @@ export function InvoicePDFDocument({ invoice, clinicName }: { invoice: Invoice; 
         )}
 
         {/* Footer */}
-        <Text style={styles.footer}>
-          Gracias por confiar en {clinicName}
-        </Text>
+        <Text style={styles.footer}>Gracias por confiar en {clinicName}</Text>
       </Page>
     </Document>
   )
@@ -250,7 +256,11 @@ interface InvoicePDFButtonProps {
   variant?: 'button' | 'icon'
 }
 
-export function InvoicePDFButton({ invoice, clinicName, variant = 'button' }: InvoicePDFButtonProps) {
+export function InvoicePDFButton({
+  invoice,
+  clinicName,
+  variant = 'button',
+}: InvoicePDFButtonProps) {
   const [loading, setLoading] = useState(false)
 
   const handleDownload = async () => {
@@ -280,13 +290,13 @@ export function InvoicePDFButton({ invoice, clinicName, variant = 'button' }: In
       <button
         onClick={handleDownload}
         disabled={loading}
-        className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-50"
+        className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg p-2 transition-colors hover:bg-gray-100 disabled:opacity-50"
         title="Descargar PDF"
       >
         {loading ? (
-          <Loader2 className="w-5 h-5 animate-spin text-[var(--text-secondary)]" />
+          <Loader2 className="h-5 w-5 animate-spin text-[var(--text-secondary)]" />
         ) : (
-          <Download className="w-5 h-5 text-[var(--text-secondary)]" />
+          <Download className="h-5 w-5 text-[var(--text-secondary)]" />
         )}
       </button>
     )
@@ -296,13 +306,9 @@ export function InvoicePDFButton({ invoice, clinicName, variant = 'button' }: In
     <button
       onClick={handleDownload}
       disabled={loading}
-      className="inline-flex items-center justify-center gap-2 px-4 py-3 min-h-[44px] border border-gray-200 rounded-lg text-[var(--text-primary)] hover:bg-gray-50 disabled:opacity-50"
+      className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-lg border border-gray-200 px-4 py-3 text-[var(--text-primary)] hover:bg-gray-50 disabled:opacity-50"
     >
-      {loading ? (
-        <Loader2 className="w-4 h-4 animate-spin" />
-      ) : (
-        <Download className="w-4 h-4" />
-      )}
+      {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
       Descargar PDF
     </button>
   )

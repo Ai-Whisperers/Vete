@@ -1,22 +1,25 @@
-import { NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
-import { logger } from '@/lib/logger';
+import { NextResponse } from 'next/server'
+import { createClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/logger'
 
 export async function POST(request: Request) {
-  const supabase = await createClient();
+  const supabase = await createClient()
 
   // Check authentication
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
   }
 
   try {
-    const body = await request.json();
-    const clinic = body.clinic;
+    const body = await request.json()
+    const clinic = body.clinic
 
     if (!clinic) {
-      return NextResponse.json({ error: 'Clinic es requerido' }, { status: 400 });
+      return NextResponse.json({ error: 'Clinic es requerido' }, { status: 400 })
     }
 
     // Update user's profile to mark onboarding as complete
@@ -24,27 +27,33 @@ export async function POST(request: Request) {
       .from('profiles')
       .update({
         onboarding_completed: true,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
-      .eq('id', user.id);
+      .eq('id', user.id)
 
     if (updateError) {
       // If the column doesn't exist, just log and return success
       // The onboarding will still work, just won't be persisted
       if (updateError.message.includes('onboarding_completed')) {
-        logger.warn('onboarding_completed column not found, skipping update');
-        return NextResponse.json({ success: true, message: 'Onboarding completed (column not available)' });
+        logger.warn('onboarding_completed column not found, skipping update')
+        return NextResponse.json({
+          success: true,
+          message: 'Onboarding completed (column not available)',
+        })
       }
 
-      logger.error('Failed to mark onboarding complete', { error: updateError.message, userId: user.id });
-      return NextResponse.json({ error: 'Error al actualizar perfil' }, { status: 500 });
+      logger.error('Failed to mark onboarding complete', {
+        error: updateError.message,
+        userId: user.id,
+      })
+      return NextResponse.json({ error: 'Error al actualizar perfil' }, { status: 500 })
     }
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true })
   } catch (error) {
     logger.error('Error in POST /api/user/onboarding-complete', {
-      error: error instanceof Error ? error.message : String(error)
-    });
-    return NextResponse.json({ error: 'Error interno' }, { status: 500 });
+      error: error instanceof Error ? error.message : String(error),
+    })
+    return NextResponse.json({ error: 'Error interno' }, { status: 500 })
   }
 }

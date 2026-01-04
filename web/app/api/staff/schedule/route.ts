@@ -19,14 +19,14 @@ export async function GET(request: NextRequest) {
   const activeOnly = searchParams.get('active_only') !== 'false'
 
   if (!clinicSlug) {
-    return NextResponse.json(
-      { error: 'Falta el parámetro clinic' },
-      { status: 400 }
-    )
+    return NextResponse.json({ error: 'Falta el parámetro clinic' }, { status: 400 })
   }
 
   // Auth check
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
   if (authError || !user) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
   }
@@ -41,7 +41,8 @@ export async function GET(request: NextRequest) {
     // Build query for staff profiles with schedules
     let staffQuery = supabase
       .from('staff_profiles')
-      .select(`
+      .select(
+        `
         id,
         user_id,
         job_title,
@@ -69,7 +70,8 @@ export async function GET(request: NextRequest) {
             location
           )
         )
-      `)
+      `
+      )
       .eq('tenant_id', clinicSlug)
       .eq('employment_status', 'active')
 
@@ -83,47 +85,46 @@ export async function GET(request: NextRequest) {
       logger.error('Error fetching staff schedules', {
         error: staffError.message,
         tenantId: clinicSlug,
-        userId: user.id
+        userId: user.id,
       })
-      return NextResponse.json(
-        { error: 'Error al obtener horarios' },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: 'Error al obtener horarios' }, { status: 500 })
     }
 
     // Transform data for response
-    const schedules = staffData?.map(staff => {
-      const profile = staff.profiles as unknown as { id: string; full_name: string; email: string } | null
-      const activeSchedules = activeOnly
-        ? staff.staff_schedules?.filter((s: { is_active: boolean }) => s.is_active)
-        : staff.staff_schedules
+    const schedules =
+      staffData?.map((staff) => {
+        const profile = staff.profiles as unknown as {
+          id: string
+          full_name: string
+          email: string
+        } | null
+        const activeSchedules = activeOnly
+          ? staff.staff_schedules?.filter((s: { is_active: boolean }) => s.is_active)
+          : staff.staff_schedules
 
-      return {
-        staff_profile_id: staff.id,
-        user_id: staff.user_id,
-        staff_name: profile?.full_name || 'Sin nombre',
-        email: profile?.email,
-        job_title: staff.job_title,
-        color_code: staff.color_code,
-        can_be_booked: staff.can_be_booked,
-        schedules: activeSchedules || []
-      }
-    }) || []
+        return {
+          staff_profile_id: staff.id,
+          user_id: staff.user_id,
+          staff_name: profile?.full_name || 'Sin nombre',
+          email: profile?.email,
+          job_title: staff.job_title,
+          color_code: staff.color_code,
+          can_be_booked: staff.can_be_booked,
+          schedules: activeSchedules || [],
+        }
+      }) || []
 
     return NextResponse.json({
       data: schedules,
-      clinic: clinicSlug
+      clinic: clinicSlug,
     })
   } catch (e) {
     logger.error('Error in schedule API', {
       error: e instanceof Error ? e.message : 'Unknown',
       tenantId: clinicSlug,
-      userId: user?.id
+      userId: user?.id,
     })
-    return NextResponse.json(
-      { error: 'Error interno del servidor' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
   }
 }
 
@@ -150,7 +151,10 @@ export async function POST(request: NextRequest) {
   const supabase = await createClient()
 
   // Auth check
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
   if (authError || !user) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
   }
@@ -163,15 +167,12 @@ export async function POST(request: NextRequest) {
       name = 'Horario Regular',
       effective_from,
       effective_to,
-      entries
+      entries,
     } = body
 
     // Validate required fields
     if (!staff_profile_id || !clinic || !effective_from || !entries) {
-      return NextResponse.json(
-        { error: 'Faltan campos requeridos' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Faltan campos requeridos' }, { status: 400 })
     }
 
     // Verify staff access
@@ -189,10 +190,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (profileError || !staffProfile) {
-      return NextResponse.json(
-        { error: 'Perfil de empleado no encontrado' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'Perfil de empleado no encontrado' }, { status: 404 })
     }
 
     // Check permissions: admin can edit any, staff can only edit own
@@ -206,10 +204,7 @@ export async function POST(request: NextRequest) {
     const isOwnProfile = staffProfile.user_id === user.id
 
     if (!isAdmin && !isOwnProfile) {
-      return NextResponse.json(
-        { error: 'Solo puedes editar tu propio horario' },
-        { status: 403 }
-      )
+      return NextResponse.json({ error: 'Solo puedes editar tu propio horario' }, { status: 403 })
     }
 
     // Validate entries
@@ -228,10 +223,7 @@ export async function POST(request: NextRequest) {
         )
       }
       if (!entry.start_time || !entry.end_time) {
-        return NextResponse.json(
-          { error: 'Hora de inicio y fin son requeridas' },
-          { status: 400 }
-        )
+        return NextResponse.json({ error: 'Hora de inicio y fin son requeridas' }, { status: 400 })
       }
     }
 
@@ -246,7 +238,7 @@ export async function POST(request: NextRequest) {
       logger.warn('Error deactivating old schedules', {
         error: deactivateError.message,
         staffProfileId: staff_profile_id,
-        tenantId: clinic
+        tenantId: clinic,
       })
       // Continue anyway - not critical
     }
@@ -259,7 +251,7 @@ export async function POST(request: NextRequest) {
         name,
         is_active: true,
         effective_from,
-        effective_to: effective_to || null
+        effective_to: effective_to || null,
       })
       .select()
       .single()
@@ -269,31 +261,30 @@ export async function POST(request: NextRequest) {
         error: scheduleError?.message,
         staffProfileId: staff_profile_id,
         tenantId: clinic,
-        userId: user.id
+        userId: user.id,
       })
-      return NextResponse.json(
-        { error: 'Error al crear horario' },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: 'Error al crear horario' }, { status: 500 })
     }
 
     // Create schedule entries
-    const scheduleEntries = entries.map((entry: {
-      day_of_week: number
-      start_time: string
-      end_time: string
-      break_start?: string
-      break_end?: string
-      location?: string
-    }) => ({
-      schedule_id: schedule.id,
-      day_of_week: entry.day_of_week,
-      start_time: entry.start_time,
-      end_time: entry.end_time,
-      break_start: entry.break_start || null,
-      break_end: entry.break_end || null,
-      location: entry.location || null
-    }))
+    const scheduleEntries = entries.map(
+      (entry: {
+        day_of_week: number
+        start_time: string
+        end_time: string
+        break_start?: string
+        break_end?: string
+        location?: string
+      }) => ({
+        schedule_id: schedule.id,
+        day_of_week: entry.day_of_week,
+        start_time: entry.start_time,
+        end_time: entry.end_time,
+        break_start: entry.break_start || null,
+        break_end: entry.break_end || null,
+        location: entry.location || null,
+      })
+    )
 
     const { error: entriesError } = await supabase
       .from('staff_schedule_entries')
@@ -305,39 +296,38 @@ export async function POST(request: NextRequest) {
         scheduleId: schedule.id,
         staffProfileId: staff_profile_id,
         tenantId: clinic,
-        userId: user.id
+        userId: user.id,
       })
       // Rollback - delete the schedule
       await supabase.from('staff_schedules').delete().eq('id', schedule.id)
-      return NextResponse.json(
-        { error: 'Error al crear entradas de horario' },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: 'Error al crear entradas de horario' }, { status: 500 })
     }
 
     // Fetch complete schedule with entries
     const { data: completeSchedule } = await supabase
       .from('staff_schedules')
-      .select(`
+      .select(
+        `
         *,
         staff_schedule_entries (*)
-      `)
+      `
+      )
       .eq('id', schedule.id)
       .single()
 
-    return NextResponse.json({
-      data: completeSchedule,
-      message: 'Horario creado exitosamente'
-    }, { status: 201 })
+    return NextResponse.json(
+      {
+        data: completeSchedule,
+        message: 'Horario creado exitosamente',
+      },
+      { status: 201 }
+    )
   } catch (e) {
     logger.error('Error in schedule POST', {
       error: e instanceof Error ? e.message : 'Unknown',
-      userId: user?.id
+      userId: user?.id,
     })
-    return NextResponse.json(
-      { error: 'Error interno del servidor' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
   }
 }
 
@@ -355,7 +345,10 @@ export async function PATCH(request: NextRequest) {
   const supabase = await createClient()
 
   // Auth check
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
   if (authError || !user) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
   }
@@ -365,10 +358,7 @@ export async function PATCH(request: NextRequest) {
     const { schedule_id, clinic, is_active, effective_to } = body
 
     if (!schedule_id || !clinic) {
-      return NextResponse.json(
-        { error: 'Faltan campos requeridos' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Faltan campos requeridos' }, { status: 400 })
     }
 
     // Verify staff access
@@ -380,25 +370,27 @@ export async function PATCH(request: NextRequest) {
     // Get the schedule and check ownership
     const { data: schedule, error: scheduleError } = await supabase
       .from('staff_schedules')
-      .select(`
+      .select(
+        `
         id,
         staff_profile_id,
         staff_profiles!inner (
           user_id,
           tenant_id
         )
-      `)
+      `
+      )
       .eq('id', schedule_id)
       .single()
 
     if (scheduleError || !schedule) {
-      return NextResponse.json(
-        { error: 'Horario no encontrado' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'Horario no encontrado' }, { status: 404 })
     }
 
-    const staffProfiles = schedule.staff_profiles as unknown as { user_id: string; tenant_id: string }
+    const staffProfiles = schedule.staff_profiles as unknown as {
+      user_id: string
+      tenant_id: string
+    }
     if (staffProfiles.tenant_id !== clinic) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
     }
@@ -414,10 +406,7 @@ export async function PATCH(request: NextRequest) {
     const isOwnProfile = staffProfiles.user_id === user.id
 
     if (!isAdmin && !isOwnProfile) {
-      return NextResponse.json(
-        { error: 'Solo puedes editar tu propio horario' },
-        { status: 403 }
-      )
+      return NextResponse.json({ error: 'Solo puedes editar tu propio horario' }, { status: 403 })
     }
 
     // Build update object
@@ -426,10 +415,7 @@ export async function PATCH(request: NextRequest) {
     if (effective_to !== undefined) updates.effective_to = effective_to || null
 
     if (Object.keys(updates).length === 0) {
-      return NextResponse.json(
-        { error: 'No hay cambios para guardar' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'No hay cambios para guardar' }, { status: 400 })
     }
 
     const { data: updatedSchedule, error: updateError } = await supabase
@@ -444,27 +430,21 @@ export async function PATCH(request: NextRequest) {
         error: updateError.message,
         scheduleId: schedule_id,
         tenantId: clinic,
-        userId: user.id
+        userId: user.id,
       })
-      return NextResponse.json(
-        { error: 'Error al actualizar horario' },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: 'Error al actualizar horario' }, { status: 500 })
     }
 
     return NextResponse.json({
       data: updatedSchedule,
-      message: 'Horario actualizado exitosamente'
+      message: 'Horario actualizado exitosamente',
     })
   } catch (e) {
     logger.error('Error in schedule PATCH', {
       error: e instanceof Error ? e.message : 'Unknown',
-      userId: user?.id
+      userId: user?.id,
     })
-    return NextResponse.json(
-      { error: 'Error interno del servidor' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
   }
 }
 
@@ -481,14 +461,14 @@ export async function DELETE(request: NextRequest) {
   const clinic = searchParams.get('clinic')
 
   if (!scheduleId || !clinic) {
-    return NextResponse.json(
-      { error: 'Faltan parámetros requeridos' },
-      { status: 400 }
-    )
+    return NextResponse.json({ error: 'Faltan parámetros requeridos' }, { status: 400 })
   }
 
   // Auth check
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
   if (authError || !user) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
   }
@@ -519,25 +499,19 @@ export async function DELETE(request: NextRequest) {
         error: deleteError.message,
         scheduleId,
         tenantId: clinic,
-        userId: user.id
+        userId: user.id,
       })
-      return NextResponse.json(
-        { error: 'Error al eliminar horario' },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: 'Error al eliminar horario' }, { status: 500 })
     }
 
     return NextResponse.json({
-      message: 'Horario eliminado exitosamente'
+      message: 'Horario eliminado exitosamente',
     })
   } catch (e) {
     logger.error('Error in schedule DELETE', {
       error: e instanceof Error ? e.message : 'Unknown',
-      userId: user?.id
+      userId: user?.id,
     })
-    return NextResponse.json(
-      { error: 'Error interno del servidor' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
   }
 }

@@ -5,48 +5,39 @@
  * @tags integration, pets, critical
  */
 
-import { describe, test, expect, beforeAll, afterAll, beforeEach } from 'vitest';
-import {
-  getTestClient,
-  TestContext,
-  waitForDatabase,
-} from '../../__helpers__/db';
-import {
-  buildPet,
-  createPet,
-  createProfile,
-  resetSequence,
-} from '../../__helpers__/factories';
-import { DEFAULT_TENANT } from '../../__fixtures__/tenants';
-import { ALL_SPECIES, ALL_TEMPERAMENTS } from '../../__fixtures__/pets';
+import { describe, test, expect, beforeAll, afterAll, beforeEach } from 'vitest'
+import { getTestClient, TestContext, waitForDatabase } from '../../__helpers__/db'
+import { buildPet, createPet, createProfile, resetSequence } from '../../__helpers__/factories'
+import { DEFAULT_TENANT } from '../../__fixtures__/tenants'
+import { ALL_SPECIES, ALL_TEMPERAMENTS } from '../../__fixtures__/pets'
 
 describe('Pet CRUD Operations', () => {
-  const ctx = new TestContext();
-  let testOwnerId: string;
+  const ctx = new TestContext()
+  let testOwnerId: string
 
   beforeAll(async () => {
-    await waitForDatabase();
+    await waitForDatabase()
 
     // Create test owner for all pet tests
     const profile = await createProfile({
       tenantId: DEFAULT_TENANT.id,
       role: 'owner',
-    });
-    testOwnerId = profile.id;
-    ctx.track('profiles', testOwnerId);
-  });
+    })
+    testOwnerId = profile.id
+    ctx.track('profiles', testOwnerId)
+  })
 
   afterAll(async () => {
-    await ctx.cleanup();
-  });
+    await ctx.cleanup()
+  })
 
   beforeEach(() => {
-    resetSequence();
-  });
+    resetSequence()
+  })
 
   describe('CREATE', () => {
     test('creates a pet with required fields only', async () => {
-      const client = getTestClient();
+      const client = getTestClient()
 
       const { data, error } = await client
         .from('pets')
@@ -58,19 +49,19 @@ describe('Pet CRUD Operations', () => {
           weight_kg: 5,
         })
         .select()
-        .single();
+        .single()
 
-      expect(error).toBeNull();
-      expect(data).toBeDefined();
-      expect(data.name).toBe('MinimalPet');
-      expect(data.species).toBe('dog');
+      expect(error).toBeNull()
+      expect(data).toBeDefined()
+      expect(data.name).toBe('MinimalPet')
+      expect(data.species).toBe('dog')
 
       // Cleanup
-      ctx.track('pets', data.id);
-    });
+      ctx.track('pets', data.id)
+    })
 
     test('creates a pet with all fields', async () => {
-      const client = getTestClient();
+      const client = getTestClient()
       const petData = buildPet({
         ownerId: testOwnerId,
         tenantId: DEFAULT_TENANT.id,
@@ -86,7 +77,7 @@ describe('Pet CRUD Operations', () => {
         existingConditions: 'None',
         allergies: 'None',
         notes: 'Test notes',
-      });
+      })
 
       const { data, error } = await client
         .from('pets')
@@ -107,22 +98,22 @@ describe('Pet CRUD Operations', () => {
           notes: petData.notes,
         })
         .select()
-        .single();
+        .single()
 
-      expect(error).toBeNull();
-      expect(data).toBeDefined();
-      expect(data.name).toBe('FullPet');
-      expect(data.species).toBe('cat');
-      expect(data.breed).toBe('Persa');
-      expect(data.sex).toBe('female');
-      expect(data.is_neutered).toBe(true);
-      expect(data.temperament).toBe('friendly');
+      expect(error).toBeNull()
+      expect(data).toBeDefined()
+      expect(data.name).toBe('FullPet')
+      expect(data.species).toBe('cat')
+      expect(data.breed).toBe('Persa')
+      expect(data.sex).toBe('female')
+      expect(data.is_neutered).toBe(true)
+      expect(data.temperament).toBe('friendly')
 
-      ctx.track('pets', data.id);
-    });
+      ctx.track('pets', data.id)
+    })
 
     test('fails when missing required field (name)', async () => {
-      const client = getTestClient();
+      const client = getTestClient()
 
       const { data, error } = await client
         .from('pets')
@@ -134,14 +125,14 @@ describe('Pet CRUD Operations', () => {
           // name is missing
         })
         .select()
-        .single();
+        .single()
 
-      expect(error).not.toBeNull();
-      expect(data).toBeNull();
-    });
+      expect(error).not.toBeNull()
+      expect(data).toBeNull()
+    })
 
     test('fails when missing required field (species)', async () => {
-      const client = getTestClient();
+      const client = getTestClient()
 
       const { data, error } = await client
         .from('pets')
@@ -153,14 +144,14 @@ describe('Pet CRUD Operations', () => {
           // species is missing
         })
         .select()
-        .single();
+        .single()
 
-      expect(error).not.toBeNull();
-      expect(data).toBeNull();
-    });
+      expect(error).not.toBeNull()
+      expect(data).toBeNull()
+    })
 
     test('fails with invalid weight (negative)', async () => {
-      const client = getTestClient();
+      const client = getTestClient()
 
       const { data, error } = await client
         .from('pets')
@@ -172,14 +163,14 @@ describe('Pet CRUD Operations', () => {
           weight_kg: -5, // Invalid
         })
         .select()
-        .single();
+        .single()
 
-      expect(error).not.toBeNull();
-      expect(data).toBeNull();
-    });
+      expect(error).not.toBeNull()
+      expect(data).toBeNull()
+    })
 
     test('fails with invalid owner_id (non-existent)', async () => {
-      const client = getTestClient();
+      const client = getTestClient()
 
       const { data, error } = await client
         .from('pets')
@@ -191,14 +182,14 @@ describe('Pet CRUD Operations', () => {
           weight_kg: 10,
         })
         .select()
-        .single();
+        .single()
 
-      expect(error).not.toBeNull();
-      expect(data).toBeNull();
-    });
+      expect(error).not.toBeNull()
+      expect(data).toBeNull()
+    })
 
     test('creates pets for all species types', async () => {
-      const client = getTestClient();
+      const client = getTestClient()
 
       for (const species of ALL_SPECIES) {
         const { data, error } = await client
@@ -211,118 +202,113 @@ describe('Pet CRUD Operations', () => {
             weight_kg: 5,
           })
           .select()
-          .single();
+          .single()
 
-        expect(error).toBeNull();
-        expect(data.species).toBe(species);
-        ctx.track('pets', data.id);
+        expect(error).toBeNull()
+        expect(data.species).toBe(species)
+        ctx.track('pets', data.id)
       }
-    });
-  });
+    })
+  })
 
   describe('READ', () => {
-    let readTestPetId: string;
+    let readTestPetId: string
 
     beforeAll(async () => {
       const pet = await createPet({
         ownerId: testOwnerId,
         tenantId: DEFAULT_TENANT.id,
         name: 'ReadTestPet',
-      });
-      readTestPetId = pet.id;
-      ctx.track('pets', readTestPetId);
-    });
+      })
+      readTestPetId = pet.id
+      ctx.track('pets', readTestPetId)
+    })
 
     test('reads pet by ID', async () => {
-      const client = getTestClient();
+      const client = getTestClient()
 
-      const { data, error } = await client
-        .from('pets')
-        .select('*')
-        .eq('id', readTestPetId)
-        .single();
+      const { data, error } = await client.from('pets').select('*').eq('id', readTestPetId).single()
 
-      expect(error).toBeNull();
-      expect(data).toBeDefined();
-      expect(data.name).toBe('ReadTestPet');
-    });
+      expect(error).toBeNull()
+      expect(data).toBeDefined()
+      expect(data.name).toBe('ReadTestPet')
+    })
 
     test('reads pets by owner', async () => {
-      const client = getTestClient();
+      const client = getTestClient()
 
-      const { data, error } = await client
-        .from('pets')
-        .select('*')
-        .eq('owner_id', testOwnerId);
+      const { data, error } = await client.from('pets').select('*').eq('owner_id', testOwnerId)
 
-      expect(error).toBeNull();
-      expect(data).toBeDefined();
-      expect(Array.isArray(data)).toBe(true);
-      expect(data).not.toBeNull();
-      expect(data!.length).toBeGreaterThan(0);
-    });
+      expect(error).toBeNull()
+      expect(data).toBeDefined()
+      expect(Array.isArray(data)).toBe(true)
+      expect(data).not.toBeNull()
+      expect(data!.length).toBeGreaterThan(0)
+    })
 
     test('reads pets by tenant', async () => {
-      const client = getTestClient();
-
-      const { data, error } = await client
-        .from('pets')
-        .select('*')
-        .eq('tenant_id', DEFAULT_TENANT.id);
-
-      expect(error).toBeNull();
-      expect(data).toBeDefined();
-      expect(Array.isArray(data)).toBe(true);
-    });
-
-    test('reads pet with owner profile (join)', async () => {
-      const client = getTestClient();
-
-      const { data, error } = await client
-        .from('pets')
-        .select(`
-          *,
-          owner:profiles(id, full_name, email)
-        `)
-        .eq('id', readTestPetId)
-        .single();
-
-      expect(error).toBeNull();
-      expect(data).toBeDefined();
-      expect(data.owner).toBeDefined();
-    });
-
-    test('returns null for non-existent pet', async () => {
-      const client = getTestClient();
-
-      const { data, error } = await client
-        .from('pets')
-        .select('*')
-        .eq('id', '00000000-0000-0000-0000-999999999999')
-        .single();
-
-      // Supabase returns error for .single() when no rows found
-      expect(data).toBeNull();
-    });
-
-    test('filters pets by species', async () => {
-      const client = getTestClient();
+      const client = getTestClient()
 
       const { data, error } = await client
         .from('pets')
         .select('*')
         .eq('tenant_id', DEFAULT_TENANT.id)
-        .eq('species', 'dog');
 
-      expect(error).toBeNull();
-      expect(data).toBeDefined();
-      expect(data).not.toBeNull();
-      expect(data!.every((pet: { species: string }) => pet.species === 'dog')).toBe(true);
-    });
-  });
+      expect(error).toBeNull()
+      expect(data).toBeDefined()
+      expect(Array.isArray(data)).toBe(true)
+    })
+
+    test('reads pet with owner profile (join)', async () => {
+      const client = getTestClient()
+
+      const { data, error } = await client
+        .from('pets')
+        .select(
+          `
+          *,
+          owner:profiles(id, full_name, email)
+        `
+        )
+        .eq('id', readTestPetId)
+        .single()
+
+      expect(error).toBeNull()
+      expect(data).toBeDefined()
+      expect(data.owner).toBeDefined()
+    })
+
+    test('returns null for non-existent pet', async () => {
+      const client = getTestClient()
+
+      const { data, error } = await client
+        .from('pets')
+        .select('*')
+        .eq('id', '00000000-0000-0000-0000-999999999999')
+        .single()
+
+      // Supabase returns error for .single() when no rows found
+      expect(data).toBeNull()
+    })
+
+    test('filters pets by species', async () => {
+      const client = getTestClient()
+
+      const { data, error } = await client
+        .from('pets')
+        .select('*')
+        .eq('tenant_id', DEFAULT_TENANT.id)
+        .eq('species', 'dog')
+
+      expect(error).toBeNull()
+      expect(data).toBeDefined()
+      expect(data).not.toBeNull()
+      expect(data!.every((pet: { species: string }) => pet.species === 'dog')).toBe(true)
+    })
+  })
 
   describe('UPDATE', () => {
-    let updateTestPetId: string;
+    let updateTestPetId: string
 
     beforeAll(async () => {
       const pet = await createPet({
@@ -330,41 +316,41 @@ describe('Pet CRUD Operations', () => {
         tenantId: DEFAULT_TENANT.id,
         name: 'UpdateTestPet',
         weightKg: 10,
-      });
-      updateTestPetId = pet.id;
-      ctx.track('pets', updateTestPetId);
-    });
+      })
+      updateTestPetId = pet.id
+      ctx.track('pets', updateTestPetId)
+    })
 
     test('updates pet name', async () => {
-      const client = getTestClient();
+      const client = getTestClient()
 
       const { data, error } = await client
         .from('pets')
         .update({ name: 'UpdatedName' })
         .eq('id', updateTestPetId)
         .select()
-        .single();
+        .single()
 
-      expect(error).toBeNull();
-      expect(data.name).toBe('UpdatedName');
-    });
+      expect(error).toBeNull()
+      expect(data.name).toBe('UpdatedName')
+    })
 
     test('updates pet weight', async () => {
-      const client = getTestClient();
+      const client = getTestClient()
 
       const { data, error } = await client
         .from('pets')
         .update({ weight_kg: 15.5 })
         .eq('id', updateTestPetId)
         .select()
-        .single();
+        .single()
 
-      expect(error).toBeNull();
-      expect(data.weight_kg).toBe(15.5);
-    });
+      expect(error).toBeNull()
+      expect(data.weight_kg).toBe(15.5)
+    })
 
     test('updates multiple fields at once', async () => {
-      const client = getTestClient();
+      const client = getTestClient()
 
       const { data, error } = await client
         .from('pets')
@@ -376,56 +362,56 @@ describe('Pet CRUD Operations', () => {
         })
         .eq('id', updateTestPetId)
         .select()
-        .single();
+        .single()
 
-      expect(error).toBeNull();
-      expect(data.breed).toBe('Updated Breed');
-      expect(data.color).toBe('Updated Color');
-      expect(data.temperament).toBe('shy');
-      expect(data.notes).toBe('Updated notes');
-    });
+      expect(error).toBeNull()
+      expect(data.breed).toBe('Updated Breed')
+      expect(data.color).toBe('Updated Color')
+      expect(data.temperament).toBe('shy')
+      expect(data.notes).toBe('Updated notes')
+    })
 
     test('updates updated_at timestamp automatically', async () => {
-      const client = getTestClient();
+      const client = getTestClient()
 
       const { data: before } = await client
         .from('pets')
         .select('updated_at')
         .eq('id', updateTestPetId)
-        .single();
+        .single()
 
       // Wait a moment to ensure timestamp difference
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100))
 
       const { data: after } = await client
         .from('pets')
         .update({ notes: 'Timestamp test' })
         .eq('id', updateTestPetId)
         .select('updated_at')
-        .single();
+        .single()
 
-      expect(before).not.toBeNull();
-      expect(after).not.toBeNull();
+      expect(before).not.toBeNull()
+      expect(after).not.toBeNull()
       expect(new Date(after!.updated_at).getTime()).toBeGreaterThanOrEqual(
         new Date(before!.updated_at).getTime()
-      );
-    });
+      )
+    })
 
     test('fails to update with invalid weight', async () => {
-      const client = getTestClient();
+      const client = getTestClient()
 
       const { error } = await client
         .from('pets')
         .update({ weight_kg: -10 })
-        .eq('id', updateTestPetId);
+        .eq('id', updateTestPetId)
 
-      expect(error).not.toBeNull();
-    });
-  });
+      expect(error).not.toBeNull()
+    })
+  })
 
   describe('DELETE', () => {
     test('deletes pet by ID', async () => {
-      const client = getTestClient();
+      const client = getTestClient()
 
       // Create pet to delete
       const { data: created } = await client
@@ -438,28 +424,21 @@ describe('Pet CRUD Operations', () => {
           weight_kg: 10,
         })
         .select()
-        .single();
+        .single()
 
       // Delete pet
-      const { error: deleteError } = await client
-        .from('pets')
-        .delete()
-        .eq('id', created.id);
+      const { error: deleteError } = await client.from('pets').delete().eq('id', created.id)
 
-      expect(deleteError).toBeNull();
+      expect(deleteError).toBeNull()
 
       // Verify deleted
-      const { data: found } = await client
-        .from('pets')
-        .select('*')
-        .eq('id', created.id)
-        .single();
+      const { data: found } = await client.from('pets').select('*').eq('id', created.id).single()
 
-      expect(found).toBeNull();
-    });
+      expect(found).toBeNull()
+    })
 
     test('cascades delete to vaccines', async () => {
-      const client = getTestClient();
+      const client = getTestClient()
 
       // Create pet with vaccine
       const { data: pet } = await client
@@ -472,7 +451,7 @@ describe('Pet CRUD Operations', () => {
           weight_kg: 10,
         })
         .select()
-        .single();
+        .single()
 
       const { data: vaccine } = await client
         .from('vaccines')
@@ -482,37 +461,37 @@ describe('Pet CRUD Operations', () => {
           status: 'pending',
         })
         .select()
-        .single();
+        .single()
 
       // Delete pet
-      await client.from('pets').delete().eq('id', pet.id);
+      await client.from('pets').delete().eq('id', pet.id)
 
       // Verify vaccine is also deleted
       const { data: foundVaccine } = await client
         .from('vaccines')
         .select('*')
         .eq('id', vaccine.id)
-        .single();
+        .single()
 
-      expect(foundVaccine).toBeNull();
-    });
-  });
+      expect(foundVaccine).toBeNull()
+    })
+  })
 
   describe('MULTI-TENANT ISOLATION', () => {
-    let otherTenantOwnerId: string;
+    let otherTenantOwnerId: string
 
     beforeAll(async () => {
       // Create owner in different tenant
       const profile = await createProfile({
         tenantId: 'petlife',
         role: 'owner',
-      });
-      otherTenantOwnerId = profile.id;
-      ctx.track('profiles', otherTenantOwnerId);
-    });
+      })
+      otherTenantOwnerId = profile.id
+      ctx.track('profiles', otherTenantOwnerId)
+    })
 
     test('pets are isolated by tenant', async () => {
-      const client = getTestClient();
+      const client = getTestClient()
 
       // Create pet in adris
       const { data: adrisPet } = await client
@@ -525,8 +504,8 @@ describe('Pet CRUD Operations', () => {
           weight_kg: 10,
         })
         .select()
-        .single();
-      ctx.track('pets', adrisPet.id);
+        .single()
+      ctx.track('pets', adrisPet.id)
 
       // Create pet in petlife
       const { data: petlifePet } = await client
@@ -539,28 +518,22 @@ describe('Pet CRUD Operations', () => {
           weight_kg: 5,
         })
         .select()
-        .single();
-      ctx.track('pets', petlifePet.id);
+        .single()
+      ctx.track('pets', petlifePet.id)
 
       // Query adris pets
-      const { data: adrisPets } = await client
-        .from('pets')
-        .select('*')
-        .eq('tenant_id', 'adris');
+      const { data: adrisPets } = await client.from('pets').select('*').eq('tenant_id', 'adris')
 
       // Query petlife pets
-      const { data: petlifePets } = await client
-        .from('pets')
-        .select('*')
-        .eq('tenant_id', 'petlife');
+      const { data: petlifePets } = await client.from('pets').select('*').eq('tenant_id', 'petlife')
 
       // Verify isolation
-      expect(adrisPets).not.toBeNull();
-      expect(petlifePets).not.toBeNull();
-      expect(adrisPets!.some((p: { id: string }) => p.id === adrisPet.id)).toBe(true);
-      expect(adrisPets!.some((p: { id: string }) => p.id === petlifePet.id)).toBe(false);
-      expect(petlifePets!.some((p: { id: string }) => p.id === petlifePet.id)).toBe(true);
-      expect(petlifePets!.some((p: { id: string }) => p.id === adrisPet.id)).toBe(false);
-    });
-  });
-});
+      expect(adrisPets).not.toBeNull()
+      expect(petlifePets).not.toBeNull()
+      expect(adrisPets!.some((p: { id: string }) => p.id === adrisPet.id)).toBe(true)
+      expect(adrisPets!.some((p: { id: string }) => p.id === petlifePet.id)).toBe(false)
+      expect(petlifePets!.some((p: { id: string }) => p.id === petlifePet.id)).toBe(true)
+      expect(petlifePets!.some((p: { id: string }) => p.id === adrisPet.id)).toBe(false)
+    })
+  })
+})

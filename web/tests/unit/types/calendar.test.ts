@@ -131,7 +131,9 @@ describe('getViewDateRange', () => {
     // Start should be beginning of the day
     expect(range.start.getHours()).toBe(0)
     // End should be 7 days later
-    const daysDiff = Math.round((range.end.getTime() - range.start.getTime()) / (1000 * 60 * 60 * 24))
+    const daysDiff = Math.round(
+      (range.end.getTime() - range.start.getTime()) / (1000 * 60 * 60 * 24)
+    )
     expect(daysDiff).toBeGreaterThanOrEqual(7)
     expect(daysDiff).toBeLessThanOrEqual(8)
   })

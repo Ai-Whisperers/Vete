@@ -5,15 +5,15 @@
  * Fast execution, no tenant-specific data.
  */
 
-import type { SeedVariant } from './types';
-import { TenantSeeder } from '../seeders/tenant-seeder';
+import type { SeedVariant } from './types'
+import { TenantSeeder } from '../seeders/tenant-seeder'
 import {
   DiagnosisCodeSeeder,
   DrugDosageSeeder,
   GrowthStandardSeeder,
   VaccineProtocolSeeder,
   InsuranceProviderSeeder,
-} from '../seeders/reference-seeder';
+} from '../seeders/reference-seeder'
 
 export const basicVariant: SeedVariant = {
   name: 'basic',
@@ -55,4 +55,4 @@ export const basicVariant: SeedVariant = {
       dependencies: ['tenants'],
     },
   ],
-};
+}

@@ -2,8 +2,8 @@ import { Skeleton, SkeletonAppointmentCard, SkeletonButton } from '@/components/
 
 export default function AppointmentsLoading() {
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex justify-between items-center">
+    <div className="space-y-6 p-6">
+      <div className="flex items-center justify-between">
         <Skeleton className="h-8 w-40" />
         <SkeletonButton size="md" />
       </div>

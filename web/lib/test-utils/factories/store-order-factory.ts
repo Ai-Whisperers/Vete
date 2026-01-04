@@ -2,52 +2,60 @@
  * Store Order Factory - Builder pattern for e-commerce orders
  */
 
-import { apiClient } from '../api-client';
-import { testContext } from '../context';
-import { generateId, generateSequence, pick, randomPastDate, randomAmount } from './base';
-import { OrderScenario, PaymentMethod } from './types';
+import { apiClient } from '../api-client'
+import { testContext } from '../context'
+import { generateId, generateSequence, pick, randomPastDate, randomAmount } from './base'
+import { OrderScenario, PaymentMethod } from './types'
 
 interface StoreOrderData {
-  id: string;
-  tenant_id: string;
-  customer_id: string;
-  order_number: string;
-  status: 'pending' | 'confirmed' | 'processing' | 'ready' | 'shipped' | 'delivered' | 'cancelled' | 'refunded';
-  subtotal: number;
-  discount_amount: number;
-  shipping_cost: number;
-  tax_amount: number;
-  total: number;
-  payment_method: string | null;
-  payment_status: 'pending' | 'paid' | 'failed' | 'refunded';
-  shipping_address: Record<string, unknown> | null;
-  customer_notes: string | null;
-  coupon_code: string | null;
+  id: string
+  tenant_id: string
+  customer_id: string
+  order_number: string
+  status:
+    | 'pending'
+    | 'confirmed'
+    | 'processing'
+    | 'ready'
+    | 'shipped'
+    | 'delivered'
+    | 'cancelled'
+    | 'refunded'
+  subtotal: number
+  discount_amount: number
+  shipping_cost: number
+  tax_amount: number
+  total: number
+  payment_method: string | null
+  payment_status: 'pending' | 'paid' | 'failed' | 'refunded'
+  shipping_address: Record<string, unknown> | null
+  customer_notes: string | null
+  coupon_code: string | null
 }
 
 interface StoreOrderItemData {
-  id: string;
-  tenant_id: string;
-  order_id: string;
-  product_id: string;
-  product_name: string;
-  quantity: number;
-  unit_price: number;
-  discount_amount: number;
-  total_price: number;
+  id: string
+  tenant_id: string
+  order_id: string
+  product_id: string
+  product_name: string
+  quantity: number
+  unit_price: number
+  discount_amount: number
+  total_price: number
 }
 
 interface StoreCartData {
-  id: string;
-  tenant_id: string;
-  customer_id: string;
+  id: string
+  tenant_id: string
+  customer_id: string
   items: Array<{
-    product_id: string;
-    product_name: string;
-    quantity: number;
-    unit_price: number;
-    requires_prescription: boolean;
-  }>;
+    product_id: string
+    product_name: string
+    quantity: number
+    unit_price: number
+    requires_prescription: boolean
+  }>
 }
 
 // Sample products (used as fallback if no products in DB)
@@ -64,39 +72,48 @@ const SAMPLE_PRODUCTS: Array<{ id: string; name: string; price: number; prescrip
   { id: generateId(), name: 'Antiinflamatorio Meloxicam', price: 95000, prescription: true },
   { id: generateId(), name: 'Cama Ortopédica Mediana', price: 250000, prescription: false },
   { id: generateId(), name: 'Transportador Plástico', price: 180000, prescription: false },
-];
+]
 
 // Cache for database products
-let cachedProducts: Array<{ id: string; name: string; price: number; prescription: boolean }> | null = null;
+let cachedProducts: Array<{
+  id: string
+  name: string
+  price: number
+  prescription: boolean
+}> | null = null
 
-async function getProductsFromDB(tenantId: string): Promise<Array<{ id: string; name: string; price: number; prescription: boolean }>> {
+async function getProductsFromDB(
+  tenantId: string
+): Promise<Array<{ id: string; name: string; price: number; prescription: boolean }>> {
   if (cachedProducts !== null) {
-    return cachedProducts;
+    return cachedProducts
   }
 
   const { data, error } = await apiClient.dbSelect('store_products', {
     eq: { tenant_id: tenantId, is_active: true },
     limit: 50,
-  });
+  })
 
   if (error || !data || data.length === 0) {
-    cachedProducts = [];
-    return [];
+    cachedProducts = []
+    return []
   }
 
-  cachedProducts = (data as Array<{
-    id: string;
-    name: string;
-    base_price: number;
-    is_prescription_required: boolean;
-  }>).map(p => ({
+  cachedProducts = (
+    data as Array<{
+      id: string
+      name: string
+      base_price: number
+      is_prescription_required: boolean
+    }>
+  ).map((p) => ({
     id: p.id,
     name: p.name,
     price: Number(p.base_price) || 100000,
     prescription: p.is_prescription_required || false,
-  }));
+  }))
 
-  return cachedProducts;
+  return cachedProducts
 }
 
 const SHIPPING_ADDRESSES = [
@@ -104,28 +121,28 @@ const SHIPPING_ADDRESSES = [
   { street: 'Calle Palma 567', city: 'Asunción', zipCode: '1234' },
   { street: 'Av. España 890', city: 'San Lorenzo', zipCode: '2000' },
   { street: 'Calle Brasil 432', city: 'Fernando de la Mora', zipCode: '2300' },
-];
+]
 
 const COUPON_CODES = [
   { code: 'WELCOME10', discount: 0.1, type: 'percent' },
   { code: 'SUMMER20', discount: 0.2, type: 'percent' },
   { code: 'FLAT50K', discount: 50000, type: 'fixed' },
-];
+]
 
 export class StoreOrderFactory {
-  private data: Partial<StoreOrderData>;
+  private data: Partial<StoreOrderData>
   private items: Array<{
-    productId: string | null;
-    name: string;
-    price: number;
-    quantity: number;
-    prescription: boolean;
-  }> = [];
-  private scenario: OrderScenario = 'simple';
-  private shouldPersist: boolean = true;
+    productId: string | null
+    name: string
+    price: number
+    quantity: number
+    prescription: boolean
+  }> = []
+  private scenario: OrderScenario = 'simple'
+  private shouldPersist: boolean = true
 
   private constructor() {
-    const id = generateId();
+    const id = generateId()
     this.data = {
       id,
       tenant_id: 'adris',
@@ -138,53 +155,59 @@ export class StoreOrderFactory {
       shipping_address: null,
       customer_notes: null,
       coupon_code: null,
-    };
+    }
   }
 
   /**
    * Start building a store order
    */
   static create(): StoreOrderFactory {
-    return new StoreOrderFactory();
+    return new StoreOrderFactory()
   }
 
   /**
    * Set order scenario
    */
   withScenario(scenario: OrderScenario): StoreOrderFactory {
-    this.scenario = scenario;
-    return this;
+    this.scenario = scenario
+    return this
   }
 
   /**
    * Set tenant ID
    */
   forTenant(tenantId: string): StoreOrderFactory {
-    this.data.tenant_id = tenantId;
-    return this;
+    this.data.tenant_id = tenantId
+    return this
   }
 
   /**
    * Set customer ID
    */
   forCustomer(customerId: string): StoreOrderFactory {
-    this.data.customer_id = customerId;
-    return this;
+    this.data.customer_id = customerId
+    return this
   }
 
   /**
    * Add a product to the order
    */
-  addProduct(productId: string, name: string, price: number, quantity: number = 1, prescription: boolean = false): StoreOrderFactory {
+  addProduct(
+    productId: string,
+    name: string,
+    price: number,
+    quantity: number = 1,
+    prescription: boolean = false
+  ): StoreOrderFactory {
     this.items.push({
       productId,
       name,
       price,
       quantity,
       prescription,
-    });
+    })
 
-    return this;
+    return this
   }
 
   /**
@@ -193,25 +216,25 @@ export class StoreOrderFactory {
   addRandomProducts(count: number = 3, includePrescription: boolean = false): StoreOrderFactory {
     const availableProducts = includePrescription
       ? SAMPLE_PRODUCTS
-      : SAMPLE_PRODUCTS.filter(p => !p.prescription);
+      : SAMPLE_PRODUCTS.filter((p) => !p.prescription)
 
-    const selected = [];
-    const shuffled = [...availableProducts].sort(() => Math.random() - 0.5);
+    const selected = []
+    const shuffled = [...availableProducts].sort(() => Math.random() - 0.5)
 
     for (let i = 0; i < Math.min(count, shuffled.length); i++) {
-      const product = shuffled[i];
+      const product = shuffled[i]
       selected.push({
         productId: product.id,
         name: product.name,
         price: product.price,
         quantity: 1 + Math.floor(Math.random() * 2),
         prescription: product.prescription,
-      });
+      })
     }
 
-    this.items.push(...selected);
+    this.items.push(...selected)
 
-    return this;
+    return this
   }
 
   /**
@@ -219,80 +242,80 @@ export class StoreOrderFactory {
    */
   withCoupon(code?: string): StoreOrderFactory {
     const coupon = code
-      ? COUPON_CODES.find(c => c.code === code) || COUPON_CODES[0]
-      : pick(COUPON_CODES);
+      ? COUPON_CODES.find((c) => c.code === code) || COUPON_CODES[0]
+      : pick(COUPON_CODES)
 
-    this.data.coupon_code = coupon.code;
+    this.data.coupon_code = coupon.code
     // Discount will be calculated in buildData
-    return this;
+    return this
   }
 
   /**
    * Set shipping address
    */
   withShipping(address?: Record<string, unknown>): StoreOrderFactory {
-    this.data.shipping_address = address || pick(SHIPPING_ADDRESSES);
-    this.data.shipping_cost = 25000; // Standard shipping
-    return this;
+    this.data.shipping_address = address || pick(SHIPPING_ADDRESSES)
+    this.data.shipping_cost = 25000 // Standard shipping
+    return this
   }
 
   /**
    * Set payment method
    */
   paidWith(method: PaymentMethod): StoreOrderFactory {
-    this.data.payment_method = method;
-    this.data.payment_status = 'paid';
-    this.data.status = 'confirmed';
-    return this;
+    this.data.payment_method = method
+    this.data.payment_status = 'paid'
+    this.data.status = 'confirmed'
+    return this
   }
 
   /**
    * Mark order as confirmed/processing
    */
   confirmed(): StoreOrderFactory {
-    this.data.status = 'confirmed';
-    return this;
+    this.data.status = 'confirmed'
+    return this
   }
 
   /**
    * Mark order as delivered
    */
   delivered(): StoreOrderFactory {
-    this.data.status = 'delivered';
-    this.data.payment_status = 'paid';
-    return this;
+    this.data.status = 'delivered'
+    this.data.payment_status = 'paid'
+    return this
   }
 
   /**
    * Mark order as cancelled
    */
   cancelled(): StoreOrderFactory {
-    this.data.status = 'cancelled';
-    return this;
+    this.data.status = 'cancelled'
+    return this
   }
 
   /**
    * Add notes
    */
   withNotes(notes: string): StoreOrderFactory {
-    this.data.customer_notes = notes;
-    return this;
+    this.data.customer_notes = notes
+    return this
   }
 
   /**
    * Set ID explicitly
    */
   withId(id: string): StoreOrderFactory {
-    this.data.id = id;
-    return this;
+    this.data.id = id
+    return this
   }
 
   /**
    * Don't persist to database
    */
   inMemoryOnly(): StoreOrderFactory {
-    this.shouldPersist = false;
-    return this;
+    this.shouldPersist = false
+    return this
   }
 
   /**
@@ -302,89 +325,90 @@ export class StoreOrderFactory {
     // Apply scenario-specific settings
     switch (this.scenario) {
       case 'prescription':
-        if (!this.items.some(i => i.prescription)) {
-          const prescriptionProduct = SAMPLE_PRODUCTS.find(p => p.prescription)!;
+        if (!this.items.some((i) => i.prescription)) {
+          const prescriptionProduct = SAMPLE_PRODUCTS.find((p) => p.prescription)!
           this.items.push({
             productId: prescriptionProduct.id,
             name: prescriptionProduct.name,
             price: prescriptionProduct.price,
             quantity: 1,
             prescription: true,
-          });
+          })
         }
-        break;
+        break
 
       case 'coupon':
         if (!this.data.coupon_code) {
-          this.withCoupon();
+          this.withCoupon()
         }
-        break;
+        break
 
       case 'bulk':
         for (const item of this.items) {
-          item.quantity = 3 + Math.floor(Math.random() * 3);
+          item.quantity = 3 + Math.floor(Math.random() * 3)
         }
-        break;
+        break
     }
 
     // Add random products if none added
     if (this.items.length === 0) {
-      this.addRandomProducts(2 + Math.floor(Math.random() * 3), this.scenario === 'prescription');
+      this.addRandomProducts(2 + Math.floor(Math.random() * 3), this.scenario === 'prescription')
     }
 
     // Calculate totals
-    let subtotal = 0;
+    let subtotal = 0
     for (const item of this.items) {
-      subtotal += item.price * item.quantity;
+      subtotal += item.price * item.quantity
     }
 
     // Apply coupon discount
-    let couponDiscount = 0;
+    let couponDiscount = 0
     if (this.data.coupon_code) {
-      const coupon = COUPON_CODES.find(c => c.code === this.data.coupon_code);
+      const coupon = COUPON_CODES.find((c) => c.code === this.data.coupon_code)
       if (coupon) {
-        couponDiscount = coupon.type === 'percent'
-          ? Math.round(subtotal * coupon.discount)
-          : coupon.discount;
+        couponDiscount =
+          coupon.type === 'percent' ? Math.round(subtotal * coupon.discount) : coupon.discount
       }
     }
 
-    const discountAmount = (this.data.discount_amount || 0) + couponDiscount;
-    const shippingCost = this.data.shipping_cost || 0;
-    const taxableAmount = subtotal - discountAmount;
-    const taxRate = 0.1;
-    const taxAmount = Math.round(taxableAmount * taxRate);
-    const total = taxableAmount + taxAmount + shippingCost;
+    const discountAmount = (this.data.discount_amount || 0) + couponDiscount
+    const shippingCost = this.data.shipping_cost || 0
+    const taxableAmount = subtotal - discountAmount
+    const taxRate = 0.1
+    const taxAmount = Math.round(taxableAmount * taxRate)
+    const total = taxableAmount + taxAmount + shippingCost
 
-    this.data.subtotal = subtotal;
-    this.data.discount_amount = discountAmount;
-    this.data.tax_amount = taxAmount;
-    this.data.total = total;
+    this.data.subtotal = subtotal
+    this.data.discount_amount = discountAmount
+    this.data.tax_amount = taxAmount
+    this.data.total = total
 
-    return this.data as StoreOrderData;
+    return this.data as StoreOrderData
   }
 
   /**
    * Build and persist order
    */
   async build(): Promise<{ order: StoreOrderData; items: StoreOrderItemData[] }> {
-    const orderData = this.buildData();
-    const itemRecords: StoreOrderItemData[] = [];
+    const orderData = this.buildData()
+    const itemRecords: StoreOrderItemData[] = []
 
     if (!this.shouldPersist) {
-      return { order: orderData, items: itemRecords };
+      return { order: orderData, items: itemRecords }
     }
 
     if (!orderData.customer_id) {
-      throw new Error('Order must have a customer_id. Use .forCustomer(customerId) before building.');
+      throw new Error(
+        'Order must have a customer_id. Use .forCustomer(customerId) before building.'
+      )
     }
 
     // Fetch real products from DB to assign to items
-    const dbProducts = await getProductsFromDB(orderData.tenant_id);
+    const dbProducts = await getProductsFromDB(orderData.tenant_id)
 
     // If no products in DB, we can't create order items (product_id is NOT NULL)
     // Still create the order, just without items
-    const hasRealProducts = dbProducts.length > 0;
+    const hasRealProducts = dbProducts.length > 0
 
     // Insert order
     const { error: orderError } = await apiClient.dbInsert('store_orders', {
@@ -403,21 +427,21 @@ export class StoreOrderFactory {
       shipping_address: orderData.shipping_address,
       customer_notes: orderData.customer_notes,
       coupon_code: orderData.coupon_code,
-    });
+    })
 
     if (orderError) {
-      throw new Error(`Failed to create store order: ${orderError}`);
+      throw new Error(`Failed to create store order: ${orderError}`)
     }
 
-    testContext.track('store_orders', orderData.id, orderData.tenant_id);
+    testContext.track('store_orders', orderData.id, orderData.tenant_id)
 
     // Insert order items (only if we have real products)
     if (hasRealProducts) {
       for (let i = 0; i < this.items.length; i++) {
-        const item = this.items[i];
+        const item = this.items[i]
         // Assign a real product from DB (cycling through available products)
-        const dbProduct = dbProducts[i % dbProducts.length];
-        const totalPrice = dbProduct.price * item.quantity;
+        const dbProduct = dbProducts[i % dbProducts.length]
+        const totalPrice = dbProduct.price * item.quantity
 
         const itemData: StoreOrderItemData = {
           id: generateId(),
@@ -429,20 +453,23 @@ export class StoreOrderFactory {
           unit_price: dbProduct.price,
           discount_amount: 0,
           total_price: totalPrice,
-        };
-
-        const { error: itemError } = await apiClient.dbInsert('store_order_items', itemData as unknown as Record<string, unknown>);
-        if (itemError) {
-          console.warn(`Failed to create order item: ${itemError}`);
-          continue;
         }
 
-        testContext.track('store_order_items', itemData.id);
-        itemRecords.push(itemData);
+        const { error: itemError } = await apiClient.dbInsert(
+          'store_order_items',
+          itemData as unknown as Record<string, unknown>
+        )
+        if (itemError) {
+          console.warn(`Failed to create order item: ${itemError}`)
+          continue
+        }
+
+        testContext.track('store_order_items', itemData.id)
+        itemRecords.push(itemData)
       }
     }
 
-    return { order: orderData, items: itemRecords };
+    return { order: orderData, items: itemRecords }
   }
 }
 
@@ -450,110 +477,114 @@ export class StoreOrderFactory {
  * Create an abandoned cart for a customer
  */
 export class CartFactory {
-  private data: Partial<StoreCartData>;
+  private data: Partial<StoreCartData>
   private items: Array<{
-    productId: string;
-    name: string;
-    price: number;
-    quantity: number;
-    prescription: boolean;
-  }> = [];
-  private shouldPersist: boolean = true;
+    productId: string
+    name: string
+    price: number
+    quantity: number
+    prescription: boolean
+  }> = []
+  private shouldPersist: boolean = true
 
   private constructor() {
     this.data = {
       id: generateId(),
       tenant_id: 'adris',
       items: [],
-    };
+    }
   }
 
   /**
    * Start building a cart
    */
   static create(): CartFactory {
-    return new CartFactory();
+    return new CartFactory()
   }
 
   /**
    * Set tenant ID
    */
   forTenant(tenantId: string): CartFactory {
-    this.data.tenant_id = tenantId;
-    return this;
+    this.data.tenant_id = tenantId
+    return this
   }
 
   /**
    * Set customer ID
    */
   forCustomer(customerId: string): CartFactory {
-    this.data.customer_id = customerId;
-    return this;
+    this.data.customer_id = customerId
+    return this
   }
 
   /**
    * Add random products
    */
   addRandomProducts(count: number = 2): CartFactory {
-    const shuffled = [...SAMPLE_PRODUCTS].sort(() => Math.random() - 0.5);
+    const shuffled = [...SAMPLE_PRODUCTS].sort(() => Math.random() - 0.5)
 
     for (let i = 0; i < Math.min(count, shuffled.length); i++) {
-      const product = shuffled[i];
+      const product = shuffled[i]
       this.items.push({
         productId: product.id,
         name: product.name,
         price: product.price,
         quantity: 1 + Math.floor(Math.random() * 2),
         prescription: product.prescription,
-      });
+      })
     }
 
-    return this;
+    return this
   }
 
   /**
    * Don't persist to database
    */
   inMemoryOnly(): CartFactory {
-    this.shouldPersist = false;
-    return this;
+    this.shouldPersist = false
+    return this
   }
 
   /**
    * Build and persist cart
    */
   async build(): Promise<StoreCartData> {
-    this.data.items = this.items.map(item => ({
+    this.data.items = this.items.map((item) => ({
       product_id: item.productId,
       product_name: item.name,
       quantity: item.quantity,
       unit_price: item.price,
       requires_prescription: item.prescription,
-    }));
+    }))
 
     if (!this.shouldPersist) {
-      return this.data as StoreCartData;
+      return this.data as StoreCartData
     }
 
     if (!this.data.customer_id) {
-      throw new Error('Cart must have a customer_id. Use .forCustomer(customerId) before building.');
+      throw new Error('Cart must have a customer_id. Use .forCustomer(customerId) before building.')
     }
 
     // Upsert cart
-    const { error } = await apiClient.dbUpsert('store_carts', {
-      id: this.data.id,
-      tenant_id: this.data.tenant_id,
-      customer_id: this.data.customer_id,
-      items: this.data.items,
-    }, 'customer_id,tenant_id');
+    const { error } = await apiClient.dbUpsert(
+      'store_carts',
+      {
+        id: this.data.id,
+        tenant_id: this.data.tenant_id,
+        customer_id: this.data.customer_id,
+        items: this.data.items,
+      },
+      'customer_id,tenant_id'
+    )
 
     if (error) {
-      throw new Error(`Failed to create cart: ${error}`);
+      throw new Error(`Failed to create cart: ${error}`)
     }
 
-    testContext.track('store_carts', this.data.id!, this.data.tenant_id);
+    testContext.track('store_carts', this.data.id!, this.data.tenant_id)
 
-    return this.data as StoreCartData;
+    return this.data as StoreCartData
   }
 }
 
@@ -565,31 +596,31 @@ export async function createOrderHistory(
   tenantId: string = 'adris',
   options: { count?: number; scenarios?: OrderScenario[] } = {}
 ): Promise<Array<{ order: StoreOrderData; items: StoreOrderItemData[] }>> {
-  const { count = 3, scenarios = ['simple', 'simple', 'coupon'] } = options;
-  const results: Array<{ order: StoreOrderData; items: StoreOrderItemData[] }> = [];
+  const { count = 3, scenarios = ['simple', 'simple', 'coupon'] } = options
+  const results: Array<{ order: StoreOrderData; items: StoreOrderItemData[] }> = []
 
   for (let i = 0; i < count; i++) {
-    const scenario = scenarios[i % scenarios.length];
+    const scenario = scenarios[i % scenarios.length]
 
     const factory = StoreOrderFactory.create()
       .forTenant(tenantId)
       .forCustomer(customerId)
       .withScenario(scenario)
       .withShipping()
-      .addRandomProducts(2 + Math.floor(Math.random() * 2), scenario === 'prescription');
+      .addRandomProducts(2 + Math.floor(Math.random() * 2), scenario === 'prescription')
 
     // Most orders should be delivered
     if (Math.random() < 0.8) {
-      factory.paidWith(pick(['cash', 'card', 'transfer'])).delivered();
+      factory.paidWith(pick(['cash', 'card', 'transfer'])).delivered()
     } else if (Math.random() < 0.5) {
-      factory.confirmed();
+      factory.confirmed()
     }
 
-    const result = await factory.build();
-    results.push(result);
+    const result = await factory.build()
+    results.push(result)
   }
 
-  return results;
+  return results
 }
 
 /**
@@ -599,20 +630,20 @@ export async function createAbandonedCarts(
   customerIds: string[],
   tenantId: string = 'adris'
 ): Promise<StoreCartData[]> {
-  const carts: StoreCartData[] = [];
+  const carts: StoreCartData[] = []
 
   // Only create carts for some customers
-  const customersWithCarts = customerIds.filter(() => Math.random() < 0.3);
+  const customersWithCarts = customerIds.filter(() => Math.random() < 0.3)
 
   for (const customerId of customersWithCarts) {
     const cart = await CartFactory.create()
       .forTenant(tenantId)
       .forCustomer(customerId)
       .addRandomProducts(1 + Math.floor(Math.random() * 3))
-      .build();
+      .build()
 
-    carts.push(cart);
+    carts.push(cart)
   }
 
-  return carts;
+  return carts
 }

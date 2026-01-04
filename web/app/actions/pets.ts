@@ -31,7 +31,8 @@ export const getOwnerPets = withActionAuth(
     // Fetch pets with vaccines
     let supabaseQuery = supabase
       .from('pets')
-      .select(`
+      .select(
+        `
         id,
         name,
         species,
@@ -49,7 +50,8 @@ export const getOwnerPets = withActionAuth(
           next_due_date,
           status
         )
-      `)
+      `
+      )
       .eq('owner_id', user.id)
       .eq('tenant_id', clinicSlug)
       .is('deleted_at', null)
@@ -66,7 +68,7 @@ export const getOwnerPets = withActionAuth(
         tenantId: clinicSlug,
         userId: user.id,
         searchQuery: query,
-        error: error.message
+        error: error.message,
       })
       return actionError('Error al obtener las mascotas')
     }
@@ -76,18 +78,20 @@ export const getOwnerPets = withActionAuth(
     }
 
     // Fetch next upcoming appointment for each pet
-    const petIds = pets.map(p => p.id)
+    const petIds = pets.map((p) => p.id)
     const now = new Date().toISOString()
 
     const { data: appointments } = await supabase
       .from('appointments')
-      .select(`
+      .select(
+        `
         id,
         pet_id,
         start_time,
         status,
         services (name)
-      `)
+      `
+      )
       .in('pet_id', petIds)
       .eq('tenant_id', clinicSlug)
       .gte('start_time', now)
@@ -125,10 +129,10 @@ export const getOwnerPets = withActionAuth(
     }
 
     // Enhance pets with appointment data
-    const enhancedPets = pets.map(pet => ({
+    const enhancedPets = pets.map((pet) => ({
       ...pet,
       next_appointment: nextAppointmentMap[pet.id] || null,
-      last_visit_date: lastVisitMap[pet.id] || null
+      last_visit_date: lastVisitMap[pet.id] || null,
     }))
 
     return actionSuccess(enhancedPets)
@@ -144,40 +148,42 @@ export const getPetProfile = withActionAuth(
     // Note: medical_records and prescriptions tables don't exist yet
     const { data: pet, error } = await supabase
       .from('pets')
-      .select(`
+      .select(
+        `
         *,
         vaccines (*),
         vaccine_reactions (*),
         profiles:owner_id (full_name, email, phone)
-      `)
+      `
+      )
       .eq('id', petId)
       .eq('tenant_id', clinicSlug)
       .is('deleted_at', null)
-      .single();
+      .single()
 
     if (error || !pet) {
       logger.error('Error fetching pet profile', {
         petId,
         tenantId: clinicSlug,
-        error: error?.message
-      });
-      return actionError('Mascota no encontrada');
+        error: error?.message,
+      })
+      return actionError('Mascota no encontrada')
     }
 
     // Authorization: Check if user is pet owner or staff
-    const isStaff = ['vet', 'admin'].includes(profile.role);
-    const isOwner = pet.owner_id === user.id;
+    const isStaff = ['vet', 'admin'].includes(profile.role)
+    const isOwner = pet.owner_id === user.id
 
     if (!isStaff && !isOwner) {
-        return actionError('No tienes permiso para ver esta mascota');
+      return actionError('No tienes permiso para ver esta mascota')
     }
 
     // Add empty arrays for missing tables to maintain compatibility
     return actionSuccess({
       ...pet,
       medical_records: [],
-      prescriptions: []
-    });
+      prescriptions: [],
+    })
   }
 )
 
@@ -208,20 +214,20 @@ export const updatePet = withActionAuth(
 
     // Parse and validate form data
     const rawData = {
-      name: formData.get('name') as string || undefined,
-      species: formData.get('species') as string || undefined,
-      breed: formData.get('breed') as string || undefined,
+      name: (formData.get('name') as string) || undefined,
+      species: (formData.get('species') as string) || undefined,
+      breed: (formData.get('breed') as string) || undefined,
       weight_kg: formData.get('weight_kg') ? parseFloat(formData.get('weight_kg') as string) : null,
-      microchip_id: formData.get('microchip_id') as string || null,
-      diet_category: formData.get('diet_category') as string || null,
-      diet_notes: formData.get('diet_notes') as string || null,
-      sex: formData.get('sex') as string || undefined,
+      microchip_id: (formData.get('microchip_id') as string) || null,
+      diet_category: (formData.get('diet_category') as string) || null,
+      diet_notes: (formData.get('diet_notes') as string) || null,
+      sex: (formData.get('sex') as string) || undefined,
       is_neutered: formData.get('is_neutered') === 'on' || formData.get('is_neutered') === 'true',
-      color: formData.get('color') as string || null,
-      temperament: formData.get('temperament') as string || null,
-      allergies: formData.get('allergies') as string || null,
-      existing_conditions: formData.get('existing_conditions') as string || null,
-      birth_date: formData.get('birth_date') as string || null,
+      color: (formData.get('color') as string) || null,
+      temperament: (formData.get('temperament') as string) || null,
+      allergies: (formData.get('allergies') as string) || null,
+      existing_conditions: (formData.get('existing_conditions') as string) || null,
+      birth_date: (formData.get('birth_date') as string) || null,
     }
 
     const validation = updatePetSchema.safeParse(rawData)
@@ -238,9 +244,7 @@ export const updatePet = withActionAuth(
       const fileExt = photo.name.split('.').pop()
       const fileName = `${user.id}/${Date.now()}.${fileExt}`
 
-      const { error: uploadError } = await supabase.storage
-        .from('pets')
-        .upload(fileName, photo)
+      const { error: uploadError } = await supabase.storage.from('pets').upload(fileName, photo)
 
       if (uploadError) {
         logger.error('Error uploading pet photo', {
@@ -248,14 +252,14 @@ export const updatePet = withActionAuth(
           userId: user.id,
           petId,
           fileName,
-          error: uploadError.message
+          error: uploadError.message,
         })
         return actionError('No se pudo subir la foto. Por favor intente de nuevo.')
       }
 
-      const { data: { publicUrl } } = supabase.storage
-        .from('pets')
-        .getPublicUrl(fileName)
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from('pets').getPublicUrl(fileName)
       photoUrl = publicUrl
     }
 
@@ -277,7 +281,10 @@ export const updatePet = withActionAuth(
       const allergiesStr = updates.allergies as string | null
       if (allergiesStr && allergiesStr.trim()) {
         // Split by comma and trim each value
-        updates.allergies = allergiesStr.split(',').map(a => a.trim()).filter(a => a.length > 0)
+        updates.allergies = allergiesStr
+          .split(',')
+          .map((a) => a.trim())
+          .filter((a) => a.length > 0)
       } else {
         updates.allergies = null
       }
@@ -297,16 +304,13 @@ export const updatePet = withActionAuth(
     }
 
     // Remove undefined values
-    Object.keys(updates).forEach(key => {
+    Object.keys(updates).forEach((key) => {
       if (updates[key] === undefined) {
         delete updates[key]
       }
     })
 
-    const { error } = await supabase
-      .from('pets')
-      .update(updates)
-      .eq('id', petId)
+    const { error } = await supabase.from('pets').update(updates).eq('id', petId)
 
     if (error) {
       logger.error('Error updating pet', {
@@ -315,7 +319,7 @@ export const updatePet = withActionAuth(
         userId: user.id,
         error: error.message,
         code: error.code,
-        details: error.details
+        details: error.details,
       })
       return actionError('Error al guardar los cambios')
     }

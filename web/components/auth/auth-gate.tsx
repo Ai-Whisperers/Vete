@@ -1,127 +1,130 @@
-"use client";
+'use client'
 
-import { useEffect, useState } from "react";
-import Link from "next/link";
-import { createClient } from "@/lib/supabase/client";
-import { ShoppingCart, User, Lock, MessageCircle, Loader2 } from "lucide-react";
-import type { User as SupabaseUser } from "@supabase/supabase-js";
-import { logger } from "@/lib/logger";
+import { useEffect, useState } from 'react'
+import Link from 'next/link'
+import { createClient } from '@/lib/supabase/client'
+import { ShoppingCart, User, Lock, MessageCircle, Loader2 } from 'lucide-react'
+import type { User as SupabaseUser } from '@supabase/supabase-js'
+import { logger } from '@/lib/logger'
 
 interface AuthGateProps {
-  clinic: string;
+  clinic: string
   /** Current path to redirect to after login */
-  redirect: string;
+  redirect: string
   /** WhatsApp number for direct contact option */
-  whatsappNumber?: string;
+  whatsappNumber?: string
   /** Title shown when not authenticated */
-  title?: string;
+  title?: string
   /** Description shown when not authenticated */
-  description?: string;
+  description?: string
   /** Icon to show (defaults to Lock) */
-  icon?: "cart" | "user" | "lock";
+  icon?: 'cart' | 'user' | 'lock'
   /** Content to show when authenticated */
-  children: React.ReactNode;
+  children: React.ReactNode
   /** Optional preview content to show below the auth gate */
-  preview?: React.ReactNode;
+  preview?: React.ReactNode
 }
 
 const ICONS = {
   cart: ShoppingCart,
   user: User,
   lock: Lock,
-};
+}
 
 export function AuthGate({
   clinic,
   redirect: redirectTo,
   whatsappNumber,
-  title = "Inicia sesión para continuar",
-  description = "Necesitas una cuenta para acceder a esta función.",
-  icon = "lock",
+  title = 'Inicia sesión para continuar',
+  description = 'Necesitas una cuenta para acceder a esta función.',
+  icon = 'lock',
   children,
   preview,
 }: AuthGateProps) {
-  const [user, setUser] = useState<SupabaseUser | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<SupabaseUser | null>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const supabase = createClient();
+    const supabase = createClient()
 
     const checkUser = async () => {
       try {
-        const { data: { session }, error } = await supabase.auth.getSession();
+        const {
+          data: { session },
+          error,
+        } = await supabase.auth.getSession()
         if (error) {
           logger.warn('AuthGate session error', {
             error: error.message,
-            context: 'AuthGate'
-          });
+            context: 'AuthGate',
+          })
         }
-        setUser(session?.user ?? null);
+        setUser(session?.user ?? null)
       } catch (err) {
         logger.error('AuthGate failed to get session', {
           error: err instanceof Error ? err.message : 'Unknown',
-          context: 'AuthGate'
-        });
-        setUser(null);
+          context: 'AuthGate',
+        })
+        setUser(null)
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
-    checkUser();
+    checkUser()
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setUser(session?.user ?? null);
-        setLoading(false);
-      }
-    );
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null)
+      setLoading(false)
+    })
 
-    return () => subscription.unsubscribe();
-  }, []);
+    return () => subscription.unsubscribe()
+  }, [])
 
   // Loading state
   if (loading) {
     return (
-      <div className="min-h-[400px] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-[var(--primary)] animate-spin" />
+      <div className="flex min-h-[400px] items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-[var(--primary)]" />
       </div>
-    );
+    )
   }
 
   // Authenticated - show children
   if (user) {
-    return <>{children}</>;
+    return <>{children}</>
   }
 
   // Not authenticated - show gate
-  const Icon = ICONS[icon];
-  const encodedRedirect = encodeURIComponent(redirectTo);
+  const Icon = ICONS[icon]
+  const encodedRedirect = encodeURIComponent(redirectTo)
 
   return (
-    <div className="min-h-[60vh] flex flex-col items-center justify-center px-4 py-12">
-      <div className="max-w-md w-full bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+    <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 py-12">
+      <div className="w-full max-w-md overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-xl">
         {/* Header */}
         <div className="bg-gradient-to-br from-[var(--primary)] to-[var(--primary-dark,var(--primary))] p-8 text-center">
-          <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Icon className="w-10 h-10 text-white" />
+          <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-white/20">
+            <Icon className="h-10 w-10 text-white" />
           </div>
-          <h2 className="text-2xl font-black text-white mb-2">{title}</h2>
+          <h2 className="mb-2 text-2xl font-black text-white">{title}</h2>
           <p className="text-white/80">{description}</p>
         </div>
 
         {/* Actions */}
-        <div className="p-6 space-y-4">
+        <div className="space-y-4 p-6">
           <Link
             href={`/${clinic}/portal/signup?redirect=${encodedRedirect}`}
-            className="block w-full py-4 px-6 bg-[var(--primary)] text-white font-bold rounded-xl text-center hover:opacity-90 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+            className="block w-full rounded-xl bg-[var(--primary)] px-6 py-4 text-center font-bold text-white shadow-lg transition-all hover:-translate-y-0.5 hover:opacity-90 hover:shadow-xl"
           >
             Crear Cuenta Gratis
           </Link>
 
           <Link
             href={`/${clinic}/portal/login?redirect=${encodedRedirect}`}
-            className="block w-full py-4 px-6 bg-gray-100 text-gray-700 font-bold rounded-xl text-center hover:bg-gray-200 transition-all"
+            className="block w-full rounded-xl bg-gray-100 px-6 py-4 text-center font-bold text-gray-700 transition-all hover:bg-gray-200"
           >
             Ya tengo cuenta
           </Link>
@@ -129,21 +132,21 @@ export function AuthGate({
           {/* WhatsApp Option */}
           {whatsappNumber && (
             <>
-              <div className="relative flex py-3 items-center">
+              <div className="relative flex items-center py-3">
                 <div className="flex-grow border-t border-gray-200"></div>
-                <span className="flex-shrink-0 mx-4 text-gray-400 text-xs uppercase font-bold">
+                <span className="mx-4 flex-shrink-0 text-xs font-bold uppercase text-gray-400">
                   O sin cuenta
                 </span>
                 <div className="flex-grow border-t border-gray-200"></div>
               </div>
 
               <a
-                href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent("Hola, quiero hacer una consulta sobre productos/servicios")}`}
+                href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent('Hola, quiero hacer una consulta sobre productos/servicios')}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-3 w-full py-4 px-6 bg-green-500 text-white font-bold rounded-xl hover:bg-green-600 transition-all"
+                className="flex w-full items-center justify-center gap-3 rounded-xl bg-green-500 px-6 py-4 font-bold text-white transition-all hover:bg-green-600"
               >
-                <MessageCircle className="w-5 h-5" />
+                <MessageCircle className="h-5 w-5" />
                 Contactar por WhatsApp
               </a>
               <p className="text-center text-xs text-gray-400">
@@ -156,13 +159,13 @@ export function AuthGate({
 
       {/* Preview Content */}
       {preview && (
-        <div className="mt-8 w-full max-w-2xl opacity-60 pointer-events-none">
-          <p className="text-center text-sm text-gray-500 mb-4 font-medium">
+        <div className="pointer-events-none mt-8 w-full max-w-2xl opacity-60">
+          <p className="mb-4 text-center text-sm font-medium text-gray-500">
             Vista previa de tu carrito:
           </p>
           {preview}
         </div>
       )}
     </div>
-  );
+  )
 }

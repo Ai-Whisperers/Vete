@@ -2,8 +2,8 @@
  * Medical records, vaccines, and prescription schemas
  */
 
-import { z } from 'zod';
-import { uuidSchema, optionalString, requiredString, enumSchema, pastDateSchema } from './common';
+import { z } from 'zod'
+import { uuidSchema, optionalString, requiredString, enumSchema, pastDateSchema } from './common'
 
 // ============================================
 // Vaccines
@@ -21,18 +21,18 @@ export const createVaccineSchema = z.object({
   batch_number: optionalString(50),
   manufacturer: optionalString(100),
   notes: optionalString(500),
-});
+})
 
-export type CreateVaccineInput = z.infer<typeof createVaccineSchema>;
+export type CreateVaccineInput = z.infer<typeof createVaccineSchema>
 
 /**
  * Schema for updating a vaccine record
  */
 export const updateVaccineSchema = createVaccineSchema.partial().extend({
   id: uuidSchema,
-});
+})
 
-export type UpdateVaccineInput = z.infer<typeof updateVaccineSchema>;
+export type UpdateVaccineInput = z.infer<typeof updateVaccineSchema>
 
 // ============================================
 // Medical Records
@@ -53,8 +53,8 @@ export const MEDICAL_RECORD_TYPES = [
   'imaging',
   'hospitalization',
   'other',
-] as const;
-export type MedicalRecordType = (typeof MEDICAL_RECORD_TYPES)[number];
+] as const
+export type MedicalRecordType = (typeof MEDICAL_RECORD_TYPES)[number]
 
 /**
  * Schema for creating a medical record
@@ -69,18 +69,18 @@ export const createMedicalRecordSchema = z.object({
   notes: optionalString(2000),
   date: pastDateSchema.optional(), // Defaults to now
   attachments: z.array(z.string().url()).optional(),
-});
+})
 
-export type CreateMedicalRecordInput = z.infer<typeof createMedicalRecordSchema>;
+export type CreateMedicalRecordInput = z.infer<typeof createMedicalRecordSchema>
 
 /**
  * Schema for updating a medical record
  */
 export const updateMedicalRecordSchema = createMedicalRecordSchema.partial().extend({
   id: uuidSchema,
-});
+})
 
-export type UpdateMedicalRecordInput = z.infer<typeof updateMedicalRecordSchema>;
+export type UpdateMedicalRecordInput = z.infer<typeof updateMedicalRecordSchema>
 
 // ============================================
 // Prescriptions
@@ -89,8 +89,8 @@ export type UpdateMedicalRecordInput = z.infer<typeof updateMedicalRecordSchema>
 /**
  * Prescription status
  */
-export const PRESCRIPTION_STATUSES = ['active', 'completed', 'cancelled'] as const;
-export type PrescriptionStatus = (typeof PRESCRIPTION_STATUSES)[number];
+export const PRESCRIPTION_STATUSES = ['active', 'completed', 'cancelled'] as const
+export type PrescriptionStatus = (typeof PRESCRIPTION_STATUSES)[number]
 
 /**
  * Administration routes
@@ -106,8 +106,8 @@ export const ADMINISTRATION_ROUTES = [
   'otic',
   'rectal',
   'other',
-] as const;
-export type AdministrationRoute = (typeof ADMINISTRATION_ROUTES)[number];
+] as const
+export type AdministrationRoute = (typeof ADMINISTRATION_ROUTES)[number]
 
 /**
  * Schema for creating a prescription
@@ -126,9 +126,9 @@ export const createPrescriptionSchema = z.object({
   start_date: z.string().datetime().optional(), // Defaults to now
   end_date: z.string().datetime().optional(),
   medical_record_id: uuidSchema.optional(), // Link to consultation
-});
+})
 
-export type CreatePrescriptionInput = z.infer<typeof createPrescriptionSchema>;
+export type CreatePrescriptionInput = z.infer<typeof createPrescriptionSchema>
 
 /**
  * Schema for updating prescription status
@@ -137,9 +137,9 @@ export const updatePrescriptionStatusSchema = z.object({
   id: uuidSchema,
   status: enumSchema(PRESCRIPTION_STATUSES, 'Estado'),
   notes: optionalString(500),
-});
+})
 
-export type UpdatePrescriptionStatusInput = z.infer<typeof updatePrescriptionStatusSchema>;
+export type UpdatePrescriptionStatusInput = z.infer<typeof updatePrescriptionStatusSchema>
 
 // ============================================
 // Diagnosis Codes
@@ -151,9 +151,9 @@ export type UpdatePrescriptionStatusInput = z.infer<typeof updatePrescriptionSta
 export const diagnosisSearchSchema = z.object({
   q: z.string().min(2, 'Ingrese al menos 2 caracteres').max(100),
   limit: z.coerce.number().int().min(1).max(50).default(20),
-});
+})
 
-export type DiagnosisSearchInput = z.infer<typeof diagnosisSearchSchema>;
+export type DiagnosisSearchInput = z.infer<typeof diagnosisSearchSchema>
 
 // ============================================
 // Drug Dosages
@@ -167,9 +167,9 @@ export const drugDosageCalculationSchema = z.object({
   drug_name: z.string().max(200).optional(),
   weight_kg: z.coerce.number().min(0.1, 'Peso inválido').max(500),
   species: z.enum(['dog', 'cat', 'other']).optional(),
-});
+})
 
-export type DrugDosageCalculationInput = z.infer<typeof drugDosageCalculationSchema>;
+export type DrugDosageCalculationInput = z.infer<typeof drugDosageCalculationSchema>
 
 // ============================================
 // Vaccine Reactions
@@ -178,8 +178,8 @@ export type DrugDosageCalculationInput = z.infer<typeof drugDosageCalculationSch
 /**
  * Reaction severity levels
  */
-export const REACTION_SEVERITIES = ['mild', 'moderate', 'severe'] as const;
-export type ReactionSeverity = (typeof REACTION_SEVERITIES)[number];
+export const REACTION_SEVERITIES = ['mild', 'moderate', 'severe'] as const
+export type ReactionSeverity = (typeof REACTION_SEVERITIES)[number]
 
 /**
  * Schema for reporting a vaccine reaction
@@ -194,9 +194,9 @@ export const createVaccineReactionSchema = z.object({
   treatment_given: optionalString(1000),
   outcome: optionalString(500),
   notes: optionalString(1000),
-});
+})
 
-export type CreateVaccineReactionInput = z.infer<typeof createVaccineReactionSchema>;
+export type CreateVaccineReactionInput = z.infer<typeof createVaccineReactionSchema>
 
 // ============================================
 // Euthanasia Assessment (HHHHHMM Scale)
@@ -218,6 +218,6 @@ export const euthanasiaAssessmentSchema = z.object({
   // Additional context
   assessment_notes: optionalString(2000),
   recommendations: optionalString(1000),
-});
+})
 
-export type EuthanasiaAssessmentInput = z.infer<typeof euthanasiaAssessmentSchema>;
+export type EuthanasiaAssessmentInput = z.infer<typeof euthanasiaAssessmentSchema>

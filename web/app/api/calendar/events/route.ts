@@ -28,12 +28,12 @@ export async function GET(request: NextRequest) {
     const supabase = await createClient()
 
     // Auth check
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
     if (authError || !user) {
-      return NextResponse.json(
-        { error: 'No autorizado' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
 
     // Get user's tenant
@@ -44,18 +44,12 @@ export async function GET(request: NextRequest) {
       .single()
 
     if (profileError || !profile) {
-      return NextResponse.json(
-        { error: 'Perfil no encontrado' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 })
     }
 
     // Staff check (only vets and admins can view the full calendar)
     if (!['vet', 'admin'].includes(profile.role)) {
-      return NextResponse.json(
-        { error: 'Acceso denegado' },
-        { status: 403 }
-      )
+      return NextResponse.json({ error: 'Acceso denegado' }, { status: 403 })
     }
 
     // Parse and validate query params
@@ -77,7 +71,8 @@ export async function GET(request: NextRequest) {
     // Fetch appointments
     const { data: appointments, error: appointmentsError } = await supabase
       .from('appointments')
-      .select(`
+      .select(
+        `
         id,
         tenant_id,
         start_time,
@@ -95,7 +90,8 @@ export async function GET(request: NextRequest) {
             full_name
           )
         )
-      `)
+      `
+      )
       .eq('tenant_id', profile.tenant_id)
       .gte('start_time', `${startDateStr}T00:00:00`)
       .lte('start_time', `${endDateStr}T23:59:59`)
@@ -103,63 +99,63 @@ export async function GET(request: NextRequest) {
 
     if (appointmentsError) {
       console.error('Error fetching appointments:', appointmentsError)
-      return NextResponse.json(
-        { error: 'Error al obtener citas' },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: 'Error al obtener citas' }, { status: 500 })
     }
 
     // Fetch staff profiles with their user data
     const { data: staffProfiles } = await supabase
       .from('staff_profiles')
-      .select(`
+      .select(
+        `
         id,
         user_id,
         job_title,
         color_code,
         can_be_booked
-      `)
+      `
+      )
       .eq('tenant_id', profile.tenant_id)
       .eq('can_be_booked', true)
       .eq('employment_status', 'active')
 
     // Get user profiles for staff
-    const staffUserIds = staffProfiles?.map(sp => sp.user_id) || []
-    const { data: staffUserProfiles } = staffUserIds.length > 0
-      ? await supabase
-          .from('profiles')
-          .select('id, full_name, avatar_url')
-          .in('id', staffUserIds)
-      : { data: [] }
+    const staffUserIds = staffProfiles?.map((sp) => sp.user_id) || []
+    const { data: staffUserProfiles } =
+      staffUserIds.length > 0
+        ? await supabase.from('profiles').select('id, full_name, avatar_url').in('id', staffUserIds)
+        : { data: [] }
 
     // Merge staff data
-    const staff = staffProfiles?.map(sp => {
-      const userProfile = staffUserProfiles?.find(up => up.id === sp.user_id)
-      return {
-        id: sp.id,
-        user_id: sp.user_id,
-        full_name: userProfile?.full_name || 'Sin nombre',
-        job_title: sp.job_title,
-        color_code: sp.color_code,
-        avatar_url: userProfile?.avatar_url,
-      }
-    }) || []
+    const staff =
+      staffProfiles?.map((sp) => {
+        const userProfile = staffUserProfiles?.find((up) => up.id === sp.user_id)
+        return {
+          id: sp.id,
+          user_id: sp.user_id,
+          full_name: userProfile?.full_name || 'Sin nombre',
+          job_title: sp.job_title,
+          color_code: sp.color_code,
+          avatar_url: userProfile?.avatar_url,
+        }
+      }) || []
 
     // Fetch shifts for staff
-    const staffProfileIds = staffProfiles?.map(sp => sp.id) || []
-    const { data: shifts } = staffProfileIds.length > 0
-      ? await supabase
-          .from('staff_shifts')
-          .select('*')
-          .in('staff_profile_id', staffProfileIds)
-          .gte('scheduled_start', `${startDateStr}T00:00:00`)
-          .lte('scheduled_start', `${endDateStr}T23:59:59`)
-      : { data: [] }
+    const staffProfileIds = staffProfiles?.map((sp) => sp.id) || []
+    const { data: shifts } =
+      staffProfileIds.length > 0
+        ? await supabase
+            .from('staff_shifts')
+            .select('*')
+            .in('staff_profile_id', staffProfileIds)
+            .gte('scheduled_start', `${startDateStr}T00:00:00`)
+            .lte('scheduled_start', `${endDateStr}T23:59:59`)
+        : { data: [] }
 
     // Fetch approved time off requests
     const { data: timeOffRequests } = await supabase
       .from('time_off_requests')
-      .select(`
+      .select(
+        `
         *,
         time_off_type:time_off_types (
           id,
@@ -167,7 +163,8 @@ export async function GET(request: NextRequest) {
           name,
           color_code
         )
-      `)
+      `
+      )
       .eq('tenant_id', profile.tenant_id)
       .in('status', ['approved', 'pending'])
       .or(`and(start_date.lte.${endDateStr},end_date.gte.${startDateStr})`)
@@ -207,7 +204,7 @@ export async function GET(request: NextRequest) {
         }
 
         // Find staff color
-        const vetStaff = staff.find(s => s.user_id === apt.vet_id)
+        const vetStaff = staff.find((s) => s.user_id === apt.vet_id)
         if (vetStaff) {
           event.resource.staffId = vetStaff.id
           event.resource.staffName = vetStaff.full_name
@@ -222,7 +219,7 @@ export async function GET(request: NextRequest) {
     // Transform shifts
     if (shifts) {
       for (const shift of shifts) {
-        const staffMember = staff.find(s => s.id === shift.staff_profile_id)
+        const staffMember = staff.find((s) => s.id === shift.staff_profile_id)
         if (!staffMember) continue
 
         const event = shiftToCalendarEvent({
@@ -243,7 +240,7 @@ export async function GET(request: NextRequest) {
     // Transform time off requests
     if (timeOffRequests) {
       for (const request of timeOffRequests) {
-        const staffMember = staff.find(s => s.id === request.staff_profile_id)
+        const staffMember = staff.find((s) => s.id === request.staff_profile_id)
         const staffName = staffMember?.full_name || 'Personal'
 
         const event = timeOffToCalendarEvent(request as TimeOffRequest, staffName)
@@ -266,9 +263,6 @@ export async function GET(request: NextRequest) {
     })
   } catch (error) {
     console.error('Calendar events error:', error)
-    return NextResponse.json(
-      { error: 'Error interno del servidor' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
   }
 }

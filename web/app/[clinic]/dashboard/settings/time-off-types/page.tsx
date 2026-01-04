@@ -1,8 +1,8 @@
-"use client";
+'use client'
 
-import type { JSX } from 'react';
-import { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
+import type { JSX } from 'react'
+import { useState, useEffect } from 'react'
+import { useParams } from 'next/navigation'
 import {
   Plus,
   Edit2,
@@ -14,32 +14,32 @@ import {
   DollarSign,
   AlertCircle,
   Globe,
-} from 'lucide-react';
+} from 'lucide-react'
 
 interface TimeOffType {
-  id: string;
-  tenant_id: string | null;
-  code: string;
-  name: string;
-  description: string | null;
-  is_paid: boolean;
-  requires_approval: boolean;
-  max_days_per_year: number | null;
-  min_notice_days: number;
-  color_code: string;
-  is_active: boolean;
-  created_at: string;
+  id: string
+  tenant_id: string | null
+  code: string
+  name: string
+  description: string | null
+  is_paid: boolean
+  requires_approval: boolean
+  max_days_per_year: number | null
+  min_notice_days: number
+  color_code: string
+  is_active: boolean
+  created_at: string
 }
 
 interface FormData {
-  code: string;
-  name: string;
-  description: string;
-  is_paid: boolean;
-  requires_approval: boolean;
-  max_days_per_year: string;
-  min_notice_days: string;
-  color_code: string;
+  code: string
+  name: string
+  description: string
+  is_paid: boolean
+  requires_approval: boolean
+  max_days_per_year: string
+  min_notice_days: string
+  color_code: string
 }
 
 const DEFAULT_FORM: FormData = {
@@ -51,7 +51,7 @@ const DEFAULT_FORM: FormData = {
   max_days_per_year: '',
   min_notice_days: '1',
   color_code: '#3B82F6',
-};
+}
 
 const COLOR_OPTIONS = [
   '#EF4444', // Red
@@ -62,57 +62,59 @@ const COLOR_OPTIONS = [
   '#EC4899', // Pink
   '#06B6D4', // Cyan
   '#6B7280', // Gray
-];
+]
 
 export default function TimeOffTypesPage(): JSX.Element {
-  const params = useParams();
-  const clinic = params?.clinic as string;
+  const params = useParams()
+  const clinic = params?.clinic as string
 
-  const [types, setTypes] = useState<TimeOffType[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [formData, setFormData] = useState<FormData>(DEFAULT_FORM);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [types, setTypes] = useState<TimeOffType[]>([])
+  const [loading, setLoading] = useState(true)
+  const [showForm, setShowForm] = useState(false)
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [formData, setFormData] = useState<FormData>(DEFAULT_FORM)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    fetchTypes();
-  }, [clinic]);
+    fetchTypes()
+  }, [clinic])
 
   const fetchTypes = async (): Promise<void> => {
-    setLoading(true);
+    setLoading(true)
     try {
-      const response = await fetch(`/api/staff/time-off/types?clinic=${clinic}&include_inactive=true`);
-      if (!response.ok) throw new Error('Error al cargar');
-      const result = await response.json();
-      setTypes(result.data || []);
+      const response = await fetch(
+        `/api/staff/time-off/types?clinic=${clinic}&include_inactive=true`
+      )
+      if (!response.ok) throw new Error('Error al cargar')
+      const result = await response.json()
+      setTypes(result.data || [])
     } catch (e) {
       // Client-side error logging - only in development
       if (process.env.NODE_ENV === 'development') {
-        console.error('Error fetching types:', e);
+        console.error('Error fetching types:', e)
       }
-      setError('Error al cargar tipos de ausencia');
+      setError('Error al cargar tipos de ausencia')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleSubmit = async (): Promise<void> => {
     if (!formData.code.trim() || !formData.name.trim()) {
-      setError('Código y nombre son requeridos');
-      return;
+      setError('Código y nombre son requeridos')
+      return
     }
 
-    setSaving(true);
-    setError(null);
+    setSaving(true)
+    setError(null)
 
     try {
       const payload = {
         ...formData,
         max_days_per_year: formData.max_days_per_year ? parseInt(formData.max_days_per_year) : null,
         min_notice_days: parseInt(formData.min_notice_days) || 1,
-      };
+      }
 
       if (editingId) {
         // Update
@@ -120,11 +122,11 @@ export default function TimeOffTypesPage(): JSX.Element {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ id: editingId, ...payload }),
-        });
+        })
 
         if (!response.ok) {
-          const data = await response.json();
-          throw new Error(data.error || 'Error al actualizar');
+          const data = await response.json()
+          throw new Error(data.error || 'Error al actualizar')
         }
       } else {
         // Create
@@ -132,31 +134,31 @@ export default function TimeOffTypesPage(): JSX.Element {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
-        });
+        })
 
         if (!response.ok) {
-          const data = await response.json();
-          throw new Error(data.error || 'Error al crear');
+          const data = await response.json()
+          throw new Error(data.error || 'Error al crear')
         }
       }
 
-      setShowForm(false);
-      setEditingId(null);
-      setFormData(DEFAULT_FORM);
-      fetchTypes();
+      setShowForm(false)
+      setEditingId(null)
+      setFormData(DEFAULT_FORM)
+      fetchTypes()
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Error al guardar');
+      setError(e instanceof Error ? e.message : 'Error al guardar')
     } finally {
-      setSaving(false);
+      setSaving(false)
     }
-  };
+  }
 
   const handleEdit = (type: TimeOffType): void => {
     if (type.tenant_id === null) {
-      setError('No puedes editar tipos globales del sistema');
-      return;
+      setError('No puedes editar tipos globales del sistema')
+      return
     }
-    setEditingId(type.id);
+    setEditingId(type.id)
     setFormData({
       code: type.code,
       name: type.name,
@@ -166,120 +168,120 @@ export default function TimeOffTypesPage(): JSX.Element {
       max_days_per_year: type.max_days_per_year?.toString() || '',
       min_notice_days: type.min_notice_days.toString(),
       color_code: type.color_code,
-    });
-    setShowForm(true);
-  };
+    })
+    setShowForm(true)
+  }
 
   const handleDelete = async (type: TimeOffType): Promise<void> => {
     if (type.tenant_id === null) {
-      setError('No puedes eliminar tipos globales del sistema');
-      return;
+      setError('No puedes eliminar tipos globales del sistema')
+      return
     }
 
-    if (!confirm(`¿Eliminar el tipo "${type.name}"?`)) return;
+    if (!confirm(`¿Eliminar el tipo "${type.name}"?`)) return
 
     try {
       const response = await fetch(`/api/staff/time-off/types?id=${type.id}`, {
         method: 'DELETE',
-      });
+      })
 
       if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Error al eliminar');
+        const data = await response.json()
+        throw new Error(data.error || 'Error al eliminar')
       }
 
-      const result = await response.json();
-      alert(result.message);
-      fetchTypes();
+      const result = await response.json()
+      alert(result.message)
+      fetchTypes()
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Error al eliminar');
+      setError(e instanceof Error ? e.message : 'Error al eliminar')
     }
-  };
+  }
 
   const handleToggleActive = async (type: TimeOffType): Promise<void> => {
-    if (type.tenant_id === null) return;
+    if (type.tenant_id === null) return
 
     try {
       const response = await fetch('/api/staff/time-off/types', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: type.id, is_active: !type.is_active }),
-      });
+      })
 
-      if (!response.ok) throw new Error('Error al actualizar');
-      fetchTypes();
+      if (!response.ok) throw new Error('Error al actualizar')
+      fetchTypes()
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Error al actualizar');
+      setError(e instanceof Error ? e.message : 'Error al actualizar')
     }
-  };
+  }
 
-  const globalTypes = types.filter(t => t.tenant_id === null);
-  const customTypes = types.filter(t => t.tenant_id !== null);
+  const globalTypes = types.filter((t) => t.tenant_id === null)
+  const customTypes = types.filter((t) => t.tenant_id !== null)
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    <div className="mx-auto max-w-4xl p-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--text-primary)]">
-            Tipos de Ausencia
-          </h1>
+          <h1 className="text-2xl font-bold text-[var(--text-primary)]">Tipos de Ausencia</h1>
           <p className="text-[var(--text-secondary)]">
             Administrar tipos de ausencias y permisos del personal
           </p>
         </div>
         <button
           onClick={() => {
-            setShowForm(true);
-            setEditingId(null);
-            setFormData(DEFAULT_FORM);
+            setShowForm(true)
+            setEditingId(null)
+            setFormData(DEFAULT_FORM)
           }}
-          className="flex items-center gap-2 px-4 py-2 bg-[var(--primary)] text-white rounded-lg hover:opacity-90 transition-opacity"
+          className="flex items-center gap-2 rounded-lg bg-[var(--primary)] px-4 py-2 text-white transition-opacity hover:opacity-90"
         >
-          <Plus className="w-5 h-5" />
+          <Plus className="h-5 w-5" />
           Nuevo Tipo
         </button>
       </div>
 
       {/* Error Alert */}
       {error && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3">
-          <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
+        <div className="mb-6 flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 p-4">
+          <AlertCircle className="h-5 w-5 flex-shrink-0 text-red-600" />
           <p className="text-red-700">{error}</p>
           <button onClick={() => setError(null)} className="ml-auto">
-            <X className="w-5 h-5 text-red-600" />
+            <X className="h-5 w-5 text-red-600" />
           </button>
         </div>
       )}
 
       {/* Form Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl bg-white shadow-xl">
+            <div className="border-b p-6">
               <h2 className="text-lg font-semibold text-[var(--text-primary)]">
                 {editingId ? 'Editar Tipo de Ausencia' : 'Nuevo Tipo de Ausencia'}
               </h2>
             </div>
 
-            <div className="p-6 space-y-4">
+            <div className="space-y-4 p-6">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">
+                  <label className="mb-1 block text-sm font-medium text-[var(--text-secondary)]">
                     Código *
                   </label>
                   <input
                     type="text"
                     value={formData.code}
-                    onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, code: e.target.value.toUpperCase() })
+                    }
                     placeholder="EJ: COMP_OFF"
                     disabled={!!editingId}
-                    className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--bg-default)] disabled:bg-gray-100"
+                    className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-default)] px-3 py-2 disabled:bg-gray-100"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">
+                  <label className="mb-1 block text-sm font-medium text-[var(--text-secondary)]">
                     Nombre *
                   </label>
                   <input
@@ -287,13 +289,13 @@ export default function TimeOffTypesPage(): JSX.Element {
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     placeholder="Compensatorio"
-                    className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--bg-default)]"
+                    className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-default)] px-3 py-2"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">
+                <label className="mb-1 block text-sm font-medium text-[var(--text-secondary)]">
                   Descripción
                 </label>
                 <textarea
@@ -301,27 +303,29 @@ export default function TimeOffTypesPage(): JSX.Element {
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Descripción opcional del tipo de ausencia..."
                   rows={2}
-                  className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--bg-default)] resize-none"
+                  className="w-full resize-none rounded-lg border border-[var(--border)] bg-[var(--bg-default)] px-3 py-2"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">
+                  <label className="mb-1 block text-sm font-medium text-[var(--text-secondary)]">
                     Máximo días/año
                   </label>
                   <input
                     type="number"
                     value={formData.max_days_per_year}
-                    onChange={(e) => setFormData({ ...formData, max_days_per_year: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, max_days_per_year: e.target.value })
+                    }
                     placeholder="Sin límite"
                     min="1"
-                    className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--bg-default)]"
+                    className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-default)] px-3 py-2"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">
+                  <label className="mb-1 block text-sm font-medium text-[var(--text-secondary)]">
                     Aviso previo (días)
                   </label>
                   <input
@@ -329,13 +333,13 @@ export default function TimeOffTypesPage(): JSX.Element {
                     value={formData.min_notice_days}
                     onChange={(e) => setFormData({ ...formData, min_notice_days: e.target.value })}
                     min="0"
-                    className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--bg-default)]"
+                    className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-default)] px-3 py-2"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
+                <label className="mb-2 block text-sm font-medium text-[var(--text-secondary)]">
                   Color
                 </label>
                 <div className="flex gap-2">
@@ -343,8 +347,10 @@ export default function TimeOffTypesPage(): JSX.Element {
                     <button
                       key={color}
                       onClick={() => setFormData({ ...formData, color_code: color })}
-                      className={`w-8 h-8 rounded-full transition-transform ${
-                        formData.color_code === color ? 'ring-2 ring-offset-2 ring-gray-400 scale-110' : ''
+                      className={`h-8 w-8 rounded-full transition-transform ${
+                        formData.color_code === color
+                          ? 'scale-110 ring-2 ring-gray-400 ring-offset-2'
+                          : ''
                       }`}
                       style={{ backgroundColor: color }}
                     />
@@ -353,46 +359,48 @@ export default function TimeOffTypesPage(): JSX.Element {
               </div>
 
               <div className="flex gap-6">
-                <label className="flex items-center gap-2 cursor-pointer">
+                <label className="flex cursor-pointer items-center gap-2">
                   <input
                     type="checkbox"
                     checked={formData.is_paid}
                     onChange={(e) => setFormData({ ...formData, is_paid: e.target.checked })}
-                    className="w-4 h-4 rounded border-gray-300"
+                    className="h-4 w-4 rounded border-gray-300"
                   />
                   <span className="text-sm text-[var(--text-primary)]">Con goce de sueldo</span>
                 </label>
 
-                <label className="flex items-center gap-2 cursor-pointer">
+                <label className="flex cursor-pointer items-center gap-2">
                   <input
                     type="checkbox"
                     checked={formData.requires_approval}
-                    onChange={(e) => setFormData({ ...formData, requires_approval: e.target.checked })}
-                    className="w-4 h-4 rounded border-gray-300"
+                    onChange={(e) =>
+                      setFormData({ ...formData, requires_approval: e.target.checked })
+                    }
+                    className="h-4 w-4 rounded border-gray-300"
                   />
                   <span className="text-sm text-[var(--text-primary)]">Requiere aprobación</span>
                 </label>
               </div>
             </div>
 
-            <div className="p-6 border-t flex justify-end gap-3">
+            <div className="flex justify-end gap-3 border-t p-6">
               <button
                 onClick={() => {
-                  setShowForm(false);
-                  setEditingId(null);
-                  setFormData(DEFAULT_FORM);
-                  setError(null);
+                  setShowForm(false)
+                  setEditingId(null)
+                  setFormData(DEFAULT_FORM)
+                  setError(null)
                 }}
-                className="px-4 py-2 text-[var(--text-secondary)] hover:bg-gray-100 rounded-lg"
+                className="rounded-lg px-4 py-2 text-[var(--text-secondary)] hover:bg-gray-100"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleSubmit}
                 disabled={saving}
-                className="px-4 py-2 bg-[var(--primary)] text-white rounded-lg hover:opacity-90 disabled:opacity-50"
+                className="rounded-lg bg-[var(--primary)] px-4 py-2 text-white hover:opacity-90 disabled:opacity-50"
               >
-                {saving ? 'Guardando...' : (editingId ? 'Guardar Cambios' : 'Crear Tipo')}
+                {saving ? 'Guardando...' : editingId ? 'Guardar Cambios' : 'Crear Tipo'}
               </button>
             </div>
           </div>
@@ -401,53 +409,52 @@ export default function TimeOffTypesPage(): JSX.Element {
 
       {/* Loading */}
       {loading ? (
-        <div className="text-center py-12">
+        <div className="py-12 text-center">
           <p className="text-[var(--text-secondary)]">Cargando...</p>
         </div>
       ) : (
         <>
           {/* Global Types */}
           <div className="mb-8">
-            <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-4 flex items-center gap-2">
-              <Globe className="w-5 h-5 text-[var(--text-secondary)]" />
+            <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-[var(--text-primary)]">
+              <Globe className="h-5 w-5 text-[var(--text-secondary)]" />
               Tipos del Sistema
             </h2>
-            <p className="text-sm text-[var(--text-secondary)] mb-4">
+            <p className="mb-4 text-sm text-[var(--text-secondary)]">
               Estos tipos están disponibles para todas las clínicas y no se pueden modificar.
             </p>
 
-            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+            <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
               <div className="divide-y divide-gray-100">
                 {globalTypes.map((type) => (
-                  <div
-                    key={type.id}
-                    className="p-4 flex items-center gap-4"
-                  >
+                  <div key={type.id} className="flex items-center gap-4 p-4">
                     <div
-                      className="w-4 h-4 rounded-full flex-shrink-0"
+                      className="h-4 w-4 flex-shrink-0 rounded-full"
                       style={{ backgroundColor: type.color_code }}
                     />
-                    <div className="flex-1 min-w-0">
+                    <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
                         <span className="font-medium text-[var(--text-primary)]">{type.name}</span>
-                        <span className="text-xs text-[var(--text-tertiary)] bg-gray-100 px-2 py-0.5 rounded">
+                        <span className="rounded bg-gray-100 px-2 py-0.5 text-xs text-[var(--text-tertiary)]">
                           {type.code}
                         </span>
                       </div>
                       {type.description && (
-                        <p className="text-sm text-[var(--text-secondary)] truncate">{type.description}</p>
+                        <p className="truncate text-sm text-[var(--text-secondary)]">
+                          {type.description}
+                        </p>
                       )}
                     </div>
                     <div className="flex items-center gap-4 text-sm text-[var(--text-secondary)]">
                       {type.is_paid && (
                         <span className="flex items-center gap-1">
-                          <DollarSign className="w-4 h-4" />
+                          <DollarSign className="h-4 w-4" />
                           Pagado
                         </span>
                       )}
                       {type.max_days_per_year && (
                         <span className="flex items-center gap-1">
-                          <Calendar className="w-4 h-4" />
+                          <Calendar className="h-4 w-4" />
                           {type.max_days_per_year} días/año
                         </span>
                       )}
@@ -460,64 +467,68 @@ export default function TimeOffTypesPage(): JSX.Element {
 
           {/* Custom Types */}
           <div>
-            <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-4">
+            <h2 className="mb-4 text-lg font-semibold text-[var(--text-primary)]">
               Tipos Personalizados
             </h2>
-            <p className="text-sm text-[var(--text-secondary)] mb-4">
+            <p className="mb-4 text-sm text-[var(--text-secondary)]">
               Tipos de ausencia específicos para tu clínica.
             </p>
 
             {customTypes.length === 0 ? (
-              <div className="bg-[var(--bg-secondary)] rounded-xl p-8 text-center">
-                <Clock className="w-12 h-12 text-[var(--text-tertiary)] mx-auto mb-4" />
+              <div className="rounded-xl bg-[var(--bg-secondary)] p-8 text-center">
+                <Clock className="mx-auto mb-4 h-12 w-12 text-[var(--text-tertiary)]" />
                 <p className="text-[var(--text-secondary)]">
                   No has creado tipos personalizados aún
                 </p>
                 <button
                   onClick={() => setShowForm(true)}
-                  className="mt-4 text-[var(--primary)] font-medium hover:underline"
+                  className="mt-4 font-medium text-[var(--primary)] hover:underline"
                 >
                   Crear el primero
                 </button>
               </div>
             ) : (
-              <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+              <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
                 <div className="divide-y divide-gray-100">
                   {customTypes.map((type) => (
                     <div
                       key={type.id}
-                      className={`p-4 flex items-center gap-4 ${!type.is_active ? 'opacity-50' : ''}`}
+                      className={`flex items-center gap-4 p-4 ${!type.is_active ? 'opacity-50' : ''}`}
                     >
                       <div
-                        className="w-4 h-4 rounded-full flex-shrink-0"
+                        className="h-4 w-4 flex-shrink-0 rounded-full"
                         style={{ backgroundColor: type.color_code }}
                       />
-                      <div className="flex-1 min-w-0">
+                      <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
-                          <span className="font-medium text-[var(--text-primary)]">{type.name}</span>
-                          <span className="text-xs text-[var(--text-tertiary)] bg-gray-100 px-2 py-0.5 rounded">
+                          <span className="font-medium text-[var(--text-primary)]">
+                            {type.name}
+                          </span>
+                          <span className="rounded bg-gray-100 px-2 py-0.5 text-xs text-[var(--text-tertiary)]">
                             {type.code}
                           </span>
                           {!type.is_active && (
-                            <span className="text-xs text-red-600 bg-red-50 px-2 py-0.5 rounded">
+                            <span className="rounded bg-red-50 px-2 py-0.5 text-xs text-red-600">
                               Inactivo
                             </span>
                           )}
                         </div>
                         {type.description && (
-                          <p className="text-sm text-[var(--text-secondary)] truncate">{type.description}</p>
+                          <p className="truncate text-sm text-[var(--text-secondary)]">
+                            {type.description}
+                          </p>
                         )}
                       </div>
                       <div className="flex items-center gap-4 text-sm text-[var(--text-secondary)]">
                         {type.is_paid && (
                           <span className="flex items-center gap-1">
-                            <DollarSign className="w-4 h-4" />
+                            <DollarSign className="h-4 w-4" />
                             Pagado
                           </span>
                         )}
                         {type.max_days_per_year && (
                           <span className="flex items-center gap-1">
-                            <Calendar className="w-4 h-4" />
+                            <Calendar className="h-4 w-4" />
                             {type.max_days_per_year} días/año
                           </span>
                         )}
@@ -525,28 +536,32 @@ export default function TimeOffTypesPage(): JSX.Element {
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => handleToggleActive(type)}
-                          className={`p-2 rounded-lg transition-colors ${
+                          className={`rounded-lg p-2 transition-colors ${
                             type.is_active
                               ? 'text-green-600 hover:bg-green-50'
                               : 'text-gray-400 hover:bg-gray-100'
                           }`}
                           title={type.is_active ? 'Desactivar' : 'Activar'}
                         >
-                          {type.is_active ? <Check className="w-4 h-4" /> : <X className="w-4 h-4" />}
+                          {type.is_active ? (
+                            <Check className="h-4 w-4" />
+                          ) : (
+                            <X className="h-4 w-4" />
+                          )}
                         </button>
                         <button
                           onClick={() => handleEdit(type)}
-                          className="p-2 text-[var(--text-secondary)] hover:bg-gray-100 rounded-lg"
+                          className="rounded-lg p-2 text-[var(--text-secondary)] hover:bg-gray-100"
                           title="Editar"
                         >
-                          <Edit2 className="w-4 h-4" />
+                          <Edit2 className="h-4 w-4" />
                         </button>
                         <button
                           onClick={() => handleDelete(type)}
-                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+                          className="rounded-lg p-2 text-red-600 hover:bg-red-50"
                           title="Eliminar"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="h-4 w-4" />
                         </button>
                       </div>
                     </div>
@@ -558,5 +573,5 @@ export default function TimeOffTypesPage(): JSX.Element {
         </>
       )}
     </div>
-  );
+  )
 }

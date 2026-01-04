@@ -42,7 +42,10 @@
       "image": "/branding/petlife/team/carlos.jpg",
       "bio": "Médico Veterinario con Especialización en Diagnóstico por Imágenes (UBA, Argentina). Más de 15 años de experiencia en ecografía y radiología veterinaria. Docente invitado en cursos de postgrado. Ha realizado más de 20.000 estudios de imagen.",
       "specialties": ["Ecografía Abdominal", "Ecografía Doppler", "Radiología Digital"],
-      "education": ["Universidad Nacional de Asunción", "Especialización en Imagenología - UBA, Buenos Aires"]
+      "education": [
+        "Universidad Nacional de Asunción",
+        "Especialización en Imagenología - UBA, Buenos Aires"
+      ]
     },
     {
       "name": "Dra. Sofía Giménez",
@@ -50,7 +53,10 @@
       "image": "/branding/petlife/team/sofia.jpg",
       "bio": "Cardióloga veterinaria certificada por el Colegio Latinoamericano de Cardiología Veterinaria. Especialista en ecocardiografía Doppler y manejo de cardiopatías congénitas y adquiridas en pequeños animales.",
       "specialties": ["Ecocardiografía", "Electrocardiografía", "Holter 24hs"],
-      "education": ["Universidad Nacional de Asunción", "Residencia en Cardiología - São Paulo, Brasil"]
+      "education": [
+        "Universidad Nacional de Asunción",
+        "Residencia en Cardiología - São Paulo, Brasil"
+      ]
     },
     {
       "name": "Dr. Rodrigo Villalba",
@@ -66,7 +72,10 @@
       "image": "/branding/petlife/team/lorena.jpg",
       "bio": "Responsable del laboratorio clínico y citopatología. Especializada en hematología veterinaria y análisis de efusiones. Garantiza la calidad y precisión de todos los estudios de laboratorio.",
       "specialties": ["Hematología", "Citología", "Bioquímica Clínica"],
-      "education": ["Universidad Nacional de Asunción", "Certificación en Laboratorio Clínico - IDEXX"]
+      "education": [
+        "Universidad Nacional de Asunción",
+        "Certificación en Laboratorio Clínico - IDEXX"
+      ]
     }
   ],
   "facilities": {
@@ -141,10 +150,22 @@
     "title": "Programa para Veterinarios Derivantes",
     "description": "Diseñamos un programa especial para colegas que necesitan estudios especializados para sus pacientes.",
     "benefits": [
-      { "icon": "calendar", "title": "Turnos Prioritarios", "text": "Agenda preferencial para derivaciones" },
-      { "icon": "file-text", "title": "Informes Completos", "text": "Documentación detallada con imágenes" },
+      {
+        "icon": "calendar",
+        "title": "Turnos Prioritarios",
+        "text": "Agenda preferencial para derivaciones"
+      },
+      {
+        "icon": "file-text",
+        "title": "Informes Completos",
+        "text": "Documentación detallada con imágenes"
+      },
       { "icon": "phone", "title": "Línea Directa", "text": "WhatsApp exclusivo para coordinación" },
-      { "icon": "percent", "title": "Tarifas Especiales", "text": "Precios diferenciados para colegas" }
+      {
+        "icon": "percent",
+        "title": "Tarifas Especiales",
+        "text": "Precios diferenciados para colegas"
+      }
     ],
     "cta_text": "Conocer el Programa"
   }

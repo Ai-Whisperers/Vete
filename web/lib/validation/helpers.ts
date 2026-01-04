@@ -34,7 +34,7 @@ export function validateActionData(
 
   return {
     success: false,
-    errors: ValidationEngine.sanitizeErrors(result.errors)
+    errors: ValidationEngine.sanitizeErrors(result.errors),
   }
 }
 
@@ -49,7 +49,7 @@ export function validateForApi(
   if (!result.isValid) {
     return {
       isValid: false,
-      fieldErrors: ValidationEngine.sanitizeErrors(result.errors)
+      fieldErrors: ValidationEngine.sanitizeErrors(result.errors),
     }
   }
 
@@ -66,7 +66,7 @@ export const patterns = {
   alpha: /^[a-zA-ZÀ-ÿ\s'-]+$/,
   alphanumeric: /^[a-zA-ZÀ-ÿ0-9\s'-]+$/,
   numeric: /^\d+$/,
-  currency: /^\d+(\.\d{1,2})?$/
+  currency: /^\d+(\.\d{1,2})?$/,
 }
 
 // Common validation rules
@@ -79,5 +79,5 @@ export const rules = {
   url: (message?: string) => ({ url: true, message }),
   min: (min: number, message?: string) => ({ min, message }),
   max: (max: number, message?: string) => ({ max, message }),
-  custom: (fn: (value: any) => boolean | string, message?: string) => ({ custom: fn, message })
+  custom: (fn: (value: any) => boolean | string, message?: string) => ({ custom: fn, message }),
 }

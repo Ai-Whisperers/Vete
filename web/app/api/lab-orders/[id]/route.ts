@@ -1,21 +1,21 @@
-import { createClient } from '@/lib/supabase/server';
-import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@/lib/supabase/server'
+import { NextRequest, NextResponse } from 'next/server'
 
 interface RouteParams {
   params: Promise<{ id: string }>
 }
 
-export async function GET(
-  request: NextRequest,
-  { params }: RouteParams
-) {
-  const supabase = await createClient();
-  const { id } = await params;
+export async function GET(request: NextRequest, { params }: RouteParams) {
+  const supabase = await createClient()
+  const { id } = await params
 
   // Authentication check
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
   }
 
   // Get user profile
@@ -23,21 +23,22 @@ export async function GET(
     .from('profiles')
     .select('clinic_id:tenant_id, role')
     .eq('id', user.id)
-    .single();
+    .single()
 
   if (!profile) {
-    return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 });
+    return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 })
   }
 
   // Only staff can view lab orders
   if (!['vet', 'admin'].includes(profile.role)) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
+    return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
   }
 
   // Fetch order with all related data
   const { data: order, error } = await supabase
     .from('lab_orders')
-    .select(`
+    .select(
+      `
       *,
       pets!inner(id, name, species, breed, date_of_birth, tenant_id),
       lab_order_items(
@@ -46,35 +47,36 @@ export async function GET(
         lab_test_catalog(id, code, name, unit, result_type),
         lab_results(id, value_numeric, value_text, flag, verified_at, verified_by, result_date)
       )
-    `)
+    `
+    )
     .eq('id', id)
-    .single();
+    .single()
 
   if (error) {
-    console.error('[API] lab_orders GET by id error:', error);
-    return NextResponse.json({ error: 'Orden no encontrada' }, { status: 404 });
+    console.error('[API] lab_orders GET by id error:', error)
+    return NextResponse.json({ error: 'Orden no encontrada' }, { status: 404 })
   }
 
   // Verify order belongs to staff's clinic
-  const pet = Array.isArray(order.pets) ? order.pets[0] : order.pets;
+  const pet = Array.isArray(order.pets) ? order.pets[0] : order.pets
   if (pet.tenant_id !== profile.clinic_id) {
-    return NextResponse.json({ error: 'No tienes acceso a esta orden' }, { status: 403 });
+    return NextResponse.json({ error: 'No tienes acceso a esta orden' }, { status: 403 })
   }
 
-  return NextResponse.json(order);
+  return NextResponse.json(order)
 }
 
-export async function PATCH(
-  request: NextRequest,
-  { params }: RouteParams
-) {
-  const supabase = await createClient();
-  const { id } = await params;
+export async function PATCH(request: NextRequest, { params }: RouteParams) {
+  const supabase = await createClient()
+  const { id } = await params
 
   // Authentication check
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
   }
 
   // Get user profile - only vets/admins can update
@@ -82,72 +84,77 @@ export async function PATCH(
     .from('profiles')
     .select('clinic_id:tenant_id, role')
     .eq('id', user.id)
-    .single();
+    .single()
 
   if (!profile || !['vet', 'admin'].includes(profile.role)) {
-    return NextResponse.json({ error: 'Solo veterinarios pueden modificar órdenes' }, { status: 403 });
+    return NextResponse.json(
+      { error: 'Solo veterinarios pueden modificar órdenes' },
+      { status: 403 }
+    )
   }
 
   // Parse body
-  let body;
+  let body
   try {
-    body = await request.json();
+    body = await request.json()
   } catch {
-    return NextResponse.json({ error: 'JSON inválido' }, { status: 400 });
+    return NextResponse.json({ error: 'JSON inválido' }, { status: 400 })
   }
 
-  const { status, has_critical_values, specimen_collected_at, completed_at } = body;
+  const { status, has_critical_values, specimen_collected_at, completed_at } = body
 
   // Verify order belongs to staff's clinic
   const { data: existing } = await supabase
     .from('lab_orders')
     .select('id, pets!inner(tenant_id)')
     .eq('id', id)
-    .single();
+    .single()
 
   if (!existing) {
-    return NextResponse.json({ error: 'Orden no encontrada' }, { status: 404 });
+    return NextResponse.json({ error: 'Orden no encontrada' }, { status: 404 })
   }
 
-  const pet = Array.isArray(existing.pets) ? existing.pets[0] : existing.pets;
+  const pet = Array.isArray(existing.pets) ? existing.pets[0] : existing.pets
   if (pet.tenant_id !== profile.clinic_id) {
-    return NextResponse.json({ error: 'No tienes acceso a esta orden' }, { status: 403 });
+    return NextResponse.json({ error: 'No tienes acceso a esta orden' }, { status: 403 })
   }
 
   // Build update
-  const updates: Record<string, unknown> = {};
+  const updates: Record<string, unknown> = {}
   if (status) {
-    updates.status = status;
+    updates.status = status
     if (status === 'specimen_collected' && !specimen_collected_at) {
-      updates.specimen_collected_at = new Date().toISOString();
+      updates.specimen_collected_at = new Date().toISOString()
     }
     if (status === 'completed' && !completed_at) {
-      updates.completed_at = new Date().toISOString();
+      updates.completed_at = new Date().toISOString()
     }
   }
-  if (has_critical_values !== undefined) updates.has_critical_values = has_critical_values;
-  if (specimen_collected_at) updates.specimen_collected_at = specimen_collected_at;
-  if (completed_at) updates.completed_at = completed_at;
+  if (has_critical_values !== undefined) updates.has_critical_values = has_critical_values
+  if (specimen_collected_at) updates.specimen_collected_at = specimen_collected_at
+  if (completed_at) updates.completed_at = completed_at
 
   const { data, error } = await supabase
     .from('lab_orders')
     .update(updates)
     .eq('id', id)
-    .select(`
+    .select(
+      `
       *,
       pets!inner(id, name, owner_id, tenant_id)
-    `)
-    .single();
+    `
+    )
+    .single()
 
   if (error) {
-    console.error('[API] lab_orders PATCH error:', error);
-    return NextResponse.json({ error: 'Error al actualizar orden' }, { status: 500 });
+    console.error('[API] lab_orders PATCH error:', error)
+    return NextResponse.json({ error: 'Error al actualizar orden' }, { status: 500 })
   }
 
   // Send notification when status changes to completed
   if (status === 'completed') {
     try {
-      const petData = Array.isArray(data.pets) ? data.pets[0] : data.pets;
+      const petData = Array.isArray(data.pets) ? data.pets[0] : data.pets
 
       // Create in-app notification for the pet owner
       await supabase.from('notifications').insert({
@@ -159,9 +166,9 @@ export async function PATCH(
         data: {
           lab_order_id: id,
           pet_id: petData.id,
-          has_critical_values: data.has_critical_values
-        }
-      });
+          has_critical_values: data.has_critical_values,
+        },
+      })
 
       // If there are critical values, also notify the vet
       if (data.has_critical_values) {
@@ -170,7 +177,7 @@ export async function PATCH(
           .from('lab_orders')
           .select('ordered_by')
           .eq('id', id)
-          .single();
+          .single()
 
         if (orderDetails?.ordered_by) {
           await supabase.from('notifications').insert({
@@ -182,31 +189,31 @@ export async function PATCH(
             data: {
               lab_order_id: id,
               pet_id: petData.id,
-              has_critical_values: true
-            }
-          });
+              has_critical_values: true,
+            },
+          })
         }
       }
     } catch (notifyError) {
       // Log but don't fail the request if notification fails
-      console.error('[API] lab_orders notification error:', notifyError);
+      console.error('[API] lab_orders notification error:', notifyError)
     }
   }
 
-  return NextResponse.json(data);
+  return NextResponse.json(data)
 }
 
-export async function DELETE(
-  request: NextRequest,
-  { params }: RouteParams
-) {
-  const supabase = await createClient();
-  const { id } = await params;
+export async function DELETE(request: NextRequest, { params }: RouteParams) {
+  const supabase = await createClient()
+  const { id } = await params
 
   // Authentication check
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
   }
 
   // Only admins can delete lab orders
@@ -214,10 +221,13 @@ export async function DELETE(
     .from('profiles')
     .select('clinic_id:tenant_id, role')
     .eq('id', user.id)
-    .single();
+    .single()
 
   if (!profile || profile.role !== 'admin') {
-    return NextResponse.json({ error: 'Solo administradores pueden eliminar órdenes' }, { status: 403 });
+    return NextResponse.json(
+      { error: 'Solo administradores pueden eliminar órdenes' },
+      { status: 403 }
+    )
   }
 
   // Verify order belongs to admin's clinic
@@ -225,27 +235,24 @@ export async function DELETE(
     .from('lab_orders')
     .select('id, pets!inner(tenant_id)')
     .eq('id', id)
-    .single();
+    .single()
 
   if (!existing) {
-    return NextResponse.json({ error: 'Orden no encontrada' }, { status: 404 });
+    return NextResponse.json({ error: 'Orden no encontrada' }, { status: 404 })
   }
 
-  const pet = Array.isArray(existing.pets) ? existing.pets[0] : existing.pets;
+  const pet = Array.isArray(existing.pets) ? existing.pets[0] : existing.pets
   if (pet.tenant_id !== profile.clinic_id) {
-    return NextResponse.json({ error: 'No tienes acceso a esta orden' }, { status: 403 });
+    return NextResponse.json({ error: 'No tienes acceso a esta orden' }, { status: 403 })
   }
 
   // Delete order (cascade should handle order items)
-  const { error } = await supabase
-    .from('lab_orders')
-    .delete()
-    .eq('id', id);
+  const { error } = await supabase.from('lab_orders').delete().eq('id', id)
 
   if (error) {
-    console.error('[API] lab_orders DELETE error:', error);
-    return NextResponse.json({ error: 'Error al eliminar orden' }, { status: 500 });
+    console.error('[API] lab_orders DELETE error:', error)
+    return NextResponse.json({ error: 'Error al eliminar orden' }, { status: 500 })
   }
 
-  return new NextResponse(null, { status: 204 });
+  return new NextResponse(null, { status: 204 })
 }

@@ -1,31 +1,33 @@
-import { Suspense } from 'react';
-import { getClinicData } from '@/lib/clinics';
-import { notFound, redirect } from 'next/navigation';
-import { createClient } from '@/lib/supabase/server';
-import PrescriptionOrdersClient from './client';
+import { Suspense } from 'react'
+import { getClinicData } from '@/lib/clinics'
+import { notFound, redirect } from 'next/navigation'
+import { createClient } from '@/lib/supabase/server'
+import PrescriptionOrdersClient from './client'
 
 interface Props {
-  params: Promise<{ clinic: string }>;
+  params: Promise<{ clinic: string }>
 }
 
 export async function generateStaticParams() {
-  return [{ clinic: 'adris' }, { clinic: 'petlife' }];
+  return [{ clinic: 'adris' }, { clinic: 'petlife' }]
 }
 
 export default async function PrescriptionOrdersPage({ params }: Props) {
-  const { clinic } = await params;
-  const clinicData = await getClinicData(clinic);
+  const { clinic } = await params
+  const clinicData = await getClinicData(clinic)
 
   if (!clinicData) {
-    notFound();
+    notFound()
   }
 
-  const supabase = await createClient();
+  const supabase = await createClient()
 
   // Auth check
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) {
-    redirect(`/${clinic}/auth/login?returnTo=/${clinic}/dashboard/orders/prescriptions`);
+    redirect(`/${clinic}/auth/login?returnTo=/${clinic}/dashboard/orders/prescriptions`)
   }
 
   // Check if user is staff
@@ -33,25 +35,24 @@ export default async function PrescriptionOrdersPage({ params }: Props) {
     .from('profiles')
     .select('role, tenant_id')
     .eq('id', user.id)
-    .single();
+    .single()
 
   if (!profile || (profile.role !== 'vet' && profile.role !== 'admin')) {
-    redirect(`/${clinic}/portal/dashboard`);
+    redirect(`/${clinic}/portal/dashboard`)
   }
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <Suspense fallback={
-        <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-gray-200 rounded w-1/3" />
-          <div className="h-64 bg-gray-200 rounded" />
-        </div>
-      }>
-        <PrescriptionOrdersClient
-          clinic={clinic}
-          config={clinicData.config}
-        />
+      <Suspense
+        fallback={
+          <div className="animate-pulse space-y-4">
+            <div className="h-8 w-1/3 rounded bg-gray-200" />
+            <div className="h-64 rounded bg-gray-200" />
+          </div>
+        }
+      >
+        <PrescriptionOrdersClient clinic={clinic} config={clinicData.config} />
       </Suspense>
     </div>
-  );
+  )
 }

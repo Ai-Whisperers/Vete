@@ -1,221 +1,204 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
-import * as XLSX from 'xlsx';
+import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@/lib/supabase/server'
+import * as XLSX from 'xlsx'
 
 export async function POST(req: NextRequest) {
-    const supabase = await createClient();
-    
-    // 1. Auth & Role check
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return new NextResponse('Unauthorized', { status: 401 });
+  const supabase = await createClient()
 
-    const { data: profile } = await supabase
-        .from('profiles')
-        .select('role, tenant_id')
-        .eq('id', user.id)
-        .single();
+  // 1. Auth & Role check
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return new NextResponse('Unauthorized', { status: 401 })
 
-    if (!profile || (profile.role !== 'admin' && profile.role !== 'vet')) {
-        return new NextResponse('Forbidden', { status: 403 });
-    }
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role, tenant_id')
+    .eq('id', user.id)
+    .single()
 
-    // TICKET-SEC-009: File validation constants
-    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-    const ALLOWED_EXCEL_TYPES = [
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        'application/vnd.ms-excel',
-        'text/csv'
-    ];
-    const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
-    const MAX_ROWS = 1000; // Prevent DoS via huge spreadsheets
+  if (!profile || (profile.role !== 'admin' && profile.role !== 'vet')) {
+    return new NextResponse('Forbidden', { status: 403 })
+  }
 
-    try {
-        let rpcData: Record<string, unknown>[] = [];
-        const contentType = req.headers.get('content-type') || '';
+  // TICKET-SEC-009: File validation constants
+  const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
+  const ALLOWED_EXCEL_TYPES = [
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'application/vnd.ms-excel',
+    'text/csv',
+  ]
+  const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp']
+  const MAX_ROWS = 1000 // Prevent DoS via huge spreadsheets
 
-        if (contentType.includes('application/json')) {
-            const body = await req.json();
-            rpcData = body.rows || [];
+  try {
+    let rpcData: Record<string, unknown>[] = []
+    const contentType = req.headers.get('content-type') || ''
 
-            // TICKET-SEC-009: Validate row count for JSON import
-            if (rpcData.length > MAX_ROWS) {
-                return NextResponse.json({ error: `Máximo ${MAX_ROWS} filas permitidas` }, { status: 400 });
-            }
-        } else {
-            const formData = await req.formData();
-            const type = formData.get('type') as string;
+    if (contentType.includes('application/json')) {
+      const body = await req.json()
+      rpcData = body.rows || []
 
-            if (type === 'image') {
-                const file = formData.get('file') as File;
-                const sku = formData.get('sku') as string;
-                if (!file || !sku) return NextResponse.json({ error: 'Datos faltantes' }, { status: 400 });
+      // TICKET-SEC-009: Validate row count for JSON import
+      if (rpcData.length > MAX_ROWS) {
+        return NextResponse.json({ error: `Máximo ${MAX_ROWS} filas permitidas` }, { status: 400 })
+      }
+    } else {
+      const formData = await req.formData()
+      const type = formData.get('type') as string
 
-                // TICKET-SEC-009: Validate image file
-                if (file.size > MAX_FILE_SIZE) {
-                    return NextResponse.json({ error: 'Archivo demasiado grande (máx 5MB)' }, { status: 400 });
-                }
-                if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
-                    return NextResponse.json({ error: 'Tipo de imagen no permitido. Use JPG, PNG o WebP' }, { status: 400 });
-                }
+      if (type === 'image') {
+        const file = formData.get('file') as File
+        const sku = formData.get('sku') as string
+        if (!file || !sku) return NextResponse.json({ error: 'Datos faltantes' }, { status: 400 })
 
-                const bytes = await file.arrayBuffer();
-                const fileExt = file.name.split('.').pop();
-                const fileName = `${profile.tenant_id}/${sku}_${Date.now()}.${fileExt}`;
-
-                // Upload to Storage
-                const { data: storageData, error: sError } = await supabase.storage
-                    .from('store-products')
-                    .upload(fileName, bytes, { contentType: file.type, upsert: true });
-
-                if (sError) throw new Error(`Storage Error: ${sError.message}`);
-
-                // Get Public URL
-                const { data: { publicUrl } } = supabase.storage
-                    .from('store-products')
-                    .getPublicUrl(fileName);
-
-                // Update Product
-                const { error: pError } = await supabase
-                    .from('store_products')
-                    .update({ image_url: publicUrl })
-                    .eq('tenant_id', profile.tenant_id)
-                    .eq('sku', sku);
-
-                if (pError) throw new Error(`Product Update Error: ${pError.message}`);
-
-                return NextResponse.json({ success: 1, url: publicUrl });
-            }
-
-            const file = formData.get('file') as File;
-            if (!file) return NextResponse.json({ error: 'Archivo faltante' }, { status: 400 });
-
-            // TICKET-SEC-009: Validate spreadsheet file
-            if (file.size > MAX_FILE_SIZE) {
-                return NextResponse.json({ error: 'Archivo demasiado grande (máx 5MB)' }, { status: 400 });
-            }
-            if (!ALLOWED_EXCEL_TYPES.includes(file.type)) {
-                return NextResponse.json({ error: 'Tipo de archivo no permitido. Use Excel (.xlsx) o CSV' }, { status: 400 });
-            }
-
-            const bytes = await file.arrayBuffer();
-            const workbook = XLSX.read(bytes, { type: 'array' });
-            const sheetName = workbook.SheetNames[0];
-            const sheet = workbook.Sheets[sheetName];
-            const rows = XLSX.utils.sheet_to_json(sheet) as Record<string, unknown>[];
-
-            // TICKET-SEC-009: Validate row count
-            if (rows.length > MAX_ROWS) {
-                return NextResponse.json({ error: `Máximo ${MAX_ROWS} filas permitidas` }, { status: 400 });
-            }
-
-            // Map rows to RPC format - supports both English and Spanish column names
-            rpcData = rows.map(row => ({
-                operation: String(
-                    row['Operation (Required)'] ||
-                    row['Operation (Optional)'] ||
-                    row['Operación'] ||
-                    row['Operación (Requerido)'] ||
-                    ''
-                ).trim().toLowerCase(),
-                sku: String(
-                    row['SKU'] ||
-                    row['SKU (Opcional)'] ||
-                    row['SKU (Requerido)'] ||
-                    ''
-                ).trim(),
-                name: String(
-                    row['Name'] ||
-                    row['Nombre (Requerido)'] ||
-                    row['Nombre'] ||
-                    ''
-                ).trim(),
-                category: String(
-                    row['Category'] ||
-                    row['Categoría (Requerido)'] ||
-                    row['Categoría'] ||
-                    ''
-                ).trim(),
-                price: Number.parseFloat(String(
-                    row['Base Price (Sell)'] ||
-                    row['Precio Venta (Requerido)'] ||
-                    row['Nuevo Precio Venta'] ||
-                    row['Precio Venta'] ||
-                    '0'
-                )),
-                quantity: Number.parseFloat(String(
-                    row['Quantity (Add/Remove)'] ||
-                    row['Stock Inicial'] ||
-                    row['Cantidad (+/-)'] ||
-                    row['Cantidad'] ||
-                    '0'
-                )),
-                cost: Number.parseFloat(String(
-                    row['Unit Cost (Buy)'] ||
-                    row['Costo Unitario'] ||
-                    row['Costo Unitario (Compras)'] ||
-                    '0'
-                )),
-                description: String(
-                    row['Description'] ||
-                    row['Descripción'] ||
-                    ''
-                ),
-                // Additional fields for comprehensive inventory management
-                barcode: String(
-                    row['Barcode'] ||
-                    row['Código de Barras'] ||
-                    ''
-                ).trim() || null,
-                min_stock_level: Number.parseFloat(String(
-                    row['Min Stock Level'] ||
-                    row['Stock Mínimo (Alerta)'] ||
-                    row['Stock Mínimo'] ||
-                    '0'
-                )),
-                expiry_date: String(
-                    row['Expiry Date (YYYY-MM-DD)'] ||
-                    row['Expiry Date'] ||
-                    row['Fecha Vencimiento (YYYY-MM-DD)'] ||
-                    row['Fecha Vencimiento'] ||
-                    row['Fecha Venc.'] ||
-                    ''
-                ).trim() || null,
-                batch_number: String(
-                    row['Batch Number'] ||
-                    row['Número de Lote'] ||
-                    row['Lote'] ||
-                    ''
-                ).trim() || null,
-                supplier_name: String(
-                    row['Supplier'] ||
-                    row['Proveedor'] ||
-                    ''
-                ).trim() || null,
-                is_active: String(
-                    row['Active'] ||
-                    row['Activo (SI/NO)'] ||
-                    row['Activo'] ||
-                    'SI'
-                ).toUpperCase() !== 'NO'
-            }));
+        // TICKET-SEC-009: Validate image file
+        if (file.size > MAX_FILE_SIZE) {
+          return NextResponse.json({ error: 'Archivo demasiado grande (máx 5MB)' }, { status: 400 })
+        }
+        if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+          return NextResponse.json(
+            { error: 'Tipo de imagen no permitido. Use JPG, PNG o WebP' },
+            { status: 400 }
+          )
         }
 
-        // 3. Call Atomic RPC
-        const { data: rpcResult, error: rpcError } = await supabase.rpc('import_inventory_batch', {
-            p_tenant_id: profile.tenant_id,
-            p_performer_id: user.id,
-            p_rows: rpcData
-        });
+        const bytes = await file.arrayBuffer()
+        const fileExt = file.name.split('.').pop()
+        const fileName = `${profile.tenant_id}/${sku}_${Date.now()}.${fileExt}`
 
-        if (rpcError) throw new Error(`RPC Error: ${rpcError.message}`);
+        // Upload to Storage
+        const { data: storageData, error: sError } = await supabase.storage
+          .from('store-products')
+          .upload(fileName, bytes, { contentType: file.type, upsert: true })
 
-        return NextResponse.json({
-            success: rpcResult.success_count,
-            errors: rpcResult.errors
-        });
+        if (sError) throw new Error(`Storage Error: ${sError.message}`)
 
-    } catch (e) {
-        const message = e instanceof Error ? e.message : 'Error interno del servidor';
-        return NextResponse.json({ error: message }, { status: 500 });
+        // Get Public URL
+        const {
+          data: { publicUrl },
+        } = supabase.storage.from('store-products').getPublicUrl(fileName)
+
+        // Update Product
+        const { error: pError } = await supabase
+          .from('store_products')
+          .update({ image_url: publicUrl })
+          .eq('tenant_id', profile.tenant_id)
+          .eq('sku', sku)
+
+        if (pError) throw new Error(`Product Update Error: ${pError.message}`)
+
+        return NextResponse.json({ success: 1, url: publicUrl })
+      }
+
+      const file = formData.get('file') as File
+      if (!file) return NextResponse.json({ error: 'Archivo faltante' }, { status: 400 })
+
+      // TICKET-SEC-009: Validate spreadsheet file
+      if (file.size > MAX_FILE_SIZE) {
+        return NextResponse.json({ error: 'Archivo demasiado grande (máx 5MB)' }, { status: 400 })
+      }
+      if (!ALLOWED_EXCEL_TYPES.includes(file.type)) {
+        return NextResponse.json(
+          { error: 'Tipo de archivo no permitido. Use Excel (.xlsx) o CSV' },
+          { status: 400 }
+        )
+      }
+
+      const bytes = await file.arrayBuffer()
+      const workbook = XLSX.read(bytes, { type: 'array' })
+      const sheetName = workbook.SheetNames[0]
+      const sheet = workbook.Sheets[sheetName]
+      const rows = XLSX.utils.sheet_to_json(sheet) as Record<string, unknown>[]
+
+      // TICKET-SEC-009: Validate row count
+      if (rows.length > MAX_ROWS) {
+        return NextResponse.json({ error: `Máximo ${MAX_ROWS} filas permitidas` }, { status: 400 })
+      }
+
+      // Map rows to RPC format - supports both English and Spanish column names
+      rpcData = rows.map((row) => ({
+        operation: String(
+          row['Operation (Required)'] ||
+            row['Operation (Optional)'] ||
+            row['Operación'] ||
+            row['Operación (Requerido)'] ||
+            ''
+        )
+          .trim()
+          .toLowerCase(),
+        sku: String(row['SKU'] || row['SKU (Opcional)'] || row['SKU (Requerido)'] || '').trim(),
+        name: String(row['Name'] || row['Nombre (Requerido)'] || row['Nombre'] || '').trim(),
+        category: String(
+          row['Category'] || row['Categoría (Requerido)'] || row['Categoría'] || ''
+        ).trim(),
+        price: Number.parseFloat(
+          String(
+            row['Base Price (Sell)'] ||
+              row['Precio Venta (Requerido)'] ||
+              row['Nuevo Precio Venta'] ||
+              row['Precio Venta'] ||
+              '0'
+          )
+        ),
+        quantity: Number.parseFloat(
+          String(
+            row['Quantity (Add/Remove)'] ||
+              row['Stock Inicial'] ||
+              row['Cantidad (+/-)'] ||
+              row['Cantidad'] ||
+              '0'
+          )
+        ),
+        cost: Number.parseFloat(
+          String(
+            row['Unit Cost (Buy)'] ||
+              row['Costo Unitario'] ||
+              row['Costo Unitario (Compras)'] ||
+              '0'
+          )
+        ),
+        description: String(row['Description'] || row['Descripción'] || ''),
+        // Additional fields for comprehensive inventory management
+        barcode: String(row['Barcode'] || row['Código de Barras'] || '').trim() || null,
+        min_stock_level: Number.parseFloat(
+          String(
+            row['Min Stock Level'] || row['Stock Mínimo (Alerta)'] || row['Stock Mínimo'] || '0'
+          )
+        ),
+        expiry_date:
+          String(
+            row['Expiry Date (YYYY-MM-DD)'] ||
+              row['Expiry Date'] ||
+              row['Fecha Vencimiento (YYYY-MM-DD)'] ||
+              row['Fecha Vencimiento'] ||
+              row['Fecha Venc.'] ||
+              ''
+          ).trim() || null,
+        batch_number:
+          String(row['Batch Number'] || row['Número de Lote'] || row['Lote'] || '').trim() || null,
+        supplier_name: String(row['Supplier'] || row['Proveedor'] || '').trim() || null,
+        is_active:
+          String(row['Active'] || row['Activo (SI/NO)'] || row['Activo'] || 'SI').toUpperCase() !==
+          'NO',
+      }))
     }
+
+    // 3. Call Atomic RPC
+    const { data: rpcResult, error: rpcError } = await supabase.rpc('import_inventory_batch', {
+      p_tenant_id: profile.tenant_id,
+      p_performer_id: user.id,
+      p_rows: rpcData,
+    })
+
+    if (rpcError) throw new Error(`RPC Error: ${rpcError.message}`)
+
+    return NextResponse.json({
+      success: rpcResult.success_count,
+      errors: rpcResult.errors,
+    })
+  } catch (e) {
+    const message = e instanceof Error ? e.message : 'Error interno del servidor'
+    return NextResponse.json({ error: message }, { status: 500 })
+  }
 }

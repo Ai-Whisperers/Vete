@@ -1,32 +1,32 @@
-"use client";
+'use client'
 
-import { Dog, Cat, PawPrint, Minus, Plus, Trash2 } from "lucide-react";
-import { useCart, type CartItem } from "@/context/cart-context";
+import { Dog, Cat, PawPrint, Minus, Plus, Trash2 } from 'lucide-react'
+import { useCart, type CartItem } from '@/context/cart-context'
 import {
   formatPriceGs,
   SIZE_SHORT_LABELS,
   getSizeBadgeColor,
   SIZE_LABELS,
-  type PetSizeCategory
-} from "@/lib/utils/pet-size";
+  type PetSizeCategory,
+} from '@/lib/utils/pet-size'
 
 interface PetServiceGroupProps {
   /** Pet ID */
-  petId: string;
+  petId: string
   /** Pet name */
-  petName: string;
+  petName: string
   /** Pet size category */
-  petSize: PetSizeCategory;
+  petSize: PetSizeCategory
   /** Pet photo URL (optional) */
-  petPhoto?: string;
+  petPhoto?: string
   /** Pet species for icon fallback */
-  petSpecies?: "dog" | "cat" | string;
+  petSpecies?: 'dog' | 'cat' | string
   /** Services for this pet */
-  services: CartItem[];
+  services: CartItem[]
   /** Subtotal for this pet's services */
-  subtotal: number;
+  subtotal: number
   /** Compact mode for drawer */
-  compact?: boolean;
+  compact?: boolean
 }
 
 /**
@@ -43,47 +43,45 @@ export function PetServiceGroup({
   petSpecies,
   services,
   subtotal,
-  compact = false
+  compact = false,
 }: PetServiceGroupProps) {
-  const { updateQuantity, removeItem } = useCart();
+  const { updateQuantity, removeItem } = useCart()
 
   const handleIncrement = (item: CartItem) => {
-    updateQuantity(item.id, 1);
-  };
+    updateQuantity(item.id, 1)
+  }
 
   const handleDecrement = (item: CartItem) => {
     if (item.quantity > 1) {
-      updateQuantity(item.id, -1);
+      updateQuantity(item.id, -1)
     } else {
-      removeItem(item.id);
+      removeItem(item.id)
     }
-  };
+  }
 
-  const PetIcon = petSpecies === "dog" ? Dog : petSpecies === "cat" ? Cat : PawPrint;
+  const PetIcon = petSpecies === 'dog' ? Dog : petSpecies === 'cat' ? Cat : PawPrint
 
   if (compact) {
     return (
-      <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+      <div className="overflow-hidden rounded-xl border border-gray-100 bg-white">
         {/* Pet Header */}
-        <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-[var(--primary)]/5 to-transparent border-b border-gray-100">
+        <div className="from-[var(--primary)]/5 flex items-center gap-3 border-b border-gray-100 bg-gradient-to-r to-transparent p-3">
           {petPhoto ? (
             <img
               src={petPhoto}
               alt={petName}
-              className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm"
+              className="h-10 w-10 rounded-full border-2 border-white object-cover shadow-sm"
             />
           ) : (
-            <div className="w-10 h-10 rounded-full bg-[var(--bg-subtle)] flex items-center justify-center border-2 border-white shadow-sm">
-              <PetIcon className="w-5 h-5 text-[var(--primary)]" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-white bg-[var(--bg-subtle)] shadow-sm">
+              <PetIcon className="h-5 w-5 text-[var(--primary)]" />
             </div>
           )}
-          <div className="flex-grow min-w-0">
+          <div className="min-w-0 flex-grow">
             <div className="flex items-center gap-2">
-              <span className="font-bold text-[var(--text-primary)] truncate">
-                {petName}
-              </span>
+              <span className="truncate font-bold text-[var(--text-primary)]">{petName}</span>
               <span
-                className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${getSizeBadgeColor(
+                className={`rounded px-1.5 py-0.5 text-[10px] font-bold ${getSizeBadgeColor(
                   petSize
                 )}`}
               >
@@ -91,7 +89,7 @@ export function PetServiceGroup({
               </span>
             </div>
             <span className="text-xs text-[var(--text-muted)]">
-              {services.length} servicio{services.length !== 1 ? "s" : ""}
+              {services.length} servicio{services.length !== 1 ? 's' : ''}
             </span>
           </div>
           <span className="text-sm font-black text-[var(--primary)]">
@@ -103,85 +101,77 @@ export function PetServiceGroup({
         <div className="divide-y divide-gray-50">
           {services.map((service) => (
             <div key={service.id} className="flex items-center gap-2 p-2.5 pl-4">
-              <div className="w-1 h-8 bg-[var(--primary)]/20 rounded-full" />
-              <div className="flex-grow min-w-0">
-                <p className="text-sm font-medium text-[var(--text-primary)] truncate">
-                  {service.name.replace(`${petName} - `, "").replace(` - ${service.variant_name}`, "")}
+              <div className="bg-[var(--primary)]/20 h-8 w-1 rounded-full" />
+              <div className="min-w-0 flex-grow">
+                <p className="truncate text-sm font-medium text-[var(--text-primary)]">
+                  {service.name
+                    .replace(`${petName} - `, '')
+                    .replace(` - ${service.variant_name}`, '')}
                 </p>
                 {service.variant_name && (
-                  <p className="text-xs text-[var(--text-muted)]">
-                    {service.variant_name}
-                  </p>
+                  <p className="text-xs text-[var(--text-muted)]">{service.variant_name}</p>
                 )}
               </div>
               <div className="flex items-center gap-1">
                 <button
                   type="button"
                   onClick={() => handleDecrement(service)}
-                  className="w-5 h-5 rounded bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+                  className="flex h-5 w-5 items-center justify-center rounded bg-gray-100 transition-colors hover:bg-gray-200"
                 >
-                  <Minus className="w-3 h-3" />
+                  <Minus className="h-3 w-3" />
                 </button>
-                <span className="w-5 text-center text-xs font-bold">
-                  {service.quantity}
-                </span>
+                <span className="w-5 text-center text-xs font-bold">{service.quantity}</span>
                 <button
                   type="button"
                   onClick={() => handleIncrement(service)}
-                  className="w-5 h-5 rounded bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+                  className="flex h-5 w-5 items-center justify-center rounded bg-gray-100 transition-colors hover:bg-gray-200"
                 >
-                  <Plus className="w-3 h-3" />
+                  <Plus className="h-3 w-3" />
                 </button>
               </div>
-              <span className="text-xs font-bold text-[var(--primary)] w-20 text-right">
+              <span className="w-20 text-right text-xs font-bold text-[var(--primary)]">
                 {formatPriceGs(service.price * service.quantity)}
               </span>
             </div>
           ))}
         </div>
       </div>
-    );
+    )
   }
 
   // Full size display (checkout page)
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+    <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
       {/* Pet Header */}
-      <div className="flex items-center gap-4 p-5 bg-gradient-to-r from-[var(--primary)]/10 via-[var(--primary)]/5 to-transparent border-b border-gray-100">
+      <div className="from-[var(--primary)]/10 via-[var(--primary)]/5 flex items-center gap-4 border-b border-gray-100 bg-gradient-to-r to-transparent p-5">
         {petPhoto ? (
           <img
             src={petPhoto}
             alt={petName}
-            className="w-16 h-16 rounded-2xl object-cover border-2 border-white shadow-md"
+            className="h-16 w-16 rounded-2xl border-2 border-white object-cover shadow-md"
           />
         ) : (
-          <div className="w-16 h-16 rounded-2xl bg-white flex items-center justify-center border-2 border-white shadow-md">
-            <PetIcon className="w-8 h-8 text-[var(--primary)]" />
+          <div className="flex h-16 w-16 items-center justify-center rounded-2xl border-2 border-white bg-white shadow-md">
+            <PetIcon className="h-8 w-8 text-[var(--primary)]" />
           </div>
         )}
         <div className="flex-grow">
-          <div className="flex items-center gap-3 mb-1">
-            <h3 className="text-xl font-black text-[var(--text-primary)]">
-              {petName}
-            </h3>
+          <div className="mb-1 flex items-center gap-3">
+            <h3 className="text-xl font-black text-[var(--text-primary)]">{petName}</h3>
             <span
-              className={`px-2.5 py-1 rounded-full text-xs font-bold ${getSizeBadgeColor(
-                petSize
-              )}`}
+              className={`rounded-full px-2.5 py-1 text-xs font-bold ${getSizeBadgeColor(petSize)}`}
             >
               {SIZE_SHORT_LABELS[petSize]}
             </span>
           </div>
           <p className="text-sm text-[var(--text-muted)]">
             {SIZE_LABELS[petSize]} • {services.length} servicio
-            {services.length !== 1 ? "s" : ""}
+            {services.length !== 1 ? 's' : ''}
           </p>
         </div>
         <div className="text-right">
-          <p className="text-xs text-[var(--text-muted)] mb-1">Subtotal</p>
-          <p className="text-2xl font-black text-[var(--primary)]">
-            {formatPriceGs(subtotal)}
-          </p>
+          <p className="mb-1 text-xs text-[var(--text-muted)]">Subtotal</p>
+          <p className="text-2xl font-black text-[var(--primary)]">{formatPriceGs(subtotal)}</p>
         </div>
       </div>
 
@@ -190,35 +180,35 @@ export function PetServiceGroup({
         {services.map((service) => (
           <div
             key={service.id}
-            className="flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors"
+            className="flex items-center gap-4 p-4 transition-colors hover:bg-gray-50"
           >
             {/* Service indicator */}
-            <div className="w-1.5 h-12 bg-[var(--primary)]/30 rounded-full" />
+            <div className="bg-[var(--primary)]/30 h-12 w-1.5 rounded-full" />
 
             {/* Service image */}
             {service.image_url && (
               <img
                 src={service.image_url}
                 alt={service.name}
-                className="w-12 h-12 rounded-lg object-cover"
+                className="h-12 w-12 rounded-lg object-cover"
               />
             )}
 
             {/* Service info */}
-            <div className="flex-grow min-w-0">
+            <div className="min-w-0 flex-grow">
               <p className="font-bold text-[var(--text-primary)]">
-                {service.name
-                  .replace(`${petName} - `, "")
-                  .replace(` - ${service.variant_name}`, "")
-                  .split(" - ")[0]}
+                {
+                  service.name
+                    .replace(`${petName} - `, '')
+                    .replace(` - ${service.variant_name}`, '')
+                    .split(' - ')[0]
+                }
               </p>
               {service.variant_name && (
-                <p className="text-sm text-[var(--text-muted)]">
-                  {service.variant_name}
-                </p>
+                <p className="text-sm text-[var(--text-muted)]">{service.variant_name}</p>
               )}
               {service.base_price && service.base_price !== service.price && (
-                <p className="text-xs text-amber-600 mt-1">
+                <p className="mt-1 text-xs text-amber-600">
                   Base: {formatPriceGs(service.base_price)} → Ajustado por tamaño
                 </p>
               )}
@@ -229,22 +219,22 @@ export function PetServiceGroup({
               <button
                 type="button"
                 onClick={() => handleDecrement(service)}
-                className="w-8 h-8 rounded-lg border border-gray-200 hover:border-[var(--primary)] hover:bg-[var(--primary)]/5 flex items-center justify-center transition-colors"
+                className="hover:bg-[var(--primary)]/5 flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 transition-colors hover:border-[var(--primary)]"
               >
-                <Minus className="w-4 h-4" />
+                <Minus className="h-4 w-4" />
               </button>
               <span className="w-8 text-center font-bold">{service.quantity}</span>
               <button
                 type="button"
                 onClick={() => handleIncrement(service)}
-                className="w-8 h-8 rounded-lg border border-gray-200 hover:border-[var(--primary)] hover:bg-[var(--primary)]/5 flex items-center justify-center transition-colors"
+                className="hover:bg-[var(--primary)]/5 flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 transition-colors hover:border-[var(--primary)]"
               >
-                <Plus className="w-4 h-4" />
+                <Plus className="h-4 w-4" />
               </button>
             </div>
 
             {/* Price */}
-            <div className="text-right w-28">
+            <div className="w-28 text-right">
               {service.quantity > 1 && (
                 <p className="text-xs text-[var(--text-muted)]">
                   {formatPriceGs(service.price)} c/u
@@ -259,14 +249,14 @@ export function PetServiceGroup({
             <button
               type="button"
               onClick={() => removeItem(service.id)}
-              className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+              className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
               aria-label="Eliminar servicio"
             >
-              <Trash2 className="w-5 h-5" />
+              <Trash2 className="h-5 w-5" />
             </button>
           </div>
         ))}
       </div>
     </div>
-  );
+  )
 }

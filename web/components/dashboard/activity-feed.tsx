@@ -1,7 +1,7 @@
-"use client";
+'use client'
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
+import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import {
   CheckCircle2,
   PawPrint,
@@ -13,7 +13,7 @@ import {
   Activity,
   RefreshCw,
   LucideIcon,
-} from 'lucide-react';
+} from 'lucide-react'
 
 type ActivityType =
   | 'appointment_completed'
@@ -21,42 +21,42 @@ type ActivityType =
   | 'pet_registered'
   | 'vaccine_administered'
   | 'invoice_paid'
-  | 'client_registered';
+  | 'client_registered'
 
 interface ActivityItem {
-  id: string;
-  type: ActivityType;
-  title: string;
-  description: string;
-  timestamp: string;
-  href?: string;
-  actor?: string;
-  meta?: Record<string, string | number | boolean>;
+  id: string
+  type: ActivityType
+  title: string
+  description: string
+  timestamp: string
+  href?: string
+  actor?: string
+  meta?: Record<string, string | number | boolean>
 }
 
 interface ActivityFeedProps {
-  clinic: string;
-  maxItems?: number;
+  clinic: string
+  maxItems?: number
 }
 
 interface Appointment {
-  id: string;
-  status: string;
-  pet_name?: string;
-  service_name?: string;
-  updated_at?: string;
-  end_time?: string;
-  start_time: string;
-  created_at?: string;
-  vet_name?: string;
+  id: string
+  status: string
+  pet_name?: string
+  service_name?: string
+  updated_at?: string
+  end_time?: string
+  start_time: string
+  created_at?: string
+  vet_name?: string
 }
 
 interface Pet {
-  id: string;
-  name: string;
-  species: 'dog' | 'cat';
-  breed?: string;
-  created_at: string;
+  id: string
+  name: string
+  species: 'dog' | 'cat'
+  breed?: string
+  created_at: string
 }
 
 const activityConfig: Record<ActivityType, { icon: LucideIcon; color: string; bgColor: string }> = {
@@ -90,106 +90,102 @@ const activityConfig: Record<ActivityType, { icon: LucideIcon; color: string; bg
     color: 'text-indigo-600',
     bgColor: 'bg-indigo-100',
   },
-};
+}
 
 function formatRelativeTime(timestamp: string): string {
-  const date = new Date(timestamp);
-  const now = new Date();
-  const diffSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+  const date = new Date(timestamp)
+  const now = new Date()
+  const diffSeconds = Math.floor((now.getTime() - date.getTime()) / 1000)
 
-  if (diffSeconds < 60) return 'hace un momento';
-  if (diffSeconds < 3600) return `hace ${Math.floor(diffSeconds / 60)} min`;
-  if (diffSeconds < 86400) return `hace ${Math.floor(diffSeconds / 3600)} h`;
-  if (diffSeconds < 172800) return 'ayer';
-  return date.toLocaleDateString('es-PY', { day: 'numeric', month: 'short' });
+  if (diffSeconds < 60) return 'hace un momento'
+  if (diffSeconds < 3600) return `hace ${Math.floor(diffSeconds / 60)} min`
+  if (diffSeconds < 86400) return `hace ${Math.floor(diffSeconds / 3600)} h`
+  if (diffSeconds < 172800) return 'ayer'
+  return date.toLocaleDateString('es-PY', { day: 'numeric', month: 'short' })
 }
 
 function ActivityItemRow({ item }: { item: ActivityItem }) {
-  const config = activityConfig[item.type];
-  const Icon = config.icon;
+  const config = activityConfig[item.type]
+  const Icon = config.icon
 
   const content = (
-    <div className="flex items-start gap-3 p-3 rounded-xl hover:bg-[var(--bg-subtle)] transition-colors group">
-      <div className={`p-2 rounded-lg ${config.bgColor} ${config.color} flex-shrink-0`}>
-        <Icon className="w-4 h-4" />
+    <div className="group flex items-start gap-3 rounded-xl p-3 transition-colors hover:bg-[var(--bg-subtle)]">
+      <div className={`rounded-lg p-2 ${config.bgColor} ${config.color} flex-shrink-0`}>
+        <Icon className="h-4 w-4" />
       </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-sm text-[var(--text-primary)] group-hover:text-[var(--primary)] transition-colors">
+      <div className="min-w-0 flex-1">
+        <p className="text-sm text-[var(--text-primary)] transition-colors group-hover:text-[var(--primary)]">
           <span className="font-medium">{item.title}</span>
           {item.description && (
             <span className="text-[var(--text-muted)]"> - {item.description}</span>
           )}
         </p>
-        <div className="flex items-center gap-2 mt-0.5">
-          <span className="text-xs text-[var(--text-muted)] flex items-center gap-1">
-            <Clock className="w-3 h-3" />
+        <div className="mt-0.5 flex items-center gap-2">
+          <span className="flex items-center gap-1 text-xs text-[var(--text-muted)]">
+            <Clock className="h-3 w-3" />
             {formatRelativeTime(item.timestamp)}
           </span>
-          {item.actor && (
-            <span className="text-xs text-[var(--text-muted)]">
-              por {item.actor}
-            </span>
-          )}
+          {item.actor && <span className="text-xs text-[var(--text-muted)]">por {item.actor}</span>}
         </div>
       </div>
     </div>
-  );
+  )
 
   if (item.href) {
-    return <Link href={item.href}>{content}</Link>;
+    return <Link href={item.href}>{content}</Link>
   }
-  return content;
+  return content
 }
 
 function LoadingSkeleton() {
   return (
     <div className="space-y-2">
       {[...Array(5)].map((_, i) => (
-        <div key={i} className="animate-pulse flex items-start gap-3 p-3">
-          <div className="w-8 h-8 bg-[var(--border-light)] rounded-lg flex-shrink-0" />
+        <div key={i} className="flex animate-pulse items-start gap-3 p-3">
+          <div className="h-8 w-8 flex-shrink-0 rounded-lg bg-[var(--border-light)]" />
           <div className="flex-1">
-            <div className="h-4 bg-[var(--border-light)] rounded w-3/4 mb-2" />
-            <div className="h-3 bg-[var(--border-light)] rounded w-1/3" />
+            <div className="mb-2 h-4 w-3/4 rounded bg-[var(--border-light)]" />
+            <div className="h-3 w-1/3 rounded bg-[var(--border-light)]" />
           </div>
         </div>
       ))}
     </div>
-  );
+  )
 }
 
 function EmptyState() {
   return (
     <div className="flex flex-col items-center justify-center py-8 text-center">
-      <div className="w-12 h-12 rounded-full bg-[var(--bg-subtle)] flex items-center justify-center mb-3">
-        <Activity className="w-6 h-6 text-[var(--text-muted)]" />
+      <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--bg-subtle)]">
+        <Activity className="h-6 w-6 text-[var(--text-muted)]" />
       </div>
       <p className="text-sm text-[var(--text-muted)]">Sin actividad reciente</p>
     </div>
-  );
+  )
 }
 
 export function ActivityFeed({ clinic, maxItems = 8 }: ActivityFeedProps) {
-  const [activities, setActivities] = useState<ActivityItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
+  const [activities, setActivities] = useState<ActivityItem[]>([])
+  const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
 
   const fetchActivities = async (isRefresh = false) => {
-    if (isRefresh) setRefreshing(true);
-    else setLoading(true);
+    if (isRefresh) setRefreshing(true)
+    else setLoading(true)
 
     try {
       // Fetch recent activities from multiple sources
       const [appointmentsRes, petsRes] = await Promise.all([
         fetch(`/api/dashboard/today-appointments?clinic=${clinic}`),
         fetch(`/api/dashboard/pets?clinic=${clinic}&limit=5`),
-      ]);
+      ])
 
-      const activityItems: ActivityItem[] = [];
+      const activityItems: ActivityItem[] = []
 
       // Process completed appointments
       if (appointmentsRes.ok) {
-        const data = await appointmentsRes.json();
-        const appointments: Appointment[] = data.appointments || [];
+        const data = await appointmentsRes.json()
+        const appointments: Appointment[] = data.appointments || []
 
         appointments
           .filter((apt: Appointment) => apt.status === 'completed')
@@ -203,8 +199,8 @@ export function ActivityFeed({ clinic, maxItems = 8 }: ActivityFeedProps) {
               timestamp: apt.updated_at || apt.end_time || apt.start_time,
               href: `/${clinic}/dashboard/appointments/${apt.id}`,
               actor: apt.vet_name,
-            });
-          });
+            })
+          })
 
         // Scheduled appointments
         appointments
@@ -218,14 +214,14 @@ export function ActivityFeed({ clinic, maxItems = 8 }: ActivityFeedProps) {
               description: formatTime(apt.start_time),
               timestamp: apt.created_at || apt.start_time,
               href: `/${clinic}/dashboard/appointments/${apt.id}`,
-            });
-          });
+            })
+          })
       }
 
       // Process recently registered pets
       if (petsRes.ok) {
-        const data = await petsRes.json();
-        const pets: Pet[] = data.data || data.pets || [];
+        const data = await petsRes.json()
+        const pets: Pet[] = data.data || data.pets || []
 
         pets.slice(0, 3).forEach((pet: Pet) => {
           activityItems.push({
@@ -235,41 +231,41 @@ export function ActivityFeed({ clinic, maxItems = 8 }: ActivityFeedProps) {
             description: `${pet.species === 'dog' ? 'Perro' : 'Gato'} ${pet.breed || 'mestizo'}`,
             timestamp: pet.created_at,
             href: `/${clinic}/dashboard/patients/${pet.id}`,
-          });
-        });
+          })
+        })
       }
 
       // Sort by timestamp (most recent first)
-      activityItems.sort((a, b) =>
-        new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-      );
+      activityItems.sort(
+        (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+      )
 
-      setActivities(activityItems.slice(0, maxItems));
+      setActivities(activityItems.slice(0, maxItems))
     } catch (error) {
       // Client-side error logging - only in development
       if (process.env.NODE_ENV === 'development') {
-        console.error('Error fetching activities:', error);
+        console.error('Error fetching activities:', error)
       }
     } finally {
-      setLoading(false);
-      setRefreshing(false);
+      setLoading(false)
+      setRefreshing(false)
     }
-  };
+  }
 
   useEffect(() => {
-    fetchActivities();
+    fetchActivities()
     // Refresh every 30 seconds
-    const interval = setInterval(() => fetchActivities(true), 30 * 1000);
-    return () => clearInterval(interval);
-  }, [clinic, maxItems]);
+    const interval = setInterval(() => fetchActivities(true), 30 * 1000)
+    return () => clearInterval(interval)
+  }, [clinic, maxItems])
 
   return (
-    <div className="bg-[var(--bg-paper)] rounded-2xl shadow-sm border border-[var(--border-light)] overflow-hidden">
+    <div className="overflow-hidden rounded-2xl border border-[var(--border-light)] bg-[var(--bg-paper)] shadow-sm">
       {/* Header */}
-      <div className="px-5 py-4 border-b border-[var(--border-light)] flex items-center justify-between">
+      <div className="flex items-center justify-between border-b border-[var(--border-light)] px-5 py-4">
         <div className="flex items-center gap-2">
-          <div className="p-2 bg-[var(--primary)]/10 rounded-lg">
-            <Activity className="w-5 h-5 text-[var(--primary)]" />
+          <div className="bg-[var(--primary)]/10 rounded-lg p-2">
+            <Activity className="h-5 w-5 text-[var(--primary)]" />
           </div>
           <div>
             <h3 className="font-bold text-[var(--text-primary)]">Actividad Reciente</h3>
@@ -279,10 +275,12 @@ export function ActivityFeed({ clinic, maxItems = 8 }: ActivityFeedProps) {
         <button
           onClick={() => fetchActivities(true)}
           disabled={refreshing}
-          className="p-2 hover:bg-[var(--bg-subtle)] rounded-lg transition-colors disabled:opacity-50"
+          className="rounded-lg p-2 transition-colors hover:bg-[var(--bg-subtle)] disabled:opacity-50"
           title="Actualizar"
         >
-          <RefreshCw className={`w-4 h-4 text-[var(--text-muted)] ${refreshing ? 'animate-spin' : ''}`} />
+          <RefreshCw
+            className={`h-4 w-4 text-[var(--text-muted)] ${refreshing ? 'animate-spin' : ''}`}
+          />
         </button>
       </div>
 
@@ -295,8 +293,8 @@ export function ActivityFeed({ clinic, maxItems = 8 }: ActivityFeedProps) {
         ) : activities.length === 0 ? (
           <EmptyState />
         ) : (
-          <div className="divide-y divide-[var(--border-light)]/50">
-            {activities.map(activity => (
+          <div className="divide-[var(--border-light)]/50 divide-y">
+            {activities.map((activity) => (
               <ActivityItemRow key={activity.id} item={activity} />
             ))}
           </div>
@@ -305,20 +303,20 @@ export function ActivityFeed({ clinic, maxItems = 8 }: ActivityFeedProps) {
 
       {/* Footer */}
       {activities.length > 0 && (
-        <div className="px-5 py-3 border-t border-[var(--border-light)] bg-[var(--bg-subtle)]/50">
+        <div className="bg-[var(--bg-subtle)]/50 border-t border-[var(--border-light)] px-5 py-3">
           <Link
             href={`/${clinic}/dashboard/activity`}
-            className="text-sm text-[var(--primary)] hover:underline font-medium"
+            className="text-sm font-medium text-[var(--primary)] hover:underline"
           >
             Ver toda la actividad
           </Link>
         </div>
       )}
     </div>
-  );
+  )
 }
 
 function formatTime(dateStr: string): string {
-  const date = new Date(dateStr);
-  return date.toLocaleTimeString('es-PY', { hour: '2-digit', minute: '2-digit' });
+  const date = new Date(dateStr)
+  return date.toLocaleTimeString('es-PY', { hour: '2-digit', minute: '2-digit' })
 }

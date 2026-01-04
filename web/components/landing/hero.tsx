@@ -1,66 +1,77 @@
-'use client';
+'use client'
 
-import { ArrowRight, Play, Sparkles, Building2, CheckCircle2, Star, Users, Clock } from 'lucide-react';
-import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import {
+  ArrowRight,
+  Play,
+  Sparkles,
+  Building2,
+  CheckCircle2,
+  Star,
+  Users,
+  Clock,
+} from 'lucide-react'
+import Link from 'next/link'
+import { useEffect, useState } from 'react'
 
-const valueProps = [
-  'Sitio web profesional',
-  'Citas online 24/7',
-  'Historial digital',
-];
+const valueProps = ['Sitio web profesional', 'Citas online 24/7', 'Historial digital']
 
 const floatingStats = [
   { value: '3-7', label: 'dias para estar online', icon: Clock },
   { value: '200K', label: 'Gs/mes todo incluido', icon: Star },
   { value: '2+', label: 'clinicas en la red', icon: Building2 },
-];
+]
 
 export function Hero() {
-  const [isVisible, setIsVisible] = useState(false);
+  const [isVisible, setIsVisible] = useState(false)
 
   useEffect(() => {
-    setIsVisible(true);
-  }, []);
+    setIsVisible(true)
+  }, [])
 
   return (
-    <section className="relative min-h-[100svh] flex items-center overflow-hidden bg-[#0F172A]">
+    <section className="relative flex min-h-[100svh] items-center overflow-hidden bg-[#0F172A]">
       {/* Animated Gradient Background */}
       <div className="absolute inset-0 z-0">
         {/* Main gradient orbs with subtle animation */}
-        <div className="absolute top-1/4 left-1/4 w-[400px] md:w-[500px] h-[400px] md:h-[500px] bg-[#2DCEA3]/25 rounded-full blur-[100px] md:blur-[120px] animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-[300px] md:w-[400px] h-[300px] md:h-[400px] bg-[#5C6BFF]/25 rounded-full blur-[80px] md:blur-[120px] animate-pulse" style={{ animationDelay: '1s' }} />
-        <div className="absolute top-1/2 right-1/3 w-[200px] md:w-[300px] h-[200px] md:h-[300px] bg-[#00C9FF]/15 rounded-full blur-[80px] md:blur-[100px] animate-pulse" style={{ animationDelay: '2s' }} />
+        <div className="absolute left-1/4 top-1/4 h-[400px] w-[400px] animate-pulse rounded-full bg-[#2DCEA3]/25 blur-[100px] md:h-[500px] md:w-[500px] md:blur-[120px]" />
+        <div
+          className="absolute bottom-1/4 right-1/4 h-[300px] w-[300px] animate-pulse rounded-full bg-[#5C6BFF]/25 blur-[80px] md:h-[400px] md:w-[400px] md:blur-[120px]"
+          style={{ animationDelay: '1s' }}
+        />
+        <div
+          className="absolute right-1/3 top-1/2 h-[200px] w-[200px] animate-pulse rounded-full bg-[#00C9FF]/15 blur-[80px] md:h-[300px] md:w-[300px] md:blur-[100px]"
+          style={{ animationDelay: '2s' }}
+        />
 
         {/* Subtle grid pattern */}
         <div
           className="absolute inset-0 opacity-[0.02]"
           style={{
             backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
-            backgroundSize: '40px 40px'
+            backgroundSize: '40px 40px',
           }}
         />
       </div>
 
       {/* Content */}
-      <div className="container mx-auto px-4 md:px-6 relative z-10 pt-20 md:pt-28 pb-12 md:pb-16">
-        <div className="max-w-4xl mx-auto text-center">
+      <div className="container relative z-10 mx-auto px-4 pb-12 pt-20 md:px-6 md:pb-16 md:pt-28">
+        <div className="mx-auto max-w-4xl text-center">
           {/* Badge - Animated entrance */}
           <div
-            className={`inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-6 md:mb-8 transition-all duration-700 ${
-              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
+            className={`mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 transition-all duration-700 md:mb-8 ${
+              isVisible ? 'translate-y-0 opacity-100' : '-translate-y-4 opacity-0'
             }`}
           >
-            <Sparkles className="w-4 h-4 text-[#2DCEA3]" />
-            <span className="text-white/80 text-xs md:text-sm font-medium">
+            <Sparkles className="h-4 w-4 text-[#2DCEA3]" />
+            <span className="text-xs font-medium text-white/80 md:text-sm">
               Primera red veterinaria digital de Paraguay
             </span>
           </div>
 
           {/* Headline - Simplified and punchy */}
           <h1
-            className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-white mb-4 md:mb-6 leading-[1.1] transition-all duration-700 delay-100 ${
-              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+            className={`mb-4 text-3xl font-black leading-[1.1] text-white transition-all delay-100 duration-700 sm:text-4xl md:mb-6 md:text-5xl lg:text-6xl xl:text-7xl ${
+              isVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
             }`}
           >
             Tu veterinaria,{' '}
@@ -71,37 +82,37 @@ export function Hero() {
 
           {/* Subheadline - Direct pain point address */}
           <p
-            className={`text-base md:text-lg lg:text-xl text-white/70 mb-6 md:mb-8 max-w-2xl mx-auto leading-relaxed transition-all duration-700 delay-200 ${
-              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+            className={`mx-auto mb-6 max-w-2xl text-base leading-relaxed text-white/70 transition-all delay-200 duration-700 md:mb-8 md:text-lg lg:text-xl ${
+              isVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
             }`}
           >
             Sitio web profesional + sistema de citas + historial medico.
-            <span className="block mt-2 text-white/50 text-sm md:text-base">
+            <span className="mt-2 block text-sm text-white/50 md:text-base">
               Sin programadores. Sin complicaciones. Listo en dias.
             </span>
           </p>
 
           {/* Quick value props - Simplified to 3 */}
           <div
-            className={`flex flex-wrap justify-center gap-3 md:gap-4 mb-8 md:mb-10 transition-all duration-700 delay-300 ${
-              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+            className={`mb-8 flex flex-wrap justify-center gap-3 transition-all delay-300 duration-700 md:mb-10 md:gap-4 ${
+              isVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
             }`}
           >
             {valueProps.map((prop, idx) => (
               <div
                 key={idx}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10"
+                className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5"
               >
-                <CheckCircle2 className="w-3.5 h-3.5 text-[#2DCEA3]" />
-                <span className="text-white/70 text-xs md:text-sm">{prop}</span>
+                <CheckCircle2 className="h-3.5 w-3.5 text-[#2DCEA3]" />
+                <span className="text-xs text-white/70 md:text-sm">{prop}</span>
               </div>
             ))}
           </div>
 
           {/* Dual CTAs - Clear hierarchy */}
           <div
-            className={`flex flex-col sm:flex-row gap-3 md:gap-4 justify-center mb-12 md:mb-16 transition-all duration-700 delay-400 ${
-              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+            className={`delay-400 mb-12 flex flex-col justify-center gap-3 transition-all duration-700 sm:flex-row md:mb-16 md:gap-4 ${
+              isVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
             }`}
           >
             {/* Primary CTA - More prominent */}
@@ -109,54 +120,58 @@ export function Hero() {
               href="https://wa.me/595981324569?text=Hola!%20Quiero%20saber%20mas%20sobre%20VetePy%20para%20mi%20veterinaria"
               target="_blank"
               rel="noopener noreferrer"
-              className="group inline-flex items-center justify-center gap-2 md:gap-3 px-6 md:px-8 py-3.5 md:py-4 bg-gradient-to-r from-[#2DCEA3] to-[#00C9FF] text-[#0F172A] font-bold rounded-full shadow-xl shadow-[#2DCEA3]/20 hover:shadow-2xl hover:shadow-[#2DCEA3]/30 transition-all hover:-translate-y-1 text-sm md:text-base"
+              className="group inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#2DCEA3] to-[#00C9FF] px-6 py-3.5 text-sm font-bold text-[#0F172A] shadow-xl shadow-[#2DCEA3]/20 transition-all hover:-translate-y-1 hover:shadow-2xl hover:shadow-[#2DCEA3]/30 md:gap-3 md:px-8 md:py-4 md:text-base"
             >
-              <Building2 className="w-4 h-4 md:w-5 md:h-5" />
+              <Building2 className="h-4 w-4 md:h-5 md:w-5" />
               Quiero mi Sitio Web
-              <ArrowRight className="w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-1 transition-transform" />
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1 md:h-5 md:w-5" />
             </a>
 
             {/* Secondary CTA - Less prominent */}
             <Link
               href="/adris"
-              className="group inline-flex items-center justify-center gap-2 md:gap-3 px-6 md:px-8 py-3.5 md:py-4 bg-white/5 border border-white/20 text-white font-medium rounded-full hover:bg-white/10 hover:border-white/30 transition-all hover:-translate-y-1 text-sm md:text-base"
+              className="group inline-flex items-center justify-center gap-2 rounded-full border border-white/20 bg-white/5 px-6 py-3.5 text-sm font-medium text-white transition-all hover:-translate-y-1 hover:border-white/30 hover:bg-white/10 md:gap-3 md:px-8 md:py-4 md:text-base"
             >
-              <Play className="w-4 h-4 md:w-5 md:h-5" />
+              <Play className="h-4 w-4 md:h-5 md:w-5" />
               Ver Demo en Vivo
             </Link>
           </div>
 
           {/* Trust Stats - Cleaner, 3 items */}
           <div
-            className={`grid grid-cols-3 gap-3 md:gap-6 max-w-xl mx-auto transition-all duration-700 delay-500 ${
-              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+            className={`mx-auto grid max-w-xl grid-cols-3 gap-3 transition-all delay-500 duration-700 md:gap-6 ${
+              isVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
             }`}
           >
             {floatingStats.map((stat, idx) => {
-              const IconComponent = stat.icon;
+              const IconComponent = stat.icon
               return (
                 <div
                   key={idx}
-                  className="text-center p-3 md:p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm"
+                  className="rounded-xl border border-white/10 bg-white/5 p-3 text-center backdrop-blur-sm md:p-4"
                 >
-                  <div className="flex items-center justify-center gap-1.5 mb-1">
-                    <IconComponent className="w-4 h-4 text-[#2DCEA3] hidden md:block" />
-                    <span className="text-xl md:text-2xl lg:text-3xl font-black text-white">{stat.value}</span>
+                  <div className="mb-1 flex items-center justify-center gap-1.5">
+                    <IconComponent className="hidden h-4 w-4 text-[#2DCEA3] md:block" />
+                    <span className="text-xl font-black text-white md:text-2xl lg:text-3xl">
+                      {stat.value}
+                    </span>
                   </div>
-                  <span className="text-white/50 text-[10px] md:text-xs leading-tight block">{stat.label}</span>
+                  <span className="block text-[10px] leading-tight text-white/50 md:text-xs">
+                    {stat.label}
+                  </span>
                 </div>
-              );
+              )
             })}
           </div>
         </div>
 
         {/* Scroll indicator - Now visible on mobile too */}
-        <div className="absolute bottom-4 md:bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-          <div className="w-5 h-8 md:w-6 md:h-10 rounded-full border-2 border-white/20 flex items-start justify-center p-1.5 md:p-2">
-            <div className="w-1 h-2 md:w-1.5 md:h-3 bg-white/40 rounded-full animate-pulse" />
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 animate-bounce md:bottom-8">
+          <div className="flex h-8 w-5 items-start justify-center rounded-full border-2 border-white/20 p-1.5 md:h-10 md:w-6 md:p-2">
+            <div className="h-2 w-1 animate-pulse rounded-full bg-white/40 md:h-3 md:w-1.5" />
           </div>
         </div>
       </div>
     </section>
-  );
+  )
 }

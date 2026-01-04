@@ -18,7 +18,7 @@ export {
   type SelectFieldProps,
   type CheckboxFieldProps,
   type RadioGroupFieldProps,
-  type BaseFieldProps
+  type BaseFieldProps,
 } from './form-field'
 
 // Loading states
@@ -33,13 +33,8 @@ export {
   type LoadingStateProps,
   type LoadingButtonProps,
   type LoadingOverlayProps,
-  type SkeletonProps
+  type SkeletonProps,
 } from './loading'
 
 // Modals
-export {
-  Modal,
-  ConfirmModal,
-  type ModalProps,
-  type ConfirmModalProps
-} from './modal'
+export { Modal, ConfirmModal, type ModalProps, type ConfirmModalProps } from './modal'

@@ -9,7 +9,7 @@ import {
   createMockPet,
   createMockAppointment,
   createSupabaseMock,
-  resetIdCounter
+  resetIdCounter,
 } from '@/lib/test-utils'
 
 describe('My Feature', () => {
@@ -36,11 +36,12 @@ Creates a mock pet with sensible defaults.
 const pet = createMockPet({
   name: 'Fido',
   species: 'dog',
-  weight_kg: 15
+  weight_kg: 15,
 })
 ```
 
 **Default values:**
+
 - `species`: 'dog'
 - `breed`: 'Mixed'
 - `sex`: Random male/female
@@ -64,11 +65,12 @@ Creates a mock user profile.
 ```typescript
 const vet = createMockProfile({
   role: 'vet',
-  full_name: 'Dr. Smith'
+  full_name: 'Dr. Smith',
 })
 ```
 
 **Default values:**
+
 - `role`: 'owner'
 - `email`: 'user{id}@test.com'
 - `phone`: Random Paraguayan phone number
@@ -83,11 +85,12 @@ Creates a mock appointment with proper time ranges.
 ```typescript
 const appointment = createMockAppointment({
   status: 'confirmed',
-  vet_id: 'vet-123'
+  vet_id: 'vet-123',
 })
 ```
 
 **Default values:**
+
 - `status`: 'pending'
 - `start_time`: Random time in next 7 days
 - `end_time`: 30 minutes after start_time
@@ -106,11 +109,12 @@ Creates a mock invoice with calculated totals.
 ```typescript
 const invoice = createMockInvoice({
   subtotal: 100000,
-  status: 'paid'
+  status: 'paid',
 })
 ```
 
 **Features:**
+
 - Automatically calculates tax (10%)
 - Sets `total_amount` = subtotal + tax
 - Sets `balance_due` = total_amount - amount_paid
@@ -125,7 +129,7 @@ Creates a mock service offering.
 const service = createMockService({
   name: 'Consulta General',
   base_price: 150000,
-  duration_minutes: 30
+  duration_minutes: 30,
 })
 ```
 
@@ -138,7 +142,7 @@ Creates a mock hospitalization record.
 ```typescript
 const hospitalization = createMockHospitalization({
   status: 'active',
-  acuity_level: 'critical'
+  acuity_level: 'critical',
 })
 ```
 
@@ -151,7 +155,7 @@ Creates a mock lab order.
 ```typescript
 const labOrder = createMockLabOrder({
   status: 'completed',
-  priority: 'stat'
+  priority: 'stat',
 })
 ```
 
@@ -195,7 +199,9 @@ Sets the authenticated user.
 ```typescript
 helpers.setUser({ id: 'user-123', email: 'test@example.com' })
 
-const { data: { user } } = await supabase.auth.getUser()
+const {
+  data: { user },
+} = await supabase.auth.getUser()
 expect(user.id).toBe('user-123')
 ```
 
@@ -224,6 +230,7 @@ helpers.reset()
 The Supabase mock includes:
 
 **Query Builder:**
+
 - `from()`, `select()`, `insert()`, `update()`, `delete()`, `upsert()`
 - `eq()`, `neq()`, `gt()`, `gte()`, `lt()`, `lte()`
 - `like()`, `ilike()`, `is()`, `in()`
@@ -231,6 +238,7 @@ The Supabase mock includes:
 - `single()`, `maybeSingle()`
 
 **Authentication:**
+
 - `auth.getUser()`
 - `auth.getSession()`
 - `auth.signIn()`
@@ -238,6 +246,7 @@ The Supabase mock includes:
 - `auth.signUp()`
 
 **Storage:**
+
 - `storage.from().upload()`
 - `storage.from().download()`
 - `storage.from().getPublicUrl()`
@@ -245,6 +254,7 @@ The Supabase mock includes:
 - `storage.from().list()`
 
 **RPC:**
+
 - `rpc()`
 
 ## Utility Functions
@@ -274,7 +284,7 @@ import {
   createMockPet,
   createMockProfile,
   createSupabaseMock,
-  resetIdCounter
+  resetIdCounter,
 } from '@/lib/test-utils'
 
 describe('Pet Management', () => {
@@ -288,17 +298,14 @@ describe('Pet Management', () => {
     const owner = createMockProfile({ role: 'owner' })
     const pets = [
       createMockPet({ name: 'Fido', owner_id: owner.id }),
-      createMockPet({ name: 'Whiskers', owner_id: owner.id })
+      createMockPet({ name: 'Whiskers', owner_id: owner.id }),
     ]
 
     helpers.setUser({ id: owner.id, email: owner.email })
     helpers.setQueryResult(pets)
 
     // Act
-    const result = await supabase
-      .from('pets')
-      .select('*')
-      .eq('owner_id', owner.id)
+    const result = await supabase.from('pets').select('*').eq('owner_id', owner.id)
 
     // Assert
     expect(result.data).toHaveLength(2)

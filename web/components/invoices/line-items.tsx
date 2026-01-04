@@ -35,7 +35,7 @@ export function LineItems({ items, services, onChange, disabled }: LineItemsProp
       description: '',
       quantity: 1,
       unit_price: 0,
-      discount_percent: 0
+      discount_percent: 0,
     }
     onChange([...items, newItem])
   }
@@ -53,24 +53,22 @@ export function LineItems({ items, services, onChange, disabled }: LineItemsProp
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="font-medium text-[var(--text-primary)]">
-          Artículos
-        </h3>
+        <h3 className="font-medium text-[var(--text-primary)]">Artículos</h3>
         {!disabled && (
           <button
             type="button"
             onClick={addItem}
-            className="inline-flex items-center gap-1 px-3 py-1.5 text-sm text-[var(--primary)] hover:bg-[var(--primary)]/10 rounded-lg transition-colors"
+            className="hover:bg-[var(--primary)]/10 inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm text-[var(--primary)] transition-colors"
           >
-            <Icons.Plus className="w-4 h-4" />
+            <Icons.Plus className="h-4 w-4" />
             Agregar artículo
           </button>
         )}
       </div>
 
       {items.length === 0 ? (
-        <div className="p-8 text-center bg-gray-50 rounded-lg border border-dashed border-gray-200">
-          <Icons.Package className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+        <div className="rounded-lg border border-dashed border-gray-200 bg-gray-50 p-8 text-center">
+          <Icons.Package className="mx-auto mb-2 h-8 w-8 text-gray-300" />
           <p className="text-[var(--text-secondary)]">
             No hay artículos. Agrega servicios o productos a la factura.
           </p>
@@ -78,9 +76,9 @@ export function LineItems({ items, services, onChange, disabled }: LineItemsProp
             <button
               type="button"
               onClick={addItem}
-              className="mt-3 inline-flex items-center gap-1 px-4 py-2 text-sm bg-[var(--primary)] text-white rounded-lg"
+              className="mt-3 inline-flex items-center gap-1 rounded-lg bg-[var(--primary)] px-4 py-2 text-sm text-white"
             >
-              <Icons.Plus className="w-4 h-4" />
+              <Icons.Plus className="h-4 w-4" />
               Agregar artículo
             </button>
           )}

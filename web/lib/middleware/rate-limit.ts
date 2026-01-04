@@ -12,21 +12,21 @@ const authLimiter = new Ratelimit({
   redis: kv,
   limiter: Ratelimit.slidingWindow(5, '10 m'), // 5 requests per 10 minutes
   analytics: true,
-  prefix: 'ratelimit:auth'
+  prefix: 'ratelimit:auth',
 })
 
 const apiLimiter = new Ratelimit({
   redis: kv,
   limiter: Ratelimit.slidingWindow(100, '1 m'), // 100 requests per minute
   analytics: true,
-  prefix: 'ratelimit:api'
+  prefix: 'ratelimit:api',
 })
 
 const bookingLimiter = new Ratelimit({
   redis: kv,
   limiter: Ratelimit.slidingWindow(10, '1 h'), // 10 bookings per hour
   analytics: true,
-  prefix: 'ratelimit:booking'
+  prefix: 'ratelimit:booking',
 })
 
 export interface RateLimitOptions {
@@ -39,7 +39,7 @@ export function withRateLimit(options: RateLimitOptions = {}) {
   const {
     limiter = apiLimiter,
     skipSuccessfulRequests = false,
-    skipFailedRequests = false
+    skipFailedRequests = false,
   } = options
 
   return async function middleware(request: NextRequest) {
@@ -58,7 +58,7 @@ export function withRateLimit(options: RateLimitOptions = {}) {
         response.headers.set('Retry-After', reset.toString())
         return new NextResponse('Too Many Requests', {
           status: 429,
-          headers: response.headers
+          headers: response.headers,
         })
       }
 

@@ -99,7 +99,9 @@ export function apiHandler<T = unknown>(
     const supabase = await createClient()
 
     // Get user info for logging context
-    const { data: { user } } = await supabase.auth.getUser()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
 
     // Build log context
     const logContext: Partial<LogContext> = {
@@ -169,7 +171,6 @@ export function apiHandler<T = unknown>(
       // Otherwise wrap in JSON response
       log.info('Request completed', { duration, status: 200 })
       return NextResponse.json(result)
-
     } catch (error) {
       const duration = Math.round(performance.now() - startTime)
 
@@ -232,7 +233,7 @@ export function parseQueryParams(request: NextRequest): {
  */
 export async function parseBody<T>(request: NextRequest): Promise<T> {
   try {
-    return await request.json() as T
+    return (await request.json()) as T
   } catch {
     throw ApiError.badRequest('Cuerpo de solicitud inválido', 'INVALID_JSON')
   }

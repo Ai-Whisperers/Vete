@@ -4,12 +4,12 @@
  * Utilities for testing API routes and server actions.
  */
 
-import { NextRequest } from 'next/server';
+import { NextRequest } from 'next/server'
 
 /**
  * HTTP Methods
  */
-export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
 
 /**
  * Create a mock NextRequest for API route testing
@@ -17,19 +17,19 @@ export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 export function createMockRequest(
   url: string,
   options: {
-    method?: HttpMethod;
-    body?: unknown;
-    headers?: Record<string, string>;
-    searchParams?: Record<string, string>;
+    method?: HttpMethod
+    body?: unknown
+    headers?: Record<string, string>
+    searchParams?: Record<string, string>
   } = {}
 ): Request {
-  const { method = 'GET', body, headers = {}, searchParams = {} } = options;
+  const { method = 'GET', body, headers = {}, searchParams = {} } = options
 
   // Build URL with search params
-  const urlObj = new URL(url, 'http://localhost:3000');
+  const urlObj = new URL(url, 'http://localhost:3000')
   Object.entries(searchParams).forEach(([key, value]) => {
-    urlObj.searchParams.set(key, value);
-  });
+    urlObj.searchParams.set(key, value)
+  })
 
   // Build request options
   const requestInit: RequestInit = {
@@ -38,14 +38,14 @@ export function createMockRequest(
       'Content-Type': 'application/json',
       ...headers,
     },
-  };
+  }
 
   // Add body for non-GET requests
   if (body && method !== 'GET') {
-    requestInit.body = JSON.stringify(body);
+    requestInit.body = JSON.stringify(body)
   }
 
-  return new Request(urlObj.toString(), requestInit);
+  return new Request(urlObj.toString(), requestInit)
 }
 
 /**
@@ -55,10 +55,10 @@ export function createAuthenticatedRequest(
   url: string,
   accessToken: string,
   options: {
-    method?: HttpMethod;
-    body?: unknown;
-    headers?: Record<string, string>;
-    searchParams?: Record<string, string>;
+    method?: HttpMethod
+    body?: unknown
+    headers?: Record<string, string>
+    searchParams?: Record<string, string>
   } = {}
 ): Request {
   return createMockRequest(url, {
@@ -67,7 +67,7 @@ export function createAuthenticatedRequest(
       ...options.headers,
       Authorization: `Bearer ${accessToken}`,
     },
-  });
+  })
 }
 
 /**
@@ -76,26 +76,26 @@ export function createAuthenticatedRequest(
 export async function parseResponse<T = unknown>(
   response: Response
 ): Promise<{ data: T | null; error: string | null; status: number }> {
-  const status = response.status;
+  const status = response.status
 
   try {
-    const data = await response.json();
+    const data = await response.json()
 
     if (status >= 400) {
       return {
         data: null,
         error: data.error || data.message || 'Unknown error',
         status,
-      };
+      }
     }
 
-    return { data: data as T, error: null, status };
+    return { data: data as T, error: null, status }
   } catch {
     return {
       data: null,
       error: 'Failed to parse response',
       status,
-    };
+    }
   }
 }
 
@@ -103,10 +103,10 @@ export async function parseResponse<T = unknown>(
  * API test result interface
  */
 export interface ApiTestResult<T = unknown> {
-  data: T | null;
-  error: string | null;
-  status: number;
-  headers: Headers;
+  data: T | null
+  error: string | null
+  status: number
+  headers: Headers
 }
 
 /**
@@ -116,15 +116,15 @@ export async function testApiRoute<T = unknown>(
   handler: (req: Request) => Promise<Response>,
   request: Request
 ): Promise<ApiTestResult<T>> {
-  const response = await handler(request);
-  const { data, error, status } = await parseResponse<T>(response);
+  const response = await handler(request)
+  const { data, error, status } = await parseResponse<T>(response)
 
   return {
     data,
     error,
     status,
     headers: response.headers,
-  };
+  }
 }
 
 /**
@@ -136,9 +136,7 @@ export const apiAssertions = {
    */
   isSuccess(result: ApiTestResult): void {
     if (result.status < 200 || result.status >= 300) {
-      throw new Error(
-        `Expected success status, got ${result.status}: ${result.error}`
-      );
+      throw new Error(`Expected success status, got ${result.status}: ${result.error}`)
     }
   },
 
@@ -147,12 +145,10 @@ export const apiAssertions = {
    */
   isError(result: ApiTestResult, expectedStatus?: number): void {
     if (result.status < 400) {
-      throw new Error(`Expected error status, got ${result.status}`);
+      throw new Error(`Expected error status, got ${result.status}`)
     }
     if (expectedStatus && result.status !== expectedStatus) {
-      throw new Error(
-        `Expected status ${expectedStatus}, got ${result.status}`
-      );
+      throw new Error(`Expected status ${expectedStatus}, got ${result.status}`)
     }
   },
 
@@ -161,7 +157,7 @@ export const apiAssertions = {
    */
   isUnauthorized(result: ApiTestResult): void {
     if (result.status !== 401) {
-      throw new Error(`Expected 401 Unauthorized, got ${result.status}`);
+      throw new Error(`Expected 401 Unauthorized, got ${result.status}`)
     }
   },
 
@@ -170,7 +166,7 @@ export const apiAssertions = {
    */
   isForbidden(result: ApiTestResult): void {
     if (result.status !== 403) {
-      throw new Error(`Expected 403 Forbidden, got ${result.status}`);
+      throw new Error(`Expected 403 Forbidden, got ${result.status}`)
     }
   },
 
@@ -179,7 +175,7 @@ export const apiAssertions = {
    */
   isNotFound(result: ApiTestResult): void {
     if (result.status !== 404) {
-      throw new Error(`Expected 404 Not Found, got ${result.status}`);
+      throw new Error(`Expected 404 Not Found, got ${result.status}`)
     }
   },
 
@@ -188,10 +184,10 @@ export const apiAssertions = {
    */
   isBadRequest(result: ApiTestResult): void {
     if (result.status !== 400) {
-      throw new Error(`Expected 400 Bad Request, got ${result.status}`);
+      throw new Error(`Expected 400 Bad Request, got ${result.status}`)
     }
   },
-};
+}
 
 /**
  * Mock NextResponse for testing
@@ -202,27 +198,27 @@ export const mockNextResponse = {
     json: async () => body,
     headers: new Headers(init?.headers),
   }),
-};
+}
 
 /**
  * Test API endpoints in sequence
  */
 export async function testApiSequence(
   steps: Array<{
-    name: string;
-    request: Request;
-    handler: (req: Request) => Promise<Response>;
-    validate: (result: ApiTestResult) => void;
+    name: string
+    request: Request
+    handler: (req: Request) => Promise<Response>
+    validate: (result: ApiTestResult) => void
   }>
 ): Promise<void> {
   for (const step of steps) {
     try {
-      const result = await testApiRoute(step.handler, step.request);
-      step.validate(result);
+      const result = await testApiRoute(step.handler, step.request)
+      step.validate(result)
     } catch (error) {
       throw new Error(
         `API sequence failed at step "${step.name}": ${error instanceof Error ? error.message : error}`
-      );
+      )
     }
   }
 }
@@ -248,7 +244,7 @@ export const API_URLS = {
   reproductiveCycles: '/api/reproductive_cycles',
   store: '/api/store',
   vaccineReactions: '/api/vaccine_reactions',
-};
+}
 
 /**
  * Create paginated request params
@@ -262,14 +258,14 @@ export function createPaginationParams(
   const params: Record<string, string> = {
     page: page.toString(),
     limit: limit.toString(),
-  };
-
-  if (sortBy) {
-    params.sortBy = sortBy;
-    params.sortOrder = sortOrder;
   }
 
-  return params;
+  if (sortBy) {
+    params.sortBy = sortBy
+    params.sortOrder = sortOrder
+  }
+
+  return params
 }
 
 /**
@@ -278,11 +274,11 @@ export function createPaginationParams(
 export function createFilterParams(
   filters: Record<string, string | number | boolean>
 ): Record<string, string> {
-  const params: Record<string, string> = {};
+  const params: Record<string, string> = {}
 
   Object.entries(filters).forEach(([key, value]) => {
-    params[key] = String(value);
-  });
+    params[key] = String(value)
+  })
 
-  return params;
+  return params
 }

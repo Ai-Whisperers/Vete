@@ -10,7 +10,7 @@ import type {
   UpdateAppointmentData,
   AppointmentFilters,
   AppointmentStats,
-  AvailabilityCheckParams
+  AvailabilityCheckParams,
 } from './types'
 
 export class AppointmentRepository {
@@ -29,7 +29,8 @@ export class AppointmentRepository {
   async findById(id: string): Promise<Appointment | null> {
     const { data, error } = await this.supabase
       .from('appointments')
-      .select(`
+      .select(
+        `
         *,
         pets (
           id,
@@ -48,7 +49,8 @@ export class AppointmentRepository {
           id,
           full_name
         )
-      `)
+      `
+      )
       .eq('id', id)
       .single()
 
@@ -61,9 +63,7 @@ export class AppointmentRepository {
    * Find appointments with filters
    */
   async findMany(filters: AppointmentFilters = {}): Promise<Appointment[]> {
-    let query = this.supabase
-      .from('appointments')
-      .select(`
+    let query = this.supabase.from('appointments').select(`
         *,
         pets (
           id,
@@ -114,14 +114,18 @@ export class AppointmentRepository {
   /**
    * Create new appointment
    */
-  async create(data: CreateAppointmentData, created_by: string, tenant_id: string): Promise<Appointment> {
+  async create(
+    data: CreateAppointmentData,
+    created_by: string,
+    tenant_id: string
+  ): Promise<Appointment> {
     const { data: appointment, error } = await this.supabase
       .from('appointments')
       .insert({
         ...data,
         tenant_id,
         created_by,
-        status: 'pending'
+        status: 'pending',
       })
       .select()
       .single()
@@ -143,7 +147,7 @@ export class AppointmentRepository {
       .update({
         ...data,
         updated_by,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
       .eq('id', id)
       .select()
@@ -161,10 +165,7 @@ export class AppointmentRepository {
    * Delete appointment
    */
   async delete(id: string): Promise<void> {
-    const { error } = await this.supabase
-      .from('appointments')
-      .delete()
-      .eq('id', id)
+    const { error } = await this.supabase.from('appointments').delete().eq('id', id)
 
     if (error) throw error
   }
@@ -173,14 +174,13 @@ export class AppointmentRepository {
    * Check if appointment slot is available
    */
   async checkSlotAvailability(params: AvailabilityCheckParams): Promise<boolean> {
-    const { data, error } = await this.supabase
-      .rpc('check_appointment_overlap', {
-        p_tenant_id: params.tenant_id,
-        p_date: params.date,
-        p_start_time: params.work_start || '08:00',
-        p_end_time: params.work_end || '18:00',
-        p_vet_id: params.vet_id || null
-      })
+    const { data, error } = await this.supabase.rpc('check_appointment_overlap', {
+      p_tenant_id: params.tenant_id,
+      p_date: params.date,
+      p_start_time: params.work_start || '08:00',
+      p_end_time: params.work_end || '18:00',
+      p_vet_id: params.vet_id || null,
+    })
 
     if (error) throw error
 
@@ -194,7 +194,8 @@ export class AppointmentRepository {
     const now = new Date()
     const today = now.toISOString().split('T')[0]
     const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
-      .toISOString().split('T')[0]
+      .toISOString()
+      .split('T')[0]
 
     // Get all appointments for stats
     const { data: appointments, error } = await this.supabase
@@ -213,10 +214,10 @@ export class AppointmentRepository {
       cancelled: 0,
       no_show: 0,
       today_count: 0,
-      this_week_count: 0
+      this_week_count: 0,
     }
 
-    appointments.forEach(apt => {
+    appointments.forEach((apt) => {
       // Count by status
       switch (apt.status) {
         case 'pending':
@@ -268,23 +269,29 @@ export class AppointmentRepository {
       updated_by: data.updated_by,
       created_at: new Date(data.created_at),
       updated_at: new Date(data.updated_at),
-      pet: data.pets ? {
-        id: data.pets.id,
-        name: data.pets.name,
-        species: data.pets.species,
-        breed: data.pets.breed,
-        owner_id: data.pets.owner_id,
-        owner: data.pets.profiles ? {
-          id: data.pets.profiles.id,
-          full_name: data.pets.profiles.full_name,
-          phone: data.pets.profiles.phone,
-          email: data.pets.profiles.email
-        } : undefined
-      } : undefined,
-      vet: data.profiles ? {
-        id: data.profiles.id,
-        full_name: data.profiles.full_name
-      } : undefined
+      pet: data.pets
+        ? {
+            id: data.pets.id,
+            name: data.pets.name,
+            species: data.pets.species,
+            breed: data.pets.breed,
+            owner_id: data.pets.owner_id,
+            owner: data.pets.profiles
+              ? {
+                  id: data.pets.profiles.id,
+                  full_name: data.pets.profiles.full_name,
+                  phone: data.pets.profiles.phone,
+                  email: data.pets.profiles.email,
+                }
+              : undefined,
+          }
+        : undefined,
+      vet: data.profiles
+        ? {
+            id: data.profiles.id,
+            full_name: data.profiles.full_name,
+          }
+        : undefined,
     }
   }
 }

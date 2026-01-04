@@ -28,7 +28,7 @@ export function DashboardPageLayout({
   children,
 }: DashboardPageLayoutProps) {
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-6 p-6">
       {/* Breadcrumbs */}
       {breadcrumbs && breadcrumbs.length > 0 && (
         <nav aria-label="Breadcrumb" className="text-sm">
@@ -53,22 +53,16 @@ export function DashboardPageLayout({
       )}
 
       {/* Header */}
-      <header className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+      <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex items-start gap-3">
           {Icon && (
-            <div className="p-2 rounded-lg bg-[var(--primary)]/10">
+            <div className="bg-[var(--primary)]/10 rounded-lg p-2">
               <Icon className="h-6 w-6 text-[var(--primary)]" />
             </div>
           )}
           <div>
-            <h1 className="text-2xl font-bold text-[var(--text-primary)]">
-              {title}
-            </h1>
-            {description && (
-              <p className="text-[var(--text-secondary)] mt-1">
-                {description}
-              </p>
-            )}
+            <h1 className="text-2xl font-bold text-[var(--text-primary)]">{title}</h1>
+            {description && <p className="mt-1 text-[var(--text-secondary)]">{description}</p>}
           </div>
         </div>
 
@@ -79,17 +73,13 @@ export function DashboardPageLayout({
               return action.href ? (
                 <Link key={index} href={action.href}>
                   <Button variant={action.variant || 'primary'}>
-                    {ActionIcon && <ActionIcon className="h-4 w-4 mr-2" />}
+                    {ActionIcon && <ActionIcon className="mr-2 h-4 w-4" />}
                     {action.label}
                   </Button>
                 </Link>
               ) : (
-                <Button
-                  key={index}
-                  variant={action.variant || 'primary'}
-                  onClick={action.onClick}
-                >
-                  {ActionIcon && <ActionIcon className="h-4 w-4 mr-2" />}
+                <Button key={index} variant={action.variant || 'primary'} onClick={action.onClick}>
+                  {ActionIcon && <ActionIcon className="mr-2 h-4 w-4" />}
                   {action.label}
                 </Button>
               )

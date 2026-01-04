@@ -41,7 +41,7 @@ export class MetricsCollector {
 
     logger.debug(`Metric incremented: ${name}`, {
       operation: 'metric_increment',
-      metadata: { name, value, tags }
+      metadata: { name, value, tags },
     })
   }
 
@@ -54,7 +54,7 @@ export class MetricsCollector {
 
     logger.debug(`Gauge set: ${name} = ${value}`, {
       operation: 'metric_gauge',
-      metadata: { name, value, tags }
+      metadata: { name, value, tags },
     })
   }
 
@@ -70,18 +70,14 @@ export class MetricsCollector {
 
     logger.debug(`Histogram recorded: ${name}`, {
       operation: 'metric_histogram',
-      metadata: { name, value, tags }
+      metadata: { name, value, tags },
     })
   }
 
   /**
    * Time a function execution
    */
-  async time<T>(
-    name: string,
-    fn: () => Promise<T>,
-    tags?: Record<string, string>
-  ): Promise<T> {
+  async time<T>(name: string, fn: () => Promise<T>, tags?: Record<string, string>): Promise<T> {
     const start = Date.now()
 
     try {
@@ -102,11 +98,7 @@ export class MetricsCollector {
   /**
    * Time a synchronous function execution
    */
-  timeSync<T>(
-    name: string,
-    fn: () => T,
-    tags?: Record<string, string>
-  ): T {
+  timeSync<T>(name: string, fn: () => T, tags?: Record<string, string>): T {
     const start = Date.now()
 
     try {
@@ -130,11 +122,17 @@ export class MetricsCollector {
   getMetrics(): {
     counters: Record<string, number>
     gauges: Record<string, number>
-    histograms: Record<string, { count: number; sum: number; avg: number; min: number; max: number }>
+    histograms: Record<
+      string,
+      { count: number; sum: number; avg: number; min: number; max: number }
+    >
   } {
     const counters: Record<string, number> = {}
     const gauges: Record<string, number> = {}
-    const histograms: Record<string, { count: number; sum: number; avg: number; min: number; max: number }> = {}
+    const histograms: Record<
+      string,
+      { count: number; sum: number; avg: number; min: number; max: number }
+    > = {}
 
     // Process counters
     for (const [key, value] of this.counters) {
@@ -161,7 +159,7 @@ export class MetricsCollector {
         sum,
         avg,
         min,
-        max
+        max,
       }
     }
 
@@ -246,9 +244,9 @@ export const businessMetrics = {
   errorOccurred: (type: string, tenantId?: string) => {
     metrics.increment('business.error_occurred', 1, {
       error_type: type,
-      ...(tenantId && { tenant_id: tenantId })
+      ...(tenantId && { tenant_id: tenantId }),
     })
-  }
+  },
 }
 
 // Performance metrics helpers
@@ -257,7 +255,7 @@ export const performanceMetrics = {
     metrics.histogram('performance.api_request_duration', duration, {
       method,
       path,
-      status_code: statusCode.toString()
+      status_code: statusCode.toString(),
     })
   },
 
@@ -265,13 +263,13 @@ export const performanceMetrics = {
     metrics.histogram('performance.database_query_duration', duration, {
       operation,
       table,
-      success: success.toString()
+      success: success.toString(),
     })
   },
 
   pageLoad: (path: string, duration: number) => {
     metrics.histogram('performance.page_load_duration', duration, { path })
-  }
+  },
 }
 
 // System metrics helpers
@@ -287,5 +285,5 @@ export const systemMetrics = {
 
   queueLength: (queueName: string, length: number) => {
     metrics.gauge(`system.queue_length`, length, { queue: queueName })
-  }
+  },
 }

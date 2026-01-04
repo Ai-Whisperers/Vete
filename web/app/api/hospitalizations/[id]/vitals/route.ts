@@ -1,21 +1,24 @@
-import { createClient } from '@/lib/supabase/server';
-import { NextRequest, NextResponse } from 'next/server';
-import { apiError, HTTP_STATUS } from '@/lib/api/errors';
+import { createClient } from '@/lib/supabase/server'
+import { NextRequest, NextResponse } from 'next/server'
+import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 
 interface RouteParams {
   params: Promise<{
-    id: string;
-  }>;
+    id: string
+  }>
 }
 
 export async function POST(request: NextRequest, { params }: RouteParams): Promise<NextResponse> {
-  const supabase = await createClient();
-  const { id: hospitalizationId } = await params;
+  const supabase = await createClient()
+  const { id: hospitalizationId } = await params
 
   // Authentication check
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
   if (authError || !user) {
-    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED)
   }
 
   // Get user profile - only vets/admins can record vitals
@@ -23,14 +26,14 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
     .from('profiles')
     .select('clinic_id:tenant_id, role')
     .eq('id', user.id)
-    .single();
+    .single()
 
   if (!profile) {
-    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, { details: { resource: 'profile' } });
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, { details: { resource: 'profile' } })
   }
 
   if (!['vet', 'admin'].includes(profile.role)) {
-    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
+    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN)
   }
 
   // Verify hospitalization exists and belongs to clinic
@@ -38,24 +41,26 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
     .from('hospitalizations')
     .select('id, pet:pets!inner(tenant_id)')
     .eq('id', hospitalizationId)
-    .single();
+    .single()
 
   if (!hospitalization) {
-    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, { details: { resource: 'hospitalization' } });
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
+      details: { resource: 'hospitalization' },
+    })
   }
 
-  const petData = Array.isArray(hospitalization.pet) ? hospitalization.pet[0] : hospitalization.pet;
-  const pet = petData as { tenant_id: string };
+  const petData = Array.isArray(hospitalization.pet) ? hospitalization.pet[0] : hospitalization.pet
+  const pet = petData as { tenant_id: string }
   if (pet.tenant_id !== profile.clinic_id) {
-    return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN);
+    return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN)
   }
 
   // Parse body
-  let body;
+  let body
   try {
-    body = await request.json();
+    body = await request.json()
   } catch {
-    return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST);
+    return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST)
   }
 
   const {
@@ -68,8 +73,8 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
     mucous_membrane_color,
     capillary_refill_time,
     pain_score,
-    notes
-  } = body;
+    notes,
+  } = body
 
   // Insert vitals
   const { data, error } = await supabase
@@ -89,16 +94,18 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
       notes: notes || null,
       recorded_by: user.id,
     })
-    .select(`
+    .select(
+      `
       *,
       recorded_by:profiles!hospitalization_vitals_recorded_by_fkey(full_name)
-    `)
-    .single();
+    `
+    )
+    .single()
 
   if (error) {
-    console.error('[API] vitals POST error:', error);
-    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
+    console.error('[API] vitals POST error:', error)
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
   }
 
-  return NextResponse.json(data, { status: 201 });
+  return NextResponse.json(data, { status: 201 })
 }

@@ -19,4 +19,4 @@
  *
  * Total: ~650 lines across 8 focused components vs 1,397 lines in single file
  */
-export { AgeCalculator } from './age-calculator-refactored';
+export { AgeCalculator } from './age-calculator-refactored'

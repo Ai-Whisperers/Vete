@@ -20,11 +20,13 @@ export default async function DashboardInventoryPage({ params }: Props) {
 
   return (
     <div className="p-6">
-      <Suspense fallback={
-        <div className="flex items-center justify-center min-h-[400px]">
-          <Loader2 className="w-8 h-8 animate-spin text-[var(--primary)]" />
-        </div>
-      }>
+      <Suspense
+        fallback={
+          <div className="flex min-h-[400px] items-center justify-center">
+            <Loader2 className="h-8 w-8 animate-spin text-[var(--primary)]" />
+          </div>
+        }
+      >
         <InventoryClient googleSheetUrl={googleSheetUrl} />
       </Suspense>
     </div>

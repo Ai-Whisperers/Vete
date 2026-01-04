@@ -1,47 +1,40 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { Loader2, Download, FileText } from 'lucide-react';
-import {
-  Document,
-  Page,
-  Text,
-  View,
-  StyleSheet,
-  pdf,
-} from '@react-pdf/renderer';
+import { useState } from 'react'
+import { Loader2, Download, FileText } from 'lucide-react'
+import { Document, Page, Text, View, StyleSheet, pdf } from '@react-pdf/renderer'
 
 interface OrderItem {
-  id: string;
-  product_id: string;
-  product_name: string;
-  variant_id: string | null;
-  variant_name: string | null;
-  quantity: number;
-  unit_price: number;
-  line_total: number;
+  id: string
+  product_id: string
+  product_name: string
+  variant_id: string | null
+  variant_name: string | null
+  quantity: number
+  unit_price: number
+  line_total: number
 }
 
 interface Order {
-  id: string;
-  order_number: string;
-  status: string;
-  subtotal: number;
-  discount_amount: number;
-  coupon_code: string | null;
-  shipping_cost: number;
-  tax_amount: number;
-  total: number;
+  id: string
+  order_number: string
+  status: string
+  subtotal: number
+  discount_amount: number
+  coupon_code: string | null
+  shipping_cost: number
+  tax_amount: number
+  total: number
   shipping_address: {
-    street?: string;
-    city?: string;
-    phone?: string;
-    recipient_name?: string;
-  } | null;
-  shipping_method: string;
-  payment_method: string;
-  created_at: string;
-  store_order_items: OrderItem[];
+    street?: string
+    city?: string
+    phone?: string
+    recipient_name?: string
+  } | null
+  shipping_method: string
+  payment_method: string
+  created_at: string
+  store_order_items: OrderItem[]
 }
 
 // PDF Styles
@@ -177,7 +170,7 @@ const styles = StyleSheet.create({
     transform: 'rotate(-30deg)',
     opacity: 0.5,
   },
-});
+})
 
 const STATUS_LABELS: Record<string, string> = {
   pending: 'PENDIENTE',
@@ -187,22 +180,22 @@ const STATUS_LABELS: Record<string, string> = {
   delivered: 'ENTREGADO',
   cancelled: 'CANCELADO',
   refunded: 'REEMBOLSADO',
-};
+}
 
 const PAYMENT_METHOD_LABELS: Record<string, string> = {
   cash_on_delivery: 'Contra Entrega',
   card: 'Tarjeta',
   bank_transfer: 'Transferencia Bancaria',
-};
+}
 
 const SHIPPING_METHOD_LABELS: Record<string, string> = {
   delivery: 'Envío a Domicilio',
   pickup: 'Retiro en Tienda',
-};
+}
 
 // Format currency
 function formatCurrency(amount: number): string {
-  return `Gs ${amount.toLocaleString('es-PY')}`;
+  return `Gs ${amount.toLocaleString('es-PY')}`
 }
 
 // Format date
@@ -213,7 +206,7 @@ function formatDate(dateStr: string): string {
     day: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
-  });
+  })
 }
 
 // PDF Document Component
@@ -221,8 +214,8 @@ function OrderInvoicePDFDocument({
   order,
   clinicName,
 }: {
-  order: Order;
-  clinicName: string;
+  order: Order
+  clinicName: string
 }): React.ReactElement {
   return (
     <Document>
@@ -231,9 +224,7 @@ function OrderInvoicePDFDocument({
         <View style={styles.header}>
           <View>
             <Text style={styles.logo}>{clinicName}</Text>
-            <Text style={{ color: '#666', marginTop: 4 }}>
-              Comprobante de Pedido
-            </Text>
+            <Text style={{ color: '#666', marginTop: 4 }}>Comprobante de Pedido</Text>
           </View>
           <View style={styles.orderInfo}>
             <Text style={styles.orderNumber}>#{order.order_number}</Text>
@@ -251,9 +242,7 @@ function OrderInvoicePDFDocument({
             {order.shipping_address.recipient_name && (
               <View style={styles.row}>
                 <Text style={styles.label}>Destinatario:</Text>
-                <Text style={styles.value}>
-                  {order.shipping_address.recipient_name}
-                </Text>
+                <Text style={styles.value}>{order.shipping_address.recipient_name}</Text>
               </View>
             )}
             <View style={styles.row}>
@@ -302,10 +291,7 @@ function OrderInvoicePDFDocument({
             {order.store_order_items.map((item, index) => (
               <View
                 key={item.id}
-                style={[
-                  styles.tableRow,
-                  ...(index % 2 === 1 ? [styles.tableRowAlternate] : []),
-                ]}
+                style={[styles.tableRow, ...(index % 2 === 1 ? [styles.tableRowAlternate] : [])]}
               >
                 <View style={styles.col1}>
                   <Text>{item.product_name}</Text>
@@ -334,16 +320,12 @@ function OrderInvoicePDFDocument({
               <Text style={{ color: '#16a34a' }}>
                 Descuento{order.coupon_code && ` (${order.coupon_code})`}
               </Text>
-              <Text style={{ color: '#16a34a' }}>
-                -{formatCurrency(order.discount_amount)}
-              </Text>
+              <Text style={{ color: '#16a34a' }}>-{formatCurrency(order.discount_amount)}</Text>
             </View>
           )}
           <View style={styles.totalRow}>
             <Text style={styles.totalLabel}>Envío</Text>
-            <Text>
-              {order.shipping_cost > 0 ? formatCurrency(order.shipping_cost) : 'Gratis'}
-            </Text>
+            <Text>{order.shipping_cost > 0 ? formatCurrency(order.shipping_cost) : 'Gratis'}</Text>
           </View>
           <View style={styles.totalRow}>
             <Text style={styles.totalLabel}>IVA (10%)</Text>
@@ -357,23 +339,21 @@ function OrderInvoicePDFDocument({
 
         {/* Footer */}
         <View style={styles.footer}>
-          <Text>
-            Gracias por tu compra en {clinicName}
-          </Text>
+          <Text>Gracias por tu compra en {clinicName}</Text>
           <Text style={{ marginTop: 4 }}>
             Este documento es un comprobante de pedido y no es una factura fiscal.
           </Text>
         </View>
       </Page>
     </Document>
-  );
+  )
 }
 
 // Download Button Component
 interface OrderInvoicePDFButtonProps {
-  order: Order;
-  clinicName: string;
-  variant?: 'button' | 'icon' | 'text';
+  order: Order
+  clinicName: string
+  variant?: 'button' | 'icon' | 'text'
 }
 
 export function OrderInvoicePDFButton({
@@ -381,49 +361,49 @@ export function OrderInvoicePDFButton({
   clinicName,
   variant = 'button',
 }: OrderInvoicePDFButtonProps): React.ReactElement {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false)
 
   const handleDownload = async (): Promise<void> => {
-    setLoading(true);
+    setLoading(true)
     try {
       const blob = await pdf(
         <OrderInvoicePDFDocument order={order} clinicName={clinicName} />
-      ).toBlob();
+      ).toBlob()
 
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `pedido-${order.order_number}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `pedido-${order.order_number}.pdf`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
     } catch (e) {
       // Client-side error logging - only in development
       if (process.env.NODE_ENV === 'development') {
-        console.error('Error generating PDF:', e);
+        console.error('Error generating PDF:', e)
       }
-      alert('Error al generar PDF');
+      alert('Error al generar PDF')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   if (variant === 'icon') {
     return (
       <button
         onClick={handleDownload}
         disabled={loading}
-        className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-50"
+        className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg p-2 transition-colors hover:bg-gray-100 disabled:opacity-50"
         title="Descargar Comprobante"
       >
         {loading ? (
-          <Loader2 className="w-5 h-5 animate-spin text-[var(--text-secondary)]" />
+          <Loader2 className="h-5 w-5 animate-spin text-[var(--text-secondary)]" />
         ) : (
-          <FileText className="w-5 h-5 text-[var(--text-secondary)]" />
+          <FileText className="h-5 w-5 text-[var(--text-secondary)]" />
         )}
       </button>
-    );
+    )
   }
 
   if (variant === 'text') {
@@ -433,30 +413,22 @@ export function OrderInvoicePDFButton({
         disabled={loading}
         className="inline-flex items-center gap-2 text-[var(--primary)] hover:underline disabled:opacity-50"
       >
-        {loading ? (
-          <Loader2 className="w-4 h-4 animate-spin" />
-        ) : (
-          <Download className="w-4 h-4" />
-        )}
+        {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
         Descargar Comprobante
       </button>
-    );
+    )
   }
 
   return (
     <button
       onClick={handleDownload}
       disabled={loading}
-      className="inline-flex items-center justify-center gap-2 px-4 py-2 border border-gray-200 rounded-lg text-[var(--text-primary)] hover:bg-gray-50 disabled:opacity-50 transition-colors"
+      className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-200 px-4 py-2 text-[var(--text-primary)] transition-colors hover:bg-gray-50 disabled:opacity-50"
     >
-      {loading ? (
-        <Loader2 className="w-4 h-4 animate-spin" />
-      ) : (
-        <FileText className="w-4 h-4" />
-      )}
+      {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
       Comprobante PDF
     </button>
-  );
+  )
 }
 
-export { OrderInvoicePDFDocument };
+export { OrderInvoicePDFDocument }

@@ -7,20 +7,16 @@ import { logger } from '@/lib/logger'
  * Marks an appointment as completed
  * Staff only - requires vet/admin role
  */
-export async function POST(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const supabase = await createClient()
 
   // 1. Auth check
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) {
-    return NextResponse.json(
-      { error: 'No autorizado' },
-      { status: 401 }
-    )
+    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
   }
 
   // 2. Parse optional body for notes
@@ -40,10 +36,7 @@ export async function POST(
     .single()
 
   if (fetchError || !appointment) {
-    return NextResponse.json(
-      { error: 'Cita no encontrada' },
-      { status: 404 }
-    )
+    return NextResponse.json({ error: 'Cita no encontrada' }, { status: 404 })
   }
 
   // 4. Check staff permission
@@ -53,15 +46,13 @@ export async function POST(
     .eq('id', user.id)
     .single()
 
-  const isStaff = profile &&
+  const isStaff =
+    profile &&
     ['vet', 'admin'].includes(profile.role) &&
     profile.tenant_id === appointment.tenant_id
 
   if (!isStaff) {
-    return NextResponse.json(
-      { error: 'Solo el personal puede completar citas' },
-      { status: 403 }
-    )
+    return NextResponse.json({ error: 'Solo el personal puede completar citas' }, { status: 403 })
   }
 
   // 5. Validate appointment status
@@ -76,7 +67,7 @@ export async function POST(
   const updateData: Record<string, unknown> = {
     status: 'completed',
     completed_at: new Date().toISOString(),
-    completed_by: user.id
+    completed_by: user.id,
   }
 
   if (notes) {
@@ -85,26 +76,20 @@ export async function POST(
       : `[Notas de cierre] ${notes}`
   }
 
-  const { error: updateError } = await supabase
-    .from('appointments')
-    .update(updateData)
-    .eq('id', id)
+  const { error: updateError } = await supabase.from('appointments').update(updateData).eq('id', id)
 
   if (updateError) {
     logger.error('Complete appointment error', {
       tenantId: appointment.tenant_id,
       userId: user.id,
       appointmentId: id,
-      error: updateError instanceof Error ? updateError.message : String(updateError)
+      error: updateError instanceof Error ? updateError.message : String(updateError),
     })
-    return NextResponse.json(
-      { error: 'Error al completar la cita' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Error al completar la cita' }, { status: 500 })
   }
 
   return NextResponse.json({
     success: true,
-    message: 'Cita completada correctamente'
+    message: 'Cita completada correctamente',
   })
 }

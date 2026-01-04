@@ -1,10 +1,10 @@
-"use client";
+'use client'
 
-import { forwardRef } from "react";
-import { Button, ButtonProps } from "./button";
+import { forwardRef } from 'react'
+import { Button, ButtonProps } from './button'
 
 interface LoadingButtonProps extends ButtonProps {
-  loadingText?: string;
+  loadingText?: string
 }
 
 /**
@@ -29,8 +29,8 @@ export const LoadingButton = forwardRef<HTMLButtonElement, LoadingButtonProps>(
       <Button ref={ref} isLoading={isLoading} {...props}>
         {isLoading && loadingText ? loadingText : children}
       </Button>
-    );
+    )
   }
-);
+)
 
-LoadingButton.displayName = "LoadingButton";
+LoadingButton.displayName = 'LoadingButton'

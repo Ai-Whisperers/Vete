@@ -8,15 +8,12 @@ import type { CalendarEvent, CalendarEventResource, CalendarEventType } from '@/
 /**
  * Filter events by staff IDs
  */
-export function filterByStaff(
-  events: CalendarEvent[],
-  staffFilters: string[]
-): CalendarEvent[] {
+export function filterByStaff(events: CalendarEvent[], staffFilters: string[]): CalendarEvent[] {
   if (!staffFilters || staffFilters.length === 0) {
     return events
   }
 
-  return events.filter(event => {
+  return events.filter((event) => {
     const resource = event.resource as CalendarEventResource | undefined
     if (!resource?.staffId) return true // Show events without staff
     return staffFilters.includes(resource.staffId)
@@ -34,7 +31,7 @@ export function filterByEventType(
     return events
   }
 
-  return events.filter(event => eventTypeFilters.includes(event.type))
+  return events.filter((event) => eventTypeFilters.includes(event.type))
 }
 
 /**

@@ -1,7 +1,7 @@
-"use client";
+'use client'
 
-import { useState, useRef, useEffect, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useRef, useEffect, useCallback } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
   Camera,
   X,
@@ -12,21 +12,21 @@ import {
   ScanLine,
   Flashlight,
   SwitchCamera,
-} from "lucide-react";
-import { useDashboardLabels } from "@/lib/hooks/use-dashboard-labels";
+} from 'lucide-react'
+import { useDashboardLabels } from '@/lib/hooks/use-dashboard-labels'
 
 interface BarcodeScannerProps {
-  onScan: (barcode: string) => void;
-  onClose: () => void;
-  isOpen: boolean;
+  onScan: (barcode: string) => void
+  onClose: () => void
+  isOpen: boolean
 }
 
 interface ScannedProduct {
-  id: string;
-  sku: string;
-  name: string;
-  stock: number;
-  price: number;
+  id: string
+  sku: string
+  name: string
+  stock: number
+  price: number
 }
 
 export function BarcodeScanner({
@@ -34,26 +34,26 @@ export function BarcodeScanner({
   onClose,
   isOpen,
 }: BarcodeScannerProps): React.ReactElement {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const streamRef = useRef<MediaStream | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [scannedCode, setScannedCode] = useState<string | null>(null);
-  const [scannedProduct, setScannedProduct] = useState<ScannedProduct | null>(null);
-  const [isSearching, setIsSearching] = useState(false);
-  const [facingMode, setFacingMode] = useState<"environment" | "user">("environment");
-  const [torchEnabled, setTorchEnabled] = useState(false);
-  const labels = useDashboardLabels();
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const streamRef = useRef<MediaStream | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [scannedCode, setScannedCode] = useState<string | null>(null)
+  const [scannedProduct, setScannedProduct] = useState<ScannedProduct | null>(null)
+  const [isSearching, setIsSearching] = useState(false)
+  const [facingMode, setFacingMode] = useState<'environment' | 'user'>('environment')
+  const [torchEnabled, setTorchEnabled] = useState(false)
+  const labels = useDashboardLabels()
 
   const startCamera = useCallback(async (): Promise<void> => {
-    setIsLoading(true);
-    setError(null);
+    setIsLoading(true)
+    setError(null)
 
     try {
       // Stop existing stream
       if (streamRef.current) {
-        streamRef.current.getTracks().forEach((track) => track.stop());
+        streamRef.current.getTracks().forEach((track) => track.stop())
       }
 
       const constraints: MediaStreamConstraints = {
@@ -62,164 +62,164 @@ export function BarcodeScanner({
           width: { ideal: 1280 },
           height: { ideal: 720 },
         },
-      };
-
-      const stream = await navigator.mediaDevices.getUserMedia(constraints);
-      streamRef.current = stream;
-
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        await videoRef.current.play();
       }
 
-      setIsLoading(false);
+      const stream = await navigator.mediaDevices.getUserMedia(constraints)
+      streamRef.current = stream
+
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream
+        await videoRef.current.play()
+      }
+
+      setIsLoading(false)
     } catch (err) {
       // Client-side error logging - only in development
       if (process.env.NODE_ENV === 'development') {
-        console.error("Camera error:", err);
+        console.error('Camera error:', err)
       }
-      setError("No se pudo acceder a la cámara. Verifica los permisos.");
-      setIsLoading(false);
+      setError('No se pudo acceder a la cámara. Verifica los permisos.')
+      setIsLoading(false)
     }
-  }, [facingMode]);
+  }, [facingMode])
 
   const stopCamera = useCallback((): void => {
     if (streamRef.current) {
-      streamRef.current.getTracks().forEach((track) => track.stop());
-      streamRef.current = null;
+      streamRef.current.getTracks().forEach((track) => track.stop())
+      streamRef.current = null
     }
     if (videoRef.current) {
-      videoRef.current.srcObject = null;
+      videoRef.current.srcObject = null
     }
-  }, []);
+  }, [])
 
   useEffect(() => {
     if (isOpen) {
-      startCamera();
+      startCamera()
     } else {
-      stopCamera();
+      stopCamera()
     }
 
     return () => {
-      stopCamera();
-    };
-  }, [isOpen, startCamera, stopCamera]);
+      stopCamera()
+    }
+  }, [isOpen, startCamera, stopCamera])
 
   // Simulated barcode detection (in production, use a library like quagga2 or zxing)
   useEffect(() => {
-    if (!isOpen || isLoading || error) return;
+    if (!isOpen || isLoading || error) return
 
     const detectBarcode = async (): Promise<void> => {
-      if (!videoRef.current || !canvasRef.current) return;
+      if (!videoRef.current || !canvasRef.current) return
 
-      const video = videoRef.current;
-      const canvas = canvasRef.current;
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return;
+      const video = videoRef.current
+      const canvas = canvasRef.current
+      const ctx = canvas.getContext('2d')
+      if (!ctx) return
 
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      canvas.width = video.videoWidth
+      canvas.height = video.videoHeight
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
 
       // In production, use BarcodeDetector API or a library
-      if ("BarcodeDetector" in window) {
+      if ('BarcodeDetector' in window) {
         try {
           // @ts-ignore - BarcodeDetector is not in TypeScript types yet
           const barcodeDetector = new window.BarcodeDetector({
-            formats: ["ean_13", "ean_8", "code_128", "code_39", "upc_a", "upc_e", "qr_code"],
-          });
-          const barcodes = await barcodeDetector.detect(canvas);
+            formats: ['ean_13', 'ean_8', 'code_128', 'code_39', 'upc_a', 'upc_e', 'qr_code'],
+          })
+          const barcodes = await barcodeDetector.detect(canvas)
 
           if (barcodes.length > 0) {
-            const code = barcodes[0].rawValue;
-            handleBarcodeDetected(code);
+            const code = barcodes[0].rawValue
+            handleBarcodeDetected(code)
           }
         } catch (err) {
           // Client-side error logging - only in development
           if (process.env.NODE_ENV === 'development') {
-            console.error("Barcode detection error:", err);
+            console.error('Barcode detection error:', err)
           }
         }
       }
-    };
+    }
 
-    const interval = setInterval(detectBarcode, 500);
-    return () => clearInterval(interval);
-  }, [isOpen, isLoading, error]);
+    const interval = setInterval(detectBarcode, 500)
+    return () => clearInterval(interval)
+  }, [isOpen, isLoading, error])
 
   const handleBarcodeDetected = async (code: string): Promise<void> => {
-    if (scannedCode === code || isSearching) return;
+    if (scannedCode === code || isSearching) return
 
-    setScannedCode(code);
-    setIsSearching(true);
+    setScannedCode(code)
+    setIsSearching(true)
 
     // Vibrate if supported
     if (navigator.vibrate) {
-      navigator.vibrate(100);
+      navigator.vibrate(100)
     }
 
     try {
       // Search for product by barcode
-      const response = await fetch(`/api/inventory/barcode/${code}`);
+      const response = await fetch(`/api/inventory/barcode/${code}`)
       if (response.ok) {
-        const product = await response.json();
-        setScannedProduct(product);
+        const product = await response.json()
+        setScannedProduct(product)
       } else {
-        setScannedProduct(null);
+        setScannedProduct(null)
       }
     } catch (err) {
       // Client-side error logging - only in development
       if (process.env.NODE_ENV === 'development') {
-        console.error("Error searching product:", err);
+        console.error('Error searching product:', err)
       }
     } finally {
-      setIsSearching(false);
+      setIsSearching(false)
     }
-  };
+  }
 
   const handleConfirmScan = (): void => {
     if (scannedCode) {
-      onScan(scannedCode);
-      onClose();
+      onScan(scannedCode)
+      onClose()
     }
-  };
+  }
 
   const handleManualEntry = (): void => {
-    const code = prompt("Ingrese el código de barras manualmente:");
+    const code = prompt('Ingrese el código de barras manualmente:')
     if (code) {
-      handleBarcodeDetected(code);
+      handleBarcodeDetected(code)
     }
-  };
+  }
 
   const toggleTorch = async (): Promise<void> => {
-    if (!streamRef.current) return;
+    if (!streamRef.current) return
 
-    const track = streamRef.current.getVideoTracks()[0];
-    const capabilities = track.getCapabilities();
+    const track = streamRef.current.getVideoTracks()[0]
+    const capabilities = track.getCapabilities()
 
     // @ts-ignore - torch is not in TypeScript types
     if (capabilities.torch) {
       try {
         // @ts-ignore
-        await track.applyConstraints({ advanced: [{ torch: !torchEnabled }] });
-        setTorchEnabled(!torchEnabled);
+        await track.applyConstraints({ advanced: [{ torch: !torchEnabled }] })
+        setTorchEnabled(!torchEnabled)
       } catch (err) {
         // Client-side error logging - only in development
         if (process.env.NODE_ENV === 'development') {
-          console.error("Torch error:", err);
+          console.error('Torch error:', err)
         }
       }
     }
-  };
+  }
 
   const switchCamera = (): void => {
-    setFacingMode((prev) => (prev === "environment" ? "user" : "environment"));
-  };
+    setFacingMode((prev) => (prev === 'environment' ? 'user' : 'environment'))
+  }
 
   const resetScan = (): void => {
-    setScannedCode(null);
-    setScannedProduct(null);
-  };
+    setScannedCode(null)
+    setScannedProduct(null)
+  }
 
   return (
     <AnimatePresence>
@@ -231,7 +231,7 @@ export function BarcodeScanner({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/80 z-50"
+            className="fixed inset-0 z-50 bg-black/80"
           />
 
           {/* Scanner Modal */}
@@ -239,87 +239,84 @@ export function BarcodeScanner({
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="fixed inset-4 md:inset-auto md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[500px] md:h-[600px] bg-black rounded-2xl z-50 overflow-hidden flex flex-col"
+            className="fixed inset-4 z-50 flex flex-col overflow-hidden rounded-2xl bg-black md:inset-auto md:left-1/2 md:top-1/2 md:h-[600px] md:w-[500px] md:-translate-x-1/2 md:-translate-y-1/2"
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3 bg-black/50">
+            <div className="flex items-center justify-between bg-black/50 px-4 py-3">
               <div className="flex items-center gap-2 text-white">
-                <ScanLine className="w-5 h-5" />
+                <ScanLine className="h-5 w-5" />
                 <span className="font-semibold">{labels.inventory.barcode_scanner.title}</span>
               </div>
               <div className="flex items-center gap-2">
                 <button
                   onClick={toggleTorch}
-                  className={`p-2 rounded-full transition-colors ${
-                    torchEnabled ? "bg-yellow-500 text-black" : "bg-white/20 text-white hover:bg-white/30"
+                  className={`rounded-full p-2 transition-colors ${
+                    torchEnabled
+                      ? 'bg-yellow-500 text-black'
+                      : 'bg-white/20 text-white hover:bg-white/30'
                   }`}
                   title="Linterna"
                 >
-                  <Flashlight className="w-5 h-5" />
+                  <Flashlight className="h-5 w-5" />
                 </button>
                 <button
                   onClick={switchCamera}
-                  className="p-2 rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors"
+                  className="rounded-full bg-white/20 p-2 text-white transition-colors hover:bg-white/30"
                   title="Cambiar cámara"
                 >
-                  <SwitchCamera className="w-5 h-5" />
+                  <SwitchCamera className="h-5 w-5" />
                 </button>
                 <button
                   onClick={onClose}
-                  className="p-2 rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors"
+                  className="rounded-full bg-white/20 p-2 text-white transition-colors hover:bg-white/30"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="h-5 w-5" />
                 </button>
               </div>
             </div>
 
             {/* Camera View */}
-            <div className="flex-1 relative">
+            <div className="relative flex-1">
               {isLoading && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black">
-                  <Loader2 className="w-8 h-8 text-white animate-spin" />
+                  <Loader2 className="h-8 w-8 animate-spin text-white" />
                 </div>
               )}
 
               {error && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-black p-4">
-                  <AlertCircle className="w-12 h-12 text-red-500 mb-4" />
-                  <p className="text-white text-center mb-4">{error}</p>
+                  <AlertCircle className="mb-4 h-12 w-12 text-red-500" />
+                  <p className="mb-4 text-center text-white">{error}</p>
                   <button
                     onClick={startCamera}
-                    className="px-4 py-2 bg-white text-black rounded-lg font-medium"
+                    className="rounded-lg bg-white px-4 py-2 font-medium text-black"
                   >
                     Reintentar
                   </button>
                 </div>
               )}
 
-              <video
-                ref={videoRef}
-                className="w-full h-full object-cover"
-                playsInline
-                muted
-              />
+              <video ref={videoRef} className="h-full w-full object-cover" playsInline muted />
               <canvas ref={canvasRef} className="hidden" />
 
               {/* Scan Frame Overlay */}
               {!isLoading && !error && (
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="relative w-64 h-48">
+                  <div className="relative h-48 w-64">
                     {/* Corners */}
-                    <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-white rounded-tl-lg" />
-                    <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-white rounded-tr-lg" />
-                    <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-white rounded-bl-lg" />
-                    <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-white rounded-br-lg" />
+                    <div className="absolute left-0 top-0 h-8 w-8 rounded-tl-lg border-l-4 border-t-4 border-white" />
+                    <div className="absolute right-0 top-0 h-8 w-8 rounded-tr-lg border-r-4 border-t-4 border-white" />
+                    <div className="absolute bottom-0 left-0 h-8 w-8 rounded-bl-lg border-b-4 border-l-4 border-white" />
+                    <div className="absolute bottom-0 right-0 h-8 w-8 rounded-br-lg border-b-4 border-r-4 border-white" />
 
                     {/* Scan Line Animation */}
                     <motion.div
                       className="absolute left-2 right-2 h-0.5 bg-[var(--primary)]"
-                      animate={{ top: ["10%", "90%", "10%"] }}
+                      animate={{ top: ['10%', '90%', '10%'] }}
                       transition={{
                         duration: 2,
                         repeat: Infinity,
-                        ease: "linear",
+                        ease: 'linear',
                       }}
                     />
                   </div>
@@ -331,46 +328,54 @@ export function BarcodeScanner({
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl p-4"
+                  className="absolute bottom-0 left-0 right-0 rounded-t-2xl bg-white p-4"
                 >
                   {isSearching ? (
                     <div className="flex items-center justify-center py-4">
-                      <Loader2 className="w-6 h-6 animate-spin text-[var(--primary)]" />
-                      <span className="ml-2 text-gray-600">{labels.inventory.barcode_scanner.searching}</span>
+                      <Loader2 className="h-6 w-6 animate-spin text-[var(--primary)]" />
+                      <span className="ml-2 text-gray-600">
+                        {labels.inventory.barcode_scanner.searching}
+                      </span>
                     </div>
                   ) : scannedProduct ? (
                     <div className="space-y-3">
                       <div className="flex items-center gap-3">
-                        <div className="p-2 bg-green-100 rounded-lg">
-                          <CheckCircle className="w-6 h-6 text-green-600" />
+                        <div className="rounded-lg bg-green-100 p-2">
+                          <CheckCircle className="h-6 w-6 text-green-600" />
                         </div>
                         <div className="flex-1">
                           <p className="font-semibold text-gray-900">{scannedProduct.name}</p>
                           <p className="text-sm text-gray-500">SKU: {scannedProduct.sku}</p>
                         </div>
                       </div>
-                      <div className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-lg">
-                        <span className="text-sm text-gray-600">{labels.inventory.barcode_scanner.stock_available}</span>
-                        <span className={`font-bold ${scannedProduct.stock > 0 ? "text-green-600" : "text-red-600"}`}>
+                      <div className="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2">
+                        <span className="text-sm text-gray-600">
+                          {labels.inventory.barcode_scanner.stock_available}
+                        </span>
+                        <span
+                          className={`font-bold ${scannedProduct.stock > 0 ? 'text-green-600' : 'text-red-600'}`}
+                        >
                           {scannedProduct.stock} {labels.common.units}
                         </span>
                       </div>
-                      <div className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-lg">
-                        <span className="text-sm text-gray-600">{labels.inventory.barcode_scanner.price}</span>
+                      <div className="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2">
+                        <span className="text-sm text-gray-600">
+                          {labels.inventory.barcode_scanner.price}
+                        </span>
                         <span className="font-bold text-gray-900">
-                          {scannedProduct.price.toLocaleString("es-PY")} Gs.
+                          {scannedProduct.price.toLocaleString('es-PY')} Gs.
                         </span>
                       </div>
                       <div className="flex gap-2">
                         <button
                           onClick={handleConfirmScan}
-                          className="flex-1 py-2.5 bg-[var(--primary)] text-white rounded-lg font-medium hover:opacity-90 transition-colors"
+                          className="flex-1 rounded-lg bg-[var(--primary)] py-2.5 font-medium text-white transition-colors hover:opacity-90"
                         >
                           {labels.inventory.barcode_scanner.use_code}
                         </button>
                         <button
                           onClick={resetScan}
-                          className="px-4 py-2.5 border border-gray-300 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+                          className="rounded-lg border border-gray-300 px-4 py-2.5 font-medium transition-colors hover:bg-gray-50"
                         >
                           {labels.inventory.barcode_scanner.scan_another}
                         </button>
@@ -379,24 +384,26 @@ export function BarcodeScanner({
                   ) : (
                     <div className="space-y-3">
                       <div className="flex items-center gap-3">
-                        <div className="p-2 bg-yellow-100 rounded-lg">
-                          <AlertCircle className="w-6 h-6 text-yellow-600" />
+                        <div className="rounded-lg bg-yellow-100 p-2">
+                          <AlertCircle className="h-6 w-6 text-yellow-600" />
                         </div>
                         <div>
                           <p className="font-semibold text-gray-900">Código: {scannedCode}</p>
-                          <p className="text-sm text-gray-500">{labels.inventory.barcode_scanner.not_found}</p>
+                          <p className="text-sm text-gray-500">
+                            {labels.inventory.barcode_scanner.not_found}
+                          </p>
                         </div>
                       </div>
                       <div className="flex gap-2">
                         <button
                           onClick={handleConfirmScan}
-                          className="flex-1 py-2.5 bg-[var(--primary)] text-white rounded-lg font-medium hover:opacity-90 transition-colors"
+                          className="flex-1 rounded-lg bg-[var(--primary)] py-2.5 font-medium text-white transition-colors hover:opacity-90"
                         >
                           {labels.inventory.barcode_scanner.use_code}
                         </button>
                         <button
                           onClick={resetScan}
-                          className="px-4 py-2.5 border border-gray-300 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+                          className="rounded-lg border border-gray-300 px-4 py-2.5 font-medium transition-colors hover:bg-gray-50"
                         >
                           {labels.inventory.barcode_scanner.scan_another}
                         </button>
@@ -409,10 +416,10 @@ export function BarcodeScanner({
 
             {/* Footer */}
             {!scannedCode && (
-              <div className="p-4 bg-black/50">
+              <div className="bg-black/50 p-4">
                 <button
                   onClick={handleManualEntry}
-                  className="w-full py-3 bg-white/20 text-white rounded-lg font-medium hover:bg-white/30 transition-colors"
+                  className="w-full rounded-lg bg-white/20 py-3 font-medium text-white transition-colors hover:bg-white/30"
                 >
                   {labels.inventory.barcode_scanner.manual_entry}
                 </button>
@@ -422,5 +429,5 @@ export function BarcodeScanner({
         </>
       )}
     </AnimatePresence>
-  );
+  )
 }

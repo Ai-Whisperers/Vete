@@ -1,21 +1,23 @@
-import { NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
-import { logger } from '@/lib/logger';
-import { apiError, HTTP_STATUS } from '@/lib/api/errors';
+import { NextResponse } from 'next/server'
+import { createClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/logger'
+import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force-dynamic'
 
 /**
  * GET /api/store/wishlist
  * Load wishlist product IDs for logged-in user
  */
 export async function GET() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
   // For unauthenticated users, return empty wishlist (not an error)
   if (!user) {
-    return NextResponse.json({ items: [], productIds: [], authenticated: false });
+    return NextResponse.json({ items: [], productIds: [], authenticated: false })
   }
 
   // Get user's profile to determine tenant
@@ -23,17 +25,18 @@ export async function GET() {
     .from('profiles')
     .select('tenant_id')
     .eq('id', user.id)
-    .maybeSingle(); // Use maybeSingle to avoid 406
+    .maybeSingle() // Use maybeSingle to avoid 406
 
   // If no profile, return empty wishlist (user might be new)
   if (profileError || !profile) {
-    return NextResponse.json({ items: [], productIds: [], authenticated: true, no_profile: true });
+    return NextResponse.json({ items: [], productIds: [], authenticated: true, no_profile: true })
   }
 
   // Get wishlist items with product details
   const { data: wishlistItems, error } = await supabase
     .from('store_wishlist')
-    .select(`
+    .select(
+      `
       id,
       product_id,
       created_at,
@@ -47,29 +50,30 @@ export async function GET() {
         image_url,
         is_active
       )
-    `)
+    `
+    )
     .eq('customer_id', user.id)
     .eq('tenant_id', profile.tenant_id)
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
 
   if (error) {
     logger.error('Error fetching wishlist', {
       userId: user.id,
       tenantId: profile.tenant_id,
-      error: error instanceof Error ? error.message : String(error)
-    });
+      error: error instanceof Error ? error.message : String(error),
+    })
     return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
-      details: { message: 'Error al cargar lista de deseos' }
-    });
+      details: { message: 'Error al cargar lista de deseos' },
+    })
   }
 
   // Return just product IDs for the context, full data for the page
-  const productIds = wishlistItems?.map(item => item.product_id) ?? [];
+  const productIds = wishlistItems?.map((item) => item.product_id) ?? []
 
   return NextResponse.json({
     items: wishlistItems ?? [],
-    productIds
-  });
+    productIds,
+  })
 }
 
 /**
@@ -77,19 +81,21 @@ export async function GET() {
  * Add a product to wishlist
  */
 export async function POST(request: Request) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
   if (!user) {
-    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED)
   }
 
-  const { productId } = await request.json();
+  const { productId } = await request.json()
 
   if (!productId) {
     return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
-      details: { message: 'ID de producto requerido' }
-    });
+      details: { message: 'ID de producto requerido' },
+    })
   }
 
   // Get user's profile to determine tenant
@@ -97,40 +103,38 @@ export async function POST(request: Request) {
     .from('profiles')
     .select('tenant_id')
     .eq('id', user.id)
-    .maybeSingle(); // Use maybeSingle to avoid 406
+    .maybeSingle() // Use maybeSingle to avoid 406
 
   if (!profile) {
     return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
-      details: { message: 'Perfil no encontrado' }
-    });
+      details: { message: 'Perfil no encontrado' },
+    })
   }
 
   // Add to wishlist
-  const { error } = await supabase
-    .from('store_wishlist')
-    .insert({
-      customer_id: user.id,
-      tenant_id: profile.tenant_id,
-      product_id: productId
-    });
+  const { error } = await supabase.from('store_wishlist').insert({
+    customer_id: user.id,
+    tenant_id: profile.tenant_id,
+    product_id: productId,
+  })
 
   if (error) {
     // If duplicate, silently succeed
     if (error.code === '23505') {
-      return NextResponse.json({ success: true, added: false });
+      return NextResponse.json({ success: true, added: false })
     }
     logger.error('Error adding to wishlist', {
       userId: user.id,
       tenantId: profile.tenant_id,
       productId,
-      error: error instanceof Error ? error.message : String(error)
-    });
+      error: error instanceof Error ? error.message : String(error),
+    })
     return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
-      details: { message: 'Error al agregar a lista de deseos' }
-    });
+      details: { message: 'Error al agregar a lista de deseos' },
+    })
   }
 
-  return NextResponse.json({ success: true, added: true });
+  return NextResponse.json({ success: true, added: true })
 }
 
 /**
@@ -138,20 +142,22 @@ export async function POST(request: Request) {
  * Remove a product from wishlist
  */
 export async function DELETE(request: Request) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
   if (!user) {
-    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED)
   }
 
-  const { searchParams } = new URL(request.url);
-  const productId = searchParams.get('productId');
+  const { searchParams } = new URL(request.url)
+  const productId = searchParams.get('productId')
 
   if (!productId) {
     return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
-      details: { message: 'ID de producto requerido' }
-    });
+      details: { message: 'ID de producto requerido' },
+    })
   }
 
   // Delete from wishlist
@@ -159,18 +165,18 @@ export async function DELETE(request: Request) {
     .from('store_wishlist')
     .delete()
     .eq('customer_id', user.id)
-    .eq('product_id', productId);
+    .eq('product_id', productId)
 
   if (error) {
     logger.error('Error removing from wishlist', {
       userId: user.id,
       productId,
-      error: error instanceof Error ? error.message : String(error)
-    });
+      error: error instanceof Error ? error.message : String(error),
+    })
     return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
-      details: { message: 'Error al eliminar de lista de deseos' }
-    });
+      details: { message: 'Error al eliminar de lista de deseos' },
+    })
   }
 
-  return NextResponse.json({ success: true });
+  return NextResponse.json({ success: true })
 }

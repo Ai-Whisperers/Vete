@@ -1,24 +1,27 @@
-"use client";
+'use client'
 
-import { Suspense, useState } from "react";
-import { usePathname } from "next/navigation";
-import { DashboardSidebar } from "./dashboard-sidebar";
-import { BottomNavigation } from "./bottom-navigation";
-import { QuickActionsHandler } from "./quick-actions-handler";
-import { CommandPalette, useCommandPalette } from "@/components/ui/command-palette";
-import { useKeyboardShortcuts, commonShortcuts } from "@/hooks/use-keyboard-shortcuts";
-import { RecentItemsProvider } from "./recent-items-provider";
-import { KeyboardShortcutsModal, useKeyboardShortcuts as useShortcutsModal } from "./keyboard-shortcuts-modal";
-import { DashboardLabelsProvider } from "@/lib/hooks/use-dashboard-labels";
+import { Suspense, useState } from 'react'
+import { usePathname } from 'next/navigation'
+import { DashboardSidebar } from './dashboard-sidebar'
+import { BottomNavigation } from './bottom-navigation'
+import { QuickActionsHandler } from './quick-actions-handler'
+import { CommandPalette, useCommandPalette } from '@/components/ui/command-palette'
+import { useKeyboardShortcuts, commonShortcuts } from '@/hooks/use-keyboard-shortcuts'
+import { RecentItemsProvider } from './recent-items-provider'
+import {
+  KeyboardShortcutsModal,
+  useKeyboardShortcuts as useShortcutsModal,
+} from './keyboard-shortcuts-modal'
+import { DashboardLabelsProvider } from '@/lib/hooks/use-dashboard-labels'
 
 // Pages that need full-bleed layout (no container padding)
-const FULL_BLEED_PAGES = ['/calendar', '/hospital', '/lab'];
+const FULL_BLEED_PAGES = ['/calendar', '/hospital', '/lab']
 
 interface DashboardShellProps {
-  clinic: string;
-  clinicName: string;
-  isAdmin?: boolean;
-  children: React.ReactNode;
+  clinic: string
+  clinicName: string
+  isAdmin?: boolean
+  children: React.ReactNode
 }
 
 export function DashboardShell({
@@ -27,21 +30,18 @@ export function DashboardShell({
   isAdmin = false,
   children,
 }: DashboardShellProps): React.ReactElement {
-  const pathname = usePathname();
-  const { isOpen, open, close } = useCommandPalette();
-  const { isOpen: isShortcutsOpen, closeShortcuts, openShortcuts } = useShortcutsModal();
+  const pathname = usePathname()
+  const { isOpen, open, close } = useCommandPalette()
+  const { isOpen: isShortcutsOpen, closeShortcuts, openShortcuts } = useShortcutsModal()
 
   // Check if current page needs full-bleed layout (no padding)
-  const isFullBleed = FULL_BLEED_PAGES.some(page => pathname.includes(page));
+  const isFullBleed = FULL_BLEED_PAGES.some((page) => pathname.includes(page))
 
   // Enable global keyboard shortcuts
   useKeyboardShortcuts({
-    shortcuts: [
-      commonShortcuts.openCommandPalette(open),
-      { key: '?', action: openShortcuts },
-    ],
+    shortcuts: [commonShortcuts.openCommandPalette(open), { key: '?', action: openShortcuts }],
     enabled: true,
-  });
+  })
 
   return (
     <DashboardLabelsProvider>
@@ -67,13 +67,11 @@ export function DashboardShell({
           />
 
           {/* Main Content - Full bleed pages get no padding */}
-          <main className="flex-1 overflow-auto lg:pb-0 pb-20">
+          <main className="flex-1 overflow-auto pb-20 lg:pb-0">
             {isFullBleed ? (
               children
             ) : (
-              <div className="page-container-xl py-4 md:py-6">
-                {children}
-              </div>
+              <div className="page-container-xl py-4 md:py-6">{children}</div>
             )}
           </main>
         </div>
@@ -82,5 +80,5 @@ export function DashboardShell({
         <BottomNavigation clinic={clinic} />
       </RecentItemsProvider>
     </DashboardLabelsProvider>
-  );
+  )
 }

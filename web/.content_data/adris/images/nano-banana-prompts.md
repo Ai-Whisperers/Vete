@@ -10,6 +10,7 @@
 ### Why Nano Banana Pro?
 
 Nano Banana Pro excels at:
+
 - **Text rendering** - Perfect for signage, certificates, labels
 - **Character identity preservation** - Consistent team member faces across images
 - **Multi-image fusion** - Combine reference photos with new contexts
@@ -70,7 +71,7 @@ TECHNICAL DEFAULTS:
 ### HERO-001: Home Page Hero
 
 ```
-Professional veterinary photography for website hero banner. A friendly golden retriever sitting calmly on a modern examination table while a female Latina veterinarian in her 40s wearing a clean white coat gently examines with stethoscope. 
+Professional veterinary photography for website hero banner. A friendly golden retriever sitting calmly on a modern examination table while a female Latina veterinarian in her 40s wearing a clean white coat gently examines with stethoscope.
 
 Technical specs: Canon EOS R5, 35mm wide angle lens at f/4, natural window light from left side creating soft shadows, warm color grading with hints of forest green (#2F5233) and gold (#F0C808) in the environment.
 
@@ -84,6 +85,7 @@ Exclude: No text, no watermarks, no harsh shadows, no stressed or anxious animal
 ```
 
 **Alternative - Cat Version:**
+
 ```
 Professional veterinary photography. Close-up of an orange tabby cat being held gently in veterinarian's hands, cat appears relaxed and content with half-closed eyes.
 
@@ -629,14 +631,14 @@ Exclude: [unwanted elements list].
 
 ### Aspect Ratios for Antigravity
 
-| Use Case | Ratio | Dimensions |
-|----------|-------|------------|
-| Hero banners | 16:9 | 1920x1080px |
-| Team portraits | 3:4 | 800x1000px |
-| Facility photos | 4:3 | 1200x800px |
-| Service cards | 3:2 | 600x400px |
-| Feature squares | 1:1 | 400x400px |
-| Testimonials | 1:1 | 200x200px |
+| Use Case        | Ratio | Dimensions  |
+| --------------- | ----- | ----------- |
+| Hero banners    | 16:9  | 1920x1080px |
+| Team portraits  | 3:4   | 800x1000px  |
+| Facility photos | 4:3   | 1200x800px  |
+| Service cards   | 3:2   | 600x400px   |
+| Feature squares | 1:1   | 400x400px   |
+| Testimonials    | 1:1   | 200x200px   |
 
 ---
 
@@ -672,6 +674,6 @@ Exclude: [unwanted elements list].
 
 ---
 
-*Document created: December 2024*
-*Optimized for: Google Antigravity + Nano Banana Pro*
-*Brand: Veterinaria Adris*
+_Document created: December 2024_
+_Optimized for: Google Antigravity + Nano Banana Pro_
+_Brand: Veterinaria Adris_

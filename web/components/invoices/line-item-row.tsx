@@ -31,27 +31,27 @@ export function LineItemRow({ item, services, onUpdate, onRemove, disabled }: Li
   const lineTotal = calculateLineTotal(item.quantity, item.unit_price, item.discount_percent)
 
   const handleServiceChange = (serviceId: string) => {
-    const service = services.find(s => s.id === serviceId)
+    const service = services.find((s) => s.id === serviceId)
     onUpdate({
       ...item,
       service_id: serviceId || null,
       description: service?.name || item.description,
-      unit_price: service?.base_price || item.unit_price
+      unit_price: service?.base_price || item.unit_price,
     })
   }
 
   return (
-    <div className="flex flex-col md:flex-row gap-3 p-4 bg-gray-50 rounded-lg">
+    <div className="flex flex-col gap-3 rounded-lg bg-gray-50 p-4 md:flex-row">
       {/* Service/Description */}
       <div className="flex-1">
-        <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1">
+        <label className="mb-1 block text-xs font-medium text-[var(--text-secondary)]">
           Servicio/Descripción
         </label>
         <select
           value={item.service_id || ''}
           onChange={(e) => handleServiceChange(e.target.value)}
           disabled={disabled}
-          className="w-full p-2 border border-gray-200 rounded-lg text-sm focus:border-[var(--primary)] outline-none"
+          className="w-full rounded-lg border border-gray-200 p-2 text-sm outline-none focus:border-[var(--primary)]"
         >
           <option value="">Personalizado</option>
           {services.map((service) => (
@@ -66,62 +66,71 @@ export function LineItemRow({ item, services, onUpdate, onRemove, disabled }: Li
           onChange={(e) => onUpdate({ ...item, description: e.target.value })}
           disabled={disabled}
           placeholder="Descripción del artículo"
-          className="w-full mt-2 p-2 border border-gray-200 rounded-lg text-sm focus:border-[var(--primary)] outline-none"
+          className="mt-2 w-full rounded-lg border border-gray-200 p-2 text-sm outline-none focus:border-[var(--primary)]"
         />
       </div>
 
       {/* Quantity */}
       <div className="w-24">
-        <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1">
+        <label className="mb-1 block text-xs font-medium text-[var(--text-secondary)]">
           Cantidad
         </label>
         <input
           type="number"
           value={item.quantity}
-          onChange={(e) => onUpdate({ ...item, quantity: Math.max(1, parseInt(e.target.value) || 1) })}
+          onChange={(e) =>
+            onUpdate({ ...item, quantity: Math.max(1, parseInt(e.target.value) || 1) })
+          }
           disabled={disabled}
           min="1"
-          className="w-full p-2 border border-gray-200 rounded-lg text-sm text-center focus:border-[var(--primary)] outline-none"
+          className="w-full rounded-lg border border-gray-200 p-2 text-center text-sm outline-none focus:border-[var(--primary)]"
         />
       </div>
 
       {/* Unit Price */}
       <div className="w-32">
-        <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1">
+        <label className="mb-1 block text-xs font-medium text-[var(--text-secondary)]">
           Precio Unit.
         </label>
         <input
           type="number"
           value={item.unit_price}
-          onChange={(e) => onUpdate({ ...item, unit_price: Math.max(0, parseFloat(e.target.value) || 0) })}
+          onChange={(e) =>
+            onUpdate({ ...item, unit_price: Math.max(0, parseFloat(e.target.value) || 0) })
+          }
           disabled={disabled}
           min="0"
-          className="w-full p-2 border border-gray-200 rounded-lg text-sm text-right focus:border-[var(--primary)] outline-none"
+          className="w-full rounded-lg border border-gray-200 p-2 text-right text-sm outline-none focus:border-[var(--primary)]"
         />
       </div>
 
       {/* Discount */}
       <div className="w-24">
-        <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1">
+        <label className="mb-1 block text-xs font-medium text-[var(--text-secondary)]">
           Desc. %
         </label>
         <input
           type="number"
           value={item.discount_percent}
-          onChange={(e) => onUpdate({ ...item, discount_percent: Math.min(100, Math.max(0, parseFloat(e.target.value) || 0)) })}
+          onChange={(e) =>
+            onUpdate({
+              ...item,
+              discount_percent: Math.min(100, Math.max(0, parseFloat(e.target.value) || 0)),
+            })
+          }
           disabled={disabled}
           min="0"
           max="100"
-          className="w-full p-2 border border-gray-200 rounded-lg text-sm text-center focus:border-[var(--primary)] outline-none"
+          className="w-full rounded-lg border border-gray-200 p-2 text-center text-sm outline-none focus:border-[var(--primary)]"
         />
       </div>
 
       {/* Line Total */}
-      <div className="w-32 flex flex-col justify-between">
-        <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1">
+      <div className="flex w-32 flex-col justify-between">
+        <label className="mb-1 block text-xs font-medium text-[var(--text-secondary)]">
           Subtotal
         </label>
-        <p className="p-2 font-medium text-[var(--text-primary)] text-right">
+        <p className="p-2 text-right font-medium text-[var(--text-primary)]">
           {formatCurrency(lineTotal)}
         </p>
       </div>
@@ -132,10 +141,10 @@ export function LineItemRow({ item, services, onUpdate, onRemove, disabled }: Li
           <button
             type="button"
             onClick={onRemove}
-            className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+            className="rounded-lg p-2 text-red-500 transition-colors hover:bg-red-50"
             title="Eliminar"
           >
-            <Icons.Trash2 className="w-4 h-4" />
+            <Icons.Trash2 className="h-4 w-4" />
           </button>
         </div>
       )}

@@ -1,95 +1,93 @@
-"use client";
+'use client'
 
-import { createClient } from "@/lib/supabase/client";
-import { useRouter, useParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import * as Icons from "lucide-react";
+import { createClient } from '@/lib/supabase/client'
+import { useRouter, useParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import * as Icons from 'lucide-react'
 
 export default function LogoutPage() {
-  const router = useRouter();
-  const { clinic } = useParams();
-  const [status, setStatus] = useState<"loading" | "success" | "error">(
-    "loading"
-  );
+  const router = useRouter()
+  const { clinic } = useParams()
+  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
 
   useEffect(() => {
-    const supabase = createClient();
+    const supabase = createClient()
 
     const doLogout = async () => {
       try {
-        const { error } = await supabase.auth.signOut();
+        const { error } = await supabase.auth.signOut()
         if (error) {
           // Client-side error logging - only in development
           if (process.env.NODE_ENV === 'development') {
-            console.error("Logout error:", error);
+            console.error('Logout error:', error)
           }
-          setStatus("error");
-          return;
+          setStatus('error')
+          return
         }
         // Refresh to clear server-side cache
-        router.refresh();
-        setStatus("success");
+        router.refresh()
+        setStatus('success')
         // Short delay to show success message, then redirect
         setTimeout(() => {
-          router.push(`/${clinic}/portal/login`);
-        }, 1500);
+          router.push(`/${clinic}/portal/login`)
+        }, 1500)
       } catch (err) {
         // Client-side error logging - only in development
         if (process.env.NODE_ENV === 'development') {
-          console.error("Logout error:", err);
+          console.error('Logout error:', err)
         }
-        setStatus("error");
+        setStatus('error')
       }
-    };
+    }
 
-    doLogout();
-  }, [router, clinic]);
+    doLogout()
+  }, [router, clinic])
 
   return (
-    <div className="max-w-md mx-auto mt-12 bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 p-8">
+    <div className="mx-auto mt-12 max-w-md overflow-hidden rounded-3xl border border-gray-100 bg-white p-8 shadow-xl">
       <div className="text-center">
-        {status === "loading" && (
+        {status === 'loading' && (
           <>
-            <div className="w-16 h-16 bg-[var(--primary)]/10 rounded-full flex items-center justify-center mx-auto text-[var(--primary)] mb-4">
-              <Icons.Loader2 className="w-8 h-8 animate-spin" />
+            <div className="bg-[var(--primary)]/10 mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full text-[var(--primary)]">
+              <Icons.Loader2 className="h-8 w-8 animate-spin" />
             </div>
-            <h1 className="text-2xl font-black font-heading text-[var(--text-primary)]">
+            <h1 className="font-heading text-2xl font-black text-[var(--text-primary)]">
               Cerrando sesión...
             </h1>
-            <p className="text-[var(--text-secondary)] mt-2">
+            <p className="mt-2 text-[var(--text-secondary)]">
               Espera un momento mientras cerramos tu sesión de forma segura.
             </p>
           </>
         )}
 
-        {status === "success" && (
+        {status === 'success' && (
           <>
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto text-green-600 mb-4">
-              <Icons.CheckCircle className="w-8 h-8" />
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 text-green-600">
+              <Icons.CheckCircle className="h-8 w-8" />
             </div>
-            <h1 className="text-2xl font-black font-heading text-[var(--text-primary)]">
+            <h1 className="font-heading text-2xl font-black text-[var(--text-primary)]">
               Sesión cerrada
             </h1>
-            <p className="text-[var(--text-secondary)] mt-2">
+            <p className="mt-2 text-[var(--text-secondary)]">
               Tu sesión ha sido cerrada correctamente. Redirigiendo...
             </p>
           </>
         )}
 
-        {status === "error" && (
+        {status === 'error' && (
           <>
-            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto text-red-600 mb-4">
-              <Icons.AlertCircle className="w-8 h-8" />
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 text-red-600">
+              <Icons.AlertCircle className="h-8 w-8" />
             </div>
-            <h1 className="text-2xl font-black font-heading text-[var(--text-primary)]">
+            <h1 className="font-heading text-2xl font-black text-[var(--text-primary)]">
               Error al cerrar sesión
             </h1>
-            <p className="text-[var(--text-secondary)] mt-2 mb-4">
+            <p className="mb-4 mt-2 text-[var(--text-secondary)]">
               Hubo un problema al cerrar tu sesión. Por favor intenta de nuevo.
             </p>
             <button
               onClick={() => router.push(`/${clinic}/portal/login`)}
-              className="inline-flex items-center gap-2 bg-[var(--primary)] text-white font-bold py-3 px-6 rounded-xl hover:opacity-90 transition-opacity"
+              className="inline-flex items-center gap-2 rounded-xl bg-[var(--primary)] px-6 py-3 font-bold text-white transition-opacity hover:opacity-90"
             >
               Ir al inicio de sesión
             </button>
@@ -97,5 +95,5 @@ export default function LogoutPage() {
         )}
       </div>
     </div>
-  );
+  )
 }

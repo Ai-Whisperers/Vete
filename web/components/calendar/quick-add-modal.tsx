@@ -72,47 +72,52 @@ export function QuickAddModal({
   const [petSearch, setPetSearch] = useState('')
 
   // Conflict detection state
-  const [conflicts, setConflicts] = useState<Array<{ id: string; pet_name: string; start_time: string; end_time: string }>>([])
+  const [conflicts, setConflicts] = useState<
+    Array<{ id: string; pet_name: string; start_time: string; end_time: string }>
+  >([])
   const [isCheckingAvailability, setIsCheckingAvailability] = useState(false)
   const checkTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   // Check availability function
-  const checkAvailability = useCallback(async (start: string, end: string, vet?: string) => {
-    if (!slotInfo || !start || !end) return
+  const checkAvailability = useCallback(
+    async (start: string, end: string, vet?: string) => {
+      if (!slotInfo || !start || !end) return
 
-    setIsCheckingAvailability(true)
-    try {
-      const [startHours, startMinutes] = start.split(':').map(Number)
-      const [endHours, endMinutes] = end.split(':').map(Number)
+      setIsCheckingAvailability(true)
+      try {
+        const [startHours, startMinutes] = start.split(':').map(Number)
+        const [endHours, endMinutes] = end.split(':').map(Number)
 
-      const startDateTime = new Date(slotInfo.start)
-      startDateTime.setHours(startHours, startMinutes, 0, 0)
+        const startDateTime = new Date(slotInfo.start)
+        startDateTime.setHours(startHours, startMinutes, 0, 0)
 
-      const endDateTime = new Date(slotInfo.start)
-      endDateTime.setHours(endHours, endMinutes, 0, 0)
+        const endDateTime = new Date(slotInfo.start)
+        endDateTime.setHours(endHours, endMinutes, 0, 0)
 
-      if (endDateTime <= startDateTime) return
+        if (endDateTime <= startDateTime) return
 
-      const response = await fetch('/api/calendar/check-availability', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          start_time: startDateTime.toISOString(),
-          end_time: endDateTime.toISOString(),
-          vet_id: vet || undefined,
-        }),
-      })
+        const response = await fetch('/api/calendar/check-availability', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            start_time: startDateTime.toISOString(),
+            end_time: endDateTime.toISOString(),
+            vet_id: vet || undefined,
+          }),
+        })
 
-      if (response.ok) {
-        const data = await response.json()
-        setConflicts(data.conflicts || [])
+        if (response.ok) {
+          const data = await response.json()
+          setConflicts(data.conflicts || [])
+        }
+      } catch {
+        // Silently fail - conflicts won't prevent booking
+      } finally {
+        setIsCheckingAvailability(false)
       }
-    } catch {
-      // Silently fail - conflicts won't prevent booking
-    } finally {
-      setIsCheckingAvailability(false)
-    }
-  }, [slotInfo])
+    },
+    [slotInfo]
+  )
 
   // Reset form when modal opens
   useEffect(() => {
@@ -154,7 +159,7 @@ export function QuickAddModal({
   // Update end time when service changes
   useEffect(() => {
     if (serviceId && slotInfo) {
-      const selectedService = services.find(s => s.id === serviceId)
+      const selectedService = services.find((s) => s.id === serviceId)
       if (selectedService) {
         const start = new Date(slotInfo.start)
         const [hours, minutes] = startTime.split(':').map(Number)
@@ -168,7 +173,7 @@ export function QuickAddModal({
   // Filter pets by search
   const filteredPets = petSearch
     ? pets.filter(
-        pet =>
+        (pet) =>
           pet.name.toLowerCase().includes(petSearch.toLowerCase()) ||
           pet.owner_name?.toLowerCase().includes(petSearch.toLowerCase())
       )
@@ -228,10 +233,7 @@ export function QuickAddModal({
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
       {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-black/50 transition-opacity"
-        onClick={onClose}
-      />
+      <div className="fixed inset-0 bg-black/50 transition-opacity" onClick={onClose} />
 
       {/* Modal */}
       <div className="flex min-h-full items-center justify-center p-4">
@@ -240,9 +242,7 @@ export function QuickAddModal({
           <div className="border-b border-[var(--border-light,#f3f4f6)] px-6 py-4">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-lg font-semibold text-[var(--text-primary)]">
-                  Nueva Cita
-                </h3>
+                <h3 className="text-lg font-semibold text-[var(--text-primary)]">Nueva Cita</h3>
                 <p className="text-sm text-gray-500">
                   {format(slotInfo.start, "EEEE, d 'de' MMMM", { locale: es })}
                 </p>
@@ -251,8 +251,13 @@ export function QuickAddModal({
                 onClick={onClose}
                 className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             </div>
@@ -260,10 +265,14 @@ export function QuickAddModal({
 
           {/* Form */}
           <form onSubmit={handleSubmit}>
-            <div className="px-6 py-4 space-y-4 max-h-[60vh] overflow-y-auto">
+            <div className="max-h-[60vh] space-y-4 overflow-y-auto px-6 py-4">
               {/* Error message - TICKET-A11Y-004: Added role="alert" for screen readers */}
               {error && (
-                <div role="alert" aria-live="assertive" className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+                <div
+                  role="alert"
+                  aria-live="assertive"
+                  className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700"
+                >
                   {error}
                 </div>
               )}
@@ -273,20 +282,31 @@ export function QuickAddModal({
                 <div
                   role="alert"
                   aria-live="polite"
-                  className="p-3 bg-amber-50 border border-amber-200 rounded-lg"
+                  className="rounded-lg border border-amber-200 bg-amber-50 p-3"
                 >
                   <div className="flex items-start gap-2">
-                    <svg className="w-5 h-5 text-amber-600 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    <svg
+                      className="mt-0.5 h-5 w-5 shrink-0 text-amber-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                      />
                     </svg>
                     <div>
                       <p className="text-sm font-medium text-amber-800">
                         {conflicts.length} cita{conflicts.length !== 1 ? 's' : ''} en conflicto
                       </p>
-                      <ul className="mt-1 text-xs text-amber-700 space-y-0.5">
-                        {conflicts.slice(0, 3).map(conflict => (
+                      <ul className="mt-1 space-y-0.5 text-xs text-amber-700">
+                        {conflicts.slice(0, 3).map((conflict) => (
                           <li key={conflict.id}>
-                            {conflict.pet_name} ({format(new Date(conflict.start_time), 'HH:mm')} - {format(new Date(conflict.end_time), 'HH:mm')})
+                            {conflict.pet_name} ({format(new Date(conflict.start_time), 'HH:mm')} -{' '}
+                            {format(new Date(conflict.end_time), 'HH:mm')})
                           </li>
                         ))}
                         {conflicts.length > 3 && (
@@ -301,9 +321,20 @@ export function QuickAddModal({
               {/* Availability check indicator */}
               {isCheckingAvailability && (
                 <div className="flex items-center gap-2 text-xs text-gray-500">
-                  <svg className="animate-spin h-3 w-3" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  <svg className="h-3 w-3 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    />
                   </svg>
                   Verificando disponibilidad...
                 </div>
@@ -311,43 +342,47 @@ export function QuickAddModal({
 
               {/* Pet selection */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Mascota *
-                </label>
+                <label className="mb-1 block text-sm font-medium text-gray-700">Mascota *</label>
                 <input
                   type="text"
                   placeholder="Buscar por nombre o dueño..."
                   value={petSearch}
-                  onChange={e => setPetSearch(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent mb-2"
+                  onChange={(e) => setPetSearch(e.target.value)}
+                  className="mb-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
                 />
-                <div className="max-h-32 overflow-y-auto border border-gray-200 rounded-lg">
+                <div className="max-h-32 overflow-y-auto rounded-lg border border-gray-200">
                   {filteredPets.length === 0 ? (
-                    <p className="p-3 text-sm text-gray-500 text-center">
+                    <p className="p-3 text-center text-sm text-gray-500">
                       No se encontraron mascotas
                     </p>
                   ) : (
-                    filteredPets.map(pet => (
+                    filteredPets.map((pet) => (
                       <button
                         key={pet.id}
                         type="button"
                         onClick={() => setPetId(pet.id)}
-                        className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center justify-between ${
+                        className={`flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-gray-50 ${
                           petId === pet.id ? 'bg-blue-50' : ''
                         }`}
                       >
                         <span>
                           <span className="font-medium">{pet.name}</span>
-                          <span className="text-gray-500 ml-2">({pet.species})</span>
+                          <span className="ml-2 text-gray-500">({pet.species})</span>
                         </span>
                         {pet.owner_name && (
-                          <span className="text-xs text-gray-400">
-                            {pet.owner_name}
-                          </span>
+                          <span className="text-xs text-gray-400">{pet.owner_name}</span>
                         )}
                         {petId === pet.id && (
-                          <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          <svg
+                            className="h-4 w-4 text-blue-600"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                              clipRule="evenodd"
+                            />
                           </svg>
                         )}
                       </button>
@@ -359,41 +394,37 @@ export function QuickAddModal({
               {/* Time */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="mb-1 block text-sm font-medium text-gray-700">
                     Hora inicio
                   </label>
                   <input
                     type="time"
                     value={startTime}
-                    onChange={e => setStartTime(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
+                    onChange={(e) => setStartTime(e.target.value)}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Hora fin
-                  </label>
+                  <label className="mb-1 block text-sm font-medium text-gray-700">Hora fin</label>
                   <input
                     type="time"
                     value={endTime}
-                    onChange={e => setEndTime(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
+                    onChange={(e) => setEndTime(e.target.value)}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
                   />
                 </div>
               </div>
 
               {/* Service */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Servicio
-                </label>
+                <label className="mb-1 block text-sm font-medium text-gray-700">Servicio</label>
                 <select
                   value={serviceId}
-                  onChange={e => setServiceId(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
+                  onChange={(e) => setServiceId(e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
                 >
                   <option value="">Seleccionar servicio (opcional)</option>
-                  {services.map(service => (
+                  {services.map((service) => (
                     <option key={service.id} value={service.id}>
                       {service.name} ({service.duration_minutes} min)
                     </option>
@@ -403,16 +434,14 @@ export function QuickAddModal({
 
               {/* Veterinarian */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Veterinario
-                </label>
+                <label className="mb-1 block text-sm font-medium text-gray-700">Veterinario</label>
                 <select
                   value={vetId}
-                  onChange={e => setVetId(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
+                  onChange={(e) => setVetId(e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
                 >
                   <option value="">Asignar automáticamente</option>
-                  {staff.map(member => (
+                  {staff.map((member) => (
                     <option key={member.id} value={member.id}>
                       {member.full_name}
                     </option>
@@ -422,51 +451,51 @@ export function QuickAddModal({
 
               {/* Reason */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="mb-1 block text-sm font-medium text-gray-700">
                   Motivo de la cita *
                 </label>
                 <input
                   type="text"
                   value={reason}
-                  onChange={e => setReason(e.target.value)}
+                  onChange={(e) => setReason(e.target.value)}
                   placeholder="Ej: Consulta general, vacunación, etc."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
                 />
               </div>
 
               {/* Notes */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="mb-1 block text-sm font-medium text-gray-700">
                   Notas adicionales
                 </label>
                 <textarea
                   value={notes}
-                  onChange={e => setNotes(e.target.value)}
+                  onChange={(e) => setNotes(e.target.value)}
                   rows={2}
                   placeholder="Información adicional..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent resize-none"
+                  className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
                 />
               </div>
             </div>
 
             {/* Footer */}
-            <div className="border-t border-gray-200 px-6 py-4 flex justify-end gap-3">
+            <div className="flex justify-end gap-3 border-t border-gray-200 px-6 py-4">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
+                className="rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
                 disabled={isSaving || isLoading}
-                className="px-4 py-2 text-sm font-medium text-white rounded-lg hover:opacity-90 disabled:opacity-50 inline-flex items-center gap-2"
+                className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
                 style={{ backgroundColor: 'var(--primary, #3B82F6)' }}
               >
                 {(isSaving || isLoading) && (
                   <svg
-                    className="animate-spin h-4 w-4"
+                    className="h-4 w-4 animate-spin"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"

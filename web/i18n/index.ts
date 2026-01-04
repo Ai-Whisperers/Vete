@@ -49,8 +49,8 @@
  */
 
 // Re-export config types
-export { locales, defaultLocale, localeNames, localeFlags } from './config';
-export type { Locale } from './config';
+export { locales, defaultLocale, localeNames, localeFlags } from './config'
+export type { Locale } from './config'
 
 // Re-export hooks
-export { useLocale } from './hooks';
+export { useLocale } from './hooks'

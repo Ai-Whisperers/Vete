@@ -1,49 +1,49 @@
-"use client";
+'use client'
 
-import { useEffect, useState } from "react";
-import { CheckCircle, X } from "lucide-react";
-import { useRouter, usePathname } from "next/navigation";
+import { useEffect, useState } from 'react'
+import { CheckCircle, X } from 'lucide-react'
+import { useRouter, usePathname } from 'next/navigation'
 
 interface SuccessToastProps {
-  message: string;
+  message: string
 }
 
 export function SuccessToast({ message }: SuccessToastProps): React.ReactElement | null {
-  const [visible, setVisible] = useState(true);
-  const router = useRouter();
-  const pathname = usePathname();
+  const [visible, setVisible] = useState(true)
+  const router = useRouter()
+  const pathname = usePathname()
 
   useEffect(() => {
     // Auto-dismiss after 5 seconds
     const timer = setTimeout(() => {
-      setVisible(false);
+      setVisible(false)
       // Clean up URL param
-      router.replace(pathname, { scroll: false });
-    }, 5000);
+      router.replace(pathname, { scroll: false })
+    }, 5000)
 
-    return () => clearTimeout(timer);
-  }, [router, pathname]);
+    return () => clearTimeout(timer)
+  }, [router, pathname])
 
   const handleDismiss = (): void => {
-    setVisible(false);
-    router.replace(pathname, { scroll: false });
-  };
+    setVisible(false)
+    router.replace(pathname, { scroll: false })
+  }
 
-  if (!visible) return null;
+  if (!visible) return null
 
   return (
-    <div className="fixed top-4 right-4 z-50 animate-in slide-in-from-top-2 fade-in duration-300">
-      <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-2xl shadow-lg flex items-center gap-3 max-w-md">
-        <CheckCircle className="w-5 h-5 text-green-600 shrink-0" />
-        <span className="font-medium text-sm">{message}</span>
+    <div className="animate-in slide-in-from-top-2 fade-in fixed right-4 top-4 z-50 duration-300">
+      <div className="flex max-w-md items-center gap-3 rounded-2xl border border-green-200 bg-green-50 px-4 py-3 text-green-800 shadow-lg">
+        <CheckCircle className="h-5 w-5 shrink-0 text-green-600" />
+        <span className="text-sm font-medium">{message}</span>
         <button
           onClick={handleDismiss}
-          className="ml-2 p-1 hover:bg-green-100 rounded-lg transition-colors"
+          className="ml-2 rounded-lg p-1 transition-colors hover:bg-green-100"
           aria-label="Cerrar"
         >
-          <X className="w-4 h-4" />
+          <X className="h-4 w-4" />
         </button>
       </div>
     </div>
-  );
+  )
 }

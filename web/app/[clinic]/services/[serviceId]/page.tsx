@@ -1,34 +1,41 @@
-import { getClinicData, ClinicData } from '@/lib/clinics';
-import { notFound } from 'next/navigation';
-import { Metadata } from 'next';
-import { createClient } from '@/lib/supabase/server';
-import { ServiceDetailClient } from '@/components/services/service-detail-client';
-import { ServiceSchema, BreadcrumbSchema } from '@/components/seo/structured-data';
-import type { Service } from '@/lib/types/services';
+import { getClinicData, ClinicData } from '@/lib/clinics'
+import { notFound } from 'next/navigation'
+import { Metadata } from 'next'
+import { createClient } from '@/lib/supabase/server'
+import { ServiceDetailClient } from '@/components/services/service-detail-client'
+import { ServiceSchema, BreadcrumbSchema } from '@/components/seo/structured-data'
+import type { Service } from '@/lib/types/services'
 
-const BASE_URL = 'https://vetepy.vercel.app';
+const BASE_URL = 'https://vetepy.vercel.app'
 
 // Helper to find service by slug/id
-async function getService(clinicSlug: string, serviceId: string): Promise<{ service: Service; data: ClinicData } | null> {
-  const data = await getClinicData(clinicSlug);
-  if (!data) return null;
+async function getService(
+  clinicSlug: string,
+  serviceId: string
+): Promise<{ service: Service; data: ClinicData } | null> {
+  const data = await getClinicData(clinicSlug)
+  if (!data) return null
 
-  const services = data.services?.services as Service[] | undefined;
-  const service = services?.find((s) => s.id === serviceId);
-  if (!service) return null;
+  const services = data.services?.services as Service[] | undefined
+  const service = services?.find((s) => s.id === serviceId)
+  if (!service) return null
 
-  return { service, data };
+  return { service, data }
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ clinic: string; serviceId: string }> }): Promise<Metadata> {
-  const { clinic, serviceId } = await params;
-  const result = await getService(clinic, serviceId);
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ clinic: string; serviceId: string }>
+}): Promise<Metadata> {
+  const { clinic, serviceId } = await params
+  const result = await getService(clinic, serviceId)
 
-  if (!result || !result.service) return {};
+  if (!result || !result.service) return {}
 
-  const { service, data } = result;
-  const canonicalUrl = `${BASE_URL}/${clinic}/services/${serviceId}`;
-  const ogImage = data.config.branding?.og_image_url || '/branding/default-og.jpg';
+  const { service, data } = result
+  const canonicalUrl = `${BASE_URL}/${clinic}/services/${serviceId}`
+  const ogImage = data.config.branding?.og_image_url || '/branding/default-og.jpg'
 
   return {
     title: `${service.title} | ${data.config.name}`,
@@ -57,31 +64,37 @@ export async function generateMetadata({ params }: { params: Promise<{ clinic: s
       title: service.title,
       description: service.summary || service.description?.substring(0, 160),
     },
-  };
+  }
 }
 
 // Note: generateStaticParams removed to allow dynamic rendering
 
-export default async function ServiceDetailPage({ params }: { params: Promise<{ clinic: string; serviceId: string }> }) {
-  const { clinic, serviceId } = await params;
-  const result = await getService(clinic, serviceId);
+export default async function ServiceDetailPage({
+  params,
+}: {
+  params: Promise<{ clinic: string; serviceId: string }>
+}) {
+  const { clinic, serviceId } = await params
+  const result = await getService(clinic, serviceId)
 
-  if (!result || !result.service) notFound();
+  if (!result || !result.service) notFound()
 
-  const { service, data } = result;
-  const { config } = data;
+  const { service, data } = result
+  const { config } = data
 
   // Check if user is logged in
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  const isLoggedIn = !!user;
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  const isLoggedIn = !!user
 
   // Breadcrumb items for structured data
   const breadcrumbItems = [
     { name: 'Inicio', url: `/${clinic}` },
     { name: 'Servicios', url: `/${clinic}/services` },
     { name: service.title, url: `/${clinic}/services/${serviceId}` },
-  ];
+  ]
 
   return (
     <>
@@ -107,13 +120,13 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
         config={{
           name: config.name,
           contact: {
-            whatsapp_number: config.contact?.whatsapp_number
+            whatsapp_number: config.contact?.whatsapp_number,
           },
-          ui_labels: config.ui_labels
+          ui_labels: config.ui_labels,
         }}
         clinic={clinic}
         isLoggedIn={isLoggedIn}
       />
     </>
-  );
+  )
 }

@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod'
 
 /**
  * Lab Test Catalog Schema
@@ -12,20 +12,39 @@ export const LabTestCatalogSchema = z.object({
   description: z.string().optional().nullable(),
   category: z.string().optional().nullable(),
 
-  sample_type: z.enum([
-    'blood', 'serum', 'plasma', 'urine', 'feces', 'tissue',
-    'swab', 'citrated_blood', 'edta_blood', 'aspirate',
-    'biopsy', 'skin', 'hair', 'other'
-  ]).default('blood'),
+  sample_type: z
+    .enum([
+      'blood',
+      'serum',
+      'plasma',
+      'urine',
+      'feces',
+      'tissue',
+      'swab',
+      'citrated_blood',
+      'edta_blood',
+      'aspirate',
+      'biopsy',
+      'skin',
+      'hair',
+      'other',
+    ])
+    .default('blood'),
 
   sample_volume_ml: z.number().positive().optional().nullable(),
 
   // Reference ranges as JSONB: {"dog": {"min": 5, "max": 15, "unit": "mg/dL"}}
-  reference_ranges: z.record(z.string(), z.object({
-    min: z.number().optional(),
-    max: z.number().optional(),
-    unit: z.string().optional(),
-  })).optional().nullable(),
+  reference_ranges: z
+    .record(
+      z.string(),
+      z.object({
+        min: z.number().optional(),
+        max: z.number().optional(),
+        unit: z.string().optional(),
+      })
+    )
+    .optional()
+    .nullable(),
 
   base_price: z.number().min(0).default(0),
   turnaround_days: z.number().int().positive().default(1),
@@ -36,10 +55,10 @@ export const LabTestCatalogSchema = z.object({
   is_active: z.boolean().default(true),
   created_at: z.string().datetime().optional(),
   updated_at: z.string().datetime().optional(),
-});
+})
 
-export type LabTestCatalogInput = z.input<typeof LabTestCatalogSchema>;
-export type LabTestCatalog = z.output<typeof LabTestCatalogSchema>;
+export type LabTestCatalogInput = z.input<typeof LabTestCatalogSchema>
+export type LabTestCatalog = z.output<typeof LabTestCatalogSchema>
 
 /**
  * Lab Panel Schema
@@ -57,10 +76,10 @@ export const LabPanelSchema = z.object({
 
   is_active: z.boolean().default(true),
   created_at: z.string().datetime().optional(),
-});
+})
 
-export type LabPanelInput = z.input<typeof LabPanelSchema>;
-export type LabPanel = z.output<typeof LabPanelSchema>;
+export type LabPanelInput = z.input<typeof LabPanelSchema>
+export type LabPanel = z.output<typeof LabPanelSchema>
 
 /**
  * Lab Order Schema
@@ -80,10 +99,9 @@ export const LabOrderSchema = z.object({
 
   priority: z.enum(['stat', 'urgent', 'routine']).default('routine'),
   lab_type: z.enum(['in_house', 'reference_lab']).default('in_house'),
-  status: z.enum([
-    'pending', 'collected', 'processing',
-    'completed', 'reviewed', 'cancelled'
-  ]).default('pending'),
+  status: z
+    .enum(['pending', 'collected', 'processing', 'completed', 'reviewed', 'cancelled'])
+    .default('pending'),
 
   clinical_notes: z.string().optional().nullable(),
   fasting_confirmed: z.boolean().default(false),
@@ -97,10 +115,10 @@ export const LabOrderSchema = z.object({
 
   created_at: z.string().datetime().optional(),
   updated_at: z.string().datetime().optional(),
-});
+})
 
-export type LabOrderInput = z.input<typeof LabOrderSchema>;
-export type LabOrder = z.output<typeof LabOrderSchema>;
+export type LabOrderInput = z.input<typeof LabOrderSchema>
+export type LabOrder = z.output<typeof LabOrderSchema>
 
 /**
  * Lab Order Item Schema
@@ -116,10 +134,10 @@ export const LabOrderItemSchema = z.object({
 
   created_at: z.string().datetime().optional(),
   updated_at: z.string().datetime().optional(),
-});
+})
 
-export type LabOrderItemInput = z.input<typeof LabOrderItemSchema>;
-export type LabOrderItem = z.output<typeof LabOrderItemSchema>;
+export type LabOrderItemInput = z.input<typeof LabOrderItemSchema>
+export type LabOrderItem = z.output<typeof LabOrderItemSchema>
 
 /**
  * Lab Result Schema
@@ -145,10 +163,10 @@ export const LabResultSchema = z.object({
   entered_at: z.string().datetime().optional(),
 
   created_at: z.string().datetime().optional(),
-});
+})
 
-export type LabResultInput = z.input<typeof LabResultSchema>;
-export type LabResult = z.output<typeof LabResultSchema>;
+export type LabResultInput = z.input<typeof LabResultSchema>
+export type LabResult = z.output<typeof LabResultSchema>
 
 /**
  * Lab Result Attachment Schema
@@ -165,10 +183,10 @@ export const LabResultAttachmentSchema = z.object({
 
   uploaded_by: z.string().uuid().optional().nullable(),
   created_at: z.string().datetime().optional(),
-});
+})
 
-export type LabResultAttachmentInput = z.input<typeof LabResultAttachmentSchema>;
-export type LabResultAttachment = z.output<typeof LabResultAttachmentSchema>;
+export type LabResultAttachmentInput = z.input<typeof LabResultAttachmentSchema>
+export type LabResultAttachment = z.output<typeof LabResultAttachmentSchema>
 
 /**
  * Lab Result Comment Schema
@@ -182,16 +200,16 @@ export const LabResultCommentSchema = z.object({
 
   created_by: z.string().uuid().optional().nullable(),
   created_at: z.string().datetime().optional(),
-});
+})
 
-export type LabResultCommentInput = z.input<typeof LabResultCommentSchema>;
-export type LabResultComment = z.output<typeof LabResultCommentSchema>;
+export type LabResultCommentInput = z.input<typeof LabResultCommentSchema>
+export type LabResultComment = z.output<typeof LabResultCommentSchema>
 
 /**
  * Helper: Generate lab order number
  */
 export function generateLabOrderNumber(index: number, date?: Date): string {
-  const d = date || new Date();
-  const year = d.getFullYear();
-  return `LAB-${year}-${String(index).padStart(6, '0')}`;
+  const d = date || new Date()
+  const year = d.getFullYear()
+  return `LAB-${year}-${String(index).padStart(6, '0')}`
 }

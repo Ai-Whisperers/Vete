@@ -1,8 +1,8 @@
-"use client";
+'use client'
 
-import { useState, useEffect, useCallback } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
+import { useState, useEffect, useCallback } from 'react'
+import Image from 'next/image'
+import Link from 'next/link'
 import {
   FileText,
   Check,
@@ -18,76 +18,76 @@ import {
   RefreshCw,
   Search,
   Eye,
-} from 'lucide-react';
-import type { ClinicConfig } from '@/lib/clinics';
+} from 'lucide-react'
+import type { ClinicConfig } from '@/lib/clinics'
 
 interface OrderItem {
-  id: string;
-  product_id: string;
-  quantity: number;
-  unit_price: number;
-  requires_prescription: boolean;
-  prescription_file_url: string | null;
+  id: string
+  product_id: string
+  quantity: number
+  unit_price: number
+  requires_prescription: boolean
+  prescription_file_url: string | null
   product: {
-    id: string;
-    name: string;
-    image_url: string | null;
-  } | null;
+    id: string
+    name: string
+    image_url: string | null
+  } | null
 }
 
 interface Customer {
-  id: string;
-  full_name: string;
-  email: string;
-  phone: string | null;
+  id: string
+  full_name: string
+  email: string
+  phone: string | null
 }
 
 interface PendingOrder {
-  id: string;
-  invoice_number: string;
-  status: string;
-  total: number;
-  requires_prescription_review: boolean;
-  prescription_file_url: string | null;
-  created_at: string;
-  customer: Customer | Customer[] | null;
-  items: OrderItem[];
+  id: string
+  invoice_number: string
+  status: string
+  total: number
+  requires_prescription_review: boolean
+  prescription_file_url: string | null
+  created_at: string
+  customer: Customer | Customer[] | null
+  items: OrderItem[]
 }
 
 interface Pagination {
-  page: number;
-  limit: number;
-  total: number;
-  pages: number;
-  hasNext: boolean;
-  hasPrev: boolean;
+  page: number
+  limit: number
+  total: number
+  pages: number
+  hasNext: boolean
+  hasPrev: boolean
 }
 
 interface Props {
-  clinic: string;
-  config: ClinicConfig;
+  clinic: string
+  config: ClinicConfig
 }
 
 export default function PrescriptionOrdersClient({ clinic, config }: Props) {
-  const [orders, setOrders] = useState<PendingOrder[]>([]);
-  const [pagination, setPagination] = useState<Pagination | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [selectedOrder, setSelectedOrder] = useState<PendingOrder | null>(null);
-  const [isReviewing, setIsReviewing] = useState(false);
-  const [reviewAction, setReviewAction] = useState<'approve' | 'reject' | null>(null);
-  const [rejectionReason, setRejectionReason] = useState('');
-  const [notes, setNotes] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
+  const [orders, setOrders] = useState<PendingOrder[]>([])
+  const [pagination, setPagination] = useState<Pagination | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [selectedOrder, setSelectedOrder] = useState<PendingOrder | null>(null)
+  const [isReviewing, setIsReviewing] = useState(false)
+  const [reviewAction, setReviewAction] = useState<'approve' | 'reject' | null>(null)
+  const [rejectionReason, setRejectionReason] = useState('')
+  const [notes, setNotes] = useState('')
+  const [currentPage, setCurrentPage] = useState(1)
 
-  const currency = config.settings?.currency || 'PYG';
+  const currency = config.settings?.currency || 'PYG'
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('es-PY', {
       style: 'currency',
       currency,
-    }).format(price);
-  };
+    }).format(price)
+  }
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('es-PY', {
@@ -96,102 +96,97 @@ export default function PrescriptionOrdersClient({ clinic, config }: Props) {
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
-    });
-  };
+    })
+  }
 
   const fetchOrders = useCallback(async (page: number = 1) => {
-    setIsLoading(true);
-    setError(null);
+    setIsLoading(true)
+    setError(null)
 
     try {
-      const response = await fetch(
-        `/api/store/orders/pending-prescriptions?page=${page}&limit=10`
-      );
+      const response = await fetch(`/api/store/orders/pending-prescriptions?page=${page}&limit=10`)
 
       if (!response.ok) {
-        throw new Error('Error al cargar pedidos');
+        throw new Error('Error al cargar pedidos')
       }
 
-      const data = await response.json();
-      setOrders(data.orders || []);
-      setPagination(data.pagination);
+      const data = await response.json()
+      setOrders(data.orders || [])
+      setPagination(data.pagination)
     } catch (err) {
       // Client-side error logging - only in development
       if (process.env.NODE_ENV === 'development') {
-        console.error('Error fetching orders:', err);
+        console.error('Error fetching orders:', err)
       }
-      setError(err instanceof Error ? err.message : 'Error desconocido');
+      setError(err instanceof Error ? err.message : 'Error desconocido')
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  }, []);
+  }, [])
 
   useEffect(() => {
-    fetchOrders(currentPage);
-  }, [fetchOrders, currentPage]);
+    fetchOrders(currentPage)
+  }, [fetchOrders, currentPage])
 
   const handleReview = async () => {
-    if (!selectedOrder || !reviewAction) return;
+    if (!selectedOrder || !reviewAction) return
 
     if (reviewAction === 'reject' && !rejectionReason.trim()) {
-      setError('Por favor ingresa un motivo de rechazo');
-      return;
+      setError('Por favor ingresa un motivo de rechazo')
+      return
     }
 
-    setIsReviewing(true);
-    setError(null);
+    setIsReviewing(true)
+    setError(null)
 
     try {
-      const response = await fetch(
-        `/api/store/orders/${selectedOrder.id}/prescription`,
-        {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            action: reviewAction,
-            notes: notes.trim() || undefined,
-            rejection_reason: reviewAction === 'reject' ? rejectionReason.trim() : undefined,
-          }),
-        }
-      );
+      const response = await fetch(`/api/store/orders/${selectedOrder.id}/prescription`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: reviewAction,
+          notes: notes.trim() || undefined,
+          rejection_reason: reviewAction === 'reject' ? rejectionReason.trim() : undefined,
+        }),
+      })
 
       if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Error al procesar revisión');
+        const data = await response.json()
+        throw new Error(data.error || 'Error al procesar revisión')
       }
 
       // Success - refresh list and close modal
-      setSelectedOrder(null);
-      setReviewAction(null);
-      setRejectionReason('');
-      setNotes('');
-      fetchOrders(currentPage);
+      setSelectedOrder(null)
+      setReviewAction(null)
+      setRejectionReason('')
+      setNotes('')
+      fetchOrders(currentPage)
     } catch (err) {
       // Client-side error logging - only in development
       if (process.env.NODE_ENV === 'development') {
-        console.error('Error reviewing order:', err);
+        console.error('Error reviewing order:', err)
       }
-      setError(err instanceof Error ? err.message : 'Error desconocido');
+      setError(err instanceof Error ? err.message : 'Error desconocido')
     } finally {
-      setIsReviewing(false);
+      setIsReviewing(false)
     }
-  };
+  }
 
   const getCustomer = (order: PendingOrder): Customer | null => {
-    if (!order.customer) return null;
-    return Array.isArray(order.customer) ? order.customer[0] : order.customer;
-  };
+    if (!order.customer) return null
+    return Array.isArray(order.customer) ? order.customer[0] : order.customer
+  }
 
   const getPrescriptionItems = (order: PendingOrder) => {
-    return order.items.filter((item) => item.requires_prescription);
-  };
+    return order.items.filter((item) => item.requires_prescription)
+  }
 
   if (isLoading && orders.length === 0) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="w-8 h-8 animate-spin text-[var(--primary)]" />
+        <Loader2 className="h-8 w-8 animate-spin text-[var(--primary)]" />
       </div>
-    );
+    )
   }
 
   return (
@@ -199,76 +194,74 @@ export default function PrescriptionOrdersClient({ clinic, config }: Props) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--text-primary)]">
-            Pedidos con Receta
-          </h1>
-          <p className="text-[var(--text-secondary)] mt-1">
+          <h1 className="text-2xl font-bold text-[var(--text-primary)]">Pedidos con Receta</h1>
+          <p className="mt-1 text-[var(--text-secondary)]">
             Revisa y aprueba pedidos que requieren verificación de receta médica
           </p>
         </div>
         <button
           onClick={() => fetchOrders(currentPage)}
           disabled={isLoading}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--bg-subtle)] text-[var(--text-primary)] rounded-lg hover:bg-gray-200 transition disabled:opacity-50"
+          className="inline-flex items-center gap-2 rounded-lg bg-[var(--bg-subtle)] px-4 py-2 text-[var(--text-primary)] transition hover:bg-gray-200 disabled:opacity-50"
         >
-          <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+          <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
           Actualizar
         </button>
       </div>
 
       {/* Error display */}
       {error && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+        <div className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-4">
+          <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-red-600" />
           <p className="text-red-700">{error}</p>
         </div>
       )}
 
       {/* Orders list */}
       {orders.length === 0 ? (
-        <div className="text-center py-12 bg-white rounded-xl border border-[var(--border-default)]">
-          <FileText className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+        <div className="rounded-xl border border-[var(--border-default)] bg-white py-12 text-center">
+          <FileText className="mx-auto mb-4 h-12 w-12 text-gray-300" />
           <h3 className="text-lg font-medium text-[var(--text-primary)]">
             No hay pedidos pendientes
           </h3>
-          <p className="text-[var(--text-secondary)] mt-1">
+          <p className="mt-1 text-[var(--text-secondary)]">
             Todos los pedidos con receta han sido procesados
           </p>
         </div>
       ) : (
         <div className="space-y-4">
           {orders.map((order) => {
-            const customer = getCustomer(order);
-            const prescriptionItems = getPrescriptionItems(order);
+            const customer = getCustomer(order)
+            const prescriptionItems = getPrescriptionItems(order)
 
             return (
               <div
                 key={order.id}
-                className="bg-white rounded-xl border border-[var(--border-default)] overflow-hidden"
+                className="overflow-hidden rounded-xl border border-[var(--border-default)] bg-white"
               >
                 {/* Order header */}
-                <div className="p-4 border-b border-gray-100 flex items-center justify-between">
+                <div className="flex items-center justify-between border-b border-gray-100 p-4">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center">
-                      <FileText className="w-6 h-6 text-amber-600" />
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-amber-100">
+                      <FileText className="h-6 w-6 text-amber-600" />
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
                         <span className="font-bold text-[var(--text-primary)]">
                           {order.invoice_number}
                         </span>
-                        <span className="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs font-medium rounded-full">
+                        <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
                           Pendiente Revisión
                         </span>
                       </div>
-                      <div className="flex items-center gap-3 text-sm text-[var(--text-secondary)] mt-1">
+                      <div className="mt-1 flex items-center gap-3 text-sm text-[var(--text-secondary)]">
                         <span className="flex items-center gap-1">
-                          <Calendar className="w-4 h-4" />
+                          <Calendar className="h-4 w-4" />
                           {formatDate(order.created_at)}
                         </span>
                         {customer && (
                           <span className="flex items-center gap-1">
-                            <User className="w-4 h-4" />
+                            <User className="h-4 w-4" />
                             {customer.full_name}
                           </span>
                         )}
@@ -276,25 +269,26 @@ export default function PrescriptionOrdersClient({ clinic, config }: Props) {
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-bold text-lg text-[var(--primary)]">
+                    <p className="text-lg font-bold text-[var(--primary)]">
                       {formatPrice(order.total)}
                     </p>
                     <p className="text-sm text-[var(--text-muted)]">
-                      {prescriptionItems.length} producto{prescriptionItems.length > 1 ? 's' : ''} con receta
+                      {prescriptionItems.length} producto{prescriptionItems.length > 1 ? 's' : ''}{' '}
+                      con receta
                     </p>
                   </div>
                 </div>
 
                 {/* Prescription items */}
-                <div className="p-4 bg-gray-50">
+                <div className="bg-gray-50 p-4">
                   <div className="space-y-3">
                     {prescriptionItems.map((item) => (
                       <div
                         key={item.id}
-                        className="flex items-center gap-4 bg-white p-3 rounded-lg"
+                        className="flex items-center gap-4 rounded-lg bg-white p-3"
                       >
                         {/* Product image */}
-                        <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                        <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
                           {item.product?.image_url ? (
                             <Image
                               src={item.product.image_url}
@@ -303,13 +297,13 @@ export default function PrescriptionOrdersClient({ clinic, config }: Props) {
                               className="object-contain"
                             />
                           ) : (
-                            <Package className="w-6 h-6 text-gray-400 absolute inset-0 m-auto" />
+                            <Package className="absolute inset-0 m-auto h-6 w-6 text-gray-400" />
                           )}
                         </div>
 
                         {/* Product info */}
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium text-[var(--text-primary)] truncate">
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate font-medium text-[var(--text-primary)]">
                             {item.product?.name || 'Producto'}
                           </p>
                           <p className="text-sm text-[var(--text-secondary)]">
@@ -323,9 +317,9 @@ export default function PrescriptionOrdersClient({ clinic, config }: Props) {
                             href={item.prescription_file_url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition text-sm font-medium"
+                            className="inline-flex items-center gap-1 rounded-lg bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-700 transition hover:bg-blue-100"
                           >
-                            <Eye className="w-4 h-4" />
+                            <Eye className="h-4 w-4" />
                             Ver Receta
                           </a>
                         )}
@@ -335,30 +329,30 @@ export default function PrescriptionOrdersClient({ clinic, config }: Props) {
                 </div>
 
                 {/* Actions */}
-                <div className="p-4 bg-white border-t border-gray-100 flex items-center justify-end gap-3">
+                <div className="flex items-center justify-end gap-3 border-t border-gray-100 bg-white p-4">
                   <button
                     onClick={() => {
-                      setSelectedOrder(order);
-                      setReviewAction('reject');
+                      setSelectedOrder(order)
+                      setReviewAction('reject')
                     }}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition font-medium"
+                    className="inline-flex items-center gap-2 rounded-lg bg-red-50 px-4 py-2 font-medium text-red-600 transition hover:bg-red-100"
                   >
-                    <X className="w-4 h-4" />
+                    <X className="h-4 w-4" />
                     Rechazar
                   </button>
                   <button
                     onClick={() => {
-                      setSelectedOrder(order);
-                      setReviewAction('approve');
+                      setSelectedOrder(order)
+                      setReviewAction('approve')
                     }}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition font-medium"
+                    className="inline-flex items-center gap-2 rounded-lg bg-green-500 px-4 py-2 font-medium text-white transition hover:bg-green-600"
                   >
-                    <Check className="w-4 h-4" />
+                    <Check className="h-4 w-4" />
                     Aprobar
                   </button>
                 </div>
               </div>
-            );
+            )
           })}
         </div>
       )}
@@ -369,9 +363,9 @@ export default function PrescriptionOrdersClient({ clinic, config }: Props) {
           <button
             onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
             disabled={!pagination.hasPrev || isLoading}
-            className="p-2 rounded-lg border border-[var(--border-default)] disabled:opacity-50 hover:bg-gray-50"
+            className="rounded-lg border border-[var(--border-default)] p-2 hover:bg-gray-50 disabled:opacity-50"
           >
-            <ChevronLeft className="w-5 h-5" />
+            <ChevronLeft className="h-5 w-5" />
           </button>
           <span className="px-4 py-2 text-[var(--text-secondary)]">
             Página {pagination.page} de {pagination.pages}
@@ -379,9 +373,9 @@ export default function PrescriptionOrdersClient({ clinic, config }: Props) {
           <button
             onClick={() => setCurrentPage((p) => Math.min(pagination.pages, p + 1))}
             disabled={!pagination.hasNext || isLoading}
-            className="p-2 rounded-lg border border-[var(--border-default)] disabled:opacity-50 hover:bg-gray-50"
+            className="rounded-lg border border-[var(--border-default)] p-2 hover:bg-gray-50 disabled:opacity-50"
           >
-            <ChevronRight className="w-5 h-5" />
+            <ChevronRight className="h-5 w-5" />
           </button>
         </div>
       )}
@@ -394,23 +388,23 @@ export default function PrescriptionOrdersClient({ clinic, config }: Props) {
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             onClick={() => {
               if (!isReviewing) {
-                setSelectedOrder(null);
-                setReviewAction(null);
-                setRejectionReason('');
-                setNotes('');
+                setSelectedOrder(null)
+                setReviewAction(null)
+                setRejectionReason('')
+                setNotes('')
               }
             }}
           />
 
           {/* Modal */}
-          <div className="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6">
-            <h3 className="text-xl font-bold text-[var(--text-primary)] mb-4">
+          <div className="relative w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl">
+            <h3 className="mb-4 text-xl font-bold text-[var(--text-primary)]">
               {reviewAction === 'approve' ? 'Aprobar Pedido' : 'Rechazar Pedido'}
             </h3>
 
             <div className="space-y-4">
               {/* Order info */}
-              <div className="p-4 bg-gray-50 rounded-xl">
+              <div className="rounded-xl bg-gray-50 p-4">
                 <p className="font-medium">{selectedOrder.invoice_number}</p>
                 <p className="text-sm text-[var(--text-secondary)]">
                   {getCustomer(selectedOrder)?.full_name} - {formatPrice(selectedOrder.total)}
@@ -420,18 +414,20 @@ export default function PrescriptionOrdersClient({ clinic, config }: Props) {
               {/* Rejection reason (only for reject) */}
               {reviewAction === 'reject' && (
                 <div>
-                  <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">
+                  <label className="mb-1 block text-sm font-medium text-[var(--text-primary)]">
                     Motivo de rechazo *
                   </label>
                   <select
                     value={rejectionReason}
                     onChange={(e) => setRejectionReason(e.target.value)}
-                    className="w-full px-4 py-2 border border-[var(--border-default)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+                    className="w-full rounded-lg border border-[var(--border-default)] px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
                   >
                     <option value="">Selecciona un motivo...</option>
                     <option value="Receta ilegible">Receta ilegible</option>
                     <option value="Receta vencida">Receta vencida</option>
-                    <option value="Medicamento no coincide">Medicamento no coincide con la receta</option>
+                    <option value="Medicamento no coincide">
+                      Medicamento no coincide con la receta
+                    </option>
                     <option value="Falta firma del veterinario">Falta firma del veterinario</option>
                     <option value="Receta incompleta">Receta incompleta</option>
                     <option value="Dosis incorrecta">Dosis incorrecta en la receta</option>
@@ -443,10 +439,10 @@ export default function PrescriptionOrdersClient({ clinic, config }: Props) {
                       placeholder="Especifica el motivo..."
                       value={notes}
                       onChange={(e) => {
-                        setNotes(e.target.value);
-                        setRejectionReason(e.target.value);
+                        setNotes(e.target.value)
+                        setRejectionReason(e.target.value)
                       }}
-                      className="w-full mt-2 px-4 py-2 border border-[var(--border-default)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+                      className="mt-2 w-full rounded-lg border border-[var(--border-default)] px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
                     />
                   )}
                 </div>
@@ -454,7 +450,7 @@ export default function PrescriptionOrdersClient({ clinic, config }: Props) {
 
               {/* Notes (optional) */}
               <div>
-                <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">
+                <label className="mb-1 block text-sm font-medium text-[var(--text-primary)]">
                   Notas adicionales (opcional)
                 </label>
                 <textarea
@@ -462,53 +458,53 @@ export default function PrescriptionOrdersClient({ clinic, config }: Props) {
                   onChange={(e) => setNotes(e.target.value)}
                   rows={3}
                   placeholder="Agregar notas para el registro..."
-                  className="w-full px-4 py-2 border border-[var(--border-default)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] resize-none"
+                  className="w-full resize-none rounded-lg border border-[var(--border-default)] px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
                 />
               </div>
 
               {/* Error */}
               {error && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-600">
-                  <AlertCircle className="w-4 h-4" />
+                <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-red-600">
+                  <AlertCircle className="h-4 w-4" />
                   <span className="text-sm">{error}</span>
                 </div>
               )}
             </div>
 
             {/* Actions */}
-            <div className="flex gap-3 mt-6">
+            <div className="mt-6 flex gap-3">
               <button
                 onClick={() => {
-                  setSelectedOrder(null);
-                  setReviewAction(null);
-                  setRejectionReason('');
-                  setNotes('');
-                  setError(null);
+                  setSelectedOrder(null)
+                  setReviewAction(null)
+                  setRejectionReason('')
+                  setNotes('')
+                  setError(null)
                 }}
                 disabled={isReviewing}
-                className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-medium disabled:opacity-50"
+                className="flex-1 rounded-lg bg-gray-100 px-4 py-2 font-medium text-gray-700 transition hover:bg-gray-200 disabled:opacity-50"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleReview}
                 disabled={isReviewing || (reviewAction === 'reject' && !rejectionReason)}
-                className={`flex-1 px-4 py-2 rounded-lg font-medium transition disabled:opacity-50 flex items-center justify-center gap-2 ${
+                className={`flex flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2 font-medium transition disabled:opacity-50 ${
                   reviewAction === 'approve'
                     ? 'bg-green-500 text-white hover:bg-green-600'
                     : 'bg-red-500 text-white hover:bg-red-600'
                 }`}
               >
                 {isReviewing ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <Loader2 className="h-5 w-5 animate-spin" />
                 ) : reviewAction === 'approve' ? (
                   <>
-                    <Check className="w-5 h-5" />
+                    <Check className="h-5 w-5" />
                     Confirmar Aprobación
                   </>
                 ) : (
                   <>
-                    <X className="w-5 h-5" />
+                    <X className="h-5 w-5" />
                     Confirmar Rechazo
                   </>
                 )}
@@ -518,5 +514,5 @@ export default function PrescriptionOrdersClient({ clinic, config }: Props) {
         </div>
       )}
     </div>
-  );
+  )
 }

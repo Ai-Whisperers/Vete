@@ -16,14 +16,10 @@ export function LoadingSpinner({ size = 'md', className }: LoadingSpinnerProps) 
   const sizeClasses = {
     sm: 'w-4 h-4',
     md: 'w-6 h-6',
-    lg: 'w-8 h-8'
+    lg: 'w-8 h-8',
   }
 
-  return (
-    <Loader2
-      className={cn('animate-spin text-gray-600', sizeClasses[size], className)}
-    />
-  )
+  return <Loader2 className={cn('animate-spin text-gray-600', sizeClasses[size], className)} />
 }
 
 export interface LoadingStateProps {
@@ -32,7 +28,11 @@ export interface LoadingStateProps {
   className?: string
 }
 
-export function LoadingState({ message = 'Cargando...', size = 'md', className }: LoadingStateProps) {
+export function LoadingState({
+  message = 'Cargando...',
+  size = 'md',
+  className,
+}: LoadingStateProps) {
   return (
     <div className={cn('flex flex-col items-center justify-center space-y-2 p-8', className)}>
       <LoadingSpinner size={size} />
@@ -66,12 +66,12 @@ export function LoadingButton({
       {...props}
       disabled={loading || disabled}
       className={cn(
-        'inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none',
+        'inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
         className
       )}
     >
       {loading && <LoadingSpinner size="sm" className="mr-2" />}
-      {loading ? (loadingText || 'Cargando...') : children}
+      {loading ? loadingText || 'Cargando...' : children}
     </button>
   )
 }
@@ -88,7 +88,7 @@ export function LoadingOverlay({ loading, message, children, className }: Loadin
     <div className={cn('relative', className)}>
       {children}
       {loading && (
-        <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-10">
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/80 backdrop-blur-sm">
           <LoadingState message={message} />
         </div>
       )}
@@ -101,11 +101,7 @@ export interface SkeletonProps {
 }
 
 export function Skeleton({ className }: SkeletonProps) {
-  return (
-    <div
-      className={cn('animate-pulse rounded-md bg-gray-200', className)}
-    />
-  )
+  return <div className={cn('animate-pulse rounded-md bg-gray-200', className)} />
 }
 
 export function TableSkeleton({ rows = 5, columns = 4 }: { rows?: number; columns?: number }) {

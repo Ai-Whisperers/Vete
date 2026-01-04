@@ -1,6 +1,6 @@
-'use client';
+'use client'
 
-import { useState, useRef } from 'react';
+import { useState, useRef } from 'react'
 import {
   FileText,
   Upload,
@@ -18,39 +18,42 @@ import {
   AlertCircle,
   FileImage,
   FileSpreadsheet,
-} from 'lucide-react';
+} from 'lucide-react'
 
 interface Document {
-  id: string;
-  name: string;
-  file_url: string;
-  file_type: string;
-  file_size?: number;
-  category: 'medical' | 'lab' | 'xray' | 'vaccine' | 'prescription' | 'other';
-  description?: string;
-  uploaded_by?: string;
-  created_at: string;
+  id: string
+  name: string
+  file_url: string
+  file_type: string
+  file_size?: number
+  category: 'medical' | 'lab' | 'xray' | 'vaccine' | 'prescription' | 'other'
+  description?: string
+  uploaded_by?: string
+  created_at: string
 }
 
 interface PetDocumentsTabProps {
-  petId: string;
-  petName: string;
-  documents: Document[];
-  clinic: string;
-  onUpload?: (files: File[], category: string) => Promise<void>;
-  onDelete?: (documentId: string) => Promise<void>;
+  petId: string
+  petName: string
+  documents: Document[]
+  clinic: string
+  onUpload?: (files: File[], category: string) => Promise<void>
+  onDelete?: (documentId: string) => Promise<void>
 }
 
-type CategoryFilter = 'all' | Document['category'];
+type CategoryFilter = 'all' | Document['category']
 
-const categoryConfig: Record<Document['category'], { label: string; icon: React.ElementType; color: string }> = {
+const categoryConfig: Record<
+  Document['category'],
+  { label: string; icon: React.ElementType; color: string }
+> = {
   medical: { label: 'Historial Médico', icon: FileText, color: 'bg-blue-100 text-blue-700' },
   lab: { label: 'Laboratorio', icon: FileSpreadsheet, color: 'bg-purple-100 text-purple-700' },
   xray: { label: 'Rayos X / Imágenes', icon: FileImage, color: 'bg-green-100 text-green-700' },
   vaccine: { label: 'Vacunas', icon: FileText, color: 'bg-amber-100 text-amber-700' },
   prescription: { label: 'Recetas', icon: FileText, color: 'bg-pink-100 text-pink-700' },
   other: { label: 'Otros', icon: File, color: 'bg-gray-100 text-gray-700' },
-};
+}
 
 export function PetDocumentsTab({
   petId,
@@ -60,129 +63,126 @@ export function PetDocumentsTab({
   onUpload,
   onDelete,
 }: PetDocumentsTabProps) {
-  const [filter, setFilter] = useState<CategoryFilter>('all');
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadCategory, setUploadCategory] = useState<Document['category']>('other');
-  const [showUploadModal, setShowUploadModal] = useState(false);
-  const [dragActive, setDragActive] = useState(false);
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [filter, setFilter] = useState<CategoryFilter>('all')
+  const [isUploading, setIsUploading] = useState(false)
+  const [uploadCategory, setUploadCategory] = useState<Document['category']>('other')
+  const [showUploadModal, setShowUploadModal] = useState(false)
+  const [dragActive, setDragActive] = useState(false)
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([])
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const filteredDocuments = filter === 'all'
-    ? documents
-    : documents.filter(doc => doc.category === filter);
+  const filteredDocuments =
+    filter === 'all' ? documents : documents.filter((doc) => doc.category === filter)
 
   const formatDate = (dateStr: string): string => {
     return new Date(dateStr).toLocaleDateString('es-PY', {
       day: 'numeric',
       month: 'short',
       year: 'numeric',
-    });
-  };
+    })
+  }
 
   const formatFileSize = (bytes?: number): string => {
-    if (!bytes) return '';
-    if (bytes < 1024) return `${bytes} B`;
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-  };
+    if (!bytes) return ''
+    if (bytes < 1024) return `${bytes} B`
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+  }
 
   const getFileIcon = (fileType: string) => {
-    if (fileType.startsWith('image/')) return Image;
-    if (fileType.includes('pdf')) return FileText;
-    if (fileType.includes('spreadsheet') || fileType.includes('excel')) return FileSpreadsheet;
-    return File;
-  };
+    if (fileType.startsWith('image/')) return Image
+    if (fileType.includes('pdf')) return FileText
+    if (fileType.includes('spreadsheet') || fileType.includes('excel')) return FileSpreadsheet
+    return File
+  }
 
   const handleDrag = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+    e.preventDefault()
+    e.stopPropagation()
     if (e.type === 'dragenter' || e.type === 'dragover') {
-      setDragActive(true);
+      setDragActive(true)
     } else if (e.type === 'dragleave') {
-      setDragActive(false);
+      setDragActive(false)
     }
-  };
+  }
 
   const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
+    e.preventDefault()
+    e.stopPropagation()
+    setDragActive(false)
 
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      const files = Array.from(e.dataTransfer.files);
-      setSelectedFiles(prev => [...prev, ...files]);
-      setShowUploadModal(true);
+      const files = Array.from(e.dataTransfer.files)
+      setSelectedFiles((prev) => [...prev, ...files])
+      setShowUploadModal(true)
     }
-  };
+  }
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      const files = Array.from(e.target.files);
-      setSelectedFiles(prev => [...prev, ...files]);
-      setShowUploadModal(true);
+      const files = Array.from(e.target.files)
+      setSelectedFiles((prev) => [...prev, ...files])
+      setShowUploadModal(true)
     }
-  };
+  }
 
   const removeSelectedFile = (index: number) => {
-    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
-  };
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index))
+  }
 
   const handleUpload = async () => {
-    if (!onUpload || selectedFiles.length === 0) return;
+    if (!onUpload || selectedFiles.length === 0) return
 
-    setIsUploading(true);
+    setIsUploading(true)
     try {
-      await onUpload(selectedFiles, uploadCategory);
-      setSelectedFiles([]);
-      setShowUploadModal(false);
+      await onUpload(selectedFiles, uploadCategory)
+      setSelectedFiles([])
+      setShowUploadModal(false)
     } catch (error) {
-      console.error('Upload error:', error);
+      console.error('Upload error:', error)
     } finally {
-      setIsUploading(false);
+      setIsUploading(false)
     }
-  };
+  }
 
   const handleDelete = async (documentId: string) => {
-    if (!onDelete) return;
-    if (!confirm('¿Estás seguro de eliminar este documento?')) return;
+    if (!onDelete) return
+    if (!confirm('¿Estás seguro de eliminar este documento?')) return
 
     try {
-      await onDelete(documentId);
+      await onDelete(documentId)
     } catch (error) {
-      console.error('Delete error:', error);
+      console.error('Delete error:', error)
     }
-  };
+  }
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h2 className="text-xl font-bold text-[var(--text-primary)]">
-            Documentos de {petName}
-          </h2>
+          <h2 className="text-xl font-bold text-[var(--text-primary)]">Documentos de {petName}</h2>
           <p className="text-sm text-gray-500">
             {documents.length} documento{documents.length !== 1 ? 's' : ''}
           </p>
         </div>
         <button
           onClick={() => {
-            setSelectedFiles([]);
-            setShowUploadModal(true);
+            setSelectedFiles([])
+            setShowUploadModal(true)
           }}
-          className="flex items-center gap-2 px-4 py-2.5 bg-[var(--primary)] text-white rounded-xl font-medium text-sm hover:opacity-90 transition-opacity shadow-md"
+          className="flex items-center gap-2 rounded-xl bg-[var(--primary)] px-4 py-2.5 text-sm font-medium text-white shadow-md transition-opacity hover:opacity-90"
         >
-          <Upload className="w-4 h-4" />
+          <Upload className="h-4 w-4" />
           Subir Documento
         </button>
       </div>
 
       {/* Category Filter */}
-      <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+      <div className="scrollbar-hide flex gap-2 overflow-x-auto pb-2">
         <button
           onClick={() => setFilter('all')}
-          className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-colors ${
+          className={`whitespace-nowrap rounded-xl px-4 py-2 text-sm font-medium transition-colors ${
             filter === 'all'
               ? 'bg-[var(--primary)] text-white'
               : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -190,14 +190,14 @@ export function PetDocumentsTab({
         >
           Todos
         </button>
-        {(Object.keys(categoryConfig) as Document['category'][]).map(cat => {
-          const config = categoryConfig[cat];
-          const count = documents.filter(d => d.category === cat).length;
+        {(Object.keys(categoryConfig) as Document['category'][]).map((cat) => {
+          const config = categoryConfig[cat]
+          const count = documents.filter((d) => d.category === cat).length
           return (
             <button
               key={cat}
               onClick={() => setFilter(cat)}
-              className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-colors flex items-center gap-2 ${
+              className={`flex items-center gap-2 whitespace-nowrap rounded-xl px-4 py-2 text-sm font-medium transition-colors ${
                 filter === cat
                   ? 'bg-[var(--primary)] text-white'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -205,14 +205,16 @@ export function PetDocumentsTab({
             >
               {config.label}
               {count > 0 && (
-                <span className={`text-xs px-1.5 py-0.5 rounded-full ${
-                  filter === cat ? 'bg-white/20' : 'bg-gray-200'
-                }`}>
+                <span
+                  className={`rounded-full px-1.5 py-0.5 text-xs ${
+                    filter === cat ? 'bg-white/20' : 'bg-gray-200'
+                  }`}
+                >
                   {count}
                 </span>
               )}
             </button>
-          );
+          )
         })}
       </div>
 
@@ -222,9 +224,9 @@ export function PetDocumentsTab({
         onDragLeave={handleDrag}
         onDragOver={handleDrag}
         onDrop={handleDrop}
-        className={`relative border-2 border-dashed rounded-2xl p-8 text-center transition-colors ${
+        className={`relative rounded-2xl border-2 border-dashed p-8 text-center transition-colors ${
           dragActive
-            ? 'border-[var(--primary)] bg-[var(--primary)]/5'
+            ? 'bg-[var(--primary)]/5 border-[var(--primary)]'
             : 'border-gray-200 hover:border-gray-300'
         }`}
       >
@@ -236,74 +238,68 @@ export function PetDocumentsTab({
           className="hidden"
           accept="image/*,.pdf,.doc,.docx,.xls,.xlsx"
         />
-        <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
-          <Upload className={`w-6 h-6 ${dragActive ? 'text-[var(--primary)]' : 'text-gray-400'}`} />
+        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-gray-100">
+          <Upload className={`h-6 w-6 ${dragActive ? 'text-[var(--primary)]' : 'text-gray-400'}`} />
         </div>
-        <p className="text-sm text-gray-600 mb-1">
+        <p className="mb-1 text-sm text-gray-600">
           Arrastra archivos aquí o{' '}
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="text-[var(--primary)] font-medium hover:underline"
+            className="font-medium text-[var(--primary)] hover:underline"
           >
             selecciona
           </button>
         </p>
-        <p className="text-xs text-gray-400">
-          PDF, imágenes, documentos • Máx 10MB por archivo
-        </p>
+        <p className="text-xs text-gray-400">PDF, imágenes, documentos • Máx 10MB por archivo</p>
       </div>
 
       {/* Documents Grid */}
       {filteredDocuments.length > 0 ? (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredDocuments.map(doc => {
-            const config = categoryConfig[doc.category];
-            const FileIcon = getFileIcon(doc.file_type);
-            const isImage = doc.file_type.startsWith('image/');
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {filteredDocuments.map((doc) => {
+            const config = categoryConfig[doc.category]
+            const FileIcon = getFileIcon(doc.file_type)
+            const isImage = doc.file_type.startsWith('image/')
 
             return (
               <div
                 key={doc.id}
-                className="bg-white rounded-xl border border-gray-100 overflow-hidden hover:shadow-md transition-shadow group"
+                className="group overflow-hidden rounded-xl border border-gray-100 bg-white transition-shadow hover:shadow-md"
               >
                 {/* Preview */}
-                <div className="h-32 bg-gray-50 flex items-center justify-center relative">
+                <div className="relative flex h-32 items-center justify-center bg-gray-50">
                   {isImage ? (
-                    <img
-                      src={doc.file_url}
-                      alt={doc.name}
-                      className="w-full h-full object-cover"
-                    />
+                    <img src={doc.file_url} alt={doc.name} className="h-full w-full object-cover" />
                   ) : (
-                    <FileIcon className="w-12 h-12 text-gray-300" />
+                    <FileIcon className="h-12 w-12 text-gray-300" />
                   )}
 
                   {/* Overlay actions */}
-                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                  <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
                     <a
                       href={doc.file_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="p-2 bg-white rounded-lg hover:bg-gray-100 transition-colors"
+                      className="rounded-lg bg-white p-2 transition-colors hover:bg-gray-100"
                       title="Ver"
                     >
-                      <Eye className="w-4 h-4 text-gray-700" />
+                      <Eye className="h-4 w-4 text-gray-700" />
                     </a>
                     <a
                       href={doc.file_url}
                       download={doc.name}
-                      className="p-2 bg-white rounded-lg hover:bg-gray-100 transition-colors"
+                      className="rounded-lg bg-white p-2 transition-colors hover:bg-gray-100"
                       title="Descargar"
                     >
-                      <Download className="w-4 h-4 text-gray-700" />
+                      <Download className="h-4 w-4 text-gray-700" />
                     </a>
                     {onDelete && (
                       <button
                         onClick={() => handleDelete(doc.id)}
-                        className="p-2 bg-white rounded-lg hover:bg-red-50 transition-colors"
+                        className="rounded-lg bg-white p-2 transition-colors hover:bg-red-50"
                         title="Eliminar"
                       >
-                        <Trash2 className="w-4 h-4 text-red-600" />
+                        <Trash2 className="h-4 w-4 text-red-600" />
                       </button>
                     )}
                   </div>
@@ -311,36 +307,36 @@ export function PetDocumentsTab({
 
                 {/* Info */}
                 <div className="p-3">
-                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium ${config.color} mb-2`}>
-                    <config.icon className="w-3 h-3" />
+                  <span
+                    className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs font-medium ${config.color} mb-2`}
+                  >
+                    <config.icon className="h-3 w-3" />
                     {config.label}
                   </span>
-                  <h4 className="font-medium text-sm text-[var(--text-primary)] truncate">
+                  <h4 className="truncate text-sm font-medium text-[var(--text-primary)]">
                     {doc.name}
                   </h4>
-                  <div className="flex items-center gap-2 text-xs text-gray-400 mt-1">
+                  <div className="mt-1 flex items-center gap-2 text-xs text-gray-400">
                     <span className="flex items-center gap-1">
-                      <Calendar className="w-3 h-3" />
+                      <Calendar className="h-3 w-3" />
                       {formatDate(doc.created_at)}
                     </span>
-                    {doc.file_size && (
-                      <span>• {formatFileSize(doc.file_size)}</span>
-                    )}
+                    {doc.file_size && <span>• {formatFileSize(doc.file_size)}</span>}
                   </div>
                 </div>
               </div>
-            );
+            )
           })}
         </div>
       ) : (
-        <div className="text-center py-12 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
-          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <FolderOpen className="w-8 h-8 text-gray-400" />
+        <div className="rounded-2xl border-2 border-dashed border-gray-200 bg-gray-50 py-12 text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
+            <FolderOpen className="h-8 w-8 text-gray-400" />
           </div>
-          <h3 className="font-bold text-gray-900 mb-2">
+          <h3 className="mb-2 font-bold text-gray-900">
             {filter !== 'all' ? 'Sin documentos en esta categoría' : 'Sin documentos'}
           </h3>
-          <p className="text-sm text-gray-500 mb-4 max-w-xs mx-auto">
+          <p className="mx-auto mb-4 max-w-xs text-sm text-gray-500">
             {filter !== 'all'
               ? 'No hay documentos de este tipo'
               : `Sube documentos de ${petName}: radiografías, análisis, recetas, etc.`}
@@ -348,7 +344,7 @@ export function PetDocumentsTab({
           {filter !== 'all' && (
             <button
               onClick={() => setFilter('all')}
-              className="text-[var(--primary)] font-medium text-sm hover:underline"
+              className="text-sm font-medium text-[var(--primary)] hover:underline"
             >
               Ver todos los documentos
             </button>
@@ -358,33 +354,31 @@ export function PetDocumentsTab({
 
       {/* Upload Modal */}
       {showUploadModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full max-h-[80vh] overflow-hidden">
-            <div className="p-4 border-b flex items-center justify-between">
-              <h3 className="font-bold text-lg">Subir Documentos</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="max-h-[80vh] w-full max-w-md overflow-hidden rounded-2xl bg-white">
+            <div className="flex items-center justify-between border-b p-4">
+              <h3 className="text-lg font-bold">Subir Documentos</h3>
               <button
                 onClick={() => {
-                  setShowUploadModal(false);
-                  setSelectedFiles([]);
+                  setShowUploadModal(false)
+                  setSelectedFiles([])
                 }}
-                className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
+                className="rounded-lg p-1 transition-colors hover:bg-gray-100"
               >
-                <X className="w-5 h-5 text-gray-500" />
+                <X className="h-5 w-5 text-gray-500" />
               </button>
             </div>
 
-            <div className="p-4 space-y-4 max-h-[50vh] overflow-y-auto">
+            <div className="max-h-[50vh] space-y-4 overflow-y-auto p-4">
               {/* Category selector */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Categoría
-                </label>
+                <label className="mb-2 block text-sm font-medium text-gray-700">Categoría</label>
                 <select
                   value={uploadCategory}
                   onChange={(e) => setUploadCategory(e.target.value as Document['category'])}
-                  className="w-full px-3 py-2 rounded-xl border border-gray-200 focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/10 outline-none"
+                  className="focus:ring-[var(--primary)]/10 w-full rounded-xl border border-gray-200 px-3 py-2 outline-none focus:border-[var(--primary)] focus:ring-2"
                 >
-                  {(Object.keys(categoryConfig) as Document['category'][]).map(cat => (
+                  {(Object.keys(categoryConfig) as Document['category'][]).map((cat) => (
                     <option key={cat} value={cat}>
                       {categoryConfig[cat].label}
                     </option>
@@ -394,7 +388,7 @@ export function PetDocumentsTab({
 
               {/* Selected files */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="mb-2 block text-sm font-medium text-gray-700">
                   Archivos seleccionados
                 </label>
                 {selectedFiles.length > 0 ? (
@@ -402,20 +396,20 @@ export function PetDocumentsTab({
                     {selectedFiles.map((file, index) => (
                       <div
                         key={index}
-                        className="flex items-center justify-between p-2 bg-gray-50 rounded-lg"
+                        className="flex items-center justify-between rounded-lg bg-gray-50 p-2"
                       >
-                        <div className="flex items-center gap-2 min-w-0">
-                          <File className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                          <span className="text-sm truncate">{file.name}</span>
-                          <span className="text-xs text-gray-400 flex-shrink-0">
+                        <div className="flex min-w-0 items-center gap-2">
+                          <File className="h-4 w-4 flex-shrink-0 text-gray-400" />
+                          <span className="truncate text-sm">{file.name}</span>
+                          <span className="flex-shrink-0 text-xs text-gray-400">
                             {formatFileSize(file.size)}
                           </span>
                         </div>
                         <button
                           onClick={() => removeSelectedFile(index)}
-                          className="p-1 hover:bg-gray-200 rounded transition-colors flex-shrink-0"
+                          className="flex-shrink-0 rounded p-1 transition-colors hover:bg-gray-200"
                         >
-                          <X className="w-4 h-4 text-gray-500" />
+                          <X className="h-4 w-4 text-gray-500" />
                         </button>
                       </div>
                     ))}
@@ -423,38 +417,38 @@ export function PetDocumentsTab({
                 ) : (
                   <button
                     onClick={() => fileInputRef.current?.click()}
-                    className="w-full p-4 border-2 border-dashed border-gray-200 rounded-xl text-center hover:border-gray-300 transition-colors"
+                    className="w-full rounded-xl border-2 border-dashed border-gray-200 p-4 text-center transition-colors hover:border-gray-300"
                   >
-                    <Plus className="w-6 h-6 text-gray-400 mx-auto mb-1" />
+                    <Plus className="mx-auto mb-1 h-6 w-6 text-gray-400" />
                     <span className="text-sm text-gray-500">Agregar archivos</span>
                   </button>
                 )}
               </div>
             </div>
 
-            <div className="p-4 border-t flex gap-3">
+            <div className="flex gap-3 border-t p-4">
               <button
                 onClick={() => {
-                  setShowUploadModal(false);
-                  setSelectedFiles([]);
+                  setShowUploadModal(false)
+                  setSelectedFiles([])
                 }}
-                className="flex-1 px-4 py-2.5 border border-gray-200 rounded-xl font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                className="flex-1 rounded-xl border border-gray-200 px-4 py-2.5 font-medium text-gray-700 transition-colors hover:bg-gray-50"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleUpload}
                 disabled={selectedFiles.length === 0 || isUploading}
-                className="flex-1 px-4 py-2.5 bg-[var(--primary)] text-white rounded-xl font-medium hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-4 py-2.5 font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {isUploading ? (
                   <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <Loader2 className="h-4 w-4 animate-spin" />
                     Subiendo...
                   </>
                 ) : (
                   <>
-                    <Upload className="w-4 h-4" />
+                    <Upload className="h-4 w-4" />
                     Subir
                   </>
                 )}
@@ -464,5 +458,5 @@ export function PetDocumentsTab({
         </div>
       )}
     </div>
-  );
+  )
 }

@@ -4,20 +4,20 @@
  * Seeds the test database with fixture data for testing.
  */
 
-const { createClient } = require('@supabase/supabase-js');
-require('dotenv').config({ path: '.env.local' });
+const { createClient } = require('@supabase/supabase-js')
+require('dotenv').config({ path: '.env.local' })
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
 if (!supabaseUrl || !supabaseServiceKey) {
-  console.error('Missing Supabase environment variables');
-  process.exit(1);
+  console.error('Missing Supabase environment variables')
+  process.exit(1)
 }
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey, {
   auth: { autoRefreshToken: false, persistSession: false },
-});
+})
 
 // Test data from fixtures
 const TEST_USERS = [
@@ -46,7 +46,7 @@ const TEST_USERS = [
     phone: '+595981678901',
     role: 'admin',
   },
-];
+]
 
 const TEST_PETS = [
   {
@@ -77,7 +77,7 @@ const TEST_PETS = [
     color: 'Negro',
     temperament: 'friendly',
   },
-];
+]
 
 const TEST_VACCINES = [
   {
@@ -100,55 +100,55 @@ const TEST_VACCINES = [
     status: 'verified',
     administered_by: '00000000-0000-0000-0000-000000000010',
   },
-];
+]
 
 async function seedDatabase() {
-  console.log('🌱 Seeding test database...');
+  console.log('🌱 Seeding test database...')
 
   try {
     // Ensure tenants exist
-    console.log('  Checking tenants...');
-    const { data: tenants } = await supabase.from('tenants').select('id');
+    console.log('  Checking tenants...')
+    const { data: tenants } = await supabase.from('tenants').select('id')
     if (!tenants || tenants.length === 0) {
-      console.log('  Creating default tenants...');
+      console.log('  Creating default tenants...')
       await supabase.from('tenants').insert([
         { id: 'adris', name: 'Veterinaria Adris' },
         { id: 'petlife', name: 'PetLife Center' },
-      ]);
+      ])
     }
 
     // Seed profiles
-    console.log('  Seeding profiles...');
+    console.log('  Seeding profiles...')
     for (const user of TEST_USERS) {
       const { error } = await supabase.from('profiles').upsert(user, {
         onConflict: 'id',
-      });
-      if (error) console.warn(`  Warning: ${user.email} - ${error.message}`);
+      })
+      if (error) console.warn(`  Warning: ${user.email} - ${error.message}`)
     }
 
     // Seed pets
-    console.log('  Seeding pets...');
+    console.log('  Seeding pets...')
     for (const pet of TEST_PETS) {
       const { error } = await supabase.from('pets').upsert(pet, {
         onConflict: 'id',
-      });
-      if (error) console.warn(`  Warning: ${pet.name} - ${error.message}`);
+      })
+      if (error) console.warn(`  Warning: ${pet.name} - ${error.message}`)
     }
 
     // Seed vaccines
-    console.log('  Seeding vaccines...');
+    console.log('  Seeding vaccines...')
     for (const vaccine of TEST_VACCINES) {
       const { error } = await supabase.from('vaccines').upsert(vaccine, {
         onConflict: 'id',
-      });
-      if (error) console.warn(`  Warning: ${vaccine.name} - ${error.message}`);
+      })
+      if (error) console.warn(`  Warning: ${vaccine.name} - ${error.message}`)
     }
 
-    console.log('✅ Database seeding complete');
+    console.log('✅ Database seeding complete')
   } catch (error) {
-    console.error('❌ Database seeding failed:', error);
-    process.exit(1);
+    console.error('❌ Database seeding failed:', error)
+    process.exit(1)
   }
 }
 
-seedDatabase();
+seedDatabase()

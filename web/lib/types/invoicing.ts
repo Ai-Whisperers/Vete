@@ -163,7 +163,7 @@ export const invoiceStatusConfig: Record<InvoiceStatus, { label: string; classNa
   partial: { label: 'Pago parcial', className: 'bg-yellow-100 text-yellow-800' },
   overdue: { label: 'Vencida', className: 'bg-red-100 text-red-800' },
   cancelled: { label: 'Cancelada', className: 'bg-gray-100 text-gray-500' },
-  void: { label: 'Anulada', className: 'bg-red-100 text-red-500' }
+  void: { label: 'Anulada', className: 'bg-red-100 text-red-500' },
 }
 
 // Payment Method Labels
@@ -172,7 +172,7 @@ export const paymentMethodLabels: Record<PaymentMethod, string> = {
   card: 'Tarjeta',
   transfer: 'Transferencia',
   check: 'Cheque',
-  other: 'Otro'
+  other: 'Otro',
 }
 
 // Utility Functions
@@ -194,7 +194,7 @@ export function formatDate(dateString: string): string {
   return new Date(dateString).toLocaleDateString('es-PY', {
     day: '2-digit',
     month: 'short',
-    year: 'numeric'
+    year: 'numeric',
   })
 }
 
@@ -214,12 +214,19 @@ export function canVoidInvoice(status: InvoiceStatus | string): boolean {
   return !['void', 'paid'].includes(status)
 }
 
-export function calculateLineTotal(quantity: number, unitPrice: number, discountPercent: number = 0): number {
+export function calculateLineTotal(
+  quantity: number,
+  unitPrice: number,
+  discountPercent: number = 0
+): number {
   // Round to 2 decimal places to avoid floating point errors
   return roundCurrency(quantity * unitPrice * (1 - discountPercent / 100))
 }
 
-export function calculateInvoiceTotals(items: InvoiceItem[], taxRate: number = 10): {
+export function calculateInvoiceTotals(
+  items: InvoiceItem[],
+  taxRate: number = 10
+): {
   subtotal: number
   taxAmount: number
   total: number
@@ -242,7 +249,7 @@ export const STATUS_LABELS: Record<InvoiceStatus, string> = {
   partial: 'Pago parcial',
   overdue: 'Vencida',
   cancelled: 'Cancelada',
-  void: 'Anulada'
+  void: 'Anulada',
 }
 
 export const STATUS_COLORS: Record<InvoiceStatus, string> = {
@@ -252,7 +259,7 @@ export const STATUS_COLORS: Record<InvoiceStatus, string> = {
   partial: 'bg-yellow-100 text-yellow-800',
   overdue: 'bg-red-100 text-red-800',
   cancelled: 'bg-gray-100 text-gray-500',
-  void: 'bg-red-100 text-red-500'
+  void: 'bg-red-100 text-red-500',
 }
 
 export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
@@ -260,7 +267,7 @@ export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
   card: 'Tarjeta',
   transfer: 'Transferencia',
   check: 'Cheque',
-  other: 'Otro'
+  other: 'Otro',
 }
 
 // Alias for canRecordPayment

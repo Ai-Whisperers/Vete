@@ -29,7 +29,7 @@ export function createSupabaseMock<T = unknown>() {
     }
 
     // Make all methods return the chain for chaining
-    Object.keys(chain).forEach(key => {
+    Object.keys(chain).forEach((key) => {
       if (key !== 'single' && key !== 'maybeSingle') {
         chain[key].mockReturnValue(chain)
       }
@@ -37,10 +37,7 @@ export function createSupabaseMock<T = unknown>() {
 
     // Also make select return a promise with data/error for direct use
     chain.select.mockImplementation(() => {
-      const result = Object.assign(
-        Promise.resolve({ data: null, error: null }),
-        chain
-      )
+      const result = Object.assign(Promise.resolve({ data: null, error: null }), chain)
       return result
     })
 
@@ -55,11 +52,11 @@ export function createSupabaseMock<T = unknown>() {
     auth: {
       getUser: vi.fn().mockResolvedValue({
         data: { user: null },
-        error: null
+        error: null,
       }),
       getSession: vi.fn().mockResolvedValue({
         data: { session: null },
-        error: null
+        error: null,
       }),
       signIn: vi.fn().mockResolvedValue({ data: null, error: null }),
       signOut: vi.fn().mockResolvedValue({ error: null }),
@@ -87,10 +84,7 @@ export function createSupabaseMock<T = unknown>() {
 
     // Update select to return promise with correct data
     chainMock.select.mockImplementation(() => {
-      const result = Object.assign(
-        Promise.resolve({ data: arrayData, error }),
-        chainMock
-      )
+      const result = Object.assign(Promise.resolve({ data: arrayData, error }), chainMock)
       return result
     })
   }
@@ -108,10 +102,7 @@ export function createSupabaseMock<T = unknown>() {
 
     // Update select to return promise with error
     chainMock.select.mockImplementation(() => {
-      const result = Object.assign(
-        Promise.resolve({ data: null, error }),
-        chainMock
-      )
+      const result = Object.assign(Promise.resolve({ data: null, error }), chainMock)
       return result
     })
   }

@@ -3,14 +3,7 @@
  */
 
 // Types
-export type {
-  Pet,
-  PetSpecies,
-  CreatePetData,
-  UpdatePetData,
-  PetFilters,
-  PetStats
-} from './types'
+export type { Pet, PetSpecies, CreatePetData, UpdatePetData, PetFilters, PetStats } from './types'
 
 // Infrastructure
 export { PetRepository } from './repository'

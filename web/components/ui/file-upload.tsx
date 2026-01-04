@@ -118,17 +118,15 @@ export function FileUpload({
   return (
     <div className={cn('space-y-3', className)}>
       {label && (
-        <label className="block text-sm font-bold text-[var(--text-secondary)]">
-          {label}
-        </label>
+        <label className="block text-sm font-bold text-[var(--text-secondary)]">{label}</label>
       )}
 
       <div
         className={cn(
-          'border-2 border-dashed rounded-xl p-6 text-center transition-all',
-          dragActive && !disabled && 'border-[var(--primary)] bg-[var(--primary)]/5 scale-[1.02]',
+          'rounded-xl border-2 border-dashed p-6 text-center transition-all',
+          dragActive && !disabled && 'bg-[var(--primary)]/5 scale-[1.02] border-[var(--primary)]',
           !dragActive && !disabled && 'border-gray-300 hover:border-[var(--primary)]',
-          disabled && 'opacity-50 cursor-not-allowed border-gray-200',
+          disabled && 'cursor-not-allowed border-gray-200 opacity-50',
           !disabled && 'cursor-pointer',
           displayError && 'border-[var(--status-error,#ef4444)]'
         )}
@@ -155,24 +153,24 @@ export function FileUpload({
           disabled={disabled}
           onChange={(e) => handleFiles(e.target.files)}
           className="hidden"
-          aria-describedby={displayError ? 'file-upload-error' : hint ? 'file-upload-hint' : undefined}
+          aria-describedby={
+            displayError ? 'file-upload-error' : hint ? 'file-upload-hint' : undefined
+          }
         />
 
         <Upload
           className={cn(
-            'mx-auto h-8 w-8 mb-3',
+            'mx-auto mb-3 h-8 w-8',
             dragActive && !disabled ? 'text-[var(--primary)]' : 'text-[var(--text-secondary)]'
           )}
           aria-hidden="true"
         />
 
-        <p className="text-sm font-bold text-[var(--text-primary)] mb-1">
+        <p className="mb-1 text-sm font-bold text-[var(--text-primary)]">
           {dragActive ? 'Suelta los archivos aquí' : 'Arrastra archivos aquí'}
         </p>
 
-        <p className="text-sm text-[var(--text-secondary)] mb-2">
-          o haz clic para seleccionar
-        </p>
+        <p className="mb-2 text-sm text-[var(--text-secondary)]">o haz clic para seleccionar</p>
 
         <p className="text-xs text-[var(--text-muted)]">
           {hint || `Máximo ${formatBytes(maxSize)} por archivo`}
@@ -183,7 +181,7 @@ export function FileUpload({
         <p
           id="file-upload-error"
           role="alert"
-          className="text-sm text-[var(--status-error,#ef4444)] flex items-center gap-1"
+          className="flex items-center gap-1 text-sm text-[var(--status-error,#ef4444)]"
         >
           {displayError}
         </p>
@@ -196,18 +194,24 @@ export function FileUpload({
             return (
               <li
                 key={`${file.name}-${index}`}
-                className="flex items-center justify-between p-3 rounded-lg bg-[var(--bg-muted)] hover:bg-[var(--bg-subtle)] transition-colors"
+                className="flex items-center justify-between rounded-lg bg-[var(--bg-muted)] p-3 transition-colors hover:bg-[var(--bg-subtle)]"
               >
-                <div className="flex items-center gap-3 flex-1 min-w-0">
+                <div className="flex min-w-0 flex-1 items-center gap-3">
                   {isImage ? (
-                    <Image className="h-4 w-4 text-[var(--text-secondary)] flex-shrink-0" aria-hidden="true" />
+                    <Image
+                      className="h-4 w-4 flex-shrink-0 text-[var(--text-secondary)]"
+                      aria-hidden="true"
+                    />
                   ) : (
-                    <File className="h-4 w-4 text-[var(--text-secondary)] flex-shrink-0" aria-hidden="true" />
+                    <File
+                      className="h-4 w-4 flex-shrink-0 text-[var(--text-secondary)]"
+                      aria-hidden="true"
+                    />
                   )}
-                  <span className="text-sm text-[var(--text-primary)] truncate font-bold">
+                  <span className="truncate text-sm font-bold text-[var(--text-primary)]">
                     {file.name}
                   </span>
-                  <span className="text-xs text-[var(--text-muted)] flex-shrink-0">
+                  <span className="flex-shrink-0 text-xs text-[var(--text-muted)]">
                     ({formatBytes(file.size)})
                   </span>
                 </div>

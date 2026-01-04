@@ -2,16 +2,17 @@
 
 ## Quick Stats
 
-| Metric | Before | After | Change |
-|--------|--------|-------|--------|
+| Metric              | Before    | After     | Change   |
+| ------------------- | --------- | --------- | -------- |
 | Main component size | 407 lines | 117 lines | **-71%** |
-| Number of modules | 1 | 8 | +700% |
-| Largest module | 407 lines | 134 lines | **-67%** |
-| Average module size | 407 lines | 76 lines | **-81%** |
+| Number of modules   | 1         | 8         | +700%    |
+| Largest module      | 407 lines | 134 lines | **-67%** |
+| Average module size | 407 lines | 76 lines  | **-81%** |
 
 ## File Structure
 
 ### Before
+
 ```
 calendar/
 ├── calendar.tsx (407 lines) ❌ Too large
@@ -19,6 +20,7 @@ calendar/
 ```
 
 ### After
+
 ```
 calendar/
 ├── calendar.tsx (117 lines) ✅ Focused orchestrator
@@ -36,6 +38,7 @@ calendar/
 ## Module Breakdown
 
 ### 1. calendar.tsx (117 lines)
+
 **Main calendar component - Clean orchestrator**
 
 ```typescript
@@ -53,6 +56,7 @@ export function Calendar({ events, ... }) {
 ```
 
 **Responsibilities**:
+
 - Import and compose modules
 - Render BigCalendar with configurations
 - Pass props to hook and components
@@ -60,6 +64,7 @@ export function Calendar({ events, ... }) {
 ---
 
 ### 2. calendar-constants.ts (60 lines)
+
 **Configuration and Spanish localization**
 
 ```typescript
@@ -83,6 +88,7 @@ export const CALENDAR_CONFIG = {
 ```
 
 **Responsibilities**:
+
 - Spanish UI messages
 - Color definitions
 - Calendar configuration
@@ -90,6 +96,7 @@ export const CALENDAR_CONFIG = {
 ---
 
 ### 3. calendar-filters.ts (58 lines)
+
 **Event filtering utilities**
 
 ```typescript
@@ -99,6 +106,7 @@ export function applyFilters(events, staffIds, types) { ... }
 ```
 
 **Responsibilities**:
+
 - Filter events by staff
 - Filter events by type
 - Combine multiple filters
@@ -106,6 +114,7 @@ export function applyFilters(events, staffIds, types) { ... }
 ---
 
 ### 4. calendar-localizer.ts (20 lines)
+
 **Date-fns localizer setup**
 
 ```typescript
@@ -116,6 +125,7 @@ export const calendarLocalizer = dateFnsLocalizer({ ... })
 ```
 
 **Responsibilities**:
+
 - Configure Spanish locale
 - Set week start day
 - Export localizer instance
@@ -123,6 +133,7 @@ export const calendarLocalizer = dateFnsLocalizer({ ... })
 ---
 
 ### 5. calendar-styling.ts (64 lines)
+
 **Event styling functions**
 
 ```typescript
@@ -133,6 +144,7 @@ export function getEventStyle(event: CalendarEvent): EventStyle {
 ```
 
 **Responsibilities**:
+
 - Calculate event colors
 - Handle staff colors
 - Apply status-based styling
@@ -141,6 +153,7 @@ export function getEventStyle(event: CalendarEvent): EventStyle {
 ---
 
 ### 6. CalendarEvent.tsx (32 lines)
+
 **Individual event rendering**
 
 ```typescript
@@ -156,6 +169,7 @@ export function CalendarEventComponent({ event }) {
 ```
 
 **Responsibilities**:
+
 - Render event title
 - Show pet and service info
 - Handle resource data
@@ -163,6 +177,7 @@ export function CalendarEventComponent({ event }) {
 ---
 
 ### 7. CalendarStyles.tsx (134 lines)
+
 **Global CSS-in-JS styles**
 
 ```typescript
@@ -176,6 +191,7 @@ export function CalendarStyles() {
 ```
 
 **Responsibilities**:
+
 - Theme calendar with CSS variables
 - Responsive mobile styles
 - Customize react-big-calendar UI
@@ -183,6 +199,7 @@ export function CalendarStyles() {
 ---
 
 ### 8. useCalendarState.ts (124 lines)
+
 **State management hook**
 
 ```typescript
@@ -201,6 +218,7 @@ export function useCalendarState({ events, ... }) {
 ```
 
 **Responsibilities**:
+
 - Manage view and date state
 - Filter events with memoization
 - Create stable event handlers
@@ -211,6 +229,7 @@ export function useCalendarState({ events, ... }) {
 ## Usage Examples
 
 ### Basic Import (Same as before)
+
 ```typescript
 import { Calendar } from '@/components/calendar/calendar'
 
@@ -218,6 +237,7 @@ import { Calendar } from '@/components/calendar/calendar'
 ```
 
 ### Import Utilities
+
 ```typescript
 import { applyFilters, getEventStyle } from '@/components/calendar'
 
@@ -226,6 +246,7 @@ const style = getEventStyle(event)
 ```
 
 ### Use Hook Directly
+
 ```typescript
 import { useCalendarState } from '@/components/calendar'
 
@@ -240,6 +261,7 @@ function CustomCalendar({ events }) {
 ```
 
 ### Import Constants
+
 ```typescript
 import { CALENDAR_MESSAGES, STATUS_COLORS } from '@/components/calendar'
 
@@ -251,30 +273,35 @@ const color = STATUS_COLORS.confirmed // "#10B981"
 ## Benefits by Category
 
 ### Maintainability ⭐⭐⭐⭐⭐
+
 - Each module under 150 lines
 - Clear single responsibility
 - Easy to locate functionality
 - Changes isolated to specific modules
 
 ### Testability ⭐⭐⭐⭐⭐
+
 - Test each module independently
 - Mock dependencies easily
 - Focused unit tests
 - Better coverage
 
 ### Reusability ⭐⭐⭐⭐
+
 - Filters reusable in other views
 - Hook reusable in custom calendars
 - Constants shared across app
 - Styling utilities available everywhere
 
 ### Performance ⭐⭐⭐⭐
+
 - Memoized filtering
 - Stable callbacks
 - Tree-shakeable imports
 - Lazy computed values
 
 ### Developer Experience ⭐⭐⭐⭐⭐
+
 - Clear module names
 - Better autocomplete
 - Easier navigation
@@ -299,11 +326,13 @@ const color = STATUS_COLORS.confirmed // "#10B981"
 ## Metrics
 
 ### Code Organization
+
 - **Cohesion**: High (each module has single responsibility)
 - **Coupling**: Low (minimal dependencies between modules)
 - **Complexity**: Reduced (smaller, focused functions)
 
 ### File Sizes
+
 ```
 calendar.tsx:           3.2K (was ~12K)
 calendar-constants.ts:  1.8K
@@ -316,6 +345,7 @@ useCalendarState.ts:    3.4K
 ```
 
 ### Lines of Code Distribution
+
 ```
 Main component:     29% (117/407)
 Constants:          15% (60/407)
@@ -330,6 +360,7 @@ State hook:         30% (124/407)
 ## Next Steps
 
 ### Potential Enhancements
+
 1. Add unit tests for each module
 2. Create Storybook stories for components
 3. Add keyboard shortcuts module
@@ -339,6 +370,7 @@ State hook:         30% (124/407)
 7. Add calendar toolbar customization
 
 ### Recommended Testing
+
 ```bash
 # Run TypeScript check
 npm run typecheck

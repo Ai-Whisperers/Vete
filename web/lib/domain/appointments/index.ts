@@ -12,7 +12,7 @@ export type {
   AppointmentFilters,
   AppointmentStats,
   AppointmentSlot,
-  AvailabilityCheckParams
+  AvailabilityCheckParams,
 } from './types'
 
 // Infrastructure

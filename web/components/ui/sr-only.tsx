@@ -6,14 +6,10 @@
  */
 
 interface SROnlyProps {
-  children: React.ReactNode;
-  as?: 'span' | 'div' | 'p' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
+  children: React.ReactNode
+  as?: 'span' | 'div' | 'p' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
 }
 
 export function SROnly({ children, as: Component = 'span' }: SROnlyProps): React.ReactElement {
-  return (
-    <Component className="sr-only">
-      {children}
-    </Component>
-  );
+  return <Component className="sr-only">{children}</Component>
 }

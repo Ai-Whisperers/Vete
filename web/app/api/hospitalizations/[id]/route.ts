@@ -1,21 +1,24 @@
-import { createClient } from '@/lib/supabase/server';
-import { NextRequest, NextResponse } from 'next/server';
-import { apiError, HTTP_STATUS } from '@/lib/api/errors';
+import { createClient } from '@/lib/supabase/server'
+import { NextRequest, NextResponse } from 'next/server'
+import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 
 interface RouteParams {
   params: Promise<{
-    id: string;
-  }>;
+    id: string
+  }>
 }
 
 export async function GET(request: NextRequest, { params }: RouteParams): Promise<NextResponse> {
-  const supabase = await createClient();
-  const { id } = await params;
+  const supabase = await createClient()
+  const { id } = await params
 
   // Authentication check
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
   if (authError || !user) {
-    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED)
   }
 
   // Get user profile
@@ -23,21 +26,22 @@ export async function GET(request: NextRequest, { params }: RouteParams): Promis
     .from('profiles')
     .select('clinic_id:tenant_id, role')
     .eq('id', user.id)
-    .single();
+    .single()
 
   if (!profile) {
-    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, { details: { resource: 'profile' } });
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, { details: { resource: 'profile' } })
   }
 
   // Only staff can view hospitalizations
   if (!['vet', 'admin'].includes(profile.role)) {
-    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
+    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN)
   }
 
   // Get hospitalization with all related data
   const { data: hospitalization, error } = await supabase
     .from('hospitalizations')
-    .select(`
+    .select(
+      `
       *,
       pet:pets!inner(
         id, name, species, breed, date_of_birth, weight, microchip_number,
@@ -72,15 +76,18 @@ export async function GET(request: NextRequest, { params }: RouteParams): Promis
         id, visitor_name, visit_start, visit_end, notes,
         authorized_by:profiles!hospitalization_visits_authorized_by_fkey(full_name)
       )
-    `)
+    `
+    )
     .eq('id', id)
     .eq('pet.tenant_id', profile.clinic_id)
-    .single();
+    .single()
 
   if (error) {
-    console.error('[API] hospitalization GET by ID error:', error);
-    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, { details: { resource: 'hospitalization' } });
+    console.error('[API] hospitalization GET by ID error:', error)
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
+      details: { resource: 'hospitalization' },
+    })
   }
 
-  return NextResponse.json(hospitalization);
+  return NextResponse.json(hospitalization)
 }

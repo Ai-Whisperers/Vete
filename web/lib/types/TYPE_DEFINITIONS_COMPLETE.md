@@ -11,11 +11,13 @@ This document summarizes the completion of the type definition system for the ve
 **Purpose**: Track system activity and user actions for security and compliance
 
 **Key Types**:
+
 - `AuditLog`: Complete audit log entry with action, resource, and metadata
 - `AuditAction`: 9 different action types (create, update, delete, view, export, login, logout, password_change, permission_change)
 - `AuditFilter`: Filter criteria for querying audit logs
 
 **Features**:
+
 - Type guard `isAuditAction()` for runtime validation
 - Support for IP address and user agent tracking
 - Flexible details field (Record<string, unknown>) for custom metadata
@@ -25,11 +27,13 @@ This document summarizes the completion of the type definition system for the ve
 **Purpose**: In-app and external notification management
 
 **Key Types**:
+
 - `Notification`: Individual notification with title, message, type, and read status
 - `NotificationType`: 9 notification categories (appointment reminders, payments, lab results, etc.)
 - `NotificationPreferences`: User preferences for notification channels
 
 **Features**:
+
 - Type guard `isNotificationType()` for runtime validation
 - Spanish labels via `getNotificationTypeLabel()` function
 - Support for action URLs (deep linking)
@@ -40,6 +44,7 @@ This document summarizes the completion of the type definition system for the ve
 **Purpose**: Business intelligence and analytics reporting
 
 **Key Types**:
+
 - `DashboardStats`: Real-time metrics (appointments, revenue, alerts)
 - `RevenueReport`: Time-series revenue analysis with totals
 - `AppointmentReport`: Service and vet performance metrics
@@ -49,6 +54,7 @@ This document summarizes the completion of the type definition system for the ve
 - `FinancialSummary`: Accounting overview with profit margins
 
 **Features**:
+
 - Period-based reporting (day, week, month, year)
 - Aggregated totals and averages
 - Low stock alerts in inventory report
@@ -60,6 +66,7 @@ This document summarizes the completion of the type definition system for the ve
 **Purpose**: Operational clinic settings (database-stored)
 
 **Key Types**:
+
 - `ClinicOperationalSettings`: Complete settings structure (replaces duplicate `ClinicSettings`)
 - `GeneralSettings`: Contact info, timezone, currency, business hours
 - `BusinessHours`: Weekly schedule with breaks (per day)
@@ -70,6 +77,7 @@ This document summarizes the completion of the type definition system for the ve
 - `IntegrationSettings`: WhatsApp and Google Calendar config
 
 **Features**:
+
 - `DEFAULT_CLINIC_SETTINGS` constant for new clinic initialization
 - Validation functions: `isValidTimeFormat()`, `validateDayHours()`
 - Paraguay timezone default (America/Asuncion)
@@ -82,6 +90,7 @@ This document summarizes the completion of the type definition system for the ve
 **Purpose**: Extended staff management and performance tracking
 
 **Key Types**:
+
 - `StaffProfileExtended`: Enhanced staff profile with employment status and hire date
 - `StaffAvailabilityCheck`: Real-time availability validation with reasons
 - `StaffPerformance`: Individual staff KPIs (appointments, revenue, satisfaction)
@@ -89,6 +98,7 @@ This document summarizes the completion of the type definition system for the ve
 - `StaffCredential`: License, certification, and training tracking
 
 **Features**:
+
 - Separate from calendar.ts staff types (which are for scheduling)
 - Employment status tracking (active, on_leave, terminated)
 - Credential expiration monitoring
@@ -108,19 +118,22 @@ import {
   Notification,
   DashboardStats,
   ClinicOperationalSettings,
-  StaffPerformance
+  StaffPerformance,
 } from '@/lib/types'
 ```
 
 ### Categories
 
 **Configuration Types**:
+
 - `clinic-config.ts`: JSON-based clinic configuration
 
 **Status Types**:
+
 - `status.ts`: Status enums and transitions for all entities
 
 **Business Domain Types**:
+
 - `appointments.ts`: Booking and scheduling
 - `invoicing.ts`: Billing and payments
 - `store.ts`: E-commerce
@@ -129,6 +142,7 @@ import {
 - `calendar.ts`: Calendar events, schedules, time-off
 
 **System Types** (NEW):
+
 - `audit.ts`: Activity logging
 - `notification.ts`: Notifications and preferences
 - `reports.ts`: Analytics and BI
@@ -136,9 +150,11 @@ import {
 - `staff.ts`: Extended staff management
 
 **Database Types**:
+
 - `database.ts`: Supabase schema types
 
 **Utility Types**:
+
 - `action-result.ts`: Server action results
 - `errors.ts`: Error handling
 
@@ -165,6 +181,7 @@ During implementation, we identified and resolved type conflicts:
 ## Usage Examples
 
 ### Audit Logging
+
 ```typescript
 import { AuditLog, isAuditAction } from '@/lib/types'
 
@@ -183,6 +200,7 @@ const log: AuditLog = {
 ```
 
 ### Notifications
+
 ```typescript
 import { Notification, getNotificationTypeLabel } from '@/lib/types'
 
@@ -201,6 +219,7 @@ const label = getNotificationTypeLabel(notification.type) // "Recordatorio de ci
 ```
 
 ### Reports
+
 ```typescript
 import { DashboardStats, RevenueReport } from '@/lib/types'
 
@@ -228,6 +247,7 @@ const report: RevenueReport = {
 ```
 
 ### Settings
+
 ```typescript
 import { ClinicOperationalSettings, DEFAULT_CLINIC_SETTINGS, validateDayHours } from '@/lib/types'
 
@@ -256,6 +276,7 @@ if (mondayHours && validateDayHours(mondayHours)) {
 ```
 
 ### Staff Performance
+
 ```typescript
 import { StaffPerformance, StaffWorkload } from '@/lib/types'
 
@@ -285,6 +306,7 @@ const workload: StaffWorkload = {
 ## Testing
 
 All type files were validated with TypeScript compiler:
+
 ```bash
 npx tsc --noEmit --skipLibCheck lib/types/audit.ts lib/types/notification.ts lib/types/reports.ts lib/types/settings.ts lib/types/staff.ts
 ```

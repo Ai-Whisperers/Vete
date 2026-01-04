@@ -13,21 +13,11 @@ export {
   apiRateLimit,
   bookingRateLimit,
   getRateLimiter,
-  type RateLimitOptions
+  type RateLimitOptions,
 } from './rate-limit'
 
 // Logging middleware
-export {
-  withLogging,
-  requestLogger,
-  debugLogger,
-  type LoggingOptions
-} from './logging'
+export { withLogging, requestLogger, debugLogger, type LoggingOptions } from './logging'
 
 // CORS middleware
-export {
-  withCORS,
-  apiCORS,
-  webhookCORS,
-  type CORSOptions
-} from './cors'
+export { withCORS, apiCORS, webhookCORS, type CORSOptions } from './cors'

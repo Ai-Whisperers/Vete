@@ -9,7 +9,13 @@ import { FieldError } from 'react-hook-form'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Checkbox } from '@/components/ui/checkbox'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { cn } from '@/lib/utils'
@@ -34,7 +40,7 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
         {label && (
           <Label htmlFor={props.id} className="text-sm font-medium">
             {label}
-            {required && <span className="text-red-500 ml-1">*</span>}
+            {required && <span className="ml-1 text-red-500">*</span>}
           </Label>
         )}
         <Input
@@ -45,12 +51,8 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
             className
           )}
         />
-        {description && (
-          <p className="text-sm text-gray-600">{description}</p>
-        )}
-        {error && (
-          <p className="text-sm text-red-600">{error.message}</p>
-        )}
+        {description && <p className="text-sm text-gray-600">{description}</p>}
+        {error && <p className="text-sm text-red-600">{error.message}</p>}
       </div>
     )
   }
@@ -69,7 +71,7 @@ export const TextareaField = forwardRef<HTMLTextAreaElement, TextareaFieldProps>
         {label && (
           <Label htmlFor={props.id} className="text-sm font-medium">
             {label}
-            {required && <span className="text-red-500 ml-1">*</span>}
+            {required && <span className="ml-1 text-red-500">*</span>}
           </Label>
         )}
         <Textarea
@@ -80,12 +82,8 @@ export const TextareaField = forwardRef<HTMLTextAreaElement, TextareaFieldProps>
             className
           )}
         />
-        {description && (
-          <p className="text-sm text-gray-600">{description}</p>
-        )}
-        {error && (
-          <p className="text-sm text-red-600">{error.message}</p>
-        )}
+        {description && <p className="text-sm text-gray-600">{description}</p>}
+        {error && <p className="text-sm text-red-600">{error.message}</p>}
       </div>
     )
   }
@@ -104,36 +102,26 @@ export const SelectField = forwardRef<HTMLButtonElement, SelectFieldProps>(
         {label && (
           <Label htmlFor={props.id} className="text-sm font-medium">
             {label}
-            {required && <span className="text-red-500 ml-1">*</span>}
+            {required && <span className="ml-1 text-red-500">*</span>}
           </Label>
         )}
         <Select {...props}>
           <SelectTrigger
             ref={ref}
-            className={cn(
-              error && 'border-red-500 focus:border-red-500 focus:ring-red-500'
-            )}
+            className={cn(error && 'border-red-500 focus:border-red-500 focus:ring-red-500')}
           >
             <SelectValue placeholder={placeholder} />
           </SelectTrigger>
           <SelectContent>
             {options.map((option) => (
-              <SelectItem
-                key={option.value}
-                value={option.value}
-                disabled={option.disabled}
-              >
+              <SelectItem key={option.value} value={option.value} disabled={option.disabled}>
                 {option.label}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
-        {description && (
-          <p className="text-sm text-gray-600">{description}</p>
-        )}
-        {error && (
-          <p className="text-sm text-red-600">{error.message}</p>
-        )}
+        {description && <p className="text-sm text-gray-600">{description}</p>}
+        {error && <p className="text-sm text-red-600">{error.message}</p>}
       </div>
     )
   }
@@ -152,23 +140,17 @@ export const CheckboxField = forwardRef<HTMLInputElement, CheckboxFieldProps>(
           ref={ref}
           id={props.id}
           {...props}
-          className={cn(
-            error && 'border-red-500 focus:border-red-500 focus:ring-red-500'
-          )}
+          className={cn(error && 'border-red-500 focus:border-red-500 focus:ring-red-500')}
         />
         <div className="space-y-1">
           {label && (
-            <Label htmlFor={props.id} className="text-sm font-medium cursor-pointer">
+            <Label htmlFor={props.id} className="cursor-pointer text-sm font-medium">
               {label}
-              {required && <span className="text-red-500 ml-1">*</span>}
+              {required && <span className="ml-1 text-red-500">*</span>}
             </Label>
           )}
-          {description && (
-            <p className="text-sm text-gray-600">{description}</p>
-          )}
-          {error && (
-            <p className="text-sm text-red-600">{error.message}</p>
-          )}
+          {description && <p className="text-sm text-gray-600">{description}</p>}
+          {error && <p className="text-sm text-red-600">{error.message}</p>}
         </div>
       </div>
     )
@@ -187,29 +169,21 @@ export const RadioGroupField = forwardRef<HTMLDivElement, RadioGroupFieldProps>(
         {label && (
           <Label className="text-sm font-medium">
             {label}
-            {required && <span className="text-red-500 ml-1">*</span>}
+            {required && <span className="ml-1 text-red-500">*</span>}
           </Label>
         )}
         <RadioGroup ref={ref} {...props} className="space-y-2">
           {options.map((option) => (
             <div key={option.value} className="flex items-center space-x-2">
-              <RadioGroupItem
-                value={option.value}
-                id={option.value}
-                disabled={option.disabled}
-              />
-              <Label htmlFor={option.value} className="text-sm cursor-pointer">
+              <RadioGroupItem value={option.value} id={option.value} disabled={option.disabled} />
+              <Label htmlFor={option.value} className="cursor-pointer text-sm">
                 {option.label}
               </Label>
             </div>
           ))}
         </RadioGroup>
-        {description && (
-          <p className="text-sm text-gray-600">{description}</p>
-        )}
-        {error && (
-          <p className="text-sm text-red-600">{error.message}</p>
-        )}
+        {description && <p className="text-sm text-gray-600">{description}</p>}
+        {error && <p className="text-sm text-red-600">{error.message}</p>}
       </div>
     )
   }

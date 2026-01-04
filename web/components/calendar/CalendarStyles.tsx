@@ -1,4 +1,4 @@
-'use client';
+'use client'
 
 /**
  * Calendar Global Styles
@@ -69,7 +69,7 @@ export function CalendarStyles() {
         min-height: 40px !important;
         overflow: visible;
         border-radius: 6px !important;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
       }
       .calendar-wrapper .rbc-event:focus {
         outline: 2px solid var(--primary, #3b82f6);
@@ -83,7 +83,7 @@ export function CalendarStyles() {
       }
       /* Add shadow on hover for depth */
       .calendar-wrapper .rbc-event:hover {
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         z-index: 10 !important;
         transform: translateY(-1px);
       }
@@ -203,7 +203,7 @@ export function CalendarStyles() {
         border-top: 1px dashed var(--border-light, #e0e0e0);
       }
       .calendar-wrapper .rbc-current-time-indicator {
-        background-color: var(--accent-error, #DC2626);
+        background-color: var(--accent-error, #dc2626);
         height: 2px;
         z-index: 100;
         position: relative;
@@ -216,7 +216,7 @@ export function CalendarStyles() {
         width: 12px;
         height: 12px;
         border-radius: 50%;
-        background-color: var(--accent-error, #DC2626);
+        background-color: var(--accent-error, #dc2626);
         box-shadow: 0 0 6px var(--accent-error-glow, rgba(220, 38, 38, 0.6));
       }
       .calendar-wrapper .rbc-current-time-indicator::after {
@@ -227,7 +227,7 @@ export function CalendarStyles() {
         width: 12px;
         height: 12px;
         border-radius: 50%;
-        background-color: var(--accent-error, #DC2626);
+        background-color: var(--accent-error, #dc2626);
         box-shadow: 0 0 6px var(--accent-error-glow, rgba(220, 38, 38, 0.6));
       }
       /* Time gutter styling - allow indicator visibility */
@@ -330,8 +330,12 @@ export function CalendarStyles() {
 
       /* Appointments section - main highlight */
       .appointments-section {
-        background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(59, 130, 246, 0.15) 100%);
-        border-left: 3px solid #3B82F6;
+        background: linear-gradient(
+          135deg,
+          rgba(59, 130, 246, 0.08) 0%,
+          rgba(59, 130, 246, 0.15) 100%
+        );
+        border-left: 3px solid #3b82f6;
       }
 
       .section-header {
@@ -350,12 +354,12 @@ export function CalendarStyles() {
       .section-count {
         font-size: 14px;
         font-weight: 700;
-        color: #3B82F6;
+        color: #3b82f6;
       }
 
       .section-label {
         font-size: 11px;
-        color: #3B82F6;
+        color: #3b82f6;
       }
 
       .time-range {
@@ -374,7 +378,7 @@ export function CalendarStyles() {
       }
 
       .more-pets {
-        color: #3B82F6;
+        color: #3b82f6;
         font-weight: 600;
         margin-left: 4px;
       }
@@ -382,7 +386,7 @@ export function CalendarStyles() {
       /* Time off section */
       .timeoff-section {
         background: rgba(236, 72, 153, 0.1);
-        border-left: 3px solid #EC4899;
+        border-left: 3px solid #ec4899;
         display: flex;
         align-items: center;
         gap: 4px;
@@ -397,7 +401,7 @@ export function CalendarStyles() {
       /* Shifts section */
       .shifts-section {
         background: rgba(6, 182, 212, 0.1);
-        border-left: 3px solid #06B6D4;
+        border-left: 3px solid #06b6d4;
         display: flex;
         align-items: center;
         gap: 4px;

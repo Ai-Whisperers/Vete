@@ -24,12 +24,14 @@ Complete test plans for all 22 server actions in the Vete platform.
 **Test Coverage Required:**
 
 #### Unit Tests
+
 - [ ] Input validation
 - [ ] Photo upload validation
 - [ ] Age calculation
 - [ ] Error message formatting
 
 #### Integration Tests
+
 - [ ] Pet created successfully
 - [ ] Pet linked to correct owner
 - [ ] Pet linked to correct tenant
@@ -40,6 +42,7 @@ Complete test plans for all 22 server actions in the Vete platform.
 - [ ] Multi-tenant isolation
 
 #### Test Cases
+
 1. **Success:** Create pet with all fields → Pet created → Photo uploaded
 2. **Minimal Data:** Create pet with only required fields → Pet created
 3. **With Photo:** Create pet with photo → Photo uploaded → URL saved
@@ -48,6 +51,7 @@ Complete test plans for all 22 server actions in the Vete platform.
 6. **Wrong Tenant:** Create pet for other clinic → Error
 
 **Test Data:**
+
 - Valid pet data
 - Invalid pet data
 - Photo files
@@ -62,11 +66,13 @@ Complete test plans for all 22 server actions in the Vete platform.
 **Test Coverage Required:**
 
 #### Unit Tests
+
 - [ ] Input validation
 - [ ] Photo update logic
 - [ ] Photo deletion logic
 
 #### Integration Tests
+
 - [ ] Pet updated successfully
 - [ ] Photo updated
 - [ ] Photo deleted
@@ -75,12 +81,14 @@ Complete test plans for all 22 server actions in the Vete platform.
 - [ ] Multi-tenant isolation
 
 #### Test Cases
+
 1. **Success:** Update pet → Pet updated
 2. **Photo Update:** Update photo → New photo uploaded → Old deleted
 3. **Photo Delete:** Delete photo → Photo removed → Default used
 4. **Invalid Data:** Update with invalid data → Validation errors
 
 **Test Data:**
+
 - Existing pets
 - Updated pet data
 - New photos
@@ -96,12 +104,14 @@ Complete test plans for all 22 server actions in the Vete platform.
 **Test Coverage Required:**
 
 #### Unit Tests
+
 - [ ] Input validation
 - [ ] Date/time validation
 - [ ] Slot availability check
 - [ ] Price calculation
 
 #### Integration Tests
+
 - [ ] Appointment created successfully
 - [ ] Slot marked as booked
 - [ ] Appointment linked to pet
@@ -113,12 +123,14 @@ Complete test plans for all 22 server actions in the Vete platform.
 - [ ] Multi-tenant isolation
 
 #### Test Cases
+
 1. **Success:** Create appointment → Appointment created → Email sent
 2. **Slot Unavailable:** Create with booked slot → Error
 3. **Invalid Date:** Create with past date → Error
 4. **Invalid Data:** Create with missing fields → Validation errors
 
 **Test Data:**
+
 - Valid appointment data
 - Booked slots
 - Invalid dates
@@ -133,11 +145,13 @@ Complete test plans for all 22 server actions in the Vete platform.
 **Test Coverage Required:**
 
 #### Unit Tests
+
 - [ ] Input validation
 - [ ] Status transition validation
 - [ ] Date/time validation
 
 #### Integration Tests
+
 - [ ] Appointment updated successfully
 - [ ] Status updated
 - [ ] Date/time updated
@@ -146,12 +160,14 @@ Complete test plans for all 22 server actions in the Vete platform.
 - [ ] Multi-tenant isolation
 
 #### Test Cases
+
 1. **Success:** Update appointment → Appointment updated
 2. **Status Update:** Update status → Status changed
 3. **Reschedule:** Update date/time → New slot checked → Appointment rescheduled
 4. **Invalid Status:** Invalid status transition → Error
 
 **Test Data:**
+
 - Existing appointments
 - Status updates
 - Date/time changes
@@ -167,12 +183,14 @@ Complete test plans for all 22 server actions in the Vete platform.
 **Test Coverage Required:**
 
 #### Unit Tests
+
 - [ ] Input validation
 - [ ] Line item validation
 - [ ] Calculation logic
 - [ ] Invoice number generation
 
 #### Integration Tests
+
 - [ ] Invoice created successfully
 - [ ] Line items saved
 - [ ] Calculations correct
@@ -184,12 +202,14 @@ Complete test plans for all 22 server actions in the Vete platform.
 - [ ] Multi-tenant isolation
 
 #### Test Cases
+
 1. **Success:** Create invoice → Invoice created → Calculations correct
 2. **With Discounts:** Create with discounts → Discounts applied → Total correct
 3. **Invalid Calculations:** Create with wrong totals → Error
 4. **Invalid Data:** Create with missing fields → Validation errors
 
 **Test Data:**
+
 - Valid invoice data
 - Line items
 - Discounts
@@ -204,16 +224,19 @@ Complete test plans for all 22 server actions in the Vete platform.
 **Test Coverage Required:**
 
 #### Integration Tests
+
 - [ ] Invoice status updated
 - [ ] Status transition validated
 - [ ] Access control
 - [ ] Multi-tenant isolation
 
 #### Test Cases
+
 1. **Success:** Update status → Status changed
 2. **Invalid Transition:** Invalid status change → Error
 
 **Test Data:**
+
 - Invoices
 - Status updates
 
@@ -228,11 +251,13 @@ Complete test plans for all 22 server actions in the Vete platform.
 **Test Coverage Required:**
 
 #### Unit Tests
+
 - [ ] Input validation
 - [ ] Vitals validation
 - [ ] Date validation
 
 #### Integration Tests
+
 - [ ] Medical record created successfully
 - [ ] Record linked to pet
 - [ ] Vitals saved
@@ -242,12 +267,14 @@ Complete test plans for all 22 server actions in the Vete platform.
 - [ ] Multi-tenant isolation
 
 #### Test Cases
+
 1. **Success:** Create record → Record created
 2. **With Vitals:** Create with vitals → Vitals saved
 3. **With Attachments:** Create with attachments → Files uploaded
 4. **Invalid Data:** Create with invalid data → Validation errors
 
 **Test Data:**
+
 - Valid record data
 - Vitals data
 - Attachment files
@@ -262,16 +289,19 @@ Complete test plans for all 22 server actions in the Vete platform.
 **Test Coverage Required:**
 
 #### Integration Tests
+
 - [ ] Medical record updated
 - [ ] Validation errors returned
 - [ ] Access control
 - [ ] Multi-tenant isolation
 
 #### Test Cases
+
 1. **Success:** Update record → Record updated
 2. **Invalid Data:** Update with invalid data → Validation errors
 
 **Test Data:**
+
 - Existing records
 - Updated data
 
@@ -286,12 +316,14 @@ Complete test plans for all 22 server actions in the Vete platform.
 **Test Coverage Required:**
 
 #### Unit Tests
+
 - [ ] Input validation
 - [ ] SKU validation
 - [ ] Price validation
 - [ ] Stock validation
 
 #### Integration Tests
+
 - [ ] Product created successfully
 - [ ] Product linked to tenant
 - [ ] Photo uploaded
@@ -300,12 +332,14 @@ Complete test plans for all 22 server actions in the Vete platform.
 - [ ] Multi-tenant isolation
 
 #### Test Cases
+
 1. **Success:** Create product → Product created
 2. **With Photo:** Create with photo → Photo uploaded
 3. **Duplicate SKU:** Create with existing SKU → Error
 4. **Invalid Data:** Create with invalid data → Validation errors
 
 **Test Data:**
+
 - Valid product data
 - SKUs
 - Photos
@@ -320,6 +354,7 @@ Complete test plans for all 22 server actions in the Vete platform.
 **Test Coverage Required:**
 
 #### Integration Tests
+
 - [ ] Product updated successfully
 - [ ] Stock updated
 - [ ] Price updated
@@ -328,11 +363,13 @@ Complete test plans for all 22 server actions in the Vete platform.
 - [ ] Multi-tenant isolation
 
 #### Test Cases
+
 1. **Success:** Update product → Product updated
 2. **Stock Update:** Update stock → Stock changed → Alerts if low
 3. **Invalid Data:** Update with invalid data → Validation errors
 
 **Test Data:**
+
 - Existing products
 - Updated data
 
@@ -345,16 +382,19 @@ Complete test plans for all 22 server actions in the Vete platform.
 **Test Coverage Required:**
 
 #### Integration Tests
+
 - [ ] Product deleted successfully
 - [ ] Soft delete vs hard delete
 - [ ] Access control (admin only)
 - [ ] Multi-tenant isolation
 
 #### Test Cases
+
 1. **Success:** Delete product → Product deleted
 2. **With Orders:** Delete product with orders → Soft delete → Still accessible for orders
 
 **Test Data:**
+
 - Products
 - Products with orders
 
@@ -369,11 +409,13 @@ Complete test plans for all 22 server actions in the Vete platform.
 **Test Coverage Required:**
 
 #### Unit Tests
+
 - [ ] Input validation
 - [ ] Email validation
 - [ ] Phone validation
 
 #### Integration Tests
+
 - [ ] Profile updated successfully
 - [ ] Email updated (if changed)
 - [ ] Phone updated
@@ -382,11 +424,13 @@ Complete test plans for all 22 server actions in the Vete platform.
 - [ ] Multi-tenant isolation
 
 #### Test Cases
+
 1. **Success:** Update profile → Profile updated
 2. **Email Change:** Update email → Email changed → Confirmation sent
 3. **Invalid Data:** Update with invalid data → Validation errors
 
 **Test Data:**
+
 - Profile data
 - Updated data
 - Invalid data
@@ -402,11 +446,13 @@ Complete test plans for all 22 server actions in the Vete platform.
 **Test Coverage Required:**
 
 #### Unit Tests
+
 - [ ] Email validation
 - [ ] Template rendering
 - [ ] Variable replacement
 
 #### Integration Tests
+
 - [ ] Email sent successfully
 - [ ] Template used correctly
 - [ ] Variables replaced
@@ -414,11 +460,13 @@ Complete test plans for all 22 server actions in the Vete platform.
 - [ ] Multi-tenant isolation
 
 #### Test Cases
+
 1. **Success:** Send email → Email sent
 2. **With Template:** Send with template → Template rendered → Variables replaced
 3. **Invalid Email:** Send to invalid email → Error
 
 **Test Data:**
+
 - Email addresses
 - Templates
 - Variables
@@ -432,6 +480,7 @@ Complete test plans for all 22 server actions in the Vete platform.
 **Test Coverage Required:**
 
 #### Integration Tests
+
 - [ ] WhatsApp message sent
 - [ ] Template used correctly
 - [ ] Variables replaced
@@ -439,11 +488,13 @@ Complete test plans for all 22 server actions in the Vete platform.
 - [ ] Multi-tenant isolation
 
 #### Test Cases
+
 1. **Success:** Send message → Message sent
 2. **With Template:** Send with template → Template used → Variables replaced
 3. **Invalid Phone:** Send to invalid phone → Error
 
 **Test Data:**
+
 - Phone numbers
 - Templates
 - Variables
@@ -459,6 +510,7 @@ Complete test plans for all 22 server actions in the Vete platform.
 **Test Coverage Required:**
 
 #### Integration Tests
+
 - [ ] Vaccine record created
 - [ ] Vaccine linked to pet
 - [ ] Next due date calculated
@@ -468,11 +520,13 @@ Complete test plans for all 22 server actions in the Vete platform.
 - [ ] Multi-tenant isolation
 
 #### Test Cases
+
 1. **Success:** Create vaccine → Vaccine created → Next due calculated
 2. **With Photos:** Create with photos → Photos uploaded
 3. **Invalid Data:** Create with invalid data → Validation errors
 
 **Test Data:**
+
 - Valid vaccine data
 - Pet IDs
 - Photos
@@ -487,6 +541,7 @@ Complete test plans for all 22 server actions in the Vete platform.
 **Test Coverage Required:**
 
 #### Integration Tests
+
 - [ ] Tag assigned to pet
 - [ ] QR code generated
 - [ ] Tag linked correctly
@@ -494,10 +549,12 @@ Complete test plans for all 22 server actions in the Vete platform.
 - [ ] Multi-tenant isolation
 
 #### Test Cases
+
 1. **Success:** Assign tag → Tag assigned → QR generated
 2. **Already Tagged:** Assign to already tagged pet → Error or update
 
 **Test Data:**
+
 - Pets
 - Tag codes
 
@@ -507,9 +564,10 @@ Complete test plans for all 22 server actions in the Vete platform.
 
 **File:** `app/actions/invite-client.ts`
 
-**Test Coverage Required:
+\*\*Test Coverage Required:
 
 #### Integration Tests
+
 - [ ] Invitation sent
 - [ ] Email sent
 - [ ] Invitation link generated
@@ -517,10 +575,12 @@ Complete test plans for all 22 server actions in the Vete platform.
 - [ ] Multi-tenant isolation
 
 #### Test Cases
+
 1. **Success:** Invite client → Invitation sent → Email sent
 2. **Existing User:** Invite existing user → Error or notification
 
 **Test Data:**
+
 - Email addresses
 - Client data
 
@@ -533,6 +593,7 @@ Complete test plans for all 22 server actions in the Vete platform.
 **Test Coverage Required:**
 
 #### Integration Tests
+
 - [ ] Staff invitation sent
 - [ ] Email sent
 - [ ] Role assigned
@@ -540,10 +601,12 @@ Complete test plans for all 22 server actions in the Vete platform.
 - [ ] Multi-tenant isolation
 
 #### Test Cases
+
 1. **Success:** Invite staff → Invitation sent → Email sent → Role assigned
 2. **Existing User:** Invite existing user → Error or notification
 
 **Test Data:**
+
 - Email addresses
 - Roles
 
@@ -556,6 +619,7 @@ Complete test plans for all 22 server actions in the Vete platform.
 **Test Coverage Required:**
 
 #### Integration Tests
+
 - [ ] Schedule created
 - [ ] Schedule linked to staff
 - [ ] Recurring schedule saved
@@ -563,10 +627,12 @@ Complete test plans for all 22 server actions in the Vete platform.
 - [ ] Multi-tenant isolation
 
 #### Test Cases
+
 1. **Success:** Create schedule → Schedule created
 2. **Recurring:** Create recurring schedule → Pattern saved
 
 **Test Data:**
+
 - Staff IDs
 - Schedule data
 
@@ -579,6 +645,7 @@ Complete test plans for all 22 server actions in the Vete platform.
 **Test Coverage Required:**
 
 #### Integration Tests
+
 - [ ] Time off request created
 - [ ] Request linked to staff
 - [ ] Notification sent
@@ -586,10 +653,12 @@ Complete test plans for all 22 server actions in the Vete platform.
 - [ ] Multi-tenant isolation
 
 #### Test Cases
+
 1. **Success:** Request time off → Request created → Notification sent
 2. **Overlap:** Request overlapping existing → Error or warning
 
 **Test Data:**
+
 - Staff IDs
 - Date ranges
 
@@ -602,18 +671,20 @@ Complete test plans for all 22 server actions in the Vete platform.
 **Test Coverage Required:**
 
 #### Integration Tests
+
 - [ ] Safety action executed
 - [ ] Data saved
 - [ ] Access control
 - [ ] Multi-tenant isolation
 
 #### Test Cases
+
 1. **Success:** Execute safety action → Action completed → Data saved
 
 **Test Data:**
+
 - Safety data
 
 ---
 
-*This document should be updated as new server actions are added or existing actions are modified.*
-
+_This document should be updated as new server actions are added or existing actions are modified._

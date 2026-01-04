@@ -7,7 +7,7 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue
+  SelectValue,
 } from '@/components/ui/select'
 
 interface Service {
@@ -36,18 +36,20 @@ export function ServiceVetSelector({
   onServiceChange,
   onVeterinarianChange,
   selectedServiceId,
-  selectedVeterinarianId
+  selectedVeterinarianId,
 }: ServiceVetSelectorProps) {
   const [internalSelectedService, setInternalSelectedService] = useState(selectedServiceId || '')
-  const [internalSelectedVeterinarian, setInternalSelectedVeterinarian] = useState(selectedVeterinarianId || '')
+  const [internalSelectedVeterinarian, setInternalSelectedVeterinarian] = useState(
+    selectedVeterinarianId || ''
+  )
   const [filteredVeterinarians, setFilteredVeterinarians] = useState<Veterinarian[]>(veterinarians)
 
   useEffect(() => {
     if (internalSelectedService) {
-      const selectedService = services.find(s => s.id === internalSelectedService)
+      const selectedService = services.find((s) => s.id === internalSelectedService)
       if (selectedService?.compatible_vet_ids) {
         setFilteredVeterinarians(
-          veterinarians.filter(vet => selectedService.compatible_vet_ids?.includes(vet.id))
+          veterinarians.filter((vet) => selectedService.compatible_vet_ids?.includes(vet.id))
         )
       } else {
         setFilteredVeterinarians(veterinarians)
@@ -79,7 +81,7 @@ export function ServiceVetSelector({
             <SelectValue placeholder="Seleccionar servicio" />
           </SelectTrigger>
           <SelectContent>
-            {services.map(service => (
+            {services.map((service) => (
               <SelectItem key={service.id} value={service.id}>
                 {service.name}
               </SelectItem>
@@ -95,7 +97,7 @@ export function ServiceVetSelector({
             <SelectValue placeholder="Cualquiera" />
           </SelectTrigger>
           <SelectContent>
-            {filteredVeterinarians.map(vet => (
+            {filteredVeterinarians.map((vet) => (
               <SelectItem key={vet.id} value={vet.id}>
                 {vet.name}
               </SelectItem>

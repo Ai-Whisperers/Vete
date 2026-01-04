@@ -1,127 +1,134 @@
-"use client";
+'use client'
 
-import {
-  QueryClient,
-  QueryClientProvider,
-  useQuery,
-} from "@tanstack/react-query";
-import { useState, useEffect } from 'react';
-import { Star, Gift, CheckCircle2 } from 'lucide-react';
-import { createClient } from '@/lib/supabase/client';
-import { useCart } from '@/context/cart-context';
-import { useToast } from '@/components/ui/Toast';
+import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query'
+import { useState, useEffect } from 'react'
+import { Star, Gift, CheckCircle2 } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
+import { useCart } from '@/context/cart-context'
+import { useToast } from '@/components/ui/Toast'
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient()
 
 /** Points value in currency (e.g., 100 points = 1 unit of currency) */
-const POINT_VALUE = 100;
+const POINT_VALUE = 100
 
 export default function LoyaltyRedemptionWrapper(props: LoyaltyRedemptionProps) {
   return (
     <QueryClientProvider client={queryClient}>
       <LoyaltyRedemption {...props} />
     </QueryClientProvider>
-  );
+  )
 }
 
 interface LoyaltyRedemptionProps {
-  userId: string;
+  userId: string
 }
 
 function LoyaltyRedemption({ userId }: LoyaltyRedemptionProps) {
-  const { total, discount, setDiscount } = useCart();
-  const { showToast } = useToast();
+  const { total, discount, setDiscount } = useCart()
+  const { showToast } = useToast()
 
   const { data: pointsData, isLoading } = useQuery<{ points: number }>({
     queryKey: ['loyaltyPoints', userId],
     queryFn: async () => {
-      const res = await fetch(`/api/loyalty/points?userId=${userId}`);
+      const res = await fetch(`/api/loyalty/points?userId=${userId}`)
       if (!res.ok) {
-        throw new Error('Failed to fetch loyalty points');
+        throw new Error('Failed to fetch loyalty points')
       }
-      return res.json();
+      return res.json()
     },
-  });
+  })
 
-  const points = pointsData?.points || 0;
-  
-  const [redeemAmount, setRedeemAmount] = useState(0);
+  const points = pointsData?.points || 0
 
-  const maxRedeemablePoints = points ? Math.min(points, Math.floor(total / POINT_VALUE)) : 0;
+  const [redeemAmount, setRedeemAmount] = useState(0)
+
+  const maxRedeemablePoints = points ? Math.min(points, Math.floor(total / POINT_VALUE)) : 0
 
   const handleApply = () => {
     if (redeemAmount > maxRedeemablePoints) {
-      showToast("No tienes suficientes puntos");
-      return;
+      showToast('No tienes suficientes puntos')
+      return
     }
-    const discountValue = redeemAmount * POINT_VALUE;
-    setDiscount(discountValue);
-    showToast(`Descuento de ${new Intl.NumberFormat('es-PY').format(discountValue)} aplicado`);
-  };
+    const discountValue = redeemAmount * POINT_VALUE
+    setDiscount(discountValue)
+    showToast(`Descuento de ${new Intl.NumberFormat('es-PY').format(discountValue)} aplicado`)
+  }
 
-  if (isLoading) return null;
-  if (!points || points < 100) return null;
+  if (isLoading) return null
+  if (!points || points < 100) return null
 
   return (
-    <div className="bg-gradient-to-br from-purple-50 to-white p-6 rounded-[2rem] border border-purple-100 shadow-sm mb-6 overflow-hidden relative group">
-      <div className="absolute top-0 right-0 w-24 h-24 bg-purple-500 opacity-[0.03] rounded-full -mr-12 -mt-12 transition-transform group-hover:scale-150 duration-700"></div>
-      
-      <div className="flex items-center gap-3 mb-4 relative z-10">
-        <div className="w-10 h-10 bg-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-200">
-           <Star className="w-6 h-6 text-white fill-current" />
+    <div className="group relative mb-6 overflow-hidden rounded-[2rem] border border-purple-100 bg-gradient-to-br from-purple-50 to-white p-6 shadow-sm">
+      <div className="absolute right-0 top-0 -mr-12 -mt-12 h-24 w-24 rounded-full bg-purple-500 opacity-[0.03] transition-transform duration-700 group-hover:scale-150"></div>
+
+      <div className="relative z-10 mb-4 flex items-center gap-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-600 shadow-lg shadow-purple-200">
+          <Star className="h-6 w-6 fill-current text-white" />
         </div>
         <div>
-            <h4 className="font-black text-gray-900 leading-tight">Club de Puntos</h4>
-            <p className="text-xs text-purple-600 font-bold uppercase tracking-widest">Tienes {points} puntos acumulados</p>
+          <h4 className="font-black leading-tight text-gray-900">Club de Puntos</h4>
+          <p className="text-xs font-bold uppercase tracking-widest text-purple-600">
+            Tienes {points} puntos acumulados
+          </p>
         </div>
       </div>
 
-      <div className="space-y-4 relative z-10">
+      <div className="relative z-10 space-y-4">
         <div className="flex items-center justify-between text-sm">
-          <span className="text-gray-500 font-medium">Canjear puntos por descuento</span>
+          <span className="font-medium text-gray-500">Canjear puntos por descuento</span>
           <span className="font-black text-gray-900">1 pt = {POINT_VALUE} PYG</span>
         </div>
 
         <div className="flex gap-2">
-            <div className="flex-1 relative">
-                <input 
-                    type="range" 
-                    min="0" 
-                    max={maxRedeemablePoints}
-                    step="100"
-                    value={redeemAmount}
-                    onChange={(e) => setRedeemAmount(parseInt(e.target.value))}
-                    className="w-full h-2 bg-purple-100 rounded-lg appearance-none cursor-pointer accent-purple-600 mt-2"
-                />
-                <div className="flex justify-between text-[10px] text-gray-400 font-bold uppercase mt-2">
-                    <span>0 pts</span>
-                    <span>{maxRedeemablePoints} pts</span>
-                </div>
+          <div className="relative flex-1">
+            <input
+              type="range"
+              min="0"
+              max={maxRedeemablePoints}
+              step="100"
+              value={redeemAmount}
+              onChange={(e) => setRedeemAmount(parseInt(e.target.value))}
+              className="mt-2 h-2 w-full cursor-pointer appearance-none rounded-lg bg-purple-100 accent-purple-600"
+            />
+            <div className="mt-2 flex justify-between text-[10px] font-bold uppercase text-gray-400">
+              <span>0 pts</span>
+              <span>{maxRedeemablePoints} pts</span>
             </div>
-            <div className="text-right shrink-0 min-w-[80px]">
-                <div className="text-sm font-black text-purple-600">-{new Intl.NumberFormat('es-PY').format(redeemAmount * POINT_VALUE)}</div>
-                <div className="text-[10px] text-gray-400 font-bold">{redeemAmount} pts</div>
+          </div>
+          <div className="min-w-[80px] shrink-0 text-right">
+            <div className="text-sm font-black text-purple-600">
+              -{new Intl.NumberFormat('es-PY').format(redeemAmount * POINT_VALUE)}
             </div>
+            <div className="text-[10px] font-bold text-gray-400">{redeemAmount} pts</div>
+          </div>
         </div>
 
         {discount > 0 ? (
-            <div className="flex items-center justify-between bg-green-50 p-3 rounded-xl border border-green-100 italic transition-all">
-                <div className="flex items-center gap-2 text-green-700">
-                    <CheckCircle2 className="w-4 h-4" />
-                    <span className="text-xs font-bold uppercase tracking-widest">Descuento Aplicado</span>
-                </div>
-                <button onClick={() => setDiscount(0)} className="text-[10px] font-black text-green-700/50 hover:text-red-500 uppercase">Eliminar</button>
+          <div className="flex items-center justify-between rounded-xl border border-green-100 bg-green-50 p-3 italic transition-all">
+            <div className="flex items-center gap-2 text-green-700">
+              <CheckCircle2 className="h-4 w-4" />
+              <span className="text-xs font-bold uppercase tracking-widest">
+                Descuento Aplicado
+              </span>
             </div>
-        ) : (
-            <button 
-                onClick={handleApply}
-                disabled={redeemAmount === 0}
-                className="w-full py-3 bg-purple-600 text-white font-black rounded-xl shadow-lg shadow-purple-100 hover:shadow-xl hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 disabled:opacity-30 disabled:translate-y-0 disabled:shadow-none"
+            <button
+              onClick={() => setDiscount(0)}
+              className="text-[10px] font-black uppercase text-green-700/50 hover:text-red-500"
             >
-                Aplicar Puntos <Gift className="w-4 h-4" />
+              Eliminar
             </button>
+          </div>
+        ) : (
+          <button
+            onClick={handleApply}
+            disabled={redeemAmount === 0}
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-purple-600 py-3 font-black text-white shadow-lg shadow-purple-100 transition-all hover:-translate-y-0.5 hover:shadow-xl disabled:translate-y-0 disabled:opacity-30 disabled:shadow-none"
+          >
+            Aplicar Puntos <Gift className="h-4 w-4" />
+          </button>
         )}
       </div>
     </div>
-  );
+  )
 }

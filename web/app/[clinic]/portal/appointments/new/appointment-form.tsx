@@ -1,86 +1,98 @@
 'use client'
 
-import { useActionState } from "react"
-import { createAppointment } from "@/app/actions/create-appointment"
-import * as Icons from "lucide-react"
+import { useActionState } from 'react'
+import { createAppointment } from '@/app/actions/create-appointment'
+import * as Icons from 'lucide-react'
 
-export default function AppointmentForm({ pets, clinic }: { pets: any[], clinic: string }) {
-    const [state, formAction, isPending] = useActionState(createAppointment, null)
+export default function AppointmentForm({ pets, clinic }: { pets: any[]; clinic: string }) {
+  const [state, formAction, isPending] = useActionState(createAppointment, null)
 
-    return (
-        <form action={formAction} className="space-y-6">
-            <input type="hidden" name="clinic" value={clinic} />
-            
-            {/* 1. Select Pet */}
-            <div>
-                <label className="block text-sm font-bold text-[var(--text-secondary)] mb-2">¿Para quién es la cita?</label>
-                <div className="grid grid-cols-2 gap-3">
-                    {pets.map(pet => (
-                        <label key={pet.id} className="cursor-pointer">
-                            <input type="radio" name="pet_id" value={pet.id} className="peer sr-only" required />
-                            <div className="p-3 rounded-xl border-2 border-gray-100 peer-checked:border-[var(--primary)] peer-checked:bg-[var(--primary)]/5 hover:border-gray-200 transition-all flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-full bg-gray-100 overflow-hidden shrink-0">
-                                    {pet.photo_url ? (
-                                        <img src={pet.photo_url} className="w-full h-full object-cover" />
-                                    ) : (
-                                        <div className="w-full h-full flex items-center justify-center text-gray-400">
-                                            <Icons.PawPrint className="w-5 h-5" />
-                                        </div>
-                                    )}
-                                </div>
-                                <span className="font-bold text-gray-700">{pet.name}</span>
-                            </div>
-                        </label>
-                    ))}
+  return (
+    <form action={formAction} className="space-y-6">
+      <input type="hidden" name="clinic" value={clinic} />
+
+      {/* 1. Select Pet */}
+      <div>
+        <label className="mb-2 block text-sm font-bold text-[var(--text-secondary)]">
+          ¿Para quién es la cita?
+        </label>
+        <div className="grid grid-cols-2 gap-3">
+          {pets.map((pet) => (
+            <label key={pet.id} className="cursor-pointer">
+              <input type="radio" name="pet_id" value={pet.id} className="peer sr-only" required />
+              <div className="peer-checked:bg-[var(--primary)]/5 flex items-center gap-3 rounded-xl border-2 border-gray-100 p-3 transition-all hover:border-gray-200 peer-checked:border-[var(--primary)]">
+                <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full bg-gray-100">
+                  {pet.photo_url ? (
+                    <img src={pet.photo_url} className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center text-gray-400">
+                      <Icons.PawPrint className="h-5 w-5" />
+                    </div>
+                  )}
                 </div>
-            </div>
+                <span className="font-bold text-gray-700">{pet.name}</span>
+              </div>
+            </label>
+          ))}
+        </div>
+      </div>
 
-            {/* 2. Date & Time */}
-            <div>
-                <label className="block text-sm font-bold text-[var(--text-secondary)] mb-1">Fecha y Hora Preferida</label>
-                <input 
-                    type="datetime-local" 
-                    name="start_time" 
-                    required 
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[var(--primary)] outline-none"
-                    // Min date = today
-                    min={new Date().toISOString().slice(0, 16)}
-                />
-                <p className="text-xs text-gray-400 mt-1">Sujeto a confirmación por la veterinaria.</p>
-            </div>
+      {/* 2. Date & Time */}
+      <div>
+        <label className="mb-1 block text-sm font-bold text-[var(--text-secondary)]">
+          Fecha y Hora Preferida
+        </label>
+        <input
+          type="datetime-local"
+          name="start_time"
+          required
+          className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-[var(--primary)]"
+          // Min date = today
+          min={new Date().toISOString().slice(0, 16)}
+        />
+        <p className="mt-1 text-xs text-gray-400">Sujeto a confirmación por la veterinaria.</p>
+      </div>
 
-            {/* 3. Reason */}
-            <div>
-                <label className="block text-sm font-bold text-[var(--text-secondary)] mb-1">Motivo de la visita</label>
-                <select name="reason" className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[var(--primary)] outline-none bg-white mb-2">
-                    <option value="Vacunación">Vacunación</option>
-                    <option value="Consultation">Consulta General</option>
-                    <option value="Checkup">Control Sano</option>
-                    <option value="Deworming">Desparasitación</option>
-                    <option value="Other">Otro</option>
-                </select>
-                <textarea 
-                    name="notes"
-                    placeholder="Detalles adicionales (opcional)..." 
-                    rows={2}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[var(--primary)] outline-none resize-none"
-                ></textarea>
-            </div>
+      {/* 3. Reason */}
+      <div>
+        <label className="mb-1 block text-sm font-bold text-[var(--text-secondary)]">
+          Motivo de la visita
+        </label>
+        <select
+          name="reason"
+          className="mb-2 w-full rounded-xl border border-gray-200 bg-white px-4 py-3 outline-none focus:border-[var(--primary)]"
+        >
+          <option value="Vacunación">Vacunación</option>
+          <option value="Consultation">Consulta General</option>
+          <option value="Checkup">Control Sano</option>
+          <option value="Deworming">Desparasitación</option>
+          <option value="Other">Otro</option>
+        </select>
+        <textarea
+          name="notes"
+          placeholder="Detalles adicionales (opcional)..."
+          rows={2}
+          className="w-full resize-none rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-[var(--primary)]"
+        ></textarea>
+      </div>
 
-            {state && !state.success && (
-                <div role="alert" className="p-3 bg-red-50 text-red-600 text-sm rounded-lg flex items-center gap-2">
-                    <Icons.AlertCircle className="w-4 h-4" aria-hidden="true" />
-                    {state.error}
-                </div>
-            )}
+      {state && !state.success && (
+        <div
+          role="alert"
+          className="flex items-center gap-2 rounded-lg bg-red-50 p-3 text-sm text-red-600"
+        >
+          <Icons.AlertCircle className="h-4 w-4" aria-hidden="true" />
+          {state.error}
+        </div>
+      )}
 
-            <button
-                type="submit"
-                disabled={isPending}
-                className="w-full bg-[var(--primary)] text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-1 active:scale-95 transition-all flex justify-center items-center gap-2"
-            >
-                {isPending ? <Icons.Loader2 className="animate-spin w-5 h-5"/> : "Solicitar Cita"}
-            </button>
-        </form>
-    )
+      <button
+        type="submit"
+        disabled={isPending}
+        className="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--primary)] py-4 font-bold text-white shadow-lg transition-all hover:-translate-y-1 hover:shadow-xl active:scale-95"
+      >
+        {isPending ? <Icons.Loader2 className="h-5 w-5 animate-spin" /> : 'Solicitar Cita'}
+      </button>
+    </form>
+  )
 }

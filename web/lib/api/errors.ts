@@ -3,7 +3,7 @@
  * ARCH-007: Standardize API Error Responses
  */
 
-import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server'
 
 /**
  * Standard API error codes and messages (Spanish)
@@ -98,18 +98,18 @@ export const API_ERRORS = {
     error: 'Error de servicio externo',
     code: 'EXTERNAL_SERVICE_ERROR',
   },
-} as const;
+} as const
 
-export type ApiErrorType = keyof typeof API_ERRORS;
+export type ApiErrorType = keyof typeof API_ERRORS
 
 /**
  * Standard API error response shape
  */
 export interface ApiErrorResponse {
-  error: string;
-  code: string;
-  details?: Record<string, unknown>;
-  field_errors?: Record<string, string[]>;
+  error: string
+  code: string
+  details?: Record<string, unknown>
+  field_errors?: Record<string, string[]>
 }
 
 /**
@@ -131,14 +131,14 @@ export function apiError(
   status: number,
   details?: Partial<Omit<ApiErrorResponse, 'error' | 'code'>>
 ): NextResponse<ApiErrorResponse> {
-  const errorInfo = API_ERRORS[type];
+  const errorInfo = API_ERRORS[type]
   return NextResponse.json(
     {
       ...errorInfo,
       ...details,
     },
     { status }
-  );
+  )
 }
 
 /**
@@ -158,16 +158,16 @@ export function apiError(
 export function validationError(
   fieldErrors: Record<string, string[]>
 ): NextResponse<ApiErrorResponse> {
-  return apiError('VALIDATION_ERROR', 400, { field_errors: fieldErrors });
+  return apiError('VALIDATION_ERROR', 400, { field_errors: fieldErrors })
 }
 
 /**
  * Standard success response wrapper
  */
 export interface ApiSuccessResponse<T> {
-  success: true;
-  data: T;
-  message?: string;
+  success: true
+  data: T
+  message?: string
 }
 
 /**
@@ -190,7 +190,7 @@ export function apiSuccess<T>(
       ...(message && { message }),
     },
     { status }
-  );
+  )
 }
 
 /**
@@ -209,4 +209,4 @@ export const HTTP_STATUS = {
   TOO_MANY_REQUESTS: 429,
   INTERNAL_SERVER_ERROR: 500,
   SERVICE_UNAVAILABLE: 503,
-} as const;
+} as const

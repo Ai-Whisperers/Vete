@@ -38,19 +38,19 @@ export function DeletePetButton({ petId, petName, clinic }: Props): React.ReactE
       <button
         type="button"
         onClick={() => setShowConfirm(true)}
-        className="w-full text-red-500 hover:text-red-700 font-bold py-3 rounded-xl border-2 border-red-200 hover:border-red-300 transition-colors flex justify-center items-center gap-2"
+        className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-red-200 py-3 font-bold text-red-500 transition-colors hover:border-red-300 hover:text-red-700"
       >
-        <Icons.Trash2 className="w-4 h-4" />
+        <Icons.Trash2 className="h-4 w-4" />
         Eliminar Mascota
       </button>
     )
   }
 
   return (
-    <div className="bg-red-50 border border-red-200 rounded-xl p-4 space-y-4">
+    <div className="space-y-4 rounded-xl border border-red-200 bg-red-50 p-4">
       <div className="flex items-start gap-3">
-        <div className="bg-red-100 p-2 rounded-full">
-          <Icons.AlertTriangle className="w-5 h-5 text-red-600" />
+        <div className="rounded-full bg-red-100 p-2">
+          <Icons.AlertTriangle className="h-5 w-5 text-red-600" />
         </div>
         <div>
           <h4 className="font-bold text-red-900">¿Eliminar a {petName}?</h4>
@@ -60,18 +60,14 @@ export function DeletePetButton({ petId, petName, clinic }: Props): React.ReactE
         </div>
       </div>
 
-      {error && (
-        <div className="p-2 bg-red-100 text-red-700 text-sm rounded-lg">
-          {error}
-        </div>
-      )}
+      {error && <div className="rounded-lg bg-red-100 p-2 text-sm text-red-700">{error}</div>}
 
       <div className="flex gap-3">
         <button
           type="button"
           onClick={() => setShowConfirm(false)}
           disabled={isPending}
-          className="flex-1 px-4 py-2 bg-white border border-gray-200 text-gray-600 font-bold rounded-xl hover:bg-gray-50 transition-colors"
+          className="flex-1 rounded-xl border border-gray-200 bg-white px-4 py-2 font-bold text-gray-600 transition-colors hover:bg-gray-50"
         >
           Cancelar
         </button>
@@ -79,13 +75,13 @@ export function DeletePetButton({ petId, petName, clinic }: Props): React.ReactE
           type="button"
           onClick={handleDelete}
           disabled={isPending}
-          className="flex-1 px-4 py-2 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 transition-colors flex justify-center items-center gap-2"
+          className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-red-600 px-4 py-2 font-bold text-white transition-colors hover:bg-red-700"
         >
           {isPending ? (
-            <Icons.Loader2 className="animate-spin w-4 h-4" />
+            <Icons.Loader2 className="h-4 w-4 animate-spin" />
           ) : (
             <>
-              <Icons.Trash2 className="w-4 h-4" />
+              <Icons.Trash2 className="h-4 w-4" />
               Sí, Eliminar
             </>
           )}

@@ -46,10 +46,16 @@ export function generateSignedConsentEmail(data: SignedConsentEmailData): string
     })
   }
 
-  const categoryEmoji = consentCategory === 'surgery' ? '🏥' :
-    consentCategory === 'anesthesia' ? '💉' :
-    consentCategory === 'euthanasia' ? '🕊️' :
-    consentCategory === 'treatment' ? '💊' : '📋'
+  const categoryEmoji =
+    consentCategory === 'surgery'
+      ? '🏥'
+      : consentCategory === 'anesthesia'
+        ? '💉'
+        : consentCategory === 'euthanasia'
+          ? '🕊️'
+          : consentCategory === 'treatment'
+            ? '💊'
+            : '📋'
 
   return `
 <!DOCTYPE html>
@@ -150,7 +156,9 @@ export function generateSignedConsentEmail(data: SignedConsentEmailData): string
             </td>
           </tr>
 
-          ${viewLink ? `
+          ${
+            viewLink
+              ? `
           <!-- View Online Button -->
           <tr>
             <td style="padding: 0 40px 25px; text-align: center;">
@@ -159,7 +167,9 @@ export function generateSignedConsentEmail(data: SignedConsentEmailData): string
               </a>
             </td>
           </tr>
-          ` : ''}
+          `
+              : ''
+          }
 
           <!-- Footer -->
           <tr>
@@ -170,11 +180,15 @@ export function generateSignedConsentEmail(data: SignedConsentEmailData): string
               <p style="margin: 0; color: #999999; font-size: 12px; text-align: center; line-height: 1.5;">
                 Si tienes alguna pregunta sobre este consentimiento, no dudes en contactarnos.
               </p>
-              ${clinicPhone || clinicEmail ? `
+              ${
+                clinicPhone || clinicEmail
+                  ? `
                 <p style="margin: 10px 0 0; color: #999999; font-size: 12px; text-align: center;">
                   ${clinicPhone ? `📞 ${clinicPhone}` : ''} ${clinicPhone && clinicEmail ? '|' : ''} ${clinicEmail ? `✉️ ${clinicEmail}` : ''}
                 </p>
-              ` : ''}
+              `
+                  : ''
+              }
             </td>
           </tr>
 

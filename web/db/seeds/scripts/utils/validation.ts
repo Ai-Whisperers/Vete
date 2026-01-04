@@ -4,30 +4,30 @@
  * Wraps Zod validation with helpful error formatting and batch validation.
  */
 
-import { z, ZodError, ZodSchema } from 'zod';
+import { z, ZodError, ZodSchema } from 'zod'
 
 /**
  * Validation error with context
  */
 export interface ValidationError {
-  index: number;
-  field: string;
-  message: string;
-  value?: unknown;
+  index: number
+  field: string
+  message: string
+  value?: unknown
 }
 
 /**
  * Result of validating a batch of records
  */
 export interface ValidationResult<T> {
-  valid: T[];
+  valid: T[]
   invalid: Array<{
-    index: number;
-    record: unknown;
-    errors: ValidationError[];
-  }>;
-  totalValid: number;
-  totalInvalid: number;
+    index: number
+    record: unknown
+    errors: ValidationError[]
+  }>
+  totalValid: number
+  totalInvalid: number
 }
 
 /**
@@ -39,31 +39,33 @@ export function validateRecord<T>(
   index: number = 0
 ): { success: true; data: T } | { success: false; errors: ValidationError[] } {
   try {
-    const data = schema.parse(record);
-    return { success: true, data };
+    const data = schema.parse(record)
+    return { success: true, data }
   } catch (e) {
     if (e instanceof ZodError) {
       // Zod v4 uses 'issues' property
-      const zodIssues = e.issues || [];
+      const zodIssues = e.issues || []
       const errors: ValidationError[] = zodIssues.map((issue) => {
         return {
           index,
           field: issue.path?.join('.') || 'unknown',
           message: issue.message || 'Validation failed',
           value: (record as Record<string, unknown>)?.[issue.path?.[0] as string],
-        };
-      });
-      return { success: false, errors };
+        }
+      })
+      return { success: false, errors }
     }
     // Fallback for any other error type
     return {
       success: false,
-      errors: [{
-        index,
-        field: 'unknown',
-        message: e instanceof Error ? e.message : String(e),
-      }],
-    };
+      errors: [
+        {
+          index,
+          field: 'unknown',
+          message: e instanceof Error ? e.message : String(e),
+        },
+      ],
+    }
   }
 }
 
@@ -71,68 +73,63 @@ export function validateRecord<T>(
  * Validate a batch of records against a Zod schema
  * Returns valid records and collects all validation errors
  */
-export function validateBatch<T>(
-  schema: ZodSchema<T>,
-  records: unknown[]
-): ValidationResult<T> {
+export function validateBatch<T>(schema: ZodSchema<T>, records: unknown[]): ValidationResult<T> {
   const result: ValidationResult<T> = {
     valid: [],
     invalid: [],
     totalValid: 0,
     totalInvalid: 0,
-  };
+  }
 
   for (let i = 0; i < records.length; i++) {
-    const record = records[i];
-    const validation = validateRecord(schema, record, i);
+    const record = records[i]
+    const validation = validateRecord(schema, record, i)
 
     if (validation.success) {
-      result.valid.push(validation.data);
-      result.totalValid++;
+      result.valid.push(validation.data)
+      result.totalValid++
     } else {
       result.invalid.push({
         index: i,
         record,
         errors: validation.errors,
-      });
-      result.totalInvalid++;
+      })
+      result.totalInvalid++
     }
   }
 
-  return result;
+  return result
 }
 
 /**
  * Format validation errors for console output
  */
 export function formatValidationErrors(errors: ValidationError[]): string {
-  return errors
-    .map((e) => `  [${e.index}] ${e.field}: ${e.message}`)
-    .join('\n');
+  return errors.map((e) => `  [${e.index}] ${e.field}: ${e.message}`).join('\n')
 }
 
 /**
  * Format validation result summary
  */
 export function formatValidationSummary<T>(result: ValidationResult<T>): string {
-  const lines: string[] = [];
+  const lines: string[] = []
 
-  lines.push(`Valid: ${result.totalValid}, Invalid: ${result.totalInvalid}`);
+  lines.push(`Valid: ${result.totalValid}, Invalid: ${result.totalInvalid}`)
 
   if (result.invalid.length > 0) {
-    lines.push('Validation errors:');
+    lines.push('Validation errors:')
     for (const item of result.invalid.slice(0, 5)) {
-      lines.push(`  Record #${item.index}:`);
+      lines.push(`  Record #${item.index}:`)
       for (const err of item.errors) {
-        lines.push(`    - ${err.field}: ${err.message}`);
+        lines.push(`    - ${err.field}: ${err.message}`)
       }
     }
     if (result.invalid.length > 5) {
-      lines.push(`  ... and ${result.invalid.length - 5} more invalid records`);
+      lines.push(`  ... and ${result.invalid.length - 5} more invalid records`)
     }
   }
 
-  return lines.join('\n');
+  return lines.join('\n')
 }
 
 /**
@@ -143,35 +140,31 @@ export function validateBatchStrict<T>(
   records: unknown[],
   context?: string
 ): T[] {
-  const result = validateBatch(schema, records);
+  const result = validateBatch(schema, records)
 
   if (result.totalInvalid > 0) {
-    const contextStr = context ? ` in ${context}` : '';
+    const contextStr = context ? ` in ${context}` : ''
     const errorDetails = result.invalid
       .slice(0, 3)
       .map((item) =>
         item.errors.map((e) => `  [${item.index}] ${e.field}: ${e.message}`).join('\n')
       )
-      .join('\n');
+      .join('\n')
 
     throw new Error(
       `Validation failed${contextStr}: ${result.totalInvalid} invalid records\n${errorDetails}`
-    );
+    )
   }
 
-  return result.valid;
+  return result.valid
 }
 
 /**
  * Safe parse with default on error
  */
-export function safeParseWithDefault<T>(
-  schema: ZodSchema<T>,
-  value: unknown,
-  defaultValue: T
-): T {
-  const result = schema.safeParse(value);
-  return result.success ? result.data : defaultValue;
+export function safeParseWithDefault<T>(schema: ZodSchema<T>, value: unknown, defaultValue: T): T {
+  const result = schema.safeParse(value)
+  return result.success ? result.data : defaultValue
 }
 
 /**
@@ -180,7 +173,7 @@ export function safeParseWithDefault<T>(
 export function createPartialSchema<T extends z.ZodRawShape>(
   schema: z.ZodObject<T>
 ): z.ZodObject<{ [K in keyof T]: z.ZodOptional<T[K]> }> {
-  return schema.partial();
+  return schema.partial()
 }
 
 /**
@@ -190,5 +183,5 @@ export function createInsertSchema<T extends z.ZodRawShape>(
   schema: z.ZodObject<T>
 ): z.ZodObject<T> {
   // For inserts, we typically want to strip extra fields
-  return schema.strip() as z.ZodObject<T>;
+  return schema.strip() as z.ZodObject<T>
 }

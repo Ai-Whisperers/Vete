@@ -29,7 +29,7 @@ export function MessageThread({ messages }: MessageThreadProps) {
 
   if (messages.length === 0) {
     return (
-      <div className="flex-1 flex items-center justify-center text-[var(--text-secondary)]">
+      <div className="flex flex-1 items-center justify-center text-[var(--text-secondary)]">
         <p>No hay mensajes en esta conversación</p>
       </div>
     )
@@ -53,12 +53,12 @@ export function MessageThread({ messages }: MessageThreadProps) {
   })
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 space-y-4">
+    <div className="flex-1 space-y-4 overflow-y-auto p-4">
       {groupedMessages.map((group, groupIndex) => (
         <div key={groupIndex}>
           {/* Date divider */}
-          <div className="flex items-center justify-center my-4">
-            <span className="px-3 py-1 bg-gray-100 rounded-full text-xs text-[var(--text-secondary)]">
+          <div className="my-4 flex items-center justify-center">
+            <span className="rounded-full bg-gray-100 px-3 py-1 text-xs text-[var(--text-secondary)]">
               {formatDateDivider(group.date)}
             </span>
           </div>

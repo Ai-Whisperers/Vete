@@ -3,7 +3,11 @@
 import { useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { ScheduleEditor } from '@/components/calendar'
-import { createStaffSchedule, updateStaffSchedule, deleteStaffSchedule } from '@/app/actions/schedules'
+import {
+  createStaffSchedule,
+  updateStaffSchedule,
+  deleteStaffSchedule,
+} from '@/app/actions/schedules'
 import type { StaffScheduleEntry, ScheduleEntryFormData } from '@/lib/types/calendar'
 
 // =============================================================================
@@ -58,7 +62,7 @@ export function ScheduleEditorClient({
   const [entries, setEntries] = useState<ScheduleEntryFormData[]>(() => {
     if (!existingSchedule?.entries) return []
     // Transform from DB snake_case to form camelCase
-    return existingSchedule.entries.map(entry => ({
+    return existingSchedule.entries.map((entry) => ({
       dayOfWeek: entry.day_of_week,
       startTime: entry.start_time,
       endTime: entry.end_time,
@@ -186,82 +190,78 @@ export function ScheduleEditorClient({
     <div className="space-y-6">
       {/* Messages */}
       {error && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
           {error}
         </div>
       )}
       {success && (
-        <div className="p-4 bg-green-50 border border-green-200 rounded-lg text-sm text-green-700">
+        <div className="rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-700">
           {success}
         </div>
       )}
 
       {/* Schedule metadata */}
-      <div className="bg-white rounded-xl border border-gray-100 p-6">
-        <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-4">
+      <div className="rounded-xl border border-gray-100 bg-white p-6">
+        <h2 className="mb-4 text-lg font-semibold text-[var(--text-primary)]">
           Información del Horario
         </h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="mb-1 block text-sm font-medium text-gray-700">
               Nombre del horario *
             </label>
             <input
               type="text"
               value={name}
-              onChange={e => setName(e.target.value)}
+              onChange={(e) => setName(e.target.value)}
               placeholder="Ej: Horario Regular, Turno Mañana"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="mb-1 block text-sm font-medium text-gray-700">
               Fecha de inicio *
             </label>
             <input
               type="date"
               value={effectiveFrom}
-              onChange={e => setEffectiveFrom(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
+              onChange={(e) => setEffectiveFrom(e.target.value)}
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="mb-1 block text-sm font-medium text-gray-700">
               Fecha de fin (opcional)
             </label>
             <input
               type="date"
               value={effectiveTo}
-              onChange={e => setEffectiveTo(e.target.value)}
+              onChange={(e) => setEffectiveTo(e.target.value)}
               min={effectiveFrom}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
             />
-            <p className="text-xs text-gray-500 mt-1">
-              Dejar vacío para horario permanente
-            </p>
+            <p className="mt-1 text-xs text-gray-500">Dejar vacío para horario permanente</p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Notas (opcional)
-            </label>
+            <label className="mb-1 block text-sm font-medium text-gray-700">Notas (opcional)</label>
             <input
               type="text"
               value={notes}
-              onChange={e => setNotes(e.target.value)}
+              onChange={(e) => setNotes(e.target.value)}
               placeholder="Notas adicionales sobre el horario"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
             />
           </div>
         </div>
       </div>
 
       {/* Schedule entries */}
-      <div className="bg-white rounded-xl border border-gray-100 p-6">
-        <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-4">
+      <div className="rounded-xl border border-gray-100 bg-white p-6">
+        <h2 className="mb-4 text-lg font-semibold text-[var(--text-primary)]">
           Días y Horarios de Trabajo
         </h2>
 
@@ -273,13 +273,13 @@ export function ScheduleEditorClient({
       </div>
 
       {/* Actions */}
-      <div className="flex justify-between items-center pt-4">
+      <div className="flex items-center justify-between pt-4">
         {isEditing && (
           <button
             type="button"
             onClick={handleDelete}
             disabled={isSaving || isDeleting}
-            className="px-4 py-2 text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 disabled:opacity-50"
+            className="rounded-lg bg-red-50 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-100 disabled:opacity-50"
           >
             {isDeleting ? 'Eliminando...' : 'Eliminar Horario'}
           </button>
@@ -290,7 +290,7 @@ export function ScheduleEditorClient({
             type="button"
             onClick={() => router.push(`/${clinicSlug}/dashboard/schedules`)}
             disabled={isSaving || isDeleting}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50"
+            className="rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 disabled:opacity-50"
           >
             Cancelar
           </button>
@@ -298,7 +298,7 @@ export function ScheduleEditorClient({
             type="button"
             onClick={handleSave}
             disabled={isSaving || isDeleting}
-            className="px-6 py-2 text-sm font-medium text-white rounded-lg hover:opacity-90 disabled:opacity-50"
+            className="rounded-lg px-6 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
             style={{ backgroundColor: 'var(--primary, #3B82F6)' }}
           >
             {isSaving ? 'Guardando...' : isEditing ? 'Guardar Cambios' : 'Crear Horario'}

@@ -1,7 +1,6 @@
-
-import fs from 'node:fs';
-import path from 'node:path';
-import merge from 'lodash.merge';
+import fs from 'node:fs'
+import path from 'node:path'
+import merge from 'lodash.merge'
 
 // Import all types from the centralized types file
 export type {
@@ -84,7 +83,7 @@ export type {
 
   // Complete clinic data
   ClinicData,
-} from './types/clinic-config';
+} from './types/clinic-config'
 
 import type {
   ClinicData,
@@ -98,61 +97,61 @@ import type {
   AboutData,
   TestimonialsData,
   FaqData,
-  LegalData
-} from './types/clinic-config';
+  LegalData,
+} from './types/clinic-config'
 
-const CONTENT_DIR = path.join(process.cwd(), '.content_data');
+const CONTENT_DIR = path.join(process.cwd(), '.content_data')
 
 export async function getClinicData(slug: string): Promise<ClinicData | null> {
-  const clinicDir = path.join(CONTENT_DIR, slug);
+  const clinicDir = path.join(CONTENT_DIR, slug)
 
   // Check if clinic exists
   if (!fs.existsSync(clinicDir)) {
-    return null;
+    return null
   }
 
   // Helper to read JSON with proper typing
   const readJson = <T>(file: string): T | null => {
-    const filePath = path.join(clinicDir, file);
+    const filePath = path.join(clinicDir, file)
     if (fs.existsSync(filePath)) {
-      const fileContents = fs.readFileSync(filePath, 'utf8');
-      return JSON.parse(fileContents) as T;
+      const fileContents = fs.readFileSync(filePath, 'utf8')
+      return JSON.parse(fileContents) as T
     }
-    return null;
-  };
+    return null
+  }
 
-  const config = readJson<ClinicConfig>('config.json');
-  const theme = readJson<ClinicTheme>('theme.json');
-  const images = readJson<ClinicImages>('images.json');
-  const home = readJson<HomeData>('home.json');
-  const services = readJson<ServicesData>('services.json');
-  const about = readJson<AboutData>('about.json');
-  const testimonials = readJson<TestimonialsData>('testimonials.json');
-  const faq = readJson<FaqData>('faq.json');
-  const legal = readJson<LegalData>('legal.json');
+  const config = readJson<ClinicConfig>('config.json')
+  const theme = readJson<ClinicTheme>('theme.json')
+  const images = readJson<ClinicImages>('images.json')
+  const home = readJson<HomeData>('home.json')
+  const services = readJson<ServicesData>('services.json')
+  const about = readJson<AboutData>('about.json')
+  const testimonials = readJson<TestimonialsData>('testimonials.json')
+  const faq = readJson<FaqData>('faq.json')
+  const legal = readJson<LegalData>('legal.json')
 
   // Load global UI labels
-  const globalUiLabelsPath = path.join(CONTENT_DIR, 'ui_labels.json');
-  let ui_labels: Partial<UiLabels> = {};
+  const globalUiLabelsPath = path.join(CONTENT_DIR, 'ui_labels.json')
+  let ui_labels: Partial<UiLabels> = {}
   if (fs.existsSync(globalUiLabelsPath)) {
-    ui_labels = JSON.parse(fs.readFileSync(globalUiLabelsPath, 'utf8')) as UiLabels;
+    ui_labels = JSON.parse(fs.readFileSync(globalUiLabelsPath, 'utf8')) as UiLabels
   }
 
   if (!config || !theme) {
-    return null; // Essential data missing
+    return null // Essential data missing
   }
 
   // Allow clinic specific override (deep merge)
   if (config.ui_labels) {
-      merge(ui_labels, config.ui_labels);
+    merge(ui_labels, config.ui_labels)
   }
 
   // Ensure config has the merged ui_labels
-  config.ui_labels = ui_labels as UiLabels;
+  config.ui_labels = ui_labels as UiLabels
 
   // Check that required data is present
   if (!home || !services || !about) {
-    return null; // Essential content missing
+    return null // Essential content missing
   }
 
   return {
@@ -164,22 +163,22 @@ export async function getClinicData(slug: string): Promise<ClinicData | null> {
     about,
     testimonials: testimonials || undefined,
     faq: faq || undefined,
-    legal: legal || undefined
-  };
+    legal: legal || undefined,
+  }
 }
 
 export async function getAllClinics(): Promise<string[]> {
-    if (!fs.existsSync(CONTENT_DIR)) return [];
-    return fs.readdirSync(CONTENT_DIR).filter(file => {
-        // Exclude template folders (prefixed with _ or .), hidden files, and non-directories
-        if (file.startsWith('_') || file.startsWith('.')) return false;
-        const fullPath = path.join(CONTENT_DIR, file);
-        if (!fs.statSync(fullPath).isDirectory()) return false;
-        // Also verify it has required config files to be a valid clinic
-        const configPath = path.join(fullPath, 'config.json');
-        const themePath = path.join(fullPath, 'theme.json');
-        return fs.existsSync(configPath) && fs.existsSync(themePath);
-    });
+  if (!fs.existsSync(CONTENT_DIR)) return []
+  return fs.readdirSync(CONTENT_DIR).filter((file) => {
+    // Exclude template folders (prefixed with _ or .), hidden files, and non-directories
+    if (file.startsWith('_') || file.startsWith('.')) return false
+    const fullPath = path.join(CONTENT_DIR, file)
+    if (!fs.statSync(fullPath).isDirectory()) return false
+    // Also verify it has required config files to be a valid clinic
+    const configPath = path.join(fullPath, 'config.json')
+    const themePath = path.join(fullPath, 'theme.json')
+    return fs.existsSync(configPath) && fs.existsSync(themePath)
+  })
 }
 
 /**
@@ -195,11 +194,11 @@ export function getClinicImageUrl(
   key: string
 ): string | null {
   if (!images?.images?.[category]?.[key]) {
-    return null;
+    return null
   }
 
-  const image = images.images[category][key] as ClinicImage;
-  return `${images.basePath}/${image.src}`;
+  const image = images.images[category][key] as ClinicImage
+  return `${images.basePath}/${image.src}`
 }
 
 /**
@@ -215,14 +214,14 @@ export function getClinicImage(
   key: string
 ): (ClinicImage & { url: string }) | null {
   if (!images?.images?.[category]?.[key]) {
-    return null;
+    return null
   }
 
-  const image = images.images[category][key] as ClinicImage;
+  const image = images.images[category][key] as ClinicImage
   return {
     ...image,
-    url: `${images.basePath}/${image.src}`
-  };
+    url: `${images.basePath}/${image.src}`,
+  }
 }
 
 /**
@@ -236,19 +235,19 @@ export function getClinicImagesByCategory(
   category: string
 ): Array<ClinicImage & { key: string; url: string }> {
   if (!images?.images?.[category]) {
-    return [];
+    return []
   }
 
-  const categoryImages = images.images[category];
+  const categoryImages = images.images[category]
   if (!categoryImages) {
-    return [];
+    return []
   }
 
   return Object.entries(categoryImages).map(([key, image]: [string, ClinicImage]) => ({
     key,
     ...image,
-    url: `${images.basePath}/${image.src}`
-  }));
+    url: `${images.basePath}/${image.src}`,
+  }))
 }
 
 /**
@@ -262,7 +261,7 @@ export function getPlaceholderUrl(
   type: 'pet' | 'product' | 'team' | 'service'
 ): string {
   if (images?.placeholders?.[type]) {
-    return images.placeholders[type] as string;
+    return images.placeholders[type] as string
   }
 
   // Default placeholders
@@ -270,8 +269,8 @@ export function getPlaceholderUrl(
     pet: '/images/placeholders/pet-placeholder.jpg',
     product: '/images/placeholders/product-placeholder.jpg',
     team: '/images/placeholders/team-placeholder.jpg',
-    service: '/images/placeholders/service-placeholder.jpg'
-  };
+    service: '/images/placeholders/service-placeholder.jpg',
+  }
 
-  return defaults[type] || '/images/placeholders/default.jpg';
+  return defaults[type] || '/images/placeholders/default.jpg'
 }

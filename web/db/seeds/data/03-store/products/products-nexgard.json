@@ -7,9 +7,7 @@
       "name": "NexGard Perros 2-4kg",
       "description": "Antiparasitario masticable mensual contra pulgas y garrapatas para perros pequeños",
       "category_slug": "FAR-ANT-EXT",
-      "target_species": [
-        "dog"
-      ],
+      "target_species": ["dog"],
       "requires_prescription": true,
       "variants": [
         {
@@ -37,9 +35,7 @@
       "name": "NexGard Perros 4-10kg",
       "description": "Antiparasitario masticable mensual contra pulgas y garrapatas para perros medianos",
       "category_slug": "FAR-ANT-EXT",
-      "target_species": [
-        "dog"
-      ],
+      "target_species": ["dog"],
       "requires_prescription": true,
       "variants": [
         {
@@ -67,9 +63,7 @@
       "name": "NexGard Perros 10-25kg",
       "description": "Antiparasitario masticable mensual contra pulgas y garrapatas para perros grandes",
       "category_slug": "FAR-ANT-EXT",
-      "target_species": [
-        "dog"
-      ],
+      "target_species": ["dog"],
       "requires_prescription": true,
       "variants": [
         {
@@ -97,9 +91,7 @@
       "name": "NexGard Perros 25-50kg",
       "description": "Antiparasitario masticable mensual contra pulgas y garrapatas para perros extra grandes",
       "category_slug": "FAR-ANT-EXT",
-      "target_species": [
-        "dog"
-      ],
+      "target_species": ["dog"],
       "requires_prescription": true,
       "variants": [
         {
@@ -127,9 +119,7 @@
       "name": "NexGard Spectra 3.5-7.5kg",
       "description": "Protección completa contra pulgas, garrapatas, ácaros y parásitos internos",
       "category_slug": "FAR-ANT-EXT",
-      "target_species": [
-        "dog"
-      ],
+      "target_species": ["dog"],
       "requires_prescription": true,
       "variants": [
         {
@@ -158,9 +148,7 @@
       "name": "NexGard Spectra 7.5-15kg",
       "description": "Protección completa contra pulgas, garrapatas, ácaros y parásitos internos",
       "category_slug": "FAR-ANT-EXT",
-      "target_species": [
-        "dog"
-      ],
+      "target_species": ["dog"],
       "requires_prescription": true,
       "variants": [
         {
@@ -189,9 +177,7 @@
       "name": "NexGard Spectra 15-30kg",
       "description": "Protección completa contra pulgas, garrapatas, ácaros y parásitos internos",
       "category_slug": "FAR-ANT-EXT",
-      "target_species": [
-        "dog"
-      ],
+      "target_species": ["dog"],
       "requires_prescription": true,
       "variants": [
         {
@@ -220,9 +206,7 @@
       "name": "NexGard Spectra 30-60kg",
       "description": "Protección completa contra pulgas, garrapatas, ácaros y parásitos internos para perros XL",
       "category_slug": "FAR-ANT-EXT",
-      "target_species": [
-        "dog"
-      ],
+      "target_species": ["dog"],
       "requires_prescription": true,
       "variants": [
         {

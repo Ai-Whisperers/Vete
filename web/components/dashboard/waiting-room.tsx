@@ -1,14 +1,14 @@
-"use client";
+'use client'
 
-import { useState } from "react";
+import { useState } from 'react'
 import {
   QueryClient,
   QueryClientProvider,
   useQuery,
   useMutation,
   useQueryClient,
-} from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
+} from '@tanstack/react-query'
+import { useRouter } from 'next/navigation'
 import {
   Clock,
   CheckCircle,
@@ -21,219 +21,226 @@ import {
   Stethoscope,
   LogIn,
   Timer,
-  AlertCircle
-} from "lucide-react";
-import { updateAppointmentStatus } from "@/app/actions/update-appointment-status";
+  AlertCircle,
+} from 'lucide-react'
+import { updateAppointmentStatus } from '@/app/actions/update-appointment-status'
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient()
 
 export function WaitingRoomWrapper({ clinic }: { clinic: string }) {
   return (
     <QueryClientProvider client={queryClient}>
       <WaitingRoom clinic={clinic} />
     </QueryClientProvider>
-  );
+  )
 }
 
 interface WaitingPatient {
-  id: string;
-  start_time: string;
-  end_time: string;
-  status: "pending" | "confirmed" | "checked_in" | "in_progress" | "completed" | "cancelled" | "no_show";
-  reason: string;
+  id: string
+  start_time: string
+  end_time: string
+  status:
+    | 'pending'
+    | 'confirmed'
+    | 'checked_in'
+    | 'in_progress'
+    | 'completed'
+    | 'cancelled'
+    | 'no_show'
+  reason: string
   pet: {
-    id: string;
-    name: string;
-    species: string;
-    photo_url: string | null;
-  } | null;
+    id: string
+    name: string
+    species: string
+    photo_url: string | null
+  } | null
   owner: {
-    id: string;
-    full_name: string;
-    phone: string | null;
-  } | null;
+    id: string
+    full_name: string
+    phone: string | null
+  } | null
   vet: {
-    id: string;
-    full_name: string;
-  } | null;
+    id: string
+    full_name: string
+  } | null
 }
 
 interface WaitingRoomProps {
-  clinic: string;
-  initialAppointments?: WaitingPatient[];
+  clinic: string
+  initialAppointments?: WaitingPatient[]
 }
 
-const statusConfig: Record<string, { label: string; color: string; bgColor: string; icon: React.ReactNode }> = {
+const statusConfig: Record<
+  string,
+  { label: string; color: string; bgColor: string; icon: React.ReactNode }
+> = {
   pending: {
-    label: "Pendiente",
-    color: "text-yellow-700",
-    bgColor: "bg-yellow-50 border-yellow-200",
-    icon: <Clock className="w-4 h-4" />,
+    label: 'Pendiente',
+    color: 'text-yellow-700',
+    bgColor: 'bg-yellow-50 border-yellow-200',
+    icon: <Clock className="h-4 w-4" />,
   },
   confirmed: {
-    label: "Confirmado",
-    color: "text-blue-700",
-    bgColor: "bg-blue-50 border-blue-200",
-    icon: <CheckCircle className="w-4 h-4" />,
+    label: 'Confirmado',
+    color: 'text-blue-700',
+    bgColor: 'bg-blue-50 border-blue-200',
+    icon: <CheckCircle className="h-4 w-4" />,
   },
   checked_in: {
-    label: "En Espera",
-    color: "text-purple-700",
-    bgColor: "bg-purple-50 border-purple-200",
-    icon: <LogIn className="w-4 h-4" />,
+    label: 'En Espera',
+    color: 'text-purple-700',
+    bgColor: 'bg-purple-50 border-purple-200',
+    icon: <LogIn className="h-4 w-4" />,
   },
   in_progress: {
-    label: "En Consulta",
-    color: "text-green-700",
-    bgColor: "bg-green-50 border-green-200",
-    icon: <Stethoscope className="w-4 h-4" />,
+    label: 'En Consulta',
+    color: 'text-green-700',
+    bgColor: 'bg-green-50 border-green-200',
+    icon: <Stethoscope className="h-4 w-4" />,
   },
   completed: {
-    label: "Completado",
-    color: "text-gray-700",
-    bgColor: "bg-gray-50 border-gray-200",
-    icon: <CheckCircle className="w-4 h-4" />,
+    label: 'Completado',
+    color: 'text-gray-700',
+    bgColor: 'bg-gray-50 border-gray-200',
+    icon: <CheckCircle className="h-4 w-4" />,
   },
   cancelled: {
-    label: "Cancelado",
-    color: "text-red-700",
-    bgColor: "bg-red-50 border-red-200",
-    icon: <XCircle className="w-4 h-4" />,
+    label: 'Cancelado',
+    color: 'text-red-700',
+    bgColor: 'bg-red-50 border-red-200',
+    icon: <XCircle className="h-4 w-4" />,
   },
   no_show: {
-    label: "No Asistió",
-    color: "text-orange-700",
-    bgColor: "bg-orange-50 border-orange-200",
-    icon: <AlertCircle className="w-4 h-4" />,
+    label: 'No Asistió',
+    color: 'text-orange-700',
+    bgColor: 'bg-orange-50 border-orange-200',
+    icon: <AlertCircle className="h-4 w-4" />,
   },
-};
+}
 
 export function WaitingRoom({ clinic }: { clinic: string }): React.ReactElement {
-  const router = useRouter();
-  const queryClient = useQueryClient();
+  const router = useRouter()
+  const queryClient = useQueryClient()
 
   const {
     data: appointments = [],
     isLoading,
     isFetching,
   } = useQuery<WaitingPatient[]>({
-    queryKey: ["waitingRoom", clinic],
+    queryKey: ['waitingRoom', clinic],
     queryFn: async () => {
-      const res = await fetch(`/api/dashboard/waiting-room?clinic=${clinic}`);
+      const res = await fetch(`/api/dashboard/waiting-room?clinic=${clinic}`)
       if (!res.ok) {
-        throw new Error("Failed to fetch waiting room appointments");
+        throw new Error('Failed to fetch waiting room appointments')
       }
-      return res.json();
+      return res.json()
     },
     refetchInterval: 30000, // Refetch every 30 seconds
-  });
+  })
 
-  const [updatingAppointmentId, setUpdatingAppointmentId] = useState<string | null>(null);
+  const [updatingAppointmentId, setUpdatingAppointmentId] = useState<string | null>(null)
 
   const { mutate: updateStatus } = useMutation({
-    mutationFn: ({
-      appointmentId,
-      newStatus,
-    }: {
-      appointmentId: string;
-      newStatus: string;
-    }) => updateAppointmentStatus(appointmentId, newStatus, clinic),
+    mutationFn: ({ appointmentId, newStatus }: { appointmentId: string; newStatus: string }) =>
+      updateAppointmentStatus(appointmentId, newStatus, clinic),
     onMutate: ({ appointmentId }) => {
-      setUpdatingAppointmentId(appointmentId);
+      setUpdatingAppointmentId(appointmentId)
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["waitingRoom", clinic] });
+      queryClient.invalidateQueries({ queryKey: ['waitingRoom', clinic] })
     },
     onSettled: () => {
-      setUpdatingAppointmentId(null);
+      setUpdatingAppointmentId(null)
     },
-  });
-
+  })
 
   const formatTime = (timeString: string): string => {
-    return new Date(timeString).toLocaleTimeString("es-PY", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
+    return new Date(timeString).toLocaleTimeString('es-PY', {
+      hour: '2-digit',
+      minute: '2-digit',
+    })
+  }
 
   const getWaitTime = (startTime: string): string => {
-    const start = new Date(startTime);
-    const now = new Date();
-    const diffMs = now.getTime() - start.getTime();
+    const start = new Date(startTime)
+    const now = new Date()
+    const diffMs = now.getTime() - start.getTime()
 
     if (diffMs < 0) {
-      const minsUntil = Math.abs(Math.floor(diffMs / 60000));
-      if (minsUntil < 60) return `En ${minsUntil} min`;
-      return `En ${Math.floor(minsUntil / 60)}h ${minsUntil % 60}m`;
+      const minsUntil = Math.abs(Math.floor(diffMs / 60000))
+      if (minsUntil < 60) return `En ${minsUntil} min`
+      return `En ${Math.floor(minsUntil / 60)}h ${minsUntil % 60}m`
     }
 
-    const mins = Math.floor(diffMs / 60000);
-    if (mins < 60) return `${mins} min esperando`;
-    return `${Math.floor(mins / 60)}h ${mins % 60}m esperando`;
-  };
+    const mins = Math.floor(diffMs / 60000)
+    if (mins < 60) return `${mins} min esperando`
+    return `${Math.floor(mins / 60)}h ${mins % 60}m esperando`
+  }
 
   // Group appointments by status
   const grouped = {
-    waiting: appointments.filter((a) => ["checked_in"].includes(a.status)),
-    inProgress: appointments.filter((a) => a.status === "in_progress"),
-    upcoming: appointments.filter((a) => ["pending", "confirmed"].includes(a.status)),
-    completed: appointments.filter((a) => ["completed", "cancelled", "no_show"].includes(a.status)),
-  };
+    waiting: appointments.filter((a) => ['checked_in'].includes(a.status)),
+    inProgress: appointments.filter((a) => a.status === 'in_progress'),
+    upcoming: appointments.filter((a) => ['pending', 'confirmed'].includes(a.status)),
+    completed: appointments.filter((a) => ['completed', 'cancelled', 'no_show'].includes(a.status)),
+  }
 
-  const getNextStatuses = (currentStatus: string): { label: string; status: string; color: string }[] => {
+  const getNextStatuses = (
+    currentStatus: string
+  ): { label: string; status: string; color: string }[] => {
     switch (currentStatus) {
-      case "pending":
+      case 'pending':
         return [
-          { label: "Confirmar", status: "confirmed", color: "bg-blue-500" },
-          { label: "Cancelar", status: "cancelled", color: "bg-red-500" },
-        ];
-      case "confirmed":
+          { label: 'Confirmar', status: 'confirmed', color: 'bg-blue-500' },
+          { label: 'Cancelar', status: 'cancelled', color: 'bg-red-500' },
+        ]
+      case 'confirmed':
         return [
-          { label: "Check-in", status: "checked_in", color: "bg-purple-500" },
-          { label: "No Asistió", status: "no_show", color: "bg-orange-500" },
-        ];
-      case "checked_in":
-        return [
-          { label: "Iniciar Consulta", status: "in_progress", color: "bg-green-500" },
-        ];
-      case "in_progress":
-        return [
-          { label: "Completar", status: "completed", color: "bg-gray-700" },
-        ];
+          { label: 'Check-in', status: 'checked_in', color: 'bg-purple-500' },
+          { label: 'No Asistió', status: 'no_show', color: 'bg-orange-500' },
+        ]
+      case 'checked_in':
+        return [{ label: 'Iniciar Consulta', status: 'in_progress', color: 'bg-green-500' }]
+      case 'in_progress':
+        return [{ label: 'Completar', status: 'completed', color: 'bg-gray-700' }]
       default:
-        return [];
+        return []
     }
-  };
+  }
 
   return (
-    <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-      <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+    <div className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
+      <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-[var(--primary)] bg-opacity-10 rounded-lg">
-            <Timer className="w-5 h-5 text-[var(--primary)]" />
+          <div className="rounded-lg bg-[var(--primary)] bg-opacity-10 p-2">
+            <Timer className="h-5 w-5 text-[var(--primary)]" />
           </div>
           <div>
             <h2 className="font-semibold text-gray-900">Sala de Espera</h2>
             <p className="text-xs text-gray-500">
-              {appointments.filter((a) => !["completed", "cancelled", "no_show"].includes(a.status)).length} pacientes activos
+              {
+                appointments.filter(
+                  (a) => !['completed', 'cancelled', 'no_show'].includes(a.status)
+                ).length
+              }{' '}
+              pacientes activos
             </p>
           </div>
         </div>
         <button
-          onClick={() => queryClient.invalidateQueries({ queryKey: ["waitingRoom", clinic] })}
+          onClick={() => queryClient.invalidateQueries({ queryKey: ['waitingRoom', clinic] })}
           disabled={isFetching}
-          className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+          className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
         >
-          <RefreshCw className={`w-4 h-4 ${isFetching ? "animate-spin" : ""}`} />
+          <RefreshCw className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
         </button>
       </div>
 
       {/* Waiting (Checked In) */}
       {grouped.waiting.length > 0 && (
         <div className="border-b border-gray-100">
-          <div className="px-6 py-2 bg-purple-50">
-            <span className="text-xs font-bold text-purple-700 uppercase tracking-wider">
+          <div className="bg-purple-50 px-6 py-2">
+            <span className="text-xs font-bold uppercase tracking-wider text-purple-700">
               En Sala de Espera ({grouped.waiting.length})
             </span>
           </div>
@@ -243,7 +250,9 @@ export function WaitingRoom({ clinic }: { clinic: string }): React.ReactElement 
               appointment={apt}
               clinic={clinic}
               isUpdating={updatingAppointmentId === apt.id}
-              onStatusChange={(appointmentId, newStatus) => updateStatus({ appointmentId, newStatus })}
+              onStatusChange={(appointmentId, newStatus) =>
+                updateStatus({ appointmentId, newStatus })
+              }
               getNextStatuses={getNextStatuses}
               formatTime={formatTime}
               getWaitTime={getWaitTime}
@@ -255,8 +264,8 @@ export function WaitingRoom({ clinic }: { clinic: string }): React.ReactElement 
       {/* In Progress */}
       {grouped.inProgress.length > 0 && (
         <div className="border-b border-gray-100">
-          <div className="px-6 py-2 bg-green-50">
-            <span className="text-xs font-bold text-green-700 uppercase tracking-wider">
+          <div className="bg-green-50 px-6 py-2">
+            <span className="text-xs font-bold uppercase tracking-wider text-green-700">
               En Consulta ({grouped.inProgress.length})
             </span>
           </div>
@@ -266,7 +275,9 @@ export function WaitingRoom({ clinic }: { clinic: string }): React.ReactElement 
               appointment={apt}
               clinic={clinic}
               isUpdating={updatingAppointmentId === apt.id}
-              onStatusChange={(appointmentId, newStatus) => updateStatus({ appointmentId, newStatus })}
+              onStatusChange={(appointmentId, newStatus) =>
+                updateStatus({ appointmentId, newStatus })
+              }
               getNextStatuses={getNextStatuses}
               formatTime={formatTime}
               getWaitTime={getWaitTime}
@@ -278,8 +289,8 @@ export function WaitingRoom({ clinic }: { clinic: string }): React.ReactElement 
       {/* Upcoming */}
       {grouped.upcoming.length > 0 && (
         <div className="border-b border-gray-100">
-          <div className="px-6 py-2 bg-gray-50">
-            <span className="text-xs font-bold text-gray-600 uppercase tracking-wider">
+          <div className="bg-gray-50 px-6 py-2">
+            <span className="text-xs font-bold uppercase tracking-wider text-gray-600">
               Próximas Citas ({grouped.upcoming.length})
             </span>
           </div>
@@ -289,7 +300,9 @@ export function WaitingRoom({ clinic }: { clinic: string }): React.ReactElement 
               appointment={apt}
               clinic={clinic}
               isUpdating={updatingAppointmentId === apt.id}
-              onStatusChange={(appointmentId, newStatus) => updateStatus({ appointmentId, newStatus })}
+              onStatusChange={(appointmentId, newStatus) =>
+                updateStatus({ appointmentId, newStatus })
+              }
               getNextStatuses={getNextStatuses}
               formatTime={formatTime}
               getWaitTime={getWaitTime}
@@ -311,20 +324,20 @@ export function WaitingRoom({ clinic }: { clinic: string }): React.ReactElement 
       {/* Empty State - Warm and inviting */}
       {appointments.length === 0 && !isLoading && (
         <div className="px-6 py-10 text-center">
-          <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-[var(--primary)]/10 to-[var(--accent)]/10 rounded-2xl flex items-center justify-center">
-            <Clock className="w-8 h-8 text-[var(--primary)]" />
+          <div className="from-[var(--primary)]/10 to-[var(--accent)]/10 mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br">
+            <Clock className="h-8 w-8 text-[var(--primary)]" />
           </div>
-          <h4 className="text-base font-bold text-[var(--text-primary)] mb-2">
+          <h4 className="mb-2 text-base font-bold text-[var(--text-primary)]">
             Sin citas para hoy
           </h4>
-          <p className="text-sm text-[var(--text-secondary)] mb-4 max-w-xs mx-auto">
+          <p className="mx-auto mb-4 max-w-xs text-sm text-[var(--text-secondary)]">
             La sala de espera está vacía. ¡Buen momento para organizar!
           </p>
           <button
             onClick={() => router.push(`/${clinic}/dashboard/appointments?action=new`)}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--primary)] text-white font-semibold rounded-xl hover:opacity-90 transition-opacity text-sm"
+            className="inline-flex items-center gap-2 rounded-xl bg-[var(--primary)] px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90"
           >
-            <PawPrint className="w-4 h-4" />
+            <PawPrint className="h-4 w-4" />
             Agendar Cita
           </button>
         </div>
@@ -333,7 +346,7 @@ export function WaitingRoom({ clinic }: { clinic: string }): React.ReactElement 
       {/* Completed Section (Collapsed) */}
       {grouped.completed.length > 0 && (
         <details className="border-t border-gray-100">
-          <summary className="px-6 py-3 bg-gray-50 cursor-pointer text-sm text-gray-500 hover:bg-gray-100">
+          <summary className="cursor-pointer bg-gray-50 px-6 py-3 text-sm text-gray-500 hover:bg-gray-100">
             Finalizadas hoy ({grouped.completed.length})
           </summary>
           {grouped.completed.map((apt) => (
@@ -342,7 +355,9 @@ export function WaitingRoom({ clinic }: { clinic: string }): React.ReactElement 
               appointment={apt}
               clinic={clinic}
               isUpdating={updatingAppointmentId === apt.id}
-              onStatusChange={(appointmentId, newStatus) => updateStatus({ appointmentId, newStatus })}
+              onStatusChange={(appointmentId, newStatus) =>
+                updateStatus({ appointmentId, newStatus })
+              }
               getNextStatuses={getNextStatuses}
               formatTime={formatTime}
               getWaitTime={getWaitTime}
@@ -352,19 +367,19 @@ export function WaitingRoom({ clinic }: { clinic: string }): React.ReactElement 
         </details>
       )}
     </div>
-  );
+  )
 }
 
 // Extracted row component for cleaner code
 interface AppointmentRowProps {
-  appointment: WaitingPatient;
-  clinic: string;
-  isUpdating: boolean;
-  onStatusChange: (id: string, status: string) => void;
-  getNextStatuses: (status: string) => { label: string; status: string; color: string }[];
-  formatTime: (time: string) => string;
-  getWaitTime: (time: string) => string;
-  compact?: boolean;
+  appointment: WaitingPatient
+  clinic: string
+  isUpdating: boolean
+  onStatusChange: (id: string, status: string) => void
+  getNextStatuses: (status: string) => { label: string; status: string; color: string }[]
+  formatTime: (time: string) => string
+  getWaitTime: (time: string) => string
+  compact?: boolean
 }
 
 function AppointmentRow({
@@ -377,14 +392,14 @@ function AppointmentRow({
   getWaitTime,
   compact = false,
 }: AppointmentRowProps): React.ReactElement {
-  const router = useRouter();
-  const status = statusConfig[appointment.status];
-  const nextStatuses = getNextStatuses(appointment.status);
+  const router = useRouter()
+  const status = statusConfig[appointment.status]
+  const nextStatuses = getNextStatuses(appointment.status)
 
   return (
     <div
-      className={`px-6 py-4 flex items-center gap-4 hover:bg-gray-50 transition-colors ${
-        compact ? "py-3" : ""
+      className={`flex items-center gap-4 px-6 py-4 transition-colors hover:bg-gray-50 ${
+        compact ? 'py-3' : ''
       }`}
     >
       {/* Pet Photo */}
@@ -393,34 +408,36 @@ function AppointmentRow({
           <img
             src={appointment.pet.photo_url}
             alt={appointment.pet.name}
-            className="w-12 h-12 rounded-full object-cover"
+            className="h-12 w-12 rounded-full object-cover"
           />
         ) : (
-          <div className="w-12 h-12 rounded-full bg-[var(--primary)] bg-opacity-10 flex items-center justify-center">
-            <PawPrint className="w-6 h-6 text-[var(--primary)]" />
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--primary)] bg-opacity-10">
+            <PawPrint className="h-6 w-6 text-[var(--primary)]" />
           </div>
         )}
       </div>
 
       {/* Info */}
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-1">
+      <div className="min-w-0 flex-1">
+        <div className="mb-1 flex items-center gap-2">
           <span className="font-semibold text-gray-900">
-            {appointment.pet?.name || "Sin paciente"}
+            {appointment.pet?.name || 'Sin paciente'}
           </span>
-          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${status.bgColor} ${status.color} border`}>
+          <span
+            className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${status.bgColor} ${status.color} border`}
+          >
             {status.icon}
             {status.label}
           </span>
         </div>
         <div className="flex items-center gap-3 text-sm text-gray-500">
           <span className="flex items-center gap-1">
-            <Clock className="w-3 h-3" />
+            <Clock className="h-3 w-3" />
             {formatTime(appointment.start_time)}
           </span>
           {appointment.owner && (
             <span className="flex items-center gap-1 truncate">
-              <User className="w-3 h-3" />
+              <User className="h-3 w-3" />
               {appointment.owner.full_name}
             </span>
           )}
@@ -430,17 +447,17 @@ function AppointmentRow({
               className="flex items-center gap-1 text-[var(--primary)] hover:underline"
               onClick={(e) => e.stopPropagation()}
             >
-              <Phone className="w-3 h-3" />
+              <Phone className="h-3 w-3" />
             </a>
           )}
         </div>
         {!compact && appointment.reason && (
-          <p className="text-xs text-gray-400 mt-1 truncate">{appointment.reason}</p>
+          <p className="mt-1 truncate text-xs text-gray-400">{appointment.reason}</p>
         )}
       </div>
 
       {/* Wait Time */}
-      {["checked_in", "in_progress"].includes(appointment.status) && (
+      {['checked_in', 'in_progress'].includes(appointment.status) && (
         <div className="text-right text-xs text-gray-500">
           {getWaitTime(appointment.start_time)}
         </div>
@@ -453,19 +470,19 @@ function AppointmentRow({
             key={next.status}
             onClick={() => onStatusChange(appointment.id, next.status)}
             disabled={isUpdating}
-            className={`px-3 py-1.5 text-xs font-medium text-white rounded-lg ${next.color} hover:opacity-90 transition-opacity disabled:opacity-50`}
+            className={`rounded-lg px-3 py-1.5 text-xs font-medium text-white ${next.color} transition-opacity hover:opacity-90 disabled:opacity-50`}
           >
             {next.label}
           </button>
         ))}
         <button
           onClick={() => router.push(`/${clinic}/portal/pets/${appointment.pet?.id}`)}
-          className="p-2 text-gray-400 hover:text-[var(--primary)] hover:bg-[var(--primary)] hover:bg-opacity-10 rounded-lg transition-colors"
+          className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-[var(--primary)] hover:bg-opacity-10 hover:text-[var(--primary)]"
           title="Ver ficha"
         >
-          <ChevronRight className="w-4 h-4" />
+          <ChevronRight className="h-4 w-4" />
         </button>
       </div>
     </div>
-  );
+  )
 }

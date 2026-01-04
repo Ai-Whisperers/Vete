@@ -28,7 +28,7 @@ export function PetSelector({ pets, selectedPetId, onSelect, disabled }: PetSele
   const [search, setSearch] = useState('')
   const [isOpen, setIsOpen] = useState(false)
 
-  const filteredPets = pets.filter(pet => {
+  const filteredPets = pets.filter((pet) => {
     const searchLower = search.toLowerCase()
     return (
       pet.name.toLowerCase().includes(searchLower) ||
@@ -37,46 +37,54 @@ export function PetSelector({ pets, selectedPetId, onSelect, disabled }: PetSele
     )
   })
 
-  const selectedPet = pets.find(p => p.id === selectedPetId)
+  const selectedPet = pets.find((p) => p.id === selectedPetId)
 
   return (
     <div className="relative">
-      <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">
+      <label className="mb-1 block text-sm font-medium text-[var(--text-primary)]">
         Mascota / Cliente *
       </label>
-      
+
       {/* Selected display or search input */}
       {selectedPet && !isOpen ? (
         <div
-          className="flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-lg cursor-pointer hover:border-[var(--primary)]"
+          className="flex cursor-pointer items-center gap-3 rounded-lg border border-gray-200 bg-white p-3 hover:border-[var(--primary)]"
           onClick={() => !disabled && setIsOpen(true)}
         >
-          <div className="w-10 h-10 rounded-lg bg-[var(--primary)]/10 flex items-center justify-center overflow-hidden">
+          <div className="bg-[var(--primary)]/10 flex h-10 w-10 items-center justify-center overflow-hidden rounded-lg">
             {selectedPet.photo_url ? (
-              <img src={selectedPet.photo_url} alt={selectedPet.name} className="w-full h-full object-cover" />
+              <img
+                src={selectedPet.photo_url}
+                alt={selectedPet.name}
+                className="h-full w-full object-cover"
+              />
             ) : (
-              <Icons.PawPrint className="w-5 h-5 text-[var(--primary)]" />
+              <Icons.PawPrint className="h-5 w-5 text-[var(--primary)]" />
             )}
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="font-medium text-[var(--text-primary)] truncate">{selectedPet.name}</p>
-            <p className="text-sm text-[var(--text-secondary)] truncate">
+          <div className="min-w-0 flex-1">
+            <p className="truncate font-medium text-[var(--text-primary)]">{selectedPet.name}</p>
+            <p className="truncate text-sm text-[var(--text-secondary)]">
               {selectedPet.owner?.full_name} - {selectedPet.species}
             </p>
           </div>
           {!disabled && (
             <button
               type="button"
-              onClick={(e) => { e.stopPropagation(); onSelect(null); setIsOpen(true) }}
+              onClick={(e) => {
+                e.stopPropagation()
+                onSelect(null)
+                setIsOpen(true)
+              }}
               className="p-1 text-gray-400 hover:text-gray-600"
             >
-              <Icons.X className="w-4 h-4" />
+              <Icons.X className="h-4 w-4" />
             </button>
           )}
         </div>
       ) : (
         <div className="relative">
-          <Icons.Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <Icons.Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
           <input
             type="text"
             value={search}
@@ -84,14 +92,14 @@ export function PetSelector({ pets, selectedPetId, onSelect, disabled }: PetSele
             onFocus={() => setIsOpen(true)}
             placeholder="Buscar mascota o cliente..."
             disabled={disabled}
-            className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none"
+            className="focus:ring-[var(--primary)]/20 w-full rounded-lg border border-gray-200 py-3 pl-10 pr-4 outline-none focus:border-[var(--primary)] focus:ring-2"
           />
         </div>
       )}
 
       {/* Dropdown */}
       {isOpen && !disabled && (
-        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto">
+        <div className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-lg border border-gray-200 bg-white shadow-lg">
           {filteredPets.length === 0 ? (
             <div className="p-4 text-center text-[var(--text-secondary)]">
               No se encontraron mascotas
@@ -106,18 +114,22 @@ export function PetSelector({ pets, selectedPetId, onSelect, disabled }: PetSele
                   setSearch('')
                   setIsOpen(false)
                 }}
-                className="w-full flex items-center gap-3 p-3 hover:bg-gray-50 text-left"
+                className="flex w-full items-center gap-3 p-3 text-left hover:bg-gray-50"
               >
-                <div className="w-10 h-10 rounded-lg bg-[var(--primary)]/10 flex items-center justify-center overflow-hidden shrink-0">
+                <div className="bg-[var(--primary)]/10 flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg">
                   {pet.photo_url ? (
-                    <img src={pet.photo_url} alt={pet.name} className="w-full h-full object-cover" />
+                    <img
+                      src={pet.photo_url}
+                      alt={pet.name}
+                      className="h-full w-full object-cover"
+                    />
                   ) : (
-                    <Icons.PawPrint className="w-5 h-5 text-[var(--primary)]" />
+                    <Icons.PawPrint className="h-5 w-5 text-[var(--primary)]" />
                   )}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-[var(--text-primary)] truncate">{pet.name}</p>
-                  <p className="text-sm text-[var(--text-secondary)] truncate">
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-medium text-[var(--text-primary)]">{pet.name}</p>
+                  <p className="truncate text-sm text-[var(--text-secondary)]">
                     {pet.owner?.full_name} • {pet.species}
                     {pet.owner?.phone && ` • ${pet.owner.phone}`}
                   </p>
@@ -132,12 +144,7 @@ export function PetSelector({ pets, selectedPetId, onSelect, disabled }: PetSele
       <input type="hidden" name="pet_id" value={selectedPetId || ''} />
 
       {/* Click outside to close */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 z-0"
-          onClick={() => setIsOpen(false)}
-        />
-      )}
+      {isOpen && <div className="fixed inset-0 z-0" onClick={() => setIsOpen(false)} />}
     </div>
   )
 }

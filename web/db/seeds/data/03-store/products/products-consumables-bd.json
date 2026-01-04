@@ -7,10 +7,7 @@
       "name": "Jeringa BD 1ml con Aguja",
       "description": "Jeringa estéril para insulina o tuberculina",
       "category_slug": "CLI-INS-AGU",
-      "target_species": [
-        "dog",
-        "cat"
-      ],
+      "target_species": ["dog", "cat"],
       "variants": [
         {
           "size": "Caja x 100 (27G)",
@@ -37,10 +34,7 @@
       "name": "Jeringa BD 3ml con Aguja",
       "description": "Jeringa estéril de uso general",
       "category_slug": "CLI-INS-AGU",
-      "target_species": [
-        "dog",
-        "cat"
-      ],
+      "target_species": ["dog", "cat"],
       "variants": [
         {
           "size": "Caja x 100 (23G)",
@@ -67,10 +61,7 @@
       "name": "Jeringa BD 5ml con Aguja",
       "description": "Jeringa estéril para medicamentos",
       "category_slug": "CLI-INS-AGU",
-      "target_species": [
-        "dog",
-        "cat"
-      ],
+      "target_species": ["dog", "cat"],
       "variants": [
         {
           "size": "Caja x 100 (21G)",
@@ -97,10 +88,7 @@
       "name": "Jeringa BD 10ml con Aguja",
       "description": "Jeringa estéril para volúmenes mayores",
       "category_slug": "CLI-INS-AGU",
-      "target_species": [
-        "dog",
-        "cat"
-      ],
+      "target_species": ["dog", "cat"],
       "variants": [
         {
           "size": "Caja x 100 (21G)",
@@ -127,9 +115,7 @@
       "name": "Jeringa BD 20ml Luer Lock",
       "description": "Jeringa estéril de alto volumen",
       "category_slug": "CLI-INS-AGU",
-      "target_species": [
-        "dog"
-      ],
+      "target_species": ["dog"],
       "variants": [
         {
           "size": "Caja x 50",
@@ -150,9 +136,7 @@
       "name": "Agujas BD 18G x 1.5\"",
       "description": "Agujas hipodérmicas estériles",
       "category_slug": "CLI-INS-AGU",
-      "target_species": [
-        "dog"
-      ],
+      "target_species": ["dog"],
       "variants": [
         {
           "size": "Caja x 100",
@@ -173,10 +157,7 @@
       "name": "Agujas BD 21G x 1\"",
       "description": "Agujas hipodérmicas estériles para inyecciones IM",
       "category_slug": "CLI-INS-AGU",
-      "target_species": [
-        "dog",
-        "cat"
-      ],
+      "target_species": ["dog", "cat"],
       "variants": [
         {
           "size": "Caja x 100",
@@ -197,10 +178,7 @@
       "name": "Agujas BD 23G x 1\"",
       "description": "Agujas hipodérmicas para inyecciones SC",
       "category_slug": "CLI-INS-AGU",
-      "target_species": [
-        "dog",
-        "cat"
-      ],
+      "target_species": ["dog", "cat"],
       "variants": [
         {
           "size": "Caja x 100",
@@ -221,9 +199,7 @@
       "name": "Agujas BD 25G x 5/8\"",
       "description": "Agujas finas para inyecciones SC en gatos",
       "category_slug": "CLI-INS-AGU",
-      "target_species": [
-        "cat"
-      ],
+      "target_species": ["cat"],
       "variants": [
         {
           "size": "Caja x 100",
@@ -244,10 +220,7 @@
       "name": "Catéter IV BD Insyte 22G",
       "description": "Catéter intravenoso para gatos y perros pequeños",
       "category_slug": "CLI-INS-AGU",
-      "target_species": [
-        "dog",
-        "cat"
-      ],
+      "target_species": ["dog", "cat"],
       "variants": [
         {
           "size": "Caja x 50",
@@ -269,10 +242,7 @@
       "name": "Catéter IV BD Insyte 20G",
       "description": "Catéter intravenoso para perros medianos",
       "category_slug": "CLI-INS-AGU",
-      "target_species": [
-        "dog",
-        "cat"
-      ],
+      "target_species": ["dog", "cat"],
       "variants": [
         {
           "size": "Caja x 50",
@@ -294,9 +264,7 @@
       "name": "Catéter IV BD Insyte 18G",
       "description": "Catéter intravenoso para perros grandes",
       "category_slug": "CLI-INS-AGU",
-      "target_species": [
-        "dog"
-      ],
+      "target_species": ["dog"],
       "variants": [
         {
           "size": "Caja x 50",
@@ -318,10 +286,7 @@
       "name": "Tubos BD Vacutainer EDTA",
       "description": "Tubos para hemograma con anticoagulante",
       "category_slug": "CLI-INS-LAB",
-      "target_species": [
-        "dog",
-        "cat"
-      ],
+      "target_species": ["dog", "cat"],
       "variants": [
         {
           "size": "Caja x 100 (2ml)",
@@ -348,10 +313,7 @@
       "name": "Tubos BD Vacutainer Suero",
       "description": "Tubos sin aditivo para bioquímica",
       "category_slug": "CLI-INS-LAB",
-      "target_species": [
-        "dog",
-        "cat"
-      ],
+      "target_species": ["dog", "cat"],
       "variants": [
         {
           "size": "Caja x 100 (4ml)",
@@ -378,10 +340,7 @@
       "name": "Tubos BD Vacutainer Heparina",
       "description": "Tubos con heparina de litio para química",
       "category_slug": "CLI-INS-LAB",
-      "target_species": [
-        "dog",
-        "cat"
-      ],
+      "target_species": ["dog", "cat"],
       "variants": [
         {
           "size": "Caja x 100 (4ml)",
@@ -402,10 +361,7 @@
       "name": "Mariposa BD 23G",
       "description": "Set de infusión con alas para venipunción",
       "category_slug": "CLI-INS-AGU",
-      "target_species": [
-        "dog",
-        "cat"
-      ],
+      "target_species": ["dog", "cat"],
       "variants": [
         {
           "size": "Caja x 50",
@@ -426,9 +382,7 @@
       "name": "Mariposa BD 25G",
       "description": "Set de infusión con alas para gatos",
       "category_slug": "CLI-INS-AGU",
-      "target_species": [
-        "cat"
-      ],
+      "target_species": ["cat"],
       "variants": [
         {
           "size": "Caja x 50",

@@ -829,22 +829,22 @@ sequenceDiagram
 
 ## Key Relationships Summary
 
-| Parent Table | Child Table | FK Column | Relationship |
-|-------------|-------------|-----------|--------------|
-| tenants | profiles | tenant_id | Multi-tenancy |
-| profiles | pets | owner_id | Pet ownership |
-| pets | vaccines | pet_id | Vaccine records |
-| pets | appointments | pet_id | Scheduling |
-| pets | hospitalizations | pet_id | Inpatient care |
-| pets | insurance_policies | pet_id | Coverage |
-| invoices | invoice_items | invoice_id | Line items |
-| invoices | payments | invoice_id | Payment tracking |
-| lab_orders | lab_order_items | lab_order_id | Test items |
-| lab_orders | lab_results | lab_order_id | Results |
-| hospitalizations | hospitalization_vitals | hospitalization_id | Monitoring |
-| store_orders | store_order_items | order_id | Order items |
-| conversations | messages | conversation_id | Messaging |
-| store_campaigns | store_campaign_items | campaign_id | Campaign products |
+| Parent Table     | Child Table            | FK Column          | Relationship      |
+| ---------------- | ---------------------- | ------------------ | ----------------- |
+| tenants          | profiles               | tenant_id          | Multi-tenancy     |
+| profiles         | pets                   | owner_id           | Pet ownership     |
+| pets             | vaccines               | pet_id             | Vaccine records   |
+| pets             | appointments           | pet_id             | Scheduling        |
+| pets             | hospitalizations       | pet_id             | Inpatient care    |
+| pets             | insurance_policies     | pet_id             | Coverage          |
+| invoices         | invoice_items          | invoice_id         | Line items        |
+| invoices         | payments               | invoice_id         | Payment tracking  |
+| lab_orders       | lab_order_items        | lab_order_id       | Test items        |
+| lab_orders       | lab_results            | lab_order_id       | Results           |
+| hospitalizations | hospitalization_vitals | hospitalization_id | Monitoring        |
+| store_orders     | store_order_items      | order_id           | Order items       |
+| conversations    | messages               | conversation_id    | Messaging         |
+| store_campaigns  | store_campaign_items   | campaign_id        | Campaign products |
 
 ## Tenant ID Propagation
 
@@ -867,5 +867,5 @@ qr_tags               → qr_tag_scans
 
 ---
 
-*Generated: December 2024*
-*Database Version: Vete Multi-Tenant Veterinary Platform*
+_Generated: December 2024_
+_Database Version: Vete Multi-Tenant Veterinary Platform_

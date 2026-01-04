@@ -1,103 +1,105 @@
-import { createClient } from '@/lib/supabase/server';
-import { redirect } from 'next/navigation';
-import Link from 'next/link';
-import {
-  ArrowLeft,
-  Calendar,
-  Clock,
-  User,
-  Stethoscope,
-  AlertCircle,
-} from 'lucide-react';
+import { createClient } from '@/lib/supabase/server'
+import { redirect } from 'next/navigation'
+import Link from 'next/link'
+import { ArrowLeft, Calendar, Clock, User, Stethoscope, AlertCircle } from 'lucide-react'
 
 interface Props {
-  params: Promise<{ clinic: string }>;
-  searchParams: Promise<{ client_id?: string; pet_id?: string }>;
+  params: Promise<{ clinic: string }>
+  searchParams: Promise<{ client_id?: string; pet_id?: string }>
 }
 
 interface Pet {
-  id: string;
-  name: string;
-  species: string;
-  breed: string | null;
-  photo_url: string | null;
-  owner_id: string;
+  id: string
+  name: string
+  species: string
+  breed: string | null
+  photo_url: string | null
+  owner_id: string
 }
 
 interface Client {
-  id: string;
-  full_name: string;
-  email: string;
-  phone: string | null;
-  pets: Pet[];
+  id: string
+  full_name: string
+  email: string
+  phone: string | null
+  pets: Pet[]
 }
 
 interface StaffMember {
-  id: string;
-  profile_id: string;
+  id: string
+  profile_id: string
   profiles: {
-    full_name: string;
-  };
-  specialization: string | null;
+    full_name: string
+  }
+  specialization: string | null
 }
 
 interface Service {
-  id: string;
-  name: string;
-  duration_minutes: number;
-  base_price: number;
-  category: string;
+  id: string
+  name: string
+  duration_minutes: number
+  base_price: number
+  category: string
 }
 
-export default async function NewStaffAppointmentPage({ params, searchParams }: Props): Promise<React.ReactElement> {
-  const { clinic } = await params;
-  const { client_id, pet_id } = await searchParams;
-  const supabase = await createClient();
+export default async function NewStaffAppointmentPage({
+  params,
+  searchParams,
+}: Props): Promise<React.ReactElement> {
+  const { clinic } = await params
+  const { client_id, pet_id } = await searchParams
+  const supabase = await createClient()
 
   // Auth & staff check
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) {
-    redirect(`/${clinic}/portal/login`);
+    redirect(`/${clinic}/portal/login`)
   }
 
   const { data: profile } = await supabase
     .from('profiles')
     .select('role, tenant_id')
     .eq('id', user.id)
-    .single();
+    .single()
 
   if (!profile || !['vet', 'admin'].includes(profile.role) || profile.tenant_id !== clinic) {
-    redirect(`/${clinic}/portal/dashboard`);
+    redirect(`/${clinic}/portal/dashboard`)
   }
 
   // Fetch clients with their pets
   const { data: clients } = await supabase
     .from('profiles')
-    .select(`
+    .select(
+      `
       id,
       full_name,
       email,
       phone,
       pets (id, name, species, breed, photo_url, owner_id)
-    `)
+    `
+    )
     .eq('tenant_id', clinic)
     .eq('role', 'owner')
-    .order('full_name');
+    .order('full_name')
 
-  const typedClients = (clients || []) as unknown as Client[];
+  const typedClients = (clients || []) as unknown as Client[]
 
   // Fetch staff members (vets)
   const { data: staffMembers } = await supabase
     .from('staff_profiles')
-    .select(`
+    .select(
+      `
       id,
       profile_id,
       profiles (full_name),
       specialization
-    `)
-    .eq('tenant_id', clinic);
+    `
+    )
+    .eq('tenant_id', clinic)
 
-  const typedStaff = (staffMembers || []) as unknown as StaffMember[];
+  const typedStaff = (staffMembers || []) as unknown as StaffMember[]
 
   // Fetch services
   const { data: services } = await supabase
@@ -106,58 +108,54 @@ export default async function NewStaffAppointmentPage({ params, searchParams }: 
     .eq('tenant_id', clinic)
     .eq('is_active', true)
     .order('category')
-    .order('name');
+    .order('name')
 
-  const typedServices = (services || []) as Service[];
+  const typedServices = (services || []) as Service[]
 
   // Get pre-selected client and pet
-  const selectedClient = client_id
-    ? typedClients.find((c) => c.id === client_id)
-    : null;
+  const selectedClient = client_id ? typedClients.find((c) => c.id === client_id) : null
   const selectedPet = pet_id
     ? typedClients.flatMap((c) => c.pets || []).find((p) => p.id === pet_id)
-    : null;
+    : null
 
   // Server action to create appointment
   async function createStaffAppointment(formData: FormData): Promise<void> {
-    'use server';
+    'use server'
 
-    const supabaseServer = (await import('@/lib/supabase/server')).createClient;
-    const supabase = await supabaseServer();
+    const supabaseServer = (await import('@/lib/supabase/server')).createClient
+    const supabase = await supabaseServer()
 
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (!user) return
 
     // Verify staff
     const { data: userProfile } = await supabase
       .from('profiles')
       .select('role, tenant_id')
       .eq('id', user.id)
-      .single();
+      .single()
 
-    if (!userProfile || !['vet', 'admin'].includes(userProfile.role)) return;
+    if (!userProfile || !['vet', 'admin'].includes(userProfile.role)) return
 
-    const petId = formData.get('pet_id') as string;
-    const vetId = formData.get('vet_id') as string | null;
-    const serviceId = formData.get('service_id') as string | null;
-    const startTime = formData.get('start_time') as string;
-    const duration = parseInt(formData.get('duration') as string) || 30;
-    const reason = formData.get('reason') as string;
-    const notes = formData.get('notes') as string | null;
-    const status = formData.get('status') as string;
+    const petId = formData.get('pet_id') as string
+    const vetId = formData.get('vet_id') as string | null
+    const serviceId = formData.get('service_id') as string | null
+    const startTime = formData.get('start_time') as string
+    const duration = parseInt(formData.get('duration') as string) || 30
+    const reason = formData.get('reason') as string
+    const notes = formData.get('notes') as string | null
+    const status = formData.get('status') as string
 
     // Calculate end time
-    const start = new Date(startTime);
-    const end = new Date(start.getTime() + duration * 60000);
+    const start = new Date(startTime)
+    const end = new Date(start.getTime() + duration * 60000)
 
     // Get pet's tenant_id to ensure correct clinic
-    const { data: pet } = await supabase
-      .from('pets')
-      .select('tenant_id')
-      .eq('id', petId)
-      .single();
+    const { data: pet } = await supabase.from('pets').select('tenant_id').eq('id', petId).single()
 
-    if (!pet || pet.tenant_id !== clinic) return;
+    if (!pet || pet.tenant_id !== clinic) return
 
     // Insert appointment
     const { error } = await supabase.from('appointments').insert({
@@ -171,17 +169,17 @@ export default async function NewStaffAppointmentPage({ params, searchParams }: 
       reason: reason,
       notes: notes || null,
       created_by: user.id,
-    });
+    })
 
     if (error) {
-      const { logger } = await import('@/lib/logger');
-      logger.error('Error creating appointment', { error: error.message });
-      return;
+      const { logger } = await import('@/lib/logger')
+      logger.error('Error creating appointment', { error: error.message })
+      return
     }
 
     // Redirect to appointments list
-    const { redirect: redirectFn } = await import('next/navigation');
-    redirectFn(`/${clinic}/dashboard/appointments?date=${start.toISOString().split('T')[0]}`);
+    const { redirect: redirectFn } = await import('next/navigation')
+    redirectFn(`/${clinic}/dashboard/appointments?date=${start.toISOString().split('T')[0]}`)
   }
 
   const formatPrice = (price: number): string => {
@@ -189,28 +187,28 @@ export default async function NewStaffAppointmentPage({ params, searchParams }: 
       style: 'currency',
       currency: 'PYG',
       minimumFractionDigits: 0,
-    }).format(price);
-  };
+    }).format(price)
+  }
 
   // Get minimum datetime (now)
-  const now = new Date();
-  const minDateTime = now.toISOString().slice(0, 16);
+  const now = new Date()
+  const minDateTime = now.toISOString().slice(0, 16)
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="mx-auto max-w-3xl">
       {/* Header */}
       <div className="mb-6">
         <Link
           href={`/${clinic}/dashboard/appointments`}
-          className="inline-flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--primary)] transition-colors mb-4"
+          className="mb-4 inline-flex items-center gap-2 text-[var(--text-secondary)] transition-colors hover:text-[var(--primary)]"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className="h-4 w-4" />
           Volver a Citas
         </Link>
 
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-[var(--primary)]/10 flex items-center justify-center">
-            <Calendar className="w-6 h-6 text-[var(--primary)]" />
+          <div className="bg-[var(--primary)]/10 flex h-12 w-12 items-center justify-center rounded-xl">
+            <Calendar className="h-6 w-6 text-[var(--primary)]" />
           </div>
           <div>
             <h1 className="text-2xl font-black text-[var(--text-primary)]">Nueva Cita</h1>
@@ -220,21 +218,24 @@ export default async function NewStaffAppointmentPage({ params, searchParams }: 
       </div>
 
       {/* Form */}
-      <form action={createStaffAppointment} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <form
+        action={createStaffAppointment}
+        className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm"
+      >
         {/* Client & Pet Selection */}
-        <div className="p-6 border-b border-gray-100">
-          <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2">
-            <User className="w-4 h-4" />
+        <div className="border-b border-gray-100 p-6">
+          <h3 className="mb-4 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-gray-400">
+            <User className="h-4 w-4" />
             Paciente
           </h3>
 
           {typedClients.length === 0 ? (
-            <div className="text-center py-6 bg-gray-50 rounded-xl">
-              <AlertCircle className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+            <div className="rounded-xl bg-gray-50 py-6 text-center">
+              <AlertCircle className="mx-auto mb-2 h-8 w-8 text-gray-300" />
               <p className="text-gray-500">No hay clientes registrados</p>
               <Link
                 href={`/${clinic}/dashboard/clients/invite`}
-                className="text-[var(--primary)] text-sm font-medium hover:underline mt-2 inline-block"
+                className="mt-2 inline-block text-sm font-medium text-[var(--primary)] hover:underline"
               >
                 Invitar cliente
               </Link>
@@ -243,14 +244,17 @@ export default async function NewStaffAppointmentPage({ params, searchParams }: 
             <div className="space-y-4">
               {/* Client Select */}
               <div>
-                <label htmlFor="client_select" className="block text-sm font-medium text-gray-600 mb-1">
+                <label
+                  htmlFor="client_select"
+                  className="mb-1 block text-sm font-medium text-gray-600"
+                >
                   Cliente
                 </label>
                 <select
                   id="client_select"
                   name="client_id"
                   defaultValue={selectedClient?.id || ''}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none"
+                  className="focus:ring-[var(--primary)]/20 w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-[var(--primary)] focus:ring-2"
                   required
                 >
                   <option value="">Seleccionar cliente...</option>
@@ -264,14 +268,14 @@ export default async function NewStaffAppointmentPage({ params, searchParams }: 
 
               {/* Pet Select */}
               <div>
-                <label htmlFor="pet_id" className="block text-sm font-medium text-gray-600 mb-1">
+                <label htmlFor="pet_id" className="mb-1 block text-sm font-medium text-gray-600">
                   Mascota *
                 </label>
                 <select
                   id="pet_id"
                   name="pet_id"
                   defaultValue={selectedPet?.id || ''}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none"
+                  className="focus:ring-[var(--primary)]/20 w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-[var(--primary)] focus:ring-2"
                   required
                 >
                   <option value="">Seleccionar mascota...</option>
@@ -289,15 +293,15 @@ export default async function NewStaffAppointmentPage({ params, searchParams }: 
         </div>
 
         {/* Vet Selection */}
-        <div className="p-6 border-b border-gray-100">
-          <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2">
-            <Stethoscope className="w-4 h-4" />
+        <div className="border-b border-gray-100 p-6">
+          <h3 className="mb-4 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-gray-400">
+            <Stethoscope className="h-4 w-4" />
             Asignar Veterinario
           </h3>
           <select
             id="vet_id"
             name="vet_id"
-            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none"
+            className="focus:ring-[var(--primary)]/20 w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-[var(--primary)] focus:ring-2"
           >
             <option value="">Sin asignar</option>
             {typedStaff.map((staff) => (
@@ -310,15 +314,15 @@ export default async function NewStaffAppointmentPage({ params, searchParams }: 
         </div>
 
         {/* Service & Duration */}
-        <div className="p-6 border-b border-gray-100 grid sm:grid-cols-2 gap-4">
+        <div className="grid gap-4 border-b border-gray-100 p-6 sm:grid-cols-2">
           <div>
-            <label htmlFor="service_id" className="block text-sm font-medium text-gray-600 mb-1">
+            <label htmlFor="service_id" className="mb-1 block text-sm font-medium text-gray-600">
               Servicio (opcional)
             </label>
             <select
               id="service_id"
               name="service_id"
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none"
+              className="focus:ring-[var(--primary)]/20 w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-[var(--primary)] focus:ring-2"
             >
               <option value="">Sin servicio específico</option>
               {typedServices.map((service) => (
@@ -329,14 +333,14 @@ export default async function NewStaffAppointmentPage({ params, searchParams }: 
             </select>
           </div>
           <div>
-            <label htmlFor="duration" className="block text-sm font-medium text-gray-600 mb-1">
+            <label htmlFor="duration" className="mb-1 block text-sm font-medium text-gray-600">
               Duración (minutos)
             </label>
             <select
               id="duration"
               name="duration"
               defaultValue="30"
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none"
+              className="focus:ring-[var(--primary)]/20 w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-[var(--primary)] focus:ring-2"
             >
               <option value="15">15 minutos</option>
               <option value="30">30 minutos</option>
@@ -349,32 +353,32 @@ export default async function NewStaffAppointmentPage({ params, searchParams }: 
         </div>
 
         {/* Date, Time & Status */}
-        <div className="p-6 border-b border-gray-100 grid sm:grid-cols-2 gap-4">
+        <div className="grid gap-4 border-b border-gray-100 p-6 sm:grid-cols-2">
           <div>
-            <label htmlFor="start_time" className="block text-sm font-medium text-gray-600 mb-1">
+            <label htmlFor="start_time" className="mb-1 block text-sm font-medium text-gray-600">
               Fecha y Hora *
             </label>
             <div className="relative">
-              <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <Clock className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
               <input
                 type="datetime-local"
                 id="start_time"
                 name="start_time"
                 required
                 min={minDateTime}
-                className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none"
+                className="focus:ring-[var(--primary)]/20 w-full rounded-xl border border-gray-200 py-3 pl-12 pr-4 outline-none focus:border-[var(--primary)] focus:ring-2"
               />
             </div>
           </div>
           <div>
-            <label htmlFor="status" className="block text-sm font-medium text-gray-600 mb-1">
+            <label htmlFor="status" className="mb-1 block text-sm font-medium text-gray-600">
               Estado inicial
             </label>
             <select
               id="status"
               name="status"
               defaultValue="confirmed"
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none"
+              className="focus:ring-[var(--primary)]/20 w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-[var(--primary)] focus:ring-2"
             >
               <option value="pending">Pendiente de confirmación</option>
               <option value="confirmed">Confirmada</option>
@@ -383,16 +387,16 @@ export default async function NewStaffAppointmentPage({ params, searchParams }: 
         </div>
 
         {/* Reason & Notes */}
-        <div className="p-6 border-b border-gray-100 space-y-4">
+        <div className="space-y-4 border-b border-gray-100 p-6">
           <div>
-            <label htmlFor="reason" className="block text-sm font-medium text-gray-600 mb-1">
+            <label htmlFor="reason" className="mb-1 block text-sm font-medium text-gray-600">
               Motivo de la cita *
             </label>
             <select
               id="reason"
               name="reason"
               required
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none"
+              className="focus:ring-[var(--primary)]/20 w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-[var(--primary)] focus:ring-2"
             >
               <option value="Consulta General">Consulta General</option>
               <option value="Vacunación">Vacunación</option>
@@ -406,7 +410,7 @@ export default async function NewStaffAppointmentPage({ params, searchParams }: 
             </select>
           </div>
           <div>
-            <label htmlFor="notes" className="block text-sm font-medium text-gray-600 mb-1">
+            <label htmlFor="notes" className="mb-1 block text-sm font-medium text-gray-600">
               Notas adicionales
             </label>
             <textarea
@@ -414,28 +418,28 @@ export default async function NewStaffAppointmentPage({ params, searchParams }: 
               name="notes"
               rows={3}
               placeholder="Información adicional sobre la cita..."
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none resize-none"
+              className="focus:ring-[var(--primary)]/20 w-full resize-none rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-[var(--primary)] focus:ring-2"
             />
           </div>
         </div>
 
         {/* Submit */}
-        <div className="p-6 flex justify-end gap-3">
+        <div className="flex justify-end gap-3 p-6">
           <Link
             href={`/${clinic}/dashboard/appointments`}
-            className="px-6 py-3 text-[var(--text-secondary)] font-medium hover:bg-gray-100 rounded-xl transition-colors"
+            className="rounded-xl px-6 py-3 font-medium text-[var(--text-secondary)] transition-colors hover:bg-gray-100"
           >
             Cancelar
           </Link>
           <button
             type="submit"
-            className="flex items-center gap-2 px-8 py-3 bg-[var(--primary)] text-white font-bold rounded-xl hover:opacity-90 transition-opacity"
+            className="flex items-center gap-2 rounded-xl bg-[var(--primary)] px-8 py-3 font-bold text-white transition-opacity hover:opacity-90"
           >
-            <Calendar className="w-4 h-4" />
+            <Calendar className="h-4 w-4" />
             Crear Cita
           </button>
         </div>
       </form>
     </div>
-  );
+  )
 }

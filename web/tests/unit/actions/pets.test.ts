@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
-// Mock the Supabase client
+// Mock the Supabase client - use 'as any' to allow partial mocking in tests
 const mockSupabaseClient = {
   auth: {
     getUser: vi.fn(),
@@ -13,7 +13,7 @@ const mockSupabaseClient = {
     eq: vi.fn().mockReturnThis(),
     is: vi.fn().mockReturnThis(),
     single: vi.fn(),
-  })),
+  })) as any,
   storage: {
     from: vi.fn(() => ({
       upload: vi.fn().mockResolvedValue({ error: null }),
@@ -69,7 +69,7 @@ describe('Pet Server Actions', () => {
         is: vi.fn().mockReturnThis(),
         single: vi.fn().mockResolvedValue({ data: null, error: null }),
       }))
-      mockSupabaseClient.from = mockFrom
+      mockSupabaseClient.from = mockFrom as any
 
       const formData = new FormData()
       formData.append('name', 'Test Pet')
@@ -106,14 +106,17 @@ describe('Pet Server Actions', () => {
           })
         }),
       }))
-      mockSupabaseClient.from = mockFrom
+      mockSupabaseClient.from = mockFrom as any
 
       const formData = new FormData()
       formData.append('name', 'Test Pet')
 
       const result = await updatePet('pet-123', formData)
 
-      expect(result).toEqual({ success: false, error: 'No tienes permiso para editar esta mascota' })
+      expect(result).toEqual({
+        success: false,
+        error: 'No tienes permiso para editar esta mascota',
+      })
     })
 
     it('should successfully update pet when all validations pass', async () => {
@@ -144,7 +147,7 @@ describe('Pet Server Actions', () => {
           })
         }),
       }))
-      mockSupabaseClient.from = mockFrom
+      mockSupabaseClient.from = mockFrom as any
 
       const formData = new FormData()
       formData.append('name', 'Valid Pet Name')
@@ -187,7 +190,7 @@ describe('Pet Server Actions', () => {
           return Promise.resolve({ data: null, error: null })
         }),
       }))
-      mockSupabaseClient.from = mockFrom
+      mockSupabaseClient.from = mockFrom as any
 
       const formData = new FormData()
       formData.append('name', 'Updated Pet Name')
@@ -227,7 +230,7 @@ describe('Pet Server Actions', () => {
         is: vi.fn().mockReturnThis(),
         single: vi.fn().mockResolvedValue({ data: null, error: null }),
       }))
-      mockSupabaseClient.from = mockFrom
+      mockSupabaseClient.from = mockFrom as any
 
       const result = await deletePet('pet-123')
 
@@ -249,7 +252,7 @@ describe('Pet Server Actions', () => {
           error: null,
         }),
       }))
-      mockSupabaseClient.from = mockFrom
+      mockSupabaseClient.from = mockFrom as any
 
       const result = await deletePet('pet-123')
 
@@ -278,7 +281,7 @@ describe('Pet Server Actions', () => {
           error: null,
         }),
       }))
-      mockSupabaseClient.from = mockFrom
+      mockSupabaseClient.from = mockFrom as any
 
       const result = await deletePet('pet-123')
 

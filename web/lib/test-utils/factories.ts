@@ -5,7 +5,7 @@ import type {
   Invoice,
   Service,
   Hospitalization,
-  LabOrder
+  LabOrder,
 } from '@/lib/types'
 
 // Simple ID generator for tests
@@ -143,7 +143,9 @@ export function createMockService(overrides: Partial<Service> = {}): Service {
 }
 
 // Hospitalization factory
-export function createMockHospitalization(overrides: Partial<Hospitalization> = {}): Hospitalization {
+export function createMockHospitalization(
+  overrides: Partial<Hospitalization> = {}
+): Hospitalization {
   return {
     id: generateId(),
     tenant_id: 'test-tenant',
@@ -226,7 +228,10 @@ export function createMockPets(count: number, overrides: Partial<Pet> = {}): Pet
   return Array.from({ length: count }, () => createMockPet(overrides))
 }
 
-export function createMockAppointments(count: number, overrides: Partial<Appointment> = {}): Appointment[] {
+export function createMockAppointments(
+  count: number,
+  overrides: Partial<Appointment> = {}
+): Appointment[] {
   return Array.from({ length: count }, () => createMockAppointment(overrides))
 }
 

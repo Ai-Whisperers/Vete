@@ -5,8 +5,8 @@ This guide shows how to use the clinic configuration types in your components.
 ## Basic Import
 
 ```typescript
-import { getClinicData } from '@/lib/clinics';
-import type { ClinicData, Service, TeamMember } from '@/lib/clinics';
+import { getClinicData } from '@/lib/clinics'
+import type { ClinicData, Service, TeamMember } from '@/lib/clinics'
 ```
 
 ## Example 1: Homepage Component
@@ -189,43 +189,37 @@ export function ServiceCard({ service, onBookClick }: ServiceCardProps) {
 ## Example 6: Type Guards
 
 ```typescript
-import type { Service } from '@/lib/clinics';
+import type { Service } from '@/lib/clinics'
 
 function isBookableService(service: Service): boolean {
-  return service.booking.online_enabled;
+  return service.booking.online_enabled
 }
 
 function isEmergencyService(service: Service): boolean {
-  return service.booking.emergency_available;
+  return service.booking.emergency_available
 }
 
 // Usage
-const services = clinicData.services.services;
-const bookableServices = services.filter(isBookableService);
-const emergencyServices = services.filter(isEmergencyService);
+const services = clinicData.services.services
+const bookableServices = services.filter(isBookableService)
+const emergencyServices = services.filter(isEmergencyService)
 ```
 
 ## Example 7: Utility Functions
 
 ```typescript
-import type { ServicesData, Service } from '@/lib/clinics';
+import type { ServicesData, Service } from '@/lib/clinics'
 
-export function getServiceById(
-  servicesData: ServicesData,
-  serviceId: string
-): Service | undefined {
-  return servicesData.services.find((s) => s.id === serviceId);
+export function getServiceById(servicesData: ServicesData, serviceId: string): Service | undefined {
+  return servicesData.services.find((s) => s.id === serviceId)
 }
 
-export function getServicesByCategory(
-  servicesData: ServicesData,
-  category: string
-): Service[] {
-  return servicesData.services.filter((s) => s.category === category);
+export function getServicesByCategory(servicesData: ServicesData, category: string): Service[] {
+  return servicesData.services.filter((s) => s.category === category)
 }
 
 export function getVisibleServices(servicesData: ServicesData): Service[] {
-  return servicesData.services.filter((s) => s.visible);
+  return servicesData.services.filter((s) => s.visible)
 }
 ```
 
@@ -264,16 +258,16 @@ export function EditForm({ labels, onSubmit, onCancel }: FormProps) {
 ## Example 9: Mapped Types
 
 ```typescript
-import type { Service } from '@/lib/clinics';
+import type { Service } from '@/lib/clinics'
 
 // Create a type with only the fields you need
-type ServiceSummary = Pick<Service, 'id' | 'title' | 'summary' | 'category'>;
+type ServiceSummary = Pick<Service, 'id' | 'title' | 'summary' | 'category'>
 
 // Create a partial type for updates
-type ServiceUpdate = Partial<Service>;
+type ServiceUpdate = Partial<Service>
 
 // Create a type excluding certain fields
-type ServiceWithoutImage = Omit<Service, 'image'>;
+type ServiceWithoutImage = Omit<Service, 'image'>
 ```
 
 ## Example 10: Generic Component
@@ -326,6 +320,7 @@ function FaqList({ faqs }: { faqs: FaqItem[] }) {
 ### 1. IntelliSense Auto-completion
 
 When you type `clinicData.`, VS Code shows:
+
 - ✅ config
 - ✅ theme
 - ✅ images
@@ -340,10 +335,10 @@ When you type `clinicData.`, VS Code shows:
 
 ```typescript
 // ❌ TypeScript error: Property 'nonexistent' does not exist
-const title = clinicData.home.nonexistent;
+const title = clinicData.home.nonexistent
 
 // ✅ TypeScript validates property exists
-const title = clinicData.home.hero.headline;
+const title = clinicData.home.hero.headline
 ```
 
 ### 3. Refactoring Support
@@ -359,22 +354,22 @@ Types serve as inline documentation. Hover over any property to see its type.
 ### Extract and Use Specific Type
 
 ```typescript
-const { config, theme, home, services } = clinicData;
+const { config, theme, home, services } = clinicData
 
 // All variables are properly typed
-config.contact.email; // string
-theme.colors.primary.main; // string
-home.hero.headline; // string
-services.services; // Service[]
+config.contact.email // string
+theme.colors.primary.main // string
+home.hero.headline // string
+services.services // Service[]
 ```
 
 ### Optional Chaining with Types
 
 ```typescript
 // ✅ TypeScript knows these are optional
-const logo = clinicData.config.branding?.logo_url;
-const stats = clinicData.config.stats?.pets_served;
-const faq = clinicData.faq?.[0]?.question;
+const logo = clinicData.config.branding?.logo_url
+const stats = clinicData.config.stats?.pets_served
+const faq = clinicData.faq?.[0]?.question
 ```
 
 ### Type Narrowing
@@ -382,7 +377,7 @@ const faq = clinicData.faq?.[0]?.question;
 ```typescript
 if (clinicData.testimonials) {
   // ✅ TypeScript knows testimonials is TestimonialsData (not undefined)
-  const count = clinicData.testimonials.length;
+  const count = clinicData.testimonials.length
 }
 ```
 

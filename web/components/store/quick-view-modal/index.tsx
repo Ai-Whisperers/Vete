@@ -1,16 +1,16 @@
-'use client';
+'use client'
 
-import { useState, useEffect, useCallback } from 'react';
-import Link from 'next/link';
-import { X } from 'lucide-react';
-import { useCart } from '@/context/cart-context';
-import { useWishlist } from '@/context/wishlist-context';
-import { ImageGallery } from './image-gallery';
-import { ProductInfo } from './product-info';
-import { QuantitySelector } from './quantity-selector';
-import { ActionButtons } from './action-buttons';
-import { BenefitsGrid } from './benefits-grid';
-import type { QuickViewModalProps, ProductImage } from './types';
+import { useState, useEffect, useCallback } from 'react'
+import Link from 'next/link'
+import { X } from 'lucide-react'
+import { useCart } from '@/context/cart-context'
+import { useWishlist } from '@/context/wishlist-context'
+import { ImageGallery } from './image-gallery'
+import { ProductInfo } from './product-info'
+import { QuantitySelector } from './quantity-selector'
+import { ActionButtons } from './action-buttons'
+import { BenefitsGrid } from './benefits-grid'
+import type { QuickViewModalProps, ProductImage } from './types'
 
 /**
  * Quick View Modal
@@ -28,49 +28,49 @@ export default function QuickViewModal({
   clinic,
   onClose,
 }: QuickViewModalProps): React.ReactElement {
-  const { addItem } = useCart();
-  const { isWishlisted, toggleWishlist } = useWishlist();
-  const [quantity, setQuantity] = useState(1);
-  const [addingToCart, setAddingToCart] = useState(false);
-  const [addedToCart, setAddedToCart] = useState(false);
-  const [togglingWishlist, setTogglingWishlist] = useState(false);
+  const { addItem } = useCart()
+  const { isWishlisted, toggleWishlist } = useWishlist()
+  const [quantity, setQuantity] = useState(1)
+  const [addingToCart, setAddingToCart] = useState(false)
+  const [addedToCart, setAddedToCart] = useState(false)
+  const [togglingWishlist, setTogglingWishlist] = useState(false)
 
-  const productIsWishlisted = isWishlisted(product.id);
+  const productIsWishlisted = isWishlisted(product.id)
 
   // Support both direct stock_quantity and nested inventory.stock_quantity
-  const stock = product.stock_quantity ?? product.inventory?.stock_quantity ?? 0;
-  const inStock = stock > 0;
-  const lowStock = stock > 0 && stock <= 5;
+  const stock = product.stock_quantity ?? product.inventory?.stock_quantity ?? 0
+  const inStock = stock > 0
+  const lowStock = stock > 0 && stock <= 5
 
   // Combine main image with gallery images (safely handle optional images array)
-  const productImages = product.images ?? [];
+  const productImages = product.images ?? []
   const images: ProductImage[] = product.image_url
     ? [{ id: 'main', image_url: product.image_url, alt_text: product.name }, ...productImages]
     : productImages.length > 0
-    ? productImages
-    : [{ id: 'placeholder', image_url: '/placeholder-product.svg', alt_text: product.name }];
+      ? productImages
+      : [{ id: 'placeholder', image_url: '/placeholder-product.svg', alt_text: product.name }]
 
   // Lock body scroll when modal is open
   useEffect(() => {
-    document.body.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden'
     return () => {
-      document.body.style.overflow = '';
-    };
-  }, []);
+      document.body.style.overflow = ''
+    }
+  }, [])
 
   // Handle escape key
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent): void => {
-      if (e.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', handleEscape);
-    return () => window.removeEventListener('keydown', handleEscape);
-  }, [onClose]);
+      if (e.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', handleEscape)
+    return () => window.removeEventListener('keydown', handleEscape)
+  }, [onClose])
 
   const handleAddToCart = useCallback((): void => {
-    if (!inStock || addingToCart) return;
+    if (!inStock || addingToCart) return
 
-    setAddingToCart(true);
+    setAddingToCart(true)
 
     addItem(
       {
@@ -84,45 +84,42 @@ export default function QuickViewModal({
         sku: product.sku || undefined,
       },
       quantity
-    );
+    )
 
     setTimeout(() => {
-      setAddingToCart(false);
-      setAddedToCart(true);
-      setTimeout(() => setAddedToCart(false), 2000);
-    }, 300);
-  }, [addItem, addingToCart, inStock, product, quantity, stock]);
+      setAddingToCart(false)
+      setAddedToCart(true)
+      setTimeout(() => setAddedToCart(false), 2000)
+    }, 300)
+  }, [addItem, addingToCart, inStock, product, quantity, stock])
 
   const handleWishlistToggle = useCallback(async (): Promise<void> => {
-    if (togglingWishlist) return;
-    setTogglingWishlist(true);
+    if (togglingWishlist) return
+    setTogglingWishlist(true)
     try {
-      await toggleWishlist(product.id);
+      await toggleWishlist(product.id)
     } finally {
-      setTogglingWishlist(false);
+      setTogglingWishlist(false)
     }
-  }, [product.id, toggleWishlist, togglingWishlist]);
+  }, [product.id, toggleWishlist, togglingWishlist])
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-        onClick={onClose}
-      />
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
 
       {/* Modal */}
-      <div className="relative bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden animate-scale-in">
+      <div className="animate-scale-in relative max-h-[90vh] w-full max-w-4xl overflow-hidden rounded-2xl bg-white shadow-2xl">
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-10 p-2 bg-white/90 backdrop-blur rounded-full shadow-md hover:bg-gray-100 transition-colors"
+          className="absolute right-4 top-4 z-10 rounded-full bg-white/90 p-2 shadow-md backdrop-blur transition-colors hover:bg-gray-100"
           aria-label="Cerrar"
         >
-          <X className="w-5 h-5" />
+          <X className="h-5 w-5" />
         </button>
 
-        <div className="flex flex-col md:flex-row max-h-[90vh]">
+        <div className="flex max-h-[90vh] flex-col md:flex-row">
           {/* Image Gallery */}
           <ImageGallery
             images={images}
@@ -133,21 +130,12 @@ export default function QuickViewModal({
           />
 
           {/* Product Info */}
-          <div className="w-full md:w-1/2 p-6 overflow-y-auto">
-            <ProductInfo
-              product={product}
-              stock={stock}
-              inStock={inStock}
-              lowStock={lowStock}
-            />
+          <div className="w-full overflow-y-auto p-6 md:w-1/2">
+            <ProductInfo product={product} stock={stock} inStock={inStock} lowStock={lowStock} />
 
             {/* Quantity Selector */}
             {inStock && (
-              <QuantitySelector
-                quantity={quantity}
-                stock={stock}
-                onChange={setQuantity}
-              />
+              <QuantitySelector quantity={quantity} stock={stock} onChange={setQuantity} />
             )}
 
             {/* Action Buttons */}
@@ -167,7 +155,7 @@ export default function QuickViewModal({
             {/* View Full Details Link */}
             <Link
               href={`/${clinic}/store/product/${product.id}`}
-              className="block text-center text-[var(--primary)] font-medium hover:underline"
+              className="block text-center font-medium text-[var(--primary)] hover:underline"
             >
               Ver todos los detalles &rarr;
             </Link>
@@ -191,8 +179,8 @@ export default function QuickViewModal({
         }
       `}</style>
     </div>
-  );
+  )
 }
 
 // Re-export types for external use
-export type { QuickViewModalProps } from './types';
+export type { QuickViewModalProps } from './types'

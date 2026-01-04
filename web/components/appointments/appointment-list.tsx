@@ -44,17 +44,26 @@ interface AppointmentListProps {
 export function AppointmentList({ upcoming, past, clinic }: AppointmentListProps) {
   const [activeTab, setActiveTab] = useState<TabType>('upcoming')
 
-  const tabs: { id: TabType; label: string; count: number; icon: React.ComponentType<{ className?: string }> }[] = [
+  const tabs: {
+    id: TabType
+    label: string
+    count: number
+    icon: React.ComponentType<{ className?: string }>
+  }[] = [
     { id: 'upcoming', label: 'Próximas', count: upcoming.length, icon: Icons.CalendarCheck },
-    { id: 'past', label: 'Anteriores', count: past.length, icon: Icons.History }
+    { id: 'past', label: 'Anteriores', count: past.length, icon: Icons.History },
   ]
 
   const appointments = activeTab === 'upcoming' ? upcoming : past
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 min-h-screen">
+    <div className="container mx-auto min-h-screen px-4 sm:px-6 lg:px-8">
       {/* Tabs */}
-      <div className="flex gap-2 mb-6 bg-gray-100 p-1 rounded-xl" role="tablist" aria-label="Filtros de citas">
+      <div
+        className="mb-6 flex gap-2 rounded-xl bg-gray-100 p-1"
+        role="tablist"
+        aria-label="Filtros de citas"
+      >
         {tabs.map((tab) => {
           const Icon = tab.icon
           return (
@@ -66,19 +75,22 @@ export function AppointmentList({ upcoming, past, clinic }: AppointmentListProps
               id={`${tab.id}-tab`}
               tabIndex={activeTab === tab.id ? 0 : -1}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex-1 px-4 py-3 rounded-lg font-bold text-sm transition-all flex items-center justify-center gap-2 ${
+              className={`flex flex-1 items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-bold transition-all ${
                 activeTab === tab.id
                   ? 'bg-white text-[var(--text-primary)] shadow-sm'
                   : 'text-gray-500 hover:text-gray-700'
               }`}
             >
-              <Icon className="w-4 h-4" aria-hidden="true" />
+              <Icon className="h-4 w-4" aria-hidden="true" />
               {tab.label}
-              <span className={`px-2 py-0.5 rounded-full text-xs ${
-                activeTab === tab.id
-                  ? 'bg-[var(--primary)]/10 text-[var(--primary)]'
-                  : 'bg-gray-200 text-gray-500'
-              }`} aria-label={`${tab.count} citas`}>
+              <span
+                className={`rounded-full px-2 py-0.5 text-xs ${
+                  activeTab === tab.id
+                    ? 'bg-[var(--primary)]/10 text-[var(--primary)]'
+                    : 'bg-gray-200 text-gray-500'
+                }`}
+                aria-label={`${tab.count} citas`}
+              >
                 {tab.count}
               </span>
             </button>
@@ -87,11 +99,7 @@ export function AppointmentList({ upcoming, past, clinic }: AppointmentListProps
       </div>
 
       {/* Appointment List */}
-      <div
-        role="tabpanel"
-        id={`${activeTab}-panel`}
-        aria-labelledby={`${activeTab}-tab`}
-      >
+      <div role="tabpanel" id={`${activeTab}-panel`} aria-labelledby={`${activeTab}-tab`}>
         {appointments.length > 0 ? (
           <div className="space-y-4">
             {appointments.map((appointment) => (
@@ -114,21 +122,21 @@ export function AppointmentList({ upcoming, past, clinic }: AppointmentListProps
 function EmptyState({ tab, clinic }: { tab: TabType; clinic: string }) {
   if (tab === 'upcoming') {
     return (
-      <div className="text-center py-16 bg-gray-50 rounded-2xl">
-        <div className="w-20 h-20 bg-[var(--primary)]/10 rounded-full flex items-center justify-center mx-auto mb-6">
-          <Icons.CalendarPlus className="w-10 h-10 text-[var(--primary)]" />
+      <div className="rounded-2xl bg-gray-50 py-16 text-center">
+        <div className="bg-[var(--primary)]/10 mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full">
+          <Icons.CalendarPlus className="h-10 w-10 text-[var(--primary)]" />
         </div>
-        <h3 className="text-xl font-bold text-[var(--text-primary)] mb-2">
+        <h3 className="mb-2 text-xl font-bold text-[var(--text-primary)]">
           No tienes citas programadas
         </h3>
-        <p className="text-[var(--text-secondary)] mb-6 max-w-sm mx-auto">
+        <p className="mx-auto mb-6 max-w-sm text-[var(--text-secondary)]">
           Agenda una cita para tu mascota y la verás aquí.
         </p>
         <Link
           href={`/${clinic}/book`}
-          className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--primary)] text-white font-bold rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all"
+          className="inline-flex items-center gap-2 rounded-xl bg-[var(--primary)] px-6 py-3 font-bold text-white shadow-lg transition-all hover:-translate-y-0.5 hover:shadow-xl"
         >
-          <Icons.Plus className="w-5 h-5" />
+          <Icons.Plus className="h-5 w-5" />
           Agendar Cita
         </Link>
       </div>
@@ -136,14 +144,12 @@ function EmptyState({ tab, clinic }: { tab: TabType; clinic: string }) {
   }
 
   return (
-    <div className="text-center py-16 bg-gray-50 rounded-2xl">
-      <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-        <Icons.History className="w-10 h-10 text-gray-400" />
+    <div className="rounded-2xl bg-gray-50 py-16 text-center">
+      <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-gray-100">
+        <Icons.History className="h-10 w-10 text-gray-400" />
       </div>
-      <h3 className="text-xl font-bold text-[var(--text-primary)] mb-2">
-        Sin historial de citas
-      </h3>
-      <p className="text-[var(--text-secondary)] max-w-sm mx-auto">
+      <h3 className="mb-2 text-xl font-bold text-[var(--text-primary)]">Sin historial de citas</h3>
+      <p className="mx-auto max-w-sm text-[var(--text-secondary)]">
         Aquí aparecerán tus citas pasadas y canceladas.
       </p>
     </div>

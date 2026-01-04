@@ -1,18 +1,18 @@
 // Core utilities
-export * from './api-client';
-export * from './formatting';
-export * from './validation';
+export * from './api-client'
+export * from './formatting'
+export * from './validation'
 
 // Type safety utilities
-export * from './type-guards';
-export * from './map';
+export * from './type-guards'
+export * from './map'
 
 // Domain-specific utilities
-export * from './pet-size';
-export * from './cart-utils';
+export * from './pet-size'
+export * from './cart-utils'
 
 // Performance utilities
-export * from './memoize';
+export * from './memoize'
 
 // Note: format-compat.ts provides backward compatibility shims.
 // It's intentionally NOT re-exported here to avoid conflicts.

@@ -44,12 +44,27 @@ interface Attachment {
   uploaded_at: string
 }
 
-const statusConfig: Record<string, { label: string; className: string; icon: React.ComponentType<{ className?: string }> }> = {
+const statusConfig: Record<
+  string,
+  { label: string; className: string; icon: React.ComponentType<{ className?: string }> }
+> = {
   ordered: { label: 'Ordenado', className: 'bg-blue-100 text-blue-800', icon: Icons.FileText },
-  specimen_collected: { label: 'Muestra Recolectada', className: 'bg-purple-100 text-purple-800', icon: Icons.Droplet },
-  in_progress: { label: 'En Proceso', className: 'bg-yellow-100 text-yellow-800', icon: Icons.Clock },
-  completed: { label: 'Completado', className: 'bg-green-100 text-green-800', icon: Icons.CheckCircle },
-  cancelled: { label: 'Cancelado', className: 'bg-red-100 text-red-800', icon: Icons.XCircle }
+  specimen_collected: {
+    label: 'Muestra Recolectada',
+    className: 'bg-purple-100 text-purple-800',
+    icon: Icons.Droplet,
+  },
+  in_progress: {
+    label: 'En Proceso',
+    className: 'bg-yellow-100 text-yellow-800',
+    icon: Icons.Clock,
+  },
+  completed: {
+    label: 'Completado',
+    className: 'bg-green-100 text-green-800',
+    icon: Icons.CheckCircle,
+  },
+  cancelled: { label: 'Cancelado', className: 'bg-red-100 text-red-800', icon: Icons.XCircle },
 }
 
 export default function LabOrderDetailPage() {
@@ -74,7 +89,9 @@ export default function LabOrderDetailPage() {
   const fetchOrderDetails = async () => {
     setLoading(true)
     try {
-      const { data: { session } } = await supabase.auth.getSession()
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
       if (!session?.user) {
         router.push(`/${clinic}`)
         return
@@ -83,7 +100,8 @@ export default function LabOrderDetailPage() {
       // Fetch order
       const { data: orderData, error: orderError } = await supabase
         .from('lab_orders')
-        .select(`
+        .select(
+          `
           id,
           order_number,
           ordered_at,
@@ -95,7 +113,8 @@ export default function LabOrderDetailPage() {
           has_critical_values,
           specimen_collected_at,
           pets!inner(id, name, species, breed, date_of_birth, owner_id)
-        `)
+        `
+        )
         .eq('id', orderId)
         .single()
 
@@ -106,16 +125,18 @@ export default function LabOrderDetailPage() {
       // Fetch comments
       const { data: commentsData } = await supabase
         .from('lab_result_comments')
-        .select(`
+        .select(
+          `
           id,
           comment,
           comment_type,
           created_at
-        `)
+        `
+        )
         .eq('lab_order_id', orderId)
         .order('created_at', { ascending: false })
 
-      setComments(commentsData as Comment[] || [])
+      setComments((commentsData as Comment[]) || [])
 
       // Fetch attachments
       const { data: attachmentsData } = await supabase
@@ -125,7 +146,6 @@ export default function LabOrderDetailPage() {
         .order('uploaded_at', { ascending: false })
 
       setAttachments(attachmentsData || [])
-
     } catch (error) {
       // Client-side error logging - only in development
       if (process.env.NODE_ENV === 'development') {
@@ -142,7 +162,7 @@ export default function LabOrderDetailPage() {
       const response = await fetch(`/api/lab-orders/${orderId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus })
+        body: JSON.stringify({ status: newStatus }),
       })
 
       if (!response.ok) throw new Error('Error al actualizar estado')
@@ -165,7 +185,7 @@ export default function LabOrderDetailPage() {
       const response = await fetch(`/api/lab-orders/${orderId}/comments`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ comment: newComment })
+        body: JSON.stringify({ comment: newComment }),
       })
 
       if (!response.ok) throw new Error('Error al agregar comentario')
@@ -189,8 +209,8 @@ export default function LabOrderDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Icons.Loader2 className="w-8 h-8 animate-spin text-[var(--primary)]" />
+      <div className="flex min-h-screen items-center justify-center">
+        <Icons.Loader2 className="h-8 w-8 animate-spin text-[var(--primary)]" />
       </div>
     )
   }
@@ -200,7 +220,10 @@ export default function LabOrderDetailPage() {
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
           <p className="text-[var(--text-secondary)]">Orden no encontrada</p>
-          <Link href={`/${clinic}/dashboard/lab`} className="text-[var(--primary)] hover:underline mt-4 inline-block">
+          <Link
+            href={`/${clinic}/dashboard/lab`}
+            className="mt-4 inline-block text-[var(--primary)] hover:underline"
+          >
             Volver a órdenes
           </Link>
         </div>
@@ -210,18 +233,21 @@ export default function LabOrderDetailPage() {
 
   const status = statusConfig[order.status] || statusConfig.ordered
   const StatusIcon = status.icon
-  const age = Math.floor((new Date().getTime() - new Date(order.pets.date_of_birth).getTime()) / (1000 * 60 * 60 * 24 * 365))
+  const age = Math.floor(
+    (new Date().getTime() - new Date(order.pets.date_of_birth).getTime()) /
+      (1000 * 60 * 60 * 24 * 365)
+  )
 
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Link
             href={`/${clinic}/dashboard/lab`}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="rounded-lg p-2 transition-colors hover:bg-gray-100"
           >
-            <Icons.ArrowLeft className="w-6 h-6 text-[var(--text-primary)]" />
+            <Icons.ArrowLeft className="h-6 w-6 text-[var(--text-primary)]" />
           </Link>
           <div>
             <h1 className="text-3xl font-bold text-[var(--text-primary)]">
@@ -231,7 +257,7 @@ export default function LabOrderDetailPage() {
               {new Date(order.ordered_at).toLocaleDateString('es-PY', {
                 year: 'numeric',
                 month: 'long',
-                day: 'numeric'
+                day: 'numeric',
               })}
             </p>
           </div>
@@ -240,17 +266,17 @@ export default function LabOrderDetailPage() {
         <div className="flex items-center gap-3">
           <button
             onClick={handlePrint}
-            className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-[var(--text-primary)] rounded-lg font-medium hover:bg-gray-50 transition-colors"
+            className="flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 font-medium text-[var(--text-primary)] transition-colors hover:bg-gray-50"
           >
-            <Icons.Printer className="w-4 h-4" />
+            <Icons.Printer className="h-4 w-4" />
             Imprimir
           </button>
           {order.status !== 'completed' && order.status !== 'cancelled' && (
             <button
               onClick={() => setShowResultEntry(!showResultEntry)}
-              className="flex items-center gap-2 px-4 py-2 bg-[var(--primary)] text-white rounded-lg font-medium hover:opacity-90 transition-opacity"
+              className="flex items-center gap-2 rounded-lg bg-[var(--primary)] px-4 py-2 font-medium text-white transition-opacity hover:opacity-90"
             >
-              <Icons.Edit className="w-4 h-4" />
+              <Icons.Edit className="h-4 w-4" />
               {showResultEntry ? 'Ver Resultados' : 'Ingresar Resultados'}
             </button>
           )}
@@ -258,32 +284,32 @@ export default function LabOrderDetailPage() {
       </div>
 
       {/* Order Info Card */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="mb-6 rounded-xl border border-gray-200 bg-white p-6">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {/* Left Column - Pet Info */}
           <div>
-            <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-4">
+            <h2 className="mb-4 text-lg font-semibold text-[var(--text-primary)]">
               Información del Paciente
             </h2>
             <div className="space-y-3">
               <div className="flex items-center gap-3">
-                <Icons.PawPrint className="w-5 h-5 text-[var(--primary)]" />
+                <Icons.PawPrint className="h-5 w-5 text-[var(--primary)]" />
                 <div>
                   <div className="text-sm text-[var(--text-secondary)]">Mascota</div>
                   <div className="font-medium text-[var(--text-primary)]">{order.pets.name}</div>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <Icons.Info className="w-5 h-5 text-[var(--primary)]" />
+                <Icons.Info className="h-5 w-5 text-[var(--primary)]" />
                 <div>
                   <div className="text-sm text-[var(--text-secondary)]">Especie / Raza</div>
-                  <div className="font-medium text-[var(--text-primary)] capitalize">
+                  <div className="font-medium capitalize text-[var(--text-primary)]">
                     {order.pets.species} - {order.pets.breed}
                   </div>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <Icons.Calendar className="w-5 h-5 text-[var(--primary)]" />
+                <Icons.Calendar className="h-5 w-5 text-[var(--primary)]" />
                 <div>
                   <div className="text-sm text-[var(--text-secondary)]">Edad</div>
                   <div className="font-medium text-[var(--text-primary)]">
@@ -296,40 +322,45 @@ export default function LabOrderDetailPage() {
 
           {/* Right Column - Order Info */}
           <div>
-            <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-4">
+            <h2 className="mb-4 text-lg font-semibold text-[var(--text-primary)]">
               Información de la Orden
             </h2>
             <div className="space-y-3">
               <div className="flex items-center gap-3">
-                <StatusIcon className="w-5 h-5 text-[var(--primary)]" />
+                <StatusIcon className="h-5 w-5 text-[var(--primary)]" />
                 <div>
                   <div className="text-sm text-[var(--text-secondary)]">Estado</div>
-                  <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${status.className}`}>
+                  <span
+                    className={`inline-block rounded-full px-3 py-1 text-sm font-medium ${status.className}`}
+                  >
                     {status.label}
                   </span>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <Icons.Clock className="w-5 h-5 text-[var(--primary)]" />
+                <Icons.Clock className="h-5 w-5 text-[var(--primary)]" />
                 <div>
                   <div className="text-sm text-[var(--text-secondary)]">Fecha de orden</div>
                   <div className="font-medium text-[var(--text-primary)]">
-                    {new Date(order.ordered_at).toLocaleTimeString('es-PY', { hour: '2-digit', minute: '2-digit' })}
+                    {new Date(order.ordered_at).toLocaleTimeString('es-PY', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
                   </div>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <Icons.Flag className="w-5 h-5 text-[var(--primary)]" />
+                <Icons.Flag className="h-5 w-5 text-[var(--primary)]" />
                 <div>
                   <div className="text-sm text-[var(--text-secondary)]">Prioridad / Tipo</div>
-                  <div className="font-medium text-[var(--text-primary)] capitalize">
+                  <div className="font-medium capitalize text-[var(--text-primary)]">
                     {order.priority} - {order.lab_type === 'in_house' ? 'Interno' : 'Externo'}
                   </div>
                 </div>
               </div>
               {order.fasting_status && (
                 <div className="flex items-center gap-3">
-                  <Icons.Coffee className="w-5 h-5 text-[var(--primary)]" />
+                  <Icons.Coffee className="h-5 w-5 text-[var(--primary)]" />
                   <div>
                     <div className="text-sm text-[var(--text-secondary)]">Ayuno</div>
                     <div className="font-medium text-[var(--text-primary)]">Sí</div>
@@ -342,19 +373,23 @@ export default function LabOrderDetailPage() {
 
         {/* Clinical Notes */}
         {order.clinical_notes && (
-          <div className="mt-6 pt-6 border-t border-gray-200">
-            <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-2">Notas Clínicas</h3>
+          <div className="mt-6 border-t border-gray-200 pt-6">
+            <h3 className="mb-2 text-sm font-semibold text-[var(--text-primary)]">
+              Notas Clínicas
+            </h3>
             <p className="text-[var(--text-secondary)]">{order.clinical_notes}</p>
           </div>
         )}
 
         {/* Critical Values Alert */}
         {order.has_critical_values && (
-          <div className="mt-6 flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <Icons.AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+          <div className="mt-6 flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-4">
+            <Icons.AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-600" />
             <div>
               <h4 className="font-semibold text-red-900">Valores Críticos Detectados</h4>
-              <p className="text-sm text-red-700">Esta orden contiene valores que requieren atención inmediata.</p>
+              <p className="text-sm text-red-700">
+                Esta orden contiene valores que requieren atención inmediata.
+              </p>
             </div>
           </div>
         )}
@@ -362,34 +397,45 @@ export default function LabOrderDetailPage() {
 
       {/* Status Workflow */}
       {order.status !== 'cancelled' && (
-        <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
-          <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-4">
+        <div className="mb-6 rounded-xl border border-gray-200 bg-white p-6">
+          <h2 className="mb-4 text-lg font-semibold text-[var(--text-primary)]">
             Flujo de Trabajo
           </h2>
           <div className="flex items-center justify-between">
             {['ordered', 'specimen_collected', 'in_progress', 'completed'].map((statusKey, idx) => {
               const isActive = order.status === statusKey
-              const isPast = ['ordered', 'specimen_collected', 'in_progress', 'completed'].indexOf(order.status) > idx
+              const isPast =
+                ['ordered', 'specimen_collected', 'in_progress', 'completed'].indexOf(
+                  order.status
+                ) > idx
               const statusInfo = statusConfig[statusKey]
 
               return (
-                <div key={statusKey} className="flex items-center flex-1">
+                <div key={statusKey} className="flex flex-1 items-center">
                   <button
                     onClick={() => updateStatus(statusKey)}
                     disabled={isPast}
-                    className={`flex flex-col items-center gap-2 p-4 rounded-lg transition-all ${
-                      isActive ? 'bg-[var(--primary)]/10 border-2 border-[var(--primary)]' :
-                      isPast ? 'opacity-50 cursor-not-allowed' :
-                      'hover:bg-gray-50 border-2 border-gray-200'
+                    className={`flex flex-col items-center gap-2 rounded-lg p-4 transition-all ${
+                      isActive
+                        ? 'bg-[var(--primary)]/10 border-2 border-[var(--primary)]'
+                        : isPast
+                          ? 'cursor-not-allowed opacity-50'
+                          : 'border-2 border-gray-200 hover:bg-gray-50'
                     }`}
                   >
-                    {React.createElement(statusInfo.icon, { className: `w-6 h-6 ${isActive || isPast ? 'text-[var(--primary)]' : 'text-gray-400'}` })}
-                    <span className={`text-sm font-medium ${isActive ? 'text-[var(--primary)]' : 'text-[var(--text-secondary)]'}`}>
+                    {React.createElement(statusInfo.icon, {
+                      className: `w-6 h-6 ${isActive || isPast ? 'text-[var(--primary)]' : 'text-gray-400'}`,
+                    })}
+                    <span
+                      className={`text-sm font-medium ${isActive ? 'text-[var(--primary)]' : 'text-[var(--text-secondary)]'}`}
+                    >
                       {statusInfo.label}
                     </span>
                   </button>
                   {idx < 3 && (
-                    <div className={`flex-1 h-0.5 ${isPast ? 'bg-[var(--primary)]' : 'bg-gray-200'}`} />
+                    <div
+                      className={`h-0.5 flex-1 ${isPast ? 'bg-[var(--primary)]' : 'bg-gray-200'}`}
+                    />
                   )}
                 </div>
               )
@@ -399,8 +445,8 @@ export default function LabOrderDetailPage() {
       )}
 
       {/* Results Section */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
-        <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-4">
+      <div className="mb-6 rounded-xl border border-gray-200 bg-white p-6">
+        <h2 className="mb-4 text-lg font-semibold text-[var(--text-primary)]">
           {showResultEntry ? 'Ingresar Resultados' : 'Resultados'}
         </h2>
         {showResultEntry ? (
@@ -425,27 +471,29 @@ export default function LabOrderDetailPage() {
 
       {/* Attachments */}
       {attachments.length > 0 && (
-        <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
-          <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-4">
+        <div className="mb-6 rounded-xl border border-gray-200 bg-white p-6">
+          <h2 className="mb-4 text-lg font-semibold text-[var(--text-primary)]">
             Archivos Adjuntos
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {attachments.map(attachment => (
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            {attachments.map((attachment) => (
               <a
                 key={attachment.id}
                 href={attachment.file_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:border-[var(--primary)] transition-colors"
+                className="flex items-center gap-3 rounded-lg border border-gray-200 p-4 transition-colors hover:border-[var(--primary)]"
               >
-                <Icons.FileText className="w-6 h-6 text-[var(--primary)]" />
+                <Icons.FileText className="h-6 w-6 text-[var(--primary)]" />
                 <div className="flex-1">
-                  <div className="font-medium text-[var(--text-primary)]">{attachment.file_name}</div>
+                  <div className="font-medium text-[var(--text-primary)]">
+                    {attachment.file_name}
+                  </div>
                   <div className="text-sm text-[var(--text-secondary)]">
                     {new Date(attachment.uploaded_at).toLocaleDateString('es-PY')}
                   </div>
                 </div>
-                <Icons.ExternalLink className="w-5 h-5 text-[var(--text-secondary)]" />
+                <Icons.ExternalLink className="h-5 w-5 text-[var(--text-secondary)]" />
               </a>
             ))}
           </div>
@@ -453,8 +501,8 @@ export default function LabOrderDetailPage() {
       )}
 
       {/* Comments & Interpretation */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
-        <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-4">
+      <div className="rounded-xl border border-gray-200 bg-white p-6">
+        <h2 className="mb-4 text-lg font-semibold text-[var(--text-primary)]">
           Comentarios e Interpretación
         </h2>
 
@@ -465,12 +513,12 @@ export default function LabOrderDetailPage() {
             onChange={(e) => setNewComment(e.target.value)}
             placeholder="Agregar interpretación o comentario..."
             rows={3}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent resize-none"
+            className="w-full resize-none rounded-lg border border-gray-300 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-[var(--primary)]"
           />
           <button
             onClick={addComment}
             disabled={addingComment || !newComment.trim()}
-            className="mt-2 px-4 py-2 bg-[var(--primary)] text-white rounded-lg font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+            className="mt-2 rounded-lg bg-[var(--primary)] px-4 py-2 font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
           >
             {addingComment ? 'Agregando...' : 'Agregar Comentario'}
           </button>
@@ -479,10 +527,10 @@ export default function LabOrderDetailPage() {
         {/* Comments List */}
         {comments.length > 0 ? (
           <div className="space-y-4">
-            {comments.map(comment => (
-              <div key={comment.id} className="p-4 bg-gray-50 rounded-lg">
-                <div className="flex items-start justify-between mb-2">
-                  <span className="px-2 py-1 text-xs font-medium bg-gray-200 text-gray-700 rounded capitalize">
+            {comments.map((comment) => (
+              <div key={comment.id} className="rounded-lg bg-gray-50 p-4">
+                <div className="mb-2 flex items-start justify-between">
+                  <span className="rounded bg-gray-200 px-2 py-1 text-xs font-medium capitalize text-gray-700">
                     {comment.comment_type || 'Nota'}
                   </span>
                   <span className="text-sm text-[var(--text-secondary)]">
@@ -494,9 +542,7 @@ export default function LabOrderDetailPage() {
             ))}
           </div>
         ) : (
-          <p className="text-center text-[var(--text-secondary)] py-6">
-            No hay comentarios aún
-          </p>
+          <p className="py-6 text-center text-[var(--text-secondary)]">No hay comentarios aún</p>
         )}
       </div>
     </div>

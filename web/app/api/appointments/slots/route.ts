@@ -44,12 +44,12 @@ export async function GET(request: NextRequest) {
   }
 
   // SEC-001: Verify authentication and tenant access
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
   if (authError || !user) {
-    return NextResponse.json(
-      { error: 'No autorizado' },
-      { status: 401 }
-    )
+    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
   }
 
   // Get user profile and verify tenant access
@@ -60,19 +60,13 @@ export async function GET(request: NextRequest) {
     .single()
 
   if (!profile) {
-    return NextResponse.json(
-      { error: 'No autorizado' },
-      { status: 401 }
-    )
+    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
   }
 
   // Verify tenant isolation - users can only access slots for their own clinic
   const isStaff = ['vet', 'admin'].includes(profile.role)
   if (clinicSlug !== profile.tenant_id && !isStaff) {
-    return NextResponse.json(
-      { error: 'Acceso denegado' },
-      { status: 403 }
-    )
+    return NextResponse.json({ error: 'Acceso denegado' }, { status: 403 })
   }
 
   try {
@@ -95,60 +89,51 @@ export async function GET(request: NextRequest) {
       start: '08:00',
       end: '18:00',
       breakStart: '12:00',
-      breakEnd: '14:00'
+      breakEnd: '14:00',
     }
 
     // Use the database function for more reliable overlap checking
-    const { data: slotsData, error } = await supabase
-      .rpc('get_available_slots', {
-        p_tenant_id: clinicSlug,
-        p_date: date,
-        p_slot_duration_minutes: slotDuration,
-        p_work_start: workingHours.start,
-        p_work_end: workingHours.end,
-        p_break_start: workingHours.breakStart,
-        p_break_end: workingHours.breakEnd,
-        p_vet_id: vetId || null
-      })
+    const { data: slotsData, error } = await supabase.rpc('get_available_slots', {
+      p_tenant_id: clinicSlug,
+      p_date: date,
+      p_slot_duration_minutes: slotDuration,
+      p_work_start: workingHours.start,
+      p_work_end: workingHours.end,
+      p_break_start: workingHours.breakStart,
+      p_break_end: workingHours.breakEnd,
+      p_vet_id: vetId || null,
+    })
 
     if (error) {
       logger.error('Error fetching available slots', {
         tenantId: clinicSlug,
         userId: user.id,
         date,
-        error: error instanceof Error ? error.message : String(error)
+        error: error instanceof Error ? error.message : String(error),
       })
-      return NextResponse.json(
-        { error: 'Error al obtener horarios disponibles' },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: 'Error al obtener horarios disponibles' }, { status: 500 })
     }
 
     // Transform database response to API format
-    const slots: TimeSlot[] = slotsData?.map((slot: {
-      slot_time: string
-      is_available: boolean
-    }) => ({
-      time: slot.slot_time,
-      available: slot.is_available
-    })) || []
+    const slots: TimeSlot[] =
+      slotsData?.map((slot: { slot_time: string; is_available: boolean }) => ({
+        time: slot.slot_time,
+        available: slot.is_available,
+      })) || []
 
     return NextResponse.json({
       date,
       clinic: clinicSlug,
       slotDuration,
-      slots
+      slots,
     })
   } catch (e) {
     logger.error('Error generating slots', {
       tenantId: clinicSlug,
       userId: user?.id,
       date,
-      error: e instanceof Error ? e.message : 'Unknown'
+      error: e instanceof Error ? e.message : 'Unknown',
     })
-    return NextResponse.json(
-      { error: 'Error al generar horarios disponibles' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Error al generar horarios disponibles' }, { status: 500 })
   }
 }

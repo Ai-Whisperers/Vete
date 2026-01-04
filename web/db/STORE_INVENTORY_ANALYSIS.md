@@ -13,6 +13,7 @@ This document provides a complete analysis of the store and inventory system, in
 The system implements a **two-tier product catalog**:
 
 #### Tier 1: Global Catalog (Market-wide)
+
 - **Purpose**: Track all products, brands, and providers available in the market
 - **Implementation**: Products with `tenant_id = NULL` and `is_global_catalog = TRUE`
 - **Tables**:
@@ -22,6 +23,7 @@ The system implements a **two-tier product catalog**:
   - `suppliers` (global entries)
 
 #### Tier 2: Clinic-Specific Products
+
 - **Purpose**: Products unique to a clinic
 - **Implementation**: Products with `tenant_id = SET` (clinic ID)
 - **Tables**:
@@ -51,6 +53,7 @@ CREATE TABLE clinic_product_assignments (
 ```
 
 **How it works**:
+
 1. Global catalog products exist with `tenant_id = NULL`
 2. Clinic selects a product from global catalog
 3. System creates entry in `clinic_product_assignments` with clinic's pricing
@@ -82,6 +85,7 @@ CREATE TABLE store_inventory (
 ```
 
 **Key Features**:
+
 - ✅ Supports expiration dates (`expiry_date`)
 - ✅ Batch tracking (`batch_number`)
 - ✅ Location tracking (`location`, `bin_number`)
@@ -93,6 +97,7 @@ CREATE TABLE store_inventory (
 **Table**: `store_inventory_transactions`
 
 Tracks all inventory movements:
+
 - `purchase` - Stock in, updates WAC
 - `sale` - Stock out
 - `adjustment` - Manual correction
@@ -109,6 +114,7 @@ Tracks all inventory movements:
 ### 2.1 Store Frontend (`/[clinic]/store`)
 
 **Current State**:
+
 - ✅ Shows only clinic's products (filtered by `tenant_id`)
 - ✅ Displays products from:
   - Local products (`tenant_id = clinic`)
@@ -121,6 +127,7 @@ Tracks all inventory movements:
 **API**: `GET /api/store/products?clinic={clinic}`
 
 **Query Logic**:
+
 ```sql
 -- Returns products where:
 -- 1. tenant_id = clinic (local products)
@@ -131,6 +138,7 @@ Tracks all inventory movements:
 ### 2.2 Inventory Management (`/[clinic]/portal/inventory`)
 
 **Current State**:
+
 - ✅ Displays clinic's inventory items
 - ✅ Search and filter by category
 - ✅ Stock level filtering (in stock, low stock, out of stock)
@@ -141,6 +149,7 @@ Tracks all inventory movements:
 - ✅ Pagination support
 
 **Missing Features**:
+
 - ❌ **Screen to browse and add products from global catalog** (CRITICAL)
 - ❌ **Full inventory editing** (expiration dates, batch numbers, location)
 - ❌ **Batch/expiry date management UI**
@@ -149,6 +158,7 @@ Tracks all inventory movements:
 ### 2.3 Product Creation
 
 **Current State**:
+
 - ✅ Clinics can create local products via inventory import
 - ✅ Products created with `tenant_id = clinic`
 - ✅ Supports all product fields (name, SKU, price, stock, etc.)
@@ -219,6 +229,7 @@ Tracks all inventory movements:
 **Status**: ❌ **MISSING - CRITICAL FEATURE**
 
 **What's Needed**:
+
 1. New route: `/[clinic]/portal/inventory/catalog` or modal/page
 2. Browse global catalog products
 3. Search/filter global catalog
@@ -231,6 +242,7 @@ Tracks all inventory movements:
    - Initial stock (optional)
 
 **Implementation Approach**:
+
 ```typescript
 // New API endpoint
 GET /api/inventory/catalog?clinic={clinic}&search={query}&category={slug}
@@ -260,6 +272,7 @@ POST /api/inventory/catalog/assign
 **Status**: ⚠️ **PARTIALLY IMPLEMENTED**
 
 **Current State**:
+
 - ✅ Can update stock quantity
 - ✅ Can update price
 - ❌ Cannot update expiration date via UI
@@ -268,6 +281,7 @@ POST /api/inventory/catalog/assign
 - ❌ Cannot update supplier info via UI
 
 **What's Needed**:
+
 1. Enhanced edit modal/form with all inventory fields:
    - Stock quantity
    - Expiration date (date picker)
@@ -288,16 +302,19 @@ POST /api/inventory/catalog/assign
 ### 4.1 Current Schema Strengths
 
 ✅ **Global Catalog Support**
+
 - Products, brands, categories, suppliers all support `tenant_id = NULL`
 - Unique constraints handle global vs local properly
 - `is_global_catalog` flag for verification
 
 ✅ **Clinic Assignment System**
+
 - `clinic_product_assignments` properly links global to clinic
 - Supports custom pricing per clinic
 - Margin calculation automated
 
 ✅ **Inventory Tracking**
+
 - Comprehensive inventory fields
 - Expiration date support
 - Batch tracking
@@ -305,6 +322,7 @@ POST /api/inventory/catalog/assign
 - WAC calculation
 
 ✅ **Transaction History**
+
 - Complete audit trail
 - Multiple transaction types
 - Reference tracking
@@ -312,12 +330,14 @@ POST /api/inventory/catalog/assign
 ### 4.2 Schema Gaps
 
 ⚠️ **Missing Fields** (if needed):
+
 - Product images array (exists but not fully utilized)
 - Product variants (sizes, flavors) - currently handled via separate SKUs
 - Product reviews (exists in schema but not in inventory context)
 - Product tags for filtering (species, life stage, etc.)
 
 ✅ **All Required Fields Exist**:
+
 - Expiration dates: `store_inventory.expiry_date` ✅
 - Batch numbers: `store_inventory.batch_number` ✅
 - Location: `store_inventory.location` ✅
@@ -333,6 +353,7 @@ POST /api/inventory/catalog/assign
 **Route**: `/[clinic]/portal/inventory/catalog`
 
 **Features**:
+
 1. Browse global catalog products
 2. Search and filter (category, brand, species)
 3. Show which products are already assigned to clinic
@@ -345,6 +366,7 @@ POST /api/inventory/catalog/assign
    - Requires prescription override
 
 **API Endpoints Needed**:
+
 ```typescript
 // Get global catalog (excluding already assigned)
 GET /api/inventory/catalog?clinic={clinic}&search={query}&category={slug}&brand={slug}&page={page}&limit={limit}
@@ -372,6 +394,7 @@ POST /api/inventory/catalog/assign
 ```
 
 **UI Components**:
+
 ```typescript
 // New components
 components/inventory/
@@ -386,10 +409,12 @@ components/inventory/
 **Enhancement**: Expand current edit modal to include all inventory fields
 
 **Current Edit Modal Fields**:
+
 - Price ✅
 - Stock ✅
 
 **Add These Fields**:
+
 - Expiration date (date picker)
 - Batch number (text input)
 - Location (text input or dropdown if locations exist)
@@ -399,6 +424,7 @@ components/inventory/
 - Reorder quantity (number)
 
 **API Enhancement**:
+
 ```typescript
 // Update existing endpoint or create new one
 PATCH /api/inventory/products/{product_id}
@@ -418,6 +444,7 @@ PATCH /api/inventory/products/{product_id}
 ```
 
 **UI Enhancement**:
+
 ```typescript
 // Enhance existing edit modal
 components/inventory/
@@ -434,26 +461,31 @@ components/inventory/
 **Feature**: Dedicated UI for managing batches and expiration dates
 
 **Use Cases**:
+
 - Multiple batches of same product with different expiry dates
 - FIFO (First In, First Out) stock management
 - Expiring product alerts
 
 **Current Limitation**:
+
 - `store_inventory` has single `batch_number` and `expiry_date`
 - Cannot track multiple batches per product
 
 **Options**:
+
 1. **Simple**: Enhance current single-batch tracking
 2. **Advanced**: Create `store_inventory_batches` table for multi-batch tracking
 
 **Recommendation**: Start with Option 1, upgrade to Option 2 if needed
 
 **Option 1 Implementation**:
+
 - Add batch/expiry fields to edit modal
 - Show expiry alerts in inventory screen
 - Sort by expiry date in inventory list
 
 **Option 2 Implementation** (if multi-batch needed):
+
 ```sql
 CREATE TABLE store_inventory_batches (
     id UUID PRIMARY KEY,
@@ -475,22 +507,26 @@ CREATE TABLE store_inventory_batches (
 **Feature**: Manage storage locations and bins
 
 **Current State**:
+
 - `store_inventory.location` and `bin_number` exist
 - No UI for managing locations
 - No validation or dropdowns
 
 **Enhancement**:
+
 1. Create locations table (optional, or use free text)
 2. Add location dropdown in edit modal
 3. Filter inventory by location
 4. Location-based stock reports
 
 **Simple Approach** (Free text):
+
 - Keep current text fields
 - Add autocomplete from existing values
 - Add location filter in inventory screen
 
 **Advanced Approach** (Structured):
+
 ```sql
 CREATE TABLE storage_locations (
     id UUID PRIMARY KEY,
@@ -517,23 +553,23 @@ CREATE TABLE storage_bins (
 
 ### 6.1 Existing Endpoints (Working)
 
-| Endpoint | Method | Purpose | Status |
-|----------|--------|---------|--------|
-| `/api/store/products` | GET | Get clinic's products for store | ✅ |
-| `/api/inventory/stats` | GET | Get inventory statistics | ✅ |
-| `/api/inventory/alerts` | GET | Get low stock/expiring alerts | ✅ |
-| `/api/inventory/import` | POST | Bulk import products/inventory | ✅ |
-| `/api/inventory/export` | GET | Export inventory to Excel | ✅ |
+| Endpoint                | Method | Purpose                         | Status |
+| ----------------------- | ------ | ------------------------------- | ------ |
+| `/api/store/products`   | GET    | Get clinic's products for store | ✅     |
+| `/api/inventory/stats`  | GET    | Get inventory statistics        | ✅     |
+| `/api/inventory/alerts` | GET    | Get low stock/expiring alerts   | ✅     |
+| `/api/inventory/import` | POST   | Bulk import products/inventory  | ✅     |
+| `/api/inventory/export` | GET    | Export inventory to Excel       | ✅     |
 
 ### 6.2 New Endpoints Needed
 
-| Endpoint | Method | Purpose | Priority |
-|----------|--------|---------|----------|
-| `/api/inventory/catalog` | GET | Browse global catalog | P1 |
-| `/api/inventory/catalog/assign` | POST | Assign product to clinic | P1 |
-| `/api/inventory/products/{id}` | PATCH | Update inventory fields | P2 |
-| `/api/inventory/batches` | GET | Get batch/expiry info | P3 |
-| `/api/inventory/locations` | GET | Get storage locations | P4 |
+| Endpoint                        | Method | Purpose                  | Priority |
+| ------------------------------- | ------ | ------------------------ | -------- |
+| `/api/inventory/catalog`        | GET    | Browse global catalog    | P1       |
+| `/api/inventory/catalog/assign` | POST   | Assign product to clinic | P1       |
+| `/api/inventory/products/{id}`  | PATCH  | Update inventory fields  | P2       |
+| `/api/inventory/batches`        | GET    | Get batch/expiry info    | P3       |
+| `/api/inventory/locations`      | GET    | Get storage locations    | P4       |
 
 ---
 
@@ -542,6 +578,7 @@ CREATE TABLE storage_bins (
 ### 7.1 Catalog Browser Screen
 
 **Layout**:
+
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │ [Breadcrumb: Inventario > Catálogo Global]                  │
@@ -568,6 +605,7 @@ CREATE TABLE storage_bins (
 ```
 
 **Product Card in Catalog**:
+
 ```
 ┌─────────────────────────────┐
 │ [Image]                      │
@@ -586,6 +624,7 @@ CREATE TABLE storage_bins (
 ### 7.2 Enhanced Inventory Edit Modal
 
 **Layout**:
+
 ```
 ┌─────────────────────────────────────────────┐
 │ Editar Inventario: Product Name        [X] │
@@ -629,6 +668,7 @@ CREATE TABLE storage_bins (
 ## 8. Implementation Plan
 
 ### Phase 1: Catalog Browser (Week 1)
+
 1. Create API endpoint `/api/inventory/catalog`
 2. Create API endpoint `/api/inventory/catalog/assign`
 3. Create route `/[clinic]/portal/inventory/catalog`
@@ -637,6 +677,7 @@ CREATE TABLE storage_bins (
 6. Test assignment flow
 
 ### Phase 2: Enhanced Editing (Week 2)
+
 1. Enhance inventory edit modal with all fields
 2. Update API to handle all inventory fields
 3. Add validation for expiration dates
@@ -644,12 +685,14 @@ CREATE TABLE storage_bins (
 5. Test editing flow
 
 ### Phase 3: Batch/Expiry Management (Week 3)
+
 1. Add expiry date sorting/filtering
 2. Enhance expiry alerts
 3. Add batch number validation
 4. Create batch history view (if needed)
 
 ### Phase 4: Location Management (Week 4)
+
 1. Add location autocomplete/dropdown
 2. Add location filter in inventory
 3. Create location management page (if structured approach)
@@ -661,7 +704,7 @@ CREATE TABLE storage_bins (
 ### 9.1 Get Global Catalog (Excluding Assigned)
 
 ```sql
-SELECT 
+SELECT
     p.id,
     p.sku,
     p.name,
@@ -669,16 +712,16 @@ SELECT
     p.image_url,
     c.name AS category_name,
     b.name AS brand_name,
-    CASE 
-        WHEN a.id IS NOT NULL THEN true 
-        ELSE false 
+    CASE
+        WHEN a.id IS NOT NULL THEN true
+        ELSE false
     END AS is_assigned,
     a.sale_price AS clinic_price
 FROM store_products p
 LEFT JOIN store_categories c ON c.id = p.category_id
 LEFT JOIN store_brands b ON b.id = p.brand_id
-LEFT JOIN clinic_product_assignments a 
-    ON a.catalog_product_id = p.id 
+LEFT JOIN clinic_product_assignments a
+    ON a.catalog_product_id = p.id
     AND a.tenant_id = :clinic_id
 WHERE p.tenant_id IS NULL
   AND p.is_global_catalog = true
@@ -708,7 +751,7 @@ INSERT INTO clinic_product_assignments (
     :requires_prescription,
     true
 )
-ON CONFLICT (tenant_id, catalog_product_id) 
+ON CONFLICT (tenant_id, catalog_product_id)
 DO UPDATE SET
     sale_price = EXCLUDED.sale_price,
     min_stock_level = EXCLUDED.min_stock_level,
@@ -729,7 +772,7 @@ INSERT INTO store_inventory (
     :min_stock_level,
     :location
 )
-ON CONFLICT (product_id) 
+ON CONFLICT (product_id)
 DO UPDATE SET
     stock_quantity = EXCLUDED.stock_quantity,
     min_stock_level = EXCLUDED.min_stock_level,
@@ -740,7 +783,7 @@ DO UPDATE SET
 
 ```sql
 UPDATE store_inventory
-SET 
+SET
     stock_quantity = :stock_quantity,
     expiry_date = :expiry_date,
     batch_number = :batch_number,
@@ -774,6 +817,7 @@ INSERT INTO store_inventory_transactions (
 ## 10. Testing Checklist
 
 ### 10.1 Catalog Browser
+
 - [ ] Can browse global catalog products
 - [ ] Search works correctly
 - [ ] Filters work (category, brand, species)
@@ -788,6 +832,7 @@ INSERT INTO store_inventory_transactions (
 - [ ] Product appears in store after assignment
 
 ### 10.2 Enhanced Inventory Editing
+
 - [ ] Can edit all inventory fields
 - [ ] Expiration date picker works
 - [ ] Batch number saves correctly
@@ -801,6 +846,7 @@ INSERT INTO store_inventory_transactions (
 - [ ] Transaction record created for stock changes
 
 ### 10.3 Expiry Management
+
 - [ ] Expiring products show in alerts
 - [ ] Can filter by expiry date
 - [ ] Can sort by expiry date
@@ -814,6 +860,7 @@ INSERT INTO store_inventory_transactions (
 ### Current State Summary
 
 ✅ **Fully Implemented**:
+
 - Global catalog system
 - Clinic product assignment mechanism
 - Inventory tracking with all required fields
@@ -821,6 +868,7 @@ INSERT INTO store_inventory_transactions (
 - Basic inventory management screen
 
 ❌ **Missing (Critical)**:
+
 - Catalog browser screen to add products from global catalog
 - Full inventory editing UI (expiration, batch, location, etc.)
 
@@ -842,7 +890,6 @@ INSERT INTO store_inventory_transactions (
 
 ---
 
-*Document Version: 1.0*  
-*Created: December 2024*  
-*Last Updated: December 2024*
-
+_Document Version: 1.0_  
+_Created: December 2024_  
+_Last Updated: December 2024_

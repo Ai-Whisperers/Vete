@@ -71,20 +71,26 @@ export interface TwilioWhatsAppWebhook {
 }
 
 // Status Configuration
-export const messageStatusConfig: Record<MessageStatus, { label: string; icon: string; className: string }> = {
+export const messageStatusConfig: Record<
+  MessageStatus,
+  { label: string; icon: string; className: string }
+> = {
   queued: { label: 'En cola', icon: 'clock', className: 'text-gray-400' },
   sent: { label: 'Enviado', icon: 'check', className: 'text-gray-500' },
   delivered: { label: 'Entregado', icon: 'check-check', className: 'text-blue-500' },
   read: { label: 'Leído', icon: 'check-check', className: 'text-green-500' },
-  failed: { label: 'Error', icon: 'x', className: 'text-red-500' }
+  failed: { label: 'Error', icon: 'x', className: 'text-red-500' },
 }
 
 // Template Category Configuration
-export const templateCategoryConfig: Record<TemplateCategory, { label: string; icon: string; color: string }> = {
+export const templateCategoryConfig: Record<
+  TemplateCategory,
+  { label: string; icon: string; color: string }
+> = {
   appointment_reminder: { label: 'Recordatorio de cita', icon: 'calendar', color: 'blue' },
   vaccine_reminder: { label: 'Recordatorio de vacuna', icon: 'syringe', color: 'green' },
   general: { label: 'General', icon: 'message-circle', color: 'gray' },
-  support: { label: 'Soporte', icon: 'help-circle', color: 'purple' }
+  support: { label: 'Soporte', icon: 'help-circle', color: 'purple' },
 }
 
 // Conversation Type Labels
@@ -92,7 +98,7 @@ export const conversationTypeLabels: Record<ConversationType, string> = {
   appointment_reminder: 'Recordatorio de cita',
   vaccine_reminder: 'Recordatorio de vacuna',
   general: 'General',
-  support: 'Soporte'
+  support: 'Soporte',
 }
 
 // WhatsApp brand color
@@ -106,7 +112,7 @@ export const WHATSAPP_GREEN = '#25D366'
 export function formatParaguayPhone(phone: string): string {
   // Remove all non-digits
   let cleaned = phone.replace(/\D/g, '')
-  
+
   // Add Paraguay country code if not present
   if (!cleaned.startsWith('595')) {
     // Remove leading 0 if present
@@ -115,7 +121,7 @@ export function formatParaguayPhone(phone: string): string {
     }
     cleaned = '595' + cleaned
   }
-  
+
   return '+' + cleaned
 }
 
@@ -124,14 +130,14 @@ export function formatParaguayPhone(phone: string): string {
  */
 export function formatPhoneDisplay(phone: string): string {
   const cleaned = phone.replace(/\D/g, '')
-  
+
   if (cleaned.startsWith('595')) {
     const local = cleaned.substring(3)
     if (local.length === 9) {
       return `0${local.substring(0, 3)} ${local.substring(3, 6)} ${local.substring(6)}`
     }
   }
-  
+
   return phone
 }
 
@@ -151,7 +157,7 @@ export function fillTemplateVariables(template: string, variables: Record<string
  */
 export function extractTemplateVariables(content: string): string[] {
   const matches = content.match(/{{(\w+)}}/g) || []
-  return [...new Set(matches.map(m => m.replace(/[{}]/g, '')))]
+  return [...new Set(matches.map((m) => m.replace(/[{}]/g, '')))]
 }
 
 /**
@@ -161,7 +167,7 @@ export function formatMessageTime(dateString: string): string {
   const date = new Date(dateString)
   const now = new Date()
   const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24))
-  
+
   if (diffDays === 0) {
     return date.toLocaleTimeString('es-PY', { hour: '2-digit', minute: '2-digit' })
   } else if (diffDays === 1) {
@@ -177,26 +183,30 @@ export function formatMessageTime(dateString: string): string {
 export const defaultWhatsAppTemplates = [
   {
     name: 'Recordatorio de cita',
-    content: 'Hola {{client_name}}! 🐾 Te recordamos que {{pet_name}} tiene cita el {{date}} a las {{time}}. ¿Confirmas asistencia?',
+    content:
+      'Hola {{client_name}}! 🐾 Te recordamos que {{pet_name}} tiene cita el {{date}} a las {{time}}. ¿Confirmas asistencia?',
     variables: ['client_name', 'pet_name', 'date', 'time'],
-    category: 'appointment_reminder' as ConversationType
+    category: 'appointment_reminder' as ConversationType,
   },
   {
     name: 'Vacuna próxima',
-    content: 'Hola {{client_name}}! 💉 La vacuna de {{pet_name}} ({{vaccine_name}}) vence el {{due_date}}. Agenda tu cita llamando al {{clinic_phone}}.',
+    content:
+      'Hola {{client_name}}! 💉 La vacuna de {{pet_name}} ({{vaccine_name}}) vence el {{due_date}}. Agenda tu cita llamando al {{clinic_phone}}.',
     variables: ['client_name', 'pet_name', 'vaccine_name', 'due_date', 'clinic_phone'],
-    category: 'vaccine_reminder' as ConversationType
+    category: 'vaccine_reminder' as ConversationType,
   },
   {
     name: 'Confirmación de cita',
-    content: '✅ Cita confirmada para {{pet_name}} el {{date}} a las {{time}}. Te esperamos en {{clinic_name}}!',
+    content:
+      '✅ Cita confirmada para {{pet_name}} el {{date}} a las {{time}}. Te esperamos en {{clinic_name}}!',
     variables: ['pet_name', 'date', 'time', 'clinic_name'],
-    category: 'appointment_reminder' as ConversationType
+    category: 'appointment_reminder' as ConversationType,
   },
   {
     name: 'Mensaje de bienvenida',
-    content: '¡Hola {{client_name}}! 👋 Bienvenido a {{clinic_name}}. Estamos aquí para cuidar de {{pet_name}}. ¿En qué podemos ayudarte?',
+    content:
+      '¡Hola {{client_name}}! 👋 Bienvenido a {{clinic_name}}. Estamos aquí para cuidar de {{pet_name}}. ¿En qué podemos ayudarte?',
     variables: ['client_name', 'clinic_name', 'pet_name'],
-    category: 'general' as ConversationType
-  }
+    category: 'general' as ConversationType,
+  },
 ]

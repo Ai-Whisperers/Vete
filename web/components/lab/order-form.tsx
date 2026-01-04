@@ -46,7 +46,7 @@ const categories = [
   { value: 'parasitology', label: 'Parasitología' },
   { value: 'serology', label: 'Serología' },
   { value: 'endocrinology', label: 'Endocrinología' },
-  { value: 'other', label: 'Otros' }
+  { value: 'other', label: 'Otros' },
 ]
 
 export function LabOrderForm({ onSuccess, onCancel }: LabOrderFormProps) {
@@ -94,23 +94,27 @@ export function LabOrderForm({ onSuccess, onCancel }: LabOrderFormProps) {
       // Fetch panels
       const { data: panelsData } = await supabase
         .from('lab_test_panels')
-        .select(`
+        .select(
+          `
           id,
           name,
           category,
           lab_test_panel_items!inner(test_id)
-        `)
+        `
+        )
         .eq('active', true)
         .order('name')
 
       setPets(petsData || [])
       setTests(testsData || [])
-      setPanels(panelsData?.map(p => ({
-        id: p.id,
-        name: p.name,
-        category: p.category,
-        tests: p.lab_test_panel_items as { test_id: string }[]
-      })) || [])
+      setPanels(
+        panelsData?.map((p) => ({
+          id: p.id,
+          name: p.name,
+          category: p.category,
+          tests: p.lab_test_panel_items as { test_id: string }[],
+        })) || []
+      )
     } catch {
       // Error fetching data - silently fail
     } finally {
@@ -129,7 +133,7 @@ export function LabOrderForm({ onSuccess, onCancel }: LabOrderFormProps) {
   }
 
   const togglePanel = (panelId: string) => {
-    const panel = panels.find(p => p.id === panelId)
+    const panel = panels.find((p) => p.id === panelId)
     if (!panel) return
 
     const newSelectedPanels = new Set(selectedPanels)
@@ -138,25 +142,26 @@ export function LabOrderForm({ onSuccess, onCancel }: LabOrderFormProps) {
     if (newSelectedPanels.has(panelId)) {
       // Remove panel and its tests
       newSelectedPanels.delete(panelId)
-      panel.tests.forEach(t => newSelectedTests.delete(t.test_id))
+      panel.tests.forEach((t) => newSelectedTests.delete(t.test_id))
     } else {
       // Add panel and its tests
       newSelectedPanels.add(panelId)
-      panel.tests.forEach(t => newSelectedTests.add(t.test_id))
+      panel.tests.forEach((t) => newSelectedTests.add(t.test_id))
     }
 
     setSelectedPanels(newSelectedPanels)
     setSelectedTests(newSelectedTests)
   }
 
-  const filteredTests = tests.filter(test => {
+  const filteredTests = tests.filter((test) => {
     const matchesCategory = categoryFilter === 'all' || test.category === categoryFilter
-    const matchesSearch = test.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          test.code.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesSearch =
+      test.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      test.code.toLowerCase().includes(searchTerm.toLowerCase())
     return matchesCategory && matchesSearch
   })
 
-  const filteredPanels = panels.filter(panel => {
+  const filteredPanels = panels.filter((panel) => {
     const matchesCategory = categoryFilter === 'all' || panel.category === categoryFilter
     const matchesSearch = panel.name.toLowerCase().includes(searchTerm.toLowerCase())
     return matchesCategory && matchesSearch
@@ -184,8 +189,8 @@ export function LabOrderForm({ onSuccess, onCancel }: LabOrderFormProps) {
           priority,
           lab_type: labType,
           fasting_status: fasting,
-          clinical_notes: clinicalNotes || null
-        })
+          clinical_notes: clinicalNotes || null,
+        }),
       })
 
       if (!response.ok) {
@@ -198,7 +203,7 @@ export function LabOrderForm({ onSuccess, onCancel }: LabOrderFormProps) {
     } catch (err) {
       setFormError({
         message: err instanceof Error ? err.message : 'Error al crear la orden de laboratorio',
-        type: 'server'
+        type: 'server',
       })
     } finally {
       setSubmitting(false)
@@ -208,7 +213,7 @@ export function LabOrderForm({ onSuccess, onCancel }: LabOrderFormProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center p-12">
-        <Loader2 className="w-8 h-8 animate-spin text-[var(--primary)]" />
+        <Loader2 className="h-8 w-8 animate-spin text-[var(--primary)]" />
       </div>
     )
   }
@@ -217,17 +222,17 @@ export function LabOrderForm({ onSuccess, onCancel }: LabOrderFormProps) {
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Pet Selection */}
       <div>
-        <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
+        <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">
           Mascota <span className="text-red-500">*</span>
         </label>
         <select
           value={selectedPetId}
           onChange={(e) => setSelectedPetId(e.target.value)}
           required
-          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
+          className="w-full rounded-xl border border-gray-300 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-[var(--primary)]"
         >
           <option value="">Seleccionar mascota...</option>
-          {pets.map(pet => (
+          {pets.map((pet) => (
             <option key={pet.id} value={pet.id}>
               {pet.name} - {pet.species} ({pet.breed})
             </option>
@@ -236,15 +241,15 @@ export function LabOrderForm({ onSuccess, onCancel }: LabOrderFormProps) {
       </div>
 
       {/* Priority and Lab Type */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div>
-          <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
+          <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">
             Prioridad
           </label>
           <select
             value={priority}
             onChange={(e) => setPriority(e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
+            className="w-full rounded-xl border border-gray-300 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-[var(--primary)]"
           >
             <option value="routine">Rutina</option>
             <option value="urgent">Urgente</option>
@@ -253,13 +258,13 @@ export function LabOrderForm({ onSuccess, onCancel }: LabOrderFormProps) {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
+          <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">
             Tipo de Laboratorio
           </label>
           <select
             value={labType}
             onChange={(e) => setLabType(e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
+            className="w-full rounded-xl border border-gray-300 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-[var(--primary)]"
           >
             <option value="in_house">Interno</option>
             <option value="external">Externo</option>
@@ -274,7 +279,7 @@ export function LabOrderForm({ onSuccess, onCancel }: LabOrderFormProps) {
           id="fasting"
           checked={fasting}
           onChange={(e) => setFasting(e.target.checked)}
-          className="w-5 h-5 text-[var(--primary)] rounded focus:ring-2 focus:ring-[var(--primary)]"
+          className="h-5 w-5 rounded text-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]"
         />
         <label htmlFor="fasting" className="text-sm font-medium text-[var(--text-primary)]">
           Paciente en ayunas
@@ -283,20 +288,22 @@ export function LabOrderForm({ onSuccess, onCancel }: LabOrderFormProps) {
 
       {/* Test Selection */}
       <div>
-        <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
+        <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">
           Pruebas y Paneles <span className="text-red-500">*</span>
         </label>
 
         {/* Filters */}
-        <div className="flex flex-col md:flex-row gap-4 mb-4">
+        <div className="mb-4 flex flex-col gap-4 md:flex-row">
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
+            className="rounded-lg border border-gray-300 px-4 py-2 focus:border-transparent focus:ring-2 focus:ring-[var(--primary)]"
           >
             <option value="all">Todas las categorías</option>
-            {categories.map(cat => (
-              <option key={cat.value} value={cat.value}>{cat.label}</option>
+            {categories.map((cat) => (
+              <option key={cat.value} value={cat.value}>
+                {cat.label}
+              </option>
             ))}
           </select>
 
@@ -305,23 +312,23 @@ export function LabOrderForm({ onSuccess, onCancel }: LabOrderFormProps) {
             placeholder="Buscar pruebas..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
+            className="flex-1 rounded-lg border border-gray-300 px-4 py-2 focus:border-transparent focus:ring-2 focus:ring-[var(--primary)]"
           />
         </div>
 
         {/* Panels */}
         {filteredPanels.length > 0 && (
           <div className="mb-6">
-            <h4 className="text-sm font-semibold text-[var(--text-primary)] mb-3">
+            <h4 className="mb-3 text-sm font-semibold text-[var(--text-primary)]">
               Paneles de Pruebas
             </h4>
             <div className="space-y-2">
-              {filteredPanels.map(panel => (
+              {filteredPanels.map((panel) => (
                 <div
                   key={panel.id}
-                  className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                  className={`cursor-pointer rounded-lg border-2 p-4 transition-all ${
                     selectedPanels.has(panel.id)
-                      ? 'border-[var(--primary)] bg-[var(--primary)]/5'
+                      ? 'bg-[var(--primary)]/5 border-[var(--primary)]'
                       : 'border-gray-200 hover:border-gray-300'
                   }`}
                   onClick={() => togglePanel(panel.id)}
@@ -334,7 +341,7 @@ export function LabOrderForm({ onSuccess, onCancel }: LabOrderFormProps) {
                       </p>
                     </div>
                     {selectedPanels.has(panel.id) && (
-                      <CheckCircle className="w-6 h-6 text-[var(--primary)]" />
+                      <CheckCircle className="h-6 w-6 text-[var(--primary)]" />
                     )}
                   </div>
                 </div>
@@ -345,14 +352,14 @@ export function LabOrderForm({ onSuccess, onCancel }: LabOrderFormProps) {
 
         {/* Individual Tests */}
         <div>
-          <h4 className="text-sm font-semibold text-[var(--text-primary)] mb-3">
+          <h4 className="mb-3 text-sm font-semibold text-[var(--text-primary)]">
             Pruebas Individuales
           </h4>
-          <div className="max-h-96 overflow-y-auto space-y-2 border border-gray-200 rounded-lg p-4">
-            {filteredTests.map(test => (
+          <div className="max-h-96 space-y-2 overflow-y-auto rounded-lg border border-gray-200 p-4">
+            {filteredTests.map((test) => (
               <label
                 key={test.id}
-                className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all ${
+                className={`flex cursor-pointer items-center gap-3 rounded-lg p-3 transition-all ${
                   selectedTests.has(test.id)
                     ? 'bg-[var(--primary)]/10 border-[var(--primary)]'
                     : 'hover:bg-gray-50'
@@ -362,7 +369,7 @@ export function LabOrderForm({ onSuccess, onCancel }: LabOrderFormProps) {
                   type="checkbox"
                   checked={selectedTests.has(test.id)}
                   onChange={() => toggleTest(test.id)}
-                  className="w-5 h-5 text-[var(--primary)] rounded focus:ring-2 focus:ring-[var(--primary)]"
+                  className="h-5 w-5 rounded text-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]"
                 />
                 <div className="flex-1">
                   <div className="font-medium text-[var(--text-primary)]">{test.name}</div>
@@ -373,21 +380,22 @@ export function LabOrderForm({ onSuccess, onCancel }: LabOrderFormProps) {
               </label>
             ))}
             {filteredTests.length === 0 && (
-              <p className="text-center text-[var(--text-secondary)] py-8">
+              <p className="py-8 text-center text-[var(--text-secondary)]">
                 No se encontraron pruebas
               </p>
             )}
           </div>
         </div>
 
-        <p className="text-sm text-[var(--text-secondary)] mt-2">
-          {selectedTests.size} prueba{selectedTests.size !== 1 ? 's' : ''} seleccionada{selectedTests.size !== 1 ? 's' : ''}
+        <p className="mt-2 text-sm text-[var(--text-secondary)]">
+          {selectedTests.size} prueba{selectedTests.size !== 1 ? 's' : ''} seleccionada
+          {selectedTests.size !== 1 ? 's' : ''}
         </p>
       </div>
 
       {/* Clinical Notes */}
       <div>
-        <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
+        <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">
           Notas Clínicas
         </label>
         <textarea
@@ -395,7 +403,7 @@ export function LabOrderForm({ onSuccess, onCancel }: LabOrderFormProps) {
           onChange={(e) => setClinicalNotes(e.target.value)}
           rows={4}
           placeholder="Información clínica relevante, síntomas, diagnóstico presuntivo..."
-          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent resize-none"
+          className="w-full resize-none rounded-xl border border-gray-300 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-[var(--primary)]"
         />
       </div>
 
@@ -404,13 +412,13 @@ export function LabOrderForm({ onSuccess, onCancel }: LabOrderFormProps) {
         <div
           role="alert"
           aria-live="assertive"
-          className={`p-4 rounded-xl border flex items-center gap-3 ${
+          className={`flex items-center gap-3 rounded-xl border p-4 ${
             formError.type === 'validation'
-              ? 'bg-[var(--status-warning-bg,#fef3c7)] border-[var(--status-warning,#eab308)]/30 text-[var(--status-warning-dark,#a16207)]'
-              : 'bg-[var(--status-error-bg,#fee2e2)] border-[var(--status-error,#ef4444)]/30 text-[var(--status-error,#dc2626)]'
+              ? 'border-[var(--status-warning,#eab308)]/30 bg-[var(--status-warning-bg,#fef3c7)] text-[var(--status-warning-dark,#a16207)]'
+              : 'border-[var(--status-error,#ef4444)]/30 bg-[var(--status-error-bg,#fee2e2)] text-[var(--status-error,#dc2626)]'
           }`}
         >
-          <AlertCircle className="w-5 h-5 flex-shrink-0" aria-hidden="true" />
+          <AlertCircle className="h-5 w-5 flex-shrink-0" aria-hidden="true" />
           <p className="font-medium">{formError.message}</p>
           <button
             type="button"
@@ -418,19 +426,19 @@ export function LabOrderForm({ onSuccess, onCancel }: LabOrderFormProps) {
             className="ml-auto hover:opacity-70"
             aria-label="Cerrar mensaje de error"
           >
-            <X className="w-4 h-4" aria-hidden="true" />
+            <X className="h-4 w-4" aria-hidden="true" />
           </button>
         </div>
       )}
 
       {/* Action Buttons */}
-      <div className="flex items-center justify-end gap-4 pt-4 border-t">
+      <div className="flex items-center justify-end gap-4 border-t pt-4">
         {onCancel && (
           <button
             type="button"
             onClick={onCancel}
             disabled={submitting}
-            className="px-6 py-3 border border-gray-300 text-[var(--text-primary)] rounded-xl font-medium hover:bg-gray-50 transition-colors disabled:opacity-50"
+            className="rounded-xl border border-gray-300 px-6 py-3 font-medium text-[var(--text-primary)] transition-colors hover:bg-gray-50 disabled:opacity-50"
           >
             Cancelar
           </button>
@@ -438,16 +446,16 @@ export function LabOrderForm({ onSuccess, onCancel }: LabOrderFormProps) {
         <button
           type="submit"
           disabled={submitting || !selectedPetId || selectedTests.size === 0}
-          className="px-6 py-3 bg-[var(--primary)] text-white rounded-xl font-medium hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center gap-2"
+          className="flex items-center gap-2 rounded-xl bg-[var(--primary)] px-6 py-3 font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
         >
           {submitting ? (
             <>
-              <Loader2 className="w-5 h-5 animate-spin" />
+              <Loader2 className="h-5 w-5 animate-spin" />
               Creando...
             </>
           ) : (
             <>
-              <CheckCircle className="w-5 h-5" />
+              <CheckCircle className="h-5 w-5" />
               Crear Orden
             </>
           )}

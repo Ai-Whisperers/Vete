@@ -14,5 +14,5 @@
  * @deprecated Use the modular version from pets-by-owner/index.tsx
  */
 
-export { PetsByOwner } from "./pets-by-owner/index";
-export type { Owner, Pet, PetsByOwnerProps } from "./pets-by-owner/types";
+export { PetsByOwner } from './pets-by-owner/index'
+export type { Owner, Pet, PetsByOwnerProps } from './pets-by-owner/types'

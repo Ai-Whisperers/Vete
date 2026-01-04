@@ -1,17 +1,17 @@
-import Link from 'next/link';
+import Link from 'next/link'
 
 /**
  * Global 404 page - shown when no route matches
  */
 export default function NotFound() {
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4">
-      <div className="text-center max-w-md">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50 px-4">
+      <div className="max-w-md text-center">
         {/* 404 Illustration */}
         <div className="mb-8">
-          <div className="w-32 h-32 mx-auto bg-gray-100 rounded-full flex items-center justify-center">
+          <div className="mx-auto flex h-32 w-32 items-center justify-center rounded-full bg-gray-100">
             <svg
-              className="w-16 h-16 text-gray-400"
+              className="h-16 w-16 text-gray-400"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -27,26 +27,19 @@ export default function NotFound() {
         </div>
 
         {/* Error Info */}
-        <h1 className="text-6xl font-black text-gray-900 mb-4">404</h1>
-        <h2 className="text-2xl font-bold text-gray-700 mb-4">
-          Página no encontrada
-        </h2>
-        <p className="text-gray-500 mb-8 leading-relaxed">
+        <h1 className="mb-4 text-6xl font-black text-gray-900">404</h1>
+        <h2 className="mb-4 text-2xl font-bold text-gray-700">Página no encontrada</h2>
+        <p className="mb-8 leading-relaxed text-gray-500">
           Lo sentimos, la página que buscas no existe o ha sido movida.
         </p>
 
         {/* Actions */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        <div className="flex flex-col justify-center gap-4 sm:flex-row">
           <Link
             href="/"
-            className="inline-flex items-center justify-center px-6 py-3 bg-gray-900 text-white font-bold rounded-xl hover:bg-gray-800 transition-colors"
+            className="inline-flex items-center justify-center rounded-xl bg-gray-900 px-6 py-3 font-bold text-white transition-colors hover:bg-gray-800"
           >
-            <svg
-              className="w-5 h-5 mr-2"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
+            <svg className="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -59,5 +52,5 @@ export default function NotFound() {
         </div>
       </div>
     </div>
-  );
+  )
 }

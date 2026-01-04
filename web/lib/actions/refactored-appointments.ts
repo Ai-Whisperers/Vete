@@ -39,7 +39,7 @@ export const cancelAppointment = withActionAuth(
       return handleActionError(error, {
         userId: user.id,
         tenantId: profile.tenant_id,
-        operation: 'cancel_appointment'
+        operation: 'cancel_appointment',
       })
     }
   }
@@ -68,7 +68,7 @@ export const checkInAppointment = withActionAuth(
       return handleActionError(error, {
         userId: user.id,
         tenantId: profile.tenant_id,
-        operation: 'check_in_appointment'
+        operation: 'check_in_appointment',
       })
     }
   },
@@ -97,7 +97,7 @@ export const startAppointment = withActionAuth(
       return handleActionError(error, {
         userId: user.id,
         tenantId: profile.tenant_id,
-        operation: 'start_appointment'
+        operation: 'start_appointment',
       })
     }
   },
@@ -128,7 +128,7 @@ export const completeAppointment = withActionAuth(
       return handleActionError(error, {
         userId: user.id,
         tenantId: profile.tenant_id,
-        operation: 'complete_appointment'
+        operation: 'complete_appointment',
       })
     }
   },
@@ -147,22 +147,22 @@ export const getOwnerAppointments = withActionAuth(
       // Get appointments for this user's pets in this clinic
       const appointments = await appointmentService.getAppointments({
         pet_id: undefined, // We'll filter by owner through the domain
-        status: undefined
+        status: undefined,
       })
 
       // Filter for owner's pets (domain service should handle this better)
       const ownerAppointments = appointments.filter(
-        apt => apt.pet?.owner_id === user.id && apt.tenant_id === clinicSlug
+        (apt) => apt.pet?.owner_id === user.id && apt.tenant_id === clinicSlug
       )
 
       // Split into upcoming and past
       const now = new Date()
       const upcoming = ownerAppointments
-        .filter(a => new Date(a.start_time) >= now && a.status !== 'cancelled')
+        .filter((a) => new Date(a.start_time) >= now && a.status !== 'cancelled')
         .sort((a, b) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime())
 
       const past = ownerAppointments
-        .filter(a => new Date(a.start_time) < now || a.status === 'cancelled')
+        .filter((a) => new Date(a.start_time) < now || a.status === 'cancelled')
         .sort((a, b) => new Date(b.start_time).getTime() - new Date(a.start_time).getTime())
 
       return actionSuccess({ upcoming, past })
@@ -170,7 +170,7 @@ export const getOwnerAppointments = withActionAuth(
       return handleActionError(error, {
         userId: user.id,
         tenantId: profile.tenant_id,
-        operation: 'get_owner_appointments'
+        operation: 'get_owner_appointments',
       })
     }
   }

@@ -1,12 +1,12 @@
-"use client";
+'use client'
 
-import { useState, useEffect } from "react";
-import { CartDrawer, FloatingCartButton } from "./cart-drawer";
-import { useCart } from "@/context/cart-context";
+import { useState, useEffect } from 'react'
+import { CartDrawer, FloatingCartButton } from './cart-drawer'
+import { useCart } from '@/context/cart-context'
 
 interface CartLayoutWrapperProps {
   /** Whether user is logged in (from server) */
-  isLoggedIn: boolean;
+  isLoggedIn: boolean
 }
 
 /**
@@ -16,22 +16,22 @@ interface CartLayoutWrapperProps {
  * Only shows cart UI for logged-in users.
  */
 export function CartLayoutWrapper({ isLoggedIn }: CartLayoutWrapperProps) {
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const { itemCount, isLoggedIn: clientIsLoggedIn } = useCart();
-  const [mounted, setMounted] = useState(false);
-  const [hasAuthCookie, setHasAuthCookie] = useState(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false)
+  const { itemCount, isLoggedIn: clientIsLoggedIn } = useCart()
+  const [mounted, setMounted] = useState(false)
+  const [hasAuthCookie, setHasAuthCookie] = useState(false)
 
   useEffect(() => {
-    setMounted(true);
+    setMounted(true)
     // Double-check auth cookie on client side
-    const hasCookie = document.cookie.includes("sb-") && document.cookie.includes("-auth-token");
-    setHasAuthCookie(hasCookie);
-  }, []);
+    const hasCookie = document.cookie.includes('sb-') && document.cookie.includes('-auth-token')
+    setHasAuthCookie(hasCookie)
+  }, [])
 
   // Don't render anything if not logged in (server OR client check)
   // This provides a failsafe against stale server-side auth
   if (!mounted || !isLoggedIn || !hasAuthCookie) {
-    return null;
+    return null
   }
 
   return (
@@ -40,10 +40,7 @@ export function CartLayoutWrapper({ isLoggedIn }: CartLayoutWrapperProps) {
       <FloatingCartButton onClick={() => setIsDrawerOpen(true)} />
 
       {/* Cart Drawer */}
-      <CartDrawer
-        isOpen={isDrawerOpen}
-        onClose={() => setIsDrawerOpen(false)}
-      />
+      <CartDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} />
     </>
-  );
+  )
 }

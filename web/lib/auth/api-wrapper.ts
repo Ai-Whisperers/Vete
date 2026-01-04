@@ -49,17 +49,15 @@ export function withApiAuth<T = unknown>(
       const authResult = await AuthService.validateAuth(options)
 
       if (!authResult.success || !authResult.context) {
-        return apiError(
-          authResult.error!.code as ApiErrorType,
-          authResult.error!.statusCode,
-          { details: authResult.error }
-        )
+        return apiError(authResult.error!.code as ApiErrorType, authResult.error!.statusCode, {
+          details: authResult.error,
+        })
       }
 
       // Execute handler
       const context: ApiHandlerContext = {
         ...authResult.context,
-        request
+        request,
       }
 
       return await handler(context)
@@ -78,7 +76,10 @@ export function withApiAuthParams<P extends Record<string, string>, T = unknown>
   options: ApiRouteOptions & {
     paramName?: keyof P
   } = {}
-): (request: NextRequest, context: { params: Promise<P> }) => Promise<NextResponse<ApiResponse<T>>> {
+): (
+  request: NextRequest,
+  context: { params: Promise<P> }
+) => Promise<NextResponse<ApiResponse<T>>> {
   return async (
     request: NextRequest,
     context: { params: Promise<P> }
@@ -87,28 +88,27 @@ export function withApiAuthParams<P extends Record<string, string>, T = unknown>
       const params = await context.params
 
       // Extract tenant ID from params if needed
-      const tenantId = options.requireTenant && options.paramName
-        ? params[options.paramName] as string
-        : undefined
+      const tenantId =
+        options.requireTenant && options.paramName
+          ? (params[options.paramName] as string)
+          : undefined
 
       // Validate authentication
       const authResult = await AuthService.validateAuth({
         ...options,
-        tenantId
+        tenantId,
       })
 
       if (!authResult.success || !authResult.context) {
-        return apiError(
-          authResult.error!.code as ApiErrorType,
-          authResult.error!.statusCode,
-          { details: authResult.error }
-        )
+        return apiError(authResult.error!.code as ApiErrorType, authResult.error!.statusCode, {
+          details: authResult.error,
+        })
       }
 
       // Execute handler
       const handlerContext: ApiHandlerContext = {
         ...authResult.context,
-        request
+        request,
       }
 
       return await handler(handlerContext, params)
@@ -124,7 +124,11 @@ export function withApiAuthParams<P extends Record<string, string>, T = unknown>
  */
 export function requireOwnership(resourceOwnerId: string, context: AuthContext): boolean {
   if (AuthService.isAdmin(context.profile)) return true
-  if (AuthService.isStaff(context.profile) && AuthService.belongsToTenant(context.profile, context.profile.tenant_id)) return true
+  if (
+    AuthService.isStaff(context.profile) &&
+    AuthService.belongsToTenant(context.profile, context.profile.tenant_id)
+  )
+    return true
   return AuthService.ownsResource(context.profile, resourceOwnerId)
 }
 
@@ -132,5 +136,7 @@ export function requireOwnership(resourceOwnerId: string, context: AuthContext):
  * Utility function to check tenant access within handlers
  */
 export function requireTenantAccess(tenantId: string, context: AuthContext): boolean {
-  return AuthService.belongsToTenant(context.profile, tenantId) || AuthService.isAdmin(context.profile)
+  return (
+    AuthService.belongsToTenant(context.profile, tenantId) || AuthService.isAdmin(context.profile)
+  )
 }

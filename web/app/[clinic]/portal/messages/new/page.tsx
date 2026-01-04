@@ -1,28 +1,30 @@
-import { createClient } from '@/lib/supabase/server';
-import { redirect } from 'next/navigation';
-import Link from 'next/link';
-import { ArrowLeft, MessageCircle, Send, PawPrint, AlertCircle } from 'lucide-react';
-import Image from 'next/image';
+import { createClient } from '@/lib/supabase/server'
+import { redirect } from 'next/navigation'
+import Link from 'next/link'
+import { ArrowLeft, MessageCircle, Send, PawPrint, AlertCircle } from 'lucide-react'
+import Image from 'next/image'
 
 interface Props {
-  params: Promise<{ clinic: string }>;
+  params: Promise<{ clinic: string }>
 }
 
 interface Pet {
-  id: string;
-  name: string;
-  species: string;
-  photo_url: string | null;
+  id: string
+  name: string
+  species: string
+  photo_url: string | null
 }
 
 export default async function NewMessagePage({ params }: Props): Promise<React.ReactElement> {
-  const { clinic } = await params;
-  const supabase = await createClient();
+  const { clinic } = await params
+  const supabase = await createClient()
 
   // Auth check
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) {
-    redirect(`/${clinic}/portal/login`);
+    redirect(`/${clinic}/portal/login`)
   }
 
   // Fetch user's pets for context selection
@@ -31,31 +33,29 @@ export default async function NewMessagePage({ params }: Props): Promise<React.R
     .select('id, name, species, photo_url')
     .eq('owner_id', user.id)
     .is('deleted_at', null)
-    .order('name');
+    .order('name')
 
-  const typedPets = (pets || []) as Pet[];
+  const typedPets = (pets || []) as Pet[]
 
   // Get clinic info
-  const { data: tenant } = await supabase
-    .from('tenants')
-    .select('name')
-    .eq('id', clinic)
-    .single();
+  const { data: tenant } = await supabase.from('tenants').select('name').eq('id', clinic).single()
 
   // Server action to create conversation
   async function createConversation(formData: FormData): Promise<void> {
-    'use server';
+    'use server'
 
-    const supabaseServer = (await import('@/lib/supabase/server')).createClient;
-    const supabase = await supabaseServer();
+    const supabaseServer = (await import('@/lib/supabase/server')).createClient
+    const supabase = await supabaseServer()
 
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (!user) return
 
-    const petId = formData.get('petId') as string | null;
-    const subject = formData.get('subject') as string;
-    const message = formData.get('message') as string;
-    const priority = formData.get('priority') as string;
+    const petId = formData.get('petId') as string | null
+    const subject = formData.get('subject') as string
+    const message = formData.get('message') as string
+    const priority = formData.get('priority') as string
 
     // Create conversation
     const { data: conversation, error: convError } = await supabase
@@ -70,12 +70,12 @@ export default async function NewMessagePage({ params }: Props): Promise<React.R
         priority: priority || 'normal',
       })
       .select('id')
-      .single();
+      .single()
 
     if (convError || !conversation) {
-      const { logger } = await import('@/lib/logger');
-      logger.error('Error creating conversation', { error: convError?.message });
-      return;
+      const { logger } = await import('@/lib/logger')
+      logger.error('Error creating conversation', { error: convError?.message })
+      return
     }
 
     // Create first message
@@ -85,50 +85,55 @@ export default async function NewMessagePage({ params }: Props): Promise<React.R
       sender_type: 'client',
       content: message,
       status: 'sent',
-    });
+    })
 
     // Redirect to conversation
-    const { redirect: redirectFn } = await import('next/navigation');
-    redirectFn(`/${clinic}/portal/messages/${conversation.id}`);
+    const { redirect: redirectFn } = await import('next/navigation')
+    redirectFn(`/${clinic}/portal/messages/${conversation.id}`)
   }
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="mx-auto max-w-2xl">
       {/* Header */}
       <div className="mb-6">
         <Link
           href={`/${clinic}/portal/messages`}
-          className="inline-flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--primary)] transition-colors mb-4"
+          className="mb-4 inline-flex items-center gap-2 text-[var(--text-secondary)] transition-colors hover:text-[var(--primary)]"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className="h-4 w-4" />
           Volver a Mensajes
         </Link>
 
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-[var(--primary)]/10 flex items-center justify-center">
-            <MessageCircle className="w-6 h-6 text-[var(--primary)]" />
+          <div className="bg-[var(--primary)]/10 flex h-12 w-12 items-center justify-center rounded-xl">
+            <MessageCircle className="h-6 w-6 text-[var(--primary)]" />
           </div>
           <div>
             <h1 className="text-2xl font-black text-[var(--text-primary)]">Nuevo Mensaje</h1>
-            <p className="text-[var(--text-secondary)]">Contacta a {tenant?.name || 'la clínica'}</p>
+            <p className="text-[var(--text-secondary)]">
+              Contacta a {tenant?.name || 'la clínica'}
+            </p>
           </div>
         </div>
       </div>
 
       {/* Form */}
-      <form action={createConversation} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <form
+        action={createConversation}
+        className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm"
+      >
         {/* Pet Selection (Optional) */}
         {typedPets.length > 0 && (
-          <div className="p-6 border-b border-gray-100">
-            <label className="block text-sm font-bold text-gray-400 uppercase tracking-wider mb-3">
+          <div className="border-b border-gray-100 p-6">
+            <label className="mb-3 block text-sm font-bold uppercase tracking-wider text-gray-400">
               Mascota relacionada (opcional)
             </label>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
               <label className="relative cursor-pointer">
                 <input type="radio" name="petId" value="" defaultChecked className="peer sr-only" />
-                <div className="p-3 rounded-xl border-2 border-gray-200 peer-checked:border-[var(--primary)] peer-checked:bg-[var(--primary)]/5 transition-all text-center">
-                  <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-2">
-                    <MessageCircle className="w-5 h-5 text-gray-400" />
+                <div className="peer-checked:bg-[var(--primary)]/5 rounded-xl border-2 border-gray-200 p-3 text-center transition-all peer-checked:border-[var(--primary)]">
+                  <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100">
+                    <MessageCircle className="h-5 w-5 text-gray-400" />
                   </div>
                   <p className="text-sm font-medium text-gray-600">Consulta General</p>
                 </div>
@@ -136,23 +141,23 @@ export default async function NewMessagePage({ params }: Props): Promise<React.R
               {typedPets.map((pet) => (
                 <label key={pet.id} className="relative cursor-pointer">
                   <input type="radio" name="petId" value={pet.id} className="peer sr-only" />
-                  <div className="p-3 rounded-xl border-2 border-gray-200 peer-checked:border-[var(--primary)] peer-checked:bg-[var(--primary)]/5 transition-all text-center">
-                    <div className="w-10 h-10 rounded-full bg-gray-100 overflow-hidden mx-auto mb-2">
+                  <div className="peer-checked:bg-[var(--primary)]/5 rounded-xl border-2 border-gray-200 p-3 text-center transition-all peer-checked:border-[var(--primary)]">
+                    <div className="mx-auto mb-2 h-10 w-10 overflow-hidden rounded-full bg-gray-100">
                       {pet.photo_url ? (
                         <Image
                           src={pet.photo_url}
                           alt={pet.name}
                           width={40}
                           height={40}
-                          className="w-full h-full object-cover"
+                          className="h-full w-full object-cover"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center text-gray-300">
-                          <PawPrint className="w-5 h-5" />
+                        <div className="flex h-full w-full items-center justify-center text-gray-300">
+                          <PawPrint className="h-5 w-5" />
                         </div>
                       )}
                     </div>
-                    <p className="text-sm font-medium text-gray-600 truncate">{pet.name}</p>
+                    <p className="truncate text-sm font-medium text-gray-600">{pet.name}</p>
                   </div>
                 </label>
               ))}
@@ -161,9 +166,12 @@ export default async function NewMessagePage({ params }: Props): Promise<React.R
         )}
 
         {/* Subject & Priority */}
-        <div className="p-6 border-b border-gray-100 grid sm:grid-cols-2 gap-4">
+        <div className="grid gap-4 border-b border-gray-100 p-6 sm:grid-cols-2">
           <div>
-            <label htmlFor="subject" className="block text-sm font-bold text-gray-400 uppercase tracking-wider mb-2">
+            <label
+              htmlFor="subject"
+              className="mb-2 block text-sm font-bold uppercase tracking-wider text-gray-400"
+            >
               Asunto *
             </label>
             <input
@@ -172,18 +180,21 @@ export default async function NewMessagePage({ params }: Props): Promise<React.R
               name="subject"
               required
               placeholder="Ej: Consulta sobre vacunas"
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none transition-all"
+              className="focus:ring-[var(--primary)]/20 w-full rounded-xl border border-gray-200 px-4 py-3 outline-none transition-all focus:border-[var(--primary)] focus:ring-2"
             />
           </div>
           <div>
-            <label htmlFor="priority" className="block text-sm font-bold text-gray-400 uppercase tracking-wider mb-2">
+            <label
+              htmlFor="priority"
+              className="mb-2 block text-sm font-bold uppercase tracking-wider text-gray-400"
+            >
               Prioridad
             </label>
             <select
               id="priority"
               name="priority"
               defaultValue="normal"
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none transition-all"
+              className="focus:ring-[var(--primary)]/20 w-full rounded-xl border border-gray-200 px-4 py-3 outline-none transition-all focus:border-[var(--primary)] focus:ring-2"
             >
               <option value="low">Baja - Consulta general</option>
               <option value="normal">Normal</option>
@@ -194,8 +205,11 @@ export default async function NewMessagePage({ params }: Props): Promise<React.R
         </div>
 
         {/* Message */}
-        <div className="p-6 border-b border-gray-100">
-          <label htmlFor="message" className="block text-sm font-bold text-gray-400 uppercase tracking-wider mb-2">
+        <div className="border-b border-gray-100 p-6">
+          <label
+            htmlFor="message"
+            className="mb-2 block text-sm font-bold uppercase tracking-wider text-gray-400"
+          >
             Mensaje *
           </label>
           <textarea
@@ -204,36 +218,36 @@ export default async function NewMessagePage({ params }: Props): Promise<React.R
             required
             rows={6}
             placeholder="Escribe tu mensaje aquí..."
-            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none transition-all resize-none"
+            className="focus:ring-[var(--primary)]/20 w-full resize-none rounded-xl border border-gray-200 px-4 py-3 outline-none transition-all focus:border-[var(--primary)] focus:ring-2"
           />
         </div>
 
         {/* Info Box */}
-        <div className="px-6 py-4 bg-blue-50 flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+        <div className="flex items-start gap-3 bg-blue-50 px-6 py-4">
+          <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-600" />
           <p className="text-sm text-blue-700">
-            Recibirás una notificación cuando el equipo responda tu mensaje.
-            Para emergencias, por favor llama directamente a la clínica.
+            Recibirás una notificación cuando el equipo responda tu mensaje. Para emergencias, por
+            favor llama directamente a la clínica.
           </p>
         </div>
 
         {/* Submit */}
-        <div className="p-6 flex justify-end gap-3">
+        <div className="flex justify-end gap-3 p-6">
           <Link
             href={`/${clinic}/portal/messages`}
-            className="px-6 py-3 text-[var(--text-secondary)] font-medium hover:bg-gray-100 rounded-xl transition-colors"
+            className="rounded-xl px-6 py-3 font-medium text-[var(--text-secondary)] transition-colors hover:bg-gray-100"
           >
             Cancelar
           </Link>
           <button
             type="submit"
-            className="flex items-center gap-2 px-6 py-3 bg-[var(--primary)] text-white font-bold rounded-xl hover:opacity-90 transition-opacity"
+            className="flex items-center gap-2 rounded-xl bg-[var(--primary)] px-6 py-3 font-bold text-white transition-opacity hover:opacity-90"
           >
-            <Send className="w-4 h-4" />
+            <Send className="h-4 w-4" />
             Enviar Mensaje
           </button>
         </div>
       </form>
     </div>
-  );
+  )
 }

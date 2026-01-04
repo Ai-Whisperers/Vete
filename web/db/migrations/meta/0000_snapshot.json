@@ -236,18 +236,14 @@
           "name": "Authenticated users view own tenant",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "authenticated"
-          ],
+          "to": ["authenticated"],
           "using": "((is_active = true) AND ((EXISTS ( SELECT 1\n   FROM profiles\n  WHERE ((profiles.id = auth.uid()) AND (profiles.tenant_id = tenants.id)))) OR true))"
         },
         "Service role full access": {
           "name": "Service role full access",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         }
       },
       "isRLSEnabled": true
@@ -734,12 +730,8 @@
           "tableFrom": "profiles",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "deleted_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["deleted_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -748,12 +740,8 @@
           "tableFrom": "profiles",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -791,9 +779,7 @@
           "name": "Service role full access",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ],
+          "to": ["service_role"],
           "withCheck": "true",
           "using": "true"
         },
@@ -801,41 +787,31 @@
           "name": "Staff update tenant profiles",
           "as": "PERMISSIVE",
           "for": "UPDATE",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         },
         "Staff view tenant profiles": {
           "name": "Staff view tenant profiles",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         },
         "Users insert own profile": {
           "name": "Users insert own profile",
           "as": "PERMISSIVE",
           "for": "INSERT",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         },
         "Users update own profile": {
           "name": "Users update own profile",
           "as": "PERMISSIVE",
           "for": "UPDATE",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         },
         "Users view own profile": {
           "name": "Users view own profile",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         }
       },
       "isRLSEnabled": true
@@ -916,12 +892,8 @@
           "tableFrom": "demo_accounts",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -929,9 +901,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "demo_accounts_email_key": {
-          "columns": [
-            "email"
-          ],
+          "columns": ["email"],
           "nullsNotDistinct": false,
           "name": "demo_accounts_email_key"
         }
@@ -947,9 +917,7 @@
           "name": "Service role manage demo accounts",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ],
+          "to": ["service_role"],
           "using": "true"
         }
       },
@@ -1193,12 +1161,8 @@
           "tableFrom": "clinic_invites",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "accepted_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["accepted_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -1207,12 +1171,8 @@
           "tableFrom": "clinic_invites",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "invited_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["invited_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -1221,12 +1181,8 @@
           "tableFrom": "clinic_invites",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1256,18 +1212,14 @@
           "name": "Service role full access",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ],
+          "to": ["service_role"],
           "using": "true"
         },
         "Staff manage invites": {
           "name": "Staff manage invites",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         }
       },
       "isRLSEnabled": true
@@ -1315,10 +1267,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "clinic_patient_access_clinic_id_pet_id_key": {
-          "columns": [
-            "clinic_id",
-            "pet_id"
-          ],
+          "columns": ["clinic_id", "pet_id"],
           "nullsNotDistinct": false,
           "name": "clinic_patient_access_clinic_id_pet_id_key"
         }
@@ -1480,10 +1429,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "clinic_product_assignments_tenant_id_catalog_product_id_key": {
-          "columns": [
-            "tenant_id",
-            "catalog_product_id"
-          ],
+          "columns": ["tenant_id", "catalog_product_id"],
           "nullsNotDistinct": false,
           "name": "clinic_product_assignments_tenant_id_catalog_product_id_key"
         }
@@ -1494,9 +1440,7 @@
           "name": "Clinic staff manage assignments",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ],
+          "to": ["authenticated"],
           "withCheck": "(EXISTS ( SELECT 1\n   FROM profiles p\n  WHERE ((p.id = auth.uid()) AND (p.tenant_id = clinic_product_assignments.tenant_id) AND (p.role = ANY (ARRAY['vet'::text, 'admin'::text])) AND (p.deleted_at IS NULL))))",
           "using": "(EXISTS ( SELECT 1\n   FROM profiles p\n  WHERE ((p.id = auth.uid()) AND (p.tenant_id = clinic_product_assignments.tenant_id) AND (p.role = ANY (ARRAY['vet'::text, 'admin'::text])) AND (p.deleted_at IS NULL))))"
         },
@@ -1504,17 +1448,13 @@
           "name": "Service role full access assignments",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         },
         "Service role full access product assignments": {
           "name": "Service role full access product assignments",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         }
       },
       "isRLSEnabled": false
@@ -2065,12 +2005,8 @@
           "tableFrom": "pets",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "deleted_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["deleted_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -2079,12 +2015,8 @@
           "tableFrom": "pets",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "owner_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["owner_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         },
@@ -2093,12 +2025,8 @@
           "tableFrom": "pets",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -2148,9 +2076,7 @@
           "name": "Owners manage own pets",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ],
+          "to": ["authenticated"],
           "withCheck": "(owner_id = auth.uid())",
           "using": "((owner_id = auth.uid()) AND (deleted_at IS NULL))"
         },
@@ -2158,17 +2084,13 @@
           "name": "Service role full access",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         },
         "Staff manage tenant pets": {
           "name": "Staff manage tenant pets",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         }
       },
       "isRLSEnabled": true
@@ -2330,12 +2252,8 @@
           "tableFrom": "qr_tags",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "assigned_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["assigned_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -2344,12 +2262,8 @@
           "tableFrom": "qr_tags",
           "tableTo": "pets",
           "schemaTo": "public",
-          "columnsFrom": [
-            "pet_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["pet_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -2358,12 +2272,8 @@
           "tableFrom": "qr_tags",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -2371,9 +2281,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "qr_tags_code_key": {
-          "columns": [
-            "code"
-          ],
+          "columns": ["code"],
           "nullsNotDistinct": false,
           "name": "qr_tags_code_key"
         }
@@ -2389,26 +2297,20 @@
           "name": "Public lookup tags",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "((is_active = true) AND (is_registered = true))"
         },
         "Service role full access tags": {
           "name": "Service role full access tags",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         },
         "Staff manage tags": {
           "name": "Staff manage tags",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         }
       },
       "isRLSEnabled": true
@@ -2707,12 +2609,8 @@
           "tableFrom": "lost_pets",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "found_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["found_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -2721,12 +2619,8 @@
           "tableFrom": "lost_pets",
           "tableTo": "pets",
           "schemaTo": "public",
-          "columnsFrom": [
-            "pet_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["pet_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -2735,12 +2629,8 @@
           "tableFrom": "lost_pets",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "reported_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["reported_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -2749,12 +2639,8 @@
           "tableFrom": "lost_pets",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -2772,34 +2658,26 @@
           "name": "Owners manage own lost pets",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ],
+          "to": ["authenticated"],
           "using": "is_owner_of_pet(pet_id)"
         },
         "Public view lost pets": {
           "name": "Public view lost pets",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "public"
-          ]
+          "to": ["public"]
         },
         "Service role full access lost pets": {
           "name": "Service role full access lost pets",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         },
         "Staff manage lost pets": {
           "name": "Staff manage lost pets",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         }
       },
       "isRLSEnabled": true
@@ -2991,34 +2869,26 @@
           "name": "Public read global templates",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "((tenant_id IS NULL) AND (is_active = true) AND (deleted_at IS NULL))"
         },
         "Service role full access templates": {
           "name": "Service role full access templates",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         },
         "Staff manage tenant templates": {
           "name": "Staff manage tenant templates",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         },
         "Staff read tenant templates": {
           "name": "Staff read tenant templates",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         }
       },
       "isRLSEnabled": true
@@ -3302,12 +3172,8 @@
           "tableFrom": "vaccines",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "administered_by_clinic"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["administered_by_clinic"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -3316,12 +3182,8 @@
           "tableFrom": "vaccines",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "administered_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["administered_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -3330,12 +3192,8 @@
           "tableFrom": "vaccines",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "deleted_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["deleted_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -3344,12 +3202,8 @@
           "tableFrom": "vaccines",
           "tableTo": "pets",
           "schemaTo": "public",
-          "columnsFrom": [
-            "pet_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["pet_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -3358,12 +3212,8 @@
           "tableFrom": "vaccines",
           "tableTo": "vaccine_templates",
           "schemaTo": "public",
-          "columnsFrom": [
-            "template_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["template_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -3393,18 +3243,14 @@
           "name": "Owners view pet vaccines",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "authenticated"
-          ],
+          "to": ["authenticated"],
           "using": "(is_owner_of_pet(pet_id) AND (deleted_at IS NULL))"
         },
         "Service role full access vaccines": {
           "name": "Service role full access vaccines",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         }
       },
       "isRLSEnabled": true
@@ -3585,12 +3431,8 @@
           "tableFrom": "vaccine_reactions",
           "tableTo": "pets",
           "schemaTo": "public",
-          "columnsFrom": [
-            "pet_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["pet_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -3599,12 +3441,8 @@
           "tableFrom": "vaccine_reactions",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "reported_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["reported_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -3613,12 +3451,8 @@
           "tableFrom": "vaccine_reactions",
           "tableTo": "vaccines",
           "schemaTo": "public",
-          "columnsFrom": [
-            "vaccine_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["vaccine_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -3640,18 +3474,14 @@
           "name": "Owners view pet reactions",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "authenticated"
-          ],
+          "to": ["authenticated"],
           "using": "is_owner_of_pet(pet_id)"
         },
         "Service role full access reactions": {
           "name": "Service role full access reactions",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         }
       },
       "isRLSEnabled": true
@@ -3749,11 +3579,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "document_sequences_tenant_id_document_type_year_key": {
-          "columns": [
-            "tenant_id",
-            "document_type",
-            "year"
-          ],
+          "columns": ["tenant_id", "document_type", "year"],
           "nullsNotDistinct": false,
           "name": "document_sequences_tenant_id_document_type_year_key"
         }
@@ -3764,18 +3590,14 @@
           "name": "Admin manage sequences",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ],
+          "to": ["authenticated"],
           "using": "(EXISTS ( SELECT 1\n   FROM profiles p\n  WHERE ((p.id = auth.uid()) AND (p.tenant_id = document_sequences.tenant_id) AND (p.role = 'admin'::text) AND (p.deleted_at IS NULL))))"
         },
         "Service role full access sequences": {
           "name": "Service role full access sequences",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         }
       },
       "isRLSEnabled": true
@@ -3961,18 +3783,14 @@
           "name": "Service role full access preauth",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ],
+          "to": ["service_role"],
           "using": "true"
         },
         "Staff manage preauth": {
           "name": "Staff manage preauth",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         }
       },
       "isRLSEnabled": true
@@ -4158,9 +3976,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "vaccine_protocols_vaccine_code_key": {
-          "columns": [
-            "vaccine_code"
-          ],
+          "columns": ["vaccine_code"],
           "nullsNotDistinct": false,
           "name": "vaccine_protocols_vaccine_code_key"
         }
@@ -4376,10 +4192,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "clinic_pets_pet_id_tenant_id_key": {
-          "columns": [
-            "pet_id",
-            "tenant_id"
-          ],
+          "columns": ["pet_id", "tenant_id"],
           "nullsNotDistinct": false,
           "name": "clinic_pets_pet_id_tenant_id_key"
         }
@@ -4390,9 +4203,7 @@
           "name": "Clinic staff manage clinic_pets",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ],
+          "to": ["authenticated"],
           "withCheck": "(EXISTS ( SELECT 1\n   FROM profiles p\n  WHERE ((p.id = auth.uid()) AND (p.tenant_id = clinic_pets.tenant_id) AND (p.role = ANY (ARRAY['vet'::text, 'admin'::text])) AND (p.deleted_at IS NULL))))",
           "using": "(EXISTS ( SELECT 1\n   FROM profiles p\n  WHERE ((p.id = auth.uid()) AND (p.tenant_id = clinic_pets.tenant_id) AND (p.role = ANY (ARRAY['vet'::text, 'admin'::text])) AND (p.deleted_at IS NULL))))"
         },
@@ -4400,17 +4211,13 @@
           "name": "Owners view their pets clinic relationships",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         },
         "Service role full access clinic_pets": {
           "name": "Service role full access clinic_pets",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         }
       },
       "isRLSEnabled": true
@@ -4602,12 +4409,8 @@
           "tableFrom": "diagnosis_codes",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "deleted_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["deleted_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -4615,9 +4418,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "diagnosis_codes_code_key": {
-          "columns": [
-            "code"
-          ],
+          "columns": ["code"],
           "nullsNotDistinct": false,
           "name": "diagnosis_codes_code_key"
         }
@@ -4645,18 +4446,14 @@
           "name": "Public read diagnosis codes",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "(deleted_at IS NULL)"
         },
         "Service role manage diagnosis codes": {
           "name": "Service role manage diagnosis codes",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         }
       },
       "isRLSEnabled": true
@@ -4874,12 +4671,8 @@
           "tableFrom": "drug_dosages",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "deleted_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["deleted_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -4887,10 +4680,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "drug_dosages_name_species_key": {
-          "columns": [
-            "name",
-            "species"
-          ],
+          "columns": ["name", "species"],
           "nullsNotDistinct": false,
           "name": "drug_dosages_name_species_key"
         }
@@ -4938,18 +4728,14 @@
           "name": "Public read drug dosages",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "(deleted_at IS NULL)"
         },
         "Service role manage drug dosages": {
           "name": "Service role manage drug dosages",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         }
       },
       "isRLSEnabled": true
@@ -5130,12 +4916,8 @@
           "tableFrom": "growth_standards",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "deleted_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["deleted_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -5143,13 +4925,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "growth_standards_species_breed_gender_age_weeks_percentile_key": {
-          "columns": [
-            "species",
-            "breed",
-            "gender",
-            "age_weeks",
-            "percentile"
-          ],
+          "columns": ["species", "breed", "gender", "age_weeks", "percentile"],
           "nullsNotDistinct": false,
           "name": "growth_standards_species_breed_gender_age_weeks_percentile_key"
         }
@@ -5181,18 +4957,14 @@
           "name": "Public read growth standards",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "(deleted_at IS NULL)"
         },
         "Service role manage growth standards": {
           "name": "Service role manage growth standards",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         }
       },
       "isRLSEnabled": true
@@ -5397,12 +5169,8 @@
           "tableFrom": "reproductive_cycles",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "deleted_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["deleted_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -5411,12 +5179,8 @@
           "tableFrom": "reproductive_cycles",
           "tableTo": "pets",
           "schemaTo": "public",
-          "columnsFrom": [
-            "pet_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["pet_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -5425,12 +5189,8 @@
           "tableFrom": "reproductive_cycles",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "recorded_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["recorded_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -5439,12 +5199,8 @@
           "tableFrom": "reproductive_cycles",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -5470,26 +5226,20 @@
           "name": "Owners view pet cycles",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "authenticated"
-          ],
+          "to": ["authenticated"],
           "using": "(is_owner_of_pet(pet_id) AND (deleted_at IS NULL))"
         },
         "Service role full access cycles": {
           "name": "Service role full access cycles",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         },
         "Staff manage reproductive cycles": {
           "name": "Staff manage reproductive cycles",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         }
       },
       "isRLSEnabled": true
@@ -5689,12 +5439,8 @@
           "tableFrom": "euthanasia_assessments",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "assessed_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["assessed_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -5703,12 +5449,8 @@
           "tableFrom": "euthanasia_assessments",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "deleted_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["deleted_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -5717,12 +5459,8 @@
           "tableFrom": "euthanasia_assessments",
           "tableTo": "pets",
           "schemaTo": "public",
-          "columnsFrom": [
-            "pet_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["pet_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -5731,12 +5469,8 @@
           "tableFrom": "euthanasia_assessments",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -5782,26 +5516,20 @@
           "name": "Owners view pet assessments",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "authenticated"
-          ],
+          "to": ["authenticated"],
           "using": "(is_owner_of_pet(pet_id) AND (deleted_at IS NULL))"
         },
         "Service role full access assessments": {
           "name": "Service role full access assessments",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         },
         "Staff manage assessments": {
           "name": "Staff manage assessments",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         }
       },
       "isRLSEnabled": true
@@ -5968,12 +5696,8 @@
           "tableFrom": "consent_templates",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -5982,12 +5706,8 @@
           "tableFrom": "consent_templates",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "deleted_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["deleted_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -5996,12 +5716,8 @@
           "tableFrom": "consent_templates",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -6010,12 +5726,8 @@
           "tableFrom": "consent_templates",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "updated_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["updated_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -6023,17 +5735,12 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "consent_templates_tenant_code": {
-          "columns": [
-            "tenant_id",
-            "code"
-          ],
+          "columns": ["tenant_id", "code"],
           "nullsNotDistinct": false,
           "name": "consent_templates_tenant_code"
         },
         "consent_templates_global_code": {
-          "columns": [
-            "code"
-          ],
+          "columns": ["code"],
           "nullsNotDistinct": false,
           "name": "consent_templates_global_code"
         }
@@ -6061,26 +5768,20 @@
           "name": "Clinic templates managed by staff",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ],
+          "to": ["authenticated"],
           "using": "((tenant_id IS NOT NULL) AND is_staff_of(tenant_id) AND (deleted_at IS NULL))"
         },
         "Global templates viewable by all": {
           "name": "Global templates viewable by all",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         },
         "Service role full access consent_templates": {
           "name": "Service role full access consent_templates",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         }
       },
       "isRLSEnabled": false
@@ -6503,12 +6204,8 @@
           "tableFrom": "medical_records",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "deleted_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["deleted_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -6517,12 +6214,8 @@
           "tableFrom": "medical_records",
           "tableTo": "pets",
           "schemaTo": "public",
-          "columnsFrom": [
-            "pet_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["pet_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -6531,12 +6224,8 @@
           "tableFrom": "medical_records",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -6545,12 +6234,8 @@
           "tableFrom": "medical_records",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "vet_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["vet_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -6592,26 +6277,20 @@
           "name": "Owners view pet records",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "authenticated"
-          ],
+          "to": ["authenticated"],
           "using": "(is_owner_of_pet(pet_id) AND (deleted_at IS NULL))"
         },
         "Service role full access records": {
           "name": "Service role full access records",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         },
         "Staff manage medical records": {
           "name": "Staff manage medical records",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         }
       },
       "isRLSEnabled": true
@@ -6965,12 +6644,8 @@
           "tableFrom": "prescriptions",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "deleted_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["deleted_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -6979,12 +6654,8 @@
           "tableFrom": "prescriptions",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "dispensed_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["dispensed_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -6993,12 +6664,8 @@
           "tableFrom": "prescriptions",
           "tableTo": "medical_records",
           "schemaTo": "public",
-          "columnsFrom": [
-            "medical_record_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["medical_record_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -7007,12 +6674,8 @@
           "tableFrom": "prescriptions",
           "tableTo": "pets",
           "schemaTo": "public",
-          "columnsFrom": [
-            "pet_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["pet_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -7021,12 +6684,8 @@
           "tableFrom": "prescriptions",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -7035,12 +6694,8 @@
           "tableFrom": "prescriptions",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "vet_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["vet_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         }
@@ -7048,10 +6703,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "prescriptions_tenant_id_prescription_number_key": {
-          "columns": [
-            "tenant_id",
-            "prescription_number"
-          ],
+          "columns": ["tenant_id", "prescription_number"],
           "nullsNotDistinct": false,
           "name": "prescriptions_tenant_id_prescription_number_key"
         }
@@ -7075,26 +6727,20 @@
           "name": "Owners view pet prescriptions",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "authenticated"
-          ],
+          "to": ["authenticated"],
           "using": "(is_owner_of_pet(pet_id) AND (deleted_at IS NULL))"
         },
         "Service role full access prescriptions": {
           "name": "Service role full access prescriptions",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         },
         "Staff manage prescriptions": {
           "name": "Staff manage prescriptions",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         }
       },
       "isRLSEnabled": true
@@ -7168,10 +6814,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "notification_channels_tenant_id_channel_type_key": {
-          "columns": [
-            "tenant_id",
-            "channel_type"
-          ],
+          "columns": ["tenant_id", "channel_type"],
           "nullsNotDistinct": false,
           "name": "notification_channels_tenant_id_channel_type_key"
         }
@@ -7259,11 +6902,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "notification_templates_tenant_id_type_channel_type_key": {
-          "columns": [
-            "tenant_id",
-            "type",
-            "channel_type"
-          ],
+          "columns": ["tenant_id", "type", "channel_type"],
           "nullsNotDistinct": false,
           "name": "notification_templates_tenant_id_type_channel_type_key"
         }
@@ -7379,9 +7018,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "notification_preferences_client_id_key": {
-          "columns": [
-            "client_id"
-          ],
+          "columns": ["client_id"],
           "nullsNotDistinct": false,
           "name": "notification_preferences_client_id_key"
         }
@@ -7392,9 +7029,7 @@
           "name": "Users manage own preferences",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "(client_id = auth.uid())"
         }
       },
@@ -8002,12 +7637,8 @@
           "tableFrom": "services",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "deleted_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["deleted_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -8016,12 +7647,8 @@
           "tableFrom": "services",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -8079,26 +7706,20 @@
           "name": "Public view active services",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "((is_active = true) AND (deleted_at IS NULL))"
         },
         "Service role full access": {
           "name": "Service role full access",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         },
         "Staff manage services": {
           "name": "Staff manage services",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         }
       },
       "isRLSEnabled": true
@@ -8693,12 +8314,8 @@
           "tableFrom": "appointments",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "cancelled_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["cancelled_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -8707,12 +8324,8 @@
           "tableFrom": "appointments",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -8721,12 +8334,8 @@
           "tableFrom": "appointments",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "deleted_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["deleted_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -8735,12 +8344,8 @@
           "tableFrom": "appointments",
           "tableTo": "pets",
           "schemaTo": "public",
-          "columnsFrom": [
-            "pet_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["pet_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -8749,12 +8354,8 @@
           "tableFrom": "appointments",
           "tableTo": "services",
           "schemaTo": "public",
-          "columnsFrom": [
-            "service_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["service_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -8763,12 +8364,8 @@
           "tableFrom": "appointments",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -8777,12 +8374,8 @@
           "tableFrom": "appointments",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "vet_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["vet_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -8812,9 +8405,7 @@
           "name": "Owners cancel appointments",
           "as": "PERMISSIVE",
           "for": "UPDATE",
-          "to": [
-            "authenticated"
-          ],
+          "to": ["authenticated"],
           "withCheck": "(status = 'cancelled'::text)",
           "using": "(is_owner_of_pet(pet_id) AND (status = ANY (ARRAY['scheduled'::text, 'confirmed'::text])) AND (deleted_at IS NULL))"
         },
@@ -8822,33 +8413,25 @@
           "name": "Owners create appointments",
           "as": "PERMISSIVE",
           "for": "INSERT",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         },
         "Owners view pet appointments": {
           "name": "Owners view pet appointments",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         },
         "Service role full access": {
           "name": "Service role full access",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         },
         "Staff manage appointments": {
           "name": "Staff manage appointments",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         }
       },
       "isRLSEnabled": true
@@ -9076,12 +8659,8 @@
           "tableFrom": "suppliers",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "deleted_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["deleted_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -9090,12 +8669,8 @@
           "tableFrom": "suppliers",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -9104,12 +8679,8 @@
           "tableFrom": "suppliers",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "verified_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["verified_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -9131,34 +8702,26 @@
           "name": "Authenticated users view suppliers",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "authenticated"
-          ],
+          "to": ["authenticated"],
           "using": "((tenant_id IS NULL) OR (EXISTS ( SELECT 1\n   FROM profiles p\n  WHERE ((p.id = auth.uid()) AND (p.tenant_id = suppliers.tenant_id) AND (p.deleted_at IS NULL)))))"
         },
         "Clinic staff manage suppliers": {
           "name": "Clinic staff manage suppliers",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         },
         "Platform admins manage global suppliers": {
           "name": "Platform admins manage global suppliers",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         },
         "Service role full access suppliers": {
           "name": "Service role full access suppliers",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         }
       },
       "isRLSEnabled": true
@@ -9288,12 +8851,8 @@
           "tableFrom": "hospitalization_documents",
           "tableTo": "users",
           "schemaTo": "auth",
-          "columnsFrom": [
-            "uploaded_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["uploaded_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -9539,12 +9098,8 @@
           "tableFrom": "store_categories",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "created_by_tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by_tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -9553,12 +9108,8 @@
           "tableFrom": "store_categories",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "deleted_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["deleted_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -9567,12 +9118,8 @@
           "tableFrom": "store_categories",
           "tableTo": "store_categories",
           "schemaTo": "public",
-          "columnsFrom": [
-            "parent_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["parent_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -9581,12 +9128,8 @@
           "tableFrom": "store_categories",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -9604,34 +9147,26 @@
           "name": "Authenticated users view categories",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "authenticated"
-          ],
+          "to": ["authenticated"],
           "using": "((tenant_id IS NULL) OR (EXISTS ( SELECT 1\n   FROM profiles p\n  WHERE ((p.id = auth.uid()) AND (p.tenant_id = store_categories.tenant_id) AND (p.deleted_at IS NULL)))))"
         },
         "Clinic staff manage categories": {
           "name": "Clinic staff manage categories",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         },
         "Platform admins manage global categories": {
           "name": "Platform admins manage global categories",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         },
         "Service role full access categories": {
           "name": "Service role full access categories",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         }
       },
       "isRLSEnabled": false
@@ -9842,12 +9377,8 @@
           "tableFrom": "store_brands",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "created_by_tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by_tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -9856,12 +9387,8 @@
           "tableFrom": "store_brands",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "deleted_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["deleted_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -9870,12 +9397,8 @@
           "tableFrom": "store_brands",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -9888,34 +9411,26 @@
           "name": "Authenticated users view brands",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "authenticated"
-          ],
+          "to": ["authenticated"],
           "using": "((tenant_id IS NULL) OR (EXISTS ( SELECT 1\n   FROM profiles p\n  WHERE ((p.id = auth.uid()) AND (p.tenant_id = store_brands.tenant_id) AND (p.deleted_at IS NULL)))))"
         },
         "Clinic staff manage brands": {
           "name": "Clinic staff manage brands",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         },
         "Platform admins manage global brands": {
           "name": "Platform admins manage global brands",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         },
         "Service role full access brands": {
           "name": "Service role full access brands",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         }
       },
       "isRLSEnabled": false
@@ -10457,12 +9972,8 @@
           "tableFrom": "store_products",
           "tableTo": "store_brands",
           "schemaTo": "public",
-          "columnsFrom": [
-            "brand_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["brand_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -10471,12 +9982,8 @@
           "tableFrom": "store_products",
           "tableTo": "store_categories",
           "schemaTo": "public",
-          "columnsFrom": [
-            "category_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["category_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -10485,12 +9992,8 @@
           "tableFrom": "store_products",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "created_by_tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by_tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -10499,12 +10002,8 @@
           "tableFrom": "store_products",
           "tableTo": "suppliers",
           "schemaTo": "public",
-          "columnsFrom": [
-            "default_supplier_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["default_supplier_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -10513,12 +10012,8 @@
           "tableFrom": "store_products",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "deleted_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["deleted_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -10527,12 +10022,8 @@
           "tableFrom": "store_products",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -10541,12 +10032,8 @@
           "tableFrom": "store_products",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "verified_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["verified_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -10592,34 +10079,26 @@
           "name": "Authenticated users view products",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "authenticated"
-          ],
+          "to": ["authenticated"],
           "using": "((tenant_id IS NULL) OR (EXISTS ( SELECT 1\n   FROM profiles p\n  WHERE ((p.id = auth.uid()) AND (p.tenant_id = store_products.tenant_id) AND (p.deleted_at IS NULL)))))"
         },
         "Clinic staff manage products": {
           "name": "Clinic staff manage products",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         },
         "Platform admins manage global products": {
           "name": "Platform admins manage global products",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         },
         "Service role full access products": {
           "name": "Service role full access products",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         }
       },
       "isRLSEnabled": false
@@ -10840,12 +10319,8 @@
           "tableFrom": "store_inventory",
           "tableTo": "store_products",
           "schemaTo": "public",
-          "columnsFrom": [
-            "product_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["product_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -10854,12 +10329,8 @@
           "tableFrom": "store_inventory",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -10867,9 +10338,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "store_inventory_product_id_key": {
-          "columns": [
-            "product_id"
-          ],
+          "columns": ["product_id"],
           "nullsNotDistinct": false,
           "name": "store_inventory_product_id_key"
         }
@@ -10893,9 +10362,7 @@
           "name": "Clinic staff manage inventory",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ],
+          "to": ["authenticated"],
           "withCheck": "(EXISTS ( SELECT 1\n   FROM profiles p\n  WHERE ((p.id = auth.uid()) AND (p.tenant_id = store_inventory.tenant_id) AND (p.role = ANY (ARRAY['vet'::text, 'admin'::text])) AND (p.deleted_at IS NULL))))",
           "using": "(EXISTS ( SELECT 1\n   FROM profiles p\n  WHERE ((p.id = auth.uid()) AND (p.tenant_id = store_inventory.tenant_id) AND (p.role = ANY (ARRAY['vet'::text, 'admin'::text])) AND (p.deleted_at IS NULL))))"
         },
@@ -10903,9 +10370,7 @@
           "name": "Service role full access inventory",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         }
       },
       "isRLSEnabled": false
@@ -10995,10 +10460,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "lab_test_panels_tenant_id_code_key": {
-          "columns": [
-            "tenant_id",
-            "code"
-          ],
+          "columns": ["tenant_id", "code"],
           "nullsNotDistinct": false,
           "name": "lab_test_panels_tenant_id_code_key"
         }
@@ -11062,12 +10524,8 @@
           "tableFrom": "lab_panel_tests",
           "tableTo": "lab_test_panels",
           "schemaTo": "public",
-          "columnsFrom": [
-            "panel_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["panel_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -11075,10 +10533,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "lab_panel_tests_panel_id_test_id_key": {
-          "columns": [
-            "panel_id",
-            "test_id"
-          ],
+          "columns": ["panel_id", "test_id"],
           "nullsNotDistinct": false,
           "name": "lab_panel_tests_panel_id_test_id_key"
         }
@@ -11354,10 +10809,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "external_lab_integrations_tenant_id_lab_code_key": {
-          "columns": [
-            "tenant_id",
-            "lab_code"
-          ],
+          "columns": ["tenant_id", "lab_code"],
           "nullsNotDistinct": false,
           "name": "external_lab_integrations_tenant_id_lab_code_key"
         }
@@ -11562,12 +11014,8 @@
           "tableFrom": "store_campaigns",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "deleted_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["deleted_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -11576,12 +11024,8 @@
           "tableFrom": "store_campaigns",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -11607,9 +11051,7 @@
           "name": "Clinic staff manage campaigns",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ],
+          "to": ["authenticated"],
           "withCheck": "(EXISTS ( SELECT 1\n   FROM profiles p\n  WHERE ((p.id = auth.uid()) AND (p.tenant_id = store_campaigns.tenant_id) AND (p.role = ANY (ARRAY['vet'::text, 'admin'::text])) AND (p.deleted_at IS NULL))))",
           "using": "(EXISTS ( SELECT 1\n   FROM profiles p\n  WHERE ((p.id = auth.uid()) AND (p.tenant_id = store_campaigns.tenant_id) AND (p.role = ANY (ARRAY['vet'::text, 'admin'::text])) AND (p.deleted_at IS NULL))))"
         },
@@ -11617,9 +11059,7 @@
           "name": "Service role full access campaigns",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         }
       },
       "isRLSEnabled": true
@@ -11789,12 +11229,8 @@
           "tableFrom": "store_coupons",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -11803,12 +11239,8 @@
           "tableFrom": "store_coupons",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -11816,10 +11248,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "store_coupons_tenant_id_code_key": {
-          "columns": [
-            "tenant_id",
-            "code"
-          ],
+          "columns": ["tenant_id", "code"],
           "nullsNotDistinct": false,
           "name": "store_coupons_tenant_id_code_key"
         }
@@ -11839,9 +11268,7 @@
           "name": "Clinic staff manage coupons",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ],
+          "to": ["authenticated"],
           "withCheck": "(EXISTS ( SELECT 1\n   FROM profiles p\n  WHERE ((p.id = auth.uid()) AND (p.tenant_id = store_coupons.tenant_id) AND (p.role = ANY (ARRAY['vet'::text, 'admin'::text])) AND (p.deleted_at IS NULL))))",
           "using": "(EXISTS ( SELECT 1\n   FROM profiles p\n  WHERE ((p.id = auth.uid()) AND (p.tenant_id = store_coupons.tenant_id) AND (p.role = ANY (ARRAY['vet'::text, 'admin'::text])) AND (p.deleted_at IS NULL))))"
         },
@@ -11849,9 +11276,7 @@
           "name": "Service role full access coupons",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         }
       },
       "isRLSEnabled": true
@@ -12155,12 +11580,8 @@
           "tableFrom": "store_orders",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "cancelled_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["cancelled_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -12169,12 +11590,8 @@
           "tableFrom": "store_orders",
           "tableTo": "store_coupons",
           "schemaTo": "public",
-          "columnsFrom": [
-            "coupon_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["coupon_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -12183,12 +11600,8 @@
           "tableFrom": "store_orders",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "customer_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["customer_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -12197,12 +11610,8 @@
           "tableFrom": "store_orders",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "deleted_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["deleted_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -12211,12 +11620,8 @@
           "tableFrom": "store_orders",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -12224,10 +11629,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "store_orders_tenant_id_order_number_key": {
-          "columns": [
-            "tenant_id",
-            "order_number"
-          ],
+          "columns": ["tenant_id", "order_number"],
           "nullsNotDistinct": false,
           "name": "store_orders_tenant_id_order_number_key"
         }
@@ -12247,9 +11649,7 @@
           "name": "Clinic staff manage orders",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ],
+          "to": ["authenticated"],
           "withCheck": "(EXISTS ( SELECT 1\n   FROM profiles p\n  WHERE ((p.id = auth.uid()) AND (p.tenant_id = store_orders.tenant_id) AND (p.role = ANY (ARRAY['vet'::text, 'admin'::text])) AND (p.deleted_at IS NULL))))",
           "using": "(EXISTS ( SELECT 1\n   FROM profiles p\n  WHERE ((p.id = auth.uid()) AND (p.tenant_id = store_orders.tenant_id) AND (p.role = ANY (ARRAY['vet'::text, 'admin'::text])) AND (p.deleted_at IS NULL))))"
         },
@@ -12257,17 +11657,13 @@
           "name": "Customers view own orders",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         },
         "Service role full access orders": {
           "name": "Service role full access orders",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         }
       },
       "isRLSEnabled": true
@@ -12421,12 +11817,8 @@
           "tableFrom": "store_order_items",
           "tableTo": "store_orders",
           "schemaTo": "public",
-          "columnsFrom": [
-            "order_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["order_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -12435,12 +11827,8 @@
           "tableFrom": "store_order_items",
           "tableTo": "store_products",
           "schemaTo": "public",
-          "columnsFrom": [
-            "product_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["product_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -12449,12 +11837,8 @@
           "tableFrom": "store_order_items",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -12476,18 +11860,14 @@
           "name": "Customers view own order_items",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "authenticated"
-          ],
+          "to": ["authenticated"],
           "using": "(EXISTS ( SELECT 1\n   FROM store_orders o\n  WHERE ((o.id = store_order_items.order_id) AND (o.customer_id = auth.uid()))))"
         },
         "Service role full access order_items": {
           "name": "Service role full access order_items",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         }
       },
       "isRLSEnabled": true
@@ -12707,12 +12087,8 @@
           "tableFrom": "consent_audit_log",
           "tableTo": "users",
           "schemaTo": "auth",
-          "columnsFrom": [
-            "performed_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["performed_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -12910,12 +12286,8 @@
           "tableFrom": "consent_requests",
           "tableTo": "users",
           "schemaTo": "auth",
-          "columnsFrom": [
-            "requested_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["requested_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -12923,9 +12295,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "consent_requests_request_token_key": {
-          "columns": [
-            "request_token"
-          ],
+          "columns": ["request_token"],
           "nullsNotDistinct": false,
           "name": "consent_requests_request_token_key"
         }
@@ -13085,12 +12455,8 @@
           "tableFrom": "blanket_consents",
           "tableTo": "users",
           "schemaTo": "auth",
-          "columnsFrom": [
-            "owner_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["owner_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -13098,12 +12464,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "blanket_consents_tenant_id_owner_id_consent_type_pet_id_key": {
-          "columns": [
-            "tenant_id",
-            "owner_id",
-            "consent_type",
-            "pet_id"
-          ],
+          "columns": ["tenant_id", "owner_id", "consent_type", "pet_id"],
           "nullsNotDistinct": false,
           "name": "blanket_consents_tenant_id_owner_id_consent_type_pet_id_key"
         }
@@ -13306,12 +12667,8 @@
           "tableFrom": "store_reviews",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "approved_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["approved_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -13320,12 +12677,8 @@
           "tableFrom": "store_reviews",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "customer_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["customer_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -13334,12 +12687,8 @@
           "tableFrom": "store_reviews",
           "tableTo": "store_orders",
           "schemaTo": "public",
-          "columnsFrom": [
-            "order_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["order_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -13348,12 +12697,8 @@
           "tableFrom": "store_reviews",
           "tableTo": "store_products",
           "schemaTo": "public",
-          "columnsFrom": [
-            "product_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["product_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -13362,12 +12707,8 @@
           "tableFrom": "store_reviews",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -13375,10 +12716,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "store_reviews_product_id_customer_id_key": {
-          "columns": [
-            "product_id",
-            "customer_id"
-          ],
+          "columns": ["product_id", "customer_id"],
           "nullsNotDistinct": false,
           "name": "store_reviews_product_id_customer_id_key"
         }
@@ -13394,9 +12732,7 @@
           "name": "Clinic staff moderate reviews",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ],
+          "to": ["authenticated"],
           "withCheck": "(EXISTS ( SELECT 1\n   FROM profiles p\n  WHERE ((p.id = auth.uid()) AND (p.tenant_id = store_reviews.tenant_id) AND (p.role = ANY (ARRAY['vet'::text, 'admin'::text])) AND (p.deleted_at IS NULL))))",
           "using": "(EXISTS ( SELECT 1\n   FROM profiles p\n  WHERE ((p.id = auth.uid()) AND (p.tenant_id = store_reviews.tenant_id) AND (p.role = ANY (ARRAY['vet'::text, 'admin'::text])) AND (p.deleted_at IS NULL))))"
         },
@@ -13404,25 +12740,19 @@
           "name": "Customers manage own reviews",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         },
         "Public view approved reviews": {
           "name": "Public view approved reviews",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "public"
-          ]
+          "to": ["public"]
         },
         "Service role full access reviews": {
           "name": "Service role full access reviews",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         }
       },
       "isRLSEnabled": true
@@ -13520,12 +12850,8 @@
           "tableFrom": "store_wishlist",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "customer_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["customer_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -13534,12 +12860,8 @@
           "tableFrom": "store_wishlist",
           "tableTo": "store_products",
           "schemaTo": "public",
-          "columnsFrom": [
-            "product_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["product_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -13548,12 +12870,8 @@
           "tableFrom": "store_wishlist",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -13561,10 +12879,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "store_wishlist_customer_id_product_id_key": {
-          "columns": [
-            "customer_id",
-            "product_id"
-          ],
+          "columns": ["customer_id", "product_id"],
           "nullsNotDistinct": false,
           "name": "store_wishlist_customer_id_product_id_key"
         }
@@ -13575,9 +12890,7 @@
           "name": "Customers manage own wishlist",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ],
+          "to": ["authenticated"],
           "withCheck": "(customer_id = auth.uid())",
           "using": "(customer_id = auth.uid())"
         },
@@ -13585,9 +12898,7 @@
           "name": "Service role full access wishlist",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         }
       },
       "isRLSEnabled": true
@@ -13876,12 +13187,8 @@
           "tableFrom": "procurement_leads",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "converted_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["converted_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -13890,12 +13197,8 @@
           "tableFrom": "procurement_leads",
           "tableTo": "store_products",
           "schemaTo": "public",
-          "columnsFrom": [
-            "converted_product_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["converted_product_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -13904,12 +13207,8 @@
           "tableFrom": "procurement_leads",
           "tableTo": "store_brands",
           "schemaTo": "public",
-          "columnsFrom": [
-            "matched_brand_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["matched_brand_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -13918,12 +13217,8 @@
           "tableFrom": "procurement_leads",
           "tableTo": "store_categories",
           "schemaTo": "public",
-          "columnsFrom": [
-            "matched_category_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["matched_category_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -13932,12 +13227,8 @@
           "tableFrom": "procurement_leads",
           "tableTo": "store_products",
           "schemaTo": "public",
-          "columnsFrom": [
-            "matched_product_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["matched_product_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -13946,12 +13237,8 @@
           "tableFrom": "procurement_leads",
           "tableTo": "suppliers",
           "schemaTo": "public",
-          "columnsFrom": [
-            "matched_supplier_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["matched_supplier_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -13960,12 +13247,8 @@
           "tableFrom": "procurement_leads",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "processed_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["processed_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -13974,12 +13257,8 @@
           "tableFrom": "procurement_leads",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -14001,9 +13280,7 @@
           "name": "Clinic staff manage procurement",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ],
+          "to": ["authenticated"],
           "withCheck": "(EXISTS ( SELECT 1\n   FROM profiles p\n  WHERE ((p.id = auth.uid()) AND (p.tenant_id = procurement_leads.tenant_id) AND (p.role = ANY (ARRAY['vet'::text, 'admin'::text])) AND (p.deleted_at IS NULL))))",
           "using": "(EXISTS ( SELECT 1\n   FROM profiles p\n  WHERE ((p.id = auth.uid()) AND (p.tenant_id = procurement_leads.tenant_id) AND (p.role = ANY (ARRAY['vet'::text, 'admin'::text])) AND (p.deleted_at IS NULL))))"
         },
@@ -14011,17 +13288,13 @@
           "name": "Platform admins view procurement",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         },
         "Service role full access procurement": {
           "name": "Service role full access procurement",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         }
       },
       "isRLSEnabled": true
@@ -14394,12 +13667,8 @@
           "tableFrom": "payment_methods",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "deleted_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["deleted_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -14408,12 +13677,8 @@
           "tableFrom": "payment_methods",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -14443,18 +13708,14 @@
           "name": "Service role full access payment methods",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ],
+          "to": ["service_role"],
           "using": "true"
         },
         "Staff manage payment methods": {
           "name": "Staff manage payment methods",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         }
       },
       "isRLSEnabled": true
@@ -14653,12 +13914,8 @@
           "tableFrom": "time_off_requests",
           "tableTo": "users",
           "schemaTo": "auth",
-          "columnsFrom": [
-            "reviewed_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["reviewed_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -14765,11 +14022,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "time_off_balances_staff_profile_id_time_off_type_id_year_key": {
-          "columns": [
-            "staff_profile_id",
-            "time_off_type_id",
-            "year"
-          ],
+          "columns": ["staff_profile_id", "time_off_type_id", "year"],
           "nullsNotDistinct": false,
           "name": "time_off_balances_staff_profile_id_time_off_type_id_year_key"
         }
@@ -15043,12 +14296,8 @@
           "tableFrom": "staff_tasks",
           "tableTo": "users",
           "schemaTo": "auth",
-          "columnsFrom": [
-            "assigned_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["assigned_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -15057,12 +14306,8 @@
           "tableFrom": "staff_tasks",
           "tableTo": "users",
           "schemaTo": "auth",
-          "columnsFrom": [
-            "completed_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["completed_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -15226,12 +14471,8 @@
           "tableFrom": "staff_reviews",
           "tableTo": "users",
           "schemaTo": "auth",
-          "columnsFrom": [
-            "reviewed_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["reviewed_by"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -15741,12 +14982,8 @@
           "tableFrom": "invoices",
           "tableTo": "appointments",
           "schemaTo": "public",
-          "columnsFrom": [
-            "appointment_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["appointment_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -15755,12 +14992,8 @@
           "tableFrom": "invoices",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "client_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["client_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -15769,12 +15002,8 @@
           "tableFrom": "invoices",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "deleted_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["deleted_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -15783,12 +15012,8 @@
           "tableFrom": "invoices",
           "tableTo": "pets",
           "schemaTo": "public",
-          "columnsFrom": [
-            "pet_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["pet_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -15797,12 +15022,8 @@
           "tableFrom": "invoices",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -15810,10 +15031,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "invoices_tenant_id_invoice_number_key": {
-          "columns": [
-            "tenant_id",
-            "invoice_number"
-          ],
+          "columns": ["tenant_id", "invoice_number"],
           "nullsNotDistinct": false,
           "name": "invoices_tenant_id_invoice_number_key"
         }
@@ -15837,26 +15055,20 @@
           "name": "Clients view own invoices",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "authenticated"
-          ],
+          "to": ["authenticated"],
           "using": "((client_id = auth.uid()) AND (deleted_at IS NULL))"
         },
         "Service role full access invoices": {
           "name": "Service role full access invoices",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         },
         "Staff manage invoices": {
           "name": "Staff manage invoices",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         }
       },
       "isRLSEnabled": true
@@ -16031,12 +15243,8 @@
           "tableFrom": "invoice_items",
           "tableTo": "invoices",
           "schemaTo": "public",
-          "columnsFrom": [
-            "invoice_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["invoice_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -16045,12 +15253,8 @@
           "tableFrom": "invoice_items",
           "tableTo": "store_products",
           "schemaTo": "public",
-          "columnsFrom": [
-            "product_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["product_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -16059,12 +15263,8 @@
           "tableFrom": "invoice_items",
           "tableTo": "services",
           "schemaTo": "public",
-          "columnsFrom": [
-            "service_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["service_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -16073,12 +15273,8 @@
           "tableFrom": "invoice_items",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -16116,26 +15312,20 @@
           "name": "Clients view invoice items",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "authenticated"
-          ],
+          "to": ["authenticated"],
           "using": "(EXISTS ( SELECT 1\n   FROM invoices i\n  WHERE ((i.id = invoice_items.invoice_id) AND (i.client_id = auth.uid()))))"
         },
         "Service role full access invoice items": {
           "name": "Service role full access invoice items",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         },
         "Staff manage invoice items": {
           "name": "Staff manage invoice items",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         }
       },
       "isRLSEnabled": true
@@ -16417,12 +15607,8 @@
           "tableFrom": "payments",
           "tableTo": "invoices",
           "schemaTo": "public",
-          "columnsFrom": [
-            "invoice_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["invoice_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -16431,12 +15617,8 @@
           "tableFrom": "payments",
           "tableTo": "payment_methods",
           "schemaTo": "public",
-          "columnsFrom": [
-            "payment_method_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["payment_method_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -16445,12 +15627,8 @@
           "tableFrom": "payments",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "received_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["received_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -16459,12 +15637,8 @@
           "tableFrom": "payments",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -16490,26 +15664,20 @@
           "name": "Clients view own payments",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "authenticated"
-          ],
+          "to": ["authenticated"],
           "using": "(EXISTS ( SELECT 1\n   FROM invoices i\n  WHERE ((i.id = payments.invoice_id) AND (i.client_id = auth.uid()))))"
         },
         "Service role full access payments": {
           "name": "Service role full access payments",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         },
         "Staff manage payments": {
           "name": "Staff manage payments",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         }
       },
       "isRLSEnabled": true
@@ -16629,12 +15797,8 @@
           "tableFrom": "refunds",
           "tableTo": "payments",
           "schemaTo": "public",
-          "columnsFrom": [
-            "payment_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["payment_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -16643,12 +15807,8 @@
           "tableFrom": "refunds",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "processed_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["processed_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -16657,12 +15817,8 @@
           "tableFrom": "refunds",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -16692,18 +15848,14 @@
           "name": "Service role full access refunds",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ],
+          "to": ["service_role"],
           "using": "true"
         },
         "Staff manage refunds": {
           "name": "Staff manage refunds",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         }
       },
       "isRLSEnabled": true
@@ -16822,26 +15974,20 @@
           "name": "Owners view notes",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "authenticated"
-          ],
+          "to": ["authenticated"],
           "using": "(EXISTS ( SELECT 1\n   FROM hospitalizations h\n  WHERE ((h.id = hospitalization_notes.hospitalization_id) AND is_owner_of_pet(h.pet_id))))"
         },
         "Service role full access notes": {
           "name": "Service role full access notes",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         },
         "Staff manage notes": {
           "name": "Staff manage notes",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         }
       },
       "isRLSEnabled": true
@@ -17116,12 +16262,8 @@
           "tableFrom": "expenses",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "approved_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["approved_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -17130,12 +16272,8 @@
           "tableFrom": "expenses",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -17144,12 +16282,8 @@
           "tableFrom": "expenses",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "deleted_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["deleted_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -17158,12 +16292,8 @@
           "tableFrom": "expenses",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -17189,18 +16319,14 @@
           "name": "Service role full access expenses",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ],
+          "to": ["service_role"],
           "using": "true"
         },
         "Staff manage expenses": {
           "name": "Staff manage expenses",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         }
       },
       "isRLSEnabled": true
@@ -17304,12 +16430,8 @@
           "tableFrom": "expense_categories",
           "tableTo": "expense_categories",
           "schemaTo": "public",
-          "columnsFrom": [
-            "parent_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["parent_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -17318,12 +16440,8 @@
           "tableFrom": "expense_categories",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -17331,10 +16449,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "expense_categories_tenant_id_name_key": {
-          "columns": [
-            "tenant_id",
-            "name"
-          ],
+          "columns": ["tenant_id", "name"],
           "nullsNotDistinct": false,
           "name": "expense_categories_tenant_id_name_key"
         }
@@ -17345,18 +16460,14 @@
           "name": "Service role full access expense categories",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ],
+          "to": ["service_role"],
           "using": "true"
         },
         "Staff manage expense categories": {
           "name": "Staff manage expense categories",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         }
       },
       "isRLSEnabled": true
@@ -17467,12 +16578,8 @@
           "tableFrom": "loyalty_points",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "client_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["client_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -17481,12 +16588,8 @@
           "tableFrom": "loyalty_points",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -17494,10 +16597,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "loyalty_points_tenant_id_client_id_key": {
-          "columns": [
-            "tenant_id",
-            "client_id"
-          ],
+          "columns": ["tenant_id", "client_id"],
           "nullsNotDistinct": false,
           "name": "loyalty_points_tenant_id_client_id_key"
         }
@@ -17517,26 +16617,20 @@
           "name": "Clients view own points",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "authenticated"
-          ],
+          "to": ["authenticated"],
           "using": "(client_id = auth.uid())"
         },
         "Service role full access loyalty points": {
           "name": "Service role full access loyalty points",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         },
         "Staff manage loyalty points": {
           "name": "Staff manage loyalty points",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         }
       },
       "isRLSEnabled": true
@@ -17688,12 +16782,8 @@
           "tableFrom": "loyalty_transactions",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "client_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["client_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -17702,12 +16792,8 @@
           "tableFrom": "loyalty_transactions",
           "tableTo": "invoices",
           "schemaTo": "public",
-          "columnsFrom": [
-            "invoice_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["invoice_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -17716,12 +16802,8 @@
           "tableFrom": "loyalty_transactions",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -17739,26 +16821,20 @@
           "name": "Clients view own transactions",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "authenticated"
-          ],
+          "to": ["authenticated"],
           "using": "(client_id = auth.uid())"
         },
         "Service role full access loyalty transactions": {
           "name": "Service role full access loyalty transactions",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         },
         "Staff manage loyalty transactions": {
           "name": "Staff manage loyalty transactions",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         }
       },
       "isRLSEnabled": true
@@ -17951,10 +17027,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "communication_preferences_user_id_tenant_id_key": {
-          "columns": [
-            "user_id",
-            "tenant_id"
-          ],
+          "columns": ["user_id", "tenant_id"],
           "nullsNotDistinct": false,
           "name": "communication_preferences_user_id_tenant_id_key"
         }
@@ -17965,26 +17038,20 @@
           "name": "Service role full access preferences",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ],
+          "to": ["service_role"],
           "using": "true"
         },
         "Staff view preferences": {
           "name": "Staff view preferences",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         },
         "Users manage own preferences": {
           "name": "Users manage own preferences",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         }
       },
       "isRLSEnabled": true
@@ -18215,9 +17282,7 @@
           "name": "Clinic staff manage inventory_txns",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ],
+          "to": ["authenticated"],
           "withCheck": "(EXISTS ( SELECT 1\n   FROM profiles p\n  WHERE ((p.id = auth.uid()) AND (p.tenant_id = store_inventory_transactions.tenant_id) AND (p.role = ANY (ARRAY['vet'::text, 'admin'::text])) AND (p.deleted_at IS NULL))))",
           "using": "(EXISTS ( SELECT 1\n   FROM profiles p\n  WHERE ((p.id = auth.uid()) AND (p.tenant_id = store_inventory_transactions.tenant_id) AND (p.role = ANY (ARRAY['vet'::text, 'admin'::text])) AND (p.deleted_at IS NULL))))"
         },
@@ -18225,17 +17290,13 @@
           "name": "Service role full access inv txn",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         },
         "Service role full access inventory_txns": {
           "name": "Service role full access inventory_txns",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         }
       },
       "isRLSEnabled": false
@@ -18631,12 +17692,8 @@
           "tableFrom": "kennels",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "deleted_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["deleted_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -18645,12 +17702,8 @@
           "tableFrom": "kennels",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -18658,10 +17711,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "kennels_tenant_id_code_key": {
-          "columns": [
-            "tenant_id",
-            "code"
-          ],
+          "columns": ["tenant_id", "code"],
           "nullsNotDistinct": false,
           "name": "kennels_tenant_id_code_key"
         }
@@ -18709,18 +17759,14 @@
           "name": "Service role full access kennels",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ],
+          "to": ["service_role"],
           "using": "true"
         },
         "Staff manage kennels": {
           "name": "Staff manage kennels",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         }
       },
       "isRLSEnabled": true
@@ -19134,12 +18180,8 @@
           "tableFrom": "hospitalizations",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "admitted_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["admitted_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -19148,12 +18190,8 @@
           "tableFrom": "hospitalizations",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "deleted_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["deleted_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -19162,12 +18200,8 @@
           "tableFrom": "hospitalizations",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "discharged_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["discharged_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -19176,12 +18210,8 @@
           "tableFrom": "hospitalizations",
           "tableTo": "invoices",
           "schemaTo": "public",
-          "columnsFrom": [
-            "invoice_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["invoice_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -19190,12 +18220,8 @@
           "tableFrom": "hospitalizations",
           "tableTo": "kennels",
           "schemaTo": "public",
-          "columnsFrom": [
-            "kennel_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["kennel_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -19204,12 +18230,8 @@
           "tableFrom": "hospitalizations",
           "tableTo": "pets",
           "schemaTo": "public",
-          "columnsFrom": [
-            "pet_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["pet_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         },
@@ -19218,12 +18240,8 @@
           "tableFrom": "hospitalizations",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "primary_vet_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["primary_vet_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -19232,12 +18250,8 @@
           "tableFrom": "hospitalizations",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -19245,10 +18259,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "hospitalizations_tenant_id_admission_number_key": {
-          "columns": [
-            "tenant_id",
-            "admission_number"
-          ],
+          "columns": ["tenant_id", "admission_number"],
           "nullsNotDistinct": false,
           "name": "hospitalizations_tenant_id_admission_number_key"
         }
@@ -19284,26 +18295,20 @@
           "name": "Owners view pet hospitalizations",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "authenticated"
-          ],
+          "to": ["authenticated"],
           "using": "(is_owner_of_pet(pet_id) AND (deleted_at IS NULL))"
         },
         "Service role full access hospitalizations": {
           "name": "Service role full access hospitalizations",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         },
         "Staff manage hospitalizations": {
           "name": "Staff manage hospitalizations",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         }
       },
       "isRLSEnabled": true
@@ -19492,12 +18497,8 @@
           "tableFrom": "hospitalization_vitals",
           "tableTo": "hospitalizations",
           "schemaTo": "public",
-          "columnsFrom": [
-            "hospitalization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["hospitalization_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -19506,12 +18507,8 @@
           "tableFrom": "hospitalization_vitals",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "recorded_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["recorded_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -19520,12 +18517,8 @@
           "tableFrom": "hospitalization_vitals",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -19579,26 +18572,20 @@
           "name": "Owners view vitals",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "authenticated"
-          ],
+          "to": ["authenticated"],
           "using": "(EXISTS ( SELECT 1\n   FROM hospitalizations h\n  WHERE ((h.id = hospitalization_vitals.hospitalization_id) AND is_owner_of_pet(h.pet_id))))"
         },
         "Service role full access vitals": {
           "name": "Service role full access vitals",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         },
         "Staff manage vitals": {
           "name": "Staff manage vitals",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         }
       },
       "isRLSEnabled": true
@@ -19794,12 +18781,8 @@
           "tableFrom": "hospitalization_medications",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "administered_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["administered_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -19808,12 +18791,8 @@
           "tableFrom": "hospitalization_medications",
           "tableTo": "hospitalizations",
           "schemaTo": "public",
-          "columnsFrom": [
-            "hospitalization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["hospitalization_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -19822,12 +18801,8 @@
           "tableFrom": "hospitalization_medications",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -19849,18 +18824,14 @@
           "name": "Service role full access medications",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ],
+          "to": ["service_role"],
           "using": "true"
         },
         "Staff manage medications": {
           "name": "Staff manage medications",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         }
       },
       "isRLSEnabled": true
@@ -20002,12 +18973,8 @@
           "tableFrom": "hospitalization_treatments",
           "tableTo": "hospitalizations",
           "schemaTo": "public",
-          "columnsFrom": [
-            "hospitalization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["hospitalization_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -20016,12 +18983,8 @@
           "tableFrom": "hospitalization_treatments",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "performed_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["performed_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -20030,12 +18993,8 @@
           "tableFrom": "hospitalization_treatments",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -20053,18 +19012,14 @@
           "name": "Service role full access treatments",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ],
+          "to": ["service_role"],
           "using": "true"
         },
         "Staff manage treatments": {
           "name": "Staff manage treatments",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         }
       },
       "isRLSEnabled": true
@@ -20231,12 +19186,8 @@
           "tableFrom": "hospitalization_feedings",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "fed_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["fed_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -20245,12 +19196,8 @@
           "tableFrom": "hospitalization_feedings",
           "tableTo": "hospitalizations",
           "schemaTo": "public",
-          "columnsFrom": [
-            "hospitalization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["hospitalization_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -20259,12 +19206,8 @@
           "tableFrom": "hospitalization_feedings",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -20290,18 +19233,14 @@
           "name": "Service role full access feedings",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ],
+          "to": ["service_role"],
           "using": "true"
         },
         "Staff manage feedings": {
           "name": "Staff manage feedings",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         }
       },
       "isRLSEnabled": true
@@ -20402,10 +19341,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "store_campaign_items_campaign_id_product_id_key": {
-          "columns": [
-            "campaign_id",
-            "product_id"
-          ],
+          "columns": ["campaign_id", "product_id"],
           "nullsNotDistinct": false,
           "name": "store_campaign_items_campaign_id_product_id_key"
         }
@@ -20421,9 +19357,7 @@
           "name": "Clinic staff manage campaign_items",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ],
+          "to": ["authenticated"],
           "withCheck": "(EXISTS ( SELECT 1\n   FROM profiles p\n  WHERE ((p.id = auth.uid()) AND (p.tenant_id = store_campaign_items.tenant_id) AND (p.role = ANY (ARRAY['vet'::text, 'admin'::text])) AND (p.deleted_at IS NULL))))",
           "using": "(EXISTS ( SELECT 1\n   FROM profiles p\n  WHERE ((p.id = auth.uid()) AND (p.tenant_id = store_campaign_items.tenant_id) AND (p.role = ANY (ARRAY['vet'::text, 'admin'::text])) AND (p.deleted_at IS NULL))))"
         },
@@ -20431,17 +19365,13 @@
           "name": "Service role full access campaign items",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         },
         "Service role full access campaign_items": {
           "name": "Service role full access campaign_items",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         }
       },
       "isRLSEnabled": true
@@ -20779,9 +19709,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "audit_configuration_table_name_key": {
-          "columns": [
-            "table_name"
-          ],
+          "columns": ["table_name"],
           "nullsNotDistinct": false,
           "name": "audit_configuration_table_name_key"
         }
@@ -21460,18 +20388,14 @@
           "name": "Service role full access loyalty rules",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ],
+          "to": ["service_role"],
           "using": "true"
         },
         "Staff manage loyalty rules": {
           "name": "Staff manage loyalty rules",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         }
       },
       "isRLSEnabled": true
@@ -21557,10 +20481,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "store_subcategories_category_id_slug_key": {
-          "columns": [
-            "category_id",
-            "slug"
-          ],
+          "columns": ["category_id", "slug"],
           "nullsNotDistinct": false,
           "name": "store_subcategories_category_id_slug_key"
         }
@@ -21571,9 +20492,7 @@
           "name": "Anyone can view active subcategories",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "(is_active = true)"
         }
       },
@@ -21678,12 +20597,8 @@
           "tableFrom": "lab_result_comments",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -21692,12 +20607,8 @@
           "tableFrom": "lab_result_comments",
           "tableTo": "lab_orders",
           "schemaTo": "public",
-          "columnsFrom": [
-            "lab_order_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["lab_order_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -21706,12 +20617,8 @@
           "tableFrom": "lab_result_comments",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -21724,18 +20631,14 @@
           "name": "Service role full access comments",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ],
+          "to": ["service_role"],
           "using": "true"
         },
         "Staff manage comments": {
           "name": "Staff manage comments",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         }
       },
       "isRLSEnabled": true
@@ -21991,12 +20894,8 @@
           "tableFrom": "lab_test_catalog",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "deleted_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["deleted_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -22005,12 +20904,8 @@
           "tableFrom": "lab_test_catalog",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -22018,10 +20913,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "lab_test_catalog_tenant_id_code_key": {
-          "columns": [
-            "tenant_id",
-            "code"
-          ],
+          "columns": ["tenant_id", "code"],
           "nullsNotDistinct": false,
           "name": "lab_test_catalog_tenant_id_code_key"
         }
@@ -22057,26 +20949,20 @@
           "name": "Public read lab tests",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "((is_active = true) AND (deleted_at IS NULL))"
         },
         "Service role full access lab tests": {
           "name": "Service role full access lab tests",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         },
         "Staff manage tenant tests": {
           "name": "Staff manage tenant tests",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         }
       },
       "isRLSEnabled": true
@@ -22177,10 +21063,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "store_product_variants_tenant_id_sku_key": {
-          "columns": [
-            "tenant_id",
-            "sku"
-          ],
+          "columns": ["tenant_id", "sku"],
           "nullsNotDistinct": false,
           "name": "store_product_variants_tenant_id_sku_key"
         }
@@ -22191,9 +21074,7 @@
           "name": "Anyone can view active variants",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "(is_active = true)"
         }
       },
@@ -22329,12 +21210,8 @@
           "tableFrom": "lab_panels",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "deleted_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["deleted_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -22343,12 +21220,8 @@
           "tableFrom": "lab_panels",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -22356,10 +21229,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "lab_panels_tenant_id_code_key": {
-          "columns": [
-            "tenant_id",
-            "code"
-          ],
+          "columns": ["tenant_id", "code"],
           "nullsNotDistinct": false,
           "name": "lab_panels_tenant_id_code_key"
         }
@@ -22379,26 +21249,20 @@
           "name": "Public read lab panels",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "((is_active = true) AND (deleted_at IS NULL))"
         },
         "Service role full access panels": {
           "name": "Service role full access panels",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         },
         "Staff manage panels": {
           "name": "Staff manage panels",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         }
       },
       "isRLSEnabled": true
@@ -22716,12 +21580,8 @@
           "tableFrom": "lab_orders",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "collected_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["collected_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -22730,12 +21590,8 @@
           "tableFrom": "lab_orders",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "deleted_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["deleted_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -22744,12 +21600,8 @@
           "tableFrom": "lab_orders",
           "tableTo": "medical_records",
           "schemaTo": "public",
-          "columnsFrom": [
-            "medical_record_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["medical_record_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -22758,12 +21610,8 @@
           "tableFrom": "lab_orders",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "ordered_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["ordered_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -22772,12 +21620,8 @@
           "tableFrom": "lab_orders",
           "tableTo": "pets",
           "schemaTo": "public",
-          "columnsFrom": [
-            "pet_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["pet_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         },
@@ -22786,12 +21630,8 @@
           "tableFrom": "lab_orders",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "reviewed_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["reviewed_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -22800,12 +21640,8 @@
           "tableFrom": "lab_orders",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -22813,10 +21649,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "lab_orders_tenant_id_order_number_key": {
-          "columns": [
-            "tenant_id",
-            "order_number"
-          ],
+          "columns": ["tenant_id", "order_number"],
           "nullsNotDistinct": false,
           "name": "lab_orders_tenant_id_order_number_key"
         }
@@ -22840,26 +21673,20 @@
           "name": "Owners view pet lab orders",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "authenticated"
-          ],
+          "to": ["authenticated"],
           "using": "(is_owner_of_pet(pet_id) AND (status = ANY (ARRAY['completed'::text, 'reviewed'::text])) AND (deleted_at IS NULL))"
         },
         "Service role full access lab orders": {
           "name": "Service role full access lab orders",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         },
         "Staff manage lab orders": {
           "name": "Staff manage lab orders",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         }
       },
       "isRLSEnabled": true
@@ -22993,12 +21820,8 @@
           "tableFrom": "lab_order_items",
           "tableTo": "lab_orders",
           "schemaTo": "public",
-          "columnsFrom": [
-            "lab_order_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["lab_order_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -23007,12 +21830,8 @@
           "tableFrom": "lab_order_items",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -23021,12 +21840,8 @@
           "tableFrom": "lab_order_items",
           "tableTo": "lab_test_catalog",
           "schemaTo": "public",
-          "columnsFrom": [
-            "test_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["test_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         }
@@ -23034,10 +21849,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "lab_order_items_lab_order_id_test_id_key": {
-          "columns": [
-            "lab_order_id",
-            "test_id"
-          ],
+          "columns": ["lab_order_id", "test_id"],
           "nullsNotDistinct": false,
           "name": "lab_order_items_lab_order_id_test_id_key"
         }
@@ -23057,26 +21869,20 @@
           "name": "Owners view order items",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "authenticated"
-          ],
+          "to": ["authenticated"],
           "using": "(EXISTS ( SELECT 1\n   FROM lab_orders lo\n  WHERE ((lo.id = lab_order_items.lab_order_id) AND is_owner_of_pet(lo.pet_id) AND (lo.status = ANY (ARRAY['completed'::text, 'reviewed'::text])))))"
         },
         "Service role full access order items": {
           "name": "Service role full access order items",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         },
         "Staff manage order items": {
           "name": "Staff manage order items",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         }
       },
       "isRLSEnabled": true
@@ -23286,12 +22092,8 @@
           "tableFrom": "lab_results",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "entered_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["entered_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -23300,12 +22102,8 @@
           "tableFrom": "lab_results",
           "tableTo": "lab_orders",
           "schemaTo": "public",
-          "columnsFrom": [
-            "lab_order_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["lab_order_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -23314,12 +22112,8 @@
           "tableFrom": "lab_results",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -23328,12 +22122,8 @@
           "tableFrom": "lab_results",
           "tableTo": "lab_test_catalog",
           "schemaTo": "public",
-          "columnsFrom": [
-            "test_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["test_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "no action"
         }
@@ -23341,10 +22131,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "lab_results_lab_order_id_test_id_key": {
-          "columns": [
-            "lab_order_id",
-            "test_id"
-          ],
+          "columns": ["lab_order_id", "test_id"],
           "nullsNotDistinct": false,
           "name": "lab_results_lab_order_id_test_id_key"
         }
@@ -23360,26 +22147,20 @@
           "name": "Owners view results",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "authenticated"
-          ],
+          "to": ["authenticated"],
           "using": "(EXISTS ( SELECT 1\n   FROM lab_orders lo\n  WHERE ((lo.id = lab_results.lab_order_id) AND is_owner_of_pet(lo.pet_id) AND (lo.status = ANY (ARRAY['completed'::text, 'reviewed'::text])))))"
         },
         "Service role full access results": {
           "name": "Service role full access results",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         },
         "Staff manage results": {
           "name": "Staff manage results",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         }
       },
       "isRLSEnabled": true
@@ -23507,12 +22288,8 @@
           "tableFrom": "lab_result_attachments",
           "tableTo": "lab_orders",
           "schemaTo": "public",
-          "columnsFrom": [
-            "lab_order_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["lab_order_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -23521,12 +22298,8 @@
           "tableFrom": "lab_result_attachments",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -23535,12 +22308,8 @@
           "tableFrom": "lab_result_attachments",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "uploaded_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["uploaded_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -23558,26 +22327,20 @@
           "name": "Owners view attachments",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "authenticated"
-          ],
+          "to": ["authenticated"],
           "using": "(EXISTS ( SELECT 1\n   FROM lab_orders lo\n  WHERE ((lo.id = lab_result_attachments.lab_order_id) AND is_owner_of_pet(lo.pet_id) AND (lo.status = ANY (ARRAY['completed'::text, 'reviewed'::text])))))"
         },
         "Service role full access attachments": {
           "name": "Service role full access attachments",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         },
         "Staff manage attachments": {
           "name": "Staff manage attachments",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         }
       },
       "isRLSEnabled": true
@@ -23737,26 +22500,20 @@
           "name": "Clients view own credits",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "authenticated"
-          ],
+          "to": ["authenticated"],
           "using": "(client_id = auth.uid())"
         },
         "Service role full access credits": {
           "name": "Service role full access credits",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         },
         "Staff manage credits": {
           "name": "Staff manage credits",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         }
       },
       "isRLSEnabled": true
@@ -23907,9 +22664,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "insurance_providers_code_key": {
-          "columns": [
-            "code"
-          ],
+          "columns": ["code"],
           "nullsNotDistinct": false,
           "name": "insurance_providers_code_key"
         }
@@ -23920,18 +22675,14 @@
           "name": "Public read providers",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "using": "(is_active = true)"
         },
         "Service role manage providers": {
           "name": "Service role manage providers",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         }
       },
       "isRLSEnabled": true
@@ -24169,12 +22920,8 @@
           "tableFrom": "insurance_policies",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "deleted_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["deleted_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -24183,12 +22930,8 @@
           "tableFrom": "insurance_policies",
           "tableTo": "pets",
           "schemaTo": "public",
-          "columnsFrom": [
-            "pet_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["pet_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -24197,12 +22940,8 @@
           "tableFrom": "insurance_policies",
           "tableTo": "insurance_providers",
           "schemaTo": "public",
-          "columnsFrom": [
-            "provider_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["provider_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -24211,12 +22950,8 @@
           "tableFrom": "insurance_policies",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -24238,26 +22973,20 @@
           "name": "Owners view pet policies",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "authenticated"
-          ],
+          "to": ["authenticated"],
           "using": "(is_owner_of_pet(pet_id) AND (deleted_at IS NULL))"
         },
         "Service role full access policies": {
           "name": "Service role full access policies",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         },
         "Staff manage policies": {
           "name": "Staff manage policies",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         }
       },
       "isRLSEnabled": true
@@ -24489,12 +23218,8 @@
           "tableFrom": "insurance_claims",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "deleted_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["deleted_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -24503,12 +23228,8 @@
           "tableFrom": "insurance_claims",
           "tableTo": "invoices",
           "schemaTo": "public",
-          "columnsFrom": [
-            "invoice_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["invoice_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -24517,12 +23238,8 @@
           "tableFrom": "insurance_claims",
           "tableTo": "medical_records",
           "schemaTo": "public",
-          "columnsFrom": [
-            "medical_record_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["medical_record_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -24531,12 +23248,8 @@
           "tableFrom": "insurance_claims",
           "tableTo": "pets",
           "schemaTo": "public",
-          "columnsFrom": [
-            "pet_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["pet_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -24545,12 +23258,8 @@
           "tableFrom": "insurance_claims",
           "tableTo": "insurance_policies",
           "schemaTo": "public",
-          "columnsFrom": [
-            "policy_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["policy_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -24559,12 +23268,8 @@
           "tableFrom": "insurance_claims",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "submitted_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["submitted_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -24573,12 +23278,8 @@
           "tableFrom": "insurance_claims",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -24600,26 +23301,20 @@
           "name": "Owners view pet claims",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "authenticated"
-          ],
+          "to": ["authenticated"],
           "using": "(is_owner_of_pet(pet_id) AND (deleted_at IS NULL))"
         },
         "Service role full access claims": {
           "name": "Service role full access claims",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         },
         "Staff manage claims": {
           "name": "Staff manage claims",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         }
       },
       "isRLSEnabled": true
@@ -24738,12 +23433,8 @@
           "tableFrom": "insurance_claim_items",
           "tableTo": "insurance_claims",
           "schemaTo": "public",
-          "columnsFrom": [
-            "claim_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["claim_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -24752,12 +23443,8 @@
           "tableFrom": "insurance_claim_items",
           "tableTo": "services",
           "schemaTo": "public",
-          "columnsFrom": [
-            "service_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["service_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -24766,12 +23453,8 @@
           "tableFrom": "insurance_claim_items",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -24784,18 +23467,14 @@
           "name": "Service role full access claim items",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ],
+          "to": ["service_role"],
           "using": "true"
         },
         "Staff manage claim items": {
           "name": "Staff manage claim items",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         }
       },
       "isRLSEnabled": true
@@ -25188,12 +23867,8 @@
           "tableFrom": "conversations",
           "tableTo": "appointments",
           "schemaTo": "public",
-          "columnsFrom": [
-            "appointment_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["appointment_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -25202,12 +23877,8 @@
           "tableFrom": "conversations",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "assigned_to"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["assigned_to"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -25216,12 +23887,8 @@
           "tableFrom": "conversations",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "client_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["client_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -25230,12 +23897,8 @@
           "tableFrom": "conversations",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "deleted_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["deleted_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -25244,12 +23907,8 @@
           "tableFrom": "conversations",
           "tableTo": "pets",
           "schemaTo": "public",
-          "columnsFrom": [
-            "pet_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["pet_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -25258,12 +23917,8 @@
           "tableFrom": "conversations",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -25289,34 +23944,26 @@
           "name": "Clients create conversations",
           "as": "PERMISSIVE",
           "for": "INSERT",
-          "to": [
-            "authenticated"
-          ],
+          "to": ["authenticated"],
           "withCheck": "(client_id = auth.uid())"
         },
         "Clients view own conversations": {
           "name": "Clients view own conversations",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         },
         "Service role full access conversations": {
           "name": "Service role full access conversations",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         },
         "Staff manage conversations": {
           "name": "Staff manage conversations",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         }
       },
       "isRLSEnabled": true
@@ -25583,12 +24230,8 @@
           "tableFrom": "messages",
           "tableTo": "conversations",
           "schemaTo": "public",
-          "columnsFrom": [
-            "conversation_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["conversation_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -25597,12 +24240,8 @@
           "tableFrom": "messages",
           "tableTo": "messages",
           "schemaTo": "public",
-          "columnsFrom": [
-            "reply_to_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["reply_to_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -25611,12 +24250,8 @@
           "tableFrom": "messages",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "sender_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["sender_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -25625,12 +24260,8 @@
           "tableFrom": "messages",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -25656,34 +24287,26 @@
           "name": "Clients send messages",
           "as": "PERMISSIVE",
           "for": "INSERT",
-          "to": [
-            "authenticated"
-          ],
+          "to": ["authenticated"],
           "withCheck": "((sender_type = 'client'::text) AND (sender_id = auth.uid()))"
         },
         "Clients view own messages": {
           "name": "Clients view own messages",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         },
         "Service role full access messages": {
           "name": "Service role full access messages",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         },
         "Staff manage messages": {
           "name": "Staff manage messages",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         }
       },
       "isRLSEnabled": true
@@ -25882,12 +24505,8 @@
           "tableFrom": "message_templates",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -25895,10 +24514,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "message_templates_tenant_id_code_key": {
-          "columns": [
-            "tenant_id",
-            "code"
-          ],
+          "columns": ["tenant_id", "code"],
           "nullsNotDistinct": false,
           "name": "message_templates_tenant_id_code_key"
         }
@@ -25914,26 +24530,20 @@
           "name": "Read templates",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "authenticated"
-          ],
+          "to": ["authenticated"],
           "using": "(((tenant_id IS NULL) OR is_staff_of(tenant_id)) AND (deleted_at IS NULL))"
         },
         "Service role manage templates": {
           "name": "Service role manage templates",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         },
         "Staff manage templates": {
           "name": "Staff manage templates",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         }
       },
       "isRLSEnabled": true
@@ -26249,12 +24859,8 @@
           "tableFrom": "reminders",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "client_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["client_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -26263,12 +24869,8 @@
           "tableFrom": "reminders",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "deleted_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["deleted_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -26277,12 +24879,8 @@
           "tableFrom": "reminders",
           "tableTo": "pets",
           "schemaTo": "public",
-          "columnsFrom": [
-            "pet_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["pet_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -26291,12 +24889,8 @@
           "tableFrom": "reminders",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -26318,26 +24912,20 @@
           "name": "Clients view own reminders",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "authenticated"
-          ],
+          "to": ["authenticated"],
           "using": "(client_id = auth.uid())"
         },
         "Service role full access reminders": {
           "name": "Service role full access reminders",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         },
         "Staff manage reminders": {
           "name": "Staff manage reminders",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         }
       },
       "isRLSEnabled": true
@@ -26489,18 +25077,14 @@
           "name": "Public log scans",
           "as": "PERMISSIVE",
           "for": "INSERT",
-          "to": [
-            "public"
-          ],
+          "to": ["public"],
           "withCheck": "true"
         },
         "Service role full access scans": {
           "name": "Service role full access scans",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         }
       },
       "isRLSEnabled": true
@@ -26704,12 +25288,8 @@
           "tableFrom": "staff_profiles",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "deleted_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["deleted_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -26718,12 +25298,8 @@
           "tableFrom": "staff_profiles",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "profile_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["profile_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -26732,12 +25308,8 @@
           "tableFrom": "staff_profiles",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -26745,9 +25317,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "staff_profiles_profile_id_key": {
-          "columns": [
-            "profile_id"
-          ],
+          "columns": ["profile_id"],
           "nullsNotDistinct": false,
           "name": "staff_profiles_profile_id_key"
         }
@@ -26763,34 +25333,26 @@
           "name": "Admin manage all profiles",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ],
+          "to": ["authenticated"],
           "using": "(EXISTS ( SELECT 1\n   FROM profiles p\n  WHERE ((p.id = auth.uid()) AND (p.tenant_id = staff_profiles.tenant_id) AND (p.role = 'admin'::text) AND (p.deleted_at IS NULL))))"
         },
         "Service role full access staff profiles": {
           "name": "Service role full access staff profiles",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         },
         "Staff manage own profile": {
           "name": "Staff manage own profile",
           "as": "PERMISSIVE",
           "for": "UPDATE",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         },
         "Staff view all profiles": {
           "name": "Staff view all profiles",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         }
       },
       "isRLSEnabled": true
@@ -26924,12 +25486,8 @@
           "tableFrom": "staff_schedules",
           "tableTo": "staff_profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "staff_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["staff_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -26938,12 +25496,8 @@
           "tableFrom": "staff_schedules",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -26956,26 +25510,20 @@
           "name": "Admin manage schedules",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ],
+          "to": ["authenticated"],
           "using": "(EXISTS ( SELECT 1\n   FROM profiles p\n  WHERE ((p.id = auth.uid()) AND (p.tenant_id = staff_schedules.tenant_id) AND (p.role = 'admin'::text))))"
         },
         "Service role full access schedules": {
           "name": "Service role full access schedules",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         },
         "Staff view schedules": {
           "name": "Staff view schedules",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         }
       },
       "isRLSEnabled": true
@@ -27103,12 +25651,8 @@
           "tableFrom": "staff_schedule_entries",
           "tableTo": "staff_schedules",
           "schemaTo": "public",
-          "columnsFrom": [
-            "schedule_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["schedule_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -27117,12 +25661,8 @@
           "tableFrom": "staff_schedule_entries",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -27148,18 +25688,14 @@
           "name": "Access schedule entries",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ],
+          "to": ["authenticated"],
           "using": "is_staff_of(tenant_id)"
         },
         "Service role full access entries": {
           "name": "Service role full access entries",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         }
       },
       "isRLSEnabled": true
@@ -27278,12 +25814,8 @@
           "tableFrom": "time_off_types",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -27291,10 +25823,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "time_off_types_tenant_id_code_key": {
-          "columns": [
-            "tenant_id",
-            "code"
-          ],
+          "columns": ["tenant_id", "code"],
           "nullsNotDistinct": false,
           "name": "time_off_types_tenant_id_code_key"
         }
@@ -27305,26 +25834,20 @@
           "name": "Admin manage time off types",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ],
+          "to": ["authenticated"],
           "using": "(EXISTS ( SELECT 1\n   FROM profiles p\n  WHERE ((p.id = auth.uid()) AND (p.tenant_id = time_off_types.tenant_id) AND (p.role = 'admin'::text))))"
         },
         "Service role full access time off types": {
           "name": "Service role full access time off types",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         },
         "Staff view time off types": {
           "name": "Staff view time off types",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         }
       },
       "isRLSEnabled": true
@@ -27516,12 +26039,8 @@
           "tableFrom": "staff_time_off",
           "tableTo": "profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "approved_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["approved_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -27530,12 +26049,8 @@
           "tableFrom": "staff_time_off",
           "tableTo": "staff_profiles",
           "schemaTo": "public",
-          "columnsFrom": [
-            "staff_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["staff_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -27544,12 +26059,8 @@
           "tableFrom": "staff_time_off",
           "tableTo": "tenants",
           "schemaTo": "public",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -27558,12 +26069,8 @@
           "tableFrom": "staff_time_off",
           "tableTo": "time_off_types",
           "schemaTo": "public",
-          "columnsFrom": [
-            "type_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["type_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -27585,34 +26092,26 @@
           "name": "Admin manage time off",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ],
+          "to": ["authenticated"],
           "using": "(EXISTS ( SELECT 1\n   FROM profiles p\n  WHERE ((p.id = auth.uid()) AND (p.tenant_id = staff_time_off.tenant_id) AND (p.role = 'admin'::text))))"
         },
         "Service role full access time off": {
           "name": "Service role full access time off",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         },
         "Staff request time off": {
           "name": "Staff request time off",
           "as": "PERMISSIVE",
           "for": "INSERT",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         },
         "Staff view own time off": {
           "name": "Staff view own time off",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         }
       },
       "isRLSEnabled": true
@@ -27769,10 +26268,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "clinic_profiles_profile_id_tenant_id_key": {
-          "columns": [
-            "profile_id",
-            "tenant_id"
-          ],
+          "columns": ["profile_id", "tenant_id"],
           "nullsNotDistinct": false,
           "name": "clinic_profiles_profile_id_tenant_id_key"
         }
@@ -27788,9 +26284,7 @@
           "name": "Clinic staff manage clinic memberships",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ],
+          "to": ["authenticated"],
           "withCheck": "(EXISTS ( SELECT 1\n   FROM clinic_profiles cp\n  WHERE ((cp.profile_id = auth.uid()) AND (cp.tenant_id = clinic_profiles.tenant_id) AND (cp.role = ANY (ARRAY['vet'::text, 'admin'::text])) AND (cp.is_active = true) AND (cp.deleted_at IS NULL))))",
           "using": "(EXISTS ( SELECT 1\n   FROM clinic_profiles cp\n  WHERE ((cp.profile_id = auth.uid()) AND (cp.tenant_id = clinic_profiles.tenant_id) AND (cp.role = ANY (ARRAY['vet'::text, 'admin'::text])) AND (cp.is_active = true) AND (cp.deleted_at IS NULL))))"
         },
@@ -27798,17 +26292,13 @@
           "name": "Service role full access clinic_profiles",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         },
         "Users view own clinic memberships": {
           "name": "Users view own clinic memberships",
           "as": "PERMISSIVE",
           "for": "SELECT",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         }
       },
       "isRLSEnabled": true
@@ -27994,18 +26484,14 @@
           "name": "Service role full access queue",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ],
+          "to": ["service_role"],
           "using": "true"
         },
         "Staff manage queue": {
           "name": "Staff manage queue",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "authenticated"
-          ]
+          "to": ["authenticated"]
         }
       },
       "isRLSEnabled": true
@@ -28148,18 +26634,14 @@
           "name": "Service role full access price history",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ],
+          "to": ["service_role"],
           "using": "true"
         },
         "Service role full access price_history": {
           "name": "Service role full access price_history",
           "as": "PERMISSIVE",
           "for": "ALL",
-          "to": [
-            "service_role"
-          ]
+          "to": ["service_role"]
         }
       },
       "isRLSEnabled": true
@@ -28168,12 +26650,7 @@
   "enums": {
     "public.acuity_level": {
       "name": "acuity_level",
-      "values": [
-        "low",
-        "normal",
-        "high",
-        "critical"
-      ],
+      "values": ["low", "normal", "high", "critical"],
       "schema": "public"
     },
     "public.appointment_status": {
@@ -28204,62 +26681,32 @@
     },
     "public.claim_type": {
       "name": "claim_type",
-      "values": [
-        "treatment",
-        "surgery",
-        "hospitalization",
-        "medication",
-        "diagnostic",
-        "other"
-      ],
+      "values": ["treatment", "surgery", "hospitalization", "medication", "diagnostic", "other"],
       "schema": "public"
     },
     "public.contact_preference": {
       "name": "contact_preference",
-      "values": [
-        "phone",
-        "email",
-        "whatsapp",
-        "sms"
-      ],
+      "values": ["phone", "email", "whatsapp", "sms"],
       "schema": "public"
     },
     "public.conversation_status": {
       "name": "conversation_status",
-      "values": [
-        "open",
-        "pending",
-        "resolved",
-        "closed"
-      ],
+      "values": ["open", "pending", "resolved", "closed"],
       "schema": "public"
     },
     "public.coverage_type": {
       "name": "coverage_type",
-      "values": [
-        "basic",
-        "standard",
-        "premium",
-        "comprehensive"
-      ],
+      "values": ["basic", "standard", "premium", "comprehensive"],
       "schema": "public"
     },
     "public.diagnosis_standard": {
       "name": "diagnosis_standard",
-      "values": [
-        "venom",
-        "snomed",
-        "custom"
-      ],
+      "values": ["venom", "snomed", "custom"],
       "schema": "public"
     },
     "public.discount_type": {
       "name": "discount_type",
-      "values": [
-        "percentage",
-        "fixed_amount",
-        "buy_x_get_y"
-      ],
+      "values": ["percentage", "fixed_amount", "buy_x_get_y"],
       "schema": "public"
     },
     "public.expense_category": {
@@ -28283,15 +26730,7 @@
     },
     "public.growth_percentile": {
       "name": "growth_percentile",
-      "values": [
-        "P3",
-        "P10",
-        "P25",
-        "P50",
-        "P75",
-        "P90",
-        "P97"
-      ],
+      "values": ["P3", "P10", "P25", "P50", "P75", "P90", "P97"],
       "schema": "public"
     },
     "public.hospitalization_status": {
@@ -28309,70 +26748,32 @@
     },
     "public.inventory_transaction_type": {
       "name": "inventory_transaction_type",
-      "values": [
-        "purchase",
-        "sale",
-        "adjustment",
-        "return",
-        "transfer",
-        "waste",
-        "reservation"
-      ],
+      "values": ["purchase", "sale", "adjustment", "return", "transfer", "waste", "reservation"],
       "schema": "public"
     },
     "public.invite_status": {
       "name": "invite_status",
-      "values": [
-        "pending",
-        "accepted",
-        "expired",
-        "cancelled"
-      ],
+      "values": ["pending", "accepted", "expired", "cancelled"],
       "schema": "public"
     },
     "public.invoice_status": {
       "name": "invoice_status",
-      "values": [
-        "draft",
-        "sent",
-        "partial",
-        "paid",
-        "overdue",
-        "cancelled",
-        "refunded"
-      ],
+      "values": ["draft", "sent", "partial", "paid", "overdue", "cancelled", "refunded"],
       "schema": "public"
     },
     "public.lab_order_status": {
       "name": "lab_order_status",
-      "values": [
-        "pending",
-        "collected",
-        "processing",
-        "completed",
-        "cancelled"
-      ],
+      "values": ["pending", "collected", "processing", "completed", "cancelled"],
       "schema": "public"
     },
     "public.loyalty_tier": {
       "name": "loyalty_tier",
-      "values": [
-        "bronze",
-        "silver",
-        "gold",
-        "platinum"
-      ],
+      "values": ["bronze", "silver", "gold", "platinum"],
       "schema": "public"
     },
     "public.loyalty_transaction_type": {
       "name": "loyalty_transaction_type",
-      "values": [
-        "earn",
-        "redeem",
-        "expire",
-        "adjust",
-        "bonus"
-      ],
+      "values": ["earn", "redeem", "expire", "adjust", "bonus"],
       "schema": "public"
     },
     "public.medical_record_type": {
@@ -28393,23 +26794,12 @@
     },
     "public.message_channel": {
       "name": "message_channel",
-      "values": [
-        "internal",
-        "whatsapp",
-        "email",
-        "sms"
-      ],
+      "values": ["internal", "whatsapp", "email", "sms"],
       "schema": "public"
     },
     "public.message_status": {
       "name": "message_status",
-      "values": [
-        "pending",
-        "sent",
-        "delivered",
-        "read",
-        "failed"
-      ],
+      "values": ["pending", "sent", "delivered", "read", "failed"],
       "schema": "public"
     },
     "public.order_status": {
@@ -28428,58 +26818,27 @@
     },
     "public.payment_status": {
       "name": "payment_status",
-      "values": [
-        "pending",
-        "completed",
-        "failed",
-        "refunded",
-        "cancelled"
-      ],
+      "values": ["pending", "completed", "failed", "refunded", "cancelled"],
       "schema": "public"
     },
     "public.pet_sex": {
       "name": "pet_sex",
-      "values": [
-        "male",
-        "female",
-        "unknown"
-      ],
+      "values": ["male", "female", "unknown"],
       "schema": "public"
     },
     "public.pet_species": {
       "name": "pet_species",
-      "values": [
-        "dog",
-        "cat",
-        "bird",
-        "rabbit",
-        "hamster",
-        "fish",
-        "reptile",
-        "other"
-      ],
+      "values": ["dog", "cat", "bird", "rabbit", "hamster", "fish", "reptile", "other"],
       "schema": "public"
     },
     "public.policy_status": {
       "name": "policy_status",
-      "values": [
-        "pending",
-        "active",
-        "expired",
-        "cancelled",
-        "suspended"
-      ],
+      "values": ["pending", "active", "expired", "cancelled", "suspended"],
       "schema": "public"
     },
     "public.prescription_status": {
       "name": "prescription_status",
-      "values": [
-        "draft",
-        "active",
-        "dispensed",
-        "expired",
-        "cancelled"
-      ],
+      "values": ["draft", "active", "dispensed", "expired", "cancelled"],
       "schema": "public"
     },
     "public.service_category": {
@@ -28501,66 +26860,32 @@
     },
     "public.severity_level": {
       "name": "severity_level",
-      "values": [
-        "low",
-        "medium",
-        "high",
-        "critical"
-      ],
+      "values": ["low", "medium", "high", "critical"],
       "schema": "public"
     },
     "public.time_off_status": {
       "name": "time_off_status",
-      "values": [
-        "pending",
-        "approved",
-        "denied",
-        "cancelled"
-      ],
+      "values": ["pending", "approved", "denied", "cancelled"],
       "schema": "public"
     },
     "public.time_off_type": {
       "name": "time_off_type",
-      "values": [
-        "vacation",
-        "sick",
-        "personal",
-        "maternity",
-        "paternity",
-        "unpaid",
-        "other"
-      ],
+      "values": ["vacation", "sick", "personal", "maternity", "paternity", "unpaid", "other"],
       "schema": "public"
     },
     "public.user_role": {
       "name": "user_role",
-      "values": [
-        "owner",
-        "vet",
-        "admin"
-      ],
+      "values": ["owner", "vet", "admin"],
       "schema": "public"
     },
     "public.vaccine_status": {
       "name": "vaccine_status",
-      "values": [
-        "scheduled",
-        "completed",
-        "missed",
-        "cancelled"
-      ],
+      "values": ["scheduled", "completed", "missed", "cancelled"],
       "schema": "public"
     },
     "public.workflow_status": {
       "name": "workflow_status",
-      "values": [
-        "draft",
-        "pending",
-        "active",
-        "completed",
-        "cancelled",
-        "expired"
-      ],
+      "values": ["draft", "pending", "active", "completed", "cancelled", "expired"],
       "schema": "public"
     }
   },

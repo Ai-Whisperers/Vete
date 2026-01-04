@@ -298,12 +298,8 @@
           "name": "profiles_tenant_id_tenants_id_fk",
           "tableFrom": "profiles",
           "tableTo": "tenants",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -311,12 +307,8 @@
           "name": "profiles_deleted_by_profiles_id_fk",
           "tableFrom": "profiles",
           "tableTo": "profiles",
-          "columnsFrom": [
-            "deleted_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["deleted_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -383,12 +375,8 @@
           "name": "system_configs_tenant_id_tenants_id_fk",
           "tableFrom": "system_configs",
           "tableTo": "tenants",
-          "columnsFrom": [
-            "tenant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tenant_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }

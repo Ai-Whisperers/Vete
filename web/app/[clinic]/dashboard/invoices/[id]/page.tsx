@@ -14,7 +14,9 @@ export default async function InvoiceDetailPage({ params }: Props) {
   const supabase = await createClient()
 
   // Auth check
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) {
     redirect(`/${clinic}/portal/login`)
   }
@@ -33,7 +35,7 @@ export default async function InvoiceDetailPage({ params }: Props) {
   // Fetch invoice and clinic name
   const [invoiceResult, tenantResult] = await Promise.all([
     getInvoice(id),
-    supabase.from('tenants').select('name').eq('id', clinic).single()
+    supabase.from('tenants').select('name').eq('id', clinic).single(),
   ])
 
   if (!invoiceResult.success || !invoiceResult.data) {
@@ -44,14 +46,14 @@ export default async function InvoiceDetailPage({ params }: Props) {
   const clinicName = tenantResult.data?.name || clinic
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
+    <div className="mx-auto max-w-5xl p-6">
       {/* Back Link */}
       <div className="mb-4">
         <Link
           href={`/${clinic}/dashboard/invoices`}
           className="inline-flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
         >
-          <Icons.ArrowLeft className="w-4 h-4" />
+          <Icons.ArrowLeft className="h-4 w-4" />
           Volver a facturas
         </Link>
       </div>

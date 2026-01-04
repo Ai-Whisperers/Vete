@@ -42,7 +42,10 @@
       "image": "/branding/adris/images/team/adriana.jpg",
       "bio": "Médica Veterinaria egresada de la UNA con más de 14 años de experiencia. Especialista en medicina interna de pequeños animales. Fundó Veterinaria Adris con la visión de ofrecer atención de primer nivel con calidez humana. Apasionada por la educación continua y el bienestar animal.",
       "specialties": ["Medicina Interna", "Geriatría", "Cardiología"],
-      "education": ["Universidad Nacional de Asunción (UNA)", "Diplomado en Cardiología - Buenos Aires"]
+      "education": [
+        "Universidad Nacional de Asunción (UNA)",
+        "Diplomado en Cardiología - Buenos Aires"
+      ]
     },
     {
       "name": "Dr. Jorge Ramírez",
@@ -58,7 +61,10 @@
       "image": "/branding/adris/images/team/fernanda.jpg",
       "bio": "Especialista en diagnóstico por imágenes con formación en Argentina y Brasil. Experta en ecografía Doppler, ecocardiografía y radiología digital. Responsable del área de diagnóstico avanzado.",
       "specialties": ["Ecografía", "Radiología", "Ecocardiografía"],
-      "education": ["Universidad Nacional de Asunción (UNA)", "Especialización en Imagenología - Buenos Aires"]
+      "education": [
+        "Universidad Nacional de Asunción (UNA)",
+        "Especialización en Imagenología - Buenos Aires"
+      ]
     },
     {
       "name": "Lic. Carolina Martínez",

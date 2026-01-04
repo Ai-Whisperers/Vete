@@ -5,63 +5,61 @@
  * Useful for creating many variations of test data quickly.
  */
 
-import { getTestClient } from './db';
-import { PetFixture, Species, Sex, Temperament } from '../__fixtures__/pets';
-import { VaccineFixture, VACCINE_NAMES } from '../__fixtures__/vaccines';
-import { AppointmentFixture, AppointmentType, TIME_SLOTS } from '../__fixtures__/appointments';
+import { getTestClient } from './db'
+import { PetFixture, Species, Sex, Temperament } from '../__fixtures__/pets'
+import { VaccineFixture, VACCINE_NAMES } from '../__fixtures__/vaccines'
+import { AppointmentFixture, AppointmentType, TIME_SLOTS } from '../__fixtures__/appointments'
 
 /**
  * Counter for unique sequence generation
  */
-let sequenceCounter = 0;
+let sequenceCounter = 0
 
 /**
  * Get next sequence number
  */
 export function nextSequence(): number {
-  return ++sequenceCounter;
+  return ++sequenceCounter
 }
 
 /**
  * Reset sequence counter (call in beforeEach)
  */
 export function resetSequence(): void {
-  sequenceCounter = 0;
+  sequenceCounter = 0
 }
 
 /**
  * Generate random item from array
  */
 export function randomItem<T>(items: T[]): T {
-  return items[Math.floor(Math.random() * items.length)];
+  return items[Math.floor(Math.random() * items.length)]
 }
 
 /**
  * Generate random date within range
  */
 export function randomDate(start: Date, end: Date): string {
-  const date = new Date(
-    start.getTime() + Math.random() * (end.getTime() - start.getTime())
-  );
-  return date.toISOString().split('T')[0];
+  const date = new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()))
+  return date.toISOString().split('T')[0]
 }
 
 /**
  * Generate future date
  */
 export function futureDate(daysAhead: number = 30): string {
-  const date = new Date();
-  date.setDate(date.getDate() + daysAhead);
-  return date.toISOString().split('T')[0];
+  const date = new Date()
+  date.setDate(date.getDate() + daysAhead)
+  return date.toISOString().split('T')[0]
 }
 
 /**
  * Generate past date
  */
 export function pastDate(daysAgo: number = 30): string {
-  const date = new Date();
-  date.setDate(date.getDate() - daysAgo);
-  return date.toISOString().split('T')[0];
+  const date = new Date()
+  date.setDate(date.getDate() - daysAgo)
+  return date.toISOString().split('T')[0]
 }
 
 // =============================================================================
@@ -69,25 +67,25 @@ export function pastDate(daysAgo: number = 30): string {
 // =============================================================================
 
 export interface PetFactoryOptions {
-  ownerId?: string;
-  tenantId?: string;
-  species?: Species;
-  microchipId?: string | null;
-  dietCategory?: string | null;
-  dietNotes?: string | null;
-  allergies?: string | null;
-  existingConditions?: string | null;
-  notes?: string | null;
-  photoUrl?: string | null;
-  withMedicalHistory?: boolean;
+  ownerId?: string
+  tenantId?: string
+  species?: Species
+  microchipId?: string | null
+  dietCategory?: string | null
+  dietNotes?: string | null
+  allergies?: string | null
+  existingConditions?: string | null
+  notes?: string | null
+  photoUrl?: string | null
+  withMedicalHistory?: boolean
 }
 
 /**
  * Create pet data for testing
  */
 export function buildPet(overrides: Partial<PetFixture> = {}): Omit<PetFixture, 'id'> {
-  const seq = nextSequence();
-  const species = overrides.species || randomItem<Species>(['dog', 'cat', 'rabbit']);
+  const seq = nextSequence()
+  const species = overrides.species || randomItem<Species>(['dog', 'cat', 'rabbit'])
 
   const breeds: Record<string, string[]> = {
     dog: ['Labrador', 'Golden Retriever', 'Bulldog', 'Poodle', 'Mestizo'],
@@ -95,7 +93,7 @@ export function buildPet(overrides: Partial<PetFixture> = {}): Omit<PetFixture, 
     rabbit: ['Holland Lop', 'Mini Rex', 'Mestizo'],
     bird: ['Canario', 'Periquito'],
     other: ['Otro'],
-  };
+  }
 
   return {
     ownerId: overrides.ownerId || '00000000-0000-0000-0000-000000000001',
@@ -108,7 +106,9 @@ export function buildPet(overrides: Partial<PetFixture> = {}): Omit<PetFixture, 
     sex: overrides.sex || randomItem<Sex>(['male', 'female']),
     isNeutered: overrides.isNeutered ?? Math.random() > 0.5,
     color: overrides.color || randomItem(['Negro', 'Blanco', 'Marrón', 'Dorado', 'Gris']),
-    temperament: overrides.temperament || randomItem<Temperament>(['friendly', 'shy', 'aggressive', 'unknown']),
+    temperament:
+      overrides.temperament ||
+      randomItem<Temperament>(['friendly', 'shy', 'aggressive', 'unknown']),
     microchipId: overrides.microchipId || null,
     dietCategory: overrides.dietCategory || null,
     dietNotes: overrides.dietNotes || null,
@@ -117,17 +117,15 @@ export function buildPet(overrides: Partial<PetFixture> = {}): Omit<PetFixture, 
     notes: overrides.notes || null,
     photoUrl: overrides.photoUrl || null,
     ...overrides,
-  };
+  }
 }
 
 /**
  * Create and persist pet in database
  */
-export async function createPet(
-  overrides: Partial<PetFixture> = {}
-): Promise<PetFixture> {
-  const client = getTestClient({ serviceRole: true });
-  const data = buildPet(overrides);
+export async function createPet(overrides: Partial<PetFixture> = {}): Promise<PetFixture> {
+  const client = getTestClient({ serviceRole: true })
+  const data = buildPet(overrides)
 
   const { data: pet, error } = await client
     .from('pets')
@@ -152,14 +150,14 @@ export async function createPet(
       photo_url: data.photoUrl,
     })
     .select()
-    .single();
+    .single()
 
-  if (error) throw new Error(`Failed to create pet: ${error.message}`);
+  if (error) throw new Error(`Failed to create pet: ${error.message}`)
 
   return {
     id: pet.id,
     ...data,
-  };
+  }
 }
 
 /**
@@ -169,11 +167,11 @@ export async function createPets(
   count: number,
   overrides: Partial<PetFixture> = {}
 ): Promise<PetFixture[]> {
-  const pets: PetFixture[] = [];
+  const pets: PetFixture[] = []
   for (let i = 0; i < count; i++) {
-    pets.push(await createPet(overrides));
+    pets.push(await createPet(overrides))
   }
-  return pets;
+  return pets
 }
 
 // =============================================================================
@@ -187,9 +185,8 @@ export function buildVaccine(
   petId: string,
   overrides: Partial<VaccineFixture> = {}
 ): Omit<VaccineFixture, 'id'> {
-  const seq = nextSequence();
+  const seq = nextSequence()
   // species assignment removed as it was unused and shadowed
-
 
   return {
     petId,
@@ -199,7 +196,7 @@ export function buildVaccine(
     batchNumber: overrides.batchNumber || `BATCH-${seq}-${Date.now()}`,
     status: overrides.status || 'pending',
     ...overrides,
-  };
+  }
 }
 
 /**
@@ -209,8 +206,8 @@ export async function createVaccine(
   petId: string,
   overrides: Partial<VaccineFixture> = {}
 ): Promise<VaccineFixture> {
-  const client = getTestClient({ serviceRole: true });
-  const data = buildVaccine(petId, overrides);
+  const client = getTestClient({ serviceRole: true })
+  const data = buildVaccine(petId, overrides)
 
   const { data: vaccine, error } = await client
     .from('vaccines')
@@ -224,14 +221,14 @@ export async function createVaccine(
       administered_by: data.administeredBy,
     })
     .select()
-    .single();
+    .single()
 
-  if (error) throw new Error(`Failed to create vaccine: ${error.message}`);
+  if (error) throw new Error(`Failed to create vaccine: ${error.message}`)
 
   return {
     id: vaccine.id,
     ...data,
-  };
+  }
 }
 
 // =============================================================================
@@ -244,7 +241,7 @@ export async function createVaccine(
 export function buildAppointment(
   overrides: Partial<AppointmentFixture> = {}
 ): Omit<AppointmentFixture, 'id'> {
-  const seq = nextSequence();
+  const seq = nextSequence()
 
   return {
     tenantId: overrides.tenantId || 'adris',
@@ -257,7 +254,7 @@ export function buildAppointment(
     status: overrides.status || 'confirmed',
     reason: overrides.reason || `Test appointment ${seq}`,
     ...overrides,
-  };
+  }
 }
 
 /**
@@ -266,12 +263,12 @@ export function buildAppointment(
 export async function createAppointment(
   overrides: Partial<AppointmentFixture> = {}
 ): Promise<AppointmentFixture> {
-  const client = getTestClient({ serviceRole: true });
-  const data = buildAppointment(overrides);
+  const client = getTestClient({ serviceRole: true })
+  const data = buildAppointment(overrides)
 
   // Create Date object from date/time (interprets as local)
-  const startDate = new Date(`${data.date}T${data.time}:00`);
-  const endDate = new Date(startDate.getTime() + (data.duration || 30) * 60000);
+  const startDate = new Date(`${data.date}T${data.time}:00`)
+  const endDate = new Date(startDate.getTime() + (data.duration || 30) * 60000)
 
   const { data: appointment, error } = await client
     .from('appointments')
@@ -287,14 +284,14 @@ export async function createAppointment(
       notes: data.notes,
     })
     .select()
-    .single();
+    .single()
 
-  if (error) throw new Error(`Failed to create appointment: ${error.message}`);
+  if (error) throw new Error(`Failed to create appointment: ${error.message}`)
 
   return {
     id: appointment.id,
     ...data,
-  };
+  }
 }
 
 // =============================================================================
@@ -302,21 +299,19 @@ export async function createAppointment(
 // =============================================================================
 
 export interface ProfileData {
-  id?: string;
-  tenantId: string;
-  fullName: string;
-  email: string;
-  phone: string;
-  role: 'owner' | 'vet' | 'admin';
+  id?: string
+  tenantId: string
+  fullName: string
+  email: string
+  phone: string
+  role: 'owner' | 'vet' | 'admin'
 }
 
 /**
  * Create profile data for testing
  */
-export function buildProfile(
-  overrides: Partial<ProfileData> = {}
-): ProfileData {
-  const seq = nextSequence();
+export function buildProfile(overrides: Partial<ProfileData> = {}): ProfileData {
+  const seq = nextSequence()
 
   return {
     tenantId: overrides.tenantId || 'adris',
@@ -325,7 +320,7 @@ export function buildProfile(
     phone: overrides.phone || `+595981${String(seq).padStart(6, '0')}`,
     role: overrides.role || 'owner',
     ...overrides,
-  };
+  }
 }
 
 /**
@@ -334,8 +329,8 @@ export function buildProfile(
 export async function createProfile(
   overrides: Partial<ProfileData> = {}
 ): Promise<ProfileData & { id: string }> {
-  const client = getTestClient({ serviceRole: true });
-  const data = buildProfile(overrides);
+  const client = getTestClient({ serviceRole: true })
+  const data = buildProfile(overrides)
 
   const { data: profile, error } = await client
     .from('profiles')
@@ -348,14 +343,14 @@ export async function createProfile(
       role: data.role,
     })
     .select()
-    .single();
+    .single()
 
-  if (error) throw new Error(`Failed to create profile: ${error.message}`);
+  if (error) throw new Error(`Failed to create profile: ${error.message}`)
 
   return {
     id: profile.id,
     ...data,
-  };
+  }
 }
 
 // =============================================================================
@@ -363,20 +358,20 @@ export async function createProfile(
 // =============================================================================
 
 export interface MedicalRecordData {
-  id?: string;
-  petId: string;
-  tenantId: string;
-  performedBy?: string;
-  type: 'consultation' | 'exam' | 'surgery' | 'hospitalization' | 'wellness' | 'other';
-  title: string;
-  diagnosis?: string;
-  notes?: string;
+  id?: string
+  petId: string
+  tenantId: string
+  performedBy?: string
+  type: 'consultation' | 'exam' | 'surgery' | 'hospitalization' | 'wellness' | 'other'
+  title: string
+  diagnosis?: string
+  notes?: string
   vitals?: {
-    weight?: number;
-    temp?: number;
-    hr?: number;
-    rr?: number;
-  };
+    weight?: number
+    temp?: number
+    hr?: number
+    rr?: number
+  }
 }
 
 /**
@@ -386,7 +381,7 @@ export function buildMedicalRecord(
   petId: string,
   overrides: Partial<MedicalRecordData> = {}
 ): Omit<MedicalRecordData, 'id'> {
-  const seq = nextSequence();
+  const seq = nextSequence()
 
   return {
     petId,
@@ -402,7 +397,7 @@ export function buildMedicalRecord(
       rr: 15 + Math.floor(Math.random() * 15),
     },
     ...overrides,
-  };
+  }
 }
 
 // =============================================================================
@@ -412,43 +407,40 @@ export function buildMedicalRecord(
 /**
  * Create a complete test scenario with owner, pets, and records
  */
-export async function createCompleteTestScenario(options: {
-  tenantId?: string;
-  petCount?: number;
-  vaccinesPerPet?: number;
-  appointmentsPerPet?: number;
-} = {}): Promise<{
-  profile: ProfileData & { id: string };
-  pets: PetFixture[];
-  vaccines: VaccineFixture[];
-  appointments: AppointmentFixture[];
+export async function createCompleteTestScenario(
+  options: {
+    tenantId?: string
+    petCount?: number
+    vaccinesPerPet?: number
+    appointmentsPerPet?: number
+  } = {}
+): Promise<{
+  profile: ProfileData & { id: string }
+  pets: PetFixture[]
+  vaccines: VaccineFixture[]
+  appointments: AppointmentFixture[]
 }> {
-  const {
-    tenantId = 'adris',
-    petCount = 2,
-    vaccinesPerPet = 2,
-    appointmentsPerPet = 1,
-  } = options;
+  const { tenantId = 'adris', petCount = 2, vaccinesPerPet = 2, appointmentsPerPet = 1 } = options
 
   // Create owner profile
-  const profile = await createProfile({ tenantId, role: 'owner' });
+  const profile = await createProfile({ tenantId, role: 'owner' })
 
   // Create pets
   const pets = await createPets(petCount, {
     ownerId: profile.id,
     tenantId,
-  });
+  })
 
   // Create vaccines for each pet
-  const vaccines: VaccineFixture[] = [];
+  const vaccines: VaccineFixture[] = []
   for (const pet of pets) {
     for (let i = 0; i < vaccinesPerPet; i++) {
-      vaccines.push(await createVaccine(pet.id));
+      vaccines.push(await createVaccine(pet.id))
     }
   }
 
   // Create appointments for each pet
-  const appointments: AppointmentFixture[] = [];
+  const appointments: AppointmentFixture[] = []
   for (const pet of pets) {
     for (let i = 0; i < appointmentsPerPet; i++) {
       appointments.push(
@@ -457,11 +449,11 @@ export async function createCompleteTestScenario(options: {
           ownerId: profile.id,
           tenantId,
         })
-      );
+      )
     }
   }
 
-  return { profile, pets, vaccines, appointments };
+  return { profile, pets, vaccines, appointments }
 }
 
 // =============================================================================
@@ -475,8 +467,8 @@ export async function createMedicalRecord(
   petId: string,
   overrides: Partial<MedicalRecordData> = {}
 ): Promise<MedicalRecordData & { id: string }> {
-  const client = getTestClient({ serviceRole: true });
-  const data = buildMedicalRecord(petId, overrides);
+  const client = getTestClient({ serviceRole: true })
+  const data = buildMedicalRecord(petId, overrides)
 
   const { data: record, error } = await client
     .from('medical_records')
@@ -488,14 +480,14 @@ export async function createMedicalRecord(
       vital_signs: data.vitals,
     })
     .select()
-    .single();
+    .single()
 
-  if (error) throw new Error(`Failed to create medical record: ${error.message}`);
+  if (error) throw new Error(`Failed to create medical record: ${error.message}`)
 
   return {
     id: record.id,
     ...data,
-  };
+  }
 }
 
 // =============================================================================
@@ -503,33 +495,30 @@ export async function createMedicalRecord(
 // =============================================================================
 
 export interface InvoiceData {
-  id?: string;
-  tenantId: string;
-  clientId: string; // Changed from ownerId to matches schema
-  petId?: string;
-  status?: string;
+  id?: string
+  tenantId: string
+  clientId: string // Changed from ownerId to matches schema
+  petId?: string
+  status?: string
 }
 
-export function buildInvoice(
-  overrides: Partial<InvoiceData> = {}
-): InvoiceData {
-  
+export function buildInvoice(overrides: Partial<InvoiceData> = {}): InvoiceData {
   return {
     tenantId: overrides.tenantId || 'adris',
     clientId: overrides.clientId || '00000000-0000-0000-0000-000000000001',
     status: overrides.status || 'draft',
-    ...overrides
-  };
+    ...overrides,
+  }
 }
 
 export async function createInvoice(
   overrides: Partial<InvoiceData> = {}
 ): Promise<InvoiceData & { id: string }> {
-  const client = getTestClient({ serviceRole: true });
-  const data = buildInvoice(overrides);
+  const client = getTestClient({ serviceRole: true })
+  const data = buildInvoice(overrides)
 
   // Invoice Number generator dummy
-  const invoiceNumber = `INV-${Date.now()}`;
+  const invoiceNumber = `INV-${Date.now()}`
 
   const { data: invoice, error } = await client
     .from('invoices')
@@ -545,15 +534,15 @@ export async function createInvoice(
       tax_amount: 0,
       total_amount: 0,
       amount_paid: 0,
-      balance_due: 0
+      balance_due: 0,
     })
     .select()
-    .single();
+    .single()
 
-  if (error) throw new Error(`Failed to create invoice: ${error.message}`);
+  if (error) throw new Error(`Failed to create invoice: ${error.message}`)
 
   return {
     id: invoice.id,
     ...data,
-  };
+  }
 }

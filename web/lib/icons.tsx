@@ -25,7 +25,7 @@
  * NOTE: Async/lazy loading is not supported due to webpack limitations.
  */
 
-import type { JSX } from 'react';
+import type { JSX } from 'react'
 
 // Tree-shakeable icon imports - only bundle what's actually used
 // NOTE: These use default exports from lucide-react ESM modules
@@ -72,11 +72,44 @@ import ClipboardList from 'lucide-react/dist/esm/icons/clipboard-list'
 
 // Re-export all icons for external use
 export {
-  Calendar, Clock, ArrowLeft, ArrowRight, ChevronRight, Check, Info, AlertCircle,
-  Loader2, Download, Layers, Dog, ShoppingBag, Zap, Syringe, Stethoscope, Scissors,
-  UserCircle, Activity, Heart, Microscope, Sparkles, FileText, Building2, Leaf,
-  PawPrint, Users, Receipt, TrendingUp, TrendingDown, ExternalLink, ArrowUpRight,
-  Minus, DollarSign, Bell, AlertTriangle, CalendarCheck, ClipboardList
+  Calendar,
+  Clock,
+  ArrowLeft,
+  ArrowRight,
+  ChevronRight,
+  Check,
+  Info,
+  AlertCircle,
+  Loader2,
+  Download,
+  Layers,
+  Dog,
+  ShoppingBag,
+  Zap,
+  Syringe,
+  Stethoscope,
+  Scissors,
+  UserCircle,
+  Activity,
+  Heart,
+  Microscope,
+  Sparkles,
+  FileText,
+  Building2,
+  Leaf,
+  PawPrint,
+  Users,
+  Receipt,
+  TrendingUp,
+  TrendingDown,
+  ExternalLink,
+  ArrowUpRight,
+  Minus,
+  DollarSign,
+  Bell,
+  AlertTriangle,
+  CalendarCheck,
+  ClipboardList,
 }
 
 // Standard SVG props that Lucide icons accept
@@ -202,7 +235,7 @@ export function DynamicIcon({
   name,
   fallback = 'PawPrint',
   className,
-  size
+  size,
 }: DynamicIconProps): JSX.Element {
   // Normalize icon name to PascalCase
   const normalizedName = name

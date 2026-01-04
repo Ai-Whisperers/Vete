@@ -1,59 +1,59 @@
-"use client";
+'use client'
 
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react'
 
 interface NewsletterFormProps {
-  clinic: string;
-  title?: string;
-  placeholder?: string;
-  buttonText?: string;
+  clinic: string
+  title?: string
+  placeholder?: string
+  buttonText?: string
 }
 
 // Skeleton that matches the form layout for SSR
 function NewsletterSkeleton() {
   return (
-    <div className="flex flex-col md:flex-row items-center justify-between gap-6 animate-pulse">
+    <div className="flex animate-pulse flex-col items-center justify-between gap-6 md:flex-row">
       <div className="text-center md:text-left">
-        <div className="h-6 w-48 bg-white/20 rounded mb-2" />
-        <div className="h-4 w-64 bg-white/10 rounded" />
+        <div className="mb-2 h-6 w-48 rounded bg-white/20" />
+        <div className="h-4 w-64 rounded bg-white/10" />
       </div>
-      <div className="flex gap-2 w-full md:w-auto">
-        <div className="flex-1 md:w-64 h-12 bg-white/10 rounded-xl" />
-        <div className="w-24 h-12 bg-white/20 rounded-xl" />
+      <div className="flex w-full gap-2 md:w-auto">
+        <div className="h-12 flex-1 rounded-xl bg-white/10 md:w-64" />
+        <div className="h-12 w-24 rounded-xl bg-white/20" />
       </div>
     </div>
-  );
+  )
 }
 
 export function NewsletterForm({
   clinic,
-  title = "Suscríbete a nuestro boletín",
-  placeholder = "Tu email",
-  buttonText = "Enviar",
+  title = 'Suscríbete a nuestro boletín',
+  placeholder = 'Tu email',
+  buttonText = 'Enviar',
 }: NewsletterFormProps) {
-  const [isMounted, setIsMounted] = useState(false);
+  const [isMounted, setIsMounted] = useState(false)
 
   useEffect(() => {
-    setIsMounted(true);
-  }, []);
+    setIsMounted(true)
+  }, [])
 
   // Show skeleton during SSR and initial client render
   // This prevents hydration mismatch from browser extensions (LastPass, etc.)
   if (!isMounted) {
-    return <NewsletterSkeleton />;
+    return <NewsletterSkeleton />
   }
 
   return (
-    <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+    <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
       <div className="text-center md:text-left">
-        <h4 id="newsletter-heading" className="font-bold text-white text-lg mb-1">
+        <h4 id="newsletter-heading" className="mb-1 text-lg font-bold text-white">
           {title}
         </h4>
-        <p className="text-gray-400 text-sm">
+        <p className="text-sm text-gray-400">
           Recibe tips de cuidado, ofertas exclusivas y novedades.
         </p>
       </div>
-      <form className="flex gap-2 w-full md:w-auto" action="/api/newsletter" method="POST">
+      <form className="flex w-full gap-2 md:w-auto" action="/api/newsletter" method="POST">
         <input type="hidden" name="clinic" value={clinic} />
         <label htmlFor="newsletter-email" className="sr-only">
           Correo electrónico para suscripción
@@ -68,15 +68,15 @@ export function NewsletterForm({
           autoComplete="off"
           data-lpignore="true"
           data-form-type="other"
-          className="flex-1 md:w-64 px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
+          className="flex-1 rounded-xl border border-white/20 bg-white/10 px-4 py-3 text-white placeholder-gray-400 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[var(--primary)] md:w-64"
         />
         <button
           type="submit"
-          className="px-6 py-3 bg-[var(--primary)] text-white font-bold rounded-xl hover:opacity-90 transition-opacity whitespace-nowrap"
+          className="whitespace-nowrap rounded-xl bg-[var(--primary)] px-6 py-3 font-bold text-white transition-opacity hover:opacity-90"
         >
           {buttonText}
         </button>
       </form>
     </div>
-  );
+  )
 }

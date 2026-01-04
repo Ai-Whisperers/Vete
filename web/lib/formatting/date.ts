@@ -5,7 +5,16 @@
  * All dates formatted in Spanish (es-PY locale) for Paraguay market.
  */
 
-import { format, formatDistanceToNow, isToday, isYesterday, parseISO, differenceInYears, differenceInMonths, differenceInDays } from 'date-fns'
+import {
+  format,
+  formatDistanceToNow,
+  isToday,
+  isYesterday,
+  parseISO,
+  differenceInYears,
+  differenceInMonths,
+  differenceInDays,
+} from 'date-fns'
 import { es } from 'date-fns/locale'
 
 /**

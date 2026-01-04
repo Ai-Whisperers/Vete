@@ -38,7 +38,8 @@ dotenv.config({ path: path.resolve(__dirname, '../.env.local') })
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || ''
+const SUPABASE_SERVICE_KEY =
+  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || ''
 
 type Environment = 'dev' | 'test' | 'prod'
 
@@ -52,12 +53,50 @@ interface DemoUser {
 }
 
 const DEMO_USERS: DemoUser[] = [
-  { email: 'admin@demo.com', password: 'password123', name: 'Admin Adris', role: 'admin', tenant: 'adris' },
-  { email: 'vet@demo.com', password: 'password123', name: 'Dr. House', role: 'vet', tenant: 'adris' },
-  { email: 'owner@demo.com', password: 'password123', name: 'Juan Perez', role: 'owner', tenant: 'adris', phone: '+595981234567' },
-  { email: 'owner2@demo.com', password: 'password123', name: 'Maria Gonzalez', role: 'owner', tenant: 'adris', phone: '+595987654321' },
-  { email: 'vet@petlife.com', password: 'password123', name: 'Dr. PetLife', role: 'vet', tenant: 'petlife' },
-  { email: 'admin@petlife.com', password: 'password123', name: 'Admin PetLife', role: 'admin', tenant: 'petlife' },
+  {
+    email: 'admin@demo.com',
+    password: 'password123',
+    name: 'Admin Adris',
+    role: 'admin',
+    tenant: 'adris',
+  },
+  {
+    email: 'vet@demo.com',
+    password: 'password123',
+    name: 'Dr. House',
+    role: 'vet',
+    tenant: 'adris',
+  },
+  {
+    email: 'owner@demo.com',
+    password: 'password123',
+    name: 'Juan Perez',
+    role: 'owner',
+    tenant: 'adris',
+    phone: '+595981234567',
+  },
+  {
+    email: 'owner2@demo.com',
+    password: 'password123',
+    name: 'Maria Gonzalez',
+    role: 'owner',
+    tenant: 'adris',
+    phone: '+595987654321',
+  },
+  {
+    email: 'vet@petlife.com',
+    password: 'password123',
+    name: 'Dr. PetLife',
+    role: 'vet',
+    tenant: 'petlife',
+  },
+  {
+    email: 'admin@petlife.com',
+    password: 'password123',
+    name: 'Admin PetLife',
+    role: 'admin',
+    tenant: 'petlife',
+  },
 ]
 
 // Schema files in execution order
@@ -159,7 +198,7 @@ class DatabaseSetup {
 
     if (SUPABASE_SERVICE_KEY) {
       this.supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY, {
-        auth: { autoRefreshToken: false, persistSession: false }
+        auth: { autoRefreshToken: false, persistSession: false },
       })
     } else {
       console.warn('⚠️  SUPABASE_SERVICE_ROLE_KEY not set - some operations will be limited')
@@ -230,7 +269,7 @@ class DatabaseSetup {
       try {
         // Try to create user
         const { data: existingUsers } = await this.supabaseAdmin.auth.admin.listUsers()
-        const exists = existingUsers?.users?.find(u => u.email === user.email)
+        const exists = existingUsers?.users?.find((u) => u.email === user.email)
 
         if (exists) {
           console.log(`   ✅ ${user.email} (exists)`)
@@ -242,7 +281,7 @@ class DatabaseSetup {
               role: user.role,
               tenant_id: user.tenant,
               full_name: user.name,
-              phone: user.phone || null
+              phone: user.phone || null,
             })
             .eq('id', exists.id)
 
@@ -253,7 +292,7 @@ class DatabaseSetup {
           email: user.email,
           password: user.password,
           email_confirm: true,
-          user_metadata: { full_name: user.name }
+          user_metadata: { full_name: user.name },
         })
 
         if (error) {
@@ -268,7 +307,7 @@ class DatabaseSetup {
               role: user.role,
               tenant_id: user.tenant,
               full_name: user.name,
-              phone: user.phone || null
+              phone: user.phone || null,
             })
             .eq('id', data.user.id)
         }
@@ -343,7 +382,7 @@ class DatabaseSetup {
     console.log('   This will DELETE ALL DATA and recreate the schema.\n')
     console.log('   Press Ctrl+C within 5 seconds to cancel...\n')
 
-    await new Promise(resolve => setTimeout(resolve, 5000))
+    await new Promise((resolve) => setTimeout(resolve, 5000))
 
     await this.cleanup()
     await this.setup(env)
@@ -354,7 +393,16 @@ class DatabaseSetup {
 
     // Check critical tables
     console.log('   Checking tables:\n')
-    const tables = ['tenants', 'profiles', 'pets', 'vaccines', 'appointments', 'invoices', 'services', 'store_products']
+    const tables = [
+      'tenants',
+      'profiles',
+      'pets',
+      'vaccines',
+      'appointments',
+      'invoices',
+      'services',
+      'store_products',
+    ]
 
     for (const table of tables) {
       try {
@@ -402,9 +450,7 @@ class DatabaseSetup {
     console.log('─'.repeat(60))
 
     // Tenants
-    const { data: tenants } = await this.supabaseAdmin
-      .from('tenants')
-      .select('id, name')
+    const { data: tenants } = await this.supabaseAdmin.from('tenants').select('id, name')
 
     console.log('\nTenants:')
     if (tenants && tenants.length > 0) {
@@ -533,7 +579,7 @@ async function main(): Promise<void> {
   }
 }
 
-main().catch(err => {
+main().catch((err) => {
   console.error('❌ Error:', err)
   process.exit(1)
 })

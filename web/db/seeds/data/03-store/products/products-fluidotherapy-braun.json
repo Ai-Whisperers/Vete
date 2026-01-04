@@ -7,10 +7,7 @@
       "name": "Solución Salina 0.9%",
       "description": "Cloruro de sodio isotónico para fluidoterapia",
       "category_slug": "CLI-FAR-FLU",
-      "target_species": [
-        "dog",
-        "cat"
-      ],
+      "target_species": ["dog", "cat"],
       "variants": [
         {
           "size": "250ml",
@@ -43,10 +40,7 @@
       "name": "Ringer Lactato",
       "description": "Solución de Ringer Lactato para reposición de volumen",
       "category_slug": "CLI-FAR-FLU",
-      "target_species": [
-        "dog",
-        "cat"
-      ],
+      "target_species": ["dog", "cat"],
       "variants": [
         {
           "size": "500ml",
@@ -73,10 +67,7 @@
       "name": "Dextrosa 5%",
       "description": "Solución glucosada para aporte calórico",
       "category_slug": "CLI-FAR-FLU",
-      "target_species": [
-        "dog",
-        "cat"
-      ],
+      "target_species": ["dog", "cat"],
       "variants": [
         {
           "size": "500ml",
@@ -103,10 +94,7 @@
       "name": "Dextrosa 5% en Salina 0.9%",
       "description": "Solución mixta para mantenimiento",
       "category_slug": "CLI-FAR-FLU",
-      "target_species": [
-        "dog",
-        "cat"
-      ],
+      "target_species": ["dog", "cat"],
       "variants": [
         {
           "size": "500ml",
@@ -131,10 +119,7 @@
       "name": "Set de Infusión IV",
       "description": "Equipo de venoclisis con cámara de goteo",
       "category_slug": "CLI-INS-AGU",
-      "target_species": [
-        "dog",
-        "cat"
-      ],
+      "target_species": ["dog", "cat"],
       "variants": [
         {
           "size": "Caja x 50",
@@ -156,9 +141,7 @@
       "name": "Set de Microinfusión Pediátrico",
       "description": "Equipo de infusión para pacientes pequeños",
       "category_slug": "CLI-INS-AGU",
-      "target_species": [
-        "cat"
-      ],
+      "target_species": ["cat"],
       "variants": [
         {
           "size": "Caja x 50",
@@ -180,10 +163,7 @@
       "name": "Set de Extensión IV",
       "description": "Extensión para líneas de infusión",
       "category_slug": "CLI-INS-AGU",
-      "target_species": [
-        "dog",
-        "cat"
-      ],
+      "target_species": ["dog", "cat"],
       "variants": [
         {
           "size": "Caja x 50 (15cm)",
@@ -209,10 +189,7 @@
       "name": "Llave de 3 Vías",
       "description": "Llave de paso para múltiples conexiones",
       "category_slug": "CLI-INS-AGU",
-      "target_species": [
-        "dog",
-        "cat"
-      ],
+      "target_species": ["dog", "cat"],
       "variants": [
         {
           "size": "Caja x 50",
@@ -233,10 +210,7 @@
       "name": "Puerto de Inyección Sin Aguja",
       "description": "Puerto de acceso para administración de medicamentos",
       "category_slug": "CLI-INS-AGU",
-      "target_species": [
-        "dog",
-        "cat"
-      ],
+      "target_species": ["dog", "cat"],
       "variants": [
         {
           "size": "Caja x 100",
@@ -257,10 +231,7 @@
       "name": "Jeringa para Bomba de Infusión",
       "description": "Jeringa compatible con bombas de perfusión",
       "category_slug": "CLI-INS-AGU",
-      "target_species": [
-        "dog",
-        "cat"
-      ],
+      "target_species": ["dog", "cat"],
       "variants": [
         {
           "size": "20ml - Caja x 50",

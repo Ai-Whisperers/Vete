@@ -11,4 +11,4 @@
  * - variant="full" - feature-rich display (old EnhancedProductCard behavior)
  */
 
-export { ProductCard as default, type ProductCardProps } from './product-card';
+export { ProductCard as default, type ProductCardProps } from './product-card'

@@ -5,15 +5,15 @@
  * For integration tests that need services, kennels, etc.
  */
 
-import type { SeedVariant } from './types';
-import { basicVariant } from './basic';
+import type { SeedVariant } from './types'
+import { basicVariant } from './basic'
 import {
   ServiceSeeder,
   KennelSeeder,
   PaymentMethodSeeder,
   TimeOffTypeSeeder,
-} from '../seeders/service-seeder';
-import { LabTestCatalogSeeder } from '../seeders/lab-seeder';
+} from '../seeders/service-seeder'
+import { LabTestCatalogSeeder } from '../seeders/lab-seeder'
 
 export const integrationVariant: SeedVariant = {
   name: 'integration',
@@ -54,4 +54,4 @@ export const integrationVariant: SeedVariant = {
       dependencies: ['tenants'],
     },
   ],
-};
+}

@@ -1,40 +1,40 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
-import { sendEmail } from '@/lib/email/client';
-import { sendWhatsAppMessage } from '@/lib/whatsapp/client';
-import { logger } from '@/lib/logger';
+import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@/lib/supabase/server'
+import { sendEmail } from '@/lib/email/client'
+import { sendWhatsAppMessage } from '@/lib/whatsapp/client'
+import { logger } from '@/lib/logger'
 
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force-dynamic'
 
 interface ExpiringProduct {
-  id: string;
-  tenant_id: string;
-  name: string;
-  sku: string | null;
-  stock_quantity: number;
-  expiry_date: string;
-  batch_number: string | null;
-  days_until_expiry: number;
-  urgency_level: string;
+  id: string
+  tenant_id: string
+  name: string
+  sku: string | null
+  stock_quantity: number
+  expiry_date: string
+  batch_number: string | null
+  days_until_expiry: number
+  urgency_level: string
 }
 
 interface StaffPreference {
-  id: string;
-  profile_id: string;
-  tenant_id: string;
-  expiry_alerts: boolean;
-  email_enabled: boolean;
-  whatsapp_enabled: boolean;
-  notification_email: string | null;
-  notification_phone: string | null;
-  expiry_days_warning: number;
-  digest_frequency: string;
-  last_digest_sent_at: string | null;
+  id: string
+  profile_id: string
+  tenant_id: string
+  expiry_alerts: boolean
+  email_enabled: boolean
+  whatsapp_enabled: boolean
+  notification_email: string | null
+  notification_phone: string | null
+  expiry_days_warning: number
+  digest_frequency: string
+  last_digest_sent_at: string | null
   profile: {
-    full_name: string;
-    email: string;
-    phone: string | null;
-  };
+    full_name: string
+    email: string
+    phone: string | null
+  }
 }
 
 /**
@@ -44,16 +44,14 @@ interface StaffPreference {
  * Uses multi-day warning thresholds: 7, 14, 30, 60, 90 days.
  */
 export async function GET(request: NextRequest): Promise<NextResponse> {
-  const supabase = await createClient();
+  const supabase = await createClient()
 
   try {
     // Get all tenants
-    const { data: tenants, error: tenantsError } = await supabase
-      .from('tenants')
-      .select('id, name');
+    const { data: tenants, error: tenantsError } = await supabase.from('tenants').select('id, name')
 
     if (tenantsError) {
-      throw tenantsError;
+      throw tenantsError
     }
 
     const results = {
@@ -61,66 +59,71 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       alertsSent: 0,
       productsAlerted: 0,
       errors: [] as string[],
-    };
+    }
 
     for (const tenant of tenants || []) {
       try {
         // Get expiry summary for this tenant
-        const { data: summary } = await supabase
-          .rpc('get_expiry_summary', { p_tenant_id: tenant.id });
+        const { data: summary } = await supabase.rpc('get_expiry_summary', {
+          p_tenant_id: tenant.id,
+        })
 
         // Get expiring products (within 90 days)
-        const { data: expiringProducts } = await supabase
-          .rpc('get_expiring_products', {
-            p_tenant_id: tenant.id,
-            p_days: 90,
-          });
+        const { data: expiringProducts } = await supabase.rpc('get_expiring_products', {
+          p_tenant_id: tenant.id,
+          p_days: 90,
+        })
 
         // Check if we have any expiring products
-        const hasExpiring = (expiringProducts?.length || 0) > 0;
+        const hasExpiring = (expiringProducts?.length || 0) > 0
 
         if (!hasExpiring) {
-          continue;
+          continue
         }
 
         // Get expired products
         const { data: expiredProducts } = await supabase
           .from('expired_products')
           .select('*')
-          .eq('tenant_id', tenant.id);
+          .eq('tenant_id', tenant.id)
 
-        const hasExpired = (expiredProducts?.length || 0) > 0;
+        const hasExpired = (expiredProducts?.length || 0) > 0
 
         // Categorize products by urgency
-        const critical = expiringProducts?.filter((p: ExpiringProduct) => p.urgency_level === 'critical') || [];
-        const high = expiringProducts?.filter((p: ExpiringProduct) => p.urgency_level === 'high') || [];
-        const medium = expiringProducts?.filter((p: ExpiringProduct) => p.urgency_level === 'medium') || [];
+        const critical =
+          expiringProducts?.filter((p: ExpiringProduct) => p.urgency_level === 'critical') || []
+        const high =
+          expiringProducts?.filter((p: ExpiringProduct) => p.urgency_level === 'high') || []
+        const medium =
+          expiringProducts?.filter((p: ExpiringProduct) => p.urgency_level === 'medium') || []
 
         // Get staff with expiry alert preferences
         const { data: staffPreferences } = await supabase
           .from('staff_alert_preferences')
-          .select(`
+          .select(
+            `
             *,
             profile:profiles!staff_alert_preferences_profile_id_fkey (
               full_name,
               email,
               phone
             )
-          `)
+          `
+          )
           .eq('tenant_id', tenant.id)
-          .eq('expiry_alerts', true);
+          .eq('expiry_alerts', true)
 
         // If no explicit preferences, get all admins
-        let staffToNotify: StaffPreference[] = [];
+        let staffToNotify: StaffPreference[] = []
 
         if (!staffPreferences || staffPreferences.length === 0) {
           const { data: staff } = await supabase
             .from('profiles')
             .select('id, full_name, email, phone')
             .eq('tenant_id', tenant.id)
-            .in('role', ['admin', 'vet']);
+            .in('role', ['admin', 'vet'])
 
-          staffToNotify = (staff || []).map(s => ({
+          staffToNotify = (staff || []).map((s) => ({
             id: '',
             profile_id: s.id,
             tenant_id: tenant.id,
@@ -137,41 +140,40 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
               email: s.email,
               phone: s.phone,
             },
-          }));
+          }))
         } else {
-          staffToNotify = staffPreferences as StaffPreference[];
+          staffToNotify = staffPreferences as StaffPreference[]
         }
 
         // Check which alerts are new (not yet sent)
         for (const staff of staffToNotify) {
           // Check digest frequency
           if (staff.digest_frequency === 'daily') {
-            const lastSent = staff.last_digest_sent_at ? new Date(staff.last_digest_sent_at) : null;
-            const now = new Date();
-            if (lastSent && (now.getTime() - lastSent.getTime()) < 24 * 60 * 60 * 1000) {
-              continue;
+            const lastSent = staff.last_digest_sent_at ? new Date(staff.last_digest_sent_at) : null
+            const now = new Date()
+            if (lastSent && now.getTime() - lastSent.getTime() < 24 * 60 * 60 * 1000) {
+              continue
             }
           } else if (staff.digest_frequency === 'weekly') {
-            const lastSent = staff.last_digest_sent_at ? new Date(staff.last_digest_sent_at) : null;
-            const now = new Date();
-            if (lastSent && (now.getTime() - lastSent.getTime()) < 7 * 24 * 60 * 60 * 1000) {
-              continue;
+            const lastSent = staff.last_digest_sent_at ? new Date(staff.last_digest_sent_at) : null
+            const now = new Date()
+            if (lastSent && now.getTime() - lastSent.getTime() < 7 * 24 * 60 * 60 * 1000) {
+              continue
             }
           }
 
           // Determine which products to alert based on staff's threshold
-          const threshold = staff.expiry_days_warning || 30;
-          const relevantProducts = expiringProducts?.filter(
-            (p: ExpiringProduct) => p.days_until_expiry <= threshold
-          ) || [];
+          const threshold = staff.expiry_days_warning || 30
+          const relevantProducts =
+            expiringProducts?.filter((p: ExpiringProduct) => p.days_until_expiry <= threshold) || []
 
           if (relevantProducts.length === 0 && !hasExpired) {
-            continue;
+            continue
           }
 
           // Send email if enabled
           if (staff.email_enabled) {
-            const email = staff.notification_email || staff.profile?.email;
+            const email = staff.notification_email || staff.profile?.email
             if (email) {
               const emailResult = await sendExpiryAlertEmail({
                 to: email,
@@ -182,19 +184,19 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
                 highProducts: high,
                 mediumProducts: medium,
                 summary,
-              });
+              })
 
               if (emailResult.success) {
-                results.alertsSent++;
+                results.alertsSent++
               } else {
-                results.errors.push(`Email to ${email}: ${emailResult.error}`);
+                results.errors.push(`Email to ${email}: ${emailResult.error}`)
               }
             }
           }
 
           // Send WhatsApp if enabled
           if (staff.whatsapp_enabled) {
-            const phone = staff.notification_phone || staff.profile?.phone;
+            const phone = staff.notification_phone || staff.profile?.phone
             if (phone) {
               const whatsappResult = await sendExpiryAlertWhatsApp({
                 to: phone,
@@ -202,12 +204,12 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
                 criticalCount: critical.length,
                 highCount: high.length,
                 mediumCount: medium.length,
-              });
+              })
 
               if (whatsappResult.success) {
-                results.alertsSent++;
+                results.alertsSent++
               } else {
-                results.errors.push(`WhatsApp to ${phone}: ${whatsappResult.error}`);
+                results.errors.push(`WhatsApp to ${phone}: ${whatsappResult.error}`)
               }
             }
           }
@@ -217,46 +219,48 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
             await supabase
               .from('staff_alert_preferences')
               .update({ last_digest_sent_at: new Date().toISOString() })
-              .eq('id', staff.id);
+              .eq('id', staff.id)
           }
         }
 
-        results.tenantsProcessed++;
-        results.productsAlerted += (expiringProducts?.length || 0) + (expiredProducts?.length || 0);
-
+        results.tenantsProcessed++
+        results.productsAlerted += (expiringProducts?.length || 0) + (expiredProducts?.length || 0)
       } catch (tenantError) {
-        results.errors.push(`Tenant ${tenant.id}: ${tenantError instanceof Error ? tenantError.message : String(tenantError)}`);
+        results.errors.push(
+          `Tenant ${tenant.id}: ${tenantError instanceof Error ? tenantError.message : String(tenantError)}`
+        )
       }
     }
 
-    logger.info('Expiry alerts cron completed', results);
+    logger.info('Expiry alerts cron completed', results)
 
     return NextResponse.json({
       success: true,
       message: 'Expiry alerts processed',
       ...results,
-    });
-
+    })
   } catch (error) {
     logger.error('Expiry alerts cron error', {
       error: error instanceof Error ? error.message : String(error),
-    });
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    })
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
 interface SendEmailParams {
-  to: string;
-  staffName: string;
-  clinicName: string;
-  expiredProducts: ExpiringProduct[];
-  criticalProducts: ExpiringProduct[];
-  highProducts: ExpiringProduct[];
-  mediumProducts: ExpiringProduct[];
-  summary: { urgency_level: string; product_count: number; total_units: number }[] | null;
+  to: string
+  staffName: string
+  clinicName: string
+  expiredProducts: ExpiringProduct[]
+  criticalProducts: ExpiringProduct[]
+  highProducts: ExpiringProduct[]
+  mediumProducts: ExpiringProduct[]
+  summary: { urgency_level: string; product_count: number; total_units: number }[] | null
 }
 
-async function sendExpiryAlertEmail(params: SendEmailParams): Promise<{ success: boolean; error?: string }> {
+async function sendExpiryAlertEmail(
+  params: SendEmailParams
+): Promise<{ success: boolean; error?: string }> {
   const {
     to,
     staffName,
@@ -266,26 +270,26 @@ async function sendExpiryAlertEmail(params: SendEmailParams): Promise<{ success:
     highProducts,
     mediumProducts,
     summary,
-  } = params;
+  } = params
 
-  const hasExpired = expiredProducts.length > 0;
-  const hasCritical = criticalProducts.length > 0;
+  const hasExpired = expiredProducts.length > 0
+  const hasCritical = criticalProducts.length > 0
 
-  let subject = '📅 Alerta de Vencimiento';
+  let subject = '📅 Alerta de Vencimiento'
   if (hasExpired) {
-    subject = '🔴 Productos Vencidos';
+    subject = '🔴 Productos Vencidos'
   } else if (hasCritical) {
-    subject = '⚠️ Productos por Vencer (< 7 días)';
+    subject = '⚠️ Productos por Vencer (< 7 días)'
   }
-  subject += ` - ${clinicName}`;
+  subject += ` - ${clinicName}`
 
   const formatDate = (dateStr: string): string => {
     return new Date(dateStr).toLocaleDateString('es-PY', {
       day: '2-digit',
       month: 'short',
       year: 'numeric',
-    });
-  };
+    })
+  }
 
   const html = `
     <!DOCTYPE html>
@@ -304,29 +308,45 @@ async function sendExpiryAlertEmail(params: SendEmailParams): Promise<{ success:
 
       <p>Te informamos sobre el estado de vencimiento de tu inventario:</p>
 
-      ${summary ? `
+      ${
+        summary
+          ? `
         <div style="background-color: #f9fafb; border-radius: 12px; padding: 20px; margin: 20px 0;">
           <h3 style="margin: 0 0 15px 0; font-size: 16px; color: #111827;">Resumen de Vencimientos</h3>
           <table style="width: 100%; font-size: 14px;">
-            ${summary.map(s => `
+            ${summary
+              .map(
+                (s) => `
               <tr>
                 <td style="padding: 4px 0;">
-                  ${s.urgency_level === 'expired' ? '🔴 Vencidos' :
-                    s.urgency_level === 'critical' ? '⚠️ Críticos (< 7 días)' :
-                    s.urgency_level === 'high' ? '🟠 Altos (7-14 días)' :
-                    s.urgency_level === 'medium' ? '🟡 Medios (14-30 días)' :
-                    '🟢 Bajos (30-60 días)'}
+                  ${
+                    s.urgency_level === 'expired'
+                      ? '🔴 Vencidos'
+                      : s.urgency_level === 'critical'
+                        ? '⚠️ Críticos (< 7 días)'
+                        : s.urgency_level === 'high'
+                          ? '🟠 Altos (7-14 días)'
+                          : s.urgency_level === 'medium'
+                            ? '🟡 Medios (14-30 días)'
+                            : '🟢 Bajos (30-60 días)'
+                  }
                 </td>
                 <td style="padding: 4px 0; text-align: right; font-weight: bold;">
                   ${s.product_count} productos (${s.total_units} un.)
                 </td>
               </tr>
-            `).join('')}
+            `
+              )
+              .join('')}
           </table>
         </div>
-      ` : ''}
+      `
+          : ''
+      }
 
-      ${hasExpired ? `
+      ${
+        hasExpired
+          ? `
         <div style="background-color: #fef2f2; border-radius: 12px; padding: 20px; margin: 20px 0; border: 1px solid #fecaca;">
           <h2 style="color: #dc2626; margin: 0 0 15px 0; font-size: 16px;">
             🔴 Productos Vencidos (${expiredProducts.length})
@@ -335,7 +355,10 @@ async function sendExpiryAlertEmail(params: SendEmailParams): Promise<{ success:
             Estos productos deben ser retirados de la venta inmediatamente.
           </p>
           <table style="width: 100%; font-size: 14px; border-collapse: collapse;">
-            ${expiredProducts.slice(0, 5).map(p => `
+            ${expiredProducts
+              .slice(0, 5)
+              .map(
+                (p) => `
               <tr>
                 <td style="padding: 8px 0; border-bottom: 1px solid #fecaca;">
                   <strong>${p.name}</strong>
@@ -348,19 +371,28 @@ async function sendExpiryAlertEmail(params: SendEmailParams): Promise<{ success:
                   <br><span style="font-size: 12px;">${p.stock_quantity} un.</span>
                 </td>
               </tr>
-            `).join('')}
+            `
+              )
+              .join('')}
           </table>
           ${expiredProducts.length > 5 ? `<p style="color: #7f1d1d; font-size: 12px; margin-top: 10px;">... y ${expiredProducts.length - 5} productos más</p>` : ''}
         </div>
-      ` : ''}
+      `
+          : ''
+      }
 
-      ${hasCritical ? `
+      ${
+        hasCritical
+          ? `
         <div style="background-color: #fffbeb; border-radius: 12px; padding: 20px; margin: 20px 0; border: 1px solid #fde68a;">
           <h2 style="color: #d97706; margin: 0 0 15px 0; font-size: 16px;">
             ⚠️ Vencen en menos de 7 días (${criticalProducts.length})
           </h2>
           <table style="width: 100%; font-size: 14px; border-collapse: collapse;">
-            ${criticalProducts.slice(0, 5).map(p => `
+            ${criticalProducts
+              .slice(0, 5)
+              .map(
+                (p) => `
               <tr>
                 <td style="padding: 8px 0; border-bottom: 1px solid #fde68a;">
                   <strong>${p.name}</strong>
@@ -373,24 +405,37 @@ async function sendExpiryAlertEmail(params: SendEmailParams): Promise<{ success:
                   <br><span style="font-size: 12px;">${formatDate(p.expiry_date)}</span>
                 </td>
               </tr>
-            `).join('')}
+            `
+              )
+              .join('')}
           </table>
         </div>
-      ` : ''}
+      `
+          : ''
+      }
 
-      ${highProducts.length > 0 ? `
+      ${
+        highProducts.length > 0
+          ? `
         <div style="background-color: #fff7ed; border-radius: 12px; padding: 20px; margin: 20px 0; border: 1px solid #fed7aa;">
           <h2 style="color: #ea580c; margin: 0 0 15px 0; font-size: 16px;">
             🟠 Vencen en 7-14 días (${highProducts.length})
           </h2>
           <p style="font-size: 14px; color: #9a3412;">
-            ${highProducts.slice(0, 3).map(p => p.name).join(', ')}
+            ${highProducts
+              .slice(0, 3)
+              .map((p) => p.name)
+              .join(', ')}
             ${highProducts.length > 3 ? ` y ${highProducts.length - 3} más` : ''}
           </p>
         </div>
-      ` : ''}
+      `
+          : ''
+      }
 
-      ${mediumProducts.length > 0 ? `
+      ${
+        mediumProducts.length > 0
+          ? `
         <div style="background-color: #fefce8; border-radius: 12px; padding: 20px; margin: 20px 0; border: 1px solid #fef08a;">
           <h2 style="color: #ca8a04; margin: 0 0 10px 0; font-size: 16px;">
             🟡 Vencen en 14-30 días (${mediumProducts.length})
@@ -399,7 +444,9 @@ async function sendExpiryAlertEmail(params: SendEmailParams): Promise<{ success:
             Considera realizar promociones o descuentos para estos productos.
           </p>
         </div>
-      ` : ''}
+      `
+          : ''
+      }
 
       <div style="text-align: center; margin: 30px 0;">
         <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://vete.app'}/dashboard/inventory"
@@ -414,49 +461,51 @@ async function sendExpiryAlertEmail(params: SendEmailParams): Promise<{ success:
       </p>
     </body>
     </html>
-  `;
+  `
 
-  const totalExpiring = criticalProducts.length + highProducts.length + mediumProducts.length;
+  const totalExpiring = criticalProducts.length + highProducts.length + mediumProducts.length
 
   return sendEmail({
     to,
     subject,
     html,
     text: `Alerta de Vencimiento - ${clinicName}\n\nHola ${staffName},\n\nVencidos: ${expiredProducts.length}\nCríticos (< 7 días): ${criticalProducts.length}\nAltos (7-14 días): ${highProducts.length}\nMedios (14-30 días): ${mediumProducts.length}\nTotal por vencer: ${totalExpiring} productos`,
-  });
+  })
 }
 
 interface SendWhatsAppParams {
-  to: string;
-  expiredCount: number;
-  criticalCount: number;
-  highCount: number;
-  mediumCount: number;
+  to: string
+  expiredCount: number
+  criticalCount: number
+  highCount: number
+  mediumCount: number
 }
 
-async function sendExpiryAlertWhatsApp(params: SendWhatsAppParams): Promise<{ success: boolean; error?: string }> {
-  const { to, expiredCount, criticalCount, highCount, mediumCount } = params;
+async function sendExpiryAlertWhatsApp(
+  params: SendWhatsAppParams
+): Promise<{ success: boolean; error?: string }> {
+  const { to, expiredCount, criticalCount, highCount, mediumCount } = params
 
-  const lines: string[] = ['📅 *Alerta de Vencimiento*', ''];
+  const lines: string[] = ['📅 *Alerta de Vencimiento*', '']
 
   if (expiredCount > 0) {
-    lines.push(`🔴 *Vencidos:* ${expiredCount} productos`);
+    lines.push(`🔴 *Vencidos:* ${expiredCount} productos`)
   }
   if (criticalCount > 0) {
-    lines.push(`⚠️ *< 7 días:* ${criticalCount} productos`);
+    lines.push(`⚠️ *< 7 días:* ${criticalCount} productos`)
   }
   if (highCount > 0) {
-    lines.push(`🟠 *7-14 días:* ${highCount} productos`);
+    lines.push(`🟠 *7-14 días:* ${highCount} productos`)
   }
   if (mediumCount > 0) {
-    lines.push(`🟡 *14-30 días:* ${mediumCount} productos`);
+    lines.push(`🟡 *14-30 días:* ${mediumCount} productos`)
   }
 
-  lines.push('');
-  lines.push('Revisa el inventario para tomar acción.');
+  lines.push('')
+  lines.push('Revisa el inventario para tomar acción.')
 
   return sendWhatsAppMessage({
     to,
     body: lines.join('\n'),
-  });
+  })
 }

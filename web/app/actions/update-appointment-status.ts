@@ -4,7 +4,11 @@ import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { logger } from '@/lib/logger'
 
-export async function updateAppointmentStatus(appointmentId: string, newStatus: string, clinic: string) {
+export async function updateAppointmentStatus(
+  appointmentId: string,
+  newStatus: string,
+  clinic: string
+) {
   const supabase = await createClient()
 
   const { error } = await supabase
@@ -17,7 +21,7 @@ export async function updateAppointmentStatus(appointmentId: string, newStatus: 
       error,
       appointmentId,
       newStatus,
-      tenant: clinic
+      tenant: clinic,
     })
     return { success: false, error: 'Failed to update appointment status' }
   }

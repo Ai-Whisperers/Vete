@@ -1,12 +1,12 @@
-"use client";
+'use client'
 
-import { useRouter } from "next/navigation";
-import { LabOrderForm } from "@/components/lab/order-form";
+import { useRouter } from 'next/navigation'
+import { LabOrderForm } from '@/components/lab/order-form'
 
 interface LabOrderFormWrapperProps {
-  clinic: string;
-  onSuccess?: () => void;
-  onCancel?: () => void;
+  clinic: string
+  onSuccess?: () => void
+  onCancel?: () => void
 }
 
 export function LabOrderFormWrapper({
@@ -14,26 +14,21 @@ export function LabOrderFormWrapper({
   onSuccess,
   onCancel,
 }: LabOrderFormWrapperProps): React.ReactElement {
-  const router = useRouter();
+  const router = useRouter()
 
   const handleSuccess = (orderId: string): void => {
-    router.push(`/${clinic}/dashboard/lab/${orderId}`);
-    onSuccess?.();
-  };
+    router.push(`/${clinic}/dashboard/lab/${orderId}`)
+    onSuccess?.()
+  }
 
   const handleCancel = (): void => {
     if (onCancel) {
-      onCancel();
+      onCancel()
     } else {
       // Default behavior: navigate back to lab page
-      router.push(`/${clinic}/dashboard/lab`);
+      router.push(`/${clinic}/dashboard/lab`)
     }
-  };
+  }
 
-  return (
-    <LabOrderForm
-      onSuccess={handleSuccess}
-      onCancel={handleCancel}
-    />
-  );
+  return <LabOrderForm onSuccess={handleSuccess} onCancel={handleCancel} />
 }

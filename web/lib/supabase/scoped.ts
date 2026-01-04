@@ -16,14 +16,14 @@
  * ```
  */
 
-import { SupabaseClient } from '@supabase/supabase-js';
+import { SupabaseClient } from '@supabase/supabase-js'
 
 /**
  * Creates tenant-scoped query functions that automatically include tenant_id filter
  */
 export function scopedQueries(supabase: SupabaseClient, tenantId: string) {
   if (!tenantId) {
-    throw new Error('[ScopedQueries] tenant_id is required for scoped queries');
+    throw new Error('[ScopedQueries] tenant_id is required for scoped queries')
   }
 
   return {
@@ -47,28 +47,36 @@ export function scopedQueries(supabase: SupabaseClient, tenantId: string) {
       columns: string = '*',
       options?: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        filter?: (query: any) => any;
-        single?: boolean;
-        count?: 'exact' | 'planned' | 'estimated';
+        filter?: (query: any) => any
+        single?: boolean
+        count?: 'exact' | 'planned' | 'estimated'
       }
     ): Promise<{ data: T[] | T | null; error: Error | null; count?: number }> => {
-      let query = supabase.from(table).select(columns, { count: options?.count });
+      let query = supabase.from(table).select(columns, { count: options?.count })
 
       // Always filter by tenant_id first
-      query = query.eq('tenant_id', tenantId);
+      query = query.eq('tenant_id', tenantId)
 
       // Apply additional filters if provided
       if (options?.filter) {
-        query = options.filter(query);
+        query = options.filter(query)
       }
 
       if (options?.single) {
-        const result = await query.single();
-        return { data: result.data as T | null, error: result.error, count: result.count ?? undefined };
+        const result = await query.single()
+        return {
+          data: result.data as T | null,
+          error: result.error,
+          count: result.count ?? undefined,
+        }
       }
 
-      const result = await query;
-      return { data: result.data as T[] | null, error: result.error, count: result.count ?? undefined };
+      const result = await query
+      return {
+        data: result.data as T[] | null,
+        error: result.error,
+        count: result.count ?? undefined,
+      }
     },
 
     /**
@@ -80,23 +88,23 @@ export function scopedQueries(supabase: SupabaseClient, tenantId: string) {
       data: Record<string, unknown> | Record<string, unknown>[],
       options?: { returning?: boolean }
     ): Promise<{ data: T[] | null; error: Error | null }> => {
-      const records = Array.isArray(data) ? data : [data];
+      const records = Array.isArray(data) ? data : [data]
 
       // Add tenant_id to all records
       const scopedRecords = records.map((record) => ({
         ...record,
         tenant_id: tenantId,
-      }));
+      }))
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let query: any = supabase.from(table).insert(scopedRecords);
+      let query: any = supabase.from(table).insert(scopedRecords)
 
       if (options?.returning !== false) {
-        query = query.select();
+        query = query.select()
       }
 
-      const result = await query;
-      return { data: result.data as T[] | null, error: result.error };
+      const result = await query
+      return { data: result.data as T[] | null, error: result.error }
     },
 
     /**
@@ -111,23 +119,23 @@ export function scopedQueries(supabase: SupabaseClient, tenantId: string) {
       options?: { returning?: boolean }
     ): Promise<{ data: T[] | null; error: Error | null }> => {
       // Remove tenant_id from update data to prevent cross-tenant moves
-      const { tenant_id: _, ...safeData } = data;
+      const { tenant_id: _, ...safeData } = data
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let query: any = supabase.from(table).update(safeData);
+      let query: any = supabase.from(table).update(safeData)
 
       // Always filter by tenant_id first
-      query = query.eq('tenant_id', tenantId);
+      query = query.eq('tenant_id', tenantId)
 
       // Apply user's filter
-      query = filter(query);
+      query = filter(query)
 
       if (options?.returning !== false) {
-        query = query.select();
+        query = query.select()
       }
 
-      const result = await query;
-      return { data: result.data as T[] | null, error: result.error };
+      const result = await query
+      return { data: result.data as T[] | null, error: result.error }
     },
 
     /**
@@ -139,25 +147,25 @@ export function scopedQueries(supabase: SupabaseClient, tenantId: string) {
       data: Record<string, unknown> | Record<string, unknown>[],
       options?: { onConflict?: string; returning?: boolean }
     ): Promise<{ data: T[] | null; error: Error | null }> => {
-      const records = Array.isArray(data) ? data : [data];
+      const records = Array.isArray(data) ? data : [data]
 
       // Add tenant_id to all records
       const scopedRecords = records.map((record) => ({
         ...record,
         tenant_id: tenantId,
-      }));
+      }))
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let query: any = supabase.from(table).upsert(scopedRecords, {
         onConflict: options?.onConflict,
-      });
+      })
 
       if (options?.returning !== false) {
-        query = query.select();
+        query = query.select()
       }
 
-      const result = await query;
-      return { data: result.data as T[] | null, error: result.error };
+      const result = await query
+      return { data: result.data as T[] | null, error: result.error }
     },
 
     /**
@@ -170,16 +178,16 @@ export function scopedQueries(supabase: SupabaseClient, tenantId: string) {
       filter: (query: any) => any
     ): Promise<{ error: Error | null }> => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let query: any = supabase.from(table).delete();
+      let query: any = supabase.from(table).delete()
 
       // Always filter by tenant_id first
-      query = query.eq('tenant_id', tenantId);
+      query = query.eq('tenant_id', tenantId)
 
       // Apply user's filter
-      query = filter(query);
+      query = filter(query)
 
-      const result = await query;
-      return { error: result.error };
+      const result = await query
+      return { error: result.error }
     },
 
     /**
@@ -191,17 +199,17 @@ export function scopedQueries(supabase: SupabaseClient, tenantId: string) {
       filter?: (query: any) => any
     ): Promise<{ count: number; error: Error | null }> => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let query: any = supabase.from(table).select('*', { count: 'exact', head: true });
+      let query: any = supabase.from(table).select('*', { count: 'exact', head: true })
 
       // Always filter by tenant_id first
-      query = query.eq('tenant_id', tenantId);
+      query = query.eq('tenant_id', tenantId)
 
       if (filter) {
-        query = filter(query);
+        query = filter(query)
       }
 
-      const result = await query;
-      return { count: result.count || 0, error: result.error };
+      const result = await query
+      return { count: result.count || 0, error: result.error }
     },
 
     /**
@@ -215,9 +223,9 @@ export function scopedQueries(supabase: SupabaseClient, tenantId: string) {
         .from(table)
         .select('*', { count: 'exact', head: true })
         .eq('id', id)
-        .eq('tenant_id', tenantId);
+        .eq('tenant_id', tenantId)
 
-      return { exists: (count || 0) > 0, error };
+      return { exists: (count || 0) > 0, error }
     },
 
     /**
@@ -233,21 +241,21 @@ export function scopedQueries(supabase: SupabaseClient, tenantId: string) {
         .select(columns)
         .eq('id', id)
         .eq('tenant_id', tenantId)
-        .single();
+        .single()
 
       return {
         data: data as T | null,
         valid: !!data,
         error,
-      };
+      }
     },
-  };
+  }
 }
 
 /**
  * Type for the scoped queries object
  */
-export type ScopedQueries = ReturnType<typeof scopedQueries>;
+export type ScopedQueries = ReturnType<typeof scopedQueries>
 
 /**
  * Tables that require tenant isolation
@@ -350,13 +358,13 @@ export const TENANT_SCOPED_TABLES = [
   // Safety
   'lost_pets',
   'disease_reports',
-] as const;
+] as const
 
-export type TenantScopedTable = (typeof TENANT_SCOPED_TABLES)[number];
+export type TenantScopedTable = (typeof TENANT_SCOPED_TABLES)[number]
 
 /**
  * Check if a table requires tenant isolation
  */
 export function isTenantScopedTable(table: string): boolean {
-  return TENANT_SCOPED_TABLES.includes(table as TenantScopedTable);
+  return TENANT_SCOPED_TABLES.includes(table as TenantScopedTable)
 }

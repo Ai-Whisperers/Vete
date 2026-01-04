@@ -7,9 +7,7 @@
       "name": "Formula Natural Life Adultos Mini",
       "description": "Alimento super premium para perros adultos de razas mini",
       "category_slug": "NUT-CAN-SEC",
-      "target_species": [
-        "dog"
-      ],
+      "target_species": ["dog"],
       "variants": [
         {
           "size": "1kg",
@@ -41,9 +39,7 @@
       "name": "Formula Natural Life Adultos Pequeños",
       "description": "Alimento super premium para perros adultos de razas pequeñas",
       "category_slug": "NUT-CAN-SEC",
-      "target_species": [
-        "dog"
-      ],
+      "target_species": ["dog"],
       "variants": [
         {
           "size": "1kg",
@@ -75,9 +71,7 @@
       "name": "Formula Natural Life Adultos Medianos",
       "description": "Alimento super premium para perros adultos de razas medianas",
       "category_slug": "NUT-CAN-SEC",
-      "target_species": [
-        "dog"
-      ],
+      "target_species": ["dog"],
       "variants": [
         {
           "size": "2.5kg",
@@ -109,9 +103,7 @@
       "name": "Formula Natural Life Adultos Grandes",
       "description": "Alimento super premium para perros adultos de razas grandes",
       "category_slug": "NUT-CAN-SEC",
-      "target_species": [
-        "dog"
-      ],
+      "target_species": ["dog"],
       "variants": [
         {
           "size": "2.5kg",
@@ -143,9 +135,7 @@
       "name": "Formula Natural Life Cachorros Mini",
       "description": "Alimento super premium para cachorros de razas mini",
       "category_slug": "NUT-CAN-SEC",
-      "target_species": [
-        "dog"
-      ],
+      "target_species": ["dog"],
       "variants": [
         {
           "size": "1kg",
@@ -171,9 +161,7 @@
       "name": "Formula Natural Life Cachorros Pequeños",
       "description": "Alimento super premium para cachorros de razas pequeñas",
       "category_slug": "NUT-CAN-SEC",
-      "target_species": [
-        "dog"
-      ],
+      "target_species": ["dog"],
       "variants": [
         {
           "size": "1kg",
@@ -205,9 +193,7 @@
       "name": "Formula Natural Life Cachorros Medianos",
       "description": "Alimento super premium para cachorros de razas medianas",
       "category_slug": "NUT-CAN-SEC",
-      "target_species": [
-        "dog"
-      ],
+      "target_species": ["dog"],
       "variants": [
         {
           "size": "2.5kg",
@@ -239,9 +225,7 @@
       "name": "Formula Natural Life Cachorros Grandes",
       "description": "Alimento super premium para cachorros de razas grandes",
       "category_slug": "NUT-CAN-SEC",
-      "target_species": [
-        "dog"
-      ],
+      "target_species": ["dog"],
       "variants": [
         {
           "size": "2.5kg",
@@ -273,9 +257,7 @@
       "name": "Formula Natural Life Senior 7+",
       "description": "Alimento super premium para perros mayores de 7 años",
       "category_slug": "NUT-CAN-SEC",
-      "target_species": [
-        "dog"
-      ],
+      "target_species": ["dog"],
       "variants": [
         {
           "size": "2.5kg",
@@ -301,9 +283,7 @@
       "name": "Formula Natural Life Gatos Adultos",
       "description": "Alimento super premium para gatos adultos",
       "category_slug": "NUT-FEL-SEC",
-      "target_species": [
-        "cat"
-      ],
+      "target_species": ["cat"],
       "variants": [
         {
           "size": "1kg",
@@ -328,9 +308,7 @@
       "name": "Formula Natural Life Gatitos",
       "description": "Alimento super premium para gatitos",
       "category_slug": "NUT-FEL-SEC",
-      "target_species": [
-        "cat"
-      ],
+      "target_species": ["cat"],
       "variants": [
         {
           "size": "1kg",
@@ -356,9 +334,7 @@
       "name": "Formula Natural Life Gatos Castrados",
       "description": "Alimento super premium para gatos esterilizados",
       "category_slug": "NUT-FEL-SEC",
-      "target_species": [
-        "cat"
-      ],
+      "target_species": ["cat"],
       "variants": [
         {
           "size": "1kg",

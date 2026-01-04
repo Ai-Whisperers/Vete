@@ -6,13 +6,7 @@ export * from './supabase-mock'
 export * from './factories/index'
 
 // Test context for mode and cleanup (exclude Mode since factories/types exports it)
-export {
-  testContext,
-  setMode,
-  getMode,
-  isTestMode,
-  isSeedMode,
-} from './context'
+export { testContext, setMode, getMode, isTestMode, isSeedMode } from './context'
 
 // API client for seeding
 export * from './api-client'

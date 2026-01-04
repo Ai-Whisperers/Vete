@@ -1,37 +1,39 @@
-import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
-import { OnboardingWizard } from "@/components/onboarding/onboarding-wizard";
+import { createClient } from '@/lib/supabase/server'
+import { redirect } from 'next/navigation'
+import { OnboardingWizard } from '@/components/onboarding/onboarding-wizard'
 
 interface Props {
-  params: Promise<{ clinic: string }>;
+  params: Promise<{ clinic: string }>
 }
 
 export default async function OnboardingPage({ params }: Props): Promise<React.ReactElement> {
-  const { clinic } = await params;
-  const supabase = await createClient();
+  const { clinic } = await params
+  const supabase = await createClient()
 
   // Check authentication
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
   if (!user) {
-    redirect(`/${clinic}/portal/login?redirect=onboarding`);
+    redirect(`/${clinic}/portal/login?redirect=onboarding`)
   }
 
   // Get user profile with role
   const { data: profile } = await supabase
-    .from("profiles")
-    .select("full_name, role, onboarding_completed")
-    .eq("id", user.id)
-    .single();
+    .from('profiles')
+    .select('full_name, role, onboarding_completed')
+    .eq('id', user.id)
+    .single()
 
   // Staff (vets/admins) don't need pet onboarding - redirect to dashboard
   if (profile?.role === 'vet' || profile?.role === 'admin') {
-    redirect(`/${clinic}/dashboard`);
+    redirect(`/${clinic}/dashboard`)
   }
 
   // If onboarding is already complete, redirect to portal dashboard
   if (profile?.onboarding_completed) {
-    redirect(`/${clinic}/portal/dashboard`);
+    redirect(`/${clinic}/portal/dashboard`)
   }
 
   return (
@@ -40,5 +42,5 @@ export default async function OnboardingPage({ params }: Props): Promise<React.R
       userEmail={user.email}
       userName={profile?.full_name || undefined}
     />
-  );
+  )
 }

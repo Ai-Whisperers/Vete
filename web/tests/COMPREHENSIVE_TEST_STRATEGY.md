@@ -30,12 +30,14 @@ This document provides a complete analysis of the Vete platform's testing needs,
 #### ✅ What Exists
 
 **Unit Tests (31 files):**
+
 - Basic utilities (formatting, currency rounding, rate limiting)
 - Some action tests (pets, appointments, invoices)
 - Auth actions
 - Simple component logic tests
 
 **Integration Tests (7 files):**
+
 - Auth login flow
 - Pet CRUD operations
 - Vaccine operations
@@ -46,24 +48,29 @@ This document provides a complete analysis of the Vete platform's testing needs,
 - Finance expenses
 
 **System Tests (2 files):**
+
 - Pet lifecycle
 - Multi-tenant isolation
 
 **Security Tests (3 files):**
+
 - Auth security
 - RLS policies
 - Tenant isolation
 
 **Functionality Tests (3 files):**
+
 - Store products
 - Store cart
 - Portal pets
 - Clinical drug dosages
 
 **UAT Tests (1 file):**
+
 - Owner register and add pet
 
 **E2E Tests (8 files):**
+
 - Auth flow
 - Public homepage
 - Public services
@@ -77,6 +84,7 @@ This document provides a complete analysis of the Vete platform's testing needs,
 #### 1. **Incomplete Feature Coverage**
 
 **Missing Unit Tests:**
+
 - 80% of server actions untested
 - Most utility functions untested
 - Component logic largely untested
@@ -84,6 +92,7 @@ This document provides a complete analysis of the Vete platform's testing needs,
 - Validation schema testing incomplete
 
 **Missing Integration Tests:**
+
 - Most API endpoints untested (83 endpoints, ~10 tested)
 - Complex workflows untested
 - Multi-step processes untested
@@ -91,6 +100,7 @@ This document provides a complete analysis of the Vete platform's testing needs,
 - Edge cases not covered
 
 **Missing System Tests:**
+
 - Appointment booking workflow
 - Invoice creation to payment flow
 - Inventory management workflows
@@ -98,6 +108,7 @@ This document provides a complete analysis of the Vete platform's testing needs,
 - Multi-tenant data isolation in complex scenarios
 
 **Missing E2E Tests:**
+
 - Dashboard functionality
 - Staff workflows
 - Admin operations
@@ -108,6 +119,7 @@ This document provides a complete analysis of the Vete platform's testing needs,
 #### 2. **Screen Coverage Gaps**
 
 **Public Pages (18 screens):**
+
 - ✅ Homepage (basic)
 - ✅ Services (basic)
 - ✅ Store (basic)
@@ -121,6 +133,7 @@ This document provides a complete analysis of the Vete platform's testing needs,
 - ❌ All clinical reference pages (drug dosages, diagnosis codes, growth charts, etc.)
 
 **Portal Pages (26 screens):**
+
 - ✅ Login (basic)
 - ❌ Signup flow
 - ❌ Password reset flow
@@ -137,6 +150,7 @@ This document provides a complete analysis of the Vete platform's testing needs,
 - ❌ All other portal pages
 
 **Dashboard Pages (13+ screens):**
+
 - ❌ Staff dashboard
 - ❌ Appointments management
 - ❌ Calendar view
@@ -148,6 +162,7 @@ This document provides a complete analysis of the Vete platform's testing needs,
 #### 3. **API Endpoint Coverage**
 
 **83 API Endpoints Total:**
+
 - ✅ ~10 endpoints have basic tests
 - ❌ 73 endpoints completely untested
 - ❌ No contract testing
@@ -159,6 +174,7 @@ This document provides a complete analysis of the Vete platform's testing needs,
 #### 4. **Server Action Coverage**
 
 **22 Server Actions:**
+
 - ✅ ~5 actions have basic tests
 - ❌ 17 actions completely untested
 - ❌ No error handling tests
@@ -168,6 +184,7 @@ This document provides a complete analysis of the Vete platform's testing needs,
 #### 5. **Component Coverage**
 
 **300+ Components:**
+
 - ❌ <5% component test coverage
 - ❌ No visual regression testing
 - ❌ No accessibility testing
@@ -177,6 +194,7 @@ This document provides a complete analysis of the Vete platform's testing needs,
 #### 6. **Test Quality Issues**
 
 **Existing Test Problems:**
+
 - Tests are too basic (happy path only)
 - Missing edge cases
 - Missing error scenarios
@@ -206,30 +224,35 @@ This document provides a complete analysis of the Vete platform's testing needs,
 ### Test Categories
 
 #### 1. Unit Tests (Target: 40% of tests)
+
 - **Purpose:** Test individual functions, utilities, hooks in isolation
 - **Speed:** <1s per test
 - **Scope:** Pure functions, utilities, hooks, component logic
 - **Tools:** Vitest, @testing-library/react
 
 #### 2. Integration Tests (Target: 35% of tests)
+
 - **Purpose:** Test interactions between components and services
 - **Speed:** <5s per test
 - **Scope:** API routes, server actions, database operations, auth flows
 - **Tools:** Vitest, Supabase client
 
 #### 3. System Tests (Target: 10% of tests)
+
 - **Purpose:** Test complete feature workflows
 - **Speed:** <30s per test
 - **Scope:** End-to-end feature flows, cross-module interactions
 - **Tools:** Vitest, mocked services
 
 #### 4. Functionality Tests (Target: 10% of tests)
+
 - **Purpose:** Test business logic correctness
 - **Speed:** <10s per test
 - **Scope:** Business rules, calculations, validations
 - **Tools:** Vitest
 
 #### 5. E2E Tests (Target: 5% of tests)
+
 - **Purpose:** Test user journeys through the UI
 - **Speed:** <60s per test
 - **Scope:** Critical user paths, happy paths, key workflows
@@ -408,27 +431,27 @@ web/e2e/                               # E2E tests (5% of tests)
 
 ### Minimum Coverage Targets
 
-| Category | Target | Current | Gap |
-|----------|--------|---------|-----|
-| **Unit Tests** | 80% | ~15% | -65% |
-| **Integration Tests** | 70% | ~20% | -50% |
-| **E2E Tests** | Critical paths only | ~5% | -95% |
-| **Overall Coverage** | 75% | ~20% | -55% |
+| Category              | Target              | Current | Gap  |
+| --------------------- | ------------------- | ------- | ---- |
+| **Unit Tests**        | 80%                 | ~15%    | -65% |
+| **Integration Tests** | 70%                 | ~20%    | -50% |
+| **E2E Tests**         | Critical paths only | ~5%     | -95% |
+| **Overall Coverage**  | 75%                 | ~20%    | -55% |
 
 ### Coverage by Area
 
-| Area | Unit | Integration | E2E | Priority |
-|------|:----:|:-----------:|:---:|:--------:|
-| **Authentication** | 90% | 90% | 100% | Critical |
-| **Pet Management** | 85% | 85% | 100% | Critical |
-| **Appointments** | 85% | 85% | 100% | Critical |
-| **Invoices** | 80% | 80% | 80% | High |
-| **Inventory** | 80% | 80% | 60% | High |
-| **Prescriptions** | 85% | 85% | 80% | High |
-| **Store** | 75% | 75% | 80% | Medium |
-| **Clinical Tools** | 70% | 70% | 40% | Medium |
-| **Dashboard** | 70% | 70% | 60% | Medium |
-| **Settings** | 60% | 60% | 40% | Low |
+| Area               | Unit | Integration | E2E  | Priority |
+| ------------------ | :--: | :---------: | :--: | :------: |
+| **Authentication** | 90%  |     90%     | 100% | Critical |
+| **Pet Management** | 85%  |     85%     | 100% | Critical |
+| **Appointments**   | 85%  |     85%     | 100% | Critical |
+| **Invoices**       | 80%  |     80%     | 80%  |   High   |
+| **Inventory**      | 80%  |     80%     | 60%  |   High   |
+| **Prescriptions**  | 85%  |     85%     | 80%  |   High   |
+| **Store**          | 75%  |     75%     | 80%  |  Medium  |
+| **Clinical Tools** | 70%  |     70%     | 40%  |  Medium  |
+| **Dashboard**      | 70%  |     70%     | 60%  |  Medium  |
+| **Settings**       | 60%  |     60%     | 40%  |   Low    |
 
 ---
 
@@ -441,6 +464,7 @@ web/e2e/                               # E2E tests (5% of tests)
 **Location:** `tests/__fixtures__/`
 
 **Files:**
+
 - `tenants.ts` - Clinic/tenant data
 - `users.ts` - User profiles (owner, vet, admin)
 - `pets.ts` - Pet data
@@ -457,6 +481,7 @@ web/e2e/                               # E2E tests (5% of tests)
 **Location:** `tests/__helpers__/factories.ts`
 
 **Functions:**
+
 - `createTestTenant()` - Creates test tenant
 - `createTestUser(role)` - Creates test user
 - `createTestPet(ownerId)` - Creates test pet
@@ -466,12 +491,14 @@ web/e2e/                               # E2E tests (5% of tests)
 ### Test Database
 
 **Strategy:**
+
 - Use separate test database
 - Reset before each test suite
 - Seed with fixtures
 - Clean up after each test
 
 **Commands:**
+
 ```bash
 npm run test:db:reset    # Reset test database
 npm run test:db:seed     # Seed test data
@@ -485,17 +512,20 @@ npm run test:db:setup    # Reset + seed
 ### CI/CD Integration
 
 **Pre-commit:**
+
 - Run unit tests
 - Run linting
 - Run type checking
 
 **Pull Request:**
+
 - Run all unit tests
 - Run integration tests
 - Run security tests
 - Run E2E smoke tests
 
 **Merge to Main:**
+
 - Full test suite
 - Coverage report
 - E2E tests on staging
@@ -504,6 +534,7 @@ npm run test:db:setup    # Reset + seed
 ### Test Execution Strategy
 
 **Local Development:**
+
 ```bash
 npm run test:watch          # Watch mode for development
 npm run test:unit           # Quick unit tests
@@ -512,6 +543,7 @@ npm run test:e2e            # E2E tests
 ```
 
 **CI Pipeline:**
+
 ```bash
 # Fast feedback (parallel)
 npm run test:unit
@@ -526,6 +558,7 @@ npm run test:e2e
 ### Test Tagging
 
 **Tags:**
+
 - `@critical` - Must pass before merge
 - `@smoke` - Quick smoke tests
 - `@slow` - Long-running tests
@@ -534,10 +567,11 @@ npm run test:e2e
 - `@flaky` - Known flaky tests
 
 **Usage:**
+
 ```typescript
 test('critical login flow', { tags: ['@critical', '@smoke'] }, () => {
   // ...
-});
+})
 ```
 
 ---
@@ -628,5 +662,4 @@ test('critical login flow', { tags: ['@critical', '@smoke'] }, () => {
 
 ---
 
-*This document is a living document and should be updated as the test suite evolves.*
-
+_This document is a living document and should be updated as the test suite evolves._

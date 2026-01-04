@@ -27,7 +27,7 @@ interface Notification {
   subject: string | null
   body: string
   created_at: string
-  status: "queued" | "delivered" | "read" | "failed"
+  status: 'queued' | 'delivered' | 'read' | 'failed'
   read_at: string | null
 }
 
@@ -173,15 +173,13 @@ export default async function NotificationsPage({ params }: Props) {
   ).length
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
+    <div className="container mx-auto max-w-4xl px-4 py-8">
       {/* Header */}
       <div className="mb-8">
-        <div className="flex items-center justify-between mb-2">
-          <h1 className="text-3xl font-bold text-[var(--text-primary)]">
-            Notificaciones
-          </h1>
+        <div className="mb-2 flex items-center justify-between">
+          <h1 className="text-3xl font-bold text-[var(--text-primary)]">Notificaciones</h1>
           {unreadCount > 0 && (
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-[var(--primary)] text-white">
+            <span className="inline-flex items-center rounded-full bg-[var(--primary)] px-3 py-1 text-sm font-medium text-white">
               {unreadCount} {unreadCount === 1 ? 'nueva' : 'nuevas'}
             </span>
           )}
@@ -197,9 +195,9 @@ export default async function NotificationsPage({ params }: Props) {
           <form action="/api/notifications/mark-all-read" method="POST">
             <button
               type="submit"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-[var(--primary)] bg-[var(--primary)]/10 hover:bg-[var(--primary)]/20 transition-colors"
+              className="bg-[var(--primary)]/10 hover:bg-[var(--primary)]/20 inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-[var(--primary)] transition-colors"
             >
-              <Check className="w-4 h-4" />
+              <Check className="h-4 w-4" />
               Marcar todas como leídas
             </button>
           </form>
@@ -208,16 +206,16 @@ export default async function NotificationsPage({ params }: Props) {
 
       {/* Empty state */}
       {!hasNotifications && (
-        <div className="flex flex-col items-center justify-center py-16 px-4">
-          <div className="w-20 h-20 rounded-full bg-[var(--bg-muted)] flex items-center justify-center mb-6">
-            <Bell className="w-10 h-10 text-[var(--text-tertiary)]" />
+        <div className="flex flex-col items-center justify-center px-4 py-16">
+          <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-[var(--bg-muted)]">
+            <Bell className="h-10 w-10 text-[var(--text-tertiary)]" />
           </div>
-          <h2 className="text-xl font-semibold text-[var(--text-primary)] mb-2">
+          <h2 className="mb-2 text-xl font-semibold text-[var(--text-primary)]">
             No tienes notificaciones
           </h2>
-          <p className="text-[var(--text-secondary)] text-center max-w-md">
-            Aquí aparecerán recordatorios de vacunas, confirmaciones de citas y
-            otras actualizaciones importantes
+          <p className="max-w-md text-center text-[var(--text-secondary)]">
+            Aquí aparecerán recordatorios de vacunas, confirmaciones de citas y otras
+            actualizaciones importantes
           </p>
         </div>
       )}
@@ -230,43 +228,40 @@ export default async function NotificationsPage({ params }: Props) {
 
             return (
               <div key={groupName}>
-                <h2 className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wide mb-3">
+                <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--text-secondary)]">
                   {groupName}
                 </h2>
                 <div className="space-y-3">
                   {groupNotifs.map((notification) => {
                     const isUnread =
-                      notification.status === 'queued' ||
-                      notification.status === 'delivered'
+                      notification.status === 'queued' || notification.status === 'delivered'
                     const { Icon, color } = getNotificationIcon(notification.subject)
 
                     return (
                       <div
                         key={notification.id}
-                        className={`rounded-xl shadow-sm border transition-all hover:shadow-md ${
+                        className={`rounded-xl border shadow-sm transition-all hover:shadow-md ${
                           isUnread
                             ? 'bg-[var(--primary)]/5 border-[var(--primary)]/20'
-                            : 'bg-white border-[var(--border-light)]'
+                            : 'border-[var(--border-light)] bg-white'
                         }`}
                       >
                         <div className="p-4">
                           <div className="flex gap-4">
                             {/* Icon */}
                             <div
-                              className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${
+                              className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full ${
                                 isUnread ? 'bg-white' : 'bg-[var(--bg-muted)]'
                               }`}
                             >
-                              <Icon className={`w-5 h-5 ${color}`} />
+                              <Icon className={`h-5 w-5 ${color}`} />
                             </div>
 
                             {/* Content */}
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-start justify-between gap-3 mb-1">
+                            <div className="min-w-0 flex-1">
+                              <div className="mb-1 flex items-start justify-between gap-3">
                                 <h3
-                                  className={`${
-                                    isUnread ? 'font-bold' : 'font-semibold'
-                                  } ${
+                                  className={`${isUnread ? 'font-bold' : 'font-semibold'} ${
                                     isUnread
                                       ? 'text-[var(--primary)]'
                                       : 'text-[var(--text-primary)]'
@@ -275,14 +270,14 @@ export default async function NotificationsPage({ params }: Props) {
                                   {notification.subject || 'Notificación'}
                                 </h3>
                                 {isUnread && (
-                                  <span className="flex-shrink-0 w-2 h-2 rounded-full bg-[var(--primary)]" />
+                                  <span className="h-2 w-2 flex-shrink-0 rounded-full bg-[var(--primary)]" />
                                 )}
                               </div>
 
                               <p
-                                className={`text-sm mb-2 ${
+                                className={`mb-2 text-sm ${
                                   isUnread
-                                    ? 'text-[var(--text-primary)] font-medium'
+                                    ? 'font-medium text-[var(--text-primary)]'
                                     : 'text-[var(--text-secondary)]'
                                 }`}
                               >
@@ -307,8 +302,8 @@ export default async function NotificationsPage({ params }: Props) {
 
       {/* Footer info */}
       {hasNotifications && (
-        <div className="mt-12 p-4 rounded-lg bg-[var(--bg-muted)] border border-[var(--border-light)]">
-          <p className="text-sm text-[var(--text-secondary)] text-center">
+        <div className="mt-12 rounded-lg border border-[var(--border-light)] bg-[var(--bg-muted)] p-4">
+          <p className="text-center text-sm text-[var(--text-secondary)]">
             Las notificaciones se conservan durante 90 días
           </p>
         </div>

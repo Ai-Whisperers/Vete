@@ -52,22 +52,26 @@ function EntryRow({ dayOfWeek, entry, onUpdate, onRemove, disabled }: EntryRowPr
   }
 
   return (
-    <div className={`flex items-center gap-4 p-4 rounded-lg border ${
-      isActive ? 'bg-white border-gray-200' : 'bg-gray-50 border-gray-100'
-    }`}>
+    <div
+      className={`flex items-center gap-4 rounded-lg border p-4 ${
+        isActive ? 'border-gray-200 bg-white' : 'border-gray-100 bg-gray-50'
+      }`}
+    >
       {/* Day toggle */}
-      <div className="flex items-center gap-3 min-w-[140px]">
+      <div className="flex min-w-[140px] items-center gap-3">
         <button
           type="button"
           onClick={handleToggle}
           disabled={disabled}
-          className={`w-10 h-6 rounded-full transition-colors relative ${
+          className={`relative h-6 w-10 rounded-full transition-colors ${
             isActive ? 'bg-[var(--primary)]' : 'bg-gray-300'
-          } ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+          } ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
         >
-          <span className={`absolute w-4 h-4 bg-white rounded-full top-1 transition-transform ${
-            isActive ? 'right-1' : 'left-1'
-          }`} />
+          <span
+            className={`absolute top-1 h-4 w-4 rounded-full bg-white transition-transform ${
+              isActive ? 'right-1' : 'left-1'
+            }`}
+          />
         </button>
         <span className={`font-medium ${isActive ? 'text-gray-900' : 'text-gray-400'}`}>
           {getDayName(dayOfWeek)}
@@ -76,15 +80,15 @@ function EntryRow({ dayOfWeek, entry, onUpdate, onRemove, disabled }: EntryRowPr
 
       {/* Time inputs */}
       {isActive && entry ? (
-        <div className="flex flex-wrap items-center gap-3 flex-1">
+        <div className="flex flex-1 flex-wrap items-center gap-3">
           <div className="flex items-center gap-2">
             <label className="text-xs text-gray-500">Entrada</label>
             <input
               type="time"
               value={entry.startTime}
-              onChange={e => handleFieldChange('startTime', e.target.value)}
+              onChange={(e) => handleFieldChange('startTime', e.target.value)}
               disabled={disabled}
-              className="px-2 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)] disabled:opacity-50"
+              className="rounded-lg border border-gray-200 px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)] disabled:opacity-50"
             />
           </div>
 
@@ -93,9 +97,9 @@ function EntryRow({ dayOfWeek, entry, onUpdate, onRemove, disabled }: EntryRowPr
             <input
               type="time"
               value={entry.endTime}
-              onChange={e => handleFieldChange('endTime', e.target.value)}
+              onChange={(e) => handleFieldChange('endTime', e.target.value)}
               disabled={disabled}
-              className="px-2 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)] disabled:opacity-50"
+              className="rounded-lg border border-gray-200 px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)] disabled:opacity-50"
             />
           </div>
 
@@ -105,26 +109,24 @@ function EntryRow({ dayOfWeek, entry, onUpdate, onRemove, disabled }: EntryRowPr
             <input
               type="time"
               value={entry.breakStart || ''}
-              onChange={e => handleFieldChange('breakStart', e.target.value)}
+              onChange={(e) => handleFieldChange('breakStart', e.target.value)}
               disabled={disabled}
               placeholder="Inicio"
-              className="px-2 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)] disabled:opacity-50 w-24"
+              className="w-24 rounded-lg border border-gray-200 px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)] disabled:opacity-50"
             />
             <span className="text-gray-400">-</span>
             <input
               type="time"
               value={entry.breakEnd || ''}
-              onChange={e => handleFieldChange('breakEnd', e.target.value)}
+              onChange={(e) => handleFieldChange('breakEnd', e.target.value)}
               disabled={disabled}
               placeholder="Fin"
-              className="px-2 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)] disabled:opacity-50 w-24"
+              className="w-24 rounded-lg border border-gray-200 px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)] disabled:opacity-50"
             />
           </div>
         </div>
       ) : (
-        <div className="flex-1 text-sm text-gray-400 italic">
-          Sin horario programado
-        </div>
+        <div className="flex-1 text-sm italic text-gray-400">Sin horario programado</div>
       )}
     </div>
   )
@@ -138,7 +140,7 @@ export function ScheduleEditor({ entries, onChange, disabled = false }: Schedule
   // Convert entries to form data keyed by day
   const [entriesMap, setEntriesMap] = useState<Map<DayOfWeek, StaffScheduleEntryFormData>>(() => {
     const map = new Map<DayOfWeek, StaffScheduleEntryFormData>()
-    entries.forEach(entry => {
+    entries.forEach((entry) => {
       map.set(entry.day_of_week as DayOfWeek, {
         dayOfWeek: entry.day_of_week as DayOfWeek,
         startTime: entry.start_time,
@@ -158,7 +160,7 @@ export function ScheduleEditor({ entries, onChange, disabled = false }: Schedule
   }, [entriesMap, onChange])
 
   const handleUpdateEntry = (dayOfWeek: DayOfWeek, entry: StaffScheduleEntryFormData) => {
-    setEntriesMap(prev => {
+    setEntriesMap((prev) => {
       const newMap = new Map(prev)
       newMap.set(dayOfWeek, entry)
       return newMap
@@ -166,7 +168,7 @@ export function ScheduleEditor({ entries, onChange, disabled = false }: Schedule
   }
 
   const handleRemoveEntry = (dayOfWeek: DayOfWeek) => {
-    setEntriesMap(prev => {
+    setEntriesMap((prev) => {
       const newMap = new Map(prev)
       newMap.delete(dayOfWeek)
       return newMap
@@ -226,13 +228,13 @@ export function ScheduleEditor({ entries, onChange, disabled = false }: Schedule
   return (
     <div className="space-y-4">
       {/* Quick templates */}
-      <div className="flex flex-wrap items-center gap-3 pb-4 border-b border-gray-200">
+      <div className="flex flex-wrap items-center gap-3 border-b border-gray-200 pb-4">
         <span className="text-sm text-gray-500">Plantillas rápidas:</span>
         <button
           type="button"
           onClick={() => applyTemplate('weekdays')}
           disabled={disabled}
-          className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50"
+          className="rounded-lg bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-200 disabled:opacity-50"
         >
           Lunes a Viernes
         </button>
@@ -240,7 +242,7 @@ export function ScheduleEditor({ entries, onChange, disabled = false }: Schedule
           type="button"
           onClick={() => applyTemplate('full')}
           disabled={disabled}
-          className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50"
+          className="rounded-lg bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-200 disabled:opacity-50"
         >
           Todos los días
         </button>
@@ -248,7 +250,7 @@ export function ScheduleEditor({ entries, onChange, disabled = false }: Schedule
           type="button"
           onClick={() => applyTemplate('clear')}
           disabled={disabled}
-          className="px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 disabled:opacity-50"
+          className="rounded-lg bg-red-50 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-100 disabled:opacity-50"
         >
           Limpiar todo
         </button>
@@ -261,12 +263,12 @@ export function ScheduleEditor({ entries, onChange, disabled = false }: Schedule
 
       {/* Day entries */}
       <div className="space-y-2">
-        {daysInOrder.map(day => (
+        {daysInOrder.map((day) => (
           <EntryRow
             key={day}
             dayOfWeek={day}
             entry={entriesMap.get(day) || null}
-            onUpdate={entry => handleUpdateEntry(day, entry)}
+            onUpdate={(entry) => handleUpdateEntry(day, entry)}
             onRemove={() => handleRemoveEntry(day)}
             disabled={disabled}
           />
@@ -275,18 +277,23 @@ export function ScheduleEditor({ entries, onChange, disabled = false }: Schedule
 
       {/* Summary */}
       {entriesMap.size > 0 && (
-        <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-          <h4 className="text-sm font-medium text-blue-900 mb-2">Resumen del horario</h4>
+        <div className="mt-4 rounded-lg bg-blue-50 p-4">
+          <h4 className="mb-2 text-sm font-medium text-blue-900">Resumen del horario</h4>
           <div className="text-sm text-blue-700">
             <p>
-              <strong>{entriesMap.size}</strong> día{entriesMap.size !== 1 ? 's' : ''} laborable{entriesMap.size !== 1 ? 's' : ''}
+              <strong>{entriesMap.size}</strong> día{entriesMap.size !== 1 ? 's' : ''} laborable
+              {entriesMap.size !== 1 ? 's' : ''}
             </p>
             <p>
-              Días: {Array.from(entriesMap.keys()).sort((a, b) => {
-                // Sort with Monday first
-                const order = [1, 2, 3, 4, 5, 6, 0]
-                return order.indexOf(a) - order.indexOf(b)
-              }).map(d => getDayName(d, true)).join(', ')}
+              Días:{' '}
+              {Array.from(entriesMap.keys())
+                .sort((a, b) => {
+                  // Sort with Monday first
+                  const order = [1, 2, 3, 4, 5, 6, 0]
+                  return order.indexOf(a) - order.indexOf(b)
+                })
+                .map((d) => getDayName(d, true))
+                .join(', ')}
             </p>
           </div>
         </div>

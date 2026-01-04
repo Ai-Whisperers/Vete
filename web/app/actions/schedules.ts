@@ -26,7 +26,9 @@ export async function getStaffSchedules(clinicSlug: string): Promise<{
 }> {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) {
     return { schedules: [], error: 'No autorizado' }
   }
@@ -45,7 +47,8 @@ export async function getStaffSchedules(clinicSlug: string): Promise<{
   // Get schedules with staff profiles
   const { data: schedules, error } = await supabase
     .from('staff_schedules')
-    .select(`
+    .select(
+      `
       id,
       staff_profile_id,
       tenant_id,
@@ -74,22 +77,27 @@ export async function getStaffSchedules(clinicSlug: string): Promise<{
         break_end,
         location
       )
-    `)
+    `
+    )
     .eq('tenant_id', clinicSlug)
     .eq('is_active', true)
     .order('created_at', { ascending: false })
 
   if (error) {
-    logger.error('Get staff schedules error', { tenantId: clinicSlug, error: error instanceof Error ? error.message : String(error) })
+    logger.error('Get staff schedules error', {
+      tenantId: clinicSlug,
+      error: error instanceof Error ? error.message : String(error),
+    })
     return { schedules: [], error: 'Error al obtener horarios' }
   }
 
   // Get profile names for each staff
   // Note: Supabase joins with !inner return single objects, but TS infers arrays
-  const staffProfileIds = schedules?.map(s => {
-    const sp = s.staff_profile as unknown as { user_id: string }
-    return sp.user_id
-  }) || []
+  const staffProfileIds =
+    schedules?.map((s) => {
+      const sp = s.staff_profile as unknown as { user_id: string }
+      return sp.user_id
+    }) || []
 
   const { data: profiles } = await supabase
     .from('profiles')
@@ -97,25 +105,28 @@ export async function getStaffSchedules(clinicSlug: string): Promise<{
     .in('id', staffProfileIds)
 
   // Merge profile data
-  const schedulesWithProfiles = schedules?.map(schedule => {
-    const staffProfile = schedule.staff_profile as unknown as {
-      id: string
-      user_id: string
-      job_title: string
-      color_code: string
-      can_be_booked: boolean
-    }
-    const userProfile = profiles?.find(p => p.id === staffProfile.user_id)
-    return {
-      ...schedule,
-      staff_profile: staffProfile,
-      profile: userProfile ? {
-        full_name: userProfile.full_name,
-        avatar_url: userProfile.avatar_url
-      } : undefined,
-      entries: (schedule.entries || []) as StaffScheduleEntry[]
-    }
-  }) || []
+  const schedulesWithProfiles =
+    schedules?.map((schedule) => {
+      const staffProfile = schedule.staff_profile as unknown as {
+        id: string
+        user_id: string
+        job_title: string
+        color_code: string
+        can_be_booked: boolean
+      }
+      const userProfile = profiles?.find((p) => p.id === staffProfile.user_id)
+      return {
+        ...schedule,
+        staff_profile: staffProfile,
+        profile: userProfile
+          ? {
+              full_name: userProfile.full_name,
+              avatar_url: userProfile.avatar_url,
+            }
+          : undefined,
+        entries: (schedule.entries || []) as StaffScheduleEntry[],
+      }
+    }) || []
 
   return { schedules: schedulesWithProfiles as StaffScheduleWithProfile[] }
 }
@@ -129,14 +140,17 @@ export async function getStaffSchedule(scheduleId: string): Promise<{
 }> {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) {
     return { schedule: null, error: 'No autorizado' }
   }
 
   const { data: schedule, error } = await supabase
     .from('staff_schedules')
-    .select(`
+    .select(
+      `
       id,
       staff_profile_id,
       tenant_id,
@@ -165,7 +179,8 @@ export async function getStaffSchedule(scheduleId: string): Promise<{
         break_end,
         location
       )
-    `)
+    `
+    )
     .eq('id', scheduleId)
     .single()
 
@@ -180,7 +195,11 @@ export async function getStaffSchedule(scheduleId: string): Promise<{
     .eq('id', user.id)
     .single()
 
-  if (!profile || !['vet', 'admin'].includes(profile.role) || profile.tenant_id !== schedule.tenant_id) {
+  if (
+    !profile ||
+    !['vet', 'admin'].includes(profile.role) ||
+    profile.tenant_id !== schedule.tenant_id
+  ) {
     return { schedule: null, error: 'No tienes permiso para ver este horario' }
   }
 
@@ -197,8 +216,8 @@ export async function getStaffSchedule(scheduleId: string): Promise<{
       ...schedule,
       staff_profile: staffProfile,
       profile: userProfile || undefined,
-      entries: (schedule.entries || []) as StaffScheduleEntry[]
-    } as unknown as StaffScheduleWithProfile
+      entries: (schedule.entries || []) as StaffScheduleEntry[],
+    } as unknown as StaffScheduleWithProfile,
   }
 }
 
@@ -212,7 +231,9 @@ export async function createStaffSchedule(
 ): Promise<CalendarActionResult & { scheduleId?: string }> {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) {
     return { error: 'No autorizado' }
   }
@@ -250,34 +271,40 @@ export async function createStaffSchedule(
       effective_to: data.effectiveTo || null,
       timezone: data.timezone || 'America/Asuncion',
       notes: data.notes || null,
-      is_active: true
+      is_active: true,
     })
     .select('id')
     .single()
 
   if (scheduleError || !schedule) {
-    logger.error('Create schedule error', { tenantId: clinicSlug, staffProfileId: data.staffProfileId, error: scheduleError instanceof Error ? scheduleError.message : String(scheduleError) })
+    logger.error('Create schedule error', {
+      tenantId: clinicSlug,
+      staffProfileId: data.staffProfileId,
+      error: scheduleError instanceof Error ? scheduleError.message : String(scheduleError),
+    })
     return { error: 'Error al crear horario' }
   }
 
   // Create entries
   if (data.entries && data.entries.length > 0) {
-    const entries = data.entries.map(entry => ({
+    const entries = data.entries.map((entry) => ({
       schedule_id: schedule.id,
       day_of_week: entry.dayOfWeek,
       start_time: entry.startTime,
       end_time: entry.endTime,
       break_start: entry.breakStart || null,
       break_end: entry.breakEnd || null,
-      location: entry.location || null
+      location: entry.location || null,
     }))
 
-    const { error: entriesError } = await supabase
-      .from('staff_schedule_entries')
-      .insert(entries)
+    const { error: entriesError } = await supabase.from('staff_schedule_entries').insert(entries)
 
     if (entriesError) {
-      logger.error('Create schedule entries error', { tenantId: clinicSlug, scheduleId: schedule.id, error: entriesError instanceof Error ? entriesError.message : String(entriesError) })
+      logger.error('Create schedule entries error', {
+        tenantId: clinicSlug,
+        scheduleId: schedule.id,
+        error: entriesError instanceof Error ? entriesError.message : String(entriesError),
+      })
       // Clean up the schedule if entries fail
       await supabase.from('staff_schedules').delete().eq('id', schedule.id)
       return { error: 'Error al crear entradas del horario' }
@@ -300,7 +327,9 @@ export async function updateStaffSchedule(
 ): Promise<CalendarActionResult> {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) {
     return { error: 'No autorizado' }
   }
@@ -342,7 +371,11 @@ export async function updateStaffSchedule(
       .eq('id', scheduleId)
 
     if (updateError) {
-      logger.error('Update schedule error', { scheduleId, tenantId: schedule.tenant_id, error: updateError instanceof Error ? updateError.message : String(updateError) })
+      logger.error('Update schedule error', {
+        scheduleId,
+        tenantId: schedule.tenant_id,
+        error: updateError instanceof Error ? updateError.message : String(updateError),
+      })
       return { error: 'Error al actualizar horario' }
     }
   }
@@ -356,28 +389,32 @@ export async function updateStaffSchedule(
       .eq('schedule_id', scheduleId)
 
     if (deleteError) {
-      logger.error('Delete entries error', { scheduleId, error: deleteError instanceof Error ? deleteError.message : String(deleteError) })
+      logger.error('Delete entries error', {
+        scheduleId,
+        error: deleteError instanceof Error ? deleteError.message : String(deleteError),
+      })
       return { error: 'Error al actualizar entradas' }
     }
 
     // Insert new entries
     if (data.entries.length > 0) {
-      const entries = data.entries.map(entry => ({
+      const entries = data.entries.map((entry) => ({
         schedule_id: scheduleId,
         day_of_week: entry.dayOfWeek,
         start_time: entry.startTime,
         end_time: entry.endTime,
         break_start: entry.breakStart || null,
         break_end: entry.breakEnd || null,
-        location: entry.location || null
+        location: entry.location || null,
       }))
 
-      const { error: insertError } = await supabase
-        .from('staff_schedule_entries')
-        .insert(entries)
+      const { error: insertError } = await supabase.from('staff_schedule_entries').insert(entries)
 
       if (insertError) {
-        logger.error('Insert entries error', { scheduleId, error: insertError instanceof Error ? insertError.message : String(insertError) })
+        logger.error('Insert entries error', {
+          scheduleId,
+          error: insertError instanceof Error ? insertError.message : String(insertError),
+        })
         return { error: 'Error al guardar entradas del horario' }
       }
     }
@@ -396,7 +433,9 @@ export async function updateStaffSchedule(
 export async function deleteStaffSchedule(scheduleId: string): Promise<CalendarActionResult> {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) {
     return { error: 'No autorizado' }
   }
@@ -430,7 +469,11 @@ export async function deleteStaffSchedule(scheduleId: string): Promise<CalendarA
     .eq('id', scheduleId)
 
   if (updateError) {
-    logger.error('Delete schedule error', { scheduleId, tenantId: schedule.tenant_id, error: updateError instanceof Error ? updateError.message : String(updateError) })
+    logger.error('Delete schedule error', {
+      scheduleId,
+      tenantId: schedule.tenant_id,
+      error: updateError instanceof Error ? updateError.message : String(updateError),
+    })
     return { error: 'Error al eliminar horario' }
   }
 
@@ -449,7 +492,9 @@ export async function addScheduleEntry(
 ): Promise<CalendarActionResult & { entryId?: string }> {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) {
     return { error: 'No autorizado' }
   }
@@ -498,13 +543,17 @@ export async function addScheduleEntry(
       end_time: entry.endTime,
       break_start: entry.breakStart || null,
       break_end: entry.breakEnd || null,
-      location: entry.location || null
+      location: entry.location || null,
     })
     .select('id')
     .single()
 
   if (error || !newEntry) {
-    logger.error('Add entry error', { scheduleId, dayOfWeek: entry.dayOfWeek, error: error instanceof Error ? error.message : String(error) })
+    logger.error('Add entry error', {
+      scheduleId,
+      dayOfWeek: entry.dayOfWeek,
+      error: error instanceof Error ? error.message : String(error),
+    })
     return { error: 'Error al agregar entrada' }
   }
 
@@ -523,7 +572,9 @@ export async function updateScheduleEntry(
 ): Promise<CalendarActionResult> {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) {
     return { error: 'No autorizado' }
   }
@@ -531,10 +582,12 @@ export async function updateScheduleEntry(
   // Get entry with schedule
   const { data: entry } = await supabase
     .from('staff_schedule_entries')
-    .select(`
+    .select(
+      `
       id,
       schedule:staff_schedules!inner(tenant_id)
-    `)
+    `
+    )
     .eq('id', entryId)
     .single()
 
@@ -569,7 +622,10 @@ export async function updateScheduleEntry(
     .eq('id', entryId)
 
   if (updateError) {
-    logger.error('Update entry error', { entryId, error: updateError instanceof Error ? updateError.message : String(updateError) })
+    logger.error('Update entry error', {
+      entryId,
+      error: updateError instanceof Error ? updateError.message : String(updateError),
+    })
     return { error: 'Error al actualizar entrada' }
   }
 
@@ -585,7 +641,9 @@ export async function updateScheduleEntry(
 export async function deleteScheduleEntry(entryId: string): Promise<CalendarActionResult> {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) {
     return { error: 'No autorizado' }
   }
@@ -593,10 +651,12 @@ export async function deleteScheduleEntry(entryId: string): Promise<CalendarActi
   // Get entry with schedule
   const { data: entry } = await supabase
     .from('staff_schedule_entries')
-    .select(`
+    .select(
+      `
       id,
       schedule:staff_schedules!inner(tenant_id)
-    `)
+    `
+    )
     .eq('id', entryId)
     .single()
 
@@ -623,7 +683,10 @@ export async function deleteScheduleEntry(entryId: string): Promise<CalendarActi
     .eq('id', entryId)
 
   if (deleteError) {
-    logger.error('Delete entry error', { entryId, error: deleteError instanceof Error ? deleteError.message : String(deleteError) })
+    logger.error('Delete entry error', {
+      entryId,
+      error: deleteError instanceof Error ? deleteError.message : String(deleteError),
+    })
     return { error: 'Error al eliminar entrada' }
   }
 
@@ -653,7 +716,9 @@ export async function getBookableStaff(clinicSlug: string): Promise<{
 }> {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) {
     return { staff: [], error: 'No autorizado' }
   }
@@ -672,19 +737,24 @@ export async function getBookableStaff(clinicSlug: string): Promise<{
   // Get bookable staff profiles
   const { data: staffProfiles, error } = await supabase
     .from('staff_profiles')
-    .select(`
+    .select(
+      `
       id,
       user_id,
       job_title,
       color_code,
       can_be_booked
-    `)
+    `
+    )
     .eq('tenant_id', clinicSlug)
     .eq('can_be_booked', true)
     .eq('employment_status', 'active')
 
   if (error) {
-    logger.error('Get bookable staff error', { tenantId: clinicSlug, error: error instanceof Error ? error.message : String(error) })
+    logger.error('Get bookable staff error', {
+      tenantId: clinicSlug,
+      error: error instanceof Error ? error.message : String(error),
+    })
     return { staff: [], error: 'Error al obtener personal' }
   }
 
@@ -693,21 +763,21 @@ export async function getBookableStaff(clinicSlug: string): Promise<{
   }
 
   // Get profile names
-  const userIds = staffProfiles.map(sp => sp.user_id)
+  const userIds = staffProfiles.map((sp) => sp.user_id)
   const { data: profiles } = await supabase
     .from('profiles')
     .select('id, full_name, avatar_url')
     .in('id', userIds)
 
-  const staff = staffProfiles.map(sp => {
-    const userProfile = profiles?.find(p => p.id === sp.user_id)
+  const staff = staffProfiles.map((sp) => {
+    const userProfile = profiles?.find((p) => p.id === sp.user_id)
     return {
       id: sp.id,
       user_id: sp.user_id,
       full_name: userProfile?.full_name || 'Sin nombre',
       job_title: sp.job_title,
       color_code: sp.color_code,
-      avatar_url: userProfile?.avatar_url
+      avatar_url: userProfile?.avatar_url,
     }
   })
 

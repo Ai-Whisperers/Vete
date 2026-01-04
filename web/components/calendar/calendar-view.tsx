@@ -148,10 +148,10 @@ export function CalendarViewComponent({
   }
 
   return (
-    <div className="h-[700px] relative">
+    <div className="relative h-[700px]">
       {loading && (
-        <div className="absolute inset-0 bg-white/50 z-10 flex items-center justify-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--primary)]" />
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/50">
+          <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-[var(--primary)]" />
         </div>
       )}
       <Calendar

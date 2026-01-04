@@ -15,7 +15,7 @@ export function CancelButton({
   appointmentId,
   onSuccess,
   variant = 'text',
-  className = ''
+  className = '',
 }: CancelButtonProps) {
   const [showDialog, setShowDialog] = useState(false)
   const [reason, setReason] = useState('')
@@ -50,29 +50,29 @@ export function CancelButton({
     button: (
       <button
         onClick={() => setShowDialog(true)}
-        className={`px-4 py-2 bg-red-50 text-red-600 rounded-xl text-sm font-bold hover:bg-red-100 transition-all flex items-center gap-2 ${className}`}
+        className={`flex items-center gap-2 rounded-xl bg-red-50 px-4 py-2 text-sm font-bold text-red-600 transition-all hover:bg-red-100 ${className}`}
       >
-        <Icons.X className="w-4 h-4" />
+        <Icons.X className="h-4 w-4" />
         Cancelar Cita
       </button>
     ),
     icon: (
       <button
         onClick={() => setShowDialog(true)}
-        className={`p-2 text-red-500 hover:bg-red-50 rounded-xl transition-all ${className}`}
+        className={`rounded-xl p-2 text-red-500 transition-all hover:bg-red-50 ${className}`}
         title="Cancelar cita"
       >
-        <Icons.X className="w-5 h-5" />
+        <Icons.X className="h-5 w-5" />
       </button>
     ),
     text: (
       <button
         onClick={() => setShowDialog(true)}
-        className={`text-red-600 hover:text-red-800 text-sm font-medium hover:underline ${className}`}
+        className={`text-sm font-medium text-red-600 hover:text-red-800 hover:underline ${className}`}
       >
         Cancelar
       </button>
-    )
+    ),
   }
 
   return (
@@ -81,23 +81,21 @@ export function CancelButton({
 
       {showDialog && (
         <div
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
           onClick={handleClose}
         >
           <div
-            className="bg-white rounded-3xl max-w-md w-full shadow-2xl animate-in zoom-in-95 duration-200"
+            className="animate-in zoom-in-95 w-full max-w-md rounded-3xl bg-white shadow-2xl duration-200"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="p-6 border-b border-gray-100">
+            <div className="border-b border-gray-100 p-6">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-red-50 rounded-2xl flex items-center justify-center">
-                  <Icons.AlertTriangle className="w-6 h-6 text-red-500" />
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-50">
+                  <Icons.AlertTriangle className="h-6 w-6 text-red-500" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-[var(--text-primary)]">
-                    Cancelar Cita
-                  </h3>
+                  <h3 className="text-lg font-bold text-[var(--text-primary)]">Cancelar Cita</h3>
                   <p className="text-sm text-[var(--text-secondary)]">
                     Esta acción no se puede deshacer
                   </p>
@@ -107,48 +105,48 @@ export function CancelButton({
 
             {/* Body */}
             <div className="p-6">
-              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
+              <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-gray-400">
                 Motivo de cancelación (opcional)
               </label>
               <textarea
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
                 placeholder="Ej: Cambio de planes, emergencia, etc."
-                className="w-full p-4 border border-gray-200 rounded-2xl text-sm resize-none focus:ring-2 focus:ring-[var(--primary)]/20 focus:border-[var(--primary)] outline-none transition-all"
+                className="focus:ring-[var(--primary)]/20 w-full resize-none rounded-2xl border border-gray-200 p-4 text-sm outline-none transition-all focus:border-[var(--primary)] focus:ring-2"
                 rows={3}
                 disabled={loading}
               />
 
               {error && (
-                <div className="mt-4 p-4 bg-red-50 border border-red-100 rounded-xl flex items-center gap-3">
-                  <Icons.AlertCircle className="w-5 h-5 text-red-500 shrink-0" />
-                  <p className="text-red-600 text-sm font-medium">{error}</p>
+                <div className="mt-4 flex items-center gap-3 rounded-xl border border-red-100 bg-red-50 p-4">
+                  <Icons.AlertCircle className="h-5 w-5 shrink-0 text-red-500" />
+                  <p className="text-sm font-medium text-red-600">{error}</p>
                 </div>
               )}
             </div>
 
             {/* Footer */}
-            <div className="p-6 border-t border-gray-100 flex gap-3 justify-end">
+            <div className="flex justify-end gap-3 border-t border-gray-100 p-6">
               <button
                 onClick={handleClose}
-                className="px-6 py-3 text-[var(--text-secondary)] font-bold rounded-xl hover:bg-gray-50 transition-all"
+                className="rounded-xl px-6 py-3 font-bold text-[var(--text-secondary)] transition-all hover:bg-gray-50"
                 disabled={loading}
               >
                 Volver
               </button>
               <button
                 onClick={handleCancel}
-                className="px-6 py-3 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 transition-all flex items-center gap-2 disabled:opacity-50"
+                className="flex items-center gap-2 rounded-xl bg-red-600 px-6 py-3 font-bold text-white transition-all hover:bg-red-700 disabled:opacity-50"
                 disabled={loading}
               >
                 {loading ? (
                   <>
-                    <Icons.Loader2 className="w-4 h-4 animate-spin" />
+                    <Icons.Loader2 className="h-4 w-4 animate-spin" />
                     Cancelando...
                   </>
                 ) : (
                   <>
-                    <Icons.X className="w-4 h-4" />
+                    <Icons.X className="h-4 w-4" />
                     Confirmar Cancelación
                   </>
                 )}

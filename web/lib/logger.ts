@@ -58,8 +58,8 @@ const LOG_LEVELS: Record<LogLevel, number> = {
 
 const LEVEL_COLORS: Record<LogLevel, string> = {
   debug: '\x1b[36m', // Cyan
-  info: '\x1b[32m',  // Green
-  warn: '\x1b[33m',  // Yellow
+  info: '\x1b[32m', // Green
+  warn: '\x1b[33m', // Yellow
   error: '\x1b[31m', // Red
 }
 
@@ -147,7 +147,11 @@ function shouldLog(level: LogLevel): boolean {
   return LOG_LEVELS[level] >= LOG_LEVELS[getLogLevel()]
 }
 
-function log(level: LogLevel, message: string, contextOrError?: LogContext | Error | unknown): void {
+function log(
+  level: LogLevel,
+  message: string,
+  contextOrError?: LogContext | Error | unknown
+): void {
   if (!shouldLog(level)) return
 
   let context: LogContext | undefined
@@ -190,7 +194,8 @@ export const logger = {
   debug: (message: string, context?: LogContext) => log('debug', message, context),
   info: (message: string, context?: LogContext) => log('info', message, context),
   warn: (message: string, context?: LogContext) => log('warn', message, context),
-  error: (message: string, contextOrError?: LogContext | Error) => log('error', message, contextOrError),
+  error: (message: string, contextOrError?: LogContext | Error) =>
+    log('error', message, contextOrError),
 }
 
 /**

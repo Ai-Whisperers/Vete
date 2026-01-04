@@ -1,32 +1,32 @@
-import React, { Component, ReactNode } from 'react';
-import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
-import { logger } from '@/lib/logger';
+import React, { Component, ReactNode } from 'react'
+import { AlertTriangle, RefreshCw, Home } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import Link from 'next/link'
+import { logger } from '@/lib/logger'
 
 interface Props {
-  children: ReactNode;
-  fallback?: ReactNode;
-  onError?: (error: Error, errorInfo: React.ErrorInfo) => void;
-  showHomeLink?: boolean;
-  showRefreshButton?: boolean;
+  children: ReactNode
+  fallback?: ReactNode
+  onError?: (error: Error, errorInfo: React.ErrorInfo) => void
+  showHomeLink?: boolean
+  showRefreshButton?: boolean
   /** Context identifier for logging (e.g., "CartProvider", "BookingWizard") */
-  context?: string;
+  context?: string
 }
 
 interface State {
-  hasError: boolean;
-  error?: Error;
+  hasError: boolean
+  error?: Error
 }
 
 export class ErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
-    super(props);
-    this.state = { hasError: false };
+    super(props)
+    this.state = { hasError: false }
   }
 
   static getDerivedStateFromError(error: Error): State {
-    return { hasError: true, error };
+    return { hasError: true, error }
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
@@ -35,41 +35,39 @@ export class ErrorBoundary extends Component<Props, State> {
       error: error.message,
       context: this.props.context,
       componentStack: errorInfo.componentStack?.slice(0, 500), // Limit stack size
-    });
+    })
 
     // Call custom error handler if provided
-    this.props.onError?.(error, errorInfo);
+    this.props.onError?.(error, errorInfo)
   }
 
   handleReset = () => {
-    this.setState({ hasError: false, error: undefined });
-  };
+    this.setState({ hasError: false, error: undefined })
+  }
 
   render() {
     if (this.state.hasError) {
       if (this.props.fallback) {
-        return this.props.fallback;
+        return this.props.fallback
       }
 
       return (
-        <div className="flex flex-col items-center justify-center min-h-[400px] gap-6 p-8">
-          <div className="flex items-center justify-center w-16 h-16 rounded-full bg-red-100">
-            <AlertTriangle className="w-8 h-8 text-red-600" />
+        <div className="flex min-h-[400px] flex-col items-center justify-center gap-6 p-8">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
+            <AlertTriangle className="h-8 w-8 text-red-600" />
           </div>
 
-          <div className="text-center space-y-2">
-            <h2 className="text-xl font-semibold text-[var(--text-primary)]">
-              Algo salió mal
-            </h2>
-            <p className="text-[var(--text-secondary)] max-w-md">
+          <div className="space-y-2 text-center">
+            <h2 className="text-xl font-semibold text-[var(--text-primary)]">Algo salió mal</h2>
+            <p className="max-w-md text-[var(--text-secondary)]">
               Ocurrió un error inesperado. Por favor intenta de nuevo.
             </p>
             {process.env.NODE_ENV === 'development' && this.state.error && (
               <details className="mt-4 text-left">
-                <summary className="text-sm text-red-500 cursor-pointer">
+                <summary className="cursor-pointer text-sm text-red-500">
                   Detalles del error (desarrollo)
                 </summary>
-                <pre className="text-xs text-red-500 font-mono mt-2 p-2 bg-red-50 rounded overflow-auto">
+                <pre className="mt-2 overflow-auto rounded bg-red-50 p-2 font-mono text-xs text-red-500">
                   {this.state.error.stack}
                 </pre>
               </details>
@@ -81,23 +79,23 @@ export class ErrorBoundary extends Component<Props, State> {
               <Button
                 onClick={this.handleReset}
                 variant="primary"
-                leftIcon={<RefreshCw className="w-4 h-4" />}
+                leftIcon={<RefreshCw className="h-4 w-4" />}
               >
                 Intentar de nuevo
               </Button>
             )}
             {this.props.showHomeLink && (
               <Link href="/dashboard">
-                <Button variant="outline" leftIcon={<Home className="w-4 h-4" />}>
+                <Button variant="outline" leftIcon={<Home className="h-4 w-4" />}>
                   Ir al inicio
                 </Button>
               </Link>
             )}
           </div>
         </div>
-      );
+      )
     }
 
-    return this.props.children;
+    return this.props.children
   }
 }

@@ -19,39 +19,46 @@ command-palette/
 ## Module Responsibilities
 
 ### `command-types.ts`
+
 - Type definitions for all command-palette-related interfaces
 - Category labels for UI display
 - No runtime logic, pure types
 
 ### `commandFactory.tsx` (Client Component)
+
 - Creates command items with icons and actions
 - Handles navigation callbacks
 - Combines static commands with recent items
 - **Client Component** because it uses JSX elements (icons)
 
 ### `useCommandSearch.ts`
+
 - Search and filtering logic
 - Fetches recent patients from database
 - Groups commands by category
 - Flattens commands for keyboard navigation
 
 ### `useKeyboardNav.ts`
+
 - Keyboard event handling (Arrow keys, Enter, Escape)
 - Navigation between command items
 - Selection handling
 
 ### `CommandInput.tsx` (Client Component)
+
 - Search input field with autofocus
 - ESC keyboard hint
 - Mobile close button
 
 ### `CommandList.tsx` (Client Component)
+
 - Renders grouped command items
 - Handles item selection state
 - Auto-scrolls selected item into view
 - Empty state display
 
 ### `index.tsx` (Client Component)
+
 - Main orchestrator that combines all modules
 - State management (query, selectedIndex)
 - Animation with Framer Motion
@@ -63,12 +70,12 @@ The refactored structure maintains backward compatibility through `web/component
 
 ```tsx
 // Import works exactly as before
-import { CommandPalette, useCommandPalette } from "@/components/ui/command-palette";
+import { CommandPalette, useCommandPalette } from '@/components/ui/command-palette'
 
 function MyComponent() {
-  const { isOpen, open, close } = useCommandPalette();
+  const { isOpen, open, close } = useCommandPalette()
 
-  return <CommandPalette isOpen={isOpen} onClose={close} />;
+  return <CommandPalette isOpen={isOpen} onClose={close} />
 }
 ```
 
@@ -84,16 +91,19 @@ function MyComponent() {
 ## Key Patterns
 
 ### Client vs Server Components
+
 - All files with JSX icons are marked `"use client"`
 - Hooks don't need the directive (used only in client components)
 - Type files have no directive (pure TypeScript)
 
 ### State Management
+
 - `index.tsx` owns `selectedIndex` state
 - `useCommandSearch` owns `query` and search-related state
 - Each module exposes minimal interface
 
 ### Type Safety
+
 - All functions have explicit return types
 - Props interfaces defined for all components
 - No implicit `any` types

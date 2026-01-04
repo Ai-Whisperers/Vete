@@ -43,7 +43,11 @@ export function ResultEntry({ orderId, onSuccess, onCancel }: ResultEntryProps) 
   const [specimenIssues, setSpecimenIssues] = useState('')
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
-  const [petInfo, setPetInfo] = useState<{ species: string; age_years: number; sex: string } | null>(null)
+  const [petInfo, setPetInfo] = useState<{
+    species: string
+    age_years: number
+    sex: string
+  } | null>(null)
   const [referenceRanges, setReferenceRanges] = useState<Record<string, ReferenceRange>>({})
 
   const supabase = createClient()
@@ -58,19 +62,25 @@ export function ResultEntry({ orderId, onSuccess, onCancel }: ResultEntryProps) 
       // Fetch order with pet info
       const { data: orderData } = await supabase
         .from('lab_orders')
-        .select(`
+        .select(
+          `
           id,
           pets!inner(species, date_of_birth, sex)
-        `)
+        `
+        )
         .eq('id', orderId)
         .single()
 
       if (orderData) {
         // Supabase inner join returns single object, but TS infers array
-        const pet = orderData.pets as unknown as { species: string; date_of_birth: string; sex: string }
+        const pet = orderData.pets as unknown as {
+          species: string
+          date_of_birth: string
+          sex: string
+        }
         const ageYears = Math.floor(
           (new Date().getTime() - new Date(pet.date_of_birth).getTime()) /
-          (1000 * 60 * 60 * 24 * 365)
+            (1000 * 60 * 60 * 24 * 365)
         )
         setPetInfo({ species: pet.species, age_years: ageYears, sex: pet.sex })
       }
@@ -78,33 +88,43 @@ export function ResultEntry({ orderId, onSuccess, onCancel }: ResultEntryProps) 
       // Fetch order items with tests
       const { data: itemsData } = await supabase
         .from('lab_order_items')
-        .select(`
+        .select(
+          `
           id,
           test_id,
           lab_test_catalog!inner(id, code, name, unit, result_type),
           lab_results(id, value_numeric, value_text, flag)
-        `)
+        `
+        )
         .eq('order_id', orderId)
         .order('created_at')
 
-      const items = itemsData?.map(item => {
-        // Supabase inner join returns single object, but TS infers array
-        const catalog = item.lab_test_catalog as unknown as { id: string; code: string; name: string; unit: string; result_type: string }
-        return {
-          id: item.id,
-          test_id: item.test_id,
-          test: {
-            id: catalog.id,
-            code: catalog.code,
-            name: catalog.name,
-            unit: catalog.unit,
-            result_type: catalog.result_type
-          },
-          result: Array.isArray(item.lab_results) && item.lab_results.length > 0
-            ? item.lab_results[0]
-            : undefined
-        }
-      }) || []
+      const items =
+        itemsData?.map((item) => {
+          // Supabase inner join returns single object, but TS infers array
+          const catalog = item.lab_test_catalog as unknown as {
+            id: string
+            code: string
+            name: string
+            unit: string
+            result_type: string
+          }
+          return {
+            id: item.id,
+            test_id: item.test_id,
+            test: {
+              id: catalog.id,
+              code: catalog.code,
+              name: catalog.name,
+              unit: catalog.unit,
+              result_type: catalog.result_type,
+            },
+            result:
+              Array.isArray(item.lab_results) && item.lab_results.length > 0
+                ? item.lab_results[0]
+                : undefined,
+          }
+        }) || []
 
       setOrderItems(items)
 
@@ -114,14 +134,17 @@ export function ResultEntry({ orderId, onSuccess, onCancel }: ResultEntryProps) 
           .from('lab_reference_ranges')
           .select('test_id, min_value, max_value, reference_text')
           .eq('species', petInfo.species)
-          .in('test_id', items.map(i => i.test_id))
+          .in(
+            'test_id',
+            items.map((i) => i.test_id)
+          )
 
         const ranges: Record<string, ReferenceRange> = {}
-        rangesData?.forEach(range => {
+        rangesData?.forEach((range) => {
           ranges[range.test_id] = {
             min_value: range.min_value,
             max_value: range.max_value,
-            reference_text: range.reference_text
+            reference_text: range.reference_text,
           }
         })
         setReferenceRanges(ranges)
@@ -129,16 +152,15 @@ export function ResultEntry({ orderId, onSuccess, onCancel }: ResultEntryProps) 
 
       // Initialize results from existing data
       const initialResults: Record<string, { value: string; flag?: ResultFlag }> = {}
-      items.forEach(item => {
+      items.forEach((item) => {
         if (item.result) {
           initialResults[item.id] = {
             value: item.result.value_numeric?.toString() || item.result.value_text || '',
-            flag: item.result.flag as ResultFlag
+            flag: item.result.flag as ResultFlag,
           }
         }
       })
       setResults(initialResults)
-
     } catch {
       // Error fetching order items - silently fail
     } finally {
@@ -171,9 +193,9 @@ export function ResultEntry({ orderId, onSuccess, onCancel }: ResultEntryProps) 
 
   const handleValueChange = (itemId: string, testId: string, value: string) => {
     const flag = evaluateFlag(testId, value)
-    setResults(prev => ({
+    setResults((prev) => ({
       ...prev,
-      [itemId]: { value, flag }
+      [itemId]: { value, flag },
     }))
   }
 
@@ -215,7 +237,7 @@ export function ResultEntry({ orderId, onSuccess, onCancel }: ResultEntryProps) 
     // FORM-004: Prevent double-submit
     if (submitting) return
 
-    const emptyResults = orderItems.filter(item => !results[item.id]?.value)
+    const emptyResults = orderItems.filter((item) => !results[item.id]?.value)
     if (emptyResults.length > 0) {
       const proceed = confirm(
         `Hay ${emptyResults.length} prueba(s) sin resultado. ¿Desea continuar de todos modos?`
@@ -237,12 +259,12 @@ export function ResultEntry({ orderId, onSuccess, onCancel }: ResultEntryProps) 
             order_item_id: itemId,
             value_numeric: !isNaN(parseFloat(data.value)) ? parseFloat(data.value) : null,
             value_text: isNaN(parseFloat(data.value)) ? data.value : null,
-            flag: data.flag
+            flag: data.flag,
           })),
           specimen_quality: specimenQuality,
-          specimen_issues: specimenIssues || null
+          specimen_issues: specimenIssues || null,
         }),
-        signal: controller.signal
+        signal: controller.signal,
       })
 
       if (!response.ok) throw new Error('Error al guardar resultados')
@@ -263,7 +285,7 @@ export function ResultEntry({ orderId, onSuccess, onCancel }: ResultEntryProps) 
   if (loading) {
     return (
       <div className="flex items-center justify-center p-12">
-        <Loader2 className="w-8 h-8 animate-spin text-[var(--primary)]" />
+        <Loader2 className="h-8 w-8 animate-spin text-[var(--primary)]" />
       </div>
     )
   }
@@ -271,21 +293,21 @@ export function ResultEntry({ orderId, onSuccess, onCancel }: ResultEntryProps) 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Specimen Quality */}
-      <div className="bg-gray-50 rounded-xl p-4">
-        <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-3">
+      <div className="rounded-xl bg-gray-50 p-4">
+        <h3 className="mb-3 text-sm font-semibold text-[var(--text-primary)]">
           Calidad de la Muestra
         </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 mb-3">
+        <div className="mb-3 grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-3">
           {[
             { value: 'acceptable', label: 'Aceptable', color: 'green' },
             { value: 'suboptimal', label: 'Subóptima', color: 'yellow' },
-            { value: 'unacceptable', label: 'Inaceptable', color: 'red' }
-          ].map(option => (
+            { value: 'unacceptable', label: 'Inaceptable', color: 'red' },
+          ].map((option) => (
             <button
               key={option.value}
               type="button"
               onClick={() => setSpecimenQuality(option.value)}
-              className={`p-3 min-h-[48px] rounded-lg border-2 font-medium transition-all ${
+              className={`min-h-[48px] rounded-lg border-2 p-3 font-medium transition-all ${
                 specimenQuality === option.value
                   ? `border-${option.color}-500 bg-${option.color}-50 text-${option.color}-700`
                   : 'border-gray-200 hover:border-gray-300'
@@ -301,32 +323,28 @@ export function ResultEntry({ orderId, onSuccess, onCancel }: ResultEntryProps) 
             onChange={(e) => setSpecimenIssues(e.target.value)}
             placeholder="Describe los problemas con la muestra..."
             rows={2}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent resize-none"
+            className="w-full resize-none rounded-lg border border-gray-300 px-4 py-2 focus:border-transparent focus:ring-2 focus:ring-[var(--primary)]"
           />
         )}
       </div>
 
       {/* Results Entry */}
       <div>
-        <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-4">
+        <h3 className="mb-4 text-sm font-semibold text-[var(--text-primary)]">
           Resultados de Pruebas
         </h3>
         <div className="space-y-3">
-          {orderItems.map(item => {
+          {orderItems.map((item) => {
             const result = results[item.id]
             const range = referenceRanges[item.test_id]
 
             return (
-              <div key={item.id} className="bg-white border border-gray-200 rounded-xl p-4">
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+              <div key={item.id} className="rounded-xl border border-gray-200 bg-white p-4">
+                <div className="grid grid-cols-1 items-center gap-4 md:grid-cols-12">
                   {/* Test Info */}
                   <div className="md:col-span-4">
-                    <div className="font-medium text-[var(--text-primary)]">
-                      {item.test.name}
-                    </div>
-                    <div className="text-sm text-[var(--text-secondary)]">
-                      {item.test.code}
-                    </div>
+                    <div className="font-medium text-[var(--text-primary)]">{item.test.name}</div>
+                    <div className="text-sm text-[var(--text-secondary)]">{item.test.code}</div>
                   </div>
 
                   {/* Value Input */}
@@ -339,10 +357,10 @@ export function ResultEntry({ orderId, onSuccess, onCancel }: ResultEntryProps) 
                           value={result?.value || ''}
                           onChange={(e) => handleValueChange(item.id, item.test_id, e.target.value)}
                           placeholder="Valor"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
+                          className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-[var(--primary)]"
                         />
                         {item.test.unit && (
-                          <span className="text-sm text-[var(--text-secondary)] whitespace-nowrap">
+                          <span className="whitespace-nowrap text-sm text-[var(--text-secondary)]">
                             {item.test.unit}
                           </span>
                         )}
@@ -353,7 +371,7 @@ export function ResultEntry({ orderId, onSuccess, onCancel }: ResultEntryProps) 
                         value={result?.value || ''}
                         onChange={(e) => handleValueChange(item.id, item.test_id, e.target.value)}
                         placeholder="Resultado"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
+                        className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-[var(--primary)]"
                       />
                     )}
                   </div>
@@ -376,7 +394,9 @@ export function ResultEntry({ orderId, onSuccess, onCancel }: ResultEntryProps) 
                   {/* Flag */}
                   <div className="md:col-span-2">
                     {result?.value && (
-                      <span className={`px-3 py-1 rounded-full text-xs font-bold ${getFlagColor(result.flag)}`}>
+                      <span
+                        className={`rounded-full px-3 py-1 text-xs font-bold ${getFlagColor(result.flag)}`}
+                      >
                         {getFlagLabel(result.flag)}
                       </span>
                     )}
@@ -389,13 +409,13 @@ export function ResultEntry({ orderId, onSuccess, onCancel }: ResultEntryProps) 
       </div>
 
       {/* Action Buttons */}
-      <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-3 sm:gap-4 pt-4 border-t">
+      <div className="flex flex-col-reverse items-stretch justify-end gap-3 border-t pt-4 sm:flex-row sm:items-center sm:gap-4">
         {onCancel && (
           <button
             type="button"
             onClick={onCancel}
             disabled={submitting}
-            className="px-6 py-3 min-h-[48px] border border-gray-300 text-[var(--text-primary)] rounded-xl font-medium hover:bg-gray-50 transition-colors disabled:opacity-50"
+            className="min-h-[48px] rounded-xl border border-gray-300 px-6 py-3 font-medium text-[var(--text-primary)] transition-colors hover:bg-gray-50 disabled:opacity-50"
           >
             Cancelar
           </button>
@@ -403,16 +423,16 @@ export function ResultEntry({ orderId, onSuccess, onCancel }: ResultEntryProps) 
         <button
           type="submit"
           disabled={submitting}
-          className="px-6 py-3 min-h-[48px] bg-[var(--primary)] text-white rounded-xl font-medium hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
+          className="flex min-h-[48px] items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-6 py-3 font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
         >
           {submitting ? (
             <>
-              <Loader2 className="w-5 h-5 animate-spin" />
+              <Loader2 className="h-5 w-5 animate-spin" />
               Guardando...
             </>
           ) : (
             <>
-              <Save className="w-5 h-5" />
+              <Save className="h-5 w-5" />
               Guardar Resultados
             </>
           )}

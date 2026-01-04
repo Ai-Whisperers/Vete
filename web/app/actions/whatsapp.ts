@@ -9,14 +9,18 @@ import {
   formatParaguayPhone,
   type WhatsAppMessage,
   type WhatsAppTemplate,
-  type WhatsAppConversation
+  type WhatsAppConversation,
 } from '@/lib/types/whatsapp'
 
 // Get conversations (grouped by phone number)
-export async function getConversations(clinic: string): Promise<{ data: WhatsAppConversation[] } | { error: string }> {
+export async function getConversations(
+  clinic: string
+): Promise<{ data: WhatsAppConversation[] } | { error: string }> {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) {
     return { error: 'No autorizado' }
   }
@@ -35,14 +39,16 @@ export async function getConversations(clinic: string): Promise<{ data: WhatsApp
     // Get latest message per phone number
     const { data: messages, error } = await supabase
       .from('whatsapp_messages')
-      .select(`
+      .select(
+        `
         phone_number,
         client_id,
         content,
         direction,
         created_at,
         client:profiles!whatsapp_messages_client_id_fkey(id, full_name)
-      `)
+      `
+      )
       .eq('tenant_id', clinic)
       .order('created_at', { ascending: false })
 
@@ -61,7 +67,7 @@ export async function getConversations(clinic: string): Promise<{ data: WhatsApp
           last_message: msg.content,
           last_message_at: msg.created_at,
           direction: msg.direction,
-          unread_count: 0 // Could track this with a separate field
+          unread_count: 0, // Could track this with a separate field
         })
       }
     }
@@ -71,17 +77,22 @@ export async function getConversations(clinic: string): Promise<{ data: WhatsApp
     logger.error('Error loading WhatsApp conversations', {
       tenantId: profile.tenant_id,
       userId: user.id,
-      error: e instanceof Error ? e.message : String(e)
+      error: e instanceof Error ? e.message : String(e),
     })
     return { error: 'Error al cargar conversaciones' }
   }
 }
 
 // Get messages for a conversation
-export async function getMessages(clinic: string, phoneNumber: string): Promise<{ data: WhatsAppMessage[] } | { error: string }> {
+export async function getMessages(
+  clinic: string,
+  phoneNumber: string
+): Promise<{ data: WhatsAppMessage[] } | { error: string }> {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) {
     return { error: 'No autorizado' }
   }
@@ -99,10 +110,12 @@ export async function getMessages(clinic: string, phoneNumber: string): Promise<
   try {
     const { data: messages, error } = await supabase
       .from('whatsapp_messages')
-      .select(`
+      .select(
+        `
         *,
         client:profiles!whatsapp_messages_client_id_fkey(id, full_name, phone)
-      `)
+      `
+      )
       .eq('tenant_id', clinic)
       .eq('phone_number', phoneNumber)
       .order('created_at', { ascending: true })
@@ -111,10 +124,11 @@ export async function getMessages(clinic: string, phoneNumber: string): Promise<
     if (error) throw error
 
     // Transform client arrays
-    const transformed = messages?.map(msg => ({
-      ...msg,
-      client: Array.isArray(msg.client) ? msg.client[0] : msg.client
-    })) || []
+    const transformed =
+      messages?.map((msg) => ({
+        ...msg,
+        client: Array.isArray(msg.client) ? msg.client[0] : msg.client,
+      })) || []
 
     return { data: transformed as WhatsAppMessage[] }
   } catch (e) {
@@ -122,17 +136,21 @@ export async function getMessages(clinic: string, phoneNumber: string): Promise<
       tenantId: profile.tenant_id,
       userId: user.id,
       phoneNumber,
-      error: e instanceof Error ? e.message : String(e)
+      error: e instanceof Error ? e.message : String(e),
     })
     return { error: 'Error al cargar mensajes' }
   }
 }
 
 // Send a WhatsApp message
-export async function sendMessage(formData: FormData): Promise<{ success: boolean; error?: string }> {
+export async function sendMessage(
+  formData: FormData
+): Promise<{ success: boolean; error?: string }> {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) {
     return { success: false, error: 'No autorizado' }
   }
@@ -172,7 +190,7 @@ export async function sendMessage(formData: FormData): Promise<{ success: boolea
   // Send via Twilio
   const result = await sendWhatsAppMessage({
     to: phone,
-    body: finalMessage
+    body: finalMessage,
   })
 
   // Log message to database
@@ -185,7 +203,7 @@ export async function sendMessage(formData: FormData): Promise<{ success: boolea
     status: result.success ? 'sent' : 'failed',
     twilio_sid: result.sid,
     error_message: result.error,
-    sent_at: result.success ? new Date().toISOString() : null
+    sent_at: result.success ? new Date().toISOString() : null,
   })
 
   if (dbError) {
@@ -193,7 +211,7 @@ export async function sendMessage(formData: FormData): Promise<{ success: boolea
       tenantId: profile.tenant_id,
       userId: user.id,
       phoneNumber: formatParaguayPhone(phone),
-      error: dbError.message
+      error: dbError.message,
     })
   }
 
@@ -206,10 +224,14 @@ export async function sendMessage(formData: FormData): Promise<{ success: boolea
 }
 
 // Get templates
-export async function getTemplates(clinic: string): Promise<{ data: WhatsAppTemplate[] } | { error: string }> {
+export async function getTemplates(
+  clinic: string
+): Promise<{ data: WhatsAppTemplate[] } | { error: string }> {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) {
     return { error: 'No autorizado' }
   }
@@ -239,17 +261,21 @@ export async function getTemplates(clinic: string): Promise<{ data: WhatsAppTemp
     logger.error('Error loading WhatsApp templates', {
       tenantId: profile.tenant_id,
       userId: user.id,
-      error: e instanceof Error ? e.message : String(e)
+      error: e instanceof Error ? e.message : String(e),
     })
     return { error: 'Error al cargar plantillas' }
   }
 }
 
 // Create template
-export async function createTemplate(formData: FormData): Promise<{ success: boolean; templateId?: string; error?: string }> {
+export async function createTemplate(
+  formData: FormData
+): Promise<{ success: boolean; templateId?: string; error?: string }> {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) {
     return { success: false, error: 'No autorizado' }
   }
@@ -279,7 +305,7 @@ export async function createTemplate(formData: FormData): Promise<{ success: boo
   } catch (e) {
     // Extract variables from content
     const matches = content.match(/{{(\w+)}}/g) || []
-    variables = [...new Set(matches.map(m => m.replace(/[{}]/g, '')))]
+    variables = [...new Set(matches.map((m) => m.replace(/[{}]/g, '')))]
   }
 
   try {
@@ -290,7 +316,7 @@ export async function createTemplate(formData: FormData): Promise<{ success: boo
         name,
         content,
         variables,
-        category: category || null
+        category: category || null,
       })
       .select()
       .single()
@@ -304,17 +330,22 @@ export async function createTemplate(formData: FormData): Promise<{ success: boo
       tenantId: profile.tenant_id,
       userId: user.id,
       templateName: name,
-      error: e instanceof Error ? e.message : String(e)
+      error: e instanceof Error ? e.message : String(e),
     })
     return { success: false, error: 'Error al crear plantilla' }
   }
 }
 
 // Update template
-export async function updateTemplate(templateId: string, formData: FormData): Promise<{ success: boolean; error?: string }> {
+export async function updateTemplate(
+  templateId: string,
+  formData: FormData
+): Promise<{ success: boolean; error?: string }> {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) {
     return { success: false, error: 'No autorizado' }
   }
@@ -343,7 +374,7 @@ export async function updateTemplate(templateId: string, formData: FormData): Pr
     variables = JSON.parse(variablesJson || '[]')
   } catch (e) {
     const matches = content.match(/{{(\w+)}}/g) || []
-    variables = [...new Set(matches.map(m => m.replace(/[{}]/g, '')))]
+    variables = [...new Set(matches.map((m) => m.replace(/[{}]/g, '')))]
   }
 
   try {
@@ -353,7 +384,7 @@ export async function updateTemplate(templateId: string, formData: FormData): Pr
         name,
         content,
         variables,
-        category: category || null
+        category: category || null,
       })
       .eq('id', templateId)
       .eq('tenant_id', profile.tenant_id)
@@ -367,17 +398,21 @@ export async function updateTemplate(templateId: string, formData: FormData): Pr
       tenantId: profile.tenant_id,
       userId: user.id,
       templateId,
-      error: e instanceof Error ? e.message : String(e)
+      error: e instanceof Error ? e.message : String(e),
     })
     return { success: false, error: 'Error al actualizar plantilla' }
   }
 }
 
 // Delete template (soft delete)
-export async function deleteTemplate(templateId: string): Promise<{ success: boolean; error?: string }> {
+export async function deleteTemplate(
+  templateId: string
+): Promise<{ success: boolean; error?: string }> {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) {
     return { success: false, error: 'No autorizado' }
   }
@@ -408,7 +443,7 @@ export async function deleteTemplate(templateId: string): Promise<{ success: boo
       tenantId: profile.tenant_id,
       userId: user.id,
       templateId,
-      error: e instanceof Error ? e.message : String(e)
+      error: e instanceof Error ? e.message : String(e),
     })
     return { success: false, error: 'Error al eliminar plantilla' }
   }
@@ -416,19 +451,23 @@ export async function deleteTemplate(templateId: string): Promise<{ success: boo
 
 // WhatsApp message stats
 export interface WhatsAppStats {
-  sentToday: number;
-  failedToday: number;
-  deliveredToday: number;
-  pendingToday: number;
-  totalThisWeek: number;
-  deliveryRate: number;
+  sentToday: number
+  failedToday: number
+  deliveredToday: number
+  pendingToday: number
+  totalThisWeek: number
+  deliveryRate: number
 }
 
 // Get WhatsApp message stats for dashboard
-export async function getWhatsAppStats(clinic: string): Promise<{ data: WhatsAppStats } | { error: string }> {
+export async function getWhatsAppStats(
+  clinic: string
+): Promise<{ data: WhatsAppStats } | { error: string }> {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) {
     return { error: 'No autorizado' }
   }
@@ -470,15 +509,16 @@ export async function getWhatsAppStats(clinic: string): Promise<{ data: WhatsApp
 
     // Calculate stats
     const sentToday = todayMessages?.length || 0
-    const failedToday = todayMessages?.filter(m => m.status === 'failed').length || 0
-    const deliveredToday = todayMessages?.filter(m => m.status === 'delivered' || m.status === 'read').length || 0
-    const pendingToday = todayMessages?.filter(m => m.status === 'pending' || m.status === 'sent').length || 0
+    const failedToday = todayMessages?.filter((m) => m.status === 'failed').length || 0
+    const deliveredToday =
+      todayMessages?.filter((m) => m.status === 'delivered' || m.status === 'read').length || 0
+    const pendingToday =
+      todayMessages?.filter((m) => m.status === 'pending' || m.status === 'sent').length || 0
 
     // Delivery rate (excluding pending)
     const completedMessages = sentToday - pendingToday
-    const deliveryRate = completedMessages > 0
-      ? Math.round((deliveredToday / completedMessages) * 100)
-      : 100
+    const deliveryRate =
+      completedMessages > 0 ? Math.round((deliveredToday / completedMessages) * 100) : 100
 
     return {
       data: {
@@ -487,14 +527,14 @@ export async function getWhatsAppStats(clinic: string): Promise<{ data: WhatsApp
         deliveredToday,
         pendingToday,
         totalThisWeek: weekTotal || 0,
-        deliveryRate
-      }
+        deliveryRate,
+      },
     }
   } catch (e) {
     logger.error('Error loading WhatsApp stats', {
       tenantId: profile.tenant_id,
       userId: user.id,
-      error: e instanceof Error ? e.message : String(e)
+      error: e instanceof Error ? e.message : String(e),
     })
     return { error: 'Error al cargar estadísticas' }
   }
@@ -502,17 +542,21 @@ export async function getWhatsAppStats(clinic: string): Promise<{ data: WhatsApp
 
 // TICKET-TYPE-004: Define proper type for client data
 interface ClientProfile {
-  id: string;
-  full_name: string | null;
-  phone: string | null;
-  tenant_id: string;
+  id: string
+  full_name: string | null
+  phone: string | null
+  tenant_id: string
 }
 
 // Find client by phone number
-export async function findClientByPhone(phone: string): Promise<{ data: ClientProfile | null } | { error: string }> {
+export async function findClientByPhone(
+  phone: string
+): Promise<{ data: ClientProfile | null } | { error: string }> {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) {
     return { error: 'No autorizado' }
   }
@@ -533,7 +577,7 @@ export async function findClientByPhone(phone: string): Promise<{ data: ClientPr
     logger.error('Error finding client by phone', {
       userId: user.id,
       phoneSearched: formattedPhone,
-      error: e instanceof Error ? e.message : String(e)
+      error: e instanceof Error ? e.message : String(e),
     })
     return { error: 'Error al buscar cliente' }
   }

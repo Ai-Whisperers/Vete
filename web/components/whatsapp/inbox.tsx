@@ -25,9 +25,7 @@ export function Inbox({ conversations, clinic }: InboxProps) {
   const [showTemplates, setShowTemplates] = useState(false)
 
   // Get selected conversation details
-  const selectedConversation = conversations.find(
-    (c) => c.phone_number === selectedPhone
-  )
+  const selectedConversation = conversations.find((c) => c.phone_number === selectedPhone)
 
   // Load messages for selected conversation
   const loadMessages = useCallback(async () => {
@@ -93,12 +91,14 @@ export function Inbox({ conversations, clinic }: InboxProps) {
   }
 
   return (
-    <div className="h-[calc(100vh-120px)] sm:h-[calc(100vh-200px)] min-h-[400px] sm:min-h-[500px] flex bg-white rounded-xl border border-gray-100 overflow-hidden">
+    <div className="flex h-[calc(100vh-120px)] min-h-[400px] overflow-hidden rounded-xl border border-gray-100 bg-white sm:h-[calc(100vh-200px)] sm:min-h-[500px]">
       {/* Conversation list */}
-      <div className={`w-full md:w-80 border-r border-gray-100 flex flex-col ${
-        selectedPhone ? 'hidden md:flex' : ''
-      }`}>
-        <div className="p-3 sm:p-4 border-b border-gray-100">
+      <div
+        className={`flex w-full flex-col border-r border-gray-100 md:w-80 ${
+          selectedPhone ? 'hidden md:flex' : ''
+        }`}
+      >
+        <div className="border-b border-gray-100 p-3 sm:p-4">
           <h2 className="font-bold text-[var(--text-primary)]">Conversaciones</h2>
           <p className="text-sm text-[var(--text-secondary)]">
             {conversations.length} chat{conversations.length !== 1 ? 's' : ''}
@@ -115,9 +115,7 @@ export function Inbox({ conversations, clinic }: InboxProps) {
       </div>
 
       {/* Message area */}
-      <div className={`flex-1 flex flex-col ${
-        !selectedPhone ? 'hidden md:flex' : ''
-      }`}>
+      <div className={`flex flex-1 flex-col ${!selectedPhone ? 'hidden md:flex' : ''}`}>
         {selectedPhone ? (
           <>
             <ConversationHeader
@@ -131,8 +129,8 @@ export function Inbox({ conversations, clinic }: InboxProps) {
             />
 
             {loading ? (
-              <div className="flex-1 flex items-center justify-center">
-                <Icons.Loader2 className="w-8 h-8 animate-spin text-[var(--primary)]" />
+              <div className="flex flex-1 items-center justify-center">
+                <Icons.Loader2 className="h-8 w-8 animate-spin text-[var(--primary)]" />
               </div>
             ) : (
               <MessageThread messages={messages} />
@@ -145,8 +143,8 @@ export function Inbox({ conversations, clinic }: InboxProps) {
             />
           </>
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center text-[var(--text-secondary)]">
-            <Icons.MessageSquare className="w-16 h-16 text-gray-200 mb-4" />
+          <div className="flex flex-1 flex-col items-center justify-center text-[var(--text-secondary)]">
+            <Icons.MessageSquare className="mb-4 h-16 w-16 text-gray-200" />
             <p className="text-lg font-medium">Selecciona una conversación</p>
             <p className="text-sm">o inicia un nuevo chat</p>
           </div>

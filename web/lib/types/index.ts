@@ -375,11 +375,7 @@ export type { ErrorCategory } from './errors'
 // NOTIFICATION TYPES
 // =============================================================================
 export { isNotificationType, getNotificationTypeLabel } from './notification'
-export type {
-  Notification,
-  NotificationType,
-  NotificationPreferences,
-} from './notification'
+export type { Notification, NotificationType, NotificationPreferences } from './notification'
 
 // =============================================================================
 // SETTINGS TYPES
@@ -400,11 +396,7 @@ export type {
 // AUDIT TYPES
 // =============================================================================
 export { isAuditAction } from './audit'
-export type {
-  AuditLog,
-  AuditAction,
-  AuditFilter,
-} from './audit'
+export type { AuditLog, AuditAction, AuditFilter } from './audit'
 
 // =============================================================================
 // REPORTS TYPES

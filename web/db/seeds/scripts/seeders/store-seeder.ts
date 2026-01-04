@@ -4,9 +4,9 @@
  * Seeds e-commerce data: brands, categories, products, inventory.
  */
 
-import type { SupabaseClient } from '@supabase/supabase-js';
-import { JsonSeeder, SeederOptions, SeederResult } from './base-seeder';
-import { createSeederResult } from '../utils/reporting';
+import type { SupabaseClient } from '@supabase/supabase-js'
+import { JsonSeeder, SeederOptions, SeederResult } from './base-seeder'
+import { createSeederResult } from '../utils/reporting'
 import {
   StoreBrandSchema,
   StoreBrand,
@@ -18,28 +18,28 @@ import {
   StoreProduct,
   StoreInventorySchema,
   StoreInventory,
-} from '@/lib/test-utils/schemas';
-import { upsertWithIdempotency, batchUpsertWithIdempotency } from '../utils/idempotency';
+} from '@/lib/test-utils/schemas'
+import { upsertWithIdempotency, batchUpsertWithIdempotency } from '../utils/idempotency'
 
 /**
  * Store Brands Seeder
  */
 export class StoreBrandSeeder extends JsonSeeder<StoreBrand> {
   getTableName(): string {
-    return 'store_brands';
+    return 'store_brands'
   }
 
   getSchema() {
-    return StoreBrandSchema;
+    return StoreBrandSchema
   }
 
   getJsonPath(): string {
-    return 'db/seeds/data/03-store/brands.json';
+    return 'db/seeds/data/03-store/brands.json'
   }
 
   extractData(json: unknown): unknown[] {
-    const data = json as { brands?: unknown[] };
-    return data.brands || [];
+    const data = json as { brands?: unknown[] }
+    return data.brands || []
   }
 }
 
@@ -50,82 +50,91 @@ export class StoreBrandSeeder extends JsonSeeder<StoreBrand> {
  */
 export class StoreCategorySeeder extends JsonSeeder<StoreCategory> {
   getTableName(): string {
-    return 'store_categories';
+    return 'store_categories'
   }
 
   getSchema() {
-    return StoreCategorySchema;
+    return StoreCategorySchema
   }
 
   getJsonPath(): string {
-    return 'db/seeds/data/03-store/categories.json';
+    return 'db/seeds/data/03-store/categories.json'
   }
 
   /**
    * Extract and flatten nested category tree
    */
   extractData(json: unknown): unknown[] {
-    const data = json as { categories?: unknown[] };
-    if (!data.categories || !Array.isArray(data.categories)) return [];
+    const data = json as { categories?: unknown[] }
+    if (!data.categories || !Array.isArray(data.categories)) return []
 
     // Recursively flatten the category tree
     const flatten = (cats: unknown[], parentSlug: string | null = null): unknown[] => {
-      if (!cats || !Array.isArray(cats)) return [];
+      if (!cats || !Array.isArray(cats)) return []
 
-      const result: unknown[] = [];
+      const result: unknown[] = []
       for (const cat of cats) {
-        const record = cat as Record<string, unknown>;
+        const record = cat as Record<string, unknown>
         // Extract subcategories before adding to result
-        const subcategories = record.subcategories as unknown[] | undefined;
+        const subcategories = record.subcategories as unknown[] | undefined
 
         // Create a clean record without subcategories
-        const cleanRecord = { ...record };
-        delete cleanRecord.subcategories;
+        const cleanRecord = { ...record }
+        delete cleanRecord.subcategories
 
-        result.push(cleanRecord);
+        result.push(cleanRecord)
 
         // Recursively add subcategories
         if (subcategories && Array.isArray(subcategories)) {
-          result.push(...flatten(subcategories, record.slug as string));
+          result.push(...flatten(subcategories, record.slug as string))
         }
       }
-      return result;
-    };
+      return result
+    }
 
-    return flatten(data.categories);
+    return flatten(data.categories)
   }
 
   /**
    * Pre-process to strip non-DB columns and sort by level
    */
   protected async preProcess(data: unknown[]): Promise<unknown[]> {
-    if (!data || !Array.isArray(data)) return [];
+    if (!data || !Array.isArray(data)) return []
 
     const dbColumns = [
-      'id', 'tenant_id', 'name', 'slug', 'description',
-      'parent_id', 'parent_slug', 'level', 'display_order',
-      'image_url', 'icon', 'is_active',
-    ];
+      'id',
+      'tenant_id',
+      'name',
+      'slug',
+      'description',
+      'parent_id',
+      'parent_slug',
+      'level',
+      'display_order',
+      'image_url',
+      'icon',
+      'is_active',
+    ]
 
     const cleaned = data.map((item) => {
-      const record = item as Record<string, unknown>;
-      const result: Record<string, unknown> = {};
+      const record = item as Record<string, unknown>
+      const result: Record<string, unknown> = {}
 
       for (const col of dbColumns) {
         if (col in record) {
-          result[col] = record[col];
+          result[col] = record[col]
         }
       }
 
-      return result;
-    });
+      return result
+    })
 
     // Sort by level to ensure parents are inserted before children
     return cleaned.sort((a, b) => {
-      const aLevel = (a as Record<string, unknown>).level as number || 0;
-      const bLevel = (b as Record<string, unknown>).level as number || 0;
-      return aLevel - bLevel;
-    });
+      const aLevel = ((a as Record<string, unknown>).level as number) || 0
+      const bLevel = ((b as Record<string, unknown>).level as number) || 0
+      return aLevel - bLevel
+    })
   }
 }
 
@@ -136,20 +145,20 @@ export class StoreCategorySeeder extends JsonSeeder<StoreCategory> {
  */
 export class SupplierSeeder extends JsonSeeder<Supplier> {
   getTableName(): string {
-    return 'suppliers';
+    return 'suppliers'
   }
 
   getSchema() {
-    return SupplierSchema;
+    return SupplierSchema
   }
 
   getJsonPath(): string {
-    return 'db/seeds/data/03-store/suppliers.json';
+    return 'db/seeds/data/03-store/suppliers.json'
   }
 
   extractData(json: unknown): unknown[] {
-    const data = json as { suppliers?: unknown[] };
-    return data.suppliers || [];
+    const data = json as { suppliers?: unknown[] }
+    return data.suppliers || []
   }
 
   /**
@@ -161,25 +170,25 @@ export class SupplierSeeder extends JsonSeeder<Supplier> {
    * - Map delivery_days -> delivery_time_days
    */
   protected async preProcess(data: unknown[]): Promise<unknown[]> {
-    if (!data || !Array.isArray(data)) return [];
+    if (!data || !Array.isArray(data)) return []
 
     return data.map((item) => {
-      const record = item as Record<string, unknown>;
+      const record = item as Record<string, unknown>
 
       // Build contact_info JSONB from individual fields
-      const contactInfo: Record<string, unknown> = {};
-      if (record.phone) contactInfo.phone = record.phone;
-      if (record.whatsapp) contactInfo.whatsapp = record.whatsapp;
-      if (record.email) contactInfo.email = record.email;
-      if (record.address) contactInfo.address = record.address;
-      if (record.city) contactInfo.city = record.city;
-      if (record.contact_name) contactInfo.contact_person = record.contact_name;
-      if (record.contact_position) contactInfo.contact_position = record.contact_position;
+      const contactInfo: Record<string, unknown> = {}
+      if (record.phone) contactInfo.phone = record.phone
+      if (record.whatsapp) contactInfo.whatsapp = record.whatsapp
+      if (record.email) contactInfo.email = record.email
+      if (record.address) contactInfo.address = record.address
+      if (record.city) contactInfo.city = record.city
+      if (record.contact_name) contactInfo.contact_person = record.contact_name
+      if (record.contact_position) contactInfo.contact_position = record.contact_position
 
       // Map supplier_type
-      let supplierType = 'products';
-      if (record.type === 'Servicios') supplierType = 'services';
-      else if (record.type === 'Ambos' || record.type === 'Both') supplierType = 'both';
+      let supplierType = 'products'
+      if (record.type === 'Servicios') supplierType = 'services'
+      else if (record.type === 'Ambos' || record.type === 'Both') supplierType = 'both'
 
       return {
         name: record.name,
@@ -192,8 +201,8 @@ export class SupplierSeeder extends JsonSeeder<Supplier> {
         payment_terms: record.payment_terms,
         delivery_time_days: record.delivery_days || record.delivery_time_days,
         is_active: record.active !== false && record.is_active !== false,
-      };
-    });
+      }
+    })
   }
 }
 
@@ -205,53 +214,53 @@ export class SupplierSeeder extends JsonSeeder<Supplier> {
  */
 export class StoreProductSeeder extends JsonSeeder<StoreProduct> {
   getTableName(): string {
-    return 'store_products';
+    return 'store_products'
   }
 
   getSchema() {
-    return StoreProductSchema;
+    return StoreProductSchema
   }
 
   getJsonPath(): string {
     // Not used - we load multiple files
-    return 'db/seeds/data/03-store/products';
+    return 'db/seeds/data/03-store/products'
   }
 
   extractData(_json: unknown): unknown[] {
     // Not used - see loadData
-    return [];
+    return []
   }
 
   async loadData(): Promise<unknown[]> {
-    const fs = await import('fs/promises');
-    const path = await import('path');
+    const fs = await import('fs/promises')
+    const path = await import('path')
 
-    const productsDir = path.resolve(process.cwd(), 'db/seeds/data/03-store/products');
-    const allProducts: unknown[] = [];
+    const productsDir = path.resolve(process.cwd(), 'db/seeds/data/03-store/products')
+    const allProducts: unknown[] = []
 
     try {
-      const files = await fs.readdir(productsDir);
-      const jsonFiles = files.filter((f) => f.endsWith('.json'));
+      const files = await fs.readdir(productsDir)
+      const jsonFiles = files.filter((f) => f.endsWith('.json'))
 
       for (const file of jsonFiles) {
-        const filePath = path.join(productsDir, file);
-        const content = await fs.readFile(filePath, 'utf-8');
-        const json = JSON.parse(content) as { products?: unknown[]; brand_slug?: string };
+        const filePath = path.join(productsDir, file)
+        const content = await fs.readFile(filePath, 'utf-8')
+        const json = JSON.parse(content) as { products?: unknown[]; brand_slug?: string }
 
         if (json.products) {
           // Attach file-level brand_slug to each product
           const products = json.products.map((p) => ({
             ...(p as Record<string, unknown>),
             _brand_slug: json.brand_slug,
-          }));
-          allProducts.push(...products);
+          }))
+          allProducts.push(...products)
         }
       }
     } catch (e) {
-      this.log(`Error loading products: ${e}`);
+      this.log(`Error loading products: ${e}`)
     }
 
-    return allProducts;
+    return allProducts
   }
 
   /**
@@ -261,90 +270,104 @@ export class StoreProductSeeder extends JsonSeeder<StoreProduct> {
    * 3. Strip non-DB columns
    */
   protected async preProcess(data: unknown[]): Promise<unknown[]> {
-    if (!data || !Array.isArray(data)) return [];
+    if (!data || !Array.isArray(data)) return []
 
     // Look up brands by slug
-    const { data: brands } = await this.client
-      .from('store_brands')
-      .select('id, slug');
-    const brandMap = new Map((brands || []).map((b) => [b.slug, b.id]));
+    const { data: brands } = await this.client.from('store_brands').select('id, slug')
+    const brandMap = new Map((brands || []).map((b) => [b.slug, b.id]))
 
     // Look up categories by slug
-    const { data: categories } = await this.client
-      .from('store_categories')
-      .select('id, slug');
-    const categoryMap = new Map((categories || []).map((c) => [c.slug, c.id]));
+    const { data: categories } = await this.client.from('store_categories').select('id, slug')
+    const categoryMap = new Map((categories || []).map((c) => [c.slug, c.id]))
 
     const dbColumns = [
-      'sku', 'barcode', 'name', 'description', 'short_description',
-      'category_id', 'brand_id',
-      'purchase_unit', 'sale_unit', 'conversion_factor',
-      'purchase_price', 'base_price', 'sale_price', 'cost_price',
-      'default_supplier_id', 'image_url', 'images',
-      'weight_grams', 'dimensions', 'attributes', 'target_species',
-      'is_active', 'is_featured', 'requires_prescription', 'display_order',
-    ];
+      'sku',
+      'barcode',
+      'name',
+      'description',
+      'short_description',
+      'category_id',
+      'brand_id',
+      'purchase_unit',
+      'sale_unit',
+      'conversion_factor',
+      'purchase_price',
+      'base_price',
+      'sale_price',
+      'cost_price',
+      'default_supplier_id',
+      'image_url',
+      'images',
+      'weight_grams',
+      'dimensions',
+      'attributes',
+      'target_species',
+      'is_active',
+      'is_featured',
+      'requires_prescription',
+      'display_order',
+    ]
 
-    const result: unknown[] = [];
+    const result: unknown[] = []
 
     for (const item of data) {
-      const record = item as Record<string, unknown>;
-      const variants = record.variants as unknown[] | undefined;
+      const record = item as Record<string, unknown>
+      const variants = record.variants as unknown[] | undefined
 
       // Resolve brand_id from slug
-      const brandSlug = record._brand_slug || record.brand_slug;
-      const brandId = brandSlug ? brandMap.get(brandSlug as string) : null;
+      const brandSlug = record._brand_slug || record.brand_slug
+      const brandId = brandSlug ? brandMap.get(brandSlug as string) : null
 
       // Resolve category_id from slug
       const categoryId = record.category_slug
         ? categoryMap.get(record.category_slug as string)
-        : null;
+        : null
 
       // If has variants, expand each variant as a product
       if (variants && Array.isArray(variants) && variants.length > 0) {
         for (const variant of variants) {
-          const v = variant as Record<string, unknown>;
-          const cleaned: Record<string, unknown> = {};
+          const v = variant as Record<string, unknown>
+          const cleaned: Record<string, unknown> = {}
 
           // Copy allowed fields from product
           for (const col of dbColumns) {
             if (col in record && col !== 'variants') {
-              cleaned[col] = record[col];
+              cleaned[col] = record[col]
             }
           }
 
           // Override with variant fields
-          if (v.base_price != null) cleaned.base_price = v.base_price;
-          if (v.cost_price != null) cleaned.cost_price = v.cost_price;
-          if (v.sale_price != null) cleaned.sale_price = v.sale_price;
+          if (v.base_price != null) cleaned.base_price = v.base_price
+          if (v.cost_price != null) cleaned.cost_price = v.cost_price
+          if (v.sale_price != null) cleaned.sale_price = v.sale_price
           if (v.sku_suffix) {
-            cleaned.sku = `${record.sku}-${v.sku_suffix}`;
+            cleaned.sku = `${record.sku}-${v.sku_suffix}`
           }
 
           // Add resolved IDs
-          if (brandId) cleaned.brand_id = brandId;
-          if (categoryId) cleaned.category_id = categoryId;
+          if (brandId) cleaned.brand_id = brandId
+          if (categoryId) cleaned.category_id = categoryId
 
-          result.push(cleaned);
+          result.push(cleaned)
         }
       } else {
         // No variants - use product as-is
-        const cleaned: Record<string, unknown> = {};
+        const cleaned: Record<string, unknown> = {}
 
         for (const col of dbColumns) {
           if (col in record) {
-            cleaned[col] = record[col];
+            cleaned[col] = record[col]
           }
         }
 
-        if (brandId) cleaned.brand_id = brandId;
-        if (categoryId) cleaned.category_id = categoryId;
+        if (brandId) cleaned.brand_id = brandId
+        if (categoryId) cleaned.category_id = categoryId
 
-        result.push(cleaned);
+        result.push(cleaned)
       }
     }
 
-    return result;
+    return result
   }
 }
 
@@ -354,53 +377,53 @@ export class StoreProductSeeder extends JsonSeeder<StoreProduct> {
  * Creates inventory records for products in a specific tenant.
  */
 export class StoreInventorySeeder extends JsonSeeder<StoreInventory> {
-  private productIds: string[] = [];
+  private productIds: string[] = []
 
   getTableName(): string {
-    return 'store_inventory';
+    return 'store_inventory'
   }
 
   getSchema() {
-    return StoreInventorySchema;
+    return StoreInventorySchema
   }
 
   getJsonPath(): string {
-    return `db/seeds/data/03-store/tenant-products/${this.getTenantId()}.json`;
+    return `db/seeds/data/03-store/tenant-products/${this.getTenantId()}.json`
   }
 
   extractData(json: unknown): unknown[] {
-    const data = json as { products?: unknown[] };
-    return data.products || [];
+    const data = json as { products?: unknown[] }
+    return data.products || []
   }
 
   /**
    * Pre-process to look up product IDs by SKU
    */
   protected async preProcess(data: unknown[]): Promise<unknown[]> {
-    if (!data || !Array.isArray(data)) return [];
+    if (!data || !Array.isArray(data)) return []
     // Get all SKUs from data
-    const skus = data.map((item) => (item as Record<string, unknown>).sku as string);
+    const skus = data.map((item) => (item as Record<string, unknown>).sku as string)
 
     // Look up product IDs
     const { data: products } = await this.client
       .from('store_products')
       .select('id, sku')
-      .in('sku', skus);
+      .in('sku', skus)
 
     if (!products || products.length === 0) {
-      this.log('No products found for inventory');
-      return [];
+      this.log('No products found for inventory')
+      return []
     }
 
-    const skuToId = new Map(products.map((p) => [p.sku, p.id]));
+    const skuToId = new Map(products.map((p) => [p.sku, p.id]))
 
     return data
       .map((item) => {
-        const record = item as Record<string, unknown>;
-        const productId = skuToId.get(record.sku as string);
+        const record = item as Record<string, unknown>
+        const productId = skuToId.get(record.sku as string)
 
         if (!productId) {
-          return null; // Skip - product not found
+          return null // Skip - product not found
         }
 
         return {
@@ -410,9 +433,9 @@ export class StoreInventorySeeder extends JsonSeeder<StoreInventory> {
           min_stock_level: record.min_stock_level ?? 5,
           location: record.location ?? null,
           // Note: sale_price in JSON is for reference, not stored in inventory
-        };
+        }
       })
-      .filter(Boolean);
+      .filter(Boolean)
   }
 }
 
@@ -420,16 +443,16 @@ export class StoreInventorySeeder extends JsonSeeder<StoreInventory> {
  * Composite seeder for all store data
  */
 export class AllStoreSeeder {
-  private client: SupabaseClient;
-  private options: SeederOptions;
+  private client: SupabaseClient
+  private options: SeederOptions
 
   constructor(client: SupabaseClient, options: SeederOptions) {
-    this.client = client;
-    this.options = options;
+    this.client = client
+    this.options = options
   }
 
   async seed(): Promise<SeederResult[]> {
-    const results: SeederResult[] = [];
+    const results: SeederResult[] = []
 
     // Seed in dependency order
     const seeders = [
@@ -437,24 +460,17 @@ export class AllStoreSeeder {
       new StoreCategorySeeder(this.client, this.options),
       new SupplierSeeder(this.client, this.options),
       new StoreProductSeeder(this.client, this.options),
-    ];
+    ]
 
     // These don't need tenant_id
     for (const seeder of seeders) {
       try {
-        const result = await seeder.seed();
-        results.push(result);
+        const result = await seeder.seed()
+        results.push(result)
       } catch (e) {
-        const error = e instanceof Error ? e : new Error(String(e));
+        const error = e instanceof Error ? e : new Error(String(e))
         if (!error.message.includes('ENOENT')) {
-          results.push(createSeederResult(
-            seeder.getTableName(),
-            0,
-            0,
-            [{ error }],
-            [],
-            new Date()
-          ));
+          results.push(createSeederResult(seeder.getTableName(), 0, 0, [{ error }], [], new Date()))
         }
       }
     }
@@ -462,24 +478,17 @@ export class AllStoreSeeder {
     // Inventory needs tenant_id
     if (this.options.tenantId) {
       try {
-        const inventorySeeder = new StoreInventorySeeder(this.client, this.options);
-        const result = await inventorySeeder.seed();
-        results.push(result);
+        const inventorySeeder = new StoreInventorySeeder(this.client, this.options)
+        const result = await inventorySeeder.seed()
+        results.push(result)
       } catch (e) {
-        const error = e instanceof Error ? e : new Error(String(e));
+        const error = e instanceof Error ? e : new Error(String(e))
         if (!error.message.includes('ENOENT')) {
-          results.push(createSeederResult(
-            'store_inventory',
-            0,
-            0,
-            [{ error }],
-            [],
-            new Date()
-          ));
+          results.push(createSeederResult('store_inventory', 0, 0, [{ error }], [], new Date()))
         }
       }
     }
 
-    return results;
+    return results
   }
 }

@@ -1,24 +1,24 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
-import { apiError, HTTP_STATUS } from '@/lib/api/errors';
-import { logger } from '@/lib/logger';
+import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@/lib/supabase/server'
+import { apiError, HTTP_STATUS } from '@/lib/api/errors'
+import { logger } from '@/lib/logger'
 
-export type CampaignType = 'sale' | 'bogo' | 'bundle' | 'flash' | 'seasonal';
-export type CampaignDiscountType = 'percentage' | 'fixed_amount';
+export type CampaignType = 'sale' | 'bogo' | 'bundle' | 'flash' | 'seasonal'
+export type CampaignDiscountType = 'percentage' | 'fixed_amount'
 
 interface Campaign {
-  id: string;
-  tenant_id: string;
-  name: string;
-  description: string | null;
-  campaign_type: CampaignType;
-  discount_type: CampaignDiscountType;
-  discount_value: number;
-  start_date: string;
-  end_date: string;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
+  id: string
+  tenant_id: string
+  name: string
+  description: string | null
+  campaign_type: CampaignType
+  discount_type: CampaignDiscountType
+  discount_value: number
+  start_date: string
+  end_date: string
+  is_active: boolean
+  created_at: string
+  updated_at: string
 }
 
 /**
@@ -26,26 +26,28 @@ interface Campaign {
  * List all campaigns for the clinic
  */
 export async function GET(request: NextRequest): Promise<NextResponse> {
-  const { searchParams } = new URL(request.url);
-  const clinic = searchParams.get('clinic');
-  const status = searchParams.get('status') || 'all'; // all, active, scheduled, ended
-  const type = searchParams.get('type') || 'all';
-  const month = searchParams.get('month'); // YYYY-MM format for calendar view
-  const page = parseInt(searchParams.get('page') || '1', 10);
-  const limit = parseInt(searchParams.get('limit') || '50', 10);
+  const { searchParams } = new URL(request.url)
+  const clinic = searchParams.get('clinic')
+  const status = searchParams.get('status') || 'all' // all, active, scheduled, ended
+  const type = searchParams.get('type') || 'all'
+  const month = searchParams.get('month') // YYYY-MM format for calendar view
+  const page = parseInt(searchParams.get('page') || '1', 10)
+  const limit = parseInt(searchParams.get('limit') || '50', 10)
 
   if (!clinic) {
     return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
-      details: { message: 'Clinic parameter is required' }
-    });
+      details: { message: 'Clinic parameter is required' },
+    })
   }
 
-  const supabase = await createClient();
+  const supabase = await createClient()
 
   // Auth check
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) {
-    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED)
   }
 
   // Verify staff access
@@ -53,80 +55,77 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     .from('profiles')
     .select('tenant_id, role')
     .eq('id', user.id)
-    .single();
+    .single()
 
   if (!profile || profile.tenant_id !== clinic) {
-    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED)
   }
 
   if (profile.role !== 'vet' && profile.role !== 'admin') {
-    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
+    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN)
   }
 
   try {
-    const offset = (page - 1) * limit;
-    const now = new Date().toISOString();
+    const offset = (page - 1) * limit
+    const now = new Date().toISOString()
 
     let query = supabase
       .from('store_campaigns')
       .select('*', { count: 'exact' })
       .eq('tenant_id', clinic)
-      .is('deleted_at', null);
+      .is('deleted_at', null)
 
     // Apply status filter
     if (status === 'active') {
-      query = query
-        .eq('is_active', true)
-        .lte('start_date', now)
-        .gte('end_date', now);
+      query = query.eq('is_active', true).lte('start_date', now).gte('end_date', now)
     } else if (status === 'scheduled') {
-      query = query.gt('start_date', now);
+      query = query.gt('start_date', now)
     } else if (status === 'ended') {
-      query = query.lt('end_date', now);
+      query = query.lt('end_date', now)
     } else if (status === 'inactive') {
-      query = query.eq('is_active', false);
+      query = query.eq('is_active', false)
     }
 
     // Apply type filter
     if (type !== 'all') {
-      query = query.eq('campaign_type', type);
+      query = query.eq('campaign_type', type)
     }
 
     // Apply month filter for calendar view
     if (month) {
-      const [year, monthNum] = month.split('-').map(Number);
-      const startOfMonth = new Date(year, monthNum - 1, 1).toISOString();
-      const endOfMonth = new Date(year, monthNum, 0, 23, 59, 59).toISOString();
+      const [year, monthNum] = month.split('-').map(Number)
+      const startOfMonth = new Date(year, monthNum - 1, 1).toISOString()
+      const endOfMonth = new Date(year, monthNum, 0, 23, 59, 59).toISOString()
 
       // Get campaigns that overlap with the month
-      query = query
-        .lte('start_date', endOfMonth)
-        .gte('end_date', startOfMonth);
+      query = query.lte('start_date', endOfMonth).gte('end_date', startOfMonth)
     }
 
-    const { data: campaigns, error, count } = await query
-      .order('start_date', { ascending: false })
-      .range(offset, offset + limit - 1);
+    const {
+      data: campaigns,
+      error,
+      count,
+    } = await query.order('start_date', { ascending: false }).range(offset, offset + limit - 1)
 
-    if (error) throw error;
+    if (error) throw error
 
     // Get product counts for each campaign
-    const campaignIds = campaigns?.map(c => c.id) || [];
+    const campaignIds = campaigns?.map((c) => c.id) || []
     const { data: itemCounts } = await supabase
       .from('store_campaign_items')
       .select('campaign_id')
-      .in('campaign_id', campaignIds);
+      .in('campaign_id', campaignIds)
 
-    const countMap = new Map<string, number>();
-    itemCounts?.forEach(item => {
-      countMap.set(item.campaign_id, (countMap.get(item.campaign_id) || 0) + 1);
-    });
+    const countMap = new Map<string, number>()
+    itemCounts?.forEach((item) => {
+      countMap.set(item.campaign_id, (countMap.get(item.campaign_id) || 0) + 1)
+    })
 
-    const enrichedCampaigns = campaigns?.map(campaign => ({
+    const enrichedCampaigns = campaigns?.map((campaign) => ({
       ...campaign,
       product_count: countMap.get(campaign.id) || 0,
-      status: getCampaignStatus(campaign, now)
-    }));
+      status: getCampaignStatus(campaign, now),
+    }))
 
     return NextResponse.json({
       campaigns: enrichedCampaigns,
@@ -137,12 +136,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         pages: Math.ceil((count || 0) / limit),
         hasNext: page < Math.ceil((count || 0) / limit),
         hasPrev: page > 1,
-      }
-    });
-
+      },
+    })
   } catch (error) {
-    console.error('Error fetching campaigns:', error);
-    return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
+    console.error('Error fetching campaigns:', error)
+    return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
   }
 }
 
@@ -151,12 +149,14 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
  * Create a new campaign
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
-  const supabase = await createClient();
+  const supabase = await createClient()
 
   // Auth check
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) {
-    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED)
   }
 
   // Get profile
@@ -164,14 +164,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     .from('profiles')
     .select('tenant_id, role')
     .eq('id', user.id)
-    .single();
+    .single()
 
   if (!profile || (profile.role !== 'vet' && profile.role !== 'admin')) {
-    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
+    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN)
   }
 
   try {
-    const body = await request.json();
+    const body = await request.json()
     const {
       name,
       description,
@@ -181,41 +181,41 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       start_date,
       end_date,
       is_active = true,
-      product_ids = []
-    } = body;
+      product_ids = [],
+    } = body
 
     // Validation
     if (!name || !campaign_type || !discount_type || !discount_value || !start_date || !end_date) {
       return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
-        details: { message: 'Nombre, tipo, descuento, y fechas son requeridos' }
-      });
+        details: { message: 'Nombre, tipo, descuento, y fechas son requeridos' },
+      })
     }
 
-    const validTypes = ['sale', 'bogo', 'bundle', 'flash', 'seasonal'];
+    const validTypes = ['sale', 'bogo', 'bundle', 'flash', 'seasonal']
     if (!validTypes.includes(campaign_type)) {
       return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
-        details: { message: 'Tipo de campaña inválido' }
-      });
+        details: { message: 'Tipo de campaña inválido' },
+      })
     }
 
     if (!['percentage', 'fixed_amount'].includes(discount_type)) {
       return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
-        details: { message: 'Tipo de descuento inválido' }
-      });
+        details: { message: 'Tipo de descuento inválido' },
+      })
     }
 
     if (discount_type === 'percentage' && (discount_value <= 0 || discount_value > 100)) {
       return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
-        details: { message: 'El porcentaje debe estar entre 1 y 100' }
-      });
+        details: { message: 'El porcentaje debe estar entre 1 y 100' },
+      })
     }
 
-    const startDateObj = new Date(start_date);
-    const endDateObj = new Date(end_date);
+    const startDateObj = new Date(start_date)
+    const endDateObj = new Date(end_date)
     if (endDateObj <= startDateObj) {
       return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
-        details: { message: 'La fecha de fin debe ser posterior a la fecha de inicio' }
-      });
+        details: { message: 'La fecha de fin debe ser posterior a la fecha de inicio' },
+      })
     }
 
     // Create campaign
@@ -230,54 +230,53 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         discount_value,
         start_date: startDateObj.toISOString(),
         end_date: endDateObj.toISOString(),
-        is_active
+        is_active,
       })
       .select()
-      .single();
+      .single()
 
-    if (error) throw error;
+    if (error) throw error
 
     // Add products to campaign if provided
     if (product_ids.length > 0) {
       const campaignItems = product_ids.map((productId: string) => ({
         campaign_id: campaign.id,
         tenant_id: profile.tenant_id,
-        product_id: productId
-      }));
+        product_id: productId,
+      }))
 
       const { error: itemsError } = await supabase
         .from('store_campaign_items')
-        .insert(campaignItems);
+        .insert(campaignItems)
 
       if (itemsError) {
         logger.error('Error adding campaign items', {
           campaignId: campaign.id,
           tenantId: profile.tenant_id,
           productIds: product_ids,
-          error: itemsError.message
-        });
+          error: itemsError.message,
+        })
         // Rollback: delete the campaign since items failed
-        await supabase.from('store_campaigns').delete().eq('id', campaign.id);
+        await supabase.from('store_campaigns').delete().eq('id', campaign.id)
         return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
-          details: { message: 'Error al agregar productos a la campaña' }
-        });
+          details: { message: 'Error al agregar productos a la campaña' },
+        })
       }
     }
 
-    return NextResponse.json({ campaign }, { status: 201 });
-
+    return NextResponse.json({ campaign }, { status: 201 })
   } catch (error) {
     logger.error('Error creating campaign', {
       tenantId: profile.tenant_id,
-      error: error instanceof Error ? error.message : String(error)
-    });
-    return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
+      error: error instanceof Error ? error.message : String(error),
+    })
+    return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
   }
 }
 
 function getCampaignStatus(campaign: Campaign, now: string): string {
-  if (!campaign.is_active) return 'inactive';
-  if (campaign.end_date < now) return 'ended';
-  if (campaign.start_date > now) return 'scheduled';
-  return 'active';
+  if (!campaign.is_active) return 'inactive'
+  if (campaign.end_date < now) return 'ended'
+  if (campaign.start_date > now) return 'scheduled'
+  return 'active'
 }

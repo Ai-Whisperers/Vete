@@ -24,7 +24,9 @@ export async function getTimeOffTypes(clinicSlug: string): Promise<{
 }> {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) {
     return { types: [], error: 'No autorizado' }
   }
@@ -51,7 +53,7 @@ export async function getTimeOffTypes(clinicSlug: string): Promise<{
     logger.error('Failed to get time off types', {
       error,
       tenant: clinicSlug,
-      userId: user.id
+      userId: user.id,
     })
     return { types: [], error: 'Error al obtener tipos de ausencia' }
   }
@@ -81,7 +83,9 @@ export async function getTimeOffRequests(
 }> {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) {
     return { requests: [], error: 'No autorizado' }
   }
@@ -102,7 +106,8 @@ export async function getTimeOffRequests(
   // Build query
   let query = supabase
     .from('time_off_requests')
-    .select(`
+    .select(
+      `
       *,
       time_off_type:time_off_types(
         id,
@@ -116,7 +121,8 @@ export async function getTimeOffRequests(
         color_code,
         is_active
       )
-    `)
+    `
+    )
     .eq('tenant_id', clinicSlug)
     .order('start_date', { ascending: false })
 
@@ -157,7 +163,7 @@ export async function getTimeOffRequests(
     logger.error('Failed to get time off requests', {
       error,
       tenant: clinicSlug,
-      userId: user.id
+      userId: user.id,
     })
     return { requests: [], error: 'Error al obtener solicitudes' }
   }
@@ -167,9 +173,11 @@ export async function getTimeOffRequests(
   }
 
   // Get staff profile info for each request
-  const staffProfileIds = [...new Set(requests.map(r => r.staff_profile_id))]
-  const reviewerIds = [...new Set(requests.filter(r => r.reviewed_by).map(r => r.reviewed_by!))]
-  const coveringIds = [...new Set(requests.filter(r => r.covering_staff_id).map(r => r.covering_staff_id!))]
+  const staffProfileIds = [...new Set(requests.map((r) => r.staff_profile_id))]
+  const reviewerIds = [...new Set(requests.filter((r) => r.reviewed_by).map((r) => r.reviewed_by!))]
+  const coveringIds = [
+    ...new Set(requests.filter((r) => r.covering_staff_id).map((r) => r.covering_staff_id!)),
+  ]
 
   // Get staff profiles
   const { data: staffProfiles } = await supabase
@@ -178,7 +186,7 @@ export async function getTimeOffRequests(
     .in('id', staffProfileIds)
 
   // Get user profiles for staff
-  const userIds = staffProfiles?.map(sp => sp.user_id) || []
+  const userIds = staffProfiles?.map((sp) => sp.user_id) || []
   const allUserIds = [...new Set([...userIds, ...reviewerIds, ...coveringIds])]
 
   const { data: userProfiles } = await supabase
@@ -187,16 +195,16 @@ export async function getTimeOffRequests(
     .in('id', allUserIds)
 
   // Merge data
-  const requestsWithDetails = requests.map(request => {
-    const staffProfile = staffProfiles?.find(sp => sp.id === request.staff_profile_id)
+  const requestsWithDetails = requests.map((request) => {
+    const staffProfile = staffProfiles?.find((sp) => sp.id === request.staff_profile_id)
     const userProfile = staffProfile
-      ? userProfiles?.find(up => up.id === staffProfile.user_id)
+      ? userProfiles?.find((up) => up.id === staffProfile.user_id)
       : undefined
     const reviewer = request.reviewed_by
-      ? userProfiles?.find(up => up.id === request.reviewed_by)
+      ? userProfiles?.find((up) => up.id === request.reviewed_by)
       : undefined
     const coveringStaff = request.covering_staff_id
-      ? userProfiles?.find(up => up.id === request.covering_staff_id)
+      ? userProfiles?.find((up) => up.id === request.covering_staff_id)
       : undefined
 
     return {
@@ -207,10 +215,10 @@ export async function getTimeOffRequests(
         full_name: userProfile?.full_name || 'Sin nombre',
         job_title: staffProfile?.job_title,
         color_code: staffProfile?.color_code,
-        avatar_url: userProfile?.avatar_url
+        avatar_url: userProfile?.avatar_url,
       },
       reviewer: reviewer ? { full_name: reviewer.full_name } : null,
-      covering_staff: coveringStaff ? { full_name: coveringStaff.full_name } : null
+      covering_staff: coveringStaff ? { full_name: coveringStaff.full_name } : null,
     }
   })
 
@@ -226,7 +234,9 @@ export async function createTimeOffRequest(
 ): Promise<CalendarActionResult & { requestId?: string }> {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) {
     return { error: 'No autorizado' }
   }
@@ -272,7 +282,7 @@ export async function createTimeOffRequest(
 
     if (startDate < minNoticeDate) {
       return {
-        error: `Se requieren al menos ${timeOffType.min_notice_days} días de anticipación`
+        error: `Se requieren al menos ${timeOffType.min_notice_days} días de anticipación`,
       }
     }
   }
@@ -302,7 +312,7 @@ export async function createTimeOffRequest(
 
     if (usedDays + totalDays > timeOffType.max_days_per_year) {
       return {
-        error: `Excede el límite anual de ${timeOffType.max_days_per_year} días. Ya tienes ${usedDays} días solicitados.`
+        error: `Excede el límite anual de ${timeOffType.max_days_per_year} días. Ya tienes ${usedDays} días solicitados.`,
       }
     }
   }
@@ -336,7 +346,7 @@ export async function createTimeOffRequest(
       reason: data.reason || null,
       status,
       requested_at: new Date().toISOString(),
-      reviewed_at: !timeOffType.requires_approval ? new Date().toISOString() : null
+      reviewed_at: !timeOffType.requires_approval ? new Date().toISOString() : null,
     })
     .select('id')
     .single()
@@ -346,7 +356,7 @@ export async function createTimeOffRequest(
       error,
       tenant: clinicSlug,
       userId: user.id,
-      staffProfileId: staffProfile.id
+      staffProfileId: staffProfile.id,
     })
     return { error: 'Error al crear solicitud' }
   }
@@ -368,7 +378,9 @@ export async function updateTimeOffRequestStatus(
 ): Promise<CalendarActionResult> {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) {
     return { error: 'No autorizado' }
   }
@@ -407,7 +419,7 @@ export async function updateTimeOffRequestStatus(
       status,
       reviewed_by: user.id,
       reviewed_at: new Date().toISOString(),
-      review_notes: reviewNotes || null
+      review_notes: reviewNotes || null,
     })
     .eq('id', requestId)
 
@@ -416,7 +428,7 @@ export async function updateTimeOffRequestStatus(
       error: updateError,
       requestId,
       status,
-      reviewerId: user.id
+      reviewerId: user.id,
     })
     return { error: 'Error al actualizar solicitud' }
   }
@@ -434,7 +446,9 @@ export async function updateTimeOffRequestStatus(
 export async function cancelTimeOffRequest(requestId: string): Promise<CalendarActionResult> {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) {
     return { error: 'No autorizado' }
   }
@@ -442,12 +456,14 @@ export async function cancelTimeOffRequest(requestId: string): Promise<CalendarA
   // Get request with staff profile
   const { data: request } = await supabase
     .from('time_off_requests')
-    .select(`
+    .select(
+      `
       id,
       tenant_id,
       status,
       staff_profile:staff_profiles!inner(user_id)
-    `)
+    `
+    )
     .eq('id', requestId)
     .single()
 
@@ -489,7 +505,7 @@ export async function cancelTimeOffRequest(requestId: string): Promise<CalendarA
     logger.error('Failed to cancel time off request', {
       error: updateError,
       requestId,
-      userId: user.id
+      userId: user.id,
     })
     return { error: 'Error al cancelar solicitud' }
   }
@@ -516,7 +532,9 @@ export async function getTimeOffBalances(
 }> {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) {
     return { balances: [], error: 'No autorizado' }
   }
@@ -562,7 +580,8 @@ export async function getTimeOffBalances(
 
   const { data: balances, error } = await supabase
     .from('time_off_balances')
-    .select(`
+    .select(
+      `
       *,
       time_off_type:time_off_types(
         id,
@@ -576,7 +595,8 @@ export async function getTimeOffBalances(
         color_code,
         is_active
       )
-    `)
+    `
+    )
     .eq('staff_profile_id', targetStaffProfileId)
     .eq('year', currentYear)
 
@@ -585,7 +605,7 @@ export async function getTimeOffBalances(
       error,
       tenant: clinicSlug,
       userId: user.id,
-      staffProfileId: targetStaffProfileId
+      staffProfileId: targetStaffProfileId,
     })
     return { balances: [], error: 'Error al obtener saldos' }
   }
@@ -607,7 +627,9 @@ export async function getPendingTimeOffCount(clinicSlug: string): Promise<{
 }> {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) {
     return { count: 0, error: 'No autorizado' }
   }
@@ -633,7 +655,7 @@ export async function getPendingTimeOffCount(clinicSlug: string): Promise<{
     logger.error('Failed to get pending time off count', {
       error,
       tenant: clinicSlug,
-      userId: user.id
+      userId: user.id,
     })
     return { count: 0, error: 'Error al obtener conteo' }
   }

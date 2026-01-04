@@ -7,6 +7,7 @@ Your seed data setup has been completely transformed from a **SQL generation app
 ## 📊 Before vs After
 
 ### ❌ OLD Approach (SQL Generation)
+
 ```bash
 # Generated hardcoded SQL
 npx tsx db/seeds/scripts/seed-from-json.ts > db/seeds/generated-seed.sql
@@ -14,6 +15,7 @@ psql -f db/seeds/generated-seed.sql
 ```
 
 **Problems:**
+
 - Hardcoded UUIDs everywhere
 - No backend validation
 - Foreign key issues
@@ -21,6 +23,7 @@ psql -f db/seeds/generated-seed.sql
 - Not testing real workflows
 
 ### ✅ NEW Approach (API Calls)
+
 ```bash
 # Real API calls with backend-generated IDs
 npm run env:setup:demo
@@ -29,6 +32,7 @@ npm run env:setup:demo
 ```
 
 **Benefits:**
+
 - Backend generates all IDs
 - Full API validation
 - Real user workflows
@@ -38,6 +42,7 @@ npm run env:setup:demo
 ## 🔄 What Changed
 
 ### 1. **No More Hardcoded IDs**
+
 ```json
 // OLD: Hardcoded UUIDs
 {
@@ -54,6 +59,7 @@ npm run env:setup:demo
 ```
 
 ### 2. **API Calls Instead of SQL**
+
 ```typescript
 // OLD: Generate SQL INSERT
 INSERT INTO profiles (id, name) VALUES ('uuid-1', 'Ana');
@@ -64,18 +70,20 @@ await api.createProfile({ name: 'Ana' });
 ```
 
 ### 3. **Automatic ID Tracking**
+
 ```typescript
 // System tracks created IDs automatically
-const created = await api.createProfile(profileData);
-tracker.set('profile', 'original-json-id', created.id);
+const created = await api.createProfile(profileData)
+tracker.set('profile', 'original-json-id', created.id)
 
 // Later references are resolved automatically
-const appointmentData = { owner_id: 'original-json-id' };
-const resolved = tracker.resolveReferences(appointmentData);
+const appointmentData = { owner_id: 'original-json-id' }
+const resolved = tracker.resolveReferences(appointmentData)
 // Result: { owner_id: 'auto-generated-uuid' }
 ```
 
 ### 4. **Dependency-Aware Creation Order**
+
 ```
 1. Tenants → 2. Clinic Setup → 3. Profiles → 4. Pets → 5. Appointments
    ↓             ↓                    ↓            ↓            ↓
@@ -87,12 +95,14 @@ Core Data    Services,           Pet Owners   Pet Data    Medical
 ## 🚀 Quick Migration
 
 ### For Development
+
 ```bash
 # Instead of: npm run db:seeds
 npm run env:setup:full
 ```
 
 ### For Testing
+
 ```bash
 # Instead of: psql -f generated-seed.sql
 npm run env:setup:demo
@@ -102,6 +112,7 @@ npm run env:reset  # Clear all data + setup demo
 ```
 
 ### Clear Environment Data
+
 ```bash
 # Clear all data without recreating (for clean testing)
 npm run env:clear
@@ -113,6 +124,7 @@ npm run env:reset         # Clear + demo setup
 ```
 
 ### For Production
+
 ```bash
 # Instead of: manual SQL execution
 npx tsx db/seeds/scripts/setup-via-api.ts \
@@ -123,27 +135,28 @@ npx tsx db/seeds/scripts/setup-via-api.ts \
 
 ## 📋 Setup Types Comparison
 
-| Feature | OLD SQL | NEW Basic | NEW Full | NEW Demo |
-|---------|---------|-----------|----------|----------|
-| **Tenants** | ✅ | ✅ | ✅ | ✅ |
-| **Clinic Services** | ✅ | ✅ | ✅ | ✅ |
-| **Payment Methods** | ✅ | ✅ | ✅ | ✅ |
-| **Kennels** | ✅ | ✅ | ✅ | ✅ |
-| **QR Tags** | ✅ | ❌ | ✅ | ✅ |
-| **Pet Owners** | ✅ | ❌ | ✅ | ✅ |
-| **Pets** | ✅ | ❌ | ✅ | ✅ |
-| **Appointments** | ✅ | ❌ | ✅ | ✅ |
-| **Medical Records** | ✅ | ❌ | ❌ | ✅ |
-| **Vaccines** | ✅ | ❌ | ❌ | ✅ |
-| **Hospitalizations** | ✅ | ❌ | ❌ | ✅ |
-| **Store Catalog** | ✅ | ❌ | ❌ | ✅ |
-| **ID Generation** | Hardcoded | Backend | Backend | Backend |
-| **Validation** | None | Full API | Full API | Full API |
-| **Relationships** | Manual | Auto | Auto | Auto |
+| Feature              | OLD SQL   | NEW Basic | NEW Full | NEW Demo |
+| -------------------- | --------- | --------- | -------- | -------- |
+| **Tenants**          | ✅        | ✅        | ✅       | ✅       |
+| **Clinic Services**  | ✅        | ✅        | ✅       | ✅       |
+| **Payment Methods**  | ✅        | ✅        | ✅       | ✅       |
+| **Kennels**          | ✅        | ✅        | ✅       | ✅       |
+| **QR Tags**          | ✅        | ❌        | ✅       | ✅       |
+| **Pet Owners**       | ✅        | ❌        | ✅       | ✅       |
+| **Pets**             | ✅        | ❌        | ✅       | ✅       |
+| **Appointments**     | ✅        | ❌        | ✅       | ✅       |
+| **Medical Records**  | ✅        | ❌        | ❌       | ✅       |
+| **Vaccines**         | ✅        | ❌        | ❌       | ✅       |
+| **Hospitalizations** | ✅        | ❌        | ❌       | ✅       |
+| **Store Catalog**    | ✅        | ❌        | ❌       | ✅       |
+| **ID Generation**    | Hardcoded | Backend   | Backend  | Backend  |
+| **Validation**       | None      | Full API  | Full API | Full API |
+| **Relationships**    | Manual    | Auto      | Auto     | Auto     |
 
 ## 🛠️ Usage Examples
 
 ### Development Setup
+
 ```bash
 # Fast setup for development
 npm run env:setup:basic
@@ -151,6 +164,7 @@ npm run env:setup:basic
 ```
 
 ### Feature Testing
+
 ```bash
 # Complete clinic for testing
 npm run env:setup:full
@@ -158,6 +172,7 @@ npm run env:setup:full
 ```
 
 ### Demo Environment
+
 ```bash
 # Full showcase environment
 npm run env:setup:demo
@@ -165,6 +180,7 @@ npm run env:setup:demo
 ```
 
 ### Custom Environment
+
 ```bash
 # Production setup with custom settings
 npx tsx db/seeds/scripts/setup-via-api.ts \
@@ -177,18 +193,21 @@ npx tsx db/seeds/scripts/setup-via-api.ts \
 ## 🔧 Troubleshooting Migration
 
 ### "Entity already exists" errors
+
 ```bash
 # Add --no-skip to overwrite existing data
 npm run env:setup:demo -- --no-skip
 ```
 
 ### Authentication issues
+
 ```bash
 # Provide explicit admin token
 npm run env:setup:demo -- --token YOUR_TOKEN
 ```
 
 ### Network/API issues
+
 ```bash
 # Verify API is running and accessible
 curl http://localhost:3000/health
@@ -200,26 +219,31 @@ curl http://localhost:3000/health
 ## 📈 Benefits Achieved
 
 ### ✅ **Maintainability**
+
 - No more hardcoded ID management
 - JSON files are cleaner and more readable
 - Changes to data structure don't break references
 
 ### ✅ **Reliability**
+
 - Backend validation ensures data quality
 - Foreign key relationships maintained automatically
 - Business rules enforced during creation
 
 ### ✅ **Realism**
+
 - Data created through actual user workflows
 - API responses match real application behavior
 - Better testing of complete user journeys
 
 ### ✅ **Scalability**
+
 - Easy to add new entities and relationships
 - Automatic dependency resolution
 - No manual coordination of ID references
 
 ### ✅ **Developer Experience**
+
 - Simple commands replace complex SQL workflows
 - Clear progress reporting and error messages
 - Multiple setup scenarios for different needs
@@ -227,6 +251,7 @@ curl http://localhost:3000/health
 ## 🔮 Future Enhancements
 
 The new API-based approach enables:
+
 - **Parallel entity creation** for better performance
 - **Incremental updates** for existing environments
 - **Custom setup profiles** for different clinic types
@@ -236,12 +261,14 @@ The new API-based approach enables:
 ## 📞 Support
 
 ### Common Issues
+
 1. **API not running**: Ensure your backend is started
 2. **Authentication failed**: Check admin credentials or provide token
 3. **Tenant not found**: Create tenant first or use existing one
 4. **Entity conflicts**: Use `--no-skip` to overwrite or clean first
 
 ### Getting Help
+
 - Check the detailed README-API-SETUP.md
 - Review API logs for validation errors
 - Test individual API endpoints manually
@@ -260,6 +287,7 @@ The new API-based approach enables:
 - ✅ **Better maintainability** (cleaner, more reliable code)
 
 **Start using the new approach today:**
+
 ```bash
 npm run env:setup:full  # For development
 npm run env:setup:demo  # For testing/showcase

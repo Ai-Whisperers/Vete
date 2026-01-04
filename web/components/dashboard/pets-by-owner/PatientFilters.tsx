@@ -1,13 +1,13 @@
-"use client";
+'use client'
 
-import { Dog, Cat, Rabbit, X, ChevronDown } from "lucide-react";
-import type { FilterOptions } from "./types";
+import { Dog, Cat, Rabbit, X, ChevronDown } from 'lucide-react'
+import type { FilterOptions } from './types'
 
 interface PatientFiltersProps {
-  filters: FilterOptions;
-  onFilterChange: (key: keyof FilterOptions, value: string) => void;
-  onClearFilters: () => void;
-  hasActiveFilters: boolean;
+  filters: FilterOptions
+  onFilterChange: (key: keyof FilterOptions, value: string) => void
+  onClearFilters: () => void
+  hasActiveFilters: boolean
 }
 
 export function PatientFilters({
@@ -20,55 +20,55 @@ export function PatientFilters({
     <div className="space-y-3">
       {/* Species Filter - Toggle Buttons */}
       <div>
-        <label className="text-xs font-medium text-[var(--text-secondary)] mb-1.5 block">
+        <label className="mb-1.5 block text-xs font-medium text-[var(--text-secondary)]">
           Especie
         </label>
         <div className="flex gap-1">
           <button
             type="button"
-            onClick={() => onFilterChange("species", "all")}
-            className={`px-3 py-1.5 text-xs rounded-lg transition-colors ${
-              filters.species === "all"
-                ? "bg-[var(--primary)] text-white"
-                : "bg-[var(--bg-subtle)] text-[var(--text-secondary)] hover:bg-[var(--bg-muted)]"
+            onClick={() => onFilterChange('species', 'all')}
+            className={`rounded-lg px-3 py-1.5 text-xs transition-colors ${
+              filters.species === 'all'
+                ? 'bg-[var(--primary)] text-white'
+                : 'bg-[var(--bg-subtle)] text-[var(--text-secondary)] hover:bg-[var(--bg-muted)]'
             }`}
           >
             Todos
           </button>
           <button
             type="button"
-            onClick={() => onFilterChange("species", "dog")}
-            className={`px-3 py-1.5 text-xs rounded-lg transition-colors flex items-center gap-1 ${
-              filters.species === "dog"
-                ? "bg-blue-600 text-white"
-                : "bg-[var(--bg-subtle)] text-[var(--text-secondary)] hover:bg-[var(--bg-muted)]"
+            onClick={() => onFilterChange('species', 'dog')}
+            className={`flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs transition-colors ${
+              filters.species === 'dog'
+                ? 'bg-blue-600 text-white'
+                : 'bg-[var(--bg-subtle)] text-[var(--text-secondary)] hover:bg-[var(--bg-muted)]'
             }`}
           >
-            <Dog className="w-3 h-3" />
+            <Dog className="h-3 w-3" />
             Perros
           </button>
           <button
             type="button"
-            onClick={() => onFilterChange("species", "cat")}
-            className={`px-3 py-1.5 text-xs rounded-lg transition-colors flex items-center gap-1 ${
-              filters.species === "cat"
-                ? "bg-purple-600 text-white"
-                : "bg-[var(--bg-subtle)] text-[var(--text-secondary)] hover:bg-[var(--bg-muted)]"
+            onClick={() => onFilterChange('species', 'cat')}
+            className={`flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs transition-colors ${
+              filters.species === 'cat'
+                ? 'bg-purple-600 text-white'
+                : 'bg-[var(--bg-subtle)] text-[var(--text-secondary)] hover:bg-[var(--bg-muted)]'
             }`}
           >
-            <Cat className="w-3 h-3" />
+            <Cat className="h-3 w-3" />
             Gatos
           </button>
           <button
             type="button"
-            onClick={() => onFilterChange("species", "other")}
-            className={`px-3 py-1.5 text-xs rounded-lg transition-colors flex items-center gap-1 ${
-              filters.species === "other"
-                ? "bg-teal-600 text-white"
-                : "bg-[var(--bg-subtle)] text-[var(--text-secondary)] hover:bg-[var(--bg-muted)]"
+            onClick={() => onFilterChange('species', 'other')}
+            className={`flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs transition-colors ${
+              filters.species === 'other'
+                ? 'bg-teal-600 text-white'
+                : 'bg-[var(--bg-subtle)] text-[var(--text-secondary)] hover:bg-[var(--bg-muted)]'
             }`}
           >
-            <Rabbit className="w-3 h-3" />
+            <Rabbit className="h-3 w-3" />
             Otros
           </button>
         </div>
@@ -76,14 +76,14 @@ export function PatientFilters({
 
       {/* Vaccine Filter - Dropdown */}
       <div>
-        <label className="text-xs font-medium text-[var(--text-secondary)] mb-1.5 block">
+        <label className="mb-1.5 block text-xs font-medium text-[var(--text-secondary)]">
           Vacunas
         </label>
         <div className="relative">
           <select
             value={filters.vaccine}
-            onChange={(e) => onFilterChange("vaccine", e.target.value)}
-            className="w-full appearance-none px-3 py-2 pr-8 text-sm bg-[var(--bg-subtle)] border border-[var(--border-color)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
+            onChange={(e) => onFilterChange('vaccine', e.target.value)}
+            className="w-full appearance-none rounded-lg border border-[var(--border-color)] bg-[var(--bg-subtle)] px-3 py-2 pr-8 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
           >
             <option value="all">Todas</option>
             <option value="overdue">Vencidas</option>
@@ -91,20 +91,20 @@ export function PatientFilters({
             <option value="up-to-date">Al dia</option>
             <option value="none">Sin vacunas</option>
           </select>
-          <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-secondary)] pointer-events-none" />
+          <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--text-secondary)]" />
         </div>
       </div>
 
       {/* Last Visit Filter - Dropdown */}
       <div>
-        <label className="text-xs font-medium text-[var(--text-secondary)] mb-1.5 block">
+        <label className="mb-1.5 block text-xs font-medium text-[var(--text-secondary)]">
           Ultima visita
         </label>
         <div className="relative">
           <select
             value={filters.lastVisit}
-            onChange={(e) => onFilterChange("lastVisit", e.target.value)}
-            className="w-full appearance-none px-3 py-2 pr-8 text-sm bg-[var(--bg-subtle)] border border-[var(--border-color)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
+            onChange={(e) => onFilterChange('lastVisit', e.target.value)}
+            className="w-full appearance-none rounded-lg border border-[var(--border-color)] bg-[var(--bg-subtle)] px-3 py-2 pr-8 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
           >
             <option value="all">Todos</option>
             <option value="recent">&lt;30 dias</option>
@@ -113,45 +113,45 @@ export function PatientFilters({
             <option value="6+">&gt;6 meses</option>
             <option value="never">Nunca</option>
           </select>
-          <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-secondary)] pointer-events-none" />
+          <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--text-secondary)]" />
         </div>
       </div>
 
       {/* Neutered Filter - Toggle Buttons */}
       <div>
-        <label className="text-xs font-medium text-[var(--text-secondary)] mb-1.5 block">
+        <label className="mb-1.5 block text-xs font-medium text-[var(--text-secondary)]">
           Esterilizado
         </label>
         <div className="flex gap-1">
           <button
             type="button"
-            onClick={() => onFilterChange("neutered", "all")}
-            className={`px-3 py-1.5 text-xs rounded-lg transition-colors ${
-              filters.neutered === "all"
-                ? "bg-[var(--primary)] text-white"
-                : "bg-[var(--bg-subtle)] text-[var(--text-secondary)] hover:bg-[var(--bg-muted)]"
+            onClick={() => onFilterChange('neutered', 'all')}
+            className={`rounded-lg px-3 py-1.5 text-xs transition-colors ${
+              filters.neutered === 'all'
+                ? 'bg-[var(--primary)] text-white'
+                : 'bg-[var(--bg-subtle)] text-[var(--text-secondary)] hover:bg-[var(--bg-muted)]'
             }`}
           >
             Todos
           </button>
           <button
             type="button"
-            onClick={() => onFilterChange("neutered", "yes")}
-            className={`px-3 py-1.5 text-xs rounded-lg transition-colors ${
-              filters.neutered === "yes"
-                ? "bg-green-600 text-white"
-                : "bg-[var(--bg-subtle)] text-[var(--text-secondary)] hover:bg-[var(--bg-muted)]"
+            onClick={() => onFilterChange('neutered', 'yes')}
+            className={`rounded-lg px-3 py-1.5 text-xs transition-colors ${
+              filters.neutered === 'yes'
+                ? 'bg-green-600 text-white'
+                : 'bg-[var(--bg-subtle)] text-[var(--text-secondary)] hover:bg-[var(--bg-muted)]'
             }`}
           >
             Si
           </button>
           <button
             type="button"
-            onClick={() => onFilterChange("neutered", "no")}
-            className={`px-3 py-1.5 text-xs rounded-lg transition-colors ${
-              filters.neutered === "no"
-                ? "bg-gray-600 text-white"
-                : "bg-[var(--bg-subtle)] text-[var(--text-secondary)] hover:bg-[var(--bg-muted)]"
+            onClick={() => onFilterChange('neutered', 'no')}
+            className={`rounded-lg px-3 py-1.5 text-xs transition-colors ${
+              filters.neutered === 'no'
+                ? 'bg-gray-600 text-white'
+                : 'bg-[var(--bg-subtle)] text-[var(--text-secondary)] hover:bg-[var(--bg-muted)]'
             }`}
           >
             No
@@ -164,12 +164,12 @@ export function PatientFilters({
         <button
           type="button"
           onClick={onClearFilters}
-          className="w-full flex items-center justify-center gap-2 px-3 py-2 text-xs text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
+          className="flex w-full items-center justify-center gap-2 rounded-lg bg-red-50 px-3 py-2 text-xs text-red-600 transition-colors hover:bg-red-100"
         >
-          <X className="w-3 h-3" />
+          <X className="h-3 w-3" />
           Limpiar filtros
         </button>
       )}
     </div>
-  );
+  )
 }

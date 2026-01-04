@@ -10,19 +10,19 @@ import type { CalendarEvent, CalendarEventResource } from '@/lib/types/calendar'
 // =============================================================================
 
 const STATUS_ACCENT_COLORS = {
-  confirmed: '#22C55E',    // Green
-  scheduled: '#3B82F6',    // Blue
-  in_progress: '#A855F7',  // Purple
-  completed: '#9CA3AF',    // Gray
-  cancelled: '#EF4444',    // Red
-  no_show: '#F59E0B',      // Amber
+  confirmed: '#22C55E', // Green
+  scheduled: '#3B82F6', // Blue
+  in_progress: '#A855F7', // Purple
+  completed: '#9CA3AF', // Gray
+  cancelled: '#EF4444', // Red
+  no_show: '#F59E0B', // Amber
 } as const
 
 const EVENT_TYPE_ACCENT_COLORS = {
-  appointment: '#3B82F6',  // Blue
-  time_off: '#EC4899',     // Pink
-  shift: '#06B6D4',        // Cyan
-  block: '#6B7280',        // Gray
+  appointment: '#3B82F6', // Blue
+  time_off: '#EC4899', // Pink
+  shift: '#06B6D4', // Cyan
+  block: '#6B7280', // Gray
 } as const
 
 // =============================================================================

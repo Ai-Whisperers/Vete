@@ -1,15 +1,7 @@
 import { getClinicData } from '@/lib/clinics'
 import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
-import {
-  MessageSquare,
-  Plus,
-  Clock,
-  CheckCircle2,
-  AlertCircle,
-  Search,
-  Filter
-} from 'lucide-react'
+import { MessageSquare, Plus, Clock, CheckCircle2, AlertCircle, Search, Filter } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { getConversations } from '@/app/actions/messages'
@@ -38,71 +30,68 @@ export default async function MessagesPage({ params, searchParams }: Props) {
 
   if (!result.success) {
     if (result.error === 'Authentication required') {
-        redirect(`/${clinic}/portal/login`)
+      redirect(`/${clinic}/portal/login`)
     }
     return (
-        <div className="p-8 text-center bg-red-50 text-red-600 rounded-2xl mx-auto max-w-5xl mt-8">
-            <p className="font-bold">Error al cargar mensajes</p>
-            <p className="text-sm">{result.error}</p>
-        </div>
+      <div className="mx-auto mt-8 max-w-5xl rounded-2xl bg-red-50 p-8 text-center text-red-600">
+        <p className="font-bold">Error al cargar mensajes</p>
+        <p className="text-sm">{result.error}</p>
+      </div>
     )
   }
 
   const conversations = result.data as any[]
-  
+
   // Get context for isStaff check
   const authContext = await AuthService.getContext()
   const isStaff = authContext.isAuthenticated && ['vet', 'admin'].includes(authContext.profile.role)
 
   return (
     <div className="min-h-screen bg-[var(--bg-primary)]">
-      <div className="container mx-auto px-4 py-8 max-w-5xl">
+      <div className="container mx-auto max-w-5xl px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
+          <div className="mb-4 flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-[var(--text-primary)] mb-2">
-                Mensajes
-              </h1>
+              <h1 className="mb-2 text-3xl font-bold text-[var(--text-primary)]">Mensajes</h1>
               <p className="text-[var(--text-secondary)]">
                 {isStaff
                   ? 'Gestiona las conversaciones con tus clientes'
-                  : 'Comunícate con la clínica'
-                }
+                  : 'Comunícate con la clínica'}
               </p>
             </div>
             <Link
               href={`/${clinic}/portal/messages/new`}
-              className="flex items-center gap-2 px-4 py-2 bg-[var(--primary)] text-white rounded-lg hover:opacity-90 transition-opacity shadow-md"
+              className="flex items-center gap-2 rounded-lg bg-[var(--primary)] px-4 py-2 text-white shadow-md transition-opacity hover:opacity-90"
             >
-              <Plus className="w-5 h-5" />
+              <Plus className="h-5 w-5" />
               <span className="font-medium">Nueva Conversación</span>
             </Link>
           </div>
         </div>
 
         {/* Filters */}
-        <div className="mb-6 bg-white rounded-xl shadow-md p-4">
-          <div className="flex flex-col md:flex-row gap-4">
+        <div className="mb-6 rounded-xl bg-white p-4 shadow-md">
+          <div className="flex flex-col gap-4 md:flex-row">
             {/* Search */}
             <div className="flex-1">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[var(--text-tertiary)]" />
+                <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 transform text-[var(--text-tertiary)]" />
                 <input
                   type="text"
                   placeholder="Buscar por asunto o mensaje..."
                   defaultValue={search || ''}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
+                  className="w-full rounded-lg border border-gray-200 py-2 pl-10 pr-4 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
-                        const target = e.target as HTMLInputElement
-                        const params = new URLSearchParams(window.location.search)
-                        if (target.value) {
-                          params.set('search', target.value)
-                        } else {
-                          params.delete('search')
-                        }
-                        window.location.search = params.toString()
+                      const target = e.target as HTMLInputElement
+                      const params = new URLSearchParams(window.location.search)
+                      if (target.value) {
+                        params.set('search', target.value)
+                      } else {
+                        params.delete('search')
+                      }
+                      window.location.search = params.toString()
                     }
                   }}
                 />
@@ -111,10 +100,10 @@ export default async function MessagesPage({ params, searchParams }: Props) {
 
             {/* Status Filter */}
             <div className="flex items-center gap-2">
-              <Filter className="w-5 h-5 text-[var(--text-tertiary)]" />
+              <Filter className="h-5 w-5 text-[var(--text-tertiary)]" />
               <select
                 defaultValue={status || 'all'}
-                className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent bg-white"
+                className="rounded-lg border border-gray-200 bg-white px-4 py-2 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
                 onChange={(e) => {
                   const params = new URLSearchParams(window.location.search)
                   if (e.target.value !== 'all') {
@@ -137,22 +126,21 @@ export default async function MessagesPage({ params, searchParams }: Props) {
         {/* Conversations List */}
         <div className="space-y-3">
           {conversations.length === 0 ? (
-            <div className="bg-white rounded-xl shadow-md p-12 text-center">
-              <MessageSquare className="w-16 h-16 text-[var(--text-tertiary)] mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-[var(--text-primary)] mb-2">
+            <div className="rounded-xl bg-white p-12 text-center shadow-md">
+              <MessageSquare className="mx-auto mb-4 h-16 w-16 text-[var(--text-tertiary)]" />
+              <h3 className="mb-2 text-xl font-semibold text-[var(--text-primary)]">
                 No hay conversaciones
               </h3>
-              <p className="text-[var(--text-secondary)] mb-6">
+              <p className="mb-6 text-[var(--text-secondary)]">
                 {search
                   ? 'No se encontraron conversaciones con ese criterio de búsqueda.'
-                  : 'Inicia una nueva conversación para comenzar.'
-                }
+                  : 'Inicia una nueva conversación para comenzar.'}
               </p>
               <Link
                 href={`/${clinic}/portal/messages/new`}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--primary)] text-white rounded-lg hover:opacity-90 transition-opacity shadow-md"
+                className="inline-flex items-center gap-2 rounded-lg bg-[var(--primary)] px-6 py-3 text-white shadow-md transition-opacity hover:opacity-90"
               >
-                <Plus className="w-5 h-5" />
+                <Plus className="h-5 w-5" />
                 <span className="font-medium">Nueva Conversación</span>
               </Link>
             </div>
@@ -161,24 +149,24 @@ export default async function MessagesPage({ params, searchParams }: Props) {
               <Link
                 key={conversation.id}
                 href={`/${clinic}/portal/messages/${conversation.id}`}
-                className="block bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-5"
+                className="block rounded-xl bg-white p-5 shadow-md transition-shadow hover:shadow-lg"
               >
                 <div className="flex items-start gap-4">
                   {/* Unread Indicator */}
-                  <div className="flex-shrink-0 mt-1">
+                  <div className="mt-1 flex-shrink-0">
                     {conversation.unread_count > 0 ? (
-                      <div className="w-3 h-3 bg-blue-500 rounded-full" />
+                      <div className="h-3 w-3 rounded-full bg-blue-500" />
                     ) : (
-                      <div className="w-3 h-3 bg-transparent rounded-full border-2 border-gray-200" />
+                      <div className="h-3 w-3 rounded-full border-2 border-gray-200 bg-transparent" />
                     )}
                   </div>
 
                   {/* Content */}
-                  <div className="flex-1 min-w-0">
+                  <div className="min-w-0 flex-1">
                     {/* Header Row */}
-                    <div className="flex items-start justify-between gap-4 mb-2">
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-1 truncate">
+                    <div className="mb-2 flex items-start justify-between gap-4">
+                      <div className="min-w-0 flex-1">
+                        <h3 className="mb-1 truncate text-lg font-semibold text-[var(--text-primary)]">
                           {conversation.subject}
                         </h3>
                         <p className="text-sm text-[var(--text-secondary)]">
@@ -188,7 +176,10 @@ export default async function MessagesPage({ params, searchParams }: Props) {
                             <span className="font-medium">Clínica {clinicData.config.name}</span>
                           )}
                           {isStaff && conversation.staff_name && (
-                            <span className="text-[var(--text-tertiary)]"> · Asignado a {conversation.staff_name}</span>
+                            <span className="text-[var(--text-tertiary)]">
+                              {' '}
+                              · Asignado a {conversation.staff_name}
+                            </span>
                           )}
                         </p>
                       </div>
@@ -196,20 +187,20 @@ export default async function MessagesPage({ params, searchParams }: Props) {
                       {/* Status Badge */}
                       <div className="flex-shrink-0">
                         {conversation.status === 'open' && (
-                          <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
-                            <CheckCircle2 className="w-4 h-4" />
+                          <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-700">
+                            <CheckCircle2 className="h-4 w-4" />
                             Abierto
                           </span>
                         )}
                         {conversation.status === 'pending' && (
-                          <span className="inline-flex items-center gap-1 px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm font-medium">
-                            <Clock className="w-4 h-4" />
+                          <span className="inline-flex items-center gap-1 rounded-full bg-yellow-100 px-3 py-1 text-sm font-medium text-yellow-700">
+                            <Clock className="h-4 w-4" />
                             Pendiente
                           </span>
                         )}
                         {conversation.status === 'closed' && (
-                          <span className="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-medium">
-                            <AlertCircle className="w-4 h-4" />
+                          <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-700">
+                            <AlertCircle className="h-4 w-4" />
                             Cerrado
                           </span>
                         )}
@@ -218,7 +209,7 @@ export default async function MessagesPage({ params, searchParams }: Props) {
 
                     {/* Last Message Preview */}
                     {conversation.last_message_preview && (
-                      <p className="text-[var(--text-secondary)] text-sm mb-2 line-clamp-2">
+                      <p className="mb-2 line-clamp-2 text-sm text-[var(--text-secondary)]">
                         {conversation.last_message_preview}
                       </p>
                     )}
@@ -226,7 +217,7 @@ export default async function MessagesPage({ params, searchParams }: Props) {
                     {/* Footer Row */}
                     <div className="flex items-center gap-4 text-xs text-[var(--text-tertiary)]">
                       <div className="flex items-center gap-1">
-                        <Clock className="w-3.5 h-3.5" />
+                        <Clock className="h-3.5 w-3.5" />
                         <span>
                           {conversation.last_message_at
                             ? formatDistanceToNow(new Date(conversation.last_message_at), {
@@ -236,14 +227,16 @@ export default async function MessagesPage({ params, searchParams }: Props) {
                             : formatDistanceToNow(new Date(conversation.created_at), {
                                 addSuffix: true,
                                 locale: es,
-                              })
-                          }
+                              })}
                         </span>
                       </div>
                       {conversation.unread_count > 0 && (
-                        <div className="flex items-center gap-1 text-blue-600 font-medium">
-                          <MessageSquare className="w-3.5 h-3.5" />
-                          <span>{conversation.unread_count} nuevo{conversation.unread_count > 1 ? 's' : ''}</span>
+                        <div className="flex items-center gap-1 font-medium text-blue-600">
+                          <MessageSquare className="h-3.5 w-3.5" />
+                          <span>
+                            {conversation.unread_count} nuevo
+                            {conversation.unread_count > 1 ? 's' : ''}
+                          </span>
                         </div>
                       )}
                     </div>
@@ -256,21 +249,21 @@ export default async function MessagesPage({ params, searchParams }: Props) {
 
         {/* Stats Summary */}
         {conversations.length > 0 && (
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-white rounded-xl shadow-md p-4 text-center">
-              <div className="text-2xl font-bold text-[var(--primary)] mb-1">
-                {conversations.filter(c => c.status === 'open').length}
+          <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-3">
+            <div className="rounded-xl bg-white p-4 text-center shadow-md">
+              <div className="mb-1 text-2xl font-bold text-[var(--primary)]">
+                {conversations.filter((c) => c.status === 'open').length}
               </div>
               <div className="text-sm text-[var(--text-secondary)]">Abiertos</div>
             </div>
-            <div className="bg-white rounded-xl shadow-md p-4 text-center">
-              <div className="text-2xl font-bold text-yellow-600 mb-1">
-                {conversations.filter(c => c.status === 'pending').length}
+            <div className="rounded-xl bg-white p-4 text-center shadow-md">
+              <div className="mb-1 text-2xl font-bold text-yellow-600">
+                {conversations.filter((c) => c.status === 'pending').length}
               </div>
               <div className="text-sm text-[var(--text-secondary)]">Pendientes</div>
             </div>
-            <div className="bg-white rounded-xl shadow-md p-4 text-center">
-              <div className="text-2xl font-bold text-blue-600 mb-1">
+            <div className="rounded-xl bg-white p-4 text-center shadow-md">
+              <div className="mb-1 text-2xl font-bold text-blue-600">
                 {conversations.reduce((sum, c) => sum + c.unread_count, 0)}
               </div>
               <div className="text-sm text-[var(--text-secondary)]">Mensajes sin leer</div>

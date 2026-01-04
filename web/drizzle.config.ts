@@ -1,22 +1,22 @@
-import { defineConfig } from "drizzle-kit";
-import * as dotenv from "dotenv";
+import { defineConfig } from 'drizzle-kit'
+import * as dotenv from 'dotenv'
 
-dotenv.config({ path: ".env.local" });
+dotenv.config({ path: '.env.local' })
 
 // Validate DATABASE_URL exists
-const DATABASE_URL = process.env.DATABASE_URL;
+const DATABASE_URL = process.env.DATABASE_URL
 if (!DATABASE_URL) {
-  throw new Error('[Drizzle Config] Missing required DATABASE_URL environment variable');
+  throw new Error('[Drizzle Config] Missing required DATABASE_URL environment variable')
 }
 
-export { DATABASE_URL };
+export { DATABASE_URL }
 
 export default defineConfig({
-  schema: "./db/schema/index.ts",
-  out: "./db/migrations",
-  dialect: "postgresql",
+  schema: './db/schema/index.ts',
+  out: './db/migrations',
+  dialect: 'postgresql',
   dbCredentials: {
     url: DATABASE_URL,
   },
-  tablesFilter: ["tenants", "profiles", "vete_*"],
-});
+  tablesFilter: ['tenants', 'profiles', 'vete_*'],
+})

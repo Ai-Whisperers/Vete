@@ -1,96 +1,106 @@
-"use client";
+'use client'
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { DASHBOARD_ICONS } from '@/lib/icons';
+import { useEffect, useState } from 'react'
+import Link from 'next/link'
+import { DASHBOARD_ICONS } from '@/lib/icons'
 
 interface DashboardStats {
-  total_pets: number;
-  appointments_today: number;
-  pending_vaccines: number;
-  pending_invoices: number;
-  pending_amount: number;
-  pets_change?: number;
-  appointments_change?: number;
-  completed_today?: number;
+  total_pets: number
+  appointments_today: number
+  pending_vaccines: number
+  pending_invoices: number
+  pending_amount: number
+  pets_change?: number
+  appointments_change?: number
+  completed_today?: number
 }
 
 interface StatsCardsProps {
-  clinic: string;
+  clinic: string
 }
 
 interface StatCardConfig {
-  title: string;
-  value: number;
-  icon: typeof DASHBOARD_ICONS.users;
-  href: string;
-  gradient: string;
-  iconBg: string;
-  change?: number;
-  changeLabel?: string;
-  subvalue?: string;
-  alert?: boolean;
-  alertMessage?: string;
-  progress?: number;
+  title: string
+  value: number
+  icon: typeof DASHBOARD_ICONS.users
+  href: string
+  gradient: string
+  iconBg: string
+  change?: number
+  changeLabel?: string
+  subvalue?: string
+  alert?: boolean
+  alertMessage?: string
+  progress?: number
 }
 
 function TrendIndicator({ change, label }: { change?: number; label?: string }) {
-  if (change === undefined) return null;
+  if (change === undefined) return null
 
-  const isPositive = change > 0;
-  const isNeutral = change === 0;
+  const isPositive = change > 0
+  const isNeutral = change === 0
 
   const Icon = isNeutral
     ? DASHBOARD_ICONS.minus
     : isPositive
       ? DASHBOARD_ICONS.trendingUp
-      : DASHBOARD_ICONS.trendingDown;
+      : DASHBOARD_ICONS.trendingDown
 
   const colorClass = isNeutral
     ? 'text-[var(--text-muted)] bg-[var(--bg-subtle)]'
     : isPositive
       ? 'text-[var(--status-success)] bg-[var(--status-success-bg)]'
-      : 'text-[var(--status-error)] bg-[var(--status-error-bg)]';
+      : 'text-[var(--status-error)] bg-[var(--status-error-bg)]'
 
   return (
-    <div className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${colorClass}`}>
-      <Icon className="w-3 h-3" />
+    <div
+      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${colorClass}`}
+    >
+      <Icon className="h-3 w-3" />
       <span>{isNeutral ? '0%' : `${isPositive ? '+' : ''}${change}%`}</span>
-      {label && <span className="text-[var(--text-muted)] ml-1">{label}</span>}
+      {label && <span className="ml-1 text-[var(--text-muted)]">{label}</span>}
     </div>
-  );
+  )
 }
 
-function ProgressBar({ value, max = 100, colorClass }: { value: number; max?: number; colorClass: string }) {
-  const percentage = Math.min((value / max) * 100, 100);
+function ProgressBar({
+  value,
+  max = 100,
+  colorClass,
+}: {
+  value: number
+  max?: number
+  colorClass: string
+}) {
+  const percentage = Math.min((value / max) * 100, 100)
 
   return (
-    <div className="w-full h-1.5 bg-white/30 rounded-full overflow-hidden">
+    <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/30">
       <div
         className={`h-full rounded-full transition-all duration-500 ${colorClass}`}
         style={{ width: `${percentage}%` }}
       />
     </div>
-  );
+  )
 }
 
 function StatCard({ card, clinic }: { card: StatCardConfig; clinic: string }) {
-  const Icon = card.icon;
+  const Icon = card.icon
 
   return (
     <Link
       href={card.href}
-      className={`group relative overflow-hidden rounded-2xl p-5 shadow-sm border border-white/20 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 ${card.gradient}`}
+      className={`group relative overflow-hidden rounded-2xl border border-white/20 p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg ${card.gradient}`}
     >
       {/* Background decoration - increased opacity for premium feel */}
-      <div className="absolute top-0 right-0 w-32 h-32 opacity-20">
-        <Icon className="w-full h-full text-white" />
+      <div className="absolute right-0 top-0 h-32 w-32 opacity-20">
+        <Icon className="h-full w-full text-white" />
       </div>
 
       {/* Alert badge */}
       {card.alert && (
-        <div className="absolute top-3 right-3 flex items-center gap-1 bg-red-500 text-white text-xs px-2 py-1 rounded-full animate-pulse">
-          <DASHBOARD_ICONS.alertTriangle className="w-3 h-3" />
+        <div className="absolute right-3 top-3 flex animate-pulse items-center gap-1 rounded-full bg-red-500 px-2 py-1 text-xs text-white">
+          <DASHBOARD_ICONS.alertTriangle className="h-3 w-3" />
           <span>{card.alertMessage || 'Atención'}</span>
         </div>
       )}
@@ -98,22 +108,22 @@ function StatCard({ card, clinic }: { card: StatCardConfig; clinic: string }) {
       {/* Content */}
       <div className="relative z-10">
         {/* Header */}
-        <div className="flex items-start justify-between mb-3">
-          <div className={`p-2.5 rounded-xl ${card.iconBg} shadow-sm`}>
-            <Icon className="w-5 h-5 text-white" />
+        <div className="mb-3 flex items-start justify-between">
+          <div className={`rounded-xl p-2.5 ${card.iconBg} shadow-sm`}>
+            <Icon className="h-5 w-5 text-white" />
           </div>
-          <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <DASHBOARD_ICONS.arrowUpRight className="w-5 h-5 text-white/70" />
+          <div className="opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+            <DASHBOARD_ICONS.arrowUpRight className="h-5 w-5 text-white/70" />
           </div>
         </div>
 
         {/* Value */}
         <div className="mb-1">
-          <p className="text-3xl font-bold text-white tracking-tight">
+          <p className="text-3xl font-bold tracking-tight text-white">
             {card.value.toLocaleString()}
           </p>
           {card.subvalue && (
-            <p className="text-sm text-white/80 font-medium mt-0.5">{card.subvalue}</p>
+            <p className="mt-0.5 text-sm font-medium text-white/80">{card.subvalue}</p>
           )}
         </div>
 
@@ -133,55 +143,55 @@ function StatCard({ card, clinic }: { card: StatCardConfig; clinic: string }) {
         )}
       </div>
     </Link>
-  );
+  )
 }
 
 function LoadingSkeleton() {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {[...Array(4)].map((_, i) => (
         <div
           key={i}
-          className="animate-pulse rounded-2xl p-5 bg-gradient-to-br from-[var(--bg-subtle)] to-[var(--bg-subtle)]/80"
+          className="to-[var(--bg-subtle)]/80 animate-pulse rounded-2xl bg-gradient-to-br from-[var(--bg-subtle)] p-5"
         >
-          <div className="flex items-start justify-between mb-3">
-            <div className="w-10 h-10 bg-[var(--border-default)] rounded-xl" />
+          <div className="mb-3 flex items-start justify-between">
+            <div className="h-10 w-10 rounded-xl bg-[var(--border-default)]" />
           </div>
-          <div className="h-9 bg-[var(--border-default)] rounded w-20 mb-2" />
-          <div className="h-4 bg-[var(--border-default)] rounded w-28" />
+          <div className="mb-2 h-9 w-20 rounded bg-[var(--border-default)]" />
+          <div className="h-4 w-28 rounded bg-[var(--border-default)]" />
         </div>
       ))}
     </div>
-  );
+  )
 }
 
 export function StatsCards({ clinic }: StatsCardsProps) {
-  const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState<DashboardStats | null>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await fetch(`/api/dashboard/stats?clinic=${clinic}`);
+        const res = await fetch(`/api/dashboard/stats?clinic=${clinic}`)
         if (res.ok) {
-          const data = await res.json();
-          setStats(data);
+          const data = await res.json()
+          setStats(data)
         }
       } catch {
         // Error fetching stats - silently fail
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
-    fetchStats();
+    fetchStats()
     // Refresh every 2 minutes for more real-time feel
-    const interval = setInterval(fetchStats, 2 * 60 * 1000);
-    return () => clearInterval(interval);
-  }, [clinic]);
+    const interval = setInterval(fetchStats, 2 * 60 * 1000)
+    return () => clearInterval(interval)
+  }, [clinic])
 
   if (loading) {
-    return <LoadingSkeleton />;
+    return <LoadingSkeleton />
   }
 
   const cards: StatCardConfig[] = [
@@ -204,9 +214,10 @@ export function StatsCards({ clinic }: StatsCardsProps) {
       iconBg: 'bg-emerald-600/50',
       change: stats?.appointments_change,
       changeLabel: 'vs ayer',
-      progress: stats?.completed_today !== undefined
-        ? (stats.completed_today / Math.max(stats.appointments_today, 1)) * 100
-        : undefined,
+      progress:
+        stats?.completed_today !== undefined
+          ? (stats.completed_today / Math.max(stats.appointments_today, 1)) * 100
+          : undefined,
     },
     {
       title: 'Vacunas Pendientes',
@@ -225,17 +236,15 @@ export function StatsCards({ clinic }: StatsCardsProps) {
       href: `/${clinic}/dashboard/billing`,
       gradient: 'bg-gradient-to-br from-violet-500 to-purple-600',
       iconBg: 'bg-violet-600/50',
-      subvalue: stats?.pending_amount
-        ? `Gs. ${stats.pending_amount.toLocaleString()}`
-        : undefined,
+      subvalue: stats?.pending_amount ? `Gs. ${stats.pending_amount.toLocaleString()}` : undefined,
     },
-  ];
+  ]
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {cards.map((card, i) => (
         <StatCard key={i} card={card} clinic={clinic} />
       ))}
     </div>
-  );
+  )
 }

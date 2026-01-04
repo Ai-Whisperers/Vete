@@ -1,17 +1,20 @@
-import { createClient } from '@/lib/supabase/server';
-import { NextRequest, NextResponse } from 'next/server';
-import { logger } from '@/lib/logger';
-import { apiError, HTTP_STATUS } from '@/lib/api/errors';
+import { createClient } from '@/lib/supabase/server'
+import { NextRequest, NextResponse } from 'next/server'
+import { logger } from '@/lib/logger'
+import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 
 // GET /api/growth_charts - Get growth chart reference data
 // SEC-FIX: Added authentication and role verification
 export async function GET(request: NextRequest) {
-  const supabase = await createClient();
+  const supabase = await createClient()
 
   // Authentication check
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
   if (authError || !user) {
-    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED)
   }
 
   // Get user profile
@@ -19,62 +22,65 @@ export async function GET(request: NextRequest) {
     .from('profiles')
     .select('tenant_id, role')
     .eq('id', user.id)
-    .single();
+    .single()
 
   if (!profile) {
-    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND);
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND)
   }
 
   // Parse query parameters
-  const { searchParams } = new URL(request.url);
-  const species = searchParams.get('species');
-  const breed = searchParams.get('breed');
+  const { searchParams } = new URL(request.url)
+  const species = searchParams.get('species')
+  const breed = searchParams.get('breed')
 
   // Build query - filter by tenant_id if column exists
   let query = supabase
     .from('growth_charts')
     .select('*')
     .order('breed', { ascending: true })
-    .order('age_months', { ascending: true });
+    .order('age_months', { ascending: true })
 
   // Apply optional filters
   if (species) {
-    query = query.eq('species', species);
+    query = query.eq('species', species)
   }
   if (breed) {
-    query = query.ilike('breed', `%${breed}%`);
+    query = query.ilike('breed', `%${breed}%`)
   }
 
-  const { data, error } = await query;
+  const { data, error } = await query
 
   if (error) {
     logger.error('Growth charts GET error', {
       userId: user.id,
       tenantId: profile.tenant_id,
-      error: error instanceof Error ? error.message : String(error)
-    });
-    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
+      error: error instanceof Error ? error.message : String(error),
+    })
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
   }
 
-  return NextResponse.json(data);
+  return NextResponse.json(data)
 }
 
 // POST /api/growth_charts - Create a new growth chart entry
 // SEC-FIX: Added authentication, rate limiting, and role verification
 export async function POST(request: NextRequest) {
-  const supabase = await createClient();
+  const supabase = await createClient()
 
   // Authentication check
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
   if (authError || !user) {
-    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED)
   }
 
   // Apply rate limiting for write endpoints
-  const { rateLimit } = await import('@/lib/rate-limit');
-  const rateLimitResult = await rateLimit(request, 'write', user.id);
+  const { rateLimit } = await import('@/lib/rate-limit')
+  const rateLimitResult = await rateLimit(request, 'write', user.id)
   if (!rateLimitResult.success) {
-    return rateLimitResult.response;
+    return rateLimitResult.response
   }
 
   // Get user profile - only staff can create
@@ -82,31 +88,31 @@ export async function POST(request: NextRequest) {
     .from('profiles')
     .select('tenant_id, role')
     .eq('id', user.id)
-    .single();
+    .single()
 
   if (!profile) {
-    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND);
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND)
   }
 
   if (!['vet', 'admin'].includes(profile.role)) {
-    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
+    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN)
   }
 
   // Parse body
-  let body;
+  let body
   try {
-    body = await request.json();
+    body = await request.json()
   } catch {
-    return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST);
+    return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST)
   }
 
-  const { breed, species, age_months, weight_kg, percentile, notes } = body;
+  const { breed, species, age_months, weight_kg, percentile, notes } = body
 
   // Validate required fields
   if (!breed || age_months === undefined || weight_kg === undefined) {
     return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
-      details: { required: ['breed', 'age_months', 'weight_kg'] }
-    });
+      details: { required: ['breed', 'age_months', 'weight_kg'] },
+    })
   }
 
   // Insert new growth chart entry
@@ -121,36 +127,39 @@ export async function POST(request: NextRequest) {
       notes: notes || null,
     })
     .select()
-    .single();
+    .single()
 
   if (error) {
     logger.error('Growth charts POST error', {
       userId: user.id,
       tenantId: profile.tenant_id,
-      error: error instanceof Error ? error.message : String(error)
-    });
-    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
+      error: error instanceof Error ? error.message : String(error),
+    })
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
   }
 
-  return NextResponse.json(data, { status: 201 });
+  return NextResponse.json(data, { status: 201 })
 }
 
 // PUT /api/growth_charts - Update a growth chart entry
 // SEC-FIX: Added authentication, rate limiting, and role verification
 export async function PUT(request: NextRequest) {
-  const supabase = await createClient();
+  const supabase = await createClient()
 
   // Authentication check
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
   if (authError || !user) {
-    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED)
   }
 
   // Apply rate limiting for write endpoints
-  const { rateLimit } = await import('@/lib/rate-limit');
-  const rateLimitResult = await rateLimit(request, 'write', user.id);
+  const { rateLimit } = await import('@/lib/rate-limit')
+  const rateLimitResult = await rateLimit(request, 'write', user.id)
   if (!rateLimitResult.success) {
-    return rateLimitResult.response;
+    return rateLimitResult.response
   }
 
   // Get user profile - only staff can update
@@ -158,77 +167,76 @@ export async function PUT(request: NextRequest) {
     .from('profiles')
     .select('tenant_id, role')
     .eq('id', user.id)
-    .single();
+    .single()
 
   if (!profile || !['vet', 'admin'].includes(profile.role)) {
-    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
+    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN)
   }
 
   // Parse body
-  let body;
+  let body
   try {
-    body = await request.json();
+    body = await request.json()
   } catch {
-    return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST);
+    return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST)
   }
 
-  const { id, breed, species, age_months, weight_kg, percentile, notes } = body;
+  const { id, breed, species, age_months, weight_kg, percentile, notes } = body
 
   if (!id) {
     return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
-      details: { required: ['id'] }
-    });
+      details: { required: ['id'] },
+    })
   }
 
   // Verify record exists
-  const { data: existing } = await supabase
-    .from('growth_charts')
-    .select('id')
-    .eq('id', id)
-    .single();
+  const { data: existing } = await supabase.from('growth_charts').select('id').eq('id', id).single()
 
   if (!existing) {
-    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND);
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND)
   }
 
   // Build update object
-  const updates: Record<string, unknown> = {};
-  if (breed !== undefined) updates.breed = breed;
-  if (species !== undefined) updates.species = species;
-  if (age_months !== undefined) updates.age_months = Number(age_months);
-  if (weight_kg !== undefined) updates.weight_kg = Number(weight_kg);
-  if (percentile !== undefined) updates.percentile = percentile ? Number(percentile) : null;
-  if (notes !== undefined) updates.notes = notes || null;
+  const updates: Record<string, unknown> = {}
+  if (breed !== undefined) updates.breed = breed
+  if (species !== undefined) updates.species = species
+  if (age_months !== undefined) updates.age_months = Number(age_months)
+  if (weight_kg !== undefined) updates.weight_kg = Number(weight_kg)
+  if (percentile !== undefined) updates.percentile = percentile ? Number(percentile) : null
+  if (notes !== undefined) updates.notes = notes || null
 
   const { data, error } = await supabase
     .from('growth_charts')
     .update(updates)
     .eq('id', id)
     .select()
-    .single();
+    .single()
 
   if (error) {
     logger.error('Growth charts PUT error', {
       userId: user.id,
       tenantId: profile.tenant_id,
       chartId: id,
-      error: error instanceof Error ? error.message : String(error)
-    });
-    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
+      error: error instanceof Error ? error.message : String(error),
+    })
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
   }
 
-  return NextResponse.json(data);
+  return NextResponse.json(data)
 }
 
 // DELETE /api/growth_charts - Delete a growth chart entry
 // SEC-FIX: Added authentication and admin-only restriction
 export async function DELETE(request: NextRequest) {
-  const supabase = await createClient();
+  const supabase = await createClient()
 
   // Authentication check
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
   if (authError || !user) {
-    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED)
   }
 
   // Only admins can delete growth chart entries
@@ -236,53 +244,46 @@ export async function DELETE(request: NextRequest) {
     .from('profiles')
     .select('tenant_id, role')
     .eq('id', user.id)
-    .single();
+    .single()
 
   if (!profile || profile.role !== 'admin') {
-    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
+    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN)
   }
 
   // Parse body
-  let body;
+  let body
   try {
-    body = await request.json();
+    body = await request.json()
   } catch {
-    return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST);
+    return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST)
   }
 
-  const { id } = body;
+  const { id } = body
 
   if (!id) {
     return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
-      details: { required: ['id'] }
-    });
+      details: { required: ['id'] },
+    })
   }
 
   // Verify record exists
-  const { data: existing } = await supabase
-    .from('growth_charts')
-    .select('id')
-    .eq('id', id)
-    .single();
+  const { data: existing } = await supabase.from('growth_charts').select('id').eq('id', id).single()
 
   if (!existing) {
-    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND);
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND)
   }
 
-  const { error } = await supabase
-    .from('growth_charts')
-    .delete()
-    .eq('id', id);
+  const { error } = await supabase.from('growth_charts').delete().eq('id', id)
 
   if (error) {
     logger.error('Growth charts DELETE error', {
       userId: user.id,
       tenantId: profile.tenant_id,
       chartId: id,
-      error: error instanceof Error ? error.message : String(error)
-    });
-    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
+      error: error instanceof Error ? error.message : String(error),
+    })
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
   }
 
-  return new NextResponse(null, { status: 204 });
+  return new NextResponse(null, { status: 204 })
 }

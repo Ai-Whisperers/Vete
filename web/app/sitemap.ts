@@ -1,7 +1,7 @@
-import { MetadataRoute } from 'next';
-import { getAllClinics, getClinicData } from '@/lib/clinics';
+import { MetadataRoute } from 'next'
+import { getAllClinics, getClinicData } from '@/lib/clinics'
 
-const BASE_URL = 'https://vetepy.vercel.app';
+const BASE_URL = 'https://vetepy.vercel.app'
 
 // Static pages for each clinic
 const CLINIC_PAGES = [
@@ -16,11 +16,11 @@ const CLINIC_PAGES = [
   '/loyalty_points',
   '/privacy',
   '/terms',
-];
+]
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const clinics = await getAllClinics();
-  const entries: MetadataRoute.Sitemap = [];
+  const clinics = await getAllClinics()
+  const entries: MetadataRoute.Sitemap = []
 
   // Root landing page
   entries.push({
@@ -28,12 +28,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: new Date(),
     changeFrequency: 'weekly',
     priority: 1.0,
-  });
+  })
 
   // Generate entries for each clinic
   for (const clinicSlug of clinics) {
-    const clinicData = await getClinicData(clinicSlug);
-    if (!clinicData) continue;
+    const clinicData = await getClinicData(clinicSlug)
+    if (!clinicData) continue
 
     // Clinic homepage - highest priority
     entries.push({
@@ -41,18 +41,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 0.9,
-    });
+    })
 
     // Static clinic pages
     for (const page of CLINIC_PAGES) {
-      if (page === '') continue; // Already added homepage
+      if (page === '') continue // Already added homepage
 
       entries.push({
         url: `${BASE_URL}/${clinicSlug}${page}`,
         lastModified: new Date(),
         changeFrequency: page === '/services' || page === '/store' ? 'daily' : 'weekly',
         priority: page === '/services' ? 0.8 : 0.7,
-      });
+      })
     }
 
     // Dynamic service detail pages
@@ -63,10 +63,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           lastModified: new Date(),
           changeFrequency: 'weekly',
           priority: 0.6,
-        });
+        })
       }
     }
   }
 
-  return entries;
+  return entries
 }

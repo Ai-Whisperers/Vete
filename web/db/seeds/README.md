@@ -77,10 +77,12 @@ The seed data provides comprehensive coverage for testing:
 ## 🛠️ Scripts
 
 ### API-Based Scripts
+
 - `scripts/setup-via-api.ts` - Main API setup script
 - `scripts/setup` - CLI wrapper for common operations
 
 ### SQL-Based Scripts
+
 - `scripts/seed-from-json.ts` - Generates SQL from JSON files
 - `scripts/transform-services.js` - Service data transformation utility
 
@@ -108,16 +110,19 @@ npm run db:seeds:verify
 ## 📋 File Organization
 
 ### Data Files (`data/`)
+
 - **00-core/**: Tenants, demo accounts, global settings
 - **01-reference/**: Medical reference data (diagnoses, drugs, growth standards)
 - **02-clinic/**: Clinic-specific operational data
 - **03-store/**: Product catalog and e-commerce data
 
 ### Scripts (`scripts/`)
+
 - **setup-via-api.ts**: Modern API-based seeding with ID tracking
 - **seed-from-json.ts**: Legacy SQL generation from JSON
 - **setup**: Bash wrapper for common CLI operations
 
 ### Documentation (`docs/`)
+
 - Comprehensive guides for setup and migration
 - API reference and troubleshooting guides

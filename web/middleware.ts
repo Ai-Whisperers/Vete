@@ -23,9 +23,8 @@ export async function middleware(request: NextRequest) {
 
   // OPTIMIZATION: Skip auth for public routes to reduce latency
   // Public routes don't need session refresh (saves ~50-100ms per request)
-  const isPublicRoute = !path.includes('/portal') &&
-                        !path.includes('/dashboard') &&
-                        !path.includes('/cart/checkout')
+  const isPublicRoute =
+    !path.includes('/portal') && !path.includes('/dashboard') && !path.includes('/cart/checkout')
 
   if (isPublicRoute) {
     return response
@@ -33,38 +32,36 @@ export async function middleware(request: NextRequest) {
 
   // Refresh session - this is critical for Supabase SSR
   // Without this, session tokens can expire between requests
-  const supabase = createServerClient(
-    env.SUPABASE_URL,
-    env.SUPABASE_ANON_KEY,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll()
-        },
-        setAll(cookiesToSet) {
-          // Update cookies in the request for downstream code
-          cookiesToSet.forEach(({ name, value }) => {
-            request.cookies.set(name, value)
-          })
-          // Create new response with updated cookies
-          response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
-          })
-          response.headers.set('x-pathname', path)
-          // Set cookies in the response for the browser
-          cookiesToSet.forEach(({ name, value, options }) => {
-            response.cookies.set(name, value, options)
-          })
-        },
+  const supabase = createServerClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY, {
+    cookies: {
+      getAll() {
+        return request.cookies.getAll()
       },
-    }
-  )
+      setAll(cookiesToSet) {
+        // Update cookies in the request for downstream code
+        cookiesToSet.forEach(({ name, value }) => {
+          request.cookies.set(name, value)
+        })
+        // Create new response with updated cookies
+        response = NextResponse.next({
+          request: {
+            headers: request.headers,
+          },
+        })
+        response.headers.set('x-pathname', path)
+        // Set cookies in the response for the browser
+        cookiesToSet.forEach(({ name, value, options }) => {
+          response.cookies.set(name, value, options)
+        })
+      },
+    },
+  })
 
   // This will refresh the session if expired
   // IMPORTANT: Do not use getSession() here - it doesn't refresh tokens
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
   const url = request.nextUrl.clone()
 

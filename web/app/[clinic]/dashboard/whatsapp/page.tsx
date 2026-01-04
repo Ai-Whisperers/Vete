@@ -14,7 +14,9 @@ export default async function WhatsAppPage({ params }: Props) {
   const supabase = await createClient()
 
   // Auth check
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) {
     redirect(`/${clinic}/portal/login`)
   }
@@ -33,10 +35,11 @@ export default async function WhatsAppPage({ params }: Props) {
   // Fetch conversations and stats in parallel
   const [conversationsResult, statsResult] = await Promise.all([
     getConversations(clinic),
-    getWhatsAppStats(clinic)
+    getWhatsAppStats(clinic),
   ])
 
-  const conversations = 'data' in conversationsResult && conversationsResult.data ? conversationsResult.data : []
+  const conversations =
+    'data' in conversationsResult && conversationsResult.data ? conversationsResult.data : []
   const stats = 'data' in statsResult && statsResult.data ? statsResult.data : null
 
   // Stats
@@ -46,66 +49,59 @@ export default async function WhatsAppPage({ params }: Props) {
   const failedToday = stats?.failedToday ?? 0
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
+    <div className="mx-auto max-w-7xl p-6">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+      <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--text-primary)]">
-            WhatsApp
-          </h1>
-          <p className="text-[var(--text-secondary)]">
-            Mensajería con clientes
-          </p>
+          <h1 className="text-2xl font-bold text-[var(--text-primary)]">WhatsApp</h1>
+          <p className="text-[var(--text-secondary)]">Mensajería con clientes</p>
         </div>
 
         <div className="flex gap-3">
           <Link
             href={`/${clinic}/dashboard/whatsapp/templates`}
-            className="inline-flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg
-                       text-[var(--text-primary)] hover:bg-gray-50"
+            className="inline-flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-2 text-[var(--text-primary)] hover:bg-gray-50"
           >
-            <Icons.FileText className="w-4 h-4" />
+            <Icons.FileText className="h-4 w-4" />
             Plantillas
           </Link>
         </div>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
-          <div className="flex items-center gap-2 text-blue-600 mb-1">
-            <Icons.MessageSquare className="w-4 h-4" />
+      <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
+        <div className="rounded-xl border border-gray-100 bg-white p-4">
+          <div className="mb-1 flex items-center gap-2 text-blue-600">
+            <Icons.MessageSquare className="h-4 w-4" />
             <span className="text-xs font-medium">Conversaciones</span>
           </div>
-          <p className="text-2xl font-bold text-[var(--text-primary)]">
-            {totalConversations}
-          </p>
+          <p className="text-2xl font-bold text-[var(--text-primary)]">{totalConversations}</p>
         </div>
 
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
-          <div className="flex items-center gap-2 text-green-600 mb-1">
-            <Icons.Bell className="w-4 h-4" />
+        <div className="rounded-xl border border-gray-100 bg-white p-4">
+          <div className="mb-1 flex items-center gap-2 text-green-600">
+            <Icons.Bell className="h-4 w-4" />
             <span className="text-xs font-medium">Sin Leer</span>
           </div>
-          <p className="text-2xl font-bold text-[var(--text-primary)]">
-            {unreadCount}
-          </p>
+          <p className="text-2xl font-bold text-[var(--text-primary)]">{unreadCount}</p>
         </div>
 
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
-          <div className="flex items-center gap-2 text-purple-600 mb-1">
-            <Icons.Send className="w-4 h-4" />
+        <div className="rounded-xl border border-gray-100 bg-white p-4">
+          <div className="mb-1 flex items-center gap-2 text-purple-600">
+            <Icons.Send className="h-4 w-4" />
             <span className="text-xs font-medium">Enviados Hoy</span>
           </div>
           <p className="text-2xl font-bold text-[var(--text-primary)]">{sentToday}</p>
         </div>
 
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
-          <div className="flex items-center gap-2 text-orange-600 mb-1">
-            <Icons.AlertCircle className="w-4 h-4" />
+        <div className="rounded-xl border border-gray-100 bg-white p-4">
+          <div className="mb-1 flex items-center gap-2 text-orange-600">
+            <Icons.AlertCircle className="h-4 w-4" />
             <span className="text-xs font-medium">Fallidos</span>
           </div>
-          <p className={`text-2xl font-bold ${failedToday > 0 ? 'text-red-600' : 'text-[var(--text-primary)]'}`}>
+          <p
+            className={`text-2xl font-bold ${failedToday > 0 ? 'text-red-600' : 'text-[var(--text-primary)]'}`}
+          >
             {failedToday}
           </p>
         </div>

@@ -10,36 +10,20 @@ import { uuidSchema, requiredString, optionalString, enumSchema } from './common
 // CONVERSATION CHANNELS
 // =============================================================================
 
-export const CONVERSATION_CHANNELS = [
-  'internal',
-  'whatsapp',
-  'email',
-  'sms',
-] as const
-export type ConversationChannel = typeof CONVERSATION_CHANNELS[number]
+export const CONVERSATION_CHANNELS = ['internal', 'whatsapp', 'email', 'sms'] as const
+export type ConversationChannel = (typeof CONVERSATION_CHANNELS)[number]
 
 /**
  * Conversation statuses
  */
-export const CONVERSATION_STATUSES = [
-  'open',
-  'pending',
-  'resolved',
-  'closed',
-  'spam',
-] as const
-export type ConversationStatus = typeof CONVERSATION_STATUSES[number]
+export const CONVERSATION_STATUSES = ['open', 'pending', 'resolved', 'closed', 'spam'] as const
+export type ConversationStatus = (typeof CONVERSATION_STATUSES)[number]
 
 /**
  * Conversation priorities
  */
-export const CONVERSATION_PRIORITIES = [
-  'low',
-  'normal',
-  'high',
-  'urgent',
-] as const
-export type ConversationPriority = typeof CONVERSATION_PRIORITIES[number]
+export const CONVERSATION_PRIORITIES = ['low', 'normal', 'high', 'urgent'] as const
+export type ConversationPriority = (typeof CONVERSATION_PRIORITIES)[number]
 
 // =============================================================================
 // CONVERSATIONS
@@ -91,13 +75,13 @@ export const MESSAGE_TYPES = [
   'prescription_card',
   'system',
 ] as const
-export type MessageType = typeof MESSAGE_TYPES[number]
+export type MessageType = (typeof MESSAGE_TYPES)[number]
 
 /**
  * Sender types
  */
 export const SENDER_TYPES = ['staff', 'client', 'system'] as const
-export type SenderType = typeof SENDER_TYPES[number]
+export type SenderType = (typeof SENDER_TYPES)[number]
 
 /**
  * Schema for message attachments
@@ -146,15 +130,13 @@ export type QuickReplyInput = z.infer<typeof quickReplySchema>
  * WhatsApp message directions
  */
 export const WHATSAPP_DIRECTIONS = ['inbound', 'outbound'] as const
-export type WhatsappDirection = typeof WHATSAPP_DIRECTIONS[number]
+export type WhatsappDirection = (typeof WHATSAPP_DIRECTIONS)[number]
 
 /**
  * Schema for sending WhatsApp message
  */
 export const sendWhatsappMessageSchema = z.object({
-  phone_number: z
-    .string()
-    .regex(/^\+?[1-9]\d{6,14}$/, 'Número de teléfono inválido'),
+  phone_number: z.string().regex(/^\+?[1-9]\d{6,14}$/, 'Número de teléfono inválido'),
   content: requiredString('Mensaje', 4096), // WhatsApp limit
   template_id: uuidSchema.optional(),
   template_variables: z.record(z.string(), z.string()).optional(),
@@ -201,7 +183,7 @@ export const TEMPLATE_CATEGORIES = [
   'general',
   'emergency',
 ] as const
-export type TemplateCategory = typeof TEMPLATE_CATEGORIES[number]
+export type TemplateCategory = (typeof TEMPLATE_CATEGORIES)[number]
 
 /**
  * Schema for creating a message template
@@ -244,14 +226,8 @@ export type RenderTemplateInput = z.infer<typeof renderTemplateSchema>
 /**
  * Notification channels
  */
-export const NOTIFICATION_CHANNELS = [
-  'in_app',
-  'sms',
-  'whatsapp',
-  'email',
-  'push',
-] as const
-export type NotificationChannel = typeof NOTIFICATION_CHANNELS[number]
+export const NOTIFICATION_CHANNELS = ['in_app', 'sms', 'whatsapp', 'email', 'push'] as const
+export type NotificationChannel = (typeof NOTIFICATION_CHANNELS)[number]
 
 /**
  * Schema for sending a notification
@@ -262,9 +238,7 @@ export const sendNotificationSchema = z.object({
   user_id: uuidSchema,
   title: requiredString('Título', 200),
   message: requiredString('Mensaje', 1000),
-  channels: z
-    .array(z.enum(NOTIFICATION_CHANNELS))
-    .min(1, 'Selecciona al menos un canal'),
+  channels: z.array(z.enum(NOTIFICATION_CHANNELS)).min(1, 'Selecciona al menos un canal'),
   action_url: z.string().url().optional(),
   priority: z.enum(NOTIFICATION_PRIORITIES).default('normal'),
   schedule_at: z.string().datetime().optional(),
@@ -285,7 +259,10 @@ export const sendBulkMessagesSchema = z.object({
     .array(
       z.object({
         client_id: uuidSchema,
-        phone_number: z.string().regex(/^\+?[1-9]\d{6,14}$/).optional(),
+        phone_number: z
+          .string()
+          .regex(/^\+?[1-9]\d{6,14}$/)
+          .optional(),
         email: z.string().email().optional(),
       })
     )

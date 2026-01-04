@@ -1,60 +1,63 @@
-"use client";
+'use client'
 
-import { useState } from 'react';
-import { ChevronLeft, ChevronRight, X, ZoomIn } from 'lucide-react';
+import { useState } from 'react'
+import { ChevronLeft, ChevronRight, X, ZoomIn } from 'lucide-react'
 
 interface FacilitiesGalleryProps {
-  images: string[];
+  images: string[]
 }
 
 export function FacilitiesGallery({ images }: FacilitiesGalleryProps) {
-  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
 
   const openLightbox = (index: number) => {
-    setSelectedIndex(index);
-  };
+    setSelectedIndex(index)
+  }
 
   const closeLightbox = () => {
-    setSelectedIndex(null);
-  };
+    setSelectedIndex(null)
+  }
 
   const goToPrevious = () => {
     if (selectedIndex !== null) {
-      setSelectedIndex(selectedIndex === 0 ? images.length - 1 : selectedIndex - 1);
+      setSelectedIndex(selectedIndex === 0 ? images.length - 1 : selectedIndex - 1)
     }
-  };
+  }
 
   const goToNext = () => {
     if (selectedIndex !== null) {
-      setSelectedIndex(selectedIndex === images.length - 1 ? 0 : selectedIndex + 1);
+      setSelectedIndex(selectedIndex === images.length - 1 ? 0 : selectedIndex + 1)
     }
-  };
+  }
 
   // Handle keyboard navigation
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Escape') closeLightbox();
-    if (e.key === 'ArrowLeft') goToPrevious();
-    if (e.key === 'ArrowRight') goToNext();
-  };
+    if (e.key === 'Escape') closeLightbox()
+    if (e.key === 'ArrowLeft') goToPrevious()
+    if (e.key === 'ArrowRight') goToNext()
+  }
 
   return (
     <>
       {/* Gallery Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         {images.map((image, index) => (
           <button
             key={index}
             onClick={() => openLightbox(index)}
-            className="group relative aspect-[4/3] rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300"
+            className="group relative aspect-[4/3] overflow-hidden rounded-2xl shadow-lg transition-all duration-300 hover:shadow-xl"
             aria-label={`Ver imagen de instalacion ${index + 1} en pantalla completa`}
           >
             <img
               src={image}
               alt={`Instalacion de la clinica ${index + 1}`}
-              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
             />
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-300 flex items-center justify-center">
-              <ZoomIn className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" aria-hidden="true" />
+            <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition-colors duration-300 group-hover:bg-black/30">
+              <ZoomIn
+                className="h-8 w-8 text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                aria-hidden="true"
+              />
             </div>
           </button>
         ))}
@@ -63,7 +66,7 @@ export function FacilitiesGallery({ images }: FacilitiesGalleryProps) {
       {/* Lightbox */}
       {selectedIndex !== null && (
         <div
-          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90"
           onClick={closeLightbox}
           onKeyDown={handleKeyDown}
           role="dialog"
@@ -73,52 +76,56 @@ export function FacilitiesGallery({ images }: FacilitiesGalleryProps) {
           {/* Close button */}
           <button
             onClick={closeLightbox}
-            className="absolute top-4 right-4 p-2 text-white/80 hover:text-white transition-colors z-10"
+            className="absolute right-4 top-4 z-10 p-2 text-white/80 transition-colors hover:text-white"
             aria-label="Cerrar"
           >
-            <X className="w-8 h-8" />
+            <X className="h-8 w-8" />
           </button>
 
           {/* Previous button */}
           <button
-            onClick={(e) => { e.stopPropagation(); goToPrevious(); }}
-            className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors"
+            onClick={(e) => {
+              e.stopPropagation()
+              goToPrevious()
+            }}
+            className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white transition-colors hover:bg-white/20"
             aria-label="Anterior"
           >
-            <ChevronLeft className="w-8 h-8" />
+            <ChevronLeft className="h-8 w-8" />
           </button>
 
           {/* Image */}
-          <div
-            className="max-w-5xl max-h-[85vh] mx-4"
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div className="mx-4 max-h-[85vh] max-w-5xl" onClick={(e) => e.stopPropagation()}>
             <img
               src={images[selectedIndex]}
               alt={`Instalación ${selectedIndex + 1}`}
-              className="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl"
+              className="max-h-[85vh] max-w-full rounded-lg object-contain shadow-2xl"
             />
           </div>
 
           {/* Next button */}
           <button
-            onClick={(e) => { e.stopPropagation(); goToNext(); }}
-            className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors"
+            onClick={(e) => {
+              e.stopPropagation()
+              goToNext()
+            }}
+            className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white transition-colors hover:bg-white/20"
             aria-label="Siguiente"
           >
-            <ChevronRight className="w-8 h-8" />
+            <ChevronRight className="h-8 w-8" />
           </button>
 
           {/* Thumbnail indicators */}
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
+          <div className="absolute bottom-6 left-1/2 flex -translate-x-1/2 gap-2">
             {images.map((_, index) => (
               <button
                 key={index}
-                onClick={(e) => { e.stopPropagation(); setSelectedIndex(index); }}
-                className={`w-2 h-2 rounded-full transition-all ${
-                  index === selectedIndex
-                    ? 'bg-white w-6'
-                    : 'bg-white/40 hover:bg-white/60'
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setSelectedIndex(index)
+                }}
+                className={`h-2 w-2 rounded-full transition-all ${
+                  index === selectedIndex ? 'w-6 bg-white' : 'bg-white/40 hover:bg-white/60'
                 }`}
                 aria-label={`Ir a imagen ${index + 1}`}
               />
@@ -127,5 +134,5 @@ export function FacilitiesGallery({ images }: FacilitiesGalleryProps) {
         </div>
       )}
     </>
-  );
+  )
 }

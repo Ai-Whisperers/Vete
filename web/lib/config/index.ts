@@ -14,16 +14,11 @@ export type {
   CacheConfig,
   MonitoringConfig,
   RateLimitConfig,
-  FeatureFlags
+  FeatureFlags,
 } from './types'
 
 // Configuration manager
-export {
-  config,
-  isFeatureEnabled,
-  getConfig,
-  getConfigSection
-} from './manager'
+export { config, isFeatureEnabled, getConfig, getConfigSection } from './manager'
 
 // Configuration loader (for testing or manual loading)
 export { loadConfig, validateConfig, getEnvConfig } from './loader'

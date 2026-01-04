@@ -1,9 +1,9 @@
-"use client";
+'use client'
 
-import { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
-import Link from "next/link";
-import Image from "next/image";
+import { useState, useEffect } from 'react'
+import { useParams } from 'next/navigation'
+import Link from 'next/link'
+import Image from 'next/image'
 import {
   Heart,
   ShoppingCart,
@@ -13,182 +13,188 @@ import {
   Loader2,
   Share2,
   AlertCircle,
-} from "lucide-react";
-import { useWishlist } from "@/context/wishlist-context";
-import { useCart } from "@/context/cart-context";
+} from 'lucide-react'
+import { useWishlist } from '@/context/wishlist-context'
+import { useCart } from '@/context/cart-context'
 
 interface WishlistProduct {
-  id: string;
-  name: string;
-  sku: string | null;
-  short_description: string | null;
-  base_price: number;
-  sale_price: number | null;
-  image_url: string | null;
-  is_active: boolean;
+  id: string
+  name: string
+  sku: string | null
+  short_description: string | null
+  base_price: number
+  sale_price: number | null
+  image_url: string | null
+  is_active: boolean
 }
 
 interface WishlistItem {
-  id: string;
-  product_id: string;
-  created_at: string;
-  store_products: WishlistProduct | null;
+  id: string
+  product_id: string
+  created_at: string
+  store_products: WishlistProduct | null
 }
 
 export default function WishlistPage(): React.ReactElement {
-  const params = useParams();
-  const clinic = params?.clinic as string;
-  const { items: wishlistIds, removeFromWishlist, isLoading: contextLoading, isLoggedIn } = useWishlist();
-  const { addItem } = useCart();
+  const params = useParams()
+  const clinic = params?.clinic as string
+  const {
+    items: wishlistIds,
+    removeFromWishlist,
+    isLoading: contextLoading,
+    isLoggedIn,
+  } = useWishlist()
+  const { addItem } = useCart()
 
-  const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [addingToCart, setAddingToCart] = useState<string | null>(null);
-  const [removingItem, setRemovingItem] = useState<string | null>(null);
+  const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [addingToCart, setAddingToCart] = useState<string | null>(null)
+  const [removingItem, setRemovingItem] = useState<string | null>(null)
 
   // Fetch full wishlist data
   useEffect(() => {
     const fetchWishlist = async (): Promise<void> => {
       try {
-        const response = await fetch("/api/store/wishlist");
+        const response = await fetch('/api/store/wishlist')
         if (response.ok) {
-          const data = await response.json();
-          setWishlistItems(data.items || []);
+          const data = await response.json()
+          setWishlistItems(data.items || [])
         } else {
-          setError("Error al cargar lista de deseos");
+          setError('Error al cargar lista de deseos')
         }
       } catch (e) {
-        console.error("Error fetching wishlist:", e);
-        setError("Error de conexión");
+        console.error('Error fetching wishlist:', e)
+        setError('Error de conexión')
       } finally {
-        setIsLoading(false);
+        setIsLoading(false)
       }
-    };
+    }
 
     if (!contextLoading) {
-      fetchWishlist();
+      fetchWishlist()
     }
-  }, [contextLoading, wishlistIds]);
+  }, [contextLoading, wishlistIds])
 
   const formatCurrency = (amount: number): string => {
-    return new Intl.NumberFormat("es-PY", {
-      style: "currency",
-      currency: "PYG",
+    return new Intl.NumberFormat('es-PY', {
+      style: 'currency',
+      currency: 'PYG',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
-    }).format(amount);
-  };
+    }).format(amount)
+  }
 
   const handleAddToCart = async (item: WishlistItem): Promise<void> => {
-    if (!item.store_products) return;
-    setAddingToCart(item.product_id);
+    if (!item.store_products) return
+    setAddingToCart(item.product_id)
 
     try {
-      addItem({
-        id: item.product_id,
-        name: item.store_products.name,
-        price: item.store_products.sale_price || item.store_products.base_price,
-        type: "product",
-        image_url: item.store_products.image_url || undefined,
-        sku: item.store_products.sku || undefined,
-      }, 1);
+      addItem(
+        {
+          id: item.product_id,
+          name: item.store_products.name,
+          price: item.store_products.sale_price || item.store_products.base_price,
+          type: 'product',
+          image_url: item.store_products.image_url || undefined,
+          sku: item.store_products.sku || undefined,
+        },
+        1
+      )
     } finally {
-      setAddingToCart(null);
+      setAddingToCart(null)
     }
-  };
+  }
 
   const handleRemove = async (productId: string): Promise<void> => {
-    setRemovingItem(productId);
+    setRemovingItem(productId)
     try {
-      await removeFromWishlist(productId);
-      setWishlistItems(prev => prev.filter(item => item.product_id !== productId));
+      await removeFromWishlist(productId)
+      setWishlistItems((prev) => prev.filter((item) => item.product_id !== productId))
     } finally {
-      setRemovingItem(null);
+      setRemovingItem(null)
     }
-  };
+  }
 
   const handleShare = async (): Promise<void> => {
-    const shareUrl = window.location.href;
-    const shareText = `Mi lista de deseos en ${clinic}`;
+    const shareUrl = window.location.href
+    const shareText = `Mi lista de deseos en ${clinic}`
 
     if (navigator.share) {
       try {
         await navigator.share({
-          title: "Lista de Deseos",
+          title: 'Lista de Deseos',
           text: shareText,
           url: shareUrl,
-        });
+        })
       } catch (e) {
         // User cancelled or error
-        console.error("Share failed:", e);
+        console.error('Share failed:', e)
       }
     } else {
       // Fallback: copy to clipboard
       try {
-        await navigator.clipboard.writeText(shareUrl);
-        alert("Enlace copiado al portapapeles");
+        await navigator.clipboard.writeText(shareUrl)
+        alert('Enlace copiado al portapapeles')
       } catch (e) {
-        console.error("Failed to copy:", e);
+        console.error('Failed to copy:', e)
       }
     }
-  };
+  }
 
   if (isLoading || contextLoading) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-center min-h-[400px]">
-          <Loader2 className="w-8 h-8 text-[var(--primary)] animate-spin" />
+        <div className="flex min-h-[400px] items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-[var(--primary)]" />
         </div>
       </div>
-    );
+    )
   }
 
   if (!isLoggedIn) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <div className="max-w-md mx-auto text-center py-16">
-          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Heart className="w-8 h-8 text-gray-400" />
+        <div className="mx-auto max-w-md py-16 text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
+            <Heart className="h-8 w-8 text-gray-400" />
           </div>
-          <h2 className="text-xl font-semibold text-[var(--text-primary)] mb-2">
+          <h2 className="mb-2 text-xl font-semibold text-[var(--text-primary)]">
             Inicia sesión para ver tu lista de deseos
           </h2>
-          <p className="text-[var(--text-secondary)] mb-6">
+          <p className="mb-6 text-[var(--text-secondary)]">
             Guarda tus productos favoritos iniciando sesión en tu cuenta.
           </p>
           <Link
             href={`/${clinic}/auth/login?redirect=/${clinic}/store/wishlist`}
-            className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--primary)] text-white rounded-lg hover:opacity-90 transition"
+            className="inline-flex items-center gap-2 rounded-lg bg-[var(--primary)] px-6 py-3 text-white transition hover:opacity-90"
           >
             Iniciar Sesión
           </Link>
         </div>
       </div>
-    );
+    )
   }
 
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+      <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-3">
           <Link
             href={`/${clinic}/store`}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="rounded-lg p-2 transition-colors hover:bg-gray-100"
           >
-            <ArrowLeft className="w-5 h-5 text-[var(--text-secondary)]" />
+            <ArrowLeft className="h-5 w-5 text-[var(--text-secondary)]" />
           </Link>
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-pink-100 rounded-lg">
-              <Heart className="w-6 h-6 text-pink-500" />
+            <div className="rounded-lg bg-pink-100 p-2">
+              <Heart className="h-6 w-6 text-pink-500" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-[var(--text-primary)]">
-                Lista de Deseos
-              </h1>
+              <h1 className="text-2xl font-bold text-[var(--text-primary)]">Lista de Deseos</h1>
               <p className="text-sm text-[var(--text-secondary)]">
-                {wishlistItems.length} {wishlistItems.length === 1 ? "producto" : "productos"}
+                {wishlistItems.length} {wishlistItems.length === 1 ? 'producto' : 'productos'}
               </p>
             </div>
           </div>
@@ -197,38 +203,38 @@ export default function WishlistPage(): React.ReactElement {
         {wishlistItems.length > 0 && (
           <button
             onClick={handleShare}
-            className="inline-flex items-center gap-2 px-4 py-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-gray-100 rounded-lg transition"
+            className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-[var(--text-secondary)] transition hover:bg-gray-100 hover:text-[var(--text-primary)]"
           >
-            <Share2 className="w-4 h-4" />
+            <Share2 className="h-4 w-4" />
             Compartir
           </button>
         )}
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 flex items-center gap-3">
-          <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
+        <div className="mb-6 flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 p-4">
+          <AlertCircle className="h-5 w-5 flex-shrink-0 text-red-500" />
           <p className="text-red-700">{error}</p>
         </div>
       )}
 
       {/* Empty State */}
       {wishlistItems.length === 0 && !error && (
-        <div className="text-center py-16">
-          <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Heart className="w-10 h-10 text-gray-400" />
+        <div className="py-16 text-center">
+          <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-gray-100">
+            <Heart className="h-10 w-10 text-gray-400" />
           </div>
-          <h2 className="text-xl font-semibold text-[var(--text-primary)] mb-2">
+          <h2 className="mb-2 text-xl font-semibold text-[var(--text-primary)]">
             Tu lista de deseos está vacía
           </h2>
-          <p className="text-[var(--text-secondary)] mb-6 max-w-sm mx-auto">
+          <p className="mx-auto mb-6 max-w-sm text-[var(--text-secondary)]">
             Explora nuestra tienda y guarda los productos que te gusten para comprarlos después.
           </p>
           <Link
             href={`/${clinic}/store`}
-            className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--primary)] text-white rounded-lg hover:opacity-90 transition"
+            className="inline-flex items-center gap-2 rounded-lg bg-[var(--primary)] px-6 py-3 text-white transition hover:opacity-90"
           >
-            <Package className="w-5 h-5" />
+            <Package className="h-5 w-5" />
             Explorar Tienda
           </Link>
         </div>
@@ -236,19 +242,19 @@ export default function WishlistPage(): React.ReactElement {
 
       {/* Wishlist Grid */}
       {wishlistItems.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {wishlistItems.map((item) => {
-            const product = item.store_products;
-            if (!product) return null;
+            const product = item.store_products
+            if (!product) return null
 
-            const isOnSale = product.sale_price && product.sale_price < product.base_price;
-            const isAvailable = product.is_active;
+            const isOnSale = product.sale_price && product.sale_price < product.base_price
+            const isAvailable = product.is_active
 
             return (
               <div
                 key={item.id}
-                className={`bg-white rounded-xl shadow-sm border border-[var(--border-color)] overflow-hidden group ${
-                  !isAvailable ? "opacity-75" : ""
+                className={`group overflow-hidden rounded-xl border border-[var(--border-color)] bg-white shadow-sm ${
+                  !isAvailable ? 'opacity-75' : ''
                 }`}
               >
                 {/* Product Image */}
@@ -259,26 +265,26 @@ export default function WishlistPage(): React.ReactElement {
                         src={product.image_url}
                         alt={product.name}
                         fill
-                        className="object-cover group-hover:scale-105 transition-transform"
+                        className="object-cover transition-transform group-hover:scale-105"
                         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                       />
                     ) : (
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <Package className="w-12 h-12 text-gray-300" />
+                        <Package className="h-12 w-12 text-gray-300" />
                       </div>
                     )}
                   </Link>
 
                   {/* Sale Badge */}
                   {isOnSale && (
-                    <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">
+                    <div className="absolute left-2 top-2 rounded bg-red-500 px-2 py-1 text-xs font-bold text-white">
                       OFERTA
                     </div>
                   )}
 
                   {/* Unavailable Badge */}
                   {!isAvailable && (
-                    <div className="absolute top-2 left-2 bg-gray-500 text-white text-xs font-bold px-2 py-1 rounded">
+                    <div className="absolute left-2 top-2 rounded bg-gray-500 px-2 py-1 text-xs font-bold text-white">
                       NO DISPONIBLE
                     </div>
                   )}
@@ -287,13 +293,13 @@ export default function WishlistPage(): React.ReactElement {
                   <button
                     onClick={() => handleRemove(item.product_id)}
                     disabled={removingItem === item.product_id}
-                    className="absolute top-2 right-2 p-2 bg-white rounded-full shadow-md hover:bg-red-50 transition-colors disabled:opacity-50"
+                    className="absolute right-2 top-2 rounded-full bg-white p-2 shadow-md transition-colors hover:bg-red-50 disabled:opacity-50"
                     title="Eliminar de lista de deseos"
                   >
                     {removingItem === item.product_id ? (
-                      <Loader2 className="w-4 h-4 text-gray-400 animate-spin" />
+                      <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
                     ) : (
-                      <Trash2 className="w-4 h-4 text-red-500" />
+                      <Trash2 className="h-4 w-4 text-red-500" />
                     )}
                   </button>
                 </div>
@@ -301,19 +307,17 @@ export default function WishlistPage(): React.ReactElement {
                 {/* Product Info */}
                 <div className="p-4">
                   <Link href={`/${clinic}/store/product/${item.product_id}`}>
-                    <h3 className="font-medium text-[var(--text-primary)] mb-1 line-clamp-2 hover:text-[var(--primary)] transition-colors">
+                    <h3 className="mb-1 line-clamp-2 font-medium text-[var(--text-primary)] transition-colors hover:text-[var(--primary)]">
                       {product.name}
                     </h3>
                   </Link>
 
                   {product.sku && (
-                    <p className="text-xs text-[var(--text-secondary)] mb-2">
-                      SKU: {product.sku}
-                    </p>
+                    <p className="mb-2 text-xs text-[var(--text-secondary)]">SKU: {product.sku}</p>
                   )}
 
                   {/* Price */}
-                  <div className="flex items-baseline gap-2 mb-4">
+                  <div className="mb-4 flex items-baseline gap-2">
                     {isOnSale ? (
                       <>
                         <span className="text-lg font-bold text-[var(--primary)]">
@@ -334,39 +338,39 @@ export default function WishlistPage(): React.ReactElement {
                   <button
                     onClick={() => handleAddToCart(item)}
                     disabled={!isAvailable || addingToCart === item.product_id}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[var(--primary)] text-white rounded-lg hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex w-full items-center justify-center gap-2 rounded-lg bg-[var(--primary)] px-4 py-2.5 text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {addingToCart === item.product_id ? (
                       <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <Loader2 className="h-4 w-4 animate-spin" />
                         Agregando...
                       </>
                     ) : (
                       <>
-                        <ShoppingCart className="w-4 h-4" />
+                        <ShoppingCart className="h-4 w-4" />
                         Agregar al Carrito
                       </>
                     )}
                   </button>
                 </div>
               </div>
-            );
+            )
           })}
         </div>
       )}
 
       {/* Continue Shopping Link */}
       {wishlistItems.length > 0 && (
-        <div className="text-center mt-8">
+        <div className="mt-8 text-center">
           <Link
             href={`/${clinic}/store`}
             className="inline-flex items-center gap-2 text-[var(--primary)] hover:underline"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="h-4 w-4" />
             Seguir Comprando
           </Link>
         </div>
       )}
     </div>
-  );
+  )
 }

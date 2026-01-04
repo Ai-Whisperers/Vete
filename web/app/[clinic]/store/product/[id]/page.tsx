@@ -1,34 +1,38 @@
-import { Metadata } from 'next';
-import { notFound } from 'next/navigation';
-import { getClinicData } from '@/lib/clinics';
-import ProductDetailClient from './client';
-import { ProductSchema, BreadcrumbSchema } from '@/components/seo/structured-data';
-import { getStoreProduct } from '@/app/actions/store';
+import { Metadata } from 'next'
+import { notFound } from 'next/navigation'
+import { getClinicData } from '@/lib/clinics'
+import ProductDetailClient from './client'
+import { ProductSchema, BreadcrumbSchema } from '@/components/seo/structured-data'
+import { getStoreProduct } from '@/app/actions/store'
 
-const BASE_URL = 'https://vetepy.vercel.app';
+const BASE_URL = 'https://vetepy.vercel.app'
 
 interface Props {
-  params: Promise<{ clinic: string; id: string }>;
+  params: Promise<{ clinic: string; id: string }>
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { clinic, id } = await params;
-  const clinicData = await getClinicData(clinic);
+  const { clinic, id } = await params
+  const clinicData = await getClinicData(clinic)
 
   if (!clinicData) {
-    return { title: 'Producto no encontrado' };
+    return { title: 'Producto no encontrado' }
   }
 
-  const canonicalUrl = `${BASE_URL}/${clinic}/store/product/${id}`;
-  const result = await getStoreProduct(clinic, id);
+  const canonicalUrl = `${BASE_URL}/${clinic}/store/product/${id}`
+  const result = await getStoreProduct(clinic, id)
 
   if (result.success) {
-    const product = result.data;
-    const ogImage = product.image_url || clinicData.config.branding?.og_image_url || '/branding/default-og.jpg';
+    const product = result.data
+    const ogImage =
+      product.image_url || clinicData.config.branding?.og_image_url || '/branding/default-og.jpg'
 
     return {
       title: product.meta_title || `${product.name} | ${clinicData.config.name}`,
-      description: product.meta_description || product.short_description || product.description?.substring(0, 160),
+      description:
+        product.meta_description ||
+        product.short_description ||
+        product.description?.substring(0, 160),
       alternates: {
         canonical: canonicalUrl,
       },
@@ -53,7 +57,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         title: product.name,
         description: product.short_description || product.description?.substring(0, 160),
       },
-    };
+    }
   }
 
   return {
@@ -62,27 +66,27 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     alternates: {
       canonical: canonicalUrl,
     },
-  };
+  }
 }
 
 export default async function ProductDetailPage({ params }: Props) {
-  const { clinic, id } = await params;
-  const clinicData = await getClinicData(clinic);
+  const { clinic, id } = await params
+  const clinicData = await getClinicData(clinic)
 
   if (!clinicData) {
-    notFound();
+    notFound()
   }
 
   // Fetch product data
-  const result = await getStoreProduct(clinic, id);
-  const product = result.success ? result.data : null;
+  const result = await getStoreProduct(clinic, id)
+  const product = result.success ? result.data : null
 
   // Breadcrumb items for structured data
   const breadcrumbItems = [
     { name: 'Inicio', url: `/${clinic}` },
     { name: 'Tienda', url: `/${clinic}/store` },
     { name: product?.name || 'Producto', url: `/${clinic}/store/product/${id}` },
-  ];
+  ]
 
   return (
     <>
@@ -109,11 +113,7 @@ export default async function ProductDetailPage({ params }: Props) {
       )}
       <BreadcrumbSchema items={breadcrumbItems} />
 
-      <ProductDetailClient
-        clinic={clinic}
-        productId={id}
-        clinicConfig={clinicData.config}
-      />
+      <ProductDetailClient clinic={clinic} productId={id} clinicConfig={clinicData.config} />
     </>
-  );
+  )
 }

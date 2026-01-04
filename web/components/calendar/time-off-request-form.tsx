@@ -3,11 +3,7 @@
 import { useState, useEffect } from 'react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
-import type {
-  TimeOffType,
-  TimeOffBalance,
-  TimeOffRequestFormData,
-} from '@/lib/types/calendar'
+import type { TimeOffType, TimeOffBalance, TimeOffRequestFormData } from '@/lib/types/calendar'
 
 // =============================================================================
 // TYPES
@@ -44,8 +40,8 @@ export function TimeOffRequestForm({
   const [isSaving, setIsSaving] = useState(false)
 
   // Get selected type details
-  const selectedType = types.find(t => t.id === typeId)
-  const selectedBalance = balances.find(b => b.time_off_type_id === typeId)
+  const selectedType = types.find((t) => t.id === typeId)
+  const selectedBalance = balances.find((b) => b.time_off_type_id === typeId)
 
   // Calculate days requested
   const calculateDays = (): number => {
@@ -137,19 +133,23 @@ export function TimeOffRequestForm({
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Error message - TICKET-A11Y-004: Added role="alert" for screen readers */}
       {error && (
-        <div role="alert" aria-live="assertive" className="p-3 bg-[var(--status-error-bg,#fee2e2)] border border-[var(--status-error,#ef4444)]/20 rounded-lg text-sm text-[var(--status-error,#dc2626)]">
+        <div
+          role="alert"
+          aria-live="assertive"
+          className="border-[var(--status-error,#ef4444)]/20 rounded-lg border bg-[var(--status-error-bg,#fee2e2)] p-3 text-sm text-[var(--status-error,#dc2626)]"
+        >
           {error}
         </div>
       )}
 
       {/* Type selection */}
       <div>
-        <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
+        <label className="mb-2 block text-sm font-medium text-[var(--text-secondary)]">
           Tipo de ausencia *
         </label>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {types.map(type => {
-            const balance = balances.find(b => b.time_off_type_id === type.id)
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {types.map((type) => {
+            const balance = balances.find((b) => b.time_off_type_id === type.id)
             const isSelected = typeId === type.id
 
             return (
@@ -157,7 +157,7 @@ export function TimeOffRequestForm({
                 key={type.id}
                 type="button"
                 onClick={() => setTypeId(type.id)}
-                className={`p-4 rounded-lg border-2 text-left transition-all ${
+                className={`rounded-lg border-2 p-4 text-left transition-all ${
                   isSelected
                     ? 'border-[var(--primary)] bg-blue-50'
                     : 'border-gray-200 hover:border-gray-300'
@@ -165,7 +165,7 @@ export function TimeOffRequestForm({
               >
                 <div className="flex items-center gap-3">
                   <div
-                    className="w-4 h-4 rounded-full"
+                    className="h-4 w-4 rounded-full"
                     style={{ backgroundColor: type.color_code }}
                   />
                   <span className="font-medium text-gray-900">{type.name}</span>
@@ -182,9 +182,7 @@ export function TimeOffRequestForm({
                   </p>
                 )}
                 {type.requires_approval && (
-                  <p className="mt-1 text-xs text-yellow-600">
-                    Requiere aprobación
-                  </p>
+                  <p className="mt-1 text-xs text-yellow-600">Requiere aprobación</p>
                 )}
               </button>
             )
@@ -193,24 +191,22 @@ export function TimeOffRequestForm({
       </div>
 
       {/* Date selection */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Fecha de inicio *
-          </label>
+          <label className="mb-1 block text-sm font-medium text-gray-700">Fecha de inicio *</label>
           <input
             type="date"
             value={startDate}
-            onChange={e => setStartDate(e.target.value)}
+            onChange={(e) => setStartDate(e.target.value)}
             min={new Date().toISOString().split('T')[0]}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
           />
           {selectedType?.allows_half_day && (
-            <label className="flex items-center gap-2 mt-2 text-sm text-gray-600">
+            <label className="mt-2 flex items-center gap-2 text-sm text-gray-600">
               <input
                 type="checkbox"
                 checked={startHalfDay}
-                onChange={e => setStartHalfDay(e.target.checked)}
+                onChange={(e) => setStartHalfDay(e.target.checked)}
                 className="rounded border-gray-300 text-[var(--primary)] focus:ring-[var(--primary)]"
               />
               Empezar a medio día
@@ -219,22 +215,20 @@ export function TimeOffRequestForm({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Fecha de fin *
-          </label>
+          <label className="mb-1 block text-sm font-medium text-gray-700">Fecha de fin *</label>
           <input
             type="date"
             value={endDate}
-            onChange={e => setEndDate(e.target.value)}
+            onChange={(e) => setEndDate(e.target.value)}
             min={startDate || new Date().toISOString().split('T')[0]}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
           />
           {selectedType?.allows_half_day && startDate !== endDate && (
-            <label className="flex items-center gap-2 mt-2 text-sm text-gray-600">
+            <label className="mt-2 flex items-center gap-2 text-sm text-gray-600">
               <input
                 type="checkbox"
                 checked={endHalfDay}
-                onChange={e => setEndHalfDay(e.target.checked)}
+                onChange={(e) => setEndHalfDay(e.target.checked)}
                 className="rounded border-gray-300 text-[var(--primary)] focus:ring-[var(--primary)]"
               />
               Terminar a medio día
@@ -245,7 +239,7 @@ export function TimeOffRequestForm({
 
       {/* Days summary */}
       {daysRequested > 0 && (
-        <div className="p-4 bg-gray-50 rounded-lg">
+        <div className="rounded-lg bg-gray-50 p-4">
           <div className="flex items-center justify-between">
             <span className="text-sm text-gray-600">Total de días solicitados:</span>
             <span className="text-lg font-semibold text-gray-900">
@@ -268,30 +262,40 @@ export function TimeOffRequestForm({
 
       {/* Reason */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="mb-1 block text-sm font-medium text-gray-700">
           Motivo {selectedType?.requires_approval ? '*' : '(opcional)'}
         </label>
         <textarea
           value={reason}
-          onChange={e => setReason(e.target.value)}
+          onChange={(e) => setReason(e.target.value)}
           rows={3}
           placeholder="Describe el motivo de tu solicitud..."
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent resize-none"
+          className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
         />
       </div>
 
       {/* Notice about approval */}
       {selectedType?.requires_approval && (
-        <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+        <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4">
           <div className="flex items-start gap-3">
-            <svg className="w-5 h-5 text-yellow-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            <svg
+              className="h-5 w-5 flex-shrink-0 text-yellow-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+              />
             </svg>
             <div>
               <p className="text-sm font-medium text-yellow-800">
                 Esta solicitud requiere aprobación
               </p>
-              <p className="text-xs text-yellow-700 mt-1">
+              <p className="mt-1 text-xs text-yellow-700">
                 Tu solicitud será revisada por un administrador antes de ser confirmada.
               </p>
             </div>
@@ -300,18 +304,18 @@ export function TimeOffRequestForm({
       )}
 
       {/* Actions */}
-      <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
+      <div className="flex justify-end gap-3 border-t border-gray-200 pt-4">
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
+          className="rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200"
         >
           Cancelar
         </button>
         <button
           type="submit"
           disabled={isSaving || isLoading}
-          className="px-4 py-2 text-sm font-medium text-white rounded-lg hover:opacity-90 disabled:opacity-50"
+          className="rounded-lg px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
           style={{ backgroundColor: 'var(--primary, #3B82F6)' }}
         >
           {isSaving ? 'Enviando...' : 'Enviar Solicitud'}

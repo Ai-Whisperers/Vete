@@ -26,7 +26,7 @@ const sizeClasses = {
   md: 'max-w-lg',
   lg: 'max-w-2xl',
   xl: 'max-w-4xl',
-  full: 'max-w-full'
+  full: 'max-w-full',
 }
 
 export function Modal({
@@ -39,7 +39,7 @@ export function Modal({
   className,
   closeOnOverlayClick = true,
   closeOnEscape = true,
-  showCloseButton = true
+  showCloseButton = true,
 }: ModalProps) {
   const modalRef = useRef<HTMLDivElement>(null)
 
@@ -84,39 +84,33 @@ export function Modal({
       <div
         ref={modalRef}
         className={cn(
-          'relative bg-white rounded-lg shadow-xl max-h-[90vh] overflow-hidden',
+          'relative max-h-[90vh] overflow-hidden rounded-lg bg-white shadow-xl',
           sizeClasses[size],
-          'w-full mx-4',
+          'mx-4 w-full',
           className
         )}
       >
         {/* Header */}
         {(title || showCloseButton) && (
-          <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          <div className="flex items-center justify-between border-b border-gray-200 p-6">
             <div>
-              {title && (
-                <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
-              )}
-              {description && (
-                <p className="text-sm text-gray-600 mt-1">{description}</p>
-              )}
+              {title && <h2 className="text-lg font-semibold text-gray-900">{title}</h2>}
+              {description && <p className="mt-1 text-sm text-gray-600">{description}</p>}
             </div>
             {showCloseButton && (
               <button
                 onClick={onClose}
-                className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+                className="rounded-full p-2 transition-colors hover:bg-gray-100"
                 aria-label="Cerrar modal"
               >
-                <X className="w-5 h-5 text-gray-400" />
+                <X className="h-5 w-5 text-gray-400" />
               </button>
             )}
           </div>
         )}
 
         {/* Content */}
-        <div className="p-6 overflow-y-auto max-h-[calc(90vh-8rem)]">
-          {children}
-        </div>
+        <div className="max-h-[calc(90vh-8rem)] overflow-y-auto p-6">{children}</div>
       </div>
     </div>
   )
@@ -143,7 +137,7 @@ export function ConfirmModal({
   confirmText = 'Confirmar',
   cancelText = 'Cancelar',
   confirmVariant = 'primary',
-  loading = false
+  loading = false,
 }: ConfirmModalProps) {
   const handleConfirm = () => {
     onConfirm()
@@ -151,18 +145,12 @@ export function ConfirmModal({
   }
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      title={title}
-      description={description}
-      size="sm"
-    >
+    <Modal isOpen={isOpen} onClose={onClose} title={title} description={description} size="sm">
       <div className="flex justify-end space-x-3">
         <button
           onClick={onClose}
           disabled={loading}
-          className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+          className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50"
         >
           {cancelText}
         </button>
@@ -170,7 +158,7 @@ export function ConfirmModal({
           onClick={handleConfirm}
           disabled={loading}
           className={cn(
-            'px-4 py-2 text-sm font-medium text-white rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50',
+            'rounded-md px-4 py-2 text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50',
             confirmVariant === 'destructive'
               ? 'bg-red-600 hover:bg-red-700 focus:ring-red-500'
               : 'bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500'

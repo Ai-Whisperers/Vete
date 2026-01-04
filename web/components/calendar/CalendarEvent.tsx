@@ -1,4 +1,4 @@
-'use client';
+'use client'
 
 /**
  * Calendar Event Component
@@ -94,23 +94,23 @@ export function CalendarEventComponent({ event }: CalendarEventProps) {
 
     return (
       <div
-        className="flex flex-col h-full overflow-hidden px-2 py-1.5"
+        className="flex h-full flex-col overflow-hidden px-2 py-1.5"
         title={`${resource.petName || event.title}${resource.ownerName ? `\nDueño: ${resource.ownerName}` : ''}${resource.reason ? `\nMotivo: ${resource.reason}` : ''}${resource.notes ? `\nNotas: ${resource.notes}` : ''}`}
       >
         <div className="flex items-center gap-1">
           <span className="text-sm">{speciesIcon}</span>
-          <span className="font-bold text-[14px] leading-tight truncate text-gray-900">
+          <span className="truncate text-[14px] font-bold leading-tight text-gray-900">
             {resource.petName || event.title}
           </span>
         </div>
-        <div className="flex items-center gap-1 mt-0.5">
+        <div className="mt-0.5 flex items-center gap-1">
           <span className="text-xs">{serviceIcon}</span>
-          <span className="text-[12px] text-gray-600 leading-tight truncate">
+          <span className="truncate text-[12px] leading-tight text-gray-600">
             {resource.reason || resource.serviceName || 'Consulta'}
           </span>
         </div>
         {ownerLastName && (
-          <span className="text-[11px] text-gray-400 leading-tight truncate mt-0.5">
+          <span className="mt-0.5 truncate text-[11px] leading-tight text-gray-400">
             {ownerLastName}
           </span>
         )}
@@ -121,14 +121,14 @@ export function CalendarEventComponent({ event }: CalendarEventProps) {
   // For shifts, show staff name with icon
   if (resource?.type === 'shift') {
     return (
-      <div className="flex flex-col h-full overflow-hidden px-2 py-1.5">
+      <div className="flex h-full flex-col overflow-hidden px-2 py-1.5">
         <div className="flex items-center gap-1">
           <span className="text-sm">👤</span>
-          <span className="font-bold text-[14px] leading-tight truncate text-gray-900">
+          <span className="truncate text-[14px] font-bold leading-tight text-gray-900">
             {resource.staffName || event.title}
           </span>
         </div>
-        <span className="text-[12px] text-gray-500 leading-tight mt-0.5">Turno</span>
+        <span className="mt-0.5 text-[12px] leading-tight text-gray-500">Turno</span>
       </div>
     )
   }
@@ -136,14 +136,14 @@ export function CalendarEventComponent({ event }: CalendarEventProps) {
   // For time off, show type with icon
   if (resource?.type === 'time_off') {
     return (
-      <div className="flex flex-col h-full overflow-hidden px-2 py-1.5">
+      <div className="flex h-full flex-col overflow-hidden px-2 py-1.5">
         <div className="flex items-center gap-1">
           <span className="text-sm">🏖️</span>
-          <span className="font-bold text-[14px] leading-tight truncate text-gray-900">
+          <span className="truncate text-[14px] font-bold leading-tight text-gray-900">
             {resource.staffName || 'Ausencia'}
           </span>
         </div>
-        <span className="text-[12px] text-gray-500 leading-tight mt-0.5 truncate">
+        <span className="mt-0.5 truncate text-[12px] leading-tight text-gray-500">
           {event.title}
         </span>
       </div>
@@ -152,8 +152,8 @@ export function CalendarEventComponent({ event }: CalendarEventProps) {
 
   // Default fallback
   return (
-    <div className="flex flex-col h-full overflow-hidden px-2 py-1.5">
-      <span className="font-bold text-[14px] leading-tight truncate text-gray-900">
+    <div className="flex h-full flex-col overflow-hidden px-2 py-1.5">
+      <span className="truncate text-[14px] font-bold leading-tight text-gray-900">
         {event.title}
       </span>
     </div>

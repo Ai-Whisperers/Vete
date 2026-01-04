@@ -1,22 +1,21 @@
+import { Client } from 'pg'
+import dotenv from 'dotenv'
+import path from 'path'
+import { fileURLToPath } from 'url'
 
-import { Client } from 'pg';
-import dotenv from 'dotenv';
-import path from 'path';
-import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-dotenv.config({ path: path.resolve(__dirname, '../.env.local') });
+dotenv.config({ path: path.resolve(__dirname, '../.env.local') })
 
 async function main() {
-  console.log('Disabling RLS on store tables...');
+  console.log('Disabling RLS on store tables...')
 
-  const databaseUrl = process.env.DATABASE_URL;
-  const dbPassword = process.env.DB_PASSWORD;
-  const dbHost = process.env.DB_HOST || 'db.okddppczckbjdotrxiev.supabase.co';
-  const dbUser = process.env.DB_USER || 'postgres';
-  const dbName = process.env.DB_NAME || 'postgres';
+  const databaseUrl = process.env.DATABASE_URL
+  const dbPassword = process.env.DB_PASSWORD
+  const dbHost = process.env.DB_HOST || 'db.okddppczckbjdotrxiev.supabase.co'
+  const dbUser = process.env.DB_USER || 'postgres'
+  const dbName = process.env.DB_NAME || 'postgres'
 
   const client = dbPassword
     ? new Client({
@@ -27,35 +26,34 @@ async function main() {
         database: dbName,
         ssl: { rejectUnauthorized: false },
       })
-    : new Client({ connectionString: databaseUrl, ssl: { rejectUnauthorized: false } });
+    : new Client({ connectionString: databaseUrl, ssl: { rejectUnauthorized: false } })
 
   try {
-    await client.connect();
-    
+    await client.connect()
+
     // Disable RLS on store tables
     const tables = [
-      'store_products', 
-      'store_categories', 
-      'store_brands', 
-      'clinic_product_assignments', 
-      'store_inventory', 
-      'store_inventory_transactions'
-    ];
+      'store_products',
+      'store_categories',
+      'store_brands',
+      'clinic_product_assignments',
+      'store_inventory',
+      'store_inventory_transactions',
+    ]
 
     for (const table of tables) {
       try {
-        await client.query(`ALTER TABLE public.${table} DISABLE ROW LEVEL SECURITY;`);
-        console.log(`✅ RLS disabled for ${table}`);
+        await client.query(`ALTER TABLE public.${table} DISABLE ROW LEVEL SECURITY;`)
+        console.log(`✅ RLS disabled for ${table}`)
       } catch (e: any) {
-        console.log(`⚠️  Could not disable RLS for ${table}: ${e.message}`);
+        console.log(`⚠️  Could not disable RLS for ${table}: ${e.message}`)
       }
     }
-
   } catch (err) {
-    console.error('Error:', err);
+    console.error('Error:', err)
   } finally {
-    await client.end();
+    await client.end()
   }
 }
 
-main();
+main()

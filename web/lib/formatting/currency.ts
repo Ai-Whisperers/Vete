@@ -24,10 +24,7 @@ export type CurrencyCode = keyof typeof CURRENCY_CONFIG
  * formatCurrency(150000) // "₲ 150.000"
  * formatCurrency(99.99, 'USD') // "$99.99"
  */
-export function formatCurrency(
-  amount: number,
-  currency: CurrencyCode = 'PYG'
-): string {
+export function formatCurrency(amount: number, currency: CurrencyCode = 'PYG'): string {
   const config = CURRENCY_CONFIG[currency]
   return new Intl.NumberFormat(config.locale, {
     style: 'currency',

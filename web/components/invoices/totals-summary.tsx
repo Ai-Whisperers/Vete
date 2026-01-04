@@ -29,7 +29,9 @@ export function TotalsSummary(props: TotalsSummaryProps) {
   if (props.items) {
     // Calculate from items
     const calculated = calculateInvoiceTotals(
-      props.items.map(i => ({ ...i, description: '', quantity: 1, unit_price: 0 }) as InvoiceItem),
+      props.items.map(
+        (i) => ({ ...i, description: '', quantity: 1, unit_price: 0 }) as InvoiceItem
+      ),
       taxRate
     )
     subtotal = calculated.subtotal
@@ -45,7 +47,7 @@ export function TotalsSummary(props: TotalsSummaryProps) {
   }
 
   return (
-    <div className="bg-gray-50 rounded-lg p-4 space-y-2">
+    <div className="space-y-2 rounded-lg bg-gray-50 p-4">
       <div className="flex justify-between text-sm">
         <span className="text-[var(--text-secondary)]">Subtotal</span>
         <span className="text-[var(--text-primary)]">{formatCurrency(subtotal)}</span>
@@ -56,7 +58,7 @@ export function TotalsSummary(props: TotalsSummaryProps) {
         <span className="text-[var(--text-primary)]">{formatCurrency(taxAmount)}</span>
       </div>
 
-      <div className="border-t border-gray-200 pt-2 mt-2">
+      <div className="mt-2 border-t border-gray-200 pt-2">
         <div className="flex justify-between font-bold">
           <span className="text-[var(--text-primary)]">Total</span>
           <span className="text-[var(--text-primary)]">{formatCurrency(total)}</span>

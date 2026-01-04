@@ -44,6 +44,7 @@ Every piece of data in the system belongs to a specific clinic, and the database
 A **tenant** represents a single veterinary clinic or practice. It's the top-level organizational unit that owns all data in the system.
 
 Each tenant has:
+
 - A unique identifier (slug) like "adris" or "petlife"
 - Business information (name, address, contact details)
 - Branding settings (stored separately in JSON files, not in the database)
@@ -71,6 +72,7 @@ Instead of deploying separate applications for each clinic, we use a single data
 Every person who interacts with the system has a **profile**. The profile connects their authentication identity (managed by Supabase Auth) to their role and permissions within a specific clinic.
 
 A profile contains:
+
 - Personal information (name, email, phone, avatar)
 - The clinic they belong to
 - Their role (owner, vet, or admin)
@@ -81,6 +83,7 @@ A profile contains:
 The system has three distinct roles:
 
 **Pet Owners (role: "owner")**
+
 - Can register and manage their own pets
 - Book and manage appointments
 - View medical records and prescriptions for their pets
@@ -88,6 +91,7 @@ The system has three distinct roles:
 - Access the pet owner portal
 
 **Veterinarians (role: "vet")**
+
 - Can access all patient records within their clinic
 - Create medical records, prescriptions, and lab orders
 - Manage hospitalizations and treatments
@@ -95,6 +99,7 @@ The system has three distinct roles:
 - Cannot access financial or administrative settings
 
 **Administrators (role: "admin")**
+
 - Have all veterinarian permissions
 - Manage staff and their schedules
 - Access financial reports and invoicing
@@ -121,6 +126,7 @@ When someone signs up, the system checks for a pending invite and automatically 
 The **pet** is the central entity around which most clinical data revolves. Each pet belongs to one owner but exists within a specific clinic's tenant.
 
 Pet information includes:
+
 - Basic identification (name, species, breed, color, sex)
 - Physical characteristics (weight, microchip number)
 - Birth information (exact date or estimated age)
@@ -131,6 +137,7 @@ Pet information includes:
 ### Why Pets Belong to Both Owners and Tenants
 
 A pet must reference both its owner and the tenant because:
+
 - The owner might have pets at multiple clinics
 - If an owner moves clinics, historical data stays with the original clinic
 - Security policies need both relationships to work correctly
@@ -138,6 +145,7 @@ A pet must reference both its owner and the tenant because:
 ### Vaccines and Immunization
 
 The vaccination system tracks:
+
 - Which vaccines a pet has received
 - When they were administered and by whom
 - When the next dose is due
@@ -149,6 +157,7 @@ Vaccines have specific medical reasons to skip them (like illness or owner refus
 ### Vaccine Reactions
 
 If a pet has an adverse reaction to a vaccine, this critical information is recorded:
+
 - Which vaccine caused the reaction
 - The type and severity of reaction
 - When symptoms appeared after vaccination
@@ -167,6 +176,7 @@ The system maintains standardized clinical reference data that helps veterinaria
 
 **Diagnosis Codes**
 A catalog of veterinary diagnoses based on the VeNom (Veterinary Nomenclature) coding system. Each diagnosis has:
+
 - A unique code (like "GI-101")
 - A descriptive name
 - The body system it affects
@@ -175,6 +185,7 @@ A catalog of veterinary diagnoses based on the VeNom (Veterinary Nomenclature) c
 
 **Drug Dosages**
 Pre-calculated dosage information for common veterinary medications:
+
 - Drug name and class
 - Species-specific dosing (mg per kg)
 - Administration route (oral, injection, topical)
@@ -183,6 +194,7 @@ Pre-calculated dosage information for common veterinary medications:
 
 **Growth Standards**
 Expected weight ranges for different species and breeds at various ages:
+
 - Weight percentiles (P5, P25, P50, P75, P95)
 - Used to generate growth charts
 - Helps identify underweight or overweight pets
@@ -192,6 +204,7 @@ Expected weight ranges for different species and breeds at various ages:
 Every clinical encounter creates a **medical record**. This is the core documentation of veterinary care.
 
 A medical record captures:
+
 - The reason for the visit (chief complaint)
 - Physical examination findings (vital signs, observations)
 - The veterinarian's assessment and diagnosis
@@ -204,6 +217,7 @@ Medical records are **immutable** - once created, they cannot be deleted (only c
 ### Prescriptions
 
 When a veterinarian prescribes medication, the system creates a formal prescription that:
+
 - Lists all medications with dosage instructions
 - Has a validity period (after which refills require a new consultation)
 - Can be digitally signed
@@ -213,6 +227,7 @@ When a veterinarian prescribes medication, the system creates a formal prescript
 ### Quality of Life Assessments
 
 For chronically ill or aging pets, the system supports structured quality of life evaluations using the HHHHHMM scale:
+
 - Hurt (pain level)
 - Hunger (appetite)
 - Hydration
@@ -226,6 +241,7 @@ These assessments help owners and veterinarians make difficult end-of-life decis
 ### Reproductive Tracking
 
 For breeders and intact pets, the system tracks reproductive cycles:
+
 - Heat cycles with dates
 - Breeding events
 - Pregnancy detection and expected due dates
@@ -241,6 +257,7 @@ When pets need to stay at the clinic for extended care, the hospitalization modu
 ### Kennels
 
 The clinic's physical housing is modeled as **kennels**:
+
 - Each kennel has a name, size, and type (recovery, isolation, ICU)
 - Daily rate for billing
 - Current occupancy status
@@ -249,6 +266,7 @@ The clinic's physical housing is modeled as **kennels**:
 ### Hospitalizations
 
 When a pet is admitted, a hospitalization record tracks:
+
 - Admission date and reason
 - Assigned kennel
 - Attending veterinarian
@@ -261,17 +279,20 @@ When a pet is admitted, a hospitalization record tracks:
 Throughout the stay, staff record:
 
 **Vital Signs**
+
 - Temperature, heart rate, respiratory rate
 - Blood pressure, oxygen saturation
 - Pain score assessments
 - Recorded at regular intervals
 
 **Medications**
+
 - Each dose administered
 - Who gave it and when
 - Any reactions or issues
 
 **Feeding**
+
 - Food type and amount
 - Whether the pet ate
 - Any vomiting or appetite issues
@@ -279,6 +300,7 @@ Throughout the stay, staff record:
 ### Discharge
 
 When the pet goes home, the system captures:
+
 - Discharge date and time
 - Condition at discharge
 - Take-home instructions
@@ -292,6 +314,7 @@ When the pet goes home, the system captures:
 ### Lab Test Catalog
 
 The clinic maintains a catalog of available laboratory tests:
+
 - Test name and code
 - Sample type required (blood, urine, tissue)
 - Normal reference ranges by species
@@ -303,6 +326,7 @@ Tests can be grouped into **panels** (like a "Senior Wellness Panel" that includ
 ### Lab Orders
 
 When a veterinarian needs diagnostics, they create a lab order:
+
 - Which pet the samples are from
 - Which tests to perform
 - Clinical notes for the lab
@@ -312,6 +336,7 @@ When a veterinarian needs diagnostics, they create a lab order:
 ### Lab Results
 
 When results come back, each test value is recorded with:
+
 - The measured value and units
 - Whether it's within normal range
 - Flags for abnormal values (high, low, critical)
@@ -326,6 +351,7 @@ Results can include attachments (microscopy images, full reports) and interpreti
 ### Services
 
 Each clinic defines the **services** they offer:
+
 - Service name and description
 - Category (consultation, surgery, grooming, etc.)
 - Duration (how long to block on the calendar)
@@ -336,6 +362,7 @@ Each clinic defines the **services** they offer:
 ### Appointments
 
 The appointment is the core scheduling unit:
+
 - When (start and end time)
 - Who (which pet, which owner, which veterinarian)
 - What (which service)
@@ -344,6 +371,7 @@ The appointment is the core scheduling unit:
 ### Appointment Lifecycle
 
 An appointment moves through states:
+
 1. **Scheduled** - Booked but not yet confirmed
 2. **Confirmed** - Owner has confirmed attendance
 3. **Checked In** - Owner has arrived at the clinic
@@ -355,6 +383,7 @@ An appointment moves through states:
 ### Preventing Double-Booking
 
 The system enforces rules to prevent scheduling conflicts:
+
 - A veterinarian cannot have overlapping appointments
 - A room/resource cannot be double-booked
 - Buffer time can be required between appointments
@@ -369,6 +398,7 @@ The invoicing system tracks all financial transactions between the clinic and cl
 
 **Invoice Structure**
 An invoice contains:
+
 - Client information
 - Invoice number (auto-generated sequentially)
 - Status (draft, sent, partially paid, paid, overdue, cancelled)
@@ -377,6 +407,7 @@ An invoice contains:
 
 **Line Items**
 Each line on an invoice represents:
+
 - What was provided (service, product, or custom charge)
 - Quantity and unit price
 - Any applicable discount
@@ -386,11 +417,13 @@ Each line on an invoice represents:
 ### Payments
 
 Payments are recorded separately from invoices because:
+
 - An invoice can have multiple partial payments
 - A payment might cover multiple invoices
 - Different payment methods need tracking
 
 Payment records include:
+
 - Amount received
 - Payment method (cash, card, transfer, etc.)
 - Reference number
@@ -399,6 +432,7 @@ Payment records include:
 ### Refunds
 
 When money needs to be returned:
+
 - The original payment is referenced
 - Reason is documented
 - Approval workflow can be required
@@ -407,6 +441,7 @@ When money needs to be returned:
 ### Expenses
 
 Clinic expenses (supplies, rent, utilities) are tracked separately:
+
 - Expense category
 - Amount and date
 - Vendor information
@@ -416,6 +451,7 @@ Clinic expenses (supplies, rent, utilities) are tracked separately:
 ### Loyalty Program
 
 To encourage repeat business:
+
 - Points are earned on purchases
 - Points can be redeemed for discounts
 - Transaction history shows all point activity
@@ -428,6 +464,7 @@ To encourage repeat business:
 ### Product Catalog
 
 The clinic's store maintains products for sale:
+
 - Product name, description, and images
 - SKU (stock keeping unit) for tracking
 - Categories for organization
@@ -437,6 +474,7 @@ The clinic's store maintains products for sale:
 ### Categories
 
 Products are organized into hierarchical categories:
+
 - Parent categories (Food, Medications, Accessories)
 - Child categories (Dry Food, Wet Food under Food)
 - Each category has a URL-friendly slug
@@ -444,6 +482,7 @@ Products are organized into hierarchical categories:
 ### Inventory Management
 
 Stock is tracked in real-time:
+
 - Current quantity on hand
 - Reorder point (when to purchase more)
 - Reorder quantity (how much to order)
@@ -453,6 +492,7 @@ Stock is tracked in real-time:
 ### Orders
 
 When customers purchase online:
+
 - Order captures all items and quantities
 - Shipping address for delivery orders
 - Order status progression (pending, confirmed, shipped, delivered)
@@ -461,6 +501,7 @@ When customers purchase online:
 ### Promotions
 
 The store supports marketing campaigns:
+
 - Percentage or fixed amount discounts
 - Valid date ranges
 - Minimum purchase requirements
@@ -469,6 +510,7 @@ The store supports marketing campaigns:
 ### Coupons
 
 Promotional codes that customers can enter:
+
 - Unique code
 - Discount type and value
 - Maximum uses (total and per customer)
@@ -477,6 +519,7 @@ Promotional codes that customers can enter:
 ### Reviews
 
 Customers can review products:
+
 - Star rating (1-5)
 - Written review text
 - Moderation status
@@ -489,6 +532,7 @@ Customers can review products:
 ### Conversations
 
 All communication between clinic and clients happens through **conversations**:
+
 - One conversation per client-pet-channel combination
 - Channels include in-app messaging, SMS, WhatsApp, email
 - Status tracking (open, pending response, resolved, closed)
@@ -498,6 +542,7 @@ All communication between clinic and clients happens through **conversations**:
 ### Messages
 
 Each conversation contains messages:
+
 - Sender identification (client, staff, system, or automated bot)
 - Message type (text, image, file, rich cards)
 - Delivery status tracking
@@ -506,6 +551,7 @@ Each conversation contains messages:
 
 **Rich Message Types**
 Messages can include structured content:
+
 - Appointment cards (showing booking details)
 - Invoice cards (showing amount due)
 - Prescription cards (showing medication summary)
@@ -513,6 +559,7 @@ Messages can include structured content:
 ### Message Templates
 
 Pre-written messages for common scenarios:
+
 - Appointment confirmations and reminders
 - Vaccine reminders
 - Invoice notifications
@@ -524,6 +571,7 @@ Templates support variable substitution (pet name, appointment date, etc.) and c
 ### Reminders
 
 Scheduled notifications that go out automatically:
+
 - Vaccine due reminders
 - Appointment reminders (24 hours before)
 - Payment due notices
@@ -531,6 +579,7 @@ Scheduled notifications that go out automatically:
 - Custom follow-ups
 
 The reminder system tracks:
+
 - Scheduled send time
 - Delivery attempts
 - Success or failure status
@@ -539,6 +588,7 @@ The reminder system tracks:
 ### Communication Preferences
 
 Each user can set their preferences:
+
 - Which channels they want to receive (SMS, email, WhatsApp, push)
 - Quiet hours (no notifications during sleep)
 - Types of communications to receive (medical, marketing, reminders)
@@ -551,6 +601,7 @@ Each user can set their preferences:
 ### Insurance Providers
 
 A directory of pet insurance companies:
+
 - Company name and contact information
 - Claims submission details
 - Active/inactive status
@@ -558,6 +609,7 @@ A directory of pet insurance companies:
 ### Policies
 
 When a pet is insured, their policy is recorded:
+
 - Policy and group numbers
 - Coverage type and limits
 - Deductible and copay percentages
@@ -567,6 +619,7 @@ When a pet is insured, their policy is recorded:
 ### Claims
 
 When submitting insurance claims:
+
 - Claim type (treatment, surgery, medication, etc.)
 - Amount being claimed
 - Service date and documentation
@@ -578,6 +631,7 @@ Claims reference the related invoice and medical records to support the submissi
 ### Pre-Authorization
 
 For expensive procedures, pre-approval may be needed:
+
 - Procedure description and estimated cost
 - Submission to insurance
 - Approval status and amount
@@ -591,6 +645,7 @@ For expensive procedures, pre-approval may be needed:
 ### Staff Profiles
 
 Extended information for clinic employees:
+
 - Professional license number and expiration
 - Specializations (surgery, dentistry, etc.)
 - Education and credentials
@@ -601,6 +656,7 @@ Extended information for clinic employees:
 ### Schedules
 
 Each staff member has defined working hours:
+
 - Day of week
 - Start and end times
 - Break periods
@@ -611,6 +667,7 @@ Schedules can have multiple versions (summer hours vs. winter hours).
 ### Time Off
 
 Managing absences:
+
 - Request submission with dates
 - Type of time off (vacation, sick, personal)
 - Approval workflow
@@ -623,6 +680,7 @@ Managing absences:
 ### Audit Logs
 
 Every significant action is logged for accountability:
+
 - Who performed the action
 - What action was taken
 - Which record was affected
@@ -634,6 +692,7 @@ Audit logs are **append-only** - they cannot be modified or deleted, ensuring a 
 ### Notifications
 
 In-app notifications keep users informed:
+
 - Different types (appointment reminder, message received, payment due)
 - Priority levels
 - Read/unread status
@@ -642,6 +701,7 @@ In-app notifications keep users informed:
 ### QR Tags
 
 Physical QR code tags for pet identification:
+
 - Unique code printed on the tag
 - Assignment to specific pets
 - Scan tracking (when and where scanned)
@@ -652,6 +712,7 @@ When someone scans a lost pet's tag, they can contact the owner through the syst
 ### Lost Pet Reports
 
 When a pet goes missing:
+
 - Last known location with coordinates
 - Description and photos
 - Contact information for finders
@@ -661,6 +722,7 @@ When a pet goes missing:
 ### Disease Surveillance
 
 For public health monitoring:
+
 - Anonymous disease case reporting
 - Geographic clustering by zone
 - Species and diagnosis tracking
@@ -678,11 +740,13 @@ This data helps identify emerging health threats without exposing individual pet
 Every table uses PostgreSQL's Row-Level Security to enforce access control at the database level:
 
 **Tenant Isolation**
+
 - Users can only see data from their own clinic
 - Every query is automatically filtered by tenant_id
 - Even SQL injection attacks cannot access other tenants' data
 
 **Role-Based Access**
+
 - Staff (vets and admins) can see all clinic data
 - Owners can only see their own pets and related records
 - Admins have additional permissions for management functions
@@ -702,6 +766,7 @@ These functions are used in RLS policies to create readable, maintainable securi
 ### Soft Deletes
 
 Most records are never truly deleted:
+
 - A `deleted_at` timestamp marks records as inactive
 - A `deleted_by` reference tracks who deleted it
 - Queries automatically exclude deleted records
@@ -764,25 +829,29 @@ Tenant (Clinic)
 ## Why This Design?
 
 ### Scalability
+
 - Multi-tenant architecture allows unlimited clinics
 - Indexed queries ensure performance at scale
 - BRIN indexes optimize time-series data
 
 ### Auditability
+
 - Complete history of all changes
 - Immutable medical records
 - Soft deletes preserve data integrity
 
 ### Flexibility
+
 - JSONB columns for schema-flexible data
 - Configurable features per tenant
 - Extensible reference data catalogs
 
 ### Security
+
 - Database-level access control
 - No application bugs can leak data
 - Defense in depth architecture
 
 ---
 
-*This document represents the conceptual foundation of the Vete database. For implementation details, refer to the SQL migration files in this directory.*
+_This document represents the conceptual foundation of the Vete database. For implementation details, refer to the SQL migration files in this directory._

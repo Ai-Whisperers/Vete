@@ -8,7 +8,7 @@ import {
   startAppointment,
   completeAppointment,
   markNoShow,
-  cancelAppointment
+  cancelAppointment,
 } from '@/app/actions/appointments'
 
 interface StatusButtonsProps {
@@ -22,7 +22,10 @@ export function StatusButtons({ appointmentId, currentStatus, clinic }: StatusBu
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
 
-  const handleAction = async (action: () => Promise<{ success?: boolean; error?: string }>, actionName: string) => {
+  const handleAction = async (
+    action: () => Promise<{ success?: boolean; error?: string }>,
+    actionName: string
+  ) => {
     setLoading(actionName)
     setError(null)
 
@@ -40,7 +43,8 @@ export function StatusButtons({ appointmentId, currentStatus, clinic }: StatusBu
     }
   }
 
-  const buttonBaseClass = "p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+  const buttonBaseClass =
+    'p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
 
   // Determine which buttons to show based on current status
   switch (currentStatus) {
@@ -56,9 +60,9 @@ export function StatusButtons({ appointmentId, currentStatus, clinic }: StatusBu
             title="Registrar llegada"
           >
             {loading === 'checkin' ? (
-              <Icons.Loader2 className="w-4 h-4 animate-spin" />
+              <Icons.Loader2 className="h-4 w-4 animate-spin" />
             ) : (
-              <Icons.UserCheck className="w-4 h-4" />
+              <Icons.UserCheck className="h-4 w-4" />
             )}
           </button>
 
@@ -70,9 +74,9 @@ export function StatusButtons({ appointmentId, currentStatus, clinic }: StatusBu
             title="Marcar como no presentado"
           >
             {loading === 'noshow' ? (
-              <Icons.Loader2 className="w-4 h-4 animate-spin" />
+              <Icons.Loader2 className="h-4 w-4 animate-spin" />
             ) : (
-              <Icons.UserX className="w-4 h-4" />
+              <Icons.UserX className="h-4 w-4" />
             )}
           </button>
 
@@ -84,9 +88,9 @@ export function StatusButtons({ appointmentId, currentStatus, clinic }: StatusBu
             title="Cancelar cita"
           >
             {loading === 'cancel' ? (
-              <Icons.Loader2 className="w-4 h-4 animate-spin" />
+              <Icons.Loader2 className="h-4 w-4 animate-spin" />
             ) : (
-              <Icons.X className="w-4 h-4" />
+              <Icons.X className="h-4 w-4" />
             )}
           </button>
 
@@ -105,9 +109,9 @@ export function StatusButtons({ appointmentId, currentStatus, clinic }: StatusBu
             title="Iniciar consulta"
           >
             {loading === 'start' ? (
-              <Icons.Loader2 className="w-4 h-4 animate-spin" />
+              <Icons.Loader2 className="h-4 w-4 animate-spin" />
             ) : (
-              <Icons.Stethoscope className="w-4 h-4" />
+              <Icons.Stethoscope className="h-4 w-4" />
             )}
           </button>
 
@@ -119,9 +123,9 @@ export function StatusButtons({ appointmentId, currentStatus, clinic }: StatusBu
             title="Completar"
           >
             {loading === 'complete' ? (
-              <Icons.Loader2 className="w-4 h-4 animate-spin" />
+              <Icons.Loader2 className="h-4 w-4 animate-spin" />
             ) : (
-              <Icons.CheckCircle className="w-4 h-4" />
+              <Icons.CheckCircle className="h-4 w-4" />
             )}
           </button>
 
@@ -140,9 +144,9 @@ export function StatusButtons({ appointmentId, currentStatus, clinic }: StatusBu
             title="Completar consulta"
           >
             {loading === 'complete' ? (
-              <Icons.Loader2 className="w-4 h-4 animate-spin" />
+              <Icons.Loader2 className="h-4 w-4 animate-spin" />
             ) : (
-              <Icons.CheckCircle className="w-4 h-4" />
+              <Icons.CheckCircle className="h-4 w-4" />
             )}
           </button>
 

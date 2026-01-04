@@ -1,43 +1,46 @@
 // Supabase Edge Function: Send Single Email
 // Can be invoked directly via HTTP for immediate email sending
 
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
-import { supabaseAdmin } from '../_shared/supabase.ts';
-import { corsHeaders } from '../_shared/cors.ts';
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
+import { supabaseAdmin } from '../_shared/supabase.ts'
+import { corsHeaders } from '../_shared/cors.ts'
 
 interface EmailRequest {
-  to: string;
-  subject: string;
-  body: string;
-  tenant_id?: string;
-  template?: string;
-  variables?: Record<string, string>;
+  to: string
+  subject: string
+  body: string
+  tenant_id?: string
+  template?: string
+  variables?: Record<string, string>
 }
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
+    return new Response('ok', { headers: corsHeaders })
   }
 
   try {
     // Verify authorization
-    const authHeader = req.headers.get('Authorization');
+    const authHeader = req.headers.get('Authorization')
     if (!authHeader) {
-      return new Response(
-        JSON.stringify({ error: 'Missing authorization header' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ error: 'Missing authorization header' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
     }
 
     // Verify the JWT token
-    const token = authHeader.replace('Bearer ', '');
-    const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
+    const token = authHeader.replace('Bearer ', '')
+    const {
+      data: { user },
+      error: authError,
+    } = await supabaseAdmin.auth.getUser(token)
 
     if (authError || !user) {
-      return new Response(
-        JSON.stringify({ error: 'Invalid token' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ error: 'Invalid token' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
     }
 
     // Get user's tenant
@@ -45,24 +48,24 @@ serve(async (req) => {
       .from('profiles')
       .select('tenant_id, role')
       .eq('id', user.id)
-      .single();
+      .single()
 
     if (!profile || !['vet', 'admin'].includes(profile.role)) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized - staff only' }),
-        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ error: 'Unauthorized - staff only' }), {
+        status: 403,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
     }
 
-    const body: EmailRequest = await req.json();
-    const { to, subject, template, variables } = body;
-    let emailBody = body.body;
+    const body: EmailRequest = await req.json()
+    const { to, subject, template, variables } = body
+    let emailBody = body.body
 
     if (!to) {
-      return new Response(
-        JSON.stringify({ error: 'Missing required field: to' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ error: 'Missing required field: to' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
     }
 
     // If using a template, fetch and render it
@@ -73,22 +76,22 @@ serve(async (req) => {
         .eq('tenant_id', profile.tenant_id)
         .eq('name', template)
         .eq('channel', 'email')
-        .single();
+        .single()
 
       if (templateData) {
-        emailBody = renderTemplate(templateData.body, variables || {});
+        emailBody = renderTemplate(templateData.body, variables || {})
         // Use template subject if not overridden
         if (!subject && templateData.subject) {
-          body.subject = renderTemplate(templateData.subject, variables || {});
+          body.subject = renderTemplate(templateData.subject, variables || {})
         }
       }
     }
 
     if (!emailBody) {
-      return new Response(
-        JSON.stringify({ error: 'Missing email body or valid template' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ error: 'Missing email body or valid template' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
     }
 
     // Get tenant config
@@ -96,44 +99,44 @@ serve(async (req) => {
       .from('tenants')
       .select('name, config')
       .eq('id', profile.tenant_id)
-      .single();
+      .single()
 
-    const config = tenant?.config || {};
-    const apiKey = config.email_api_key || Deno.env.get('RESEND_API_KEY');
-    const fromEmail = config.email_from || Deno.env.get('DEFAULT_FROM_EMAIL') || 'noreply@vete.app';
+    const config = tenant?.config || {}
+    const apiKey = config.email_api_key || Deno.env.get('RESEND_API_KEY')
+    const fromEmail = config.email_from || Deno.env.get('DEFAULT_FROM_EMAIL') || 'noreply@vete.app'
 
     if (!apiKey) {
-      return new Response(
-        JSON.stringify({ error: 'Email not configured for this tenant' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ error: 'Email not configured for this tenant' }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
     }
 
     // Send email via Resend
     const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json'
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         from: fromEmail,
         to: to,
         subject: subject || 'Mensaje de tu veterinaria',
-        html: formatEmailHtml(emailBody, tenant?.name || 'Tu Veterinaria')
-      })
-    });
+        html: formatEmailHtml(emailBody, tenant?.name || 'Tu Veterinaria'),
+      }),
+    })
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Resend error:', errorText);
-      return new Response(
-        JSON.stringify({ error: 'Failed to send email' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      const errorText = await response.text()
+      console.error('Resend error:', errorText)
+      return new Response(JSON.stringify({ error: 'Failed to send email' }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
     }
 
-    const result = await response.json();
+    const result = await response.json()
 
     // Log the sent email
     await supabaseAdmin.from('notification_log').insert({
@@ -142,28 +145,27 @@ serve(async (req) => {
       recipient: to,
       subject: subject,
       status: 'sent',
-      metadata: { message_id: result.id, sent_by: user.id }
-    });
+      metadata: { message_id: result.id, sent_by: user.id },
+    })
 
-    return new Response(
-      JSON.stringify({ success: true, message_id: result.id }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify({ success: true, message_id: result.id }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
   } catch (error) {
-    console.error('Error sending email:', error);
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    console.error('Error sending email:', error)
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
   }
-});
+})
 
 function renderTemplate(template: string, variables: Record<string, string>): string {
-  let result = template;
+  let result = template
   for (const [key, value] of Object.entries(variables)) {
-    result = result.replace(new RegExp(`{{${key}}}`, 'g'), value);
+    result = result.replace(new RegExp(`{{${key}}}`, 'g'), value)
   }
-  return result;
+  return result
 }
 
 function formatEmailHtml(body: string, clinicName: string): string {
@@ -198,5 +200,5 @@ function formatEmailHtml(body: string, clinicName: string): string {
   </table>
 </body>
 </html>
-  `;
+  `
 }

@@ -7,32 +7,30 @@ import { Home, ArrowLeft } from 'lucide-react'
  */
 export default function PortalNotFound() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[50vh] px-4 text-center">
+    <div className="flex min-h-[50vh] flex-col items-center justify-center px-4 text-center">
       <div className="space-y-6">
         <div className="text-6xl">🔍</div>
 
         <div className="space-y-2">
-          <h1 className="text-xl font-semibold text-[var(--text-primary)]">
-            No encontrado
-          </h1>
+          <h1 className="text-xl font-semibold text-[var(--text-primary)]">No encontrado</h1>
           <p className="text-[var(--text-secondary)]">
             Esta página no existe o no tienes acceso a ella.
           </p>
         </div>
 
-        <div className="flex gap-3 justify-center">
+        <div className="flex justify-center gap-3">
           <Link
             href=".."
-            className="inline-flex items-center justify-center px-5 py-3 text-base font-bold rounded-xl gap-2 border border-[var(--border,#e5e7eb)] bg-[var(--bg-paper)] text-[var(--text-primary)] hover:bg-[var(--bg-subtle)] transition-all"
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-[var(--border,#e5e7eb)] bg-[var(--bg-paper)] px-5 py-3 text-base font-bold text-[var(--text-primary)] transition-all hover:bg-[var(--bg-subtle)]"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="h-4 w-4" />
             Volver
           </Link>
           <Link
             href="/portal"
-            className="inline-flex items-center justify-center px-5 py-3 text-base font-bold rounded-xl gap-2 bg-[var(--primary)] text-white shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-5 py-3 text-base font-bold text-white shadow-lg transition-all hover:-translate-y-0.5 hover:shadow-xl"
           >
-            <Home className="w-4 h-4" />
+            <Home className="h-4 w-4" />
             Mi Portal
           </Link>
         </div>

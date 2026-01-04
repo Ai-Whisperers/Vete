@@ -2,7 +2,7 @@
  * SEO Components barrel export
  */
 
-export { HeroImage } from './hero-image';
+export { HeroImage } from './hero-image'
 export {
   ServiceSchema,
   ProductSchema,
@@ -24,4 +24,4 @@ export {
   type HowToSchemaProps,
   type HowToStep,
   type WebApplicationSchemaProps,
-} from './structured-data';
+} from './structured-data'

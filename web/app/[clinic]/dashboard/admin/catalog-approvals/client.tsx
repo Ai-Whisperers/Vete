@@ -1,6 +1,6 @@
-"use client";
+'use client'
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from 'react'
 import {
   Shield,
   Search,
@@ -17,113 +17,118 @@ import {
   X,
   Check,
   HelpCircle,
-} from "lucide-react";
+} from 'lucide-react'
 
 interface Product {
-  id: string;
-  name: string;
-  description: string | null;
-  sku: string | null;
-  base_price: number;
-  images: string[] | null;
-  verification_status: "pending" | "verified" | "rejected" | "needs_review";
-  created_at: string;
-  verified_at: string | null;
-  category: { id: string; name: string } | null;
-  brand: { id: string; name: string } | null;
-  created_by_tenant: { id: string; name: string } | null;
-  verified_by_profile: { id: string; full_name: string } | null;
-  attributes: Record<string, unknown> | null;
+  id: string
+  name: string
+  description: string | null
+  sku: string | null
+  base_price: number
+  images: string[] | null
+  verification_status: 'pending' | 'verified' | 'rejected' | 'needs_review'
+  created_at: string
+  verified_at: string | null
+  category: { id: string; name: string } | null
+  brand: { id: string; name: string } | null
+  created_by_tenant: { id: string; name: string } | null
+  verified_by_profile: { id: string; full_name: string } | null
+  attributes: Record<string, unknown> | null
 }
 
 interface Summary {
-  pending: number;
-  verified: number;
-  rejected: number;
-  needs_review: number;
+  pending: number
+  verified: number
+  rejected: number
+  needs_review: number
 }
 
 interface Pagination {
-  page: number;
-  limit: number;
-  total: number;
-  pages: number;
-  hasNext: boolean;
-  hasPrev: boolean;
+  page: number
+  limit: number
+  total: number
+  pages: number
+  hasNext: boolean
+  hasPrev: boolean
 }
 
 interface CatalogApprovalsClientProps {
-  clinic: string;
+  clinic: string
 }
 
-type VerificationStatus = "all" | "pending" | "verified" | "rejected" | "needs_review";
+type VerificationStatus = 'all' | 'pending' | 'verified' | 'rejected' | 'needs_review'
 
 const statusOptions: { value: VerificationStatus; label: string }[] = [
-  { value: "all", label: "Todos" },
-  { value: "pending", label: "Pendientes" },
-  { value: "verified", label: "Verificados" },
-  { value: "rejected", label: "Rechazados" },
-  { value: "needs_review", label: "Requieren Revisión" },
-];
+  { value: 'all', label: 'Todos' },
+  { value: 'pending', label: 'Pendientes' },
+  { value: 'verified', label: 'Verificados' },
+  { value: 'rejected', label: 'Rechazados' },
+  { value: 'needs_review', label: 'Requieren Revisión' },
+]
 
 function getStatusBadge(status: string): React.ReactElement {
-  const config: Record<string, { bg: string; text: string; icon: React.ReactNode; label: string }> = {
-    pending: {
-      bg: "bg-yellow-100",
-      text: "text-yellow-700",
-      icon: <Clock className="w-3 h-3" />,
-      label: "Pendiente",
-    },
-    verified: {
-      bg: "bg-green-100",
-      text: "text-green-700",
-      icon: <CheckCircle className="w-3 h-3" />,
-      label: "Verificado",
-    },
-    rejected: {
-      bg: "bg-red-100",
-      text: "text-red-700",
-      icon: <XCircle className="w-3 h-3" />,
-      label: "Rechazado",
-    },
-    needs_review: {
-      bg: "bg-orange-100",
-      text: "text-orange-700",
-      icon: <HelpCircle className="w-3 h-3" />,
-      label: "Requiere Revisión",
-    },
-  };
+  const config: Record<string, { bg: string; text: string; icon: React.ReactNode; label: string }> =
+    {
+      pending: {
+        bg: 'bg-yellow-100',
+        text: 'text-yellow-700',
+        icon: <Clock className="h-3 w-3" />,
+        label: 'Pendiente',
+      },
+      verified: {
+        bg: 'bg-green-100',
+        text: 'text-green-700',
+        icon: <CheckCircle className="h-3 w-3" />,
+        label: 'Verificado',
+      },
+      rejected: {
+        bg: 'bg-red-100',
+        text: 'text-red-700',
+        icon: <XCircle className="h-3 w-3" />,
+        label: 'Rechazado',
+      },
+      needs_review: {
+        bg: 'bg-orange-100',
+        text: 'text-orange-700',
+        icon: <HelpCircle className="h-3 w-3" />,
+        label: 'Requiere Revisión',
+      },
+    }
 
-  const c = config[status] || config.pending;
+  const c = config[status] || config.pending
 
   return (
-    <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${c.bg} ${c.text}`}>
+    <span
+      className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${c.bg} ${c.text}`}
+    >
       {c.icon}
       {c.label}
     </span>
-  );
+  )
 }
 
 function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString("es-PY", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
+  return new Date(dateStr).toLocaleDateString('es-PY', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  })
 }
 
 function formatCurrency(amount: number): string {
-  return `₲ ${amount.toLocaleString("es-PY")}`;
+  return `₲ ${amount.toLocaleString('es-PY')}`
 }
 
-export default function CatalogApprovalsClient({ clinic }: CatalogApprovalsClientProps): React.ReactElement {
-  const [products, setProducts] = useState<Product[]>([]);
+export default function CatalogApprovalsClient({
+  clinic,
+}: CatalogApprovalsClientProps): React.ReactElement {
+  const [products, setProducts] = useState<Product[]>([])
   const [summary, setSummary] = useState<Summary>({
     pending: 0,
     verified: 0,
     rejected: 0,
     needs_review: 0,
-  });
+  })
   const [pagination, setPagination] = useState<Pagination>({
     page: 1,
     limit: 25,
@@ -131,126 +136,129 @@ export default function CatalogApprovalsClient({ clinic }: CatalogApprovalsClien
     pages: 0,
     hasNext: false,
     hasPrev: false,
-  });
-  const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<VerificationStatus>("pending");
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [showDetail, setShowDetail] = useState(false);
-  const [processing, setProcessing] = useState(false);
-  const [rejectionReason, setRejectionReason] = useState("");
-  const [showRejectModal, setShowRejectModal] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  })
+  const [loading, setLoading] = useState(true)
+  const [search, setSearch] = useState('')
+  const [statusFilter, setStatusFilter] = useState<VerificationStatus>('pending')
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
+  const [showDetail, setShowDetail] = useState(false)
+  const [processing, setProcessing] = useState(false)
+  const [rejectionReason, setRejectionReason] = useState('')
+  const [showRejectModal, setShowRejectModal] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const fetchProducts = useCallback(async (): Promise<void> => {
-    setLoading(true);
-    setError(null);
+    setLoading(true)
+    setError(null)
 
     try {
       const params = new URLSearchParams({
         status: statusFilter,
         page: String(pagination.page),
         limit: String(pagination.limit),
-      });
+      })
 
       if (search) {
-        params.append("search", search);
+        params.append('search', search)
       }
 
-      const response = await fetch(`/api/admin/products/pending?${params}`);
+      const response = await fetch(`/api/admin/products/pending?${params}`)
 
       if (!response.ok) {
-        throw new Error("Error al cargar productos");
+        throw new Error('Error al cargar productos')
       }
 
-      const data = await response.json();
-      setProducts(data.products || []);
-      setSummary(data.summary || {});
-      setPagination(data.pagination);
+      const data = await response.json()
+      setProducts(data.products || [])
+      setSummary(data.summary || {})
+      setPagination(data.pagination)
     } catch (err) {
       // Client-side error logging - only in development
       if (process.env.NODE_ENV === 'development') {
-        console.error("Error fetching products:", err);
+        console.error('Error fetching products:', err)
       }
-      setError("Error al cargar los productos pendientes");
+      setError('Error al cargar los productos pendientes')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  }, [pagination.page, pagination.limit, statusFilter, search]);
+  }, [pagination.page, pagination.limit, statusFilter, search])
 
   useEffect(() => {
-    fetchProducts();
-  }, [fetchProducts]);
+    fetchProducts()
+  }, [fetchProducts])
 
-  const handleApprove = async (productId: string, action: "verify" | "reject" | "needs_review"): Promise<void> => {
-    setProcessing(true);
+  const handleApprove = async (
+    productId: string,
+    action: 'verify' | 'reject' | 'needs_review'
+  ): Promise<void> => {
+    setProcessing(true)
     try {
-      const body: Record<string, string> = { action };
-      if (action === "reject" && rejectionReason) {
-        body.rejection_reason = rejectionReason;
+      const body: Record<string, string> = { action }
+      if (action === 'reject' && rejectionReason) {
+        body.rejection_reason = rejectionReason
       }
 
       const response = await fetch(`/api/admin/products/${productId}/approve`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
-      });
+      })
 
       if (!response.ok) {
-        throw new Error("Error al procesar producto");
+        throw new Error('Error al procesar producto')
       }
 
-      setShowRejectModal(false);
-      setRejectionReason("");
-      setShowDetail(false);
-      fetchProducts();
+      setShowRejectModal(false)
+      setRejectionReason('')
+      setShowDetail(false)
+      fetchProducts()
     } catch (err) {
       // Client-side error logging - only in development
       if (process.env.NODE_ENV === 'development') {
-        console.error("Error approving product:", err);
+        console.error('Error approving product:', err)
       }
-      setError("Error al procesar el producto");
+      setError('Error al procesar el producto')
     } finally {
-      setProcessing(false);
+      setProcessing(false)
     }
-  };
+  }
 
   const handleSearch = (e: React.FormEvent): void => {
-    e.preventDefault();
-    setPagination((prev) => ({ ...prev, page: 1 }));
-  };
+    e.preventDefault()
+    setPagination((prev) => ({ ...prev, page: 1 }))
+  }
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--text-primary)] flex items-center gap-2">
-            <Shield className="w-7 h-7 text-[var(--primary)]" />
+          <h1 className="flex items-center gap-2 text-2xl font-bold text-[var(--text-primary)]">
+            <Shield className="h-7 w-7 text-[var(--primary)]" />
             Aprobación de Catálogo Global
           </h1>
-          <p className="text-[var(--text-secondary)] mt-1">
+          <p className="mt-1 text-[var(--text-secondary)]">
             Revisa y aprueba productos enviados por clínicas para el catálogo global
           </p>
         </div>
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         <button
           onClick={() => {
-            setStatusFilter("pending");
-            setPagination((prev) => ({ ...prev, page: 1 }));
+            setStatusFilter('pending')
+            setPagination((prev) => ({ ...prev, page: 1 }))
           }}
-          className={`p-4 rounded-xl border transition-all ${
-            statusFilter === "pending"
-              ? "border-yellow-400 bg-yellow-50"
-              : "border-gray-100 bg-white hover:border-gray-200"
+          className={`rounded-xl border p-4 transition-all ${
+            statusFilter === 'pending'
+              ? 'border-yellow-400 bg-yellow-50'
+              : 'border-gray-100 bg-white hover:border-gray-200'
           }`}
         >
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-yellow-100">
-              <Clock className="w-5 h-5 text-yellow-600" />
+            <div className="rounded-lg bg-yellow-100 p-2">
+              <Clock className="h-5 w-5 text-yellow-600" />
             </div>
             <div className="text-left">
               <div className="text-2xl font-bold text-yellow-600">{summary.pending}</div>
@@ -261,18 +269,18 @@ export default function CatalogApprovalsClient({ clinic }: CatalogApprovalsClien
 
         <button
           onClick={() => {
-            setStatusFilter("verified");
-            setPagination((prev) => ({ ...prev, page: 1 }));
+            setStatusFilter('verified')
+            setPagination((prev) => ({ ...prev, page: 1 }))
           }}
-          className={`p-4 rounded-xl border transition-all ${
-            statusFilter === "verified"
-              ? "border-green-400 bg-green-50"
-              : "border-gray-100 bg-white hover:border-gray-200"
+          className={`rounded-xl border p-4 transition-all ${
+            statusFilter === 'verified'
+              ? 'border-green-400 bg-green-50'
+              : 'border-gray-100 bg-white hover:border-gray-200'
           }`}
         >
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-green-100">
-              <CheckCircle className="w-5 h-5 text-green-600" />
+            <div className="rounded-lg bg-green-100 p-2">
+              <CheckCircle className="h-5 w-5 text-green-600" />
             </div>
             <div className="text-left">
               <div className="text-2xl font-bold text-green-600">{summary.verified}</div>
@@ -283,18 +291,18 @@ export default function CatalogApprovalsClient({ clinic }: CatalogApprovalsClien
 
         <button
           onClick={() => {
-            setStatusFilter("rejected");
-            setPagination((prev) => ({ ...prev, page: 1 }));
+            setStatusFilter('rejected')
+            setPagination((prev) => ({ ...prev, page: 1 }))
           }}
-          className={`p-4 rounded-xl border transition-all ${
-            statusFilter === "rejected"
-              ? "border-red-400 bg-red-50"
-              : "border-gray-100 bg-white hover:border-gray-200"
+          className={`rounded-xl border p-4 transition-all ${
+            statusFilter === 'rejected'
+              ? 'border-red-400 bg-red-50'
+              : 'border-gray-100 bg-white hover:border-gray-200'
           }`}
         >
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-red-100">
-              <XCircle className="w-5 h-5 text-red-600" />
+            <div className="rounded-lg bg-red-100 p-2">
+              <XCircle className="h-5 w-5 text-red-600" />
             </div>
             <div className="text-left">
               <div className="text-2xl font-bold text-red-600">{summary.rejected}</div>
@@ -305,18 +313,18 @@ export default function CatalogApprovalsClient({ clinic }: CatalogApprovalsClien
 
         <button
           onClick={() => {
-            setStatusFilter("needs_review");
-            setPagination((prev) => ({ ...prev, page: 1 }));
+            setStatusFilter('needs_review')
+            setPagination((prev) => ({ ...prev, page: 1 }))
           }}
-          className={`p-4 rounded-xl border transition-all ${
-            statusFilter === "needs_review"
-              ? "border-orange-400 bg-orange-50"
-              : "border-gray-100 bg-white hover:border-gray-200"
+          className={`rounded-xl border p-4 transition-all ${
+            statusFilter === 'needs_review'
+              ? 'border-orange-400 bg-orange-50'
+              : 'border-gray-100 bg-white hover:border-gray-200'
           }`}
         >
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-orange-100">
-              <HelpCircle className="w-5 h-5 text-orange-600" />
+            <div className="rounded-lg bg-orange-100 p-2">
+              <HelpCircle className="h-5 w-5 text-orange-600" />
             </div>
             <div className="text-left">
               <div className="text-2xl font-bold text-orange-600">{summary.needs_review}</div>
@@ -327,25 +335,25 @@ export default function CatalogApprovalsClient({ clinic }: CatalogApprovalsClien
       </div>
 
       {/* Search */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+      <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
         <form onSubmit={handleSearch} className="flex gap-4">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 transform text-gray-400" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Buscar por nombre o SKU..."
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--primary)]/20 focus:border-[var(--primary)] transition-colors"
+              className="focus:ring-[var(--primary)]/20 w-full rounded-xl border border-gray-200 py-2.5 pl-10 pr-4 transition-colors focus:border-[var(--primary)] focus:ring-2"
             />
           </div>
           <select
             value={statusFilter}
             onChange={(e) => {
-              setStatusFilter(e.target.value as VerificationStatus);
-              setPagination((prev) => ({ ...prev, page: 1 }));
+              setStatusFilter(e.target.value as VerificationStatus)
+              setPagination((prev) => ({ ...prev, page: 1 }))
             }}
-            className="px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--primary)]/20 focus:border-[var(--primary)] bg-white"
+            className="focus:ring-[var(--primary)]/20 rounded-xl border border-gray-200 bg-white px-4 py-2.5 focus:border-[var(--primary)] focus:ring-2"
           >
             {statusOptions.map((opt) => (
               <option key={opt.value} value={opt.value}>
@@ -358,68 +366,66 @@ export default function CatalogApprovalsClient({ clinic }: CatalogApprovalsClien
 
       {/* Error */}
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl flex items-center gap-2">
-          <AlertCircle className="w-5 h-5" />
+        <div className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-700">
+          <AlertCircle className="h-5 w-5" />
           {error}
         </div>
       )}
 
       {/* Products List */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+      <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
         {loading ? (
           <div className="p-8 text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--primary)] mx-auto" />
+            <div className="mx-auto h-8 w-8 animate-spin rounded-full border-b-2 border-[var(--primary)]" />
             <p className="mt-4 text-[var(--text-secondary)]">Cargando productos...</p>
           </div>
         ) : products.length === 0 ? (
           <div className="p-12 text-center">
-            <Package className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-[var(--text-primary)]">
-              No hay productos
-            </h3>
-            <p className="text-[var(--text-secondary)] mt-1">
-              {statusFilter === "pending"
-                ? "No hay productos pendientes de aprobación"
-                : "No se encontraron productos con los filtros aplicados"}
+            <Package className="mx-auto mb-4 h-12 w-12 text-gray-300" />
+            <h3 className="text-lg font-semibold text-[var(--text-primary)]">No hay productos</h3>
+            <p className="mt-1 text-[var(--text-secondary)]">
+              {statusFilter === 'pending'
+                ? 'No hay productos pendientes de aprobación'
+                : 'No se encontraron productos con los filtros aplicados'}
             </p>
           </div>
         ) : (
           <>
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-gray-50 border-b border-gray-100">
+                <thead className="border-b border-gray-100 bg-gray-50">
                   <tr>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
                       Producto
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
                       Enviado Por
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
                       Estado
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
                       Fecha
                     </th>
-                    <th className="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-gray-500">
                       Acciones
                     </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {products.map((product) => (
-                    <tr key={product.id} className="hover:bg-gray-50 transition-colors">
+                    <tr key={product.id} className="transition-colors hover:bg-gray-50">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           {product.images?.[0] ? (
                             <img
                               src={product.images[0]}
                               alt={product.name}
-                              className="w-12 h-12 rounded-lg object-cover"
+                              className="h-12 w-12 rounded-lg object-cover"
                             />
                           ) : (
-                            <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center">
-                              <Package className="w-6 h-6 text-gray-400" />
+                            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gray-100">
+                              <Package className="h-6 w-6 text-gray-400" />
                             </div>
                           )}
                           <div>
@@ -438,16 +444,14 @@ export default function CatalogApprovalsClient({ clinic }: CatalogApprovalsClien
                       <td className="px-6 py-4">
                         {product.created_by_tenant ? (
                           <div className="flex items-center gap-2">
-                            <Building className="w-4 h-4 text-gray-400" />
+                            <Building className="h-4 w-4 text-gray-400" />
                             <span className="text-sm">{product.created_by_tenant.name}</span>
                           </div>
                         ) : (
                           <span className="text-gray-400">-</span>
                         )}
                       </td>
-                      <td className="px-6 py-4">
-                        {getStatusBadge(product.verification_status)}
-                      </td>
+                      <td className="px-6 py-4">{getStatusBadge(product.verification_status)}</td>
                       <td className="px-6 py-4">
                         <div className="text-sm text-[var(--text-secondary)]">
                           {formatDate(product.created_at)}
@@ -457,34 +461,34 @@ export default function CatalogApprovalsClient({ clinic }: CatalogApprovalsClien
                         <div className="flex items-center justify-end gap-2">
                           <button
                             onClick={() => {
-                              setSelectedProduct(product);
-                              setShowDetail(true);
+                              setSelectedProduct(product)
+                              setShowDetail(true)
                             }}
-                            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                            className="rounded-lg p-2 transition-colors hover:bg-gray-100"
                             title="Ver detalles"
                           >
-                            <Eye className="w-4 h-4 text-gray-500" />
+                            <Eye className="h-4 w-4 text-gray-500" />
                           </button>
-                          {product.verification_status === "pending" && (
+                          {product.verification_status === 'pending' && (
                             <>
                               <button
-                                onClick={() => handleApprove(product.id, "verify")}
+                                onClick={() => handleApprove(product.id, 'verify')}
                                 disabled={processing}
-                                className="p-2 hover:bg-green-50 rounded-lg transition-colors"
+                                className="rounded-lg p-2 transition-colors hover:bg-green-50"
                                 title="Aprobar"
                               >
-                                <Check className="w-4 h-4 text-green-600" />
+                                <Check className="h-4 w-4 text-green-600" />
                               </button>
                               <button
                                 onClick={() => {
-                                  setSelectedProduct(product);
-                                  setShowRejectModal(true);
+                                  setSelectedProduct(product)
+                                  setShowRejectModal(true)
                                 }}
                                 disabled={processing}
-                                className="p-2 hover:bg-red-50 rounded-lg transition-colors"
+                                className="rounded-lg p-2 transition-colors hover:bg-red-50"
                                 title="Rechazar"
                               >
-                                <X className="w-4 h-4 text-red-600" />
+                                <X className="h-4 w-4 text-red-600" />
                               </button>
                             </>
                           )}
@@ -498,19 +502,19 @@ export default function CatalogApprovalsClient({ clinic }: CatalogApprovalsClien
 
             {/* Pagination */}
             {pagination.pages > 1 && (
-              <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
+              <div className="flex items-center justify-between border-t border-gray-100 px-6 py-4">
                 <p className="text-sm text-[var(--text-secondary)]">
-                  Mostrando {(pagination.page - 1) * pagination.limit + 1} a{" "}
-                  {Math.min(pagination.page * pagination.limit, pagination.total)} de{" "}
+                  Mostrando {(pagination.page - 1) * pagination.limit + 1} a{' '}
+                  {Math.min(pagination.page * pagination.limit, pagination.total)} de{' '}
                   {pagination.total} productos
                 </p>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setPagination((prev) => ({ ...prev, page: prev.page - 1 }))}
                     disabled={!pagination.hasPrev}
-                    className="p-2 rounded-lg border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="rounded-lg border border-gray-200 p-2 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    <ChevronLeft className="w-4 h-4" />
+                    <ChevronLeft className="h-4 w-4" />
                   </button>
                   <span className="text-sm text-[var(--text-primary)]">
                     {pagination.page} / {pagination.pages}
@@ -518,9 +522,9 @@ export default function CatalogApprovalsClient({ clinic }: CatalogApprovalsClien
                   <button
                     onClick={() => setPagination((prev) => ({ ...prev, page: prev.page + 1 }))}
                     disabled={!pagination.hasNext}
-                    className="p-2 rounded-lg border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="rounded-lg border border-gray-200 p-2 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    <ChevronRight className="w-4 h-4" />
+                    <ChevronRight className="h-4 w-4" />
                   </button>
                 </div>
               </div>
@@ -532,35 +536,32 @@ export default function CatalogApprovalsClient({ clinic }: CatalogApprovalsClien
       {/* Detail Modal */}
       {showDetail && selectedProduct && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div
-            className="absolute inset-0 bg-black/50"
-            onClick={() => setShowDetail(false)}
-          />
-          <div className="relative bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between">
+          <div className="absolute inset-0 bg-black/50" onClick={() => setShowDetail(false)} />
+          <div className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white shadow-xl">
+            <div className="sticky top-0 flex items-center justify-between border-b border-gray-100 bg-white px-6 py-4">
               <h2 className="text-xl font-bold text-[var(--text-primary)]">
                 Detalles del Producto
               </h2>
               <button
                 onClick={() => setShowDetail(false)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="rounded-lg p-2 transition-colors hover:bg-gray-100"
               >
-                <X className="w-5 h-5" />
+                <X className="h-5 w-5" />
               </button>
             </div>
 
-            <div className="p-6 space-y-6">
+            <div className="space-y-6 p-6">
               {/* Product Image & Info */}
               <div className="flex gap-6">
                 {selectedProduct.images?.[0] ? (
                   <img
                     src={selectedProduct.images[0]}
                     alt={selectedProduct.name}
-                    className="w-32 h-32 rounded-xl object-cover"
+                    className="h-32 w-32 rounded-xl object-cover"
                   />
                 ) : (
-                  <div className="w-32 h-32 rounded-xl bg-gray-100 flex items-center justify-center">
-                    <Package className="w-12 h-12 text-gray-400" />
+                  <div className="flex h-32 w-32 items-center justify-center rounded-xl bg-gray-100">
+                    <Package className="h-12 w-12 text-gray-400" />
                   </div>
                 )}
                 <div className="flex-1">
@@ -568,12 +569,12 @@ export default function CatalogApprovalsClient({ clinic }: CatalogApprovalsClien
                     {selectedProduct.name}
                   </h3>
                   {selectedProduct.sku && (
-                    <p className="text-sm text-[var(--text-secondary)] mt-1">
+                    <p className="mt-1 text-sm text-[var(--text-secondary)]">
                       SKU: {selectedProduct.sku}
                     </p>
                   )}
                   <div className="mt-2">{getStatusBadge(selectedProduct.verification_status)}</div>
-                  <p className="text-lg font-bold text-[var(--primary)] mt-3">
+                  <p className="mt-3 text-lg font-bold text-[var(--primary)]">
                     {formatCurrency(selectedProduct.base_price)}
                   </p>
                 </div>
@@ -581,14 +582,14 @@ export default function CatalogApprovalsClient({ clinic }: CatalogApprovalsClien
 
               {/* Description */}
               {(() => {
-                const desc = selectedProduct.description;
-                if (!desc) return null;
+                const desc = selectedProduct.description
+                if (!desc) return null
                 return (
                   <div>
-                    <h4 className="font-semibold text-[var(--text-primary)] mb-2">Descripción</h4>
+                    <h4 className="mb-2 font-semibold text-[var(--text-primary)]">Descripción</h4>
                     <p className="text-[var(--text-secondary)]">{desc}</p>
                   </div>
-                );
+                )
               })()}
 
               <div className="grid grid-cols-2 gap-4">
@@ -618,45 +619,45 @@ export default function CatalogApprovalsClient({ clinic }: CatalogApprovalsClien
 
               {/* Rejection Reason */}
               {(() => {
-                if (selectedProduct.verification_status !== "rejected") return null;
-                const reason = selectedProduct.attributes?.rejection_reason;
-                if (!reason) return null;
+                if (selectedProduct.verification_status !== 'rejected') return null
+                const reason = selectedProduct.attributes?.rejection_reason
+                if (!reason) return null
                 return (
-                  <div className="bg-red-50 rounded-xl p-4">
-                    <h4 className="font-semibold text-red-700 mb-1">Razón del Rechazo</h4>
+                  <div className="rounded-xl bg-red-50 p-4">
+                    <h4 className="mb-1 font-semibold text-red-700">Razón del Rechazo</h4>
                     <p className="text-red-600">{String(reason)}</p>
                   </div>
-                );
+                )
               })()}
 
               {/* Actions */}
-              {selectedProduct.verification_status === "pending" && (
-                <div className="flex gap-3 pt-4 border-t border-gray-100">
+              {selectedProduct.verification_status === 'pending' && (
+                <div className="flex gap-3 border-t border-gray-100 pt-4">
                   <button
-                    onClick={() => handleApprove(selectedProduct.id, "verify")}
+                    onClick={() => handleApprove(selectedProduct.id, 'verify')}
                     disabled={processing}
-                    className="flex-1 px-4 py-2.5 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors font-medium disabled:opacity-50"
+                    className="flex-1 rounded-xl bg-green-600 px-4 py-2.5 font-medium text-white transition-colors hover:bg-green-700 disabled:opacity-50"
                   >
-                    <Check className="w-4 h-4 inline mr-2" />
+                    <Check className="mr-2 inline h-4 w-4" />
                     Aprobar
                   </button>
                   <button
                     onClick={() => {
-                      setShowDetail(false);
-                      setShowRejectModal(true);
+                      setShowDetail(false)
+                      setShowRejectModal(true)
                     }}
                     disabled={processing}
-                    className="flex-1 px-4 py-2.5 border border-red-200 text-red-600 rounded-xl hover:bg-red-50 transition-colors font-medium disabled:opacity-50"
+                    className="flex-1 rounded-xl border border-red-200 px-4 py-2.5 font-medium text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50"
                   >
-                    <X className="w-4 h-4 inline mr-2" />
+                    <X className="mr-2 inline h-4 w-4" />
                     Rechazar
                   </button>
                   <button
-                    onClick={() => handleApprove(selectedProduct.id, "needs_review")}
+                    onClick={() => handleApprove(selectedProduct.id, 'needs_review')}
                     disabled={processing}
-                    className="flex-1 px-4 py-2.5 border border-orange-200 text-orange-600 rounded-xl hover:bg-orange-50 transition-colors font-medium disabled:opacity-50"
+                    className="flex-1 rounded-xl border border-orange-200 px-4 py-2.5 font-medium text-orange-600 transition-colors hover:bg-orange-50 disabled:opacity-50"
                   >
-                    <HelpCircle className="w-4 h-4 inline mr-2" />
+                    <HelpCircle className="mr-2 inline h-4 w-4" />
                     Pedir Revisión
                   </button>
                 </div>
@@ -669,15 +670,10 @@ export default function CatalogApprovalsClient({ clinic }: CatalogApprovalsClien
       {/* Reject Modal */}
       {showRejectModal && selectedProduct && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div
-            className="absolute inset-0 bg-black/50"
-            onClick={() => setShowRejectModal(false)}
-          />
-          <div className="relative bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
-            <h2 className="text-xl font-bold text-[var(--text-primary)] mb-4">
-              Rechazar Producto
-            </h2>
-            <p className="text-[var(--text-secondary)] mb-4">
+          <div className="absolute inset-0 bg-black/50" onClick={() => setShowRejectModal(false)} />
+          <div className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+            <h2 className="mb-4 text-xl font-bold text-[var(--text-primary)]">Rechazar Producto</h2>
+            <p className="mb-4 text-[var(--text-secondary)]">
               ¿Estás seguro de rechazar "{selectedProduct.name}"? Por favor proporciona una razón.
             </p>
             <textarea
@@ -685,26 +681,26 @@ export default function CatalogApprovalsClient({ clinic }: CatalogApprovalsClien
               onChange={(e) => setRejectionReason(e.target.value)}
               placeholder="Razón del rechazo (opcional pero recomendado)..."
               rows={3}
-              className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--primary)]/20 focus:border-[var(--primary)] resize-none mb-4"
+              className="focus:ring-[var(--primary)]/20 mb-4 w-full resize-none rounded-xl border border-gray-200 px-4 py-2.5 focus:border-[var(--primary)] focus:ring-2"
             />
             <div className="flex gap-3">
               <button
                 onClick={() => setShowRejectModal(false)}
-                className="flex-1 px-4 py-2.5 border border-gray-200 text-[var(--text-primary)] rounded-xl hover:bg-gray-50 transition-colors font-medium"
+                className="flex-1 rounded-xl border border-gray-200 px-4 py-2.5 font-medium text-[var(--text-primary)] transition-colors hover:bg-gray-50"
               >
                 Cancelar
               </button>
               <button
-                onClick={() => handleApprove(selectedProduct.id, "reject")}
+                onClick={() => handleApprove(selectedProduct.id, 'reject')}
                 disabled={processing}
-                className="flex-1 px-4 py-2.5 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors font-medium disabled:opacity-50"
+                className="flex-1 rounded-xl bg-red-600 px-4 py-2.5 font-medium text-white transition-colors hover:bg-red-700 disabled:opacity-50"
               >
-                {processing ? "Procesando..." : "Rechazar"}
+                {processing ? 'Procesando...' : 'Rechazar'}
               </button>
             </div>
           </div>
         </div>
       )}
     </div>
-  );
+  )
 }

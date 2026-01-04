@@ -1,47 +1,47 @@
-'use client';
+'use client'
 
-import { useState, useMemo } from 'react';
-import { ChevronRight, ChevronDown, Check, Folder, FolderOpen } from 'lucide-react';
+import { useState, useMemo } from 'react'
+import { ChevronRight, ChevronDown, Check, Folder, FolderOpen } from 'lucide-react'
 
 interface Category {
-  id: string;
-  name: string;
-  slug: string;
-  parent_slug?: string;
-  count?: number;
+  id: string
+  name: string
+  slug: string
+  parent_slug?: string
+  count?: number
 }
 
 interface CategoryNode extends Category {
-  children: CategoryNode[];
-  level: number;
+  children: CategoryNode[]
+  level: number
 }
 
 interface Props {
-  categories: Category[];
-  selectedCategory?: string;
-  onCategorySelect: (slug: string | undefined, includeChildren: boolean) => void;
+  categories: Category[]
+  selectedCategory?: string
+  onCategorySelect: (slug: string | undefined, includeChildren: boolean) => void
 }
 
 function buildTree(categories: Category[]): CategoryNode[] {
-  const categoryMap = new Map<string, CategoryNode>();
-  const roots: CategoryNode[] = [];
+  const categoryMap = new Map<string, CategoryNode>()
+  const roots: CategoryNode[] = []
 
   // First pass: create nodes
   categories.forEach((cat) => {
-    categoryMap.set(cat.slug, { ...cat, children: [], level: 0 });
-  });
+    categoryMap.set(cat.slug, { ...cat, children: [], level: 0 })
+  })
 
   // Second pass: build tree
   categories.forEach((cat) => {
-    const node = categoryMap.get(cat.slug)!;
+    const node = categoryMap.get(cat.slug)!
     if (cat.parent_slug && categoryMap.has(cat.parent_slug)) {
-      const parent = categoryMap.get(cat.parent_slug)!;
-      node.level = parent.level + 1;
-      parent.children.push(node);
+      const parent = categoryMap.get(cat.parent_slug)!
+      node.level = parent.level + 1
+      parent.children.push(node)
     } else {
-      roots.push(node);
+      roots.push(node)
     }
-  });
+  })
 
   // Sort children alphabetically
   const sortNodes = (nodes: CategoryNode[]): CategoryNode[] => {
@@ -50,10 +50,10 @@ function buildTree(categories: Category[]): CategoryNode[] {
       .map((node) => ({
         ...node,
         children: sortNodes(node.children),
-      }));
-  };
+      }))
+  }
 
-  return sortNodes(roots);
+  return sortNodes(roots)
 }
 
 function CategoryNodeComponent({
@@ -63,65 +63,63 @@ function CategoryNodeComponent({
   expandedSlugs,
   onToggleExpand,
 }: {
-  node: CategoryNode;
-  selectedCategory?: string;
-  onSelect: (slug: string | undefined, includeChildren: boolean) => void;
-  expandedSlugs: Set<string>;
-  onToggleExpand: (slug: string) => void;
+  node: CategoryNode
+  selectedCategory?: string
+  onSelect: (slug: string | undefined, includeChildren: boolean) => void
+  expandedSlugs: Set<string>
+  onToggleExpand: (slug: string) => void
 }) {
-  const isExpanded = expandedSlugs.has(node.slug);
-  const isSelected = selectedCategory === node.slug;
-  const hasChildren = node.children.length > 0;
+  const isExpanded = expandedSlugs.has(node.slug)
+  const isSelected = selectedCategory === node.slug
+  const hasChildren = node.children.length > 0
 
   // Check if any descendant is selected
   const isAncestorOfSelected = useMemo(() => {
-    if (!selectedCategory) return false;
+    if (!selectedCategory) return false
     const checkDescendants = (n: CategoryNode): boolean => {
-      if (n.slug === selectedCategory) return true;
-      return n.children.some(checkDescendants);
-    };
-    return checkDescendants(node);
-  }, [node, selectedCategory]);
+      if (n.slug === selectedCategory) return true
+      return n.children.some(checkDescendants)
+    }
+    return checkDescendants(node)
+  }, [node, selectedCategory])
 
   const handleClick = () => {
     if (isSelected) {
-      onSelect(undefined, false);
+      onSelect(undefined, false)
     } else {
-      onSelect(node.slug, hasChildren);
+      onSelect(node.slug, hasChildren)
     }
-  };
+  }
 
   const handleExpandClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onToggleExpand(node.slug);
-  };
+    e.stopPropagation()
+    onToggleExpand(node.slug)
+  }
 
   return (
     <div>
       <div
-        className={`
-          flex items-center gap-1 py-1.5 px-2 rounded-lg cursor-pointer transition-all
-          ${isSelected
+        className={`flex cursor-pointer items-center gap-1 rounded-lg px-2 py-1.5 transition-all ${
+          isSelected
             ? 'bg-[var(--primary)] text-white'
             : isAncestorOfSelected
               ? 'bg-[var(--primary)]/10 text-[var(--primary)]'
-              : 'hover:bg-gray-100 text-[var(--text-secondary)]'
-          }
-        `}
+              : 'text-[var(--text-secondary)] hover:bg-gray-100'
+        } `}
         style={{ paddingLeft: `${node.level * 12 + 8}px` }}
       >
         {/* Expand/Collapse Button */}
         {hasChildren ? (
           <button
             onClick={handleExpandClick}
-            className={`p-0.5 rounded hover:bg-black/10 transition-colors flex-shrink-0 ${
+            className={`flex-shrink-0 rounded p-0.5 transition-colors hover:bg-black/10 ${
               isSelected ? 'text-white/80' : ''
             }`}
           >
             {isExpanded ? (
-              <ChevronDown className="w-4 h-4" />
+              <ChevronDown className="h-4 w-4" />
             ) : (
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className="h-4 w-4" />
             )}
           </button>
         ) : (
@@ -131,35 +129,34 @@ function CategoryNodeComponent({
         {/* Category Icon */}
         {hasChildren ? (
           isExpanded ? (
-            <FolderOpen className={`w-4 h-4 flex-shrink-0 ${isSelected ? 'text-white/80' : 'text-[var(--primary)]'}`} />
+            <FolderOpen
+              className={`h-4 w-4 flex-shrink-0 ${isSelected ? 'text-white/80' : 'text-[var(--primary)]'}`}
+            />
           ) : (
-            <Folder className={`w-4 h-4 flex-shrink-0 ${isSelected ? 'text-white/80' : 'text-[var(--primary)]'}`} />
+            <Folder
+              className={`h-4 w-4 flex-shrink-0 ${isSelected ? 'text-white/80' : 'text-[var(--primary)]'}`}
+            />
           )
         ) : null}
 
         {/* Category Name */}
-        <button
-          onClick={handleClick}
-          className="flex-1 text-left text-sm font-medium truncate"
-        >
+        <button onClick={handleClick} className="flex-1 truncate text-left text-sm font-medium">
           {node.name}
         </button>
 
         {/* Count Badge */}
         {node.count !== undefined && node.count > 0 && (
-          <span className={`text-xs px-1.5 py-0.5 rounded-full flex-shrink-0 ${
-            isSelected
-              ? 'bg-white/20 text-white'
-              : 'bg-gray-100 text-[var(--text-muted)]'
-          }`}>
+          <span
+            className={`flex-shrink-0 rounded-full px-1.5 py-0.5 text-xs ${
+              isSelected ? 'bg-white/20 text-white' : 'bg-gray-100 text-[var(--text-muted)]'
+            }`}
+          >
             {node.count}
           </span>
         )}
 
         {/* Selected Indicator */}
-        {isSelected && (
-          <Check className="w-4 h-4 flex-shrink-0" />
-        )}
+        {isSelected && <Check className="h-4 w-4 flex-shrink-0" />}
       </div>
 
       {/* Children */}
@@ -178,72 +175,74 @@ function CategoryNodeComponent({
         </div>
       )}
     </div>
-  );
+  )
 }
 
 export default function CategoryTree({ categories, selectedCategory, onCategorySelect }: Props) {
-  const tree = useMemo(() => buildTree(categories), [categories]);
+  const tree = useMemo(() => buildTree(categories), [categories])
 
   // Auto-expand parents of selected category
   const [expandedSlugs, setExpandedSlugs] = useState<Set<string>>(() => {
-    const expanded = new Set<string>();
+    const expanded = new Set<string>()
     if (selectedCategory) {
       // Find and expand all ancestors
-      const findAndExpand = (nodes: CategoryNode[], target: string, path: string[] = []): boolean => {
+      const findAndExpand = (
+        nodes: CategoryNode[],
+        target: string,
+        path: string[] = []
+      ): boolean => {
         for (const node of nodes) {
           if (node.slug === target) {
-            path.forEach(slug => expanded.add(slug));
-            return true;
+            path.forEach((slug) => expanded.add(slug))
+            return true
           }
           if (node.children.length > 0) {
             if (findAndExpand(node.children, target, [...path, node.slug])) {
-              return true;
+              return true
             }
           }
         }
-        return false;
-      };
-      findAndExpand(tree, selectedCategory);
+        return false
+      }
+      findAndExpand(tree, selectedCategory)
     }
-    return expanded;
-  });
+    return expanded
+  })
 
   const handleToggleExpand = (slug: string) => {
-    setExpandedSlugs(prev => {
-      const next = new Set(prev);
+    setExpandedSlugs((prev) => {
+      const next = new Set(prev)
       if (next.has(slug)) {
-        next.delete(slug);
+        next.delete(slug)
       } else {
-        next.add(slug);
+        next.add(slug)
       }
-      return next;
-    });
-  };
+      return next
+    })
+  }
 
   if (tree.length === 0) {
     return (
-      <p className="text-sm text-[var(--text-muted)] text-center py-4">
+      <p className="py-4 text-center text-sm text-[var(--text-muted)]">
         No hay categorías disponibles
       </p>
-    );
+    )
   }
 
   return (
-    <div className="space-y-0.5 max-h-64 overflow-y-auto pr-1">
+    <div className="max-h-64 space-y-0.5 overflow-y-auto pr-1">
       {/* "All Categories" option */}
       <div
         onClick={() => onCategorySelect(undefined, false)}
-        className={`
-          flex items-center gap-2 py-1.5 px-2 rounded-lg cursor-pointer transition-all
-          ${!selectedCategory
+        className={`flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 transition-all ${
+          !selectedCategory
             ? 'bg-[var(--primary)] text-white'
-            : 'hover:bg-gray-100 text-[var(--text-secondary)]'
-          }
-        `}
+            : 'text-[var(--text-secondary)] hover:bg-gray-100'
+        } `}
       >
         <span className="w-5" />
         <span className="text-sm font-medium">Todas las categorías</span>
-        {!selectedCategory && <Check className="w-4 h-4 ml-auto" />}
+        {!selectedCategory && <Check className="ml-auto h-4 w-4" />}
       </div>
 
       {/* Category Tree */}
@@ -258,5 +257,5 @@ export default function CategoryTree({ categories, selectedCategory, onCategoryS
         />
       ))}
     </div>
-  );
+  )
 }

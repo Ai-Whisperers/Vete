@@ -77,10 +77,7 @@ if (result.success) {
 
 ```typescript
 import { sendEmail } from '@/lib/email/client'
-import {
-  generateInvoiceEmail,
-  generateInvoiceEmailText,
-} from '@/lib/email/templates/invoice-email'
+import { generateInvoiceEmail, generateInvoiceEmailText } from '@/lib/email/templates/invoice-email'
 
 const emailData = {
   clinicName: 'Veterinaria Adris',

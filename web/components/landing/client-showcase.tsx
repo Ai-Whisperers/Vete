@@ -1,35 +1,46 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import Link from 'next/link';
+import { useState } from 'react'
+import Link from 'next/link'
 import {
-  Building2, MapPin, Star, ExternalLink, Quote,
-  TrendingUp, Users, Calendar, ChevronLeft, ChevronRight,
-  Stethoscope, Clock, Truck, ShoppingBag
-} from 'lucide-react';
+  Building2,
+  MapPin,
+  Star,
+  ExternalLink,
+  Quote,
+  TrendingUp,
+  Users,
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  Stethoscope,
+  Clock,
+  Truck,
+  ShoppingBag,
+} from 'lucide-react'
 
 interface ClinicShowcase {
-  id: string;
-  name: string;
-  tagline: string;
-  city: string;
-  address: string;
-  testimonial: string;
-  shortTestimonial: string;
+  id: string
+  name: string
+  tagline: string
+  city: string
+  address: string
+  testimonial: string
+  shortTestimonial: string
   contactPerson: {
-    name: string;
-    role: string;
-    quote: string;
-  };
+    name: string
+    role: string
+    quote: string
+  }
   metrics: {
-    appointmentsGrowth: string;
-    onlineBookingsPercent: string;
-    patientsRegistered: string;
-    satisfactionScore: string;
-  };
-  specialties: string[];
-  highlights: string[];
-  coordinates: { lat: number; lng: number };
+    appointmentsGrowth: string
+    onlineBookingsPercent: string
+    patientsRegistered: string
+    satisfactionScore: string
+  }
+  specialties: string[]
+  highlights: string[]
+  coordinates: { lat: number; lng: number }
 }
 
 // Clinic data - in production this would come from the CMS
@@ -40,22 +51,23 @@ const clinics: ClinicShowcase[] = [
     tagline: 'Cuidado Experto, Amor Incondicional',
     city: 'Asuncion',
     address: 'Av. Santa Teresa 1234',
-    testimonial: 'VetePy transformo nuestra forma de trabajar. Ahora tenemos citas online, historial digital y nuestros clientes pueden ver todo desde su celular. En 3 meses aumentamos las citas un 35%.',
+    testimonial:
+      'VetePy transformo nuestra forma de trabajar. Ahora tenemos citas online, historial digital y nuestros clientes pueden ver todo desde su celular. En 3 meses aumentamos las citas un 35%.',
     shortTestimonial: 'Aumentamos las citas un 35% en 3 meses.',
     contactPerson: {
       name: 'Dra. Maria Gonzalez',
       role: 'Directora',
-      quote: 'Por fin podemos competir con las grandes cadenas veterinarias.'
+      quote: 'Por fin podemos competir con las grandes cadenas veterinarias.',
     },
     metrics: {
       appointmentsGrowth: '+35%',
       onlineBookingsPercent: '65%',
       patientsRegistered: '250+',
-      satisfactionScore: '4.9'
+      satisfactionScore: '4.9',
     },
     specialties: ['Clinica General', 'Urgencias 24hs', 'Cirugia', 'Vacunacion'],
     highlights: ['Urgencias 24 horas', 'Delivery de productos', 'Tienda online'],
-    coordinates: { lat: -25.2637, lng: -57.5759 }
+    coordinates: { lat: -25.2637, lng: -57.5759 },
   },
   {
     id: 'petlife',
@@ -63,74 +75,74 @@ const clinics: ClinicShowcase[] = [
     tagline: 'Tecnologia y Salud Animal de Vanguardia',
     city: 'Mariano Roque Alonso',
     address: 'Ruta 2 Km 14',
-    testimonial: 'Como centro de diagnostico especializado, necesitabamos una plataforma profesional. VetePy nos dio exactamente eso, con la posibilidad de recibir derivaciones de otras clinicas de forma ordenada.',
+    testimonial:
+      'Como centro de diagnostico especializado, necesitabamos una plataforma profesional. VetePy nos dio exactamente eso, con la posibilidad de recibir derivaciones de otras clinicas de forma ordenada.',
     shortTestimonial: 'Gestion profesional de derivaciones y turnos.',
     contactPerson: {
       name: 'Dr. Carlos Benitez',
       role: 'Director Medico',
-      quote: 'La plataforma nos permite enfocarnos en lo que mejor hacemos: diagnosticar.'
+      quote: 'La plataforma nos permite enfocarnos en lo que mejor hacemos: diagnosticar.',
     },
     metrics: {
       appointmentsGrowth: '+20%',
       onlineBookingsPercent: '80%',
       patientsRegistered: '180+',
-      satisfactionScore: '4.8'
+      satisfactionScore: '4.8',
     },
     specialties: ['Diagnostico por Imagenes', 'Ecografia', 'Radiologia', 'Laboratorio'],
     highlights: ['Centro de referencia', 'Equipo de ultima generacion', 'Derivaciones'],
-    coordinates: { lat: -25.2150, lng: -57.5180 }
-  }
-];
+    coordinates: { lat: -25.215, lng: -57.518 },
+  },
+]
 
 function ClinicCard({ clinic }: { clinic: ClinicShowcase }) {
   return (
-    <div className="group relative p-6 md:p-8 rounded-2xl bg-white/5 border border-white/10 hover:border-[var(--primary)]/30 transition-all duration-300">
+    <div className="hover:border-[var(--primary)]/30 group relative rounded-2xl border border-white/10 bg-white/5 p-6 transition-all duration-300 md:p-8">
       {/* Header */}
-      <div className="flex items-start justify-between mb-6">
+      <div className="mb-6 flex items-start justify-between">
         <div>
-          <h3 className="text-xl font-bold text-white mb-1">{clinic.name}</h3>
-          <p className="text-white/50 text-sm flex items-center gap-1">
-            <MapPin className="w-3 h-3" />
+          <h3 className="mb-1 text-xl font-bold text-white">{clinic.name}</h3>
+          <p className="flex items-center gap-1 text-sm text-white/50">
+            <MapPin className="h-3 w-3" />
             {clinic.city}
           </p>
         </div>
-        <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-[var(--primary)]/10">
-          <Star className="w-3 h-3 text-[var(--primary)] fill-[var(--primary)]" />
-          <span className="text-[var(--primary)] text-sm font-bold">{clinic.metrics.satisfactionScore}</span>
+        <div className="bg-[var(--primary)]/10 flex items-center gap-1 rounded-full px-2 py-1">
+          <Star className="h-3 w-3 fill-[var(--primary)] text-[var(--primary)]" />
+          <span className="text-sm font-bold text-[var(--primary)]">
+            {clinic.metrics.satisfactionScore}
+          </span>
         </div>
       </div>
 
       {/* Metrics Grid */}
-      <div className="grid grid-cols-3 gap-3 mb-6">
-        <div className="text-center p-3 rounded-lg bg-white/5">
-          <TrendingUp className="w-4 h-4 text-[var(--primary)] mx-auto mb-1" />
-          <div className="text-white font-bold text-sm">{clinic.metrics.appointmentsGrowth}</div>
-          <div className="text-white/40 text-xs">Citas</div>
+      <div className="mb-6 grid grid-cols-3 gap-3">
+        <div className="rounded-lg bg-white/5 p-3 text-center">
+          <TrendingUp className="mx-auto mb-1 h-4 w-4 text-[var(--primary)]" />
+          <div className="text-sm font-bold text-white">{clinic.metrics.appointmentsGrowth}</div>
+          <div className="text-xs text-white/40">Citas</div>
         </div>
-        <div className="text-center p-3 rounded-lg bg-white/5">
-          <Calendar className="w-4 h-4 text-[var(--secondary)] mx-auto mb-1" />
-          <div className="text-white font-bold text-sm">{clinic.metrics.onlineBookingsPercent}</div>
-          <div className="text-white/40 text-xs">Online</div>
+        <div className="rounded-lg bg-white/5 p-3 text-center">
+          <Calendar className="mx-auto mb-1 h-4 w-4 text-[var(--secondary)]" />
+          <div className="text-sm font-bold text-white">{clinic.metrics.onlineBookingsPercent}</div>
+          <div className="text-xs text-white/40">Online</div>
         </div>
-        <div className="text-center p-3 rounded-lg bg-white/5">
-          <Users className="w-4 h-4 text-[var(--accent)] mx-auto mb-1" />
-          <div className="text-white font-bold text-sm">{clinic.metrics.patientsRegistered}</div>
-          <div className="text-white/40 text-xs">Pacientes</div>
+        <div className="rounded-lg bg-white/5 p-3 text-center">
+          <Users className="mx-auto mb-1 h-4 w-4 text-[var(--accent)]" />
+          <div className="text-sm font-bold text-white">{clinic.metrics.patientsRegistered}</div>
+          <div className="text-xs text-white/40">Pacientes</div>
         </div>
       </div>
 
       {/* Specialties */}
-      <div className="flex flex-wrap gap-2 mb-6">
+      <div className="mb-6 flex flex-wrap gap-2">
         {clinic.specialties.slice(0, 3).map((specialty, idx) => (
-          <span
-            key={idx}
-            className="px-2 py-1 rounded-full bg-white/5 text-white/60 text-xs"
-          >
+          <span key={idx} className="rounded-full bg-white/5 px-2 py-1 text-xs text-white/60">
             {specialty}
           </span>
         ))}
         {clinic.specialties.length > 3 && (
-          <span className="px-2 py-1 rounded-full bg-white/5 text-white/40 text-xs">
+          <span className="rounded-full bg-white/5 px-2 py-1 text-xs text-white/40">
             +{clinic.specialties.length - 3}
           </span>
         )}
@@ -138,11 +150,11 @@ function ClinicCard({ clinic }: { clinic: ClinicShowcase }) {
 
       {/* Testimonial */}
       <div className="relative mb-6">
-        <Quote className="absolute -top-2 -left-1 w-6 h-6 text-[var(--primary)]/20" />
-        <p className="text-white/60 text-sm leading-relaxed pl-4 italic">
+        <Quote className="text-[var(--primary)]/20 absolute -left-1 -top-2 h-6 w-6" />
+        <p className="pl-4 text-sm italic leading-relaxed text-white/60">
           "{clinic.shortTestimonial}"
         </p>
-        <p className="text-white/40 text-xs mt-2 pl-4">
+        <p className="mt-2 pl-4 text-xs text-white/40">
           — {clinic.contactPerson.name}, {clinic.contactPerson.role}
         </p>
       </div>
@@ -150,121 +162,125 @@ function ClinicCard({ clinic }: { clinic: ClinicShowcase }) {
       {/* CTA */}
       <Link
         href={`/${clinic.id}`}
-        className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-white/5 border border-white/20 text-white font-medium rounded-xl hover:bg-white/10 hover:border-white/30 transition-all group-hover:border-[var(--primary)]/30"
+        className="group-hover:border-[var(--primary)]/30 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/5 px-4 py-3 font-medium text-white transition-all hover:border-white/30 hover:bg-white/10"
       >
         Ver Sitio
-        <ExternalLink className="w-4 h-4" />
+        <ExternalLink className="h-4 w-4" />
       </Link>
     </div>
-  );
+  )
 }
 
 function TestimonialCarousel() {
-  const [current, setCurrent] = useState(0);
+  const [current, setCurrent] = useState(0)
 
-  const next = () => setCurrent((prev) => (prev + 1) % clinics.length);
-  const prev = () => setCurrent((prev) => (prev - 1 + clinics.length) % clinics.length);
+  const next = () => setCurrent((prev) => (prev + 1) % clinics.length)
+  const prev = () => setCurrent((prev) => (prev - 1 + clinics.length) % clinics.length)
 
-  const clinic = clinics[current];
+  const clinic = clinics[current]
 
   return (
-    <div className="relative max-w-4xl mx-auto">
+    <div className="relative mx-auto max-w-4xl">
       {/* Large testimonial */}
-      <div className="text-center p-8 md:p-12 rounded-3xl bg-gradient-to-br from-[var(--primary)]/10 to-[var(--secondary)]/10 border border-white/10">
-        <Quote className="w-12 h-12 text-[var(--primary)]/30 mx-auto mb-6" />
-        <p className="text-xl md:text-2xl text-white/80 leading-relaxed mb-8 font-light">
+      <div className="from-[var(--primary)]/10 to-[var(--secondary)]/10 rounded-3xl border border-white/10 bg-gradient-to-br p-8 text-center md:p-12">
+        <Quote className="text-[var(--primary)]/30 mx-auto mb-6 h-12 w-12" />
+        <p className="mb-8 text-xl font-light leading-relaxed text-white/80 md:text-2xl">
           "{clinic.testimonial}"
         </p>
         <div className="flex items-center justify-center gap-4">
-          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] flex items-center justify-center">
-            <Stethoscope className="w-6 h-6 text-white" />
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)]">
+            <Stethoscope className="h-6 w-6 text-white" />
           </div>
           <div className="text-left">
-            <p className="text-white font-bold">{clinic.contactPerson.name}</p>
-            <p className="text-white/50 text-sm">{clinic.contactPerson.role} - {clinic.name}</p>
+            <p className="font-bold text-white">{clinic.contactPerson.name}</p>
+            <p className="text-sm text-white/50">
+              {clinic.contactPerson.role} - {clinic.name}
+            </p>
           </div>
         </div>
       </div>
 
       {/* Navigation */}
       {clinics.length > 1 && (
-        <div className="flex items-center justify-center gap-4 mt-6">
+        <div className="mt-6 flex items-center justify-center gap-4">
           <button
             onClick={prev}
-            className="p-2 rounded-full bg-white/5 border border-white/10 text-white/60 hover:bg-white/10 hover:text-white transition-all"
+            className="rounded-full border border-white/10 bg-white/5 p-2 text-white/60 transition-all hover:bg-white/10 hover:text-white"
           >
-            <ChevronLeft className="w-5 h-5" />
+            <ChevronLeft className="h-5 w-5" />
           </button>
           <div className="flex gap-2">
             {clinics.map((_, idx) => (
               <button
                 key={idx}
                 onClick={() => setCurrent(idx)}
-                className={`w-2 h-2 rounded-full transition-all ${
-                  idx === current ? 'bg-[var(--primary)] w-6' : 'bg-white/20'
+                className={`h-2 w-2 rounded-full transition-all ${
+                  idx === current ? 'w-6 bg-[var(--primary)]' : 'bg-white/20'
                 }`}
               />
             ))}
           </div>
           <button
             onClick={next}
-            className="p-2 rounded-full bg-white/5 border border-white/10 text-white/60 hover:bg-white/10 hover:text-white transition-all"
+            className="rounded-full border border-white/10 bg-white/5 p-2 text-white/60 transition-all hover:bg-white/10 hover:text-white"
           >
-            <ChevronRight className="w-5 h-5" />
+            <ChevronRight className="h-5 w-5" />
           </button>
         </div>
       )}
     </div>
-  );
+  )
 }
 
 export function ClientShowcase() {
   return (
-    <section id="clinicas" className="py-20 md:py-28 bg-[var(--bg-dark)] relative overflow-hidden">
+    <section id="clinicas" className="relative overflow-hidden bg-[var(--bg-dark)] py-20 md:py-28">
       {/* Background decoration */}
-      <div className="absolute top-1/2 left-0 w-[400px] h-[400px] bg-[var(--primary)]/5 rounded-full blur-[150px] -translate-y-1/2" />
-      <div className="absolute top-1/2 right-0 w-[400px] h-[400px] bg-[var(--secondary)]/5 rounded-full blur-[150px] -translate-y-1/2" />
+      <div className="bg-[var(--primary)]/5 absolute left-0 top-1/2 h-[400px] w-[400px] -translate-y-1/2 rounded-full blur-[150px]" />
+      <div className="bg-[var(--secondary)]/5 absolute right-0 top-1/2 h-[400px] w-[400px] -translate-y-1/2 rounded-full blur-[150px]" />
 
-      <div className="container mx-auto px-4 md:px-6 relative z-10">
+      <div className="container relative z-10 mx-auto px-4 md:px-6">
         {/* Section Header */}
-        <div className="text-center mb-12">
-          <span className="inline-block text-[var(--primary)] font-bold tracking-widest uppercase text-sm mb-3">
+        <div className="mb-12 text-center">
+          <span className="mb-3 inline-block text-sm font-bold uppercase tracking-widest text-[var(--primary)]">
             Nuestros Clientes
           </span>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-white mb-6">
+          <h2 className="mb-6 text-3xl font-black text-white md:text-4xl lg:text-5xl">
             Clinicas que confian en VetePy
           </h2>
-          <p className="text-white/60 max-w-2xl mx-auto text-lg">
-            Conoce las veterinarias que ya forman parte de nuestra red.
-            Cada una con su identidad unica, todas con tecnologia de primer nivel.
+          <p className="mx-auto max-w-2xl text-lg text-white/60">
+            Conoce las veterinarias que ya forman parte de nuestra red. Cada una con su identidad
+            unica, todas con tecnologia de primer nivel.
           </p>
         </div>
 
         {/* Stats bar */}
-        <div className="flex flex-wrap justify-center gap-6 md:gap-12 mb-12">
+        <div className="mb-12 flex flex-wrap justify-center gap-6 md:gap-12">
           <div className="text-center">
-            <div className="text-3xl md:text-4xl font-black text-[var(--primary)]">{clinics.length}</div>
-            <div className="text-white/50 text-sm">Clinicas Activas</div>
+            <div className="text-3xl font-black text-[var(--primary)] md:text-4xl">
+              {clinics.length}
+            </div>
+            <div className="text-sm text-white/50">Clinicas Activas</div>
           </div>
-          <div className="hidden md:block w-px h-12 bg-white/10" />
+          <div className="hidden h-12 w-px bg-white/10 md:block" />
           <div className="text-center">
-            <div className="text-3xl md:text-4xl font-black text-white">430+</div>
-            <div className="text-white/50 text-sm">Mascotas Registradas</div>
+            <div className="text-3xl font-black text-white md:text-4xl">430+</div>
+            <div className="text-sm text-white/50">Mascotas Registradas</div>
           </div>
-          <div className="hidden md:block w-px h-12 bg-white/10" />
+          <div className="hidden h-12 w-px bg-white/10 md:block" />
           <div className="text-center">
-            <div className="text-3xl md:text-4xl font-black text-white">1,200+</div>
-            <div className="text-white/50 text-sm">Citas Gestionadas</div>
+            <div className="text-3xl font-black text-white md:text-4xl">1,200+</div>
+            <div className="text-sm text-white/50">Citas Gestionadas</div>
           </div>
-          <div className="hidden md:block w-px h-12 bg-white/10" />
+          <div className="hidden h-12 w-px bg-white/10 md:block" />
           <div className="text-center">
-            <div className="text-3xl md:text-4xl font-black text-white">4.9</div>
-            <div className="text-white/50 text-sm">Satisfaccion Promedio</div>
+            <div className="text-3xl font-black text-white md:text-4xl">4.9</div>
+            <div className="text-sm text-white/50">Satisfaccion Promedio</div>
           </div>
         </div>
 
         {/* Clinic Cards Grid */}
-        <div className="grid md:grid-cols-2 gap-6 mb-16 max-w-4xl mx-auto">
+        <div className="mx-auto mb-16 grid max-w-4xl gap-6 md:grid-cols-2">
           {clinics.map((clinic) => (
             <ClinicCard key={clinic.id} clinic={clinic} />
           ))}
@@ -272,7 +288,7 @@ export function ClientShowcase() {
 
         {/* Testimonial Carousel */}
         <div className="mb-12">
-          <h3 className="text-center text-white/40 uppercase tracking-widest text-sm mb-8">
+          <h3 className="mb-8 text-center text-sm uppercase tracking-widest text-white/40">
             Lo que dicen nuestros clientes
           </h3>
           <TestimonialCarousel />
@@ -280,20 +296,18 @@ export function ClientShowcase() {
 
         {/* Join CTA */}
         <div className="text-center">
-          <p className="text-white/50 mb-4">
-            ¿Queres que tu clinica aparezca aqui?
-          </p>
+          <p className="mb-4 text-white/50">¿Queres que tu clinica aparezca aqui?</p>
           <a
             href="https://wa.me/595981324569?text=Hola!%20Quiero%20unir%20mi%20clinica%20a%20VetePy"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[var(--primary)] to-[var(--accent)] text-[var(--bg-dark)] font-bold rounded-full hover:shadow-lg hover:shadow-[var(--primary)]/20 transition-all"
+            className="hover:shadow-[var(--primary)]/20 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[var(--primary)] to-[var(--accent)] px-6 py-3 font-bold text-[var(--bg-dark)] transition-all hover:shadow-lg"
           >
-            <Building2 className="w-5 h-5" />
+            <Building2 className="h-5 w-5" />
             Unir mi Clinica
           </a>
         </div>
       </div>
     </section>
-  );
+  )
 }

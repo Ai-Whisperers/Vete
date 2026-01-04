@@ -13,7 +13,9 @@ export default async function NewLabOrderPage({ params }: Props) {
   const supabase = await createClient()
 
   // Auth check
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) {
     redirect(`/${clinic}/portal/login`)
   }
@@ -32,12 +34,12 @@ export default async function NewLabOrderPage({ params }: Props) {
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
-      <div className="flex items-center gap-4 mb-8">
+      <div className="mb-8 flex items-center gap-4">
         <Link
           href={`/${clinic}/dashboard/lab`}
-          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          className="rounded-lg p-2 transition-colors hover:bg-gray-100"
         >
-          <Icons.ArrowLeft className="w-6 h-6 text-[var(--text-primary)]" />
+          <Icons.ArrowLeft className="h-6 w-6 text-[var(--text-primary)]" />
         </Link>
         <div>
           <h1 className="text-3xl font-bold text-[var(--text-primary)]">
@@ -50,7 +52,7 @@ export default async function NewLabOrderPage({ params }: Props) {
       </div>
 
       {/* Form Card */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
+      <div className="rounded-xl border border-gray-200 bg-white p-6">
         <LabOrderFormWrapper clinic={clinic} />
       </div>
     </div>

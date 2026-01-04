@@ -1,9 +1,9 @@
-const { Client } = require('pg');
-require('dotenv').config();
+const { Client } = require('pg')
+require('dotenv').config()
 
 const client = new Client({
-  connectionString: process.env.DATABASE_URL
-});
+  connectionString: process.env.DATABASE_URL,
+})
 
 const assignments = [
   { sku: 'RC-DOG-ADULT-MED-15KG', sale_price: 485000 },
@@ -27,46 +27,51 @@ const assignments = [
   { sku: 'FRONTLINE-L-3', sale_price: 105000 },
   { sku: 'PP-DOG-ADULT-15KG', sale_price: 450000 },
   { sku: 'PP-DOG-PUPPY-15KG', sale_price: 480000 },
-  { sku: 'PP-CAT-ADULT-7KG', sale_price: 295000 }
-];
+  { sku: 'PP-CAT-ADULT-7KG', sale_price: 295000 },
+]
 
 async function createAssignments() {
   try {
-    await client.connect();
-    console.log('Connected to database');
+    await client.connect()
+    console.log('Connected to database')
 
     for (const assignment of assignments) {
       try {
         // First get the product ID by SKU
-        const productResult = await client.query('SELECT id FROM store_products WHERE sku = $1', [assignment.sku]);
+        const productResult = await client.query('SELECT id FROM store_products WHERE sku = $1', [
+          assignment.sku,
+        ])
         if (productResult.rows.length === 0) {
-          console.log(`Product not found: ${assignment.sku}`);
-          continue;
+          console.log(`Product not found: ${assignment.sku}`)
+          continue
         }
 
-        const productId = productResult.rows[0].id;
+        const productId = productResult.rows[0].id
 
         // Insert assignment
-        await client.query(`
+        await client.query(
+          `
           INSERT INTO clinic_product_assignments
           (tenant_id, catalog_product_id, sale_price, is_active)
           VALUES ($1, $2, $3, true)
           ON CONFLICT (tenant_id, catalog_product_id)
           DO UPDATE SET sale_price = EXCLUDED.sale_price
-        `, ['adris', productId, assignment.sale_price]);
+        `,
+          ['adris', productId, assignment.sale_price]
+        )
 
-        console.log(`Created assignment for ${assignment.sku}`);
+        console.log(`Created assignment for ${assignment.sku}`)
       } catch (err) {
-        console.error(`Error creating assignment for ${assignment.sku}:`, err.message);
+        console.error(`Error creating assignment for ${assignment.sku}:`, err.message)
       }
     }
 
-    console.log('Done creating assignments');
+    console.log('Done creating assignments')
   } catch (err) {
-    console.error('Database connection error:', err.message);
+    console.error('Database connection error:', err.message)
   } finally {
-    await client.end();
+    await client.end()
   }
 }
 
-createAssignments();
+createAssignments()

@@ -30,9 +30,11 @@ calendar/
 ## Refactoring Changes
 
 ### Before
+
 - **calendar.tsx**: 407 lines - monolithic component with all logic inline
 
 ### After
+
 - **calendar.tsx**: 117 lines - clean orchestrator component
 - **7 new modules**: Focused, reusable utilities and components
 
@@ -41,20 +43,26 @@ calendar/
 ### Core Components
 
 #### `calendar.tsx`
+
 Main calendar component orchestrator.
+
 - Imports all necessary modules
 - Uses `useCalendarState` hook for state management
 - Renders BigCalendar with modular configurations
 - **Props**: events, view, date, handlers, filters, etc.
 
 #### `CalendarEvent.tsx`
+
 Renders individual calendar events.
+
 - Displays event title
 - Shows pet name and service for appointments
 - Handles resource data access
 
 #### `CalendarStyles.tsx`
+
 Global styled-jsx for calendar theming.
+
 - Uses CSS variables for theming
 - Responsive styles for mobile
 - Customizes react-big-calendar UI
@@ -62,7 +70,9 @@ Global styled-jsx for calendar theming.
 ### Utilities
 
 #### `calendar-constants.ts`
+
 Configuration constants and Spanish messages.
+
 - `CALENDAR_MESSAGES`: Spanish UI text
 - `STATUS_COLORS`: Event status colors
 - `EVENT_TYPE_COLORS`: Event type colors
@@ -70,25 +80,33 @@ Configuration constants and Spanish messages.
 - `CALENDAR_CONFIG`: Step, timeslots, week start
 
 #### `calendar-filters.ts`
+
 Event filtering functions.
+
 - `filterByStaff(events, staffIds)`: Filter by staff
 - `filterByEventType(events, types)`: Filter by event type
 - `applyFilters(events, staffIds, types)`: Apply all filters
 
 #### `calendar-localizer.ts`
+
 Date-fns localizer configuration.
+
 - Spanish locale (es)
 - Week starts on Monday
 - Exports `calendarLocalizer`
 
 #### `calendar-styling.ts`
+
 Event styling utilities.
+
 - `getEventStyle(event)`: Returns event style object
 - Handles staff colors, event types, statuses
 - Opacity for blocked events
 
 #### `useCalendarState.ts`
+
 Custom hook for calendar state management.
+
 - Manages view, date state
 - Filters events by staff and type
 - Memoized handlers and computations
@@ -102,13 +120,7 @@ Custom hook for calendar state management.
 import { Calendar } from '@/components/calendar'
 
 function MyCalendar() {
-  return (
-    <Calendar
-      events={events}
-      view="week"
-      onSelectEvent={(event) => console.log(event)}
-    />
-  )
+  return <Calendar events={events} view="week" onSelectEvent={(event) => console.log(event)} />
 }
 ```
 
@@ -150,11 +162,7 @@ const style = getEventStyle(event)
 import { useCalendarState } from '@/components/calendar'
 
 function CustomCalendar({ events }) {
-  const {
-    currentView,
-    filteredEvents,
-    handlers,
-  } = useCalendarState({
+  const { currentView, filteredEvents, handlers } = useCalendarState({
     events,
     initialView: 'week',
     staffFilters: ['vet-1', 'vet-2'],
@@ -188,16 +196,14 @@ interface CalendarEvent {
 The calendar respects CSS variables for theming:
 
 ```css
---primary: Main brand color
---text-primary: Primary text color
---border-color: Border color
---bg-hover: Hover background
---primary-light: Light primary for highlights
+--primary: Main brand color --text-primary: Primary text color --border-color: Border color
+  --bg-hover: Hover background --primary-light: Light primary for highlights;
 ```
 
 ## Spanish Localization
 
 All UI text is in Spanish:
+
 - Toolbar buttons: "Hoy", "Anterior", "Siguiente"
 - View labels: "Mes", "Semana", "Día", "Agenda"
 - Messages: "No hay eventos en este rango."
@@ -255,6 +261,7 @@ import { applyFilters } from '@/components/calendar/calendar-filters'
 ## Future Enhancements
 
 Potential additions:
+
 - `CalendarToolbar.tsx`: Custom toolbar component
 - `CalendarLegend.tsx`: Event type legend
 - `useCalendarDragDrop.ts`: Drag and drop functionality

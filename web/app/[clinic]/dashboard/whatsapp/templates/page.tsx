@@ -14,7 +14,9 @@ export default async function WhatsAppTemplatesPage({ params }: Props) {
   const supabase = await createClient()
 
   // Auth check
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) {
     redirect(`/${clinic}/portal/login`)
   }
@@ -35,25 +37,23 @@ export default async function WhatsAppTemplatesPage({ params }: Props) {
   const templates = 'data' in result ? result.data : []
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
+    <div className="mx-auto max-w-5xl p-6">
       {/* Header */}
       <div className="mb-6">
         <Link
           href={`/${clinic}/dashboard/whatsapp`}
-          className="inline-flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] mb-4"
+          className="mb-4 inline-flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
         >
-          <Icons.ArrowLeft className="w-4 h-4" />
+          <Icons.ArrowLeft className="h-4 w-4" />
           Volver a WhatsApp
         </Link>
 
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
             <h1 className="text-2xl font-bold text-[var(--text-primary)]">
               Plantillas de WhatsApp
             </h1>
-            <p className="text-[var(--text-secondary)]">
-              Crea y gestiona plantillas de mensajes
-            </p>
+            <p className="text-[var(--text-secondary)]">Crea y gestiona plantillas de mensajes</p>
           </div>
         </div>
       </div>

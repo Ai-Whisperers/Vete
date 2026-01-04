@@ -1,26 +1,29 @@
-import { createClient } from '@/lib/supabase/server';
-import { NextRequest, NextResponse } from 'next/server';
-import { rateLimit } from '@/lib/rate-limit';
-import { apiError, HTTP_STATUS } from '@/lib/api/errors';
+import { createClient } from '@/lib/supabase/server'
+import { NextRequest, NextResponse } from 'next/server'
+import { rateLimit } from '@/lib/rate-limit'
+import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 
 interface ClaimItem {
-  service_date?: string;
-  service_code?: string;
-  description: string;
-  quantity: number;
-  unit_price: number;
-  invoice_item_id?: string;
-  service_id?: string;
+  service_date?: string
+  service_code?: string
+  description: string
+  quantity: number
+  unit_price: number
+  invoice_item_id?: string
+  service_id?: string
 }
 
 // GET /api/insurance/claims - List insurance claims
 export async function GET(request: NextRequest) {
-  const supabase = await createClient();
+  const supabase = await createClient()
 
   // Authentication check
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
   if (authError || !user) {
-    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED)
   }
 
   // Get user profile
@@ -28,33 +31,34 @@ export async function GET(request: NextRequest) {
     .from('profiles')
     .select('tenant_id, role')
     .eq('id', user.id)
-    .single();
+    .single()
 
   if (!profile) {
     return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
-      details: { resource: 'profile' }
-    });
+      details: { resource: 'profile' },
+    })
   }
 
   // Only staff can access insurance claims
-  const isStaff = ['vet', 'admin'].includes(profile.role);
+  const isStaff = ['vet', 'admin'].includes(profile.role)
   if (!isStaff) {
-    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
+    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN)
   }
 
-  const { searchParams } = new URL(request.url);
-  const status = searchParams.get('status');
-  const petId = searchParams.get('pet_id');
-  const policyId = searchParams.get('policy_id');
-  const search = searchParams.get('search');
-  const page = parseInt(searchParams.get('page') || '1');
-  const limit = parseInt(searchParams.get('limit') || '20');
-  const offset = (page - 1) * limit;
+  const { searchParams } = new URL(request.url)
+  const status = searchParams.get('status')
+  const petId = searchParams.get('pet_id')
+  const policyId = searchParams.get('policy_id')
+  const search = searchParams.get('search')
+  const page = parseInt(searchParams.get('page') || '1')
+  const limit = parseInt(searchParams.get('limit') || '20')
+  const offset = (page - 1) * limit
 
   try {
     let query = supabase
       .from('insurance_claims')
-      .select(`
+      .select(
+        `
         *,
         pets(id, name, species),
         pet_insurance_policies(
@@ -63,70 +67,76 @@ export async function GET(request: NextRequest) {
         ),
         insurance_claim_items(id, description, total_price, approved_amount),
         insurance_eob(id, paid_amount)
-      `, { count: 'exact' })
+      `,
+        { count: 'exact' }
+      )
       .eq('tenant_id', profile.tenant_id)
       .order('created_at', { ascending: false })
-      .range(offset, offset + limit - 1);
+      .range(offset, offset + limit - 1)
 
     if (status) {
-      query = query.eq('status', status);
+      query = query.eq('status', status)
     }
 
     if (petId) {
-      query = query.eq('pet_id', petId);
+      query = query.eq('pet_id', petId)
     }
 
     if (policyId) {
-      query = query.eq('policy_id', policyId);
+      query = query.eq('policy_id', policyId)
     }
 
     if (search) {
-      query = query.or(`claim_number.ilike.%${search}%,provider_claim_number.ilike.%${search}%,diagnosis.ilike.%${search}%`);
+      query = query.or(
+        `claim_number.ilike.%${search}%,provider_claim_number.ilike.%${search}%,diagnosis.ilike.%${search}%`
+      )
     }
 
-    const { data: claims, error, count } = await query;
+    const { data: claims, error, count } = await query
 
-    if (error) throw error;
+    if (error) throw error
 
     return NextResponse.json({
       data: claims,
       total: count || 0,
       page,
-      limit
-    });
+      limit,
+    })
   } catch (e) {
-    console.error('Error loading insurance claims:', e);
-    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
+    console.error('Error loading insurance claims:', e)
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
   }
 }
 
 // POST /api/insurance/claims - Create new insurance claim
 export async function POST(request: NextRequest) {
-  const supabase = await createClient();
+  const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) {
-    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED)
   }
 
   // Apply rate limiting for write endpoints (20 requests per minute)
-  const rateLimitResult = await rateLimit(request, 'write', user.id);
+  const rateLimitResult = await rateLimit(request, 'write', user.id)
   if (!rateLimitResult.success) {
-    return rateLimitResult.response;
+    return rateLimitResult.response
   }
 
   const { data: profile } = await supabase
     .from('profiles')
     .select('tenant_id, role')
     .eq('id', user.id)
-    .single();
+    .single()
 
   if (!profile || !['vet', 'admin'].includes(profile.role)) {
-    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
+    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN)
   }
 
   try {
-    const body = await request.json();
+    const body = await request.json()
     const {
       policy_id,
       pet_id,
@@ -137,13 +147,29 @@ export async function POST(request: NextRequest) {
       diagnosis_code,
       treatment_description,
       items,
-      status = 'draft'
-    } = body;
+      status = 'draft',
+    } = body
 
-    if (!policy_id || !pet_id || !claim_type || !date_of_service || !diagnosis || !treatment_description) {
+    if (
+      !policy_id ||
+      !pet_id ||
+      !claim_type ||
+      !date_of_service ||
+      !diagnosis ||
+      !treatment_description
+    ) {
       return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
-        details: { required: ['policy_id', 'pet_id', 'claim_type', 'date_of_service', 'diagnosis', 'treatment_description'] }
-      });
+        details: {
+          required: [
+            'policy_id',
+            'pet_id',
+            'claim_type',
+            'date_of_service',
+            'diagnosis',
+            'treatment_description',
+          ],
+        },
+      })
     }
 
     // Verify policy belongs to clinic and pet
@@ -153,28 +179,29 @@ export async function POST(request: NextRequest) {
       .eq('id', policy_id)
       .eq('tenant_id', profile.tenant_id)
       .eq('pet_id', pet_id)
-      .single();
+      .single()
 
     if (!policy) {
       return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
-        details: { resource: 'policy' }
-      });
+        details: { resource: 'policy' },
+      })
     }
 
     // Generate claim number
-    const { data: claimNumber } = await supabase
-      .rpc('generate_claim_number', { p_tenant_id: profile.tenant_id });
+    const { data: claimNumber } = await supabase.rpc('generate_claim_number', {
+      p_tenant_id: profile.tenant_id,
+    })
 
     // Calculate totals from items
-    let totalCharges = 0;
-    let claimedAmount = 0;
+    let totalCharges = 0
+    let claimedAmount = 0
 
     if (items && Array.isArray(items)) {
       items.forEach((item: ClaimItem) => {
-        const itemTotal = item.quantity * item.unit_price;
-        totalCharges += itemTotal;
-        claimedAmount += itemTotal;
-      });
+        const itemTotal = item.quantity * item.unit_price
+        totalCharges += itemTotal
+        claimedAmount += itemTotal
+      })
     }
 
     // Create claim
@@ -194,12 +221,12 @@ export async function POST(request: NextRequest) {
         total_charges: totalCharges,
         claimed_amount: claimedAmount,
         status,
-        submitted_by: user.id
+        submitted_by: user.id,
       })
       .select()
-      .single();
+      .single()
 
-    if (claimError) throw claimError;
+    if (claimError) throw claimError
 
     // Create claim items
     if (items && Array.isArray(items) && items.length > 0) {
@@ -212,27 +239,25 @@ export async function POST(request: NextRequest) {
         unit_price: item.unit_price,
         total_price: item.quantity * item.unit_price,
         invoice_item_id: item.invoice_item_id,
-        service_id: item.service_id
-      }));
+        service_id: item.service_id,
+      }))
 
-      const { error: itemsError } = await supabase
-        .from('insurance_claim_items')
-        .insert(claimItems);
+      const { error: itemsError } = await supabase.from('insurance_claim_items').insert(claimItems)
 
-      if (itemsError) throw itemsError;
+      if (itemsError) throw itemsError
     }
 
     // Audit log
-    const { logAudit } = await import('@/lib/audit');
+    const { logAudit } = await import('@/lib/audit')
     await logAudit('CREATE_INSURANCE_CLAIM', `insurance_claims/${claim.id}`, {
       claim_number: claim.claim_number,
       policy_id,
-      claimed_amount: claimedAmount
-    });
+      claimed_amount: claimedAmount,
+    })
 
-    return NextResponse.json(claim, { status: 201 });
+    return NextResponse.json(claim, { status: 201 })
   } catch (e) {
-    console.error('Error creating insurance claim:', e);
-    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
+    console.error('Error creating insurance claim:', e)
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
   }
 }

@@ -9,12 +9,7 @@ import { describe, it, expect } from 'vitest'
  * Helper function to test overlap logic (mirrors database function logic)
  * Two time ranges overlap if: start1 < end2 AND end1 > start2
  */
-function checkTimeOverlap(
-  start1: string,
-  end1: string,
-  start2: string,
-  end2: string
-): boolean {
+function checkTimeOverlap(start1: string, end1: string, start2: string, end2: string): boolean {
   // Convert HH:MM to minutes for easier comparison
   const toMinutes = (time: string): number => {
     const [hours, minutes] = time.split(':').map(Number)
@@ -87,9 +82,7 @@ describe('Appointment Overlap Logic', () => {
       const existing = { start: '09:00', end: '09:30' }
       const newAppt = { start: '09:15', end: '09:45' }
 
-      expect(
-        checkTimeOverlap(existing.start, existing.end, newAppt.start, newAppt.end)
-      ).toBe(true)
+      expect(checkTimeOverlap(existing.start, existing.end, newAppt.start, newAppt.end)).toBe(true)
     })
 
     it('should allow back-to-back appointments', () => {

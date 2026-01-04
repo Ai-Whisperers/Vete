@@ -22,7 +22,7 @@ export const Label = forwardRef<HTMLLabelElement, LabelProps>(
       <label
         ref={ref}
         className={cn(
-          'block text-sm font-bold mb-2',
+          'mb-2 block text-sm font-bold',
           error ? 'text-[var(--status-error,#ef4444)]' : 'text-[var(--text-secondary)]',
           className
         )}
@@ -30,14 +30,12 @@ export const Label = forwardRef<HTMLLabelElement, LabelProps>(
       >
         {children}
         {required && (
-          <span className="text-[var(--status-error,#ef4444)] ml-1" aria-label="required">
+          <span className="ml-1 text-[var(--status-error,#ef4444)]" aria-label="required">
             *
           </span>
         )}
         {optional && !required && (
-          <span className="text-[var(--text-muted)] ml-1 font-normal text-xs">
-            (opcional)
-          </span>
+          <span className="ml-1 text-xs font-normal text-[var(--text-muted)]">(opcional)</span>
         )}
       </label>
     )

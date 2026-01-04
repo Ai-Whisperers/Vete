@@ -17,9 +17,11 @@ web/components/layout/
 ## Component Responsibilities
 
 ### `main-nav.tsx` (Orchestrator)
+
 **Purpose:** Main navigation component that coordinates all sub-components.
 
 **Responsibilities:**
+
 - Defines navigation items structure
 - Manages cart integration
 - Renders desktop and mobile layouts
@@ -29,22 +31,26 @@ web/components/layout/
 - Delegates mobile navigation to `MobileMenu`
 
 **Exports:**
+
 - `MainNav` - Main navigation component
 
 **Props:**
+
 ```typescript
 interface MainNavProps {
-  clinic: string;
-  config: ClinicConfig;
+  clinic: string
+  config: ClinicConfig
 }
 ```
 
 ---
 
 ### `useNavAuth.ts` (Hook)
+
 **Purpose:** Manages authentication state and logout functionality.
 
 **Responsibilities:**
+
 - Fetches user session from Supabase
 - Loads user profile data
 - Handles logout logic
@@ -52,38 +58,42 @@ interface MainNavProps {
 - Provides logout error handling
 
 **Exports:**
+
 ```typescript
 interface UserProfile {
-  id: string;
-  tenant_id: string;
-  role: 'owner' | 'vet' | 'admin';
-  full_name: string | null;
-  email: string | null;
-  phone: string | null;
+  id: string
+  tenant_id: string
+  role: 'owner' | 'vet' | 'admin'
+  full_name: string | null
+  email: string | null
+  phone: string | null
 }
 
 interface UseNavAuthReturn {
-  user: SupabaseUser | null;
-  profile: UserProfile | null;
-  isLoggingOut: boolean;
-  logoutError: string | null;
-  handleLogout: () => Promise<void>;
+  user: SupabaseUser | null
+  profile: UserProfile | null
+  isLoggingOut: boolean
+  logoutError: string | null
+  handleLogout: () => Promise<void>
 }
 
 function useNavAuth(clinic: string): UseNavAuthReturn
 ```
 
 **Usage:**
+
 ```typescript
-const { user, profile, isLoggingOut, logoutError, handleLogout } = useNavAuth(clinic);
+const { user, profile, isLoggingOut, logoutError, handleLogout } = useNavAuth(clinic)
 ```
 
 ---
 
 ### `ToolsDropdown.tsx` (Component)
+
 **Purpose:** Desktop dropdown menu for tools and utilities.
 
 **Responsibilities:**
+
 - Renders tools menu button
 - Manages dropdown open/close state
 - Handles click outside to close
@@ -91,22 +101,25 @@ const { user, profile, isLoggingOut, logoutError, handleLogout } = useNavAuth(cl
 - Displays tools menu items with icons
 
 **Tools Items:**
+
 - Age Calculator
 - Toxic Food Checker
 - FAQ
 - Loyalty Program
 
 **Props:**
+
 ```typescript
 interface ToolsDropdownProps {
-  clinic: string;
-  config: ClinicConfig;
-  isActive: (href: string) => boolean;
-  pathname: string;
+  clinic: string
+  config: ClinicConfig
+  isActive: (href: string) => boolean
+  pathname: string
 }
 ```
 
 **Features:**
+
 - Animated dropdown with Framer Motion
 - Accessible (ARIA attributes)
 - Keyboard-friendly
@@ -115,28 +128,32 @@ interface ToolsDropdownProps {
 ---
 
 ### `UserMenu.tsx` (Component)
+
 **Purpose:** Desktop user menu with login/logout actions.
 
 **Responsibilities:**
+
 - Displays login/portal link
 - Renders logout button for authenticated users
 - Shows logout errors as toast
 - Manages logout loading state
 
 **Props:**
+
 ```typescript
 interface UserMenuProps {
-  clinic: string;
-  config: ClinicConfig;
-  user: SupabaseUser | null;
-  isActive: (href: string, exact?: boolean) => boolean;
-  isLoggingOut: boolean;
-  logoutError: string | null;
-  handleLogout: () => Promise<void>;
+  clinic: string
+  config: ClinicConfig
+  user: SupabaseUser | null
+  isActive: (href: string, exact?: boolean) => boolean
+  isLoggingOut: boolean
+  logoutError: string | null
+  handleLogout: () => Promise<void>
 }
 ```
 
 **Features:**
+
 - Conditional rendering based on auth state
 - Error toast for logout failures
 - Loading state during logout
@@ -144,9 +161,11 @@ interface UserMenuProps {
 ---
 
 ### `MobileMenu.tsx` (Component)
+
 **Purpose:** Full-screen mobile navigation drawer.
 
 **Responsibilities:**
+
 - Renders mobile menu trigger button
 - Manages drawer open/close state
 - Displays user profile section
@@ -158,27 +177,29 @@ interface UserMenuProps {
 - Prevents body scroll when open
 
 **Props:**
+
 ```typescript
 interface MobileMenuProps {
-  clinic: string;
-  config: ClinicConfig;
-  user: SupabaseUser | null;
-  profile: UserProfile | null;
-  navItems: NavItem[];
-  isActive: (href: string, exact?: boolean) => boolean;
-  isLoggingOut: boolean;
-  handleLogout: () => Promise<void>;
+  clinic: string
+  config: ClinicConfig
+  user: SupabaseUser | null
+  profile: UserProfile | null
+  navItems: NavItem[]
+  isActive: (href: string, exact?: boolean) => boolean
+  isLoggingOut: boolean
+  handleLogout: () => Promise<void>
 }
 
 interface NavItem {
-  label: string;
-  href: string;
-  exact?: boolean;
-  icon: LucideIcon;
+  label: string
+  href: string
+  exact?: boolean
+  icon: LucideIcon
 }
 ```
 
 **Features:**
+
 - Slide-in animation with Framer Motion
 - Backdrop overlay
 - Portaled to document.body
@@ -195,7 +216,9 @@ interface NavItem {
 ## Design Patterns Used
 
 ### 1. Separation of Concerns
+
 Each file has a single, well-defined responsibility:
+
 - `useNavAuth`: Authentication logic
 - `ToolsDropdown`: Tools menu UI
 - `UserMenu`: User actions UI
@@ -203,20 +226,26 @@ Each file has a single, well-defined responsibility:
 - `main-nav`: Coordination
 
 ### 2. Prop Drilling Minimization
+
 The `useNavAuth` hook is called once in `main-nav.tsx` and the results are passed to child components, avoiding duplicate auth calls.
 
 ### 3. Composition Over Inheritance
+
 Components are composed together in the main orchestrator rather than using complex inheritance hierarchies.
 
 ### 4. Single Responsibility Principle
+
 Each component and hook handles one aspect of navigation:
+
 - Auth state
 - Tools menu
 - User menu
 - Mobile drawer
 
 ### 5. Accessibility First
+
 All components include:
+
 - Proper ARIA attributes
 - Keyboard navigation support
 - Focus management
@@ -227,6 +256,7 @@ All components include:
 ## Migration Notes
 
 ### Before (603 lines)
+
 ```typescript
 // Single massive file with:
 // - Auth logic
@@ -237,6 +267,7 @@ All components include:
 ```
 
 ### After (620 total lines across 5 files)
+
 ```typescript
 // Clean separation:
 main-nav.tsx      - 142 lines (orchestration)
@@ -247,6 +278,7 @@ MobileMenu.tsx    - 310 lines (mobile UI)
 ```
 
 ### Benefits
+
 1. **Maintainability:** Each file is focused and easy to understand
 2. **Testability:** Components can be tested in isolation
 3. **Reusability:** Hooks and components can be reused elsewhere

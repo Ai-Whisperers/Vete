@@ -15,7 +15,7 @@ import { uuidSchema, requiredString, optionalString, enumSchema } from './common
  * Acuity levels for patient monitoring
  */
 export const ACUITY_LEVELS = ['low', 'medium', 'high', 'critical'] as const
-export type AcuityLevel = typeof ACUITY_LEVELS[number]
+export type AcuityLevel = (typeof ACUITY_LEVELS)[number]
 
 /**
  * Schema for admitting a patient to hospitalization
@@ -101,7 +101,7 @@ export const MEDICATION_ROUTES = [
   'rectal',
   'inhalation',
 ] as const
-export type MedicationRoute = typeof MEDICATION_ROUTES[number]
+export type MedicationRoute = (typeof MEDICATION_ROUTES)[number]
 
 /**
  * Schema for recording medication administration
@@ -136,7 +136,7 @@ export const FOOD_TYPES = [
   'liquid',
   'syringe_fed',
 ] as const
-export type FoodType = typeof FOOD_TYPES[number]
+export type FoodType = (typeof FOOD_TYPES)[number]
 
 /**
  * Schema for recording feeding
@@ -173,7 +173,7 @@ export const TREATMENT_TYPES = [
   'grooming',
   'other',
 ] as const
-export type TreatmentType = typeof TREATMENT_TYPES[number]
+export type TreatmentType = (typeof TREATMENT_TYPES)[number]
 
 /**
  * Schema for recording treatments
@@ -207,7 +207,7 @@ export const KENNEL_TYPES = [
   'exotic',
   'recovery',
 ] as const
-export type KennelType = typeof KENNEL_TYPES[number]
+export type KennelType = (typeof KENNEL_TYPES)[number]
 
 /**
  * Schema for creating a kennel

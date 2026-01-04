@@ -11,5 +11,5 @@ export function createClient(_config?: any) {
     set: async (_key: string, _value: string) => {},
     setEx: async (_key: string, _ttl: number, _value: string) => {},
     del: async (_key: string) => {},
-  };
+  }
 }

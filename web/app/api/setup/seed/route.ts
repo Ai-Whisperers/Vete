@@ -48,33 +48,29 @@ export async function POST(request: NextRequest) {
       case 'bulk_seed':
         return await bulkSeed(supabase, data)
       default:
-        return NextResponse.json(
-          { error: `Unknown action: ${action}` },
-          { status: 400 }
-        )
+        return NextResponse.json({ error: `Unknown action: ${action}` }, { status: 400 })
     }
   } catch (error) {
     logger.error('Setup API error', {
-      error: error instanceof Error ? error.message : String(error)
+      error: error instanceof Error ? error.message : String(error),
     })
     return NextResponse.json(
-      { error: 'Internal server error', details: error instanceof Error ? error.message : String(error) },
+      {
+        error: 'Internal server error',
+        details: error instanceof Error ? error.message : String(error),
+      },
       { status: 500 }
     )
   }
 }
 
 async function createTenant(supabase: any, data: any) {
-  const { data: tenant, error } = await supabase
-    .from('tenants')
-    .insert([data])
-    .select()
-    .single()
+  const { data: tenant, error } = await supabase.from('tenants').insert([data]).select().single()
 
   if (error) {
     logger.error('Error creating tenant', {
       error: error.message,
-      tenantId: data?.id
+      tenantId: data?.id,
     })
     return NextResponse.json({ error: error.message }, { status: 400 })
   }
@@ -83,16 +79,12 @@ async function createTenant(supabase: any, data: any) {
 }
 
 async function createProfile(supabase: any, data: any) {
-  const { data: profile, error } = await supabase
-    .from('profiles')
-    .insert([data])
-    .select()
-    .single()
+  const { data: profile, error } = await supabase.from('profiles').insert([data]).select().single()
 
   if (error) {
     logger.error('Error creating profile', {
       error: error.message,
-      tenantId: data?.tenant_id
+      tenantId: data?.tenant_id,
     })
     return NextResponse.json({ error: error.message }, { status: 400 })
   }
@@ -101,17 +93,13 @@ async function createProfile(supabase: any, data: any) {
 }
 
 async function createPet(supabase: any, data: any) {
-  const { data: pet, error } = await supabase
-    .from('pets')
-    .insert([data])
-    .select()
-    .single()
+  const { data: pet, error } = await supabase.from('pets').insert([data]).select().single()
 
   if (error) {
     logger.error('Error creating pet', {
       error: error.message,
       tenantId: data?.tenant_id,
-      petName: data?.name
+      petName: data?.name,
     })
     return NextResponse.json({ error: error.message }, { status: 400 })
   }
@@ -120,17 +108,13 @@ async function createPet(supabase: any, data: any) {
 }
 
 async function createService(supabase: any, data: any) {
-  const { data: service, error } = await supabase
-    .from('services')
-    .insert([data])
-    .select()
-    .single()
+  const { data: service, error } = await supabase.from('services').insert([data]).select().single()
 
   if (error) {
     logger.error('Error creating service', {
       error: error.message,
       tenantId: data?.tenant_id,
-      serviceName: data?.name
+      serviceName: data?.name,
     })
     return NextResponse.json({ error: error.message }, { status: 400 })
   }
@@ -148,7 +132,7 @@ async function createPaymentMethod(supabase: any, data: any) {
   if (error) {
     logger.error('Error creating payment method', {
       error: error.message,
-      tenantId: data?.tenant_id
+      tenantId: data?.tenant_id,
     })
     return NextResponse.json({ error: error.message }, { status: 400 })
   }
@@ -157,17 +141,13 @@ async function createPaymentMethod(supabase: any, data: any) {
 }
 
 async function createKennel(supabase: any, data: any) {
-  const { data: kennel, error } = await supabase
-    .from('kennels')
-    .insert([data])
-    .select()
-    .single()
+  const { data: kennel, error } = await supabase.from('kennels').insert([data]).select().single()
 
   if (error) {
     logger.error('Error creating kennel', {
       error: error.message,
       tenantId: data?.tenant_id,
-      kennelName: data?.name
+      kennelName: data?.name,
     })
     return NextResponse.json({ error: error.message }, { status: 400 })
   }
@@ -176,16 +156,12 @@ async function createKennel(supabase: any, data: any) {
 }
 
 async function createQrTag(supabase: any, data: any) {
-  const { data: qrTag, error } = await supabase
-    .from('qr_tags')
-    .insert([data])
-    .select()
-    .single()
+  const { data: qrTag, error } = await supabase.from('qr_tags').insert([data]).select().single()
 
   if (error) {
     logger.error('Error creating QR tag', {
       error: error.message,
-      tenantId: data?.tenant_id
+      tenantId: data?.tenant_id,
     })
     return NextResponse.json({ error: error.message }, { status: 400 })
   }
@@ -203,7 +179,7 @@ async function createAppointment(supabase: any, data: any) {
   if (error) {
     logger.error('Error creating appointment', {
       error: error.message,
-      tenantId: data?.tenant_id
+      tenantId: data?.tenant_id,
     })
     return NextResponse.json({ error: error.message }, { status: 400 })
   }
@@ -221,7 +197,7 @@ async function createHospitalization(supabase: any, data: any) {
   if (error) {
     logger.error('Error creating hospitalization', {
       error: error.message,
-      tenantId: data?.tenant_id
+      tenantId: data?.tenant_id,
     })
     return NextResponse.json({ error: error.message }, { status: 400 })
   }
@@ -239,7 +215,7 @@ async function createMedicalRecord(supabase: any, data: any) {
   if (error) {
     logger.error('Error creating medical record', {
       error: error.message,
-      tenantId: data?.tenant_id
+      tenantId: data?.tenant_id,
     })
     return NextResponse.json({ error: error.message }, { status: 400 })
   }
@@ -248,16 +224,12 @@ async function createMedicalRecord(supabase: any, data: any) {
 }
 
 async function createVaccine(supabase: any, data: any) {
-  const { data: vaccine, error } = await supabase
-    .from('vaccines')
-    .insert([data])
-    .select()
-    .single()
+  const { data: vaccine, error } = await supabase.from('vaccines').insert([data]).select().single()
 
   if (error) {
     logger.error('Error creating vaccine', {
       error: error.message,
-      tenantId: data?.tenant_id
+      tenantId: data?.tenant_id,
     })
     return NextResponse.json({ error: error.message }, { status: 400 })
   }
@@ -267,15 +239,15 @@ async function createVaccine(supabase: any, data: any) {
 
 async function bulkSeed(supabase: any, data: any) {
   const results: {
-    tenants: unknown[];
-    profiles: unknown[];
-    pets: unknown[];
-    services: unknown[];
-    appointments: unknown[];
-    medical_records: unknown[];
-    vaccines: unknown[];
-    hospitalizations: unknown[];
-    errors: string[];
+    tenants: unknown[]
+    profiles: unknown[]
+    pets: unknown[]
+    services: unknown[]
+    appointments: unknown[]
+    medical_records: unknown[]
+    vaccines: unknown[]
+    hospitalizations: unknown[]
+    errors: string[]
   } = {
     tenants: [],
     profiles: [],
@@ -285,7 +257,7 @@ async function bulkSeed(supabase: any, data: any) {
     medical_records: [],
     vaccines: [],
     hospitalizations: [],
-    errors: []
+    errors: [],
   }
 
   try {
@@ -429,16 +401,18 @@ async function bulkSeed(supabase: any, data: any) {
         medical_records_created: results.medical_records.length,
         vaccines_created: results.vaccines.length,
         hospitalizations_created: results.hospitalizations.length,
-        errors_count: results.errors.length
-      }
+        errors_count: results.errors.length,
+      },
     })
-
   } catch (error) {
     logger.error('Bulk seed error', {
-      error: error instanceof Error ? error.message : String(error)
+      error: error instanceof Error ? error.message : String(error),
     })
     return NextResponse.json(
-      { error: 'Bulk seed failed', details: error instanceof Error ? error.message : String(error) },
+      {
+        error: 'Bulk seed failed',
+        details: error instanceof Error ? error.message : String(error),
+      },
       { status: 500 }
     )
   }
@@ -461,20 +435,19 @@ export async function DELETE(request: NextRequest) {
     const tenantId = url.searchParams.get('tenant_id')
 
     if (!tenantId) {
-      return NextResponse.json(
-        { error: 'tenant_id parameter is required' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'tenant_id parameter is required' }, { status: 400 })
     }
 
     return await clearTenantData(supabase, tenantId)
-
   } catch (error) {
     logger.error('Clear tenant data error', {
-      error: error instanceof Error ? error.message : String(error)
+      error: error instanceof Error ? error.message : String(error),
     })
     return NextResponse.json(
-      { error: 'Clear tenant data failed', details: error instanceof Error ? error.message : String(error) },
+      {
+        error: 'Clear tenant data failed',
+        details: error instanceof Error ? error.message : String(error),
+      },
       { status: 500 }
     )
   }
@@ -529,7 +502,7 @@ async function clearTenantData(supabase: any, tenantId: string) {
         logger.error('Error deleting from table', {
           table: operation.table,
           tenantId,
-          error: error.message
+          error: error.message,
         })
         continue
       }
@@ -541,27 +514,26 @@ async function clearTenantData(supabase: any, tenantId: string) {
         logger.debug('Deleted records from table', {
           table: operation.table,
           deletedCount,
-          tenantId
+          tenantId,
         })
       }
-
     } catch (error) {
       logger.error('Failed to delete from table', {
         table: operation.table,
         tenantId,
-        error: error instanceof Error ? error.message : String(error)
+        error: error instanceof Error ? error.message : String(error),
       })
     }
   }
 
   logger.info('Cleared records for tenant', {
     tenantId,
-    totalDeleted
+    totalDeleted,
   })
 
   return NextResponse.json({
     success: true,
     message: `Cleared ${totalDeleted} records for tenant ${tenantId}`,
-    total_deleted: totalDeleted
+    total_deleted: totalDeleted,
   })
 }

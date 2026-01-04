@@ -1,43 +1,44 @@
-
-import { Client } from 'pg';
-import dotenv from 'dotenv';
-import path from 'path';
-import fs from 'fs';
+import { Client } from 'pg'
+import dotenv from 'dotenv'
+import path from 'path'
+import fs from 'fs'
 
 // Load env
-dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
+dotenv.config({ path: path.resolve(process.cwd(), '.env.local') })
 
-const dbUrl = process.env.DATABASE_URL || process.env.SUPABASE_DB_URL;
+const dbUrl = process.env.DATABASE_URL || process.env.SUPABASE_DB_URL
 
 if (!dbUrl) {
-    console.error('❌ Missing DATABASE_URL or SUPABASE_DB_URL in .env.local');
-    process.exit(1);
+  console.error('❌ Missing DATABASE_URL or SUPABASE_DB_URL in .env.local')
+  process.exit(1)
 }
 
 async function runUpdate() {
-    const client = new Client({
-        connectionString: dbUrl,
-    });
+  const client = new Client({
+    connectionString: dbUrl,
+  })
 
-    try {
-        await client.connect();
-        console.log('✅ Connected to Database');
+  try {
+    await client.connect()
+    console.log('✅ Connected to Database')
 
-        // Files to run from arguments or defaults
-        const args = process.argv.slice(2);
-        const files = args.length > 0 ? args : ['11_appointments.sql', '06_rpcs.sql'];
+    // Files to run from arguments or defaults
+    const args = process.argv.slice(2)
+    const files = args.length > 0 ? args : ['11_appointments.sql', '06_rpcs.sql']
 
-        for (const file of files) {
-            console.log(`📄 Running ${file}...`);
-            const updatePath = path.isAbsolute(file) ? file : path.resolve(process.cwd(), file.startsWith('db/') ? '' : 'db', file);
-            const sql = fs.readFileSync(updatePath, 'utf8');
-            await client.query(sql);
-            console.log(`   Done.`);
-        }
-        
-        // Run seed data snippet manually since we can't exec the temp file nicely
-        console.log(`🌱 Seeding appointments...`);
-        const seedSql = `
+    for (const file of files) {
+      console.log(`📄 Running ${file}...`)
+      const updatePath = path.isAbsolute(file)
+        ? file
+        : path.resolve(process.cwd(), file.startsWith('db/') ? '' : 'db', file)
+      const sql = fs.readFileSync(updatePath, 'utf8')
+      await client.query(sql)
+      console.log(`   Done.`)
+    }
+
+    // Run seed data snippet manually since we can't exec the temp file nicely
+    console.log(`🌱 Seeding appointments...`)
+    const seedSql = `
         DO $$
         DECLARE
           p_firulais uuid;
@@ -61,17 +62,16 @@ async function runUpdate() {
             ('adris', p_mishi, null, (now() + interval '2 days'), (now() + interval '2 days 30 minutes'), 'pending', 'Revisión General', owner_juan);
           END IF;
         END $$;
-        `;
-        await client.query(seedSql);
-        console.log(`   Done.`);
+        `
+    await client.query(seedSql)
+    console.log(`   Done.`)
 
-        console.log('🎉 Update Complete!');
-
-    } catch (err) {
-        console.error('❌ Error during update:', err);
-    } finally {
-        await client.end();
-    }
+    console.log('🎉 Update Complete!')
+  } catch (err) {
+    console.error('❌ Error during update:', err)
+  } finally {
+    await client.end()
+  }
 }
 
-runUpdate();
+runUpdate()

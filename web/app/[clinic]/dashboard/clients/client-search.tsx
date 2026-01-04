@@ -40,7 +40,7 @@ export default function ClientSearch({ clinic, initialQuery = '' }: ClientSearch
   }
 
   return (
-    <div className="flex-1 max-w-md">
+    <div className="max-w-md flex-1">
       <div className="relative">
         <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)]">
           <Search className="h-5 w-5" />
@@ -50,22 +50,20 @@ export default function ClientSearch({ clinic, initialQuery = '' }: ClientSearch
           value={query}
           onChange={(e) => handleSearch(e.target.value)}
           placeholder="Buscar por nombre, email o teléfono..."
-          className="w-full pl-10 pr-10 py-2 border border-[var(--primary)] border-opacity-20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-opacity-50 text-[var(--text-primary)] bg-[var(--bg-default)]"
+          className="w-full rounded-lg border border-[var(--primary)] border-opacity-20 bg-[var(--bg-default)] py-2 pl-10 pr-10 text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-opacity-50"
           disabled={isPending}
         />
         {query && (
           <button
             onClick={handleClear}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)] transition-colors hover:text-[var(--text-primary)]"
             disabled={isPending}
           >
             <X className="h-5 w-5" />
           </button>
         )}
       </div>
-      {isPending && (
-        <p className="text-xs text-[var(--text-secondary)] mt-1 ml-1">Buscando...</p>
-      )}
+      {isPending && <p className="ml-1 mt-1 text-xs text-[var(--text-secondary)]">Buscando...</p>}
     </div>
   )
 }

@@ -1,21 +1,21 @@
 // Supabase Edge Function: Process Notification Queue
 // This function is called by pg_cron every minute to process pending notifications
 
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
-import { supabaseAdmin, NotificationQueueItem } from '../_shared/supabase.ts';
-import { corsHeaders } from '../_shared/cors.ts';
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
+import { supabaseAdmin, NotificationQueueItem } from '../_shared/supabase.ts'
+import { corsHeaders } from '../_shared/cors.ts'
 
-const BATCH_SIZE = 50;
-const MAX_RETRIES = 3;
+const BATCH_SIZE = 50
+const MAX_RETRIES = 3
 
 serve(async (req) => {
   // Handle CORS
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
+    return new Response('ok', { headers: corsHeaders })
   }
 
   try {
-    console.log('Processing notification queue...');
+    console.log('Processing notification queue...')
 
     // Get pending notifications (oldest first, respect scheduled_for)
     const { data: notifications, error: fetchError } = await supabaseAdmin
@@ -25,76 +25,76 @@ serve(async (req) => {
       .or(`scheduled_for.is.null,scheduled_for.lte.${new Date().toISOString()}`)
       .order('priority', { ascending: false }) // urgent first
       .order('created_at', { ascending: true })
-      .limit(BATCH_SIZE);
+      .limit(BATCH_SIZE)
 
     if (fetchError) {
-      throw new Error(`Failed to fetch notifications: ${fetchError.message}`);
+      throw new Error(`Failed to fetch notifications: ${fetchError.message}`)
     }
 
     if (!notifications || notifications.length === 0) {
-      return new Response(
-        JSON.stringify({ message: 'No pending notifications', processed: 0 }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ message: 'No pending notifications', processed: 0 }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
     }
 
-    console.log(`Found ${notifications.length} pending notifications`);
+    console.log(`Found ${notifications.length} pending notifications`)
 
     // Mark as processing
-    const ids = notifications.map(n => n.id);
-    await supabaseAdmin
-      .from('notification_queue')
-      .update({ status: 'processing' })
-      .in('id', ids);
+    const ids = notifications.map((n) => n.id)
+    await supabaseAdmin.from('notification_queue').update({ status: 'processing' }).in('id', ids)
 
     // Process each notification
     const results = await Promise.allSettled(
-      notifications.map(notification => processNotification(notification))
-    );
+      notifications.map((notification) => processNotification(notification))
+    )
 
     // Count results
-    const sent = results.filter(r => r.status === 'fulfilled' && r.value.success).length;
-    const failed = results.filter(r => r.status === 'rejected' || (r.status === 'fulfilled' && !r.value.success)).length;
+    const sent = results.filter((r) => r.status === 'fulfilled' && r.value.success).length
+    const failed = results.filter(
+      (r) => r.status === 'rejected' || (r.status === 'fulfilled' && !r.value.success)
+    ).length
 
-    console.log(`Processed: ${sent} sent, ${failed} failed`);
+    console.log(`Processed: ${sent} sent, ${failed} failed`)
 
     return new Response(
       JSON.stringify({
         message: 'Queue processed',
         total: notifications.length,
         sent,
-        failed
+        failed,
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    )
   } catch (error) {
-    console.error('Error processing queue:', error);
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    console.error('Error processing queue:', error)
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
   }
-});
+})
 
-async function processNotification(notification: NotificationQueueItem): Promise<{ success: boolean; error?: string }> {
+async function processNotification(
+  notification: NotificationQueueItem
+): Promise<{ success: boolean; error?: string }> {
   try {
-    let result: { success: boolean; messageId?: string; error?: string };
+    let result: { success: boolean; messageId?: string; error?: string }
 
     switch (notification.channel) {
       case 'email':
-        result = await sendEmail(notification);
-        break;
+        result = await sendEmail(notification)
+        break
       case 'sms':
-        result = await sendSms(notification);
-        break;
+        result = await sendSms(notification)
+        break
       case 'whatsapp':
-        result = await sendWhatsApp(notification);
-        break;
+        result = await sendWhatsApp(notification)
+        break
       case 'push':
-        result = await sendPush(notification);
-        break;
+        result = await sendPush(notification)
+        break
       default:
-        result = { success: false, error: `Unknown channel: ${notification.channel}` };
+        result = { success: false, error: `Unknown channel: ${notification.channel}` }
     }
 
     if (result.success) {
@@ -104,15 +104,15 @@ async function processNotification(notification: NotificationQueueItem): Promise
         .update({
           status: 'sent',
           sent_at: new Date().toISOString(),
-          external_id: result.messageId
+          external_id: result.messageId,
         })
-        .eq('id', notification.id);
+        .eq('id', notification.id)
 
-      await logNotification(notification, 'sent');
+      await logNotification(notification, 'sent')
     } else {
       // Handle failure
-      const newRetryCount = notification.retry_count + 1;
-      const shouldRetry = newRetryCount < MAX_RETRIES;
+      const newRetryCount = notification.retry_count + 1
+      const shouldRetry = newRetryCount < MAX_RETRIES
 
       await supabaseAdmin
         .from('notification_queue')
@@ -120,17 +120,17 @@ async function processNotification(notification: NotificationQueueItem): Promise
           status: shouldRetry ? 'pending' : 'failed',
           retry_count: newRetryCount,
           error_message: result.error,
-          failed_at: shouldRetry ? null : new Date().toISOString()
+          failed_at: shouldRetry ? null : new Date().toISOString(),
         })
-        .eq('id', notification.id);
+        .eq('id', notification.id)
 
-      await logNotification(notification, 'failed', result.error);
+      await logNotification(notification, 'failed', result.error)
     }
 
-    return result;
+    return result
   } catch (error) {
-    console.error(`Error processing notification ${notification.id}:`, error);
-    return { success: false, error: error.message };
+    console.error(`Error processing notification ${notification.id}:`, error)
+    return { success: false, error: error.message }
   }
 }
 
@@ -140,43 +140,43 @@ async function sendEmail(notification: NotificationQueueItem) {
     .from('tenants')
     .select('config')
     .eq('id', notification.tenant_id)
-    .single();
+    .single()
 
-  const config = tenant?.config || {};
-  const provider = config.email_provider || 'resend';
+  const config = tenant?.config || {}
+  const provider = config.email_provider || 'resend'
 
   // Use Resend by default (free tier available)
-  const apiKey = config.email_api_key || Deno.env.get('RESEND_API_KEY');
-  const fromEmail = config.email_from || Deno.env.get('DEFAULT_FROM_EMAIL') || 'noreply@vete.app';
+  const apiKey = config.email_api_key || Deno.env.get('RESEND_API_KEY')
+  const fromEmail = config.email_from || Deno.env.get('DEFAULT_FROM_EMAIL') || 'noreply@vete.app'
 
   if (!apiKey) {
-    return { success: false, error: 'No email API key configured' };
+    return { success: false, error: 'No email API key configured' }
   }
 
   try {
     const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json'
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         from: fromEmail,
         to: notification.recipient_address,
         subject: notification.subject || 'Notificación de tu veterinaria',
-        html: formatEmailHtml(notification.body, notification.metadata)
-      })
-    });
+        html: formatEmailHtml(notification.body, notification.metadata),
+      }),
+    })
 
     if (!response.ok) {
-      const error = await response.text();
-      return { success: false, error: `Resend error: ${error}` };
+      const error = await response.text()
+      return { success: false, error: `Resend error: ${error}` }
     }
 
-    const data = await response.json();
-    return { success: true, messageId: data.id };
+    const data = await response.json()
+    return { success: true, messageId: data.id }
   } catch (error) {
-    return { success: false, error: error.message };
+    return { success: false, error: error.message }
   }
 }
 
@@ -185,15 +185,15 @@ async function sendSms(notification: NotificationQueueItem) {
     .from('tenants')
     .select('config')
     .eq('id', notification.tenant_id)
-    .single();
+    .single()
 
-  const config = tenant?.config || {};
-  const accountSid = config.sms_api_key || Deno.env.get('TWILIO_ACCOUNT_SID');
-  const authToken = config.sms_api_secret || Deno.env.get('TWILIO_AUTH_TOKEN');
-  const fromNumber = config.sms_from || Deno.env.get('TWILIO_PHONE_NUMBER');
+  const config = tenant?.config || {}
+  const accountSid = config.sms_api_key || Deno.env.get('TWILIO_ACCOUNT_SID')
+  const authToken = config.sms_api_secret || Deno.env.get('TWILIO_AUTH_TOKEN')
+  const fromNumber = config.sms_from || Deno.env.get('TWILIO_PHONE_NUMBER')
 
   if (!accountSid || !authToken || !fromNumber) {
-    return { success: false, error: 'SMS not configured' };
+    return { success: false, error: 'SMS not configured' }
   }
 
   try {
@@ -202,26 +202,26 @@ async function sendSms(notification: NotificationQueueItem) {
       {
         method: 'POST',
         headers: {
-          'Authorization': 'Basic ' + btoa(`${accountSid}:${authToken}`),
-          'Content-Type': 'application/x-www-form-urlencoded'
+          Authorization: 'Basic ' + btoa(`${accountSid}:${authToken}`),
+          'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: new URLSearchParams({
           From: fromNumber,
           To: notification.recipient_address,
-          Body: notification.body
-        })
+          Body: notification.body,
+        }),
       }
-    );
+    )
 
     if (!response.ok) {
-      const error = await response.json();
-      return { success: false, error: `Twilio error: ${error.message}` };
+      const error = await response.json()
+      return { success: false, error: `Twilio error: ${error.message}` }
     }
 
-    const data = await response.json();
-    return { success: true, messageId: data.sid };
+    const data = await response.json()
+    return { success: true, messageId: data.sid }
   } catch (error) {
-    return { success: false, error: error.message };
+    return { success: false, error: error.message }
   }
 }
 
@@ -231,15 +231,15 @@ async function sendWhatsApp(notification: NotificationQueueItem) {
     .from('tenants')
     .select('config')
     .eq('id', notification.tenant_id)
-    .single();
+    .single()
 
-  const config = tenant?.config || {};
-  const accountSid = config.sms_api_key || Deno.env.get('TWILIO_ACCOUNT_SID');
-  const authToken = config.sms_api_secret || Deno.env.get('TWILIO_AUTH_TOKEN');
-  const fromNumber = config.whatsapp_from || Deno.env.get('TWILIO_WHATSAPP_NUMBER');
+  const config = tenant?.config || {}
+  const accountSid = config.sms_api_key || Deno.env.get('TWILIO_ACCOUNT_SID')
+  const authToken = config.sms_api_secret || Deno.env.get('TWILIO_AUTH_TOKEN')
+  const fromNumber = config.whatsapp_from || Deno.env.get('TWILIO_WHATSAPP_NUMBER')
 
   if (!accountSid || !authToken || !fromNumber) {
-    return { success: false, error: 'WhatsApp not configured' };
+    return { success: false, error: 'WhatsApp not configured' }
   }
 
   try {
@@ -248,33 +248,33 @@ async function sendWhatsApp(notification: NotificationQueueItem) {
       {
         method: 'POST',
         headers: {
-          'Authorization': 'Basic ' + btoa(`${accountSid}:${authToken}`),
-          'Content-Type': 'application/x-www-form-urlencoded'
+          Authorization: 'Basic ' + btoa(`${accountSid}:${authToken}`),
+          'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: new URLSearchParams({
           From: `whatsapp:${fromNumber}`,
           To: `whatsapp:${notification.recipient_address}`,
-          Body: notification.body
-        })
+          Body: notification.body,
+        }),
       }
-    );
+    )
 
     if (!response.ok) {
-      const error = await response.json();
-      return { success: false, error: `WhatsApp error: ${error.message}` };
+      const error = await response.json()
+      return { success: false, error: `WhatsApp error: ${error.message}` }
     }
 
-    const data = await response.json();
-    return { success: true, messageId: data.sid };
+    const data = await response.json()
+    return { success: true, messageId: data.sid }
   } catch (error) {
-    return { success: false, error: error.message };
+    return { success: false, error: error.message }
   }
 }
 
 async function sendPush(_notification: NotificationQueueItem) {
   // Push notifications would require FCM/APNS integration
   // For now, just mark as not implemented
-  return { success: false, error: 'Push notifications not yet implemented' };
+  return { success: false, error: 'Push notifications not yet implemented' }
 }
 
 async function logNotification(
@@ -290,12 +290,12 @@ async function logNotification(
     subject: notification.subject,
     status,
     error_message: error,
-    metadata: notification.metadata
-  });
+    metadata: notification.metadata,
+  })
 }
 
 function formatEmailHtml(body: string, metadata: Record<string, unknown>): string {
-  const clinicName = metadata.clinic_name || 'Tu Veterinaria';
+  const clinicName = metadata.clinic_name || 'Tu Veterinaria'
 
   return `
 <!DOCTYPE html>
@@ -329,5 +329,5 @@ function formatEmailHtml(body: string, metadata: Record<string, unknown>): strin
   </table>
 </body>
 </html>
-  `;
+  `
 }

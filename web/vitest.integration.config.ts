@@ -1,13 +1,13 @@
-import { defineConfig } from 'vitest/config';
-import react from '@vitejs/plugin-react';
-import { resolve } from 'path';
+import { defineConfig } from 'vitest/config'
+import react from '@vitejs/plugin-react'
+import { resolve } from 'path'
 
 export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
       '@': resolve(__dirname, './'),
-      'redis': resolve(__dirname, './tests/__mocks__/redis.ts'),
+      redis: resolve(__dirname, './tests/__mocks__/redis.ts'),
     },
   },
   test: {
@@ -29,16 +29,9 @@ export default defineConfig({
       ],
     },
     testTimeout: 30000, // Longer timeout for integration tests
-    include: [
-      'tests/integration/**/*.test.ts',
-      'tests/integration/**/*.test.tsx',
-    ],
+    include: ['tests/integration/**/*.test.ts', 'tests/integration/**/*.test.tsx'],
     // Exclude E2E tests
-    exclude: [
-      'node_modules/**',
-      'e2e/**',
-      '.next/**',
-    ],
+    exclude: ['node_modules/**', 'e2e/**', '.next/**'],
     reporters: ['verbose'],
     pool: 'forks', // Forks might be better for DB isolation than threads
     isolate: true,
@@ -48,4 +41,4 @@ export default defineConfig({
     retry: 0, // Don't retry integration tests blindly
     watch: false,
   },
-});
+})

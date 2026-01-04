@@ -1,26 +1,39 @@
-"use client";
+'use client'
 
-import { type LucideIcon, Inbox, Search, FileX, Users, PawPrint, Calendar, FileText, Syringe, FlaskConical, MessageSquare, ShoppingCart } from "lucide-react";
-import { cn } from "@/lib/utils";
-import Link from "next/link";
+import {
+  type LucideIcon,
+  Inbox,
+  Search,
+  FileX,
+  Users,
+  PawPrint,
+  Calendar,
+  FileText,
+  Syringe,
+  FlaskConical,
+  MessageSquare,
+  ShoppingCart,
+} from 'lucide-react'
+import { cn } from '@/lib/utils'
+import Link from 'next/link'
 
 interface EmptyStateProps {
-  icon?: LucideIcon;
-  title: string;
-  description?: string;
+  icon?: LucideIcon
+  title: string
+  description?: string
   action?: {
-    label: string;
-    href?: string;
-    onClick?: () => void;
-  };
+    label: string
+    href?: string
+    onClick?: () => void
+  }
   secondaryAction?: {
-    label: string;
-    href?: string;
-    onClick?: () => void;
-  };
-  variant?: "default" | "search" | "error" | "card";
-  size?: "sm" | "md" | "lg";
-  className?: string;
+    label: string
+    href?: string
+    onClick?: () => void
+  }
+  variant?: 'default' | 'search' | 'error' | 'card'
+  size?: 'sm' | 'md' | 'lg'
+  className?: string
 }
 
 export function EmptyState({
@@ -29,62 +42,62 @@ export function EmptyState({
   description,
   action,
   secondaryAction,
-  variant = "default",
-  size = "md",
+  variant = 'default',
+  size = 'md',
   className,
 }: EmptyStateProps): React.ReactElement {
   const sizeClasses = {
     sm: {
-      container: "py-8",
-      iconWrapper: "w-12 h-12",
-      icon: "w-6 h-6",
-      title: "text-base",
-      description: "text-sm",
-      button: "px-4 py-2 text-sm",
+      container: 'py-8',
+      iconWrapper: 'w-12 h-12',
+      icon: 'w-6 h-6',
+      title: 'text-base',
+      description: 'text-sm',
+      button: 'px-4 py-2 text-sm',
     },
     md: {
-      container: "py-12",
-      iconWrapper: "w-16 h-16",
-      icon: "w-8 h-8",
-      title: "text-lg",
-      description: "text-sm",
-      button: "px-6 py-3 text-sm",
+      container: 'py-12',
+      iconWrapper: 'w-16 h-16',
+      icon: 'w-8 h-8',
+      title: 'text-lg',
+      description: 'text-sm',
+      button: 'px-6 py-3 text-sm',
     },
     lg: {
-      container: "py-16",
-      iconWrapper: "w-20 h-20",
-      icon: "w-10 h-10",
-      title: "text-xl",
-      description: "text-base",
-      button: "px-8 py-4 text-base",
+      container: 'py-16',
+      iconWrapper: 'w-20 h-20',
+      icon: 'w-10 h-10',
+      title: 'text-xl',
+      description: 'text-base',
+      button: 'px-8 py-4 text-base',
     },
-  };
+  }
 
   const variantClasses = {
     default: {
-      container: "bg-white",
-      iconWrapper: "bg-gray-100",
-      icon: "text-gray-400",
+      container: 'bg-white',
+      iconWrapper: 'bg-gray-100',
+      icon: 'text-gray-400',
     },
     search: {
-      container: "bg-white",
-      iconWrapper: "bg-blue-50",
-      icon: "text-blue-400",
+      container: 'bg-white',
+      iconWrapper: 'bg-blue-50',
+      icon: 'text-blue-400',
     },
     error: {
-      container: "bg-red-50",
-      iconWrapper: "bg-red-100",
-      icon: "text-red-400",
+      container: 'bg-red-50',
+      iconWrapper: 'bg-red-100',
+      icon: 'text-red-400',
     },
     card: {
-      container: "bg-white border border-dashed border-gray-300 rounded-2xl",
-      iconWrapper: "bg-gray-50",
-      icon: "text-gray-400",
+      container: 'bg-white border border-dashed border-gray-300 rounded-2xl',
+      iconWrapper: 'bg-gray-50',
+      icon: 'text-gray-400',
     },
-  };
+  }
 
-  const sizes = sizeClasses[size];
-  const variants = variantClasses[variant];
+  const sizes = sizeClasses[size]
+  const variants = variantClasses[variant]
 
   const ActionButton = ({
     label,
@@ -92,46 +105,39 @@ export function EmptyState({
     onClick,
     primary = false,
   }: {
-    label: string;
-    href?: string;
-    onClick?: () => void;
-    primary?: boolean;
+    label: string
+    href?: string
+    onClick?: () => void
+    primary?: boolean
   }): React.ReactElement => {
     const buttonClasses = cn(
       sizes.button,
-      "font-bold rounded-xl transition-all inline-flex items-center justify-center gap-2",
+      'font-bold rounded-xl transition-all inline-flex items-center justify-center gap-2',
       primary
-        ? "bg-[var(--primary)] text-white shadow-lg hover:shadow-xl hover:-translate-y-1"
-        : "border border-gray-200 text-gray-600 hover:bg-gray-50"
-    );
+        ? 'bg-[var(--primary)] text-white shadow-lg hover:shadow-xl hover:-translate-y-1'
+        : 'border border-gray-200 text-gray-600 hover:bg-gray-50'
+    )
 
     if (href) {
       return (
         <Link href={href} className={buttonClasses}>
           {label}
         </Link>
-      );
+      )
     }
 
     return (
       <button type="button" onClick={onClick} className={buttonClasses}>
         {label}
       </button>
-    );
-  };
+    )
+  }
 
   return (
-    <div
-      className={cn(
-        "text-center",
-        sizes.container,
-        variants.container,
-        className
-      )}
-    >
+    <div className={cn('text-center', sizes.container, variants.container, className)}>
       <div
         className={cn(
-          "rounded-full flex items-center justify-center mx-auto mb-4",
+          'mx-auto mb-4 flex items-center justify-center rounded-full',
           sizes.iconWrapper,
           variants.iconWrapper
         )}
@@ -139,18 +145,16 @@ export function EmptyState({
         <Icon className={cn(sizes.icon, variants.icon)} />
       </div>
 
-      <h3 className={cn("font-bold text-gray-700 mb-2", sizes.title)}>
-        {title}
-      </h3>
+      <h3 className={cn('mb-2 font-bold text-gray-700', sizes.title)}>{title}</h3>
 
       {description && (
-        <p className={cn("text-gray-500 mb-6 max-w-sm mx-auto", sizes.description)}>
+        <p className={cn('mx-auto mb-6 max-w-sm text-gray-500', sizes.description)}>
           {description}
         </p>
       )}
 
       {(action || secondaryAction) && (
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+        <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
           {action && (
             <ActionButton
               label={action.label}
@@ -169,7 +173,7 @@ export function EmptyState({
         </div>
       )}
     </div>
-  );
+  )
 }
 
 // Pre-configured empty states for common scenarios
@@ -177,8 +181,8 @@ export function EmptyStateNoPets({
   clinic,
   className,
 }: {
-  clinic: string;
-  className?: string;
+  clinic: string
+  className?: string
 }): React.ReactElement {
   return (
     <EmptyState
@@ -186,22 +190,22 @@ export function EmptyStateNoPets({
       title="No tienes mascotas registradas"
       description="Registra tu primera mascota para comenzar a llevar su historial médico."
       action={{
-        label: "Agregar Mascota",
+        label: 'Agregar Mascota',
         href: `/${clinic}/portal/pets/new`,
       }}
       variant="card"
       size="lg"
       className={className}
     />
-  );
+  )
 }
 
 export function EmptyStateNoAppointments({
   clinic,
   className,
 }: {
-  clinic: string;
-  className?: string;
+  clinic: string
+  className?: string
 }): React.ReactElement {
   return (
     <EmptyState
@@ -209,20 +213,16 @@ export function EmptyStateNoAppointments({
       title="No hay citas programadas"
       description="Agenda una cita para tu mascota con nuestros veterinarios."
       action={{
-        label: "Agendar Cita",
+        label: 'Agendar Cita',
         href: `/${clinic}/book`,
       }}
       variant="default"
       className={className}
     />
-  );
+  )
 }
 
-export function EmptyStateNoInvoices({
-  className,
-}: {
-  className?: string;
-}): React.ReactElement {
+export function EmptyStateNoInvoices({ className }: { className?: string }): React.ReactElement {
   return (
     <EmptyState
       icon={FileText}
@@ -231,7 +231,7 @@ export function EmptyStateNoInvoices({
       variant="default"
       className={className}
     />
-  );
+  )
 }
 
 export function EmptyStateNoVaccines({
@@ -239,9 +239,9 @@ export function EmptyStateNoVaccines({
   petId,
   className,
 }: {
-  clinic: string;
-  petId: string;
-  className?: string;
+  clinic: string
+  petId: string
+  className?: string
 }): React.ReactElement {
   return (
     <EmptyState
@@ -249,20 +249,16 @@ export function EmptyStateNoVaccines({
       title="Sin vacunas registradas"
       description="Agrega las vacunas de tu mascota para llevar un control."
       action={{
-        label: "Agregar Vacuna",
+        label: 'Agregar Vacuna',
         href: `/${clinic}/portal/pets/${petId}/vaccines/new`,
       }}
       variant="default"
       className={className}
     />
-  );
+  )
 }
 
-export function EmptyStateNoLabOrders({
-  className,
-}: {
-  className?: string;
-}): React.ReactElement {
+export function EmptyStateNoLabOrders({ className }: { className?: string }): React.ReactElement {
   return (
     <EmptyState
       icon={FlaskConical}
@@ -271,15 +267,15 @@ export function EmptyStateNoLabOrders({
       variant="default"
       className={className}
     />
-  );
+  )
 }
 
 export function EmptyStateNoClients({
   clinic,
   className,
 }: {
-  clinic: string;
-  className?: string;
+  clinic: string
+  className?: string
 }): React.ReactElement {
   return (
     <EmptyState
@@ -287,21 +283,21 @@ export function EmptyStateNoClients({
       title="No hay clientes"
       description="Invita a tus primeros clientes para comenzar."
       action={{
-        label: "Invitar Cliente",
+        label: 'Invitar Cliente',
         href: `/${clinic}/dashboard/clients?action=new-client`,
       }}
       variant="default"
       className={className}
     />
-  );
+  )
 }
 
 export function EmptyStateNoMessages({
   clinic,
   className,
 }: {
-  clinic: string;
-  className?: string;
+  clinic: string
+  className?: string
 }): React.ReactElement {
   return (
     <EmptyState
@@ -309,13 +305,13 @@ export function EmptyStateNoMessages({
       title="Sin mensajes"
       description="Inicia una conversación con la clínica."
       action={{
-        label: "Nuevo Mensaje",
+        label: 'Nuevo Mensaje',
         href: `/${clinic}/portal/messages/new`,
       }}
       variant="default"
       className={className}
     />
-  );
+  )
 }
 
 export function EmptyStateNoSearchResults({
@@ -323,9 +319,9 @@ export function EmptyStateNoSearchResults({
   onClear,
   className,
 }: {
-  query: string;
-  onClear?: () => void;
-  className?: string;
+  query: string
+  onClear?: () => void
+  className?: string
 }): React.ReactElement {
   return (
     <EmptyState
@@ -335,7 +331,7 @@ export function EmptyStateNoSearchResults({
       action={
         onClear
           ? {
-              label: "Limpiar búsqueda",
+              label: 'Limpiar búsqueda',
               onClick: onClear,
             }
           : undefined
@@ -343,19 +339,19 @@ export function EmptyStateNoSearchResults({
       variant="search"
       className={className}
     />
-  );
+  )
 }
 
 export function EmptyStateError({
-  title = "Algo salió mal",
-  description = "No pudimos cargar los datos. Por favor intenta de nuevo.",
+  title = 'Algo salió mal',
+  description = 'No pudimos cargar los datos. Por favor intenta de nuevo.',
   onRetry,
   className,
 }: {
-  title?: string;
-  description?: string;
-  onRetry?: () => void;
-  className?: string;
+  title?: string
+  description?: string
+  onRetry?: () => void
+  className?: string
 }): React.ReactElement {
   return (
     <EmptyState
@@ -365,7 +361,7 @@ export function EmptyStateError({
       action={
         onRetry
           ? {
-              label: "Reintentar",
+              label: 'Reintentar',
               onClick: onRetry,
             }
           : undefined
@@ -373,15 +369,15 @@ export function EmptyStateError({
       variant="error"
       className={className}
     />
-  );
+  )
 }
 
 export function EmptyStateEmptyCart({
   clinic,
   className,
 }: {
-  clinic: string;
-  className?: string;
+  clinic: string
+  className?: string
 }): React.ReactElement {
   return (
     <EmptyState
@@ -389,12 +385,12 @@ export function EmptyStateEmptyCart({
       title="Tu carrito está vacío"
       description="Explora nuestra tienda y agrega productos."
       action={{
-        label: "Ver Tienda",
+        label: 'Ver Tienda',
         href: `/${clinic}/store`,
       }}
       variant="card"
       size="lg"
       className={className}
     />
-  );
+  )
 }

@@ -9,7 +9,7 @@ export type {
   ValidationResult,
   FieldRule,
   ValidationSchema,
-  ValidationContext
+  ValidationContext,
 } from './types'
 
 // Core validation engine

@@ -6,54 +6,45 @@
  * @tags system, pets, critical
  */
 
-import { describe, test, expect, beforeAll, afterAll } from 'vitest';
-import {
-  getTestClient,
-  TestContext,
-  waitForDatabase,
-} from '../__helpers__/db';
-import {
-  createProfile,
-  createPet,
-  futureDate,
-  pastDate,
-} from '../__helpers__/factories';
-import { DEFAULT_TENANT } from '../__fixtures__/tenants';
+import { describe, test, expect, beforeAll, afterAll } from 'vitest'
+import { getTestClient, TestContext, waitForDatabase } from '../__helpers__/db'
+import { createProfile, createPet, futureDate, pastDate } from '../__helpers__/factories'
+import { DEFAULT_TENANT } from '../__fixtures__/tenants'
 
 describe('Pet Lifecycle', () => {
-  const ctx = new TestContext();
-  let client: ReturnType<typeof getTestClient>;
+  const ctx = new TestContext()
+  let client: ReturnType<typeof getTestClient>
 
   // Test entities
-  let ownerId: string;
-  let vetId: string;
-  let petId: string;
+  let ownerId: string
+  let vetId: string
+  let petId: string
 
   beforeAll(async () => {
-    await waitForDatabase();
-    client = getTestClient();
+    await waitForDatabase()
+    client = getTestClient()
 
     // Setup: Create owner and vet
     const owner = await createProfile({
       tenantId: DEFAULT_TENANT.id,
       role: 'owner',
       fullName: 'Lifecycle Test Owner',
-    });
-    ownerId = owner.id;
-    ctx.track('profiles', ownerId);
+    })
+    ownerId = owner.id
+    ctx.track('profiles', ownerId)
 
     const vet = await createProfile({
       tenantId: DEFAULT_TENANT.id,
       role: 'vet',
       fullName: 'Dr. Lifecycle Vet',
-    });
-    vetId = vet.id;
-    ctx.track('profiles', vetId);
-  });
+    })
+    vetId = vet.id
+    ctx.track('profiles', vetId)
+  })
 
   afterAll(async () => {
-    await ctx.cleanup();
-  });
+    await ctx.cleanup()
+  })
 
   describe('Complete Pet Registration and Medical History', () => {
     test('1. Owner registers new pet', async () => {
@@ -73,15 +64,15 @@ describe('Pet Lifecycle', () => {
           temperament: 'friendly',
         })
         .select()
-        .single();
+        .single()
 
-      expect(error).toBeNull();
-      expect(pet).toBeDefined();
-      expect(pet.name).toBe('Luna Lifecycle');
+      expect(error).toBeNull()
+      expect(pet).toBeDefined()
+      expect(pet.name).toBe('Luna Lifecycle')
 
-      petId = pet.id;
-      ctx.track('pets', petId);
-    });
+      petId = pet.id
+      ctx.track('pets', petId)
+    })
 
     test('2. Pet receives first vaccination', async () => {
       const { data: vaccine, error } = await client
@@ -96,14 +87,14 @@ describe('Pet Lifecycle', () => {
           administered_by: vetId,
         })
         .select()
-        .single();
+        .single()
 
-      expect(error).toBeNull();
-      expect(vaccine).toBeDefined();
-      expect(vaccine.status).toBe('pending');
+      expect(error).toBeNull()
+      expect(vaccine).toBeDefined()
+      expect(vaccine.status).toBe('pending')
 
-      ctx.track('vaccines', vaccine.id);
-    });
+      ctx.track('vaccines', vaccine.id)
+    })
 
     test('3. Vet verifies vaccination', async () => {
       // Get the vaccine
@@ -111,10 +102,10 @@ describe('Pet Lifecycle', () => {
         .from('vaccines')
         .select('*')
         .eq('pet_id', petId)
-        .eq('name', 'Rabia');
+        .eq('name', 'Rabia')
 
-      expect(vaccines).not.toBeNull();
-      const vaccineId = vaccines![0].id;
+      expect(vaccines).not.toBeNull()
+      const vaccineId = vaccines![0].id
 
       // Verify it
       const { data: verified, error } = await client
@@ -125,11 +116,11 @@ describe('Pet Lifecycle', () => {
         })
         .eq('id', vaccineId)
         .select()
-        .single();
+        .single()
 
-      expect(error).toBeNull();
-      expect(verified.status).toBe('verified');
-    });
+      expect(error).toBeNull()
+      expect(verified.status).toBe('verified')
+    })
 
     test('4. Create medical record for initial checkup', async () => {
       const { data: record, error } = await client
@@ -150,14 +141,14 @@ describe('Pet Lifecycle', () => {
           },
         })
         .select()
-        .single();
+        .single()
 
-      expect(error).toBeNull();
-      expect(record).toBeDefined();
-      expect(record.type).toBe('wellness');
+      expect(error).toBeNull()
+      expect(record).toBeDefined()
+      expect(record.type).toBe('wellness')
 
-      ctx.track('medical_records', record.id);
-    });
+      ctx.track('medical_records', record.id)
+    })
 
     test('5. Schedule follow-up appointment', async () => {
       const { data: appointment, error } = await client
@@ -175,14 +166,14 @@ describe('Pet Lifecycle', () => {
           reason: 'Control trimestral',
         })
         .select()
-        .single();
+        .single()
 
-      expect(error).toBeNull();
-      expect(appointment).toBeDefined();
-      expect(appointment.status).toBe('confirmed');
+      expect(error).toBeNull()
+      expect(appointment).toBeDefined()
+      expect(appointment.status).toBe('confirmed')
 
-      ctx.track('appointments', appointment.id);
-    });
+      ctx.track('appointments', appointment.id)
+    })
 
     test('6. Add second vaccination (Sextuple)', async () => {
       const { data: vaccine, error } = await client
@@ -197,55 +188,57 @@ describe('Pet Lifecycle', () => {
           administered_by: vetId,
         })
         .select()
-        .single();
+        .single()
 
-      expect(error).toBeNull();
-      expect(vaccine).toBeDefined();
+      expect(error).toBeNull()
+      expect(vaccine).toBeDefined()
 
-      ctx.track('vaccines', vaccine.id);
-    });
+      ctx.track('vaccines', vaccine.id)
+    })
 
     test('7. Verify complete pet profile with all records', async () => {
       // Get pet with all related data
       const { data: pet, error } = await client
         .from('pets')
-        .select(`
+        .select(
+          `
           *,
           owner:profiles!pets_owner_id_fkey(id, full_name, email),
           vaccines(id, name, status, administered_date),
           medical_records(id, title, type, created_at),
           appointments(id, type, status, date)
-        `)
+        `
+        )
         .eq('id', petId)
-        .single();
+        .single()
 
-      expect(error).toBeNull();
-      expect(pet).toBeDefined();
+      expect(error).toBeNull()
+      expect(pet).toBeDefined()
 
       // Verify pet details
-      expect(pet.name).toBe('Luna Lifecycle');
-      expect(pet.species).toBe('dog');
+      expect(pet.name).toBe('Luna Lifecycle')
+      expect(pet.species).toBe('dog')
 
       // Verify owner relationship
-      expect(pet.owner).toBeDefined();
-      expect(pet.owner.full_name).toBe('Lifecycle Test Owner');
+      expect(pet.owner).toBeDefined()
+      expect(pet.owner.full_name).toBe('Lifecycle Test Owner')
 
       // Verify vaccines
-      expect(pet.vaccines).toBeDefined();
-      expect(pet.vaccines.length).toBe(2);
-      expect(pet.vaccines.some((v: { name: string }) => v.name === 'Rabia')).toBe(true);
-      expect(pet.vaccines.some((v: { name: string }) => v.name === 'Sextuple')).toBe(true);
+      expect(pet.vaccines).toBeDefined()
+      expect(pet.vaccines.length).toBe(2)
+      expect(pet.vaccines.some((v: { name: string }) => v.name === 'Rabia')).toBe(true)
+      expect(pet.vaccines.some((v: { name: string }) => v.name === 'Sextuple')).toBe(true)
 
       // Verify medical records
-      expect(pet.medical_records).toBeDefined();
-      expect(pet.medical_records.length).toBe(1);
-      expect(pet.medical_records[0].title).toBe('Control Inicial');
+      expect(pet.medical_records).toBeDefined()
+      expect(pet.medical_records.length).toBe(1)
+      expect(pet.medical_records[0].title).toBe('Control Inicial')
 
       // Verify appointments
-      expect(pet.appointments).toBeDefined();
-      expect(pet.appointments.length).toBe(1);
-      expect(pet.appointments[0].type).toBe('checkup');
-    });
+      expect(pet.appointments).toBeDefined()
+      expect(pet.appointments.length).toBe(1)
+      expect(pet.appointments[0].type).toBe('checkup')
+    })
 
     test('8. Update pet weight after growth', async () => {
       const { data: updated, error } = await client
@@ -253,11 +246,11 @@ describe('Pet Lifecycle', () => {
         .update({ weight_kg: 30.2 })
         .eq('id', petId)
         .select()
-        .single();
+        .single()
 
-      expect(error).toBeNull();
-      expect(updated.weight_kg).toBe(30.2);
-    });
+      expect(error).toBeNull()
+      expect(updated.weight_kg).toBe(30.2)
+    })
 
     test('9. Record weight in new medical record', async () => {
       const { data: record, error } = await client
@@ -277,11 +270,11 @@ describe('Pet Lifecycle', () => {
           },
         })
         .select()
-        .single();
+        .single()
 
-      expect(error).toBeNull();
-      ctx.track('medical_records', record.id);
-    });
+      expect(error).toBeNull()
+      ctx.track('medical_records', record.id)
+    })
 
     test('10. Complete appointment and record findings', async () => {
       // Get appointment
@@ -289,10 +282,10 @@ describe('Pet Lifecycle', () => {
         .from('appointments')
         .select('*')
         .eq('pet_id', petId)
-        .eq('status', 'confirmed');
+        .eq('status', 'confirmed')
 
       if (appointments && appointments.length > 0) {
-        const appointmentId = appointments[0].id;
+        const appointmentId = appointments[0].id
 
         // Update appointment to past date and complete
         const { error } = await client
@@ -301,15 +294,15 @@ describe('Pet Lifecycle', () => {
             status: 'completed',
             notes: 'Paciente en excelente estado de salud.',
           })
-          .eq('id', appointmentId);
+          .eq('id', appointmentId)
 
-        expect(error).toBeNull();
+        expect(error).toBeNull()
       }
-    });
-  });
+    })
+  })
 
   describe('Pet Emergency Scenario', () => {
-    let emergencyPetId: string;
+    let emergencyPetId: string
 
     test('1. Emergency pet registration', async () => {
       const { data: pet, error } = await client
@@ -324,12 +317,12 @@ describe('Pet Lifecycle', () => {
           notes: 'Paciente de emergencia - información limitada',
         })
         .select()
-        .single();
+        .single()
 
-      expect(error).toBeNull();
-      emergencyPetId = pet.id;
-      ctx.track('pets', emergencyPetId);
-    });
+      expect(error).toBeNull()
+      emergencyPetId = pet.id
+      ctx.track('pets', emergencyPetId)
+    })
 
     test('2. Schedule emergency appointment', async () => {
       const { data: appointment, error } = await client
@@ -347,12 +340,12 @@ describe('Pet Lifecycle', () => {
           reason: 'Emergencia - posible intoxicación',
         })
         .select()
-        .single();
+        .single()
 
-      expect(error).toBeNull();
-      expect(appointment.type).toBe('emergency');
-      ctx.track('appointments', appointment.id);
-    });
+      expect(error).toBeNull()
+      expect(appointment.type).toBe('emergency')
+      ctx.track('appointments', appointment.id)
+    })
 
     test('3. Create emergency medical record', async () => {
       const { data: record, error } = await client
@@ -373,11 +366,11 @@ describe('Pet Lifecycle', () => {
           },
         })
         .select()
-        .single();
+        .single()
 
-      expect(error).toBeNull();
-      ctx.track('medical_records', record.id);
-    });
+      expect(error).toBeNull()
+      ctx.track('medical_records', record.id)
+    })
 
     test('4. Create prescription', async () => {
       const { data: prescription, error } = await client
@@ -390,11 +383,11 @@ describe('Pet Lifecycle', () => {
           signed_by: vetId,
         })
         .select()
-        .single();
+        .single()
 
-      expect(error).toBeNull();
-      ctx.track('prescriptions', prescription.id);
-    });
+      expect(error).toBeNull()
+      ctx.track('prescriptions', prescription.id)
+    })
 
     test('5. Schedule follow-up after emergency', async () => {
       const { data: followUp, error } = await client
@@ -412,10 +405,10 @@ describe('Pet Lifecycle', () => {
           reason: 'Control post-emergencia',
         })
         .select()
-        .single();
+        .single()
 
-      expect(error).toBeNull();
-      ctx.track('appointments', followUp.id);
-    });
-  });
-});
+      expect(error).toBeNull()
+      ctx.track('appointments', followUp.id)
+    })
+  })
+})

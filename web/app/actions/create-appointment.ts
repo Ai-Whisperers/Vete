@@ -11,9 +11,7 @@ import { ERROR_MESSAGES } from '@/lib/constants'
 import { logger } from '@/lib/logger'
 
 const createAppointmentSchema = z.object({
-  clinic: z
-    .string()
-    .min(1, ERROR_MESSAGES.CLINIC_IDENTIFICATION_FAILED),
+  clinic: z.string().min(1, ERROR_MESSAGES.CLINIC_IDENTIFICATION_FAILED),
   pet_id: z
     .string()
     .min(1, ERROR_MESSAGES.REQUIRED_PET_SELECTION)
@@ -22,16 +20,22 @@ const createAppointmentSchema = z.object({
   start_time: z
     .string()
     .min(1, ERROR_MESSAGES.REQUIRED_DATETIME)
-    .refine(val => {
-      const date = new Date(val);
-      return !isNaN(date.getTime());
-    }, { message: ERROR_MESSAGES.INVALID_DATETIME })
-    .refine(val => {
-      const date = new Date(val);
-      const now = new Date();
-      now.setMinutes(now.getMinutes() + 15); // At least 15 minutes in the future
-      return date >= now;
-    }, { message: ERROR_MESSAGES.APPOINTMENT_TOO_SOON }),
+    .refine(
+      (val) => {
+        const date = new Date(val)
+        return !isNaN(date.getTime())
+      },
+      { message: ERROR_MESSAGES.INVALID_DATETIME }
+    )
+    .refine(
+      (val) => {
+        const date = new Date(val)
+        const now = new Date()
+        now.setMinutes(now.getMinutes() + 15) // At least 15 minutes in the future
+        return date >= now
+      },
+      { message: ERROR_MESSAGES.APPOINTMENT_TOO_SOON }
+    ),
 
   reason: z
     .string()
@@ -43,18 +47,24 @@ const createAppointmentSchema = z.object({
     .string()
     .max(1000, ERROR_MESSAGES.LONG_NOTES)
     .optional()
-    .transform(val => val?.trim() || null),
-});
+    .transform((val) => val?.trim() || null),
+})
 
-export async function createAppointment(prevState: ActionResult | null, formData: FormData): Promise<ActionResult> {
+export async function createAppointment(
+  prevState: ActionResult | null,
+  formData: FormData
+): Promise<ActionResult> {
   const supabase = await createClient()
 
   // Auth Check
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
   if (authError || !user) {
     return {
       success: false,
-      error: ERROR_MESSAGES.LOGIN_REQUIRED
+      error: ERROR_MESSAGES.LOGIN_REQUIRED,
     }
   }
 
@@ -84,7 +94,7 @@ export async function createAppointment(prevState: ActionResult | null, formData
     return {
       success: false,
       error: ERROR_MESSAGES.REVIEW_FIELDS,
-      fieldErrors
+      fieldErrors,
     }
   }
 
@@ -102,8 +112,8 @@ export async function createAppointment(prevState: ActionResult | null, formData
       success: false,
       error: ERROR_MESSAGES.PET_NOT_FOUND,
       fieldErrors: {
-        pet_id: ERROR_MESSAGES.PET_NOT_FOUND
-      }
+        pet_id: ERROR_MESSAGES.PET_NOT_FOUND,
+      },
     }
   }
 
@@ -112,8 +122,8 @@ export async function createAppointment(prevState: ActionResult | null, formData
       success: false,
       error: ERROR_MESSAGES.UNAUTHORIZED_PET_ACCESS,
       fieldErrors: {
-        pet_id: ERROR_MESSAGES.UNAUTHORIZED_PET_ACCESS
-      }
+        pet_id: ERROR_MESSAGES.UNAUTHORIZED_PET_ACCESS,
+      },
     }
   }
 
@@ -137,8 +147,8 @@ export async function createAppointment(prevState: ActionResult | null, formData
       success: false,
       error: ERROR_MESSAGES.SLOT_ALREADY_TAKEN,
       fieldErrors: {
-        start_time: ERROR_MESSAGES.SLOT_ALREADY_TAKEN
-      }
+        start_time: ERROR_MESSAGES.SLOT_ALREADY_TAKEN,
+      },
     }
   }
 
@@ -152,7 +162,7 @@ export async function createAppointment(prevState: ActionResult | null, formData
     .gte('start_time', new Date().toISOString())
 
   if (existingAppointments && existingAppointments.length > 0) {
-    const sameDay = existingAppointments.find(apt => {
+    const sameDay = existingAppointments.find((apt) => {
       const aptDate = new Date(apt.start_time)
       return aptDate.toDateString() === start.toDateString()
     })
@@ -160,14 +170,14 @@ export async function createAppointment(prevState: ActionResult | null, formData
     if (sameDay) {
       const existingTime = new Date(sameDay.start_time).toLocaleTimeString('es-PY', {
         hour: '2-digit',
-        minute: '2-digit'
+        minute: '2-digit',
       })
       return {
         success: false,
         error: ERROR_MESSAGES.APPOINTMENT_ON_SAME_DAY(pet.name, existingTime),
         fieldErrors: {
-          start_time: ERROR_MESSAGES.APPOINTMENT_ON_SAME_DAY(pet.name, existingTime).split('. ')[1] // Extracting just the second sentence
-        }
+          start_time: ERROR_MESSAGES.APPOINTMENT_ON_SAME_DAY(pet.name, existingTime).split('. ')[1], // Extracting just the second sentence
+        },
       }
     }
   }
@@ -181,7 +191,7 @@ export async function createAppointment(prevState: ActionResult | null, formData
     status: 'pending',
     reason: reason,
     notes: notes,
-    created_by: user.id
+    created_by: user.id,
   })
 
   if (insertError) {
@@ -190,7 +200,7 @@ export async function createAppointment(prevState: ActionResult | null, formData
       userId: user.id,
       tenantId: pet.tenant_id,
       petId: pet_id,
-      errorCode: insertError.code
+      errorCode: insertError.code,
     })
 
     if (insertError.code === '23505') {
@@ -198,21 +208,21 @@ export async function createAppointment(prevState: ActionResult | null, formData
         success: false,
         error: ERROR_MESSAGES.SLOT_ALREADY_TAKEN, // Re-using for unique constraint, which implies slot taken
         fieldErrors: {
-          start_time: ERROR_MESSAGES.SLOT_ALREADY_TAKEN
-        }
+          start_time: ERROR_MESSAGES.SLOT_ALREADY_TAKEN,
+        },
       }
     }
 
     return {
       success: false,
-      error: ERROR_MESSAGES.GENERIC_APPOINTMENT_ERROR
+      error: ERROR_MESSAGES.GENERIC_APPOINTMENT_ERROR,
     }
   }
 
   // Send Confirmation Email
   try {
-    const userEmail = user.email || 'correo_desconocido@example.com'; // Fallback if email is not available
-    const userName = user.user_metadata?.full_name || user.email; // Fallback for name
+    const userEmail = user.email || 'correo_desconocido@example.com' // Fallback if email is not available
+    const userName = user.user_metadata?.full_name || user.email // Fallback for name
 
     await sendConfirmationEmail({
       to: userEmail,
@@ -221,16 +231,23 @@ export async function createAppointment(prevState: ActionResult | null, formData
         userName: userName,
         petName: pet.name,
         reason: reason,
-        dateTime: new Date(start.toISOString()).toLocaleString('es-PY', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
+        dateTime: new Date(start.toISOString()).toLocaleString('es-PY', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+        }),
         clinicName: clinic,
       }),
-    });
+    })
   } catch (emailError) {
     logger.error('Failed to send appointment confirmation email', {
       error: emailError instanceof Error ? emailError : undefined,
       userId: user.id,
       tenantId: pet.tenant_id,
-      petId: pet_id
+      petId: pet_id,
     })
     // Continue with the appointment process even if email sending fails
   }
@@ -253,11 +270,14 @@ export async function createAppointmentJson(input: {
   const supabase = await createClient()
 
   // Auth Check
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
   if (authError || !user) {
     return {
       success: false,
-      error: ERROR_MESSAGES.LOGIN_REQUIRED
+      error: ERROR_MESSAGES.LOGIN_REQUIRED,
     }
   }
 
@@ -276,7 +296,7 @@ export async function createAppointmentJson(input: {
     return {
       success: false,
       error: ERROR_MESSAGES.REVIEW_FIELDS,
-      fieldErrors
+      fieldErrors,
     }
   }
 
@@ -294,8 +314,8 @@ export async function createAppointmentJson(input: {
       success: false,
       error: ERROR_MESSAGES.PET_NOT_FOUND,
       fieldErrors: {
-        pet_id: ERROR_MESSAGES.PET_NOT_FOUND
-      }
+        pet_id: ERROR_MESSAGES.PET_NOT_FOUND,
+      },
     }
   }
 
@@ -304,8 +324,8 @@ export async function createAppointmentJson(input: {
       success: false,
       error: ERROR_MESSAGES.UNAUTHORIZED_PET_ACCESS,
       fieldErrors: {
-        pet_id: ERROR_MESSAGES.UNAUTHORIZED_PET_ACCESS
-      }
+        pet_id: ERROR_MESSAGES.UNAUTHORIZED_PET_ACCESS,
+      },
     }
   }
 
@@ -328,8 +348,8 @@ export async function createAppointmentJson(input: {
       success: false,
       error: ERROR_MESSAGES.SLOT_ALREADY_TAKEN,
       fieldErrors: {
-        start_time: ERROR_MESSAGES.SLOT_ALREADY_TAKEN
-      }
+        start_time: ERROR_MESSAGES.SLOT_ALREADY_TAKEN,
+      },
     }
   }
 
@@ -342,7 +362,7 @@ export async function createAppointmentJson(input: {
     .gte('start_time', new Date().toISOString())
 
   if (existingAppointments && existingAppointments.length > 0) {
-    const sameDay = existingAppointments.find(apt => {
+    const sameDay = existingAppointments.find((apt) => {
       const aptDate = new Date(apt.start_time)
       return aptDate.toDateString() === start.toDateString()
     })
@@ -350,14 +370,14 @@ export async function createAppointmentJson(input: {
     if (sameDay) {
       const existingTime = new Date(sameDay.start_time).toLocaleTimeString('es-PY', {
         hour: '2-digit',
-        minute: '2-digit'
+        minute: '2-digit',
       })
       return {
         success: false,
         error: ERROR_MESSAGES.APPOINTMENT_ON_SAME_DAY(pet.name, existingTime),
         fieldErrors: {
-          start_time: ERROR_MESSAGES.APPOINTMENT_ON_SAME_DAY(pet.name, existingTime).split('. ')[1]
-        }
+          start_time: ERROR_MESSAGES.APPOINTMENT_ON_SAME_DAY(pet.name, existingTime).split('. ')[1],
+        },
       }
     }
   }
@@ -371,7 +391,7 @@ export async function createAppointmentJson(input: {
     status: 'pending',
     reason: reason,
     notes: notes,
-    created_by: user.id
+    created_by: user.id,
   })
 
   if (insertError) {
@@ -380,7 +400,7 @@ export async function createAppointmentJson(input: {
       userId: user.id,
       tenantId: pet.tenant_id,
       petId: pet_id,
-      errorCode: insertError.code
+      errorCode: insertError.code,
     })
 
     if (insertError.code === '23505') {
@@ -388,14 +408,14 @@ export async function createAppointmentJson(input: {
         success: false,
         error: ERROR_MESSAGES.SLOT_ALREADY_TAKEN,
         fieldErrors: {
-          start_time: ERROR_MESSAGES.SLOT_ALREADY_TAKEN
-        }
+          start_time: ERROR_MESSAGES.SLOT_ALREADY_TAKEN,
+        },
       }
     }
 
     return {
       success: false,
-      error: ERROR_MESSAGES.GENERIC_APPOINTMENT_ERROR
+      error: ERROR_MESSAGES.GENERIC_APPOINTMENT_ERROR,
     }
   }
 
@@ -417,7 +437,7 @@ export async function createAppointmentJson(input: {
           month: 'long',
           day: 'numeric',
           hour: '2-digit',
-          minute: '2-digit'
+          minute: '2-digit',
         }),
         clinicName: clinic,
       }),
@@ -427,7 +447,7 @@ export async function createAppointmentJson(input: {
       error: emailError instanceof Error ? emailError : undefined,
       userId: user.id,
       tenantId: pet.tenant_id,
-      petId: pet_id
+      petId: pet_id,
     })
   }
 
@@ -435,6 +455,6 @@ export async function createAppointmentJson(input: {
 
   return {
     success: true,
-    message: 'Cita creada exitosamente'
+    message: 'Cita creada exitosamente',
   }
 }

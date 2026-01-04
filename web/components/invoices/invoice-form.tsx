@@ -60,7 +60,7 @@ export function InvoiceForm({
   pets,
   services,
   initialData,
-  mode = 'create'
+  mode = 'create',
 }: InvoiceFormProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
@@ -71,14 +71,14 @@ export function InvoiceForm({
   const [notes, setNotes] = useState(initialData?.notes || '')
   const [dueDate, setDueDate] = useState(
     initialData?.due_date?.split('T')[0] ||
-    new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+      new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
   )
   const taxRate = initialData?.tax_rate || 10
 
   // Calculate line totals for items
-  const itemsWithTotals = items.map(item => ({
+  const itemsWithTotals = items.map((item) => ({
     ...item,
-    line_total: calculateLineTotal(item.quantity, item.unit_price, item.discount_percent)
+    line_total: calculateLineTotal(item.quantity, item.unit_price, item.discount_percent),
   }))
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -103,7 +103,7 @@ export function InvoiceForm({
     }
 
     // Validate items
-    const invalidItems = items.filter(i => !i.description || i.unit_price <= 0)
+    const invalidItems = items.filter((i) => !i.description || i.unit_price <= 0)
     if (invalidItems.length > 0) {
       setError('Todos los artículos deben tener descripción y precio')
       setLoading(false)
@@ -113,16 +113,16 @@ export function InvoiceForm({
     // Build typed form data object
     const formData: InvoiceFormData = {
       pet_id: selectedPetId,
-      items: itemsWithTotals.map(item => ({
+      items: itemsWithTotals.map((item) => ({
         service_id: item.service_id,
         description: item.description,
         quantity: item.quantity,
         unit_price: item.unit_price,
-        discount_percent: item.discount_percent || 0
+        discount_percent: item.discount_percent || 0,
       })),
       notes: notes || undefined,
       due_date: dueDate || undefined,
-      tax_rate: taxRate
+      tax_rate: taxRate,
     }
 
     try {
@@ -154,13 +154,17 @@ export function InvoiceForm({
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* TICKET-A11Y-004: Added role="alert" for screen readers */}
       {error && (
-        <div role="alert" aria-live="assertive" className="p-4 bg-red-50 text-red-700 rounded-lg flex items-center gap-2">
-          <Icons.AlertCircle className="w-5 h-5 shrink-0" aria-hidden="true" />
+        <div
+          role="alert"
+          aria-live="assertive"
+          className="flex items-center gap-2 rounded-lg bg-red-50 p-4 text-red-700"
+        >
+          <Icons.AlertCircle className="h-5 w-5 shrink-0" aria-hidden="true" />
           {error}
         </div>
       )}
 
-      <div className="grid md:grid-cols-2 gap-6">
+      <div className="grid gap-6 md:grid-cols-2">
         {/* Left Column */}
         <div className="space-y-6">
           {/* Pet Selector */}
@@ -173,8 +177,14 @@ export function InvoiceForm({
 
           {/* Due Date */}
           <div>
-            <label htmlFor="due-date-field" className="block text-sm font-medium text-[var(--text-primary)] mb-1">
-              Fecha de vencimiento <span className="text-red-600" aria-label="requerido">*</span>
+            <label
+              htmlFor="due-date-field"
+              className="mb-1 block text-sm font-medium text-[var(--text-primary)]"
+            >
+              Fecha de vencimiento{' '}
+              <span className="text-red-600" aria-label="requerido">
+                *
+              </span>
             </label>
             <input
               id="due-date-field"
@@ -183,11 +193,13 @@ export function InvoiceForm({
               onChange={(e) => setDueDate(e.target.value)}
               disabled={loading}
               required
-              aria-invalid={error && !dueDate ? "true" : "false"}
-              aria-describedby={error && !dueDate ? "due-date-error" : "due-date-help"}
-              className="w-full p-3 border border-gray-200 rounded-lg focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none"
+              aria-invalid={error && !dueDate ? 'true' : 'false'}
+              aria-describedby={error && !dueDate ? 'due-date-error' : 'due-date-help'}
+              className="focus:ring-[var(--primary)]/20 w-full rounded-lg border border-gray-200 p-3 outline-none focus:border-[var(--primary)] focus:ring-2"
             />
-            <p id="due-date-help" className="sr-only">Seleccione la fecha de vencimiento de la factura</p>
+            <p id="due-date-help" className="sr-only">
+              Seleccione la fecha de vencimiento de la factura
+            </p>
             {error && !dueDate && (
               <p id="due-date-error" role="alert" className="mt-1 text-sm text-red-600">
                 Debe seleccionar una fecha de vencimiento
@@ -197,7 +209,10 @@ export function InvoiceForm({
 
           {/* Notes */}
           <div>
-            <label htmlFor="notes-field" className="block text-sm font-medium text-[var(--text-primary)] mb-1">
+            <label
+              htmlFor="notes-field"
+              className="mb-1 block text-sm font-medium text-[var(--text-primary)]"
+            >
               Notas
             </label>
             <textarea
@@ -209,54 +224,48 @@ export function InvoiceForm({
               placeholder="Notas adicionales para la factura..."
               aria-invalid="false"
               aria-describedby="notes-help"
-              className="w-full p-3 border border-gray-200 rounded-lg focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none resize-none"
+              className="focus:ring-[var(--primary)]/20 w-full resize-none rounded-lg border border-gray-200 p-3 outline-none focus:border-[var(--primary)] focus:ring-2"
             />
-            <p id="notes-help" className="sr-only">Campo opcional para notas adicionales</p>
+            <p id="notes-help" className="sr-only">
+              Campo opcional para notas adicionales
+            </p>
           </div>
         </div>
 
         {/* Right Column - Totals */}
         <div>
-          <TotalsSummary
-            items={itemsWithTotals}
-            taxRate={taxRate}
-          />
+          <TotalsSummary items={itemsWithTotals} taxRate={taxRate} />
         </div>
       </div>
 
       {/* Line Items */}
-      <div className="bg-white rounded-xl border border-gray-100 p-4">
-        <LineItems
-          items={items}
-          services={services}
-          onChange={setItems}
-          disabled={loading}
-        />
+      <div className="rounded-xl border border-gray-100 bg-white p-4">
+        <LineItems items={items} services={services} onChange={setItems} disabled={loading} />
       </div>
 
       {/* Actions */}
-      <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
+      <div className="flex justify-end gap-3 border-t border-gray-100 pt-4">
         <button
           type="button"
           onClick={() => router.back()}
           disabled={loading}
-          className="px-4 py-2 text-[var(--text-secondary)] hover:bg-gray-100 rounded-lg transition-colors"
+          className="rounded-lg px-4 py-2 text-[var(--text-secondary)] transition-colors hover:bg-gray-100"
         >
           Cancelar
         </button>
         <button
           type="submit"
           disabled={loading}
-          className="px-6 py-2 bg-[var(--primary)] text-white rounded-lg font-medium hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center gap-2"
+          className="flex items-center gap-2 rounded-lg bg-[var(--primary)] px-6 py-2 font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
         >
           {loading ? (
             <>
-              <Icons.Loader2 className="w-4 h-4 animate-spin" />
+              <Icons.Loader2 className="h-4 w-4 animate-spin" />
               Guardando...
             </>
           ) : (
             <>
-              <Icons.Save className="w-4 h-4" />
+              <Icons.Save className="h-4 w-4" />
               {mode === 'edit' ? 'Guardar cambios' : 'Crear factura'}
             </>
           )}

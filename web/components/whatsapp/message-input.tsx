@@ -53,22 +53,22 @@ export function MessageInput({
   }
 
   return (
-    <div className="bg-white border-t border-gray-100 p-3 sm:p-4">
+    <div className="border-t border-gray-100 bg-white p-3 sm:p-4">
       <div className="flex items-end gap-2">
         {/* Template button */}
         {onTemplateClick && (
           <button
             onClick={onTemplateClick}
             disabled={disabled}
-            className="p-3 min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-gray-100 rounded-lg disabled:opacity-50"
+            className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg p-3 hover:bg-gray-100 disabled:opacity-50"
             title="Usar plantilla"
           >
-            <Icons.FileText className="w-5 h-5 text-[var(--text-secondary)]" />
+            <Icons.FileText className="h-5 w-5 text-[var(--text-secondary)]" />
           </button>
         )}
 
         {/* Message input */}
-        <div className="flex-1 relative">
+        <div className="relative flex-1">
           <textarea
             ref={textareaRef}
             value={message}
@@ -77,10 +77,7 @@ export function MessageInput({
             placeholder={placeholder}
             disabled={disabled || sending}
             rows={1}
-            className="w-full px-4 py-3 bg-gray-100 rounded-2xl resize-none
-                       text-[var(--text-primary)] placeholder-[var(--text-secondary)]
-                       focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/50
-                       disabled:opacity-50 text-base"
+            className="focus:ring-[var(--primary)]/50 w-full resize-none rounded-2xl bg-gray-100 px-4 py-3 text-base text-[var(--text-primary)] placeholder-[var(--text-secondary)] focus:outline-none focus:ring-2 disabled:opacity-50"
             style={{ minHeight: '48px', maxHeight: '120px' }}
           />
         </div>
@@ -89,14 +86,12 @@ export function MessageInput({
         <button
           onClick={handleSend}
           disabled={!message.trim() || disabled || sending}
-          className="p-3 min-h-[44px] min-w-[44px] flex items-center justify-center bg-[var(--primary)] text-white rounded-full
-                     hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed
-                     transition-opacity"
+          className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-[var(--primary)] p-3 text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {sending ? (
-            <Icons.Loader2 className="w-5 h-5 animate-spin" />
+            <Icons.Loader2 className="h-5 w-5 animate-spin" />
           ) : (
-            <Icons.Send className="w-5 h-5" />
+            <Icons.Send className="h-5 w-5" />
           )}
         </button>
       </div>

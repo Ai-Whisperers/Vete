@@ -1,9 +1,9 @@
-import { vi } from 'vitest';
-import '@testing-library/jest-dom';
+import { vi } from 'vitest'
+import '@testing-library/jest-dom'
 
 // Mock Supabase client globally if needed
 vi.mock('@supabase/supabase-js', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@supabase/supabase-js')>();
+  const actual = await importOriginal<typeof import('@supabase/supabase-js')>()
   return {
     ...actual,
     createClient: () => ({
@@ -19,5 +19,5 @@ vi.mock('@supabase/supabase-js', async (importOriginal) => {
         signOut: vi.fn().mockResolvedValue({ error: null }),
       },
     }),
-  };
-});
+  }
+})

@@ -19,11 +19,14 @@ import path from 'path'
 dotenv.config({ path: path.resolve(__dirname, '../../.env.local') })
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
-const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || ''
+const SUPABASE_SERVICE_KEY =
+  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || ''
 
 if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
   console.error('❌ Error: Missing environment variables')
-  console.error('   Required: NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY (or SUPABASE_SERVICE_KEY)')
+  console.error(
+    '   Required: NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY (or SUPABASE_SERVICE_KEY)'
+  )
   console.error('   Check your .env.local file')
   process.exit(1)
 }
@@ -35,16 +38,15 @@ async function setupTenant(tenantId: string, tenantName: string) {
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY, {
     auth: {
       autoRefreshToken: false,
-      persistSession: false
-    }
+      persistSession: false,
+    },
   })
 
   try {
     // Check if tenant already exists
-    const { data: existing, error: checkError } = await supabase.rpc(
-      'tenant_exists',
-      { p_tenant_id: tenantId }
-    )
+    const { data: existing, error: checkError } = await supabase.rpc('tenant_exists', {
+      p_tenant_id: tenantId,
+    })
 
     if (checkError) {
       console.error('❌ Error checking tenant:', checkError.message)
@@ -55,10 +57,9 @@ async function setupTenant(tenantId: string, tenantName: string) {
       console.log('⚠️  Tenant already exists')
       console.log('   Fetching current tenant info...\n')
 
-      const { data: info, error: infoError } = await supabase.rpc(
-        'get_tenant_info',
-        { p_tenant_id: tenantId }
-      )
+      const { data: info, error: infoError } = await supabase.rpc('get_tenant_info', {
+        p_tenant_id: tenantId,
+      })
 
       if (infoError) {
         console.error('❌ Error fetching tenant info:', infoError.message)
@@ -83,13 +84,10 @@ async function setupTenant(tenantId: string, tenantName: string) {
     // Create new tenant
     console.log('✨ Creating new tenant with default data...\n')
 
-    const { error: setupError } = await supabase.rpc(
-      'setup_new_tenant',
-      {
-        p_tenant_id: tenantId,
-        p_tenant_name: tenantName
-      }
-    )
+    const { error: setupError } = await supabase.rpc('setup_new_tenant', {
+      p_tenant_id: tenantId,
+      p_tenant_name: tenantName,
+    })
 
     if (setupError) {
       console.error('❌ Error setting up tenant:', setupError.message)
@@ -99,10 +97,9 @@ async function setupTenant(tenantId: string, tenantName: string) {
     console.log('✅ Tenant created successfully!\n')
 
     // Fetch and display tenant info
-    const { data: info, error: infoError } = await supabase.rpc(
-      'get_tenant_info',
-      { p_tenant_id: tenantId }
-    )
+    const { data: info, error: infoError } = await supabase.rpc('get_tenant_info', {
+      p_tenant_id: tenantId,
+    })
 
     if (infoError) {
       console.error('⚠️  Warning: Could not fetch tenant info:', infoError.message)
@@ -124,7 +121,6 @@ async function setupTenant(tenantId: string, tenantName: string) {
     console.log(`   3. Customize config.json and theme.json`)
     console.log(`   4. Create admin user with: npx tsx web/scripts/create-admin.ts`)
     console.log()
-
   } catch (error) {
     console.error('❌ Unexpected error:', error)
     process.exit(1)

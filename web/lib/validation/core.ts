@@ -3,13 +3,23 @@
  * Provides centralized validation with consistent error handling
  */
 
-import type { ValidationError, ValidationResult, FieldRule, ValidationSchema, ValidationContext } from './types'
+import type {
+  ValidationError,
+  ValidationResult,
+  FieldRule,
+  ValidationSchema,
+  ValidationContext,
+} from './types'
 
 export class ValidationEngine {
   /**
    * Validate data against a schema
    */
-  static validate(data: Record<string, any>, schema: ValidationSchema, context?: ValidationContext): ValidationResult {
+  static validate(
+    data: Record<string, any>,
+    schema: ValidationSchema,
+    context?: ValidationContext
+  ): ValidationResult {
     const errors: ValidationError[] = []
 
     for (const [field, rules] of Object.entries(schema)) {
@@ -21,14 +31,18 @@ export class ValidationEngine {
 
     return {
       isValid: errors.length === 0,
-      errors
+      errors,
     }
   }
 
   /**
    * Validate a single field against its rules
    */
-  private static validateField(field: string, value: any, rules: FieldRule | FieldRule[]): ValidationError[] {
+  private static validateField(
+    field: string,
+    value: any,
+    rules: FieldRule | FieldRule[]
+  ): ValidationError[] {
     const ruleArray = Array.isArray(rules) ? rules : [rules]
     const errors: ValidationError[] = []
 
@@ -37,7 +51,7 @@ export class ValidationEngine {
       if (error) {
         errors.push(error)
         // If this is a required field validation and it failed, don't check other rules
-        if (rule.required && value === undefined || value === null || value === '') {
+        if ((rule.required && value === undefined) || value === null || value === '') {
           break
         }
       }
@@ -55,7 +69,7 @@ export class ValidationEngine {
       return {
         field,
         code: 'REQUIRED',
-        message: rule.message || `${field} es requerido`
+        message: rule.message || `${field} es requerido`,
       }
     }
 
@@ -71,7 +85,7 @@ export class ValidationEngine {
         return {
           field,
           code: 'MIN_LENGTH',
-          message: rule.message || `${field} debe tener al menos ${rule.minLength} caracteres`
+          message: rule.message || `${field} debe tener al menos ${rule.minLength} caracteres`,
         }
       }
 
@@ -79,7 +93,7 @@ export class ValidationEngine {
         return {
           field,
           code: 'MAX_LENGTH',
-          message: rule.message || `${field} debe tener máximo ${rule.maxLength} caracteres`
+          message: rule.message || `${field} debe tener máximo ${rule.maxLength} caracteres`,
         }
       }
 
@@ -88,7 +102,7 @@ export class ValidationEngine {
         return {
           field,
           code: 'PATTERN',
-          message: rule.message || `${field} tiene un formato inválido`
+          message: rule.message || `${field} tiene un formato inválido`,
         }
       }
 
@@ -99,7 +113,7 @@ export class ValidationEngine {
           return {
             field,
             code: 'EMAIL',
-            message: rule.message || `${field} debe ser un email válido`
+            message: rule.message || `${field} debe ser un email válido`,
           }
         }
       }
@@ -112,7 +126,7 @@ export class ValidationEngine {
           return {
             field,
             code: 'URL',
-            message: rule.message || `${field} debe ser una URL válida`
+            message: rule.message || `${field} debe ser una URL válida`,
           }
         }
       }
@@ -124,7 +138,7 @@ export class ValidationEngine {
         return {
           field,
           code: 'MIN',
-          message: rule.message || `${field} debe ser mayor o igual a ${rule.min}`
+          message: rule.message || `${field} debe ser mayor o igual a ${rule.min}`,
         }
       }
 
@@ -132,7 +146,7 @@ export class ValidationEngine {
         return {
           field,
           code: 'MAX',
-          message: rule.message || `${field} debe ser menor o igual a ${rule.max}`
+          message: rule.message || `${field} debe ser menor o igual a ${rule.max}`,
         }
       }
     }
@@ -149,14 +163,14 @@ export class ValidationEngine {
         return {
           field,
           code: 'CUSTOM',
-          message: rule.message || `${field} no cumple con las reglas de validación`
+          message: rule.message || `${field} no cumple con las reglas de validación`,
         }
       }
       if (typeof result === 'string') {
         return {
           field,
           code: 'CUSTOM',
-          message: result
+          message: result,
         }
       }
     }
@@ -167,7 +181,11 @@ export class ValidationEngine {
   /**
    * Validate and throw if invalid
    */
-  static validateOrThrow(data: Record<string, any>, schema: ValidationSchema, context?: ValidationContext): void {
+  static validateOrThrow(
+    data: Record<string, any>,
+    schema: ValidationSchema,
+    context?: ValidationContext
+  ): void {
     const result = this.validate(data, schema, context)
 
     if (!result.isValid) {

@@ -19,6 +19,7 @@ Complete end-to-end test plans for critical user journeys in the Vete platform.
 **Priority:** CRITICAL
 
 **Steps:**
+
 1. Visit homepage
 2. Click "Zona Propietario"
 3. Click "Registrarse"
@@ -34,6 +35,7 @@ Complete end-to-end test plans for critical user journeys in the Vete platform.
 13. View pet profile
 
 **Test Coverage:**
+
 - [ ] All steps complete successfully
 - [ ] Form validations work
 - [ ] Email confirmation sent
@@ -43,6 +45,7 @@ Complete end-to-end test plans for critical user journeys in the Vete platform.
 - [ ] Error handling works
 
 **Test Data:**
+
 - New user data
 - Pet data
 - Photo file
@@ -54,6 +57,7 @@ Complete end-to-end test plans for critical user journeys in the Vete platform.
 **Priority:** CRITICAL
 
 **Steps:**
+
 1. Visit homepage
 2. Click "Agendar Cita"
 3. Select service
@@ -65,6 +69,7 @@ Complete end-to-end test plans for critical user journeys in the Vete platform.
 9. View confirmation
 
 **Test Coverage:**
+
 - [ ] All steps complete
 - [ ] Service selection works
 - [ ] Pet selection works
@@ -74,6 +79,7 @@ Complete end-to-end test plans for critical user journeys in the Vete platform.
 - [ ] Confirmation displays
 
 **Test Data:**
+
 - Services
 - Pets
 - Available slots
@@ -85,6 +91,7 @@ Complete end-to-end test plans for critical user journeys in the Vete platform.
 **Priority:** HIGH
 
 **Steps:**
+
 1. Visit store
 2. Browse products
 3. Filter by category
@@ -99,6 +106,7 @@ Complete end-to-end test plans for critical user journeys in the Vete platform.
 12. View order confirmation
 
 **Test Coverage:**
+
 - [ ] All steps complete
 - [ ] Product browsing works
 - [ ] Cart updates correctly
@@ -108,6 +116,7 @@ Complete end-to-end test plans for critical user journeys in the Vete platform.
 - [ ] Confirmation displays
 
 **Test Data:**
+
 - Products
 - Cart items
 - Contact information
@@ -122,6 +131,7 @@ Complete end-to-end test plans for critical user journeys in the Vete platform.
 **Priority:** MEDIUM
 
 **Steps:**
+
 1. Visit homepage
 2. Click "Servicios"
 3. View services catalog
@@ -132,6 +142,7 @@ Complete end-to-end test plans for critical user journeys in the Vete platform.
 8. Navigate to booking
 
 **Test Coverage:**
+
 - [ ] Services display
 - [ ] Filtering works
 - [ ] Service detail loads
@@ -144,6 +155,7 @@ Complete end-to-end test plans for critical user journeys in the Vete platform.
 **Priority:** MEDIUM
 
 **Steps:**
+
 1. Visit homepage
 2. Navigate to tools
 3. Click "Toxic Food Checker"
@@ -152,6 +164,7 @@ Complete end-to-end test plans for critical user journeys in the Vete platform.
 6. View symptoms (if toxic)
 
 **Test Coverage:**
+
 - [ ] Tool loads
 - [ ] Search works
 - [ ] Results display
@@ -164,6 +177,7 @@ Complete end-to-end test plans for critical user journeys in the Vete platform.
 **Priority:** LOW
 
 **Steps:**
+
 1. Visit homepage
 2. Navigate to tools
 3. Click "Age Calculator"
@@ -172,6 +186,7 @@ Complete end-to-end test plans for critical user journeys in the Vete platform.
 6. View age calculation
 
 **Test Coverage:**
+
 - [ ] Tool loads
 - [ ] Date picker works
 - [ ] Calculation correct
@@ -186,6 +201,7 @@ Complete end-to-end test plans for critical user journeys in the Vete platform.
 **Priority:** CRITICAL
 
 **Steps:**
+
 1. Login to portal
 2. View dashboard
 3. Click pet card
@@ -203,6 +219,7 @@ Complete end-to-end test plans for critical user journeys in the Vete platform.
 15. View updated profile
 
 **Test Coverage:**
+
 - [ ] All steps complete
 - [ ] Tabs work
 - [ ] Vaccine creation works
@@ -217,6 +234,7 @@ Complete end-to-end test plans for critical user journeys in the Vete platform.
 **Priority:** HIGH
 
 **Steps:**
+
 1. Login to portal
 2. Navigate to appointments
 3. View appointments list
@@ -232,6 +250,7 @@ Complete end-to-end test plans for critical user journeys in the Vete platform.
 13. View cancelled appointment
 
 **Test Coverage:**
+
 - [ ] Appointments list loads
 - [ ] Filtering works
 - [ ] Reschedule works
@@ -245,6 +264,7 @@ Complete end-to-end test plans for critical user journeys in the Vete platform.
 **Priority:** MEDIUM
 
 **Steps:**
+
 1. Login to portal
 2. Navigate to pet profile
 3. Switch to "Recetas" tab
@@ -255,6 +275,7 @@ Complete end-to-end test plans for critical user journeys in the Vete platform.
 8. Verify PDF downloads
 
 **Test Coverage:**
+
 - [ ] Prescriptions display
 - [ ] Details load
 - [ ] PDF generation works
@@ -269,6 +290,7 @@ Complete end-to-end test plans for critical user journeys in the Vete platform.
 **Priority:** CRITICAL
 
 **Steps:**
+
 1. Login as staff
 2. View dashboard
 3. View today's appointments
@@ -283,6 +305,7 @@ Complete end-to-end test plans for critical user journeys in the Vete platform.
 12. View completed appointment
 
 **Test Coverage:**
+
 - [ ] All steps complete
 - [ ] Status transitions work
 - [ ] Notes save
@@ -295,6 +318,7 @@ Complete end-to-end test plans for critical user journeys in the Vete platform.
 **Priority:** HIGH
 
 **Steps:**
+
 1. Login as staff
 2. Navigate to invoices
 3. Click "Nueva Factura"
@@ -313,6 +337,7 @@ Complete end-to-end test plans for critical user journeys in the Vete platform.
 16. Verify invoice status updates
 
 **Test Coverage:**
+
 - [ ] Invoice creation works
 - [ ] Calculations correct
 - [ ] Email sent
@@ -326,6 +351,7 @@ Complete end-to-end test plans for critical user journeys in the Vete platform.
 **Priority:** HIGH
 
 **Steps:**
+
 1. Login as staff
 2. Navigate to inventory
 3. View inventory list
@@ -339,6 +365,7 @@ Complete end-to-end test plans for critical user journeys in the Vete platform.
 11. Verify alerts update
 
 **Test Coverage:**
+
 - [ ] Inventory loads
 - [ ] Filtering works
 - [ ] Stock adjustment works
@@ -351,6 +378,7 @@ Complete end-to-end test plans for critical user journeys in the Vete platform.
 **Priority:** MEDIUM
 
 **Steps:**
+
 1. Login as staff
 2. Navigate to calendar
 3. View week view
@@ -364,6 +392,7 @@ Complete end-to-end test plans for critical user journeys in the Vete platform.
 11. Verify appointments display
 
 **Test Coverage:**
+
 - [ ] Calendar loads
 - [ ] Views work
 - [ ] Filtering works
@@ -377,6 +406,7 @@ Complete end-to-end test plans for critical user journeys in the Vete platform.
 **Priority:** MEDIUM
 
 **Steps:**
+
 1. Login as staff
 2. Navigate to WhatsApp
 3. View conversations
@@ -390,6 +420,7 @@ Complete end-to-end test plans for critical user journeys in the Vete platform.
 11. Verify message appears in thread
 
 **Test Coverage:**
+
 - [ ] Conversations load
 - [ ] Message thread loads
 - [ ] Template selection works
@@ -404,6 +435,7 @@ Complete end-to-end test plans for critical user journeys in the Vete platform.
 **Priority:** CRITICAL
 
 **Steps:**
+
 1. Staff: Check-in appointment
 2. Staff: Start consultation
 3. Staff: Add medical record
@@ -421,6 +453,7 @@ Complete end-to-end test plans for critical user journeys in the Vete platform.
 15. Owner: View invoice details
 
 **Test Coverage:**
+
 - [ ] Complete workflow works
 - [ ] Data flows correctly
 - [ ] All features integrate
@@ -433,6 +466,7 @@ Complete end-to-end test plans for critical user journeys in the Vete platform.
 **Priority:** CRITICAL
 
 **Steps:**
+
 1. Login as user from Clinic A
 2. View pets (should only see Clinic A pets)
 3. Create pet (should be in Clinic A)
@@ -444,6 +478,7 @@ Complete end-to-end test plans for critical user journeys in the Vete platform.
 9. Verify Clinic B pet visible
 
 **Test Coverage:**
+
 - [ ] Data isolation works
 - [ ] Users see only their clinic's data
 - [ ] Creation works correctly
@@ -456,17 +491,20 @@ Complete end-to-end test plans for critical user journeys in the Vete platform.
 ### Test Organization
 
 **By Priority:**
+
 - Critical: Run on every commit
 - High: Run on PR
 - Medium: Run nightly
 - Low: Run weekly
 
 **By Browser:**
+
 - Chrome (primary)
 - Firefox
 - Safari (WebKit)
 
 **By Device:**
+
 - Desktop
 - Tablet
 - Mobile
@@ -487,5 +525,4 @@ Complete end-to-end test plans for critical user journeys in the Vete platform.
 
 ---
 
-*This document should be updated as new user journeys are identified or existing journeys change.*
-
+_This document should be updated as new user journeys are identified or existing journeys change._

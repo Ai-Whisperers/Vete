@@ -1,14 +1,17 @@
-import { createClient } from '@/lib/supabase/server';
-import { NextRequest, NextResponse } from 'next/server';
-import { apiError, HTTP_STATUS } from '@/lib/api/errors';
+import { createClient } from '@/lib/supabase/server'
+import { NextRequest, NextResponse } from 'next/server'
+import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
-  const supabase = await createClient();
+  const supabase = await createClient()
 
   // Authentication check
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
   if (authError || !user) {
-    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED)
   }
 
   // Get user profile
@@ -16,63 +19,68 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     .from('profiles')
     .select('clinic_id:tenant_id, role')
     .eq('id', user.id)
-    .single();
+    .single()
 
   if (!profile) {
     return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
-      details: { resource: 'profile' }
-    });
+      details: { resource: 'profile' },
+    })
   }
 
-  const { searchParams } = new URL(request.url);
-  const petId = searchParams.get('pet_id');
-  const ownerId = searchParams.get('owner_id');
+  const { searchParams } = new URL(request.url)
+  const petId = searchParams.get('pet_id')
+  const ownerId = searchParams.get('owner_id')
 
   // Build query
   let query = supabase
     .from('blanket_consents')
-    .select(`
+    .select(
+      `
       *,
       pet:pets!pet_id(id, name, owner_id, tenant_id),
       owner:profiles!owner_id(id, full_name, email),
       granted_by:profiles!granted_by_id(id, full_name)
-    `)
+    `
+    )
     .eq('is_active', true)
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
 
   if (['vet', 'admin'].includes(profile.role)) {
     // Staff sees all clinic blanket consents
-    query = query.eq('pet.tenant_id', profile.clinic_id);
+    query = query.eq('pet.tenant_id', profile.clinic_id)
   } else {
     // Owners see only their own blanket consents
-    query = query.eq('owner_id', user.id);
+    query = query.eq('owner_id', user.id)
   }
 
   if (petId) {
-    query = query.eq('pet_id', petId);
+    query = query.eq('pet_id', petId)
   }
 
   if (ownerId) {
-    query = query.eq('owner_id', ownerId);
+    query = query.eq('owner_id', ownerId)
   }
 
-  const { data, error } = await query;
+  const { data, error } = await query
 
   if (error) {
-    console.error('[API] blanket consents GET error:', error);
-    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
+    console.error('[API] blanket consents GET error:', error)
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
   }
 
-  return NextResponse.json(data);
+  return NextResponse.json(data)
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
-  const supabase = await createClient();
+  const supabase = await createClient()
 
   // Authentication check
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
   if (authError || !user) {
-    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED)
   }
 
   // Get user profile
@@ -80,41 +88,33 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     .from('profiles')
     .select('clinic_id:tenant_id, role')
     .eq('id', user.id)
-    .single();
+    .single()
 
   if (!profile) {
     return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
-      details: { resource: 'profile' }
-    });
+      details: { resource: 'profile' },
+    })
   }
 
   if (!['vet', 'admin'].includes(profile.role)) {
-    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
+    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN)
   }
 
   // Parse body
-  let body;
+  let body
   try {
-    body = await request.json();
+    body = await request.json()
   } catch {
-    return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST);
+    return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST)
   }
 
-  const {
-    pet_id,
-    owner_id,
-    consent_type,
-    scope,
-    conditions,
-    signature_data,
-    expires_at
-  } = body;
+  const { pet_id, owner_id, consent_type, scope, conditions, signature_data, expires_at } = body
 
   // Validate required fields
   if (!pet_id || !owner_id || !consent_type || !scope || !signature_data) {
     return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
-      details: { required: ['pet_id', 'owner_id', 'consent_type', 'scope', 'signature_data'] }
-    });
+      details: { required: ['pet_id', 'owner_id', 'consent_type', 'scope', 'signature_data'] },
+    })
   }
 
   // Verify pet belongs to staff's clinic
@@ -122,23 +122,23 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     .from('pets')
     .select('id, tenant_id, owner_id')
     .eq('id', pet_id)
-    .single();
+    .single()
 
   if (!pet) {
     return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
-      details: { resource: 'pet' }
-    });
+      details: { resource: 'pet' },
+    })
   }
 
   if (pet.tenant_id !== profile.clinic_id) {
-    return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN);
+    return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN)
   }
 
   // Verify owner
   if (pet.owner_id !== owner_id) {
     return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
-      details: { message: 'Owner does not match pet' }
-    });
+      details: { message: 'Owner does not match pet' },
+    })
   }
 
   // Insert blanket consent
@@ -154,26 +154,29 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       granted_by_id: user.id,
       granted_at: new Date().toISOString(),
       expires_at: expires_at || null,
-      is_active: true
+      is_active: true,
     })
     .select()
-    .single();
+    .single()
 
   if (error) {
-    console.error('[API] blanket consents POST error:', error);
-    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
+    console.error('[API] blanket consents POST error:', error)
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
   }
 
-  return NextResponse.json(data, { status: 201 });
+  return NextResponse.json(data, { status: 201 })
 }
 
 export async function PATCH(request: NextRequest): Promise<NextResponse> {
-  const supabase = await createClient();
+  const supabase = await createClient()
 
   // Authentication check
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
   if (authError || !user) {
-    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED)
   }
 
   // Get user profile
@@ -181,61 +184,63 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
     .from('profiles')
     .select('clinic_id:tenant_id, role')
     .eq('id', user.id)
-    .single();
+    .single()
 
   if (!profile) {
     return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
-      details: { resource: 'profile' }
-    });
+      details: { resource: 'profile' },
+    })
   }
 
   // Parse body
-  let body;
+  let body
   try {
-    body = await request.json();
+    body = await request.json()
   } catch {
-    return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST);
+    return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST)
   }
 
-  const { id, action, reason } = body;
+  const { id, action, reason } = body
 
   if (!id || action !== 'revoke') {
     return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
-      details: { message: 'id and action=revoke are required' }
-    });
+      details: { message: 'id and action=revoke are required' },
+    })
   }
 
   // Get existing blanket consent
   const { data: existing } = await supabase
     .from('blanket_consents')
-    .select(`
+    .select(
+      `
       id,
       owner_id,
       is_active,
       pet:pets!inner(tenant_id)
-    `)
+    `
+    )
     .eq('id', id)
-    .single();
+    .single()
 
   if (!existing) {
     return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
-      details: { resource: 'blanket_consent' }
-    });
+      details: { resource: 'blanket_consent' },
+    })
   }
 
   // Authorization check
-  const petData = Array.isArray(existing.pet) ? existing.pet[0] : existing.pet;
-  const pet = petData as { tenant_id: string };
+  const petData = Array.isArray(existing.pet) ? existing.pet[0] : existing.pet
+  const pet = petData as { tenant_id: string }
 
-  const isStaff = ['vet', 'admin'].includes(profile.role);
-  const isOwner = existing.owner_id === user.id;
+  const isStaff = ['vet', 'admin'].includes(profile.role)
+  const isOwner = existing.owner_id === user.id
 
   if (isStaff) {
     if (pet.tenant_id !== profile.clinic_id) {
-      return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN);
+      return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN)
     }
   } else if (!isOwner) {
-    return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN);
+    return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN)
   }
 
   // Update blanket consent
@@ -246,16 +251,16 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
       revoked_at: new Date().toISOString(),
       revoked_by_id: user.id,
       revocation_reason: reason || null,
-      updated_at: new Date().toISOString()
+      updated_at: new Date().toISOString(),
     })
     .eq('id', id)
     .select()
-    .single();
+    .single()
 
   if (error) {
-    console.error('[API] blanket consents PATCH error:', error);
-    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
+    console.error('[API] blanket consents PATCH error:', error)
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
   }
 
-  return NextResponse.json(data);
+  return NextResponse.json(data)
 }

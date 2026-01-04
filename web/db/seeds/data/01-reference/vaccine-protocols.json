@@ -28,7 +28,13 @@
       "vaccine_code": "DHLPP",
       "species": "dog",
       "type": "core",
-      "diseases_prevented": ["Distemper", "Hepatitis", "Leptospirosis", "Parvovirus", "Parainfluenza"],
+      "diseases_prevented": [
+        "Distemper",
+        "Hepatitis",
+        "Leptospirosis",
+        "Parvovirus",
+        "Parainfluenza"
+      ],
       "first_dose_weeks": 6,
       "booster_weeks": [9, 12, 16],
       "revaccination_months": 12,

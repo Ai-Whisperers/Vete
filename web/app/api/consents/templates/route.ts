@@ -1,23 +1,26 @@
-import { createClient } from '@/lib/supabase/server';
-import { NextRequest, NextResponse } from 'next/server';
-import { apiError, HTTP_STATUS } from '@/lib/api/errors';
+import { createClient } from '@/lib/supabase/server'
+import { NextRequest, NextResponse } from 'next/server'
+import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 
 interface ConsentField {
-  field_name: string;
-  field_type: string;
-  field_label: string;
-  is_required?: boolean;
-  field_options?: string[] | null;
-  display_order?: number;
+  field_name: string
+  field_type: string
+  field_label: string
+  is_required?: boolean
+  field_options?: string[] | null
+  display_order?: number
 }
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
-  const supabase = await createClient();
+  const supabase = await createClient()
 
   // Authentication check
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
   if (authError || !user) {
-    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED)
   }
 
   // Get user profile
@@ -25,54 +28,59 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     .from('profiles')
     .select('clinic_id:tenant_id, role')
     .eq('id', user.id)
-    .single();
+    .single()
 
   if (!profile) {
     return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
-      details: { resource: 'profile' }
-    });
+      details: { resource: 'profile' },
+    })
   }
 
   if (!['vet', 'admin'].includes(profile.role)) {
-    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
+    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN)
   }
 
-  const { searchParams } = new URL(request.url);
-  const category = searchParams.get('category');
+  const { searchParams } = new URL(request.url)
+  const category = searchParams.get('category')
 
   // Get templates - global and tenant-specific
   let query = supabase
     .from('consent_templates')
-    .select(`
+    .select(
+      `
       *,
       fields:consent_template_fields(*)
-    `)
+    `
+    )
     .or(`tenant_id.is.null,tenant_id.eq.${profile.clinic_id}`)
     .eq('is_active', true)
     .order('category', { ascending: true })
-    .order('name', { ascending: true });
+    .order('name', { ascending: true })
 
   if (category) {
-    query = query.eq('category', category);
+    query = query.eq('category', category)
   }
 
-  const { data, error } = await query;
+  const { data, error } = await query
 
   if (error) {
-    console.error('[API] consent templates GET error:', error);
-    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
+    console.error('[API] consent templates GET error:', error)
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
   }
 
-  return NextResponse.json(data);
+  return NextResponse.json(data)
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
-  const supabase = await createClient();
+  const supabase = await createClient()
 
   // Authentication check
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
   if (authError || !user) {
-    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED)
   }
 
   // Get user profile - only admins can create templates
@@ -80,24 +88,24 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     .from('profiles')
     .select('clinic_id:tenant_id, role')
     .eq('id', user.id)
-    .single();
+    .single()
 
   if (!profile) {
     return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
-      details: { resource: 'profile' }
-    });
+      details: { resource: 'profile' },
+    })
   }
 
   if (profile.role !== 'admin') {
-    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN);
+    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN)
   }
 
   // Parse body
-  let body;
+  let body
   try {
-    body = await request.json();
+    body = await request.json()
   } catch {
-    return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST);
+    return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST)
   }
 
   const {
@@ -108,14 +116,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     requires_id_verification,
     can_be_revoked,
     default_expiry_days,
-    fields
-  } = body;
+    fields,
+  } = body
 
   // Validate required fields
   if (!name || !category || !content) {
     return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
-      details: { required: ['name', 'category', 'content'] }
-    });
+      details: { required: ['name', 'category', 'content'] },
+    })
   }
 
   // Insert template
@@ -130,14 +138,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       requires_id_verification: requires_id_verification || false,
       can_be_revoked: can_be_revoked || true,
       default_expiry_days: default_expiry_days || null,
-      is_active: true
+      is_active: true,
     })
     .select()
-    .single();
+    .single()
 
   if (error) {
-    console.error('[API] consent templates POST error:', error);
-    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
+    console.error('[API] consent templates POST error:', error)
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
   }
 
   // Insert fields if provided
@@ -149,18 +157,18 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       field_label: field.field_label,
       is_required: field.is_required || false,
       field_options: field.field_options || null,
-      display_order: field.display_order || 0
-    }));
+      display_order: field.display_order || 0,
+    }))
 
     const { error: fieldsError } = await supabase
       .from('consent_template_fields')
-      .insert(fieldsToInsert);
+      .insert(fieldsToInsert)
 
     if (fieldsError) {
-      console.error('[API] consent template fields POST error:', fieldsError);
+      console.error('[API] consent template fields POST error:', fieldsError)
       // Don't fail the whole request, just log the error
     }
   }
 
-  return NextResponse.json(data, { status: 201 });
+  return NextResponse.json(data, { status: 201 })
 }

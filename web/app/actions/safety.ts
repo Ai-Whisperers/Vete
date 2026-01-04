@@ -13,7 +13,8 @@ export const getLostPets = withActionAuth(
   async ({ supabase }, clinicSlug: string, status?: string) => {
     let query = supabase
       .from('lost_pets')
-      .select(`
+      .select(
+        `
         *,
         pet:pets!inner (
           id,
@@ -28,7 +29,8 @@ export const getLostPets = withActionAuth(
             email
           )
         )
-      `)
+      `
+      )
       .eq('tenant_id', clinicSlug)
       .order('created_at', { ascending: false })
 
@@ -42,7 +44,7 @@ export const getLostPets = withActionAuth(
       logger.error('Failed to get lost pets', {
         error,
         tenant: clinicSlug,
-        status
+        status,
       })
       return actionError('Error al obtener reportes de mascotas perdidas')
     }
@@ -62,9 +64,9 @@ export const updateLostPetStatus = withActionAuth(
 
     const { error } = await supabase
       .from('lost_pets')
-      .update({ 
+      .update({
         status: newStatus,
-        resolved_at: newStatus === 'reunited' ? new Date().toISOString() : null
+        resolved_at: newStatus === 'reunited' ? new Date().toISOString() : null,
       })
       .eq('id', reportId)
       .eq('tenant_id', clinicSlug)
@@ -74,7 +76,7 @@ export const updateLostPetStatus = withActionAuth(
         error,
         tenant: clinicSlug,
         reportId,
-        newStatus
+        newStatus,
       })
       return actionError('Error al actualizar el estado del reporte')
     }
@@ -108,7 +110,7 @@ export async function reportFoundPet(petId: string, location?: string, contact?:
   } catch (e) {
     logger.error('Failed to report found pet', {
       error: e instanceof Error ? e : undefined,
-      petId
+      petId,
     })
     return actionError(e instanceof Error ? e.message : 'Error desconocido')
   }

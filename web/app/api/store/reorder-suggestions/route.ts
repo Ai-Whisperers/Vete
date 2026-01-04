@@ -1,18 +1,18 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
-import { logger } from '@/lib/logger';
-import { apiError, HTTP_STATUS } from '@/lib/api/errors';
+import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/logger'
+import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 
 interface ReorderProduct {
-  id: string;
-  name: string;
-  image_url: string | null;
-  base_price: number;
-  sale_price: number | null;
-  stock_quantity: number;
-  is_available: boolean;
-  last_ordered_at: string;
-  total_times_ordered: number;
+  id: string
+  name: string
+  image_url: string | null
+  base_price: number
+  sale_price: number | null
+  stock_quantity: number
+  is_available: boolean
+  last_ordered_at: string
+  total_times_ordered: number
 }
 
 /**
@@ -24,31 +24,35 @@ interface ReorderProduct {
  * - limit: Max products to return (default: 10)
  */
 export async function GET(request: NextRequest): Promise<NextResponse> {
-  const supabase = await createClient();
+  const supabase = await createClient()
 
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
   if (authError || !user) {
-    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED)
   }
 
-  const { searchParams } = new URL(request.url);
-  const clinic = searchParams.get('clinic');
-  const limit = parseInt(searchParams.get('limit') || '10');
+  const { searchParams } = new URL(request.url)
+  const clinic = searchParams.get('clinic')
+  const limit = parseInt(searchParams.get('limit') || '10')
 
   if (!clinic) {
     return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
-      details: { message: 'Falta parámetro clinic' }
-    });
+      details: { message: 'Falta parámetro clinic' },
+    })
   }
 
   try {
     // Get order items from user's recent orders (last 90 days)
-    const ninetyDaysAgo = new Date();
-    ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+    const ninetyDaysAgo = new Date()
+    ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90)
 
     const { data: orderItems, error: itemsError } = await supabase
       .from('store_order_items')
-      .select(`
+      .select(
+        `
         product_id,
         quantity,
         store_orders!inner(
@@ -58,33 +62,34 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
           status,
           created_at
         )
-      `)
+      `
+      )
       .eq('store_orders.customer_id', user.id)
       .eq('store_orders.tenant_id', clinic)
       .in('store_orders.status', ['delivered', 'confirmed', 'shipped', 'processing'])
-      .gte('store_orders.created_at', ninetyDaysAgo.toISOString());
+      .gte('store_orders.created_at', ninetyDaysAgo.toISOString())
 
-    if (itemsError) throw itemsError;
+    if (itemsError) throw itemsError
 
     if (!orderItems || orderItems.length === 0) {
-      return NextResponse.json({ products: [], message: 'No hay compras recientes' });
+      return NextResponse.json({ products: [], message: 'No hay compras recientes' })
     }
 
     // Aggregate products by ID with counts and latest order date
-    const productStats = new Map<string, { count: number; lastOrdered: string }>();
+    const productStats = new Map<string, { count: number; lastOrdered: string }>()
     for (const item of orderItems) {
-      const order = item.store_orders as unknown as { created_at: string };
-      const existing = productStats.get(item.product_id);
+      const order = item.store_orders as unknown as { created_at: string }
+      const existing = productStats.get(item.product_id)
       if (existing) {
-        existing.count += item.quantity;
+        existing.count += item.quantity
         if (order.created_at > existing.lastOrdered) {
-          existing.lastOrdered = order.created_at;
+          existing.lastOrdered = order.created_at
         }
       } else {
         productStats.set(item.product_id, {
           count: item.quantity,
           lastOrdered: order.created_at,
-        });
+        })
       }
     }
 
@@ -92,16 +97,17 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const sortedProductIds = Array.from(productStats.entries())
       .sort((a, b) => b[1].count - a[1].count)
       .slice(0, limit)
-      .map(([id]) => id);
+      .map(([id]) => id)
 
     if (sortedProductIds.length === 0) {
-      return NextResponse.json({ products: [] });
+      return NextResponse.json({ products: [] })
     }
 
     // Fetch product details with inventory
     const { data: products, error: productsError } = await supabase
       .from('store_products')
-      .select(`
+      .select(
+        `
         id,
         name,
         image_url,
@@ -109,18 +115,19 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         sale_price,
         is_active,
         store_inventory(stock_quantity)
-      `)
+      `
+      )
       .in('id', sortedProductIds)
       .eq('tenant_id', clinic)
-      .is('deleted_at', null);
+      .is('deleted_at', null)
 
-    if (productsError) throw productsError;
+    if (productsError) throw productsError
 
     // Map products with availability info
     const reorderProducts: ReorderProduct[] = (products || [])
-      .map(product => {
-        const inventory = product.store_inventory as unknown as { stock_quantity: number } | null;
-        const stats = productStats.get(product.id)!;
+      .map((product) => {
+        const inventory = product.store_inventory as unknown as { stock_quantity: number } | null
+        const stats = productStats.get(product.id)!
 
         return {
           id: product.id,
@@ -132,24 +139,23 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
           is_available: product.is_active && (inventory?.stock_quantity || 0) > 0,
           last_ordered_at: stats.lastOrdered,
           total_times_ordered: stats.count,
-        };
+        }
       })
-      .sort((a, b) => b.total_times_ordered - a.total_times_ordered);
+      .sort((a, b) => b.total_times_ordered - a.total_times_ordered)
 
     return NextResponse.json({
       products: reorderProducts,
-      available_count: reorderProducts.filter(p => p.is_available).length,
+      available_count: reorderProducts.filter((p) => p.is_available).length,
       total_count: reorderProducts.length,
-    });
-
+    })
   } catch (e) {
     logger.error('Error fetching reorder suggestions', {
       tenantId: clinic,
       userId: user.id,
-      error: e instanceof Error ? e.message : 'Unknown'
-    });
+      error: e instanceof Error ? e.message : 'Unknown',
+    })
     return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
-      details: { message: 'Error al cargar sugerencias' }
-    });
+      details: { message: 'Error al cargar sugerencias' },
+    })
   }
 }

@@ -3,29 +3,29 @@
  * API-003: Create Standardized Pagination
  */
 
-import { z } from 'zod';
+import { z } from 'zod'
 
 export const paginationSchema = z.object({
   page: z.coerce.number().int().positive().default(1),
   limit: z.coerce.number().int().min(1).max(100).default(20),
-});
+})
 
 export interface PaginationParams {
-  page: number;
-  limit: number;
-  offset: number;
+  page: number
+  limit: number
+  offset: number
 }
 
 export interface PaginatedResponse<T> {
-  data: T[];
+  data: T[]
   pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    pages: number;
-    hasNext: boolean;
-    hasPrev: boolean;
-  };
+    page: number
+    limit: number
+    total: number
+    pages: number
+    hasNext: boolean
+    hasPrev: boolean
+  }
 }
 
 /**
@@ -44,12 +44,12 @@ export function parsePagination(searchParams: URLSearchParams): PaginationParams
   const result = paginationSchema.safeParse({
     page: searchParams.get('page'),
     limit: searchParams.get('limit'),
-  });
+  })
 
-  const { page, limit } = result.success ? result.data : { page: 1, limit: 20 };
-  const offset = (page - 1) * limit;
+  const { page, limit } = result.success ? result.data : { page: 1, limit: 20 }
+  const offset = (page - 1) * limit
 
-  return { page, limit, offset };
+  return { page, limit, offset }
 }
 
 /**
@@ -75,8 +75,8 @@ export function paginatedResponse<T>(
   total: number,
   params: PaginationParams
 ): PaginatedResponse<T> {
-  const { page, limit } = params;
-  const pages = Math.ceil(total / limit);
+  const { page, limit } = params
+  const pages = Math.ceil(total / limit)
 
   return {
     data,
@@ -88,5 +88,5 @@ export function paginatedResponse<T>(
       hasNext: page < pages,
       hasPrev: page > 1,
     },
-  };
+  }
 }

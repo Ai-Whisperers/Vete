@@ -115,7 +115,15 @@
   "seo": {
     "meta_title": "Veterinaria Adris | Clínica Veterinaria 24hs en Asunción, Paraguay",
     "meta_description": "Clínica veterinaria líder en Asunción. Urgencias 24hs, vacunación certificada SENACSA, cirugía, diagnóstico avanzado y carnet digital para perros y gatos. Av. Santa Teresa.",
-    "keywords": ["veterinaria asuncion", "veterinaria 24 horas", "urgencias veterinarias", "vacunas perros", "vacunas gatos", "peluqueria canina", "veterinario santa teresa"],
+    "keywords": [
+      "veterinaria asuncion",
+      "veterinaria 24 horas",
+      "urgencias veterinarias",
+      "vacunas perros",
+      "vacunas gatos",
+      "peluqueria canina",
+      "veterinario santa teresa"
+    ],
     "og_type": "website",
     "og_locale": "es_PY"
   }

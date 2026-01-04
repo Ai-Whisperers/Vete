@@ -134,6 +134,7 @@ command-palette.tsx (Re-exports from index.tsx)
 ## State Lifecycle
 
 ### 1. Component Mount (isOpen: false → true)
+
 ```
 1. User presses Cmd+K
 2. useCommandPalette() sets isOpen = true
@@ -145,6 +146,7 @@ command-palette.tsx (Re-exports from index.tsx)
 ```
 
 ### 2. User Types Query
+
 ```
 1. User types in CommandInput
 2. onChange fires → setQuery(value)
@@ -156,6 +158,7 @@ command-palette.tsx (Re-exports from index.tsx)
 ```
 
 ### 3. User Navigates
+
 ```
 1. User presses Arrow Down
 2. useKeyboardNav intercepts keydown
@@ -166,6 +169,7 @@ command-palette.tsx (Re-exports from index.tsx)
 ```
 
 ### 4. User Selects
+
 ```
 1. User presses Enter (or clicks item)
 2. handleSelect() called
@@ -177,6 +181,7 @@ command-palette.tsx (Re-exports from index.tsx)
 ```
 
 ### 5. Component Unmount (isOpen: true → false)
+
 ```
 1. User presses ESC or clicks backdrop
 2. onClose() called
@@ -189,6 +194,7 @@ command-palette.tsx (Re-exports from index.tsx)
 ## Performance Optimizations
 
 ### Memoization Strategy
+
 ```typescript
 // useCommandSearch.ts
 const commands = useMemo(() => createCommands(...), [deps]);
@@ -200,6 +206,7 @@ const flatCommands = useMemo(() => flatten(...), [groupedCommands]);
 **Why:** Prevents unnecessary re-computations on every render.
 
 ### Callback Stability
+
 ```typescript
 // useCommandSearch.ts
 const navigate = useCallback((path) => { ... }, [router, clinic, onClose]);
@@ -209,12 +216,13 @@ const navigateExternal = useCallback((href) => { ... }, [router, onClose]);
 **Why:** Prevents commandFactory from recreating all commands on every render.
 
 ### Lazy Data Fetching
+
 ```typescript
 // useCommandSearch.ts
 useEffect(() => {
-  if (!isOpen || !clinic) return; // Exit early
-  fetchRecent(); // Only fetch when modal opens
-}, [isOpen, clinic]);
+  if (!isOpen || !clinic) return // Exit early
+  fetchRecent() // Only fetch when modal opens
+}, [isOpen, clinic])
 ```
 
 **Why:** Doesn't hit database until user actually opens the palette.
@@ -257,22 +265,22 @@ export function createCommands() {
 // command-types.ts
 export interface CommandItem {
   // ... existing
-  score?: number; // Add optional score
+  score?: number // Add optional score
 }
 
 // useCommandSearch.ts
 const filteredCommands = useMemo(() => {
-  if (!query.trim()) return commands;
+  if (!query.trim()) return commands
 
-  const lowerQuery = query.toLowerCase();
+  const lowerQuery = query.toLowerCase()
   return commands
     .filter(/* existing filter */)
-    .map(cmd => ({
+    .map((cmd) => ({
       ...cmd,
       score: calculateScore(cmd, lowerQuery), // Add scoring
     }))
-    .sort((a, b) => (b.score || 0) - (a.score || 0)); // Sort by score
-}, [commands, query]);
+    .sort((a, b) => (b.score || 0) - (a.score || 0)) // Sort by score
+}, [commands, query])
 ```
 
 ### 3. Add Command History
@@ -280,46 +288,46 @@ const filteredCommands = useMemo(() => {
 ```typescript
 // Create new file: useCommandHistory.ts
 export function useCommandHistory() {
-  const [history, setHistory] = useState<string[]>([]);
+  const [history, setHistory] = useState<string[]>([])
 
   const recordCommand = (id: string) => {
-    setHistory(prev => [id, ...prev.filter(x => x !== id)].slice(0, 10));
-  };
+    setHistory((prev) => [id, ...prev.filter((x) => x !== id)].slice(0, 10))
+  }
 
-  return { history, recordCommand };
+  return { history, recordCommand }
 }
 
 // index.tsx
-const { history, recordCommand } = useCommandHistory();
+const { history, recordCommand } = useCommandHistory()
 
 const handleSelect = useCallback(() => {
   if (flatCommands[selectedIndex]) {
-    recordCommand(flatCommands[selectedIndex].id);
-    flatCommands[selectedIndex].action();
+    recordCommand(flatCommands[selectedIndex].id)
+    flatCommands[selectedIndex].action()
   }
-}, [flatCommands, selectedIndex, recordCommand]);
+}, [flatCommands, selectedIndex, recordCommand])
 
 // commandFactory.tsx - boost history items
-const isInHistory = history.includes(item.id);
+const isInHistory = history.includes(item.id)
 ```
 
 ### 4. Add Fuzzy Search
 
 ```typescript
 // Install: npm install fuse.js
-import Fuse from 'fuse.js';
+import Fuse from 'fuse.js'
 
 // useCommandSearch.ts
 const filteredCommands = useMemo(() => {
-  if (!query.trim()) return commands;
+  if (!query.trim()) return commands
 
   const fuse = new Fuse(commands, {
     keys: ['title', 'subtitle', 'keywords'],
     threshold: 0.3,
-  });
+  })
 
-  return fuse.search(query).map(result => result.item);
-}, [commands, query]);
+  return fuse.search(query).map((result) => result.item)
+}, [commands, query])
 ```
 
 ## Testing Strategy
@@ -366,15 +374,16 @@ describe('CommandPalette', () => {
 ```typescript
 // command-palette.spec.ts (Playwright)
 test('opens command palette with Cmd+K', async ({ page }) => {
-  await page.goto('/adris/dashboard');
-  await page.keyboard.press('Meta+k');
-  await expect(page.locator('[placeholder*="Buscar"]')).toBeVisible();
-});
+  await page.goto('/adris/dashboard')
+  await page.keyboard.press('Meta+k')
+  await expect(page.locator('[placeholder*="Buscar"]')).toBeVisible()
+})
 ```
 
 ## Conclusion
 
 The modular architecture provides:
+
 - Clear separation of concerns
 - Easy testability
 - Simple extension points

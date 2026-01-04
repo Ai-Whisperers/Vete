@@ -5,6 +5,7 @@ This guide explains how to migrate existing server actions to use the new `withA
 ## Overview
 
 The `withActionAuth` wrapper provides:
+
 - Automatic authentication and authorization
 - Consistent error handling
 - Access to user context (user, profile, isStaff, isAdmin, supabase)
@@ -22,7 +23,10 @@ import { createClient } from '@/lib/supabase/server'
 export async function myAction(formData: FormData) {
   const supabase = await createClient()
 
-  const { data: { user }, error } = await supabase.auth.getUser()
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser()
   if (error || !user) {
     return { success: false, error: 'No autorizado' }
   }
@@ -82,16 +86,14 @@ export const adminAction = withActionAuth(
 export async function deletePet(petId: string): Promise<ActionResult> {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) {
     return { success: false, error: 'No autorizado' }
   }
 
-  const { data: pet } = await supabase
-    .from('pets')
-    .select('owner_id')
-    .eq('id', petId)
-    .single()
+  const { data: pet } = await supabase.from('pets').select('owner_id').eq('id', petId).single()
 
   if (!pet || pet.owner_id !== user.id) {
     return { success: false, error: 'No tienes permiso' }
@@ -110,30 +112,24 @@ export async function deletePet(petId: string): Promise<ActionResult> {
 }
 
 // AFTER
-export const deletePet = withActionAuth(
-  async ({ user, supabase }, petId: string) => {
-    const { data: pet } = await supabase
-      .from('pets')
-      .select('owner_id')
-      .eq('id', petId)
-      .single()
+export const deletePet = withActionAuth(async ({ user, supabase }, petId: string) => {
+  const { data: pet } = await supabase.from('pets').select('owner_id').eq('id', petId).single()
 
-    if (!pet || pet.owner_id !== user.id) {
-      return actionError('No tienes permiso')
-    }
-
-    const { error } = await supabase
-      .from('pets')
-      .update({ deleted_at: new Date().toISOString() })
-      .eq('id', petId)
-
-    if (error) {
-      return actionError('Error al eliminar')
-    }
-
-    return actionSuccess()
+  if (!pet || pet.owner_id !== user.id) {
+    return actionError('No tienes permiso')
   }
-)
+
+  const { error } = await supabase
+    .from('pets')
+    .update({ deleted_at: new Date().toISOString() })
+    .eq('id', petId)
+
+  if (error) {
+    return actionError('Error al eliminar')
+  }
+
+  return actionSuccess()
+})
 ```
 
 ### 2. Staff-Only Action with Validation
@@ -143,7 +139,9 @@ export const deletePet = withActionAuth(
 export async function createInvoice(formData: InvoiceFormData): Promise<InvoiceResult> {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) {
     return { error: 'No autorizado' }
   }
@@ -189,7 +187,9 @@ export const createInvoice = withActionAuth(
 export async function updatePet(petId: string, formData: FormData): Promise<ActionResult> {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) {
     return { success: false, error: 'No autorizado' }
   }
@@ -253,7 +253,9 @@ export const updatePet = withActionAuth(
 export async function updateProfile(prevState: unknown, formData: FormData): Promise<ActionResult> {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) {
     return { success: false, error: 'No autorizado' }
   }
@@ -269,7 +271,7 @@ export async function updateProfile(prevState: unknown, formData: FormData): Pro
     return {
       success: false,
       error: 'Errores de validación',
-      fieldErrors
+      fieldErrors,
     }
   }
 
@@ -302,15 +304,15 @@ The action context provides:
 
 ```typescript
 interface ActionContext {
-  user: { id: string; email: string }              // Authenticated user
+  user: { id: string; email: string } // Authenticated user
   profile: {
     id: string
     tenant_id: string
-    role: string          // 'owner', 'vet', 'admin'
+    role: string // 'owner', 'vet', 'admin'
     full_name: string
   }
-  isStaff: boolean        // true if role is 'vet' or 'admin'
-  isAdmin: boolean        // true if role is 'admin'
+  isStaff: boolean // true if role is 'vet' or 'admin'
+  isAdmin: boolean // true if role is 'admin'
   supabase: SupabaseClient // Pre-configured Supabase client
 }
 ```
@@ -319,9 +321,9 @@ interface ActionContext {
 
 ```typescript
 interface ActionAuthOptions {
-  requireStaff?: boolean   // Require 'vet' or 'admin' role
-  requireAdmin?: boolean   // Require 'admin' role
-  tenantId?: string        // Require specific tenant (not commonly used)
+  requireStaff?: boolean // Require 'vet' or 'admin' role
+  requireAdmin?: boolean // Require 'admin' role
+  tenantId?: string // Require specific tenant (not commonly used)
 }
 ```
 
@@ -342,7 +344,7 @@ return actionError('Error message')
 // Error with field validation
 return actionError('Validation failed', {
   email: 'Invalid email',
-  phone: 'Invalid phone'
+  phone: 'Invalid phone',
 })
 ```
 
@@ -367,7 +369,11 @@ When migrating an action:
 
 ```typescript
 export const action = withActionAuth(async ({ user, profile, isStaff, supabase }, id: string) => {
-  const { data: resource } = await supabase.from('table').select('owner_id, tenant_id').eq('id', id).single()
+  const { data: resource } = await supabase
+    .from('table')
+    .select('owner_id, tenant_id')
+    .eq('id', id)
+    .single()
 
   if (!resource) {
     return actionError('No encontrado')

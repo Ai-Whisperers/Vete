@@ -22,17 +22,15 @@ export function InvoiceList({ invoices, pagination, clinic, currentStatus }: Inv
   return (
     <div className="space-y-4">
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-3 mb-4">
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row">
         <StatusFilter currentStatus={currentStatus || 'all'} clinic={clinic} />
       </div>
 
       {/* List */}
       {invoices.length === 0 ? (
-        <div className="bg-white rounded-xl border border-gray-100 p-12 text-center">
-          <Icons.FileText className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-bold text-[var(--text-primary)] mb-2">
-            No hay facturas
-          </h3>
+        <div className="rounded-xl border border-gray-100 bg-white p-12 text-center">
+          <Icons.FileText className="mx-auto mb-4 h-12 w-12 text-gray-300" />
+          <h3 className="mb-2 text-lg font-bold text-[var(--text-primary)]">No hay facturas</h3>
           <p className="text-[var(--text-secondary)]">
             {currentStatus && currentStatus !== 'all'
               ? 'No hay facturas con este estado.'
@@ -54,7 +52,7 @@ export function InvoiceList({ invoices, pagination, clinic, currentStatus }: Inv
             <a
               key={page}
               href={`/${clinic}/dashboard/invoices?status=${currentStatus || 'all'}&page=${page}`}
-              className={`px-3 py-1 rounded-lg text-sm ${
+              className={`rounded-lg px-3 py-1 text-sm ${
                 page === pagination.page
                   ? 'bg-[var(--primary)] text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'

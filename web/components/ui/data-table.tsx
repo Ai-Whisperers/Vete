@@ -1,7 +1,7 @@
-'use client';
+'use client'
 
-import { useState, useMemo } from 'react';
-import { ArrowUp, ArrowDown, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useState, useMemo } from 'react'
+import { ArrowUp, ArrowDown, ChevronLeft, ChevronRight } from 'lucide-react'
 
 /**
  * Generic DataTable Component
@@ -36,26 +36,26 @@ import { ArrowUp, ArrowDown, ChevronLeft, ChevronRight } from 'lucide-react';
  */
 
 export interface Column<T> {
-  key: string;
-  label: string;
-  sortable?: boolean;
-  render?: (item: T, index: number) => React.ReactNode;
-  className?: string;
-  headerClassName?: string;
+  key: string
+  label: string
+  sortable?: boolean
+  render?: (item: T, index: number) => React.ReactNode
+  className?: string
+  headerClassName?: string
 }
 
 interface DataTableProps<T> {
-  data: T[];
-  columns: Column<T>[];
-  keyExtractor?: (item: T, index: number) => string;
-  onRowClick?: (item: T) => void;
-  emptyMessage?: string;
-  emptyIcon?: React.ReactNode;
-  pageSize?: number;
-  showPagination?: boolean;
-  className?: string;
-  rowClassName?: string | ((item: T, index: number) => string);
-  mobileRender?: (item: T, index: number) => React.ReactNode;
+  data: T[]
+  columns: Column<T>[]
+  keyExtractor?: (item: T, index: number) => string
+  onRowClick?: (item: T) => void
+  emptyMessage?: string
+  emptyIcon?: React.ReactNode
+  pageSize?: number
+  showPagination?: boolean
+  className?: string
+  rowClassName?: string | ((item: T, index: number) => string)
+  mobileRender?: (item: T, index: number) => React.ReactNode
 }
 
 export function DataTable<T extends Record<string, any>>({
@@ -71,81 +71,79 @@ export function DataTable<T extends Record<string, any>>({
   rowClassName = '',
   mobileRender,
 }: DataTableProps<T>) {
-  const [sortColumn, setSortColumn] = useState<string | null>(null);
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
-  const [currentPage, setCurrentPage] = useState(1);
+  const [sortColumn, setSortColumn] = useState<string | null>(null)
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
+  const [currentPage, setCurrentPage] = useState(1)
 
   // Handle column sorting
   const handleSort = (columnKey: string) => {
     if (sortColumn === columnKey) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
     } else {
-      setSortColumn(columnKey);
-      setSortDirection('asc');
+      setSortColumn(columnKey)
+      setSortDirection('asc')
     }
-  };
+  }
 
   // Sort data
   const sortedData = useMemo(() => {
-    if (!sortColumn) return data;
+    if (!sortColumn) return data
 
     return [...data].sort((a, b) => {
-      const aValue = a[sortColumn];
-      const bValue = b[sortColumn];
+      const aValue = a[sortColumn]
+      const bValue = b[sortColumn]
 
-      if (aValue === null || aValue === undefined) return 1;
-      if (bValue === null || bValue === undefined) return -1;
+      if (aValue === null || aValue === undefined) return 1
+      if (bValue === null || bValue === undefined) return -1
 
       if (typeof aValue === 'string' && typeof bValue === 'string') {
-        return sortDirection === 'asc'
-          ? aValue.localeCompare(bValue)
-          : bValue.localeCompare(aValue);
+        return sortDirection === 'asc' ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue)
       }
 
       if (typeof aValue === 'number' && typeof bValue === 'number') {
-        return sortDirection === 'asc' ? aValue - bValue : bValue - aValue;
+        return sortDirection === 'asc' ? aValue - bValue : bValue - aValue
       }
 
-      return 0;
-    });
-  }, [data, sortColumn, sortDirection]);
+      return 0
+    })
+  }, [data, sortColumn, sortDirection])
 
   // Paginate data
   const paginatedData = useMemo(() => {
-    if (!showPagination) return sortedData;
+    if (!showPagination) return sortedData
 
-    const startIndex = (currentPage - 1) * pageSize;
-    const endIndex = startIndex + pageSize;
-    return sortedData.slice(startIndex, endIndex);
-  }, [sortedData, currentPage, pageSize, showPagination]);
+    const startIndex = (currentPage - 1) * pageSize
+    const endIndex = startIndex + pageSize
+    return sortedData.slice(startIndex, endIndex)
+  }, [sortedData, currentPage, pageSize, showPagination])
 
-  const totalPages = Math.ceil(sortedData.length / pageSize);
+  const totalPages = Math.ceil(sortedData.length / pageSize)
 
   // Get row class name
   const getRowClassName = (item: T, index: number): string => {
     if (typeof rowClassName === 'function') {
-      return rowClassName(item, index);
+      return rowClassName(item, index)
     }
-    return rowClassName;
-  };
+    return rowClassName
+  }
 
   // Empty state
   if (data.length === 0) {
     return (
-      <div className={`bg-[var(--bg-default)] rounded-xl shadow-md p-12 text-center ${className}`}>
+      <div className={`rounded-xl bg-[var(--bg-default)] p-12 text-center shadow-md ${className}`}>
         {emptyIcon && <div className="mb-4">{emptyIcon}</div>}
         <p className="text-[var(--text-secondary)]">{emptyMessage}</p>
       </div>
-    );
+    )
   }
 
   return (
     <div className={`space-y-4 ${className}`}>
       {/* Desktop Table */}
-      <div className="hidden md:block bg-[var(--bg-default)] rounded-xl shadow-md overflow-hidden">
+      <div className="hidden overflow-hidden rounded-xl bg-[var(--bg-default)] shadow-md md:block">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-[var(--primary)] bg-opacity-5 border-b border-[var(--primary)] border-opacity-10">
+            <thead className="border-b border-[var(--primary)] border-opacity-10 bg-[var(--primary)] bg-opacity-5">
               <tr>
                 {columns.map((column) => (
                   <th
@@ -175,7 +173,7 @@ export function DataTable<T extends Record<string, any>>({
               {paginatedData.map((item, index) => (
                 <tr
                   key={keyExtractor(item, index)}
-                  className={`hover:bg-[var(--primary)] hover:bg-opacity-5 transition-colors ${
+                  className={`transition-colors hover:bg-[var(--primary)] hover:bg-opacity-5 ${
                     onRowClick ? 'cursor-pointer' : ''
                   } ${getRowClassName(item, index)}`}
                   onClick={() => onRowClick?.(item)}
@@ -196,11 +194,11 @@ export function DataTable<T extends Record<string, any>>({
       </div>
 
       {/* Mobile List View */}
-      <div className="md:hidden space-y-4">
+      <div className="space-y-4 md:hidden">
         {paginatedData.map((item, index) => (
           <div
             key={keyExtractor(item, index)}
-            className={`bg-[var(--bg-default)] rounded-lg shadow-md p-4 ${
+            className={`rounded-lg bg-[var(--bg-default)] p-4 shadow-md ${
               onRowClick ? 'cursor-pointer active:scale-[0.98]' : ''
             } transition-all ${getRowClassName(item, index)}`}
             onClick={() => onRowClick?.(item)}
@@ -210,9 +208,11 @@ export function DataTable<T extends Record<string, any>>({
             ) : (
               <div className="space-y-2">
                 {columns.map((column) => (
-                  <div key={column.key} className="flex justify-between items-start">
-                    <span className="text-sm text-[var(--text-secondary)] font-medium">{column.label}:</span>
-                    <span className="text-sm text-[var(--text-primary)] text-right">
+                  <div key={column.key} className="flex items-start justify-between">
+                    <span className="text-sm font-medium text-[var(--text-secondary)]">
+                      {column.label}:
+                    </span>
+                    <span className="text-right text-sm text-[var(--text-primary)]">
                       {column.render ? column.render(item, index) : item[column.key]}
                     </span>
                   </div>
@@ -225,16 +225,16 @@ export function DataTable<T extends Record<string, any>>({
 
       {/* Pagination */}
       {showPagination && totalPages > 1 && (
-        <div className="flex items-center justify-between px-4 py-3 bg-[var(--bg-default)] rounded-lg shadow-md">
+        <div className="flex items-center justify-between rounded-lg bg-[var(--bg-default)] px-4 py-3 shadow-md">
           <div className="text-sm text-[var(--text-secondary)]">
-            Mostrando {(currentPage - 1) * pageSize + 1} - {Math.min(currentPage * pageSize, sortedData.length)} de{' '}
-            {sortedData.length} resultados
+            Mostrando {(currentPage - 1) * pageSize + 1} -{' '}
+            {Math.min(currentPage * pageSize, sortedData.length)} de {sortedData.length} resultados
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               disabled={currentPage === 1}
-              className="px-3 py-1 rounded-md border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="rounded-md border border-gray-200 px-3 py-1 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
               aria-label="Página anterior"
             >
               <ChevronLeft className="h-4 w-4" />
@@ -245,7 +245,7 @@ export function DataTable<T extends Record<string, any>>({
             <button
               onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
-              className="px-3 py-1 rounded-md border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="rounded-md border border-gray-200 px-3 py-1 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
               aria-label="Página siguiente"
             >
               <ChevronRight className="h-4 w-4" />
@@ -254,5 +254,5 @@ export function DataTable<T extends Record<string, any>>({
         </div>
       )}
     </div>
-  );
+  )
 }

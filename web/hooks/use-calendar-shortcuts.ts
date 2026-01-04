@@ -54,87 +54,90 @@ export function useCalendarShortcuts({
     onCloseModal,
   }
 
-  const handleKeyDown = useCallback((event: KeyboardEvent) => {
-    // Check if shortcuts should be disabled
-    if (!enabled) return
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent) => {
+      // Check if shortcuts should be disabled
+      if (!enabled) return
 
-    // Check if typing in an input field
-    const target = event.target as HTMLElement
-    const tagName = target.tagName.toLowerCase()
-    const isEditable = target.isContentEditable
+      // Check if typing in an input field
+      const target = event.target as HTMLElement
+      const tagName = target.tagName.toLowerCase()
+      const isEditable = target.isContentEditable
 
-    if (tagName === 'input' || tagName === 'textarea' || tagName === 'select' || isEditable) {
-      // Only allow Escape to close modal when in input
-      if (event.key === 'Escape' && isModalOpen) {
-        handlersRef.current.onCloseModal?.()
-        event.preventDefault()
-      }
-      return
-    }
-
-    // Handle modal-specific shortcuts
-    if (isModalOpen) {
-      if (event.key === 'Escape') {
-        handlersRef.current.onCloseModal?.()
-        event.preventDefault()
-      }
-      // Don't process other shortcuts when modal is open
-      return
-    }
-
-    // Ignore if modifier keys are pressed (except for arrow keys)
-    const hasModifier = event.ctrlKey || event.metaKey || event.altKey
-    if (hasModifier && event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') {
-      return
-    }
-
-    switch (event.key.toLowerCase()) {
-      // Navigation
-      case 't':
-        handlersRef.current.onNavigate('today')
-        event.preventDefault()
-        break
-
-      case 'arrowleft':
-        handlersRef.current.onNavigate('prev')
-        event.preventDefault()
-        break
-
-      case 'arrowright':
-        handlersRef.current.onNavigate('next')
-        event.preventDefault()
-        break
-
-      // View changes
-      case 'd':
-        handlersRef.current.onViewChange('day')
-        event.preventDefault()
-        break
-
-      case 'w':
-        handlersRef.current.onViewChange('week')
-        event.preventDefault()
-        break
-
-      case 'm':
-        handlersRef.current.onViewChange('month')
-        event.preventDefault()
-        break
-
-      case 'a':
-        handlersRef.current.onViewChange('agenda')
-        event.preventDefault()
-        break
-
-      // New appointment
-      case 'n':
-        if (handlersRef.current.onNewAppointment) {
-          handlersRef.current.onNewAppointment()
+      if (tagName === 'input' || tagName === 'textarea' || tagName === 'select' || isEditable) {
+        // Only allow Escape to close modal when in input
+        if (event.key === 'Escape' && isModalOpen) {
+          handlersRef.current.onCloseModal?.()
           event.preventDefault()
         }
-        break
-    }
-  }, [enabled, isModalOpen])
+        return
+      }
+
+      // Handle modal-specific shortcuts
+      if (isModalOpen) {
+        if (event.key === 'Escape') {
+          handlersRef.current.onCloseModal?.()
+          event.preventDefault()
+        }
+        // Don't process other shortcuts when modal is open
+        return
+      }
+
+      // Ignore if modifier keys are pressed (except for arrow keys)
+      const hasModifier = event.ctrlKey || event.metaKey || event.altKey
+      if (hasModifier && event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') {
+        return
+      }
+
+      switch (event.key.toLowerCase()) {
+        // Navigation
+        case 't':
+          handlersRef.current.onNavigate('today')
+          event.preventDefault()
+          break
+
+        case 'arrowleft':
+          handlersRef.current.onNavigate('prev')
+          event.preventDefault()
+          break
+
+        case 'arrowright':
+          handlersRef.current.onNavigate('next')
+          event.preventDefault()
+          break
+
+        // View changes
+        case 'd':
+          handlersRef.current.onViewChange('day')
+          event.preventDefault()
+          break
+
+        case 'w':
+          handlersRef.current.onViewChange('week')
+          event.preventDefault()
+          break
+
+        case 'm':
+          handlersRef.current.onViewChange('month')
+          event.preventDefault()
+          break
+
+        case 'a':
+          handlersRef.current.onViewChange('agenda')
+          event.preventDefault()
+          break
+
+        // New appointment
+        case 'n':
+          if (handlersRef.current.onNewAppointment) {
+            handlersRef.current.onNewAppointment()
+            event.preventDefault()
+          }
+          break
+      }
+    },
+    [enabled, isModalOpen]
+  )
 
   useEffect(() => {
     if (!enabled) return

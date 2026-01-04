@@ -24,20 +24,17 @@ export const POST = withApiAuthParams(
         profile.tenant_id
       )
 
-      return apiSuccess(
-        { appointment },
-        'Llegada registrada correctamente'
-      )
+      return apiSuccess({ appointment }, 'Llegada registrada correctamente')
     } catch (error) {
       return handleApiError(error, {
         userId: context.user.id,
         tenantId: context.profile.tenant_id,
-        operation: 'check_in_appointment'
+        operation: 'check_in_appointment',
       })
     }
   },
   {
     roles: ['vet', 'admin'],
-    paramName: 'id'
+    paramName: 'id',
   }
 )

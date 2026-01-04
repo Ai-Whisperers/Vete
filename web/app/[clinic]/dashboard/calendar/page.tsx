@@ -1,7 +1,11 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { CalendarContainer } from '@/components/calendar'
-import { appointmentToCalendarEvent, timeOffToCalendarEvent, shiftToCalendarEvent } from '@/lib/types/calendar'
+import {
+  appointmentToCalendarEvent,
+  timeOffToCalendarEvent,
+  shiftToCalendarEvent,
+} from '@/lib/types/calendar'
 import type { CalendarEvent, TimeOffRequest } from '@/lib/types/calendar'
 import { logger } from '@/lib/logger'
 import Link from 'next/link'
@@ -17,7 +21,9 @@ export default async function CalendarPage({ params, searchParams }: Props) {
   const supabase = await createClient()
 
   // Auth check
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) {
     redirect(`/${clinic}/portal/login`)
   }
@@ -48,7 +54,8 @@ export default async function CalendarPage({ params, searchParams }: Props) {
   // Fetch appointments
   const { data: appointments, error: appointmentsError } = await supabase
     .from('appointments')
-    .select(`
+    .select(
+      `
       id,
       tenant_id,
       start_time,
@@ -66,7 +73,8 @@ export default async function CalendarPage({ params, searchParams }: Props) {
           full_name
         )
       )
-    `)
+    `
+    )
     .eq('tenant_id', clinic)
     .gte('start_time', `${startDateStr}T00:00:00`)
     .lte('start_time', `${endDateStr}T23:59:59`)
@@ -79,39 +87,42 @@ export default async function CalendarPage({ params, searchParams }: Props) {
   // Fetch staff profiles with schedules
   const { data: staffProfiles } = await supabase
     .from('staff_profiles')
-    .select(`
+    .select(
+      `
       id,
       user_id,
       job_title,
       color_code,
       can_be_booked
-    `)
+    `
+    )
     .eq('tenant_id', clinic)
     .eq('can_be_booked', true)
     .eq('employment_status', 'active')
 
   // Get user profiles for staff
-  const staffUserIds = staffProfiles?.map(sp => sp.user_id) || []
+  const staffUserIds = staffProfiles?.map((sp) => sp.user_id) || []
   const { data: staffUserProfiles } = await supabase
     .from('profiles')
     .select('id, full_name, avatar_url')
     .in('id', staffUserIds)
 
   // Merge staff data
-  const staff = staffProfiles?.map(sp => {
-    const userProfile = staffUserProfiles?.find(up => up.id === sp.user_id)
-    return {
-      id: sp.id,
-      user_id: sp.user_id,
-      full_name: userProfile?.full_name || 'Sin nombre',
-      job_title: sp.job_title,
-      color_code: sp.color_code,
-      avatar_url: userProfile?.avatar_url
-    }
-  }) || []
+  const staff =
+    staffProfiles?.map((sp) => {
+      const userProfile = staffUserProfiles?.find((up) => up.id === sp.user_id)
+      return {
+        id: sp.id,
+        user_id: sp.user_id,
+        full_name: userProfile?.full_name || 'Sin nombre',
+        job_title: sp.job_title,
+        color_code: sp.color_code,
+        avatar_url: userProfile?.avatar_url,
+      }
+    }) || []
 
   // Fetch shifts for staff
-  const staffProfileIds = staffProfiles?.map(sp => sp.id) || []
+  const staffProfileIds = staffProfiles?.map((sp) => sp.id) || []
   const { data: shifts } = await supabase
     .from('staff_shifts')
     .select('*')
@@ -122,7 +133,8 @@ export default async function CalendarPage({ params, searchParams }: Props) {
   // Fetch approved time off requests
   const { data: timeOffRequests } = await supabase
     .from('time_off_requests')
-    .select(`
+    .select(
+      `
       *,
       time_off_type:time_off_types (
         id,
@@ -130,7 +142,8 @@ export default async function CalendarPage({ params, searchParams }: Props) {
         name,
         color_code
       )
-    `)
+    `
+    )
     .eq('tenant_id', clinic)
     .in('status', ['approved', 'pending'])
     .or(`and(start_date.lte.${endDateStr},end_date.gte.${startDateStr})`)
@@ -138,14 +151,16 @@ export default async function CalendarPage({ params, searchParams }: Props) {
   // Fetch pets for quick add
   const { data: pets } = await supabase
     .from('pets')
-    .select(`
+    .select(
+      `
       id,
       name,
       species,
       owner:profiles!pets_owner_id_fkey (
         full_name
       )
-    `)
+    `
+    )
     .eq('tenant_id', clinic)
     .order('name')
     .limit(100)
@@ -174,7 +189,7 @@ export default async function CalendarPage({ params, searchParams }: Props) {
         status: apt.status,
         reason: apt.reason,
         pet: pet ? { name: pet.name } : null,
-        service: null
+        service: null,
       })
 
       // Enrich with resource data
@@ -189,11 +204,11 @@ export default async function CalendarPage({ params, searchParams }: Props) {
         reason: apt.reason || undefined,
         notes: apt.notes || undefined,
         status: apt.status,
-        staffId: apt.vet_id || undefined
+        staffId: apt.vet_id || undefined,
       }
 
       // Find staff color
-      const vetStaff = staff.find(s => s.user_id === apt.vet_id)
+      const vetStaff = staff.find((s) => s.user_id === apt.vet_id)
       if (vetStaff) {
         event.resource.staffId = vetStaff.id
         event.resource.staffName = vetStaff.full_name
@@ -208,7 +223,7 @@ export default async function CalendarPage({ params, searchParams }: Props) {
   // Transform shifts
   if (shifts) {
     for (const shift of shifts) {
-      const staffMember = staff.find(s => s.id === shift.staff_profile_id)
+      const staffMember = staff.find((s) => s.id === shift.staff_profile_id)
       if (!staffMember) continue
 
       const event = shiftToCalendarEvent({
@@ -219,8 +234,8 @@ export default async function CalendarPage({ params, searchParams }: Props) {
           full_name: staffMember.full_name,
           job_title: staffMember.job_title,
           color_code: staffMember.color_code,
-          can_be_booked: true
-        }
+          can_be_booked: true,
+        },
       })
       events.push(event)
     }
@@ -229,7 +244,7 @@ export default async function CalendarPage({ params, searchParams }: Props) {
   // Transform time off requests
   if (timeOffRequests) {
     for (const request of timeOffRequests) {
-      const staffMember = staff.find(s => s.id === request.staff_profile_id)
+      const staffMember = staff.find((s) => s.id === request.staff_profile_id)
       const staffName = staffMember?.full_name || 'Personal'
 
       const event = timeOffToCalendarEvent(request as TimeOffRequest, staffName)
@@ -243,40 +258,38 @@ export default async function CalendarPage({ params, searchParams }: Props) {
   }
 
   // Prepare pets for quick add (with owner name)
-  const petsForQuickAdd = pets?.map(p => {
-    const owner = Array.isArray(p.owner) ? p.owner[0] : p.owner
-    return {
-      id: p.id,
-      name: p.name,
-      species: p.species,
-      owner_name: owner?.full_name
-    }
-  }) || []
+  const petsForQuickAdd =
+    pets?.map((p) => {
+      const owner = Array.isArray(p.owner) ? p.owner[0] : p.owner
+      return {
+        id: p.id,
+        name: p.name,
+        species: p.species,
+        owner_name: owner?.full_name,
+      }
+    }) || []
 
   // Parse view and date from search params
-  const initialView = (view === 'day' || view === 'week' || view === 'month' || view === 'agenda')
-    ? view
-    : 'week'
+  const initialView =
+    view === 'day' || view === 'week' || view === 'month' || view === 'agenda' ? view : 'week'
   const initialDate = date ? new Date(date) : new Date()
 
   return (
-    <div className="flex flex-col h-[calc(100vh-64px)] max-w-full mx-auto">
+    <div className="mx-auto flex h-[calc(100vh-64px)] max-w-full flex-col">
       {/* Minimal Header with Actions */}
-      <div className="flex items-center justify-between gap-2 px-4 py-2 border-b border-[var(--border-light)] bg-white">
+      <div className="flex items-center justify-between gap-2 border-b border-[var(--border-light)] bg-white px-4 py-2">
         <div className="flex items-center gap-3">
-          <h1 className="text-base font-semibold text-[var(--text-primary)]">
-            📅 Calendario
-          </h1>
+          <h1 className="text-base font-semibold text-[var(--text-primary)]">📅 Calendario</h1>
           <Link
             href={`/${clinic}/dashboard/appointments`}
-            className="px-2.5 py-1 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-subtle)] rounded transition-colors"
+            className="rounded px-2.5 py-1 text-xs font-medium text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-subtle)] hover:text-[var(--text-primary)]"
           >
             Lista
           </Link>
           {isAdmin && (
             <Link
               href={`/${clinic}/dashboard/schedules`}
-              className="px-2.5 py-1 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-subtle)] rounded transition-colors"
+              className="rounded px-2.5 py-1 text-xs font-medium text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-subtle)] hover:text-[var(--text-primary)]"
             >
               Horarios
             </Link>
@@ -285,10 +298,10 @@ export default async function CalendarPage({ params, searchParams }: Props) {
 
         <Link
           href={`/${clinic}/dashboard/appointments?action=new`}
-          className="px-3 py-1.5 text-sm font-medium text-white rounded-lg hover:opacity-90 inline-flex items-center gap-1.5 shadow-sm"
+          className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-white shadow-sm hover:opacity-90"
           style={{ backgroundColor: 'var(--primary)' }}
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
           Nueva Cita
@@ -296,7 +309,7 @@ export default async function CalendarPage({ params, searchParams }: Props) {
       </div>
 
       {/* Calendar - fills remaining space */}
-      <div className="flex-1 min-h-0 bg-white p-3">
+      <div className="min-h-0 flex-1 bg-white p-3">
         <CalendarContainer
           initialEvents={events}
           initialDate={initialDate}

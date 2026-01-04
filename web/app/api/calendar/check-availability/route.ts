@@ -24,12 +24,12 @@ export async function POST(request: NextRequest) {
     const supabase = await createClient()
 
     // Auth check
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
     if (authError || !user) {
-      return NextResponse.json(
-        { error: 'No autorizado' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
 
     // Get user's tenant
@@ -40,18 +40,12 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (profileError || !profile) {
-      return NextResponse.json(
-        { error: 'Perfil no encontrado' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 })
     }
 
     // Staff check (only vets and admins can check availability for scheduling)
     if (!['vet', 'admin'].includes(profile.role)) {
-      return NextResponse.json(
-        { error: 'Acceso denegado' },
-        { status: 403 }
-      )
+      return NextResponse.json({ error: 'Acceso denegado' }, { status: 403 })
     }
 
     // Parse and validate request body
@@ -81,7 +75,8 @@ export async function POST(request: NextRequest) {
     // Check for overlapping appointments
     let query = supabase
       .from('appointments')
-      .select(`
+      .select(
+        `
         id,
         start_time,
         end_time,
@@ -90,7 +85,8 @@ export async function POST(request: NextRequest) {
         pets (
           name
         )
-      `)
+      `
+      )
       .eq('tenant_id', profile.tenant_id)
       .in('status', ['scheduled', 'confirmed', 'in_progress'])
       // Check for time overlap: existing start < new end AND existing end > new start
@@ -111,37 +107,33 @@ export async function POST(request: NextRequest) {
 
     if (conflictsError) {
       console.error('Error checking conflicts:', conflictsError)
-      return NextResponse.json(
-        { error: 'Error al verificar disponibilidad' },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: 'Error al verificar disponibilidad' }, { status: 500 })
     }
 
     // Format conflicts for response
-    const formattedConflicts = conflicts?.map(apt => {
-      const pet = Array.isArray(apt.pets) ? apt.pets[0] : apt.pets
-      return {
-        id: apt.id,
-        start_time: apt.start_time,
-        end_time: apt.end_time,
-        status: apt.status,
-        vet_id: apt.vet_id,
-        pet_name: pet?.name || 'Mascota',
-      }
-    }) || []
+    const formattedConflicts =
+      conflicts?.map((apt) => {
+        const pet = Array.isArray(apt.pets) ? apt.pets[0] : apt.pets
+        return {
+          id: apt.id,
+          start_time: apt.start_time,
+          end_time: apt.end_time,
+          status: apt.status,
+          vet_id: apt.vet_id,
+          pet_name: pet?.name || 'Mascota',
+        }
+      }) || []
 
     return NextResponse.json({
       available: formattedConflicts.length === 0,
       conflicts: formattedConflicts,
-      message: formattedConflicts.length === 0
-        ? 'Horario disponible'
-        : `${formattedConflicts.length} cita(s) en conflicto`,
+      message:
+        formattedConflicts.length === 0
+          ? 'Horario disponible'
+          : `${formattedConflicts.length} cita(s) en conflicto`,
     })
   } catch (error) {
     console.error('Check availability error:', error)
-    return NextResponse.json(
-      { error: 'Error interno del servidor' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
   }
 }

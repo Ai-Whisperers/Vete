@@ -6,7 +6,7 @@
  * @tags integration, auth, critical
  */
 
-import { describe, test, expect, beforeAll, afterAll, afterEach } from 'vitest';
+import { describe, test, expect, beforeAll, afterAll, afterEach } from 'vitest'
 import {
   getAuthClient,
   signIn,
@@ -14,53 +14,50 @@ import {
   getCurrentSession,
   getCurrentUser,
   isAuthenticated,
-} from '../../__helpers__/auth';
-import { waitForDatabase } from '../../__helpers__/db';
-import { INVALID_CREDENTIALS } from '../../__fixtures__/users';
+} from '../../__helpers__/auth'
+import { waitForDatabase } from '../../__helpers__/db'
+import { INVALID_CREDENTIALS } from '../../__fixtures__/users'
 
 describe('Authentication - Login', () => {
   beforeAll(async () => {
-    await waitForDatabase();
-  });
+    await waitForDatabase()
+  })
 
   afterEach(async () => {
     // Ensure clean state after each test
-    await signOut();
-  });
+    await signOut()
+  })
 
   afterAll(async () => {
-    await signOut();
-  });
+    await signOut()
+  })
 
   describe('Sign In', () => {
     test('fails with invalid credentials', async () => {
-      const result = await signIn(
-        INVALID_CREDENTIALS.email,
-        INVALID_CREDENTIALS.password
-      );
+      const result = await signIn(INVALID_CREDENTIALS.email, INVALID_CREDENTIALS.password)
 
-      expect(result.error).not.toBeNull();
-      expect(result.user).toBeNull();
-      expect(result.session).toBeNull();
-    });
+      expect(result.error).not.toBeNull()
+      expect(result.user).toBeNull()
+      expect(result.session).toBeNull()
+    })
 
     test('fails with empty email', async () => {
-      const result = await signIn('', 'somepassword');
+      const result = await signIn('', 'somepassword')
 
-      expect(result.error).not.toBeNull();
-    });
+      expect(result.error).not.toBeNull()
+    })
 
     test('fails with empty password', async () => {
-      const result = await signIn('test@test.com', '');
+      const result = await signIn('test@test.com', '')
 
-      expect(result.error).not.toBeNull();
-    });
+      expect(result.error).not.toBeNull()
+    })
 
     test('fails with malformed email', async () => {
-      const result = await signIn('notanemail', 'password123');
+      const result = await signIn('notanemail', 'password123')
 
-      expect(result.error).not.toBeNull();
-    });
+      expect(result.error).not.toBeNull()
+    })
 
     // Note: Success tests require actual test users in the database
     // These should be created during test setup or via fixtures
@@ -75,81 +72,81 @@ describe('Authentication - Login', () => {
       expect(result.session).not.toBeNull();
       expect(result.user?.email).toBe(DEFAULT_OWNER.email);
       */
-    });
+    })
 
     test.skip('succeeds with valid vet credentials', async () => {
       // This test requires a real test user in the database
-    });
+    })
 
     test.skip('succeeds with valid admin credentials', async () => {
       // This test requires a real test user in the database
-    });
-  });
+    })
+  })
 
   describe('Sign Out', () => {
     test('sign out clears session', async () => {
       // Even without a session, signOut should not error
-      await signOut();
+      await signOut()
 
-      const session = await getCurrentSession();
-      expect(session).toBeNull();
-    });
-  });
+      const session = await getCurrentSession()
+      expect(session).toBeNull()
+    })
+  })
 
   describe('Session Management', () => {
     test('getCurrentSession returns null when not authenticated', async () => {
-      await signOut();
-      const session = await getCurrentSession();
-      expect(session).toBeNull();
-    });
+      await signOut()
+      const session = await getCurrentSession()
+      expect(session).toBeNull()
+    })
 
     test('getCurrentUser returns null when not authenticated', async () => {
-      await signOut();
-      const user = await getCurrentUser();
-      expect(user).toBeNull();
-    });
+      await signOut()
+      const user = await getCurrentUser()
+      expect(user).toBeNull()
+    })
 
     test('isAuthenticated returns false when not logged in', async () => {
-      await signOut();
-      const authenticated = await isAuthenticated();
-      expect(authenticated).toBe(false);
-    });
-  });
+      await signOut()
+      const authenticated = await isAuthenticated()
+      expect(authenticated).toBe(false)
+    })
+  })
 
   describe('Auth Client', () => {
     test('getAuthClient returns consistent client', () => {
-      const client1 = getAuthClient();
-      const client2 = getAuthClient();
-      expect(client1).toBe(client2);
-    });
+      const client1 = getAuthClient()
+      const client2 = getAuthClient()
+      expect(client1).toBe(client2)
+    })
 
     test('auth client has required methods', () => {
-      const client = getAuthClient();
-      expect(client.auth).toBeDefined();
-      expect(client.auth.signInWithPassword).toBeDefined();
-      expect(client.auth.signOut).toBeDefined();
-      expect(client.auth.getSession).toBeDefined();
-      expect(client.auth.getUser).toBeDefined();
-    });
-  });
+      const client = getAuthClient()
+      expect(client.auth).toBeDefined()
+      expect(client.auth.signInWithPassword).toBeDefined()
+      expect(client.auth.signOut).toBeDefined()
+      expect(client.auth.getSession).toBeDefined()
+      expect(client.auth.getUser).toBeDefined()
+    })
+  })
 
   describe('Rate Limiting', () => {
     test('multiple failed attempts should be rate limited', async () => {
       // Attempt multiple logins quickly
-      const attempts = [];
+      const attempts = []
       for (let i = 0; i < 5; i++) {
-        attempts.push(signIn(INVALID_CREDENTIALS.email, INVALID_CREDENTIALS.password));
+        attempts.push(signIn(INVALID_CREDENTIALS.email, INVALID_CREDENTIALS.password))
       }
 
-      const results = await Promise.all(attempts);
+      const results = await Promise.all(attempts)
 
       // All should fail, but eventually might get rate limited
       results.forEach((result) => {
-        expect(result.error).not.toBeNull();
-      });
+        expect(result.error).not.toBeNull()
+      })
 
       // Note: Actual rate limit testing requires more sophisticated setup
       // and checking for specific rate limit error codes
-    });
-  });
-});
+    })
+  })
+})

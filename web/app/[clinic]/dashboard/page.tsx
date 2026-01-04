@@ -1,69 +1,66 @@
-import { getClinicData } from "@/lib/clinics";
-import { notFound } from "next/navigation";
-import { requireStaff } from "@/lib/auth";
-import Link from "next/link";
-import {
-  Users,
-  FileText,
-  Plus,
-  CalendarClock,
-} from "lucide-react";
-import { StatsCards } from "@/components/dashboard/stats-cards";
-import { TodayScheduleWidget } from "@/components/dashboard/today-schedule-widget";
-import { UpcomingVaccines } from "@/components/dashboard/upcoming-vaccines";
-import { LostFoundWidget } from "@/components/safety/lost-found-widget";
-import { WaitingRoomWrapper as WaitingRoom } from "@/components/dashboard/waiting-room";
-import { TodayFocus } from "@/components/dashboard/today-focus";
-import { ActivityFeed } from "@/components/dashboard/activity-feed";
-import { RevenueWidget } from "@/components/dashboard/revenue-widget";
-import { AlertsPanel } from "@/components/dashboard/alerts-panel";
-import { QuickSearch } from "@/components/dashboard/quick-search";
-import { getTodayAppointmentsForClinic } from "@/lib/appointments";
+import { getClinicData } from '@/lib/clinics'
+import { notFound } from 'next/navigation'
+import { requireStaff } from '@/lib/auth'
+import Link from 'next/link'
+import { Users, FileText, Plus, CalendarClock } from 'lucide-react'
+import { StatsCards } from '@/components/dashboard/stats-cards'
+import { TodayScheduleWidget } from '@/components/dashboard/today-schedule-widget'
+import { UpcomingVaccines } from '@/components/dashboard/upcoming-vaccines'
+import { LostFoundWidget } from '@/components/safety/lost-found-widget'
+import { WaitingRoomWrapper as WaitingRoom } from '@/components/dashboard/waiting-room'
+import { TodayFocus } from '@/components/dashboard/today-focus'
+import { ActivityFeed } from '@/components/dashboard/activity-feed'
+import { RevenueWidget } from '@/components/dashboard/revenue-widget'
+import { AlertsPanel } from '@/components/dashboard/alerts-panel'
+import { QuickSearch } from '@/components/dashboard/quick-search'
+import { getTodayAppointmentsForClinic } from '@/lib/appointments'
 
 interface Props {
-  params: Promise<{ clinic: string }>;
+  params: Promise<{ clinic: string }>
 }
 
 export async function generateStaticParams(): Promise<Array<{ clinic: string }>> {
-  return [{ clinic: "adris" }, { clinic: "petlife" }];
+  return [{ clinic: 'adris' }, { clinic: 'petlife' }]
 }
 
-export default async function ClinicalDashboardPage({ params }: Props): Promise<React.ReactElement> {
-  const { clinic } = await params;
+export default async function ClinicalDashboardPage({
+  params,
+}: Props): Promise<React.ReactElement> {
+  const { clinic } = await params
 
   // SEC-006: Require staff authentication with tenant verification
-  const { profile, isAdmin } = await requireStaff(clinic);
+  const { profile, isAdmin } = await requireStaff(clinic)
 
-  const clinicData = await getClinicData(clinic);
+  const clinicData = await getClinicData(clinic)
 
   if (!clinicData) {
-    notFound();
+    notFound()
   }
 
-  const todayAppointments = await getTodayAppointmentsForClinic(clinic);
+  const todayAppointments = await getTodayAppointmentsForClinic(clinic)
 
   // Get greeting based on time
-  const hour = new Date().getHours();
-  const greeting = hour < 12 ? "Buenos d\u00edas" : hour < 18 ? "Buenas tardes" : "Buenas noches";
-  const firstName = profile.full_name?.split(" ")[0] || "Doctor";
+  const hour = new Date().getHours()
+  const greeting = hour < 12 ? 'Buenos d\u00edas' : hour < 18 ? 'Buenas tardes' : 'Buenas noches'
+  const firstName = profile.full_name?.split(' ')[0] || 'Doctor'
 
   return (
     <div className="section-gap pb-8">
       {/* Header Section */}
       <div className="flex flex-col gap-4">
         {/* Top Row: Greeting + Quick Actions */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-[var(--text-primary)]">
+            <h1 className="text-2xl font-bold text-[var(--text-primary)] md:text-3xl">
               {greeting}, {firstName}
             </h1>
-            <p className="text-[var(--text-secondary)] flex items-center gap-2 mt-1">
-              <CalendarClock className="w-4 h-4" />
-              {new Date().toLocaleDateString("es-PY", {
-                weekday: "long",
-                day: "numeric",
-                month: "long",
-                year: "numeric",
+            <p className="mt-1 flex items-center gap-2 text-[var(--text-secondary)]">
+              <CalendarClock className="h-4 w-4" />
+              {new Date().toLocaleDateString('es-PY', {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
               })}
             </p>
           </div>
@@ -72,23 +69,23 @@ export default async function ClinicalDashboardPage({ params }: Props): Promise<
           <div className="flex flex-wrap gap-2">
             <Link
               href={`/${clinic}/dashboard/appointments?action=new`}
-              className="inline-flex items-center gap-2 px-4 py-2.5 bg-[var(--primary)] text-white rounded-xl hover:opacity-90 transition-all text-sm font-semibold shadow-md hover:shadow-lg"
+              className="inline-flex items-center gap-2 rounded-xl bg-[var(--primary)] px-4 py-2.5 text-sm font-semibold text-white shadow-md transition-all hover:opacity-90 hover:shadow-lg"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="h-4 w-4" />
               Nueva Cita
             </Link>
             <Link
               href={`/${clinic}/dashboard/invoices?action=new`}
-              className="inline-flex items-center gap-2 px-4 py-2.5 bg-white text-[var(--text-primary)] border border-[var(--border)] rounded-xl hover:bg-[var(--bg-subtle)] transition-colors text-sm font-semibold shadow-sm"
+              className="inline-flex items-center gap-2 rounded-xl border border-[var(--border)] bg-white px-4 py-2.5 text-sm font-semibold text-[var(--text-primary)] shadow-sm transition-colors hover:bg-[var(--bg-subtle)]"
             >
-              <FileText className="w-4 h-4" />
+              <FileText className="h-4 w-4" />
               Facturar
             </Link>
             <Link
               href={`/${clinic}/dashboard/clients?action=new-client`}
-              className="inline-flex items-center gap-2 px-4 py-2.5 bg-white text-[var(--text-primary)] border border-[var(--border)] rounded-xl hover:bg-[var(--bg-subtle)] transition-colors text-sm font-semibold shadow-sm"
+              className="inline-flex items-center gap-2 rounded-xl border border-[var(--border)] bg-white px-4 py-2.5 text-sm font-semibold text-[var(--text-primary)] shadow-sm transition-colors hover:bg-[var(--bg-subtle)]"
             >
-              <Users className="w-4 h-4" />
+              <Users className="h-4 w-4" />
               Cliente
             </Link>
           </div>
@@ -136,5 +133,5 @@ export default async function ClinicalDashboardPage({ params }: Props): Promise<
         </div>
       </div>
     </div>
-  );
+  )
 }

@@ -7,14 +7,17 @@
  * Usage: node scripts/run-tests-for-changes.js [baseBranch]
  */
 
-const { execSync } = require('child_process');
-const path = require('path');
+const { execSync } = require('child_process')
+const path = require('path')
 
 // Map file paths to test commands
 const PATH_TO_TESTS = [
   // Components and pages
   { pattern: /app\/\[clinic\]\/portal\/pets/, tests: ['test:feature:pets', 'test:portal'] },
-  { pattern: /app\/\[clinic\]\/portal\/appointments/, tests: ['test:feature:booking', 'test:portal'] },
+  {
+    pattern: /app\/\[clinic\]\/portal\/appointments/,
+    tests: ['test:feature:booking', 'test:portal'],
+  },
   { pattern: /app\/\[clinic\]\/portal\/medical/, tests: ['test:feature:medical', 'test:portal'] },
   { pattern: /app\/\[clinic\]\/store/, tests: ['test:feature:store', 'test:store'] },
   { pattern: /app\/\[clinic\]\/services/, tests: ['test:public'] },
@@ -70,80 +73,80 @@ const PATH_TO_TESTS = [
 
   // Security-sensitive files
   { pattern: /\.env|auth|middleware/, tests: ['test:security'] },
-];
+]
 
 function getChangedFiles(baseBranch = 'main') {
   try {
     const output = execSync(`git diff --name-only ${baseBranch}...HEAD`, {
       encoding: 'utf-8',
-    });
-    return output.trim().split('\n').filter(Boolean);
+    })
+    return output.trim().split('\n').filter(Boolean)
   } catch (error) {
-    console.warn('Could not get changed files, running smoke tests');
-    return [];
+    console.warn('Could not get changed files, running smoke tests')
+    return []
   }
 }
 
 function getTestsForFiles(files) {
-  const testsToRun = new Set();
+  const testsToRun = new Set()
 
   for (const file of files) {
     for (const mapping of PATH_TO_TESTS) {
       if (mapping.pattern.test(file)) {
-        mapping.tests.forEach((test) => testsToRun.add(test));
+        mapping.tests.forEach((test) => testsToRun.add(test))
       }
     }
   }
 
   // If no specific tests matched, run smoke tests
   if (testsToRun.size === 0) {
-    testsToRun.add('test:smoke');
+    testsToRun.add('test:smoke')
   }
 
-  return Array.from(testsToRun);
+  return Array.from(testsToRun)
 }
 
 function runTests(tests) {
-  console.log('🧪 Running tests for changed files...');
-  console.log(`   Tests to run: ${tests.join(', ')}`);
-  console.log('');
+  console.log('🧪 Running tests for changed files...')
+  console.log(`   Tests to run: ${tests.join(', ')}`)
+  console.log('')
 
-  let failed = false;
+  let failed = false
 
   for (const test of tests) {
-    console.log(`\n📋 Running: npm run ${test}`);
-    console.log('─'.repeat(50));
+    console.log(`\n📋 Running: npm run ${test}`)
+    console.log('─'.repeat(50))
 
     try {
-      execSync(`npm run ${test}`, { stdio: 'inherit' });
-      console.log(`✅ ${test} passed`);
+      execSync(`npm run ${test}`, { stdio: 'inherit' })
+      console.log(`✅ ${test} passed`)
     } catch (error) {
-      console.error(`❌ ${test} failed`);
-      failed = true;
+      console.error(`❌ ${test} failed`)
+      failed = true
     }
   }
 
   if (failed) {
-    console.log('\n❌ Some tests failed');
-    process.exit(1);
+    console.log('\n❌ Some tests failed')
+    process.exit(1)
   } else {
-    console.log('\n✅ All tests passed');
+    console.log('\n✅ All tests passed')
   }
 }
 
 // Main
-const baseBranch = process.argv[2] || 'main';
-console.log(`📁 Checking changes against: ${baseBranch}`);
+const baseBranch = process.argv[2] || 'main'
+console.log(`📁 Checking changes against: ${baseBranch}`)
 
-const changedFiles = getChangedFiles(baseBranch);
+const changedFiles = getChangedFiles(baseBranch)
 if (changedFiles.length === 0) {
-  console.log('No changed files detected, running smoke tests');
-  runTests(['test:smoke']);
+  console.log('No changed files detected, running smoke tests')
+  runTests(['test:smoke'])
 } else {
-  console.log(`Found ${changedFiles.length} changed files:`);
-  changedFiles.forEach((f) => console.log(`  - ${f}`));
-  console.log('');
+  console.log(`Found ${changedFiles.length} changed files:`)
+  changedFiles.forEach((f) => console.log(`  - ${f}`))
+  console.log('')
 
-  const tests = getTestsForFiles(changedFiles);
-  runTests(tests);
+  const tests = getTestsForFiles(changedFiles)
+  runTests(tests)
 }

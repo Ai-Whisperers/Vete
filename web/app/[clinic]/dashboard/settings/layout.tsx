@@ -1,7 +1,7 @@
-import { getClinicData } from "@/lib/clinics";
-import { createClient } from "@/lib/supabase/server";
-import { redirect, notFound } from "next/navigation";
-import Link from "next/link";
+import { getClinicData } from '@/lib/clinics'
+import { createClient } from '@/lib/supabase/server'
+import { redirect, notFound } from 'next/navigation'
+import Link from 'next/link'
 import {
   Settings,
   Building2,
@@ -9,75 +9,77 @@ import {
   ToggleRight,
   DollarSign,
   ArrowLeft,
-  Bell
-} from "lucide-react";
+  Bell,
+} from 'lucide-react'
 
 interface SettingsLayoutProps {
-  children: React.ReactNode;
-  params: Promise<{ clinic: string }>;
+  children: React.ReactNode
+  params: Promise<{ clinic: string }>
 }
 
 const settingsNav = [
   {
-    href: "general",
-    label: "General",
+    href: 'general',
+    label: 'General',
     icon: Building2,
-    description: "Nombre, contacto, horarios"
+    description: 'Nombre, contacto, horarios',
   },
   {
-    href: "branding",
-    label: "Marca",
+    href: 'branding',
+    label: 'Marca',
     icon: Palette,
-    description: "Logo, colores, tema"
+    description: 'Logo, colores, tema',
   },
   {
-    href: "modules",
-    label: "Módulos",
+    href: 'modules',
+    label: 'Módulos',
     icon: ToggleRight,
-    description: "Activar/desactivar funciones"
+    description: 'Activar/desactivar funciones',
   },
   {
-    href: "services",
-    label: "Servicios y Precios",
+    href: 'services',
+    label: 'Servicios y Precios',
     icon: DollarSign,
-    description: "Catálogo de servicios"
+    description: 'Catálogo de servicios',
   },
   {
-    href: "alerts",
-    label: "Alertas de Inventario",
+    href: 'alerts',
+    label: 'Alertas de Inventario',
     icon: Bell,
-    description: "Notificaciones de stock"
+    description: 'Notificaciones de stock',
   },
-];
+]
 
 export default async function SettingsLayout({
   children,
   params,
 }: SettingsLayoutProps): Promise<React.ReactElement> {
-  const { clinic } = await params;
-  const clinicData = await getClinicData(clinic);
+  const { clinic } = await params
+  const clinicData = await getClinicData(clinic)
 
   if (!clinicData) {
-    notFound();
+    notFound()
   }
 
   // Check admin role
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
   if (!user) {
-    redirect(`/${clinic}/portal/login`);
+    redirect(`/${clinic}/portal/login`)
   }
 
   const { data: profile } = await supabase
-    .from("profiles")
-    .select("role, tenant_id")
-    .eq("id", user.id)
-    .single();
+    .from('profiles')
+    .select('role, tenant_id')
+    .eq('id', user.id)
+    .single()
 
   // Only admins of this clinic can access settings
-  if (!profile || profile.role !== "admin" || profile.tenant_id !== clinic) {
-    redirect(`/${clinic}/dashboard`);
+  if (!profile || profile.role !== 'admin' || profile.tenant_id !== clinic) {
+    redirect(`/${clinic}/dashboard`)
   }
 
   return (
@@ -86,20 +88,18 @@ export default async function SettingsLayout({
       <div className="mb-6">
         <Link
           href={`/${clinic}/dashboard`}
-          className="inline-flex items-center gap-2 text-sm text-[var(--text-secondary)] hover:text-[var(--primary)] transition-colors mb-4"
+          className="mb-4 inline-flex items-center gap-2 text-sm text-[var(--text-secondary)] transition-colors hover:text-[var(--primary)]"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className="h-4 w-4" />
           Volver al Dashboard
         </Link>
 
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-[var(--primary)] bg-opacity-10 rounded-lg">
+          <div className="rounded-lg bg-[var(--primary)] bg-opacity-10 p-2">
             <Settings className="h-6 w-6 text-[var(--primary)]" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-[var(--text-primary)]">
-              Configuración
-            </h1>
+            <h1 className="text-2xl font-bold text-[var(--text-primary)]">Configuración</h1>
             <p className="text-sm text-[var(--text-secondary)]">
               Administra la configuración de {clinicData.config.name}
             </p>
@@ -108,40 +108,36 @@ export default async function SettingsLayout({
       </div>
 
       {/* Settings Navigation + Content */}
-      <div className="flex flex-col lg:flex-row gap-6">
+      <div className="flex flex-col gap-6 lg:flex-row">
         {/* Settings Sidebar */}
-        <nav className="lg:w-64 flex-shrink-0">
-          <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+        <nav className="flex-shrink-0 lg:w-64">
+          <div className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
             {settingsNav.map((item) => {
-              const Icon = item.icon;
+              const Icon = item.icon
               return (
                 <Link
                   key={item.href}
                   href={`/${clinic}/dashboard/settings/${item.href}`}
-                  className="flex items-start gap-3 p-4 border-b border-gray-50 last:border-b-0 hover:bg-gray-50 transition-colors group"
+                  className="group flex items-start gap-3 border-b border-gray-50 p-4 transition-colors last:border-b-0 hover:bg-gray-50"
                 >
-                  <div className="p-2 bg-gray-100 rounded-lg group-hover:bg-[var(--primary)] group-hover:bg-opacity-10 transition-colors">
-                    <Icon className="w-4 h-4 text-gray-500 group-hover:text-[var(--primary)]" />
+                  <div className="rounded-lg bg-gray-100 p-2 transition-colors group-hover:bg-[var(--primary)] group-hover:bg-opacity-10">
+                    <Icon className="h-4 w-4 text-gray-500 group-hover:text-[var(--primary)]" />
                   </div>
-                  <div className="flex-1 min-w-0">
+                  <div className="min-w-0 flex-1">
                     <p className="font-medium text-gray-900 group-hover:text-[var(--primary)]">
                       {item.label}
                     </p>
-                    <p className="text-xs text-gray-500 truncate">
-                      {item.description}
-                    </p>
+                    <p className="truncate text-xs text-gray-500">{item.description}</p>
                   </div>
                 </Link>
-              );
+              )
             })}
           </div>
         </nav>
 
         {/* Content Area */}
-        <div className="flex-1 min-w-0">
-          {children}
-        </div>
+        <div className="min-w-0 flex-1">{children}</div>
       </div>
     </div>
-  );
+  )
 }

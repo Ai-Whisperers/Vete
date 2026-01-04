@@ -1,7 +1,7 @@
-'use client';
+'use client'
 
-import { Star, Check, AlertTriangle, AlertCircle } from 'lucide-react';
-import type { ProductInfoProps } from './types';
+import { Star, Check, AlertTriangle, AlertCircle } from 'lucide-react'
+import type { ProductInfoProps } from './types'
 
 export function ProductInfo({
   product,
@@ -10,34 +10,32 @@ export function ProductInfo({
   lowStock,
 }: ProductInfoProps): React.ReactElement {
   const formatPrice = (price: number | null | undefined): string => {
-    if (price === null || price === undefined) return 'Gs 0';
-    return `Gs ${price.toLocaleString('es-PY')}`;
-  };
+    if (price === null || price === undefined) return 'Gs 0'
+    return `Gs ${price.toLocaleString('es-PY')}`
+  }
 
   return (
     <div>
       {/* Brand */}
       {product.brand && (
-        <span className="text-xs text-[var(--text-muted)] uppercase tracking-wider">
+        <span className="text-xs uppercase tracking-wider text-[var(--text-muted)]">
           {product.brand.name}
         </span>
       )}
 
       {/* Name */}
-      <h2 className="text-2xl font-bold text-[var(--text-primary)] mt-1 mb-2">
-        {product.name}
-      </h2>
+      <h2 className="mb-2 mt-1 text-2xl font-bold text-[var(--text-primary)]">{product.name}</h2>
 
       {/* Rating */}
       {(product.review_count ?? 0) > 0 && (
-        <div className="flex items-center gap-2 mb-4">
+        <div className="mb-4 flex items-center gap-2">
           <div className="flex items-center">
             {[1, 2, 3, 4, 5].map((star) => (
               <Star
                 key={star}
-                className={`w-4 h-4 ${
+                className={`h-4 w-4 ${
                   star <= Math.round(product.avg_rating ?? 0)
-                    ? 'text-yellow-400 fill-yellow-400'
+                    ? 'fill-yellow-400 text-yellow-400'
                     : 'text-gray-300'
                 }`}
               />
@@ -65,7 +63,7 @@ export function ProductInfo({
 
       {/* Short Description */}
       {product.short_description && (
-        <p className="text-[var(--text-secondary)] mb-4 line-clamp-3">
+        <p className="mb-4 line-clamp-3 text-[var(--text-secondary)]">
           {product.short_description}
         </p>
       )}
@@ -76,7 +74,7 @@ export function ProductInfo({
       {/* Prescription Warning */}
       {product.is_prescription_required && <PrescriptionWarning />}
     </div>
-  );
+  )
 }
 
 function StockStatus({
@@ -84,39 +82,39 @@ function StockStatus({
   lowStock,
   stock,
 }: {
-  inStock: boolean;
-  lowStock: boolean;
-  stock: number;
+  inStock: boolean
+  lowStock: boolean
+  stock: number
 }): React.ReactElement {
   return (
     <div className="mb-4">
       {inStock ? (
         lowStock ? (
           <div className="flex items-center gap-2 text-amber-600">
-            <AlertTriangle className="w-4 h-4" />
+            <AlertTriangle className="h-4 w-4" />
             <span className="font-medium">¡Solo {stock} disponibles!</span>
           </div>
         ) : (
           <div className="flex items-center gap-2 text-green-600">
-            <Check className="w-4 h-4" />
+            <Check className="h-4 w-4" />
             <span className="font-medium">En Stock</span>
           </div>
         )
       ) : (
         <div className="flex items-center gap-2 text-red-500">
-          <AlertCircle className="w-4 h-4" />
+          <AlertCircle className="h-4 w-4" />
           <span className="font-medium">Sin Stock</span>
         </div>
       )}
     </div>
-  );
+  )
 }
 
 function PrescriptionWarning(): React.ReactElement {
   return (
-    <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+    <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-3">
       <div className="flex items-start gap-2">
-        <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+        <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-600" />
         <div>
           <p className="font-medium text-amber-800">Requiere Receta</p>
           <p className="text-sm text-amber-700">
@@ -125,5 +123,5 @@ function PrescriptionWarning(): React.ReactElement {
         </div>
       </div>
     </div>
-  );
+  )
 }

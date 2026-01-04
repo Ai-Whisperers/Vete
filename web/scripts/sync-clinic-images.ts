@@ -10,89 +10,87 @@
  *   npx tsx scripts/sync-clinic-images.ts --watch   # Watch mode for development
  */
 
-import fs from 'node:fs';
-import path from 'node:path';
+import fs from 'node:fs'
+import path from 'node:path'
 
-const CONTENT_DIR = path.join(process.cwd(), '.content_data');
-const PUBLIC_DIR = path.join(process.cwd(), 'public', 'branding');
+const CONTENT_DIR = path.join(process.cwd(), '.content_data')
+const PUBLIC_DIR = path.join(process.cwd(), 'public', 'branding')
 
 interface SyncResult {
-  clinic: string;
-  copied: number;
-  skipped: number;
-  errors: string[];
+  clinic: string
+  copied: number
+  skipped: number
+  errors: string[]
 }
 
 /**
  * Get all valid clinic slugs from .content_data
  */
 function getAllClinics(): string[] {
-  if (!fs.existsSync(CONTENT_DIR)) return [];
+  if (!fs.existsSync(CONTENT_DIR)) return []
 
-  return fs.readdirSync(CONTENT_DIR).filter(file => {
+  return fs.readdirSync(CONTENT_DIR).filter((file) => {
     // Exclude template folders (prefixed with _ or .), hidden files
-    if (file.startsWith('_') || file.startsWith('.')) return false;
+    if (file.startsWith('_') || file.startsWith('.')) return false
 
-    const fullPath = path.join(CONTENT_DIR, file);
-    if (!fs.statSync(fullPath).isDirectory()) return false;
+    const fullPath = path.join(CONTENT_DIR, file)
+    if (!fs.statSync(fullPath).isDirectory()) return false
 
     // Verify it has config.json (valid clinic)
-    const configPath = path.join(fullPath, 'config.json');
-    return fs.existsSync(configPath);
-  });
+    const configPath = path.join(fullPath, 'config.json')
+    return fs.existsSync(configPath)
+  })
 }
 
 /**
  * Recursively copy directory contents
  */
 function copyDirRecursive(src: string, dest: string): { copied: number; errors: string[] } {
-  let copied = 0;
-  const errors: string[] = [];
+  let copied = 0
+  const errors: string[] = []
 
   if (!fs.existsSync(src)) {
-    return { copied, errors: [`Source directory does not exist: ${src}`] };
+    return { copied, errors: [`Source directory does not exist: ${src}`] }
   }
 
   // Create destination if it doesn't exist
   if (!fs.existsSync(dest)) {
-    fs.mkdirSync(dest, { recursive: true });
+    fs.mkdirSync(dest, { recursive: true })
   }
 
-  const entries = fs.readdirSync(src, { withFileTypes: true });
+  const entries = fs.readdirSync(src, { withFileTypes: true })
 
   for (const entry of entries) {
-    const srcPath = path.join(src, entry.name);
-    const destPath = path.join(dest, entry.name);
+    const srcPath = path.join(src, entry.name)
+    const destPath = path.join(dest, entry.name)
 
     // Skip markdown files, JSON files, and hidden files
-    if (entry.name.startsWith('.') ||
-        entry.name.endsWith('.md') ||
-        entry.name.endsWith('.json')) {
-      continue;
+    if (entry.name.startsWith('.') || entry.name.endsWith('.md') || entry.name.endsWith('.json')) {
+      continue
     }
 
     try {
       if (entry.isDirectory()) {
-        const result = copyDirRecursive(srcPath, destPath);
-        copied += result.copied;
-        errors.push(...result.errors);
+        const result = copyDirRecursive(srcPath, destPath)
+        copied += result.copied
+        errors.push(...result.errors)
       } else if (entry.isFile()) {
         // Check if file needs updating (newer source or doesn't exist)
-        const needsCopy = !fs.existsSync(destPath) ||
-          fs.statSync(srcPath).mtime > fs.statSync(destPath).mtime;
+        const needsCopy =
+          !fs.existsSync(destPath) || fs.statSync(srcPath).mtime > fs.statSync(destPath).mtime
 
         if (needsCopy) {
-          fs.copyFileSync(srcPath, destPath);
-          copied++;
-          console.log(`  ✓ ${path.relative(CONTENT_DIR, srcPath)}`);
+          fs.copyFileSync(srcPath, destPath)
+          copied++
+          console.log(`  ✓ ${path.relative(CONTENT_DIR, srcPath)}`)
         }
       }
     } catch (err) {
-      errors.push(`Failed to copy ${srcPath}: ${err}`);
+      errors.push(`Failed to copy ${srcPath}: ${err}`)
     }
   }
 
-  return { copied, errors };
+  return { copied, errors }
 }
 
 /**
@@ -103,74 +101,74 @@ function syncClinic(clinicSlug: string): SyncResult {
     clinic: clinicSlug,
     copied: 0,
     skipped: 0,
-    errors: []
-  };
+    errors: [],
+  }
 
-  const sourceDir = path.join(CONTENT_DIR, clinicSlug, 'images');
-  const destDir = path.join(PUBLIC_DIR, clinicSlug, 'images');
+  const sourceDir = path.join(CONTENT_DIR, clinicSlug, 'images')
+  const destDir = path.join(PUBLIC_DIR, clinicSlug, 'images')
 
   // Check if images directory exists in content
   if (!fs.existsSync(sourceDir)) {
-    console.log(`  ⚠ No images directory for ${clinicSlug}`);
-    return result;
+    console.log(`  ⚠ No images directory for ${clinicSlug}`)
+    return result
   }
 
-  console.log(`\n📁 Syncing ${clinicSlug}...`);
+  console.log(`\n📁 Syncing ${clinicSlug}...`)
 
-  const { copied, errors } = copyDirRecursive(sourceDir, destDir);
-  result.copied = copied;
-  result.errors = errors;
+  const { copied, errors } = copyDirRecursive(sourceDir, destDir)
+  result.copied = copied
+  result.errors = errors
 
   if (copied === 0 && errors.length === 0) {
-    console.log(`  ✓ All images up to date`);
+    console.log(`  ✓ All images up to date`)
   }
 
-  return result;
+  return result
 }
 
 /**
  * Main sync function
  */
 function syncAllClinics(specificClinic?: string): void {
-  console.log('🔄 Clinic Images Sync');
-  console.log('====================');
+  console.log('🔄 Clinic Images Sync')
+  console.log('====================')
 
-  const clinics = specificClinic ? [specificClinic] : getAllClinics();
+  const clinics = specificClinic ? [specificClinic] : getAllClinics()
 
   if (clinics.length === 0) {
-    console.log('No clinics found to sync.');
-    return;
+    console.log('No clinics found to sync.')
+    return
   }
 
-  console.log(`Found ${clinics.length} clinic(s): ${clinics.join(', ')}`);
+  console.log(`Found ${clinics.length} clinic(s): ${clinics.join(', ')}`)
 
-  const results: SyncResult[] = [];
+  const results: SyncResult[] = []
 
   for (const clinic of clinics) {
-    results.push(syncClinic(clinic));
+    results.push(syncClinic(clinic))
   }
 
   // Summary
-  console.log('\n📊 Summary');
-  console.log('----------');
+  console.log('\n📊 Summary')
+  console.log('----------')
 
-  let totalCopied = 0;
-  let totalErrors = 0;
+  let totalCopied = 0
+  let totalErrors = 0
 
   for (const r of results) {
-    totalCopied += r.copied;
-    totalErrors += r.errors.length;
+    totalCopied += r.copied
+    totalErrors += r.errors.length
 
     if (r.errors.length > 0) {
-      console.log(`\n❌ Errors for ${r.clinic}:`);
-      r.errors.forEach(e => console.log(`   ${e}`));
+      console.log(`\n❌ Errors for ${r.clinic}:`)
+      r.errors.forEach((e) => console.log(`   ${e}`))
     }
   }
 
-  console.log(`\n✅ Copied: ${totalCopied} file(s)`);
+  console.log(`\n✅ Copied: ${totalCopied} file(s)`)
   if (totalErrors > 0) {
-    console.log(`❌ Errors: ${totalErrors}`);
-    process.exit(1);
+    console.log(`❌ Errors: ${totalErrors}`)
+    process.exit(1)
   }
 }
 
@@ -178,34 +176,34 @@ function syncAllClinics(specificClinic?: string): void {
  * Watch mode for development
  */
 function watchMode(): void {
-  console.log('👀 Watch mode enabled. Press Ctrl+C to stop.\n');
+  console.log('👀 Watch mode enabled. Press Ctrl+C to stop.\n')
 
   // Initial sync
-  syncAllClinics();
+  syncAllClinics()
 
   // Watch for changes
-  const clinics = getAllClinics();
+  const clinics = getAllClinics()
 
   for (const clinic of clinics) {
-    const watchDir = path.join(CONTENT_DIR, clinic, 'images');
+    const watchDir = path.join(CONTENT_DIR, clinic, 'images')
 
     if (fs.existsSync(watchDir)) {
       fs.watch(watchDir, { recursive: true }, (eventType, filename) => {
         if (filename && !filename.endsWith('.md') && !filename.endsWith('.json')) {
-          console.log(`\n🔄 Change detected: ${filename}`);
-          syncClinic(clinic);
+          console.log(`\n🔄 Change detected: ${filename}`)
+          syncClinic(clinic)
         }
-      });
-      console.log(`Watching: ${watchDir}`);
+      })
+      console.log(`Watching: ${watchDir}`)
     }
   }
 }
 
 // CLI handling
-const args = process.argv.slice(2);
+const args = process.argv.slice(2)
 
 if (args.includes('--watch') || args.includes('-w')) {
-  watchMode();
+  watchMode()
 } else if (args.includes('--help') || args.includes('-h')) {
   console.log(`
 Clinic Images Sync Script
@@ -218,8 +216,8 @@ Usage:
 
 This script copies images from .content_data/[clinic]/images/ to
 public/branding/[clinic]/images/ for static serving.
-  `);
+  `)
 } else {
-  const specificClinic = args.find(arg => !arg.startsWith('-'));
-  syncAllClinics(specificClinic);
+  const specificClinic = args.find((arg) => !arg.startsWith('-'))
+  syncAllClinics(specificClinic)
 }

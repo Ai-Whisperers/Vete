@@ -3,14 +3,14 @@
  * API-009: Create Tenant Verification Utility
  */
 
-import { SupabaseClient } from '@supabase/supabase-js';
-import { NextResponse } from 'next/server';
-import { apiError, HTTP_STATUS } from './errors';
+import { SupabaseClient } from '@supabase/supabase-js'
+import { NextResponse } from 'next/server'
+import { apiError, HTTP_STATUS } from './errors'
 
 interface TenantVerifyResult {
-  valid: boolean;
-  error?: NextResponse;
-  data?: { tenant_id: string };
+  valid: boolean
+  error?: NextResponse
+  data?: { tenant_id: string }
 }
 
 /**
@@ -40,23 +40,23 @@ export async function verifyResourceTenant(
     .from(table)
     .select('tenant_id')
     .eq('id', resourceId)
-    .single();
+    .single()
 
   if (error || !data) {
     return {
       valid: false,
       error: apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND),
-    };
+    }
   }
 
   if (data.tenant_id !== userTenantId) {
     return {
       valid: false,
       error: apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN),
-    };
+    }
   }
 
-  return { valid: true, data };
+  return { valid: true, data }
 }
 
 /**
@@ -87,13 +87,13 @@ export async function verifyPetOwnership(
     .from('pets')
     .select('owner_id, tenant_id')
     .eq('id', petId)
-    .single();
+    .single()
 
   if (error || !data) {
     return {
       valid: false,
       error: apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND),
-    };
+    }
   }
 
   // Check tenant match
@@ -101,7 +101,7 @@ export async function verifyPetOwnership(
     return {
       valid: false,
       error: apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN),
-    };
+    }
   }
 
   // Check ownership for non-staff
@@ -109,8 +109,8 @@ export async function verifyPetOwnership(
     return {
       valid: false,
       error: apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN),
-    };
+    }
   }
 
-  return { valid: true, data };
+  return { valid: true, data }
 }

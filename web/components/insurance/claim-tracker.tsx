@@ -1,21 +1,21 @@
-"use client";
+'use client'
 
-import { CheckCircle2, Circle, Clock, XCircle, AlertCircle } from 'lucide-react';
+import { CheckCircle2, Circle, Clock, XCircle, AlertCircle } from 'lucide-react'
 
 interface ClaimTrackerProps {
-  status: string;
-  submittedAt?: string | null;
-  acknowledgedAt?: string | null;
-  processedAt?: string | null;
-  paidAt?: string | null;
-  closedAt?: string | null;
+  status: string
+  submittedAt?: string | null
+  acknowledgedAt?: string | null
+  processedAt?: string | null
+  paidAt?: string | null
+  closedAt?: string | null
 }
 
 interface StatusStep {
-  key: string;
-  label: string;
-  icon: typeof Circle;
-  color: string;
+  key: string
+  label: string
+  icon: typeof Circle
+  color: string
 }
 
 export default function ClaimTracker({
@@ -24,20 +24,20 @@ export default function ClaimTracker({
   acknowledgedAt,
   processedAt,
   paidAt,
-  closedAt
+  closedAt,
 }: ClaimTrackerProps) {
   const steps: StatusStep[] = [
     { key: 'draft', label: 'Borrador', icon: Circle, color: 'text-gray-400' },
     { key: 'submitted', label: 'Enviado', icon: Clock, color: 'text-blue-500' },
     { key: 'under_review', label: 'En Revisión', icon: Clock, color: 'text-yellow-500' },
     { key: 'approved', label: 'Aprobado', icon: CheckCircle2, color: 'text-green-500' },
-    { key: 'paid', label: 'Pagado', icon: CheckCircle2, color: 'text-green-600' }
-  ];
+    { key: 'paid', label: 'Pagado', icon: CheckCircle2, color: 'text-green-600' },
+  ]
 
   // Handle denied status
   if (status === 'denied') {
-    steps[3] = { key: 'denied', label: 'Denegado', icon: XCircle, color: 'text-red-500' };
-    steps.pop(); // Remove paid step
+    steps[3] = { key: 'denied', label: 'Denegado', icon: XCircle, color: 'text-red-500' }
+    steps.pop() // Remove paid step
   }
 
   // Handle pending documents status
@@ -46,8 +46,8 @@ export default function ClaimTracker({
       key: 'pending_documents',
       label: 'Documentos Pendientes',
       icon: AlertCircle,
-      color: 'text-orange-500'
-    });
+      color: 'text-orange-500',
+    })
   }
 
   const getCurrentStepIndex = () => {
@@ -61,20 +61,20 @@ export default function ClaimTracker({
       denied: status === 'pending_documents' ? 4 : 3,
       paid: status === 'pending_documents' ? 5 : 4,
       appealed: status === 'pending_documents' ? 3 : 2,
-      closed: status === 'pending_documents' ? 5 : 4
-    };
-    return statusMap[status] ?? 0;
-  };
+      closed: status === 'pending_documents' ? 5 : 4,
+    }
+    return statusMap[status] ?? 0
+  }
 
-  const currentStepIndex = getCurrentStepIndex();
+  const currentStepIndex = getCurrentStepIndex()
 
   const getDaysSince = (date: string | null | undefined) => {
-    if (!date) return null;
-    const days = Math.floor((Date.now() - new Date(date).getTime()) / (1000 * 60 * 60 * 24));
-    return days;
-  };
+    if (!date) return null
+    const days = Math.floor((Date.now() - new Date(date).getTime()) / (1000 * 60 * 60 * 24))
+    return days
+  }
 
-  const daysSinceSubmission = getDaysSince(submittedAt);
+  const daysSinceSubmission = getDaysSince(submittedAt)
 
   return (
     <div className="space-y-4">
@@ -82,19 +82,17 @@ export default function ClaimTracker({
       <div className="relative">
         <div className="flex items-center justify-between">
           {steps.map((step, index) => {
-            const isCompleted = index < currentStepIndex;
-            const isCurrent = index === currentStepIndex;
-            const Icon = step.icon;
+            const isCompleted = index < currentStepIndex
+            const isCurrent = index === currentStepIndex
+            const Icon = step.icon
 
             return (
-              <div key={step.key} className="flex-1 flex flex-col items-center relative">
+              <div key={step.key} className="relative flex flex-1 flex-col items-center">
                 {/* Connecting line */}
                 {index < steps.length - 1 && (
                   <div
-                    className={`absolute left-1/2 top-4 w-full h-0.5 ${
-                      isCompleted
-                        ? 'bg-[var(--primary)]'
-                        : 'bg-gray-300'
+                    className={`absolute left-1/2 top-4 h-0.5 w-full ${
+                      isCompleted ? 'bg-[var(--primary)]' : 'bg-gray-300'
                     }`}
                     style={{ transform: 'translateX(0%)' }}
                   />
@@ -102,28 +100,24 @@ export default function ClaimTracker({
 
                 {/* Icon */}
                 <div
-                  className={`relative z-10 flex items-center justify-center w-10 h-10 rounded-full border-2 ${
+                  className={`relative z-10 flex h-10 w-10 items-center justify-center rounded-full border-2 ${
                     isCompleted
-                      ? 'bg-[var(--primary)] border-[var(--primary)]'
+                      ? 'border-[var(--primary)] bg-[var(--primary)]'
                       : isCurrent
-                      ? 'bg-white border-[var(--primary)]'
-                      : 'bg-white border-gray-300'
+                        ? 'border-[var(--primary)] bg-white'
+                        : 'border-gray-300 bg-white'
                   }`}
                 >
                   <Icon
-                    className={`w-5 h-5 ${
-                      isCompleted
-                        ? 'text-white'
-                        : isCurrent
-                        ? step.color
-                        : 'text-gray-400'
+                    className={`h-5 w-5 ${
+                      isCompleted ? 'text-white' : isCurrent ? step.color : 'text-gray-400'
                     }`}
                   />
                 </div>
 
                 {/* Label */}
                 <p
-                  className={`mt-2 text-xs text-center ${
+                  className={`mt-2 text-center text-xs ${
                     isCurrent
                       ? 'font-semibold text-[var(--text-primary)]'
                       : 'text-[var(--text-secondary)]'
@@ -132,13 +126,13 @@ export default function ClaimTracker({
                   {step.label}
                 </p>
               </div>
-            );
+            )
           })}
         </div>
       </div>
 
       {/* Status info */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4">
+      <div className="grid grid-cols-2 gap-4 pt-4 md:grid-cols-4">
         {submittedAt && (
           <div className="text-center">
             <p className="text-xs text-[var(--text-secondary)]">Enviado</p>
@@ -176,5 +170,5 @@ export default function ClaimTracker({
         )}
       </div>
     </div>
-  );
+  )
 }

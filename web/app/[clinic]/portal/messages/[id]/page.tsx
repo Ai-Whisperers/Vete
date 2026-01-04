@@ -16,7 +16,7 @@ import {
   Check,
   FileText,
   Image as ImageIcon,
-  Loader2
+  Loader2,
 } from 'lucide-react'
 import { formatDistanceToNow, format, isToday, isYesterday } from 'date-fns'
 import { es } from 'date-fns/locale'
@@ -158,7 +158,16 @@ export default function ConversationPage() {
     }
 
     // Validate file types and sizes
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf', 'text/plain', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
+    const allowedTypes = [
+      'image/jpeg',
+      'image/png',
+      'image/gif',
+      'image/webp',
+      'application/pdf',
+      'text/plain',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    ]
     const maxSize = 10 * 1024 * 1024 // 10MB
 
     for (const file of files) {
@@ -172,7 +181,7 @@ export default function ConversationPage() {
       }
     }
 
-    setSelectedFiles(prev => [...prev, ...files])
+    setSelectedFiles((prev) => [...prev, ...files])
     // Reset input so same file can be selected again
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
@@ -181,7 +190,7 @@ export default function ConversationPage() {
 
   // Remove selected file
   const removeFile = (index: number) => {
-    setSelectedFiles(prev => prev.filter((_, i) => i !== index))
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index))
   }
 
   // Format file size
@@ -205,11 +214,11 @@ export default function ConversationPage() {
       if (selectedFiles.length > 0) {
         const formData = new FormData()
         formData.append('conversation_id', conversationId)
-        selectedFiles.forEach(file => formData.append('files', file))
+        selectedFiles.forEach((file) => formData.append('files', file))
 
         const uploadResponse = await fetch('/api/messages/attachments', {
           method: 'POST',
-          body: formData
+          body: formData,
         })
 
         if (!uploadResponse.ok) {
@@ -230,8 +239,8 @@ export default function ConversationPage() {
         body: JSON.stringify({
           content: newMessage.trim(),
           content_type: 'text',
-          attachments: uploadedAttachments
-        })
+          attachments: uploadedAttachments,
+        }),
       })
 
       if (!response.ok) {
@@ -264,7 +273,7 @@ export default function ConversationPage() {
       const response = await fetch(`/api/conversations/${conversationId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus })
+        body: JSON.stringify({ status: newStatus }),
       })
 
       if (!response.ok) {
@@ -289,7 +298,7 @@ export default function ConversationPage() {
   // Group messages by date
   const groupMessagesByDate = (messages: Message[]) => {
     const groups: { [key: string]: Message[] } = {}
-    messages.forEach(msg => {
+    messages.forEach((msg) => {
       const dateKey = formatMessageDate(msg.created_at)
       if (!groups[dateKey]) groups[dateKey] = []
       groups[dateKey].push(msg)
@@ -299,9 +308,9 @@ export default function ConversationPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-[var(--bg-primary)]">
         <div className="text-center">
-          <div className="w-12 h-12 border-4 border-[var(--primary)] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-[var(--primary)] border-t-transparent"></div>
           <p className="text-[var(--text-secondary)]">Cargando conversación...</p>
         </div>
       </div>
@@ -310,18 +319,18 @@ export default function ConversationPage() {
 
   if (error || !data) {
     return (
-      <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-[var(--bg-primary)]">
         <div className="text-center">
-          <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-[var(--text-primary)] mb-2">
+          <AlertCircle className="mx-auto mb-4 h-16 w-16 text-red-500" />
+          <h2 className="mb-2 text-xl font-bold text-[var(--text-primary)]">
             Error al cargar conversación
           </h2>
-          <p className="text-[var(--text-secondary)] mb-6">{error}</p>
+          <p className="mb-6 text-[var(--text-secondary)]">{error}</p>
           <Link
             href={`/${clinic}/portal/messages`}
-            className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--primary)] text-white rounded-lg hover:opacity-90 transition-opacity"
+            className="inline-flex items-center gap-2 rounded-lg bg-[var(--primary)] px-6 py-3 text-white transition-opacity hover:opacity-90"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="h-5 w-5" />
             Volver a Mensajes
           </Link>
         </div>
@@ -337,46 +346,46 @@ export default function ConversationPage() {
     open: {
       label: 'Abierto',
       icon: CheckCircle2,
-      className: 'bg-green-100 text-green-700'
+      className: 'bg-green-100 text-green-700',
     },
     pending: {
       label: 'Pendiente',
       icon: Clock,
-      className: 'bg-yellow-100 text-yellow-700'
+      className: 'bg-yellow-100 text-yellow-700',
     },
     closed: {
       label: 'Cerrado',
       icon: AlertCircle,
-      className: 'bg-gray-100 text-gray-700'
-    }
+      className: 'bg-gray-100 text-gray-700',
+    },
   }
 
   const status = statusConfig[conversation.status]
   const StatusIcon = status.icon
 
   return (
-    <div className="h-screen flex flex-col bg-[var(--bg-primary)]">
+    <div className="flex h-screen flex-col bg-[var(--bg-primary)]">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 shadow-sm">
-        <div className="container mx-auto px-4 py-4 max-w-5xl">
+      <div className="border-b border-gray-200 bg-white shadow-sm">
+        <div className="container mx-auto max-w-5xl px-4 py-4">
           <div className="flex items-center gap-4">
             {/* Back Button */}
             <Link
               href={`/${clinic}/portal/messages`}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              className="rounded-lg p-2 transition-colors hover:bg-gray-100"
             >
-              <ArrowLeft className="w-6 h-6 text-[var(--text-secondary)]" />
+              <ArrowLeft className="h-6 w-6 text-[var(--text-secondary)]" />
             </Link>
 
             {/* Conversation Info */}
-            <div className="flex-1 min-w-0">
-              <h1 className="text-xl font-bold text-[var(--text-primary)] truncate">
+            <div className="min-w-0 flex-1">
+              <h1 className="truncate text-xl font-bold text-[var(--text-primary)]">
                 {conversation.subject}
               </h1>
               <div className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
                 {isStaff ? (
                   <>
-                    <User className="w-4 h-4" />
+                    <User className="h-4 w-4" />
                     <span>{conversation.client.full_name}</span>
                     {conversation.pet && (
                       <>
@@ -389,7 +398,7 @@ export default function ConversationPage() {
                   <>
                     {conversation.assigned_staff ? (
                       <>
-                        <User className="w-4 h-4" />
+                        <User className="h-4 w-4" />
                         <span>Asignado a {conversation.assigned_staff.full_name}</span>
                       </>
                     ) : (
@@ -402,8 +411,10 @@ export default function ConversationPage() {
 
             {/* Status Badge */}
             <div className="flex items-center gap-2">
-              <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium ${status.className}`}>
-                <StatusIcon className="w-4 h-4" />
+              <span
+                className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm font-medium ${status.className}`}
+              >
+                <StatusIcon className="h-4 w-4" />
                 {status.label}
               </span>
 
@@ -412,42 +423,39 @@ export default function ConversationPage() {
                 <div className="relative">
                   <button
                     onClick={() => setShowActions(!showActions)}
-                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                    className="rounded-lg p-2 transition-colors hover:bg-gray-100"
                   >
-                    <MoreVertical className="w-5 h-5 text-[var(--text-secondary)]" />
+                    <MoreVertical className="h-5 w-5 text-[var(--text-secondary)]" />
                   </button>
 
                   {showActions && (
                     <>
-                      <div
-                        className="fixed inset-0 z-10"
-                        onClick={() => setShowActions(false)}
-                      />
-                      <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-20">
+                      <div className="fixed inset-0 z-10" onClick={() => setShowActions(false)} />
+                      <div className="absolute right-0 top-full z-20 mt-2 w-48 rounded-lg border border-gray-200 bg-white py-1 shadow-lg">
                         {conversation.status !== 'open' && (
                           <button
                             onClick={() => updateStatus('open')}
-                            className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
+                            className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm hover:bg-gray-50"
                           >
-                            <CheckCircle2 className="w-4 h-4 text-green-600" />
+                            <CheckCircle2 className="h-4 w-4 text-green-600" />
                             Marcar como Abierto
                           </button>
                         )}
                         {conversation.status !== 'pending' && (
                           <button
                             onClick={() => updateStatus('pending')}
-                            className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
+                            className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm hover:bg-gray-50"
                           >
-                            <Clock className="w-4 h-4 text-yellow-600" />
+                            <Clock className="h-4 w-4 text-yellow-600" />
                             Marcar como Pendiente
                           </button>
                         )}
                         {conversation.status !== 'closed' && (
                           <button
                             onClick={() => updateStatus('closed')}
-                            className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
+                            className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm hover:bg-gray-50"
                           >
-                            <X className="w-4 h-4 text-gray-600" />
+                            <X className="h-4 w-4 text-gray-600" />
                             Cerrar Conversación
                           </button>
                         )}
@@ -463,16 +471,16 @@ export default function ConversationPage() {
 
       {/* Messages Area */}
       <div className="flex-1 overflow-y-auto">
-        <div className="container mx-auto px-4 py-6 max-w-5xl">
+        <div className="container mx-auto max-w-5xl px-4 py-6">
           {Object.entries(messageGroups).map(([dateKey, dateMessages]) => (
             <div key={dateKey} className="mb-8">
               {/* Date Divider */}
-              <div className="flex items-center gap-3 mb-6">
-                <div className="h-px bg-gray-200 flex-1" />
-                <span className="text-xs font-medium text-[var(--text-tertiary)] uppercase tracking-wide">
+              <div className="mb-6 flex items-center gap-3">
+                <div className="h-px flex-1 bg-gray-200" />
+                <span className="text-xs font-medium uppercase tracking-wide text-[var(--text-tertiary)]">
                   {dateKey}
                 </span>
-                <div className="h-px bg-gray-200 flex-1" />
+                <div className="h-px flex-1 bg-gray-200" />
               </div>
 
               {/* Messages for this date */}
@@ -488,15 +496,15 @@ export default function ConversationPage() {
                     >
                       {/* Avatar */}
                       <div className="flex-shrink-0">
-                        <div className="w-8 h-8 rounded-full bg-[var(--primary)] flex items-center justify-center overflow-hidden">
+                        <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-[var(--primary)]">
                           {message.sender.avatar_url ? (
                             <img
                               src={message.sender.avatar_url}
                               alt={message.sender.full_name}
-                              className="w-full h-full object-cover"
+                              className="h-full w-full object-cover"
                             />
                           ) : (
-                            <span className="text-white text-sm font-medium">
+                            <span className="text-sm font-medium text-white">
                               {message.sender.full_name.charAt(0).toUpperCase()}
                             </span>
                           )}
@@ -504,10 +512,12 @@ export default function ConversationPage() {
                       </div>
 
                       {/* Message Bubble */}
-                      <div className={`flex-1 max-w-lg ${isSentByMe ? 'items-end' : 'items-start'} flex flex-col`}>
+                      <div
+                        className={`max-w-lg flex-1 ${isSentByMe ? 'items-end' : 'items-start'} flex flex-col`}
+                      >
                         {/* Sender Name (if not sent by me) */}
                         {!isSentByMe && (
-                          <span className="text-xs font-medium text-[var(--text-secondary)] mb-1 px-1">
+                          <span className="mb-1 px-1 text-xs font-medium text-[var(--text-secondary)]">
                             {message.sender.full_name}
                             {isStaffMessage && (
                               <span className="ml-1 text-[var(--primary)]">(Personal)</span>
@@ -519,19 +529,21 @@ export default function ConversationPage() {
                         <div
                           className={`rounded-2xl px-4 py-3 ${
                             isSentByMe
-                              ? 'bg-[var(--primary)] text-white rounded-br-sm'
-                              : 'bg-white text-[var(--text-primary)] border border-gray-200 rounded-bl-sm shadow-sm'
+                              ? 'rounded-br-sm bg-[var(--primary)] text-white'
+                              : 'rounded-bl-sm border border-gray-200 bg-white text-[var(--text-primary)] shadow-sm'
                           }`}
                         >
                           {message.content && (
-                            <p className="text-sm whitespace-pre-wrap break-words">
+                            <p className="whitespace-pre-wrap break-words text-sm">
                               {message.content}
                             </p>
                           )}
 
                           {/* Attachments */}
                           {message.attachments && message.attachments.length > 0 && (
-                            <div className={`${message.content ? 'mt-2 pt-2 border-t' : ''} ${isSentByMe ? 'border-white/20' : 'border-gray-200'} space-y-2`}>
+                            <div
+                              className={`${message.content ? 'mt-2 border-t pt-2' : ''} ${isSentByMe ? 'border-white/20' : 'border-gray-200'} space-y-2`}
+                            >
                               {message.attachments.map((attachment, idx) => (
                                 <a
                                   key={idx}
@@ -539,25 +551,31 @@ export default function ConversationPage() {
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className={`flex items-center gap-2 text-sm ${
-                                    isSentByMe ? 'text-white hover:text-white/80' : 'text-[var(--primary)] hover:text-[var(--primary-dark)]'
+                                    isSentByMe
+                                      ? 'text-white hover:text-white/80'
+                                      : 'text-[var(--primary)] hover:text-[var(--primary-dark)]'
                                   }`}
                                 >
                                   {attachment.type.startsWith('image/') ? (
                                     <>
-                                      <div className="relative w-32 h-24 rounded overflow-hidden bg-black/10">
+                                      <div className="relative h-24 w-32 overflow-hidden rounded bg-black/10">
                                         <img
                                           src={attachment.url}
                                           alt={attachment.name}
-                                          className="w-full h-full object-cover"
+                                          className="h-full w-full object-cover"
                                         />
                                       </div>
                                     </>
                                   ) : (
-                                    <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${
-                                      isSentByMe ? 'bg-white/10' : 'bg-gray-100'
-                                    }`}>
-                                      <FileText className="w-4 h-4 flex-shrink-0" />
-                                      <span className="truncate max-w-[150px]">{attachment.name}</span>
+                                    <div
+                                      className={`flex items-center gap-2 rounded-lg px-3 py-2 ${
+                                        isSentByMe ? 'bg-white/10' : 'bg-gray-100'
+                                      }`}
+                                    >
+                                      <FileText className="h-4 w-4 flex-shrink-0" />
+                                      <span className="max-w-[150px] truncate">
+                                        {attachment.name}
+                                      </span>
                                     </div>
                                   )}
                                 </a>
@@ -567,7 +585,9 @@ export default function ConversationPage() {
                         </div>
 
                         {/* Timestamp */}
-                        <span className={`text-xs text-[var(--text-tertiary)] mt-1 px-1 ${isSentByMe ? 'text-right' : 'text-left'}`}>
+                        <span
+                          className={`mt-1 px-1 text-xs text-[var(--text-tertiary)] ${isSentByMe ? 'text-right' : 'text-left'}`}
+                        >
                           {format(new Date(message.created_at), 'HH:mm', { locale: es })}
                         </span>
                       </div>
@@ -580,9 +600,9 @@ export default function ConversationPage() {
 
           {/* Empty State */}
           {messages.length === 0 && (
-            <div className="text-center py-12">
-              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <AlertCircle className="w-8 h-8 text-[var(--text-tertiary)]" />
+            <div className="py-12 text-center">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
+                <AlertCircle className="h-8 w-8 text-[var(--text-tertiary)]" />
               </div>
               <p className="text-[var(--text-secondary)]">
                 No hay mensajes aún. Sé el primero en escribir.
@@ -596,22 +616,22 @@ export default function ConversationPage() {
 
       {/* Message Composer */}
       {conversation.status !== 'closed' ? (
-        <div className="bg-white border-t border-gray-200 shadow-lg">
-          <div className="container mx-auto px-4 py-4 max-w-5xl">
+        <div className="border-t border-gray-200 bg-white shadow-lg">
+          <div className="container mx-auto max-w-5xl px-4 py-4">
             {/* Selected Files Preview */}
             {selectedFiles.length > 0 && (
               <div className="mb-3 flex flex-wrap gap-2">
                 {selectedFiles.map((file, index) => (
                   <div
                     key={index}
-                    className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg text-sm"
+                    className="flex items-center gap-2 rounded-lg bg-gray-100 px-3 py-2 text-sm"
                   >
                     {file.type.startsWith('image/') ? (
-                      <ImageIcon className="w-4 h-4 text-[var(--text-secondary)]" />
+                      <ImageIcon className="h-4 w-4 text-[var(--text-secondary)]" />
                     ) : (
-                      <FileText className="w-4 h-4 text-[var(--text-secondary)]" />
+                      <FileText className="h-4 w-4 text-[var(--text-secondary)]" />
                     )}
-                    <span className="truncate max-w-[120px] text-[var(--text-primary)]">
+                    <span className="max-w-[120px] truncate text-[var(--text-primary)]">
                       {file.name}
                     </span>
                     <span className="text-[var(--text-tertiary)]">
@@ -619,9 +639,9 @@ export default function ConversationPage() {
                     </span>
                     <button
                       onClick={() => removeFile(index)}
-                      className="p-1 hover:bg-gray-200 rounded-full transition-colors"
+                      className="rounded-full p-1 transition-colors hover:bg-gray-200"
                     >
-                      <X className="w-3 h-3 text-[var(--text-secondary)]" />
+                      <X className="h-3 w-3 text-[var(--text-secondary)]" />
                     </button>
                   </div>
                 ))}
@@ -643,14 +663,14 @@ export default function ConversationPage() {
               <button
                 onClick={() => fileInputRef.current?.click()}
                 disabled={sending || selectedFiles.length >= 5}
-                className="p-2 text-[var(--text-secondary)] hover:text-[var(--primary)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="p-2 text-[var(--text-secondary)] transition-colors hover:text-[var(--primary)] disabled:cursor-not-allowed disabled:opacity-50"
                 title="Adjuntar archivos (máx. 5)"
               >
-                <Paperclip className="w-6 h-6" />
+                <Paperclip className="h-6 w-6" />
               </button>
 
               {/* Text Input */}
-              <div className="flex-1 relative">
+              <div className="relative flex-1">
                 <textarea
                   ref={messageInputRef}
                   value={newMessage}
@@ -659,11 +679,11 @@ export default function ConversationPage() {
                   placeholder="Escribe tu mensaje..."
                   rows={1}
                   disabled={sending}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent resize-none max-h-32 disabled:bg-gray-50"
+                  className="max-h-32 w-full resize-none rounded-2xl border border-gray-300 px-4 py-3 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[var(--primary)] disabled:bg-gray-50"
                   style={{
                     minHeight: '48px',
                     maxHeight: '128px',
-                    overflowY: 'auto'
+                    overflowY: 'auto',
                   }}
                 />
               </div>
@@ -672,20 +692,20 @@ export default function ConversationPage() {
               <button
                 onClick={handleSendMessage}
                 disabled={(!newMessage.trim() && selectedFiles.length === 0) || sending}
-                className="p-3 bg-[var(--primary)] text-white rounded-2xl hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+                className="flex-shrink-0 rounded-2xl bg-[var(--primary)] p-3 text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {sending ? (
                   <div className="flex items-center gap-2">
-                    <Loader2 className="w-6 h-6 animate-spin" />
+                    <Loader2 className="h-6 w-6 animate-spin" />
                   </div>
                 ) : (
-                  <Send className="w-6 h-6" />
+                  <Send className="h-6 w-6" />
                 )}
               </button>
             </div>
 
             {/* Help Text */}
-            <p className="text-xs text-[var(--text-tertiary)] mt-2 text-center">
+            <p className="mt-2 text-center text-xs text-[var(--text-tertiary)]">
               {uploading
                 ? 'Subiendo archivos...'
                 : 'Presiona Enter para enviar, Shift+Enter para nueva línea'}
@@ -693,10 +713,13 @@ export default function ConversationPage() {
           </div>
         </div>
       ) : (
-        <div className="bg-gray-100 border-t border-gray-200 py-4">
-          <div className="container mx-auto px-4 max-w-5xl text-center">
-            <p className="text-[var(--text-secondary)] text-sm">
-              Esta conversación está cerrada. {isStaff ? 'Reabre la conversación para continuar.' : 'Contacta a la clínica para reabrir.'}
+        <div className="border-t border-gray-200 bg-gray-100 py-4">
+          <div className="container mx-auto max-w-5xl px-4 text-center">
+            <p className="text-sm text-[var(--text-secondary)]">
+              Esta conversación está cerrada.{' '}
+              {isStaff
+                ? 'Reabre la conversación para continuar.'
+                : 'Contacta a la clínica para reabrir.'}
             </p>
           </div>
         </div>

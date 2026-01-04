@@ -6,9 +6,9 @@
  */
 
 export interface TenantFixture {
-  id: string;
-  name: string;
-  slug: string;
+  id: string
+  name: string
+  slug: string
 }
 
 /** Default test tenants matching database seeds */
@@ -23,27 +23,27 @@ export const TENANTS: Record<string, TenantFixture> = {
     name: 'PetLife Center',
     slug: 'petlife',
   },
-};
+}
 
 /** Get tenant by ID */
 export function getTenant(id: string): TenantFixture {
-  const tenant = TENANTS[id];
+  const tenant = TENANTS[id]
   if (!tenant) {
-    throw new Error(`Unknown tenant: ${id}`);
+    throw new Error(`Unknown tenant: ${id}`)
   }
-  return tenant;
+  return tenant
 }
 
 /** Default tenant for most tests */
-export const DEFAULT_TENANT = TENANTS.adris;
+export const DEFAULT_TENANT = TENANTS.adris
 
 /** All tenant IDs for multi-tenant tests */
-export const ALL_TENANT_IDS = Object.keys(TENANTS);
+export const ALL_TENANT_IDS = Object.keys(TENANTS)
 
 /** Generate URL for a tenant route */
 export function tenantUrl(tenant: string | TenantFixture, path: string = ''): string {
-  const slug = typeof tenant === 'string' ? tenant : tenant.slug;
-  return `/${slug}${path.startsWith('/') ? path : `/${path}`}`;
+  const slug = typeof tenant === 'string' ? tenant : tenant.slug
+  return `/${slug}${path.startsWith('/') ? path : `/${path}`}`
 }
 
 /** Routes for testing */
@@ -63,8 +63,10 @@ export const TENANT_ROUTES = {
     pets: (tenant: string) => tenantUrl(tenant, 'portal/pets'),
     petNew: (tenant: string) => tenantUrl(tenant, 'portal/pets/new'),
     pet: (tenant: string, petId: string) => tenantUrl(tenant, `portal/pets/${petId}`),
-    petRecords: (tenant: string, petId: string) => tenantUrl(tenant, `portal/pets/${petId}/records`),
-    petVaccines: (tenant: string, petId: string) => tenantUrl(tenant, `portal/pets/${petId}/vaccines`),
+    petRecords: (tenant: string, petId: string) =>
+      tenantUrl(tenant, `portal/pets/${petId}/records`),
+    petVaccines: (tenant: string, petId: string) =>
+      tenantUrl(tenant, `portal/pets/${petId}/vaccines`),
     appointments: (tenant: string) => tenantUrl(tenant, 'portal/appointments'),
     schedule: (tenant: string) => tenantUrl(tenant, 'portal/schedule'),
     prescriptions: (tenant: string) => tenantUrl(tenant, 'portal/prescriptions'),
@@ -89,4 +91,4 @@ export const TENANT_ROUTES = {
     reproductiveCycles: (tenant: string) => tenantUrl(tenant, 'reproductive_cycles'),
     loyaltyPoints: (tenant: string) => tenantUrl(tenant, 'loyalty_points'),
   },
-};
+}

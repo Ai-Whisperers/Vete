@@ -2,8 +2,8 @@ import { Skeleton, SkeletonButton } from '@/components/ui/skeleton'
 
 export default function BookLoading() {
   return (
-    <div className="container mx-auto px-4 py-8 max-w-2xl space-y-6">
-      <Skeleton className="h-10 w-48 mx-auto" />
+    <div className="container mx-auto max-w-2xl space-y-6 px-4 py-8">
+      <Skeleton className="mx-auto h-10 w-48" />
       <div className="flex justify-center gap-2">
         {[...Array(4)].map((_, i) => (
           <Skeleton key={i} className="h-8 w-8 rounded-full" />

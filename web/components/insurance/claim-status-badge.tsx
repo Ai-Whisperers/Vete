@@ -1,8 +1,8 @@
-"use client";
+'use client'
 
 interface ClaimStatusBadgeProps {
-  status: string;
-  className?: string;
+  status: string
+  className?: string
 }
 
 export default function ClaimStatusBadge({ status, className = '' }: ClaimStatusBadgeProps) {
@@ -17,19 +17,19 @@ export default function ClaimStatusBadge({ status, className = '' }: ClaimStatus
       denied: { label: 'Denegado', color: 'bg-red-100 text-red-700' },
       paid: { label: 'Pagado', color: 'bg-emerald-100 text-emerald-700' },
       appealed: { label: 'Apelado', color: 'bg-purple-100 text-purple-700' },
-      closed: { label: 'Cerrado', color: 'bg-gray-100 text-gray-600' }
-    };
+      closed: { label: 'Cerrado', color: 'bg-gray-100 text-gray-600' },
+    }
 
-    return configs[status] || { label: status, color: 'bg-gray-100 text-gray-700' };
-  };
+    return configs[status] || { label: status, color: 'bg-gray-100 text-gray-700' }
+  }
 
-  const config = getStatusConfig(status);
+  const config = getStatusConfig(status)
 
   return (
     <span
-      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.color} ${className}`}
+      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${config.color} ${className}`}
     >
       {config.label}
     </span>
-  );
+  )
 }

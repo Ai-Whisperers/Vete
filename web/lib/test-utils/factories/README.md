@@ -16,15 +16,15 @@ Factory → API Client → Database + Side Effects
 - **test**: Data is tracked and cleaned up after tests
 
 ```typescript
-import { setMode, cleanup } from '@/lib/test-utils';
+import { setMode, cleanup } from '@/lib/test-utils'
 
 // For seeding demo data
-setMode('seed');
+setMode('seed')
 
 // For tests with cleanup
-setMode('test');
+setMode('test')
 // ... run tests ...
-await cleanup();
+await cleanup()
 ```
 
 ## Factories
@@ -34,7 +34,7 @@ await cleanup();
 Creates pet owner profiles with distinct personas.
 
 ```typescript
-import { OwnerFactory, createPredefinedOwners } from '@/lib/test-utils/factories';
+import { OwnerFactory, createPredefinedOwners } from '@/lib/test-utils/factories'
 
 // Single owner with specific persona
 const owner = await OwnerFactory.create()
@@ -42,10 +42,10 @@ const owner = await OwnerFactory.create()
   .withPersona('vip')
   .withName('Carlos Benítez')
   .withAddress()
-  .build();
+  .build()
 
 // All 10 predefined owners (idempotent)
-const owners = await createPredefinedOwners('adris');
+const owners = await createPredefinedOwners('adris')
 ```
 
 **Personas**: `vip`, `budget`, `new`, `frequent`, `breeder`, `senior`, `emergency`, `loyal`, `inactive`, `standard`
@@ -55,7 +55,7 @@ const owners = await createPredefinedOwners('adris');
 Creates pets with optional vaccine history.
 
 ```typescript
-import { PetFactory, createPetsForOwner } from '@/lib/test-utils/factories';
+import { PetFactory, createPetsForOwner } from '@/lib/test-utils/factories'
 
 // Single pet
 const { pet, vaccines } = await PetFactory.create()
@@ -65,10 +65,10 @@ const { pet, vaccines } = await PetFactory.create()
   .withProfile('healthy')
   .withVaccines()
   .withMicrochip()
-  .build();
+  .build()
 
 // Multiple pets for an owner
-const pets = await createPetsForOwner(ownerId, 5, 'adris');
+const pets = await createPetsForOwner(ownerId, 5, 'adris')
 ```
 
 **Profiles**: `healthy`, `chronic`, `senior`, `puppy`, `exotic`, `rescue`, `show`, `reactive`, `overweight`, `standard`
@@ -78,7 +78,7 @@ const pets = await createPetsForOwner(ownerId, 5, 'adris');
 Creates appointments with optional medical records.
 
 ```typescript
-import { AppointmentFactory, createAppointmentHistory } from '@/lib/test-utils/factories';
+import { AppointmentFactory, createAppointmentHistory } from '@/lib/test-utils/factories'
 
 // Single appointment
 const { appointment, medicalRecord } = await AppointmentFactory.create()
@@ -90,14 +90,14 @@ const { appointment, medicalRecord } = await AppointmentFactory.create()
   .inPast()
   .completed()
   .withMedicalRecord()
-  .build();
+  .build()
 
 // Appointment history (past + future)
 const history = await createAppointmentHistory(petId, ownerId, vetId, 'adris', {
   past: 5,
   future: 2,
   includeRecords: true,
-});
+})
 ```
 
 **Scenarios**: `routine`, `vaccine`, `emergency`, `surgery`, `followup`, `grooming`, `dental`, `lab`, `consultation`
@@ -107,7 +107,7 @@ const history = await createAppointmentHistory(petId, ownerId, vetId, 'adris', {
 Creates invoices with line items and payments.
 
 ```typescript
-import { InvoiceFactory, createInvoiceHistory } from '@/lib/test-utils/factories';
+import { InvoiceFactory, createInvoiceHistory } from '@/lib/test-utils/factories'
 
 // Single invoice
 const { invoice, items, payments } = await InvoiceFactory.create()
@@ -118,13 +118,13 @@ const { invoice, items, payments } = await InvoiceFactory.create()
   .addProduct('Alimento Premium', 450000, 2)
   .withDiscount(50000, 'Cliente frecuente')
   .paid('card')
-  .build();
+  .build()
 
 // Invoice history
 const invoices = await createInvoiceHistory(clientId, petId, 'adris', {
   count: 5,
   includeUnpaid: true,
-});
+})
 ```
 
 ### LoyaltyFactory
@@ -132,7 +132,7 @@ const invoices = await createInvoiceHistory(clientId, petId, 'adris', {
 Creates loyalty points and transaction history.
 
 ```typescript
-import { LoyaltyFactory, createLoyaltyForPersona } from '@/lib/test-utils/factories';
+import { LoyaltyFactory, createLoyaltyForPersona } from '@/lib/test-utils/factories'
 
 // Custom loyalty data
 const { points, transactions } = await LoyaltyFactory.forUser(userId)
@@ -141,10 +141,10 @@ const { points, transactions } = await LoyaltyFactory.forUser(userId)
   .earnFromAppointment(appointmentId)
   .earnFromReferral()
   .redeem(100, 'Descuento en compra')
-  .build();
+  .build()
 
 // Based on persona
-const loyalty = await createLoyaltyForPersona(userId, 'vip', 'adris');
+const loyalty = await createLoyaltyForPersona(userId, 'vip', 'adris')
 ```
 
 **Tiers**: Bronze (0-499), Silver (500-1999), Gold (2000-4999), Platinum (5000+)
@@ -154,7 +154,11 @@ const loyalty = await createLoyaltyForPersona(userId, 'vip', 'adris');
 Creates e-commerce orders with various scenarios.
 
 ```typescript
-import { StoreOrderFactory, createOrderHistory, createAbandonedCarts } from '@/lib/test-utils/factories';
+import {
+  StoreOrderFactory,
+  createOrderHistory,
+  createAbandonedCarts,
+} from '@/lib/test-utils/factories'
 
 // Single order
 const { order, items } = await StoreOrderFactory.create()
@@ -167,16 +171,16 @@ const { order, items } = await StoreOrderFactory.create()
   .paidWith('card')
   .delivered()
   .prescriptionApproved()
-  .build();
+  .build()
 
 // Order history
 const orders = await createOrderHistory(customerId, 'adris', {
   count: 5,
   scenarios: ['simple', 'prescription', 'coupon'],
-});
+})
 
 // Abandoned carts
-const carts = await createAbandonedCarts([customer1, customer2], 'adris');
+const carts = await createAbandonedCarts([customer1, customer2], 'adris')
 ```
 
 **Scenarios**: `simple`, `prescription`, `abandoned`, `coupon`, `bulk`, `mixed`
@@ -205,14 +209,14 @@ npm test -- tests/e2e/seeded-data-verification.test.ts
 
 ## Data Summary
 
-| Entity | Target Count | Notes |
-|--------|-------------|-------|
-| Owners | 10 | Distinct personas |
-| Pets | 50 | 5 per owner, mixed species |
-| Vaccines | ~350 | Based on age/species |
-| Appointments | ~200 | Past, present, future |
-| Medical Records | ~100 | For completed appointments |
-| Invoices | ~30 | Various statuses |
-| Payments | ~25 | Multiple methods |
-| Store Orders | ~30 | Various scenarios |
-| Loyalty Points | 10 | Different tiers |
+| Entity          | Target Count | Notes                      |
+| --------------- | ------------ | -------------------------- |
+| Owners          | 10           | Distinct personas          |
+| Pets            | 50           | 5 per owner, mixed species |
+| Vaccines        | ~350         | Based on age/species       |
+| Appointments    | ~200         | Past, present, future      |
+| Medical Records | ~100         | For completed appointments |
+| Invoices        | ~30          | Various statuses           |
+| Payments        | ~25          | Multiple methods           |
+| Store Orders    | ~30          | Various scenarios          |
+| Loyalty Points  | 10           | Different tiers            |

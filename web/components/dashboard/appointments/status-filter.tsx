@@ -16,7 +16,7 @@ const statusOptions = [
   { value: 'in_progress', label: 'En Consulta' },
   { value: 'completed', label: 'Completadas' },
   { value: 'no_show', label: 'No Presentados' },
-  { value: 'cancelled', label: 'Canceladas' }
+  { value: 'cancelled', label: 'Canceladas' },
 ]
 
 export function StatusFilter({ currentStatus, clinic, currentDate }: StatusFilterProps) {
@@ -37,7 +37,7 @@ export function StatusFilter({ currentStatus, clinic, currentDate }: StatusFilte
     <select
       value={currentStatus}
       onChange={(e) => handleStatusChange(e.target.value)}
-      className="px-4 py-3 min-h-[44px] rounded-lg border border-gray-200 bg-white text-sm font-medium focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none cursor-pointer"
+      className="focus:ring-[var(--primary)]/20 min-h-[44px] cursor-pointer rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm font-medium outline-none focus:border-[var(--primary)] focus:ring-2"
     >
       {statusOptions.map((option) => (
         <option key={option.value} value={option.value}>

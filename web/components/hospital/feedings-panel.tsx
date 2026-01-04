@@ -1,50 +1,54 @@
-'use client';
+'use client'
 
-import type { JSX } from 'react';
-import { useState } from 'react';
-import { Save } from 'lucide-react';
+import type { JSX } from 'react'
+import { useState } from 'react'
+import { Save } from 'lucide-react'
 
 interface Feeding {
-  id: string;
-  feeding_time: string;
-  food_type: string;
-  amount_offered: number;
-  amount_consumed: number;
-  appetite_level: string;
-  notes?: string;
+  id: string
+  feeding_time: string
+  food_type: string
+  amount_offered: number
+  amount_consumed: number
+  appetite_level: string
+  notes?: string
   fed_by?: {
-    full_name: string;
-  };
+    full_name: string
+  }
 }
 
 interface FeedingForm {
-  food_type: string;
-  amount_offered: string;
-  amount_consumed: string;
-  appetite_level: string;
-  notes: string;
+  food_type: string
+  amount_offered: string
+  amount_consumed: string
+  appetite_level: string
+  notes: string
 }
 
 interface FeedingsPanelProps {
-  hospitalizationId: string;
-  feedings: Feeding[];
-  onFeedingSaved: () => void;
+  hospitalizationId: string
+  feedings: Feeding[]
+  onFeedingSaved: () => void
 }
 
-export function FeedingsPanel({ hospitalizationId, feedings, onFeedingSaved }: FeedingsPanelProps): JSX.Element {
-  const [showForm, setShowForm] = useState(false);
-  const [saving, setSaving] = useState(false);
+export function FeedingsPanel({
+  hospitalizationId,
+  feedings,
+  onFeedingSaved,
+}: FeedingsPanelProps): JSX.Element {
+  const [showForm, setShowForm] = useState(false)
+  const [saving, setSaving] = useState(false)
   const [form, setForm] = useState<FeedingForm>({
     food_type: '',
     amount_offered: '',
     amount_consumed: '',
     appetite_level: 'normal',
     notes: '',
-  });
+  })
 
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
-    e.preventDefault();
-    setSaving(true);
+    e.preventDefault()
+    setSaving(true)
 
     try {
       const response = await fetch(`/api/hospitalizations/${hospitalizationId}/feedings`, {
@@ -57,26 +61,26 @@ export function FeedingsPanel({ hospitalizationId, feedings, onFeedingSaved }: F
           appetite_level: form.appetite_level,
           notes: form.notes || null,
         }),
-      });
+      })
 
-      if (!response.ok) throw new Error('Error al guardar alimentación');
+      if (!response.ok) throw new Error('Error al guardar alimentación')
 
-      setShowForm(false);
+      setShowForm(false)
       setForm({
         food_type: '',
         amount_offered: '',
         amount_consumed: '',
         appetite_level: 'normal',
         notes: '',
-      });
-      onFeedingSaved();
+      })
+      onFeedingSaved()
     } catch (error) {
-      console.error('Error saving feeding:', error);
-      alert('Error al guardar alimentación');
+      console.error('Error saving feeding:', error)
+      alert('Error al guardar alimentación')
     } finally {
-      setSaving(false);
+      setSaving(false)
     }
-  };
+  }
 
   const formatDateTime = (isoString: string): string => {
     return new Date(isoString).toLocaleString('es-PY', {
@@ -85,28 +89,31 @@ export function FeedingsPanel({ hospitalizationId, feedings, onFeedingSaved }: F
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
-    });
-  };
+    })
+  }
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold text-[var(--text-primary)]">
           Registro de Alimentación
         </h3>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="px-4 py-2 bg-[var(--primary)] text-white rounded-lg hover:opacity-90"
+          className="rounded-lg bg-[var(--primary)] px-4 py-2 text-white hover:opacity-90"
         >
           {showForm ? 'Cancelar' : 'Registrar Alimentación'}
         </button>
       </div>
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="bg-[var(--bg-default)] p-4 rounded-lg border border-[var(--border)]">
-          <div className="grid md:grid-cols-2 gap-4">
+        <form
+          onSubmit={handleSubmit}
+          className="rounded-lg border border-[var(--border)] bg-[var(--bg-default)] p-4"
+        >
+          <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">
+              <label className="mb-1 block text-sm font-medium text-[var(--text-secondary)]">
                 Tipo de Alimento *
               </label>
               <input
@@ -114,18 +121,18 @@ export function FeedingsPanel({ hospitalizationId, feedings, onFeedingSaved }: F
                 required
                 value={form.food_type}
                 onChange={(e) => setForm({ ...form, food_type: e.target.value })}
-                className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--bg-default)] text-[var(--text-primary)]"
+                className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-default)] px-3 py-2 text-[var(--text-primary)]"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">
+              <label className="mb-1 block text-sm font-medium text-[var(--text-secondary)]">
                 Apetito
               </label>
               <select
                 value={form.appetite_level}
                 onChange={(e) => setForm({ ...form, appetite_level: e.target.value })}
-                className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--bg-default)] text-[var(--text-primary)]"
+                className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-default)] px-3 py-2 text-[var(--text-primary)]"
               >
                 <option value="excellent">Excelente</option>
                 <option value="good">Bueno</option>
@@ -136,7 +143,7 @@ export function FeedingsPanel({ hospitalizationId, feedings, onFeedingSaved }: F
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">
+              <label className="mb-1 block text-sm font-medium text-[var(--text-secondary)]">
                 Cantidad Ofrecida (g) *
               </label>
               <input
@@ -145,12 +152,12 @@ export function FeedingsPanel({ hospitalizationId, feedings, onFeedingSaved }: F
                 required
                 value={form.amount_offered}
                 onChange={(e) => setForm({ ...form, amount_offered: e.target.value })}
-                className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--bg-default)] text-[var(--text-primary)]"
+                className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-default)] px-3 py-2 text-[var(--text-primary)]"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">
+              <label className="mb-1 block text-sm font-medium text-[var(--text-secondary)]">
                 Cantidad Consumida (g)
               </label>
               <input
@@ -158,19 +165,19 @@ export function FeedingsPanel({ hospitalizationId, feedings, onFeedingSaved }: F
                 step="0.1"
                 value={form.amount_consumed}
                 onChange={(e) => setForm({ ...form, amount_consumed: e.target.value })}
-                className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--bg-default)] text-[var(--text-primary)]"
+                className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-default)] px-3 py-2 text-[var(--text-primary)]"
               />
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">
+              <label className="mb-1 block text-sm font-medium text-[var(--text-secondary)]">
                 Notas
               </label>
               <textarea
                 rows={2}
                 value={form.notes}
                 onChange={(e) => setForm({ ...form, notes: e.target.value })}
-                className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--bg-default)] text-[var(--text-primary)]"
+                className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-default)] px-3 py-2 text-[var(--text-primary)]"
               />
             </div>
           </div>
@@ -178,7 +185,7 @@ export function FeedingsPanel({ hospitalizationId, feedings, onFeedingSaved }: F
           <button
             type="submit"
             disabled={saving}
-            className="mt-4 flex items-center gap-2 px-6 py-2 bg-[var(--primary)] text-white rounded-lg hover:opacity-90 disabled:opacity-50"
+            className="mt-4 flex items-center gap-2 rounded-lg bg-[var(--primary)] px-6 py-2 text-white hover:opacity-90 disabled:opacity-50"
           >
             <Save className="h-4 w-4" />
             {saving ? 'Guardando...' : 'Guardar Registro'}
@@ -188,24 +195,29 @@ export function FeedingsPanel({ hospitalizationId, feedings, onFeedingSaved }: F
 
       <div className="space-y-3">
         {feedings?.length === 0 ? (
-          <p className="text-center text-[var(--text-secondary)] py-8">
+          <p className="py-8 text-center text-[var(--text-secondary)]">
             No hay registros de alimentación
           </p>
         ) : (
           feedings?.map((feeding) => (
-            <div key={feeding.id} className="bg-[var(--bg-default)] p-4 rounded-lg border border-[var(--border)]">
-              <div className="flex justify-between items-start mb-2">
+            <div
+              key={feeding.id}
+              className="rounded-lg border border-[var(--border)] bg-[var(--bg-default)] p-4"
+            >
+              <div className="mb-2 flex items-start justify-between">
                 <div className="text-sm text-[var(--text-secondary)]">
                   {formatDateTime(feeding.feeding_time)}
                   {feeding.fed_by && ` - ${feeding.fed_by.full_name}`}
                 </div>
-                <span className={`text-xs px-2 py-1 rounded-full ${
-                  feeding.appetite_level === 'excellent' || feeding.appetite_level === 'good'
-                    ? 'bg-green-100 text-green-800'
-                    : feeding.appetite_level === 'poor' || feeding.appetite_level === 'none'
-                    ? 'bg-red-100 text-red-800'
-                    : 'bg-yellow-100 text-yellow-800'
-                }`}>
+                <span
+                  className={`rounded-full px-2 py-1 text-xs ${
+                    feeding.appetite_level === 'excellent' || feeding.appetite_level === 'good'
+                      ? 'bg-green-100 text-green-800'
+                      : feeding.appetite_level === 'poor' || feeding.appetite_level === 'none'
+                        ? 'bg-red-100 text-red-800'
+                        : 'bg-yellow-100 text-yellow-800'
+                  }`}
+                >
                   {feeding.appetite_level}
                 </span>
               </div>
@@ -232,12 +244,12 @@ export function FeedingsPanel({ hospitalizationId, feedings, onFeedingSaved }: F
               </div>
 
               {feeding.notes && (
-                <p className="mt-2 text-sm text-[var(--text-secondary)] italic">{feeding.notes}</p>
+                <p className="mt-2 text-sm italic text-[var(--text-secondary)]">{feeding.notes}</p>
               )}
             </div>
           ))
         )}
       </div>
     </div>
-  );
+  )
 }

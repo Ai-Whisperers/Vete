@@ -3,8 +3,8 @@
  * Professional styling with all Google Sheets features
  */
 
-import { batchUpdate, getGoogleSheetsClient } from './auth';
-import { SPREADSHEET_ID, SHEETS, COLORS, STOCK_OPERATIONS } from './config';
+import { batchUpdate, getGoogleSheetsClient } from './auth'
+import { SPREADSHEET_ID, SHEETS, COLORS, STOCK_OPERATIONS } from './config'
 
 // Optimal column widths per sheet (in pixels)
 const COLUMN_WIDTHS: Record<string, number[]> = {
@@ -17,33 +17,48 @@ const COLUMN_WIDTHS: Record<string, number[]> = {
 
   // Proveedores: 24 columns (A-X)
   '🏭 Proveedores': [
-    90, 180, 140, 100, 90, 90, 130, 130, 180, 140,  // A-J (added hyperlink space)
-    180, 100, 130, 100, 100, 100, 80, 180,          // K-R
-    90, 100, 100, 90, 180, 60                       // S-X
+    90,
+    180,
+    140,
+    100,
+    90,
+    90,
+    130,
+    130,
+    180,
+    140, // A-J (added hyperlink space)
+    180,
+    100,
+    130,
+    100,
+    100,
+    100,
+    80,
+    180, // K-R
+    90,
+    100,
+    100,
+    90,
+    180,
+    60, // S-X
   ],
 
   // Marcas: 15 columns (A-O)
-  '🏷️ Marcas': [
-    80, 160, 100, 100, 80, 120, 80, 150, 80, 140, 150, 180, 80, 220, 60
-  ],
+  '🏷️ Marcas': [80, 160, 100, 100, 80, 120, 80, 150, 80, 140, 150, 180, 80, 220, 60],
 
   // Productos: 15 columns (A-O)
-  '🆕 Productos': [
-    100, 260, 140, 120, 90, 80, 90, 100, 90, 130, 100, 60, 70, 220, 60
-  ],
+  '🆕 Productos': [100, 260, 140, 120, 90, 80, 90, 100, 90, 130, 100, 60, 70, 220, 60],
 
   // Mis Productos: 19 columns (A-S)
   // Producto, PrecioVenta, StockMín, Ubicación, Activo, Código, Descripción, Categoría,
   // Marca, Proveedor, CódigoBarras, Receta, ÚltCosto, Margen%, Stock, Valor, Estado, PróxVence, Alertas
   '📋 Mis Productos': [
-    260, 100, 80, 110, 60, 100, 140, 100, 100, 100, 100, 60, 100, 80, 80, 100, 100, 100, 120
+    260, 100, 80, 110, 60, 100, 140, 100, 100, 100, 100, 60, 100, 80, 80, 100, 100, 100, 120,
   ],
 
   // Movimientos Stock: 15 columns (A-O)
   // Fecha, Producto, Operación, Cantidad, Lote, Ubicación, Responsable, CostoUnit, Vencimiento, Documento, #, Código, CostoUsado, +/-, Total
-  '📦 Movimientos Stock': [
-    100, 240, 140, 80, 100, 110, 120, 100, 100, 100, 50, 100, 100, 50, 100
-  ],
+  '📦 Movimientos Stock': [100, 240, 140, 80, 100, 110, 120, 100, 100, 100, 50, 100, 100, 50, 100],
 
   // Configuración: 9 columns (A-I) - Two side-by-side tables
   // Ubicaciones (A-D): Código, Ubicación, Descripción, Activo
@@ -57,10 +72,10 @@ const COLUMN_WIDTHS: Record<string, number[]> = {
 
   // Datos helper: 7 columns
   '🔧 Datos': [160, 120, 140, 240, 240, 140, 140],
-};
+}
 
 // Sheet tab colors
-const TAB_COLORS: Record<string, typeof COLORS[keyof typeof COLORS]> = {
+const TAB_COLORS: Record<string, (typeof COLORS)[keyof typeof COLORS]> = {
   '📖 Guía Rápida': COLORS.primary,
   '📂 Categorías': COLORS.categoryHeader,
   '🏭 Proveedores': COLORS.providerHeader,
@@ -71,28 +86,28 @@ const TAB_COLORS: Record<string, typeof COLORS[keyof typeof COLORS]> = {
   '📊 Control Lotes': COLORS.accent,
   '⚙️ Configuración': COLORS.configHeader,
   '🔧 Datos': COLORS.darkGray,
-};
+}
 
 // Data row heights per sheet (in pixels)
 // Optimized for content type and readability
 const DATA_ROW_HEIGHTS: Record<string, number> = {
-  '📖 Guía Rápida': 20,      // Compact for documentation
-  '📂 Categorías': 26,       // Standard for hierarchical data
-  '🏭 Proveedores': 28,      // Slightly taller for contact info
-  '🏷️ Marcas': 26,          // Standard
-  '🆕 Productos': 24,        // Compact for large catalog
-  '📋 Mis Productos': 26,    // Standard for inventory
+  '📖 Guía Rápida': 20, // Compact for documentation
+  '📂 Categorías': 26, // Standard for hierarchical data
+  '🏭 Proveedores': 28, // Slightly taller for contact info
+  '🏷️ Marcas': 26, // Standard
+  '🆕 Productos': 24, // Compact for large catalog
+  '📋 Mis Productos': 26, // Standard for inventory
   '📦 Movimientos Stock': 24, // Compact for transaction log
-  '📊 Control Lotes': 24,    // Standard for lot tracking
-  '⚙️ Configuración': 28,    // Slightly taller for config tables
-  '🔧 Datos': 22,            // Compact helper sheet
-};
+  '📊 Control Lotes': 24, // Standard for lot tracking
+  '⚙️ Configuración': 28, // Slightly taller for config tables
+  '🔧 Datos': 22, // Compact helper sheet
+}
 
 /**
  * Get optimal data row height for a sheet
  */
 function getDataRowHeight(sheetName: string): number {
-  return DATA_ROW_HEIGHTS[sheetName] ?? 24; // Default 24px
+  return DATA_ROW_HEIGHTS[sheetName] ?? 24 // Default 24px
 }
 
 /**
@@ -102,23 +117,23 @@ export async function applyFormatting(
   spreadsheetId: string,
   sheetMap: Record<string, number>
 ): Promise<void> {
-  console.log('\n🎨 Applying formatting...\n');
+  console.log('\n🎨 Applying formatting...\n')
 
-  const requests: any[] = [];
+  const requests: any[] = []
 
   // Format each sheet
   for (const config of SHEETS) {
-    const sheetId = sheetMap[config.name];
+    const sheetId = sheetMap[config.name]
     if (sheetId === undefined) {
-      console.log(`  ⚠️ Sheet not found: ${config.name}`);
-      continue;
+      console.log(`  ⚠️ Sheet not found: ${config.name}`)
+      continue
     }
 
-    console.log(`  📝 ${config.name}`);
-    const colCount = config.columns.length;
+    console.log(`  📝 ${config.name}`)
+    const colCount = config.columns.length
 
     // 1. Sheet tab color
-    const tabColor = TAB_COLORS[config.name];
+    const tabColor = TAB_COLORS[config.name]
     if (tabColor) {
       requests.push({
         updateSheetProperties: {
@@ -128,7 +143,7 @@ export async function applyFormatting(
           },
           fields: 'tabColor',
         },
-      });
+      })
     }
 
     // 2. Header row styling with text wrapping
@@ -155,9 +170,10 @@ export async function applyFormatting(
             padding: { top: 6, bottom: 6, left: 8, right: 8 },
           },
         },
-        fields: 'userEnteredFormat(backgroundColor,textFormat,horizontalAlignment,verticalAlignment,wrapStrategy,padding)',
+        fields:
+          'userEnteredFormat(backgroundColor,textFormat,horizontalAlignment,verticalAlignment,wrapStrategy,padding)',
       },
-    });
+    })
 
     // 3. Data rows default styling
     requests.push({
@@ -178,7 +194,7 @@ export async function applyFormatting(
         },
         fields: 'userEnteredFormat(verticalAlignment,wrapStrategy,padding)',
       },
-    });
+    })
 
     // 4. Alternating colors banding (built-in feature - more efficient)
     requests.push({
@@ -198,7 +214,7 @@ export async function applyFormatting(
           },
         },
       },
-    });
+    })
 
     // 5. Freeze header row(s)
     requests.push({
@@ -211,7 +227,7 @@ export async function applyFormatting(
         },
         fields: 'gridProperties.frozenRowCount',
       },
-    });
+    })
 
     // 6. Header border (bottom)
     requests.push({
@@ -228,7 +244,7 @@ export async function applyFormatting(
           color: COLORS.black,
         },
       },
-    });
+    })
 
     // 7. Outer border for data area
     requests.push({
@@ -245,7 +261,7 @@ export async function applyFormatting(
         left: { style: 'SOLID', color: COLORS.mediumGray },
         right: { style: 'SOLID', color: COLORS.mediumGray },
       },
-    });
+    })
 
     // 8. Header row height - taller for readability
     requests.push({
@@ -259,11 +275,11 @@ export async function applyFormatting(
         properties: { pixelSize: 36 },
         fields: 'pixelSize',
       },
-    });
+    })
 
     // 9. Data row height - apply to ALL rows in the sheet
     // Use sheet-specific heights for better readability
-    const dataRowHeight = getDataRowHeight(config.name);
+    const dataRowHeight = getDataRowHeight(config.name)
     requests.push({
       updateDimensionProperties: {
         range: {
@@ -275,10 +291,10 @@ export async function applyFormatting(
         properties: { pixelSize: dataRowHeight },
         fields: 'pixelSize',
       },
-    });
+    })
 
     // 10. Optimal column widths
-    const widths = COLUMN_WIDTHS[config.name];
+    const widths = COLUMN_WIDTHS[config.name]
     if (widths) {
       for (let i = 0; i < Math.min(widths.length, colCount); i++) {
         requests.push({
@@ -292,49 +308,59 @@ export async function applyFormatting(
             properties: { pixelSize: widths[i] },
             fields: 'pixelSize',
           },
-        });
+        })
       }
     }
   }
 
   // Sheet-specific formatting
-  addCategoriesFormatting(requests, sheetMap);
-  addProductsFormatting(requests, sheetMap);
-  addMisProductosFormatting(requests, sheetMap);
-  addStockFormatting(requests, sheetMap);
-  addGuideFormatting(requests, sheetMap);
-  addConfigFormatting(requests, sheetMap);
-  addProvidersFormatting(requests, sheetMap);
-  addBrandsFormatting(requests, sheetMap);
-  addDatosFormatting(requests, sheetMap);
-  addControlLotesFormatting(requests, sheetMap);
+  addCategoriesFormatting(requests, sheetMap)
+  addProductsFormatting(requests, sheetMap)
+  addMisProductosFormatting(requests, sheetMap)
+  addStockFormatting(requests, sheetMap)
+  addGuideFormatting(requests, sheetMap)
+  addConfigFormatting(requests, sheetMap)
+  addProvidersFormatting(requests, sheetMap)
+  addBrandsFormatting(requests, sheetMap)
+  addDatosFormatting(requests, sheetMap)
+  addControlLotesFormatting(requests, sheetMap)
 
   // Execute in batches
-  await batchUpdate(spreadsheetId, requests, 100);
+  await batchUpdate(spreadsheetId, requests, 100)
 
   // Add filter views (separate API call)
-  await addFilterViews(spreadsheetId, sheetMap);
+  await addFilterViews(spreadsheetId, sheetMap)
 
   // Add cell notes for help
-  await addCellNotes(spreadsheetId);
+  await addCellNotes(spreadsheetId)
 
-  console.log('\n  ✅ Formatting applied\n');
+  console.log('\n  ✅ Formatting applied\n')
 }
 
 /**
  * Add filter views for data sheets
  */
-async function addFilterViews(spreadsheetId: string, sheetMap: Record<string, number>): Promise<void> {
-  const sheets = await getGoogleSheetsClient();
-  const requests: any[] = [];
+async function addFilterViews(
+  spreadsheetId: string,
+  sheetMap: Record<string, number>
+): Promise<void> {
+  const sheets = await getGoogleSheetsClient()
+  const requests: any[] = []
 
   // Add basic filter for main data sheets
-  const sheetsWithFilters = ['📂 Categorías', '🏭 Proveedores', '🏷️ Marcas', '🆕 Productos', '📋 Mis Productos', '📦 Movimientos Stock'];
+  const sheetsWithFilters = [
+    '📂 Categorías',
+    '🏭 Proveedores',
+    '🏷️ Marcas',
+    '🆕 Productos',
+    '📋 Mis Productos',
+    '📦 Movimientos Stock',
+  ]
 
   for (const sheetName of sheetsWithFilters) {
-    const sheetId = sheetMap[sheetName];
-    const config = SHEETS.find(s => s.name === sheetName);
-    if (sheetId === undefined || !config) continue;
+    const sheetId = sheetMap[sheetName]
+    const config = SHEETS.find((s) => s.name === sheetName)
+    if (sheetId === undefined || !config) continue
 
     requests.push({
       setBasicFilter: {
@@ -348,11 +374,11 @@ async function addFilterViews(spreadsheetId: string, sheetMap: Record<string, nu
           },
         },
       },
-    });
+    })
   }
 
   if (requests.length > 0) {
-    await batchUpdate(spreadsheetId, requests, 50);
+    await batchUpdate(spreadsheetId, requests, 50)
   }
 }
 
@@ -360,71 +386,73 @@ async function addFilterViews(spreadsheetId: string, sheetMap: Record<string, nu
  * Add cell notes for help/tooltips
  */
 async function addCellNotes(spreadsheetId: string): Promise<void> {
-  const sheets = await getGoogleSheetsClient();
+  const sheets = await getGoogleSheetsClient()
 
   const notes: Record<string, Record<string, string>> = {
     '📂 Categorías': {
-      'A1': '🔒 CÓDIGO AUTO-GENERADO\n\nSe genera automáticamente con ARRAYFORMULA:\n• Sin padre: INICIALES(3)\n• Con padre: PADRE-INICIALES(3)\n\nEjemplos:\n• Alimentos → ALI\n• ALI + Perros → ALI-PER\n• ALI-PER + Adultos → ALI-PER-ADU\n\n✅ Solo completa: Nombre, Nivel, Padre',
-      'B1': '📝 Nombre de la categoría\nCampo obligatorio\nEl código se genera de las primeras 3 letras',
-      'C1': '📊 Nivel en la jerarquía\n1 = Raíz\n2 = Subcategoría\n3 = Sub-subcategoría',
-      'D1': '🔗 Código de la categoría padre\nDejar vacío para categorías raíz\nEj: ALI para subcategorías de Alimentos',
+      A1: '🔒 CÓDIGO AUTO-GENERADO\n\nSe genera automáticamente con ARRAYFORMULA:\n• Sin padre: INICIALES(3)\n• Con padre: PADRE-INICIALES(3)\n\nEjemplos:\n• Alimentos → ALI\n• ALI + Perros → ALI-PER\n• ALI-PER + Adultos → ALI-PER-ADU\n\n✅ Solo completa: Nombre, Nivel, Padre',
+      B1: '📝 Nombre de la categoría\nCampo obligatorio\nEl código se genera de las primeras 3 letras',
+      C1: '📊 Nivel en la jerarquía\n1 = Raíz\n2 = Subcategoría\n3 = Sub-subcategoría',
+      D1: '🔗 Código de la categoría padre\nDejar vacío para categorías raíz\nEj: ALI para subcategorías de Alimentos',
     },
     '🏭 Proveedores': {
-      'A1': '🔒 CÓDIGO AUTO-GENERADO\n\nSe genera automáticamente:\nPrimeras 3 letras + número secuencial\n\nEjemplos:\n• 1° entrada "Royal Canin" → ROY-001\n• 2° entrada "Distribuidora" → DIS-002\n• 7° entrada "Test" → TES-007\n\n✅ Fórmulas pre-llenadas para 100 filas',
-      'B1': '📝 Nombre del proveedor\nCampo obligatorio\nEl código se genera de las primeras 3 letras',
-      'C1': '📦 Tipo de proveedor:\n• Productos = Tienda\n• Insumos = Servicios\n• Ambos = Todo',
+      A1: '🔒 CÓDIGO AUTO-GENERADO\n\nSe genera automáticamente:\nPrimeras 3 letras + número secuencial\n\nEjemplos:\n• 1° entrada "Royal Canin" → ROY-001\n• 2° entrada "Distribuidora" → DIS-002\n• 7° entrada "Test" → TES-007\n\n✅ Fórmulas pre-llenadas para 100 filas',
+      B1: '📝 Nombre del proveedor\nCampo obligatorio\nEl código se genera de las primeras 3 letras',
+      C1: '📦 Tipo de proveedor:\n• Productos = Tienda\n• Insumos = Servicios\n• Ambos = Todo',
     },
     '🏷️ Marcas': {
-      'A1': '🔒 CÓDIGO AUTO-GENERADO\n\nSe genera automáticamente:\nPrimeras 2 letras + número secuencial\n\nEjemplos:\n• 1° entrada "Royal Canin" → RO-001\n• 6° entrada "Bayer" → BA-006\n• 12° entrada "Test" → TE-012\n\n✅ Fórmulas pre-llenadas para 100 filas',
-      'B1': '📝 Nombre de la marca\nCampo obligatorio\nEl código se genera de las primeras 2 letras',
+      A1: '🔒 CÓDIGO AUTO-GENERADO\n\nSe genera automáticamente:\nPrimeras 2 letras + número secuencial\n\nEjemplos:\n• 1° entrada "Royal Canin" → RO-001\n• 6° entrada "Bayer" → BA-006\n• 12° entrada "Test" → TE-012\n\n✅ Fórmulas pre-llenadas para 100 filas',
+      B1: '📝 Nombre de la marca\nCampo obligatorio\nEl código se genera de las primeras 2 letras',
     },
     '🆕 Productos': {
-      'A1': '🔒 SKU AUTO-GENERADO\n\nSe genera automáticamente:\nPrimeras 3 letras del nombre + número secuencial\n\nEjemplos:\n• "Royal Canin Adult" → ROY-001\n• "Nexgard Spectra" → NEX-002\n\n✅ Fórmulas pre-llenadas para 100 filas\n⚠️ Solo productos activos aparecen en otros dropdowns',
-      'B1': '📝 Nombre del producto\nCampo obligatorio',
-      'C1': '📁 Código de categoría\nSelecciona del dropdown ▼\n⚠️ Solo categorías ACTIVAS',
-      'D1': '🏷️ Código de marca\nSelecciona del dropdown ▼\n⚠️ Solo marcas ACTIVAS',
-      'F1': '💰 Precio de compra\nSin IVA incluido',
-      'G1': '💵 Precio de venta al público\nCon IVA incluido',
-      'H1': '📦 Stock mínimo\nAlerta cuando el stock baje de este valor',
-      'I1': '💊 ¿Requiere receta veterinaria?\nSí = Medicamentos controlados',
-      'J1': '🏭 Proveedor\nSelecciona del dropdown ▼\n⚠️ Solo proveedores ACTIVOS',
+      A1: '🔒 SKU AUTO-GENERADO\n\nSe genera automáticamente:\nPrimeras 3 letras del nombre + número secuencial\n\nEjemplos:\n• "Royal Canin Adult" → ROY-001\n• "Nexgard Spectra" → NEX-002\n\n✅ Fórmulas pre-llenadas para 100 filas\n⚠️ Solo productos activos aparecen en otros dropdowns',
+      B1: '📝 Nombre del producto\nCampo obligatorio',
+      C1: '📁 Código de categoría\nSelecciona del dropdown ▼\n⚠️ Solo categorías ACTIVAS',
+      D1: '🏷️ Código de marca\nSelecciona del dropdown ▼\n⚠️ Solo marcas ACTIVAS',
+      F1: '💰 Precio de compra\nSin IVA incluido',
+      G1: '💵 Precio de venta al público\nCon IVA incluido',
+      H1: '📦 Stock mínimo\nAlerta cuando el stock baje de este valor',
+      I1: '💊 ¿Requiere receta veterinaria?\nSí = Medicamentos controlados',
+      J1: '🏭 Proveedor\nSelecciona del dropdown ▼\n⚠️ Solo proveedores ACTIVOS',
     },
     '📦 Stock Inicial': {
-      'A1': '📦 Selecciona el producto\nUsa el menú desplegable ▼\n⚠️ Solo productos ACTIVOS',
-      'B1': '📋 Tipo de movimiento:\n• Compra = Entrada (+)\n• Venta = Salida (-)\n• Ajuste = Corrección (±)\n• Daño/Vencido = Pérdida (-)',
-      'C1': '🔢 Cantidad del movimiento\nUsar números negativos para salidas',
-      'D1': '💰 Costo unitario\nSolo para compras',
-      'F1': '📍 Ubicación\nSelecciona del dropdown ▼\n⚠️ Solo ubicaciones ACTIVAS',
+      A1: '📦 Selecciona el producto\nUsa el menú desplegable ▼\n⚠️ Solo productos ACTIVOS',
+      B1: '📋 Tipo de movimiento:\n• Compra = Entrada (+)\n• Venta = Salida (-)\n• Ajuste = Corrección (±)\n• Daño/Vencido = Pérdida (-)',
+      C1: '🔢 Cantidad del movimiento\nUsar números negativos para salidas',
+      D1: '💰 Costo unitario\nSolo para compras',
+      F1: '📍 Ubicación\nSelecciona del dropdown ▼\n⚠️ Solo ubicaciones ACTIVAS',
     },
     '⚡ Carga Rápida': {
-      'A1': '📝 Nombre del producto\nSelecciona existente o escribe nuevo\n⚠️ Solo productos ACTIVOS en dropdown',
-      'B1': '📁 Código de categoría\nSelecciona del dropdown ▼\n⚠️ Solo categorías ACTIVAS',
-      'G1': '🏷️ Código de marca\nSelecciona del dropdown ▼\n⚠️ Solo marcas ACTIVAS',
-      'H1': '🏭 Proveedor\nSelecciona del dropdown ▼\n⚠️ Solo proveedores ACTIVOS',
+      A1: '📝 Nombre del producto\nSelecciona existente o escribe nuevo\n⚠️ Solo productos ACTIVOS en dropdown',
+      B1: '📁 Código de categoría\nSelecciona del dropdown ▼\n⚠️ Solo categorías ACTIVAS',
+      G1: '🏷️ Código de marca\nSelecciona del dropdown ▼\n⚠️ Solo marcas ACTIVAS',
+      H1: '🏭 Proveedor\nSelecciona del dropdown ▼\n⚠️ Solo proveedores ACTIVOS',
     },
-  };
+  }
 
   for (const [sheetName, cellNotes] of Object.entries(notes)) {
     for (const [cell, note] of Object.entries(cellNotes)) {
-      await sheets.spreadsheets.values.update({
-        spreadsheetId,
-        range: `'${sheetName}'!${cell}`,
-        valueInputOption: 'USER_ENTERED',
-        requestBody: {
-          values: [[{ note }]],
-        },
-      }).catch(() => {
-        // Notes via values.update might not work, use batchUpdate
-      });
+      await sheets.spreadsheets.values
+        .update({
+          spreadsheetId,
+          range: `'${sheetName}'!${cell}`,
+          valueInputOption: 'USER_ENTERED',
+          requestBody: {
+            values: [[{ note }]],
+          },
+        })
+        .catch(() => {
+          // Notes via values.update might not work, use batchUpdate
+        })
     }
   }
 
   // Use batchUpdate for notes (more reliable)
-  const requests: any[] = [];
+  const requests: any[] = []
   for (const [sheetName, cellNotes] of Object.entries(notes)) {
     for (const [cell, note] of Object.entries(cellNotes)) {
-      const col = cell.charCodeAt(0) - 65; // A=0, B=1, etc.
-      const row = parseInt(cell.substring(1)) - 1;
+      const col = cell.charCodeAt(0) - 65 // A=0, B=1, etc.
+      const row = parseInt(cell.substring(1)) - 1
 
       // We need sheetId but don't have it here, skip for now
     }
@@ -436,11 +464,11 @@ async function addCellNotes(spreadsheetId: string): Promise<void> {
  * Columns (8): Código(A), CódigoPadre(B), Nivel(C), Nombre(D), Descripción(E), Ejemplos(F), #Productos(G), Activo(H)
  */
 function addCategoriesFormatting(requests: any[], sheetMap: Record<string, number>): void {
-  const sheetId = sheetMap['📂 Categorías'];
-  if (sheetId === undefined) return;
+  const sheetId = sheetMap['📂 Categorías']
+  if (sheetId === undefined) return
 
-  const config = SHEETS.find(s => s.name === '📂 Categorías');
-  const MAX_ROWS = (config?.dataRows ?? 100) + 1;
+  const config = SHEETS.find((s) => s.name === '📂 Categorías')
+  const MAX_ROWS = (config?.dataRows ?? 100) + 1
 
   // Código columns (A, B) - monospace for hierarchical codes
   requests.push({
@@ -462,7 +490,7 @@ function addCategoriesFormatting(requests: any[], sheetMap: Record<string, numbe
       },
       fields: 'userEnteredFormat.textFormat',
     },
-  });
+  })
 
   // Nivel column (C) - centered
   requests.push({
@@ -481,7 +509,7 @@ function addCategoriesFormatting(requests: any[], sheetMap: Record<string, numbe
       },
       fields: 'userEnteredFormat.horizontalAlignment',
     },
-  });
+  })
 
   // # Productos column (G) - gray calculated field
   requests.push({
@@ -505,7 +533,7 @@ function addCategoriesFormatting(requests: any[], sheetMap: Record<string, numbe
       },
       fields: 'userEnteredFormat(backgroundColor,horizontalAlignment,textFormat)',
     },
-  });
+  })
 
   // Conditional formatting for levels (column C) - 5 levels supported
   const levelColors = [
@@ -514,19 +542,21 @@ function addCategoriesFormatting(requests: any[], sheetMap: Record<string, numbe
     { level: 3, color: { red: 0.988, green: 0.945, blue: 0.859 } }, // Yellow - detail
     { level: 4, color: { red: 0.957, green: 0.878, blue: 0.878 } }, // Light red - granular
     { level: 5, color: { red: 0.918, green: 0.878, blue: 0.957 } }, // Light purple - micro
-  ];
+  ]
 
   for (const { level, color } of levelColors) {
     requests.push({
       addConditionalFormatRule: {
         rule: {
-          ranges: [{
-            sheetId,
-            startRowIndex: 1,
-            endRowIndex: MAX_ROWS,
-            startColumnIndex: 0,
-            endColumnIndex: 8,
-          }],
+          ranges: [
+            {
+              sheetId,
+              startRowIndex: 1,
+              endRowIndex: MAX_ROWS,
+              startColumnIndex: 0,
+              endColumnIndex: 8,
+            },
+          ],
           booleanRule: {
             condition: {
               type: 'CUSTOM_FORMULA',
@@ -537,20 +567,22 @@ function addCategoriesFormatting(requests: any[], sheetMap: Record<string, numbe
         },
         index: 0,
       },
-    });
+    })
   }
 
   // Strikethrough for inactive categories (H = "No")
   requests.push({
     addConditionalFormatRule: {
       rule: {
-        ranges: [{
-          sheetId,
-          startRowIndex: 1,
-          endRowIndex: MAX_ROWS,
-          startColumnIndex: 0,
-          endColumnIndex: 8,
-        }],
+        ranges: [
+          {
+            sheetId,
+            startRowIndex: 1,
+            endRowIndex: MAX_ROWS,
+            startColumnIndex: 0,
+            endColumnIndex: 8,
+          },
+        ],
         booleanRule: {
           condition: {
             type: 'CUSTOM_FORMULA',
@@ -566,7 +598,7 @@ function addCategoriesFormatting(requests: any[], sheetMap: Record<string, numbe
       },
       index: 0,
     },
-  });
+  })
 }
 
 /**
@@ -576,11 +608,11 @@ function addCategoriesFormatting(requests: any[], sheetMap: Record<string, numbe
  *               Receta(L), EnStock(M), Descripción(N), Activo(O)
  */
 function addProductsFormatting(requests: any[], sheetMap: Record<string, number>): void {
-  const sheetId = sheetMap['🆕 Productos'];
-  if (sheetId === undefined) return;
+  const sheetId = sheetMap['🆕 Productos']
+  if (sheetId === undefined) return
 
-  const config = SHEETS.find(s => s.name === '🆕 Productos');
-  const MAX_ROWS = (config?.dataRows ?? 1200) + 1;
+  const config = SHEETS.find((s) => s.name === '🆕 Productos')
+  const MAX_ROWS = (config?.dataRows ?? 1200) + 1
 
   // SKU column (A) - gray "locked" appearance (auto-generated)
   requests.push({
@@ -604,7 +636,7 @@ function addProductsFormatting(requests: any[], sheetMap: Record<string, number>
       },
       fields: 'userEnteredFormat(backgroundColor,textFormat)',
     },
-  });
+  })
 
   // Required columns (B-D: Nombre, Categoría, Marca) - light teal
   requests.push({
@@ -623,7 +655,7 @@ function addProductsFormatting(requests: any[], sheetMap: Record<string, number>
       },
       fields: 'userEnteredFormat.backgroundColor',
     },
-  });
+  })
 
   // Conversion columns (E-G: Unid.Compra, Cant.Contenida, Unid.Venta) - light blue
   requests.push({
@@ -642,7 +674,7 @@ function addProductsFormatting(requests: any[], sheetMap: Record<string, number>
       },
       fields: 'userEnteredFormat.backgroundColor',
     },
-  });
+  })
 
   // Number format for Cant.Contenida (F - index 5)
   requests.push({
@@ -662,7 +694,7 @@ function addProductsFormatting(requests: any[], sheetMap: Record<string, number>
       },
       fields: 'userEnteredFormat(numberFormat,horizontalAlignment)',
     },
-  });
+  })
 
   // Price columns (H-I: Precio Compra, Costo Unit) - light amber
   requests.push({
@@ -681,7 +713,7 @@ function addProductsFormatting(requests: any[], sheetMap: Record<string, number>
       },
       fields: 'userEnteredFormat.backgroundColor',
     },
-  });
+  })
 
   // Number format for prices (H-I) with currency symbol
   requests.push({
@@ -701,7 +733,7 @@ function addProductsFormatting(requests: any[], sheetMap: Record<string, number>
       },
       fields: 'userEnteredFormat(numberFormat,horizontalAlignment)',
     },
-  });
+  })
 
   // Costo Unit column (I - index 8) - gray for calculated field
   requests.push({
@@ -724,7 +756,7 @@ function addProductsFormatting(requests: any[], sheetMap: Record<string, number>
       },
       fields: 'userEnteredFormat(backgroundColor,textFormat)',
     },
-  });
+  })
 
   // En Stock column (M - index 12) - gray calculated, centered
   requests.push({
@@ -748,7 +780,7 @@ function addProductsFormatting(requests: any[], sheetMap: Record<string, number>
       },
       fields: 'userEnteredFormat(backgroundColor,horizontalAlignment,textFormat)',
     },
-  });
+  })
 
   // Description column (N - index 13) - text wrap
   requests.push({
@@ -767,19 +799,21 @@ function addProductsFormatting(requests: any[], sheetMap: Record<string, number>
       },
       fields: 'userEnteredFormat.wrapStrategy',
     },
-  });
+  })
 
   // Conditional: "En Stock" = ✓ shows green
   requests.push({
     addConditionalFormatRule: {
       rule: {
-        ranges: [{
-          sheetId,
-          startRowIndex: 1,
-          endRowIndex: MAX_ROWS,
-          startColumnIndex: 12,
-          endColumnIndex: 13,
-        }],
+        ranges: [
+          {
+            sheetId,
+            startRowIndex: 1,
+            endRowIndex: MAX_ROWS,
+            startColumnIndex: 12,
+            endColumnIndex: 13,
+          },
+        ],
         booleanRule: {
           condition: {
             type: 'CUSTOM_FORMULA',
@@ -793,19 +827,21 @@ function addProductsFormatting(requests: any[], sheetMap: Record<string, number>
       },
       index: 0,
     },
-  });
+  })
 
   // Conditional: inactive products (O = "No")
   requests.push({
     addConditionalFormatRule: {
       rule: {
-        ranges: [{
-          sheetId,
-          startRowIndex: 1,
-          endRowIndex: MAX_ROWS,
-          startColumnIndex: 0,
-          endColumnIndex: 15,
-        }],
+        ranges: [
+          {
+            sheetId,
+            startRowIndex: 1,
+            endRowIndex: MAX_ROWS,
+            startColumnIndex: 0,
+            endColumnIndex: 15,
+          },
+        ],
         booleanRule: {
           condition: {
             type: 'CUSTOM_FORMULA',
@@ -821,7 +857,7 @@ function addProductsFormatting(requests: any[], sheetMap: Record<string, number>
       },
       index: 0,
     },
-  });
+  })
 }
 
 /**
@@ -844,11 +880,11 @@ function addProductsFormatting(requests: any[], sheetMap: Record<string, number>
  *   O: Total (formula - running total)
  */
 function addStockFormatting(requests: any[], sheetMap: Record<string, number>): void {
-  const sheetId = sheetMap['📦 Movimientos Stock'];
-  if (sheetId === undefined) return;
+  const sheetId = sheetMap['📦 Movimientos Stock']
+  if (sheetId === undefined) return
 
-  const config = SHEETS.find(s => s.name === '📦 Movimientos Stock');
-  const MAX_ROWS = (config?.dataRows ?? 1000) + 1;
+  const config = SHEETS.find((s) => s.name === '📦 Movimientos Stock')
+  const MAX_ROWS = (config?.dataRows ?? 1000) + 1
 
   // ═══════════════════════════════════════════════════════════════════════════
   // DATE COLUMNS
@@ -872,7 +908,7 @@ function addStockFormatting(requests: any[], sheetMap: Record<string, number>): 
       },
       fields: 'userEnteredFormat(numberFormat,horizontalAlignment)',
     },
-  });
+  })
 
   // Vencimiento (I - index 8) - Date format, centered
   requests.push({
@@ -892,7 +928,7 @@ function addStockFormatting(requests: any[], sheetMap: Record<string, number>): 
       },
       fields: 'userEnteredFormat(numberFormat,horizontalAlignment)',
     },
-  });
+  })
 
   // ═══════════════════════════════════════════════════════════════════════════
   // NUMBER COLUMNS
@@ -916,7 +952,7 @@ function addStockFormatting(requests: any[], sheetMap: Record<string, number>): 
       },
       fields: 'userEnteredFormat(numberFormat,horizontalAlignment)',
     },
-  });
+  })
 
   // ═══════════════════════════════════════════════════════════════════════════
   // CURRENCY COLUMNS
@@ -940,7 +976,7 @@ function addStockFormatting(requests: any[], sheetMap: Record<string, number>): 
       },
       fields: 'userEnteredFormat(numberFormat,horizontalAlignment)',
     },
-  });
+  })
 
   // Costo Usado (M - index 12) - Gray calculated field, currency
   requests.push({
@@ -965,7 +1001,7 @@ function addStockFormatting(requests: any[], sheetMap: Record<string, number>): 
       },
       fields: 'userEnteredFormat(backgroundColor,numberFormat,horizontalAlignment,textFormat)',
     },
-  });
+  })
 
   // Total (O - index 14) - Gray calculated field, currency
   requests.push({
@@ -990,7 +1026,7 @@ function addStockFormatting(requests: any[], sheetMap: Record<string, number>): 
       },
       fields: 'userEnteredFormat(backgroundColor,numberFormat,horizontalAlignment,textFormat)',
     },
-  });
+  })
 
   // ═══════════════════════════════════════════════════════════════════════════
   // CODE/MONOSPACE COLUMNS
@@ -1017,7 +1053,7 @@ function addStockFormatting(requests: any[], sheetMap: Record<string, number>): 
       },
       fields: 'userEnteredFormat(textFormat,horizontalAlignment)',
     },
-  });
+  })
 
   // Documento (J - index 9) - Monospace for document numbers
   requests.push({
@@ -1040,7 +1076,7 @@ function addStockFormatting(requests: any[], sheetMap: Record<string, number>): 
       },
       fields: 'userEnteredFormat(textFormat,horizontalAlignment)',
     },
-  });
+  })
 
   // # (K - index 10) - Gray auto-increment, centered
   requests.push({
@@ -1065,7 +1101,7 @@ function addStockFormatting(requests: any[], sheetMap: Record<string, number>): 
       },
       fields: 'userEnteredFormat(backgroundColor,horizontalAlignment,textFormat)',
     },
-  });
+  })
 
   // Código (L - index 11) - Gray calculated, monospace
   requests.push({
@@ -1091,7 +1127,7 @@ function addStockFormatting(requests: any[], sheetMap: Record<string, number>): 
       },
       fields: 'userEnteredFormat(backgroundColor,textFormat,horizontalAlignment)',
     },
-  });
+  })
 
   // +/- (N - index 13) - Centered direction indicator
   requests.push({
@@ -1117,7 +1153,7 @@ function addStockFormatting(requests: any[], sheetMap: Record<string, number>): 
       },
       fields: 'userEnteredFormat(backgroundColor,horizontalAlignment,textFormat)',
     },
-  });
+  })
 
   // ═══════════════════════════════════════════════════════════════════════════
   // CONDITIONAL FORMATTING - OPERATION TYPES (row colors based on C - Operación)
@@ -1126,13 +1162,15 @@ function addStockFormatting(requests: any[], sheetMap: Record<string, number>): 
     requests.push({
       addConditionalFormatRule: {
         rule: {
-          ranges: [{
-            sheetId,
-            startRowIndex: 1,
-            endRowIndex: MAX_ROWS,
-            startColumnIndex: 0,
-            endColumnIndex: 15, // All 15 columns
-          }],
+          ranges: [
+            {
+              sheetId,
+              startRowIndex: 1,
+              endRowIndex: MAX_ROWS,
+              startColumnIndex: 0,
+              endColumnIndex: 15, // All 15 columns
+            },
+          ],
           booleanRule: {
             condition: {
               type: 'CUSTOM_FORMULA',
@@ -1143,7 +1181,7 @@ function addStockFormatting(requests: any[], sheetMap: Record<string, number>): 
         },
         index: 0,
       },
-    });
+    })
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -1154,13 +1192,15 @@ function addStockFormatting(requests: any[], sheetMap: Record<string, number>): 
   requests.push({
     addConditionalFormatRule: {
       rule: {
-        ranges: [{
-          sheetId,
-          startRowIndex: 1,
-          endRowIndex: MAX_ROWS,
-          startColumnIndex: 8, // Column I
-          endColumnIndex: 9,
-        }],
+        ranges: [
+          {
+            sheetId,
+            startRowIndex: 1,
+            endRowIndex: MAX_ROWS,
+            startColumnIndex: 8, // Column I
+            endColumnIndex: 9,
+          },
+        ],
         booleanRule: {
           condition: {
             type: 'CUSTOM_FORMULA',
@@ -1174,23 +1214,27 @@ function addStockFormatting(requests: any[], sheetMap: Record<string, number>): 
       },
       index: 0,
     },
-  });
+  })
 
   // Products expiring soon (within 30 days) - Yellow
   requests.push({
     addConditionalFormatRule: {
       rule: {
-        ranges: [{
-          sheetId,
-          startRowIndex: 1,
-          endRowIndex: MAX_ROWS,
-          startColumnIndex: 8, // Column I
-          endColumnIndex: 9,
-        }],
+        ranges: [
+          {
+            sheetId,
+            startRowIndex: 1,
+            endRowIndex: MAX_ROWS,
+            startColumnIndex: 8, // Column I
+            endColumnIndex: 9,
+          },
+        ],
         booleanRule: {
           condition: {
             type: 'CUSTOM_FORMULA',
-            values: [{ userEnteredValue: '=AND($I2<>"",ISNUMBER($I2),$I2>=TODAY(),$I2<TODAY()+30)' }],
+            values: [
+              { userEnteredValue: '=AND($I2<>"",ISNUMBER($I2),$I2>=TODAY(),$I2<TODAY()+30)' },
+            ],
           },
           format: {
             backgroundColor: COLORS.warningLight,
@@ -1200,7 +1244,7 @@ function addStockFormatting(requests: any[], sheetMap: Record<string, number>): 
       },
       index: 0,
     },
-  });
+  })
 }
 
 /**
@@ -1208,11 +1252,11 @@ function addStockFormatting(requests: any[], sheetMap: Record<string, number>): 
  * Full-width single column with section headers, boxes, and color-coded content
  */
 function addGuideFormatting(requests: any[], sheetMap: Record<string, number>): void {
-  const sheetId = sheetMap['📖 Guía Rápida'];
-  if (sheetId === undefined) return;
+  const sheetId = sheetMap['📖 Guía Rápida']
+  if (sheetId === undefined) return
 
-  const COLS = 8; // Total columns
-  const ROWS = 220; // Total rows for comprehensive guide
+  const COLS = 8 // Total columns
+  const ROWS = 220 // Total rows for comprehensive guide
 
   // 1. Base style for all cells - white background, wrapped text
   requests.push({
@@ -1238,7 +1282,7 @@ function addGuideFormatting(requests: any[], sheetMap: Record<string, number>): 
       },
       fields: 'userEnteredFormat',
     },
-  });
+  })
 
   // 2. Title row (row 1, index 0) - Teal header
   requests.push({
@@ -1265,7 +1309,7 @@ function addGuideFormatting(requests: any[], sheetMap: Record<string, number>): 
       },
       fields: 'userEnteredFormat',
     },
-  });
+  })
 
   // 3. Subtitle row (row 2, index 1)
   requests.push({
@@ -1292,7 +1336,7 @@ function addGuideFormatting(requests: any[], sheetMap: Record<string, number>): 
       },
       fields: 'userEnteredFormat',
     },
-  });
+  })
 
   // 4. Warning row (row 4, index 3) - Yellow/Red warning
   requests.push({
@@ -1319,11 +1363,13 @@ function addGuideFormatting(requests: any[], sheetMap: Record<string, number>): 
       },
       fields: 'userEnteredFormat',
     },
-  });
+  })
 
   // 5. Section divider rows (━━━ lines) - light gray with monospace
   // Find all section divider rows (they contain ━━━)
-  const sectionDividerRows = [5, 6, 7, 18, 19, 20, 46, 47, 48, 168, 169, 170, 195, 196, 197, 212, 213, 214];
+  const sectionDividerRows = [
+    5, 6, 7, 18, 19, 20, 46, 47, 48, 168, 169, 170, 195, 196, 197, 212, 213, 214,
+  ]
   for (const rowIndex of sectionDividerRows) {
     requests.push({
       repeatCell: {
@@ -1346,11 +1392,11 @@ function addGuideFormatting(requests: any[], sheetMap: Record<string, number>): 
         },
         fields: 'userEnteredFormat',
       },
-    });
+    })
   }
 
   // 6. Section titles (📋 1. ¿QUÉ ES...) - bold, larger, primary color
-  const sectionTitleRows = [6, 19, 47, 169, 196, 213];
+  const sectionTitleRows = [6, 19, 47, 169, 196, 213]
   for (const rowIndex of sectionTitleRows) {
     requests.push({
       repeatCell: {
@@ -1375,20 +1421,20 @@ function addGuideFormatting(requests: any[], sheetMap: Record<string, number>): 
         },
         fields: 'userEnteredFormat',
       },
-    });
+    })
   }
 
   // 7. Box header rows (┌─── and │ sheet name) - light teal
   // These are rows that start with ┌ or contain sheet names like │ 📂 CATEGORÍAS
   const boxHeaderPatterns = [
     // Section 3: Sheet descriptions - box headers
-    { start: 49, end: 50 },   // Categorías header
-    { start: 75, end: 76 },   // Proveedores header
-    { start: 97, end: 98 },   // Marcas header
+    { start: 49, end: 50 }, // Categorías header
+    { start: 75, end: 76 }, // Proveedores header
+    { start: 97, end: 98 }, // Marcas header
     { start: 115, end: 116 }, // Productos header
     { start: 139, end: 140 }, // Mis Productos header
     { start: 161, end: 162 }, // Movimientos header (approximate)
-  ];
+  ]
 
   for (const { start, end } of boxHeaderPatterns) {
     requests.push({
@@ -1412,7 +1458,7 @@ function addGuideFormatting(requests: any[], sheetMap: Record<string, number>): 
         },
         fields: 'userEnteredFormat',
       },
-    });
+    })
   }
 
   // 8. Checkmark items (✅) - light green tint
@@ -1420,13 +1466,15 @@ function addGuideFormatting(requests: any[], sheetMap: Record<string, number>): 
   requests.push({
     addConditionalFormatRule: {
       rule: {
-        ranges: [{
-          sheetId,
-          startRowIndex: 0,
-          endRowIndex: ROWS,
-          startColumnIndex: 0,
-          endColumnIndex: 1,
-        }],
+        ranges: [
+          {
+            sheetId,
+            startRowIndex: 0,
+            endRowIndex: ROWS,
+            startColumnIndex: 0,
+            endColumnIndex: 1,
+          },
+        ],
         booleanRule: {
           condition: {
             type: 'TEXT_CONTAINS',
@@ -1439,19 +1487,21 @@ function addGuideFormatting(requests: any[], sheetMap: Record<string, number>): 
       },
       index: 0,
     },
-  });
+  })
 
   // 9. PASO items (1️⃣, 2️⃣, etc.) - light blue highlight
   requests.push({
     addConditionalFormatRule: {
       rule: {
-        ranges: [{
-          sheetId,
-          startRowIndex: 0,
-          endRowIndex: ROWS,
-          startColumnIndex: 0,
-          endColumnIndex: 1,
-        }],
+        ranges: [
+          {
+            sheetId,
+            startRowIndex: 0,
+            endRowIndex: ROWS,
+            startColumnIndex: 0,
+            endColumnIndex: 1,
+          },
+        ],
         booleanRule: {
           condition: {
             type: 'TEXT_CONTAINS',
@@ -1465,19 +1515,21 @@ function addGuideFormatting(requests: any[], sheetMap: Record<string, number>): 
       },
       index: 0,
     },
-  });
+  })
 
   // 10. Warning items (⚠️) - light yellow
   requests.push({
     addConditionalFormatRule: {
       rule: {
-        ranges: [{
-          sheetId,
-          startRowIndex: 0,
-          endRowIndex: ROWS,
-          startColumnIndex: 0,
-          endColumnIndex: 1,
-        }],
+        ranges: [
+          {
+            sheetId,
+            startRowIndex: 0,
+            endRowIndex: ROWS,
+            startColumnIndex: 0,
+            endColumnIndex: 1,
+          },
+        ],
         booleanRule: {
           condition: {
             type: 'TEXT_CONTAINS',
@@ -1490,21 +1542,23 @@ function addGuideFormatting(requests: any[], sheetMap: Record<string, number>): 
       },
       index: 0,
     },
-  });
+  })
 
   // 11. Workflow headers (📥, 🛒, ➕, 📊) - light purple
-  const workflowEmojis = ['📥', '🛒', '➕', '📊'];
+  const workflowEmojis = ['📥', '🛒', '➕', '📊']
   for (const emoji of workflowEmojis) {
     requests.push({
       addConditionalFormatRule: {
         rule: {
-          ranges: [{
-            sheetId,
-            startRowIndex: 168,
-            endRowIndex: 195,
-            startColumnIndex: 0,
-            endColumnIndex: 1,
-          }],
+          ranges: [
+            {
+              sheetId,
+              startRowIndex: 168,
+              endRowIndex: 195,
+              startColumnIndex: 0,
+              endColumnIndex: 1,
+            },
+          ],
           booleanRule: {
             condition: {
               type: 'TEXT_STARTS_WITH',
@@ -1518,20 +1572,22 @@ function addGuideFormatting(requests: any[], sheetMap: Record<string, number>): 
         },
         index: 0,
       },
-    });
+    })
   }
 
   // 12. FAQ Questions (P:) - light teal
   requests.push({
     addConditionalFormatRule: {
       rule: {
-        ranges: [{
-          sheetId,
-          startRowIndex: 212,
-          endRowIndex: ROWS,
-          startColumnIndex: 0,
-          endColumnIndex: 1,
-        }],
+        ranges: [
+          {
+            sheetId,
+            startRowIndex: 212,
+            endRowIndex: ROWS,
+            startColumnIndex: 0,
+            endColumnIndex: 1,
+          },
+        ],
         booleanRule: {
           condition: {
             type: 'TEXT_STARTS_WITH',
@@ -1545,19 +1601,21 @@ function addGuideFormatting(requests: any[], sheetMap: Record<string, number>): 
       },
       index: 0,
     },
-  });
+  })
 
   // 13. FAQ Answers (R:) - white with italic
   requests.push({
     addConditionalFormatRule: {
       rule: {
-        ranges: [{
-          sheetId,
-          startRowIndex: 212,
-          endRowIndex: ROWS,
-          startColumnIndex: 0,
-          endColumnIndex: 1,
-        }],
+        ranges: [
+          {
+            sheetId,
+            startRowIndex: 212,
+            endRowIndex: ROWS,
+            startColumnIndex: 0,
+            endColumnIndex: 1,
+          },
+        ],
         booleanRule: {
           condition: {
             type: 'TEXT_STARTS_WITH',
@@ -1570,7 +1628,7 @@ function addGuideFormatting(requests: any[], sheetMap: Record<string, number>): 
       },
       index: 0,
     },
-  });
+  })
 
   // 14. Row heights
   // Title row - tall
@@ -1580,7 +1638,7 @@ function addGuideFormatting(requests: any[], sheetMap: Record<string, number>): 
       properties: { pixelSize: 50 },
       fields: 'pixelSize',
     },
-  });
+  })
 
   // Subtitle row
   requests.push({
@@ -1589,7 +1647,7 @@ function addGuideFormatting(requests: any[], sheetMap: Record<string, number>): 
       properties: { pixelSize: 32 },
       fields: 'pixelSize',
     },
-  });
+  })
 
   // Warning row
   requests.push({
@@ -1598,7 +1656,7 @@ function addGuideFormatting(requests: any[], sheetMap: Record<string, number>): 
       properties: { pixelSize: 35 },
       fields: 'pixelSize',
     },
-  });
+  })
 
   // Section title rows - medium height
   for (const rowIndex of sectionTitleRows) {
@@ -1608,7 +1666,7 @@ function addGuideFormatting(requests: any[], sheetMap: Record<string, number>): 
         properties: { pixelSize: 32 },
         fields: 'pixelSize',
       },
-    });
+    })
   }
 
   // Content rows - standard height
@@ -1618,7 +1676,7 @@ function addGuideFormatting(requests: any[], sheetMap: Record<string, number>): 
       properties: { pixelSize: 20 },
       fields: 'pixelSize',
     },
-  });
+  })
 
   // Footer rows - small
   requests.push({
@@ -1627,7 +1685,7 @@ function addGuideFormatting(requests: any[], sheetMap: Record<string, number>): 
       properties: { pixelSize: 25 },
       fields: 'pixelSize',
     },
-  });
+  })
 
   // 15. Hide gridlines for cleaner look
   requests.push({
@@ -1638,16 +1696,22 @@ function addGuideFormatting(requests: any[], sheetMap: Record<string, number>): 
       },
       fields: 'gridProperties.hideGridlines',
     },
-  });
+  })
 
   // 16. Merge all rows (full width documentation)
   for (let i = 0; i < ROWS; i++) {
     requests.push({
       mergeCells: {
-        range: { sheetId, startRowIndex: i, endRowIndex: i + 1, startColumnIndex: 0, endColumnIndex: COLS },
+        range: {
+          sheetId,
+          startRowIndex: i,
+          endRowIndex: i + 1,
+          startColumnIndex: 0,
+          endColumnIndex: COLS,
+        },
         mergeType: 'MERGE_ALL',
       },
-    });
+    })
   }
 
   // 17. Footer styling (last 3 rows)
@@ -1675,7 +1739,7 @@ function addGuideFormatting(requests: any[], sheetMap: Record<string, number>): 
       },
       fields: 'userEnteredFormat',
     },
-  });
+  })
 }
 
 /**
@@ -1685,11 +1749,11 @@ function addGuideFormatting(requests: any[], sheetMap: Record<string, number>): 
  * Auto-calculated: ÚltCosto(M), Margen%(N), Stock(O), Valor(P), Estado(Q), PróxVence(R), Alertas(S)
  */
 function addMisProductosFormatting(requests: any[], sheetMap: Record<string, number>): void {
-  const sheetId = sheetMap['📋 Mis Productos'];
-  if (sheetId === undefined) return;
+  const sheetId = sheetMap['📋 Mis Productos']
+  if (sheetId === undefined) return
 
-  const config = SHEETS.find(s => s.name === '📋 Mis Productos');
-  const MAX_ROWS = (config?.dataRows ?? 500) + 1;
+  const config = SHEETS.find((s) => s.name === '📋 Mis Productos')
+  const MAX_ROWS = (config?.dataRows ?? 500) + 1
 
   // Light green background for client-entry columns (A-E, index 0-5)
   requests.push({
@@ -1708,7 +1772,7 @@ function addMisProductosFormatting(requests: any[], sheetMap: Record<string, num
       },
       fields: 'userEnteredFormat.backgroundColor',
     },
-  });
+  })
 
   // Currency format for Precio Venta (B - index 1)
   requests.push({
@@ -1729,7 +1793,7 @@ function addMisProductosFormatting(requests: any[], sheetMap: Record<string, num
       },
       fields: 'userEnteredFormat(numberFormat,horizontalAlignment,backgroundColor)',
     },
-  });
+  })
 
   // Number format for Stock Mín (C - index 2)
   requests.push({
@@ -1749,7 +1813,7 @@ function addMisProductosFormatting(requests: any[], sheetMap: Record<string, num
       },
       fields: 'userEnteredFormat(numberFormat,horizontalAlignment)',
     },
-  });
+  })
 
   // Gray background for auto-fill columns F-L (index 5-12)
   requests.push({
@@ -1772,7 +1836,7 @@ function addMisProductosFormatting(requests: any[], sheetMap: Record<string, num
       },
       fields: 'userEnteredFormat(backgroundColor,textFormat)',
     },
-  });
+  })
 
   // Monospace for Código column (F - index 5)
   requests.push({
@@ -1796,7 +1860,7 @@ function addMisProductosFormatting(requests: any[], sheetMap: Record<string, num
       },
       fields: 'userEnteredFormat.textFormat',
     },
-  });
+  })
 
   // Barcode column (K - index 10) - monospace for codes
   requests.push({
@@ -1819,7 +1883,7 @@ function addMisProductosFormatting(requests: any[], sheetMap: Record<string, num
       },
       fields: 'userEnteredFormat(textFormat,horizontalAlignment)',
     },
-  });
+  })
 
   // Gray background for auto-calculated columns M-S (index 12-19)
   requests.push({
@@ -1842,7 +1906,7 @@ function addMisProductosFormatting(requests: any[], sheetMap: Record<string, num
       },
       fields: 'userEnteredFormat(backgroundColor,textFormat)',
     },
-  });
+  })
 
   // Currency format for Último Costo (M - index 12)
   requests.push({
@@ -1867,7 +1931,7 @@ function addMisProductosFormatting(requests: any[], sheetMap: Record<string, num
       },
       fields: 'userEnteredFormat(backgroundColor,numberFormat,horizontalAlignment,textFormat)',
     },
-  });
+  })
 
   // PERCENTAGE format for Margen % (N - index 13)
   requests.push({
@@ -1892,7 +1956,7 @@ function addMisProductosFormatting(requests: any[], sheetMap: Record<string, num
       },
       fields: 'userEnteredFormat(backgroundColor,numberFormat,horizontalAlignment,textFormat)',
     },
-  });
+  })
 
   // Number format for Stock (O - index 14)
   requests.push({
@@ -1917,7 +1981,7 @@ function addMisProductosFormatting(requests: any[], sheetMap: Record<string, num
       },
       fields: 'userEnteredFormat(backgroundColor,numberFormat,horizontalAlignment,textFormat)',
     },
-  });
+  })
 
   // Currency format for Valor (P - index 15)
   requests.push({
@@ -1942,7 +2006,7 @@ function addMisProductosFormatting(requests: any[], sheetMap: Record<string, num
       },
       fields: 'userEnteredFormat(backgroundColor,numberFormat,horizontalAlignment,textFormat)',
     },
-  });
+  })
 
   // Estado column (Q - index 16) - centered emoji
   requests.push({
@@ -1965,7 +2029,7 @@ function addMisProductosFormatting(requests: any[], sheetMap: Record<string, num
       },
       fields: 'userEnteredFormat(backgroundColor,horizontalAlignment,textFormat)',
     },
-  });
+  })
 
   // Date format for Próx.Vence (R - index 17)
   requests.push({
@@ -1990,19 +2054,21 @@ function addMisProductosFormatting(requests: any[], sheetMap: Record<string, num
       },
       fields: 'userEnteredFormat(backgroundColor,numberFormat,horizontalAlignment,textFormat)',
     },
-  });
+  })
 
   // Conditional formatting for low stock - Estado column (Q shows 🔴)
   requests.push({
     addConditionalFormatRule: {
       rule: {
-        ranges: [{
-          sheetId,
-          startRowIndex: 1,
-          endRowIndex: MAX_ROWS,
-          startColumnIndex: 0,
-          endColumnIndex: 19,
-        }],
+        ranges: [
+          {
+            sheetId,
+            startRowIndex: 1,
+            endRowIndex: MAX_ROWS,
+            startColumnIndex: 0,
+            endColumnIndex: 19,
+          },
+        ],
         booleanRule: {
           condition: {
             type: 'CUSTOM_FORMULA',
@@ -2015,19 +2081,21 @@ function addMisProductosFormatting(requests: any[], sheetMap: Record<string, num
       },
       index: 0,
     },
-  });
+  })
 
   // Conditional formatting for low stock warning - Estado column (Q shows 🟡)
   requests.push({
     addConditionalFormatRule: {
       rule: {
-        ranges: [{
-          sheetId,
-          startRowIndex: 1,
-          endRowIndex: MAX_ROWS,
-          startColumnIndex: 0,
-          endColumnIndex: 19,
-        }],
+        ranges: [
+          {
+            sheetId,
+            startRowIndex: 1,
+            endRowIndex: MAX_ROWS,
+            startColumnIndex: 0,
+            endColumnIndex: 19,
+          },
+        ],
         booleanRule: {
           condition: {
             type: 'CUSTOM_FORMULA',
@@ -2040,19 +2108,21 @@ function addMisProductosFormatting(requests: any[], sheetMap: Record<string, num
       },
       index: 0,
     },
-  });
+  })
 
   // Conditional formatting for margin < 20% (low margin) - N column is now number format
   requests.push({
     addConditionalFormatRule: {
       rule: {
-        ranges: [{
-          sheetId,
-          startRowIndex: 1,
-          endRowIndex: MAX_ROWS,
-          startColumnIndex: 13,
-          endColumnIndex: 14,
-        }],
+        ranges: [
+          {
+            sheetId,
+            startRowIndex: 1,
+            endRowIndex: MAX_ROWS,
+            startColumnIndex: 13,
+            endColumnIndex: 14,
+          },
+        ],
         booleanRule: {
           condition: {
             type: 'CUSTOM_FORMULA',
@@ -2066,19 +2136,21 @@ function addMisProductosFormatting(requests: any[], sheetMap: Record<string, num
       },
       index: 0,
     },
-  });
+  })
 
   // Conditional formatting for inactive products (E = "No")
   requests.push({
     addConditionalFormatRule: {
       rule: {
-        ranges: [{
-          sheetId,
-          startRowIndex: 1,
-          endRowIndex: MAX_ROWS,
-          startColumnIndex: 0,
-          endColumnIndex: 19,
-        }],
+        ranges: [
+          {
+            sheetId,
+            startRowIndex: 1,
+            endRowIndex: MAX_ROWS,
+            startColumnIndex: 0,
+            endColumnIndex: 19,
+          },
+        ],
         booleanRule: {
           condition: {
             type: 'CUSTOM_FORMULA',
@@ -2094,7 +2166,7 @@ function addMisProductosFormatting(requests: any[], sheetMap: Record<string, num
       },
       index: 0,
     },
-  });
+  })
 }
 
 /**
@@ -2105,11 +2177,11 @@ function addMisProductosFormatting(requests: any[], sheetMap: Record<string, num
  *   Responsables table (F-I): ID, Responsable, Rol/Cargo, Activo
  */
 function addConfigFormatting(requests: any[], sheetMap: Record<string, number>): void {
-  const sheetId = sheetMap['⚙️ Configuración'];
-  if (sheetId === undefined) return;
+  const sheetId = sheetMap['⚙️ Configuración']
+  if (sheetId === undefined) return
 
-  const config = SHEETS.find(s => s.name === '⚙️ Configuración');
-  const MAX_ROWS = (config?.dataRows ?? 50) + 1;
+  const config = SHEETS.find((s) => s.name === '⚙️ Configuración')
+  const MAX_ROWS = (config?.dataRows ?? 50) + 1
 
   // ═══════════════════════════════════════════════════════════════════════════
   // UBICACIONES TABLE (A-D) - Light amber background
@@ -2130,7 +2202,7 @@ function addConfigFormatting(requests: any[], sheetMap: Record<string, number>):
       },
       fields: 'userEnteredFormat.backgroundColor',
     },
-  });
+  })
 
   // Código column (A) - monospace for DEP-xxx codes
   requests.push({
@@ -2153,7 +2225,7 @@ function addConfigFormatting(requests: any[], sheetMap: Record<string, number>):
       },
       fields: 'userEnteredFormat(textFormat,horizontalAlignment)',
     },
-  });
+  })
 
   // Activo column (D) - centered
   requests.push({
@@ -2172,7 +2244,7 @@ function addConfigFormatting(requests: any[], sheetMap: Record<string, number>):
       },
       fields: 'userEnteredFormat.horizontalAlignment',
     },
-  });
+  })
 
   // ═══════════════════════════════════════════════════════════════════════════
   // SEPARATOR COLUMN (E) - White/empty
@@ -2193,7 +2265,7 @@ function addConfigFormatting(requests: any[], sheetMap: Record<string, number>):
       },
       fields: 'userEnteredFormat.backgroundColor',
     },
-  });
+  })
 
   // ═══════════════════════════════════════════════════════════════════════════
   // RESPONSABLES TABLE (F-I) - Light blue background
@@ -2214,7 +2286,7 @@ function addConfigFormatting(requests: any[], sheetMap: Record<string, number>):
       },
       fields: 'userEnteredFormat.backgroundColor',
     },
-  });
+  })
 
   // ID column (F) - monospace for STAFF-xxx codes
   requests.push({
@@ -2237,7 +2309,7 @@ function addConfigFormatting(requests: any[], sheetMap: Record<string, number>):
       },
       fields: 'userEnteredFormat(textFormat,horizontalAlignment)',
     },
-  });
+  })
 
   // Activo column (I) - centered
   requests.push({
@@ -2256,7 +2328,7 @@ function addConfigFormatting(requests: any[], sheetMap: Record<string, number>):
       },
       fields: 'userEnteredFormat.horizontalAlignment',
     },
-  });
+  })
 
   // ═══════════════════════════════════════════════════════════════════════════
   // CONDITIONAL FORMATTING - Inactive items (strikethrough)
@@ -2266,13 +2338,15 @@ function addConfigFormatting(requests: any[], sheetMap: Record<string, number>):
   requests.push({
     addConditionalFormatRule: {
       rule: {
-        ranges: [{
-          sheetId,
-          startRowIndex: 1,
-          endRowIndex: MAX_ROWS,
-          startColumnIndex: 0,
-          endColumnIndex: 4,
-        }],
+        ranges: [
+          {
+            sheetId,
+            startRowIndex: 1,
+            endRowIndex: MAX_ROWS,
+            startColumnIndex: 0,
+            endColumnIndex: 4,
+          },
+        ],
         booleanRule: {
           condition: {
             type: 'CUSTOM_FORMULA',
@@ -2288,19 +2362,21 @@ function addConfigFormatting(requests: any[], sheetMap: Record<string, number>):
       },
       index: 0,
     },
-  });
+  })
 
   // Inactive Responsables (I = "No")
   requests.push({
     addConditionalFormatRule: {
       rule: {
-        ranges: [{
-          sheetId,
-          startRowIndex: 1,
-          endRowIndex: MAX_ROWS,
-          startColumnIndex: 5,
-          endColumnIndex: 9,
-        }],
+        ranges: [
+          {
+            sheetId,
+            startRowIndex: 1,
+            endRowIndex: MAX_ROWS,
+            startColumnIndex: 5,
+            endColumnIndex: 9,
+          },
+        ],
         booleanRule: {
           condition: {
             type: 'CUSTOM_FORMULA',
@@ -2316,7 +2392,7 @@ function addConfigFormatting(requests: any[], sheetMap: Record<string, number>):
       },
       index: 0,
     },
-  });
+  })
 }
 
 /**
@@ -2326,11 +2402,11 @@ function addConfigFormatting(requests: any[], sheetMap: Record<string, number>):
  * This sheet contains FILTER formulas for active items only
  */
 function addDatosFormatting(requests: any[], sheetMap: Record<string, number>): void {
-  const sheetId = sheetMap['🔧 Datos'];
-  if (sheetId === undefined) return;
+  const sheetId = sheetMap['🔧 Datos']
+  if (sheetId === undefined) return
 
-  const config = SHEETS.find(s => s.name === '🔧 Datos');
-  const MAX_ROWS = (config?.dataRows ?? 1200) + 1;
+  const config = SHEETS.find((s) => s.name === '🔧 Datos')
+  const MAX_ROWS = (config?.dataRows ?? 1200) + 1
 
   // Light gray background for helper data (all 7 columns)
   requests.push({
@@ -2353,7 +2429,7 @@ function addDatosFormatting(requests: any[], sheetMap: Record<string, number>): 
       },
       fields: 'userEnteredFormat(backgroundColor,textFormat)',
     },
-  });
+  })
 
   // Hide the sheet (users don't need to see it)
   requests.push({
@@ -2364,7 +2440,7 @@ function addDatosFormatting(requests: any[], sheetMap: Record<string, number>): 
       },
       fields: 'hidden',
     },
-  });
+  })
 }
 
 /**
@@ -2375,11 +2451,11 @@ function addDatosFormatting(requests: any[], sheetMap: Record<string, number>): 
  *             S-#Productos, T-Total Compras, U-Última Compra, V-Verificado, W-Notas, X-Activo
  */
 function addProvidersFormatting(requests: any[], sheetMap: Record<string, number>): void {
-  const sheetId = sheetMap['🏭 Proveedores'];
-  if (sheetId === undefined) return;
+  const sheetId = sheetMap['🏭 Proveedores']
+  if (sheetId === undefined) return
 
-  const config = SHEETS.find(s => s.name === '🏭 Proveedores');
-  const MAX_ROWS = (config?.dataRows ?? 100) + 1;
+  const config = SHEETS.find((s) => s.name === '🏭 Proveedores')
+  const MAX_ROWS = (config?.dataRows ?? 100) + 1
 
   // Código column (A) - gray "locked" appearance (auto-generated)
   requests.push({
@@ -2403,7 +2479,7 @@ function addProvidersFormatting(requests: any[], sheetMap: Record<string, number
       },
       fields: 'userEnteredFormat(backgroundColor,textFormat)',
     },
-  });
+  })
 
   // Calificación column (F - index 5) - centered stars
   requests.push({
@@ -2425,26 +2501,28 @@ function addProvidersFormatting(requests: any[], sheetMap: Record<string, number
       },
       fields: 'userEnteredFormat(horizontalAlignment,textFormat)',
     },
-  });
+  })
 
   // Conditional formatting for provider type (column E - index 4)
   const typeColors = [
     { type: 'Productos', color: { red: 0.882, green: 0.922, blue: 0.961 } },
     { type: 'Servicios', color: { red: 0.988, green: 0.945, blue: 0.859 } },
     { type: 'Ambos', color: { red: 0.851, green: 0.918, blue: 0.827 } },
-  ];
+  ]
 
   for (const { type, color } of typeColors) {
     requests.push({
       addConditionalFormatRule: {
         rule: {
-          ranges: [{
-            sheetId,
-            startRowIndex: 1,
-            endRowIndex: MAX_ROWS,
-            startColumnIndex: 0,
-            endColumnIndex: 12, // Columns A-L for visual grouping
-          }],
+          ranges: [
+            {
+              sheetId,
+              startRowIndex: 1,
+              endRowIndex: MAX_ROWS,
+              startColumnIndex: 0,
+              endColumnIndex: 12, // Columns A-L for visual grouping
+            },
+          ],
           booleanRule: {
             condition: {
               type: 'CUSTOM_FORMULA',
@@ -2455,7 +2533,7 @@ function addProvidersFormatting(requests: any[], sheetMap: Record<string, number
         },
         index: 0,
       },
-    });
+    })
   }
 
   // Email column (I - index 8) - special formatting with underline
@@ -2478,7 +2556,7 @@ function addProvidersFormatting(requests: any[], sheetMap: Record<string, number
       },
       fields: 'userEnteredFormat.textFormat',
     },
-  });
+  })
 
   // Website column (J - index 9) - same formatting
   requests.push({
@@ -2500,7 +2578,7 @@ function addProvidersFormatting(requests: any[], sheetMap: Record<string, number
       },
       fields: 'userEnteredFormat.textFormat',
     },
-  });
+  })
 
   // Currency format for Pedido Mín. (O - index 14)
   requests.push({
@@ -2520,7 +2598,7 @@ function addProvidersFormatting(requests: any[], sheetMap: Record<string, number
       },
       fields: 'userEnteredFormat(numberFormat,horizontalAlignment)',
     },
-  });
+  })
 
   // Días Entrega column (Q - index 16) - centered number
   requests.push({
@@ -2540,7 +2618,7 @@ function addProvidersFormatting(requests: any[], sheetMap: Record<string, number
       },
       fields: 'userEnteredFormat(numberFormat,horizontalAlignment)',
     },
-  });
+  })
 
   // Calculated columns (S-U: #Productos, Total Compras, Última Compra) - gray
   requests.push({
@@ -2563,7 +2641,7 @@ function addProvidersFormatting(requests: any[], sheetMap: Record<string, number
       },
       fields: 'userEnteredFormat(backgroundColor,textFormat)',
     },
-  });
+  })
 
   // #Productos (S - index 18) - centered number
   requests.push({
@@ -2583,7 +2661,7 @@ function addProvidersFormatting(requests: any[], sheetMap: Record<string, number
       },
       fields: 'userEnteredFormat(numberFormat,horizontalAlignment)',
     },
-  });
+  })
 
   // Total Compras (T - index 19) - currency
   requests.push({
@@ -2603,7 +2681,7 @@ function addProvidersFormatting(requests: any[], sheetMap: Record<string, number
       },
       fields: 'userEnteredFormat(numberFormat,horizontalAlignment)',
     },
-  });
+  })
 
   // Última Compra (U - index 20) - date
   requests.push({
@@ -2623,19 +2701,21 @@ function addProvidersFormatting(requests: any[], sheetMap: Record<string, number
       },
       fields: 'userEnteredFormat(numberFormat,horizontalAlignment)',
     },
-  });
+  })
 
   // Conditional formatting for inactive suppliers (X = "No")
   requests.push({
     addConditionalFormatRule: {
       rule: {
-        ranges: [{
-          sheetId,
-          startRowIndex: 1,
-          endRowIndex: MAX_ROWS,
-          startColumnIndex: 0,
-          endColumnIndex: 24,
-        }],
+        ranges: [
+          {
+            sheetId,
+            startRowIndex: 1,
+            endRowIndex: MAX_ROWS,
+            startColumnIndex: 0,
+            endColumnIndex: 24,
+          },
+        ],
         booleanRule: {
           condition: {
             type: 'CUSTOM_FORMULA',
@@ -2651,7 +2731,7 @@ function addProvidersFormatting(requests: any[], sheetMap: Record<string, number
       },
       index: 0,
     },
-  });
+  })
 }
 
 /**
@@ -2661,11 +2741,11 @@ function addProvidersFormatting(requests: any[], sheetMap: Record<string, number
  *             M-#Productos, N-Descripción, O-Activo
  */
 function addBrandsFormatting(requests: any[], sheetMap: Record<string, number>): void {
-  const sheetId = sheetMap['🏷️ Marcas'];
-  if (sheetId === undefined) return;
+  const sheetId = sheetMap['🏷️ Marcas']
+  if (sheetId === undefined) return
 
-  const config = SHEETS.find(s => s.name === '🏷️ Marcas');
-  const MAX_ROWS = (config?.dataRows ?? 150) + 1;
+  const config = SHEETS.find((s) => s.name === '🏷️ Marcas')
+  const MAX_ROWS = (config?.dataRows ?? 150) + 1
 
   // Código column (A) - gray "locked" appearance (auto-generated)
   requests.push({
@@ -2689,7 +2769,7 @@ function addBrandsFormatting(requests: any[], sheetMap: Record<string, number>):
       },
       fields: 'userEnteredFormat(backgroundColor,textFormat)',
     },
-  });
+  })
 
   // Fundación column (G - index 6) - centered year
   requests.push({
@@ -2709,7 +2789,7 @@ function addBrandsFormatting(requests: any[], sheetMap: Record<string, number>):
       },
       fields: 'userEnteredFormat(numberFormat,horizontalAlignment)',
     },
-  });
+  })
 
   // Website column (K - index 10) - link formatting
   requests.push({
@@ -2731,7 +2811,7 @@ function addBrandsFormatting(requests: any[], sheetMap: Record<string, number>):
       },
       fields: 'userEnteredFormat.textFormat',
     },
-  });
+  })
 
   // #Productos column (M - index 12) - gray calculated, centered
   requests.push({
@@ -2756,7 +2836,7 @@ function addBrandsFormatting(requests: any[], sheetMap: Record<string, number>):
       },
       fields: 'userEnteredFormat(backgroundColor,numberFormat,horizontalAlignment,textFormat)',
     },
-  });
+  })
 
   // Description column (N - index 13) - text wrap
   requests.push({
@@ -2775,19 +2855,21 @@ function addBrandsFormatting(requests: any[], sheetMap: Record<string, number>):
       },
       fields: 'userEnteredFormat.wrapStrategy',
     },
-  });
+  })
 
   // Conditional formatting for inactive brands (Activo = column O - index 14)
   requests.push({
     addConditionalFormatRule: {
       rule: {
-        ranges: [{
-          sheetId,
-          startRowIndex: 1,
-          endRowIndex: MAX_ROWS,
-          startColumnIndex: 0,
-          endColumnIndex: 15, // All columns A-O
-        }],
+        ranges: [
+          {
+            sheetId,
+            startRowIndex: 1,
+            endRowIndex: MAX_ROWS,
+            startColumnIndex: 0,
+            endColumnIndex: 15, // All columns A-O
+          },
+        ],
         booleanRule: {
           condition: {
             type: 'CUSTOM_FORMULA',
@@ -2803,7 +2885,7 @@ function addBrandsFormatting(requests: any[], sheetMap: Record<string, number>):
       },
       index: 0,
     },
-  });
+  })
 }
 
 /**
@@ -2813,11 +2895,11 @@ function addBrandsFormatting(requests: any[], sheetMap: Record<string, number>):
  * G-Costo Unit., H-Valor, I-Días Vence, J-Estado
  */
 function addControlLotesFormatting(requests: any[], sheetMap: Record<string, number>): void {
-  const sheetId = sheetMap['📊 Control Lotes'];
-  if (sheetId === undefined) return;
+  const sheetId = sheetMap['📊 Control Lotes']
+  if (sheetId === undefined) return
 
-  const config = SHEETS.find(s => s.name === '📊 Control Lotes');
-  const MAX_ROWS = (config?.dataRows ?? 500) + 1;
+  const config = SHEETS.find((s) => s.name === '📊 Control Lotes')
+  const MAX_ROWS = (config?.dataRows ?? 500) + 1
 
   // All cells are formula-based - light gray background with italic text
   requests.push({
@@ -2840,7 +2922,7 @@ function addControlLotesFormatting(requests: any[], sheetMap: Record<string, num
       },
       fields: 'userEnteredFormat(backgroundColor,textFormat)',
     },
-  });
+  })
 
   // Producto column (A) - regular font, left aligned (key identifier)
   requests.push({
@@ -2862,7 +2944,7 @@ function addControlLotesFormatting(requests: any[], sheetMap: Record<string, num
       },
       fields: 'userEnteredFormat.textFormat',
     },
-  });
+  })
 
   // Lote column (B) - monospace for lot codes
   requests.push({
@@ -2886,7 +2968,7 @@ function addControlLotesFormatting(requests: any[], sheetMap: Record<string, num
       },
       fields: 'userEnteredFormat(textFormat,horizontalAlignment)',
     },
-  });
+  })
 
   // Código column (C) - monospace, centered
   requests.push({
@@ -2909,7 +2991,7 @@ function addControlLotesFormatting(requests: any[], sheetMap: Record<string, num
       },
       fields: 'userEnteredFormat(textFormat,horizontalAlignment)',
     },
-  });
+  })
 
   // Date format for F.Ingreso (D) and Vencimiento (E)
   requests.push({
@@ -2929,7 +3011,7 @@ function addControlLotesFormatting(requests: any[], sheetMap: Record<string, num
       },
       fields: 'userEnteredFormat(numberFormat,horizontalAlignment)',
     },
-  });
+  })
 
   // Number format for Cantidad (F)
   requests.push({
@@ -2949,7 +3031,7 @@ function addControlLotesFormatting(requests: any[], sheetMap: Record<string, num
       },
       fields: 'userEnteredFormat(numberFormat,horizontalAlignment)',
     },
-  });
+  })
 
   // Currency format for Costo Unit. (G) and Valor (H)
   requests.push({
@@ -2969,7 +3051,7 @@ function addControlLotesFormatting(requests: any[], sheetMap: Record<string, num
       },
       fields: 'userEnteredFormat(numberFormat,horizontalAlignment)',
     },
-  });
+  })
 
   // Number format for Días Vence (I) - centered
   requests.push({
@@ -2992,7 +3074,7 @@ function addControlLotesFormatting(requests: any[], sheetMap: Record<string, num
       },
       fields: 'userEnteredFormat(numberFormat,horizontalAlignment,textFormat)',
     },
-  });
+  })
 
   // Estado column (J) - centered, larger font for emoji
   requests.push({
@@ -3016,19 +3098,21 @@ function addControlLotesFormatting(requests: any[], sheetMap: Record<string, num
       },
       fields: 'userEnteredFormat(horizontalAlignment,textFormat)',
     },
-  });
+  })
 
   // Conditional formatting: Estado = "Vencido" - red row
   requests.push({
     addConditionalFormatRule: {
       rule: {
-        ranges: [{
-          sheetId,
-          startRowIndex: 1,
-          endRowIndex: MAX_ROWS,
-          startColumnIndex: 0,
-          endColumnIndex: 10,
-        }],
+        ranges: [
+          {
+            sheetId,
+            startRowIndex: 1,
+            endRowIndex: MAX_ROWS,
+            startColumnIndex: 0,
+            endColumnIndex: 10,
+          },
+        ],
         booleanRule: {
           condition: {
             type: 'CUSTOM_FORMULA',
@@ -3042,19 +3126,21 @@ function addControlLotesFormatting(requests: any[], sheetMap: Record<string, num
       },
       index: 0,
     },
-  });
+  })
 
   // Conditional formatting: Estado = "Por vencer" - yellow row
   requests.push({
     addConditionalFormatRule: {
       rule: {
-        ranges: [{
-          sheetId,
-          startRowIndex: 1,
-          endRowIndex: MAX_ROWS,
-          startColumnIndex: 0,
-          endColumnIndex: 10,
-        }],
+        ranges: [
+          {
+            sheetId,
+            startRowIndex: 1,
+            endRowIndex: MAX_ROWS,
+            startColumnIndex: 0,
+            endColumnIndex: 10,
+          },
+        ],
         booleanRule: {
           condition: {
             type: 'CUSTOM_FORMULA',
@@ -3068,19 +3154,21 @@ function addControlLotesFormatting(requests: any[], sheetMap: Record<string, num
       },
       index: 0,
     },
-  });
+  })
 
   // Conditional formatting: Estado = "OK" - green row
   requests.push({
     addConditionalFormatRule: {
       rule: {
-        ranges: [{
-          sheetId,
-          startRowIndex: 1,
-          endRowIndex: MAX_ROWS,
-          startColumnIndex: 0,
-          endColumnIndex: 10,
-        }],
+        ranges: [
+          {
+            sheetId,
+            startRowIndex: 1,
+            endRowIndex: MAX_ROWS,
+            startColumnIndex: 0,
+            endColumnIndex: 10,
+          },
+        ],
         booleanRule: {
           condition: {
             type: 'CUSTOM_FORMULA',
@@ -3094,19 +3182,21 @@ function addControlLotesFormatting(requests: any[], sheetMap: Record<string, num
       },
       index: 0,
     },
-  });
+  })
 
   // Conditional formatting: Días Vence (I) < 0 - bold red text
   requests.push({
     addConditionalFormatRule: {
       rule: {
-        ranges: [{
-          sheetId,
-          startRowIndex: 1,
-          endRowIndex: MAX_ROWS,
-          startColumnIndex: 8,
-          endColumnIndex: 9,
-        }],
+        ranges: [
+          {
+            sheetId,
+            startRowIndex: 1,
+            endRowIndex: MAX_ROWS,
+            startColumnIndex: 8,
+            endColumnIndex: 9,
+          },
+        ],
         booleanRule: {
           condition: {
             type: 'CUSTOM_FORMULA',
@@ -3122,19 +3212,21 @@ function addControlLotesFormatting(requests: any[], sheetMap: Record<string, num
       },
       index: 0,
     },
-  });
+  })
 
   // Conditional formatting: Días Vence (I) between 0-30 - warning
   requests.push({
     addConditionalFormatRule: {
       rule: {
-        ranges: [{
-          sheetId,
-          startRowIndex: 1,
-          endRowIndex: MAX_ROWS,
-          startColumnIndex: 8,
-          endColumnIndex: 9,
-        }],
+        ranges: [
+          {
+            sheetId,
+            startRowIndex: 1,
+            endRowIndex: MAX_ROWS,
+            startColumnIndex: 8,
+            endColumnIndex: 9,
+          },
+        ],
         booleanRule: {
           condition: {
             type: 'CUSTOM_FORMULA',
@@ -3150,19 +3242,21 @@ function addControlLotesFormatting(requests: any[], sheetMap: Record<string, num
       },
       index: 0,
     },
-  });
+  })
 
   // Conditional formatting: Cantidad (F) = 0 - strikethrough
   requests.push({
     addConditionalFormatRule: {
       rule: {
-        ranges: [{
-          sheetId,
-          startRowIndex: 1,
-          endRowIndex: MAX_ROWS,
-          startColumnIndex: 0,
-          endColumnIndex: 10,
-        }],
+        ranges: [
+          {
+            sheetId,
+            startRowIndex: 1,
+            endRowIndex: MAX_ROWS,
+            startColumnIndex: 0,
+            endColumnIndex: 10,
+          },
+        ],
         booleanRule: {
           condition: {
             type: 'CUSTOM_FORMULA',
@@ -3178,5 +3272,5 @@ function addControlLotesFormatting(requests: any[], sheetMap: Record<string, num
       },
       index: 0,
     },
-  });
+  })
 }

@@ -1,21 +1,23 @@
-"use client";
+'use client'
 
-import type { JSX } from 'react';
-import SignaturePad from './signature-pad';
+import type { JSX } from 'react'
+import SignaturePad from './signature-pad'
 
 interface WitnessSignatureProps {
-  witnessName: string;
-  onWitnessNameChange: (name: string) => void;
-  signatureMode: 'draw' | 'type';
-  onModeChange: (mode: 'draw' | 'type') => void;
-  signatureText: string;
-  onSignatureTextChange: (text: string) => void;
-  canvasRef: React.RefObject<HTMLCanvasElement | null>;
-  canvasContainerRef: React.RefObject<HTMLDivElement | null>;
-  onStartDrawing: (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => void;
-  onDraw: (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => void;
-  onStopDrawing: () => void;
-  onClearSignature: () => void;
+  witnessName: string
+  onWitnessNameChange: (name: string) => void
+  signatureMode: 'draw' | 'type'
+  onModeChange: (mode: 'draw' | 'type') => void
+  signatureText: string
+  onSignatureTextChange: (text: string) => void
+  canvasRef: React.RefObject<HTMLCanvasElement | null>
+  canvasContainerRef: React.RefObject<HTMLDivElement | null>
+  onStartDrawing: (
+    e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>
+  ) => void
+  onDraw: (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => void
+  onStopDrawing: () => void
+  onClearSignature: () => void
 }
 
 export default function WitnessSignature({
@@ -33,13 +35,13 @@ export default function WitnessSignature({
   onClearSignature,
 }: WitnessSignatureProps): JSX.Element {
   return (
-    <div className="bg-[var(--bg-paper)] rounded-lg border border-[var(--primary)]/20 p-6">
-      <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4">
+    <div className="border-[var(--primary)]/20 rounded-lg border bg-[var(--bg-paper)] p-6">
+      <h3 className="mb-4 text-lg font-semibold text-[var(--text-primary)]">
         Firma del testigo <span className="text-red-600">*</span>
       </h3>
 
       <div className="mb-4">
-        <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
+        <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">
           Nombre del testigo <span className="text-red-600">*</span>
         </label>
         <input
@@ -47,7 +49,7 @@ export default function WitnessSignature({
           value={witnessName}
           onChange={(e) => onWitnessNameChange(e.target.value)}
           required
-          className="w-full px-4 py-2 border border-[var(--primary)]/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] bg-[var(--bg-default)] text-[var(--text-primary)]"
+          className="border-[var(--primary)]/20 w-full rounded-lg border bg-[var(--bg-default)] px-4 py-2 text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
         />
       </div>
 
@@ -66,5 +68,5 @@ export default function WitnessSignature({
         required={false}
       />
     </div>
-  );
+  )
 }

@@ -17,17 +17,17 @@ export async function GET(request: NextRequest) {
   const includeInactive = searchParams.get('include_inactive') === 'true'
 
   // Auth check
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
   if (authError || !user) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
   }
 
   try {
     // Get global types and tenant-specific types if clinic provided
-    let query = supabase
-      .from('time_off_types')
-      .select('*')
-      .order('name')
+    let query = supabase.from('time_off_types').select('*').order('name')
 
     if (!includeInactive) {
       query = query.eq('is_active', true)
@@ -47,26 +47,20 @@ export async function GET(request: NextRequest) {
       logger.error('Error fetching time off types', {
         error: error.message,
         tenantId: clinicSlug,
-        userId: user.id
+        userId: user.id,
       })
-      return NextResponse.json(
-        { error: 'Error al obtener tipos de ausencia' },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: 'Error al obtener tipos de ausencia' }, { status: 500 })
     }
 
     return NextResponse.json({
-      data: data || []
+      data: data || [],
     })
   } catch (e) {
     logger.error('Error in time-off types GET', {
       error: e instanceof Error ? e.message : 'Unknown',
-      userId: user?.id
+      userId: user?.id,
     })
-    return NextResponse.json(
-      { error: 'Error interno del servidor' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
   }
 }
 
@@ -78,7 +72,10 @@ export async function POST(request: NextRequest) {
   const supabase = await createClient()
 
   // Auth check
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
   if (authError || !user) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
   }
@@ -91,12 +88,24 @@ export async function POST(request: NextRequest) {
     .single()
 
   if (!profile || profile.role !== 'admin') {
-    return NextResponse.json({ error: 'Solo administradores pueden crear tipos de ausencia' }, { status: 403 })
+    return NextResponse.json(
+      { error: 'Solo administradores pueden crear tipos de ausencia' },
+      { status: 403 }
+    )
   }
 
   try {
     const body = await request.json()
-    const { code, name, description, is_paid, requires_approval, max_days_per_year, min_notice_days, color_code } = body
+    const {
+      code,
+      name,
+      description,
+      is_paid,
+      requires_approval,
+      max_days_per_year,
+      min_notice_days,
+      color_code,
+    } = body
 
     if (!code || !name) {
       return NextResponse.json({ error: 'Código y nombre son requeridos' }, { status: 400 })
@@ -126,7 +135,7 @@ export async function POST(request: NextRequest) {
         max_days_per_year: max_days_per_year || null,
         min_notice_days: min_notice_days ?? 1,
         color_code: color_code || '#3B82F6',
-        is_active: true
+        is_active: true,
       })
       .select()
       .single()
@@ -135,7 +144,7 @@ export async function POST(request: NextRequest) {
       logger.error('Error creating time off type', {
         error: error.message,
         tenantId: profile.tenant_id,
-        userId: user.id
+        userId: user.id,
       })
       return NextResponse.json({ error: 'Error al crear tipo de ausencia' }, { status: 500 })
     }
@@ -144,7 +153,7 @@ export async function POST(request: NextRequest) {
   } catch (e) {
     logger.error('Error in time-off types POST', {
       error: e instanceof Error ? e.message : 'Unknown',
-      userId: user?.id
+      userId: user?.id,
     })
     return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
   }
@@ -158,7 +167,10 @@ export async function PATCH(request: NextRequest) {
   const supabase = await createClient()
 
   // Auth check
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
   if (authError || !user) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
   }
@@ -171,7 +183,10 @@ export async function PATCH(request: NextRequest) {
     .single()
 
   if (!profile || profile.role !== 'admin') {
-    return NextResponse.json({ error: 'Solo administradores pueden modificar tipos de ausencia' }, { status: 403 })
+    return NextResponse.json(
+      { error: 'Solo administradores pueden modificar tipos de ausencia' },
+      { status: 403 }
+    )
   }
 
   try {
@@ -198,7 +213,16 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Build update object
-    const allowedFields = ['name', 'description', 'is_paid', 'requires_approval', 'max_days_per_year', 'min_notice_days', 'color_code', 'is_active']
+    const allowedFields = [
+      'name',
+      'description',
+      'is_paid',
+      'requires_approval',
+      'max_days_per_year',
+      'min_notice_days',
+      'color_code',
+      'is_active',
+    ]
     const updateData: Record<string, unknown> = {}
     for (const field of allowedFields) {
       if (updates[field] !== undefined) {
@@ -218,7 +242,7 @@ export async function PATCH(request: NextRequest) {
         error: error.message,
         typeId: id,
         tenantId: profile.tenant_id,
-        userId: user.id
+        userId: user.id,
       })
       return NextResponse.json({ error: 'Error al actualizar tipo de ausencia' }, { status: 500 })
     }
@@ -227,7 +251,7 @@ export async function PATCH(request: NextRequest) {
   } catch (e) {
     logger.error('Error in time-off types PATCH', {
       error: e instanceof Error ? e.message : 'Unknown',
-      userId: user?.id
+      userId: user?.id,
     })
     return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
   }
@@ -248,7 +272,10 @@ export async function DELETE(request: NextRequest) {
   }
 
   // Auth check
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
   if (authError || !user) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
   }
@@ -261,7 +288,10 @@ export async function DELETE(request: NextRequest) {
     .single()
 
   if (!profile || profile.role !== 'admin') {
-    return NextResponse.json({ error: 'Solo administradores pueden eliminar tipos de ausencia' }, { status: 403 })
+    return NextResponse.json(
+      { error: 'Solo administradores pueden eliminar tipos de ausencia' },
+      { status: 403 }
+    )
   }
 
   try {
@@ -301,17 +331,14 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Hard delete if not in use
-    const { error } = await supabase
-      .from('time_off_types')
-      .delete()
-      .eq('id', id)
+    const { error } = await supabase.from('time_off_types').delete().eq('id', id)
 
     if (error) {
       logger.error('Error deleting time off type', {
         error: error.message,
         typeId: id,
         tenantId: profile.tenant_id,
-        userId: user.id
+        userId: user.id,
       })
       return NextResponse.json({ error: 'Error al eliminar tipo de ausencia' }, { status: 500 })
     }
@@ -320,7 +347,7 @@ export async function DELETE(request: NextRequest) {
   } catch (e) {
     logger.error('Error in time-off types DELETE', {
       error: e instanceof Error ? e.message : 'Unknown',
-      userId: user?.id
+      userId: user?.id,
     })
     return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
   }

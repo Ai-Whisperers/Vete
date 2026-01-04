@@ -14,7 +14,7 @@ const databaseSchema = z.object({
   url: z.string().url(),
   maxConnections: z.coerce.number().min(1).max(100).default(20),
   ssl: z.coerce.boolean().default(true),
-  timeout: z.coerce.number().min(1000).max(30000).default(10000)
+  timeout: z.coerce.number().min(1000).max(30000).default(10000),
 })
 
 // Auth configuration schema
@@ -25,79 +25,99 @@ const authSchema = z.object({
   bcryptRounds: z.coerce.number().min(8).max(16).default(12),
   supabaseUrl: z.string().url(),
   supabaseAnonKey: z.string().min(1),
-  supabaseServiceRoleKey: z.string().min(1)
+  supabaseServiceRoleKey: z.string().min(1),
 })
 
 // Email configuration schema
 const emailSchema = z.object({
   provider: z.enum(['smtp', 'sendgrid', 'ses']),
-  smtp: z.object({
-    host: z.string(),
-    port: z.coerce.number(),
-    secure: z.coerce.boolean(),
-    auth: z.object({
-      user: z.string(),
-      pass: z.string()
+  smtp: z
+    .object({
+      host: z.string(),
+      port: z.coerce.number(),
+      secure: z.coerce.boolean(),
+      auth: z.object({
+        user: z.string(),
+        pass: z.string(),
+      }),
     })
-  }).optional(),
-  sendgrid: z.object({
-    apiKey: z.string()
-  }).optional(),
-  ses: z.object({
-    accessKeyId: z.string(),
-    secretAccessKey: z.string(),
-    region: z.string()
-  }).optional(),
+    .optional(),
+  sendgrid: z
+    .object({
+      apiKey: z.string(),
+    })
+    .optional(),
+  ses: z
+    .object({
+      accessKeyId: z.string(),
+      secretAccessKey: z.string(),
+      region: z.string(),
+    })
+    .optional(),
   fromEmail: z.string().email(),
-  fromName: z.string().min(1)
+  fromName: z.string().min(1),
 })
 
 // Storage configuration schema
 const storageSchema = z.object({
   provider: z.enum(['local', 's3', 'cloudinary']),
-  local: z.object({
-    uploadDir: z.string(),
-    maxFileSize: z.coerce.number()
-  }).optional(),
-  s3: z.object({
-    accessKeyId: z.string(),
-    secretAccessKey: z.string(),
-    region: z.string(),
-    bucket: z.string()
-  }).optional(),
-  cloudinary: z.object({
-    cloudName: z.string(),
-    apiKey: z.string(),
-    apiSecret: z.string()
-  }).optional()
+  local: z
+    .object({
+      uploadDir: z.string(),
+      maxFileSize: z.coerce.number(),
+    })
+    .optional(),
+  s3: z
+    .object({
+      accessKeyId: z.string(),
+      secretAccessKey: z.string(),
+      region: z.string(),
+      bucket: z.string(),
+    })
+    .optional(),
+  cloudinary: z
+    .object({
+      cloudName: z.string(),
+      apiKey: z.string(),
+      apiSecret: z.string(),
+    })
+    .optional(),
 })
 
 // Cache configuration schema
 const cacheSchema = z.object({
   provider: z.enum(['memory', 'redis', 'upstash']),
   ttl: z.coerce.number().min(0).default(300),
-  redis: z.object({
-    url: z.string().url(),
-    maxRetries: z.coerce.number().min(0).default(3)
-  }).optional(),
-  upstash: z.object({
-    url: z.string().url(),
-    token: z.string()
-  }).optional()
+  redis: z
+    .object({
+      url: z.string().url(),
+      maxRetries: z.coerce.number().min(0).default(3),
+    })
+    .optional(),
+  upstash: z
+    .object({
+      url: z.string().url(),
+      token: z.string(),
+    })
+    .optional(),
 })
 
 // Monitoring configuration schema
 const monitoringSchema = z.object({
   enabled: z.coerce.boolean().default(true),
   logLevel: z.enum(['debug', 'info', 'warn', 'error']).default('info'),
-  sentry: z.object({
-    dsn: z.string().url(),
-    environment: z.string()
-  }).optional(),
-  datadog: z.object({
-    apiKey: z.string(),
-    appKey: z.string()
-  }).optional()
+  sentry: z
+    .object({
+      dsn: z.string().url(),
+      environment: z.string(),
+    })
+    .optional(),
+  datadog: z
+    .object({
+      apiKey: z.string(),
+      appKey: z.string(),
+    })
+    .optional(),
 })
 
 // Rate limit configuration schema
@@ -106,7 +126,7 @@ const rateLimitSchema = z.object({
   maxRequests: z.coerce.number().min(1).default(100),
   windowMs: z.coerce.number().min(1000).default(60000), // 1 minute
   skipSuccessfulRequests: z.coerce.boolean().default(false),
-  skipFailedRequests: z.coerce.boolean().default(false)
+  skipFailedRequests: z.coerce.boolean().default(false),
 })
 
 // Feature flags schema
@@ -118,7 +138,7 @@ const featureFlagsSchema = z.object({
   multiTenant: z.coerce.boolean().default(true),
   apiRateLimiting: z.coerce.boolean().default(true),
   emailNotifications: z.coerce.boolean().default(true),
-  smsNotifications: z.coerce.boolean().default(false)
+  smsNotifications: z.coerce.boolean().default(false),
 })
 
 // Main configuration schema
@@ -129,7 +149,7 @@ const configSchema = z.object({
   port: z.coerce.number().min(1).max(65535).default(3000),
   host: z.string().default('localhost'),
   baseUrl: z.string().url(),
-  corsOrigins: z.string().transform(s => s.split(',').map(o => o.trim())),
+  corsOrigins: z.string().transform((s) => s.split(',').map((o) => o.trim())),
   database: databaseSchema,
   auth: authSchema,
   email: emailSchema,
@@ -137,7 +157,7 @@ const configSchema = z.object({
   cache: cacheSchema,
   monitoring: monitoringSchema,
   rateLimit: rateLimitSchema,
-  features: featureFlagsSchema
+  features: featureFlagsSchema,
 })
 
 /**
@@ -146,7 +166,7 @@ const configSchema = z.object({
 export function loadConfig(): AppConfig {
   try {
     const config = configSchema.parse({
-      env: process.env.NODE_ENV as Environment || 'development',
+      env: (process.env.NODE_ENV as Environment) || 'development',
       name: process.env.APP_NAME,
       version: process.env.APP_VERSION,
       port: process.env.PORT,
@@ -158,7 +178,7 @@ export function loadConfig(): AppConfig {
         url: process.env.DATABASE_URL!,
         maxConnections: process.env.DB_MAX_CONNECTIONS,
         ssl: process.env.DB_SSL,
-        timeout: process.env.DB_TIMEOUT
+        timeout: process.env.DB_TIMEOUT,
       },
 
       auth: {
@@ -168,75 +188,103 @@ export function loadConfig(): AppConfig {
         bcryptRounds: process.env.BCRYPT_ROUNDS,
         supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL!,
         supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY!
+        supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY!,
       },
 
       email: {
         provider: process.env.EMAIL_PROVIDER! as any,
-        smtp: process.env.EMAIL_PROVIDER === 'smtp' ? {
-          host: process.env.SMTP_HOST!,
-          port: parseInt(process.env.SMTP_PORT!),
-          secure: process.env.SMTP_SECURE === 'true',
-          auth: {
-            user: process.env.SMTP_USER!,
-            pass: process.env.SMTP_PASS!
-          }
-        } : undefined,
-        sendgrid: process.env.EMAIL_PROVIDER === 'sendgrid' ? {
-          apiKey: process.env.SENDGRID_API_KEY!
-        } : undefined,
-        ses: process.env.EMAIL_PROVIDER === 'ses' ? {
-          accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-          secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-          region: process.env.AWS_REGION!
-        } : undefined,
+        smtp:
+          process.env.EMAIL_PROVIDER === 'smtp'
+            ? {
+                host: process.env.SMTP_HOST!,
+                port: parseInt(process.env.SMTP_PORT!),
+                secure: process.env.SMTP_SECURE === 'true',
+                auth: {
+                  user: process.env.SMTP_USER!,
+                  pass: process.env.SMTP_PASS!,
+                },
+              }
+            : undefined,
+        sendgrid:
+          process.env.EMAIL_PROVIDER === 'sendgrid'
+            ? {
+                apiKey: process.env.SENDGRID_API_KEY!,
+              }
+            : undefined,
+        ses:
+          process.env.EMAIL_PROVIDER === 'ses'
+            ? {
+                accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+                secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+                region: process.env.AWS_REGION!,
+              }
+            : undefined,
         fromEmail: process.env.EMAIL_FROM!,
-        fromName: process.env.EMAIL_FROM_NAME!
+        fromName: process.env.EMAIL_FROM_NAME!,
       },
 
       storage: {
         provider: process.env.STORAGE_PROVIDER! as any,
-        local: process.env.STORAGE_PROVIDER === 'local' ? {
-          uploadDir: process.env.UPLOAD_DIR || './uploads',
-          maxFileSize: parseInt(process.env.MAX_FILE_SIZE || '5242880') // 5MB
-        } : undefined,
-        s3: process.env.STORAGE_PROVIDER === 's3' ? {
-          accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-          secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-          region: process.env.AWS_REGION!,
-          bucket: process.env.S3_BUCKET!
-        } : undefined,
-        cloudinary: process.env.STORAGE_PROVIDER === 'cloudinary' ? {
-          cloudName: process.env.CLOUDINARY_CLOUD_NAME!,
-          apiKey: process.env.CLOUDINARY_API_KEY!,
-          apiSecret: process.env.CLOUDINARY_API_SECRET!
-        } : undefined
+        local:
+          process.env.STORAGE_PROVIDER === 'local'
+            ? {
+                uploadDir: process.env.UPLOAD_DIR || './uploads',
+                maxFileSize: parseInt(process.env.MAX_FILE_SIZE || '5242880'), // 5MB
+              }
+            : undefined,
+        s3:
+          process.env.STORAGE_PROVIDER === 's3'
+            ? {
+                accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+                secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+                region: process.env.AWS_REGION!,
+                bucket: process.env.S3_BUCKET!,
+              }
+            : undefined,
+        cloudinary:
+          process.env.STORAGE_PROVIDER === 'cloudinary'
+            ? {
+                cloudName: process.env.CLOUDINARY_CLOUD_NAME!,
+                apiKey: process.env.CLOUDINARY_API_KEY!,
+                apiSecret: process.env.CLOUDINARY_API_SECRET!,
+              }
+            : undefined,
       },
 
       cache: {
         provider: process.env.CACHE_PROVIDER! as any,
         ttl: process.env.CACHE_TTL,
-        redis: process.env.CACHE_PROVIDER === 'redis' ? {
-          url: process.env.REDIS_URL!,
-          maxRetries: process.env.REDIS_MAX_RETRIES
-        } : undefined,
-        upstash: process.env.CACHE_PROVIDER === 'upstash' ? {
-          url: process.env.UPSTASH_REDIS_REST_URL!,
-          token: process.env.UPSTASH_REDIS_REST_TOKEN!
-        } : undefined
+        redis:
+          process.env.CACHE_PROVIDER === 'redis'
+            ? {
+                url: process.env.REDIS_URL!,
+                maxRetries: process.env.REDIS_MAX_RETRIES,
+              }
+            : undefined,
+        upstash:
+          process.env.CACHE_PROVIDER === 'upstash'
+            ? {
+                url: process.env.UPSTASH_REDIS_REST_URL!,
+                token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+              }
+            : undefined,
       },
 
       monitoring: {
         enabled: process.env.MONITORING_ENABLED,
         logLevel: process.env.LOG_LEVEL as any,
-        sentry: process.env.SENTRY_DSN ? {
-          dsn: process.env.SENTRY_DSN,
-          environment: process.env.NODE_ENV!
-        } : undefined,
-        datadog: process.env.DD_API_KEY ? {
-          apiKey: process.env.DD_API_KEY,
-          appKey: process.env.DD_APP_KEY!
-        } : undefined
+        sentry: process.env.SENTRY_DSN
+          ? {
+              dsn: process.env.SENTRY_DSN,
+              environment: process.env.NODE_ENV!,
+            }
+          : undefined,
+        datadog: process.env.DD_API_KEY
+          ? {
+              apiKey: process.env.DD_API_KEY,
+              appKey: process.env.DD_APP_KEY!,
+            }
+          : undefined,
       },
 
       rateLimit: {
@@ -244,7 +292,7 @@ export function loadConfig(): AppConfig {
         maxRequests: process.env.RATE_LIMIT_MAX_REQUESTS,
         windowMs: process.env.RATE_LIMIT_WINDOW_MS,
         skipSuccessfulRequests: process.env.RATE_LIMIT_SKIP_SUCCESSFUL,
-        skipFailedRequests: process.env.RATE_LIMIT_SKIP_FAILED
+        skipFailedRequests: process.env.RATE_LIMIT_SKIP_FAILED,
       },
 
       features: {
@@ -255,16 +303,16 @@ export function loadConfig(): AppConfig {
         multiTenant: process.env.FEATURE_MULTI_TENANT,
         apiRateLimiting: process.env.FEATURE_API_RATE_LIMITING,
         emailNotifications: process.env.FEATURE_EMAIL_NOTIFICATIONS,
-        smsNotifications: process.env.FEATURE_SMS_NOTIFICATIONS
-      }
+        smsNotifications: process.env.FEATURE_SMS_NOTIFICATIONS,
+      },
     })
 
     return config
   } catch (error) {
     if (error instanceof z.ZodError) {
-      const issues = error.issues.map(issue =>
-        `${issue.path.join('.')}: ${issue.message}`
-      ).join('\n')
+      const issues = error.issues
+        .map((issue) => `${issue.path.join('.')}: ${issue.message}`)
+        .join('\n')
 
       throw new Error(`Configuration validation failed:\n${issues}`)
     }
@@ -300,6 +348,6 @@ export function getEnvConfig(): {
     isDevelopment: env === 'development',
     isStaging: env === 'staging',
     isProduction: env === 'production',
-    isTest: env === 'test'
+    isTest: env === 'test',
   }
 }

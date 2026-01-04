@@ -1,9 +1,14 @@
-import { NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
-import { ProductListResponse, ProductListItem, AvailableFilters, SortOption } from '@/lib/types/store';
-import { z } from 'zod';
-import { logger } from '@/lib/logger';
-import { apiError, HTTP_STATUS } from '@/lib/api/errors';
+import { NextResponse } from 'next/server'
+import { createClient } from '@/lib/supabase/server'
+import {
+  ProductListResponse,
+  ProductListItem,
+  AvailableFilters,
+  SortOption,
+} from '@/lib/types/store'
+import { z } from 'zod'
+import { logger } from '@/lib/logger'
+import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 
 // Schema for creating a new product
 const createProductSchema = z.object({
@@ -24,116 +29,144 @@ const createProductSchema = z.object({
   is_active: z.boolean().optional(),
   initial_stock: z.number().min(0).optional(),
   reorder_point: z.number().min(0).optional(),
-});
+})
 
 export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const clinic = searchParams.get('clinic');
-  const page = parseInt(searchParams.get('page') || '1', 10);
-  const limit = parseInt(searchParams.get('limit') || '12', 10);
-  const sort = (searchParams.get('sort') || 'relevance') as SortOption;
-  const search = searchParams.get('search');
-  const category = searchParams.get('category');
+  const { searchParams } = new URL(request.url)
+  const clinic = searchParams.get('clinic')
+  const page = parseInt(searchParams.get('page') || '1', 10)
+  const limit = parseInt(searchParams.get('limit') || '12', 10)
+  const sort = (searchParams.get('sort') || 'relevance') as SortOption
+  const search = searchParams.get('search')
+  const category = searchParams.get('category')
   // ... and so on for all filters
 
   if (!clinic) {
     return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
-      details: { message: 'Clinic not provided' }
-    });
+      details: { message: 'Clinic not provided' },
+    })
   }
 
-  const supabase = await createClient();
+  const supabase = await createClient()
 
   // DEBUG: Log the query params
-  console.log('🔍 [Store Products API] Fetching products for:', { clinic, page, limit, sort, search, category });
+  console.log('🔍 [Store Products API] Fetching products for:', {
+    clinic,
+    page,
+    limit,
+    sort,
+    search,
+    category,
+  })
 
   try {
     // Step 1: Get clinic product assignments
-    const { data: assignments, error: assignError, count: totalAssignments } = await supabase
+    const {
+      data: assignments,
+      error: assignError,
+      count: totalAssignments,
+    } = await supabase
       .from('clinic_product_assignments')
-      .select('id, catalog_product_id, sale_price, min_stock_level, requires_prescription, is_active', { count: 'exact' })
+      .select(
+        'id, catalog_product_id, sale_price, min_stock_level, requires_prescription, is_active',
+        { count: 'exact' }
+      )
       .eq('tenant_id', clinic)
-      .eq('is_active', true);
+      .eq('is_active', true)
 
     if (assignError) {
-      throw assignError;
+      throw assignError
     }
 
     if (!assignments || assignments.length === 0) {
-      console.log('✅ [Store Products API] No products assigned to clinic');
+      console.log('✅ [Store Products API] No products assigned to clinic')
       return NextResponse.json({
         products: [],
         pagination: { page, limit, pages: 0, total: 0, hasNext: false, hasPrev: false },
-        filters: { applied: {}, available: { categories: [], subcategories: [], brands: [], species: [], life_stages: [], breed_sizes: [], health_conditions: [], price_range: { min: 0, max: 1000000 } } },
-      });
+        filters: {
+          applied: {},
+          available: {
+            categories: [],
+            subcategories: [],
+            brands: [],
+            species: [],
+            life_stages: [],
+            breed_sizes: [],
+            health_conditions: [],
+            price_range: { min: 0, max: 1000000 },
+          },
+        },
+      })
     }
 
     // Step 2: Get product details for assigned products
-    const productIds = assignments.map(a => a.catalog_product_id);
+    const productIds = assignments.map((a) => a.catalog_product_id)
     let productQuery = supabase
       .from('store_products')
-      .select(`
+      .select(
+        `
         id, sku, name, description, short_description, base_price, image_url,
         target_species, is_active, created_at,
         store_inventory (stock_quantity),
         store_brands (id, name, slug),
         store_categories (id, name, slug)
-      `)
+      `
+      )
       .in('id', productIds)
       .eq('is_active', true)
-      .is('deleted_at', null);
+      .is('deleted_at', null)
 
     // Apply search filter
     if (search) {
-      productQuery = productQuery.ilike('name', `%${search}%`);
+      productQuery = productQuery.ilike('name', `%${search}%`)
     }
 
     // Apply category filter
     if (category) {
-      productQuery = productQuery.eq('store_categories.slug', category);
+      productQuery = productQuery.eq('store_categories.slug', category)
     }
 
     // Apply sorting
     switch (sort) {
       case 'price_low_high':
-        productQuery = productQuery.order('base_price', { ascending: true });
-        break;
+        productQuery = productQuery.order('base_price', { ascending: true })
+        break
       case 'price_high_low':
-        productQuery = productQuery.order('base_price', { ascending: false });
-        break;
+        productQuery = productQuery.order('base_price', { ascending: false })
+        break
       case 'name_asc':
-        productQuery = productQuery.order('name', { ascending: true });
-        break;
+        productQuery = productQuery.order('name', { ascending: true })
+        break
       case 'newest':
-        productQuery = productQuery.order('created_at', { ascending: false });
-        break;
+        productQuery = productQuery.order('created_at', { ascending: false })
+        break
       default:
-        productQuery = productQuery.order('name', { ascending: true });
-        break;
+        productQuery = productQuery.order('name', { ascending: true })
+        break
     }
 
-    const { data: productData, error: productError } = await productQuery;
+    const { data: productData, error: productError } = await productQuery
 
     if (productError) {
-      throw productError;
+      throw productError
     }
 
     // Create assignment lookup map
-    const assignmentMap = new Map(assignments.map(a => [a.catalog_product_id, a]));
+    const assignmentMap = new Map(assignments.map((a) => [a.catalog_product_id, a]))
 
     // Merge products with assignment data and apply pagination
-    const allProducts = (productData || []).map(product => {
-      const assignment = assignmentMap.get(product.id);
+    const allProducts = (productData || []).map((product) => {
+      const assignment = assignmentMap.get(product.id)
       const inventory = Array.isArray(product.store_inventory)
         ? product.store_inventory[0]
-        : product.store_inventory;
+        : product.store_inventory
       // Handle array-like results from joins - Supabase returns arrays for one-to-many joins
       const brand = Array.isArray(product.store_brands)
         ? product.store_brands[0]
-        : product.store_brands;
+        : product.store_brands
       const categoryData = Array.isArray(product.store_categories)
         ? product.store_categories[0]
-        : product.store_categories;
+        : product.store_categories
 
       return {
         id: product.id,
@@ -150,23 +183,25 @@ export async function GET(request: Request) {
         stock_quantity: inventory?.stock_quantity || 0,
         is_active: true,
         brand: brand ? { id: brand.id, name: brand.name, slug: brand.slug } : null,
-        category: categoryData ? { id: categoryData.id, name: categoryData.name, slug: categoryData.slug } : null,
-      };
-    });
+        category: categoryData
+          ? { id: categoryData.id, name: categoryData.name, slug: categoryData.slug }
+          : null,
+      }
+    })
 
     // Apply pagination
-    const from = (page - 1) * limit;
-    const products = allProducts.slice(from, from + limit);
-    const count = allProducts.length;
+    const from = (page - 1) * limit
+    const products = allProducts.slice(from, from + limit)
+    const count = allProducts.length
 
     // DEBUG: Log success
     console.log('✅ [Store Products API] Found products:', {
       count,
       productCount: products?.length,
-      firstProduct: products?.[0]?.name
-    });
+      firstProduct: products?.[0]?.name,
+    })
 
-    const totalPages = Math.ceil((count || 0) / limit);
+    const totalPages = Math.ceil((count || 0) / limit)
 
     // In a real app, available filters would be calculated based on the full product set, not just the current page
     const availableFilters: AvailableFilters = {
@@ -178,7 +213,7 @@ export async function GET(request: Request) {
       breed_sizes: [],
       health_conditions: [],
       price_range: { min: 0, max: 1000000 },
-    };
+    }
 
     const response: ProductListResponse = {
       products: products as ProductListItem[],
@@ -194,22 +229,22 @@ export async function GET(request: Request) {
         applied: {}, // This would be the filters from searchParams
         available: availableFilters,
       },
-    };
+    }
 
-    return NextResponse.json(response, { status: 200 });
+    return NextResponse.json(response, { status: 200 })
   } catch (error) {
-    const err = error as { message?: string; code?: string; details?: string; hint?: string };
+    const err = error as { message?: string; code?: string; details?: string; hint?: string }
     logger.error('Error fetching store products', {
       tenantId: clinic,
       errorMessage: err.message,
       errorCode: err.code,
       errorDetails: err.details,
-      errorHint: err.hint
-    });
-    console.error('🔴 [Store Products API] Error:', err.message);
+      errorHint: err.hint,
+    })
+    console.error('🔴 [Store Products API] Error:', err.message)
     return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
-      details: { message: err.message || 'Error loading products' }
-    });
+      details: { message: err.message || 'Error loading products' },
+    })
   }
 }
 
@@ -218,12 +253,14 @@ export async function GET(request: Request) {
  * Create a new product (staff only)
  */
 export async function POST(request: Request) {
-  const supabase = await createClient();
+  const supabase = await createClient()
 
   // Auth check
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) {
-    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED);
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED)
   }
 
   // Get user's profile and verify staff role
@@ -231,31 +268,31 @@ export async function POST(request: Request) {
     .from('profiles')
     .select('tenant_id, role')
     .eq('id', user.id)
-    .single();
+    .single()
 
   if (!profile) {
     return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
-      details: { message: 'Perfil no encontrado' }
-    });
+      details: { message: 'Perfil no encontrado' },
+    })
   }
 
   if (profile.role !== 'vet' && profile.role !== 'admin') {
     return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN, {
-      details: { message: 'Solo personal autorizado puede crear productos' }
-    });
+      details: { message: 'Solo personal autorizado puede crear productos' },
+    })
   }
 
   try {
-    const body = await request.json();
-    const validation = createProductSchema.safeParse(body);
+    const body = await request.json()
+    const validation = createProductSchema.safeParse(body)
 
     if (!validation.success) {
       return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
-        field_errors: validation.error.flatten().fieldErrors as Record<string, string[]>
-      });
+        field_errors: validation.error.flatten().fieldErrors as Record<string, string[]>,
+      })
     }
 
-    const data = validation.data;
+    const data = validation.data
 
     // Create product
     const { data: product, error: productError } = await supabase
@@ -280,51 +317,51 @@ export async function POST(request: Request) {
         is_active: data.is_active ?? true,
       })
       .select()
-      .single();
+      .single()
 
     if (productError) {
       logger.error('Error creating product', {
         tenantId: profile.tenant_id,
         userId: user.id,
-        error: productError instanceof Error ? productError.message : String(productError)
-      });
+        error: productError instanceof Error ? productError.message : String(productError),
+      })
       return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
-        details: { message: 'Error al crear producto' }
-      });
+        details: { message: 'Error al crear producto' },
+      })
     }
 
     // Create initial inventory record if stock provided
     if (data.initial_stock !== undefined || data.reorder_point !== undefined) {
-      const { error: inventoryError } = await supabase
-        .from('store_inventory')
-        .insert({
-          tenant_id: profile.tenant_id,
-          product_id: product.id,
-          stock_quantity: data.initial_stock ?? 0,
-          reorder_point: data.reorder_point ?? 5,
-        });
+      const { error: inventoryError } = await supabase.from('store_inventory').insert({
+        tenant_id: profile.tenant_id,
+        product_id: product.id,
+        stock_quantity: data.initial_stock ?? 0,
+        reorder_point: data.reorder_point ?? 5,
+      })
 
       if (inventoryError) {
         logger.error('Error creating inventory', {
           tenantId: profile.tenant_id,
           productId: product.id,
-          error: inventoryError instanceof Error ? inventoryError.message : String(inventoryError)
-        });
+          error: inventoryError instanceof Error ? inventoryError.message : String(inventoryError),
+        })
         // Don't fail the whole operation, product was created
       }
     }
 
-    return NextResponse.json({
-      success: true,
-      product
-    }, { status: 201 });
-
+    return NextResponse.json(
+      {
+        success: true,
+        product,
+      },
+      { status: 201 }
+    )
   } catch (error) {
     logger.error('Error in product creation', {
       tenantId: profile?.tenant_id,
       userId: user?.id,
-      error: error instanceof Error ? error.message : 'Unknown'
-    });
-    return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
+      error: error instanceof Error ? error.message : 'Unknown',
+    })
+    return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
   }
 }

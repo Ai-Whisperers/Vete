@@ -108,7 +108,9 @@ async function main() {
   if (!databaseUrl && !dbPassword) {
     console.log('\n📋 Database credentials not found.\n')
     console.log('To run this script, you need the Supabase database password.')
-    console.log('\n1. Go to: https://supabase.com/dashboard/project/okddppczcbkjdotrxiev/settings/database')
+    console.log(
+      '\n1. Go to: https://supabase.com/dashboard/project/okddppczcbkjdotrxiev/settings/database'
+    )
     console.log('2. Copy the database password')
     console.log('3. Run:')
     console.log('\n   DB_PASSWORD="your-password" npx tsx web/scripts/run-db-setup.ts\n')
@@ -219,7 +221,6 @@ async function main() {
       console.log('   http://localhost:3000/petlife')
     }
     console.log('')
-
   } catch (error: any) {
     console.error(`\n❌ Connection error: ${error.message}\n`)
     process.exit(1)

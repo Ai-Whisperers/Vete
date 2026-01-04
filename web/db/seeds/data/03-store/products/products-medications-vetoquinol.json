@@ -7,10 +7,7 @@
       "name": "Tolfedine (Ácido Tolfenámico)",
       "description": "Antiinflamatorio no esteroideo inyectable",
       "category_slug": "CLI-FAR-AIN",
-      "target_species": [
-        "dog",
-        "cat"
-      ],
+      "target_species": ["dog", "cat"],
       "variants": [
         {
           "size": "Frasco 10ml (4%)",
@@ -38,10 +35,7 @@
       "name": "Tolfedine Comprimidos",
       "description": "AINE oral para perros y gatos",
       "category_slug": "CLI-FAR-AIN",
-      "target_species": [
-        "dog",
-        "cat"
-      ],
+      "target_species": ["dog", "cat"],
       "variants": [
         {
           "size": "Caja x 20 comp (6mg)",
@@ -74,10 +68,7 @@
       "name": "Ipakitine",
       "description": "Quelante de fósforo para insuficiencia renal",
       "category_slug": "FAR-SUP-VIT",
-      "target_species": [
-        "dog",
-        "cat"
-      ],
+      "target_species": ["dog", "cat"],
       "variants": [
         {
           "size": "Bote 60g",
@@ -104,10 +95,7 @@
       "name": "Zylkene",
       "description": "Ansiolítico natural (alfa-casozepina)",
       "category_slug": "FAR-SUP-VIT",
-      "target_species": [
-        "dog",
-        "cat"
-      ],
+      "target_species": ["dog", "cat"],
       "variants": [
         {
           "size": "Caja x 30 caps (75mg)",
@@ -140,10 +128,7 @@
       "name": "Marbocyl (Marbofloxacina)",
       "description": "Antibiótico fluoroquinolona inyectable",
       "category_slug": "CLI-FAR-ANB",
-      "target_species": [
-        "dog",
-        "cat"
-      ],
+      "target_species": ["dog", "cat"],
       "variants": [
         {
           "size": "Frasco 20ml (10%)",
@@ -171,10 +156,7 @@
       "name": "Marbocyl Comprimidos",
       "description": "Antibiótico oral de amplio espectro",
       "category_slug": "CLI-FAR-ANB",
-      "target_species": [
-        "dog",
-        "cat"
-      ],
+      "target_species": ["dog", "cat"],
       "variants": [
         {
           "size": "Caja x 10 comp (5mg)",
@@ -207,9 +189,7 @@
       "name": "Aurizon Gotas Óticas",
       "description": "Tratamiento ótico para otitis",
       "category_slug": "FAR-DER-OTI",
-      "target_species": [
-        "dog"
-      ],
+      "target_species": ["dog"],
       "variants": [
         {
           "size": "Frasco 10ml",

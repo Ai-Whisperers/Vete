@@ -16,7 +16,7 @@ export const APPOINTMENT_STATUSES = [
   'cancelled',
   'no_show',
 ] as const
-export type AppointmentStatus = typeof APPOINTMENT_STATUSES[number]
+export type AppointmentStatus = (typeof APPOINTMENT_STATUSES)[number]
 
 // =============================================================================
 // INVOICE STATUSES
@@ -31,7 +31,7 @@ export const INVOICE_STATUSES = [
   'cancelled',
   'void',
 ] as const
-export type InvoiceStatus = typeof INVOICE_STATUSES[number]
+export type InvoiceStatus = (typeof INVOICE_STATUSES)[number]
 
 // =============================================================================
 // HOSPITALIZATION STATUSES
@@ -44,7 +44,7 @@ export const HOSPITALIZATION_STATUSES = [
   'transferred',
   'deceased',
 ] as const
-export type HospitalizationStatus = typeof HOSPITALIZATION_STATUSES[number]
+export type HospitalizationStatus = (typeof HOSPITALIZATION_STATUSES)[number]
 
 // =============================================================================
 // LAB ORDER STATUSES
@@ -57,7 +57,7 @@ export const LAB_ORDER_STATUSES = [
   'completed',
   'cancelled',
 ] as const
-export type LabOrderStatus = typeof LAB_ORDER_STATUSES[number]
+export type LabOrderStatus = (typeof LAB_ORDER_STATUSES)[number]
 
 // =============================================================================
 // INSURANCE CLAIM STATUSES
@@ -71,43 +71,28 @@ export const INSURANCE_CLAIM_STATUSES = [
   'paid',
   'appealed',
 ] as const
-export type InsuranceClaimStatus = typeof INSURANCE_CLAIM_STATUSES[number]
+export type InsuranceClaimStatus = (typeof INSURANCE_CLAIM_STATUSES)[number]
 
 // =============================================================================
 // MESSAGE STATUSES
 // =============================================================================
 
-export const MESSAGE_STATUSES = [
-  'pending',
-  'sent',
-  'delivered',
-  'read',
-  'failed',
-] as const
-export type MessageStatus = typeof MESSAGE_STATUSES[number]
+export const MESSAGE_STATUSES = ['pending', 'sent', 'delivered', 'read', 'failed'] as const
+export type MessageStatus = (typeof MESSAGE_STATUSES)[number]
 
 // =============================================================================
 // PAYMENT STATUSES
 // =============================================================================
 
-export const PAYMENT_STATUSES = [
-  'pending',
-  'completed',
-  'failed',
-  'refunded',
-] as const
-export type PaymentStatus = typeof PAYMENT_STATUSES[number]
+export const PAYMENT_STATUSES = ['pending', 'completed', 'failed', 'refunded'] as const
+export type PaymentStatus = (typeof PAYMENT_STATUSES)[number]
 
 // =============================================================================
 // PRESCRIPTION STATUSES
 // =============================================================================
 
-export const PRESCRIPTION_STATUSES = [
-  'active',
-  'completed',
-  'cancelled',
-] as const
-export type PrescriptionStatus = typeof PRESCRIPTION_STATUSES[number]
+export const PRESCRIPTION_STATUSES = ['active', 'completed', 'cancelled'] as const
+export type PrescriptionStatus = (typeof PRESCRIPTION_STATUSES)[number]
 
 // =============================================================================
 // STATUS TRANSITIONS
@@ -124,7 +109,7 @@ export const APPOINTMENT_TRANSITIONS: Record<AppointmentStatus, AppointmentStatu
   in_progress: ['completed'],
   completed: [],
   cancelled: [],
-  no_show: []
+  no_show: [],
 }
 
 /**
@@ -137,7 +122,7 @@ export const INVOICE_TRANSITIONS: Record<InvoiceStatus, InvoiceStatus[]> = {
   paid: ['void'],
   overdue: ['paid', 'partial', 'cancelled'],
   cancelled: [],
-  void: []
+  void: [],
 }
 
 /**
@@ -148,7 +133,7 @@ export const HOSPITALIZATION_TRANSITIONS: Record<HospitalizationStatus, Hospital
   active: ['discharged', 'transferred', 'deceased'],
   discharged: [],
   transferred: [],
-  deceased: []
+  deceased: [],
 }
 
 /**
@@ -159,7 +144,7 @@ export const LAB_ORDER_TRANSITIONS: Record<LabOrderStatus, LabOrderStatus[]> = {
   collected: ['processing', 'cancelled'],
   processing: ['completed', 'cancelled'],
   completed: [],
-  cancelled: []
+  cancelled: [],
 }
 
 /**
@@ -171,7 +156,7 @@ export const INSURANCE_CLAIM_TRANSITIONS: Record<InsuranceClaimStatus, Insurance
   approved: ['paid'],
   denied: ['appealed'],
   paid: [],
-  appealed: ['under_review', 'denied']
+  appealed: ['under_review', 'denied'],
 }
 
 // =============================================================================
@@ -206,10 +191,7 @@ export function canTransitionAppointment(
 /**
  * Check if invoice can transition to target status
  */
-export function canTransitionInvoice(
-  current: InvoiceStatus,
-  target: InvoiceStatus
-): boolean {
+export function canTransitionInvoice(current: InvoiceStatus, target: InvoiceStatus): boolean {
   return canTransitionTo(current, target, INVOICE_TRANSITIONS)
 }
 
@@ -226,10 +208,7 @@ export function canTransitionHospitalization(
 /**
  * Check if lab order can transition to target status
  */
-export function canTransitionLabOrder(
-  current: LabOrderStatus,
-  target: LabOrderStatus
-): boolean {
+export function canTransitionLabOrder(current: LabOrderStatus, target: LabOrderStatus): boolean {
   return canTransitionTo(current, target, LAB_ORDER_TRANSITIONS)
 }
 

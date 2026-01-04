@@ -23,60 +23,76 @@ pets-by-owner/
 ## Componentes
 
 ### index.tsx (Principal)
+
 Componente orquestador que maneja:
+
 - Estado de selección de propietario
 - Estado de búsqueda
 - Composición de subcomponentes
 
 **Props:**
+
 - `clinic: string` - Identificador de la clínica
 - `owners: Owner[]` - Array de propietarios con sus mascotas
 
 ### SearchHeader.tsx
+
 Barra de búsqueda con contador de resultados.
 
 **Props:**
+
 - `searchQuery: string`
 - `onSearchChange: (value: string) => void`
 - `resultCount: number`
 
 ### OwnerList.tsx
+
 Renderiza la lista de propietarios filtrados.
 
 **Props:**
+
 - `owners: Owner[]`
 - `selectedOwnerId: string | null`
 - `onSelectOwner: (ownerId: string) => void`
 - `searchQuery: string`
 
 ### OwnerListItem.tsx
+
 Item individual clickeable en la lista de propietarios.
 
 **Props:**
+
 - `owner: Owner`
 - `isSelected: boolean`
 - `onClick: () => void`
 
 ### OwnerDetailsCard.tsx
+
 Muestra información detallada del propietario seleccionado:
+
 - Nombre y estado (activo/inactivo)
 - Email, teléfono, dirección
 - Última visita
 - Acciones rápidas (nueva cita, ver ficha)
 
 **Props:**
+
 - `owner: Owner`
 - `clinic: string`
 
 ### PetsSection.tsx
+
 Sección que muestra las mascotas del propietario.
 
 **Props:**
+
 - `owner: Owner`
 - `clinic: string`
 
 ### PetCard.tsx
+
 Tarjeta individual de mascota con:
+
 - Foto o emoji de especie
 - Información básica (nombre, especie, raza)
 - Edad calculada
@@ -84,24 +100,29 @@ Tarjeta individual de mascota con:
 - Acciones rápidas (nueva cita, vacunas)
 
 **Props:**
+
 - `pet: Pet`
 - `clinic: string`
 
 ### EmptyState.tsx
+
 Estado mostrado cuando no hay propietario seleccionado.
 
 ## Hooks Personalizados
 
 ### useOwnerFiltering.ts
+
 Hook que filtra propietarios basándose en la búsqueda.
 
 **Parámetros:**
+
 - `owners: Owner[]`
 - `searchQuery: string`
 
 **Retorna:** `Owner[]` - Propietarios filtrados
 
 **Lógica de búsqueda:**
+
 - Nombre del propietario
 - Email
 - Teléfono
@@ -128,48 +149,45 @@ Retorna emoji correspondiente a la especie de mascota.
 ## Tipos
 
 ### Pet
+
 ```typescript
 interface Pet {
-  id: string;
-  name: string;
-  species: string;
-  breed: string | null;
-  date_of_birth: string | null;
-  photo_url: string | null;
-  sex: string | null;
-  neutered: boolean | null;
-  microchip_id: string | null;
+  id: string
+  name: string
+  species: string
+  breed: string | null
+  date_of_birth: string | null
+  photo_url: string | null
+  sex: string | null
+  neutered: boolean | null
+  microchip_id: string | null
 }
 ```
 
 ### Owner
+
 ```typescript
 interface Owner {
-  id: string;
-  full_name: string;
-  email: string;
-  phone: string | null;
-  address: string | null;
-  created_at: string;
-  last_visit: string | null;
-  pets: Pet[];
+  id: string
+  full_name: string
+  email: string
+  phone: string | null
+  address: string | null
+  created_at: string
+  last_visit: string | null
+  pets: Pet[]
 }
 ```
 
 ## Uso
 
 ```tsx
-import { PetsByOwner } from '@/components/dashboard/pets-by-owner';
+import { PetsByOwner } from '@/components/dashboard/pets-by-owner'
 
 export default function Page() {
-  const owners = await fetchOwners();
+  const owners = await fetchOwners()
 
-  return (
-    <PetsByOwner
-      clinic="adris"
-      owners={owners}
-    />
-  );
+  return <PetsByOwner clinic="adris" owners={owners} />
 }
 ```
 

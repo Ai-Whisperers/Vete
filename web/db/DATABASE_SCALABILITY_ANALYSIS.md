@@ -4,14 +4,14 @@ This document analyzes the database schema for scaling to 5 million clinics with
 
 ## Executive Summary
 
-| Category | Current State | Risk Level | Action Required |
-|----------|--------------|------------|-----------------|
-| RLS Performance | `is_staff_of()` function calls | HIGH | Optimize or use SET tenant context |
-| Tenant ID Type | TEXT | MEDIUM | Consider migration to INTEGER |
-| Partitioning | None | HIGH | Implement for high-volume tables |
-| Global Catalog | ✅ Already implemented | LOW | Update seed data |
-| Indexes | Good coverage | LOW | Add composite indexes |
-| Connection Pooling | Not configured | HIGH | PgBouncer required |
+| Category           | Current State                  | Risk Level | Action Required                    |
+| ------------------ | ------------------------------ | ---------- | ---------------------------------- |
+| RLS Performance    | `is_staff_of()` function calls | HIGH       | Optimize or use SET tenant context |
+| Tenant ID Type     | TEXT                           | MEDIUM     | Consider migration to INTEGER      |
+| Partitioning       | None                           | HIGH       | Implement for high-volume tables   |
+| Global Catalog     | ✅ Already implemented         | LOW        | Update seed data                   |
+| Indexes            | Good coverage                  | LOW        | Add composite indexes              |
+| Connection Pooling | Not configured                 | HIGH       | PgBouncer required                 |
 
 ---
 
@@ -20,6 +20,7 @@ This document analyzes the database schema for scaling to 5 million clinics with
 ### 1.1 RLS Function Performance (HIGH PRIORITY)
 
 **Problem**: Every query calls `is_staff_of(tenant_id)` which:
+
 ```sql
 SELECT EXISTS (
     SELECT 1 FROM public.profiles
@@ -31,6 +32,7 @@ SELECT EXISTS (
 ```
 
 At 5M tenants with 10 staff each = 50M profile rows. This function:
+
 - Is called per-row in RLS policies
 - Causes a nested query on every SELECT/UPDATE
 - Creates O(n²) complexity on large result sets
@@ -38,6 +40,7 @@ At 5M tenants with 10 staff each = 50M profile rows. This function:
 **Solution Options**:
 
 **Option A: Session Context (Recommended)**
+
 ```sql
 -- Set at session start after auth
 SET app.current_tenant_id = 'adris';
@@ -49,6 +52,7 @@ CREATE POLICY "Staff manage" ON medical_records
 ```
 
 **Option B: Materialized Role Cache**
+
 ```sql
 CREATE TABLE user_tenant_cache (
     user_id UUID PRIMARY KEY,
@@ -73,6 +77,7 @@ $$;
 ```
 
 **Option C: Optimized Function with Index Hint**
+
 ```sql
 CREATE OR REPLACE FUNCTION public.is_staff_of(in_tenant_id TEXT)
 RETURNS BOOLEAN AS $$
@@ -98,16 +103,17 @@ WHERE deleted_at IS NULL;
 
 **Tables requiring partitioning at scale**:
 
-| Table | Estimated Rows (5M tenants) | Partition Strategy |
-|-------|----------------------------|-------------------|
-| `medical_records` | 500M+ | By tenant_id HASH |
-| `invoices` | 200M+ | By tenant_id HASH |
-| `appointments` | 300M+ | By tenant_id HASH |
-| `store_orders` | 100M+ | By tenant_id HASH |
-| `audit_logs` | 1B+ | By created_at RANGE + tenant HASH |
-| `messages` | 500M+ | By tenant_id HASH |
+| Table             | Estimated Rows (5M tenants) | Partition Strategy                |
+| ----------------- | --------------------------- | --------------------------------- |
+| `medical_records` | 500M+                       | By tenant_id HASH                 |
+| `invoices`        | 200M+                       | By tenant_id HASH                 |
+| `appointments`    | 300M+                       | By tenant_id HASH                 |
+| `store_orders`    | 100M+                       | By tenant_id HASH                 |
+| `audit_logs`      | 1B+                         | By created_at RANGE + tenant HASH |
+| `messages`        | 500M+                       | By tenant_id HASH                 |
 
 **Implementation**:
+
 ```sql
 -- Convert medical_records to partitioned table
 CREATE TABLE medical_records_new (
@@ -138,11 +144,13 @@ ALTER TABLE medical_records_new RENAME TO medical_records;
 **Problem**: TEXT comparisons are slower than INTEGER/BIGINT
 
 **Trade-offs**:
+
 - TEXT: Human-readable, URL-friendly, ~8 bytes average
 - INTEGER: 4 bytes, faster JOINs, requires slug lookup table
 - UUID: 16 bytes, universally unique, no coordination needed
 
 **Recommendation**: Keep TEXT but add numeric surrogate for JOINs
+
 ```sql
 ALTER TABLE tenants ADD COLUMN tenant_num SERIAL;
 CREATE UNIQUE INDEX idx_tenants_num ON tenants(tenant_num);
@@ -155,27 +163,35 @@ CREATE UNIQUE INDEX idx_tenants_num ON tenants(tenant_num);
 ## 2. Existing Good Patterns
 
 ### 2.1 Global Product Catalog ✅
+
 The `clinic_product_assignments` table already implements the correct pattern:
+
 - Global products in `store_products` with `tenant_id IS NULL`
 - Clinic-specific pricing via `clinic_product_assignments`
 - Margin calculation via trigger
 
 ### 2.2 BRIN Indexes ✅
+
 Time-series tables correctly use BRIN:
+
 ```sql
 CREATE INDEX idx_invoices_date_brin ON invoices USING BRIN(invoice_date);
 CREATE INDEX idx_payments_date_brin ON payments USING BRIN(payment_date);
 ```
 
 ### 2.3 Covering Indexes ✅
+
 Common queries have covering indexes:
+
 ```sql
 CREATE INDEX idx_pets_tenant_list ON pets(tenant_id, name)
     INCLUDE (owner_id, species, breed, photo_url, is_deceased, is_active);
 ```
 
 ### 2.4 Soft Delete Pattern ✅
+
 Consistent `deleted_at` column with partial indexes:
+
 ```sql
 WHERE deleted_at IS NULL
 ```
@@ -220,6 +236,7 @@ WHERE is_active = true;
 At 5M tenants with average 3 concurrent connections each = 15M connections (impossible without pooling).
 
 **Configuration**:
+
 ```ini
 # pgbouncer.ini
 [databases]
@@ -240,6 +257,7 @@ reserve_pool_size = 25
 ## 5. Read Replicas
 
 **Recommended topology**:
+
 ```
                     ┌─────────────┐
                     │   Primary   │
@@ -261,6 +279,7 @@ reserve_pool_size = 25
 ## 6. Data Archiving Strategy
 
 **Cold storage for old data**:
+
 ```sql
 -- Archive medical records older than 7 years
 CREATE TABLE medical_records_archive (LIKE medical_records INCLUDING ALL);
@@ -274,6 +293,7 @@ WHERE visit_date < NOW() - INTERVAL '7 years';
 ```
 
 **Automated archiving**:
+
 ```sql
 CREATE OR REPLACE FUNCTION archive_old_records()
 RETURNS void AS $$
@@ -297,11 +317,13 @@ SELECT cron.schedule('archive-old-records', '0 3 1 * *', 'SELECT archive_old_rec
 ## 7. Seed Data Architecture
 
 ### Current Structure (Incorrect for Scale)
+
 ```
 03-store/products/  → All products duplicated per tenant
 ```
 
 ### Correct Structure (Global Catalog)
+
 ```
 03-store/
 ├── products/           # GLOBAL catalog (tenant_id = NULL)
@@ -312,6 +334,7 @@ SELECT cron.schedule('archive-old-records', '0 3 1 * *', 'SELECT archive_old_rec
 ```
 
 ### Seed Generator Flow
+
 1. Load global products → INSERT with `tenant_id = NULL, is_global_catalog = true`
 2. Load tenant-products → INSERT into `clinic_product_assignments`
 3. Initialize inventory → INSERT into `store_inventory` per tenant
@@ -320,22 +343,23 @@ SELECT cron.schedule('archive-old-records', '0 3 1 * *', 'SELECT archive_old_rec
 
 ## 8. Implementation Priority
 
-| Priority | Task | Effort | Impact |
-|----------|------|--------|--------|
-| P0 | Add RLS session context | 2 days | Critical for scale |
-| P0 | Configure connection pooling | 1 day | Critical for concurrency |
-| P1 | Add partitioning to high-volume tables | 1 week | Query performance |
-| P1 | Update seed generator for global catalog | 2 days | Data consistency |
-| P2 | Add recommended indexes | 1 day | Query optimization |
-| P2 | Set up read replicas | 2 days | Read scalability |
-| P3 | Implement data archiving | 3 days | Long-term storage costs |
-| P3 | Tenant ID numeric surrogate | 1 week | JOIN performance |
+| Priority | Task                                     | Effort | Impact                   |
+| -------- | ---------------------------------------- | ------ | ------------------------ |
+| P0       | Add RLS session context                  | 2 days | Critical for scale       |
+| P0       | Configure connection pooling             | 1 day  | Critical for concurrency |
+| P1       | Add partitioning to high-volume tables   | 1 week | Query performance        |
+| P1       | Update seed generator for global catalog | 2 days | Data consistency         |
+| P2       | Add recommended indexes                  | 1 day  | Query optimization       |
+| P2       | Set up read replicas                     | 2 days | Read scalability         |
+| P3       | Implement data archiving                 | 3 days | Long-term storage costs  |
+| P3       | Tenant ID numeric surrogate              | 1 week | JOIN performance         |
 
 ---
 
 ## 9. Monitoring at Scale
 
 **Essential metrics**:
+
 ```sql
 -- Slow queries
 SELECT * FROM pg_stat_statements
@@ -377,5 +401,5 @@ SELECT * FROM medical_records WHERE tenant_id = 'adris' LIMIT 10;
 
 ---
 
-*Generated: December 2024*
-*Review before major scaling events*
+_Generated: December 2024_
+_Review before major scaling events_

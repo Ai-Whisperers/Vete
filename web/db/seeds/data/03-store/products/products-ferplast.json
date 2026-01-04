@@ -7,10 +7,7 @@
       "name": "Ferplast Atlas 10 Transportadora",
       "description": "Transportadora aprobada para avión tamaño pequeño",
       "category_slug": "ACC-PAS-TRA",
-      "target_species": [
-        "dog",
-        "cat"
-      ],
+      "target_species": ["dog", "cat"],
       "variants": [
         {
           "size": "48x32x29cm",
@@ -32,10 +29,7 @@
       "name": "Ferplast Atlas 20 Transportadora",
       "description": "Transportadora aprobada para avión tamaño mediano",
       "category_slug": "ACC-PAS-TRA",
-      "target_species": [
-        "dog",
-        "cat"
-      ],
+      "target_species": ["dog", "cat"],
       "variants": [
         {
           "size": "58x37x32cm",
@@ -57,9 +51,7 @@
       "name": "Ferplast Atlas 30 Transportadora",
       "description": "Transportadora aprobada para avión tamaño grande",
       "category_slug": "ACC-PAS-TRA",
-      "target_species": [
-        "dog"
-      ],
+      "target_species": ["dog"],
       "variants": [
         {
           "size": "60x40x38cm",
@@ -81,9 +73,7 @@
       "name": "Ferplast Atlas 40 Transportadora",
       "description": "Transportadora aprobada para avión tamaño extra grande",
       "category_slug": "ACC-PAS-TRA",
-      "target_species": [
-        "dog"
-      ],
+      "target_species": ["dog"],
       "variants": [
         {
           "size": "68x49x45cm",
@@ -105,9 +95,7 @@
       "name": "Ferplast Siesta Deluxe",
       "description": "Cama plástica con cojín para perros",
       "category_slug": "ACC-DES-CAM",
-      "target_species": [
-        "dog"
-      ],
+      "target_species": ["dog"],
       "variants": [
         {
           "size": "Talla 4 (61cm)",
@@ -146,10 +134,7 @@
       "name": "Ferplast Glam Comedero",
       "description": "Comedero de acero inoxidable con base antideslizante",
       "category_slug": "ACC-COM-PER",
-      "target_species": [
-        "dog",
-        "cat"
-      ],
+      "target_species": ["dog", "cat"],
       "variants": [
         {
           "size": "XS (0.2L)",
@@ -188,9 +173,7 @@
       "name": "Ferplast Amigo Correa Retráctil",
       "description": "Correa retráctil con sistema de frenado",
       "category_slug": "ACC-PAS-COL",
-      "target_species": [
-        "dog"
-      ],
+      "target_species": ["dog"],
       "variants": [
         {
           "size": "Small (5m - 15kg)",
@@ -223,9 +206,7 @@
       "name": "Ferplast Dama Arenero con Tapa",
       "description": "Arenero cerrado con filtro de carbón",
       "category_slug": "ACC-HIG-BAN",
-      "target_species": [
-        "cat"
-      ],
+      "target_species": ["cat"],
       "variants": [
         {
           "size": "Estándar",
@@ -246,9 +227,7 @@
       "name": "Ferplast Maxi Bella Arenero Cubierto",
       "description": "Arenero grande con sistema de filtro",
       "category_slug": "ACC-HIG-BAN",
-      "target_species": [
-        "cat"
-      ],
+      "target_species": ["cat"],
       "variants": [
         {
           "size": "Grande",
@@ -270,9 +249,7 @@
       "name": "Ferplast Agila Arnés",
       "description": "Arnés ergonómico con acolchado",
       "category_slug": "ACC-PAS-COL",
-      "target_species": [
-        "dog"
-      ],
+      "target_species": ["dog"],
       "variants": [
         {
           "size": "Talla 3 (XS)",

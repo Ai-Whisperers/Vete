@@ -10,7 +10,7 @@ import {
   formatAppointmentTime,
   canCancelAppointment,
   canRescheduleAppointment,
-  formatAppointmentDateTime
+  formatAppointmentDateTime,
 } from '@/lib/types/appointments'
 
 interface AppointmentCardProps {
@@ -40,14 +40,14 @@ const speciesIcons: Record<string, React.ComponentType<{ className?: string }>> 
   bird: Icons.Bird,
   rabbit: Icons.Rabbit,
   fish: Icons.Fish,
-  default: Icons.PawPrint
+  default: Icons.PawPrint,
 }
 
 export function AppointmentCard({
   appointment,
   clinic,
   showActions = true,
-  onUpdate
+  onUpdate,
 }: AppointmentCardProps) {
   const status = statusConfig[appointment.status] || statusConfig.pending
   const canCancel = canCancelAppointment(appointment)
@@ -59,51 +59,53 @@ export function AppointmentCard({
   const isToday = new Date(appointment.start_time).toDateString() === new Date().toDateString()
 
   return (
-    <div className={`bg-white rounded-2xl border transition-all hover:shadow-lg ${
-      appointment.status === 'cancelled'
-        ? 'border-red-100 bg-red-50/30'
-        : isPast
-          ? 'border-gray-100 opacity-75'
-          : 'border-gray-100 hover:border-[var(--primary)]/30'
-    }`}>
+    <div
+      className={`rounded-2xl border bg-white transition-all hover:shadow-lg ${
+        appointment.status === 'cancelled'
+          ? 'border-red-100 bg-red-50/30'
+          : isPast
+            ? 'border-gray-100 opacity-75'
+            : 'hover:border-[var(--primary)]/30 border-gray-100'
+      }`}
+    >
       <div className="p-5">
         {/* Header with status and date */}
-        <div className="flex flex-wrap items-start justify-between mb-4">
+        <div className="mb-4 flex flex-wrap items-start justify-between">
           <div className="flex items-center gap-3">
             {/* Pet Avatar */}
-            <div className="w-12 h-12 rounded-xl bg-[var(--primary)]/10 flex items-center justify-center overflow-hidden">
+            <div className="bg-[var(--primary)]/10 flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl">
               {appointment.pets.photo_url ? (
                 <img
                   src={appointment.pets.photo_url}
                   alt={appointment.pets.name}
-                  className="w-full h-full object-cover"
+                  className="h-full w-full object-cover"
                 />
               ) : (
-                <SpeciesIcon className="w-6 h-6 text-[var(--primary)]" />
+                <SpeciesIcon className="h-6 w-6 text-[var(--primary)]" />
               )}
             </div>
 
             <div>
-              <h3 className="font-bold text-[var(--text-primary)]">
-                {appointment.pets.name}
-              </h3>
-              <p className="text-xs text-[var(--text-secondary)] capitalize">
+              <h3 className="font-bold text-[var(--text-primary)]">{appointment.pets.name}</h3>
+              <p className="text-xs capitalize text-[var(--text-secondary)]">
                 {appointment.reason}
               </p>
             </div>
           </div>
 
           {/* Status Badge */}
-          <span className={`px-3 py-1 rounded-full text-xs font-bold ${status.className}`}>
+          <span className={`rounded-full px-3 py-1 text-xs font-bold ${status.className}`}>
             {status.label}
           </span>
         </div>
 
         {/* Date and Time */}
-        <div className="flex flex-wrap items-center gap-3 sm:gap-4 mb-4 p-3 bg-gray-50 rounded-xl">
+        <div className="mb-4 flex flex-wrap items-center gap-3 rounded-xl bg-gray-50 p-3 sm:gap-4">
           <div className="flex items-center gap-2 text-sm">
-            <Icons.Calendar className="w-4 h-4 text-[var(--primary)] shrink-0" />
-            <span className={`font-medium ${isToday ? 'text-[var(--primary)] font-bold' : 'text-[var(--text-primary)]'}`}>
+            <Icons.Calendar className="h-4 w-4 shrink-0 text-[var(--primary)]" />
+            <span
+              className={`font-medium ${isToday ? 'font-bold text-[var(--primary)]' : 'text-[var(--text-primary)]'}`}
+            >
               {formatAppointmentDateTime(appointment.start_time)}
             </span>
           </div>
@@ -111,20 +113,20 @@ export function AppointmentCard({
 
         {/* Notes if any */}
         {appointment.notes && !appointment.notes.startsWith('[Cancelado') && (
-          <p className="text-sm text-[var(--text-secondary)] mb-4 line-clamp-2">
+          <p className="mb-4 line-clamp-2 text-sm text-[var(--text-secondary)]">
             {appointment.notes}
           </p>
         )}
 
         {/* Actions */}
         {showActions && (
-          <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+          <div className="flex items-center justify-between border-t border-gray-100 pt-3">
             <Link
               href={`/${clinic}/portal/appointments/${appointment.id}`}
-              className="text-sm text-[var(--primary)] font-medium hover:underline flex items-center gap-1"
+              className="flex items-center gap-1 text-sm font-medium text-[var(--primary)] hover:underline"
             >
               Ver detalles
-              <Icons.ChevronRight className="w-4 h-4" />
+              <Icons.ChevronRight className="h-4 w-4" />
             </Link>
 
             <div className="flex items-center gap-2">
@@ -138,11 +140,7 @@ export function AppointmentCard({
                 />
               )}
               {canCancel && (
-                <CancelButton
-                  appointmentId={appointment.id}
-                  variant="icon"
-                  onSuccess={onUpdate}
-                />
+                <CancelButton appointmentId={appointment.id} variant="icon" onSuccess={onUpdate} />
               )}
             </div>
           </div>

@@ -23,7 +23,12 @@
         "instagram": "royalcanin_latam",
         "youtube": "RoyalCanin"
       },
-      "key_products": ["Breed Health Nutrition", "Size Health Nutrition", "Veterinary Diet", "Feline Care Nutrition"],
+      "key_products": [
+        "Breed Health Nutrition",
+        "Size Health Nutrition",
+        "Veterinary Diet",
+        "Feline Care Nutrition"
+      ],
       "notes": "Fundada por el veterinario Jean Cathary. Adquirida por Mars en 2001. Líder mundial en nutrición personalizada."
     },
     {
@@ -73,7 +78,12 @@
         "instagram": "hillspet_latam",
         "youtube": "HillsPet"
       },
-      "key_products": ["Science Diet", "Prescription Diet", "Healthy Advantage", "Bioactive Recipe"],
+      "key_products": [
+        "Science Diet",
+        "Prescription Diet",
+        "Healthy Advantage",
+        "Bioactive Recipe"
+      ],
       "notes": "Fundada por el Dr. Mark Morris Sr. Pionera en nutrición terapéutica veterinaria."
     },
     {
@@ -206,7 +216,12 @@
         "facebook": "BravectoLatam",
         "instagram": "bravecto_latam"
       },
-      "key_products": ["Bravecto Tableta", "Bravecto Spot-On Perros", "Bravecto Spot-On Gatos", "Bravecto Plus"],
+      "key_products": [
+        "Bravecto Tableta",
+        "Bravecto Spot-On Perros",
+        "Bravecto Spot-On Gatos",
+        "Bravecto Plus"
+      ],
       "notes": "Único antiparasitario con 12 semanas de duración. Bravecto Plus incluye protección contra gusano del corazón."
     },
     {
@@ -778,7 +793,12 @@
         "facebook": "PremierPet",
         "instagram": "premierpet"
       },
-      "key_products": ["Premier Seleção Natural", "Premier Raças Específicas", "Golden Formula", "Cookie"],
+      "key_products": [
+        "Premier Seleção Natural",
+        "Premier Raças Específicas",
+        "Golden Formula",
+        "Cookie"
+      ],
       "notes": "Líneas específicas por raza y tamaño. Gran Plus es su marca económica."
     },
     {
@@ -1449,7 +1469,13 @@
       "certifications": ["GMP", "EMA", "USDA"],
       "distribution_regions": ["global"],
       "local_distributor": "MSD Animal Health Paraguay",
-      "key_products": ["Nobivac DHPPi", "Nobivac Puppy DP", "Nobivac Rabies", "Nobivac Lepto", "Nobivac KC"],
+      "key_products": [
+        "Nobivac DHPPi",
+        "Nobivac Puppy DP",
+        "Nobivac Rabies",
+        "Nobivac Lepto",
+        "Nobivac KC"
+      ],
       "notes": "Una de las líneas de vacunas más utilizadas mundialmente."
     },
     {
@@ -1616,7 +1642,12 @@
       "certifications": ["FDA", "CE"],
       "distribution_regions": ["global"],
       "local_distributor": null,
-      "key_products": ["Máquinas de Anestesia", "Monitores Multiparámetros", "Ventiladores", "Vaporizadores"],
+      "key_products": [
+        "Máquinas de Anestesia",
+        "Monitores Multiparámetros",
+        "Ventiladores",
+        "Vaporizadores"
+      ],
       "notes": "División veterinaria de Smiths Medical. Líder en anestesia veterinaria."
     },
     {
@@ -1655,7 +1686,12 @@
       "is_veterinary_exclusive": true,
       "distribution_regions": ["global"],
       "local_distributor": null,
-      "key_products": ["Kennels de Acero", "Mesas de Tratamiento", "Tinas de Baño", "Jaulas Modulares"],
+      "key_products": [
+        "Kennels de Acero",
+        "Mesas de Tratamiento",
+        "Tinas de Baño",
+        "Jaulas Modulares"
+      ],
       "notes": "Estándar de la industria en kennels de hospitalización veterinaria."
     },
     {

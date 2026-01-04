@@ -1,9 +1,9 @@
-"use client";
+'use client'
 
-import { useEffect, useState } from 'react';
-import { createClient } from '@/lib/supabase/client';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { useEffect, useState } from 'react'
+import { createClient } from '@/lib/supabase/client'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import {
   FileText,
   DollarSign,
@@ -13,234 +13,242 @@ import {
   AlertCircle,
   Plus,
   Search,
-  Filter
-} from 'lucide-react';
-import ClaimStatusBadge from '@/components/insurance/claim-status-badge';
+  Filter,
+} from 'lucide-react'
+import ClaimStatusBadge from '@/components/insurance/claim-status-badge'
 
 interface Claim {
-  id: string;
-  claim_number: string;
-  status: string;
-  date_of_service: string;
-  diagnosis: string;
-  claimed_amount: number;
-  approved_amount: number | null;
-  paid_amount: number | null;
-  created_at: string;
+  id: string
+  claim_number: string
+  status: string
+  date_of_service: string
+  diagnosis: string
+  claimed_amount: number
+  approved_amount: number | null
+  paid_amount: number | null
+  created_at: string
   pets: {
-    name: string;
-    species: string;
-  };
+    name: string
+    species: string
+  }
   pet_insurance_policies: {
-    policy_number: string;
+    policy_number: string
     insurance_providers: {
-      name: string;
-      logo_url: string | null;
-    };
-  };
+      name: string
+      logo_url: string | null
+    }
+  }
 }
 
 interface DashboardStats {
-  pending_count: number;
-  pending_value: number;
-  awaiting_docs_count: number;
-  recently_paid_count: number;
-  recently_paid_value: number;
+  pending_count: number
+  pending_value: number
+  awaiting_docs_count: number
+  recently_paid_count: number
+  recently_paid_value: number
 }
 
 export default function InsuranceDashboardPage() {
-  const supabase = createClient();
-  const router = useRouter();
+  const supabase = createClient()
+  const router = useRouter()
 
-  const [loading, setLoading] = useState(true);
-  const [claims, setClaims] = useState<Claim[]>([]);
+  const [loading, setLoading] = useState(true)
+  const [claims, setClaims] = useState<Claim[]>([])
   const [stats, setStats] = useState<DashboardStats>({
     pending_count: 0,
     pending_value: 0,
     awaiting_docs_count: 0,
     recently_paid_count: 0,
-    recently_paid_value: 0
-  });
+    recently_paid_value: 0,
+  })
 
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState('')
+  const [statusFilter, setStatusFilter] = useState<string>('')
 
   useEffect(() => {
-    checkAuth();
-    loadData();
-  }, [statusFilter]);
+    checkAuth()
+    loadData()
+  }, [statusFilter])
 
   const checkAuth = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
+    const {
+      data: { session },
+    } = await supabase.auth.getSession()
     if (!session) {
-      router.push('/');
+      router.push('/')
     }
-  };
+  }
 
   const loadData = async () => {
-    setLoading(true);
+    setLoading(true)
 
     // Load claims
-    const url = new URL('/api/insurance/claims', window.location.origin);
+    const url = new URL('/api/insurance/claims', window.location.origin)
     if (statusFilter) {
-      url.searchParams.set('status', statusFilter);
+      url.searchParams.set('status', statusFilter)
     }
     if (searchQuery) {
-      url.searchParams.set('search', searchQuery);
+      url.searchParams.set('search', searchQuery)
     }
 
-    const response = await fetch(url.toString());
+    const response = await fetch(url.toString())
     if (response.ok) {
-      const result = await response.json();
-      setClaims(result.data || []);
+      const result = await response.json()
+      setClaims(result.data || [])
     }
 
     // Calculate stats from claims
-    const allClaimsResponse = await fetch('/api/insurance/claims?limit=1000');
+    const allClaimsResponse = await fetch('/api/insurance/claims?limit=1000')
     if (allClaimsResponse.ok) {
-      const allClaimsResult = await allClaimsResponse.json();
-      const allClaims = allClaimsResult.data || [];
+      const allClaimsResult = await allClaimsResponse.json()
+      const allClaims = allClaimsResult.data || []
 
       const pendingClaims = allClaims.filter((c: Claim) =>
         ['submitted', 'under_review'].includes(c.status)
-      );
-      const awaitingDocsClaims = allClaims.filter((c: Claim) => c.status === 'pending_documents');
+      )
+      const awaitingDocsClaims = allClaims.filter((c: Claim) => c.status === 'pending_documents')
       const recentlyPaidClaims = allClaims.filter((c: Claim) => {
-        if (c.status !== 'paid') return false;
-        const thirtyDaysAgo = new Date();
-        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-        return new Date(c.created_at) >= thirtyDaysAgo;
-      });
+        if (c.status !== 'paid') return false
+        const thirtyDaysAgo = new Date()
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+        return new Date(c.created_at) >= thirtyDaysAgo
+      })
 
       setStats({
         pending_count: pendingClaims.length,
-        pending_value: pendingClaims.reduce((sum: number, c: Claim) => sum + (c.claimed_amount || 0), 0),
+        pending_value: pendingClaims.reduce(
+          (sum: number, c: Claim) => sum + (c.claimed_amount || 0),
+          0
+        ),
         awaiting_docs_count: awaitingDocsClaims.length,
         recently_paid_count: recentlyPaidClaims.length,
-        recently_paid_value: recentlyPaidClaims.reduce((sum: number, c: Claim) => sum + (c.paid_amount || 0), 0)
-      });
+        recently_paid_value: recentlyPaidClaims.reduce(
+          (sum: number, c: Claim) => sum + (c.paid_amount || 0),
+          0
+        ),
+      })
     }
 
-    setLoading(false);
-  };
+    setLoading(false)
+  }
 
   const handleSearch = () => {
-    loadData();
-  };
+    loadData()
+  }
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex min-h-screen items-center justify-center">
         <p className="text-[var(--text-secondary)]">Cargando...</p>
       </div>
-    );
+    )
   }
 
   return (
     <div className="min-h-screen bg-[var(--bg-default)] p-6">
-      <div className="max-w-7xl mx-auto">
+      <div className="mx-auto max-w-7xl">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="mb-6 flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-[var(--text-primary)]">Seguros</h1>
-            <p className="text-[var(--text-secondary)] mt-1">
+            <p className="mt-1 text-[var(--text-secondary)]">
               Gestión de reclamos y pólizas de seguro
             </p>
           </div>
           <div className="flex gap-3">
             <Link
               href="./insurance/policies"
-              className="px-4 py-2 border border-[var(--primary)] text-[var(--primary)] rounded-md hover:bg-[var(--primary)] hover:text-white transition-colors"
+              className="rounded-md border border-[var(--primary)] px-4 py-2 text-[var(--primary)] transition-colors hover:bg-[var(--primary)] hover:text-white"
             >
               Ver Pólizas
             </Link>
             <Link
               href="./insurance/claims/new"
-              className="flex items-center gap-2 px-4 py-2 bg-[var(--primary)] text-white rounded-md hover:opacity-90"
+              className="flex items-center gap-2 rounded-md bg-[var(--primary)] px-4 py-2 text-white hover:opacity-90"
             >
-              <Plus className="w-5 h-5" />
+              <Plus className="h-5 w-5" />
               Nuevo Reclamo
             </Link>
           </div>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
+        <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-4">
+          <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-[var(--text-secondary)]">Pendientes</p>
-                <p className="text-2xl font-bold text-[var(--text-primary)] mt-1">
+                <p className="mt-1 text-2xl font-bold text-[var(--text-primary)]">
                   {stats.pending_count}
                 </p>
-                <p className="text-xs text-[var(--text-secondary)] mt-1">
+                <p className="mt-1 text-xs text-[var(--text-secondary)]">
                   Gs. {stats.pending_value.toLocaleString('es-PY')}
                 </p>
               </div>
-              <div className="p-3 bg-blue-50 rounded-full">
-                <Clock className="w-6 h-6 text-blue-600" />
+              <div className="rounded-full bg-blue-50 p-3">
+                <Clock className="h-6 w-6 text-blue-600" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
+          <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-[var(--text-secondary)]">Docs. Pendientes</p>
-                <p className="text-2xl font-bold text-[var(--text-primary)] mt-1">
+                <p className="mt-1 text-2xl font-bold text-[var(--text-primary)]">
                   {stats.awaiting_docs_count}
                 </p>
               </div>
-              <div className="p-3 bg-orange-50 rounded-full">
-                <AlertCircle className="w-6 h-6 text-orange-600" />
+              <div className="rounded-full bg-orange-50 p-3">
+                <AlertCircle className="h-6 w-6 text-orange-600" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
+          <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-[var(--text-secondary)]">Pagados (30d)</p>
-                <p className="text-2xl font-bold text-[var(--text-primary)] mt-1">
+                <p className="mt-1 text-2xl font-bold text-[var(--text-primary)]">
                   {stats.recently_paid_count}
                 </p>
-                <p className="text-xs text-[var(--text-secondary)] mt-1">
+                <p className="mt-1 text-xs text-[var(--text-secondary)]">
                   Gs. {stats.recently_paid_value.toLocaleString('es-PY')}
                 </p>
               </div>
-              <div className="p-3 bg-green-50 rounded-full">
-                <CheckCircle2 className="w-6 h-6 text-green-600" />
+              <div className="rounded-full bg-green-50 p-3">
+                <CheckCircle2 className="h-6 w-6 text-green-600" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
+          <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-[var(--text-secondary)]">Total Reclamos</p>
-                <p className="text-2xl font-bold text-[var(--text-primary)] mt-1">
+                <p className="mt-1 text-2xl font-bold text-[var(--text-primary)]">
                   {claims.length}
                 </p>
               </div>
-              <div className="p-3 bg-purple-50 rounded-full">
-                <FileText className="w-6 h-6 text-purple-600" />
+              <div className="rounded-full bg-purple-50 p-3">
+                <FileText className="h-6 w-6 text-purple-600" />
               </div>
             </div>
           </div>
         </div>
 
         {/* Filters */}
-        <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-6">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+        <div className="mb-6 rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+          <div className="flex flex-col gap-4 md:flex-row">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                 placeholder="Buscar por número de reclamo, diagnóstico..."
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md"
+                className="w-full rounded-md border border-gray-300 py-2 pl-10 pr-4"
               />
             </div>
 
@@ -248,7 +256,7 @@ export default function InsuranceDashboardPage() {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-md bg-white"
+                className="rounded-md border border-gray-300 bg-white px-4 py-2"
               >
                 <option value="">Todos los estados</option>
                 <option value="draft">Borrador</option>
@@ -262,7 +270,7 @@ export default function InsuranceDashboardPage() {
 
               <button
                 onClick={handleSearch}
-                className="px-4 py-2 bg-[var(--primary)] text-white rounded-md hover:opacity-90"
+                className="rounded-md bg-[var(--primary)] px-4 py-2 text-white hover:opacity-90"
               >
                 Buscar
               </button>
@@ -272,33 +280,33 @@ export default function InsuranceDashboardPage() {
 
         {/* Claims List */}
         <div>
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-4">
+          <div className="mb-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
             <h2 className="text-lg font-semibold text-[var(--text-primary)]">Reclamos</h2>
           </div>
 
           {claims.length === 0 ? (
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
-              <FileText className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+            <div className="rounded-lg border border-gray-200 bg-white p-8 text-center shadow-sm">
+              <FileText className="mx-auto mb-3 h-12 w-12 text-gray-300" />
               <p className="text-[var(--text-secondary)]">No se encontraron reclamos</p>
               <Link
                 href="./insurance/claims/new"
-                className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-[var(--primary)] text-white rounded-md hover:opacity-90"
+                className="mt-4 inline-flex items-center gap-2 rounded-md bg-[var(--primary)] px-4 py-2 text-white hover:opacity-90"
               >
-                <Plus className="w-5 h-5" />
+                <Plus className="h-5 w-5" />
                 Crear Primer Reclamo
               </Link>
             </div>
           ) : (
             <>
               {/* Mobile Cards */}
-              <div className="md:hidden space-y-3">
+              <div className="space-y-3 md:hidden">
                 {claims.map((claim) => (
                   <Link
                     key={claim.id}
                     href={`./insurance/claims/${claim.id}`}
-                    className="block bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:border-[var(--primary)] transition-colors"
+                    className="block rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-colors hover:border-[var(--primary)]"
                   >
-                    <div className="flex items-start justify-between gap-3 mb-3">
+                    <div className="mb-3 flex items-start justify-between gap-3">
                       <div>
                         <p className="font-medium text-[var(--primary)]">{claim.claim_number}</p>
                         <p className="text-sm text-[var(--text-primary)]">{claim.pets.name}</p>
@@ -333,7 +341,7 @@ export default function InsuranceDashboardPage() {
                         </div>
                       )}
                     </div>
-                    <p className="text-xs text-[var(--text-secondary)] mt-3 truncate">
+                    <p className="mt-3 truncate text-xs text-[var(--text-secondary)]">
                       {claim.diagnosis}
                     </p>
                   </Link>
@@ -341,33 +349,33 @@ export default function InsuranceDashboardPage() {
               </div>
 
               {/* Desktop Table */}
-              <div className="hidden md:block bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+              <div className="hidden overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm md:block">
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead className="bg-gray-50">
                       <tr>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase">
+                        <th className="px-4 py-3 text-left text-xs font-medium uppercase text-[var(--text-secondary)]">
                           Numero
                         </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase">
+                        <th className="px-4 py-3 text-left text-xs font-medium uppercase text-[var(--text-secondary)]">
                           Mascota
                         </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase">
+                        <th className="px-4 py-3 text-left text-xs font-medium uppercase text-[var(--text-secondary)]">
                           Aseguradora
                         </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase">
+                        <th className="px-4 py-3 text-left text-xs font-medium uppercase text-[var(--text-secondary)]">
                           Diagnostico
                         </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase">
+                        <th className="px-4 py-3 text-left text-xs font-medium uppercase text-[var(--text-secondary)]">
                           Fecha Servicio
                         </th>
-                        <th className="px-4 py-3 text-right text-xs font-medium text-[var(--text-secondary)] uppercase">
+                        <th className="px-4 py-3 text-right text-xs font-medium uppercase text-[var(--text-secondary)]">
                           Reclamado
                         </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase">
+                        <th className="px-4 py-3 text-left text-xs font-medium uppercase text-[var(--text-secondary)]">
                           Estado
                         </th>
-                        <th className="px-4 py-3 text-right text-xs font-medium text-[var(--text-secondary)] uppercase">
+                        <th className="px-4 py-3 text-right text-xs font-medium uppercase text-[var(--text-secondary)]">
                           Acciones
                         </th>
                       </tr>
@@ -385,8 +393,12 @@ export default function InsuranceDashboardPage() {
                           </td>
                           <td className="px-4 py-3">
                             <div>
-                              <p className="font-medium text-[var(--text-primary)]">{claim.pets.name}</p>
-                              <p className="text-xs text-[var(--text-secondary)]">{claim.pets.species}</p>
+                              <p className="font-medium text-[var(--text-primary)]">
+                                {claim.pets.name}
+                              </p>
+                              <p className="text-xs text-[var(--text-secondary)]">
+                                {claim.pets.species}
+                              </p>
                             </div>
                           </td>
                           <td className="px-4 py-3">
@@ -398,7 +410,7 @@ export default function InsuranceDashboardPage() {
                             </p>
                           </td>
                           <td className="px-4 py-3">
-                            <p className="text-sm text-[var(--text-primary)] max-w-xs truncate">
+                            <p className="max-w-xs truncate text-sm text-[var(--text-primary)]">
                               {claim.diagnosis}
                             </p>
                           </td>
@@ -439,5 +451,5 @@ export default function InsuranceDashboardPage() {
         </div>
       </div>
     </div>
-  );
+  )
 }

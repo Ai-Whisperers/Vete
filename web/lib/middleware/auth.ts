@@ -20,7 +20,7 @@ export function withAuthMiddleware(options: AuthMiddlewareOptions = {}) {
     const { pathname } = request.nextUrl
 
     // Skip middleware for public paths
-    if (publicPaths.some(path => pathname.startsWith(path))) {
+    if (publicPaths.some((path) => pathname.startsWith(path))) {
       return NextResponse.next()
     }
 

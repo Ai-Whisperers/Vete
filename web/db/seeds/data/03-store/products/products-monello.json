@@ -7,9 +7,7 @@
       "name": "Monello Adult Dog",
       "description": "Alimento premium brasileño para perros adultos",
       "category_slug": "NUT-CAN-SEC",
-      "target_species": [
-        "dog"
-      ],
+      "target_species": ["dog"],
       "variants": [
         {
           "size": "1kg",
@@ -47,9 +45,7 @@
       "name": "Monello Puppy",
       "description": "Alimento premium para cachorros con DHA",
       "category_slug": "NUT-CAN-SEC",
-      "target_species": [
-        "dog"
-      ],
+      "target_species": ["dog"],
       "variants": [
         {
           "size": "1kg",
@@ -81,9 +77,7 @@
       "name": "Monello Light",
       "description": "Alimento reducido en calorías para perros con sobrepeso",
       "category_slug": "NUT-CAN-SEC",
-      "target_species": [
-        "dog"
-      ],
+      "target_species": ["dog"],
       "variants": [
         {
           "size": "7kg",
@@ -109,9 +103,7 @@
       "name": "Monello Select",
       "description": "Línea premium con ingredientes seleccionados",
       "category_slug": "NUT-CAN-SEC",
-      "target_species": [
-        "dog"
-      ],
+      "target_species": ["dog"],
       "variants": [
         {
           "size": "7kg",
@@ -137,9 +129,7 @@
       "name": "Monello Adult Cat",
       "description": "Alimento premium brasileño para gatos adultos",
       "category_slug": "NUT-FEL-SEC",
-      "target_species": [
-        "cat"
-      ],
+      "target_species": ["cat"],
       "variants": [
         {
           "size": "500g",
@@ -177,9 +167,7 @@
       "name": "Monello Kitten",
       "description": "Alimento premium para gatitos",
       "category_slug": "NUT-FEL-SEC",
-      "target_species": [
-        "cat"
-      ],
+      "target_species": ["cat"],
       "variants": [
         {
           "size": "500g",
@@ -205,9 +193,7 @@
       "name": "Monello Cat Castrados",
       "description": "Alimento para gatos esterilizados con control de peso",
       "category_slug": "NUT-FEL-SEC",
-      "target_species": [
-        "cat"
-      ],
+      "target_species": ["cat"],
       "variants": [
         {
           "size": "1kg",

@@ -31,10 +31,24 @@
         "category": {
           "type": "string",
           "enum": [
-            "dermatology", "gastroenterology", "orthopedics", "ophthalmology",
-            "dentistry", "endocrinology", "nephrology", "cardiology",
-            "parasitology", "infectious", "oncology", "neurology",
-            "urology", "reproductive", "respiratory", "nutrition", "behavior", "other"
+            "dermatology",
+            "gastroenterology",
+            "orthopedics",
+            "ophthalmology",
+            "dentistry",
+            "endocrinology",
+            "nephrology",
+            "cardiology",
+            "parasitology",
+            "infectious",
+            "oncology",
+            "neurology",
+            "urology",
+            "reproductive",
+            "respiratory",
+            "nutrition",
+            "behavior",
+            "other"
           ]
         },
         "species": {
@@ -104,7 +118,19 @@
         },
         "category": {
           "type": "string",
-          "enum": ["antibiotic", "nsaid", "analgesic", "antiparasitic", "antiemetic", "antidiarrheal", "corticosteroid", "antifungal", "cardiac", "sedative", "other"]
+          "enum": [
+            "antibiotic",
+            "nsaid",
+            "analgesic",
+            "antiparasitic",
+            "antiemetic",
+            "antidiarrheal",
+            "corticosteroid",
+            "antifungal",
+            "cardiac",
+            "sedative",
+            "other"
+          ]
         },
         "contraindications": {
           "type": "array",
@@ -180,7 +206,18 @@
         },
         "category": {
           "type": "string",
-          "enum": ["hematology", "chemistry", "urinalysis", "endocrinology", "serology", "parasitology", "coagulation", "cytology", "microbiology", "imaging"]
+          "enum": [
+            "hematology",
+            "chemistry",
+            "urinalysis",
+            "endocrinology",
+            "serology",
+            "parasitology",
+            "coagulation",
+            "cytology",
+            "microbiology",
+            "imaging"
+          ]
         },
         "description": {
           "type": "string",
@@ -261,7 +298,10 @@
         },
         "coverage_types": {
           "type": "array",
-          "items": { "type": "string", "enum": ["accident", "illness", "wellness", "dental", "preventive"] },
+          "items": {
+            "type": "string",
+            "enum": ["accident", "illness", "wellness", "dental", "preventive"]
+          },
           "description": "Types of coverage offered"
         },
         "direct_billing": {

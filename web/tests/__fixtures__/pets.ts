@@ -4,30 +4,30 @@
  * Pre-defined pet data for testing pet management functionality.
  */
 
-export type Species = 'dog' | 'cat' | 'rabbit' | 'bird' | 'other';
-export type Sex = 'male' | 'female';
-export type Temperament = 'friendly' | 'shy' | 'aggressive' | 'unknown';
+export type Species = 'dog' | 'cat' | 'rabbit' | 'bird' | 'other'
+export type Sex = 'male' | 'female'
+export type Temperament = 'friendly' | 'shy' | 'aggressive' | 'unknown'
 
 export interface PetFixture {
-  id: string;
-  ownerId: string;
-  tenantId: string;
-  name: string;
-  species: Species;
-  breed: string;
-  birthDate: string;
-  weightKg: number;
-  sex: Sex;
-  isNeutered: boolean;
-  color: string;
-  temperament: Temperament;
-  microchipId?: string | null;
-  dietCategory?: string | null;
-  dietNotes?: string | null;
-  allergies?: string | null;
-  existingConditions?: string | null;
-  notes?: string | null;
-  photoUrl?: string | null;
+  id: string
+  ownerId: string
+  tenantId: string
+  name: string
+  species: Species
+  breed: string
+  birthDate: string
+  weightKg: number
+  sex: Sex
+  isNeutered: boolean
+  color: string
+  temperament: Temperament
+  microchipId?: string | null
+  dietCategory?: string | null
+  dietNotes?: string | null
+  allergies?: string | null
+  existingConditions?: string | null
+  notes?: string | null
+  photoUrl?: string | null
 }
 
 /** Pre-defined test pets */
@@ -124,44 +124,44 @@ export const PETS: Record<string, PetFixture> = {
     color: 'Atigrado',
     temperament: 'friendly',
   },
-};
+}
 
 /** Get pet by key */
 export function getPet(key: string): PetFixture {
-  const pet = PETS[key];
+  const pet = PETS[key]
   if (!pet) {
-    throw new Error(`Unknown pet: ${key}`);
+    throw new Error(`Unknown pet: ${key}`)
   }
-  return pet;
+  return pet
 }
 
 /** Get pets by owner */
 export function getPetsByOwner(ownerId: string): PetFixture[] {
-  return Object.values(PETS).filter((pet) => pet.ownerId === ownerId);
+  return Object.values(PETS).filter((pet) => pet.ownerId === ownerId)
 }
 
 /** Get pets by tenant */
 export function getPetsByTenant(tenantId: string): PetFixture[] {
-  return Object.values(PETS).filter((pet) => pet.tenantId === tenantId);
+  return Object.values(PETS).filter((pet) => pet.tenantId === tenantId)
 }
 
 /** Get pets by species */
 export function getPetsBySpecies(species: Species): PetFixture[] {
-  return Object.values(PETS).filter((pet) => pet.species === species);
+  return Object.values(PETS).filter((pet) => pet.species === species)
 }
 
 /** Default pet for quick access */
-export const DEFAULT_PET = PETS.maxDog;
+export const DEFAULT_PET = PETS.maxDog
 
 /** All species for testing */
-export const ALL_SPECIES: Species[] = ['dog', 'cat', 'rabbit', 'bird', 'other'];
+export const ALL_SPECIES: Species[] = ['dog', 'cat', 'rabbit', 'bird', 'other']
 
 /** All temperaments for testing */
-export const ALL_TEMPERAMENTS: Temperament[] = ['friendly', 'shy', 'aggressive', 'unknown'];
+export const ALL_TEMPERAMENTS: Temperament[] = ['friendly', 'shy', 'aggressive', 'unknown']
 
 /** Generate unique pet data for creation tests */
 export function generatePetData(overrides: Partial<PetFixture> = {}): Omit<PetFixture, 'id'> {
-  const random = Math.random().toString(36).substring(7);
+  const random = Math.random().toString(36).substring(7)
   return {
     ownerId: '00000000-0000-0000-0000-000000000001',
     tenantId: 'adris',
@@ -175,7 +175,7 @@ export function generatePetData(overrides: Partial<PetFixture> = {}): Omit<PetFi
     color: 'Negro',
     temperament: 'friendly',
     ...overrides,
-  };
+  }
 }
 
 /** Invalid pet data for validation tests */
@@ -199,4 +199,4 @@ export const INVALID_PET_DATA = {
     name: 'Invalid',
     species: 'unicorn', // Invalid species
   },
-};
+}

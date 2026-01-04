@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
-import { sendEmail } from '@/lib/email/client';
-import { logger } from '@/lib/logger';
+import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@/lib/supabase/server'
+import { sendEmail } from '@/lib/email/client'
+import { logger } from '@/lib/logger'
 
-export const dynamic = 'force-dynamic'; // Prevent caching
+export const dynamic = 'force-dynamic' // Prevent caching
 
 /**
  * Stock Alerts Cron Job
@@ -12,7 +12,7 @@ export const dynamic = 'force-dynamic'; // Prevent caching
  * and sends back-in-stock emails to subscribed customers.
  */
 export async function GET(request: NextRequest) {
-  const supabase = await createClient();
+  const supabase = await createClient()
 
   try {
     // 1. Get pending stock_restored notifications from queue
@@ -22,82 +22,84 @@ export async function GET(request: NextRequest) {
       .eq('type', 'stock_restored')
       .eq('status', 'pending')
       .lt('attempts', 3) // Max 3 retries
-      .limit(20); // Process in batches
+      .limit(20) // Process in batches
 
     if (fetchError) {
       logger.error('Error fetching notification queue', {
-        error: fetchError instanceof Error ? fetchError.message : String(fetchError)
-      });
-      return NextResponse.json({ error: 'Database error' }, { status: 500 });
+        error: fetchError instanceof Error ? fetchError.message : String(fetchError),
+      })
+      return NextResponse.json({ error: 'Database error' }, { status: 500 })
     }
 
     if (!notifications || notifications.length === 0) {
-      return NextResponse.json({ message: 'No pending stock alerts', count: 0 });
+      return NextResponse.json({ message: 'No pending stock alerts', count: 0 })
     }
 
     // 2. Process each notification
-    const results = await Promise.allSettled(notifications.map(async (notification) => {
-      const { product_id, tenant_id, new_quantity } = notification.payload;
+    const results = await Promise.allSettled(
+      notifications.map(async (notification) => {
+        const { product_id, tenant_id, new_quantity } = notification.payload
 
-      // Mark as processing
-      await supabase
-        .from('notification_queue')
-        .update({
-          status: 'processing',
-          last_attempt_at: new Date().toISOString(),
-          attempts: notification.attempts + 1
-        })
-        .eq('id', notification.id);
-
-      // Get product details
-      const { data: product, error: productError } = await supabase
-        .from('store_products')
-        .select('id, name, slug, base_price, image_url')
-        .eq('id', product_id)
-        .single();
-
-      if (productError || !product) {
-        throw new Error(`Product not found: ${product_id}`);
-      }
-
-      // Get tenant details for branding
-      const { data: tenant } = await supabase
-        .from('tenants')
-        .select('name')
-        .eq('id', tenant_id)
-        .single();
-
-      const clinicName = tenant?.name || 'Veterinaria';
-
-      // Get all pending alerts for this product
-      const { data: alerts, error: alertsError } = await supabase
-        .from('store_stock_alerts')
-        .select('id, email, user_id')
-        .eq('product_id', product_id)
-        .eq('notified', false);
-
-      if (alertsError) {
-        throw new Error(`Failed to fetch alerts: ${alertsError.message}`);
-      }
-
-      if (!alerts || alerts.length === 0) {
-        // No subscribers, mark notification as completed
+        // Mark as processing
         await supabase
           .from('notification_queue')
-          .update({ status: 'completed', processed_at: new Date().toISOString() })
-          .eq('id', notification.id);
-        return { notificationId: notification.id, emailsSent: 0 };
-      }
+          .update({
+            status: 'processing',
+            last_attempt_at: new Date().toISOString(),
+            attempts: notification.attempts + 1,
+          })
+          .eq('id', notification.id)
 
-      // Build product URL (assuming store page)
-      const productUrl = `/${tenant_id}/store/products/${product.slug || product.id}`;
+        // Get product details
+        const { data: product, error: productError } = await supabase
+          .from('store_products')
+          .select('id, name, slug, base_price, image_url')
+          .eq('id', product_id)
+          .single()
 
-      // Send email to each subscriber
-      const emailResults = await Promise.allSettled(alerts.map(async (alert) => {
-        const emailResult = await sendEmail({
-          to: alert.email,
-          subject: `¡${product.name} está disponible! - ${clinicName}`,
-          html: `
+        if (productError || !product) {
+          throw new Error(`Product not found: ${product_id}`)
+        }
+
+        // Get tenant details for branding
+        const { data: tenant } = await supabase
+          .from('tenants')
+          .select('name')
+          .eq('id', tenant_id)
+          .single()
+
+        const clinicName = tenant?.name || 'Veterinaria'
+
+        // Get all pending alerts for this product
+        const { data: alerts, error: alertsError } = await supabase
+          .from('store_stock_alerts')
+          .select('id, email, user_id')
+          .eq('product_id', product_id)
+          .eq('notified', false)
+
+        if (alertsError) {
+          throw new Error(`Failed to fetch alerts: ${alertsError.message}`)
+        }
+
+        if (!alerts || alerts.length === 0) {
+          // No subscribers, mark notification as completed
+          await supabase
+            .from('notification_queue')
+            .update({ status: 'completed', processed_at: new Date().toISOString() })
+            .eq('id', notification.id)
+          return { notificationId: notification.id, emailsSent: 0 }
+        }
+
+        // Build product URL (assuming store page)
+        const productUrl = `/${tenant_id}/store/products/${product.slug || product.id}`
+
+        // Send email to each subscriber
+        const emailResults = await Promise.allSettled(
+          alerts.map(async (alert) => {
+            const emailResult = await sendEmail({
+              to: alert.email,
+              subject: `¡${product.name} está disponible! - ${clinicName}`,
+              html: `
             <!DOCTYPE html>
             <html>
             <head>
@@ -139,69 +141,71 @@ export async function GET(request: NextRequest) {
             </body>
             </html>
           `,
-          text: `¡${product.name} está disponible en ${clinicName}! Precio: Gs. ${product.base_price?.toLocaleString('es-PY') || 'Consultar'}. Stock: ${new_quantity} unidades. Visita: ${process.env.NEXT_PUBLIC_APP_URL || 'https://vete.app'}${productUrl}`
-        });
+              text: `¡${product.name} está disponible en ${clinicName}! Precio: Gs. ${product.base_price?.toLocaleString('es-PY') || 'Consultar'}. Stock: ${new_quantity} unidades. Visita: ${process.env.NEXT_PUBLIC_APP_URL || 'https://vete.app'}${productUrl}`,
+            })
 
-        if (!emailResult.success) {
-          throw new Error(`Failed to send email to ${alert.email}: ${emailResult.error}`);
-        }
+            if (!emailResult.success) {
+              throw new Error(`Failed to send email to ${alert.email}: ${emailResult.error}`)
+            }
 
-        // Mark alert as notified
-        await supabase
-          .from('store_stock_alerts')
-          .update({
-            notified: true,
-            notified_at: new Date().toISOString()
+            // Mark alert as notified
+            await supabase
+              .from('store_stock_alerts')
+              .update({
+                notified: true,
+                notified_at: new Date().toISOString(),
+              })
+              .eq('id', alert.id)
+
+            return alert.email
           })
-          .eq('id', alert.id);
+        )
 
-        return alert.email;
-      }));
+        const emailsSent = emailResults.filter((r) => r.status === 'fulfilled').length
+        const emailsFailed = emailResults.filter((r) => r.status === 'rejected').length
 
-      const emailsSent = emailResults.filter(r => r.status === 'fulfilled').length;
-      const emailsFailed = emailResults.filter(r => r.status === 'rejected').length;
+        // Mark notification as completed
+        await supabase
+          .from('notification_queue')
+          .update({
+            status: emailsFailed > 0 ? 'completed' : 'completed',
+            processed_at: new Date().toISOString(),
+          })
+          .eq('id', notification.id)
 
-      // Mark notification as completed
-      await supabase
-        .from('notification_queue')
-        .update({
-          status: emailsFailed > 0 ? 'completed' : 'completed',
-          processed_at: new Date().toISOString()
-        })
-        .eq('id', notification.id);
-
-      return {
-        notificationId: notification.id,
-        productName: product.name,
-        emailsSent,
-        emailsFailed
-      };
-    }));
+        return {
+          notificationId: notification.id,
+          productName: product.name,
+          emailsSent,
+          emailsFailed,
+        }
+      })
+    )
 
     // 3. Summarize results
-    const successful = results.filter(r => r.status === 'fulfilled');
-    const failed = results.filter(r => r.status === 'rejected');
+    const successful = results.filter((r) => r.status === 'fulfilled')
+    const failed = results.filter((r) => r.status === 'rejected')
 
     // Mark failed notifications
     for (const result of failed) {
-      const notification = notifications[results.indexOf(result)];
+      const notification = notifications[results.indexOf(result)]
       if (notification) {
         await supabase
           .from('notification_queue')
           .update({
             status: notification.attempts >= 2 ? 'failed' : 'pending',
-            error_message: result.status === 'rejected' ? String(result.reason) : null
+            error_message: result.status === 'rejected' ? String(result.reason) : null,
           })
-          .eq('id', notification.id);
+          .eq('id', notification.id)
       }
     }
 
     const totalEmailsSent = successful.reduce((sum, r) => {
       if (r.status === 'fulfilled') {
-        return sum + (r.value?.emailsSent || 0);
+        return sum + (r.value?.emailsSent || 0)
       }
-      return sum;
-    }, 0);
+      return sum
+    }, 0)
 
     return NextResponse.json({
       success: true,
@@ -210,14 +214,13 @@ export async function GET(request: NextRequest) {
         notificationsProcessed: notifications.length,
         successful: successful.length,
         failed: failed.length,
-        totalEmailsSent
-      }
-    });
-
+        totalEmailsSent,
+      },
+    })
   } catch (error) {
     logger.error('Stock alerts cron error', {
-      error: error instanceof Error ? error.message : String(error)
-    });
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+      error: error instanceof Error ? error.message : String(error),
+    })
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

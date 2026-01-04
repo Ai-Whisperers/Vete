@@ -91,7 +91,7 @@ class ConfigManager {
       name: config.name,
       version: config.version,
       env: config.env,
-      baseUrl: config.baseUrl
+      baseUrl: config.baseUrl,
     }
   }
 

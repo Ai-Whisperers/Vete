@@ -54,34 +54,39 @@ function WaitingTimeIndicator({ checkedInAt }: { checkedInAt: string }) {
   return (
     <div
       className={cn(
-        'flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border',
+        'flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-bold',
         urgencyStyles[urgency]
       )}
       title={`En espera desde ${new Date(checkedInAt).toLocaleTimeString('es-PY', { hour: '2-digit', minute: '2-digit' })}`}
     >
-      <Icons.Timer className="w-3.5 h-3.5" />
+      <Icons.Timer className="h-3.5 w-3.5" />
       <span>{formatWaitingTime(minutes)}</span>
     </div>
   )
 }
 
 // Estimated wait time calculation for queue position
-function EstimatedWaitBadge({ position, avgServiceTime = 15 }: { position: number; avgServiceTime?: number }) {
+function EstimatedWaitBadge({
+  position,
+  avgServiceTime = 15,
+}: {
+  position: number
+  avgServiceTime?: number
+}) {
   const estimatedMinutes = position * avgServiceTime
 
   if (estimatedMinutes === 0) {
     return (
-      <span className="text-xs text-green-600 font-medium flex items-center gap-1">
-        <Icons.Zap className="w-3 h-3" />
+      <span className="flex items-center gap-1 text-xs font-medium text-green-600">
+        <Icons.Zap className="h-3 w-3" />
         Siguiente
       </span>
     )
   }
 
   return (
-    <span className="text-xs text-[var(--text-secondary)] flex items-center gap-1">
-      <Icons.Clock className="w-3 h-3" />
-      ~{formatWaitingTime(estimatedMinutes)} de espera
+    <span className="flex items-center gap-1 text-xs text-[var(--text-secondary)]">
+      <Icons.Clock className="h-3 w-3" />~{formatWaitingTime(estimatedMinutes)} de espera
     </span>
   )
 }
@@ -122,35 +127,40 @@ const speciesIcons: Record<string, React.ComponentType<{ className?: string }>> 
   bird: Icons.Bird,
   rabbit: Icons.Rabbit,
   fish: Icons.Fish,
-  default: Icons.PawPrint
+  default: Icons.PawPrint,
 }
 
 export function AppointmentQueue({ appointments, clinic }: AppointmentQueueProps) {
   // Group by status for better visual organization
-  const inProgress = appointments.filter(a => a.status === 'in_progress')
-  const checkedIn = appointments.filter(a => a.status === 'checked_in')
-  const waiting = appointments.filter(a => ['pending', 'confirmed'].includes(a.status))
-  const completed = appointments.filter(a => ['completed', 'no_show', 'cancelled'].includes(a.status))
+  const inProgress = appointments.filter((a) => a.status === 'in_progress')
+  const checkedIn = appointments.filter((a) => a.status === 'checked_in')
+  const waiting = appointments.filter((a) => ['pending', 'confirmed'].includes(a.status))
+  const completed = appointments.filter((a) =>
+    ['completed', 'no_show', 'cancelled'].includes(a.status)
+  )
 
   // Calculate wait time stats for checked-in patients
   const waitStats = useMemo(() => {
     if (checkedIn.length === 0) return null
 
     const waitTimes = checkedIn
-      .filter(a => a.checked_in_at)
-      .map(a => getMinutesDiff(a.checked_in_at!))
+      .filter((a) => a.checked_in_at)
+      .map((a) => getMinutesDiff(a.checked_in_at!))
 
     if (waitTimes.length === 0) return null
 
     const avg = Math.round(waitTimes.reduce((a, b) => a + b, 0) / waitTimes.length)
     const max = Math.max(...waitTimes)
-    const longestWaiting = checkedIn.reduce((longest, apt) => {
-      if (!apt.checked_in_at) return longest
-      if (!longest) return apt
-      return getMinutesDiff(apt.checked_in_at) > getMinutesDiff(longest.checked_in_at!)
-        ? apt
-        : longest
-    }, null as Appointment | null)
+    const longestWaiting = checkedIn.reduce(
+      (longest, apt) => {
+        if (!apt.checked_in_at) return longest
+        if (!longest) return apt
+        return getMinutesDiff(apt.checked_in_at) > getMinutesDiff(longest.checked_in_at!)
+          ? apt
+          : longest
+      },
+      null as Appointment | null
+    )
 
     return { avg, max, longestWaiting }
   }, [checkedIn])
@@ -160,13 +170,19 @@ export function AppointmentQueue({ appointments, clinic }: AppointmentQueueProps
       {/* In Progress Section */}
       {inProgress.length > 0 && (
         <section aria-labelledby="in-progress-heading">
-          <div className="flex items-center gap-2 mb-3">
-            <div className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" aria-hidden="true" />
-            <h2 id="in-progress-heading" className="font-bold text-[var(--text-primary)]">En Consulta</h2>
+          <div className="mb-3 flex items-center gap-2">
+            <div className="h-2 w-2 animate-pulse rounded-full bg-purple-500" aria-hidden="true" />
+            <h2 id="in-progress-heading" className="font-bold text-[var(--text-primary)]">
+              En Consulta
+            </h2>
             <span className="text-sm text-[var(--text-secondary)]">({inProgress.length})</span>
           </div>
-          <div className="space-y-3" role="list" aria-label={`${inProgress.length} ${inProgress.length === 1 ? 'cita' : 'citas'} en consulta`}>
-            {inProgress.map(apt => (
+          <div
+            className="space-y-3"
+            role="list"
+            aria-label={`${inProgress.length} ${inProgress.length === 1 ? 'cita' : 'citas'} en consulta`}
+          >
+            {inProgress.map((apt) => (
               <AppointmentRow key={apt.id} appointment={apt} clinic={clinic} highlight="purple" />
             ))}
           </div>
@@ -176,31 +192,42 @@ export function AppointmentQueue({ appointments, clinic }: AppointmentQueueProps
       {/* Checked In Section */}
       {checkedIn.length > 0 && (
         <section aria-labelledby="checked-in-heading">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-3">
+          <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center">
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-yellow-500" aria-hidden="true" />
-              <h2 id="checked-in-heading" className="font-bold text-[var(--text-primary)]">Cola de Espera</h2>
+              <div className="h-2 w-2 rounded-full bg-yellow-500" aria-hidden="true" />
+              <h2 id="checked-in-heading" className="font-bold text-[var(--text-primary)]">
+                Cola de Espera
+              </h2>
               <span className="text-sm text-[var(--text-secondary)]">({checkedIn.length})</span>
             </div>
             {waitStats && (
-              <div className="flex items-center gap-3 text-xs ml-0 sm:ml-auto">
-                <span className="text-[var(--text-secondary)] flex items-center gap-1">
-                  <Icons.BarChart3 className="w-3 h-3" aria-hidden="true" />
-                  Prom: <span className="font-bold text-[var(--text-primary)]">{formatWaitingTime(waitStats.avg)}</span>
+              <div className="ml-0 flex items-center gap-3 text-xs sm:ml-auto">
+                <span className="flex items-center gap-1 text-[var(--text-secondary)]">
+                  <Icons.BarChart3 className="h-3 w-3" aria-hidden="true" />
+                  Prom:{' '}
+                  <span className="font-bold text-[var(--text-primary)]">
+                    {formatWaitingTime(waitStats.avg)}
+                  </span>
                 </span>
                 {waitStats.max >= 20 && (
-                  <span className={cn(
-                    'flex items-center gap-1',
-                    waitStats.max >= 45 ? 'text-red-600' : 'text-yellow-600'
-                  )}>
-                    <Icons.AlertTriangle className="w-3 h-3" aria-hidden="true" />
+                  <span
+                    className={cn(
+                      'flex items-center gap-1',
+                      waitStats.max >= 45 ? 'text-red-600' : 'text-yellow-600'
+                    )}
+                  >
+                    <Icons.AlertTriangle className="h-3 w-3" aria-hidden="true" />
                     Máx: <span className="font-bold">{formatWaitingTime(waitStats.max)}</span>
                   </span>
                 )}
               </div>
             )}
           </div>
-          <div className="space-y-3" role="list" aria-label={`${checkedIn.length} ${checkedIn.length === 1 ? 'cita' : 'citas'} en espera`}>
+          <div
+            className="space-y-3"
+            role="list"
+            aria-label={`${checkedIn.length} ${checkedIn.length === 1 ? 'cita' : 'citas'} en espera`}
+          >
             {checkedIn.map((apt, index) => (
               <AppointmentRow
                 key={apt.id}
@@ -218,13 +245,19 @@ export function AppointmentQueue({ appointments, clinic }: AppointmentQueueProps
       {/* Waiting Section */}
       {waiting.length > 0 && (
         <section aria-labelledby="waiting-heading">
-          <div className="flex items-center gap-2 mb-3">
-            <div className="w-2 h-2 rounded-full bg-blue-500" aria-hidden="true" />
-            <h2 id="waiting-heading" className="font-bold text-[var(--text-primary)]">Próximas Citas</h2>
+          <div className="mb-3 flex items-center gap-2">
+            <div className="h-2 w-2 rounded-full bg-blue-500" aria-hidden="true" />
+            <h2 id="waiting-heading" className="font-bold text-[var(--text-primary)]">
+              Próximas Citas
+            </h2>
             <span className="text-sm text-[var(--text-secondary)]">({waiting.length})</span>
           </div>
-          <div className="space-y-3" role="list" aria-label={`${waiting.length} ${waiting.length === 1 ? 'cita' : 'citas'} próximas`}>
-            {waiting.map(apt => (
+          <div
+            className="space-y-3"
+            role="list"
+            aria-label={`${waiting.length} ${waiting.length === 1 ? 'cita' : 'citas'} próximas`}
+          >
+            {waiting.map((apt) => (
               <AppointmentRow key={apt.id} appointment={apt} clinic={clinic} />
             ))}
           </div>
@@ -234,13 +267,19 @@ export function AppointmentQueue({ appointments, clinic }: AppointmentQueueProps
       {/* Completed Section */}
       {completed.length > 0 && (
         <section aria-labelledby="completed-heading">
-          <div className="flex items-center gap-2 mb-3">
-            <div className="w-2 h-2 rounded-full bg-gray-400" aria-hidden="true" />
-            <h2 id="completed-heading" className="font-bold text-[var(--text-primary)]">Finalizadas</h2>
+          <div className="mb-3 flex items-center gap-2">
+            <div className="h-2 w-2 rounded-full bg-gray-400" aria-hidden="true" />
+            <h2 id="completed-heading" className="font-bold text-[var(--text-primary)]">
+              Finalizadas
+            </h2>
             <span className="text-sm text-[var(--text-secondary)]">({completed.length})</span>
           </div>
-          <div className="space-y-3" role="list" aria-label={`${completed.length} ${completed.length === 1 ? 'cita' : 'citas'} finalizadas`}>
-            {completed.map(apt => (
+          <div
+            className="space-y-3"
+            role="list"
+            aria-label={`${completed.length} ${completed.length === 1 ? 'cita' : 'citas'} finalizadas`}
+          >
+            {completed.map((apt) => (
               <AppointmentRow key={apt.id} appointment={apt} clinic={clinic} faded />
             ))}
           </div>
@@ -268,18 +307,21 @@ function AppointmentRow({
   const status = statusConfig[appointment.status] || statusConfig.pending
   const SpeciesIcon = speciesIcons[appointment.pets?.species] || speciesIcons.default
 
-  const highlightBorder = highlight === 'purple'
-    ? 'border-l-4 border-l-purple-500'
-    : highlight === 'yellow'
-      ? 'border-l-4 border-l-yellow-500'
-      : ''
+  const highlightBorder =
+    highlight === 'purple'
+      ? 'border-l-4 border-l-purple-500'
+      : highlight === 'yellow'
+        ? 'border-l-4 border-l-yellow-500'
+        : ''
 
   return (
-    <div className={`bg-white rounded-xl border border-gray-100 p-4 ${highlightBorder} ${faded ? 'opacity-60' : ''}`}>
-      <div className="flex flex-col md:flex-row md:items-center gap-4">
+    <div
+      className={`rounded-xl border border-gray-100 bg-white p-4 ${highlightBorder} ${faded ? 'opacity-60' : ''}`}
+    >
+      <div className="flex flex-col gap-4 md:flex-row md:items-center">
         {/* Time */}
-        <div className="flex items-center gap-3 min-w-[100px]">
-          <Icons.Clock className="w-5 h-5 text-[var(--primary)]" />
+        <div className="flex min-w-[100px] items-center gap-3">
+          <Icons.Clock className="h-5 w-5 text-[var(--primary)]" />
           <div>
             <p className="font-bold text-[var(--text-primary)]">
               {formatAppointmentTime(appointment.start_time)}
@@ -291,42 +333,42 @@ function AppointmentRow({
         </div>
 
         {/* Patient Info */}
-        <div className="flex items-center gap-3 flex-1">
-          <div className="w-12 h-12 rounded-xl bg-[var(--primary)]/10 flex items-center justify-center overflow-hidden shrink-0">
+        <div className="flex flex-1 items-center gap-3">
+          <div className="bg-[var(--primary)]/10 flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl">
             {appointment.pets?.photo_url ? (
               <Image
                 src={appointment.pets.photo_url}
                 alt={appointment.pets.name}
                 width={48}
                 height={48}
-                className="w-full h-full object-cover"
+                className="h-full w-full object-cover"
               />
             ) : (
-              <SpeciesIcon className="w-6 h-6 text-[var(--primary)]" />
+              <SpeciesIcon className="h-6 w-6 text-[var(--primary)]" />
             )}
           </div>
 
           <div className="min-w-0">
-            <h3 className="font-bold text-[var(--text-primary)] truncate">
+            <h3 className="truncate font-bold text-[var(--text-primary)]">
               {appointment.pets?.name || 'Sin nombre'}
             </h3>
-            <p className="text-sm text-[var(--text-secondary)] truncate">
+            <p className="truncate text-sm text-[var(--text-secondary)]">
               {appointment.pets?.owner?.full_name || 'Propietario desconocido'}
             </p>
           </div>
         </div>
 
         {/* Reason */}
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-[var(--text-primary)] truncate">
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-medium text-[var(--text-primary)]">
             {appointment.reason}
           </p>
           {appointment.pets?.owner?.phone && (
             <a
               href={`tel:${appointment.pets.owner.phone}`}
-              className="text-xs text-[var(--primary)] hover:underline flex items-center gap-1"
+              className="flex items-center gap-1 text-xs text-[var(--primary)] hover:underline"
             >
-              <Icons.Phone className="w-3 h-3" />
+              <Icons.Phone className="h-3 w-3" />
               {appointment.pets.owner.phone}
             </a>
           )}
@@ -347,7 +389,7 @@ function AppointmentRow({
 
         {/* Status Badge */}
         <div className="shrink-0">
-          <span className={`px-3 py-1 rounded-full text-xs font-bold ${status.className}`}>
+          <span className={`rounded-full px-3 py-1 text-xs font-bold ${status.className}`}>
             {status.label}
           </span>
         </div>

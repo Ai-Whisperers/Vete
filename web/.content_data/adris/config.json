@@ -129,17 +129,62 @@
         "important_text": "Este es un esquema estándar. El veterinario puede ajustarlo según la salud y el estilo de vida de tu mascota. Consulta siempre con nuestros profesionales.",
         "data": {
           "dog": [
-            { "age": "45 días (6 semanas)", "n": 1, "vaccines": ["Puppy DP (Moquillo, Parvo)"], "note": "Primera dosis crítica para cachorros." },
-            { "age": "3 meses (12 semanas)", "n": 2, "vaccines": ["Séxtuple / Polivalente", "Antirrábica (Obligatoria)"], "note": "Ley Nacional en Paraguay. Certificado SENACSA." },
-            { "age": "4 meses (16 semanas)", "n": 3, "vaccines": ["Refuerzo Séxtuple"], "note": "Cierre del esquema primario." },
-            { "age": "Anual", "n": 4, "vaccines": ["Séxtuple", "Antirrábica"], "note": "Refuerzo obligatorio cada 12 meses de por vida." },
-            { "age": "Opcional", "n": 5, "vaccines": ["Tos de las Perreras (KC)", "Leishmaniasis", "Giardia"], "note": "Recomendado según estilo de vida y zona endémica." }
+            {
+              "age": "45 días (6 semanas)",
+              "n": 1,
+              "vaccines": ["Puppy DP (Moquillo, Parvo)"],
+              "note": "Primera dosis crítica para cachorros."
+            },
+            {
+              "age": "3 meses (12 semanas)",
+              "n": 2,
+              "vaccines": ["Séxtuple / Polivalente", "Antirrábica (Obligatoria)"],
+              "note": "Ley Nacional en Paraguay. Certificado SENACSA."
+            },
+            {
+              "age": "4 meses (16 semanas)",
+              "n": 3,
+              "vaccines": ["Refuerzo Séxtuple"],
+              "note": "Cierre del esquema primario."
+            },
+            {
+              "age": "Anual",
+              "n": 4,
+              "vaccines": ["Séxtuple", "Antirrábica"],
+              "note": "Refuerzo obligatorio cada 12 meses de por vida."
+            },
+            {
+              "age": "Opcional",
+              "n": 5,
+              "vaccines": ["Tos de las Perreras (KC)", "Leishmaniasis", "Giardia"],
+              "note": "Recomendado según estilo de vida y zona endémica."
+            }
           ],
           "cat": [
-            { "age": "2 meses (8 semanas)", "n": 1, "vaccines": ["Triple Felina (PRC)"], "note": "Panleucopenia, Rinotraqueitis, Calicivirus" },
-            { "age": "3 meses (12 semanas)", "n": 2, "vaccines": ["Refuerzo Triple Felina", "Antirrábica"], "note": "Ley Nacional en Paraguay." },
-            { "age": "4 meses (16 semanas)", "n": 3, "vaccines": ["Leucemia Felina (FeLV)"], "note": "Requiere test previo. Para gatos que salen al exterior." },
-            { "age": "Anual", "n": 4, "vaccines": ["Triple Felina", "Antirrábica"], "note": "Refuerzo obligatorio de por vida." }
+            {
+              "age": "2 meses (8 semanas)",
+              "n": 1,
+              "vaccines": ["Triple Felina (PRC)"],
+              "note": "Panleucopenia, Rinotraqueitis, Calicivirus"
+            },
+            {
+              "age": "3 meses (12 semanas)",
+              "n": 2,
+              "vaccines": ["Refuerzo Triple Felina", "Antirrábica"],
+              "note": "Ley Nacional en Paraguay."
+            },
+            {
+              "age": "4 meses (16 semanas)",
+              "n": 3,
+              "vaccines": ["Leucemia Felina (FeLV)"],
+              "note": "Requiere test previo. Para gatos que salen al exterior."
+            },
+            {
+              "age": "Anual",
+              "n": 4,
+              "vaccines": ["Triple Felina", "Antirrábica"],
+              "note": "Refuerzo obligatorio de por vida."
+            }
           ]
         }
       }

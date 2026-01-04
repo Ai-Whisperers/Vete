@@ -24,38 +24,46 @@ export function MultiDayAvailability({ availability, daysToShow = 5 }: MultiDayA
   })
 
   return (
-    <div className="bg-white rounded-2xl p-6 shadow-sm">
-      <h2 className="text-xl font-bold text-[var(--text-primary)] mb-4">Disponibilidad Semanal</h2>
+    <div className="rounded-2xl bg-white p-6 shadow-sm">
+      <h2 className="mb-4 text-xl font-bold text-[var(--text-primary)]">Disponibilidad Semanal</h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {displayDates.map((date, index) => {
           const formattedDate = format(date, 'yyyy-MM-dd')
-          const dayData = availability.find(day => day.date === formattedDate)
+          const dayData = availability.find((day) => day.date === formattedDate)
           const hasAvailability = dayData && dayData.availableSlots.length > 0
 
           return (
-            <div key={index} className={`border rounded-xl p-4 ${
-              hasAvailability
-                ? 'border-[var(--primary)]/30 bg-[var(--primary)]/5'
-                : 'border-gray-200 bg-gray-50'
-            }`}>
-              <h3 className={`font-semibold text-lg mb-2 ${
-                hasAvailability ? 'text-[var(--primary)]' : 'text-[var(--text-secondary)]'
-              }`}>
+            <div
+              key={index}
+              className={`rounded-xl border p-4 ${
+                hasAvailability
+                  ? 'border-[var(--primary)]/30 bg-[var(--primary)]/5'
+                  : 'border-gray-200 bg-gray-50'
+              }`}
+            >
+              <h3
+                className={`mb-2 text-lg font-semibold ${
+                  hasAvailability ? 'text-[var(--primary)]' : 'text-[var(--text-secondary)]'
+                }`}
+              >
                 {format(date, 'EEEE, d MMMM', { locale: es })}
               </h3>
 
               {hasAvailability ? (
-                <div className="flex flex-wrap gap-2 max-h-24 overflow-y-auto pr-2">
+                <div className="flex max-h-24 flex-wrap gap-2 overflow-y-auto pr-2">
                   {dayData?.availableSlots.map((slot, slotIndex) => (
-                    <span key={slotIndex} className="bg-white text-[var(--primary)] px-3 py-1 rounded-full text-sm font-medium border border-[var(--primary)]/30">
+                    <span
+                      key={slotIndex}
+                      className="border-[var(--primary)]/30 rounded-full border bg-white px-3 py-1 text-sm font-medium text-[var(--primary)]"
+                    >
                       {slot}
                     </span>
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-4 text-[var(--text-secondary)]">
-                  <Icons.XCircle className="w-6 h-6 mx-auto mb-2 text-gray-400" />
+                <div className="py-4 text-center text-[var(--text-secondary)]">
+                  <Icons.XCircle className="mx-auto mb-2 h-6 w-6 text-gray-400" />
                   <p className="text-sm">No hay citas disponibles</p>
                 </div>
               )}

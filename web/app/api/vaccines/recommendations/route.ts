@@ -1,28 +1,28 @@
-import { createClient } from '@/lib/supabase/server';
-import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@/lib/supabase/server'
+import { NextRequest, NextResponse } from 'next/server'
 
 interface VaccineProtocol {
-  id: string;
-  vaccine_name: string;
-  vaccine_code: string;
-  species: string;
-  protocol_type: 'core' | 'non-core' | 'lifestyle';
-  diseases_prevented: string[];
-  first_dose_weeks: number | null;
-  booster_weeks: number[] | null;
-  revaccination_months: number | null;
-  notes: string | null;
+  id: string
+  vaccine_name: string
+  vaccine_code: string
+  species: string
+  protocol_type: 'core' | 'non-core' | 'lifestyle'
+  diseases_prevented: string[]
+  first_dose_weeks: number | null
+  booster_weeks: number[] | null
+  revaccination_months: number | null
+  notes: string | null
 }
 
 interface VaccineRecommendation {
-  vaccine_name: string;
-  vaccine_code: string;
-  protocol_type: 'core' | 'non-core' | 'lifestyle';
-  diseases_prevented: string[];
-  first_dose_weeks: number | null;
-  notes: string | null;
-  status: 'missing' | 'due' | 'overdue';
-  reason: string;
+  vaccine_name: string
+  vaccine_code: string
+  protocol_type: 'core' | 'non-core' | 'lifestyle'
+  diseases_prevented: string[]
+  first_dose_weeks: number | null
+  notes: string | null
+  status: 'missing' | 'due' | 'overdue'
+  reason: string
 }
 
 /**
@@ -42,54 +42,51 @@ interface VaccineRecommendation {
  * - lifestyle_vaccines: Array of optional lifestyle vaccines
  */
 export async function GET(request: NextRequest) {
-  const supabase = await createClient();
+  const supabase = await createClient()
 
   // Authentication check - user must be logged in
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
   }
 
-  const { searchParams } = new URL(request.url);
-  const species = searchParams.get('species');
-  const ageWeeksParam = searchParams.get('age_weeks');
-  const existingVaccinesParam = searchParams.get('existing_vaccines');
-  const existingVaccineNamesParam = searchParams.get('existing_vaccine_names');
+  const { searchParams } = new URL(request.url)
+  const species = searchParams.get('species')
+  const ageWeeksParam = searchParams.get('age_weeks')
+  const existingVaccinesParam = searchParams.get('existing_vaccines')
+  const existingVaccineNamesParam = searchParams.get('existing_vaccine_names')
 
   // Validate species
   if (!species) {
-    return NextResponse.json(
-      { error: 'Se requiere el parámetro species' },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: 'Se requiere el parámetro species' }, { status: 400 })
   }
 
-  const validSpecies = ['dog', 'cat', 'rabbit', 'bird'];
+  const validSpecies = ['dog', 'cat', 'rabbit', 'bird']
   if (!validSpecies.includes(species)) {
     return NextResponse.json(
       { error: `Especie no válida. Valores permitidos: ${validSpecies.join(', ')}` },
       { status: 400 }
-    );
+    )
   }
 
   // Parse age in weeks
-  const ageWeeks = ageWeeksParam ? parseInt(ageWeeksParam, 10) : null;
+  const ageWeeks = ageWeeksParam ? parseInt(ageWeeksParam, 10) : null
   if (ageWeeksParam && (isNaN(ageWeeks!) || ageWeeks! < 0)) {
-    return NextResponse.json(
-      { error: 'age_weeks debe ser un número positivo' },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: 'age_weeks debe ser un número positivo' }, { status: 400 })
   }
 
   // Parse existing vaccine codes
   const existingVaccineCodes = existingVaccinesParam
-    ? existingVaccinesParam.split(',').map(code => code.trim().toUpperCase())
-    : [];
+    ? existingVaccinesParam.split(',').map((code) => code.trim().toUpperCase())
+    : []
 
   // Parse existing vaccine names (for matching by name when code is not available)
   const existingVaccineNames = existingVaccineNamesParam
-    ? existingVaccineNamesParam.split(',').map(name => name.trim().toLowerCase())
-    : [];
+    ? existingVaccineNamesParam.split(',').map((name) => name.trim().toLowerCase())
+    : []
 
   // Fetch all vaccine protocols for this species
   const { data: protocols, error: protocolsError } = await supabase
@@ -97,14 +94,14 @@ export async function GET(request: NextRequest) {
     .select('*')
     .or(`species.eq.${species},species.eq.all`)
     .is('deleted_at', null)
-    .order('protocol_type', { ascending: true });
+    .order('protocol_type', { ascending: true })
 
   if (protocolsError) {
-    console.error('Error fetching vaccine protocols:', protocolsError);
+    console.error('Error fetching vaccine protocols:', protocolsError)
     return NextResponse.json(
       { error: 'Error al obtener protocolos de vacunación' },
       { status: 500 }
-    );
+    )
   }
 
   // If no protocols found, return empty arrays
@@ -114,46 +111,47 @@ export async function GET(request: NextRequest) {
       recommended_vaccines: [],
       lifestyle_vaccines: [],
       total_missing: 0,
-    });
+    })
   }
 
   // Categorize vaccines
-  const coreVaccines: VaccineRecommendation[] = [];
-  const recommendedVaccines: VaccineRecommendation[] = [];
-  const lifestyleVaccines: VaccineRecommendation[] = [];
+  const coreVaccines: VaccineRecommendation[] = []
+  const recommendedVaccines: VaccineRecommendation[] = []
+  const lifestyleVaccines: VaccineRecommendation[] = []
 
   for (const protocol of protocols as VaccineProtocol[]) {
     // Check if pet already has this vaccine (by code or by name)
-    const hasVaccineByCode = existingVaccineCodes.includes(protocol.vaccine_code.toUpperCase());
-    const hasVaccineByName = existingVaccineNames.some(name =>
-      protocol.vaccine_name.toLowerCase().includes(name) ||
-      name.includes(protocol.vaccine_name.toLowerCase())
-    );
+    const hasVaccineByCode = existingVaccineCodes.includes(protocol.vaccine_code.toUpperCase())
+    const hasVaccineByName = existingVaccineNames.some(
+      (name) =>
+        protocol.vaccine_name.toLowerCase().includes(name) ||
+        name.includes(protocol.vaccine_name.toLowerCase())
+    )
 
     if (hasVaccineByCode || hasVaccineByName) {
-      continue; // Skip vaccines the pet already has
+      continue // Skip vaccines the pet already has
     }
 
     // Determine status based on age
-    let status: VaccineRecommendation['status'] = 'missing';
-    let reason = 'No registrada';
+    let status: VaccineRecommendation['status'] = 'missing'
+    let reason = 'No registrada'
 
     if (ageWeeks !== null && protocol.first_dose_weeks !== null) {
       if (ageWeeks >= protocol.first_dose_weeks) {
         // Pet is old enough and should have this vaccine
-        const weeksPastDue = ageWeeks - protocol.first_dose_weeks;
+        const weeksPastDue = ageWeeks - protocol.first_dose_weeks
         if (weeksPastDue > 4) {
-          status = 'overdue';
-          reason = `Debió aplicarse a las ${protocol.first_dose_weeks} semanas (hace ${weeksPastDue} semanas)`;
+          status = 'overdue'
+          reason = `Debió aplicarse a las ${protocol.first_dose_weeks} semanas (hace ${weeksPastDue} semanas)`
         } else if (weeksPastDue >= 0) {
-          status = 'due';
-          reason = `Corresponde ahora (${protocol.first_dose_weeks} semanas)`;
+          status = 'due'
+          reason = `Corresponde ahora (${protocol.first_dose_weeks} semanas)`
         }
       } else {
         // Pet is too young
-        const weeksUntilDue = protocol.first_dose_weeks - ageWeeks;
-        status = 'missing';
-        reason = `Primera dosis a las ${protocol.first_dose_weeks} semanas (en ${weeksUntilDue} semanas)`;
+        const weeksUntilDue = protocol.first_dose_weeks - ageWeeks
+        status = 'missing'
+        reason = `Primera dosis a las ${protocol.first_dose_weeks} semanas (en ${weeksUntilDue} semanas)`
       }
     }
 
@@ -166,39 +164,42 @@ export async function GET(request: NextRequest) {
       notes: protocol.notes,
       status,
       reason,
-    };
+    }
 
     // Categorize by protocol type
     switch (protocol.protocol_type) {
       case 'core':
-        coreVaccines.push(recommendation);
-        break;
+        coreVaccines.push(recommendation)
+        break
       case 'non-core':
-        recommendedVaccines.push(recommendation);
-        break;
+        recommendedVaccines.push(recommendation)
+        break
       case 'lifestyle':
-        lifestyleVaccines.push(recommendation);
-        break;
+        lifestyleVaccines.push(recommendation)
+        break
     }
   }
 
   // Sort by status priority: overdue > due > missing
-  const statusPriority = { overdue: 0, due: 1, missing: 2 };
+  const statusPriority = { overdue: 0, due: 1, missing: 2 }
   const sortByStatus = (a: VaccineRecommendation, b: VaccineRecommendation) =>
-    statusPriority[a.status] - statusPriority[b.status];
+    statusPriority[a.status] - statusPriority[b.status]
 
-  coreVaccines.sort(sortByStatus);
-  recommendedVaccines.sort(sortByStatus);
-  lifestyleVaccines.sort(sortByStatus);
+  coreVaccines.sort(sortByStatus)
+  recommendedVaccines.sort(sortByStatus)
+  lifestyleVaccines.sort(sortByStatus)
 
-  return NextResponse.json({
-    core_vaccines: coreVaccines,
-    recommended_vaccines: recommendedVaccines,
-    lifestyle_vaccines: lifestyleVaccines,
-    total_missing: coreVaccines.length + recommendedVaccines.length + lifestyleVaccines.length,
-  }, {
-    headers: {
-      'Cache-Control': 'private, s-maxage=60, stale-while-revalidate=120',
+  return NextResponse.json(
+    {
+      core_vaccines: coreVaccines,
+      recommended_vaccines: recommendedVaccines,
+      lifestyle_vaccines: lifestyleVaccines,
+      total_missing: coreVaccines.length + recommendedVaccines.length + lifestyleVaccines.length,
     },
-  });
+    {
+      headers: {
+        'Cache-Control': 'private, s-maxage=60, stale-while-revalidate=120',
+      },
+    }
+  )
 }

@@ -87,7 +87,7 @@ export function slugify(text: string): string {
 export function initials(name: string, maxChars = 2): string {
   return name
     .split(' ')
-    .map(word => word[0])
+    .map((word) => word[0])
     .filter(Boolean)
     .slice(0, maxChars)
     .join('')
@@ -109,7 +109,7 @@ export function initials(name: string, maxChars = 2): string {
  * pluralize(5, "mes", "meses") // "meses"
  */
 export function pluralize(count: number, singular: string, plural?: string): string {
-  return count === 1 ? singular : (plural || `${singular}s`)
+  return count === 1 ? singular : plural || `${singular}s`
 }
 
 /**

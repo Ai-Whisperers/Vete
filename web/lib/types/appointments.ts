@@ -11,7 +11,7 @@ import type { Appointment as BaseAppointment, Pet, Service } from './database'
  * Maps to database status but with UI-friendly labels
  */
 export type AppointmentDisplayStatus =
-  | 'scheduled'    // pending in DB
+  | 'scheduled' // pending in DB
   | 'confirmed'
   | 'checked_in'
   | 'in_progress'
@@ -64,37 +64,40 @@ export interface RescheduleAppointmentResult {
 /**
  * Status badge styling configuration
  */
-export const statusConfig: Record<string, {
-  label: string
-  className: string
-}> = {
+export const statusConfig: Record<
+  string,
+  {
+    label: string
+    className: string
+  }
+> = {
   pending: {
     label: 'Programada',
-    className: 'bg-blue-100 text-blue-800'
+    className: 'bg-blue-100 text-blue-800',
   },
   confirmed: {
     label: 'Confirmada',
-    className: 'bg-green-100 text-green-800'
+    className: 'bg-green-100 text-green-800',
   },
   checked_in: {
     label: 'Registrada',
-    className: 'bg-yellow-100 text-yellow-800'
+    className: 'bg-yellow-100 text-yellow-800',
   },
   in_progress: {
     label: 'En Progreso',
-    className: 'bg-purple-100 text-purple-800'
+    className: 'bg-purple-100 text-purple-800',
   },
   completed: {
     label: 'Completada',
-    className: 'bg-gray-100 text-gray-800'
+    className: 'bg-gray-100 text-gray-800',
   },
   cancelled: {
     label: 'Cancelada',
-    className: 'bg-red-100 text-red-800'
+    className: 'bg-red-100 text-red-800',
   },
   no_show: {
     label: 'No Asistió',
-    className: 'bg-orange-100 text-orange-800'
+    className: 'bg-orange-100 text-orange-800',
   },
 }
 
@@ -107,7 +110,7 @@ export function formatAppointmentDate(dateString: string): string {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
-    day: 'numeric'
+    day: 'numeric',
   })
 }
 
@@ -122,7 +125,7 @@ export function formatAppointmentDateTime(dateString: string): string {
     month: 'long',
     day: 'numeric',
     hour: '2-digit',
-    minute: '2-digit'
+    minute: '2-digit',
   })
 }
 
@@ -133,7 +136,7 @@ export function formatAppointmentTime(dateString: string): string {
   const date = new Date(dateString)
   return date.toLocaleTimeString('es-PY', {
     hour: '2-digit',
-    minute: '2-digit'
+    minute: '2-digit',
   })
 }
 
@@ -141,10 +144,7 @@ export function formatAppointmentTime(dateString: string): string {
  * Check if an appointment can be cancelled
  * (must be in the future and not already cancelled/completed)
  */
-export function canCancelAppointment(appointment: {
-  start_time: string
-  status: string
-}): boolean {
+export function canCancelAppointment(appointment: { start_time: string; status: string }): boolean {
   const appointmentDate = new Date(appointment.start_time)
   const now = new Date()
   const isFuture = appointmentDate > now

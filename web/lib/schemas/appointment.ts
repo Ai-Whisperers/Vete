@@ -2,8 +2,8 @@
  * Appointment/booking validation schemas
  */
 
-import { z } from 'zod';
-import { uuidSchema, futureDateSchema, optionalString, enumSchema } from './common';
+import { z } from 'zod'
+import { uuidSchema, futureDateSchema, optionalString, enumSchema } from './common'
 
 /**
  * Appointment status options
@@ -15,8 +15,8 @@ export const APPOINTMENT_STATUSES = [
   'completed',
   'cancelled',
   'no_show',
-] as const;
-export type AppointmentStatus = (typeof APPOINTMENT_STATUSES)[number];
+] as const
+export type AppointmentStatus = (typeof APPOINTMENT_STATUSES)[number]
 
 /**
  * Schema for creating a new appointment
@@ -29,9 +29,9 @@ export const createAppointmentSchema = z.object({
   time_slot: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Formato de hora inválido (HH:MM)'),
   vet_id: uuidSchema.optional(),
   notes: optionalString(500),
-});
+})
 
-export type CreateAppointmentInput = z.infer<typeof createAppointmentSchema>;
+export type CreateAppointmentInput = z.infer<typeof createAppointmentSchema>
 
 /**
  * Schema for updating an appointment
@@ -39,13 +39,16 @@ export type CreateAppointmentInput = z.infer<typeof createAppointmentSchema>;
 export const updateAppointmentSchema = z.object({
   id: uuidSchema,
   appointment_date: futureDateSchema.optional(),
-  time_slot: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Formato de hora inválido (HH:MM)').optional(),
+  time_slot: z
+    .string()
+    .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Formato de hora inválido (HH:MM)')
+    .optional(),
   status: enumSchema(APPOINTMENT_STATUSES, 'Estado').optional(),
   vet_id: uuidSchema.optional(),
   notes: optionalString(500),
-});
+})
 
-export type UpdateAppointmentInput = z.infer<typeof updateAppointmentSchema>;
+export type UpdateAppointmentInput = z.infer<typeof updateAppointmentSchema>
 
 /**
  * Schema for cancelling an appointment
@@ -53,9 +56,9 @@ export type UpdateAppointmentInput = z.infer<typeof updateAppointmentSchema>;
 export const cancelAppointmentSchema = z.object({
   id: uuidSchema,
   cancellation_reason: optionalString(500),
-});
+})
 
-export type CancelAppointmentInput = z.infer<typeof cancelAppointmentSchema>;
+export type CancelAppointmentInput = z.infer<typeof cancelAppointmentSchema>
 
 /**
  * Schema for appointment query parameters
@@ -68,9 +71,9 @@ export const appointmentQuerySchema = z.object({
   date_to: z.string().datetime().optional(),
   page: z.coerce.number().int().min(0).default(0),
   limit: z.coerce.number().int().min(1).max(100).default(20),
-});
+})
 
-export type AppointmentQueryParams = z.infer<typeof appointmentQuerySchema>;
+export type AppointmentQueryParams = z.infer<typeof appointmentQuerySchema>
 
 /**
  * Schema for checking availability
@@ -79,9 +82,9 @@ export const availabilityCheckSchema = z.object({
   service_id: uuidSchema,
   date: z.string().datetime(),
   duration_minutes: z.coerce.number().int().min(15).max(480).default(30),
-});
+})
 
-export type AvailabilityCheckInput = z.infer<typeof availabilityCheckSchema>;
+export type AvailabilityCheckInput = z.infer<typeof availabilityCheckSchema>
 
 /**
  * Schema for booking wizard form data
@@ -104,6 +107,6 @@ export const bookingWizardSchema = z.object({
     .string()
     .regex(/^(\+595|0)?[9][0-9]{8}$/, 'Número inválido')
     .optional(),
-});
+})
 
-export type BookingWizardInput = z.infer<typeof bookingWizardSchema>;
+export type BookingWizardInput = z.infer<typeof bookingWizardSchema>

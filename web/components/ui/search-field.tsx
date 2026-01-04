@@ -1,9 +1,9 @@
-'use client';
+'use client'
 
-import { useState, useCallback, useRef, useEffect } from 'react';
-import { Input } from '@/components/ui/input';
-import { Search, X, Loader2 } from 'lucide-react';
-import { useDebounce } from '@/hooks/use-debounce';
+import { useState, useCallback, useRef, useEffect } from 'react'
+import { Input } from '@/components/ui/input'
+import { Search, X, Loader2 } from 'lucide-react'
+import { useDebounce } from '@/hooks/use-debounce'
 
 /**
  * Generic SearchField Component
@@ -30,15 +30,15 @@ import { useDebounce } from '@/hooks/use-debounce';
  */
 
 interface SearchFieldProps<T> {
-  placeholder?: string;
-  onSearch: (query: string) => Promise<T[]>;
-  renderItem: (item: T, index: number) => React.ReactNode;
-  onSelect: (item: T) => void;
-  minChars?: number;
-  debounceMs?: number;
-  emptyMessage?: string;
-  className?: string;
-  autoFocus?: boolean;
+  placeholder?: string
+  onSearch: (query: string) => Promise<T[]>
+  renderItem: (item: T, index: number) => React.ReactNode
+  onSelect: (item: T) => void
+  minChars?: number
+  debounceMs?: number
+  emptyMessage?: string
+  className?: string
+  autoFocus?: boolean
 }
 
 export function SearchField<T>({
@@ -52,101 +52,101 @@ export function SearchField<T>({
   className = '',
   autoFocus = false,
 }: SearchFieldProps<T>) {
-  const [query, setQuery] = useState('');
-  const [results, setResults] = useState<T[]>([]);
-  const [isOpen, setIsOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [selectedIndex, setSelectedIndex] = useState(-1);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [query, setQuery] = useState('')
+  const [results, setResults] = useState<T[]>([])
+  const [isOpen, setIsOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [selectedIndex, setSelectedIndex] = useState(-1)
+  const inputRef = useRef<HTMLInputElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
 
-  const debouncedQuery = useDebounce(query, debounceMs);
+  const debouncedQuery = useDebounce(query, debounceMs)
 
   useEffect(() => {
     async function search() {
       if (debouncedQuery.length < minChars) {
-        setResults([]);
-        setIsOpen(false);
-        return;
+        setResults([])
+        setIsOpen(false)
+        return
       }
 
-      setIsLoading(true);
+      setIsLoading(true)
       try {
-        const data = await onSearch(debouncedQuery);
-        setResults(data);
-        setIsOpen(data.length > 0);
-        setSelectedIndex(-1);
+        const data = await onSearch(debouncedQuery)
+        setResults(data)
+        setIsOpen(data.length > 0)
+        setSelectedIndex(-1)
       } catch (error) {
-        console.error('Search error:', error);
-        setResults([]);
+        console.error('Search error:', error)
+        setResults([])
       } finally {
-        setIsLoading(false);
+        setIsLoading(false)
       }
     }
-    search();
-  }, [debouncedQuery, minChars, onSearch]);
+    search()
+  }, [debouncedQuery, minChars, onSearch])
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
-      if (!isOpen) return;
+      if (!isOpen) return
 
       switch (e.key) {
         case 'ArrowDown':
-          e.preventDefault();
-          setSelectedIndex((i) => Math.min(i + 1, results.length - 1));
-          break;
+          e.preventDefault()
+          setSelectedIndex((i) => Math.min(i + 1, results.length - 1))
+          break
         case 'ArrowUp':
-          e.preventDefault();
-          setSelectedIndex((i) => Math.max(i - 1, 0));
-          break;
+          e.preventDefault()
+          setSelectedIndex((i) => Math.max(i - 1, 0))
+          break
         case 'Enter':
-          e.preventDefault();
+          e.preventDefault()
           if (selectedIndex >= 0 && results[selectedIndex]) {
-            onSelect(results[selectedIndex]);
-            setQuery('');
-            setIsOpen(false);
+            onSelect(results[selectedIndex])
+            setQuery('')
+            setIsOpen(false)
           }
-          break;
+          break
         case 'Escape':
-          setIsOpen(false);
-          break;
+          setIsOpen(false)
+          break
       }
     },
     [isOpen, results, selectedIndex, onSelect]
-  );
+  )
 
   const handleSelect = useCallback(
     (item: T) => {
-      onSelect(item);
-      setQuery('');
-      setIsOpen(false);
-      inputRef.current?.focus();
+      onSelect(item)
+      setQuery('')
+      setIsOpen(false)
+      inputRef.current?.focus()
     },
     [onSelect]
-  );
+  )
 
   const clearSearch = useCallback(() => {
-    setQuery('');
-    setResults([]);
-    setIsOpen(false);
-    inputRef.current?.focus();
-  }, []);
+    setQuery('')
+    setResults([])
+    setIsOpen(false)
+    inputRef.current?.focus()
+  }, [])
 
   // Click outside to close
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        setIsOpen(false);
+        setIsOpen(false)
       }
     }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   return (
     <div ref={containerRef} className={`relative ${className}`}>
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-secondary)]" />
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--text-secondary)]" />
         <Input
           ref={inputRef}
           type="text"
@@ -163,7 +163,7 @@ export function SearchField<T>({
           autoFocus={autoFocus}
         />
         {isLoading && (
-          <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-[var(--text-secondary)]" />
+          <Loader2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-[var(--text-secondary)]" />
         )}
         {query && !isLoading && (
           <button
@@ -179,7 +179,7 @@ export function SearchField<T>({
       {isOpen && (
         <ul
           role="listbox"
-          className="absolute z-50 w-full mt-1 max-h-60 overflow-auto rounded-md border bg-[var(--bg-card)] shadow-lg"
+          className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md border bg-[var(--bg-card)] shadow-lg"
         >
           {results.length > 0 ? (
             results.map((item, index) => (
@@ -190,7 +190,9 @@ export function SearchField<T>({
                 onClick={() => handleSelect(item)}
                 onMouseEnter={() => setSelectedIndex(index)}
                 className={`cursor-pointer px-4 py-2 ${
-                  index === selectedIndex ? 'bg-[var(--primary)] text-white' : 'hover:bg-[var(--bg-hover)]'
+                  index === selectedIndex
+                    ? 'bg-[var(--primary)] text-white'
+                    : 'hover:bg-[var(--bg-hover)]'
                 }`}
               >
                 {renderItem(item, index)}
@@ -202,5 +204,5 @@ export function SearchField<T>({
         </ul>
       )}
     </div>
-  );
+  )
 }

@@ -30,7 +30,9 @@ export default async function LabOrdersPage({ params, searchParams }: Props) {
   const supabase = await createClient()
 
   // Auth check
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) {
     redirect(`/${clinic}/portal/login`)
   }
@@ -49,7 +51,8 @@ export default async function LabOrdersPage({ params, searchParams }: Props) {
   // Fetch lab orders with tenant filter
   const { data: orders, error } = await supabase
     .from('lab_orders')
-    .select(`
+    .select(
+      `
       id,
       order_number,
       ordered_at,
@@ -57,7 +60,8 @@ export default async function LabOrdersPage({ params, searchParams }: Props) {
       priority,
       has_critical_values,
       pets!inner(id, name, species)
-    `)
+    `
+    )
     .eq('tenant_id', clinic)
     .order('ordered_at', { ascending: false })
 
@@ -79,31 +83,33 @@ export default async function LabOrdersPage({ params, searchParams }: Props) {
   // Apply search filter
   if (searchQuery) {
     const term = searchQuery.toLowerCase()
-    labOrders = labOrders.filter(order =>
-      order.pets?.name?.toLowerCase().includes(term) ||
-      order.order_number?.toLowerCase().includes(term)
+    labOrders = labOrders.filter(
+      (order) =>
+        order.pets?.name?.toLowerCase().includes(term) ||
+        order.order_number?.toLowerCase().includes(term)
     )
   }
 
   // Apply status filter
   if (statusFilter && statusFilter !== 'all') {
-    labOrders = labOrders.filter(order => order.status === statusFilter)
+    labOrders = labOrders.filter((order) => order.status === statusFilter)
   }
 
   // Calculate stats
   const stats = {
-    pending: labOrders.filter(o => o.status === 'ordered' || o.status === 'specimen_collected').length,
-    in_progress: labOrders.filter(o => o.status === 'in_progress').length,
-    completed: labOrders.filter(o => o.status === 'completed').length,
-    critical: labOrders.filter(o => o.has_critical_values).length,
+    pending: labOrders.filter((o) => o.status === 'ordered' || o.status === 'specimen_collected')
+      .length,
+    in_progress: labOrders.filter((o) => o.status === 'in_progress').length,
+    completed: labOrders.filter((o) => o.status === 'completed').length,
+    critical: labOrders.filter((o) => o.has_critical_values).length,
   }
 
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-[var(--text-primary)] mb-2">
+          <h1 className="mb-2 text-3xl font-bold text-[var(--text-primary)]">
             Órdenes de Laboratorio
           </h1>
           <p className="text-[var(--text-secondary)]">
@@ -112,71 +118,77 @@ export default async function LabOrdersPage({ params, searchParams }: Props) {
         </div>
         <Link
           href={`/${clinic}/dashboard/lab/new`}
-          className="flex items-center gap-2 px-6 py-3 bg-[var(--primary)] text-white rounded-xl font-medium hover:opacity-90 transition-opacity"
+          className="flex items-center gap-2 rounded-xl bg-[var(--primary)] px-6 py-3 font-medium text-white transition-opacity hover:opacity-90"
         >
-          <Icons.Plus className="w-5 h-5" />
+          <Icons.Plus className="h-5 w-5" />
           Nueva Orden
         </Link>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+      <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-4">
         <Link
           href={`/${clinic}/dashboard/lab?status=ordered`}
-          className={`p-4 rounded-xl border-2 transition-all ${
+          className={`rounded-xl border-2 p-4 transition-all ${
             statusFilter === 'ordered'
-              ? 'border-[var(--primary)] bg-[var(--primary)]/5'
-              : 'border-gray-200 hover:border-gray-300 bg-white'
+              ? 'bg-[var(--primary)]/5 border-[var(--primary)]'
+              : 'border-gray-200 bg-white hover:border-gray-300'
           }`}
         >
-          <div className="flex items-center justify-between mb-2">
+          <div className="mb-2 flex items-center justify-between">
             <span className="text-sm font-medium text-[var(--text-secondary)]">Pendientes</span>
-            <Icons.Clock className="w-5 h-5" style={{ color: "var(--status-info)" }} />
+            <Icons.Clock className="h-5 w-5" style={{ color: 'var(--status-info)' }} />
           </div>
           <p className="text-2xl font-bold text-[var(--text-primary)]">{stats.pending}</p>
         </Link>
 
         <Link
           href={`/${clinic}/dashboard/lab?status=in_progress`}
-          className={`p-4 rounded-xl border-2 transition-all ${
+          className={`rounded-xl border-2 p-4 transition-all ${
             statusFilter === 'in_progress'
-              ? 'border-[var(--primary)] bg-[var(--primary)]/5'
-              : 'border-gray-200 hover:border-gray-300 bg-white'
+              ? 'bg-[var(--primary)]/5 border-[var(--primary)]'
+              : 'border-gray-200 bg-white hover:border-gray-300'
           }`}
         >
-          <div className="flex items-center justify-between mb-2">
+          <div className="mb-2 flex items-center justify-between">
             <span className="text-sm font-medium text-[var(--text-secondary)]">En Proceso</span>
-            <Icons.Activity className="w-5 h-5" style={{ color: "var(--status-warning)" }} />
+            <Icons.Activity className="h-5 w-5" style={{ color: 'var(--status-warning)' }} />
           </div>
           <p className="text-2xl font-bold text-[var(--text-primary)]">{stats.in_progress}</p>
         </Link>
 
         <Link
           href={`/${clinic}/dashboard/lab?status=completed`}
-          className={`p-4 rounded-xl border-2 transition-all ${
+          className={`rounded-xl border-2 p-4 transition-all ${
             statusFilter === 'completed'
-              ? 'border-[var(--primary)] bg-[var(--primary)]/5'
-              : 'border-gray-200 hover:border-gray-300 bg-white'
+              ? 'bg-[var(--primary)]/5 border-[var(--primary)]'
+              : 'border-gray-200 bg-white hover:border-gray-300'
           }`}
         >
-          <div className="flex items-center justify-between mb-2">
+          <div className="mb-2 flex items-center justify-between">
             <span className="text-sm font-medium text-[var(--text-secondary)]">Completados</span>
-            <Icons.CheckCircle className="w-5 h-5" style={{ color: "var(--status-success)" }} />
+            <Icons.CheckCircle className="h-5 w-5" style={{ color: 'var(--status-success)' }} />
           </div>
           <p className="text-2xl font-bold text-[var(--text-primary)]">{stats.completed}</p>
         </Link>
 
         <Link
           href={`/${clinic}/dashboard/lab?critical=true`}
-          className="p-4 rounded-xl border-2 transition-all border-gray-200 hover:border-gray-300 bg-white"
-          style={searchQuery === 'critical' ? {
-            borderColor: "var(--status-error)",
-            backgroundColor: "var(--status-error-bg)"
-          } : undefined}
+          className="rounded-xl border-2 border-gray-200 bg-white p-4 transition-all hover:border-gray-300"
+          style={
+            searchQuery === 'critical'
+              ? {
+                  borderColor: 'var(--status-error)',
+                  backgroundColor: 'var(--status-error-bg)',
+                }
+              : undefined
+          }
         >
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-[var(--text-secondary)]">Valores Críticos</span>
-            <Icons.AlertTriangle className="w-5 h-5" style={{ color: "var(--status-error)" }} />
+          <div className="mb-2 flex items-center justify-between">
+            <span className="text-sm font-medium text-[var(--text-secondary)]">
+              Valores Críticos
+            </span>
+            <Icons.AlertTriangle className="h-5 w-5" style={{ color: 'var(--status-error)' }} />
           </div>
           <p className="text-2xl font-bold text-[var(--text-primary)]">{stats.critical}</p>
         </Link>

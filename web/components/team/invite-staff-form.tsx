@@ -1,31 +1,31 @@
-"use client";
+'use client'
 
-import { useActionState } from 'react';
-import * as Icons from 'lucide-react';
-import { inviteStaff } from '@/app/actions/invite-staff';
+import { useActionState } from 'react'
+import * as Icons from 'lucide-react'
+import { inviteStaff } from '@/app/actions/invite-staff'
 
 export function InviteStaffForm({ clinic }: { clinic: string }) {
-  const [state, formAction, isPending] = useActionState(inviteStaff, null);
+  const [state, formAction, isPending] = useActionState(inviteStaff, null)
 
   return (
     <form action={formAction} className="space-y-4">
       <input type="hidden" name="clinic" value={clinic} />
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <div className="md:col-span-2">
-          <label className="block text-xs font-bold uppercase text-gray-400 mb-1 ml-2">Email</label>
+          <label className="mb-1 ml-2 block text-xs font-bold uppercase text-gray-400">Email</label>
           <input
             required
             type="email"
             name="email"
             placeholder="doctor@veterinaria.com"
-            className="w-full bg-gray-50 border border-transparent focus:bg-white focus:border-[var(--primary)] rounded-xl px-4 py-3 min-h-[48px] outline-none transition-all font-medium"
+            className="min-h-[48px] w-full rounded-xl border border-transparent bg-gray-50 px-4 py-3 font-medium outline-none transition-all focus:border-[var(--primary)] focus:bg-white"
           />
         </div>
         <div>
-          <label className="block text-xs font-bold uppercase text-gray-400 mb-1 ml-2">Cargo</label>
+          <label className="mb-1 ml-2 block text-xs font-bold uppercase text-gray-400">Cargo</label>
           <select
             name="role"
-            className="w-full bg-gray-50 border border-transparent focus:bg-white focus:border-[var(--primary)] rounded-xl px-4 py-3 min-h-[48px] outline-none transition-all font-bold text-[var(--text-primary)] appearance-none"
+            className="min-h-[48px] w-full appearance-none rounded-xl border border-transparent bg-gray-50 px-4 py-3 font-bold text-[var(--text-primary)] outline-none transition-all focus:border-[var(--primary)] focus:bg-white"
           >
             <option value="vet">Veterinario</option>
             <option value="admin">Admin</option>
@@ -34,26 +34,29 @@ export function InviteStaffForm({ clinic }: { clinic: string }) {
       </div>
 
       {state && !state.success && (
-        <div role="alert" className="p-3 bg-red-50 text-red-600 text-sm rounded-lg flex items-center gap-2">
-            <Icons.AlertCircle className="w-4 h-4" aria-hidden="true" />
-            {state.error}
+        <div
+          role="alert"
+          className="flex items-center gap-2 rounded-lg bg-red-50 p-3 text-sm text-red-600"
+        >
+          <Icons.AlertCircle className="h-4 w-4" aria-hidden="true" />
+          {state.error}
         </div>
       )}
 
       {state && state.success && (
-        <div className="p-3 bg-green-50 text-green-600 text-sm rounded-lg flex items-center gap-2">
-            <Icons.CheckCircle className="w-4 h-4" />
-            Invitacion enviada correctamente
+        <div className="flex items-center gap-2 rounded-lg bg-green-50 p-3 text-sm text-green-600">
+          <Icons.CheckCircle className="h-4 w-4" />
+          Invitacion enviada correctamente
         </div>
       )}
 
       <button
         type="submit"
         disabled={isPending}
-        className="w-full bg-[var(--primary)] text-white font-bold py-3 min-h-[48px] rounded-xl hover:shadow-lg transition-all active:scale-95 flex justify-center items-center gap-2"
+        className="flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl bg-[var(--primary)] py-3 font-bold text-white transition-all hover:shadow-lg active:scale-95"
       >
-        {isPending ? <Icons.Loader2 className="animate-spin w-5 h-5"/> : "Enviar Invitacion"}
+        {isPending ? <Icons.Loader2 className="h-5 w-5 animate-spin" /> : 'Enviar Invitacion'}
       </button>
     </form>
-  );
+  )
 }

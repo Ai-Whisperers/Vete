@@ -13,7 +13,7 @@ import type {
   AppointmentStats,
   AppointmentStatus,
   AvailabilityCheckParams,
-  StatusTransition
+  StatusTransition,
 } from './types'
 import { businessRuleViolation, notFound, conflict } from '@/lib/errors'
 
@@ -55,7 +55,7 @@ export class AppointmentService {
       date: data.start_time.toISOString().split('T')[0],
       work_start: data.start_time.toTimeString().slice(0, 5),
       work_end: data.end_time.toTimeString().slice(0, 5),
-      vet_id: data.vet_id
+      vet_id: data.vet_id,
     })
 
     if (!isAvailable) {
@@ -118,7 +118,7 @@ export class AppointmentService {
 
     const updateData: UpdateAppointmentData = {
       status: 'cancelled',
-      notes: reason ? `[Cancelado] ${reason}` : '[Cancelado por el cliente]'
+      notes: reason ? `[Cancelado] ${reason}` : '[Cancelado por el cliente]',
     }
 
     return this.repository.update(id, updateData, userId)
@@ -138,12 +138,18 @@ export class AppointmentService {
     }
 
     if (!['pending', 'confirmed'].includes(appointment.status)) {
-      throw businessRuleViolation('La cita debe estar pendiente o confirmada para registrar llegada')
+      throw businessRuleViolation(
+        'La cita debe estar pendiente o confirmada para registrar llegada'
+      )
     }
 
-    return this.repository.update(id, {
-      status: 'checked_in'
-    }, userId)
+    return this.repository.update(
+      id,
+      {
+        status: 'checked_in',
+      },
+      userId
+    )
   }
 
   /**
@@ -163,9 +169,13 @@ export class AppointmentService {
       throw businessRuleViolation('El paciente debe estar registrado para iniciar la consulta')
     }
 
-    return this.repository.update(id, {
-      status: 'in_progress'
-    }, userId)
+    return this.repository.update(
+      id,
+      {
+        status: 'in_progress',
+      },
+      userId
+    )
   }
 
   /**
@@ -191,7 +201,7 @@ export class AppointmentService {
     }
 
     const updateData: UpdateAppointmentData = {
-      status: 'completed'
+      status: 'completed',
     }
 
     if (notes) {
@@ -217,13 +227,19 @@ export class AppointmentService {
     }
 
     if (!['pending', 'confirmed'].includes(appointment.status)) {
-      throw businessRuleViolation('Solo citas pendientes o confirmadas pueden marcarse como no presentadas')
+      throw businessRuleViolation(
+        'Solo citas pendientes o confirmadas pueden marcarse como no presentadas'
+      )
     }
 
-    return this.repository.update(id, {
-      status: 'no_show',
-      notes: '[No se presentó]'
-    }, userId)
+    return this.repository.update(
+      id,
+      {
+        status: 'no_show',
+        notes: '[No se presentó]',
+      },
+      userId
+    )
   }
 
   /**
@@ -261,7 +277,10 @@ export class AppointmentService {
 
   // Private business logic methods
 
-  private async validateAppointmentCreation(data: CreateAppointmentData, tenantId: string): Promise<void> {
+  private async validateAppointmentCreation(
+    data: CreateAppointmentData,
+    tenantId: string
+  ): Promise<void> {
     // Appointment must be in the future
     if (data.start_time <= new Date()) {
       throw businessRuleViolation('La cita debe ser programada para el futuro')
@@ -280,7 +299,8 @@ export class AppointmentService {
     }
 
     // Check if pet belongs to tenant
-    const { data: pet, error } = await this.repository.getClient()
+    const { data: pet, error } = await this.repository
+      .getClient()
       .from('pets')
       .select('id, owner_id')
       .eq('id', data.pet_id)
@@ -291,7 +311,8 @@ export class AppointmentService {
     }
 
     // Verify pet belongs to this tenant (through owner profile)
-    const { data: owner } = await this.repository.getClient()
+    const { data: owner } = await this.repository
+      .getClient()
       .from('profiles')
       .select('tenant_id')
       .eq('id', pet.owner_id)
@@ -323,7 +344,7 @@ export class AppointmentService {
       date: newStartTime.toISOString().split('T')[0],
       work_start: newStartTime.toTimeString().slice(0, 5),
       work_end: newEndTime.toTimeString().slice(0, 5),
-      vet_id: data.vet_id || appointment.vet_id
+      vet_id: data.vet_id || appointment.vet_id,
     })
 
     if (!isAvailable) {
@@ -345,10 +366,10 @@ export class AppointmentService {
       { from: 'checked_in', to: 'completed', allowed: true, requires_staff: true },
       { from: 'in_progress', to: 'completed', allowed: true, requires_staff: true },
       { from: 'confirmed', to: 'no_show', allowed: true, requires_staff: true },
-      { from: 'pending', to: 'no_show', allowed: true, requires_staff: true }
+      { from: 'pending', to: 'no_show', allowed: true, requires_staff: true },
     ]
 
-    const transition = transitions.find(t => t.from === from && t.to === to)
+    const transition = transitions.find((t) => t.from === from && t.to === to)
     if (!transition?.allowed) {
       throw businessRuleViolation(`Transición de estado no permitida: ${from} → ${to}`)
     }

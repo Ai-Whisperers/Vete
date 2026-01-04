@@ -5,24 +5,24 @@
  * Vets define explicit prices per size - no automatic calculations.
  */
 
-export type PetSizeCategory = 'mini' | 'pequeño' | 'mediano' | 'grande' | 'gigante';
+export type PetSizeCategory = 'mini' | 'pequeño' | 'mediano' | 'grande' | 'gigante'
 
 /**
  * Size pricing structure - explicit prices defined by vets
  */
 export interface SizePricing {
   /** If set, this price applies to ALL sizes (overrides per-size prices) */
-  any_size?: number | null;
+  any_size?: number | null
   /** Price for mini size (0-5 kg) */
-  mini?: number | null;
+  mini?: number | null
   /** Price for pequeño size (5-10 kg) */
-  pequeño?: number | null;
+  pequeño?: number | null
   /** Price for mediano size (10-25 kg) */
-  mediano?: number | null;
+  mediano?: number | null
   /** Price for grande size (25-40 kg) */
-  grande?: number | null;
+  grande?: number | null
   /** Price for gigante size (40+ kg) */
-  gigante?: number | null;
+  gigante?: number | null
 }
 
 /**
@@ -33,8 +33,8 @@ export const SIZE_WEIGHT_RANGES: Record<PetSizeCategory, { min: number; max: num
   pequeño: { min: 5, max: 10 },
   mediano: { min: 10, max: 25 },
   grande: { min: 25, max: 40 },
-  gigante: { min: 40, max: Infinity }
-};
+  gigante: { min: 40, max: Infinity },
+}
 
 /**
  * Human-readable labels for each size category (Spanish)
@@ -44,8 +44,8 @@ export const SIZE_LABELS: Record<PetSizeCategory, string> = {
   pequeño: 'Pequeño (5-10 kg)',
   mediano: 'Mediano (10-25 kg)',
   grande: 'Grande (25-40 kg)',
-  gigante: 'Gigante (40+ kg)'
-};
+  gigante: 'Gigante (40+ kg)',
+}
 
 /**
  * Short labels for badges/chips
@@ -55,11 +55,17 @@ export const SIZE_SHORT_LABELS: Record<PetSizeCategory, string> = {
   pequeño: 'Pequeño',
   mediano: 'Mediano',
   grande: 'Grande',
-  gigante: 'Gigante'
-};
+  gigante: 'Gigante',
+}
 
 /** All size categories in order */
-export const ALL_SIZE_CATEGORIES: PetSizeCategory[] = ['mini', 'pequeño', 'mediano', 'grande', 'gigante'];
+export const ALL_SIZE_CATEGORIES: PetSizeCategory[] = [
+  'mini',
+  'pequeño',
+  'mediano',
+  'grande',
+  'gigante',
+]
 
 /**
  * Classifies a pet into a size category based on weight
@@ -68,14 +74,14 @@ export const ALL_SIZE_CATEGORIES: PetSizeCategory[] = ['mini', 'pequeño', 'medi
  */
 export function classifyPetSize(weightKg: number | null | undefined): PetSizeCategory {
   if (weightKg === null || weightKg === undefined) {
-    return 'mediano'; // Default for unknown weight
+    return 'mediano' // Default for unknown weight
   }
 
-  if (weightKg <= 5) return 'mini';
-  if (weightKg <= 10) return 'pequeño';
-  if (weightKg <= 25) return 'mediano';
-  if (weightKg <= 40) return 'grande';
-  return 'gigante';
+  if (weightKg <= 5) return 'mini'
+  if (weightKg <= 10) return 'pequeño'
+  if (weightKg <= 25) return 'mediano'
+  if (weightKg <= 40) return 'grande'
+  return 'gigante'
 }
 
 /**
@@ -94,16 +100,16 @@ export function getServicePriceForSize(
   sizePricing: SizePricing | undefined | null,
   petSize: PetSizeCategory
 ): number | null {
-  if (!sizePricing) return null;
+  if (!sizePricing) return null
 
   // If any_size is set, use that for all sizes
   if (sizePricing.any_size !== null && sizePricing.any_size !== undefined) {
-    return sizePricing.any_size;
+    return sizePricing.any_size
   }
 
   // Get the explicit price for this size
-  const price = sizePricing[petSize];
-  return price !== null && price !== undefined ? price : null;
+  const price = sizePricing[petSize]
+  return price !== null && price !== undefined ? price : null
 }
 
 /**
@@ -112,17 +118,17 @@ export function getServicePriceForSize(
  * @returns true if prices vary by size, false if single price for all
  */
 export function hasSizeBasedPricing(sizePricing: SizePricing | undefined | null): boolean {
-  if (!sizePricing) return false;
+  if (!sizePricing) return false
 
   // If any_size is set, it's a flat price (not size-based)
   if (sizePricing.any_size !== null && sizePricing.any_size !== undefined) {
-    return false;
+    return false
   }
 
   // Check if any size-specific prices are set
-  return ALL_SIZE_CATEGORIES.some(size =>
-    sizePricing[size] !== null && sizePricing[size] !== undefined
-  );
+  return ALL_SIZE_CATEGORIES.some(
+    (size) => sizePricing[size] !== null && sizePricing[size] !== undefined
+  )
 }
 
 /**
@@ -131,19 +137,19 @@ export function hasSizeBasedPricing(sizePricing: SizePricing | undefined | null)
  * @returns Minimum price, or null if no prices set
  */
 export function getMinPriceFromSizing(sizePricing: SizePricing | undefined | null): number | null {
-  if (!sizePricing) return null;
+  if (!sizePricing) return null
 
   // If any_size is set, that's the only price
   if (sizePricing.any_size !== null && sizePricing.any_size !== undefined) {
-    return sizePricing.any_size;
+    return sizePricing.any_size
   }
 
   // Find minimum from size-specific prices
-  const prices = ALL_SIZE_CATEGORIES
-    .map(size => sizePricing[size])
-    .filter((p): p is number => p !== null && p !== undefined);
+  const prices = ALL_SIZE_CATEGORIES.map((size) => sizePricing[size]).filter(
+    (p): p is number => p !== null && p !== undefined
+  )
 
-  return prices.length > 0 ? Math.min(...prices) : null;
+  return prices.length > 0 ? Math.min(...prices) : null
 }
 
 /**
@@ -152,19 +158,19 @@ export function getMinPriceFromSizing(sizePricing: SizePricing | undefined | nul
  * @returns Maximum price, or null if no prices set
  */
 export function getMaxPriceFromSizing(sizePricing: SizePricing | undefined | null): number | null {
-  if (!sizePricing) return null;
+  if (!sizePricing) return null
 
   // If any_size is set, that's the only price
   if (sizePricing.any_size !== null && sizePricing.any_size !== undefined) {
-    return sizePricing.any_size;
+    return sizePricing.any_size
   }
 
   // Find maximum from size-specific prices
-  const prices = ALL_SIZE_CATEGORIES
-    .map(size => sizePricing[size])
-    .filter((p): p is number => p !== null && p !== undefined);
+  const prices = ALL_SIZE_CATEGORIES.map((size) => sizePricing[size]).filter(
+    (p): p is number => p !== null && p !== undefined
+  )
 
-  return prices.length > 0 ? Math.max(...prices) : null;
+  return prices.length > 0 ? Math.max(...prices) : null
 }
 
 /**
@@ -173,8 +179,8 @@ export function getMaxPriceFromSizing(sizePricing: SizePricing | undefined | nul
  * @returns Formatted string (e.g., "150.000 Gs")
  */
 export function formatPriceGs(price: number | null | undefined): string {
-  if (price === null || price === undefined) return '0 Gs';
-  return `${price.toLocaleString('es-PY')} Gs`;
+  if (price === null || price === undefined) return '0 Gs'
+  return `${price.toLocaleString('es-PY')} Gs`
 }
 
 /**
@@ -188,7 +194,7 @@ export function getSizeBadgeColor(size: PetSizeCategory): string {
     pequeño: 'bg-blue-100 text-blue-700',
     mediano: 'bg-green-100 text-green-700',
     grande: 'bg-orange-100 text-orange-700',
-    gigante: 'bg-purple-100 text-purple-700'
-  };
-  return colors[size];
+    gigante: 'bg-purple-100 text-purple-700',
+  }
+  return colors[size]
 }

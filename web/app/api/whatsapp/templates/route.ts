@@ -4,7 +4,13 @@ import { z } from 'zod'
 
 const templateSchema = z.object({
   name: z.string().min(1, 'Nombre requerido'),
-  category: z.enum(['appointment_reminder', 'vaccine_reminder', 'general', 'promotional', 'follow_up']),
+  category: z.enum([
+    'appointment_reminder',
+    'vaccine_reminder',
+    'general',
+    'promotional',
+    'follow_up',
+  ]),
   content: z.string().min(1, 'Contenido requerido'),
   variables: z.array(z.string()).optional(),
 })
@@ -15,7 +21,10 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
 
     // Auth check
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
     if (authError || !user) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
@@ -58,10 +67,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ data: templates })
   } catch (error) {
     console.error('Templates API error:', error)
-    return NextResponse.json(
-      { error: 'Error interno del servidor' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
   }
 }
 
@@ -70,7 +76,10 @@ export async function POST(request: NextRequest) {
     const supabase = await createClient()
 
     // Auth check
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
     if (authError || !user) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
@@ -136,9 +145,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ data: template }, { status: 201 })
   } catch (error) {
     console.error('Templates API error:', error)
-    return NextResponse.json(
-      { error: 'Error interno del servidor' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
   }
 }

@@ -40,7 +40,9 @@ export type ActionResult<T = void> =
 /**
  * Type guard to check if an action result is successful
  */
-export function isSuccess<T>(result: ActionResult<T>): result is { success: true; data?: T; message?: string } {
+export function isSuccess<T>(
+  result: ActionResult<T>
+): result is { success: true; data?: T; message?: string } {
   return result.success === true
 }
 

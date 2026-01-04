@@ -134,10 +134,10 @@ index.tsx
 // Owner selection
 const [selectedOwnerId, setSelectedOwnerId] = useState<string | null>(
   owners.length > 0 ? owners[0].id : null
-);
+)
 
 // Search input
-const [searchQuery, setSearchQuery] = useState("");
+const [searchQuery, setSearchQuery] = useState('')
 ```
 
 ### Derived State (useMemo via custom hook)
@@ -145,10 +145,10 @@ const [searchQuery, setSearchQuery] = useState("");
 ```typescript
 // useOwnerFiltering.ts
 const filteredOwners = useMemo(() => {
-  if (!searchQuery.trim()) return owners;
-  const query = searchQuery.toLowerCase();
-  return owners.filter(/* filtering logic */);
-}, [owners, searchQuery]);
+  if (!searchQuery.trim()) return owners
+  const query = searchQuery.toLowerCase()
+  return owners.filter(/* filtering logic */)
+}, [owners, searchQuery])
 ```
 
 ### Computed Values
@@ -156,66 +156,75 @@ const filteredOwners = useMemo(() => {
 ```typescript
 // Selected owner from filtered list
 const selectedOwner =
-  filteredOwners.find(o => o.id === selectedOwnerId) ||
-  filteredOwners[0] ||
-  null;
+  filteredOwners.find((o) => o.id === selectedOwnerId) || filteredOwners[0] || null
 ```
 
 ## Component Responsibilities
 
 ### index.tsx (Orchestrator)
+
 - **State management**: selectedOwnerId, searchQuery
 - **Data filtering**: Uses custom hook
 - **Layout composition**: Assembles sub-components
 - **Props distribution**: Passes data to children
 
 ### SearchHeader.tsx (Presentation)
+
 - **Search input** rendering
 - **Results counter** display
 - **User input** handling
 
 ### OwnerList.tsx (Container)
+
 - **List rendering** logic
 - **Empty state** conditional
 - **Props delegation** to items
 
 ### OwnerListItem.tsx (Presentation)
+
 - **Individual owner** display
 - **Selection state** visual feedback
 - **Click handling**
 
 ### OwnerDetailsCard.tsx (Presentation)
+
 - **Owner information** display
 - **Contact details** grid
 - **Quick actions** buttons
 - **Status indicators**
 
 ### PetsSection.tsx (Container)
+
 - **Pets grid** rendering
 - **Empty state** conditional
 - **Add pet** action
 
 ### PetCard.tsx (Presentation)
+
 - **Pet information** display
 - **Photo/emoji** rendering
 - **Badges** (age, neutered, chip)
 - **Quick actions** (hover)
 
 ### EmptyState.tsx (Presentation)
+
 - **Empty selection** message
 - **Icon** display
 
 ### utils.ts (Pure Functions)
+
 - **formatDate**: Date formatting
 - **calculateAge**: Age calculation
 - **isClientActive**: Activity check
 - **getSpeciesEmoji**: Emoji mapping
 
 ### useOwnerFiltering.ts (Custom Hook)
+
 - **Search logic**: Filter owners by query
 - **Memoization**: Performance optimization
 
 ### types.ts (Type Definitions)
+
 - **Pet interface**: Pet data structure
 - **Owner interface**: Owner data structure
 - **PetsByOwnerProps interface**: Component props
@@ -264,6 +273,7 @@ const selectedOwner =
 ## Testing Strategy
 
 ### Unit Tests (Recommended)
+
 ```
 __tests__/
 ├── utils.test.ts               # Test pure functions
@@ -274,11 +284,13 @@ __tests__/
 ```
 
 ### Integration Tests
+
 - Test search functionality end-to-end
 - Test owner selection flow
 - Test navigation to pet/appointment pages
 
 ### E2E Tests (Playwright)
+
 - Full user journey: search → select → view details → quick actions
 
 ## Future Enhancements

@@ -11,8 +11,8 @@
     "country": "Paraguay",
     "google_maps_id": "ChIJN1t_tDeuEmsRUsoyG83frY4",
     "coordinates": {
-      "lat": -25.2150,
-      "lng": -57.5180
+      "lat": -25.215,
+      "lng": -57.518
     }
   },
   "social": {
@@ -128,17 +128,62 @@
         "important_text": "El protocolo puede ajustarse según evaluación clínica individual, factores de riesgo epidemiológico y estilo de vida del paciente.",
         "data": {
           "dog": [
-            { "age": "6-8 semanas", "n": 1, "vaccines": ["DHPPi (Core)"], "note": "Inicio de inmunización activa." },
-            { "age": "10-12 semanas", "n": 2, "vaccines": ["DHPPi Refuerzo", "Antirrábica"], "note": "Obligatoria por SENACSA." },
-            { "age": "14-16 semanas", "n": 3, "vaccines": ["DHPPi Final"], "note": "Completar esquema primario." },
-            { "age": "12 meses", "n": 4, "vaccines": ["DHPPi Anual", "Antirrábica"], "note": "Primer refuerzo anual." },
-            { "age": "Según riesgo", "n": 5, "vaccines": ["Bordetella", "Leptospira", "Influenza"], "note": "No-core, evaluar indicación." }
+            {
+              "age": "6-8 semanas",
+              "n": 1,
+              "vaccines": ["DHPPi (Core)"],
+              "note": "Inicio de inmunización activa."
+            },
+            {
+              "age": "10-12 semanas",
+              "n": 2,
+              "vaccines": ["DHPPi Refuerzo", "Antirrábica"],
+              "note": "Obligatoria por SENACSA."
+            },
+            {
+              "age": "14-16 semanas",
+              "n": 3,
+              "vaccines": ["DHPPi Final"],
+              "note": "Completar esquema primario."
+            },
+            {
+              "age": "12 meses",
+              "n": 4,
+              "vaccines": ["DHPPi Anual", "Antirrábica"],
+              "note": "Primer refuerzo anual."
+            },
+            {
+              "age": "Según riesgo",
+              "n": 5,
+              "vaccines": ["Bordetella", "Leptospira", "Influenza"],
+              "note": "No-core, evaluar indicación."
+            }
           ],
           "cat": [
-            { "age": "6-8 semanas", "n": 1, "vaccines": ["FVRCP (Core)"], "note": "Herpesvirus, Calicivirus, Panleucopenia." },
-            { "age": "10-12 semanas", "n": 2, "vaccines": ["FVRCP Refuerzo", "Antirrábica"], "note": "Obligatoria por SENACSA." },
-            { "age": "14-16 semanas", "n": 3, "vaccines": ["FeLV"], "note": "Previo test FIV/FeLV. Indicado en gatos outdoor." },
-            { "age": "12 meses", "n": 4, "vaccines": ["FVRCP Anual", "Antirrábica"], "note": "Refuerzo de por vida." }
+            {
+              "age": "6-8 semanas",
+              "n": 1,
+              "vaccines": ["FVRCP (Core)"],
+              "note": "Herpesvirus, Calicivirus, Panleucopenia."
+            },
+            {
+              "age": "10-12 semanas",
+              "n": 2,
+              "vaccines": ["FVRCP Refuerzo", "Antirrábica"],
+              "note": "Obligatoria por SENACSA."
+            },
+            {
+              "age": "14-16 semanas",
+              "n": 3,
+              "vaccines": ["FeLV"],
+              "note": "Previo test FIV/FeLV. Indicado en gatos outdoor."
+            },
+            {
+              "age": "12 meses",
+              "n": 4,
+              "vaccines": ["FVRCP Anual", "Antirrábica"],
+              "note": "Refuerzo de por vida."
+            }
           ]
         }
       }

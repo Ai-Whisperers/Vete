@@ -7,10 +7,7 @@
       "name": "Littmann Classic III Estetoscopio",
       "description": "Estetoscopio clásico para diagnóstico general",
       "category_slug": "CLI-EQU-DIA",
-      "target_species": [
-        "dog",
-        "cat"
-      ],
+      "target_species": ["dog", "cat"],
       "variants": [
         {
           "size": "Negro",
@@ -43,10 +40,7 @@
       "name": "Littmann Cardiology IV Estetoscopio",
       "description": "Estetoscopio premium para cardiología veterinaria",
       "category_slug": "CLI-EQU-DIA",
-      "target_species": [
-        "dog",
-        "cat"
-      ],
+      "target_species": ["dog", "cat"],
       "variants": [
         {
           "size": "Negro",
@@ -74,10 +68,7 @@
       "name": "Littmann Lightweight II S.E. Estetoscopio",
       "description": "Estetoscopio ligero para uso general",
       "category_slug": "CLI-EQU-DIA",
-      "target_species": [
-        "dog",
-        "cat"
-      ],
+      "target_species": ["dog", "cat"],
       "variants": [
         {
           "size": "Negro",

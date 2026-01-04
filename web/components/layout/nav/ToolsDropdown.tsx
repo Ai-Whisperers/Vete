@@ -1,51 +1,76 @@
-"use client";
+'use client'
 
-import { useState, useEffect, useRef } from "react";
-import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, Wrench, Calculator, Apple, HelpCircle, Gift } from "lucide-react";
-import type { ClinicConfig } from "@/lib/clinics";
+import { useState, useEffect, useRef } from 'react'
+import Link from 'next/link'
+import { motion, AnimatePresence } from 'framer-motion'
+import { ChevronDown, Wrench, Calculator, Apple, HelpCircle, Gift } from 'lucide-react'
+import type { ClinicConfig } from '@/lib/clinics'
 
 interface ToolsDropdownProps {
-  clinic: string;
-  config: ClinicConfig;
-  isActive: (href: string) => boolean;
-  pathname: string;
+  clinic: string
+  config: ClinicConfig
+  isActive: (href: string) => boolean
+  pathname: string
 }
 
 interface ToolItem {
-  label: string;
-  href: string;
-  icon: typeof Calculator;
+  label: string
+  href: string
+  icon: typeof Calculator
 }
 
-export function ToolsDropdown({ clinic, config, isActive, pathname }: Readonly<ToolsDropdownProps>) {
-  const [isToolsOpen, setIsToolsOpen] = useState(false);
-  const toolsMenuRef = useRef<HTMLDivElement>(null);
+export function ToolsDropdown({
+  clinic,
+  config,
+  isActive,
+  pathname,
+}: Readonly<ToolsDropdownProps>) {
+  const [isToolsOpen, setIsToolsOpen] = useState(false)
+  const toolsMenuRef = useRef<HTMLDivElement>(null)
 
   const toolsItems: ToolItem[] = [
-    { label: config.ui_labels?.tools?.age_calculator?.title || "Calculadora de Edad", href: `/${clinic}/tools/age-calculator`, icon: Calculator },
-    { label: config.ui_labels?.tools?.toxic_food?.title || "Alimentos Tóxicos", href: `/${clinic}/tools/toxic-food`, icon: Apple },
-    { label: config.ui_labels?.nav?.faq || "Preguntas Frecuentes", href: `/${clinic}/faq`, icon: HelpCircle },
-    { label: config.ui_labels?.nav?.loyalty_program || "Programa de Lealtad", href: `/${clinic}/loyalty_points`, icon: Gift },
-  ];
+    {
+      label: config.ui_labels?.tools?.age_calculator?.title || 'Calculadora de Edad',
+      href: `/${clinic}/tools/age-calculator`,
+      icon: Calculator,
+    },
+    {
+      label: config.ui_labels?.tools?.toxic_food?.title || 'Alimentos Tóxicos',
+      href: `/${clinic}/tools/toxic-food`,
+      icon: Apple,
+    },
+    {
+      label: config.ui_labels?.nav?.faq || 'Preguntas Frecuentes',
+      href: `/${clinic}/faq`,
+      icon: HelpCircle,
+    },
+    {
+      label: config.ui_labels?.nav?.loyalty_program || 'Programa de Lealtad',
+      href: `/${clinic}/loyalty_points`,
+      icon: Gift,
+    },
+  ]
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (toolsMenuRef.current && !toolsMenuRef.current.contains(event.target as Node)) {
-        setIsToolsOpen(false);
+        setIsToolsOpen(false)
       }
-    };
+    }
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   useEffect(() => {
-    setIsToolsOpen(false);
-  }, [pathname]);
+    setIsToolsOpen(false)
+  }, [pathname])
 
-  const isToolsActive = isToolsOpen || pathname.includes('/tools') || pathname.includes('/faq') || pathname.includes('/loyalty');
+  const isToolsActive =
+    isToolsOpen ||
+    pathname.includes('/tools') ||
+    pathname.includes('/faq') ||
+    pathname.includes('/loyalty')
 
   return (
     <div ref={toolsMenuRef} className="relative">
@@ -54,15 +79,18 @@ export function ToolsDropdown({ clinic, config, isActive, pathname }: Readonly<T
         aria-expanded={isToolsOpen}
         aria-haspopup="true"
         aria-label="Menú de herramientas"
-        className={`text-base font-bold uppercase tracking-wide transition-colors relative group flex items-center gap-1 ${
+        className={`group relative flex items-center gap-1 text-base font-bold uppercase tracking-wide transition-colors ${
           isToolsActive
-            ? "text-[var(--primary)]"
-            : "text-[var(--text-secondary)] hover:text-[var(--primary)]"
+            ? 'text-[var(--primary)]'
+            : 'text-[var(--text-secondary)] hover:text-[var(--primary)]'
         }`}
       >
-        <Wrench className="w-4 h-4" aria-hidden="true" />
+        <Wrench className="h-4 w-4" aria-hidden="true" />
         {config.ui_labels?.nav?.tools || 'Herramientas'}
-        <ChevronDown className={`w-4 h-4 transition-transform ${isToolsOpen ? 'rotate-180' : ''}`} aria-hidden="true" />
+        <ChevronDown
+          className={`h-4 w-4 transition-transform ${isToolsOpen ? 'rotate-180' : ''}`}
+          aria-hidden="true"
+        />
       </button>
 
       <AnimatePresence>
@@ -74,10 +102,10 @@ export function ToolsDropdown({ clinic, config, isActive, pathname }: Readonly<T
             transition={{ duration: 0.15 }}
             role="menu"
             aria-label="Opciones de herramientas"
-            className="absolute top-full left-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50"
+            className="absolute left-0 top-full z-50 mt-2 w-56 rounded-xl border border-gray-100 bg-white py-2 shadow-xl"
           >
             {toolsItems.map((tool) => {
-              const ToolIcon = tool.icon;
+              const ToolIcon = tool.icon
               return (
                 <Link
                   key={tool.href}
@@ -86,18 +114,18 @@ export function ToolsDropdown({ clinic, config, isActive, pathname }: Readonly<T
                   role="menuitem"
                   className={`flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors ${
                     isActive(tool.href)
-                      ? "bg-[var(--primary)]/10 text-[var(--primary)]"
-                      : "text-gray-700 hover:bg-gray-50 hover:text-[var(--primary)]"
+                      ? 'bg-[var(--primary)]/10 text-[var(--primary)]'
+                      : 'text-gray-700 hover:bg-gray-50 hover:text-[var(--primary)]'
                   }`}
                 >
-                  <ToolIcon className="w-4 h-4" aria-hidden="true" />
+                  <ToolIcon className="h-4 w-4" aria-hidden="true" />
                   {tool.label}
                 </Link>
-              );
+              )
             })}
           </motion.div>
         )}
       </AnimatePresence>
     </div>
-  );
+  )
 }

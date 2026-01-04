@@ -16,7 +16,18 @@
         },
         "category": {
           "type": "string",
-          "enum": ["consultation", "grooming", "treatment", "vaccination", "surgery", "diagnostic", "identification", "hospitalization", "dental", "emergency"]
+          "enum": [
+            "consultation",
+            "grooming",
+            "treatment",
+            "vaccination",
+            "surgery",
+            "diagnostic",
+            "identification",
+            "hospitalization",
+            "dental",
+            "emergency"
+          ]
         },
         "base_price": {
           "type": "integer",
@@ -232,7 +243,15 @@
         },
         "category": {
           "type": "string",
-          "enum": ["surgery", "anesthesia", "euthanasia", "boarding", "grooming", "treatment", "general"]
+          "enum": [
+            "surgery",
+            "anesthesia",
+            "euthanasia",
+            "boarding",
+            "grooming",
+            "treatment",
+            "general"
+          ]
         },
         "title": {
           "type": "string",

@@ -9,75 +9,78 @@ import {
   Clock,
   XCircle,
   AlertCircle,
-  Calendar
-} from "lucide-react";
-import Image from "next/image";
-import { getClinicData } from '@/lib/clinics';
+  Calendar,
+} from 'lucide-react'
+import Image from 'next/image'
+import { getClinicData } from '@/lib/clinics'
 import { createClient } from '@/lib/supabase/server'
-import { redirect } from "next/navigation";
-import Link from "next/link";
+import { redirect } from 'next/navigation'
+import Link from 'next/link'
 
 interface Appointment {
-  id: string;
-  start_time: string;
-  status: string;
-  reason: string;
-  pets: { name: string } | null;
+  id: string
+  start_time: string
+  status: string
+  reason: string
+  pets: { name: string } | null
 }
 
 interface Vaccine {
-  id: string;
-  name: string;
-  status: 'verified' | 'pending' | 'rejected';
-  administered_date: string;
-  next_due_date: string | null;
+  id: string
+  name: string
+  status: 'verified' | 'pending' | 'rejected'
+  administered_date: string
+  next_due_date: string | null
 }
 
 // Helper to check if a date is upcoming (within 30 days)
 function isUpcoming(dateStr: string | null): boolean {
-  if (!dateStr) return false;
-  const dueDate = new Date(dateStr);
-  const today = new Date();
-  const daysUntil = Math.ceil((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-  return daysUntil >= 0 && daysUntil <= 30;
+  if (!dateStr) return false
+  const dueDate = new Date(dateStr)
+  const today = new Date()
+  const daysUntil = Math.ceil((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+  return daysUntil >= 0 && daysUntil <= 30
 }
 
 // Helper to filter vaccines to only pending/rejected/upcoming
 function filterPendingVaccines(vaccines: Vaccine[] | null): Vaccine[] {
-  if (!vaccines) return [];
-  return vaccines.filter(v =>
-    v.status === 'pending' ||
-    v.status === 'rejected' ||
-    isUpcoming(v.next_due_date)
-  );
+  if (!vaccines) return []
+  return vaccines.filter(
+    (v) => v.status === 'pending' || v.status === 'rejected' || isUpcoming(v.next_due_date)
+  )
 }
 
 interface Pet {
-  id: string;
-  name: string;
-  species: 'dog' | 'cat';
-  breed: string | null;
-  weight_kg: number | null;
-  photo_url: string | null;
-  vaccines: Vaccine[] | null;
+  id: string
+  name: string
+  species: 'dog' | 'cat'
+  breed: string | null
+  weight_kg: number | null
+  photo_url: string | null
+  vaccines: Vaccine[] | null
 }
 
-export default async function OwnerDashboardPage({ params, searchParams }: {
-    params: Promise<{ clinic: string }>,
-    searchParams: Promise<{ query?: string }>
+export default async function OwnerDashboardPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ clinic: string }>
+  searchParams: Promise<{ query?: string }>
 }) {
-  const supabase = await createClient();
-  const { clinic } = await params;
-  const { query } = await searchParams;
+  const supabase = await createClient()
+  const { clinic } = await params
+  const { query } = await searchParams
 
   // Fetch User & Profile
-  const { data: { user } } = await supabase.auth.getUser();
-  const data = await getClinicData(clinic);
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  const data = await getClinicData(clinic)
 
-  if (!data) return null;
+  if (!data) return null
 
   if (!user) {
-    redirect(`/${clinic}/portal/login`);
+    redirect(`/${clinic}/portal/login`)
   }
 
   // Get Profile Role
@@ -85,14 +88,14 @@ export default async function OwnerDashboardPage({ params, searchParams }: {
     .from('profiles')
     .select('role')
     .eq('id', user.id)
-    .single();
+    .single()
 
-  const role = profile?.role || 'owner';
-  const isStaff = role === 'vet' || role === 'admin';
+  const role = profile?.role || 'owner'
+  const isStaff = role === 'vet' || role === 'admin'
 
   // Redirect staff to clinical dashboard
   if (isStaff) {
-    redirect(`/${clinic}/dashboard`);
+    redirect(`/${clinic}/dashboard`)
   }
 
   // Fetch Owner's upcoming appointments
@@ -102,9 +105,9 @@ export default async function OwnerDashboardPage({ params, searchParams }: {
     .eq('tenant_id', clinic)
     .gte('start_time', new Date().toISOString())
     .order('start_time', { ascending: true })
-    .limit(5);
+    .limit(5)
 
-  const myAppointments = (appointmentsData || []) as unknown as Appointment[];
+  const myAppointments = (appointmentsData || []) as unknown as Appointment[]
 
   // Fetch Owner's pets
   let petQuery = supabase
@@ -112,51 +115,54 @@ export default async function OwnerDashboardPage({ params, searchParams }: {
     .select(`*, vaccines (*)`)
     .eq('owner_id', user.id)
     .is('deleted_at', null)
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
 
   if (query) {
     petQuery = petQuery.textSearch('name', query, {
       type: 'websearch',
-      config: 'english'
-    });
+      config: 'english',
+    })
   }
 
-  const { data: petsData } = await petQuery;
-  const pets = petsData as Pet[] | null;
+  const { data: petsData } = await petQuery
+  const pets = petsData as Pet[] | null
 
   // Import search component
-  const PetSearch = (await import('./PetSearch')).default;
+  const PetSearch = (await import('./PetSearch')).default
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="mx-auto max-w-4xl space-y-8">
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
         <div>
-          <h1 className="text-3xl font-black font-heading text-[var(--text-primary)]">
+          <h1 className="font-heading text-3xl font-black text-[var(--text-primary)]">
             {data.config.ui_labels?.portal?.dashboard?.owner_title || 'Mis Mascotas'}
           </h1>
-          <p className="text-[var(--text-secondary)] mt-1">
-            {data.config.ui_labels?.portal?.dashboard?.welcome?.replace('{name}', user.email || '') || `Bienvenido, ${user.email || ''}`}
+          <p className="mt-1 text-[var(--text-secondary)]">
+            {data.config.ui_labels?.portal?.dashboard?.welcome?.replace(
+              '{name}',
+              user.email || ''
+            ) || `Bienvenido, ${user.email || ''}`}
           </p>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-3">
+        <div className="flex flex-col gap-3 sm:flex-row">
           {/* Search Bar */}
           {pets && pets.length > 0 && <PetSearch />}
 
           <Link
             href={`/${clinic}/services`}
-            className="flex items-center justify-center gap-2 text-[var(--primary)] font-bold bg-[var(--primary)]/10 hover:bg-[var(--primary)] hover:text-white px-6 py-3 rounded-xl transition-all shrink-0"
+            className="bg-[var(--primary)]/10 flex shrink-0 items-center justify-center gap-2 rounded-xl px-6 py-3 font-bold text-[var(--primary)] transition-all hover:bg-[var(--primary)] hover:text-white"
           >
-            <CalendarPlus className="w-5 h-5" />
+            <CalendarPlus className="h-5 w-5" />
             <span className="hidden md:inline">Agendar Cita</span>
           </Link>
           <Link
             href={`/${clinic}/portal/pets/new`}
-            className="flex items-center justify-center gap-2 text-[var(--text-secondary)] font-bold hover:bg-gray-100 px-4 py-3 rounded-xl transition-colors shrink-0"
+            className="flex shrink-0 items-center justify-center gap-2 rounded-xl px-4 py-3 font-bold text-[var(--text-secondary)] transition-colors hover:bg-gray-100"
             title="Nueva Mascota"
           >
-            <Plus className="w-5 h-5" />
+            <Plus className="h-5 w-5" />
             <span className="hidden md:inline">Nueva Mascota</span>
           </Link>
         </div>
@@ -165,41 +171,52 @@ export default async function OwnerDashboardPage({ params, searchParams }: {
       {/* Upcoming Appointments */}
       {myAppointments.length > 0 && (
         <div>
-          <h2 className="text-lg font-bold text-[var(--text-primary)] mb-4 flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-[var(--primary)]" />
+          <h2 className="mb-4 flex items-center gap-2 text-lg font-bold text-[var(--text-primary)]">
+            <Calendar className="h-5 w-5 text-[var(--primary)]" />
             {data.config.ui_labels?.portal?.appointment_widget?.title || 'Próximas Citas'}
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {myAppointments.map((apt) => (
               <div
                 key={apt.id}
-                className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between"
+                className="flex items-center justify-between rounded-2xl border border-gray-100 bg-white p-4 shadow-sm"
               >
                 <div className="flex items-center gap-4">
-                  <div className="bg-[var(--primary)]/10 text-[var(--primary)] w-12 h-12 rounded-xl flex flex-col items-center justify-center text-xs font-bold leading-none">
+                  <div className="bg-[var(--primary)]/10 flex h-12 w-12 flex-col items-center justify-center rounded-xl text-xs font-bold leading-none text-[var(--primary)]">
                     <span>{new Date(apt.start_time).getDate()}</span>
-                    <span className="uppercase text-[10px]">
-                      {new Date(apt.start_time).toLocaleDateString('es-ES', { month: 'short' }).slice(0,3)}
+                    <span className="text-[10px] uppercase">
+                      {new Date(apt.start_time)
+                        .toLocaleDateString('es-ES', { month: 'short' })
+                        .slice(0, 3)}
                     </span>
                   </div>
                   <div>
                     <p className="font-bold text-gray-800">{apt.reason}</p>
                     <p className="text-sm text-gray-500">
-                      {new Date(apt.start_time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - {apt.pets?.name}
+                      {new Date(apt.start_time).toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}{' '}
+                      - {apt.pets?.name}
                     </p>
                   </div>
                 </div>
-                <div className={`px-3 py-1 rounded-full text-xs font-bold capitalize ${
-                  apt.status === 'confirmed' ? 'bg-green-100 text-green-700' :
-                  apt.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
-                  'bg-gray-100 text-gray-500'
-                }`}>
+                <div
+                  className={`rounded-full px-3 py-1 text-xs font-bold capitalize ${
+                    apt.status === 'confirmed'
+                      ? 'bg-green-100 text-green-700'
+                      : apt.status === 'pending'
+                        ? 'bg-yellow-100 text-yellow-700'
+                        : 'bg-gray-100 text-gray-500'
+                  }`}
+                >
                   {apt.status === 'confirmed'
-                    ? (data.config.ui_labels?.portal?.appointment_widget?.status?.confirmed || 'Confirmada')
+                    ? data.config.ui_labels?.portal?.appointment_widget?.status?.confirmed ||
+                      'Confirmada'
                     : apt.status === 'pending'
-                      ? (data.config.ui_labels?.portal?.appointment_widget?.status?.pending || 'Pendiente')
-                      : apt.status
-                  }
+                      ? data.config.ui_labels?.portal?.appointment_widget?.status?.pending ||
+                        'Pendiente'
+                      : apt.status}
                 </div>
               </div>
             ))}
@@ -209,19 +226,21 @@ export default async function OwnerDashboardPage({ params, searchParams }: {
 
       {/* Empty State */}
       {(!pets || pets.length === 0) && !query && (
-        <div className="text-center py-16 bg-white rounded-3xl border border-dashed border-gray-300">
-          <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto text-gray-400 mb-4">
-            <Dog className="w-10 h-10" />
+        <div className="rounded-3xl border border-dashed border-gray-300 bg-white py-16 text-center">
+          <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-gray-50 text-gray-400">
+            <Dog className="h-10 w-10" />
           </div>
           <h3 className="text-xl font-bold text-gray-600">
-            {data.config.ui_labels?.portal?.empty_states?.no_pets || 'No tienes mascotas registradas'}
+            {data.config.ui_labels?.portal?.empty_states?.no_pets ||
+              'No tienes mascotas registradas'}
           </h3>
-          <p className="text-gray-500 mb-6">
-            {data.config.ui_labels?.portal?.empty_states?.no_pets_desc || 'Registra tu primera mascota para comenzar'}
+          <p className="mb-6 text-gray-500">
+            {data.config.ui_labels?.portal?.empty_states?.no_pets_desc ||
+              'Registra tu primera mascota para comenzar'}
           </p>
           <Link
             href={`/${clinic}/portal/pets/new`}
-            className="bg-[var(--primary)] text-white px-6 py-3 rounded-xl font-bold shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all inline-block"
+            className="inline-block rounded-xl bg-[var(--primary)] px-6 py-3 font-bold text-white shadow-lg transition-all hover:-translate-y-1 hover:shadow-xl"
           >
             {data.config.ui_labels?.portal?.empty_states?.add_pet_btn || 'Agregar Mascota'}
           </Link>
@@ -229,17 +248,17 @@ export default async function OwnerDashboardPage({ params, searchParams }: {
       )}
 
       {/* Pet List */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {pets?.map((pet) => (
           <div
             key={pet.id}
-            className="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden group hover:shadow-xl transition-shadow"
+            className="group overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-lg transition-shadow hover:shadow-xl"
           >
             {/* Pet Header */}
-            <div className="p-6 flex items-center gap-4 bg-[var(--bg-subtle)]">
+            <div className="flex items-center gap-4 bg-[var(--bg-subtle)] p-6">
               <Link
                 href={`/${clinic}/portal/pets/${pet.id}`}
-                className="shrink-0 relative group-hover:scale-105 transition-transform"
+                className="relative shrink-0 transition-transform group-hover:scale-105"
               >
                 {pet.photo_url ? (
                   <Image
@@ -247,11 +266,11 @@ export default async function OwnerDashboardPage({ params, searchParams }: {
                     alt={pet.name}
                     width={80}
                     height={80}
-                    className="w-20 h-20 rounded-full object-cover border-4 border-white shadow-sm"
+                    className="h-20 w-20 rounded-full border-4 border-white object-cover shadow-sm"
                   />
                 ) : (
-                  <div className="w-20 h-20 rounded-full bg-white flex items-center justify-center border-4 border-white shadow-sm text-gray-300">
-                    <PawPrint className="w-10 h-10" />
+                  <div className="flex h-20 w-20 items-center justify-center rounded-full border-4 border-white bg-white text-gray-300 shadow-sm">
+                    <PawPrint className="h-10 w-10" />
                   </div>
                 )}
               </Link>
@@ -259,8 +278,12 @@ export default async function OwnerDashboardPage({ params, searchParams }: {
                 <Link href={`/${clinic}/portal/pets/${pet.id}`} className="hover:underline">
                   <h2 className="text-2xl font-black text-[var(--text-primary)]">{pet.name}</h2>
                 </Link>
-                <p className="text-[var(--text-secondary)] font-medium flex items-center gap-2 text-sm uppercase">
-                  {pet.species === 'dog' ? <Dog className="w-4 h-4" /> : <Cat className="w-4 h-4" />}
+                <p className="flex items-center gap-2 text-sm font-medium uppercase text-[var(--text-secondary)]">
+                  {pet.species === 'dog' ? (
+                    <Dog className="h-4 w-4" />
+                  ) : (
+                    <Cat className="h-4 w-4" />
+                  )}
                   {pet.breed || 'Mestizo'}
                 </p>
               </div>
@@ -269,7 +292,7 @@ export default async function OwnerDashboardPage({ params, searchParams }: {
             {/* Stats */}
             <div className="grid grid-cols-2 divide-x divide-gray-100 border-b border-gray-100">
               <div className="p-4 text-center">
-                <span className="block text-xs uppercase tracking-wider text-gray-400 font-bold">
+                <span className="block text-xs font-bold uppercase tracking-wider text-gray-400">
                   {data.config.ui_labels?.portal?.pet_card?.weight || 'Peso'}
                 </span>
                 <span className="font-bold text-[var(--text-primary)]">
@@ -277,7 +300,7 @@ export default async function OwnerDashboardPage({ params, searchParams }: {
                 </span>
               </div>
               <div className="p-4 text-center">
-                <span className="block text-xs uppercase tracking-wider text-gray-400 font-bold">
+                <span className="block text-xs font-bold uppercase tracking-wider text-gray-400">
                   {data.config.ui_labels?.portal?.pet_card?.chip || 'Chip'}
                 </span>
                 <span className="font-bold text-[var(--text-primary)]">-</span>
@@ -286,20 +309,20 @@ export default async function OwnerDashboardPage({ params, searchParams }: {
 
             {/* Vaccines */}
             <div className="p-6">
-              <h3 className="font-bold text-[var(--text-secondary)] mb-4 flex items-center gap-2 text-sm uppercase tracking-wider">
-                <Syringe className="w-4 h-4" /> Pendientes
+              <h3 className="mb-4 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-[var(--text-secondary)]">
+                <Syringe className="h-4 w-4" /> Pendientes
               </h3>
 
               {(() => {
-                const pendingVaccines = filterPendingVaccines(pet.vaccines);
+                const pendingVaccines = filterPendingVaccines(pet.vaccines)
 
                 if (pendingVaccines.length === 0) {
                   return (
-                    <p className="text-sm text-gray-400 italic flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-green-500" />
+                    <p className="flex items-center gap-2 text-sm italic text-gray-400">
+                      <CheckCircle2 className="h-4 w-4 text-green-500" />
                       Todo al día
                     </p>
-                  );
+                  )
                 }
 
                 return (
@@ -307,51 +330,57 @@ export default async function OwnerDashboardPage({ params, searchParams }: {
                     {pendingVaccines.map((v: Vaccine) => (
                       <div
                         key={v.id}
-                        className="flex items-center justify-between p-3 rounded-xl bg-gray-50 border border-gray-100"
+                        className="flex items-center justify-between rounded-xl border border-gray-100 bg-gray-50 p-3"
                       >
                         <div>
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className="font-bold text-[var(--text-primary)] block text-sm">{v.name}</span>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="block text-sm font-bold text-[var(--text-primary)]">
+                              {v.name}
+                            </span>
                             {v.status === 'pending' && (
-                              <span className="bg-yellow-100 text-yellow-600 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
-                                <Clock className="w-3 h-3"/> Revisión
+                              <span className="flex items-center gap-1 rounded-full bg-yellow-100 px-2 py-0.5 text-[10px] font-bold text-yellow-600">
+                                <Clock className="h-3 w-3" /> Revisión
                               </span>
                             )}
                             {v.status === 'rejected' && (
-                              <span className="bg-red-100 text-red-600 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
-                                <XCircle className="w-3 h-3"/> Rechazada
+                              <span className="flex items-center gap-1 rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-bold text-red-600">
+                                <XCircle className="h-3 w-3" /> Rechazada
                               </span>
                             )}
                             {v.status === 'verified' && isUpcoming(v.next_due_date) && (
-                              <span className="bg-blue-100 text-blue-600 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
-                                <AlertCircle className="w-3 h-3"/> Vence pronto
+                              <span className="flex items-center gap-1 rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-bold text-blue-600">
+                                <AlertCircle className="h-3 w-3" /> Vence pronto
                               </span>
                             )}
                           </div>
                           {v.next_due_date && isUpcoming(v.next_due_date) ? (
-                            <span className="text-xs text-blue-600 font-medium">Vence: {v.next_due_date}</span>
+                            <span className="text-xs font-medium text-blue-600">
+                              Vence: {v.next_due_date}
+                            </span>
                           ) : (
-                            <span className="text-xs text-gray-500">Puesta: {v.administered_date}</span>
+                            <span className="text-xs text-gray-500">
+                              Puesta: {v.administered_date}
+                            </span>
                           )}
                         </div>
                       </div>
                     ))}
                   </div>
-                );
+                )
               })()}
 
-              <div className="grid grid-cols-2 gap-3 mt-6">
+              <div className="mt-6 grid grid-cols-2 gap-3">
                 <Link
                   href={`/${clinic}/portal/pets/${pet.id}/vaccines/new`}
-                  className="w-full py-3 bg-[var(--primary)] text-white font-bold rounded-xl shadow-md hover:shadow-lg hover:-translate-y-1 transition-all flex justify-center items-center gap-2 text-sm"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--primary)] py-3 text-sm font-bold text-white shadow-md transition-all hover:-translate-y-1 hover:shadow-lg"
                 >
-                  <Plus className="w-4 h-4" />
+                  <Plus className="h-4 w-4" />
                   {data.config.ui_labels?.portal?.pet_card?.add_vaccine || 'Agregar Vacuna'}
                 </Link>
 
                 <Link
                   href={`/${clinic}/portal/pets/${pet.id}`}
-                  className="w-full py-3 border-2 border-dashed border-[var(--primary)] text-[var(--primary)] font-bold rounded-xl hover:bg-[var(--primary)]/5 transition-colors flex justify-center items-center gap-2 text-sm"
+                  className="hover:bg-[var(--primary)]/5 flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[var(--primary)] py-3 text-sm font-bold text-[var(--primary)] transition-colors"
                 >
                   Ver historial completo
                 </Link>
@@ -361,5 +390,5 @@ export default async function OwnerDashboardPage({ params, searchParams }: {
         ))}
       </div>
     </div>
-  );
+  )
 }

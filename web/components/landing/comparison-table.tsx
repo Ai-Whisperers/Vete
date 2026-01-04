@@ -1,12 +1,12 @@
-'use client';
+'use client'
 
-import { Check, X, Minus, ArrowRight, Zap, Trophy } from 'lucide-react';
+import { Check, X, Minus, ArrowRight, Zap, Trophy } from 'lucide-react'
 
 interface ComparisonRow {
-  feature: string;
-  vetepy: string | boolean;
-  traditional: string | boolean;
-  diy: string | boolean;
+  feature: string
+  vetepy: string | boolean
+  traditional: string | boolean
+  diy: string | boolean
 }
 
 const comparisonData: ComparisonRow[] = [
@@ -14,251 +14,270 @@ const comparisonData: ComparisonRow[] = [
     feature: 'Costo inicial',
     vetepy: 'desde ₲0*',
     traditional: '₲5-10M',
-    diy: '₲500K-2M'
+    diy: '₲500K-2M',
   },
   {
     feature: 'Costo mensual',
     vetepy: 'desde ₲150K',
     traditional: '₲300-500K',
-    diy: '₲100-200K'
+    diy: '₲100-200K',
   },
   {
     feature: 'Tiempo hasta estar online',
     vetepy: '3-7 dias',
     traditional: '2-4 meses',
-    diy: '1-3 meses'
+    diy: '1-3 meses',
   },
   {
     feature: 'Diseño profesional',
     vetepy: true,
     traditional: true,
-    diy: false
+    diy: false,
   },
   {
     feature: 'Sistema de citas online',
     vetepy: true,
     traditional: 'Extra',
-    diy: false
+    diy: false,
   },
   {
     feature: 'Historial medico digital',
     vetepy: true,
     traditional: 'Extra',
-    diy: false
+    diy: false,
   },
   {
     feature: 'Portal para dueños',
     vetepy: true,
     traditional: 'Extra',
-    diy: false
+    diy: false,
   },
   {
     feature: 'Actualizaciones incluidas',
     vetepy: true,
     traditional: false,
-    diy: false
+    diy: false,
   },
   {
     feature: 'Soporte tecnico',
     vetepy: true,
     traditional: 'Extra',
-    diy: false
+    diy: false,
   },
   {
     feature: 'Optimizado para moviles',
     vetepy: true,
     traditional: 'Depende',
-    diy: 'Depende'
+    diy: 'Depende',
   },
   {
     feature: 'SEO optimizado',
     vetepy: true,
     traditional: 'Depende',
-    diy: false
+    diy: false,
   },
   {
     feature: 'Seguridad y backups',
     vetepy: true,
     traditional: 'Extra',
-    diy: 'Tu problema'
-  }
-];
+    diy: 'Tu problema',
+  },
+]
 
 function CellValue({ value, isVetepy = false }: { value: string | boolean; isVetepy?: boolean }) {
   if (value === true) {
     return (
       <div className="flex justify-center">
-        <div className={`w-6 h-6 rounded-full flex items-center justify-center ${isVetepy ? 'bg-[var(--primary)]/30' : 'bg-[var(--primary)]/20'}`}>
-          <Check className="w-4 h-4 text-[var(--primary)]" />
+        <div
+          className={`flex h-6 w-6 items-center justify-center rounded-full ${isVetepy ? 'bg-[var(--primary)]/30' : 'bg-[var(--primary)]/20'}`}
+        >
+          <Check className="h-4 w-4 text-[var(--primary)]" />
         </div>
       </div>
-    );
+    )
   }
   if (value === false) {
     return (
       <div className="flex justify-center">
-        <div className="w-6 h-6 rounded-full bg-red-500/20 flex items-center justify-center">
-          <X className="w-4 h-4 text-red-400" />
+        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-red-500/20">
+          <X className="h-4 w-4 text-red-400" />
         </div>
       </div>
-    );
+    )
   }
   if (value === '-' || value === 'Extra' || value === 'Depende' || value === 'Tu problema') {
     return (
-      <span className={`text-xs md:text-sm ${
-        value === 'Extra' ? 'text-yellow-400' :
-        value === 'Depende' ? 'text-yellow-400' :
-        value === 'Tu problema' ? 'text-red-400' :
-        'text-white/40'
-      }`}>
+      <span
+        className={`text-xs md:text-sm ${
+          value === 'Extra'
+            ? 'text-yellow-400'
+            : value === 'Depende'
+              ? 'text-yellow-400'
+              : value === 'Tu problema'
+                ? 'text-red-400'
+                : 'text-white/40'
+        }`}
+      >
         {value}
       </span>
-    );
+    )
   }
-  return <span className={`text-xs md:text-sm font-medium ${isVetepy ? 'text-[var(--primary)]' : 'text-white'}`}>{value}</span>;
+  return (
+    <span
+      className={`text-xs font-medium md:text-sm ${isVetepy ? 'text-[var(--primary)]' : 'text-white'}`}
+    >
+      {value}
+    </span>
+  )
 }
 
 export function ComparisonTable() {
   return (
-    <section className="py-16 md:py-24 bg-[var(--bg-dark)] relative overflow-hidden">
+    <section className="relative overflow-hidden bg-[var(--bg-dark)] py-16 md:py-24">
       {/* Background */}
       <div className="absolute inset-0">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[var(--primary)]/5 rounded-full blur-[150px]" />
+        <div className="bg-[var(--primary)]/5 absolute left-1/2 top-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-[150px]" />
       </div>
 
-      <div className="container mx-auto px-4 md:px-6 relative z-10">
+      <div className="container relative z-10 mx-auto px-4 md:px-6">
         {/* Section Header */}
-        <div className="text-center mb-10 md:mb-12">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--primary)]/10 border border-[var(--primary)]/20 mb-4">
-            <Trophy className="w-4 h-4 text-[var(--primary)]" />
-            <span className="text-[var(--primary)] text-sm font-bold">Comparacion</span>
+        <div className="mb-10 text-center md:mb-12">
+          <div className="bg-[var(--primary)]/10 border-[var(--primary)]/20 mb-4 inline-flex items-center gap-2 rounded-full border px-4 py-2">
+            <Trophy className="h-4 w-4 text-[var(--primary)]" />
+            <span className="text-sm font-bold text-[var(--primary)]">Comparacion</span>
           </div>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-white mb-4 md:mb-6">
+          <h2 className="mb-4 text-2xl font-black text-white sm:text-3xl md:mb-6 md:text-4xl lg:text-5xl">
             VetePy vs las alternativas
           </h2>
-          <p className="text-white/60 max-w-xl mx-auto text-sm md:text-base lg:text-lg">
+          <p className="mx-auto max-w-xl text-sm text-white/60 md:text-base lg:text-lg">
             Compara y descubri por que somos la mejor relacion costo-beneficio.
           </p>
         </div>
 
         {/* Mobile View - Cards */}
-        <div className="md:hidden space-y-4 max-w-sm mx-auto">
+        <div className="mx-auto max-w-sm space-y-4 md:hidden">
           {/* VetePy Card */}
-          <div className="p-5 rounded-2xl bg-gradient-to-br from-[var(--primary)]/10 to-[var(--secondary)]/10 border border-[var(--primary)]/30">
-            <div className="flex items-center justify-between mb-4">
+          <div className="from-[var(--primary)]/10 to-[var(--secondary)]/10 border-[var(--primary)]/30 rounded-2xl border bg-gradient-to-br p-5">
+            <div className="mb-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Zap className="w-5 h-5 text-[var(--primary)]" />
-                <span className="text-white font-bold">VetePy</span>
+                <Zap className="h-5 w-5 text-[var(--primary)]" />
+                <span className="font-bold text-white">VetePy</span>
               </div>
-              <span className="px-2 py-1 rounded-full bg-[var(--primary)] text-[var(--bg-dark)] text-[10px] font-bold">
+              <span className="rounded-full bg-[var(--primary)] px-2 py-1 text-[10px] font-bold text-[var(--bg-dark)]">
                 RECOMENDADO
               </span>
             </div>
             <div className="space-y-3">
               <div className="flex justify-between">
-                <span className="text-white/60 text-sm">Costo inicial</span>
-                <span className="text-[var(--primary)] font-bold text-sm">desde ₲0*</span>
+                <span className="text-sm text-white/60">Costo inicial</span>
+                <span className="text-sm font-bold text-[var(--primary)]">desde ₲0*</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-white/60 text-sm">Mensualidad</span>
-                <span className="text-[var(--primary)] font-bold text-sm">desde ₲150K</span>
+                <span className="text-sm text-white/60">Mensualidad</span>
+                <span className="text-sm font-bold text-[var(--primary)]">desde ₲150K</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-white/60 text-sm">Tiempo online</span>
-                <span className="text-white font-bold text-sm">3-7 dias</span>
+                <span className="text-sm text-white/60">Tiempo online</span>
+                <span className="text-sm font-bold text-white">3-7 dias</span>
               </div>
-              <div className="pt-2 border-t border-white/10 space-y-2">
-                {['Sistema de citas', 'Historial medico', 'Portal dueños', 'Soporte incluido'].map((item, idx) => (
-                  <div key={idx} className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-[var(--primary)]" />
-                    <span className="text-white/70 text-sm">{item}</span>
-                  </div>
-                ))}
+              <div className="space-y-2 border-t border-white/10 pt-2">
+                {['Sistema de citas', 'Historial medico', 'Portal dueños', 'Soporte incluido'].map(
+                  (item, idx) => (
+                    <div key={idx} className="flex items-center gap-2">
+                      <Check className="h-4 w-4 text-[var(--primary)]" />
+                      <span className="text-sm text-white/70">{item}</span>
+                    </div>
+                  )
+                )}
               </div>
             </div>
           </div>
 
           {/* Traditional Card */}
-          <div className="p-5 rounded-2xl bg-white/5 border border-white/10">
-            <span className="text-white font-bold block mb-4">Desarrollo Tradicional</span>
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+            <span className="mb-4 block font-bold text-white">Desarrollo Tradicional</span>
             <div className="space-y-3">
               <div className="flex justify-between">
-                <span className="text-white/60 text-sm">Costo inicial</span>
-                <span className="text-red-400 font-bold text-sm">₲5-10M</span>
+                <span className="text-sm text-white/60">Costo inicial</span>
+                <span className="text-sm font-bold text-red-400">₲5-10M</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-white/60 text-sm">Mensualidad</span>
-                <span className="text-red-400 font-bold text-sm">₲300-500K</span>
+                <span className="text-sm text-white/60">Mensualidad</span>
+                <span className="text-sm font-bold text-red-400">₲300-500K</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-white/60 text-sm">Tiempo online</span>
-                <span className="text-white/70 font-bold text-sm">2-4 meses</span>
+                <span className="text-sm text-white/60">Tiempo online</span>
+                <span className="text-sm font-bold text-white/70">2-4 meses</span>
               </div>
-              <div className="pt-2 border-t border-white/10 space-y-2">
-                {['Sistema de citas', 'Historial medico', 'Portal dueños', 'Soporte'].map((item, idx) => (
-                  <div key={idx} className="flex items-center gap-2">
-                    <Minus className="w-4 h-4 text-yellow-400" />
-                    <span className="text-white/50 text-sm">{item} = Extra</span>
-                  </div>
-                ))}
+              <div className="space-y-2 border-t border-white/10 pt-2">
+                {['Sistema de citas', 'Historial medico', 'Portal dueños', 'Soporte'].map(
+                  (item, idx) => (
+                    <div key={idx} className="flex items-center gap-2">
+                      <Minus className="h-4 w-4 text-yellow-400" />
+                      <span className="text-sm text-white/50">{item} = Extra</span>
+                    </div>
+                  )
+                )}
               </div>
             </div>
           </div>
 
           {/* DIY Card */}
-          <div className="p-5 rounded-2xl bg-white/5 border border-white/10">
-            <span className="text-white font-bold block mb-4">Hacerlo Vos Mismo</span>
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+            <span className="mb-4 block font-bold text-white">Hacerlo Vos Mismo</span>
             <div className="space-y-3">
               <div className="flex justify-between">
-                <span className="text-white/60 text-sm">Costo inicial</span>
-                <span className="text-white/70 font-bold text-sm">₲500K-2M</span>
+                <span className="text-sm text-white/60">Costo inicial</span>
+                <span className="text-sm font-bold text-white/70">₲500K-2M</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-white/60 text-sm">Mensualidad</span>
-                <span className="text-white/70 font-bold text-sm">₲100-200K</span>
+                <span className="text-sm text-white/60">Mensualidad</span>
+                <span className="text-sm font-bold text-white/70">₲100-200K</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-white/60 text-sm">Tiempo online</span>
-                <span className="text-white/70 font-bold text-sm">1-3 meses</span>
+                <span className="text-sm text-white/60">Tiempo online</span>
+                <span className="text-sm font-bold text-white/70">1-3 meses</span>
               </div>
-              <div className="pt-2 border-t border-white/10 space-y-2">
-                {['Sistema de citas', 'Historial medico', 'Portal dueños', 'Soporte'].map((item, idx) => (
-                  <div key={idx} className="flex items-center gap-2">
-                    <X className="w-4 h-4 text-red-400" />
-                    <span className="text-white/50 text-sm">{item} = No incluido</span>
-                  </div>
-                ))}
+              <div className="space-y-2 border-t border-white/10 pt-2">
+                {['Sistema de citas', 'Historial medico', 'Portal dueños', 'Soporte'].map(
+                  (item, idx) => (
+                    <div key={idx} className="flex items-center gap-2">
+                      <X className="h-4 w-4 text-red-400" />
+                      <span className="text-sm text-white/50">{item} = No incluido</span>
+                    </div>
+                  )
+                )}
               </div>
             </div>
           </div>
         </div>
 
         {/* Desktop View - Table */}
-        <div className="hidden md:block max-w-4xl mx-auto overflow-x-auto">
+        <div className="mx-auto hidden max-w-4xl overflow-x-auto md:block">
           <table className="w-full">
             <thead>
               <tr>
-                <th className="text-left py-4 px-4 text-white/50 font-medium text-sm">
+                <th className="px-4 py-4 text-left text-sm font-medium text-white/50">
                   Caracteristica
                 </th>
-                <th className="py-4 px-4 text-center">
+                <th className="px-4 py-4 text-center">
                   <div className="inline-flex flex-col items-center gap-1">
-                    <div className="px-3 py-1 rounded-full bg-gradient-to-r from-[var(--primary)] to-[var(--accent)]">
-                      <span className="text-[var(--bg-dark)] font-bold text-sm">VetePy</span>
+                    <div className="rounded-full bg-gradient-to-r from-[var(--primary)] to-[var(--accent)] px-3 py-1">
+                      <span className="text-sm font-bold text-[var(--bg-dark)]">VetePy</span>
                     </div>
-                    <span className="text-[var(--primary)] text-xs">Recomendado</span>
+                    <span className="text-xs text-[var(--primary)]">Recomendado</span>
                   </div>
                 </th>
-                <th className="py-4 px-4 text-center">
+                <th className="px-4 py-4 text-center">
                   <div className="inline-flex flex-col items-center gap-1">
-                    <span className="text-white font-bold text-sm">Desarrollo Tradicional</span>
-                    <span className="text-white/40 text-xs">Agencia/Freelancer</span>
+                    <span className="text-sm font-bold text-white">Desarrollo Tradicional</span>
+                    <span className="text-xs text-white/40">Agencia/Freelancer</span>
                   </div>
                 </th>
-                <th className="py-4 px-4 text-center">
+                <th className="px-4 py-4 text-center">
                   <div className="inline-flex flex-col items-center gap-1">
-                    <span className="text-white font-bold text-sm">Hacerlo Vos Mismo</span>
-                    <span className="text-white/40 text-xs">WordPress/Wix</span>
+                    <span className="text-sm font-bold text-white">Hacerlo Vos Mismo</span>
+                    <span className="text-xs text-white/40">WordPress/Wix</span>
                   </div>
                 </th>
               </tr>
@@ -269,16 +288,14 @@ export function ComparisonTable() {
                   key={idx}
                   className={`border-t border-white/5 ${idx % 2 === 0 ? 'bg-white/[0.02]' : ''}`}
                 >
-                  <td className="py-3 px-4 text-white/70 text-sm">
-                    {row.feature}
-                  </td>
-                  <td className="py-3 px-4 text-center bg-[var(--primary)]/5">
+                  <td className="px-4 py-3 text-sm text-white/70">{row.feature}</td>
+                  <td className="bg-[var(--primary)]/5 px-4 py-3 text-center">
                     <CellValue value={row.vetepy} isVetepy />
                   </td>
-                  <td className="py-3 px-4 text-center">
+                  <td className="px-4 py-3 text-center">
                     <CellValue value={row.traditional} />
                   </td>
-                  <td className="py-3 px-4 text-center">
+                  <td className="px-4 py-3 text-center">
                     <CellValue value={row.diy} />
                   </td>
                 </tr>
@@ -286,77 +303,75 @@ export function ComparisonTable() {
             </tbody>
           </table>
 
-          <p className="text-white/30 text-xs mt-4 text-center">
+          <p className="mt-4 text-center text-xs text-white/30">
             *Configuracion diferida en Plan Semilla
           </p>
         </div>
 
         {/* Bottom Summary - Desktop only */}
-        <div className="hidden md:grid md:grid-cols-3 gap-6 max-w-4xl mx-auto mt-10">
+        <div className="mx-auto mt-10 hidden max-w-4xl gap-6 md:grid md:grid-cols-3">
           {/* VetePy Summary */}
-          <div className="p-5 rounded-2xl bg-gradient-to-br from-[var(--primary)]/10 to-[var(--secondary)]/10 border border-[var(--primary)]/30">
-            <div className="flex items-center gap-2 mb-3">
-              <Zap className="w-5 h-5 text-[var(--primary)]" />
-              <h3 className="text-white font-bold">VetePy</h3>
+          <div className="from-[var(--primary)]/10 to-[var(--secondary)]/10 border-[var(--primary)]/30 rounded-2xl border bg-gradient-to-br p-5">
+            <div className="mb-3 flex items-center gap-2">
+              <Zap className="h-5 w-5 text-[var(--primary)]" />
+              <h3 className="font-bold text-white">VetePy</h3>
             </div>
-            <p className="text-white/60 text-sm mb-4">
+            <p className="mb-4 text-sm text-white/60">
               Resultados rapidos sin complicaciones tecnicas.
             </p>
             <ul className="space-y-2 text-sm">
               <li className="flex items-center gap-2 text-[var(--primary)]">
-                <Check className="w-4 h-4" />
+                <Check className="h-4 w-4" />
                 Listo en dias
               </li>
               <li className="flex items-center gap-2 text-[var(--primary)]">
-                <Check className="w-4 h-4" />
+                <Check className="h-4 w-4" />
                 Todo incluido
               </li>
               <li className="flex items-center gap-2 text-[var(--primary)]">
-                <Check className="w-4 h-4" />
+                <Check className="h-4 w-4" />
                 Sin dolores de cabeza
               </li>
             </ul>
           </div>
 
           {/* Traditional Summary */}
-          <div className="p-5 rounded-2xl bg-white/5 border border-white/10">
-            <h3 className="text-white font-bold mb-3">Desarrollo Tradicional</h3>
-            <p className="text-white/60 text-sm mb-4">
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+            <h3 className="mb-3 font-bold text-white">Desarrollo Tradicional</h3>
+            <p className="mb-4 text-sm text-white/60">
               Requiere presupuesto grande y tiempo para esperar.
             </p>
             <ul className="space-y-2 text-sm">
               <li className="flex items-center gap-2 text-yellow-400">
-                <Minus className="w-4 h-4" />
+                <Minus className="h-4 w-4" />
                 Costo alto inicial
               </li>
               <li className="flex items-center gap-2 text-yellow-400">
-                <Minus className="w-4 h-4" />
+                <Minus className="h-4 w-4" />
                 Meses de desarrollo
               </li>
               <li className="flex items-center gap-2 text-yellow-400">
-                <Minus className="w-4 h-4" />
+                <Minus className="h-4 w-4" />
                 Extras cuestan mas
               </li>
             </ul>
           </div>
 
           {/* DIY Summary */}
-          <div className="p-5 rounded-2xl bg-white/5 border border-white/10">
-            <h3 className="text-white font-bold mb-3">Hacerlo Vos Mismo</h3>
-            <p className="text-white/60 text-sm mb-4">
-              Necesitas tiempo y conocimientos tecnicos.
-            </p>
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+            <h3 className="mb-3 font-bold text-white">Hacerlo Vos Mismo</h3>
+            <p className="mb-4 text-sm text-white/60">Necesitas tiempo y conocimientos tecnicos.</p>
             <ul className="space-y-2 text-sm">
               <li className="flex items-center gap-2 text-red-400">
-                <X className="w-4 h-4" />
+                <X className="h-4 w-4" />
                 Requiere tu tiempo
               </li>
               <li className="flex items-center gap-2 text-red-400">
-                <X className="w-4 h-4" />
+                <X className="h-4 w-4" />
                 Resultado amateur
               </li>
               <li className="flex items-center gap-2 text-red-400">
-                <X className="w-4 h-4" />
+                <X className="h-4 w-4" />
                 Sin sistema de gestion
               </li>
             </ul>
@@ -364,16 +379,16 @@ export function ComparisonTable() {
         </div>
 
         {/* CTA */}
-        <div className="text-center mt-10">
+        <div className="mt-10 text-center">
           <a
             href="#precios"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[var(--primary)] to-[var(--accent)] text-[var(--bg-dark)] font-bold rounded-full hover:shadow-lg hover:shadow-[var(--primary)]/20 transition-all text-sm md:text-base"
+            className="hover:shadow-[var(--primary)]/20 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[var(--primary)] to-[var(--accent)] px-6 py-3 text-sm font-bold text-[var(--bg-dark)] transition-all hover:shadow-lg md:text-base"
           >
             Ver Precios de VetePy
-            <ArrowRight className="w-4 h-4 md:w-5 md:h-5" />
+            <ArrowRight className="h-4 w-4 md:h-5 md:w-5" />
           </a>
         </div>
       </div>
     </section>
-  );
+  )
 }

@@ -8,44 +8,44 @@
  * 4. Data persistence and mapping
  */
 
-import { describe, test, expect, beforeAll, afterAll } from 'vitest';
-import { getTestClient, cleanupTestData, seedTenants } from '@/tests/__helpers__/db';
-import { createProfile, createPet, buildProfile, buildPet } from '@/tests/__helpers__/factories';
+import { describe, test, expect, beforeAll, afterAll } from 'vitest'
+import { getTestClient, cleanupTestData, seedTenants } from '@/tests/__helpers__/db'
+import { createProfile, createPet, buildProfile, buildPet } from '@/tests/__helpers__/factories'
 
 describe('Core Entity Flow', () => {
   // Track IDs for cleanup
   const cleanupIds: Record<string, string[]> = {
     profiles: [],
     pets: [],
-  };
+  }
 
-  const client = getTestClient();
+  const client = getTestClient()
 
   beforeAll(async () => {
     // Ensure tenants exist
-    await seedTenants();
-  });
+    await seedTenants()
+  })
 
   afterAll(async () => {
-    await cleanupTestData(cleanupIds);
-  });
+    await cleanupTestData(cleanupIds)
+  })
 
   describe('Clinic Setup', () => {
     test('verifies default clinic (adris) exists', async () => {
       // Use service role to verify data existence regardless of RLS
-      const adminClient = getTestClient({ serviceRole: true });
+      const adminClient = getTestClient({ serviceRole: true })
       const { data, error } = await adminClient
         .from('tenants')
         .select('id, name')
         .eq('id', 'adris')
-        .single();
+        .single()
 
-      expect(error).toBeNull();
-      expect(data).toBeDefined();
-      expect(data?.id).toBe('adris');
-      expect(data?.name).toBe('Veterinaria Adris');
-    });
-  });
+      expect(error).toBeNull()
+      expect(data).toBeDefined()
+      expect(data?.id).toBe('adris')
+      expect(data?.name).toBe('Veterinaria Adris')
+    })
+  })
 
   describe('Owner Registration Mapping', () => {
     test('creates owner profile correctly mapped to tenant', async () => {
@@ -53,36 +53,36 @@ describe('Core Entity Flow', () => {
         tenantId: 'adris',
         role: 'owner',
         fullName: 'Integration Test Owner',
-      });
+      })
 
       // 1. Create Profile
-      const profile = await createProfile(profileData);
-      cleanupIds.profiles.push(profile.id);
+      const profile = await createProfile(profileData)
+      cleanupIds.profiles.push(profile.id)
 
-      expect(profile.id).toBeDefined();
-      expect(profile.tenantId).toBe('adris');
-      expect(profile.role).toBe('owner');
-      expect(profile.fullName).toBe(profileData.fullName);
+      expect(profile.id).toBeDefined()
+      expect(profile.tenantId).toBe('adris')
+      expect(profile.role).toBe('owner')
+      expect(profile.fullName).toBe(profileData.fullName)
 
       // 2. Verify persistence (Using Admin Client to bypass RLS)
-      const adminClient = getTestClient({ serviceRole: true });
+      const adminClient = getTestClient({ serviceRole: true })
       const { data: storedProfile, error } = await adminClient
         .from('profiles')
         .select('*')
         .eq('id', profile.id)
-        .single();
+        .single()
 
-      expect(error).toBeNull();
-      expect(storedProfile.tenant_id).toBe('adris');
-      expect(storedProfile.full_name).toBe(profileData.fullName);
-    });
-  });
+      expect(error).toBeNull()
+      expect(storedProfile.tenant_id).toBe('adris')
+      expect(storedProfile.full_name).toBe(profileData.fullName)
+    })
+  })
 
   describe('Pet Creation & Association', () => {
     test('creates pet with full fields mapped to owner and tenant', async () => {
       // 1. Setup Owner
-      const owner = await createProfile({ tenantId: 'adris', role: 'owner' });
-      cleanupIds.profiles.push(owner.id);
+      const owner = await createProfile({ tenantId: 'adris', role: 'owner' })
+      cleanupIds.profiles.push(owner.id)
 
       // 2. Prepare Pet Data with ALL fields
       const petData = buildPet({
@@ -100,73 +100,73 @@ describe('Core Entity Flow', () => {
         allergies: 'Chicken',
         existingConditions: 'Arthritis',
         notes: 'Very good girl',
-      });
+      })
 
       // 3. Create Pet
-      const pet = await createPet(petData);
-      cleanupIds.pets.push(pet.id);
+      const pet = await createPet(petData)
+      cleanupIds.pets.push(pet.id)
 
       // 4. Verify Object Return
-      expect(pet.id).toBeDefined();
-      expect(pet.ownerId).toBe(owner.id);
-      expect(pet.tenantId).toBe('adris');
-      expect(pet.microchipId).toBe('CHIP-123456789');
+      expect(pet.id).toBeDefined()
+      expect(pet.ownerId).toBe(owner.id)
+      expect(pet.tenantId).toBe('adris')
+      expect(pet.microchipId).toBe('CHIP-123456789')
 
       // 5. Verify Persistence & Field Mapping (Using Admin Client)
-      const adminClient = getTestClient({ serviceRole: true });
+      const adminClient = getTestClient({ serviceRole: true })
       const { data: storedPet, error } = await adminClient
         .from('pets')
         .select('*')
         .eq('id', pet.id)
-        .single();
+        .single()
 
-      expect(error).toBeNull();
+      expect(error).toBeNull()
       // Core Foreign Keys
-      expect(storedPet.owner_id).toBe(owner.id);
-      expect(storedPet.tenant_id).toBe('adris');
-      
+      expect(storedPet.owner_id).toBe(owner.id)
+      expect(storedPet.tenant_id).toBe('adris')
+
       // Core Identify Fields
-      expect(storedPet.name).toBe('CoreFlow Pet');
-      expect(storedPet.species).toBe('dog');
-      
+      expect(storedPet.name).toBe('CoreFlow Pet')
+      expect(storedPet.species).toBe('dog')
+
       // Expanded Fields
-      expect(storedPet.weight_kg).toBe(25.5);
-      expect(storedPet.microchip_number).toBe('CHIP-123456789');
-      expect(storedPet.diet_category).toBe('balanced');
-      expect(storedPet.diet_notes).toBe('Sensitive stomach');
-      expect(storedPet.allergies).toContain('Chicken');
-      expect(storedPet.chronic_conditions).toContain('Arthritis');
-    });
+      expect(storedPet.weight_kg).toBe(25.5)
+      expect(storedPet.microchip_number).toBe('CHIP-123456789')
+      expect(storedPet.diet_category).toBe('balanced')
+      expect(storedPet.diet_notes).toBe('Sensitive stomach')
+      expect(storedPet.allergies).toContain('Chicken')
+      expect(storedPet.chronic_conditions).toContain('Arthritis')
+    })
 
     test('enforces RLS: anon users cannot see pets', async () => {
-       // 1. Setup Owner and Pet
-       const ownerA = await createProfile({ tenantId: 'adris' });
-       cleanupIds.profiles.push(ownerA.id);
+      // 1. Setup Owner and Pet
+      const ownerA = await createProfile({ tenantId: 'adris' })
+      cleanupIds.profiles.push(ownerA.id)
 
-       const petA = await createPet({ ownerId: ownerA.id, tenantId: 'adris' });
-       cleanupIds.pets.push(petA.id);
+      const petA = await createPet({ ownerId: ownerA.id, tenantId: 'adris' })
+      cleanupIds.pets.push(petA.id)
 
-       // 2. Verify Admin CAN see it
-       const adminClient = getTestClient({ serviceRole: true });
-       const { data: adminCheck } = await adminClient
-         .from('pets')
-         .select('id, owner_id')
-         .eq('id', petA.id)
-         .single();
-       expect(adminCheck).toBeDefined();
+      // 2. Verify Admin CAN see it
+      const adminClient = getTestClient({ serviceRole: true })
+      const { data: adminCheck } = await adminClient
+        .from('pets')
+        .select('id, owner_id')
+        .eq('id', petA.id)
+        .single()
+      expect(adminCheck).toBeDefined()
 
-       // 3. Verify Anon CANNOT see it
-       const anonClient = getTestClient();
-       const { data: anonCheck, error } = await anonClient
-         .from('pets')
-         .select('id, owner_id')
-         .eq('id', petA.id)
-         .single();
-         
-       // Expect error (PGRST116: JSON object requested, multiple (or no) rows returned)
-       // Or just null data
-       expect(anonCheck).toBeNull();
-       expect(error).toBeDefined();
-    });
-  });
-});
+      // 3. Verify Anon CANNOT see it
+      const anonClient = getTestClient()
+      const { data: anonCheck, error } = await anonClient
+        .from('pets')
+        .select('id, owner_id')
+        .eq('id', petA.id)
+        .single()
+
+      // Expect error (PGRST116: JSON object requested, multiple (or no) rows returned)
+      // Or just null data
+      expect(anonCheck).toBeNull()
+      expect(error).toBeDefined()
+    })
+  })
+})

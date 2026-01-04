@@ -1,39 +1,51 @@
-
-import { getClinicData } from '@/lib/clinics';
-import { notFound } from 'next/navigation';
-import { headers } from 'next/headers';
-import { ClinicThemeProvider } from '@/components/clinic-theme-provider';
-import { Metadata } from 'next';
-import Link from 'next/link';
-import Image from 'next/image';
-import { MainNav } from '@/components/layout/main-nav';
-import { ToastProvider } from '@/components/ui/Toast';
-import { CartProvider } from '@/context/cart-context';
-import { CartLayoutWrapper } from '@/components/cart/cart-layout-wrapper';
+import { getClinicData } from '@/lib/clinics'
+import { notFound } from 'next/navigation'
+import { headers } from 'next/headers'
+import { ClinicThemeProvider } from '@/components/clinic-theme-provider'
+import { Metadata } from 'next'
+import Link from 'next/link'
+import Image from 'next/image'
+import { MainNav } from '@/components/layout/main-nav'
+import { ToastProvider } from '@/components/ui/Toast'
+import { CartProvider } from '@/context/cart-context'
+import { CartLayoutWrapper } from '@/components/cart/cart-layout-wrapper'
 // Note: CommandPaletteProvider moved to portal/dashboard layouts
 // Note: WishlistProvider moved to store layout
-import { createClient } from '@/lib/supabase/server';
-import { Facebook, Instagram, Youtube, MapPin, Phone, Mail, Clock, MessageCircle } from 'lucide-react';
-import { FooterLogo } from '@/components/layout/footer-logo';
-import { Copyright } from '@/components/ui/copyright';
-import { NewsletterForm } from '@/components/layout/newsletter-form';
-import { NextIntlClientProvider } from 'next-intl';
-import { getMessages, getLocale } from 'next-intl/server';
+import { createClient } from '@/lib/supabase/server'
+import {
+  Facebook,
+  Instagram,
+  Youtube,
+  MapPin,
+  Phone,
+  Mail,
+  Clock,
+  MessageCircle,
+} from 'lucide-react'
+import { FooterLogo } from '@/components/layout/footer-logo'
+import { Copyright } from '@/components/ui/copyright'
+import { NewsletterForm } from '@/components/layout/newsletter-form'
+import { NextIntlClientProvider } from 'next-intl'
+import { getMessages, getLocale } from 'next-intl/server'
 
-const BASE_URL = 'https://vetepy.vercel.app';
+const BASE_URL = 'https://vetepy.vercel.app'
 
 // Generate metadata dynamically with full SEO support
-export async function generateMetadata({ params }: { params: Promise<{ clinic: string }> }): Promise<Metadata> {
-  const { clinic } = await params;
-  const data = await getClinicData(clinic);
-  if (!data) return { title: 'Clinic Not Found' };
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ clinic: string }>
+}): Promise<Metadata> {
+  const { clinic } = await params
+  const data = await getClinicData(clinic)
+  if (!data) return { title: 'Clinic Not Found' }
 
-  const { config, home } = data;
-  const seo = home?.seo;
-  const title = seo?.meta_title || config.name;
-  const description = seo?.meta_description || `Bienvenido a ${config.name}`;
-  const ogImage = config.branding?.og_image_url || '/branding/default-og.jpg';
-  const canonicalUrl = `${BASE_URL}/${clinic}`;
+  const { config, home } = data
+  const seo = home?.seo
+  const title = seo?.meta_title || config.name
+  const description = seo?.meta_description || `Bienvenido a ${config.name}`
+  const ogImage = config.branding?.og_image_url || '/branding/default-og.jpg'
+  const canonicalUrl = `${BASE_URL}/${clinic}`
 
   return {
     title,
@@ -82,48 +94,51 @@ export async function generateMetadata({ params }: { params: Promise<{ clinic: s
         'max-snippet': -1,
       },
     },
-  };
+  }
 }
 
 // Generate LocalBusiness/VeterinaryCare structured data
-function generateStructuredData(clinic: string, config: {
-  name: string;
-  tagline?: string;
-  contact: {
-    phone_display: string;
-    whatsapp_number: string;
-    email: string;
-    address: string;
-    city?: string;
-    country?: string;
-    coordinates?: { lat: number; lng: number };
-    google_maps_id?: string;
-  };
-  hours?: { weekdays?: string; saturday?: string; sunday?: string };
-  branding?: { logo_url?: string; og_image_url?: string };
-  social?: { facebook?: string; instagram?: string };
-}) {
-  const { contact, hours, branding, social } = config;
+function generateStructuredData(
+  clinic: string,
+  config: {
+    name: string
+    tagline?: string
+    contact: {
+      phone_display: string
+      whatsapp_number: string
+      email: string
+      address: string
+      city?: string
+      country?: string
+      coordinates?: { lat: number; lng: number }
+      google_maps_id?: string
+    }
+    hours?: { weekdays?: string; saturday?: string; sunday?: string }
+    branding?: { logo_url?: string; og_image_url?: string }
+    social?: { facebook?: string; instagram?: string }
+  }
+) {
+  const { contact, hours, branding, social } = config
 
   // Parse opening hours for schema
-  const openingHours = [];
+  const openingHours = []
   if (hours?.weekdays) {
-    const [open, close] = hours.weekdays.split(' - ');
+    const [open, close] = hours.weekdays.split(' - ')
     openingHours.push({
       '@type': 'OpeningHoursSpecification',
       dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
       opens: open,
       closes: close,
-    });
+    })
   }
   if (hours?.saturday) {
-    const [open, close] = hours.saturday.split(' - ');
+    const [open, close] = hours.saturday.split(' - ')
     openingHours.push({
       '@type': 'OpeningHoursSpecification',
       dayOfWeek: 'Saturday',
       opens: open,
       closes: close,
-    });
+    })
   }
 
   return {
@@ -143,16 +158,15 @@ function generateStructuredData(clinic: string, config: {
       addressLocality: contact.city || 'Asunción',
       addressCountry: contact.country || 'PY',
     },
-    geo: contact.coordinates ? {
-      '@type': 'GeoCoordinates',
-      latitude: contact.coordinates.lat,
-      longitude: contact.coordinates.lng,
-    } : undefined,
+    geo: contact.coordinates
+      ? {
+          '@type': 'GeoCoordinates',
+          latitude: contact.coordinates.lat,
+          longitude: contact.coordinates.lng,
+        }
+      : undefined,
     openingHoursSpecification: openingHours,
-    sameAs: [
-      social?.facebook,
-      social?.instagram,
-    ].filter(Boolean),
+    sameAs: [social?.facebook, social?.instagram].filter(Boolean),
     hasMap: contact.google_maps_id
       ? `https://www.google.com/maps/place/?q=place_id:${contact.google_maps_id}`
       : undefined,
@@ -169,7 +183,7 @@ function generateStructuredData(clinic: string, config: {
       'Surgery',
       'Diagnostic Imaging',
     ],
-  };
+  }
 }
 
 // Note: generateStaticParams removed to allow dynamic rendering
@@ -180,35 +194,37 @@ export default async function ClinicLayout({
   children,
   params,
 }: {
-  children: React.ReactNode;
-  params: Promise<{ clinic: string }>;
+  children: React.ReactNode
+  params: Promise<{ clinic: string }>
 }) {
-  const { clinic } = await params;
-  const data = await getClinicData(clinic);
+  const { clinic } = await params
+  const data = await getClinicData(clinic)
 
   if (!data) {
-    notFound();
+    notFound()
   }
 
-  const { config } = data;
-  const footerLabels = config.ui_labels?.footer || {};
+  const { config } = data
+  const footerLabels = config.ui_labels?.footer || {}
 
   // Check if user is logged in for cart UI
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  const isLoggedIn = !!user;
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  const isLoggedIn = !!user
 
   // Detect if we're on a dashboard route (staff area) to hide public header/footer
-  const headersList = await headers();
-  const pathname = headersList.get('x-pathname') || '';
-  const isDashboardRoute = pathname.includes('/dashboard');
+  const headersList = await headers()
+  const pathname = headersList.get('x-pathname') || ''
+  const isDashboardRoute = pathname.includes('/dashboard')
 
   // Generate structured data for SEO
-  const structuredData = generateStructuredData(clinic, config);
+  const structuredData = generateStructuredData(clinic, config)
 
   // Fetch i18n data
-  const locale = await getLocale();
-  const messages = await getMessages();
+  const locale = await getLocale()
+  const messages = await getMessages()
 
   // Dashboard routes get a minimal layout (no public header/footer)
   if (isDashboardRoute) {
@@ -216,21 +232,21 @@ export default async function ClinicLayout({
       <ToastProvider>
         <CartProvider>
           <NextIntlClientProvider locale={locale} messages={messages}>
-            <div className="min-h-screen font-sans bg-[var(--bg-subtle)] text-[var(--text-main)] font-body">
+            <div className="font-body min-h-screen bg-[var(--bg-subtle)] font-sans text-[var(--text-main)]">
               <ClinicThemeProvider theme={data.theme} />
               {children}
             </div>
           </NextIntlClientProvider>
         </CartProvider>
       </ToastProvider>
-    );
+    )
   }
 
   return (
     <ToastProvider>
       <CartProvider>
         <NextIntlClientProvider locale={locale} messages={messages}>
-          <div className="min-h-screen font-sans bg-[var(--bg-default)] text-[var(--text-main)] font-body flex flex-col">
+          <div className="font-body flex min-h-screen flex-col bg-[var(--bg-default)] font-sans text-[var(--text-main)]">
             <ClinicThemeProvider theme={data.theme} />
 
             {/* JSON-LD Structured Data for SEO */}
@@ -245,11 +261,14 @@ export default async function ClinicLayout({
             </a>
 
             {/* Header */}
-            <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm" role="banner">
+            <header
+              className="bg-[var(--bg-default)]/95 sticky top-0 z-50 w-full border-b border-[var(--border)] shadow-sm backdrop-blur-md"
+              role="banner"
+            >
               <div className="container mx-auto flex h-20 items-center justify-between px-4 md:px-6">
                 <Link
                   href={`/${clinic}`}
-                  className="flex items-center gap-3 font-heading font-black text-2xl uppercase tracking-widest text-[var(--primary)] hover:opacity-80 transition-opacity"
+                  className="font-heading flex items-center gap-3 text-2xl font-black uppercase tracking-widest text-[var(--primary)] transition-opacity hover:opacity-80"
                 >
                   {config.branding?.logo_url ? (
                     <Image
@@ -257,7 +276,7 @@ export default async function ClinicLayout({
                       alt={`${config.name} Logo`}
                       width={config.branding.logo_width || 150}
                       height={config.branding.logo_height || 56}
-                      className="object-contain max-h-14 w-auto"
+                      className="max-h-14 w-auto object-contain"
                       priority
                     />
                   ) : (
@@ -273,23 +292,26 @@ export default async function ClinicLayout({
             </main>
 
             {/* Footer - Enhanced */}
-            <footer className="bg-[var(--bg-dark,#1a1a1a)] text-white relative overflow-hidden" role="contentinfo">
+            <footer
+              className="relative overflow-hidden bg-[var(--bg-dark,#1a1a1a)] text-white"
+              role="contentinfo"
+            >
               {/* Decorative top border */}
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[var(--primary)] via-[var(--accent)] to-[var(--primary)]" aria-hidden="true" />
+              <div
+                className="absolute left-0 top-0 h-1 w-full bg-gradient-to-r from-[var(--primary)] via-[var(--accent)] to-[var(--primary)]"
+                aria-hidden="true"
+              />
 
-              <div className="container mx-auto px-4 md:px-6 py-16">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-8">
-
+              <div className="container mx-auto px-4 py-16 md:px-6">
+                <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-5 lg:gap-8">
                   {/* Brand Column */}
                   <div className="lg:col-span-1">
-                    <FooterLogo 
+                    <FooterLogo
                       clinic={clinic}
                       logoUrl={config.branding?.logo_dark_url}
                       name={config.name}
                     />
-                    <p className="text-gray-400 text-sm leading-relaxed mb-6">
-                      {config.tagline}
-                    </p>
+                    <p className="mb-6 text-sm leading-relaxed text-gray-400">{config.tagline}</p>
 
                     {/* Social Links */}
                     <div className="flex gap-3">
@@ -298,10 +320,10 @@ export default async function ClinicLayout({
                           href={config.social.facebook}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-[var(--primary)] transition-colors"
+                          className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 transition-colors hover:bg-[var(--primary)]"
                           aria-label="Facebook"
                         >
-                          <Facebook className="w-5 h-5" />
+                          <Facebook className="h-5 w-5" />
                         </a>
                       )}
                       {config.social?.instagram && (
@@ -309,10 +331,10 @@ export default async function ClinicLayout({
                           href={config.social.instagram}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-[var(--primary)] transition-colors"
+                          className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 transition-colors hover:bg-[var(--primary)]"
                           aria-label="Instagram"
                         >
-                          <Instagram className="w-5 h-5" />
+                          <Instagram className="h-5 w-5" />
                         </a>
                       )}
                       {config.social?.youtube && (
@@ -320,10 +342,10 @@ export default async function ClinicLayout({
                           href={config.social.youtube}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-[var(--primary)] transition-colors"
+                          className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 transition-colors hover:bg-[var(--primary)]"
                           aria-label="YouTube"
                         >
-                          <Youtube className="w-5 h-5" />
+                          <Youtube className="h-5 w-5" />
                         </a>
                       )}
                       {config.social?.tiktok && (
@@ -331,10 +353,10 @@ export default async function ClinicLayout({
                           href={config.social.tiktok}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-[var(--primary)] transition-colors"
+                          className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 transition-colors hover:bg-[var(--primary)]"
                           aria-label="TikTok"
                         >
-                          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-1-.05A6.33 6.33 0 005 20.1a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-1-.1z" />
                           </svg>
                         </a>
@@ -344,10 +366,10 @@ export default async function ClinicLayout({
                           href={`https://wa.me/${config.contact.whatsapp_number}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center hover:bg-green-600 transition-colors"
+                          className="flex h-10 w-10 items-center justify-center rounded-full bg-green-500 transition-colors hover:bg-green-600"
                           aria-label="WhatsApp"
                         >
-                          <MessageCircle className="w-5 h-5" />
+                          <MessageCircle className="h-5 w-5" />
                         </a>
                       )}
                     </div>
@@ -355,37 +377,58 @@ export default async function ClinicLayout({
 
                   {/* Quick Links */}
                   <nav aria-labelledby="footer-quick-links">
-                    <h4 id="footer-quick-links" className="font-bold text-white mb-6 text-sm uppercase tracking-wider">
+                    <h4
+                      id="footer-quick-links"
+                      className="mb-6 text-sm font-bold uppercase tracking-wider text-white"
+                    >
                       Enlaces Rápidos
                     </h4>
                     <ul className="space-y-3">
                       <li>
-                        <Link href={`/${clinic}`} className="text-gray-400 hover:text-white transition-colors text-sm">
+                        <Link
+                          href={`/${clinic}`}
+                          className="text-sm text-gray-400 transition-colors hover:text-white"
+                        >
                           Inicio
                         </Link>
                       </li>
                       <li>
-                        <Link href={`/${clinic}/services`} className="text-gray-400 hover:text-white transition-colors text-sm">
+                        <Link
+                          href={`/${clinic}/services`}
+                          className="text-sm text-gray-400 transition-colors hover:text-white"
+                        >
                           Servicios
                         </Link>
                       </li>
                       <li>
-                        <Link href={`/${clinic}/about`} className="text-gray-400 hover:text-white transition-colors text-sm">
+                        <Link
+                          href={`/${clinic}/about`}
+                          className="text-sm text-gray-400 transition-colors hover:text-white"
+                        >
                           Nosotros
                         </Link>
                       </li>
                       <li>
-                        <Link href={`/${clinic}/store`} className="text-gray-400 hover:text-white transition-colors text-sm">
+                        <Link
+                          href={`/${clinic}/store`}
+                          className="text-sm text-gray-400 transition-colors hover:text-white"
+                        >
                           Tienda
                         </Link>
                       </li>
                       <li>
-                        <Link href={`/${clinic}/faq`} className="text-gray-400 hover:text-white transition-colors text-sm">
+                        <Link
+                          href={`/${clinic}/faq`}
+                          className="text-sm text-gray-400 transition-colors hover:text-white"
+                        >
                           Preguntas Frecuentes
                         </Link>
                       </li>
                       <li>
-                        <Link href={`/${clinic}/portal/login`} className="text-gray-400 hover:text-white transition-colors text-sm">
+                        <Link
+                          href={`/${clinic}/portal/login`}
+                          className="text-sm text-gray-400 transition-colors hover:text-white"
+                        >
                           Portal de Dueños
                         </Link>
                       </li>
@@ -394,27 +437,42 @@ export default async function ClinicLayout({
 
                   {/* Tools Section */}
                   <nav aria-labelledby="footer-tools">
-                    <h4 id="footer-tools" className="font-bold text-white mb-6 text-sm uppercase tracking-wider">
+                    <h4
+                      id="footer-tools"
+                      className="mb-6 text-sm font-bold uppercase tracking-wider text-white"
+                    >
                       Herramientas
                     </h4>
                     <ul className="space-y-3">
                       <li>
-                        <Link href={`/${clinic}/tools/age-calculator`} className="text-gray-400 hover:text-white transition-colors text-sm">
+                        <Link
+                          href={`/${clinic}/tools/age-calculator`}
+                          className="text-sm text-gray-400 transition-colors hover:text-white"
+                        >
                           Calculadora de Edad
                         </Link>
                       </li>
                       <li>
-                        <Link href={`/${clinic}/tools/toxic-food`} className="text-gray-400 hover:text-white transition-colors text-sm">
+                        <Link
+                          href={`/${clinic}/tools/toxic-food`}
+                          className="text-sm text-gray-400 transition-colors hover:text-white"
+                        >
                           Alimentos Tóxicos
                         </Link>
                       </li>
                       <li>
-                        <Link href={`/${clinic}/book`} className="text-gray-400 hover:text-white transition-colors text-sm">
+                        <Link
+                          href={`/${clinic}/book`}
+                          className="text-sm text-gray-400 transition-colors hover:text-white"
+                        >
                           Agendar Cita
                         </Link>
                       </li>
                       <li>
-                        <Link href={`/${clinic}/loyalty_points`} className="text-gray-400 hover:text-white transition-colors text-sm">
+                        <Link
+                          href={`/${clinic}/loyalty_points`}
+                          className="text-sm text-gray-400 transition-colors hover:text-white"
+                        >
                           Programa de Lealtad
                         </Link>
                       </li>
@@ -423,23 +481,41 @@ export default async function ClinicLayout({
 
                   {/* Contact Info */}
                   <div aria-labelledby="footer-contact">
-                    <h4 id="footer-contact" className="font-bold text-white mb-6 text-sm uppercase tracking-wider">
+                    <h4
+                      id="footer-contact"
+                      className="mb-6 text-sm font-bold uppercase tracking-wider text-white"
+                    >
                       {footerLabels.contact_us || 'Contacto'}
                     </h4>
                     <ul className="space-y-4">
                       <li className="flex items-start gap-3">
-                        <MapPin className="w-5 h-5 text-[var(--primary)] flex-shrink-0 mt-0.5" aria-hidden="true" />
-                        <span className="text-gray-400 text-sm">{config.contact.address}</span>
+                        <MapPin
+                          className="mt-0.5 h-5 w-5 flex-shrink-0 text-[var(--primary)]"
+                          aria-hidden="true"
+                        />
+                        <span className="text-sm text-gray-400">{config.contact.address}</span>
                       </li>
                       <li className="flex items-center gap-3">
-                        <Phone className="w-5 h-5 text-[var(--primary)] flex-shrink-0" aria-hidden="true" />
-                        <a href={`tel:${config.contact.whatsapp_number}`} className="text-gray-400 hover:text-white transition-colors text-sm">
+                        <Phone
+                          className="h-5 w-5 flex-shrink-0 text-[var(--primary)]"
+                          aria-hidden="true"
+                        />
+                        <a
+                          href={`tel:${config.contact.whatsapp_number}`}
+                          className="text-sm text-gray-400 transition-colors hover:text-white"
+                        >
                           {config.contact.phone_display}
                         </a>
                       </li>
                       <li className="flex items-center gap-3">
-                        <Mail className="w-5 h-5 text-[var(--primary)] flex-shrink-0" aria-hidden="true" />
-                        <a href={`mailto:${config.contact.email}`} className="text-gray-400 hover:text-white transition-colors text-sm">
+                        <Mail
+                          className="h-5 w-5 flex-shrink-0 text-[var(--primary)]"
+                          aria-hidden="true"
+                        />
+                        <a
+                          href={`mailto:${config.contact.email}`}
+                          className="text-sm text-gray-400 transition-colors hover:text-white"
+                        >
                           {config.contact.email}
                         </a>
                       </li>
@@ -448,40 +524,58 @@ export default async function ClinicLayout({
 
                   {/* Hours */}
                   <div aria-labelledby="footer-hours">
-                    <h4 id="footer-hours" className="font-bold text-white mb-6 text-sm uppercase tracking-wider">
+                    <h4
+                      id="footer-hours"
+                      className="mb-6 text-sm font-bold uppercase tracking-wider text-white"
+                    >
                       Horarios
                     </h4>
                     <ul className="space-y-3">
                       <li className="flex items-center gap-3">
-                        <Clock className="w-5 h-5 text-[var(--primary)] flex-shrink-0" aria-hidden="true" />
+                        <Clock
+                          className="h-5 w-5 flex-shrink-0 text-[var(--primary)]"
+                          aria-hidden="true"
+                        />
                         <div className="text-sm">
-                          <p className="text-white font-medium">Lun - Vie</p>
-                          <p className="text-gray-400">{config.hours?.weekdays || '8:00 - 18:00'}</p>
+                          <p className="font-medium text-white">Lun - Vie</p>
+                          <p className="text-gray-400">
+                            {config.hours?.weekdays || '8:00 - 18:00'}
+                          </p>
                         </div>
                       </li>
                       <li className="flex items-center gap-3">
-                        <Clock className="w-5 h-5 text-[var(--primary)] flex-shrink-0" aria-hidden="true" />
+                        <Clock
+                          className="h-5 w-5 flex-shrink-0 text-[var(--primary)]"
+                          aria-hidden="true"
+                        />
                         <div className="text-sm">
-                          <p className="text-white font-medium">Sábados</p>
-                          <p className="text-gray-400">{config.hours?.saturday || '8:00 - 12:00'}</p>
+                          <p className="font-medium text-white">Sábados</p>
+                          <p className="text-gray-400">
+                            {config.hours?.saturday || '8:00 - 12:00'}
+                          </p>
                         </div>
                       </li>
                       <li className="flex items-center gap-3">
-                        <div className="w-5 h-5 flex-shrink-0 flex items-center justify-center">
-                          <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" aria-hidden="true" />
+                        <div className="flex h-5 w-5 flex-shrink-0 items-center justify-center">
+                          <span
+                            className="h-2 w-2 animate-pulse rounded-full bg-green-500"
+                            aria-hidden="true"
+                          />
                         </div>
                         <div className="text-sm">
-                          <p className="text-[var(--accent)] font-bold">Urgencias 24hs</p>
+                          <p className="font-bold text-[var(--accent)]">Urgencias 24hs</p>
                           <p className="text-gray-400">Todos los días</p>
                         </div>
                       </li>
                     </ul>
                   </div>
-
                 </div>
 
                 {/* Newsletter Section - Client-only to prevent hydration mismatch from browser extensions */}
-                <section aria-labelledby="newsletter-heading" className="mt-12 p-8 rounded-2xl bg-gradient-to-r from-[var(--primary)]/20 to-[var(--accent)]/20 border border-white/10">
+                <section
+                  aria-labelledby="newsletter-heading"
+                  className="from-[var(--primary)]/20 to-[var(--accent)]/20 mt-12 rounded-2xl border border-white/10 bg-gradient-to-r p-8"
+                >
                   <NewsletterForm
                     clinic={clinic}
                     title={footerLabels.newsletter_title}
@@ -491,16 +585,22 @@ export default async function ClinicLayout({
                 </section>
 
                 {/* Bottom Bar */}
-                <div className="mt-8 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
+                <div className="mt-8 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 md:flex-row">
                   <Copyright
                     companyName={config.name}
                     rightsText={footerLabels.rights || 'Todos los derechos reservados.'}
                   />
                   <div className="flex gap-6 text-sm">
-                    <Link href={`/${clinic}/privacy`} className="text-gray-500 hover:text-white transition-colors">
+                    <Link
+                      href={`/${clinic}/privacy`}
+                      className="text-gray-500 transition-colors hover:text-white"
+                    >
                       {footerLabels.privacy || 'Privacidad'}
                     </Link>
-                    <Link href={`/${clinic}/terms`} className="text-gray-500 hover:text-white transition-colors">
+                    <Link
+                      href={`/${clinic}/terms`}
+                      className="text-gray-500 transition-colors hover:text-white"
+                    >
                       {footerLabels.terms || 'Términos'}
                     </Link>
                   </div>
@@ -514,5 +614,5 @@ export default async function ClinicLayout({
         </NextIntlClientProvider>
       </CartProvider>
     </ToastProvider>
-  );
+  )
 }

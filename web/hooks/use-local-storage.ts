@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react'
 
 export function useLocalStorage<T>(
   key: string,
@@ -7,55 +7,58 @@ export function useLocalStorage<T>(
   // Get from local storage then parse stored json or return initialValue
   const [storedValue, setStoredValue] = useState<T>(() => {
     if (typeof window === 'undefined') {
-      return initialValue;
+      return initialValue
     }
 
     try {
-      const item = window.localStorage.getItem(key);
-      return item ? JSON.parse(item) : initialValue;
+      const item = window.localStorage.getItem(key)
+      return item ? JSON.parse(item) : initialValue
     } catch (error) {
-      console.warn(`Error reading localStorage key "${key}":`, error);
-      return initialValue;
+      console.warn(`Error reading localStorage key "${key}":`, error)
+      return initialValue
     }
-  });
+  })
 
   // Return a wrapped version of useState's setter function that persists the new value to localStorage
-  const setValue = useCallback((value: T | ((prevValue: T) => T)) => {
-    try {
-      // Allow value to be a function so we have the same API as useState
-      const valueToStore = value instanceof Function ? value(storedValue) : value;
+  const setValue = useCallback(
+    (value: T | ((prevValue: T) => T)) => {
+      try {
+        // Allow value to be a function so we have the same API as useState
+        const valueToStore = value instanceof Function ? value(storedValue) : value
 
-      // Save state
-      setStoredValue(valueToStore);
+        // Save state
+        setStoredValue(valueToStore)
 
-      // Save to local storage
-      if (typeof window !== 'undefined') {
-        window.localStorage.setItem(key, JSON.stringify(valueToStore));
+        // Save to local storage
+        if (typeof window !== 'undefined') {
+          window.localStorage.setItem(key, JSON.stringify(valueToStore))
+        }
+      } catch (error) {
+        console.warn(`Error setting localStorage key "${key}":`, error)
       }
-    } catch (error) {
-      console.warn(`Error setting localStorage key "${key}":`, error);
-    }
-  }, [key, storedValue]);
+    },
+    [key, storedValue]
+  )
 
   // Remove from localStorage
   const removeValue = useCallback(() => {
     try {
-      setStoredValue(initialValue);
+      setStoredValue(initialValue)
       if (typeof window !== 'undefined') {
-        window.localStorage.removeItem(key);
+        window.localStorage.removeItem(key)
       }
     } catch (error) {
-      console.warn(`Error removing localStorage key "${key}":`, error);
+      console.warn(`Error removing localStorage key "${key}":`, error)
     }
-  }, [key, initialValue]);
+  }, [key, initialValue])
 
-  return [storedValue, setValue, removeValue];
+  return [storedValue, setValue, removeValue]
 }
 
 // Hook for simple localStorage access without state management
 export function useLocalStorageValue<T>(key: string, defaultValue?: T): T | null {
-  const [value] = useLocalStorage(key, defaultValue || null);
-  return value;
+  const [value] = useLocalStorage(key, defaultValue || null)
+  return value
 }
 
 // Hook for managing localStorage with error handling and type safety
@@ -64,15 +67,15 @@ export function useTypedLocalStorage<T>(
   initialValue: T,
   validator?: (value: any) => value is T
 ): [T, (value: T | ((prevValue: T) => T)) => void, () => void] {
-  const [storedValue, setValue, removeValue] = useLocalStorage(key, initialValue);
+  const [storedValue, setValue, removeValue] = useLocalStorage(key, initialValue)
 
   // Validate stored value if validator provided
   useEffect(() => {
     if (validator && !validator(storedValue)) {
-      console.warn(`Invalid value in localStorage for key "${key}", resetting to initial value`);
-      setValue(initialValue);
+      console.warn(`Invalid value in localStorage for key "${key}", resetting to initial value`)
+      setValue(initialValue)
     }
-  }, [storedValue, validator, initialValue, setValue, key]);
+  }, [storedValue, validator, initialValue, setValue, key])
 
-  return [storedValue, setValue, removeValue];
+  return [storedValue, setValue, removeValue]
 }

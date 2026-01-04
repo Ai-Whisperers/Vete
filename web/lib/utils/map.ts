@@ -14,16 +14,10 @@
  * const value = getOrThrow(map, 'key') // 'value'
  * const missing = getOrThrow(map, 'missing') // throws Error
  */
-export function getOrThrow<K, V>(
-  map: Map<K, V>,
-  key: K,
-  errorMessage?: string
-): V {
+export function getOrThrow<K, V>(map: Map<K, V>, key: K, errorMessage?: string): V {
   const value = map.get(key)
   if (value === undefined) {
-    throw new Error(
-      errorMessage ?? `Key not found in Map: ${String(key)}`
-    )
+    throw new Error(errorMessage ?? `Key not found in Map: ${String(key)}`)
   }
   return value
 }
@@ -36,11 +30,7 @@ export function getOrThrow<K, V>(
  * const value = getOrDefault(map, 'key', 0) // 5
  * const missing = getOrDefault(map, 'other', 0) // 0
  */
-export function getOrDefault<K, V>(
-  map: Map<K, V>,
-  key: K,
-  defaultValue: V
-): V {
+export function getOrDefault<K, V>(map: Map<K, V>, key: K, defaultValue: V): V {
   const value = map.get(key)
   return value !== undefined ? value : defaultValue
 }
@@ -53,11 +43,7 @@ export function getOrDefault<K, V>(
  * const cache = new Map<string, ExpensiveResult>()
  * const result = getOrCompute(cache, 'key', () => computeExpensiveResult())
  */
-export function getOrCompute<K, V>(
-  map: Map<K, V>,
-  key: K,
-  compute: () => V
-): V {
+export function getOrCompute<K, V>(map: Map<K, V>, key: K, compute: () => V): V {
   const existing = map.get(key)
   if (existing !== undefined) {
     return existing
@@ -92,10 +78,7 @@ export async function getOrComputeAsync<K, V>(
  * const byId = createLookup(users, u => u.id)
  * // Map { '1' => { id: '1', name: 'Alice' }, '2' => { id: '2', name: 'Bob' } }
  */
-export function createLookup<T, K>(
-  items: T[],
-  keyExtractor: (item: T) => K
-): Map<K, T> {
+export function createLookup<T, K>(items: T[], keyExtractor: (item: T) => K): Map<K, T> {
   const map = new Map<K, T>()
   for (const item of items) {
     map.set(keyExtractor(item), item)
@@ -115,10 +98,7 @@ export function createLookup<T, K>(
  * const byOwner = groupBy(pets, p => p.ownerId)
  * // Map { 'a' => [pet1, pet2], 'b' => [pet3] }
  */
-export function groupBy<T, K>(
-  items: T[],
-  keyExtractor: (item: T) => K
-): Map<K, T[]> {
+export function groupBy<T, K>(items: T[], keyExtractor: (item: T) => K): Map<K, T[]> {
   const map = new Map<K, T[]>()
   for (const item of items) {
     const key = keyExtractor(item)
@@ -146,15 +126,9 @@ export function safeGet<T>(array: T[], index: number): T | undefined {
 /**
  * Get array element or throw if out of bounds
  */
-export function getAtOrThrow<T>(
-  array: T[],
-  index: number,
-  errorMessage?: string
-): T {
+export function getAtOrThrow<T>(array: T[], index: number, errorMessage?: string): T {
   if (index < 0 || index >= array.length) {
-    throw new Error(
-      errorMessage ?? `Index out of bounds: ${index} (length: ${array.length})`
-    )
+    throw new Error(errorMessage ?? `Index out of bounds: ${index} (length: ${array.length})`)
   }
   return array[index]
 }
@@ -162,10 +136,7 @@ export function getAtOrThrow<T>(
 /**
  * Get the first element of an array or throw if empty
  */
-export function firstOrThrow<T>(
-  array: T[],
-  errorMessage?: string
-): T {
+export function firstOrThrow<T>(array: T[], errorMessage?: string): T {
   if (array.length === 0) {
     throw new Error(errorMessage ?? 'Array is empty')
   }
@@ -190,10 +161,7 @@ export function last<T>(array: T[]): T | undefined {
 /**
  * Get the last element or throw if empty
  */
-export function lastOrThrow<T>(
-  array: T[],
-  errorMessage?: string
-): T {
+export function lastOrThrow<T>(array: T[], errorMessage?: string): T {
   if (array.length === 0) {
     throw new Error(errorMessage ?? 'Array is empty')
   }
@@ -228,9 +196,7 @@ export function recordToMap<K extends string | number | symbol, V>(
 /**
  * Convert Map to Record (only works with string keys)
  */
-export function mapToRecord<V>(
-  map: Map<string, V>
-): Record<string, V> {
+export function mapToRecord<V>(map: Map<string, V>): Record<string, V> {
   const record: Record<string, V> = {}
   map.forEach((value, key) => {
     record[key] = value

@@ -1,14 +1,14 @@
-"use client";
+'use client'
 
-import { useState, useCallback } from "react";
+import { useState, useCallback } from 'react'
 
 /**
  * Result type for form submissions
  */
 export interface FormSubmitResult<T = unknown> {
-  success: boolean;
-  data?: T;
-  error?: string;
+  success: boolean
+  data?: T
+  error?: string
 }
 
 /**
@@ -16,11 +16,11 @@ export interface FormSubmitResult<T = unknown> {
  */
 export interface UseFormSubmitOptions<T = unknown> {
   /** Callback on successful submission */
-  onSuccess?: (data?: T) => void;
+  onSuccess?: (data?: T) => void
   /** Callback on submission error */
-  onError?: (error: string) => void;
+  onError?: (error: string) => void
   /** Reset success state after delay (ms). Set to 0 to disable auto-reset */
-  successResetDelay?: number;
+  successResetDelay?: number
 }
 
 /**
@@ -28,15 +28,15 @@ export interface UseFormSubmitOptions<T = unknown> {
  */
 export interface UseFormSubmitReturn<TInput, TOutput = unknown> {
   /** Submit function - pass your data here */
-  submit: (data: TInput) => Promise<FormSubmitResult<TOutput>>;
+  submit: (data: TInput) => Promise<FormSubmitResult<TOutput>>
   /** Whether a submission is in progress */
-  isSubmitting: boolean;
+  isSubmitting: boolean
   /** Error message from last submission (null if no error) */
-  error: string | null;
+  error: string | null
   /** Whether last submission was successful */
-  isSuccess: boolean;
+  isSuccess: boolean
   /** Reset all state (error, success) */
-  reset: () => void;
+  reset: () => void
 }
 
 /**
@@ -65,56 +65,55 @@ export function useFormSubmit<TInput, TOutput = unknown>(
   action: (data: TInput) => Promise<FormSubmitResult<TOutput>>,
   options: UseFormSubmitOptions<TOutput> = {}
 ): UseFormSubmitReturn<TInput, TOutput> {
-  const { onSuccess, onError, successResetDelay = 3000 } = options;
+  const { onSuccess, onError, successResetDelay = 3000 } = options
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [isSuccess, setIsSuccess] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [isSuccess, setIsSuccess] = useState(false)
 
   const reset = useCallback(() => {
-    setError(null);
-    setIsSuccess(false);
-  }, []);
+    setError(null)
+    setIsSuccess(false)
+  }, [])
 
   const submit = useCallback(
     async (data: TInput): Promise<FormSubmitResult<TOutput>> => {
-      setIsSubmitting(true);
-      setError(null);
-      setIsSuccess(false);
+      setIsSubmitting(true)
+      setError(null)
+      setIsSuccess(false)
 
       try {
-        const result = await action(data);
+        const result = await action(data)
 
         if (result.success) {
-          setIsSuccess(true);
-          onSuccess?.(result.data);
+          setIsSuccess(true)
+          onSuccess?.(result.data)
 
           // Auto-reset success state after delay
           if (successResetDelay > 0) {
             setTimeout(() => {
-              setIsSuccess(false);
-            }, successResetDelay);
+              setIsSuccess(false)
+            }, successResetDelay)
           }
 
-          return result;
+          return result
         } else {
-          const errorMessage = result.error || "Error al procesar la solicitud";
-          setError(errorMessage);
-          onError?.(errorMessage);
-          return result;
+          const errorMessage = result.error || 'Error al procesar la solicitud'
+          setError(errorMessage)
+          onError?.(errorMessage)
+          return result
         }
       } catch (e) {
-        const errorMessage =
-          e instanceof Error ? e.message : "Error inesperado";
-        setError(errorMessage);
-        onError?.(errorMessage);
-        return { success: false, error: errorMessage };
+        const errorMessage = e instanceof Error ? e.message : 'Error inesperado'
+        setError(errorMessage)
+        onError?.(errorMessage)
+        return { success: false, error: errorMessage }
       } finally {
-        setIsSubmitting(false);
+        setIsSubmitting(false)
       }
     },
     [action, onSuccess, onError, successResetDelay]
-  );
+  )
 
   return {
     submit,
@@ -122,7 +121,7 @@ export function useFormSubmit<TInput, TOutput = unknown>(
     error,
     isSuccess,
     reset,
-  };
+  }
 }
 
 /**
@@ -139,16 +138,14 @@ export function useFormSubmit<TInput, TOutput = unknown>(
  * ```
  */
 export function wrapServerAction<TInput, TOutput>(
-  serverAction: (
-    data: TInput
-  ) => Promise<{ success: boolean; error?: string; data?: TOutput }>
+  serverAction: (data: TInput) => Promise<{ success: boolean; error?: string; data?: TOutput }>
 ): (data: TInput) => Promise<FormSubmitResult<TOutput>> {
   return async (data: TInput) => {
-    const result = await serverAction(data);
+    const result = await serverAction(data)
     return {
       success: result.success,
       data: result.data,
       error: result.error,
-    };
-  };
+    }
+  }
 }

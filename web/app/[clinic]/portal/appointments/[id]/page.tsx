@@ -8,7 +8,7 @@ import {
   formatAppointmentDate,
   formatAppointmentTime,
   canCancelAppointment,
-  canRescheduleAppointment
+  canRescheduleAppointment,
 } from '@/lib/types/appointments'
 
 interface PageProps {
@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: PageProps) {
   const { clinic } = await params
   return {
     title: `Detalle de Cita - ${clinic}`,
-    description: 'Ver detalle de tu cita veterinaria'
+    description: 'Ver detalle de tu cita veterinaria',
   }
 }
 
@@ -28,7 +28,9 @@ export default async function AppointmentDetailPage({ params }: PageProps) {
   const supabase = await createClient()
 
   // Auth check
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) {
     redirect(`/${clinic}/portal/login`)
   }
@@ -36,7 +38,8 @@ export default async function AppointmentDetailPage({ params }: PageProps) {
   // Fetch appointment with pet details
   const { data: appointment, error } = await supabase
     .from('appointments')
-    .select(`
+    .select(
+      `
       id,
       tenant_id,
       start_time,
@@ -53,7 +56,8 @@ export default async function AppointmentDetailPage({ params }: PageProps) {
         photo_url,
         owner_id
       )
-    `)
+    `
+    )
     .eq('id', id)
     .eq('tenant_id', clinic)
     .single()
@@ -82,54 +86,46 @@ export default async function AppointmentDetailPage({ params }: PageProps) {
     bird: Icons.Bird,
     rabbit: Icons.Rabbit,
     fish: Icons.Fish,
-    default: Icons.PawPrint
+    default: Icons.PawPrint,
   }
   const SpeciesIcon = speciesIcons[pet.species] || speciesIcons.default
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="mx-auto max-w-2xl">
       {/* Header */}
-      <div className="flex items-center gap-4 mb-8">
+      <div className="mb-8 flex items-center gap-4">
         <Link
           href={`/${clinic}/portal/appointments`}
-          className="p-2 rounded-xl hover:bg-white transition-colors"
+          className="rounded-xl p-2 transition-colors hover:bg-white"
         >
-          <Icons.ArrowLeft className="w-6 h-6 text-[var(--text-secondary)]" />
+          <Icons.ArrowLeft className="h-6 w-6 text-[var(--text-secondary)]" />
         </Link>
         <div className="flex-1">
-          <h1 className="text-2xl font-black text-[var(--text-primary)]">
-            Detalle de Cita
-          </h1>
+          <h1 className="text-2xl font-black text-[var(--text-primary)]">Detalle de Cita</h1>
           <p className="text-sm text-[var(--text-secondary)]">
             Creada el {new Date(appointmentWithPet.created_at).toLocaleDateString('es-PY')}
           </p>
         </div>
-        <span className={`px-4 py-2 rounded-full text-sm font-bold ${status.className}`}>
+        <span className={`rounded-full px-4 py-2 text-sm font-bold ${status.className}`}>
           {status.label}
         </span>
       </div>
 
       {/* Main Card */}
-      <div className="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+      <div className="overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-xl">
         {/* Pet Info Header */}
-        <div className="p-6 bg-gradient-to-r from-[var(--primary)]/5 to-transparent border-b border-gray-100">
+        <div className="from-[var(--primary)]/5 border-b border-gray-100 bg-gradient-to-r to-transparent p-6">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-2xl bg-white shadow-lg flex items-center justify-center overflow-hidden">
+            <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl bg-white shadow-lg">
               {pet.photo_url ? (
-                <img
-                  src={pet.photo_url}
-                  alt={pet.name}
-                  className="w-full h-full object-cover"
-                />
+                <img src={pet.photo_url} alt={pet.name} className="h-full w-full object-cover" />
               ) : (
-                <SpeciesIcon className="w-8 h-8 text-[var(--primary)]" />
+                <SpeciesIcon className="h-8 w-8 text-[var(--primary)]" />
               )}
             </div>
             <div>
-              <h2 className="text-xl font-bold text-[var(--text-primary)]">
-                {pet.name}
-              </h2>
-              <p className="text-sm text-[var(--text-secondary)] capitalize">
+              <h2 className="text-xl font-bold text-[var(--text-primary)]">{pet.name}</h2>
+              <p className="text-sm capitalize text-[var(--text-secondary)]">
                 {pet.species}
                 {pet.breed && ` - ${pet.breed}`}
               </p>
@@ -138,13 +134,13 @@ export default async function AppointmentDetailPage({ params }: PageProps) {
         </div>
 
         {/* Appointment Details */}
-        <div className="p-6 space-y-6">
+        <div className="space-y-6 p-6">
           {/* Date & Time */}
           <div className="grid grid-cols-2 gap-4">
-            <div className="p-4 bg-gray-50 rounded-xl">
-              <div className="flex items-center gap-2 mb-2">
-                <Icons.Calendar className="w-5 h-5 text-[var(--primary)]" />
-                <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+            <div className="rounded-xl bg-gray-50 p-4">
+              <div className="mb-2 flex items-center gap-2">
+                <Icons.Calendar className="h-5 w-5 text-[var(--primary)]" />
+                <span className="text-xs font-bold uppercase tracking-wider text-gray-400">
                   Fecha
                 </span>
               </div>
@@ -152,79 +148,77 @@ export default async function AppointmentDetailPage({ params }: PageProps) {
                 {formatAppointmentDate(appointmentWithPet.start_time)}
               </p>
             </div>
-            <div className="p-4 bg-gray-50 rounded-xl">
-              <div className="flex items-center gap-2 mb-2">
-                <Icons.Clock className="w-5 h-5 text-[var(--primary)]" />
-                <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+            <div className="rounded-xl bg-gray-50 p-4">
+              <div className="mb-2 flex items-center gap-2">
+                <Icons.Clock className="h-5 w-5 text-[var(--primary)]" />
+                <span className="text-xs font-bold uppercase tracking-wider text-gray-400">
                   Hora
                 </span>
               </div>
               <p className="font-bold text-[var(--text-primary)]">
-                {formatAppointmentTime(appointmentWithPet.start_time)} - {formatAppointmentTime(appointmentWithPet.end_time)}
+                {formatAppointmentTime(appointmentWithPet.start_time)} -{' '}
+                {formatAppointmentTime(appointmentWithPet.end_time)}
               </p>
             </div>
           </div>
 
           {/* Reason */}
-          <div className="p-4 bg-gray-50 rounded-xl">
-            <div className="flex items-center gap-2 mb-2">
-              <Icons.Stethoscope className="w-5 h-5 text-[var(--primary)]" />
-              <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+          <div className="rounded-xl bg-gray-50 p-4">
+            <div className="mb-2 flex items-center gap-2">
+              <Icons.Stethoscope className="h-5 w-5 text-[var(--primary)]" />
+              <span className="text-xs font-bold uppercase tracking-wider text-gray-400">
                 Motivo
               </span>
             </div>
-            <p className="font-medium text-[var(--text-primary)] capitalize">
+            <p className="font-medium capitalize text-[var(--text-primary)]">
               {appointmentWithPet.reason}
             </p>
           </div>
 
           {/* Notes */}
           {appointmentWithPet.notes && !appointmentWithPet.notes.startsWith('[Cancelado') && (
-            <div className="p-4 bg-gray-50 rounded-xl">
-              <div className="flex items-center gap-2 mb-2">
-                <Icons.FileText className="w-5 h-5 text-[var(--primary)]" />
-                <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+            <div className="rounded-xl bg-gray-50 p-4">
+              <div className="mb-2 flex items-center gap-2">
+                <Icons.FileText className="h-5 w-5 text-[var(--primary)]" />
+                <span className="text-xs font-bold uppercase tracking-wider text-gray-400">
                   Notas
                 </span>
               </div>
-              <p className="text-[var(--text-secondary)]">
-                {appointmentWithPet.notes}
-              </p>
+              <p className="text-[var(--text-secondary)]">{appointmentWithPet.notes}</p>
             </div>
           )}
 
           {/* Cancellation info */}
-          {appointmentWithPet.status === 'cancelled' && appointmentWithPet.notes?.startsWith('[Cancelado') && (
-            <div className="p-4 bg-red-50 border border-red-100 rounded-xl">
-              <div className="flex items-center gap-2 mb-2">
-                <Icons.XCircle className="w-5 h-5 text-red-500" />
-                <span className="text-xs font-bold text-red-400 uppercase tracking-wider">
-                  Cancelación
-                </span>
+          {appointmentWithPet.status === 'cancelled' &&
+            appointmentWithPet.notes?.startsWith('[Cancelado') && (
+              <div className="rounded-xl border border-red-100 bg-red-50 p-4">
+                <div className="mb-2 flex items-center gap-2">
+                  <Icons.XCircle className="h-5 w-5 text-red-500" />
+                  <span className="text-xs font-bold uppercase tracking-wider text-red-400">
+                    Cancelación
+                  </span>
+                </div>
+                <p className="text-red-600">
+                  {appointmentWithPet.notes
+                    .replace('[Cancelado] ', '')
+                    .replace('[Cancelado por el cliente]', 'Cancelada por el propietario')}
+                </p>
               </div>
-              <p className="text-red-600">
-                {appointmentWithPet.notes.replace('[Cancelado] ', '').replace('[Cancelado por el cliente]', 'Cancelada por el propietario')}
-              </p>
-            </div>
-          )}
+            )}
 
           {/* Past appointment notice */}
           {isPast && appointmentWithPet.status !== 'cancelled' && (
-            <div className="p-4 bg-gray-100 rounded-xl flex items-center gap-3">
-              <Icons.CheckCircle className="w-5 h-5 text-gray-500" />
-              <p className="text-gray-600 text-sm">
-                Esta cita ya ha pasado.
-              </p>
+            <div className="flex items-center gap-3 rounded-xl bg-gray-100 p-4">
+              <Icons.CheckCircle className="h-5 w-5 text-gray-500" />
+              <p className="text-sm text-gray-600">Esta cita ya ha pasado.</p>
             </div>
           )}
         </div>
 
         {/* Actions Footer */}
         {(canCancel || canReschedule) && (
-          <div className="p-6 border-t border-gray-100 bg-gray-50 flex items-center justify-between">
-            <p className="text-sm text-[var(--text-secondary)]">
-              Acciones disponibles
-            </p>
+          <div className="flex items-center justify-between border-t border-gray-100 bg-gray-50 p-6">
+            <p className="text-sm text-[var(--text-secondary)]">Acciones disponibles</p>
             <div className="flex items-center gap-3">
               {canReschedule && (
                 <RescheduleDialog
@@ -234,12 +228,7 @@ export default async function AppointmentDetailPage({ params }: PageProps) {
                   currentTime={formatAppointmentTime(appointmentWithPet.start_time)}
                 />
               )}
-              {canCancel && (
-                <CancelButton
-                  appointmentId={appointmentWithPet.id}
-                  variant="button"
-                />
-              )}
+              {canCancel && <CancelButton appointmentId={appointmentWithPet.id} variant="button" />}
             </div>
           </div>
         )}
@@ -249,9 +238,9 @@ export default async function AppointmentDetailPage({ params }: PageProps) {
       <div className="mt-8 text-center">
         <Link
           href={`/${clinic}/portal/appointments`}
-          className="text-[var(--primary)] font-medium hover:underline inline-flex items-center gap-2"
+          className="inline-flex items-center gap-2 font-medium text-[var(--primary)] hover:underline"
         >
-          <Icons.ArrowLeft className="w-4 h-4" />
+          <Icons.ArrowLeft className="h-4 w-4" />
           Volver a Mis Citas
         </Link>
       </div>

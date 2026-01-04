@@ -5,40 +5,40 @@
  * For development and QA testing.
  */
 
-import type { SeedVariant } from './types';
-import { integrationVariant } from './integration';
+import type { SeedVariant } from './types'
+import { integrationVariant } from './integration'
 import {
   StoreBrandSeeder,
   StoreCategorySeeder,
   SupplierSeeder,
   StoreProductSeeder,
   StoreInventorySeeder,
-} from '../seeders/store-seeder';
-import { HospitalizationSeeder } from '../seeders/hospitalization-seeder';
-import { LabOrderDemoSeeder } from '../seeders/lab-seeder';
-import { ProfileSeeder } from '../seeders/profile-seeder';
-import { PetSeeder } from '../seeders/pet-seeder';
-import { DemoDataSeeder } from '../seeders/demo-data-seeder';
-import type { SeederResult } from '../seeders/base-seeder';
+} from '../seeders/store-seeder'
+import { HospitalizationSeeder } from '../seeders/hospitalization-seeder'
+import { LabOrderDemoSeeder } from '../seeders/lab-seeder'
+import { ProfileSeeder } from '../seeders/profile-seeder'
+import { PetSeeder } from '../seeders/pet-seeder'
+import { DemoDataSeeder } from '../seeders/demo-data-seeder'
+import type { SeederResult } from '../seeders/base-seeder'
 
 /**
  * Wrapper to make DemoDataSeeder compatible with BaseSeeder interface
  */
 class DemoDataSeederWrapper {
-  private seeder: DemoDataSeeder;
-  private tenantId: string;
+  private seeder: DemoDataSeeder
+  private tenantId: string
 
   constructor(client: any, options: any) {
-    this.tenantId = options.tenantId || 'adris';
-    this.seeder = new DemoDataSeeder(client, this.tenantId, options.verbose);
+    this.tenantId = options.tenantId || 'adris'
+    this.seeder = new DemoDataSeeder(client, this.tenantId, options.verbose)
   }
 
   async seed(): Promise<SeederResult> {
-    const startTime = Date.now();
-    const result = await this.seeder.seed();
+    const startTime = Date.now()
+    const result = await this.seeder.seed()
 
     // Sum up all counts
-    const totalCreated = Object.values(result.counts).reduce((a, b) => a + b, 0);
+    const totalCreated = Object.values(result.counts).reduce((a, b) => a + b, 0)
 
     return {
       table: 'demo_data',
@@ -48,7 +48,7 @@ class DemoDataSeederWrapper {
       errorDetails: result.success ? [] : ['Demo data seeding failed'],
       warnings: [],
       duration: Date.now() - startTime,
-    };
+    }
   }
 }
 
@@ -131,7 +131,7 @@ export const demoVariant: SeedVariant = {
       dependencies: ['pets', 'services', 'kennels'],
     },
   ],
-};
+}
 
 /**
  * Reset variant - clears data first
@@ -154,4 +154,4 @@ export const resetVariant: SeedVariant = {
     'suppliers',
     'store_products',
   ],
-};
+}

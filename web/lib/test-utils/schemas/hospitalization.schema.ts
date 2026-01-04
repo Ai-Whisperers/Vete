@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod'
 
 /**
  * Hospitalization Schema
@@ -6,53 +6,66 @@ import { z } from 'zod';
  *
  * CRITICAL: admission_number is required (NOT NULL in database)
  */
-export const HospitalizationSchema = z.object({
-  id: z.string().uuid().optional(),
-  tenant_id: z.string().min(1),
-  pet_id: z.string().uuid(),
-  kennel_id: z.string().uuid().optional().nullable(),
+export const HospitalizationSchema = z
+  .object({
+    id: z.string().uuid().optional(),
+    tenant_id: z.string().min(1),
+    pet_id: z.string().uuid(),
+    kennel_id: z.string().uuid().optional().nullable(),
 
-  // CRITICAL: Required field - unique per tenant
-  admission_number: z.string().min(1, 'admission_number is required'),
+    // CRITICAL: Required field - unique per tenant
+    admission_number: z.string().min(1, 'admission_number is required'),
 
-  admitted_at: z.string().datetime().or(z.date().transform(d => d.toISOString())),
-  expected_discharge: z.string().datetime().optional().nullable(),
-  actual_discharge: z.string().datetime().optional().nullable(),
+    admitted_at: z
+      .string()
+      .datetime()
+      .or(z.date().transform((d) => d.toISOString())),
+    expected_discharge: z.string().datetime().optional().nullable(),
+    actual_discharge: z.string().datetime().optional().nullable(),
 
-  // DB constraint: char_length(reason) >= 3
-  reason: z.string().min(3, 'reason must be at least 3 characters'),
+    // DB constraint: char_length(reason) >= 3
+    reason: z.string().min(3, 'reason must be at least 3 characters'),
 
-  diagnosis: z.string().optional().nullable(),
-  notes: z.string().optional().nullable(),
-  discharge_instructions: z.string().optional().nullable(),
+    diagnosis: z.string().optional().nullable(),
+    notes: z.string().optional().nullable(),
+    discharge_instructions: z.string().optional().nullable(),
 
-  status: z.enum([
-    'admitted', 'in_treatment', 'stable', 'critical',
-    'recovering', 'discharged', 'deceased', 'transferred'
-  ]).default('admitted'),
+    status: z
+      .enum([
+        'admitted',
+        'in_treatment',
+        'stable',
+        'critical',
+        'recovering',
+        'discharged',
+        'deceased',
+        'transferred',
+      ])
+      .default('admitted'),
 
-  // Note: 'stable' is NOT a valid acuity_level - use 'normal' instead
-  acuity_level: z.enum(['low', 'normal', 'high', 'critical']).default('normal'),
+    // Note: 'stable' is NOT a valid acuity_level - use 'normal' instead
+    acuity_level: z.enum(['low', 'normal', 'high', 'critical']).default('normal'),
 
-  primary_vet_id: z.string().uuid().optional().nullable(),
-  admitted_by: z.string().uuid().optional().nullable(),
-  discharged_by: z.string().uuid().optional().nullable(),
+    primary_vet_id: z.string().uuid().optional().nullable(),
+    admitted_by: z.string().uuid().optional().nullable(),
+    discharged_by: z.string().uuid().optional().nullable(),
 
-  created_at: z.string().datetime().optional(),
-  updated_at: z.string().datetime().optional(),
-}).refine(
-  (data) => {
-    // actual_discharge must be after admitted_at
-    if (data.actual_discharge && data.admitted_at) {
-      return new Date(data.actual_discharge) >= new Date(data.admitted_at);
-    }
-    return true;
-  },
-  { message: 'Discharge date must be after admission date' }
-);
+    created_at: z.string().datetime().optional(),
+    updated_at: z.string().datetime().optional(),
+  })
+  .refine(
+    (data) => {
+      // actual_discharge must be after admitted_at
+      if (data.actual_discharge && data.admitted_at) {
+        return new Date(data.actual_discharge) >= new Date(data.admitted_at)
+      }
+      return true
+    },
+    { message: 'Discharge date must be after admission date' }
+  )
 
-export type HospitalizationInput = z.input<typeof HospitalizationSchema>;
-export type Hospitalization = z.output<typeof HospitalizationSchema>;
+export type HospitalizationInput = z.input<typeof HospitalizationSchema>
+export type Hospitalization = z.output<typeof HospitalizationSchema>
 
 /**
  * Hospitalization Vitals Schema
@@ -76,10 +89,10 @@ export const HospitalizationVitalsSchema = z.object({
   recorded_by: z.string().uuid().optional().nullable(),
   recorded_at: z.string().datetime().optional(),
   created_at: z.string().datetime().optional(),
-});
+})
 
-export type HospitalizationVitalsInput = z.input<typeof HospitalizationVitalsSchema>;
-export type HospitalizationVitals = z.output<typeof HospitalizationVitalsSchema>;
+export type HospitalizationVitalsInput = z.input<typeof HospitalizationVitalsSchema>
+export type HospitalizationVitals = z.output<typeof HospitalizationVitalsSchema>
 
 /**
  * Hospitalization Medication Schema
@@ -101,10 +114,10 @@ export const HospitalizationMedicationSchema = z.object({
   status: z.enum(['scheduled', 'administered', 'skipped', 'held']).default('scheduled'),
   notes: z.string().optional().nullable(),
   created_at: z.string().datetime().optional(),
-});
+})
 
-export type HospitalizationMedicationInput = z.input<typeof HospitalizationMedicationSchema>;
-export type HospitalizationMedication = z.output<typeof HospitalizationMedicationSchema>;
+export type HospitalizationMedicationInput = z.input<typeof HospitalizationMedicationSchema>
+export type HospitalizationMedication = z.output<typeof HospitalizationMedicationSchema>
 
 /**
  * Hospitalization Treatment Schema
@@ -124,10 +137,10 @@ export const HospitalizationTreatmentSchema = z.object({
   status: z.enum(['scheduled', 'performed', 'skipped', 'pending']).default('scheduled'),
   notes: z.string().optional().nullable(),
   created_at: z.string().datetime().optional(),
-});
+})
 
-export type HospitalizationTreatmentInput = z.input<typeof HospitalizationTreatmentSchema>;
-export type HospitalizationTreatment = z.output<typeof HospitalizationTreatmentSchema>;
+export type HospitalizationTreatmentInput = z.input<typeof HospitalizationTreatmentSchema>
+export type HospitalizationTreatment = z.output<typeof HospitalizationTreatmentSchema>
 
 /**
  * Hospitalization Feeding Schema
@@ -149,10 +162,10 @@ export const HospitalizationFeedingSchema = z.object({
   status: z.enum(['scheduled', 'completed', 'refused', 'partial']).default('scheduled'),
   notes: z.string().optional().nullable(),
   created_at: z.string().datetime().optional(),
-});
+})
 
-export type HospitalizationFeedingInput = z.input<typeof HospitalizationFeedingSchema>;
-export type HospitalizationFeeding = z.output<typeof HospitalizationFeedingSchema>;
+export type HospitalizationFeedingInput = z.input<typeof HospitalizationFeedingSchema>
+export type HospitalizationFeeding = z.output<typeof HospitalizationFeedingSchema>
 
 /**
  * Hospitalization Notes Schema
@@ -163,56 +176,68 @@ export const HospitalizationNoteSchema = z.object({
   tenant_id: z.string().min(1).optional(),
 
   content: z.string().min(1),
-  note_type: z.enum(['progress', 'doctor', 'nursing', 'discharge', 'owner_update', 'other']).default('progress'),
+  note_type: z
+    .enum(['progress', 'doctor', 'nursing', 'discharge', 'owner_update', 'other'])
+    .default('progress'),
 
   created_by: z.string().uuid().optional().nullable(),
   created_at: z.string().datetime().optional(),
-});
+})
 
-export type HospitalizationNoteInput = z.input<typeof HospitalizationNoteSchema>;
-export type HospitalizationNote = z.output<typeof HospitalizationNoteSchema>;
+export type HospitalizationNoteInput = z.input<typeof HospitalizationNoteSchema>
+export type HospitalizationNote = z.output<typeof HospitalizationNoteSchema>
 
 /**
  * Kennel Schema
  */
-export const KennelSchema = z.object({
-  id: z.string().uuid().optional(),
-  tenant_id: z.string().min(1),
-  name: z.string().min(1),
-  code: z.string().min(1),
+export const KennelSchema = z
+  .object({
+    id: z.string().uuid().optional(),
+    tenant_id: z.string().min(1),
+    name: z.string().min(1),
+    code: z.string().min(1),
 
-  kennel_type: z.enum([
-    'standard', 'isolation', 'icu', 'recovery',
-    'large', 'small', 'extra-large', 'oxygen', 'exotic'
-  ]).default('standard'),
+    kennel_type: z
+      .enum([
+        'standard',
+        'isolation',
+        'icu',
+        'recovery',
+        'large',
+        'small',
+        'extra-large',
+        'oxygen',
+        'exotic',
+      ])
+      .default('standard'),
 
-  max_occupancy: z.number().int().positive().default(1),
-  current_occupancy: z.number().int().min(0).default(0),
-  daily_rate: z.number().min(0).default(0),
+    max_occupancy: z.number().int().positive().default(1),
+    current_occupancy: z.number().int().min(0).default(0),
+    daily_rate: z.number().min(0).default(0),
 
-  current_status: z.enum([
-    'available', 'occupied', 'cleaning', 'maintenance', 'reserved'
-  ]).default('available'),
+    current_status: z
+      .enum(['available', 'occupied', 'cleaning', 'maintenance', 'reserved'])
+      .default('available'),
 
-  description: z.string().optional().nullable(),
-  features: z.array(z.string()).optional().nullable(),
+    description: z.string().optional().nullable(),
+    features: z.array(z.string()).optional().nullable(),
 
-  is_active: z.boolean().default(true),
-  created_at: z.string().datetime().optional(),
-  updated_at: z.string().datetime().optional(),
-}).refine(
-  (data) => data.current_occupancy <= data.max_occupancy,
-  { message: 'Current occupancy cannot exceed max occupancy' }
-);
+    is_active: z.boolean().default(true),
+    created_at: z.string().datetime().optional(),
+    updated_at: z.string().datetime().optional(),
+  })
+  .refine((data) => data.current_occupancy <= data.max_occupancy, {
+    message: 'Current occupancy cannot exceed max occupancy',
+  })
 
-export type KennelInput = z.input<typeof KennelSchema>;
-export type Kennel = z.output<typeof KennelSchema>;
+export type KennelInput = z.input<typeof KennelSchema>
+export type Kennel = z.output<typeof KennelSchema>
 
 /**
  * Helper: Generate admission number
  */
 export function generateAdmissionNumber(index: number, date?: Date): string {
-  const d = date || new Date();
-  const year = d.getFullYear();
-  return `ADM-${year}-${String(index).padStart(4, '0')}`;
+  const d = date || new Date()
+  const year = d.getFullYear()
+  return `ADM-${year}-${String(index).padStart(4, '0')}`
 }

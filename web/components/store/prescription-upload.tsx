@@ -62,7 +62,7 @@ export function PrescriptionUpload({
   // Determine if initial URL is an image for preview
   useEffect(() => {
     if (initialUrl) {
-      const isImage = IMAGE_EXTENSIONS.some(ext => initialUrl.toLowerCase().includes(ext))
+      const isImage = IMAGE_EXTENSIONS.some((ext) => initialUrl.toLowerCase().includes(ext))
       if (isImage) {
         setPreviewUrl(initialUrl)
         setFileType('image')
@@ -81,156 +81,166 @@ export function PrescriptionUpload({
     }
   }, [previewUrl])
 
-  const validateFile = useCallback((file: File): string | null => {
-    // Check file type
-    const extension = '.' + file.name.split('.').pop()?.toLowerCase()
-    if (!ACCEPTED_EXTENSIONS.includes(extension)) {
-      return `Tipo de archivo no permitido. Use: ${ACCEPTED_EXTENSIONS.join(', ')}`
-    }
+  const validateFile = useCallback(
+    (file: File): string | null => {
+      // Check file type
+      const extension = '.' + file.name.split('.').pop()?.toLowerCase()
+      if (!ACCEPTED_EXTENSIONS.includes(extension)) {
+        return `Tipo de archivo no permitido. Use: ${ACCEPTED_EXTENSIONS.join(', ')}`
+      }
 
-    // Check file size
-    if (file.size > maxSizeBytes) {
-      return `El archivo es muy grande. Máximo ${maxSizeMB}MB`
-    }
+      // Check file size
+      if (file.size > maxSizeBytes) {
+        return `El archivo es muy grande. Máximo ${maxSizeMB}MB`
+      }
 
-    return null
-  }, [maxSizeBytes, maxSizeMB])
+      return null
+    },
+    [maxSizeBytes, maxSizeMB]
+  )
 
-  const uploadFile = useCallback(async (file: File) => {
-    if (disabled) return
+  const uploadFile = useCallback(
+    async (file: File) => {
+      if (disabled) return
 
-    const validationError = validateFile(file)
-    if (validationError) {
-      setError(validationError)
-      setStatus('error')
-      return
-    }
-
-    setStatus('uploading')
-    setError(null)
-    setFileName(file.name)
-    setUploadProgress(0)
-
-    // Determine file type and create preview for images
-    const isImage = file.type.startsWith('image/')
-    setFileType(isImage ? 'image' : 'pdf')
-
-    if (isImage) {
-      // Create local preview for images
-      const localPreview = URL.createObjectURL(file)
-      setPreviewUrl(localPreview)
-    } else {
-      setPreviewUrl(null)
-    }
-
-    try {
-      const supabase = createClient()
-
-      // Generate unique filename with optional productId prefix
-      const timestamp = Date.now()
-      const extension = file.name.split('.').pop()
-      const prefix = productId ? `${clinic}/${productId}` : clinic
-      const uniqueName = `${prefix}/${timestamp}-${Math.random().toString(36).slice(2)}.${extension}`
-
-      // Simulate progress (Supabase JS doesn't support real progress)
-      const progressInterval = setInterval(() => {
-        setUploadProgress(prev => {
-          if (prev >= 90) {
-            clearInterval(progressInterval)
-            return prev
-          }
-          return prev + 10
-        })
-      }, 100)
-
-      // Upload to Supabase Storage
-      const { data, error: uploadError } = await supabase.storage
-        .from('prescriptions')
-        .upload(uniqueName, file, {
-          cacheControl: '3600',
-          upsert: false,
-        })
-
-      clearInterval(progressInterval)
-
-      if (uploadError) {
-        logger.error('Prescription upload failed', {
-          clinic,
-          productId,
-          fileName: file.name,
-          error: uploadError.message
-        })
-        setError('Error al subir archivo')
+      const validationError = validateFile(file)
+      if (validationError) {
+        setError(validationError)
         setStatus('error')
-        setUploadProgress(0)
-        // Cleanup preview on error
-        if (previewUrl?.startsWith('blob:')) {
-          URL.revokeObjectURL(previewUrl)
-          setPreviewUrl(null)
-        }
         return
       }
 
-      // Get public URL
-      const { data: urlData } = supabase.storage
-        .from('prescriptions')
-        .getPublicUrl(data.path)
+      setStatus('uploading')
+      setError(null)
+      setFileName(file.name)
+      setUploadProgress(0)
 
-      setUploadProgress(100)
-      setFileUrl(urlData.publicUrl)
-      setStatus('success')
+      // Determine file type and create preview for images
+      const isImage = file.type.startsWith('image/')
+      setFileType(isImage ? 'image' : 'pdf')
 
-      // For images, update preview to the actual URL
       if (isImage) {
-        // Revoke the blob URL and use the actual URL
-        if (previewUrl?.startsWith('blob:')) {
-          URL.revokeObjectURL(previewUrl)
-        }
-        setPreviewUrl(urlData.publicUrl)
+        // Create local preview for images
+        const localPreview = URL.createObjectURL(file)
+        setPreviewUrl(localPreview)
+      } else {
+        setPreviewUrl(null)
       }
 
-      onUpload(urlData.publicUrl)
+      try {
+        const supabase = createClient()
 
-      logger.info('Prescription uploaded successfully', {
-        clinic,
-        productId,
-        fileName: file.name,
-        path: data.path
-      })
-    } catch (err) {
-      logger.error('Prescription upload exception', {
-        clinic,
-        productId,
-        fileName: file.name,
-        error: err instanceof Error ? err.message : 'Unknown'
-      })
-      setError('Error inesperado. Intente de nuevo.')
-      setStatus('error')
-      setUploadProgress(0)
-    }
-  }, [clinic, productId, onUpload, validateFile, disabled, previewUrl])
+        // Generate unique filename with optional productId prefix
+        const timestamp = Date.now()
+        const extension = file.name.split('.').pop()
+        const prefix = productId ? `${clinic}/${productId}` : clinic
+        const uniqueName = `${prefix}/${timestamp}-${Math.random().toString(36).slice(2)}.${extension}`
 
-  const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      uploadFile(file)
-    }
-    // Reset input so same file can be selected again
-    if (inputRef.current) {
-      inputRef.current.value = ''
-    }
-  }, [uploadFile])
+        // Simulate progress (Supabase JS doesn't support real progress)
+        const progressInterval = setInterval(() => {
+          setUploadProgress((prev) => {
+            if (prev >= 90) {
+              clearInterval(progressInterval)
+              return prev
+            }
+            return prev + 10
+          })
+        }, 100)
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setDragActive(false)
+        // Upload to Supabase Storage
+        const { data, error: uploadError } = await supabase.storage
+          .from('prescriptions')
+          .upload(uniqueName, file, {
+            cacheControl: '3600',
+            upsert: false,
+          })
 
-    const file = e.dataTransfer.files?.[0]
-    if (file) {
-      uploadFile(file)
-    }
-  }, [uploadFile])
+        clearInterval(progressInterval)
+
+        if (uploadError) {
+          logger.error('Prescription upload failed', {
+            clinic,
+            productId,
+            fileName: file.name,
+            error: uploadError.message,
+          })
+          setError('Error al subir archivo')
+          setStatus('error')
+          setUploadProgress(0)
+          // Cleanup preview on error
+          if (previewUrl?.startsWith('blob:')) {
+            URL.revokeObjectURL(previewUrl)
+            setPreviewUrl(null)
+          }
+          return
+        }
+
+        // Get public URL
+        const { data: urlData } = supabase.storage.from('prescriptions').getPublicUrl(data.path)
+
+        setUploadProgress(100)
+        setFileUrl(urlData.publicUrl)
+        setStatus('success')
+
+        // For images, update preview to the actual URL
+        if (isImage) {
+          // Revoke the blob URL and use the actual URL
+          if (previewUrl?.startsWith('blob:')) {
+            URL.revokeObjectURL(previewUrl)
+          }
+          setPreviewUrl(urlData.publicUrl)
+        }
+
+        onUpload(urlData.publicUrl)
+
+        logger.info('Prescription uploaded successfully', {
+          clinic,
+          productId,
+          fileName: file.name,
+          path: data.path,
+        })
+      } catch (err) {
+        logger.error('Prescription upload exception', {
+          clinic,
+          productId,
+          fileName: file.name,
+          error: err instanceof Error ? err.message : 'Unknown',
+        })
+        setError('Error inesperado. Intente de nuevo.')
+        setStatus('error')
+        setUploadProgress(0)
+      }
+    },
+    [clinic, productId, onUpload, validateFile, disabled, previewUrl]
+  )
+
+  const handleFileSelect = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0]
+      if (file) {
+        uploadFile(file)
+      }
+      // Reset input so same file can be selected again
+      if (inputRef.current) {
+        inputRef.current.value = ''
+      }
+    },
+    [uploadFile]
+  )
+
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
+      setDragActive(false)
+
+      const file = e.dataTransfer.files?.[0]
+      if (file) {
+        uploadFile(file)
+      }
+    },
+    [uploadFile]
+  )
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault()
@@ -261,19 +271,19 @@ export function PrescriptionUpload({
   const renderPreview = () => {
     if (fileType === 'image' && previewUrl) {
       return (
-        <div className="relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100">
+        <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={previewUrl}
             alt="Vista previa de receta"
-            className="w-full h-full object-cover"
+            className="h-full w-full object-cover"
           />
         </div>
       )
     }
     return (
-      <div className="w-16 h-16 rounded-lg bg-red-50 flex items-center justify-center flex-shrink-0">
-        <FileText className="w-8 h-8 text-red-500" aria-hidden="true" />
+      <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-lg bg-red-50">
+        <FileText className="h-8 w-8 text-red-500" aria-hidden="true" />
       </div>
     )
   }
@@ -286,7 +296,11 @@ export function PrescriptionUpload({
         className="block text-sm font-medium text-[var(--text-primary)]"
       >
         {label}
-        {required && <span className="text-red-500 ml-1" aria-hidden="true">*</span>}
+        {required && (
+          <span className="ml-1 text-red-500" aria-hidden="true">
+            *
+          </span>
+        )}
         {required && <span className="sr-only">(requerido)</span>}
       </label>
 
@@ -298,22 +312,15 @@ export function PrescriptionUpload({
           aria-labelledby={`prescription-upload-label-${productId || 'default'}`}
           aria-describedby={`prescription-upload-hint-${productId || 'default'}`}
           aria-disabled={disabled}
-          className={`
-            relative border-2 border-dashed rounded-xl p-6 text-center transition-all
-            min-h-[120px] flex flex-col items-center justify-center
-            ${disabled
-              ? 'opacity-50 cursor-not-allowed bg-gray-50'
-              : 'cursor-pointer'
-            }
-            ${!disabled && dragActive
-              ? 'border-[var(--primary)] bg-[var(--primary)]/5 scale-[1.02]'
+          className={`relative flex min-h-[120px] flex-col items-center justify-center rounded-xl border-2 border-dashed p-6 text-center transition-all ${
+            disabled ? 'cursor-not-allowed bg-gray-50 opacity-50' : 'cursor-pointer'
+          } ${
+            !disabled && dragActive
+              ? 'bg-[var(--primary)]/5 scale-[1.02] border-[var(--primary)]'
               : !disabled
                 ? 'border-gray-300 hover:border-[var(--primary)] hover:bg-gray-50'
                 : 'border-gray-200'
-            }
-            ${status === 'error' ? 'border-red-300 bg-red-50' : ''}
-            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] focus-visible:ring-offset-2
-          `}
+          } ${status === 'error' ? 'border-red-300 bg-red-50' : ''} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] focus-visible:ring-offset-2`}
           onDragEnter={handleDrag}
           onDragLeave={handleDrag}
           onDragOver={handleDrag}
@@ -337,7 +344,7 @@ export function PrescriptionUpload({
           />
 
           <Upload
-            className={`w-10 h-10 mb-3 ${
+            className={`mb-3 h-10 w-10 ${
               status === 'error'
                 ? 'text-red-400'
                 : dragActive
@@ -347,13 +354,13 @@ export function PrescriptionUpload({
             aria-hidden="true"
           />
 
-          <p className="text-sm text-[var(--text-secondary)] mb-1">
+          <p className="mb-1 text-sm text-[var(--text-secondary)]">
             {dragActive ? (
               <span className="font-medium text-[var(--primary)]">Suelta el archivo aquí</span>
             ) : (
               <>
-                <span className="font-medium text-[var(--primary)]">Arrastra tu receta aquí</span>
-                {' '}o haz clic para seleccionar
+                <span className="font-medium text-[var(--primary)]">Arrastra tu receta aquí</span> o
+                haz clic para seleccionar
               </>
             )}
           </p>
@@ -367,7 +374,7 @@ export function PrescriptionUpload({
       ) : status === 'uploading' ? (
         /* Uploading State with Progress Bar */
         <div
-          className="border-2 border-dashed border-[var(--primary)] rounded-xl p-6 bg-[var(--primary)]/5"
+          className="bg-[var(--primary)]/5 rounded-xl border-2 border-dashed border-[var(--primary)] p-6"
           role="status"
           aria-live="polite"
           aria-label={`Subiendo archivo: ${uploadProgress}% completado`}
@@ -375,32 +382,32 @@ export function PrescriptionUpload({
           <div className="flex items-center gap-4">
             {/* Show preview during upload for images */}
             {fileType === 'image' && previewUrl ? (
-              <div className="relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100">
+              <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={previewUrl}
                   alt="Vista previa"
-                  className="w-full h-full object-cover opacity-50"
+                  className="h-full w-full object-cover opacity-50"
                 />
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <Loader2 className="w-6 h-6 text-[var(--primary)] animate-spin" />
+                  <Loader2 className="h-6 w-6 animate-spin text-[var(--primary)]" />
                 </div>
               </div>
             ) : (
-              <div className="w-16 h-16 rounded-lg bg-[var(--primary)]/10 flex items-center justify-center flex-shrink-0">
-                <Loader2 className="w-8 h-8 text-[var(--primary)] animate-spin" />
+              <div className="bg-[var(--primary)]/10 flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-lg">
+                <Loader2 className="h-8 w-8 animate-spin text-[var(--primary)]" />
               </div>
             )}
 
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-[var(--text-primary)] truncate mb-2">
+            <div className="min-w-0 flex-1">
+              <p className="mb-2 truncate text-sm font-medium text-[var(--text-primary)]">
                 {fileName}
               </p>
 
               {/* Progress Bar */}
-              <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+              <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200">
                 <div
-                  className="bg-[var(--primary)] h-full rounded-full transition-all duration-300 ease-out"
+                  className="h-full rounded-full bg-[var(--primary)] transition-all duration-300 ease-out"
                   style={{ width: `${uploadProgress}%` }}
                   role="progressbar"
                   aria-valuenow={uploadProgress}
@@ -409,7 +416,7 @@ export function PrescriptionUpload({
                 />
               </div>
 
-              <p className="text-xs text-[var(--text-secondary)] mt-1">
+              <p className="mt-1 text-xs text-[var(--text-secondary)]">
                 Subiendo... {uploadProgress}%
               </p>
             </div>
@@ -418,7 +425,7 @@ export function PrescriptionUpload({
       ) : status === 'success' && fileUrl ? (
         /* Success State with Preview */
         <div
-          className="border border-green-200 rounded-xl p-4 bg-green-50"
+          className="rounded-xl border border-green-200 bg-green-50 p-4"
           role="status"
           aria-live="polite"
         >
@@ -426,24 +433,24 @@ export function PrescriptionUpload({
             {/* Preview thumbnail or file icon */}
             {renderPreview()}
 
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-[var(--text-primary)] truncate">
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-medium text-[var(--text-primary)]">
                 {fileName ?? 'Receta subida'}
               </p>
-              <div className="flex items-center gap-1 text-xs text-green-600 mt-1">
-                <Check className="w-3 h-3" aria-hidden="true" />
+              <div className="mt-1 flex items-center gap-1 text-xs text-green-600">
+                <Check className="h-3 w-3" aria-hidden="true" />
                 <span>Archivo subido correctamente</span>
               </div>
             </div>
 
             {/* Actions */}
-            <div className="flex items-center gap-1 flex-shrink-0">
+            <div className="flex flex-shrink-0 items-center gap-1">
               {fileUrl && (
                 <a
                   href={fileUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center min-w-[44px] min-h-[44px] text-sm font-medium text-[var(--primary)] hover:bg-[var(--primary)]/10 rounded-lg transition-colors"
+                  className="hover:bg-[var(--primary)]/10 inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg text-sm font-medium text-[var(--primary)] transition-colors"
                   onClick={(e) => e.stopPropagation()}
                   aria-label="Ver archivo subido (abre en nueva pestaña)"
                 >
@@ -456,10 +463,10 @@ export function PrescriptionUpload({
                 size="sm"
                 onClick={handleRemove}
                 disabled={disabled}
-                className="min-w-[44px] min-h-[44px] text-gray-400 hover:text-red-500 hover:bg-red-50"
+                className="min-h-[44px] min-w-[44px] text-gray-400 hover:bg-red-50 hover:text-red-500"
                 aria-label="Eliminar archivo subido"
               >
-                <X className="w-5 h-5" />
+                <X className="h-5 w-5" />
               </Button>
             </div>
           </div>
@@ -470,9 +477,9 @@ export function PrescriptionUpload({
       {error && (
         <div
           role="alert"
-          className="flex items-center gap-2 text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg"
+          className="flex items-center gap-2 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600"
         >
-          <AlertCircle className="w-4 h-4 flex-shrink-0" aria-hidden="true" />
+          <AlertCircle className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
           <span>{error}</span>
         </div>
       )}

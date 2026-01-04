@@ -1,10 +1,10 @@
-import { redirect } from "next/navigation";
+import { redirect } from 'next/navigation'
 
 interface Props {
-  params: Promise<{ clinic: string }>;
+  params: Promise<{ clinic: string }>
 }
 
 export default async function SettingsIndexPage({ params }: Props): Promise<never> {
-  const { clinic } = await params;
-  redirect(`/${clinic}/dashboard/settings/general`);
+  const { clinic } = await params
+  redirect(`/${clinic}/dashboard/settings/general`)
 }

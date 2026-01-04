@@ -6,9 +6,9 @@
  * - 'seed': Data persists for demo/development purposes
  */
 
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 
-export type Mode = 'test' | 'seed';
+export type Mode = 'test' | 'seed'
 
 /**
  * Complete table dependency order for cleanup (child tables first)
@@ -104,18 +104,18 @@ export const TABLE_DEPENDENCY_ORDER = [
 
   // Note: Reference data and tenants are NOT included
   // They should persist across cleanup operations
-];
+]
 
 interface CreatedResource {
-  table: string;
-  id: string;
-  tenant_id?: string;
+  table: string
+  id: string
+  tenant_id?: string
 }
 
 class TestContext {
-  private mode: Mode = 'test';
-  private createdResources: CreatedResource[] = [];
-  private supabaseClient: SupabaseClient | null = null;
+  private mode: Mode = 'test'
+  private createdResources: CreatedResource[] = []
+  private supabaseClient: SupabaseClient | null = null
 
   /**
    * Set the operating mode
@@ -123,19 +123,19 @@ class TestContext {
    * - 'seed': Resources persist (no cleanup)
    */
   setMode(mode: Mode): void {
-    this.mode = mode;
+    this.mode = mode
   }
 
   getMode(): Mode {
-    return this.mode;
+    return this.mode
   }
 
   isTestMode(): boolean {
-    return this.mode === 'test';
+    return this.mode === 'test'
   }
 
   isSeedMode(): boolean {
-    return this.mode === 'seed';
+    return this.mode === 'seed'
   }
 
   /**
@@ -143,18 +143,18 @@ class TestContext {
    */
   getClient(): SupabaseClient {
     if (!this.supabaseClient) {
-      const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-      const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+      const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+      const key = process.env.SUPABASE_SERVICE_ROLE_KEY
 
       if (!url || !key) {
-        throw new Error('Missing Supabase environment variables');
+        throw new Error('Missing Supabase environment variables')
       }
 
       this.supabaseClient = createClient(url, key, {
         auth: { autoRefreshToken: false, persistSession: false },
-      });
+      })
     }
-    return this.supabaseClient;
+    return this.supabaseClient
   }
 
   /**
@@ -162,7 +162,7 @@ class TestContext {
    */
   track(table: string, id: string, tenant_id?: string): void {
     if (this.mode === 'test') {
-      this.createdResources.push({ table, id, tenant_id });
+      this.createdResources.push({ table, id, tenant_id })
     }
   }
 
@@ -170,7 +170,7 @@ class TestContext {
    * Get all tracked resources
    */
   getTracked(): CreatedResource[] {
-    return [...this.createdResources];
+    return [...this.createdResources]
   }
 
   /**
@@ -178,66 +178,63 @@ class TestContext {
    */
   async cleanup(): Promise<void> {
     if (this.mode === 'seed') {
-      console.log('Seed mode: skipping cleanup');
-      return;
+      console.log('Seed mode: skipping cleanup')
+      return
     }
 
-    const client = this.getClient();
+    const client = this.getClient()
 
     // Group by table for batch deletes
-    const byTable = new Map<string, string[]>();
+    const byTable = new Map<string, string[]>()
     for (const r of this.createdResources) {
-      const ids = byTable.get(r.table) || [];
-      ids.push(r.id);
-      byTable.set(r.table, ids);
+      const ids = byTable.get(r.table) || []
+      ids.push(r.id)
+      byTable.set(r.table, ids)
     }
 
     // Delete in dependency order (child tables first)
     for (const table of TABLE_DEPENDENCY_ORDER) {
-      const ids = byTable.get(table);
+      const ids = byTable.get(table)
       if (ids && ids.length > 0) {
-        const { error } = await client.from(table).delete().in('id', ids);
+        const { error } = await client.from(table).delete().in('id', ids)
         if (error) {
-          console.warn(`Failed to cleanup ${table}:`, error.message);
+          console.warn(`Failed to cleanup ${table}:`, error.message)
         } else {
-          console.log(`  Cleaned up ${table}: ${ids.length} records`);
+          console.log(`  Cleaned up ${table}: ${ids.length} records`)
         }
-        byTable.delete(table);
+        byTable.delete(table)
       }
     }
 
     // Handle any tables not in the predefined order
     for (const [table, ids] of byTable) {
       if (ids.length > 0) {
-        const { error } = await client.from(table).delete().in('id', ids);
+        const { error } = await client.from(table).delete().in('id', ids)
         if (error) {
-          console.warn(`Failed to cleanup ${table}:`, error.message);
+          console.warn(`Failed to cleanup ${table}:`, error.message)
         } else {
-          console.log(`  Cleaned up ${table}: ${ids.length} records`);
+          console.log(`  Cleaned up ${table}: ${ids.length} records`)
         }
       }
     }
 
-    this.createdResources = [];
+    this.createdResources = []
   }
 
   /**
    * Clean up all data for a specific tenant
    */
   async cleanupTenant(tenantId: string): Promise<void> {
-    const client = this.getClient();
+    const client = this.getClient()
 
-    console.log(`Cleaning up tenant: ${tenantId}`);
+    console.log(`Cleaning up tenant: ${tenantId}`)
 
     for (const table of TABLE_DEPENDENCY_ORDER) {
       try {
-        const { error } = await client
-          .from(table)
-          .delete()
-          .eq('tenant_id', tenantId);
+        const { error } = await client.from(table).delete().eq('tenant_id', tenantId)
 
         if (error && !error.message.includes('column "tenant_id" does not exist')) {
-          console.warn(`  ${table}: ${error.message}`);
+          console.warn(`  ${table}: ${error.message}`)
         }
       } catch {
         // Table might not exist
@@ -249,21 +246,21 @@ class TestContext {
    * Reset context (for test isolation)
    */
   reset(): void {
-    this.createdResources = [];
+    this.createdResources = []
   }
 }
 
 // Singleton instance
-export const testContext = new TestContext();
+export const testContext = new TestContext()
 
 // Convenience exports
-export const setMode = (mode: Mode) => testContext.setMode(mode);
-export const getMode = () => testContext.getMode();
-export const isTestMode = () => testContext.isTestMode();
-export const isSeedMode = () => testContext.isSeedMode();
+export const setMode = (mode: Mode) => testContext.setMode(mode)
+export const getMode = () => testContext.getMode()
+export const isTestMode = () => testContext.isTestMode()
+export const isSeedMode = () => testContext.isSeedMode()
 export const trackResource = (table: string, id: string, tenant_id?: string) =>
-  testContext.track(table, id, tenant_id);
-export const cleanup = () => testContext.cleanup();
-export const cleanupTenant = (tenantId: string) => testContext.cleanupTenant(tenantId);
-export const resetContext = () => testContext.reset();
-export const getClient = () => testContext.getClient();
+  testContext.track(table, id, tenant_id)
+export const cleanup = () => testContext.cleanup()
+export const cleanupTenant = (tenantId: string) => testContext.cleanupTenant(tenantId)
+export const resetContext = () => testContext.reset()
+export const getClient = () => testContext.getClient()

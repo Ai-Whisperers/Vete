@@ -38,7 +38,7 @@ export async function GET(request: Request) {
         }
 
         // Wait before next attempt
-        await new Promise(resolve => setTimeout(resolve, delayMs))
+        await new Promise((resolve) => setTimeout(resolve, delayMs))
       }
 
       // Profile wasn't created by trigger, but the portal layout will handle it

@@ -27,14 +27,16 @@ export const GET = apiHandler(
     // Build query
     let query = supabase
       .from('kennels')
-      .select(`
+      .select(
+        `
         *,
         current_occupant:hospitalizations!hospitalizations_kennel_id_fkey(
           id,
           hospitalization_number,
           pet:pets(id, name, species, breed)
         )
-      `)
+      `
+      )
       .eq('tenant_id', tenantId)
       .order('location')
       .order('kennel_number')

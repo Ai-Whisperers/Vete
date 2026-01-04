@@ -38,7 +38,7 @@ export class ApiResponses {
       {
         success: true,
         data,
-        ...(message && { message })
+        ...(message && { message }),
       },
       { status }
     )
@@ -47,10 +47,7 @@ export class ApiResponses {
   /**
    * Success response for creation (201)
    */
-  static created<T>(
-    data: T,
-    message?: string
-  ): NextResponse<SingleResponse<T>> {
+  static created<T>(data: T, message?: string): NextResponse<SingleResponse<T>> {
     return this.success(data, message, 201)
   }
 
@@ -62,7 +59,7 @@ export class ApiResponses {
       {
         success: true,
         data: null,
-        ...(message && { message })
+        ...(message && { message }),
       },
       { status: 204 }
     )
@@ -71,10 +68,7 @@ export class ApiResponses {
   /**
    * Success response for updates (200)
    */
-  static updated<T>(
-    data: T,
-    message?: string
-  ): NextResponse<SingleResponse<T>> {
+  static updated<T>(data: T, message?: string): NextResponse<SingleResponse<T>> {
     return this.success(data, message, 200)
   }
 
@@ -103,8 +97,8 @@ export class ApiResponses {
         limit,
         totalPages,
         hasNext: page < totalPages,
-        hasPrev: page > 1
-      }
+        hasPrev: page > 1,
+      },
     })
   }
 
@@ -134,7 +128,7 @@ export class ApiResponses {
       {
         success: true,
         data: { id },
-        ...(message && { message })
+        ...(message && { message }),
       },
       { status }
     )
@@ -148,7 +142,7 @@ export class ApiResponses {
       {
         success: true,
         data: null,
-        ...(message && { message })
+        ...(message && { message }),
       },
       { status: 204 }
     )
@@ -157,15 +151,12 @@ export class ApiResponses {
   /**
    * Accepted response (for async operations)
    */
-  static accepted(
-    data?: any,
-    message?: string
-  ): NextResponse<SuccessResponse<any>> {
+  static accepted(data?: any, message?: string): NextResponse<SuccessResponse<any>> {
     return NextResponse.json(
       {
         success: true,
         data: data || null,
-        ...(message && { message })
+        ...(message && { message }),
       },
       { status: 202 }
     )
@@ -195,22 +186,18 @@ export class Pagination {
     return {
       page,
       limit,
-      offset: (page - 1) * limit
+      offset: (page - 1) * limit,
     }
   }
 
-  static getMeta(
-    total: number,
-    page: number,
-    limit: number
-  ) {
+  static getMeta(total: number, page: number, limit: number) {
     return {
       total,
       page,
       limit,
       totalPages: Math.ceil(total / limit),
       hasNext: page * limit < total,
-      hasPrev: page > 1
+      hasPrev: page > 1,
     }
   }
 }
@@ -228,7 +215,7 @@ export class Sorting {
 
     return {
       field,
-      direction: direction.toLowerCase() === 'asc' ? 'asc' : 'desc'
+      direction: direction.toLowerCase() === 'asc' ? 'asc' : 'desc',
     }
   }
 

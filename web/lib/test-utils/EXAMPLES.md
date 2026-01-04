@@ -15,7 +15,7 @@ describe('GET /api/pets', () => {
     const owner = createMockProfile({ role: 'owner' })
     const pets = [
       createMockPet({ name: 'Max', owner_id: owner.id }),
-      createMockPet({ name: 'Luna', owner_id: owner.id })
+      createMockPet({ name: 'Luna', owner_id: owner.id }),
     ]
 
     // Mock authentication
@@ -57,7 +57,7 @@ import {
   createSupabaseMock,
   createMockPet,
   createMockProfile,
-  createMockService
+  createMockService,
 } from '@/lib/test-utils'
 
 describe('createAppointment', () => {
@@ -74,7 +74,7 @@ describe('createAppointment', () => {
       petId: pet.id,
       serviceId: service.id,
       startTime: new Date().toISOString(),
-      reason: 'Consulta general'
+      reason: 'Consulta general',
     })
 
     expect(result.success).toBe(true)
@@ -148,10 +148,7 @@ describe('Multi-tenant isolation', () => {
     helpers.setUser({ id: ownerB.id, email: ownerB.email })
     helpers.setQueryResult([]) // RLS should prevent access
 
-    const result = await supabase
-      .from('pets')
-      .select('*')
-      .eq('id', petA.id)
+    const result = await supabase.from('pets').select('*').eq('id', petA.id)
 
     // Should not return pet from different tenant
     expect(result.data).toHaveLength(0)
@@ -172,10 +169,7 @@ describe('Batch pet operations', () => {
     helpers.setQueryResult(pets)
 
     // Batch update all dogs
-    const result = await supabase
-      .from('pets')
-      .update({ is_neutered: true })
-      .eq('species', 'dog')
+    const result = await supabase.from('pets').update({ is_neutered: true }).eq('species', 'dog')
 
     expect(result.error).toBeNull()
   })
@@ -185,22 +179,18 @@ describe('Batch pet operations', () => {
 ## Testing Appointment Scheduling
 
 ```typescript
-import {
-  createMockAppointment,
-  createMockAppointments,
-  createSupabaseMock
-} from '@/lib/test-utils'
+import { createMockAppointment, createMockAppointments, createSupabaseMock } from '@/lib/test-utils'
 
 describe('Appointment scheduling', () => {
   it('detects overlapping appointments', () => {
     const appointment1 = createMockAppointment({
       start_time: '2024-01-15T10:00:00Z',
-      end_time: '2024-01-15T10:30:00Z'
+      end_time: '2024-01-15T10:30:00Z',
     })
 
     const appointment2 = createMockAppointment({
       start_time: '2024-01-15T10:15:00Z',
-      end_time: '2024-01-15T10:45:00Z'
+      end_time: '2024-01-15T10:45:00Z',
     })
 
     // Check overlap logic
@@ -217,7 +207,7 @@ describe('Appointment scheduling', () => {
     const appointments = createMockAppointments(5)
 
     // All should be in the future
-    appointments.forEach(apt => {
+    appointments.forEach((apt) => {
       const startTime = new Date(apt.start_time)
       expect(startTime.getTime()).toBeGreaterThan(Date.now())
     })
@@ -234,7 +224,7 @@ describe('Invoice calculations', () => {
   it('calculates totals correctly', () => {
     const invoice = createMockInvoice({
       subtotal: 100000,
-      discount_amount: 10000
+      discount_amount: 10000,
     })
 
     const expectedSubtotal = 90000 // After discount
@@ -247,7 +237,7 @@ describe('Invoice calculations', () => {
   it('tracks payment balance', () => {
     const invoice = createMockInvoice({
       total_amount: 100000,
-      amount_paid: 60000
+      amount_paid: 60000,
     })
 
     expect(invoice.balance_due).toBe(40000)
@@ -268,10 +258,7 @@ describe('Role-based access', () => {
     helpers.setUser({ id: vet.id, email: vet.email })
 
     // Vet should be able to query all pets
-    const result = await supabase
-      .from('pets')
-      .select('*')
-      .eq('tenant_id', 'adris')
+    const result = await supabase.from('pets').select('*').eq('tenant_id', 'adris')
 
     expect(result.error).toBeNull()
   })
@@ -283,10 +270,7 @@ describe('Role-based access', () => {
     helpers.setUser({ id: owner.id, email: owner.email })
 
     // Owner should only see their pets
-    const result = await supabase
-      .from('pets')
-      .select('*')
-      .eq('owner_id', owner.id)
+    const result = await supabase.from('pets').select('*').eq('owner_id', owner.id)
 
     expect(result.error).toBeNull()
   })
@@ -306,17 +290,19 @@ describe('Complex queries', () => {
 
     const petWithRelations = {
       ...pet,
-      appointments
+      appointments,
     }
 
     helpers.setQueryResult(petWithRelations)
 
     const result = await supabase
       .from('pets')
-      .select(`
+      .select(
+        `
         *,
         appointments (*)
-      `)
+      `
+      )
       .eq('id', pet.id)
       .single()
 
@@ -372,7 +358,7 @@ describe('Date range filtering', () => {
     const today = new Date()
     const nextWeek = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000)
 
-    const filtered = appointments.filter(apt => {
+    const filtered = appointments.filter((apt) => {
       const aptDate = new Date(apt.start_time)
       return aptDate >= today && aptDate <= nextWeek
     })

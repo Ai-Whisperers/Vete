@@ -35,40 +35,41 @@ export function NotifyWhenAvailable({
   const [error, setError] = useState<string | null>(null)
   const [showForm, setShowForm] = useState(false)
 
-  const handleSubmit = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault()
 
-    if (!email || !email.includes('@')) {
-      setError('Ingresa un email válido')
-      return
-    }
-
-    setStatus('submitting')
-    setError(null)
-
-    try {
-      const supabase = createClient()
-
-      // Get current user if logged in
-      const { data: { user } } = await supabase.auth.getUser()
-
-      // Check if alert already exists
-      const { data: existing } = await supabase
-        .from('store_stock_alerts')
-        .select('id')
-        .eq('product_id', productId)
-        .eq('email', email)
-        .maybeSingle()
-
-      if (existing) {
-        setStatus('success')
+      if (!email || !email.includes('@')) {
+        setError('Ingresa un email válido')
         return
       }
 
-      // Create stock alert
-      const { error: insertError } = await supabase
-        .from('store_stock_alerts')
-        .insert({
+      setStatus('submitting')
+      setError(null)
+
+      try {
+        const supabase = createClient()
+
+        // Get current user if logged in
+        const {
+          data: { user },
+        } = await supabase.auth.getUser()
+
+        // Check if alert already exists
+        const { data: existing } = await supabase
+          .from('store_stock_alerts')
+          .select('id')
+          .eq('product_id', productId)
+          .eq('email', email)
+          .maybeSingle()
+
+        if (existing) {
+          setStatus('success')
+          return
+        }
+
+        // Create stock alert
+        const { error: insertError } = await supabase.from('store_stock_alerts').insert({
           tenant_id: clinic,
           product_id: productId,
           user_id: user?.id ?? null,
@@ -76,40 +77,42 @@ export function NotifyWhenAvailable({
           notified: false,
         })
 
-      if (insertError) {
-        logger.error('Failed to create stock alert', {
+        if (insertError) {
+          logger.error('Failed to create stock alert', {
+            clinic,
+            productId,
+            error: insertError.message,
+          })
+          setError('Error al registrar. Intenta de nuevo.')
+          setStatus('error')
+          return
+        }
+
+        logger.info('Stock alert created', {
           clinic,
           productId,
-          error: insertError.message
+          hasUser: !!user,
         })
-        setError('Error al registrar. Intenta de nuevo.')
+
+        setStatus('success')
+      } catch (err) {
+        logger.error('Stock alert exception', {
+          clinic,
+          productId,
+          error: err instanceof Error ? err.message : 'Unknown',
+        })
+        setError('Error inesperado. Intenta de nuevo.')
         setStatus('error')
-        return
       }
-
-      logger.info('Stock alert created', {
-        clinic,
-        productId,
-        hasUser: !!user
-      })
-
-      setStatus('success')
-    } catch (err) {
-      logger.error('Stock alert exception', {
-        clinic,
-        productId,
-        error: err instanceof Error ? err.message : 'Unknown'
-      })
-      setError('Error inesperado. Intenta de nuevo.')
-      setStatus('error')
-    }
-  }, [email, productId, clinic])
+    },
+    [email, productId, clinic]
+  )
 
   // Success state
   if (status === 'success') {
     return (
       <div className={`flex items-center gap-2 ${compact ? 'text-xs' : 'text-sm'} text-green-600`}>
-        <Check className={compact ? 'w-3 h-3' : 'w-4 h-4'} />
+        <Check className={compact ? 'h-3 w-3' : 'h-4 w-4'} />
         <span>¡Te avisaremos cuando llegue!</span>
       </div>
     )
@@ -125,7 +128,7 @@ export function NotifyWhenAvailable({
         onClick={() => setShowForm(true)}
         className="w-full text-xs"
       >
-        <Bell className="w-3 h-3 mr-1" />
+        <Bell className="mr-1 h-3 w-3" />
         Avisar cuando llegue
       </Button>
     )
@@ -135,7 +138,7 @@ export function NotifyWhenAvailable({
     <div className={compact ? 'space-y-2' : 'space-y-3'}>
       {!compact && (
         <div className="flex items-center gap-2 text-amber-600">
-          <Bell className="w-4 h-4" />
+          <Bell className="h-4 w-4" />
           <span className="text-sm font-medium">
             {productName ? `"${productName}" no está disponible` : 'Producto no disponible'}
           </span>
@@ -149,22 +152,17 @@ export function NotifyWhenAvailable({
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="tu@email.com"
-            className={`
-              flex-1 px-3 rounded-lg border border-gray-200 
-              focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 
-              outline-none transition-all text-[var(--text-primary)]
-              ${compact ? 'py-1.5 text-xs' : 'py-2 text-sm'}
-            `}
+            className={`focus:ring-[var(--primary)]/20 flex-1 rounded-lg border border-gray-200 px-3 text-[var(--text-primary)] outline-none transition-all focus:border-[var(--primary)] focus:ring-2 ${compact ? 'py-1.5 text-xs' : 'py-2 text-sm'} `}
             disabled={status === 'submitting'}
           />
           <Button
             type="submit"
             size={compact ? 'sm' : 'md'}
             disabled={status === 'submitting'}
-            className={compact ? 'text-xs px-2' : ''}
+            className={compact ? 'px-2 text-xs' : ''}
           >
             {status === 'submitting' ? (
-              <Loader2 className={`${compact ? 'w-3 h-3' : 'w-4 h-4'} animate-spin`} />
+              <Loader2 className={`${compact ? 'h-3 w-3' : 'h-4 w-4'} animate-spin`} />
             ) : (
               'Avisar'
             )}
@@ -172,8 +170,10 @@ export function NotifyWhenAvailable({
         </div>
 
         {error && (
-          <div className={`flex items-center gap-1 text-red-600 ${compact ? 'text-xs' : 'text-sm'}`}>
-            <AlertCircle className={compact ? 'w-3 h-3' : 'w-4 h-4'} />
+          <div
+            className={`flex items-center gap-1 text-red-600 ${compact ? 'text-xs' : 'text-sm'}`}
+          >
+            <AlertCircle className={compact ? 'h-3 w-3' : 'h-4 w-4'} />
             <span>{error}</span>
           </div>
         )}

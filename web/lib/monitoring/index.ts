@@ -11,7 +11,7 @@ export {
   logDatabaseOperation,
   type LogLevel,
   type LogContext,
-  type LogEntry
+  type LogEntry,
 } from './logger'
 
 // Metrics collection
@@ -24,5 +24,5 @@ export {
   type MetricValue,
   type Counter,
   type Gauge,
-  type Histogram
+  type Histogram,
 } from './metrics'

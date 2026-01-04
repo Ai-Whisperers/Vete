@@ -1,21 +1,31 @@
-"use client";
+'use client'
 
-import { useState, useEffect, useMemo } from "react";
-import Link from "next/link";
-import { useParams } from "next/navigation";
-import { X, ShoppingBag, ShoppingCart, ArrowRight, Stethoscope, Package, PawPrint, User, Star } from "lucide-react";
-import { useCart } from "@/context/cart-context";
-import { CartItem } from "./cart-item";
-import { ServiceGroup } from "./service-group";
-import { formatPriceGs } from "@/lib/utils/pet-size";
-import { organizeCart } from "@/lib/utils/cart-utils";
-import { createClient } from "@/lib/supabase/client";
+import { useState, useEffect, useMemo } from 'react'
+import Link from 'next/link'
+import { useParams } from 'next/navigation'
+import {
+  X,
+  ShoppingBag,
+  ShoppingCart,
+  ArrowRight,
+  Stethoscope,
+  Package,
+  PawPrint,
+  User,
+  Star,
+} from 'lucide-react'
+import { useCart } from '@/context/cart-context'
+import { CartItem } from './cart-item'
+import { ServiceGroup } from './service-group'
+import { formatPriceGs } from '@/lib/utils/pet-size'
+import { organizeCart } from '@/lib/utils/cart-utils'
+import { createClient } from '@/lib/supabase/client'
 
 interface CartDrawerProps {
   /** Controlled open state */
-  isOpen: boolean;
+  isOpen: boolean
   /** Callback when drawer should close */
-  onClose: () => void;
+  onClose: () => void
 }
 
 /**
@@ -24,81 +34,83 @@ interface CartDrawerProps {
  * Slide-out sidebar displaying cart contents with quick actions.
  */
 export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
-  const { clinic } = useParams<{ clinic: string }>();
-  const { items, itemCount: totalItems, total: subtotal, clearCart } = useCart();
-  const [mounted, setMounted] = useState(false);
-  const [userId, setUserId] = useState<string | null>(null);
-  const [loyaltyPoints, setLoyaltyPoints] = useState<number | null>(null);
+  const { clinic } = useParams<{ clinic: string }>()
+  const { items, itemCount: totalItems, total: subtotal, clearCart } = useCart()
+  const [mounted, setMounted] = useState(false)
+  const [userId, setUserId] = useState<string | null>(null)
+  const [loyaltyPoints, setLoyaltyPoints] = useState<number | null>(null)
 
   // Handle hydration mismatch
   useEffect(() => {
-    setMounted(true);
-  }, []);
+    setMounted(true)
+  }, [])
 
   // Fetch user and loyalty points
   useEffect(() => {
     const fetchUserAndPoints = async () => {
-      const supabase = createClient();
-      const { data: { session } } = await supabase.auth.getSession();
+      const supabase = createClient()
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
 
       if (session?.user) {
-        setUserId(session.user.id);
+        setUserId(session.user.id)
         // Fetch loyalty points
         try {
-          const res = await fetch(`/api/loyalty/points?userId=${session.user.id}`);
+          const res = await fetch(`/api/loyalty/points?userId=${session.user.id}`)
           if (res.ok) {
-            const data = await res.json();
-            setLoyaltyPoints(data.points || 0);
+            const data = await res.json()
+            setLoyaltyPoints(data.points || 0)
           }
         } catch (e) {
-          console.error('Error fetching loyalty points:', e);
+          console.error('Error fetching loyalty points:', e)
         }
       } else {
-        setUserId(null);
-        setLoyaltyPoints(null);
+        setUserId(null)
+        setLoyaltyPoints(null)
       }
-    };
+    }
 
     if (isOpen) {
-      fetchUserAndPoints();
+      fetchUserAndPoints()
     }
-  }, [isOpen]);
+  }, [isOpen])
 
   // Close on escape key
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && isOpen) {
-        onClose();
+      if (e.key === 'Escape' && isOpen) {
+        onClose()
       }
-    };
+    }
 
-    document.addEventListener("keydown", handleEscape);
-    return () => document.removeEventListener("keydown", handleEscape);
-  }, [isOpen, onClose]);
+    document.addEventListener('keydown', handleEscape)
+    return () => document.removeEventListener('keydown', handleEscape)
+  }, [isOpen, onClose])
 
   // Prevent body scroll when drawer is open
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = "hidden";
+      document.body.style.overflow = 'hidden'
     } else {
-      document.body.style.overflow = "";
+      document.body.style.overflow = ''
     }
     return () => {
-      document.body.style.overflow = "";
-    };
-  }, [isOpen]);
+      document.body.style.overflow = ''
+    }
+  }, [isOpen])
 
   // Organize cart by owner products and pet services
-  const organizedCart = useMemo(() => organizeCart(items), [items]);
+  const organizedCart = useMemo(() => organizeCart(items), [items])
 
-  if (!mounted) return null;
+  if (!mounted) return null
 
   return (
     <>
       {/* Backdrop */}
       <div
-        className={`fixed inset-0 bg-black/40 backdrop-blur-sm z-50 transition-opacity duration-300 ${
-          isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+        className={`fixed inset-0 z-50 bg-black/40 backdrop-blur-sm transition-opacity duration-300 ${
+          isOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
         }`}
         onClick={onClose}
         aria-hidden="true"
@@ -106,22 +118,20 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
 
       {/* Drawer */}
       <div
-        className={`fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-2xl z-50 flex flex-col transition-transform duration-300 ease-out ${
-          isOpen ? "translate-x-0" : "translate-x-full"
+        className={`fixed right-0 top-0 z-50 flex h-full w-full max-w-md flex-col bg-white shadow-2xl transition-transform duration-300 ease-out ${
+          isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
         role="dialog"
         aria-modal="true"
         aria-label="Carrito de compras"
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+        <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
           <div className="flex items-center gap-3">
-            <ShoppingCart className="w-6 h-6 text-[var(--primary)]" />
-            <h2 className="text-xl font-bold text-[var(--text-primary)]">
-              Tu Carrito
-            </h2>
+            <ShoppingCart className="h-6 w-6 text-[var(--primary)]" />
+            <h2 className="text-xl font-bold text-[var(--text-primary)]">Tu Carrito</h2>
             {totalItems > 0 && (
-              <span className="bg-[var(--primary)] text-white text-xs font-bold px-2 py-0.5 rounded-full">
+              <span className="rounded-full bg-[var(--primary)] px-2 py-0.5 text-xs font-bold text-white">
                 {totalItems}
               </span>
             )}
@@ -129,10 +139,10 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
           <button
             type="button"
             onClick={onClose}
-            className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            className="rounded-lg p-2 transition-colors hover:bg-gray-100"
             aria-label="Cerrar carrito"
           >
-            <X className="w-5 h-5" />
+            <X className="h-5 w-5" />
           </button>
         </div>
 
@@ -140,51 +150,50 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
         <div className="flex-grow overflow-y-auto">
           {items.length === 0 ? (
             /* Empty State */
-            <div className="flex flex-col items-center justify-center h-full px-6 py-12">
-              <div className="w-20 h-20 rounded-full bg-[var(--bg-subtle)] flex items-center justify-center mb-6">
-                <ShoppingBag className="w-10 h-10 text-gray-400" />
+            <div className="flex h-full flex-col items-center justify-center px-6 py-12">
+              <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-[var(--bg-subtle)]">
+                <ShoppingBag className="h-10 w-10 text-gray-400" />
               </div>
-              <h3 className="text-lg font-bold text-[var(--text-primary)] mb-2">
+              <h3 className="mb-2 text-lg font-bold text-[var(--text-primary)]">
                 Tu carrito está vacío
               </h3>
-              <p className="text-[var(--text-muted)] text-center mb-6">
+              <p className="mb-6 text-center text-[var(--text-muted)]">
                 Agrega productos o servicios para comenzar
               </p>
-              <div className="flex flex-col gap-3 w-full max-w-xs">
+              <div className="flex w-full max-w-xs flex-col gap-3">
                 <Link
                   href={`/${clinic}/services`}
                   onClick={onClose}
-                  className="flex items-center justify-center gap-2 py-3 px-4 bg-[var(--primary)] text-white font-bold rounded-xl hover:brightness-110 transition"
+                  className="flex items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-4 py-3 font-bold text-white transition hover:brightness-110"
                 >
-                  <Stethoscope className="w-5 h-5" />
+                  <Stethoscope className="h-5 w-5" />
                   Ver Servicios
                 </Link>
                 <Link
                   href={`/${clinic}/store`}
                   onClick={onClose}
-                  className="flex items-center justify-center gap-2 py-3 px-4 bg-[var(--bg-subtle)] text-[var(--text-primary)] font-bold rounded-xl hover:bg-gray-200 transition"
+                  className="flex items-center justify-center gap-2 rounded-xl bg-[var(--bg-subtle)] px-4 py-3 font-bold text-[var(--text-primary)] transition hover:bg-gray-200"
                 >
-                  <Package className="w-5 h-5" />
+                  <Package className="h-5 w-5" />
                   Ver Tienda
                 </Link>
               </div>
             </div>
           ) : (
             /* Cart Items - Organized by Services first, then Products */
-            <div className="px-4 py-4 space-y-5">
+            <div className="space-y-5 px-4 py-4">
               {/* Services by Service Type (displayed first) */}
               {organizedCart.serviceGroups.length > 0 && (
                 <div>
-                  <div className="flex items-center gap-2 mb-3 px-1">
-                    <div className="w-7 h-7 rounded-full bg-[var(--primary)]/10 flex items-center justify-center">
-                      <Stethoscope className="w-4 h-4 text-[var(--primary)]" />
+                  <div className="mb-3 flex items-center gap-2 px-1">
+                    <div className="bg-[var(--primary)]/10 flex h-7 w-7 items-center justify-center rounded-full">
+                      <Stethoscope className="h-4 w-4 text-[var(--primary)]" />
                     </div>
                     <div>
-                      <h3 className="text-sm font-bold text-[var(--text-primary)]">
-                        Servicios
-                      </h3>
+                      <h3 className="text-sm font-bold text-[var(--text-primary)]">Servicios</h3>
                       <p className="text-xs text-[var(--text-muted)]">
-                        {organizedCart.serviceGroups.length} servicio{organizedCart.serviceGroups.length !== 1 ? "s" : ""}
+                        {organizedCart.serviceGroups.length} servicio
+                        {organizedCart.serviceGroups.length !== 1 ? 's' : ''}
                       </p>
                     </div>
                     <span className="ml-auto text-sm font-bold text-[var(--primary)]">
@@ -206,13 +215,13 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
               {/* Ungrouped Services (no pet assigned) */}
               {organizedCart.ungroupedServices.length > 0 && (
                 <div>
-                  <div className="flex items-center gap-2 mb-3 px-1">
-                    <Stethoscope className="w-4 h-4 text-[var(--text-secondary)]" />
+                  <div className="mb-3 flex items-center gap-2 px-1">
+                    <Stethoscope className="h-4 w-4 text-[var(--text-secondary)]" />
                     <h3 className="text-sm font-bold text-[var(--text-secondary)]">
                       Otros Servicios
                     </h3>
                   </div>
-                  <div className="space-y-1 bg-[var(--bg-subtle)]/50 rounded-xl p-3">
+                  <div className="bg-[var(--bg-subtle)]/50 space-y-1 rounded-xl p-3">
                     {organizedCart.ungroupedServices.map((item) => (
                       <CartItem key={item.id} item={item} compact />
                     ))}
@@ -223,9 +232,9 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
               {/* Products by Pet */}
               {organizedCart.petProducts.length > 0 && (
                 <div>
-                  <div className="flex items-center gap-2 mb-3 px-1">
-                    <div className="w-7 h-7 rounded-full bg-[var(--bg-subtle)] flex items-center justify-center">
-                      <Package className="w-4 h-4 text-[var(--text-secondary)]" />
+                  <div className="mb-3 flex items-center gap-2 px-1">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--bg-subtle)]">
+                      <Package className="h-4 w-4 text-[var(--text-secondary)]" />
                     </div>
                     <div>
                       <h3 className="text-sm font-bold text-[var(--text-primary)]">
@@ -236,9 +245,11 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                   <div className="space-y-3">
                     {organizedCart.petProducts.map((group) => (
                       <div key={group.pet_id} className="bg-[var(--bg-subtle)]/50 rounded-xl p-3">
-                        <div className="flex items-center gap-2 mb-2">
-                          <PawPrint className="w-4 h-4 text-[var(--primary)]" />
-                          <span className="text-sm font-semibold text-[var(--text-primary)]">{group.pet_name}</span>
+                        <div className="mb-2 flex items-center gap-2">
+                          <PawPrint className="h-4 w-4 text-[var(--primary)]" />
+                          <span className="text-sm font-semibold text-[var(--text-primary)]">
+                            {group.pet_name}
+                          </span>
                           <span className="ml-auto text-sm font-bold text-[var(--primary)]">
                             {formatPriceGs(group.subtotal)}
                           </span>
@@ -257,21 +268,19 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
               {/* Unassigned Products (displayed last) */}
               {organizedCart.unassignedProducts.length > 0 && (
                 <div>
-                  <div className="flex items-center gap-2 mb-3 px-1">
-                    <div className="w-7 h-7 rounded-full bg-[var(--bg-subtle)] flex items-center justify-center">
-                      <User className="w-4 h-4 text-[var(--text-secondary)]" />
+                  <div className="mb-3 flex items-center gap-2 px-1">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--bg-subtle)]">
+                      <User className="h-4 w-4 text-[var(--text-secondary)]" />
                     </div>
                     <div>
-                      <h3 className="text-sm font-bold text-[var(--text-primary)]">
-                        Productos
-                      </h3>
+                      <h3 className="text-sm font-bold text-[var(--text-primary)]">Productos</h3>
                       <p className="text-xs text-[var(--text-muted)]">Para ti</p>
                     </div>
                     <span className="ml-auto text-sm font-bold text-[var(--primary)]">
                       {formatPriceGs(organizedCart.productsSubtotal)}
                     </span>
                   </div>
-                  <div className="space-y-1 bg-[var(--bg-subtle)]/50 rounded-xl p-3">
+                  <div className="bg-[var(--bg-subtle)]/50 space-y-1 rounded-xl p-3">
                     {organizedCart.unassignedProducts.map((item) => (
                       <CartItem key={item.id} item={item} compact />
                     ))}
@@ -283,7 +292,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
               <button
                 type="button"
                 onClick={clearCart}
-                className="w-full py-2 text-sm text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors font-medium"
+                className="w-full rounded-lg py-2 text-sm font-medium text-red-500 transition-colors hover:bg-red-50 hover:text-red-700"
               >
                 Vaciar carrito
               </button>
@@ -293,31 +302,29 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
 
         {/* Footer */}
         {items.length > 0 && (
-          <div className="border-t border-gray-100 px-6 py-4 bg-[var(--bg-subtle)]/30">
+          <div className="bg-[var(--bg-subtle)]/30 border-t border-gray-100 px-6 py-4">
             {/* Loyalty Points Display */}
             {userId && loyaltyPoints !== null && loyaltyPoints > 0 && (
               <Link
                 href={`/${clinic}/portal/loyalty`}
                 onClick={onClose}
-                className="flex items-center justify-between py-2.5 px-3 mb-4 bg-purple-50 rounded-xl hover:bg-purple-100 transition group"
+                className="group mb-4 flex items-center justify-between rounded-xl bg-purple-50 px-3 py-2.5 transition hover:bg-purple-100"
               >
                 <div className="flex items-center gap-2">
-                  <Star className="w-4 h-4 text-purple-600" />
+                  <Star className="h-4 w-4 text-purple-600" />
                   <span className="text-sm font-bold text-purple-900">
                     {loyaltyPoints.toLocaleString()} puntos
                   </span>
                 </div>
-                <span className="text-xs text-purple-600 font-medium group-hover:underline">
+                <span className="text-xs font-medium text-purple-600 group-hover:underline">
                   Usar puntos →
                 </span>
               </Link>
             )}
 
             {/* Subtotal */}
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-[var(--text-secondary)] font-medium">
-                Subtotal
-              </span>
+            <div className="mb-4 flex items-center justify-between">
+              <span className="font-medium text-[var(--text-secondary)]">Subtotal</span>
               <span className="text-2xl font-black text-[var(--primary)]">
                 {formatPriceGs(subtotal)}
               </span>
@@ -328,15 +335,15 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
               <Link
                 href={`/${clinic}/cart/checkout`}
                 onClick={onClose}
-                className="flex items-center justify-center gap-2 w-full py-3.5 bg-[var(--primary)] text-white font-bold rounded-xl hover:brightness-110 transition shadow-lg"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--primary)] py-3.5 font-bold text-white shadow-lg transition hover:brightness-110"
               >
                 Ir a Pagar
-                <ArrowRight className="w-5 h-5" />
+                <ArrowRight className="h-5 w-5" />
               </Link>
               <Link
                 href={`/${clinic}/cart`}
                 onClick={onClose}
-                className="flex items-center justify-center gap-2 w-full py-3 bg-white text-[var(--text-primary)] font-bold rounded-xl hover:bg-gray-50 transition border border-gray-200"
+                className="flex w-full items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white py-3 font-bold text-[var(--text-primary)] transition hover:bg-gray-50"
               >
                 Ver Carrito Completo
               </Link>
@@ -345,7 +352,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
         )}
       </div>
     </>
-  );
+  )
 }
 
 /**
@@ -354,32 +361,32 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
  * Shows cart icon with badge, opens drawer on click.
  */
 interface FloatingCartButtonProps {
-  onClick: () => void;
+  onClick: () => void
 }
 
 export function FloatingCartButton({ onClick }: FloatingCartButtonProps) {
-  const { itemCount: totalItems } = useCart();
-  const [mounted, setMounted] = useState(false);
+  const { itemCount: totalItems } = useCart()
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
+    setMounted(true)
+  }, [])
 
-  if (!mounted) return null;
+  if (!mounted) return null
 
   return (
     <button
       type="button"
       onClick={onClick}
-      className="fixed bottom-24 right-4 z-40 w-14 h-14 bg-[var(--primary)] text-white rounded-full shadow-lg hover:brightness-110 hover:scale-105 transition-all flex items-center justify-center"
+      className="fixed bottom-24 right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--primary)] text-white shadow-lg transition-all hover:scale-105 hover:brightness-110"
       aria-label={`Abrir carrito (${totalItems} items)`}
     >
-      <ShoppingCart className="w-6 h-6" />
+      <ShoppingCart className="h-6 w-6" />
       {totalItems > 0 && (
-        <span className="absolute -top-1 -right-1 w-6 h-6 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center shadow-md animate-in zoom-in duration-200">
-          {totalItems > 99 ? "99+" : totalItems}
+        <span className="animate-in zoom-in absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white shadow-md duration-200">
+          {totalItems > 99 ? '99+' : totalItems}
         </span>
       )}
     </button>
-  );
+  )
 }

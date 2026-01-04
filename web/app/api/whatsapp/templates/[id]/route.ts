@@ -5,7 +5,9 @@ import { logger } from '@/lib/logger'
 
 const updateTemplateSchema = z.object({
   name: z.string().min(1).optional(),
-  category: z.enum(['appointment_reminder', 'vaccine_reminder', 'general', 'promotional', 'follow_up']).optional(),
+  category: z
+    .enum(['appointment_reminder', 'vaccine_reminder', 'general', 'promotional', 'follow_up'])
+    .optional(),
   content: z.string().min(1).optional(),
   variables: z.array(z.string()).optional(),
   is_active: z.boolean().optional(),
@@ -21,7 +23,10 @@ export async function GET(request: NextRequest, { params }: Props) {
     const supabase = await createClient()
 
     // Auth check
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
     if (authError || !user) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
@@ -51,12 +56,9 @@ export async function GET(request: NextRequest, { params }: Props) {
     return NextResponse.json({ data: template })
   } catch (error) {
     logger.error('Template API GET error', {
-      error: error instanceof Error ? error.message : 'Unknown'
+      error: error instanceof Error ? error.message : 'Unknown',
     })
-    return NextResponse.json(
-      { error: 'Error interno del servidor' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
   }
 }
 
@@ -66,7 +68,10 @@ export async function PATCH(request: NextRequest, { params }: Props) {
     const supabase = await createClient()
 
     // Auth check
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
     if (authError || !user) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
@@ -135,7 +140,7 @@ export async function PATCH(request: NextRequest, { params }: Props) {
         error: error.message,
         templateId: id,
         tenantId: profile.tenant_id,
-        userId: user.id
+        userId: user.id,
       })
       return NextResponse.json({ error: 'Error al actualizar plantilla' }, { status: 500 })
     }
@@ -143,12 +148,9 @@ export async function PATCH(request: NextRequest, { params }: Props) {
     return NextResponse.json({ data: template })
   } catch (error) {
     logger.error('Template API PATCH error', {
-      error: error instanceof Error ? error.message : 'Unknown'
+      error: error instanceof Error ? error.message : 'Unknown',
     })
-    return NextResponse.json(
-      { error: 'Error interno del servidor' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
   }
 }
 
@@ -158,7 +160,10 @@ export async function DELETE(request: NextRequest, { params }: Props) {
     const supabase = await createClient()
 
     // Auth check
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
     if (authError || !user) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
@@ -186,17 +191,14 @@ export async function DELETE(request: NextRequest, { params }: Props) {
       return NextResponse.json({ error: 'Plantilla no encontrada' }, { status: 404 })
     }
 
-    const { error } = await supabase
-      .from('whatsapp_templates')
-      .delete()
-      .eq('id', id)
+    const { error } = await supabase.from('whatsapp_templates').delete().eq('id', id)
 
     if (error) {
       logger.error('Error deleting template', {
         error: error.message,
         templateId: id,
         tenantId: profile.tenant_id,
-        userId: user.id
+        userId: user.id,
       })
       return NextResponse.json({ error: 'Error al eliminar plantilla' }, { status: 500 })
     }
@@ -204,11 +206,8 @@ export async function DELETE(request: NextRequest, { params }: Props) {
     return NextResponse.json({ success: true })
   } catch (error) {
     logger.error('Template API DELETE error', {
-      error: error instanceof Error ? error.message : 'Unknown'
+      error: error instanceof Error ? error.message : 'Unknown',
     })
-    return NextResponse.json(
-      { error: 'Error interno del servidor' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
   }
 }

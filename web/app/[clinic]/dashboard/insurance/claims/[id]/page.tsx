@@ -1,11 +1,11 @@
-"use client";
+'use client'
 
-import { useEffect, useState } from 'react';
-import { createClient } from '@/lib/supabase/client';
-import { useRouter } from 'next/navigation';
-import { useToast } from '@/components/ui/Toast';
-import ClaimTracker from '@/components/insurance/claim-tracker';
-import ClaimStatusBadge from '@/components/insurance/claim-status-badge';
+import { useEffect, useState } from 'react'
+import { createClient } from '@/lib/supabase/client'
+import { useRouter } from 'next/navigation'
+import { useToast } from '@/components/ui/Toast'
+import ClaimTracker from '@/components/insurance/claim-tracker'
+import ClaimStatusBadge from '@/components/insurance/claim-status-badge'
 import {
   ArrowLeft,
   FileText,
@@ -16,225 +16,226 @@ import {
   Send,
   CheckCircle,
   XCircle,
-  AlertCircle
-} from 'lucide-react';
+  AlertCircle,
+} from 'lucide-react'
 
 interface ClaimDetailPageProps {
   params: Promise<{
-    id: string;
-    clinic: string;
-  }>;
+    id: string
+    clinic: string
+  }>
 }
 
 interface ClaimItem {
-  id: string;
-  service_date: string;
-  service_code: string;
-  description: string;
-  quantity: number;
-  unit_price: number;
-  total_price: number;
-  approved_amount: number | null;
-  denial_reason: string | null;
+  id: string
+  service_date: string
+  service_code: string
+  description: string
+  quantity: number
+  unit_price: number
+  total_price: number
+  approved_amount: number | null
+  denial_reason: string | null
 }
 
 interface ClaimDocument {
-  id: string;
-  document_type: string;
-  title: string;
-  file_url: string;
-  sent_to_insurance: boolean;
-  sent_at: string | null;
-  created_at: string;
+  id: string
+  document_type: string
+  title: string
+  file_url: string
+  sent_to_insurance: boolean
+  sent_at: string | null
+  created_at: string
 }
 
 interface ClaimCommunication {
-  id: string;
-  direction: string;
-  channel: string;
-  subject: string | null;
-  content: string;
-  contact_name: string | null;
-  created_at: string;
-  requires_follow_up: boolean;
-  follow_up_date: string | null;
+  id: string
+  direction: string
+  channel: string
+  subject: string | null
+  content: string
+  contact_name: string | null
+  created_at: string
+  requires_follow_up: boolean
+  follow_up_date: string | null
 }
 
 interface Claim {
-  id: string;
-  claim_number: string;
-  provider_claim_number: string | null;
-  status: string;
-  claim_type: string;
-  date_of_service: string;
-  diagnosis: string;
-  diagnosis_code: string | null;
-  treatment_description: string;
-  total_charges: number;
-  claimed_amount: number;
-  approved_amount: number | null;
-  paid_amount: number | null;
-  deductible_applied: number;
-  coinsurance_amount: number;
-  denial_reason: string | null;
-  internal_notes: string | null;
-  provider_notes: string | null;
-  submitted_at: string | null;
-  acknowledged_at: string | null;
-  processed_at: string | null;
-  paid_at: string | null;
-  created_at: string;
+  id: string
+  claim_number: string
+  provider_claim_number: string | null
+  status: string
+  claim_type: string
+  date_of_service: string
+  diagnosis: string
+  diagnosis_code: string | null
+  treatment_description: string
+  total_charges: number
+  claimed_amount: number
+  approved_amount: number | null
+  paid_amount: number | null
+  deductible_applied: number
+  coinsurance_amount: number
+  denial_reason: string | null
+  internal_notes: string | null
+  provider_notes: string | null
+  submitted_at: string | null
+  acknowledged_at: string | null
+  processed_at: string | null
+  paid_at: string | null
+  created_at: string
   pets: {
-    id: string;
-    name: string;
-    species: string;
-    breed: string | null;
-  };
+    id: string
+    name: string
+    species: string
+    breed: string | null
+  }
   pet_insurance_policies: {
-    id: string;
-    policy_number: string;
-    plan_name: string;
-    deductible_amount: number | null;
-    coinsurance_percentage: number | null;
+    id: string
+    policy_number: string
+    plan_name: string
+    deductible_amount: number | null
+    coinsurance_percentage: number | null
     insurance_providers: {
-      id: string;
-      name: string;
-      logo_url: string | null;
-      claims_email: string | null;
-      claims_phone: string | null;
-    };
-  };
-  insurance_claim_items: ClaimItem[];
-  insurance_claim_documents: ClaimDocument[];
-  insurance_claim_communications: ClaimCommunication[];
+      id: string
+      name: string
+      logo_url: string | null
+      claims_email: string | null
+      claims_phone: string | null
+    }
+  }
+  insurance_claim_items: ClaimItem[]
+  insurance_claim_documents: ClaimDocument[]
+  insurance_claim_communications: ClaimCommunication[]
   insurance_eob: Array<{
-    id: string;
-    eob_number: string | null;
-    eob_date: string;
-    billed_amount: number;
-    paid_amount: number;
-    patient_responsibility: number | null;
-  }>;
+    id: string
+    eob_number: string | null
+    eob_date: string
+    billed_amount: number
+    paid_amount: number
+    patient_responsibility: number | null
+  }>
 }
 
 export default function ClaimDetailPage({ params }: ClaimDetailPageProps) {
-  const supabase = createClient();
-  const router = useRouter();
-  const { showToast } = useToast();
+  const supabase = createClient()
+  const router = useRouter()
+  const { showToast } = useToast()
 
-  const [loading, setLoading] = useState(true);
-  const [claim, setClaim] = useState<Claim | null>(null);
-  const [claimId, setClaimId] = useState<string>('');
-  const [showStatusModal, setShowStatusModal] = useState(false);
-  const [newStatus, setNewStatus] = useState('');
-  const [showNoteModal, setShowNoteModal] = useState(false);
-  const [newNote, setNewNote] = useState('');
+  const [loading, setLoading] = useState(true)
+  const [claim, setClaim] = useState<Claim | null>(null)
+  const [claimId, setClaimId] = useState<string>('')
+  const [showStatusModal, setShowStatusModal] = useState(false)
+  const [newStatus, setNewStatus] = useState('')
+  const [showNoteModal, setShowNoteModal] = useState(false)
+  const [newNote, setNewNote] = useState('')
 
   useEffect(() => {
-    params.then(p => {
-      setClaimId(p.id);
-      loadClaim(p.id);
-    });
-  }, []);
+    params.then((p) => {
+      setClaimId(p.id)
+      loadClaim(p.id)
+    })
+  }, [])
 
   const loadClaim = async (id: string) => {
-    setLoading(true);
+    setLoading(true)
 
     try {
-      const response = await fetch(`/api/insurance/claims/${id}`);
+      const response = await fetch(`/api/insurance/claims/${id}`)
       if (!response.ok) {
-        throw new Error('Error al cargar reclamo');
+        throw new Error('Error al cargar reclamo')
       }
 
-      const data = await response.json();
-      setClaim(data);
+      const data = await response.json()
+      setClaim(data)
     } catch (error) {
       // TICKET-TYPE-004: Proper error handling without any
-      showToast(error instanceof Error ? error.message : 'Error desconocido');
+      showToast(error instanceof Error ? error.message : 'Error desconocido')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const updateClaimStatus = async (status: string) => {
     try {
       const response = await fetch(`/api/insurance/claims/${claimId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status })
-      });
+        body: JSON.stringify({ status }),
+      })
 
       if (!response.ok) {
-        throw new Error('Error al actualizar estado');
+        throw new Error('Error al actualizar estado')
       }
 
-      showToast('Estado actualizado');
-      loadClaim(claimId);
-      setShowStatusModal(false);
+      showToast('Estado actualizado')
+      loadClaim(claimId)
+      setShowStatusModal(false)
     } catch (error) {
       // TICKET-TYPE-004: Proper error handling without any
-      showToast(error instanceof Error ? error.message : 'Error desconocido');
+      showToast(error instanceof Error ? error.message : 'Error desconocido')
     }
-  };
+  }
 
   const addNote = async () => {
-    if (!newNote.trim()) return;
+    if (!newNote.trim()) return
 
     try {
       const response = await fetch(`/api/insurance/claims/${claimId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          internal_notes: (claim?.internal_notes || '') + '\n\n' + new Date().toISOString() + ':\n' + newNote
-        })
-      });
+          internal_notes:
+            (claim?.internal_notes || '') + '\n\n' + new Date().toISOString() + ':\n' + newNote,
+        }),
+      })
 
       if (!response.ok) {
-        throw new Error('Error al agregar nota');
+        throw new Error('Error al agregar nota')
       }
 
-      showToast('Nota agregada');
-      setNewNote('');
-      setShowNoteModal(false);
-      loadClaim(claimId);
+      showToast('Nota agregada')
+      setNewNote('')
+      setShowNoteModal(false)
+      loadClaim(claimId)
     } catch (error) {
       // TICKET-TYPE-004: Proper error handling without any
-      showToast(error instanceof Error ? error.message : 'Error desconocido');
+      showToast(error instanceof Error ? error.message : 'Error desconocido')
     }
-  };
+  }
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex min-h-screen items-center justify-center">
         <p className="text-[var(--text-secondary)]">Cargando reclamo...</p>
       </div>
-    );
+    )
   }
 
   if (!claim) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen">
-        <p className="text-[var(--text-secondary)] mb-4">Reclamo no encontrado</p>
+      <div className="flex min-h-screen flex-col items-center justify-center">
+        <p className="mb-4 text-[var(--text-secondary)]">Reclamo no encontrado</p>
         <button
           onClick={() => router.back()}
-          className="px-4 py-2 bg-[var(--primary)] text-white rounded-md"
+          className="rounded-md bg-[var(--primary)] px-4 py-2 text-white"
         >
           Volver
         </button>
       </div>
-    );
+    )
   }
 
   return (
     <div className="min-h-screen bg-[var(--bg-default)] p-6">
-      <div className="max-w-7xl mx-auto">
+      <div className="mx-auto max-w-7xl">
         {/* Header */}
         <div className="mb-6">
           <button
             onClick={() => router.back()}
-            className="flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] mb-4"
+            className="mb-4 flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="h-5 w-5" />
             Volver a Reclamos
           </button>
 
@@ -243,20 +244,20 @@ export default function ClaimDetailPage({ params }: ClaimDetailPageProps) {
               <h1 className="text-3xl font-bold text-[var(--text-primary)]">
                 Reclamo {claim.claim_number}
               </h1>
-              <p className="text-[var(--text-secondary)] mt-1">
+              <p className="mt-1 text-[var(--text-secondary)]">
                 {claim.pets.name} - {claim.diagnosis}
               </p>
             </div>
-            <ClaimStatusBadge status={claim.status} className="text-sm px-3 py-1" />
+            <ClaimStatusBadge status={claim.status} className="px-3 py-1 text-sm" />
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           {/* Main Content */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="space-y-6 lg:col-span-2">
             {/* Claim Tracker */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-4">
+            <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+              <h2 className="mb-4 text-lg font-semibold text-[var(--text-primary)]">
                 Estado del Reclamo
               </h2>
               <ClaimTracker
@@ -269,15 +270,15 @@ export default function ClaimDetailPage({ params }: ClaimDetailPageProps) {
             </div>
 
             {/* Claim Details */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-4">
+            <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+              <h2 className="mb-4 text-lg font-semibold text-[var(--text-primary)]">
                 Detalles del Reclamo
               </h2>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-[var(--text-secondary)]">Tipo de Reclamo</p>
-                  <p className="font-medium text-[var(--text-primary)] capitalize">
+                  <p className="font-medium capitalize text-[var(--text-primary)]">
                     {claim.claim_type}
                   </p>
                 </div>
@@ -293,20 +294,26 @@ export default function ClaimDetailPage({ params }: ClaimDetailPageProps) {
                   <p className="text-sm text-[var(--text-secondary)]">Diagnóstico</p>
                   <p className="font-medium text-[var(--text-primary)]">{claim.diagnosis}</p>
                   {claim.diagnosis_code && (
-                    <p className="text-xs text-[var(--text-secondary)]">Código: {claim.diagnosis_code}</p>
+                    <p className="text-xs text-[var(--text-secondary)]">
+                      Código: {claim.diagnosis_code}
+                    </p>
                   )}
                 </div>
 
                 <div className="col-span-2">
-                  <p className="text-sm text-[var(--text-secondary)]">Descripción del Tratamiento</p>
-                  <p className="text-sm text-[var(--text-primary)]">{claim.treatment_description}</p>
+                  <p className="text-sm text-[var(--text-secondary)]">
+                    Descripción del Tratamiento
+                  </p>
+                  <p className="text-sm text-[var(--text-primary)]">
+                    {claim.treatment_description}
+                  </p>
                 </div>
               </div>
             </div>
 
             {/* Line Items */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-4">
+            <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+              <h2 className="mb-4 text-lg font-semibold text-[var(--text-primary)]">
                 Servicios y Cargos
               </h2>
 
@@ -343,21 +350,23 @@ export default function ClaimDetailPage({ params }: ClaimDetailPageProps) {
                         <td className="px-4 py-2 text-sm text-[var(--text-primary)]">
                           {item.description}
                           {item.service_code && (
-                            <p className="text-xs text-[var(--text-secondary)]">{item.service_code}</p>
+                            <p className="text-xs text-[var(--text-secondary)]">
+                              {item.service_code}
+                            </p>
                           )}
                         </td>
-                        <td className="px-4 py-2 text-sm text-center text-[var(--text-primary)]">
+                        <td className="px-4 py-2 text-center text-sm text-[var(--text-primary)]">
                           {item.quantity}
                         </td>
-                        <td className="px-4 py-2 text-sm text-right text-[var(--text-primary)]">
+                        <td className="px-4 py-2 text-right text-sm text-[var(--text-primary)]">
                           Gs. {item.unit_price.toLocaleString('es-PY')}
                         </td>
-                        <td className="px-4 py-2 text-sm text-right font-medium text-[var(--text-primary)]">
+                        <td className="px-4 py-2 text-right text-sm font-medium text-[var(--text-primary)]">
                           Gs. {item.total_price.toLocaleString('es-PY')}
                         </td>
-                        <td className="px-4 py-2 text-sm text-right">
+                        <td className="px-4 py-2 text-right text-sm">
                           {item.approved_amount !== null ? (
-                            <span className="text-green-600 font-medium">
+                            <span className="font-medium text-green-600">
                               Gs. {item.approved_amount.toLocaleString('es-PY')}
                             </span>
                           ) : (
@@ -369,7 +378,10 @@ export default function ClaimDetailPage({ params }: ClaimDetailPageProps) {
                   </tbody>
                   <tfoot className="bg-gray-50">
                     <tr>
-                      <td colSpan={4} className="px-4 py-3 text-right font-semibold text-[var(--text-primary)]">
+                      <td
+                        colSpan={4}
+                        className="px-4 py-3 text-right font-semibold text-[var(--text-primary)]"
+                      >
                         Total Reclamado
                       </td>
                       <td className="px-4 py-3 text-right font-bold text-[var(--text-primary)]">
@@ -389,19 +401,17 @@ export default function ClaimDetailPage({ params }: ClaimDetailPageProps) {
             </div>
 
             {/* Documents */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-[var(--text-primary)]">
-                  Documentos
-                </h2>
-                <button className="flex items-center gap-2 px-3 py-1 text-sm bg-[var(--primary)] text-white rounded-md hover:opacity-90">
-                  <Upload className="w-4 h-4" />
+            <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-[var(--text-primary)]">Documentos</h2>
+                <button className="flex items-center gap-2 rounded-md bg-[var(--primary)] px-3 py-1 text-sm text-white hover:opacity-90">
+                  <Upload className="h-4 w-4" />
                   Subir Documento
                 </button>
               </div>
 
               {claim.insurance_claim_documents.length === 0 ? (
-                <p className="text-center text-[var(--text-secondary)] py-4">
+                <p className="py-4 text-center text-[var(--text-secondary)]">
                   No hay documentos adjuntos
                 </p>
               ) : (
@@ -409,14 +419,15 @@ export default function ClaimDetailPage({ params }: ClaimDetailPageProps) {
                   {claim.insurance_claim_documents.map((doc) => (
                     <div
                       key={doc.id}
-                      className="flex items-center justify-between p-3 bg-gray-50 rounded-md"
+                      className="flex items-center justify-between rounded-md bg-gray-50 p-3"
                     >
                       <div className="flex items-center gap-3">
-                        <FileText className="w-5 h-5 text-[var(--primary)]" />
+                        <FileText className="h-5 w-5 text-[var(--primary)]" />
                         <div>
                           <p className="font-medium text-[var(--text-primary)]">{doc.title}</p>
                           <p className="text-xs text-[var(--text-secondary)]">
-                            {doc.document_type} - {new Date(doc.created_at).toLocaleDateString('es-PY')}
+                            {doc.document_type} -{' '}
+                            {new Date(doc.created_at).toLocaleDateString('es-PY')}
                           </p>
                         </div>
                       </div>
@@ -440,27 +451,29 @@ export default function ClaimDetailPage({ params }: ClaimDetailPageProps) {
             </div>
 
             {/* Communications */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-4">
+            <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+              <h2 className="mb-4 text-lg font-semibold text-[var(--text-primary)]">
                 Comunicaciones
               </h2>
 
               {claim.insurance_claim_communications.length === 0 ? (
-                <p className="text-center text-[var(--text-secondary)] py-4">
+                <p className="py-4 text-center text-[var(--text-secondary)]">
                   No hay comunicaciones registradas
                 </p>
               ) : (
                 <div className="space-y-3">
                   {claim.insurance_claim_communications.map((comm) => (
-                    <div key={comm.id} className="p-4 bg-gray-50 rounded-md">
-                      <div className="flex items-start justify-between mb-2">
+                    <div key={comm.id} className="rounded-md bg-gray-50 p-4">
+                      <div className="mb-2 flex items-start justify-between">
                         <div className="flex items-center gap-2">
-                          <MessageSquare className="w-4 h-4 text-[var(--primary)]" />
-                          <span className={`text-xs px-2 py-0.5 rounded ${
-                            comm.direction === 'inbound'
-                              ? 'bg-blue-100 text-blue-700'
-                              : 'bg-green-100 text-green-700'
-                          }`}>
+                          <MessageSquare className="h-4 w-4 text-[var(--primary)]" />
+                          <span
+                            className={`rounded px-2 py-0.5 text-xs ${
+                              comm.direction === 'inbound'
+                                ? 'bg-blue-100 text-blue-700'
+                                : 'bg-green-100 text-green-700'
+                            }`}
+                          >
                             {comm.direction === 'inbound' ? 'Recibido' : 'Enviado'}
                           </span>
                           <span className="text-xs text-[var(--text-secondary)]">
@@ -472,13 +485,13 @@ export default function ClaimDetailPage({ params }: ClaimDetailPageProps) {
                         </span>
                       </div>
                       {comm.subject && (
-                        <p className="font-medium text-[var(--text-primary)] text-sm mb-1">
+                        <p className="mb-1 text-sm font-medium text-[var(--text-primary)]">
                           {comm.subject}
                         </p>
                       )}
                       <p className="text-sm text-[var(--text-primary)]">{comm.content}</p>
                       {comm.contact_name && (
-                        <p className="text-xs text-[var(--text-secondary)] mt-1">
+                        <p className="mt-1 text-xs text-[var(--text-secondary)]">
                           Contacto: {comm.contact_name}
                         </p>
                       )}
@@ -492,8 +505,8 @@ export default function ClaimDetailPage({ params }: ClaimDetailPageProps) {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Policy Info */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4">
+            <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+              <h3 className="mb-4 text-lg font-semibold text-[var(--text-primary)]">
                 Información de Póliza
               </h3>
 
@@ -521,7 +534,7 @@ export default function ClaimDetailPage({ params }: ClaimDetailPageProps) {
                   </div>
                 )}
 
-                <div className="pt-3 border-t border-gray-200">
+                <div className="border-t border-gray-200 pt-3">
                   {claim.pet_insurance_policies.insurance_providers?.claims_email && (
                     <p className="text-xs text-[var(--text-secondary)]">
                       Email: {claim.pet_insurance_policies.insurance_providers.claims_email}
@@ -537,8 +550,8 @@ export default function ClaimDetailPage({ params }: ClaimDetailPageProps) {
             </div>
 
             {/* Financial Summary */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4">
+            <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+              <h3 className="mb-4 text-lg font-semibold text-[var(--text-primary)]">
                 Resumen Financiero
               </h3>
 
@@ -577,7 +590,7 @@ export default function ClaimDetailPage({ params }: ClaimDetailPageProps) {
 
                 {claim.approved_amount !== null && (
                   <>
-                    <div className="pt-2 border-t border-gray-200" />
+                    <div className="border-t border-gray-200 pt-2" />
                     <div className="flex justify-between">
                       <span className="text-sm font-semibold text-[var(--text-secondary)]">
                         Monto Aprobado
@@ -603,18 +616,16 @@ export default function ClaimDetailPage({ params }: ClaimDetailPageProps) {
             </div>
 
             {/* Actions */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4">
-                Acciones
-              </h3>
+            <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+              <h3 className="mb-4 text-lg font-semibold text-[var(--text-primary)]">Acciones</h3>
 
               <div className="space-y-2">
                 {claim.status === 'draft' && (
                   <button
                     onClick={() => updateClaimStatus('submitted')}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-[var(--primary)] text-white rounded-md hover:opacity-90"
+                    className="flex w-full items-center justify-center gap-2 rounded-md bg-[var(--primary)] px-4 py-2 text-white hover:opacity-90"
                   >
-                    <Send className="w-4 h-4" />
+                    <Send className="h-4 w-4" />
                     Enviar Reclamo
                   </button>
                 )}
@@ -623,23 +634,23 @@ export default function ClaimDetailPage({ params }: ClaimDetailPageProps) {
                   <>
                     <button
                       onClick={() => {
-                        setNewStatus('approved');
-                        setShowStatusModal(true);
+                        setNewStatus('approved')
+                        setShowStatusModal(true)
                       }}
-                      className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:opacity-90"
+                      className="flex w-full items-center justify-center gap-2 rounded-md bg-green-600 px-4 py-2 text-white hover:opacity-90"
                     >
-                      <CheckCircle className="w-4 h-4" />
+                      <CheckCircle className="h-4 w-4" />
                       Marcar Aprobado
                     </button>
 
                     <button
                       onClick={() => {
-                        setNewStatus('denied');
-                        setShowStatusModal(true);
+                        setNewStatus('denied')
+                        setShowStatusModal(true)
                       }}
-                      className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-md hover:opacity-90"
+                      className="flex w-full items-center justify-center gap-2 rounded-md bg-red-600 px-4 py-2 text-white hover:opacity-90"
                     >
-                      <XCircle className="w-4 h-4" />
+                      <XCircle className="h-4 w-4" />
                       Marcar Denegado
                     </button>
                   </>
@@ -648,23 +659,23 @@ export default function ClaimDetailPage({ params }: ClaimDetailPageProps) {
                 {claim.status === 'approved' && (
                   <button
                     onClick={() => updateClaimStatus('paid')}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-md hover:opacity-90"
+                    className="flex w-full items-center justify-center gap-2 rounded-md bg-emerald-600 px-4 py-2 text-white hover:opacity-90"
                   >
-                    <DollarSign className="w-4 h-4" />
+                    <DollarSign className="h-4 w-4" />
                     Marcar como Pagado
                   </button>
                 )}
 
                 <button
                   onClick={() => setShowNoteModal(true)}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2 border border-[var(--primary)] text-[var(--primary)] rounded-md hover:bg-[var(--primary)] hover:text-white"
+                  className="flex w-full items-center justify-center gap-2 rounded-md border border-[var(--primary)] px-4 py-2 text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white"
                 >
-                  <MessageSquare className="w-4 h-4" />
+                  <MessageSquare className="h-4 w-4" />
                   Agregar Nota
                 </button>
 
-                <button className="w-full flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 text-[var(--text-primary)] rounded-md hover:bg-gray-50">
-                  <Upload className="w-4 h-4" />
+                <button className="flex w-full items-center justify-center gap-2 rounded-md border border-gray-300 px-4 py-2 text-[var(--text-primary)] hover:bg-gray-50">
+                  <Upload className="h-4 w-4" />
                   Subir Documento
                 </button>
               </div>
@@ -672,11 +683,11 @@ export default function ClaimDetailPage({ params }: ClaimDetailPageProps) {
 
             {/* Notes */}
             {claim.internal_notes && (
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4">
+              <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+                <h3 className="mb-4 text-lg font-semibold text-[var(--text-primary)]">
                   Notas Internas
                 </h3>
-                <div className="text-sm text-[var(--text-primary)] whitespace-pre-wrap">
+                <div className="whitespace-pre-wrap text-sm text-[var(--text-primary)]">
                   {claim.internal_notes}
                 </div>
               </div>
@@ -687,30 +698,30 @@ export default function ClaimDetailPage({ params }: ClaimDetailPageProps) {
         {/* Status Change Modal */}
         {showStatusModal && (
           <div
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
             onClick={() => setShowStatusModal(false)}
           >
             <div
-              className="bg-white rounded-lg max-w-md w-full p-6"
+              className="w-full max-w-md rounded-lg bg-white p-6"
               onClick={(e) => e.stopPropagation()}
             >
-              <h2 className="text-xl font-bold text-[var(--text-primary)] mb-4">
+              <h2 className="mb-4 text-xl font-bold text-[var(--text-primary)]">
                 Confirmar Cambio de Estado
               </h2>
-              <p className="text-[var(--text-secondary)] mb-6">
+              <p className="mb-6 text-[var(--text-secondary)]">
                 ¿Está seguro que desea marcar este reclamo como{' '}
                 <strong>{newStatus === 'approved' ? 'aprobado' : 'denegado'}</strong>?
               </p>
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowStatusModal(false)}
-                  className="flex-1 px-4 py-2 border border-gray-300 text-[var(--text-primary)] rounded-md hover:bg-gray-50"
+                  className="flex-1 rounded-md border border-gray-300 px-4 py-2 text-[var(--text-primary)] hover:bg-gray-50"
                 >
                   Cancelar
                 </button>
                 <button
                   onClick={() => updateClaimStatus(newStatus)}
-                  className={`flex-1 px-4 py-2 text-white rounded-md hover:opacity-90 ${
+                  className={`flex-1 rounded-md px-4 py-2 text-white hover:opacity-90 ${
                     newStatus === 'approved' ? 'bg-green-600' : 'bg-red-600'
                   }`}
                 >
@@ -724,33 +735,33 @@ export default function ClaimDetailPage({ params }: ClaimDetailPageProps) {
         {/* Add Note Modal */}
         {showNoteModal && (
           <div
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
             onClick={() => setShowNoteModal(false)}
           >
             <div
-              className="bg-white rounded-lg max-w-md w-full p-6"
+              className="w-full max-w-md rounded-lg bg-white p-6"
               onClick={(e) => e.stopPropagation()}
             >
-              <h2 className="text-xl font-bold text-[var(--text-primary)] mb-4">
+              <h2 className="mb-4 text-xl font-bold text-[var(--text-primary)]">
                 Agregar Nota Interna
               </h2>
               <textarea
                 value={newNote}
                 onChange={(e) => setNewNote(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                className="w-full rounded-md border border-gray-300 px-3 py-2"
                 rows={4}
                 placeholder="Escriba su nota aquí..."
               />
-              <div className="flex gap-3 mt-4">
+              <div className="mt-4 flex gap-3">
                 <button
                   onClick={() => setShowNoteModal(false)}
-                  className="flex-1 px-4 py-2 border border-gray-300 text-[var(--text-primary)] rounded-md hover:bg-gray-50"
+                  className="flex-1 rounded-md border border-gray-300 px-4 py-2 text-[var(--text-primary)] hover:bg-gray-50"
                 >
                   Cancelar
                 </button>
                 <button
                   onClick={addNote}
-                  className="flex-1 px-4 py-2 bg-[var(--primary)] text-white rounded-md hover:opacity-90"
+                  className="flex-1 rounded-md bg-[var(--primary)] px-4 py-2 text-white hover:opacity-90"
                 >
                   Guardar Nota
                 </button>
@@ -760,5 +771,5 @@ export default function ClaimDetailPage({ params }: ClaimDetailPageProps) {
         )}
       </div>
     </div>
-  );
+  )
 }

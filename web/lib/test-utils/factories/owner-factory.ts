@@ -2,8 +2,8 @@
  * Owner Factory - Builder pattern for creating pet owner profiles
  */
 
-import { apiClient } from '../api-client';
-import { testContext } from '../context';
+import { apiClient } from '../api-client'
+import { testContext } from '../context'
 import {
   generateId,
   randomPhone,
@@ -11,25 +11,25 @@ import {
   pick,
   PARAGUAYAN_FIRST_NAMES,
   PARAGUAYAN_LAST_NAMES,
-} from './base';
-import { OwnerPersona } from './types';
+} from './base'
+import { OwnerPersona } from './types'
 
 interface OwnerData {
-  id: string;
-  tenant_id: string;
-  email: string;
-  full_name: string;
-  phone: string;
-  role: 'owner' | 'vet' | 'admin';
-  avatar_url: string | null;
-  address?: string;
-  city?: string;
-  notes?: string;
+  id: string
+  tenant_id: string
+  email: string
+  full_name: string
+  phone: string
+  role: 'owner' | 'vet' | 'admin'
+  avatar_url: string | null
+  address?: string
+  city?: string
+  notes?: string
 }
 
 interface OwnerPersonaConfig {
-  notePrefix: string;
-  tags: string[];
+  notePrefix: string
+  tags: string[]
 }
 
 const PERSONA_CONFIGS: Record<OwnerPersona, OwnerPersonaConfig> = {
@@ -73,7 +73,7 @@ const PERSONA_CONFIGS: Record<OwnerPersona, OwnerPersonaConfig> = {
     notePrefix: '',
     tags: [],
   },
-};
+}
 
 const ADDRESSES = [
   'Av. Mariscal López 1234',
@@ -86,14 +86,14 @@ const ADDRESSES = [
   'Calle Chile 987',
   'Av. Artigas 147',
   'Calle Sacramento 258',
-];
+]
 
-const CITIES = ['Asunción', 'San Lorenzo', 'Luque', 'Fernando de la Mora', 'Lambaré'];
+const CITIES = ['Asunción', 'San Lorenzo', 'Luque', 'Fernando de la Mora', 'Lambaré']
 
 export class OwnerFactory {
-  private data: Partial<OwnerData>;
-  private persona: OwnerPersona = 'standard';
-  private shouldPersist: boolean = true;
+  private data: Partial<OwnerData>
+  private persona: OwnerPersona = 'standard'
+  private shouldPersist: boolean = true
 
   private constructor() {
     this.data = {
@@ -101,90 +101,90 @@ export class OwnerFactory {
       tenant_id: 'adris',
       role: 'owner',
       avatar_url: null,
-    };
+    }
   }
 
   /**
    * Start building an owner
    */
   static create(): OwnerFactory {
-    return new OwnerFactory();
+    return new OwnerFactory()
   }
 
   /**
    * Set a specific persona for this owner
    */
   withPersona(persona: OwnerPersona): OwnerFactory {
-    this.persona = persona;
-    const config = PERSONA_CONFIGS[persona];
-    this.data.notes = config.notePrefix;
-    return this;
+    this.persona = persona
+    const config = PERSONA_CONFIGS[persona]
+    this.data.notes = config.notePrefix
+    return this
   }
 
   /**
    * Set tenant ID (defaults to 'adris')
    */
   forTenant(tenantId: string): OwnerFactory {
-    this.data.tenant_id = tenantId;
-    return this;
+    this.data.tenant_id = tenantId
+    return this
   }
 
   /**
    * Set specific name
    */
   withName(fullName: string): OwnerFactory {
-    this.data.full_name = fullName;
-    this.data.email = randomEmail(fullName);
-    return this;
+    this.data.full_name = fullName
+    this.data.email = randomEmail(fullName)
+    return this
   }
 
   /**
    * Set specific email
    */
   withEmail(email: string): OwnerFactory {
-    this.data.email = email;
-    return this;
+    this.data.email = email
+    return this
   }
 
   /**
    * Set specific phone
    */
   withPhone(phone: string): OwnerFactory {
-    this.data.phone = phone;
-    return this;
+    this.data.phone = phone
+    return this
   }
 
   /**
    * Add address information
    */
   withAddress(address?: string, city?: string): OwnerFactory {
-    this.data.address = address || pick(ADDRESSES);
-    this.data.city = city || pick(CITIES);
-    return this;
+    this.data.address = address || pick(ADDRESSES)
+    this.data.city = city || pick(CITIES)
+    return this
   }
 
   /**
    * Add notes
    */
   withNotes(notes: string): OwnerFactory {
-    this.data.notes = notes;
-    return this;
+    this.data.notes = notes
+    return this
   }
 
   /**
    * Set ID explicitly (for idempotent seeding)
    */
   withId(id: string): OwnerFactory {
-    this.data.id = id;
-    return this;
+    this.data.id = id
+    return this
   }
 
   /**
    * Don't persist to database (for unit tests)
    */
   inMemoryOnly(): OwnerFactory {
-    this.shouldPersist = false;
-    return this;
+    this.shouldPersist = false
+    return this
   }
 
   /**
@@ -193,32 +193,32 @@ export class OwnerFactory {
   buildData(): OwnerData {
     // Generate name if not set
     if (!this.data.full_name) {
-      const firstName = pick(PARAGUAYAN_FIRST_NAMES);
-      const lastName = pick(PARAGUAYAN_LAST_NAMES);
-      this.data.full_name = `${firstName} ${lastName}`;
+      const firstName = pick(PARAGUAYAN_FIRST_NAMES)
+      const lastName = pick(PARAGUAYAN_LAST_NAMES)
+      this.data.full_name = `${firstName} ${lastName}`
     }
 
     // Generate email if not set
     if (!this.data.email) {
-      this.data.email = randomEmail(this.data.full_name);
+      this.data.email = randomEmail(this.data.full_name)
     }
 
     // Generate phone if not set
     if (!this.data.phone) {
-      this.data.phone = randomPhone();
+      this.data.phone = randomPhone()
     }
 
-    return this.data as OwnerData;
+    return this.data as OwnerData
   }
 
   /**
    * Build and persist the owner to database
    */
   async build(): Promise<OwnerData> {
-    const ownerData = this.buildData();
+    const ownerData = this.buildData()
 
     if (!this.shouldPersist) {
-      return ownerData;
+      return ownerData
     }
 
     // Insert into profiles table
@@ -230,16 +230,16 @@ export class OwnerFactory {
       phone: ownerData.phone,
       role: ownerData.role,
       avatar_url: ownerData.avatar_url,
-    });
+    })
 
     if (error) {
-      throw new Error(`Failed to create owner: ${error}`);
+      throw new Error(`Failed to create owner: ${error}`)
     }
 
     // Track for cleanup in test mode
-    testContext.track('profiles', ownerData.id, ownerData.tenant_id);
+    testContext.track('profiles', ownerData.id, ownerData.tenant_id)
 
-    return ownerData;
+    return ownerData
   }
 }
 
@@ -258,21 +258,21 @@ export async function createDistinctOwners(tenantId: string = 'adris'): Promise<
     'loyal',
     'inactive',
     'standard',
-  ];
+  ]
 
-  const owners: OwnerData[] = [];
+  const owners: OwnerData[] = []
 
   for (const persona of personas) {
     const owner = await OwnerFactory.create()
       .forTenant(tenantId)
       .withPersona(persona)
       .withAddress()
-      .build();
+      .build()
 
-    owners.push(owner);
+    owners.push(owner)
   }
 
-  return owners;
+  return owners
 }
 
 /**
@@ -281,9 +281,9 @@ export async function createDistinctOwners(tenantId: string = 'adris'): Promise<
  * Idempotency is achieved by checking email before creating
  */
 export const PREDEFINED_OWNERS: Array<{
-  persona: OwnerPersona;
-  name: string;
-  email: string;
+  persona: OwnerPersona
+  name: string
+  email: string
 }> = [
   { persona: 'vip', name: 'Carlos Benítez', email: 'carlos.benitez.demo@adris.com' },
   { persona: 'budget', name: 'María López', email: 'maria.lopez.demo@adris.com' },
@@ -295,14 +295,14 @@ export const PREDEFINED_OWNERS: Array<{
   { persona: 'loyal', name: 'Lucía Giménez', email: 'lucia.gimenez.demo@adris.com' },
   { persona: 'inactive', name: 'José Torres', email: 'jose.torres.demo@adris.com' },
   { persona: 'standard', name: 'Sofía Romero', email: 'sofia.romero.demo@adris.com' },
-];
+]
 
 /**
  * Create all predefined owners (idempotent)
  * Checks by email to avoid duplicates
  */
 export async function createPredefinedOwners(tenantId: string = 'adris'): Promise<OwnerData[]> {
-  const owners: OwnerData[] = [];
+  const owners: OwnerData[] = []
 
   for (const preset of PREDEFINED_OWNERS) {
     // Check if owner already exists by email
@@ -310,11 +310,11 @@ export async function createPredefinedOwners(tenantId: string = 'adris'): Promis
       select: 'id, tenant_id, email, full_name, phone, role, avatar_url',
       eq: { email: preset.email, tenant_id: tenantId },
       limit: 1,
-    });
+    })
 
     if (existing && existing.length > 0) {
-      owners.push(existing[0]);
-      continue;
+      owners.push(existing[0])
+      continue
     }
 
     // Create new owner with generated UUID
@@ -324,10 +324,10 @@ export async function createPredefinedOwners(tenantId: string = 'adris'): Promis
       .withName(preset.name)
       .withEmail(preset.email)
       .withAddress()
-      .build();
+      .build()
 
-    owners.push(owner);
+    owners.push(owner)
   }
 
-  return owners;
+  return owners
 }

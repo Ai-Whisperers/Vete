@@ -35,15 +35,15 @@ const speciesIcons: Record<string, React.ComponentType<{ className?: string }>> 
   bird: Icons.Bird,
   rabbit: Icons.Rabbit,
   fish: Icons.Fish,
-  default: Icons.PawPrint
+  default: Icons.PawPrint,
 }
 
 export function TodayScheduleWidget({ appointments, clinic }: TodayScheduleWidgetProps) {
   // Group appointments by status priority
-  const activeAppointments = appointments.filter(a =>
+  const activeAppointments = appointments.filter((a) =>
     ['in_progress', 'checked_in', 'pending', 'confirmed'].includes(a.status)
   )
-  const completedCount = appointments.filter(a =>
+  const completedCount = appointments.filter((a) =>
     ['completed', 'no_show', 'cancelled'].includes(a.status)
   ).length
 
@@ -52,18 +52,18 @@ export function TodayScheduleWidget({ appointments, clinic }: TodayScheduleWidge
   const currentMinute = now.getMinutes()
 
   // Find the next upcoming appointment
-  const nextAppointment = activeAppointments.find(apt => {
+  const nextAppointment = activeAppointments.find((apt) => {
     const aptTime = new Date(apt.start_time)
     return aptTime > now
   })
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+    <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
       {/* Header */}
-      <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+      <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[var(--primary)]/10 flex items-center justify-center">
-            <Icons.CalendarClock className="w-5 h-5 text-[var(--primary)]" />
+          <div className="bg-[var(--primary)]/10 flex h-10 w-10 items-center justify-center rounded-xl">
+            <Icons.CalendarClock className="h-5 w-5 text-[var(--primary)]" />
           </div>
           <div>
             <h3 className="font-bold text-[var(--text-primary)]">Agenda de Hoy</h3>
@@ -71,59 +71,56 @@ export function TodayScheduleWidget({ appointments, clinic }: TodayScheduleWidge
               {new Date().toLocaleDateString('es-PY', {
                 weekday: 'long',
                 day: 'numeric',
-                month: 'long'
+                month: 'long',
               })}
             </p>
           </div>
         </div>
         <Link
           href={`/${clinic}/dashboard/appointments`}
-          className="text-[var(--primary)] text-sm font-medium hover:underline flex items-center gap-1"
+          className="flex items-center gap-1 text-sm font-medium text-[var(--primary)] hover:underline"
         >
           Ver todo
-          <Icons.ChevronRight className="w-4 h-4" />
+          <Icons.ChevronRight className="h-4 w-4" />
         </Link>
       </div>
 
       {/* Stats Bar */}
-      <div className="px-5 py-3 bg-gray-50 flex items-center gap-4 text-xs">
+      <div className="flex items-center gap-4 bg-gray-50 px-5 py-3 text-xs">
         <div className="flex items-center gap-1.5">
-          <div className="w-2 h-2 rounded-full bg-blue-500" />
+          <div className="h-2 w-2 rounded-full bg-blue-500" />
           <span className="text-[var(--text-secondary)]">
-            {activeAppointments.filter(a => ['pending', 'confirmed'].includes(a.status)).length} pendientes
+            {activeAppointments.filter((a) => ['pending', 'confirmed'].includes(a.status)).length}{' '}
+            pendientes
           </span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
+          <div className="h-2 w-2 animate-pulse rounded-full bg-purple-500" />
           <span className="text-[var(--text-secondary)]">
-            {activeAppointments.filter(a => a.status === 'in_progress').length} en consulta
+            {activeAppointments.filter((a) => a.status === 'in_progress').length} en consulta
           </span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="w-2 h-2 rounded-full bg-green-500" />
-          <span className="text-[var(--text-secondary)]">
-            {completedCount} completadas
-          </span>
+          <div className="h-2 w-2 rounded-full bg-green-500" />
+          <span className="text-[var(--text-secondary)]">{completedCount} completadas</span>
         </div>
       </div>
 
       {/* Appointments List */}
       {activeAppointments.length === 0 ? (
         <div className="px-5 py-8 text-center">
-          <Icons.CalendarCheck className="w-10 h-10 text-gray-300 mx-auto mb-3" />
-          <p className="text-[var(--text-secondary)] text-sm">
-            No hay citas pendientes para hoy
-          </p>
+          <Icons.CalendarCheck className="mx-auto mb-3 h-10 w-10 text-gray-300" />
+          <p className="text-sm text-[var(--text-secondary)]">No hay citas pendientes para hoy</p>
           <Link
             href={`/${clinic}/dashboard/appointments/new`}
-            className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-[var(--primary)] text-white text-sm font-medium rounded-lg hover:opacity-90 transition-opacity"
+            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-[var(--primary)] px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
           >
-            <Icons.Plus className="w-4 h-4" />
+            <Icons.Plus className="h-4 w-4" />
             Nueva Cita
           </Link>
         </div>
       ) : (
-        <div className="divide-y divide-gray-100 max-h-[400px] overflow-y-auto">
+        <div className="max-h-[400px] divide-y divide-gray-100 overflow-y-auto">
           {activeAppointments.slice(0, 8).map((apt) => {
             const status = statusConfig[apt.status] || statusConfig.pending
             const SpeciesIcon = speciesIcons[apt.pets?.species || 'default'] || speciesIcons.default
@@ -134,16 +131,21 @@ export function TodayScheduleWidget({ appointments, clinic }: TodayScheduleWidge
             return (
               <div
                 key={apt.id}
-                className={`px-5 py-3 flex items-center gap-4 hover:bg-gray-50 transition-colors ${
+                className={`flex items-center gap-4 px-5 py-3 transition-colors hover:bg-gray-50 ${
                   apt.status === 'in_progress' ? 'bg-purple-50/50' : ''
                 } ${isNext ? 'bg-blue-50/50' : ''}`}
               >
                 {/* Time Column */}
                 <div className={`w-16 shrink-0 ${isPast ? 'opacity-50' : ''}`}>
-                  <p className={`font-bold text-sm ${
-                    apt.status === 'in_progress' ? 'text-purple-600' :
-                    isNext ? 'text-[var(--primary)]' : 'text-[var(--text-primary)]'
-                  }`}>
+                  <p
+                    className={`text-sm font-bold ${
+                      apt.status === 'in_progress'
+                        ? 'text-purple-600'
+                        : isNext
+                          ? 'text-[var(--primary)]'
+                          : 'text-[var(--text-primary)]'
+                    }`}
+                  >
                     {formatAppointmentTime(apt.start_time)}
                   </p>
                   <p className="text-[10px] text-[var(--text-secondary)]">
@@ -152,46 +154,46 @@ export function TodayScheduleWidget({ appointments, clinic }: TodayScheduleWidge
                 </div>
 
                 {/* Pet Avatar */}
-                <div className="w-10 h-10 rounded-lg bg-[var(--primary)]/10 flex items-center justify-center overflow-hidden shrink-0">
+                <div className="bg-[var(--primary)]/10 flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg">
                   {apt.pets?.photo_url ? (
                     <Image
                       src={apt.pets.photo_url}
                       alt={apt.pets.name || 'Mascota'}
                       width={40}
                       height={40}
-                      className="w-full h-full object-cover"
+                      className="h-full w-full object-cover"
                     />
                   ) : (
-                    <SpeciesIcon className="w-5 h-5 text-[var(--primary)]" />
+                    <SpeciesIcon className="h-5 w-5 text-[var(--primary)]" />
                   )}
                 </div>
 
                 {/* Pet & Owner Info */}
-                <div className="flex-1 min-w-0">
+                <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <p className="font-semibold text-sm text-[var(--text-primary)] truncate">
+                    <p className="truncate text-sm font-semibold text-[var(--text-primary)]">
                       {apt.pets?.name || 'Sin nombre'}
                     </p>
                     {isNext && (
-                      <span className="text-[10px] font-bold text-[var(--primary)] bg-[var(--primary)]/10 px-1.5 py-0.5 rounded">
+                      <span className="bg-[var(--primary)]/10 rounded px-1.5 py-0.5 text-[10px] font-bold text-[var(--primary)]">
                         SIGUIENTE
                       </span>
                     )}
                   </div>
-                  <p className="text-xs text-[var(--text-secondary)] truncate">
+                  <p className="truncate text-xs text-[var(--text-secondary)]">
                     {apt.pets?.owner?.full_name || 'Propietario desconocido'}
                   </p>
                 </div>
 
                 {/* Reason */}
-                <div className="hidden md:block flex-1 min-w-0">
-                  <p className="text-xs text-[var(--text-secondary)] truncate">
-                    {apt.reason}
-                  </p>
+                <div className="hidden min-w-0 flex-1 md:block">
+                  <p className="truncate text-xs text-[var(--text-secondary)]">{apt.reason}</p>
                 </div>
 
                 {/* Status Badge */}
-                <span className={`px-2 py-1 rounded-full text-[10px] font-bold shrink-0 ${status.className}`}>
+                <span
+                  className={`shrink-0 rounded-full px-2 py-1 text-[10px] font-bold ${status.className}`}
+                >
                   {status.label}
                 </span>
 
@@ -199,11 +201,11 @@ export function TodayScheduleWidget({ appointments, clinic }: TodayScheduleWidge
                 {apt.pets?.owner?.phone && (
                   <a
                     href={`tel:${apt.pets.owner.phone}`}
-                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors shrink-0"
+                    className="shrink-0 rounded-lg p-2 transition-colors hover:bg-gray-100"
                     title={`Llamar a ${apt.pets.owner.phone}`}
                     aria-label={`Llamar a ${apt.pets.owner.full_name || 'propietario'} al ${apt.pets.owner.phone}`}
                   >
-                    <Icons.Phone className="w-4 h-4 text-[var(--text-secondary)]" />
+                    <Icons.Phone className="h-4 w-4 text-[var(--text-secondary)]" />
                   </a>
                 )}
               </div>
@@ -214,13 +216,13 @@ export function TodayScheduleWidget({ appointments, clinic }: TodayScheduleWidge
 
       {/* Footer - Show more link if there are more appointments */}
       {activeAppointments.length > 8 && (
-        <div className="px-5 py-3 border-t border-gray-100 bg-gray-50">
+        <div className="border-t border-gray-100 bg-gray-50 px-5 py-3">
           <Link
             href={`/${clinic}/dashboard/appointments`}
-            className="text-[var(--primary)] text-sm font-medium hover:underline flex items-center justify-center gap-1"
+            className="flex items-center justify-center gap-1 text-sm font-medium text-[var(--primary)] hover:underline"
           >
             +{activeAppointments.length - 8} citas más
-            <Icons.ChevronRight className="w-4 h-4" />
+            <Icons.ChevronRight className="h-4 w-4" />
           </Link>
         </div>
       )}

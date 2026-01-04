@@ -94,7 +94,13 @@
       "sender_name": "Carlos Rodríguez",
       "message_type": "image",
       "content": "Le mando foto de cómo está la herida",
-      "attachments": [{"url": "/uploads/messages/max-herida-01.jpg", "type": "image/jpeg", "name": "max-herida-01.jpg"}],
+      "attachments": [
+        {
+          "url": "/uploads/messages/max-herida-01.jpg",
+          "type": "image/jpeg",
+          "name": "max-herida-01.jpg"
+        }
+      ],
       "status": "read",
       "delivered_at": "{{daysAgo(3)}}",
       "read_at": "{{daysAgo(3)}}",

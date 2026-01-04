@@ -31,7 +31,7 @@
  */
 
 // Types
-export * from './types';
+export * from './types'
 
 // Base utilities
 export {
@@ -54,7 +54,7 @@ export {
   CAT_BREEDS,
   PET_NAMES,
   PET_COLORS,
-} from './base';
+} from './base'
 
 // Owner factory
 export {
@@ -62,32 +62,23 @@ export {
   createDistinctOwners,
   createPredefinedOwners,
   PREDEFINED_OWNERS,
-} from './owner-factory';
+} from './owner-factory'
 
 // Pet factory
-export {
-  PetFactory,
-  createPetsForOwner,
-} from './pet-factory';
+export { PetFactory, createPetsForOwner } from './pet-factory'
 
 // Appointment factory
-export {
-  AppointmentFactory,
-  createAppointmentHistory,
-} from './appointment-factory';
+export { AppointmentFactory, createAppointmentHistory } from './appointment-factory'
 
 // Invoice & Payment factory
-export {
-  InvoiceFactory,
-  createInvoiceHistory,
-} from './invoice-factory';
+export { InvoiceFactory, createInvoiceHistory } from './invoice-factory'
 
 // Loyalty factory
 export {
   LoyaltyFactory,
   createLoyaltyFromPurchases,
   createLoyaltyForPersona,
-} from './loyalty-factory';
+} from './loyalty-factory'
 
 // Store order factory
 export {
@@ -95,4 +86,4 @@ export {
   CartFactory,
   createOrderHistory,
   createAbandonedCarts,
-} from './store-order-factory';
+} from './store-order-factory'

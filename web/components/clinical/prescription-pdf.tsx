@@ -1,5 +1,5 @@
-import React from 'react';
-import { Page, Text, View, Document, StyleSheet, Image, Font } from '@react-pdf/renderer';
+import React from 'react'
+import { Page, Text, View, Document, StyleSheet, Image, Font } from '@react-pdf/renderer'
 
 // Create styles
 const styles = StyleSheet.create({
@@ -120,33 +120,42 @@ const styles = StyleSheet.create({
     fontSize: 8,
     color: '#999',
     marginTop: 4,
-  }
-});
+  },
+})
 
 interface PrescriptionPDFProps {
-    clinicName: string;
-    clinicAddress?: string;
-    patientName: string;
-    ownerName: string;
-    date: string;
-    drugs: Array<{ name: string; dose: string; instructions: string }>;
-    notes?: string;
-    vetName: string;
-    signatureHash?: string;
+  clinicName: string
+  clinicAddress?: string
+  patientName: string
+  ownerName: string
+  date: string
+  drugs: Array<{ name: string; dose: string; instructions: string }>
+  notes?: string
+  vetName: string
+  signatureHash?: string
 }
 
-export const PrescriptionPDF = ({ clinicName, clinicAddress, patientName, ownerName, date, drugs, notes, vetName, signatureHash }: PrescriptionPDFProps) => (
+export const PrescriptionPDF = ({
+  clinicName,
+  clinicAddress,
+  patientName,
+  ownerName,
+  date,
+  drugs,
+  notes,
+  vetName,
+  signatureHash,
+}: PrescriptionPDFProps) => (
   <Document>
     <Page size="A4" style={styles.page}>
-      
       {/* Header */}
       <View style={styles.header}>
         <View>
-            <Text style={styles.clinicName}>{clinicName}</Text>
-            <Text style={styles.clinicSubtitle}>{clinicAddress || 'Veterinary Clinic'}</Text>
+          <Text style={styles.clinicName}>{clinicName}</Text>
+          <Text style={styles.clinicSubtitle}>{clinicAddress || 'Veterinary Clinic'}</Text>
         </View>
         <View>
-            <Text style={{ fontSize: 30, color: '#ddd' }}>Rx</Text>
+          <Text style={{ fontSize: 30, color: '#ddd' }}>Rx</Text>
         </View>
       </View>
 
@@ -155,60 +164,59 @@ export const PrescriptionPDF = ({ clinicName, clinicAddress, patientName, ownerN
       {/* Patient Info */}
       <View style={styles.patientSection}>
         <View style={styles.row}>
-            <Text style={styles.label}>Paciente:</Text>
-            <Text style={styles.value}>{patientName}</Text>
+          <Text style={styles.label}>Paciente:</Text>
+          <Text style={styles.value}>{patientName}</Text>
         </View>
         <View style={styles.row}>
-            <Text style={styles.label}>Propietario:</Text>
-            <Text style={styles.value}>{ownerName}</Text>
+          <Text style={styles.label}>Propietario:</Text>
+          <Text style={styles.value}>{ownerName}</Text>
         </View>
-         <View style={styles.row}>
-            <Text style={styles.label}>Fecha:</Text>
-            <Text style={styles.value}>{date}</Text>
+        <View style={styles.row}>
+          <Text style={styles.label}>Fecha:</Text>
+          <Text style={styles.value}>{date}</Text>
         </View>
       </View>
 
       {/* Drugs */}
       <View style={styles.drugsSection}>
         {drugs.map((drug, i) => (
-            <View key={i} style={styles.drugRow}>
-                <Text style={styles.drugName}>{drug.name}</Text>
-                <Text style={styles.drugDose}>Dosis: {drug.dose}</Text>
-                <Text style={styles.drugInstructions}>Indicaciones: {drug.instructions}</Text>
-            </View>
+          <View key={i} style={styles.drugRow}>
+            <Text style={styles.drugName}>{drug.name}</Text>
+            <Text style={styles.drugDose}>Dosis: {drug.dose}</Text>
+            <Text style={styles.drugInstructions}>Indicaciones: {drug.instructions}</Text>
+          </View>
         ))}
       </View>
 
       {/* Notes */}
       {notes && (
-          <View style={styles.notesSection}>
-            <Text style={{ fontWeight: 'bold', marginBottom: 4 }}>Notas Adicionales:</Text>
-            <Text>{notes}</Text>
-          </View>
+        <View style={styles.notesSection}>
+          <Text style={{ fontWeight: 'bold', marginBottom: 4 }}>Notas Adicionales:</Text>
+          <Text>{notes}</Text>
+        </View>
       )}
 
       {/* Footer */}
       <View style={styles.footer}>
         <View style={styles.qrArea}>
-             {/* In real app, render actual QR code image here */}
-            <View style={styles.qrPlaceholder} /> 
-            <Text style={{ fontSize: 8 }}>Verificar Autenticidad</Text>
+          {/* In real app, render actual QR code image here */}
+          <View style={styles.qrPlaceholder} />
+          <Text style={{ fontSize: 8 }}>Verificar Autenticidad</Text>
         </View>
 
         <View style={styles.signatureArea}>
-            <View style={{ height: 40 }} /> {/* Space for physical signature if printed */}
-            <View style={styles.signatureLine} />
-            <Text style={styles.signatureLabel}>Dr/a. {vetName}</Text>
-            <Text style={styles.signatureLabel}>Médico Veterinario</Text>
+          <View style={{ height: 40 }} /> {/* Space for physical signature if printed */}
+          <View style={styles.signatureLine} />
+          <Text style={styles.signatureLabel}>Dr/a. {vetName}</Text>
+          <Text style={styles.signatureLabel}>Médico Veterinario</Text>
         </View>
       </View>
 
       {signatureHash && (
-          <Text style={{ position: 'absolute', bottom: 10, left: 30, fontSize: 8, color: '#ccc' }}>
-            Digital ID: {signatureHash}
-          </Text>
+        <Text style={{ position: 'absolute', bottom: 10, left: 30, fontSize: 8, color: '#ccc' }}>
+          Digital ID: {signatureHash}
+        </Text>
       )}
-
     </Page>
   </Document>
-);
+)

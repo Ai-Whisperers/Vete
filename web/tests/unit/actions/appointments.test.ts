@@ -33,16 +33,16 @@ import { cancelAppointment, rescheduleAppointment } from '@/app/actions/appointm
 describe('Appointment Server Actions', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    
+
     // Default implementation: Handle profiles (auth) and appointments differently if needed
-    // But usually we override in tests. 
+    // But usually we override in tests.
     // Setting a base implementation that doesn't crash:
     mockSupabaseClient.from.mockImplementation((table: string) => {
-        // Default success for profiles to pass auth check
-        if (table === 'profiles') {
-            return createMockChain({ role: 'owner', tenant_id: 'adris' })
-        }
-        return createMockChain(null, { message: 'Not mocked' })
+      // Default success for profiles to pass auth check
+      if (table === 'profiles') {
+        return createMockChain({ role: 'owner', tenant_id: 'adris' })
+      }
+      return createMockChain(null, { message: 'Not mocked' })
     })
   })
 
@@ -86,20 +86,25 @@ describe('Appointment Server Actions', () => {
       })
 
       mockSupabaseClient.from.mockImplementation((table: string) => {
-        if (table === 'profiles') return createMockChain({ role: 'owner', tenant_id: 'different-tenant' }) // User profile
-        if (table === 'appointments') return createMockChain({
+        if (table === 'profiles')
+          return createMockChain({ role: 'owner', tenant_id: 'different-tenant' }) // User profile
+        if (table === 'appointments')
+          return createMockChain({
             id: 'appointment-123',
             tenant_id: 'adris',
             start_time: new Date(Date.now() + 86400000).toISOString(),
             status: 'pending',
             pets: { owner_id: 'different-user' },
-        })
+          })
         return createMockChain(null)
       })
 
       const result = await cancelAppointment('appointment-123')
 
-      expect(result).toMatchObject({ success: false, error: 'No tienes permiso para cancelar esta cita' })
+      expect(result).toMatchObject({
+        success: false,
+        error: 'No tienes permiso para cancelar esta cita',
+      })
     })
 
     it('should return error when appointment is in the past', async () => {
@@ -110,19 +115,23 @@ describe('Appointment Server Actions', () => {
 
       mockSupabaseClient.from.mockImplementation((table: string) => {
         if (table === 'profiles') return createMockChain({ role: 'owner', tenant_id: 'adris' })
-        if (table === 'appointments') return createMockChain({
+        if (table === 'appointments')
+          return createMockChain({
             id: 'appointment-123',
             tenant_id: 'adris',
             start_time: new Date(Date.now() - 86400000).toISOString(), // Past
             status: 'pending',
             pets: { owner_id: 'user-123' },
-        })
+          })
         return createMockChain(null)
       })
 
       const result = await cancelAppointment('appointment-123')
 
-      expect(result).toMatchObject({ success: false, error: 'No se puede cancelar una cita pasada' })
+      expect(result).toMatchObject({
+        success: false,
+        error: 'No se puede cancelar una cita pasada',
+      })
     })
 
     it('should return error when appointment is already cancelled', async () => {
@@ -133,13 +142,14 @@ describe('Appointment Server Actions', () => {
 
       mockSupabaseClient.from.mockImplementation((table: string) => {
         if (table === 'profiles') return createMockChain({ role: 'owner', tenant_id: 'adris' })
-        if (table === 'appointments') return createMockChain({
+        if (table === 'appointments')
+          return createMockChain({
             id: 'appointment-123',
             tenant_id: 'adris',
             start_time: new Date(Date.now() + 86400000).toISOString(),
             status: 'cancelled', // Cancelled
             pets: { owner_id: 'user-123' },
-        })
+          })
         return createMockChain(null)
       })
 
@@ -159,18 +169,18 @@ describe('Appointment Server Actions', () => {
       mockSupabaseClient.from.mockImplementation((table: string) => {
         if (table === 'profiles') return createMockChain({ role: 'owner', tenant_id: 'adris' })
         if (table === 'appointments') {
-            const chain = createMockChain({
-                id: 'appointment-123',
-                tenant_id: 'adris',
-                start_time: new Date(Date.now() + 86400000).toISOString(),
-                status: 'pending',
-                pets: { owner_id: 'user-123' },
-            })
-            // Mock update explicitly
-            chain.update = vi.fn().mockReturnValue({
-                eq: mockUpdate // update().eq() returns the promise
-            })
-            return chain
+          const chain = createMockChain({
+            id: 'appointment-123',
+            tenant_id: 'adris',
+            start_time: new Date(Date.now() + 86400000).toISOString(),
+            status: 'pending',
+            pets: { owner_id: 'user-123' },
+          })
+          // Mock update explicitly
+          chain.update = vi.fn().mockReturnValue({
+            eq: mockUpdate, // update().eq() returns the promise
+          })
+          return chain
         }
         return createMockChain(null)
       })
@@ -191,15 +201,15 @@ describe('Appointment Server Actions', () => {
       mockSupabaseClient.from.mockImplementation((table: string) => {
         if (table === 'profiles') return createMockChain({ role: 'vet', tenant_id: 'adris' }) // Staff
         if (table === 'appointments') {
-            const chain = createMockChain({
-                id: 'appointment-123',
-                tenant_id: 'adris',
-                start_time: new Date(Date.now() + 86400000).toISOString(),
-                status: 'pending',
-                pets: { owner_id: 'owner-456' }, // Different owner
-            })
-            chain.update = vi.fn().mockReturnValue({ eq: mockUpdate })
-            return chain
+          const chain = createMockChain({
+            id: 'appointment-123',
+            tenant_id: 'adris',
+            start_time: new Date(Date.now() + 86400000).toISOString(),
+            status: 'pending',
+            pets: { owner_id: 'owner-456' }, // Different owner
+          })
+          chain.update = vi.fn().mockReturnValue({ eq: mockUpdate })
+          return chain
         }
         return createMockChain(null)
       })
@@ -246,21 +256,26 @@ describe('Appointment Server Actions', () => {
       })
 
       mockSupabaseClient.from.mockImplementation((table: string) => {
-        if (table === 'profiles') return createMockChain({ role: 'owner', tenant_id: 'different-tenant' })
-        if (table === 'appointments') return createMockChain({
+        if (table === 'profiles')
+          return createMockChain({ role: 'owner', tenant_id: 'different-tenant' })
+        if (table === 'appointments')
+          return createMockChain({
             id: 'appointment-123',
             tenant_id: 'adris',
             start_time: new Date(Date.now() + 86400000).toISOString(),
             end_time: new Date(Date.now() + 88200000).toISOString(),
             status: 'pending',
             pets: { owner_id: 'different-user' },
-        })
+          })
         return createMockChain(null)
       })
 
       const result = await rescheduleAppointment('appointment-123', '2025-12-25', '10:00')
 
-      expect(result).toMatchObject({ success: false, error: 'No tienes permiso para reprogramar esta cita' })
+      expect(result).toMatchObject({
+        success: false,
+        error: 'No tienes permiso para reprogramar esta cita',
+      })
     })
 
     it('should return error when new date is in the past', async () => {
@@ -271,20 +286,24 @@ describe('Appointment Server Actions', () => {
 
       mockSupabaseClient.from.mockImplementation((table: string) => {
         if (table === 'profiles') return createMockChain({ role: 'owner', tenant_id: 'adris' })
-        if (table === 'appointments') return createMockChain({
+        if (table === 'appointments')
+          return createMockChain({
             id: 'appointment-123',
             tenant_id: 'adris',
             start_time: new Date(Date.now() + 86400000).toISOString(),
             end_time: new Date(Date.now() + 88200000).toISOString(),
             status: 'pending',
             pets: { owner_id: 'user-123' },
-        })
+          })
         return createMockChain(null)
       })
 
       const result = await rescheduleAppointment('appointment-123', '2020-01-01', '10:00')
 
-      expect(result).toMatchObject({ success: false, error: 'La nueva fecha debe ser en el futuro' })
+      expect(result).toMatchObject({
+        success: false,
+        error: 'La nueva fecha debe ser en el futuro',
+      })
     })
 
     it('should return error when appointment is already cancelled', async () => {
@@ -295,14 +314,15 @@ describe('Appointment Server Actions', () => {
 
       mockSupabaseClient.from.mockImplementation((table: string) => {
         if (table === 'profiles') return createMockChain({ role: 'owner', tenant_id: 'adris' })
-        if (table === 'appointments') return createMockChain({
+        if (table === 'appointments')
+          return createMockChain({
             id: 'appointment-123',
             tenant_id: 'adris',
             start_time: new Date(Date.now() + 86400000).toISOString(),
             end_time: new Date(Date.now() + 88200000).toISOString(),
             status: 'cancelled',
             pets: { owner_id: 'user-123' },
-        })
+          })
         return createMockChain(null)
       })
 
@@ -326,16 +346,16 @@ describe('Appointment Server Actions', () => {
       mockSupabaseClient.from.mockImplementation((table: string) => {
         if (table === 'profiles') return createMockChain({ role: 'owner', tenant_id: 'adris' })
         if (table === 'appointments') {
-            const chain = createMockChain({
-                id: 'appointment-123',
-                tenant_id: 'adris',
-                start_time: new Date(Date.now() + 86400000).toISOString(),
-                end_time: new Date(Date.now() + 88200000).toISOString(),
-                status: 'pending',
-                pets: { owner_id: 'user-123' },
-            })
-            chain.update = vi.fn().mockReturnValue({ eq: mockUpdate })
-            return chain
+          const chain = createMockChain({
+            id: 'appointment-123',
+            tenant_id: 'adris',
+            start_time: new Date(Date.now() + 86400000).toISOString(),
+            end_time: new Date(Date.now() + 88200000).toISOString(),
+            status: 'pending',
+            pets: { owner_id: 'user-123' },
+          })
+          chain.update = vi.fn().mockReturnValue({ eq: mockUpdate })
+          return chain
         }
         return createMockChain(null)
       })
@@ -346,8 +366,10 @@ describe('Appointment Server Actions', () => {
       const result = await rescheduleAppointment('appointment-123', futureDateStr, '10:00')
 
       expect(result.success).toBe(true)
-      expect(result.data.newDate).toBe(futureDateStr)
-      expect(result.data.newTime).toBe('10:00')
+      if (result.success && result.data) {
+        expect(result.data.newDate).toBe(futureDateStr)
+        expect(result.data.newTime).toBe('10:00')
+      }
     })
   })
 })
@@ -475,7 +497,15 @@ describe('Status Configuration', () => {
   it('should have all appointment statuses configured', async () => {
     const { statusConfig } = await import('@/lib/types/appointments')
 
-    const expectedStatuses = ['pending', 'confirmed', 'checked_in', 'in_progress', 'completed', 'cancelled', 'no_show']
+    const expectedStatuses = [
+      'pending',
+      'confirmed',
+      'checked_in',
+      'in_progress',
+      'completed',
+      'cancelled',
+      'no_show',
+    ]
 
     expectedStatuses.forEach((status) => {
       expect(statusConfig[status]).toBeDefined()

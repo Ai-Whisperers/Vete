@@ -13,7 +13,7 @@ export type {
   ApiResponse,
   ErrorSeverity,
   ErrorCategory,
-  ERROR_CODES
+  ERROR_CODES,
 } from './types'
 
 // Core service
@@ -39,5 +39,5 @@ export {
   handleActionError,
   isRetryable,
   getUserMessage,
-  sanitize
+  sanitize,
 } from './helpers'

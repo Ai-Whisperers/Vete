@@ -31,9 +31,7 @@ export const createMedicalRecord = withActionAuth(
         const fileExt = file.name.split('.').pop()
         const fileName = `${petId}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
 
-        const { error: uploadError } = await supabase.storage
-          .from('records')
-          .upload(fileName, file)
+        const { error: uploadError } = await supabase.storage.from('records').upload(fileName, file)
 
         if (uploadError) {
           logger.error('Error uploading medical record attachment', {
@@ -41,7 +39,7 @@ export const createMedicalRecord = withActionAuth(
             userId: user.id,
             petId,
             fileName,
-            error: uploadError.message
+            error: uploadError.message,
           })
           continue // Skip failed uploads but continue
         }
@@ -55,11 +53,7 @@ export const createMedicalRecord = withActionAuth(
     }
 
     // Verify pet belongs to the same tenant
-    const { data: pet } = await supabase
-      .from('pets')
-      .select('tenant_id')
-      .eq('id', petId)
-      .single()
+    const { data: pet } = await supabase.from('pets').select('tenant_id').eq('id', petId).single()
 
     if (!pet) {
       return actionError('Mascota no encontrada.')
@@ -89,7 +83,7 @@ export const createMedicalRecord = withActionAuth(
         userId: user.id,
         petId,
         recordType: type,
-        error: error.message
+        error: error.message,
       })
       return actionError('Failed to create record')
     }

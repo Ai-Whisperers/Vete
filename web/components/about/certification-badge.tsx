@@ -1,33 +1,33 @@
-"use client";
+'use client'
 
-import { useState } from 'react';
-import { BadgeCheck } from 'lucide-react';
+import { useState } from 'react'
+import { BadgeCheck } from 'lucide-react'
 
 interface CertificationBadgeProps {
-  name: string;
-  description: string;
-  logo?: string;
+  name: string
+  description: string
+  logo?: string
 }
 
 export function CertificationBadge({ name, description, logo }: CertificationBadgeProps) {
-  const [imageError, setImageError] = useState(false);
+  const [imageError, setImageError] = useState(false)
 
   return (
-    <div className="flex flex-col items-center p-6 bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow min-w-[180px] max-w-[220px]">
-      <div className="w-16 h-16 mb-4 rounded-full bg-[var(--primary)]/10 flex items-center justify-center">
+    <div className="flex min-w-[180px] max-w-[220px] flex-col items-center rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
+      <div className="bg-[var(--primary)]/10 mb-4 flex h-16 w-16 items-center justify-center rounded-full">
         {logo && !imageError ? (
           <img
             src={logo}
             alt={`Logo de certificacion ${name}`}
-            className="w-10 h-10 object-contain"
+            className="h-10 w-10 object-contain"
             onError={() => setImageError(true)}
           />
         ) : (
-          <BadgeCheck className="w-8 h-8 text-[var(--primary)]" aria-hidden="true" />
+          <BadgeCheck className="h-8 w-8 text-[var(--primary)]" aria-hidden="true" />
         )}
       </div>
-      <h3 className="font-bold text-[var(--text-primary)] text-center mb-1">{name}</h3>
-      <p className="text-xs text-[var(--text-muted)] text-center">{description}</p>
+      <h3 className="mb-1 text-center font-bold text-[var(--text-primary)]">{name}</h3>
+      <p className="text-center text-xs text-[var(--text-muted)]">{description}</p>
     </div>
-  );
+  )
 }

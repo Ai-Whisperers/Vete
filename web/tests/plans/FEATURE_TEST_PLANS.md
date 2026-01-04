@@ -25,6 +25,7 @@ Complete test plans for all features in the Vete platform, organized by feature 
 **Test Coverage Required:**
 
 #### Unit Tests
+
 - [ ] Email validation logic
 - [ ] Password strength validation
 - [ ] Password confirmation matching
@@ -32,6 +33,7 @@ Complete test plans for all features in the Vete platform, organized by feature 
 - [ ] Error message generation
 
 #### Integration Tests
+
 - [ ] Successful registration creates user in Supabase Auth
 - [ ] Successful registration creates profile with correct tenant_id
 - [ ] Duplicate email registration fails
@@ -44,12 +46,14 @@ Complete test plans for all features in the Vete platform, organized by feature 
 - [ ] Multi-tenant isolation (user created for correct clinic)
 
 #### System Tests
+
 - [ ] Complete registration flow: Form → Submit → Email → Login
 - [ ] OAuth registration: Google → Profile creation → Login
 - [ ] Registration with existing email shows appropriate error
 - [ ] Registration redirects to correct portal after success
 
 #### E2E Tests
+
 - [ ] User can register via email/password
 - [ ] User can register via Google OAuth
 - [ ] Form validation works correctly
@@ -58,6 +62,7 @@ Complete test plans for all features in the Vete platform, organized by feature 
 - [ ] Confirmation email received
 
 **Test Data:**
+
 - Valid user data
 - Invalid email formats
 - Weak passwords
@@ -71,11 +76,13 @@ Complete test plans for all features in the Vete platform, organized by feature 
 **Test Coverage Required:**
 
 #### Unit Tests
+
 - [ ] Email format validation
 - [ ] Password presence validation
 - [ ] Error message formatting
 
 #### Integration Tests
+
 - [ ] Valid credentials login successfully
 - [ ] Invalid email fails
 - [ ] Invalid password fails
@@ -88,12 +95,14 @@ Complete test plans for all features in the Vete platform, organized by feature 
 - [ ] Multi-tenant isolation (user can only access their clinic)
 
 #### System Tests
+
 - [ ] Login → Dashboard redirect
 - [ ] Login → Return URL redirect
 - [ ] Failed login → Error message → Retry
 - [ ] OAuth login → Profile check → Dashboard
 
 #### E2E Tests
+
 - [ ] User can login with email/password
 - [ ] User can login with Google OAuth
 - [ ] Invalid credentials show error
@@ -102,6 +111,7 @@ Complete test plans for all features in the Vete platform, organized by feature 
 - [ ] Logout works correctly
 
 **Test Data:**
+
 - Valid credentials
 - Invalid credentials
 - Unconfirmed accounts
@@ -114,12 +124,14 @@ Complete test plans for all features in the Vete platform, organized by feature 
 **Test Coverage Required:**
 
 #### Unit Tests
+
 - [ ] Email validation
 - [ ] Token validation
 - [ ] Password strength validation
 - [ ] Password confirmation matching
 
 #### Integration Tests
+
 - [ ] Forgot password sends email
 - [ ] Reset link contains valid token
 - [ ] Token expires after time limit
@@ -130,11 +142,13 @@ Complete test plans for all features in the Vete platform, organized by feature 
 - [ ] New password works immediately
 
 #### System Tests
+
 - [ ] Forgot password → Email → Reset link → New password → Login
 - [ ] Expired token → Error → Request new link
 - [ ] Used token → Error → Request new link
 
 #### E2E Tests
+
 - [ ] User can request password reset
 - [ ] Reset email received
 - [ ] Reset link works
@@ -142,6 +156,7 @@ Complete test plans for all features in the Vete platform, organized by feature 
 - [ ] New password works for login
 
 **Test Data:**
+
 - Valid email addresses
 - Invalid tokens
 - Expired tokens
@@ -156,6 +171,7 @@ Complete test plans for all features in the Vete platform, organized by feature 
 **Test Coverage Required:**
 
 #### Unit Tests
+
 - [ ] Name validation (1-100 characters)
 - [ ] Species validation
 - [ ] Birth date validation (not future)
@@ -165,6 +181,7 @@ Complete test plans for all features in the Vete platform, organized by feature 
 - [ ] Age calculation from birth date
 
 #### Integration Tests
+
 - [ ] Pet created with all required fields
 - [ ] Pet created with optional fields
 - [ ] Pet photo uploaded to storage
@@ -176,11 +193,13 @@ Complete test plans for all features in the Vete platform, organized by feature 
 - [ ] Multi-tenant isolation (pet created for correct clinic)
 
 #### System Tests
+
 - [ ] Complete pet registration: Form → Upload → Submit → Profile
 - [ ] Pet registration with photo: Upload → Validate → Submit
 - [ ] Pet registration without photo: Submit → Default image
 
 #### E2E Tests
+
 - [ ] User can register a new pet
 - [ ] Form validation works
 - [ ] Photo upload works
@@ -188,6 +207,7 @@ Complete test plans for all features in the Vete platform, organized by feature 
 - [ ] Pet profile accessible after creation
 
 **Test Data:**
+
 - Valid pet data
 - Invalid pet data
 - Various photo formats
@@ -201,12 +221,14 @@ Complete test plans for all features in the Vete platform, organized by feature 
 **Test Coverage Required:**
 
 #### Unit Tests
+
 - [ ] Age calculation display
 - [ ] Weight formatting
 - [ ] Date formatting
 - [ ] Photo display logic
 
 #### Integration Tests
+
 - [ ] Pet profile loads with all data
 - [ ] Pet profile loads with photo
 - [ ] Pet profile loads without photo (default image)
@@ -218,10 +240,12 @@ Complete test plans for all features in the Vete platform, organized by feature 
 - [ ] Multi-tenant isolation (can't access other clinic's pets)
 
 #### System Tests
+
 - [ ] Pet profile → View vaccines → View records → View prescriptions
 - [ ] Pet profile → Edit → Save → View updated data
 
 #### E2E Tests
+
 - [ ] Pet profile displays correctly
 - [ ] All tabs work (General, Vaccines, History, Prescriptions)
 - [ ] QR code generation works
@@ -229,6 +253,7 @@ Complete test plans for all features in the Vete platform, organized by feature 
 - [ ] Photo displays correctly
 
 **Test Data:**
+
 - Pets with complete data
 - Pets with minimal data
 - Pets with photos
@@ -243,12 +268,14 @@ Complete test plans for all features in the Vete platform, organized by feature 
 **Test Coverage Required:**
 
 #### Unit Tests
+
 - [ ] Form pre-population
 - [ ] Field validation (same as registration)
 - [ ] Photo replacement logic
 - [ ] Photo deletion logic
 
 #### Integration Tests
+
 - [ ] Pet update succeeds with valid data
 - [ ] Pet update fails with invalid data
 - [ ] Photo update works
@@ -259,11 +286,13 @@ Complete test plans for all features in the Vete platform, organized by feature 
 - [ ] Vet can edit pet profiles
 
 #### System Tests
+
 - [ ] Edit pet → Update fields → Save → View changes
 - [ ] Edit pet → Replace photo → Save → View new photo
 - [ ] Edit pet → Delete photo → Save → View default image
 
 #### E2E Tests
+
 - [ ] User can edit pet information
 - [ ] Form pre-populates correctly
 - [ ] Photo can be replaced
@@ -272,6 +301,7 @@ Complete test plans for all features in the Vete platform, organized by feature 
 - [ ] Changes visible after save
 
 **Test Data:**
+
 - Existing pets
 - Updated pet data
 - New photos
@@ -284,10 +314,12 @@ Complete test plans for all features in the Vete platform, organized by feature 
 **Test Coverage Required:**
 
 #### Unit Tests
+
 - [ ] Confirmation dialog logic
 - [ ] Soft delete vs hard delete logic
 
 #### Integration Tests
+
 - [ ] Pet soft delete succeeds
 - [ ] Deleted pet not visible in lists
 - [ ] Deleted pet data preserved
@@ -297,15 +329,18 @@ Complete test plans for all features in the Vete platform, organized by feature 
 - [ ] Admin can delete pets
 
 #### System Tests
+
 - [ ] Delete pet → Confirm → Pet removed from list → Data preserved
 
 #### E2E Tests
+
 - [ ] User can delete pet
 - [ ] Confirmation dialog appears
 - [ ] Pet removed after confirmation
 - [ ] Pet no longer appears in lists
 
 **Test Data:**
+
 - Pets to delete
 - Pets with relationships (vaccines, records)
 
@@ -318,6 +353,7 @@ Complete test plans for all features in the Vete platform, organized by feature 
 **Test Coverage Required:**
 
 #### Unit Tests
+
 - [ ] Service selection logic
 - [ ] Pet selection logic
 - [ ] Date validation (not past, within business hours)
@@ -327,6 +363,7 @@ Complete test plans for all features in the Vete platform, organized by feature 
 - [ ] Form step navigation
 
 #### Integration Tests
+
 - [ ] Service selection works
 - [ ] Pet selection works (shows owner's pets)
 - [ ] Available slots fetched correctly
@@ -339,11 +376,13 @@ Complete test plans for all features in the Vete platform, organized by feature 
 - [ ] Multi-tenant isolation
 
 #### System Tests
+
 - [ ] Complete booking: Service → Pet → Date/Time → Confirm → Success
 - [ ] Booking with unavailable slot: Select → Error → Select different
 - [ ] Booking with notes: Add notes → Submit → Notes saved
 
 #### E2E Tests
+
 - [ ] User can complete booking wizard
 - [ ] All steps work correctly
 - [ ] Service selection works
@@ -354,6 +393,7 @@ Complete test plans for all features in the Vete platform, organized by feature 
 - [ ] Success message displays
 
 **Test Data:**
+
 - Available services
 - User's pets
 - Available time slots
@@ -367,6 +407,7 @@ Complete test plans for all features in the Vete platform, organized by feature 
 **Test Coverage Required:**
 
 #### Unit Tests
+
 - [ ] Status transition logic
 - [ ] Status button visibility logic
 - [ ] Date/time formatting
@@ -374,6 +415,7 @@ Complete test plans for all features in the Vete platform, organized by feature 
 - [ ] Appointment sorting logic
 
 #### Integration Tests
+
 - [ ] Appointment list loads correctly
 - [ ] Appointment filtering works
 - [ ] Appointment sorting works
@@ -387,11 +429,13 @@ Complete test plans for all features in the Vete platform, organized by feature 
 - [ ] Access control (owner sees own, vet sees all)
 
 #### System Tests
+
 - [ ] Appointment workflow: Pending → Confirmed → Check-in → In Progress → Complete
 - [ ] Appointment cancellation: Cancel → Reason → Confirmed
 - [ ] Appointment reschedule: Reschedule → New date/time → Confirmed
 
 #### E2E Tests
+
 - [ ] User can view appointments
 - [ ] User can filter appointments
 - [ ] User can cancel appointment
@@ -402,6 +446,7 @@ Complete test plans for all features in the Vete platform, organized by feature 
 - [ ] Status updates correctly
 
 **Test Data:**
+
 - Appointments in various states
 - Past appointments
 - Future appointments
@@ -416,6 +461,7 @@ Complete test plans for all features in the Vete platform, organized by feature 
 **Test Coverage Required:**
 
 #### Unit Tests
+
 - [ ] Line item calculation
 - [ ] Subtotal calculation
 - [ ] Discount calculation
@@ -425,6 +471,7 @@ Complete test plans for all features in the Vete platform, organized by feature 
 - [ ] Due date calculation
 
 #### Integration Tests
+
 - [ ] Invoice created with line items
 - [ ] Invoice calculations correct
 - [ ] Invoice linked to correct pet
@@ -436,11 +483,13 @@ Complete test plans for all features in the Vete platform, organized by feature 
 - [ ] Multi-tenant isolation
 
 #### System Tests
+
 - [ ] Create invoice: Select pet → Add items → Calculate → Save → Send
 - [ ] Invoice with discounts: Add items → Apply discount → Calculate → Save
 - [ ] Invoice PDF: Create → Generate PDF → Download
 
 #### E2E Tests
+
 - [ ] Staff can create invoice
 - [ ] Line items can be added
 - [ ] Calculations are correct
@@ -449,6 +498,7 @@ Complete test plans for all features in the Vete platform, organized by feature 
 - [ ] PDF can be downloaded
 
 **Test Data:**
+
 - Pets and owners
 - Service items
 - Product items
@@ -462,12 +512,14 @@ Complete test plans for all features in the Vete platform, organized by feature 
 **Test Coverage Required:**
 
 #### Unit Tests
+
 - [ ] Payment amount validation
 - [ ] Partial payment logic
 - [ ] Payment method validation
 - [ ] Payment date validation
 
 #### Integration Tests
+
 - [ ] Payment recorded correctly
 - [ ] Invoice status updated (Paid/Partial)
 - [ ] Payment history recorded
@@ -478,12 +530,14 @@ Complete test plans for all features in the Vete platform, organized by feature 
 - [ ] Multi-tenant isolation
 
 #### System Tests
+
 - [ ] Record payment: Invoice → Payment → Amount → Method → Record → Status updated
 - [ ] Partial payment: Invoice → Partial payment → Status = Partial → Remaining balance
 - [ ] Full payment: Invoice → Full payment → Status = Paid
 - [ ] Refund: Paid invoice → Refund → Amount → Status updated
 
 #### E2E Tests
+
 - [ ] Staff can record payment
 - [ ] Payment amount validated
 - [ ] Invoice status updates
@@ -491,6 +545,7 @@ Complete test plans for all features in the Vete platform, organized by feature 
 - [ ] Refund can be processed
 
 **Test Data:**
+
 - Invoices in various states
 - Payment amounts
 - Payment methods
@@ -505,6 +560,7 @@ Complete test plans for all features in the Vete platform, organized by feature 
 **Test Coverage Required:**
 
 #### Unit Tests
+
 - [ ] Drug dosage calculation (weight × mg/kg)
 - [ ] Frequency validation
 - [ ] Duration validation
@@ -512,6 +568,7 @@ Complete test plans for all features in the Vete platform, organized by feature 
 - [ ] Prescription number generation
 
 #### Integration Tests
+
 - [ ] Prescription created with drug
 - [ ] Dosage calculated correctly
 - [ ] Prescription linked to correct pet
@@ -522,11 +579,13 @@ Complete test plans for all features in the Vete platform, organized by feature 
 - [ ] Multi-tenant isolation
 
 #### System Tests
+
 - [ ] Create prescription: Select pet → Select drug → Calculate dosage → Add instructions → Generate PDF
 - [ ] Prescription with multiple drugs: Add drug → Add another → Generate PDF
 - [ ] Prescription refills: Create → Set refills → Track refills
 
 #### E2E Tests
+
 - [ ] Vet can create prescription
 - [ ] Drug selection works
 - [ ] Dosage calculated automatically
@@ -534,6 +593,7 @@ Complete test plans for all features in the Vete platform, organized by feature 
 - [ ] Prescription saved correctly
 
 **Test Data:**
+
 - Pets with weights
 - Drug database
 - Dosage calculations
@@ -548,6 +608,7 @@ Complete test plans for all features in the Vete platform, organized by feature 
 **Test Coverage Required:**
 
 #### Unit Tests
+
 - [ ] Stock quantity validation
 - [ ] Price validation
 - [ ] SKU validation
@@ -555,6 +616,7 @@ Complete test plans for all features in the Vete platform, organized by feature 
 - [ ] Low stock calculation
 
 #### Integration Tests
+
 - [ ] Product created successfully
 - [ ] Product updated successfully
 - [ ] Product deleted successfully
@@ -564,11 +626,13 @@ Complete test plans for all features in the Vete platform, organized by feature 
 - [ ] Multi-tenant isolation
 
 #### System Tests
+
 - [ ] Create product: Form → Save → Appears in list
 - [ ] Update stock: Product → Adjust stock → Stock updated → Alert if low
 - [ ] Import products: CSV → Parse → Validate → Import → Products created
 
 #### E2E Tests
+
 - [ ] Staff can create product
 - [ ] Staff can update product
 - [ ] Staff can delete product
@@ -576,6 +640,7 @@ Complete test plans for all features in the Vete platform, organized by feature 
 - [ ] Low stock alerts display
 
 **Test Data:**
+
 - Product data
 - Stock quantities
 - Price data
@@ -590,6 +655,7 @@ Complete test plans for all features in the Vete platform, organized by feature 
 **Test Coverage Required:**
 
 #### Unit Tests
+
 - [ ] Product filtering logic
 - [ ] Product sorting logic
 - [ ] Search logic
@@ -598,6 +664,7 @@ Complete test plans for all features in the Vete platform, organized by feature 
 - [ ] Stock status calculation
 
 #### Integration Tests
+
 - [ ] Products load correctly
 - [ ] Product filtering works
 - [ ] Product search works
@@ -607,10 +674,12 @@ Complete test plans for all features in the Vete platform, organized by feature 
 - [ ] Multi-tenant isolation
 
 #### System Tests
+
 - [ ] Browse products: Load → Filter → Search → View product
 - [ ] Product with low stock: Display → Show warning → Allow purchase
 
 #### E2E Tests
+
 - [ ] User can browse products
 - [ ] User can search products
 - [ ] User can filter by category
@@ -618,6 +687,7 @@ Complete test plans for all features in the Vete platform, organized by feature 
 - [ ] Stock status displays correctly
 
 **Test Data:**
+
 - Products in various categories
 - Products with different stock levels
 - Search terms
@@ -629,6 +699,7 @@ Complete test plans for all features in the Vete platform, organized by feature 
 **Test Coverage Required:**
 
 #### Unit Tests
+
 - [ ] Add to cart logic
 - [ ] Remove from cart logic
 - [ ] Update quantity logic
@@ -636,6 +707,7 @@ Complete test plans for all features in the Vete platform, organized by feature 
 - [ ] Stock validation in cart
 
 #### Integration Tests
+
 - [ ] Item added to cart
 - [ ] Item removed from cart
 - [ ] Quantity updated in cart
@@ -646,11 +718,13 @@ Complete test plans for all features in the Vete platform, organized by feature 
 - [ ] Multi-tenant isolation
 
 #### System Tests
+
 - [ ] Add to cart: Product → Add → Cart updated → Total calculated
 - [ ] Update quantity: Cart → Change quantity → Stock validated → Cart updated
 - [ ] Remove item: Cart → Remove → Cart updated
 
 #### E2E Tests
+
 - [ ] User can add items to cart
 - [ ] User can remove items from cart
 - [ ] User can update quantities
@@ -659,6 +733,7 @@ Complete test plans for all features in the Vete platform, organized by feature 
 - [ ] Cart persists on page refresh
 
 **Test Data:**
+
 - Products with stock
 - Products out of stock
 - Cart states
@@ -670,6 +745,7 @@ Complete test plans for all features in the Vete platform, organized by feature 
 **Test Coverage Required:**
 
 #### Unit Tests
+
 - [ ] Contact information validation
 - [ ] Shipping address validation
 - [ ] Payment method validation
@@ -677,6 +753,7 @@ Complete test plans for all features in the Vete platform, organized by feature 
 - [ ] Shipping cost calculation
 
 #### Integration Tests
+
 - [ ] Order created successfully
 - [ ] Order linked to cart items
 - [ ] Stock decremented after order
@@ -685,10 +762,12 @@ Complete test plans for all features in the Vete platform, organized by feature 
 - [ ] Multi-tenant isolation
 
 #### System Tests
+
 - [ ] Complete checkout: Cart → Contact → Address → Payment → Confirm → Order created → Stock updated
 - [ ] Checkout with out of stock: Cart → Checkout → Stock check → Error → Update cart
 
 #### E2E Tests
+
 - [ ] User can complete checkout
 - [ ] Form validation works
 - [ ] Order confirmation displays
@@ -696,6 +775,7 @@ Complete test plans for all features in the Vete platform, organized by feature 
 - [ ] Confirmation email sent
 
 **Test Data:**
+
 - Cart with items
 - Contact information
 - Shipping addresses
@@ -710,6 +790,7 @@ Complete test plans for all features in the Vete platform, organized by feature 
 **Test Coverage Required:**
 
 #### Unit Tests
+
 - [ ] Dosage calculation (weight × mg/kg)
 - [ ] Drug search logic
 - [ ] Species filtering
@@ -717,6 +798,7 @@ Complete test plans for all features in the Vete platform, organized by feature 
 - [ ] Unit conversion
 
 #### Integration Tests
+
 - [ ] Drug database loads
 - [ ] Drug search works
 - [ ] Dosage calculated correctly
@@ -725,15 +807,18 @@ Complete test plans for all features in the Vete platform, organized by feature 
 - [ ] Data linked to correct tenant
 
 #### System Tests
+
 - [ ] Calculate dosage: Select drug → Enter weight → Select species → Calculate → Display result
 
 #### E2E Tests
+
 - [ ] User can search drugs
 - [ ] User can calculate dosage
 - [ ] Filters work correctly
 - [ ] Results display correctly
 
 **Test Data:**
+
 - Drug database
 - Pet weights
 - Species data
@@ -745,11 +830,13 @@ Complete test plans for all features in the Vete platform, organized by feature 
 **Test Coverage Required:**
 
 #### Unit Tests
+
 - [ ] Food search logic
 - [ ] Toxicity level calculation
 - [ ] Symptom list generation
 
 #### Integration Tests
+
 - [ ] Food database loads
 - [ ] Food search works
 - [ ] Toxicity information displays
@@ -757,15 +844,18 @@ Complete test plans for all features in the Vete platform, organized by feature 
 - [ ] Data linked to correct tenant
 
 #### System Tests
+
 - [ ] Check food: Search → Select → Display toxicity → Display symptoms
 
 #### E2E Tests
+
 - [ ] User can search foods
 - [ ] Toxicity information displays
 - [ ] Symptoms list displays
 - [ ] Safe foods marked correctly
 
 **Test Data:**
+
 - Food database
 - Toxicity levels
 - Symptoms data
@@ -779,12 +869,14 @@ Complete test plans for all features in the Vete platform, organized by feature 
 **Test Coverage Required:**
 
 #### Unit Tests
+
 - [ ] Stats calculation
 - [ ] Chart data formatting
 - [ ] Alert generation logic
 - [ ] Date range filtering
 
 #### Integration Tests
+
 - [ ] Dashboard stats load correctly
 - [ ] Charts render with data
 - [ ] Alerts display correctly
@@ -793,10 +885,12 @@ Complete test plans for all features in the Vete platform, organized by feature 
 - [ ] Multi-tenant isolation
 
 #### System Tests
+
 - [ ] Dashboard load: Stats → Charts → Appointments → Alerts
 - [ ] Date range filter: Select range → Stats update → Charts update
 
 #### E2E Tests
+
 - [ ] Dashboard loads correctly
 - [ ] Stats display correctly
 - [ ] Charts render correctly
@@ -804,6 +898,7 @@ Complete test plans for all features in the Vete platform, organized by feature 
 - [ ] Alerts display correctly
 
 **Test Data:**
+
 - Dashboard stats
 - Chart data
 - Appointments
@@ -818,11 +913,13 @@ Complete test plans for all features in the Vete platform, organized by feature 
 **Test Coverage Required:**
 
 #### Unit Tests
+
 - [ ] Message formatting
 - [ ] Template variable replacement
 - [ ] Phone number validation
 
 #### Integration Tests
+
 - [ ] Message sent successfully
 - [ ] Template used correctly
 - [ ] Variables replaced correctly
@@ -831,16 +928,19 @@ Complete test plans for all features in the Vete platform, organized by feature 
 - [ ] Multi-tenant isolation
 
 #### System Tests
+
 - [ ] Send message: Compose → Send → Message sent → Conversation updated
 - [ ] Use template: Select template → Fill variables → Send → Message sent
 
 #### E2E Tests
+
 - [ ] Staff can send messages
 - [ ] Templates work correctly
 - [ ] Conversations display correctly
 - [ ] Messages received display correctly
 
 **Test Data:**
+
 - Phone numbers
 - Message templates
 - Template variables
@@ -854,11 +954,13 @@ Complete test plans for all features in the Vete platform, organized by feature 
 **Test Coverage Required:**
 
 #### Unit Tests
+
 - [ ] Settings validation
 - [ ] Business hours validation
 - [ ] Theme color validation
 
 #### Integration Tests
+
 - [ ] Settings saved correctly
 - [ ] Settings loaded correctly
 - [ ] Business hours updated
@@ -867,19 +969,21 @@ Complete test plans for all features in the Vete platform, organized by feature 
 - [ ] Multi-tenant isolation
 
 #### System Tests
+
 - [ ] Update settings: Form → Save → Settings updated → Applied
 
 #### E2E Tests
+
 - [ ] Admin can update settings
 - [ ] Settings save correctly
 - [ ] Settings apply correctly
 
 **Test Data:**
+
 - Settings data
 - Business hours
 - Theme colors
 
 ---
 
-*This document should be updated as new features are added or existing features are modified.*
-
+_This document should be updated as new features are added or existing features are modified._

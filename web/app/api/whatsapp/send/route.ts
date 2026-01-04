@@ -10,7 +10,9 @@ const sendMessageSchema = z.object({
   message: z.string().min(1, 'Mensaje requerido'),
   clientId: z.string().uuid().optional(),
   petId: z.string().uuid().optional(),
-  conversationType: z.enum(['appointment_reminder', 'vaccine_reminder', 'general', 'support']).optional(),
+  conversationType: z
+    .enum(['appointment_reminder', 'vaccine_reminder', 'general', 'support'])
+    .optional(),
   templateId: z.string().uuid().optional(),
 })
 
@@ -19,15 +21,18 @@ export async function POST(request: NextRequest) {
     const supabase = await createClient()
 
     // Auth check
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
     if (authError || !user) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
 
     // Apply rate limiting for write endpoints (20 requests per minute)
-    const rateLimitResult = await rateLimit(request, 'write', user.id);
+    const rateLimitResult = await rateLimit(request, 'write', user.id)
     if (!rateLimitResult.success) {
-      return rateLimitResult.response;
+      return rateLimitResult.response
     }
 
     // Staff check
@@ -109,17 +114,17 @@ export async function POST(request: NextRequest) {
         })
         .eq('id', messageRecord.id)
 
-      return NextResponse.json({
-        success: false,
-        error: result.error || 'Error al enviar mensaje',
-        messageId: messageRecord.id,
-      }, { status: 500 })
+      return NextResponse.json(
+        {
+          success: false,
+          error: result.error || 'Error al enviar mensaje',
+          messageId: messageRecord.id,
+        },
+        { status: 500 }
+      )
     }
   } catch (error) {
     console.error('WhatsApp send error:', error)
-    return NextResponse.json(
-      { error: 'Error interno del servidor' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
   }
 }

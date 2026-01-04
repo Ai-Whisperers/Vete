@@ -5,9 +5,9 @@
  * Handles the critical requirement for NOT NULL order_number.
  */
 
-import type { SupabaseClient } from '@supabase/supabase-js';
-import { BaseSeeder, JsonSeeder, SeederOptions, SeederResult } from './base-seeder';
-import { createSeederResult } from '../utils/reporting';
+import type { SupabaseClient } from '@supabase/supabase-js'
+import { BaseSeeder, JsonSeeder, SeederOptions, SeederResult } from './base-seeder'
+import { createSeederResult } from '../utils/reporting'
 import {
   LabTestCatalogSchema,
   LabTestCatalog,
@@ -18,29 +18,29 @@ import {
   LabResultSchema,
   LabResult,
   generateLabOrderNumber,
-} from '@/lib/test-utils/schemas';
-import { upsertWithIdempotency } from '../utils/idempotency';
-import { validateBatch } from '../utils/validation';
+} from '@/lib/test-utils/schemas'
+import { upsertWithIdempotency } from '../utils/idempotency'
+import { validateBatch } from '../utils/validation'
 
 /**
  * Lab Test Catalog Seeder
  */
 export class LabTestCatalogSeeder extends JsonSeeder<LabTestCatalog> {
   getTableName(): string {
-    return 'lab_test_catalog';
+    return 'lab_test_catalog'
   }
 
   getSchema() {
-    return LabTestCatalogSchema;
+    return LabTestCatalogSchema
   }
 
   getJsonPath(): string {
-    return 'db/seeds/data/01-reference/lab-tests.json';
+    return 'db/seeds/data/01-reference/lab-tests.json'
   }
 
   extractData(json: unknown): unknown[] {
-    const data = json as { tests?: unknown[]; lab_tests?: unknown[] };
-    return data.tests || data.lab_tests || [];
+    const data = json as { tests?: unknown[]; lab_tests?: unknown[] }
+    return data.tests || data.lab_tests || []
   }
 }
 
@@ -48,26 +48,26 @@ export class LabTestCatalogSeeder extends JsonSeeder<LabTestCatalog> {
  * Lab Order Seeder (from JSON)
  */
 export class LabOrderSeeder extends JsonSeeder<LabOrder> {
-  private orderCounter: number = 0;
+  private orderCounter: number = 0
 
   getTableName(): string {
-    return 'lab_orders';
+    return 'lab_orders'
   }
 
   getSchema() {
-    return LabOrderSchema;
+    return LabOrderSchema
   }
 
   getJsonPath(): string {
-    return `db/seeds/data/02-clinic/${this.getTenantId()}/lab-orders.json`;
+    return `db/seeds/data/02-clinic/${this.getTenantId()}/lab-orders.json`
   }
 
   extractData(json: unknown): unknown[] {
-    const data = json as { lab_orders?: unknown[] };
+    const data = json as { lab_orders?: unknown[] }
     return (data.lab_orders || []).map((o) => ({
       ...(o as Record<string, unknown>),
       tenant_id: this.getTenantId(),
-    }));
+    }))
   }
 
   protected async preProcess(data: unknown[]): Promise<unknown[]> {
@@ -77,26 +77,26 @@ export class LabOrderSeeder extends JsonSeeder<LabOrder> {
       .select('order_number')
       .eq('tenant_id', this.getTenantId())
       .order('created_at', { ascending: false })
-      .limit(1);
+      .limit(1)
 
     if (existing && existing.length > 0) {
-      const match = existing[0].order_number?.match(/LAB-\d+-(\d+)/);
+      const match = existing[0].order_number?.match(/LAB-\d+-(\d+)/)
       if (match) {
-        this.orderCounter = parseInt(match[1], 10);
+        this.orderCounter = parseInt(match[1], 10)
       }
     }
 
     return data.map((item) => {
-      const record = { ...(item as Record<string, unknown>) };
+      const record = { ...(item as Record<string, unknown>) }
 
       // Generate order_number if missing
       if (!record.order_number) {
-        this.orderCounter++;
-        record.order_number = generateLabOrderNumber(this.orderCounter);
+        this.orderCounter++
+        record.order_number = generateLabOrderNumber(this.orderCounter)
       }
 
-      return record;
-    });
+      return record
+    })
   }
 }
 
@@ -104,45 +104,45 @@ export class LabOrderSeeder extends JsonSeeder<LabOrder> {
  * Generate demo lab orders using factory pattern
  */
 export class LabOrderDemoSeeder extends BaseSeeder<LabOrder> {
-  private petIds: string[] = [];
-  private vetId: string | null = null;
-  private testIds: string[] = [];
-  private count: number = 5;
+  private petIds: string[] = []
+  private vetId: string | null = null
+  private testIds: string[] = []
+  private count: number = 5
 
   getTableName(): string {
-    return 'lab_orders';
+    return 'lab_orders'
   }
 
   getSchema() {
-    return LabOrderSchema;
+    return LabOrderSchema
   }
 
   /**
    * Set dependencies before seeding
    */
   setDependencies(petIds: string[], vetId: string, testIds: string[], count?: number): void {
-    this.petIds = petIds;
-    this.vetId = vetId;
-    this.testIds = testIds;
-    if (count) this.count = count;
+    this.petIds = petIds
+    this.vetId = vetId
+    this.testIds = testIds
+    if (count) this.count = count
   }
 
   async loadData(): Promise<unknown[]> {
     if (this.petIds.length === 0) {
-      this.log('No pets available for lab order demo');
-      return [];
+      this.log('No pets available for lab order demo')
+      return []
     }
 
-    const orders: unknown[] = [];
-    const actualCount = Math.min(this.count, this.petIds.length);
+    const orders: unknown[] = []
+    const actualCount = Math.min(this.count, this.petIds.length)
 
     for (let i = 0; i < actualCount; i++) {
-      const orderDate = new Date();
-      orderDate.setDate(orderDate.getDate() - (i * 2)); // Stagger orders
+      const orderDate = new Date()
+      orderDate.setDate(orderDate.getDate() - i * 2) // Stagger orders
 
       // Vary status based on age
-      const statuses = ['pending', 'collected', 'processing', 'completed', 'reviewed'];
-      const status = statuses[Math.min(i, statuses.length - 1)];
+      const statuses = ['pending', 'collected', 'processing', 'completed', 'reviewed']
+      const status = statuses[Math.min(i, statuses.length - 1)]
 
       orders.push({
         tenant_id: this.getTenantId(),
@@ -161,14 +161,16 @@ export class LabOrderDemoSeeder extends BaseSeeder<LabOrder> {
         fasting_confirmed: i % 2 === 0,
         collected_at: status !== 'pending' ? orderDate.toISOString() : null,
         collected_by: status !== 'pending' ? this.vetId : null,
-        processing_at: ['processing', 'completed', 'reviewed'].includes(status) ? orderDate.toISOString() : null,
+        processing_at: ['processing', 'completed', 'reviewed'].includes(status)
+          ? orderDate.toISOString()
+          : null,
         completed_at: ['completed', 'reviewed'].includes(status) ? orderDate.toISOString() : null,
         reviewed_at: status === 'reviewed' ? orderDate.toISOString() : null,
         reviewed_by: status === 'reviewed' ? this.vetId : null,
-      });
+      })
     }
 
-    return orders;
+    return orders
   }
 
   protected async preProcess(data: unknown[]): Promise<unknown[]> {
@@ -178,22 +180,22 @@ export class LabOrderDemoSeeder extends BaseSeeder<LabOrder> {
       .select('order_number')
       .eq('tenant_id', this.getTenantId())
       .order('created_at', { ascending: false })
-      .limit(1);
+      .limit(1)
 
-    let counter = 0;
+    let counter = 0
     if (existing && existing.length > 0) {
-      const match = existing[0].order_number?.match(/LAB-\d+-(\d+)/);
+      const match = existing[0].order_number?.match(/LAB-\d+-(\d+)/)
       if (match) {
-        counter = parseInt(match[1], 10);
+        counter = parseInt(match[1], 10)
       }
     }
 
     return data.map((item) => {
-      const record = { ...(item as Record<string, unknown>) };
-      counter++;
-      record.order_number = generateLabOrderNumber(counter);
-      return record;
-    });
+      const record = { ...(item as Record<string, unknown>) }
+      counter++
+      record.order_number = generateLabOrderNumber(counter)
+      return record
+    })
   }
 
   /**
@@ -201,56 +203,64 @@ export class LabOrderDemoSeeder extends BaseSeeder<LabOrder> {
    */
   protected async postProcess(created: LabOrder[]): Promise<void> {
     for (const order of created) {
-      await this.seedOrderItems(order);
+      await this.seedOrderItems(order)
     }
   }
 
   private async seedOrderItems(order: LabOrder): Promise<void> {
     if (this.testIds.length === 0) {
-      return;
+      return
     }
 
     // Add 2-4 tests per order
-    const testCount = Math.floor(Math.random() * 3) + 2;
-    const selectedTests = this.testIds.slice(0, testCount);
-    const items: unknown[] = [];
+    const testCount = Math.floor(Math.random() * 3) + 2
+    const selectedTests = this.testIds.slice(0, testCount)
+    const items: unknown[] = []
 
     for (const testId of selectedTests) {
       items.push({
         lab_order_id: order.id,
         test_id: testId,
-        status: order.status === 'pending' ? 'pending' : order.status === 'collected' ? 'pending' : 'completed',
+        status:
+          order.status === 'pending'
+            ? 'pending'
+            : order.status === 'collected'
+              ? 'pending'
+              : 'completed',
         price: Math.floor(Math.random() * 50000) + 10000, // 10,000 - 60,000 PYG
-      });
+      })
     }
 
-    const validation = validateBatch(LabOrderItemSchema, items);
+    const validation = validateBatch(LabOrderItemSchema, items)
 
     if (validation.totalValid > 0) {
       const { data: createdItems, error } = await this.client
         .from('lab_order_items')
         .insert(validation.valid)
-        .select();
+        .select()
 
       if (error) {
-        this.log(`Error creating lab order items: ${error.message}`);
-        return;
+        this.log(`Error creating lab order items: ${error.message}`)
+        return
       }
 
       // If order is completed, add results
       if (['completed', 'reviewed'].includes(order.status) && createdItems) {
-        await this.seedResults(order, createdItems);
+        await this.seedResults(order, createdItems)
       }
     }
   }
 
-  private async seedResults(order: LabOrder, items: Array<{ id: string; test_id: string }>): Promise<void> {
-    const results: unknown[] = [];
+  private async seedResults(
+    order: LabOrder,
+    items: Array<{ id: string; test_id: string }>
+  ): Promise<void> {
+    const results: unknown[] = []
 
     for (const item of items) {
       // Generate a random result
-      const numericValue = Math.round((Math.random() * 100 + 50) * 10) / 10;
-      const isAbnormal = Math.random() < 0.2; // 20% chance abnormal
+      const numericValue = Math.round((Math.random() * 100 + 50) * 10) / 10
+      const isAbnormal = Math.random() < 0.2 // 20% chance abnormal
 
       results.push({
         lab_order_id: order.id,
@@ -261,15 +271,13 @@ export class LabOrderDemoSeeder extends BaseSeeder<LabOrder> {
         flag: isAbnormal ? (Math.random() < 0.5 ? 'high' : 'low') : 'normal',
         is_abnormal: isAbnormal,
         notes: isAbnormal ? 'Valor fuera del rango normal, se recomienda seguimiento' : null,
-      });
+      })
     }
 
-    const validation = validateBatch(LabResultSchema, results);
+    const validation = validateBatch(LabResultSchema, results)
 
     if (validation.totalValid > 0) {
-      await this.client
-        .from('lab_results')
-        .insert(validation.valid);
+      await this.client.from('lab_results').insert(validation.valid)
     }
   }
 }

@@ -11,7 +11,7 @@ import type {
   ErrorContext,
   ErrorResponse,
   SuccessResponse,
-  ApiResponse
+  ApiResponse,
 } from './types'
 import { ERROR_CODES } from './types'
 
@@ -40,7 +40,7 @@ export class ErrorService {
       requestId: context?.requestId || randomUUID(),
       userId: context?.userId,
       tenantId: context?.tenantId,
-      stack: cause?.stack
+      stack: cause?.stack,
     }
   }
 
@@ -72,7 +72,7 @@ export class ErrorService {
       code: error.code,
       request_id: error.requestId,
       ...(error.details && { details: error.details }),
-      ...(error.fieldErrors && { field_errors: error.fieldErrors })
+      ...(error.fieldErrors && { field_errors: error.fieldErrors }),
     }
 
     return NextResponse.json(response, { status: error.statusCode })
@@ -85,7 +85,7 @@ export class ErrorService {
     return {
       success: false,
       error: error.message,
-      code: error.code
+      code: error.code,
     }
   }
 
@@ -102,7 +102,7 @@ export class ErrorService {
       success: true,
       data,
       ...(message && { message }),
-      ...(meta && { meta })
+      ...(meta && { meta }),
     }
 
     return NextResponse.json(response, { status })
@@ -111,22 +111,28 @@ export class ErrorService {
   /**
    * Create success result for actions
    */
-  static actionSuccess<T = void>(data?: T, message?: string): { success: true; data?: T; message?: string } {
+  static actionSuccess<T = void>(
+    data?: T,
+    message?: string
+  ): { success: true; data?: T; message?: string } {
     return {
       success: true,
       ...(data !== undefined && { data }),
-      ...(message && { message })
+      ...(message && { message }),
     }
   }
 
   /**
    * Create error result for actions
    */
-  static actionError(message: string, code?: string): { success: false; error: string; code?: string } {
+  static actionError(
+    message: string,
+    code?: string
+  ): { success: false; error: string; code?: string } {
     return {
       success: false,
       error: message,
-      ...(code && { code })
+      ...(code && { code }),
     }
   }
 
@@ -140,13 +146,13 @@ export class ErrorService {
     if (appError.severity === 'critical' || appError.severity === 'high') {
       console.error('Critical API error:', {
         ...appError,
-        stack: appError.stack
+        stack: appError.stack,
       })
     } else {
       console.warn('API error:', {
         code: appError.code,
         message: appError.message,
-        requestId: appError.requestId
+        requestId: appError.requestId,
       })
     }
 
@@ -163,13 +169,13 @@ export class ErrorService {
     if (appError.severity === 'critical' || appError.severity === 'high') {
       console.error('Critical action error:', {
         ...appError,
-        stack: appError.stack
+        stack: appError.stack,
       })
     } else {
       console.warn('Action error:', {
         code: appError.code,
         message: appError.message,
-        requestId: appError.requestId
+        requestId: appError.requestId,
       })
     }
 
@@ -179,13 +185,10 @@ export class ErrorService {
   /**
    * Create validation error with field-level details
    */
-  static validationError(
-    fieldErrors: Record<string, string[]>,
-    context?: ErrorContext
-  ): AppError {
+  static validationError(fieldErrors: Record<string, string[]>, context?: ErrorContext): AppError {
     return {
       ...this.create('VALIDATION_ERROR', undefined, context),
-      fieldErrors
+      fieldErrors,
     }
   }
 

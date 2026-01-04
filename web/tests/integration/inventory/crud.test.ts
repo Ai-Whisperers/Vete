@@ -5,31 +5,27 @@
  * @tags integration, inventory, high
  */
 
-import { describe, test, expect, beforeAll, afterAll, beforeEach } from 'vitest';
-import {
-  getTestClient,
-  TestContext,
-  waitForDatabase,
-} from '../../__helpers__/db';
-import { resetSequence } from '../../__helpers__/factories';
-import { DEFAULT_TENANT } from '../../__fixtures__/tenants';
+import { describe, test, expect, beforeAll, afterAll, beforeEach } from 'vitest'
+import { getTestClient, TestContext, waitForDatabase } from '../../__helpers__/db'
+import { resetSequence } from '../../__helpers__/factories'
+import { DEFAULT_TENANT } from '../../__fixtures__/tenants'
 
 describe('Inventory Management', () => {
-  const ctx = new TestContext();
-  let client: ReturnType<typeof getTestClient>;
+  const ctx = new TestContext()
+  let client: ReturnType<typeof getTestClient>
 
   beforeAll(async () => {
-    await waitForDatabase();
-    client = getTestClient();
-  });
+    await waitForDatabase()
+    client = getTestClient()
+  })
 
   afterAll(async () => {
-    await ctx.cleanup();
-  });
+    await ctx.cleanup()
+  })
 
   beforeEach(() => {
-    resetSequence();
-  });
+    resetSequence()
+  })
 
   describe('PRODUCTS - CREATE', () => {
     test('creates product with required fields', async () => {
@@ -43,16 +39,16 @@ describe('Inventory Management', () => {
           stock: 100,
         })
         .select()
-        .single();
+        .single()
 
-      expect(error).toBeNull();
-      expect(data).toBeDefined();
-      expect(data.name).toBe('Dog Food Premium');
-      expect(data.price).toBe(50000);
-      expect(data.stock).toBe(100);
+      expect(error).toBeNull()
+      expect(data).toBeDefined()
+      expect(data.name).toBe('Dog Food Premium')
+      expect(data.price).toBe(50000)
+      expect(data.stock).toBe(100)
 
-      ctx.track('products', data.id);
-    });
+      ctx.track('products', data.id)
+    })
 
     test('creates product with all fields', async () => {
       const { data, error } = await client
@@ -67,17 +63,17 @@ describe('Inventory Management', () => {
           description: 'Spray anti-pulgas y garrapatas. Uso externo.',
         })
         .select()
-        .single();
+        .single()
 
-      expect(error).toBeNull();
-      expect(data.description).toContain('anti-pulgas');
-      expect(data.image_url).toBeDefined();
+      expect(error).toBeNull()
+      expect(data.description).toContain('anti-pulgas')
+      expect(data.image_url).toBeDefined()
 
-      ctx.track('products', data.id);
-    });
+      ctx.track('products', data.id)
+    })
 
     test('creates products in different categories', async () => {
-      const categories = ['Alimentos', 'Farmacia', 'Accesorios', 'Higiene', 'Juguetes'];
+      const categories = ['Alimentos', 'Farmacia', 'Accesorios', 'Higiene', 'Juguetes']
 
       for (const category of categories) {
         const { data, error } = await client
@@ -90,43 +86,39 @@ describe('Inventory Management', () => {
             stock: 10,
           })
           .select()
-          .single();
+          .single()
 
-        expect(error).toBeNull();
-        expect(data.category).toBe(category);
-        ctx.track('products', data.id);
+        expect(error).toBeNull()
+        expect(data.category).toBe(category)
+        ctx.track('products', data.id)
       }
-    });
+    })
 
     test('fails without name', async () => {
-      const { error } = await client
-        .from('products')
-        .insert({
-          tenant_id: DEFAULT_TENANT.id,
-          category: 'Test',
-          price: 1000,
-          stock: 10,
-        });
+      const { error } = await client.from('products').insert({
+        tenant_id: DEFAULT_TENANT.id,
+        category: 'Test',
+        price: 1000,
+        stock: 10,
+      })
 
-      expect(error).not.toBeNull();
-    });
+      expect(error).not.toBeNull()
+    })
 
     test('fails without category', async () => {
-      const { error } = await client
-        .from('products')
-        .insert({
-          tenant_id: DEFAULT_TENANT.id,
-          name: 'No Category Product',
-          price: 1000,
-          stock: 10,
-        });
+      const { error } = await client.from('products').insert({
+        tenant_id: DEFAULT_TENANT.id,
+        name: 'No Category Product',
+        price: 1000,
+        stock: 10,
+      })
 
-      expect(error).not.toBeNull();
-    });
-  });
+      expect(error).not.toBeNull()
+    })
+  })
 
   describe('PRODUCTS - READ', () => {
-    let productId: string;
+    let productId: string
 
     beforeAll(async () => {
       const { data } = await client
@@ -140,93 +132,89 @@ describe('Inventory Management', () => {
           description: 'Product for read tests',
         })
         .select()
-        .single();
-      productId = data.id;
-      ctx.track('products', productId);
-    });
+        .single()
+      productId = data.id
+      ctx.track('products', productId)
+    })
 
     test('reads product by ID', async () => {
-      const { data, error } = await client
-        .from('products')
-        .select('*')
-        .eq('id', productId)
-        .single();
+      const { data, error } = await client.from('products').select('*').eq('id', productId).single()
 
-      expect(error).toBeNull();
-      expect(data.name).toBe('Read Test Product');
-    });
+      expect(error).toBeNull()
+      expect(data.name).toBe('Read Test Product')
+    })
 
     test('reads products by tenant', async () => {
       const { data, error } = await client
         .from('products')
         .select('*')
-        .eq('tenant_id', DEFAULT_TENANT.id);
+        .eq('tenant_id', DEFAULT_TENANT.id)
 
-      expect(error).toBeNull();
-      expect(data).not.toBeNull();
-      expect(data!.length).toBeGreaterThan(0);
-    });
+      expect(error).toBeNull()
+      expect(data).not.toBeNull()
+      expect(data!.length).toBeGreaterThan(0)
+    })
 
     test('filters products by category', async () => {
       const { data, error } = await client
         .from('products')
         .select('*')
         .eq('tenant_id', DEFAULT_TENANT.id)
-        .eq('category', 'Alimentos');
+        .eq('category', 'Alimentos')
 
-      expect(error).toBeNull();
-      expect(data).not.toBeNull();
-      expect(data!.every((p: { category: string }) => p.category === 'Alimentos')).toBe(true);
-    });
+      expect(error).toBeNull()
+      expect(data).not.toBeNull()
+      expect(data!.every((p: { category: string }) => p.category === 'Alimentos')).toBe(true)
+    })
 
     test('searches products by name', async () => {
       const { data, error } = await client
         .from('products')
         .select('*')
         .eq('tenant_id', DEFAULT_TENANT.id)
-        .ilike('name', '%Dog%');
+        .ilike('name', '%Dog%')
 
-      expect(error).toBeNull();
-    });
+      expect(error).toBeNull()
+    })
 
     test('orders products by price', async () => {
       const { data, error } = await client
         .from('products')
         .select('*')
         .eq('tenant_id', DEFAULT_TENANT.id)
-        .order('price', { ascending: true });
+        .order('price', { ascending: true })
 
-      expect(error).toBeNull();
-      expect(data).not.toBeNull();
+      expect(error).toBeNull()
+      expect(data).not.toBeNull()
       // Verify ascending order
       for (let i = 1; i < data!.length; i++) {
-        expect(data![i].price).toBeGreaterThanOrEqual(data![i - 1].price);
+        expect(data![i].price).toBeGreaterThanOrEqual(data![i - 1].price)
       }
-    });
+    })
 
     test('paginates products', async () => {
       const { data: page1, error: error1 } = await client
         .from('products')
         .select('*')
         .eq('tenant_id', DEFAULT_TENANT.id)
-        .range(0, 4);
+        .range(0, 4)
 
-      expect(error1).toBeNull();
-      expect(page1).not.toBeNull();
-      expect(page1!.length).toBeLessThanOrEqual(5);
+      expect(error1).toBeNull()
+      expect(page1).not.toBeNull()
+      expect(page1!.length).toBeLessThanOrEqual(5)
 
       const { data: page2, error: error2 } = await client
         .from('products')
         .select('*')
         .eq('tenant_id', DEFAULT_TENANT.id)
-        .range(5, 9);
+        .range(5, 9)
 
-      expect(error2).toBeNull();
-    });
-  });
+      expect(error2).toBeNull()
+    })
+  })
 
   describe('PRODUCTS - UPDATE', () => {
-    let updateProductId: string;
+    let updateProductId: string
 
     beforeAll(async () => {
       const { data } = await client
@@ -239,10 +227,10 @@ describe('Inventory Management', () => {
           stock: 50,
         })
         .select()
-        .single();
-      updateProductId = data.id;
-      ctx.track('products', updateProductId);
-    });
+        .single()
+      updateProductId = data.id
+      ctx.track('products', updateProductId)
+    })
 
     test('updates price', async () => {
       const { data, error } = await client
@@ -250,11 +238,11 @@ describe('Inventory Management', () => {
         .update({ price: 18000 })
         .eq('id', updateProductId)
         .select()
-        .single();
+        .single()
 
-      expect(error).toBeNull();
-      expect(data.price).toBe(18000);
-    });
+      expect(error).toBeNull()
+      expect(data.price).toBe(18000)
+    })
 
     test('updates stock', async () => {
       const { data, error } = await client
@@ -262,11 +250,11 @@ describe('Inventory Management', () => {
         .update({ stock: 75 })
         .eq('id', updateProductId)
         .select()
-        .single();
+        .single()
 
-      expect(error).toBeNull();
-      expect(data.stock).toBe(75);
-    });
+      expect(error).toBeNull()
+      expect(data.stock).toBe(75)
+    })
 
     test('updates description', async () => {
       const { data, error } = await client
@@ -274,11 +262,11 @@ describe('Inventory Management', () => {
         .update({ description: 'Updated product description' })
         .eq('id', updateProductId)
         .select()
-        .single();
+        .single()
 
-      expect(error).toBeNull();
-      expect(data.description).toBe('Updated product description');
-    });
+      expect(error).toBeNull()
+      expect(data.description).toBe('Updated product description')
+    })
 
     test('updates category', async () => {
       const { data, error } = await client
@@ -286,12 +274,12 @@ describe('Inventory Management', () => {
         .update({ category: 'Accesorios' })
         .eq('id', updateProductId)
         .select()
-        .single();
+        .single()
 
-      expect(error).toBeNull();
-      expect(data.category).toBe('Accesorios');
-    });
-  });
+      expect(error).toBeNull()
+      expect(data.category).toBe('Accesorios')
+    })
+  })
 
   describe('PRODUCTS - DELETE', () => {
     test('deletes product by ID', async () => {
@@ -306,29 +294,26 @@ describe('Inventory Management', () => {
           stock: 1,
         })
         .select()
-        .single();
+        .single()
 
       // Delete it
-      const { error } = await client
-        .from('products')
-        .delete()
-        .eq('id', created.id);
+      const { error } = await client.from('products').delete().eq('id', created.id)
 
-      expect(error).toBeNull();
+      expect(error).toBeNull()
 
       // Verify deleted
       const { data: found } = await client
         .from('products')
         .select('*')
         .eq('id', created.id)
-        .single();
+        .single()
 
-      expect(found).toBeNull();
-    });
-  });
+      expect(found).toBeNull()
+    })
+  })
 
   describe('STOCK MANAGEMENT', () => {
-    let stockProductId: string;
+    let stockProductId: string
 
     beforeAll(async () => {
       const { data } = await client
@@ -341,10 +326,10 @@ describe('Inventory Management', () => {
           stock: 100,
         })
         .select()
-        .single();
-      stockProductId = data.id;
-      ctx.track('products', stockProductId);
-    });
+        .single()
+      stockProductId = data.id
+      ctx.track('products', stockProductId)
+    })
 
     test('decrements stock on sale', async () => {
       // Simulate a sale of 5 items
@@ -352,56 +337,56 @@ describe('Inventory Management', () => {
         .from('products')
         .select('stock')
         .eq('id', stockProductId)
-        .single();
+        .single()
 
-      expect(before).not.toBeNull();
+      expect(before).not.toBeNull()
 
       const { data, error } = await client
         .from('products')
         .update({ stock: before!.stock - 5 })
         .eq('id', stockProductId)
         .select()
-        .single();
+        .single()
 
-      expect(error).toBeNull();
-      expect(data).not.toBeNull();
-      expect(data!.stock).toBe(before!.stock - 5);
-    });
+      expect(error).toBeNull()
+      expect(data).not.toBeNull()
+      expect(data!.stock).toBe(before!.stock - 5)
+    })
 
     test('increments stock on restock', async () => {
       const { data: before } = await client
         .from('products')
         .select('stock')
         .eq('id', stockProductId)
-        .single();
+        .single()
 
-      expect(before).not.toBeNull();
+      expect(before).not.toBeNull()
 
       const { data, error } = await client
         .from('products')
         .update({ stock: before!.stock + 50 })
         .eq('id', stockProductId)
         .select()
-        .single();
+        .single()
 
-      expect(error).toBeNull();
-      expect(data).not.toBeNull();
-      expect(data!.stock).toBe(before!.stock + 50);
-    });
+      expect(error).toBeNull()
+      expect(data).not.toBeNull()
+      expect(data!.stock).toBe(before!.stock + 50)
+    })
 
     test('finds low stock products', async () => {
-      const lowStockThreshold = 10;
+      const lowStockThreshold = 10
 
       const { data, error } = await client
         .from('products')
         .select('*')
         .eq('tenant_id', DEFAULT_TENANT.id)
-        .lte('stock', lowStockThreshold);
+        .lte('stock', lowStockThreshold)
 
-      expect(error).toBeNull();
-      expect(data).not.toBeNull();
-      expect(data!.every((p: { stock: number }) => p.stock <= lowStockThreshold)).toBe(true);
-    });
+      expect(error).toBeNull()
+      expect(data).not.toBeNull()
+      expect(data!.every((p: { stock: number }) => p.stock <= lowStockThreshold)).toBe(true)
+    })
 
     test('finds out of stock products', async () => {
       // Create out of stock product
@@ -415,59 +400,56 @@ describe('Inventory Management', () => {
           stock: 0,
         })
         .select()
-        .single();
-      ctx.track('products', outOfStock.id);
+        .single()
+      ctx.track('products', outOfStock.id)
 
       const { data, error } = await client
         .from('products')
         .select('*')
         .eq('tenant_id', DEFAULT_TENANT.id)
-        .eq('stock', 0);
+        .eq('stock', 0)
 
-      expect(error).toBeNull();
-      expect(data).not.toBeNull();
-      expect(data!.some((p: { id: string }) => p.id === outOfStock!.id)).toBe(true);
-    });
-  });
+      expect(error).toBeNull()
+      expect(data).not.toBeNull()
+      expect(data!.some((p: { id: string }) => p.id === outOfStock!.id)).toBe(true)
+    })
+  })
 
   describe('INVENTORY REPORTS', () => {
     test('calculates total inventory value', async () => {
       const { data, error } = await client
         .from('products')
         .select('price, stock')
-        .eq('tenant_id', DEFAULT_TENANT.id);
+        .eq('tenant_id', DEFAULT_TENANT.id)
 
-      expect(error).toBeNull();
-      expect(data).not.toBeNull();
+      expect(error).toBeNull()
+      expect(data).not.toBeNull()
 
       const totalValue = data!.reduce(
         (sum: number, p: { price: number; stock: number }) => sum + p.price * p.stock,
         0
-      );
+      )
 
-      expect(totalValue).toBeGreaterThan(0);
-    });
+      expect(totalValue).toBeGreaterThan(0)
+    })
 
     test('groups products by category with count', async () => {
       const { data, error } = await client
         .from('products')
         .select('category')
-        .eq('tenant_id', DEFAULT_TENANT.id);
+        .eq('tenant_id', DEFAULT_TENANT.id)
 
-      expect(error).toBeNull();
-      expect(data).not.toBeNull();
+      expect(error).toBeNull()
+      expect(data).not.toBeNull()
 
-      const byCategory = data!.reduce(
-        (acc: Record<string, number>, p: { category: string }) => {
-          acc[p.category] = (acc[p.category] || 0) + 1;
-          return acc;
-        },
-        {}
-      );
+      const byCategory = data!.reduce((acc: Record<string, number>, p: { category: string }) => {
+        acc[p.category] = (acc[p.category] || 0) + 1
+        return acc
+      }, {})
 
-      expect(Object.keys(byCategory).length).toBeGreaterThan(0);
-    });
-  });
+      expect(Object.keys(byCategory).length).toBeGreaterThan(0)
+    })
+  })
 
   describe('MULTI-TENANT ISOLATION', () => {
     test('products are isolated by tenant', async () => {
@@ -482,26 +464,26 @@ describe('Inventory Management', () => {
           stock: 1,
         })
         .select()
-        .single();
-      ctx.track('products', petlifeProduct.id);
+        .single()
+      ctx.track('products', petlifeProduct.id)
 
       // Query adris products
       const { data: adrisProducts } = await client
         .from('products')
         .select('*')
-        .eq('tenant_id', 'adris');
+        .eq('tenant_id', 'adris')
 
       // Query petlife products
       const { data: petlifeProducts } = await client
         .from('products')
         .select('*')
-        .eq('tenant_id', 'petlife');
+        .eq('tenant_id', 'petlife')
 
       // Verify isolation
-      expect(adrisProducts).not.toBeNull();
-      expect(petlifeProducts).not.toBeNull();
-      expect(adrisProducts!.some((p: { id: string }) => p.id === petlifeProduct!.id)).toBe(false);
-      expect(petlifeProducts!.some((p: { id: string }) => p.id === petlifeProduct!.id)).toBe(true);
-    });
-  });
-});
+      expect(adrisProducts).not.toBeNull()
+      expect(petlifeProducts).not.toBeNull()
+      expect(adrisProducts!.some((p: { id: string }) => p.id === petlifeProduct!.id)).toBe(false)
+      expect(petlifeProducts!.some((p: { id: string }) => p.id === petlifeProduct!.id)).toBe(true)
+    })
+  })
+})

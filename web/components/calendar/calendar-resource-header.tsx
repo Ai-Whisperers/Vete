@@ -26,17 +26,17 @@ export function ResourceHeader({ resource }: ResourceHeaderProps) {
     .toUpperCase()
 
   return (
-    <div className="flex items-center gap-2 px-2 py-1.5 min-w-[120px]">
+    <div className="flex min-w-[120px] items-center gap-2 px-2 py-1.5">
       {/* Avatar or initials */}
       <div
-        className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0"
+        className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white"
         style={{ backgroundColor: resource.colorCode || 'var(--primary, #3b82f6)' }}
       >
         {resource.avatarUrl ? (
           <img
             src={resource.avatarUrl}
             alt={resource.title}
-            className="w-full h-full rounded-full object-cover"
+            className="h-full w-full rounded-full object-cover"
           />
         ) : (
           initials
@@ -44,20 +44,18 @@ export function ResourceHeader({ resource }: ResourceHeaderProps) {
       </div>
 
       {/* Name and job title */}
-      <div className="flex flex-col min-w-0">
-        <span className="text-sm font-medium text-[var(--text-primary)] truncate">
+      <div className="flex min-w-0 flex-col">
+        <span className="truncate text-sm font-medium text-[var(--text-primary)]">
           {resource.title}
         </span>
         {resource.jobTitle && (
-          <span className="text-[10px] text-[var(--text-muted)] truncate">
-            {resource.jobTitle}
-          </span>
+          <span className="truncate text-[10px] text-[var(--text-muted)]">{resource.jobTitle}</span>
         )}
       </div>
 
       {/* Color indicator */}
       <div
-        className="w-2 h-2 rounded-full flex-shrink-0 ml-auto"
+        className="ml-auto h-2 w-2 flex-shrink-0 rounded-full"
         style={{ backgroundColor: resource.colorCode || 'var(--primary)' }}
       />
     </div>

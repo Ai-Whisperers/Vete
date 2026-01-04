@@ -4,7 +4,18 @@ import { notFound } from 'next/navigation'
 import { requireStaff } from '@/lib/auth'
 import { logger } from '@/lib/logger'
 import Link from 'next/link'
-import { Users, Search, Phone, Mail, PawPrint, UserPlus, Calendar, CheckCircle, AlertCircle, MessageCircle } from 'lucide-react'
+import {
+  Users,
+  Search,
+  Phone,
+  Mail,
+  PawPrint,
+  UserPlus,
+  Calendar,
+  CheckCircle,
+  AlertCircle,
+  MessageCircle,
+} from 'lucide-react'
 import ClientSearch from './client-search'
 
 interface Props {
@@ -27,22 +38,22 @@ interface Client {
 }
 
 interface RawAppointment {
-  start_time: string;
-  status: string;
+  start_time: string
+  status: string
 }
 
 interface RawPet {
-  id: string;
-  appointments: RawAppointment[];
+  id: string
+  appointments: RawAppointment[]
 }
 
 interface RawClient {
-  id: string;
-  full_name: string | null;
-  email: string;
-  phone: string | null;
-  created_at: string;
-  pets: RawPet[];
+  id: string
+  full_name: string | null
+  email: string
+  phone: string | null
+  created_at: string
+  pets: RawPet[]
 }
 
 export default async function ClientsPage({ params, searchParams }: Props) {
@@ -62,7 +73,8 @@ export default async function ClientsPage({ params, searchParams }: Props) {
   // Appointments are fetched through pets since there's no direct client_id on appointments
   let query = supabase
     .from('profiles')
-    .select(`
+    .select(
+      `
       id,
       full_name,
       email,
@@ -72,7 +84,8 @@ export default async function ClientsPage({ params, searchParams }: Props) {
         id,
         appointments(start_time, status)
       )
-    `)
+    `
+    )
     .eq('tenant_id', profile.tenant_id)
     .eq('role', 'owner')
     .order('full_name', { ascending: true })
@@ -88,8 +101,16 @@ export default async function ClientsPage({ params, searchParams }: Props) {
     logger.error('Error fetching clients', { error: error.message })
     return (
       <div className="container mx-auto px-4 py-8">
-        <div className="rounded-lg p-4" style={{ backgroundColor: "var(--status-error-bg)", border: "1px solid var(--status-error-light)" }}>
-          <p style={{ color: "var(--status-error-dark)" }}>Error al cargar clientes. Por favor, intente nuevamente.</p>
+        <div
+          className="rounded-lg p-4"
+          style={{
+            backgroundColor: 'var(--status-error-bg)',
+            border: '1px solid var(--status-error-light)',
+          }}
+        >
+          <p style={{ color: 'var(--status-error-dark)' }}>
+            Error al cargar clientes. Por favor, intente nuevamente.
+          </p>
         </div>
       </div>
     )
@@ -105,14 +126,14 @@ export default async function ClientsPage({ params, searchParams }: Props) {
       Array.isArray(pet.appointments) ? pet.appointments : []
     )
     // Filter to only completed appointments (excludes scheduled/future appointments)
-    const completedAppointments = allAppointments.filter(
-      (appt) => appt.status === 'completed'
-    )
-    const lastVisit = completedAppointments.length > 0
-      ? completedAppointments.sort((a: RawAppointment, b: RawAppointment) =>
-          new Date(b.start_time).getTime() - new Date(a.start_time).getTime()
-        )[0]?.start_time
-      : null
+    const completedAppointments = allAppointments.filter((appt) => appt.status === 'completed')
+    const lastVisit =
+      completedAppointments.length > 0
+        ? completedAppointments.sort(
+            (a: RawAppointment, b: RawAppointment) =>
+              new Date(b.start_time).getTime() - new Date(a.start_time).getTime()
+          )[0]?.start_time
+        : null
 
     return {
       id: client.id,
@@ -121,7 +142,7 @@ export default async function ClientsPage({ params, searchParams }: Props) {
       phone: client.phone,
       created_at: client.created_at,
       pet_count: petCount,
-      last_visit: lastVisit
+      last_visit: lastVisit,
     }
   })
 
@@ -140,7 +161,7 @@ export default async function ClientsPage({ params, searchParams }: Props) {
     return date.toLocaleDateString('es-PY', {
       year: 'numeric',
       month: 'short',
-      day: 'numeric'
+      day: 'numeric',
     })
   }
 
@@ -153,26 +174,28 @@ export default async function ClientsPage({ params, searchParams }: Props) {
     // Fallback: add spaces every 3 digits after country code
     if (cleaned.length > 3) {
       const countryCode = cleaned.slice(0, 3)
-      const rest = cleaned.slice(3).match(/.{1,3}/g)?.join(' ') || cleaned.slice(3)
+      const rest =
+        cleaned
+          .slice(3)
+          .match(/.{1,3}/g)
+          ?.join(' ') || cleaned.slice(3)
       return `+${countryCode} ${rest}`
     }
     return phone
   }
 
-  const activeClients = clients.filter(c => isClientActive(c.last_visit))
-  const inactiveClients = clients.filter(c => !isClientActive(c.last_visit))
+  const activeClients = clients.filter((c) => isClientActive(c.last_visit))
+  const inactiveClients = clients.filter((c) => !isClientActive(c.last_visit))
 
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
       <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="p-2 bg-[var(--primary)] bg-opacity-10 rounded-lg">
+        <div className="mb-2 flex items-center gap-3">
+          <div className="rounded-lg bg-[var(--primary)] bg-opacity-10 p-2">
             <Users className="h-6 w-6 text-[var(--primary)]" />
           </div>
-          <h1 className="text-3xl font-bold text-[var(--text-primary)]">
-            Directorio de Clientes
-          </h1>
+          <h1 className="text-3xl font-bold text-[var(--text-primary)]">Directorio de Clientes</h1>
         </div>
         <p className="text-[var(--text-secondary)]">
           Gestiona la información de todos los propietarios de mascotas
@@ -180,52 +203,59 @@ export default async function ClientsPage({ params, searchParams }: Props) {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-[var(--bg-default)] rounded-xl shadow-md p-6">
+      <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-3">
+        <div className="rounded-xl bg-[var(--bg-default)] p-6 shadow-md">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-[var(--text-secondary)] mb-1">Total Clientes</p>
+              <p className="mb-1 text-sm text-[var(--text-secondary)]">Total Clientes</p>
               <p className="text-3xl font-bold text-[var(--text-primary)]">{clients.length}</p>
             </div>
-            <div className="p-3 rounded-lg" style={{ backgroundColor: "var(--accent-blue-light)" }}>
-              <Users className="h-8 w-8" style={{ color: "var(--accent-blue)" }} />
+            <div className="rounded-lg p-3" style={{ backgroundColor: 'var(--accent-blue-light)' }}>
+              <Users className="h-8 w-8" style={{ color: 'var(--accent-blue)' }} />
             </div>
           </div>
         </div>
 
-        <div className="bg-[var(--bg-default)] rounded-xl shadow-md p-6">
+        <div className="rounded-xl bg-[var(--bg-default)] p-6 shadow-md">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-[var(--text-secondary)] mb-1">Clientes Activos</p>
-              <p className="text-3xl font-bold text-[var(--text-primary)]">{activeClients.length}</p>
+              <p className="mb-1 text-sm text-[var(--text-secondary)]">Clientes Activos</p>
+              <p className="text-3xl font-bold text-[var(--text-primary)]">
+                {activeClients.length}
+              </p>
             </div>
-            <div className="p-3 rounded-lg" style={{ backgroundColor: "var(--status-success-bg)" }}>
-              <CheckCircle className="h-8 w-8" style={{ color: "var(--status-success)" }} />
+            <div className="rounded-lg p-3" style={{ backgroundColor: 'var(--status-success-bg)' }}>
+              <CheckCircle className="h-8 w-8" style={{ color: 'var(--status-success)' }} />
             </div>
           </div>
         </div>
 
-        <div className="bg-[var(--bg-default)] rounded-xl shadow-md p-6">
+        <div className="rounded-xl bg-[var(--bg-default)] p-6 shadow-md">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-[var(--text-secondary)] mb-1">Clientes Inactivos</p>
-              <p className="text-3xl font-bold text-[var(--text-primary)]">{inactiveClients.length}</p>
+              <p className="mb-1 text-sm text-[var(--text-secondary)]">Clientes Inactivos</p>
+              <p className="text-3xl font-bold text-[var(--text-primary)]">
+                {inactiveClients.length}
+              </p>
             </div>
-            <div className="p-3 rounded-lg" style={{ backgroundColor: "var(--accent-orange-light)" }}>
-              <AlertCircle className="h-8 w-8" style={{ color: "var(--accent-orange)" }} />
+            <div
+              className="rounded-lg p-3"
+              style={{ backgroundColor: 'var(--accent-orange-light)' }}
+            >
+              <AlertCircle className="h-8 w-8" style={{ color: 'var(--accent-orange)' }} />
             </div>
           </div>
         </div>
       </div>
 
       {/* Search and Actions */}
-      <div className="bg-[var(--bg-default)] rounded-xl shadow-md p-6 mb-6">
-        <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+      <div className="mb-6 rounded-xl bg-[var(--bg-default)] p-6 shadow-md">
+        <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
           <ClientSearch clinic={clinic} initialQuery={q} />
 
           <Link
             href={`/${clinic}/dashboard/clients/invite`}
-            className="flex items-center gap-2 px-4 py-2 bg-[var(--primary)] text-white rounded-lg hover:opacity-90 transition-opacity whitespace-nowrap"
+            className="flex items-center gap-2 whitespace-nowrap rounded-lg bg-[var(--primary)] px-4 py-2 text-white transition-opacity hover:opacity-90"
           >
             <UserPlus className="h-5 w-5" />
             Agregar Cliente
@@ -235,21 +265,20 @@ export default async function ClientsPage({ params, searchParams }: Props) {
 
       {/* Clients Table */}
       {clients.length === 0 ? (
-        <div className="bg-[var(--bg-default)] rounded-xl shadow-md p-12 text-center">
-          <Users className="h-16 w-16 text-[var(--text-secondary)] mx-auto mb-4 opacity-50" />
-          <h3 className="text-xl font-semibold text-[var(--text-primary)] mb-2">
+        <div className="rounded-xl bg-[var(--bg-default)] p-12 text-center shadow-md">
+          <Users className="mx-auto mb-4 h-16 w-16 text-[var(--text-secondary)] opacity-50" />
+          <h3 className="mb-2 text-xl font-semibold text-[var(--text-primary)]">
             {q ? 'No se encontraron clientes' : 'No hay clientes registrados'}
           </h3>
-          <p className="text-[var(--text-secondary)] mb-6">
+          <p className="mb-6 text-[var(--text-secondary)]">
             {q
               ? 'Intenta con otro término de búsqueda'
-              : 'Comienza agregando tu primer cliente al sistema'
-            }
+              : 'Comienza agregando tu primer cliente al sistema'}
           </p>
           {!q && (
             <Link
               href={`/${clinic}/dashboard/clients/invite`}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--primary)] text-white rounded-lg hover:opacity-90 transition-opacity"
+              className="inline-flex items-center gap-2 rounded-lg bg-[var(--primary)] px-6 py-3 text-white transition-opacity hover:opacity-90"
             >
               <UserPlus className="h-5 w-5" />
               Agregar Primer Cliente
@@ -257,11 +286,11 @@ export default async function ClientsPage({ params, searchParams }: Props) {
           )}
         </div>
       ) : (
-        <div className="bg-[var(--bg-default)] rounded-xl shadow-md overflow-hidden">
+        <div className="overflow-hidden rounded-xl bg-[var(--bg-default)] shadow-md">
           {/* Desktop Table View */}
-          <div className="hidden md:block overflow-x-auto">
+          <div className="hidden overflow-x-auto md:block">
             <table className="w-full">
-              <thead className="bg-[var(--primary)] bg-opacity-5 border-b border-[var(--primary)] border-opacity-10">
+              <thead className="border-b border-[var(--primary)] border-opacity-10 bg-[var(--primary)] bg-opacity-5">
                 <tr>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-[var(--text-primary)]">
                     Cliente
@@ -287,12 +316,12 @@ export default async function ClientsPage({ params, searchParams }: Props) {
                 {clients.map((client) => (
                   <tr
                     key={client.id}
-                    className="group hover:bg-[var(--bg-subtle)] transition-colors"
+                    className="group transition-colors hover:bg-[var(--bg-subtle)]"
                   >
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-[var(--primary)] bg-opacity-10 flex items-center justify-center">
-                          <span className="text-[var(--primary)] font-semibold">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--primary)] bg-opacity-10">
+                          <span className="font-semibold text-[var(--primary)]">
                             {client.full_name.charAt(0).toUpperCase()}
                           </span>
                         </div>
@@ -323,7 +352,7 @@ export default async function ClientsPage({ params, searchParams }: Props) {
                               target="_blank"
                               rel="noopener noreferrer"
                               onClick={(e) => e.stopPropagation()}
-                              className="text-green-600 hover:text-green-700 transition-colors"
+                              className="text-green-600 transition-colors hover:text-green-700"
                               title="Abrir WhatsApp"
                             >
                               <MessageCircle className="h-4 w-4" />
@@ -348,12 +377,24 @@ export default async function ClientsPage({ params, searchParams }: Props) {
                     </td>
                     <td className="px-6 py-4">
                       {isClientActive(client.last_visit) ? (
-                        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium" style={{ backgroundColor: "var(--status-success-bg)", color: "var(--status-success-dark)" }}>
+                        <span
+                          className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm font-medium"
+                          style={{
+                            backgroundColor: 'var(--status-success-bg)',
+                            color: 'var(--status-success-dark)',
+                          }}
+                        >
                           <CheckCircle className="h-3 w-3" />
                           Activo
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium" style={{ backgroundColor: "var(--accent-orange-light)", color: "var(--accent-orange-dark)" }}>
+                        <span
+                          className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm font-medium"
+                          style={{
+                            backgroundColor: 'var(--accent-orange-light)',
+                            color: 'var(--accent-orange-dark)',
+                          }}
+                        >
                           <AlertCircle className="h-3 w-3" />
                           Inactivo
                         </span>
@@ -362,7 +403,7 @@ export default async function ClientsPage({ params, searchParams }: Props) {
                     <td className="px-6 py-4">
                       <Link
                         href={`/${clinic}/dashboard/clients/${client.id}`}
-                        className="text-[var(--primary)] hover:underline font-medium text-sm"
+                        className="text-sm font-medium text-[var(--primary)] hover:underline"
                       >
                         Ver detalles
                       </Link>
@@ -374,25 +415,23 @@ export default async function ClientsPage({ params, searchParams }: Props) {
           </div>
 
           {/* Mobile Card View */}
-          <div className="md:hidden divide-y divide-[var(--primary)] divide-opacity-5">
+          <div className="divide-y divide-[var(--primary)] divide-opacity-5 md:hidden">
             {clients.map((client) => (
               <Link
                 key={client.id}
                 href={`/${clinic}/dashboard/clients/${client.id}`}
-                className="block p-4 hover:bg-[var(--primary)] hover:bg-opacity-5 transition-colors"
+                className="block p-4 transition-colors hover:bg-[var(--primary)] hover:bg-opacity-5"
               >
-                <div className="flex items-start justify-between mb-3">
+                <div className="mb-3 flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-[var(--primary)] bg-opacity-10 flex items-center justify-center">
-                      <span className="text-[var(--primary)] font-semibold text-lg">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--primary)] bg-opacity-10">
+                      <span className="text-lg font-semibold text-[var(--primary)]">
                         {client.full_name.charAt(0).toUpperCase()}
                       </span>
                     </div>
                     <div>
-                      <p className="font-semibold text-[var(--text-primary)]">
-                        {client.full_name}
-                      </p>
-                      <div className="flex items-center gap-2 mt-1">
+                      <p className="font-semibold text-[var(--text-primary)]">{client.full_name}</p>
+                      <div className="mt-1 flex items-center gap-2">
                         <PawPrint className="h-4 w-4 text-[var(--primary)]" />
                         <span className="text-sm text-[var(--text-secondary)]">
                           {client.pet_count} mascota{client.pet_count !== 1 ? 's' : ''}
@@ -401,12 +440,24 @@ export default async function ClientsPage({ params, searchParams }: Props) {
                     </div>
                   </div>
                   {isClientActive(client.last_visit) ? (
-                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: "var(--status-success-bg)", color: "var(--status-success-dark)" }}>
+                    <span
+                      className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium"
+                      style={{
+                        backgroundColor: 'var(--status-success-bg)',
+                        color: 'var(--status-success-dark)',
+                      }}
+                    >
                       <CheckCircle className="h-3 w-3" />
                       Activo
                     </span>
                   ) : (
-                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: "var(--accent-orange-light)", color: "var(--accent-orange-dark)" }}>
+                    <span
+                      className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium"
+                      style={{
+                        backgroundColor: 'var(--accent-orange-light)',
+                        color: 'var(--accent-orange-dark)',
+                      }}
+                    >
                       <AlertCircle className="h-3 w-3" />
                       Inactivo
                     </span>
@@ -429,7 +480,7 @@ export default async function ClientsPage({ params, searchParams }: Props) {
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={(e) => e.stopPropagation()}
-                        className="text-green-600 hover:text-green-700 transition-colors"
+                        className="text-green-600 transition-colors hover:text-green-700"
                         title="Abrir WhatsApp"
                       >
                         <MessageCircle className="h-4 w-4" />

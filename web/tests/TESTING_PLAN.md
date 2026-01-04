@@ -1,6 +1,7 @@
 # Vete Platform - Comprehensive Testing Plan
 
 ## Table of Contents
+
 1. [Project Overview](#project-overview)
 2. [Testing Strategy](#testing-strategy)
 3. [Test Categories](#test-categories)
@@ -14,6 +15,7 @@
 ## Project Overview
 
 ### Application Summary
+
 - **Name:** Vete - Multi-Tenant Veterinary Platform
 - **Technology:** Next.js 15, TypeScript, Supabase (PostgreSQL), Tailwind CSS
 - **Tenants:** `adris`, `petlife`
@@ -22,83 +24,89 @@
 ### Key Features by Area
 
 #### Public Website
-| Feature | Route | Priority |
-|---------|-------|----------|
-| Homepage | `/[clinic]` | Critical |
-| Services Catalog | `/[clinic]/services` | Critical |
-| E-commerce Store | `/[clinic]/store` | High |
-| Appointment Booking | `/[clinic]/book` | Critical |
-| Shopping Cart | `/[clinic]/cart` | High |
-| About Page | `/[clinic]/about` | Medium |
-| Toxic Food Checker | `/[clinic]/tools/toxic-food` | Medium |
-| Age Calculator | `/[clinic]/tools/age-calculator` | Low |
+
+| Feature             | Route                            | Priority |
+| ------------------- | -------------------------------- | -------- |
+| Homepage            | `/[clinic]`                      | Critical |
+| Services Catalog    | `/[clinic]/services`             | Critical |
+| E-commerce Store    | `/[clinic]/store`                | High     |
+| Appointment Booking | `/[clinic]/book`                 | Critical |
+| Shopping Cart       | `/[clinic]/cart`                 | High     |
+| About Page          | `/[clinic]/about`                | Medium   |
+| Toxic Food Checker  | `/[clinic]/tools/toxic-food`     | Medium   |
+| Age Calculator      | `/[clinic]/tools/age-calculator` | Low      |
 
 #### Portal (Authenticated Users)
-| Feature | Route | Priority |
-|---------|-------|----------|
-| Login/Signup | `/[clinic]/portal/login`, `/signup` | Critical |
-| User Profile | `/[clinic]/portal/profile` | High |
-| Pet Management | `/[clinic]/portal/pets/*` | Critical |
-| Medical Records | `/[clinic]/portal/pets/[id]/records` | Critical |
-| Vaccines | `/[clinic]/portal/pets/[id]/vaccines` | Critical |
-| Appointments | `/[clinic]/portal/appointments` | High |
-| Prescriptions | `/[clinic]/portal/prescriptions` | High |
+
+| Feature         | Route                                 | Priority |
+| --------------- | ------------------------------------- | -------- |
+| Login/Signup    | `/[clinic]/portal/login`, `/signup`   | Critical |
+| User Profile    | `/[clinic]/portal/profile`            | High     |
+| Pet Management  | `/[clinic]/portal/pets/*`             | Critical |
+| Medical Records | `/[clinic]/portal/pets/[id]/records`  | Critical |
+| Vaccines        | `/[clinic]/portal/pets/[id]/vaccines` | Critical |
+| Appointments    | `/[clinic]/portal/appointments`       | High     |
+| Prescriptions   | `/[clinic]/portal/prescriptions`      | High     |
 
 #### Staff Dashboard
-| Feature | Route | Priority |
-|---------|-------|----------|
-| Dashboard Overview | `/[clinic]/portal/dashboard` | Critical |
-| Inventory Management | `/[clinic]/portal/inventory` | High |
-| Finance/Expenses | `/[clinic]/portal/finance` | High |
-| Team Management | `/[clinic]/portal/team` | Medium |
-| Product Management | `/[clinic]/portal/products` | Medium |
-| Epidemiology | `/[clinic]/portal/epidemiology` | Low |
-| Campaigns | `/[clinic]/portal/campaigns` | Low |
-| Admin Panel | `/[clinic]/portal/admin` | High |
+
+| Feature              | Route                           | Priority |
+| -------------------- | ------------------------------- | -------- |
+| Dashboard Overview   | `/[clinic]/portal/dashboard`    | Critical |
+| Inventory Management | `/[clinic]/portal/inventory`    | High     |
+| Finance/Expenses     | `/[clinic]/portal/finance`      | High     |
+| Team Management      | `/[clinic]/portal/team`         | Medium   |
+| Product Management   | `/[clinic]/portal/products`     | Medium   |
+| Epidemiology         | `/[clinic]/portal/epidemiology` | Low      |
+| Campaigns            | `/[clinic]/portal/campaigns`    | Low      |
+| Admin Panel          | `/[clinic]/portal/admin`        | High     |
 
 #### Clinical Tools
-| Feature | Route | Priority |
-|---------|-------|----------|
-| Diagnosis Codes | `/[clinic]/diagnosis_codes` | Medium |
-| Drug Dosages | `/[clinic]/drug_dosages` | High |
-| Growth Charts | `/[clinic]/growth_charts` | Medium |
-| Euthanasia Assessments | `/[clinic]/euthanasia_assessments` | Medium |
-| Vaccine Reactions | `/[clinic]/vaccine_reactions` | Medium |
-| Reproductive Cycles | `/[clinic]/reproductive_cycles` | Low |
-| Loyalty Points | `/[clinic]/loyalty_points` | Low |
+
+| Feature                | Route                              | Priority |
+| ---------------------- | ---------------------------------- | -------- |
+| Diagnosis Codes        | `/[clinic]/diagnosis_codes`        | Medium   |
+| Drug Dosages           | `/[clinic]/drug_dosages`           | High     |
+| Growth Charts          | `/[clinic]/growth_charts`          | Medium   |
+| Euthanasia Assessments | `/[clinic]/euthanasia_assessments` | Medium   |
+| Vaccine Reactions      | `/[clinic]/vaccine_reactions`      | Medium   |
+| Reproductive Cycles    | `/[clinic]/reproductive_cycles`    | Low      |
+| Loyalty Points         | `/[clinic]/loyalty_points`         | Low      |
 
 #### API Endpoints
-| Endpoint | Methods | Priority |
-|----------|---------|----------|
-| `/api/pets` | CRUD | Critical |
-| `/api/booking` | CRUD | Critical |
-| `/api/diagnosis_codes` | GET | Medium |
-| `/api/drug_dosages` | GET | High |
-| `/api/finance` | CRUD | High |
-| `/api/inventory` | CRUD | High |
-| `/api/prescriptions` | CRUD | High |
-| `/api/store` | GET | High |
-| `/api/growth_charts` | GET | Medium |
-| `/api/vaccine_reactions` | CRUD | Medium |
-| `/api/reproductive_cycles` | CRUD | Low |
-| `/api/loyalty_points` | CRUD | Low |
-| `/api/epidemiology` | GET | Low |
-| `/api/euthanasia_assessments` | CRUD | Medium |
+
+| Endpoint                      | Methods | Priority |
+| ----------------------------- | ------- | -------- |
+| `/api/pets`                   | CRUD    | Critical |
+| `/api/booking`                | CRUD    | Critical |
+| `/api/diagnosis_codes`        | GET     | Medium   |
+| `/api/drug_dosages`           | GET     | High     |
+| `/api/finance`                | CRUD    | High     |
+| `/api/inventory`              | CRUD    | High     |
+| `/api/prescriptions`          | CRUD    | High     |
+| `/api/store`                  | GET     | High     |
+| `/api/growth_charts`          | GET     | Medium   |
+| `/api/vaccine_reactions`      | CRUD    | Medium   |
+| `/api/reproductive_cycles`    | CRUD    | Low      |
+| `/api/loyalty_points`         | CRUD    | Low      |
+| `/api/epidemiology`           | GET     | Low      |
+| `/api/euthanasia_assessments` | CRUD    | Medium   |
 
 #### Server Actions
-| Action | File | Priority |
-|--------|------|----------|
-| Create Pet | `create-pet.ts` | Critical |
-| Create Vaccine | `create-vaccine.ts` | Critical |
-| Create Appointment | `create-appointment.ts` | Critical |
+
+| Action                | File                       | Priority |
+| --------------------- | -------------------------- | -------- |
+| Create Pet            | `create-pet.ts`            | Critical |
+| Create Vaccine        | `create-vaccine.ts`        | Critical |
+| Create Appointment    | `create-appointment.ts`    | Critical |
 | Create Medical Record | `create-medical-record.ts` | Critical |
-| Update Appointment | `update-appointment.ts` | High |
-| Update Profile | `update-profile.ts` | High |
-| Assign Tag | `assign-tag.ts` | Medium |
-| Create Product | `create-product.ts` | Medium |
-| Invite Staff | `invite-staff.ts` | Medium |
-| Safety Actions | `safety.ts` | High |
-| Send Email | `send-email.ts` | Medium |
+| Update Appointment    | `update-appointment.ts`    | High     |
+| Update Profile        | `update-profile.ts`        | High     |
+| Assign Tag            | `assign-tag.ts`            | Medium   |
+| Create Product        | `create-product.ts`        | Medium   |
+| Invite Staff          | `invite-staff.ts`          | Medium   |
+| Safety Actions        | `safety.ts`                | High     |
+| Send Email            | `send-email.ts`            | Medium   |
 
 ---
 
@@ -141,6 +149,7 @@
 ### Environment Setup Strategy
 
 Since SQL scripts exist for clean database setup, testing will use:
+
 1. **Fresh Database Per Test Suite:** Run SQL scripts to create clean state
 2. **Test Isolation:** Each test cleans up its own data
 3. **Fixture Management:** Shared test data loaded from seed files
@@ -150,9 +159,11 @@ Since SQL scripts exist for clean database setup, testing will use:
 ## Test Categories
 
 ### 1. Unit Tests (`tests/unit/`)
+
 Test individual functions, utilities, and hooks in isolation.
 
 **Scope:**
+
 - Pure functions in `lib/`
 - React hooks in `hooks/`
 - Component logic (non-visual)
@@ -162,9 +173,11 @@ Test individual functions, utilities, and hooks in isolation.
 **Tools:** Vitest, @testing-library/react
 
 ### 2. Integration Tests (`tests/integration/`)
+
 Test interactions between components and external services.
 
 **Scope:**
+
 - Database operations (CRUD via Supabase)
 - Server actions
 - API route handlers
@@ -174,9 +187,11 @@ Test interactions between components and external services.
 **Tools:** Vitest, Supabase client
 
 ### 3. System Tests (`tests/system/`)
+
 Test complete features working together.
 
 **Scope:**
+
 - Full feature workflows (e.g., "Add pet → Add vaccine → Generate PDF")
 - Cross-module interactions
 - Data consistency across features
@@ -185,9 +200,11 @@ Test complete features working together.
 **Tools:** Vitest, mocked services
 
 ### 4. Functionality Tests (`tests/functionality/`)
+
 Test that features work as specified.
 
 **Scope:**
+
 - Business logic correctness
 - Feature-specific requirements
 - Edge cases and boundary conditions
@@ -196,9 +213,11 @@ Test that features work as specified.
 **Tools:** Vitest
 
 ### 5. User Acceptance Tests (`tests/uat/`)
+
 Test from user perspective with real scenarios.
 
 **Scope:**
+
 - User stories and acceptance criteria
 - End-to-end workflows
 - Multi-role scenarios (owner, vet, admin)
@@ -207,9 +226,11 @@ Test from user perspective with real scenarios.
 **Tools:** Playwright
 
 ### 6. UI Tests (`e2e/`)
+
 Test visual interface and user interactions.
 
 **Scope:**
+
 - Page loads and navigation
 - Form interactions
 - Visual elements presence
@@ -224,66 +245,66 @@ Test visual interface and user interactions.
 
 ### Public Website Tests
 
-| Feature | Unit | Integration | System | Functionality | UAT | UI |
-|---------|:----:|:-----------:|:------:|:-------------:|:---:|:--:|
-| Homepage Load | - | - | - | ✓ | ✓ | ✓ |
-| Multi-tenant Routing | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Theme Provider | ✓ | - | ✓ | ✓ | - | ✓ |
-| Services Display | - | - | - | ✓ | ✓ | ✓ |
-| Store Products | - | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Shopping Cart | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Booking Form | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Toxic Food Checker | ✓ | - | - | ✓ | ✓ | ✓ |
-| Age Calculator | ✓ | - | - | ✓ | - | ✓ |
+| Feature              | Unit | Integration | System | Functionality | UAT | UI  |
+| -------------------- | :--: | :---------: | :----: | :-----------: | :-: | :-: |
+| Homepage Load        |  -   |      -      |   -    |       ✓       |  ✓  |  ✓  |
+| Multi-tenant Routing |  ✓   |      ✓      |   ✓    |       ✓       |  ✓  |  ✓  |
+| Theme Provider       |  ✓   |      -      |   ✓    |       ✓       |  -  |  ✓  |
+| Services Display     |  -   |      -      |   -    |       ✓       |  ✓  |  ✓  |
+| Store Products       |  -   |      ✓      |   ✓    |       ✓       |  ✓  |  ✓  |
+| Shopping Cart        |  ✓   |      ✓      |   ✓    |       ✓       |  ✓  |  ✓  |
+| Booking Form         |  ✓   |      ✓      |   ✓    |       ✓       |  ✓  |  ✓  |
+| Toxic Food Checker   |  ✓   |      -      |   -    |       ✓       |  ✓  |  ✓  |
+| Age Calculator       |  ✓   |      -      |   -    |       ✓       |  -  |  ✓  |
 
 ### Portal Tests
 
-| Feature | Unit | Integration | System | Functionality | UAT | UI |
-|---------|:----:|:-----------:|:------:|:-------------:|:---:|:--:|
-| Login | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Signup | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Profile Update | ✓ | ✓ | - | ✓ | ✓ | ✓ |
-| Pet CRUD | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Medical Records | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Vaccine CRUD | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Vaccine PDF | ✓ | - | ✓ | ✓ | ✓ | ✓ |
-| Appointments | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| QR Tags | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Feature         | Unit | Integration | System | Functionality | UAT | UI  |
+| --------------- | :--: | :---------: | :----: | :-----------: | :-: | :-: |
+| Login           |  ✓   |      ✓      |   ✓    |       ✓       |  ✓  |  ✓  |
+| Signup          |  ✓   |      ✓      |   ✓    |       ✓       |  ✓  |  ✓  |
+| Profile Update  |  ✓   |      ✓      |   -    |       ✓       |  ✓  |  ✓  |
+| Pet CRUD        |  ✓   |      ✓      |   ✓    |       ✓       |  ✓  |  ✓  |
+| Medical Records |  ✓   |      ✓      |   ✓    |       ✓       |  ✓  |  ✓  |
+| Vaccine CRUD    |  ✓   |      ✓      |   ✓    |       ✓       |  ✓  |  ✓  |
+| Vaccine PDF     |  ✓   |      -      |   ✓    |       ✓       |  ✓  |  ✓  |
+| Appointments    |  ✓   |      ✓      |   ✓    |       ✓       |  ✓  |  ✓  |
+| QR Tags         |  ✓   |      ✓      |   ✓    |       ✓       |  ✓  |  ✓  |
 
 ### Staff Dashboard Tests
 
-| Feature | Unit | Integration | System | Functionality | UAT | UI |
-|---------|:----:|:-----------:|:------:|:-------------:|:---:|:--:|
-| Dashboard Stats | - | ✓ | - | ✓ | ✓ | ✓ |
-| Inventory CRUD | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Finance/Expenses | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Team Management | - | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Product Management | ✓ | ✓ | - | ✓ | ✓ | ✓ |
-| Prescriptions | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Feature            | Unit | Integration | System | Functionality | UAT | UI  |
+| ------------------ | :--: | :---------: | :----: | :-----------: | :-: | :-: |
+| Dashboard Stats    |  -   |      ✓      |   -    |       ✓       |  ✓  |  ✓  |
+| Inventory CRUD     |  ✓   |      ✓      |   ✓    |       ✓       |  ✓  |  ✓  |
+| Finance/Expenses   |  ✓   |      ✓      |   ✓    |       ✓       |  ✓  |  ✓  |
+| Team Management    |  -   |      ✓      |   ✓    |       ✓       |  ✓  |  ✓  |
+| Product Management |  ✓   |      ✓      |   -    |       ✓       |  ✓  |  ✓  |
+| Prescriptions      |  ✓   |      ✓      |   ✓    |       ✓       |  ✓  |  ✓  |
 
 ### Clinical Tools Tests
 
-| Feature | Unit | Integration | System | Functionality | UAT | UI |
-|---------|:----:|:-----------:|:------:|:-------------:|:---:|:--:|
-| Diagnosis Codes | - | ✓ | - | ✓ | - | ✓ |
-| Drug Dosages | ✓ | ✓ | - | ✓ | ✓ | ✓ |
-| Growth Charts | ✓ | ✓ | - | ✓ | - | ✓ |
-| Euthanasia Assessment | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Vaccine Reactions | - | ✓ | - | ✓ | - | ✓ |
-| Reproductive Cycles | - | ✓ | - | ✓ | - | ✓ |
-| Loyalty Points | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Feature               | Unit | Integration | System | Functionality | UAT | UI  |
+| --------------------- | :--: | :---------: | :----: | :-----------: | :-: | :-: |
+| Diagnosis Codes       |  -   |      ✓      |   -    |       ✓       |  -  |  ✓  |
+| Drug Dosages          |  ✓   |      ✓      |   -    |       ✓       |  ✓  |  ✓  |
+| Growth Charts         |  ✓   |      ✓      |   -    |       ✓       |  -  |  ✓  |
+| Euthanasia Assessment |  ✓   |      ✓      |   ✓    |       ✓       |  ✓  |  ✓  |
+| Vaccine Reactions     |  -   |      ✓      |   -    |       ✓       |  -  |  ✓  |
+| Reproductive Cycles   |  -   |      ✓      |   -    |       ✓       |  -  |  ✓  |
+| Loyalty Points        |  ✓   |      ✓      |   ✓    |       ✓       |  ✓  |  ✓  |
 
 ### API Tests
 
-| Endpoint | Unit | Integration | System | Functionality |
-|----------|:----:|:-----------:|:------:|:-------------:|
-| `/api/pets` | - | ✓ | ✓ | ✓ |
-| `/api/booking` | - | ✓ | ✓ | ✓ |
-| `/api/drug_dosages` | - | ✓ | - | ✓ |
-| `/api/inventory` | - | ✓ | ✓ | ✓ |
-| `/api/finance` | - | ✓ | ✓ | ✓ |
-| `/api/store` | - | ✓ | - | ✓ |
-| `/api/prescriptions` | - | ✓ | - | ✓ |
+| Endpoint             | Unit | Integration | System | Functionality |
+| -------------------- | :--: | :---------: | :----: | :-----------: |
+| `/api/pets`          |  -   |      ✓      |   ✓    |       ✓       |
+| `/api/booking`       |  -   |      ✓      |   ✓    |       ✓       |
+| `/api/drug_dosages`  |  -   |      ✓      |   -    |       ✓       |
+| `/api/inventory`     |  -   |      ✓      |   ✓    |       ✓       |
+| `/api/finance`       |  -   |      ✓      |   ✓    |       ✓       |
+| `/api/store`         |  -   |      ✓      |   -    |       ✓       |
+| `/api/prescriptions` |  -   |      ✓      |   -    |       ✓       |
 
 ---
 
@@ -390,11 +411,12 @@ Tests are tagged for selective execution:
 describe('Pet Management', () => {
   test.meta({ tags: ['critical', 'pets', 'portal'] }, 'creates a pet', async () => {
     // ...
-  });
-});
+  })
+})
 ```
 
 **Available Tags:**
+
 - **Priority:** `critical`, `high`, `medium`, `low`
 - **Feature:** `pets`, `vaccines`, `booking`, `inventory`, `finance`, etc.
 - **Area:** `public`, `portal`, `dashboard`, `api`, `clinical`
@@ -526,14 +548,14 @@ jobs:
 
 Configure tests to run based on changed files:
 
-| Changed Path | Tests to Run |
-|-------------|--------------|
-| `app/[clinic]/portal/pets/**` | `test:feature:pets`, `e2e/portal/pets.spec.ts` |
-| `app/api/booking/**` | `test:integration:api:booking`, `test:functionality:booking` |
-| `lib/**` | `test:unit:lib` |
-| `components/**` | `test:unit:components` |
-| `app/[clinic]/store/**` | `test:public:store`, `e2e/public/store.spec.ts` |
-| `db/**` | All integration and system tests |
+| Changed Path                  | Tests to Run                                                 |
+| ----------------------------- | ------------------------------------------------------------ |
+| `app/[clinic]/portal/pets/**` | `test:feature:pets`, `e2e/portal/pets.spec.ts`               |
+| `app/api/booking/**`          | `test:integration:api:booking`, `test:functionality:booking` |
+| `lib/**`                      | `test:unit:lib`                                              |
+| `components/**`               | `test:unit:components`                                       |
+| `app/[clinic]/store/**`       | `test:public:store`, `e2e/public/store.spec.ts`              |
+| `db/**`                       | All integration and system tests                             |
 
 ---
 

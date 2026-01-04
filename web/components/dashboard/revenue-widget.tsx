@@ -1,7 +1,7 @@
-"use client";
+'use client'
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
+import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import {
   DollarSign,
   TrendingUp,
@@ -11,117 +11,119 @@ import {
   CreditCard,
   Receipt,
   Clock,
-} from 'lucide-react';
+} from 'lucide-react'
 
 interface RevenueData {
-  today: number;
-  week: number;
-  month: number;
-  todayChange?: number;
-  weekChange?: number;
-  monthChange?: number;
-  pendingAmount?: number;
-  pendingCount?: number;
+  today: number
+  week: number
+  month: number
+  todayChange?: number
+  weekChange?: number
+  monthChange?: number
+  pendingAmount?: number
+  pendingCount?: number
   recentPayments?: Array<{
-    id: string;
-    amount: number;
-    method: string;
-    timestamp: string;
-    clientName?: string;
-  }>;
+    id: string
+    amount: number
+    method: string
+    timestamp: string
+    clientName?: string
+  }>
 }
 
 interface RevenueWidgetProps {
-  clinic: string;
+  clinic: string
 }
 
 function formatCurrency(amount: number): string {
-  return `Gs. ${amount.toLocaleString('es-PY')}`;
+  return `Gs. ${amount.toLocaleString('es-PY')}`
 }
 
 function formatCompactCurrency(amount: number): string {
   if (amount >= 1000000) {
-    return `Gs. ${(amount / 1000000).toFixed(1)}M`;
+    return `Gs. ${(amount / 1000000).toFixed(1)}M`
   }
   if (amount >= 1000) {
-    return `Gs. ${(amount / 1000).toFixed(0)}K`;
+    return `Gs. ${(amount / 1000).toFixed(0)}K`
   }
-  return `Gs. ${amount.toLocaleString()}`;
+  return `Gs. ${amount.toLocaleString()}`
 }
 
 function TrendBadge({ change }: { change?: number }) {
-  if (change === undefined) return null;
+  if (change === undefined) return null
 
-  const isPositive = change > 0;
-  const isNeutral = change === 0;
+  const isPositive = change > 0
+  const isNeutral = change === 0
 
-  const Icon = isNeutral ? Minus : isPositive ? TrendingUp : TrendingDown;
+  const Icon = isNeutral ? Minus : isPositive ? TrendingUp : TrendingDown
   const colorClass = isNeutral
     ? 'text-white/70 bg-white/20'
     : isPositive
       ? 'text-[var(--status-success)] bg-[var(--status-success-bg)]'
-      : 'text-[var(--status-error)] bg-[var(--status-error-bg)]';
+      : 'text-[var(--status-error)] bg-[var(--status-error-bg)]'
 
   return (
-    <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-xs font-medium ${colorClass}`}>
-      <Icon className="w-3 h-3" />
+    <span
+      className={`inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-xs font-medium ${colorClass}`}
+    >
+      <Icon className="h-3 w-3" />
       {Math.abs(change)}%
     </span>
-  );
+  )
 }
 
 function LoadingSkeleton() {
   return (
     <div className="animate-pulse">
-      <div className="grid grid-cols-3 gap-4 mb-4">
+      <div className="mb-4 grid grid-cols-3 gap-4">
         {[...Array(3)].map((_, i) => (
           <div key={i} className="text-center">
-            <div className="h-3 bg-white/20 rounded w-12 mx-auto mb-2" />
-            <div className="h-6 bg-white/20 rounded w-20 mx-auto mb-1" />
-            <div className="h-3 bg-white/20 rounded w-10 mx-auto" />
+            <div className="mx-auto mb-2 h-3 w-12 rounded bg-white/20" />
+            <div className="mx-auto mb-1 h-6 w-20 rounded bg-white/20" />
+            <div className="mx-auto h-3 w-10 rounded bg-white/20" />
           </div>
         ))}
       </div>
-      <div className="h-20 bg-white/10 rounded-xl" />
+      <div className="h-20 rounded-xl bg-white/10" />
     </div>
-  );
+  )
 }
 
 export function RevenueWidget({ clinic }: RevenueWidgetProps) {
-  const [data, setData] = useState<RevenueData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState<RevenueData | null>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchRevenue = async () => {
       try {
-        const res = await fetch(`/api/dashboard/revenue?clinic=${clinic}`);
+        const res = await fetch(`/api/dashboard/revenue?clinic=${clinic}`)
         if (res.ok) {
-          const revenueData = await res.json();
-          setData(revenueData);
+          const revenueData = await res.json()
+          setData(revenueData)
         }
       } catch (error) {
         // Client-side error logging - only in development
         if (process.env.NODE_ENV === 'development') {
-          console.error('Error fetching revenue:', error);
+          console.error('Error fetching revenue:', error)
         }
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
-    fetchRevenue();
+    fetchRevenue()
     // Refresh every 5 minutes
-    const interval = setInterval(fetchRevenue, 5 * 60 * 1000);
-    return () => clearInterval(interval);
-  }, [clinic]);
+    const interval = setInterval(fetchRevenue, 5 * 60 * 1000)
+    return () => clearInterval(interval)
+  }, [clinic])
 
   return (
-    <div className="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl shadow-sm overflow-hidden text-white">
+    <div className="overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-sm">
       {/* Header */}
-      <div className="px-5 py-4 flex items-center justify-between border-b border-white/10">
+      <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
         <div className="flex items-center gap-2">
-          <div className="p-2 bg-white/20 rounded-lg">
-            <DollarSign className="w-5 h-5" />
+          <div className="rounded-lg bg-white/20 p-2">
+            <DollarSign className="h-5 w-5" />
           </div>
           <div>
             <h3 className="font-bold">Ingresos</h3>
@@ -130,10 +132,10 @@ export function RevenueWidget({ clinic }: RevenueWidgetProps) {
         </div>
         <Link
           href={`/${clinic}/dashboard/billing`}
-          className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+          className="rounded-lg p-2 transition-colors hover:bg-white/10"
           title="Ver detalles"
         >
-          <ArrowUpRight className="w-4 h-4" />
+          <ArrowUpRight className="h-4 w-4" />
         </Link>
       </div>
 
@@ -144,19 +146,19 @@ export function RevenueWidget({ clinic }: RevenueWidgetProps) {
         ) : (
           <>
             {/* Revenue Grid */}
-            <div className="grid grid-cols-3 gap-4 mb-4">
+            <div className="mb-4 grid grid-cols-3 gap-4">
               <div className="text-center">
-                <p className="text-xs text-white/70 mb-1">Hoy</p>
+                <p className="mb-1 text-xs text-white/70">Hoy</p>
                 <p className="text-lg font-bold">{formatCompactCurrency(data?.today || 0)}</p>
                 <TrendBadge change={data?.todayChange} />
               </div>
-              <div className="text-center border-l border-r border-white/20">
-                <p className="text-xs text-white/70 mb-1">Esta Semana</p>
+              <div className="border-l border-r border-white/20 text-center">
+                <p className="mb-1 text-xs text-white/70">Esta Semana</p>
                 <p className="text-lg font-bold">{formatCompactCurrency(data?.week || 0)}</p>
                 <TrendBadge change={data?.weekChange} />
               </div>
               <div className="text-center">
-                <p className="text-xs text-white/70 mb-1">Este Mes</p>
+                <p className="mb-1 text-xs text-white/70">Este Mes</p>
                 <p className="text-lg font-bold">{formatCompactCurrency(data?.month || 0)}</p>
                 <TrendBadge change={data?.monthChange} />
               </div>
@@ -166,10 +168,10 @@ export function RevenueWidget({ clinic }: RevenueWidgetProps) {
             {(data?.pendingAmount || 0) > 0 && (
               <Link
                 href={`/${clinic}/dashboard/billing?status=pending`}
-                className="flex items-center justify-between p-3 bg-white/10 rounded-xl hover:bg-white/20 transition-colors mb-4"
+                className="mb-4 flex items-center justify-between rounded-xl bg-white/10 p-3 transition-colors hover:bg-white/20"
               >
                 <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-white/70" />
+                  <Clock className="h-4 w-4 text-white/70" />
                   <span className="text-sm">Pagos pendientes</span>
                 </div>
                 <div className="text-right">
@@ -182,16 +184,16 @@ export function RevenueWidget({ clinic }: RevenueWidgetProps) {
             {/* Recent Payments */}
             {data?.recentPayments && data.recentPayments.length > 0 && (
               <div>
-                <p className="text-xs text-white/70 mb-2 font-medium">Pagos recientes</p>
+                <p className="mb-2 text-xs font-medium text-white/70">Pagos recientes</p>
                 <div className="space-y-2">
                   {data.recentPayments.slice(0, 3).map((payment) => (
                     <div
                       key={payment.id}
-                      className="flex items-center justify-between p-2 bg-white/5 rounded-lg"
+                      className="flex items-center justify-between rounded-lg bg-white/5 p-2"
                     >
                       <div className="flex items-center gap-2">
-                        <div className="p-1.5 bg-white/10 rounded">
-                          <CreditCard className="w-3 h-3" />
+                        <div className="rounded bg-white/10 p-1.5">
+                          <CreditCard className="h-3 w-3" />
                         </div>
                         <div>
                           <p className="text-sm font-medium">{payment.clientName || 'Cliente'}</p>
@@ -208,5 +210,5 @@ export function RevenueWidget({ clinic }: RevenueWidgetProps) {
         )}
       </div>
     </div>
-  );
+  )
 }

@@ -5,64 +5,56 @@
  * @tags integration, medical-records, critical
  */
 
-import { describe, test, expect, beforeAll, afterAll, beforeEach } from 'vitest';
-import {
-  getTestClient,
-  TestContext,
-  waitForDatabase,
-} from '../../__helpers__/db';
-import {
-  createProfile,
-  createPet,
-  resetSequence,
-} from '../../__helpers__/factories';
-import { DEFAULT_TENANT } from '../../__fixtures__/tenants';
+import { describe, test, expect, beforeAll, afterAll, beforeEach } from 'vitest'
+import { getTestClient, TestContext, waitForDatabase } from '../../__helpers__/db'
+import { createProfile, createPet, resetSequence } from '../../__helpers__/factories'
+import { DEFAULT_TENANT } from '../../__fixtures__/tenants'
 
 describe('Medical Records CRUD', () => {
-  const ctx = new TestContext();
-  let client: ReturnType<typeof getTestClient>;
-  let ownerId: string;
-  let vetId: string;
-  let petId: string;
+  const ctx = new TestContext()
+  let client: ReturnType<typeof getTestClient>
+  let ownerId: string
+  let vetId: string
+  let petId: string
 
   beforeAll(async () => {
-    await waitForDatabase();
-    client = getTestClient();
+    await waitForDatabase()
+    client = getTestClient()
 
     // Create test owner
     const owner = await createProfile({
       tenantId: DEFAULT_TENANT.id,
       role: 'owner',
-    });
-    ownerId = owner.id;
-    ctx.track('profiles', ownerId);
+    })
+    ownerId = owner.id
+    ctx.track('profiles', ownerId)
 
     // Create test vet
     const vet = await createProfile({
       tenantId: DEFAULT_TENANT.id,
       role: 'vet',
       fullName: 'Dr. Medical Records',
-    });
-    vetId = vet.id;
-    ctx.track('profiles', vetId);
+    })
+    vetId = vet.id
+    ctx.track('profiles', vetId)
 
     // Create test pet
     const pet = await createPet({
       ownerId,
       tenantId: DEFAULT_TENANT.id,
       name: 'Medical Records Pet',
-    });
-    petId = pet.id;
-    ctx.track('pets', petId);
-  });
+    })
+    petId = pet.id
+    ctx.track('pets', petId)
+  })
 
   afterAll(async () => {
-    await ctx.cleanup();
-  });
+    await ctx.cleanup()
+  })
 
   beforeEach(() => {
-    resetSequence();
-  });
+    resetSequence()
+  })
 
   describe('CREATE', () => {
     test('creates consultation record', async () => {
@@ -78,15 +70,15 @@ describe('Medical Records CRUD', () => {
           notes: 'Sin anomalías detectadas.',
         })
         .select()
-        .single();
+        .single()
 
-      expect(error).toBeNull();
-      expect(data).toBeDefined();
-      expect(data.type).toBe('consultation');
-      expect(data.title).toBe('Consulta General');
+      expect(error).toBeNull()
+      expect(data).toBeDefined()
+      expect(data.type).toBe('consultation')
+      expect(data.title).toBe('Consulta General')
 
-      ctx.track('medical_records', data.id);
-    });
+      ctx.track('medical_records', data.id)
+    })
 
     test('creates exam record with vitals', async () => {
       const vitals = {
@@ -94,7 +86,7 @@ describe('Medical Records CRUD', () => {
         temp: 38.5,
         hr: 80,
         rr: 20,
-      };
+      }
 
       const { data, error } = await client
         .from('medical_records')
@@ -108,14 +100,14 @@ describe('Medical Records CRUD', () => {
           vitals,
         })
         .select()
-        .single();
+        .single()
 
-      expect(error).toBeNull();
-      expect(data.vitals).toEqual(vitals);
-      expect(data.vitals.weight).toBe(25.5);
+      expect(error).toBeNull()
+      expect(data.vitals).toEqual(vitals)
+      expect(data.vitals.weight).toBe(25.5)
 
-      ctx.track('medical_records', data.id);
-    });
+      ctx.track('medical_records', data.id)
+    })
 
     test('creates surgery record', async () => {
       const { data, error } = await client
@@ -130,13 +122,13 @@ describe('Medical Records CRUD', () => {
           notes: 'Paciente toleró bien la anestesia. Sin complicaciones.',
         })
         .select()
-        .single();
+        .single()
 
-      expect(error).toBeNull();
-      expect(data.type).toBe('surgery');
+      expect(error).toBeNull()
+      expect(data.type).toBe('surgery')
 
-      ctx.track('medical_records', data.id);
-    });
+      ctx.track('medical_records', data.id)
+    })
 
     test('creates hospitalization record', async () => {
       const { data, error } = await client
@@ -151,13 +143,13 @@ describe('Medical Records CRUD', () => {
           notes: 'Paciente en observación 24 horas.',
         })
         .select()
-        .single();
+        .single()
 
-      expect(error).toBeNull();
-      expect(data.type).toBe('hospitalization');
+      expect(error).toBeNull()
+      expect(data.type).toBe('hospitalization')
 
-      ctx.track('medical_records', data.id);
-    });
+      ctx.track('medical_records', data.id)
+    })
 
     test('creates wellness record', async () => {
       const { data, error } = await client
@@ -177,13 +169,13 @@ describe('Medical Records CRUD', () => {
           },
         })
         .select()
-        .single();
+        .single()
 
-      expect(error).toBeNull();
-      expect(data.type).toBe('wellness');
+      expect(error).toBeNull()
+      expect(data.type).toBe('wellness')
 
-      ctx.track('medical_records', data.id);
-    });
+      ctx.track('medical_records', data.id)
+    })
 
     test('creates record with attachments', async () => {
       const { data, error } = await client
@@ -201,43 +193,39 @@ describe('Medical Records CRUD', () => {
           ],
         })
         .select()
-        .single();
+        .single()
 
-      expect(error).toBeNull();
-      expect(data.attachments).toHaveLength(2);
+      expect(error).toBeNull()
+      expect(data.attachments).toHaveLength(2)
 
-      ctx.track('medical_records', data.id);
-    });
+      ctx.track('medical_records', data.id)
+    })
 
     test('fails with invalid record type', async () => {
-      const { error } = await client
-        .from('medical_records')
-        .insert({
-          pet_id: petId,
-          tenant_id: DEFAULT_TENANT.id,
-          type: 'invalid_type',
-          title: 'Invalid',
-        });
+      const { error } = await client.from('medical_records').insert({
+        pet_id: petId,
+        tenant_id: DEFAULT_TENANT.id,
+        type: 'invalid_type',
+        title: 'Invalid',
+      })
 
-      expect(error).not.toBeNull();
-    });
+      expect(error).not.toBeNull()
+    })
 
     test('fails with non-existent pet', async () => {
-      const { error } = await client
-        .from('medical_records')
-        .insert({
-          pet_id: '00000000-0000-0000-0000-999999999999',
-          tenant_id: DEFAULT_TENANT.id,
-          type: 'consultation',
-          title: 'Orphan Record',
-        });
+      const { error } = await client.from('medical_records').insert({
+        pet_id: '00000000-0000-0000-0000-999999999999',
+        tenant_id: DEFAULT_TENANT.id,
+        type: 'consultation',
+        title: 'Orphan Record',
+      })
 
-      expect(error).not.toBeNull();
-    });
-  });
+      expect(error).not.toBeNull()
+    })
+  })
 
   describe('READ', () => {
-    let recordId: string;
+    let recordId: string
 
     beforeAll(async () => {
       const { data } = await client
@@ -252,77 +240,79 @@ describe('Medical Records CRUD', () => {
           vitals: { weight: 20, temp: 38.5, hr: 70, rr: 15 },
         })
         .select()
-        .single();
-      recordId = data.id;
-      ctx.track('medical_records', recordId);
-    });
+        .single()
+      recordId = data.id
+      ctx.track('medical_records', recordId)
+    })
 
     test('reads record by ID', async () => {
       const { data, error } = await client
         .from('medical_records')
         .select('*')
         .eq('id', recordId)
-        .single();
+        .single()
 
-      expect(error).toBeNull();
-      expect(data.title).toBe('Read Test Record');
-    });
+      expect(error).toBeNull()
+      expect(data.title).toBe('Read Test Record')
+    })
 
     test('reads records by pet', async () => {
       const { data, error } = await client
         .from('medical_records')
         .select('*')
         .eq('pet_id', petId)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
 
-      expect(error).toBeNull();
-      expect(data).not.toBeNull();
-      expect(data!.length).toBeGreaterThan(0);
-    });
+      expect(error).toBeNull()
+      expect(data).not.toBeNull()
+      expect(data!.length).toBeGreaterThan(0)
+    })
 
     test('reads record with vet details', async () => {
       const { data, error } = await client
         .from('medical_records')
-        .select(`
+        .select(
+          `
           *,
           vet:profiles!medical_records_performed_by_fkey(id, full_name)
-        `)
+        `
+        )
         .eq('id', recordId)
-        .single();
+        .single()
 
-      expect(error).toBeNull();
-      expect(data.vet).toBeDefined();
-      expect(data.vet.full_name).toBe('Dr. Medical Records');
-    });
+      expect(error).toBeNull()
+      expect(data.vet).toBeDefined()
+      expect(data.vet.full_name).toBe('Dr. Medical Records')
+    })
 
     test('filters records by type', async () => {
       const { data, error } = await client
         .from('medical_records')
         .select('*')
         .eq('pet_id', petId)
-        .eq('type', 'consultation');
+        .eq('type', 'consultation')
 
-      expect(error).toBeNull();
-      expect(data).not.toBeNull();
-      expect(data!.every((r: { type: string }) => r.type === 'consultation')).toBe(true);
-    });
+      expect(error).toBeNull()
+      expect(data).not.toBeNull()
+      expect(data!.every((r: { type: string }) => r.type === 'consultation')).toBe(true)
+    })
 
     test('filters records by date range', async () => {
-      const startDate = new Date();
-      startDate.setMonth(startDate.getMonth() - 1);
+      const startDate = new Date()
+      startDate.setMonth(startDate.getMonth() - 1)
 
       const { data, error } = await client
         .from('medical_records')
         .select('*')
         .eq('pet_id', petId)
-        .gte('created_at', startDate.toISOString());
+        .gte('created_at', startDate.toISOString())
 
-      expect(error).toBeNull();
-    });
-  });
+      expect(error).toBeNull()
+    })
+  })
 
   describe('UPDATE', () => {
-    let updateRecordId: string;
+    let updateRecordId: string
 
     beforeAll(async () => {
       const { data } = await client
@@ -335,10 +325,10 @@ describe('Medical Records CRUD', () => {
           title: 'Update Test Record',
         })
         .select()
-        .single();
-      updateRecordId = data.id;
-      ctx.track('medical_records', updateRecordId);
-    });
+        .single()
+      updateRecordId = data.id
+      ctx.track('medical_records', updateRecordId)
+    })
 
     test('updates diagnosis', async () => {
       const { data, error } = await client
@@ -346,11 +336,11 @@ describe('Medical Records CRUD', () => {
         .update({ diagnosis: 'Updated diagnosis' })
         .eq('id', updateRecordId)
         .select()
-        .single();
+        .single()
 
-      expect(error).toBeNull();
-      expect(data.diagnosis).toBe('Updated diagnosis');
-    });
+      expect(error).toBeNull()
+      expect(data.diagnosis).toBe('Updated diagnosis')
+    })
 
     test('updates notes', async () => {
       const { data, error } = await client
@@ -358,25 +348,25 @@ describe('Medical Records CRUD', () => {
         .update({ notes: 'Updated notes with more details.' })
         .eq('id', updateRecordId)
         .select()
-        .single();
+        .single()
 
-      expect(error).toBeNull();
-      expect(data.notes).toBe('Updated notes with more details.');
-    });
+      expect(error).toBeNull()
+      expect(data.notes).toBe('Updated notes with more details.')
+    })
 
     test('updates vitals', async () => {
-      const newVitals = { weight: 22, temp: 38.0, hr: 72, rr: 16 };
+      const newVitals = { weight: 22, temp: 38.0, hr: 72, rr: 16 }
 
       const { data, error } = await client
         .from('medical_records')
         .update({ vitals: newVitals })
         .eq('id', updateRecordId)
         .select()
-        .single();
+        .single()
 
-      expect(error).toBeNull();
-      expect(data.vitals).toEqual(newVitals);
-    });
+      expect(error).toBeNull()
+      expect(data.vitals).toEqual(newVitals)
+    })
 
     test('adds attachments', async () => {
       const { data, error } = await client
@@ -386,12 +376,12 @@ describe('Medical Records CRUD', () => {
         })
         .eq('id', updateRecordId)
         .select()
-        .single();
+        .single()
 
-      expect(error).toBeNull();
-      expect(data.attachments).toHaveLength(1);
-    });
-  });
+      expect(error).toBeNull()
+      expect(data.attachments).toHaveLength(1)
+    })
+  })
 
   describe('DELETE', () => {
     test('deletes record by ID', async () => {
@@ -405,58 +395,57 @@ describe('Medical Records CRUD', () => {
           title: 'To Delete',
         })
         .select()
-        .single();
+        .single()
 
       // Delete it
-      const { error } = await client
-        .from('medical_records')
-        .delete()
-        .eq('id', created.id);
+      const { error } = await client.from('medical_records').delete().eq('id', created.id)
 
-      expect(error).toBeNull();
+      expect(error).toBeNull()
 
       // Verify deleted
       const { data: found } = await client
         .from('medical_records')
         .select('*')
         .eq('id', created.id)
-        .single();
+        .single()
 
-      expect(found).toBeNull();
-    });
-  });
+      expect(found).toBeNull()
+    })
+  })
 
   describe('MEDICAL HISTORY TIMELINE', () => {
     test('gets complete medical history for pet', async () => {
       const { data, error } = await client
         .from('medical_records')
-        .select(`
+        .select(
+          `
           *,
           vet:profiles!medical_records_performed_by_fkey(full_name)
-        `)
+        `
+        )
         .eq('pet_id', petId)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
 
-      expect(error).toBeNull();
-      expect(Array.isArray(data)).toBe(true);
-    });
+      expect(error).toBeNull()
+      expect(Array.isArray(data)).toBe(true)
+    })
 
     test('calculates record statistics', async () => {
       const { data, error } = await client
         .from('medical_records')
         .select('type')
-        .eq('pet_id', petId);
+        .eq('pet_id', petId)
 
-      expect(error).toBeNull();
-      expect(data).not.toBeNull();
+      expect(error).toBeNull()
+      expect(data).not.toBeNull()
 
       // Count by type
       const stats = data!.reduce((acc: Record<string, number>, record: { type: string }) => {
-        acc[record.type] = (acc[record.type] || 0) + 1;
-        return acc;
-      }, {});
+        acc[record.type] = (acc[record.type] || 0) + 1
+        return acc
+      }, {})
 
-      expect(typeof stats).toBe('object');
-    });
-  });
-});
+      expect(typeof stats).toBe('object')
+    })
+  })
+})

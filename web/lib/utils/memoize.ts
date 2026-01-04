@@ -51,10 +51,7 @@ interface CacheEntry<T> {
  * memoized(5, 10) // Computed
  * memoized(5, 10) // Cached result
  */
-export function memoize<T extends (...args: any[]) => any>(
-  fn: T,
-  options: MemoizeOptions = {}
-): T {
+export function memoize<T extends (...args: any[]) => any>(fn: T, options: MemoizeOptions = {}): T {
   const { maxSize = 100, ttlMs, keyGenerator } = options
   const cache = new Map<string, CacheEntry<ReturnType<T>>>()
 
@@ -176,11 +173,7 @@ export function memoizeAsync<T extends (...args: any[]) => Promise<any>>(
  * }
  */
 export function Memoize(options: MemoizeOptions = {}): MethodDecorator {
-  return function (
-    target: any,
-    propertyKey: string | symbol,
-    descriptor: PropertyDescriptor
-  ) {
+  return function (target: any, propertyKey: string | symbol, descriptor: PropertyDescriptor) {
     const originalMethod = descriptor.value
     descriptor.value = memoize(originalMethod, options)
     return descriptor

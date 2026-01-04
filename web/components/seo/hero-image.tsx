@@ -1,11 +1,11 @@
-'use client';
+'use client'
 
-import Image from 'next/image';
+import Image from 'next/image'
 
 interface HeroImageProps {
-  src: string;
-  alt: string;
-  priority?: boolean;
+  src: string
+  alt: string
+  priority?: boolean
 }
 
 /**
@@ -22,7 +22,7 @@ export function HeroImage({ src, alt, priority = true }: HeroImageProps) {
         priority={priority}
         quality={85}
         sizes="100vw"
-        className="object-cover object-center scale-105"
+        className="scale-105 object-cover object-center"
         placeholder="blur"
         blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAYI/8QAIhAAAgIBBAEFAAAAAAAAAAAAAQIDBAUABhEhMQcSQVFh/8QAFQEBAQAAAAAAAAAAAAAAAAAABAX/xAAaEQACAgMAAAAAAAAAAAAAAAABAgADESEx/9oADAMBAAIRAxEAPwDQm5NwVcHhaOQvQyTNdkWKNIwAQWUkksT4UKScA+dVu3d64rK4ynkqz2I4bkSzRrKoDhWGRyCNGjVWxCSvk4x4Af/Z"
       />
@@ -30,5 +30,5 @@ export function HeroImage({ src, alt, priority = true }: HeroImageProps) {
       <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/40 to-transparent" />
       <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
     </div>
-  );
+  )
 }

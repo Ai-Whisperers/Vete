@@ -22,31 +22,27 @@ export default function DashboardError({ error, reset }: DashboardErrorProps) {
   }, [error])
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[400px] gap-6 p-8">
-      <div className="flex items-center justify-center w-16 h-16 rounded-full bg-red-100">
-        <AlertTriangle className="w-8 h-8 text-red-600" />
+    <div className="flex min-h-[400px] flex-col items-center justify-center gap-6 p-8">
+      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
+        <AlertTriangle className="h-8 w-8 text-red-600" />
       </div>
 
-      <div className="text-center space-y-2">
-        <h2 className="text-xl font-semibold text-[var(--text-primary)]">
-          Algo salió mal
-        </h2>
-        <p className="text-[var(--text-secondary)] max-w-md">
+      <div className="space-y-2 text-center">
+        <h2 className="text-xl font-semibold text-[var(--text-primary)]">Algo salió mal</h2>
+        <p className="max-w-md text-[var(--text-secondary)]">
           Ocurrió un error al cargar esta página. Por favor intenta de nuevo.
         </p>
         {process.env.NODE_ENV === 'development' && (
-          <p className="text-sm text-red-500 font-mono mt-2">
-            {error.message}
-          </p>
+          <p className="mt-2 font-mono text-sm text-red-500">{error.message}</p>
         )}
       </div>
 
       <div className="flex gap-3">
-        <Button onClick={reset} variant="primary" leftIcon={<RefreshCw className="w-4 h-4" />}>
+        <Button onClick={reset} variant="primary" leftIcon={<RefreshCw className="h-4 w-4" />}>
           Intentar de nuevo
         </Button>
         <Link href="/dashboard">
-          <Button variant="outline" leftIcon={<Home className="w-4 h-4" />}>
+          <Button variant="outline" leftIcon={<Home className="h-4 w-4" />}>
             Ir al inicio
           </Button>
         </Link>

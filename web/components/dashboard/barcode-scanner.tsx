@@ -74,7 +74,10 @@ export function BarcodeScanner({
 
       setIsLoading(false);
     } catch (err) {
-      console.error("Camera error:", err);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Camera error:", err);
+      }
       setError("No se pudo acceder a la cámara. Verifica los permisos.");
       setIsLoading(false);
     }
@@ -132,7 +135,10 @@ export function BarcodeScanner({
             handleBarcodeDetected(code);
           }
         } catch (err) {
-          console.error("Barcode detection error:", err);
+          // Client-side error logging - only in development
+          if (process.env.NODE_ENV === 'development') {
+            console.error("Barcode detection error:", err);
+          }
         }
       }
     };
@@ -162,7 +168,10 @@ export function BarcodeScanner({
         setScannedProduct(null);
       }
     } catch (err) {
-      console.error("Error searching product:", err);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Error searching product:", err);
+      }
     } finally {
       setIsSearching(false);
     }
@@ -195,7 +204,10 @@ export function BarcodeScanner({
         await track.applyConstraints({ advanced: [{ torch: !torchEnabled }] });
         setTorchEnabled(!torchEnabled);
       } catch (err) {
-        console.error("Torch error:", err);
+        // Client-side error logging - only in development
+        if (process.env.NODE_ENV === 'development') {
+          console.error("Torch error:", err);
+        }
       }
     }
   };

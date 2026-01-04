@@ -181,6 +181,7 @@ export function PatientQuickActions({
                 <button
                   onClick={() => setIsExpanded(false)}
                   className="p-1.5 rounded-lg bg-white/20 hover:bg-white/30 transition-colors"
+                  aria-label="Cerrar acciones rapidas"
                 >
                   <X className="w-4 h-4 text-white" />
                 </button>
@@ -227,6 +228,8 @@ export function PatientQuickActions({
         }`}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
+        aria-label={isExpanded ? "Cerrar menu de acciones" : `Abrir acciones rapidas para ${petName}`}
+        aria-expanded={isExpanded}
       >
         <motion.div
           animate={{ rotate: isExpanded ? 45 : 0 }}

@@ -72,6 +72,16 @@ DROP POLICY IF EXISTS "Service role full access categories" ON public.store_cate
 CREATE POLICY "Service role full access categories" ON public.store_categories
     FOR ALL TO service_role USING (true) WITH CHECK (true);
 
+-- Public can read active global categories (for store browsing without auth)
+DROP POLICY IF EXISTS "Public read categories" ON public.store_categories;
+CREATE POLICY "Public read categories" ON public.store_categories
+    FOR SELECT
+    USING (
+        is_active = true
+        AND deleted_at IS NULL
+        AND tenant_id IS NULL  -- Only global categories
+    );
+
 -- Authenticated users can view categories
 DROP POLICY IF EXISTS "Authenticated users view categories" ON public.store_categories;
 CREATE POLICY "Authenticated users view categories" ON public.store_categories

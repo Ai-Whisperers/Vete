@@ -1,6 +1,7 @@
 import { getClinicData } from "@/lib/clinics";
 import { createClient } from "@/lib/supabase/server";
 import { notFound, redirect } from "next/navigation";
+import { logger } from "@/lib/logger";
 import Link from "next/link";
 import { PawPrint, Users, ArrowLeft } from "lucide-react";
 import { PetsByOwner } from "@/components/dashboard/pets-by-owner";
@@ -18,22 +19,16 @@ interface Pet {
   name: string;
   species: string;
   breed: string | null;
-  date_of_birth: string | null;
+  birth_date: string | null;
   photo_url: string | null;
   sex: string | null;
-  neutered: boolean | null;
-  microchip_id: string | null;
+  is_neutered: boolean | null;
+  microchip_number: string | null;
 }
 
-interface RawOwnerData {
-  id: string;
-  full_name: string | null;
-  email: string;
-  phone: string | null;
-  address: string | null;
-  created_at: string;
-  pets: Pet[];
-  appointments: Array<{ appointment_date: string }>;
+interface RawPetData extends Pet {
+  owner_id: string;
+  appointments: Array<{ start_time: string }>;
 }
 
 interface Owner {
@@ -77,39 +72,37 @@ export default async function PatientsPage({ params }: Props): Promise<React.Rea
     redirect(`/${clinic}/portal/dashboard`);
   }
 
-  // Fetch all owners with their pets
-  const { data: rawOwners, error } = await supabase
-    .from("profiles")
-    .select(
-      `
-      id,
-      full_name,
-      email,
-      phone,
-      address,
-      created_at,
-      pets (
+  // Fetch owners and pets separately (Supabase can't infer profiles→pets reverse relationship)
+  const [ownersResult, petsResult] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("id, full_name, email, phone, address, created_at")
+      .eq("tenant_id", profile.tenant_id)
+      .eq("role", "owner")
+      .order("full_name", { ascending: true }),
+    supabase
+      .from("pets")
+      .select(`
         id,
+        owner_id,
         name,
         species,
         breed,
-        date_of_birth,
+        birth_date,
         photo_url,
         sex,
-        neutered,
-        microchip_id
-      ),
-      appointments (
-        appointment_date
-      )
-    `
-    )
-    .eq("tenant_id", profile.tenant_id)
-    .eq("role", "owner")
-    .order("full_name", { ascending: true });
+        is_neutered,
+        microchip_number,
+        appointments (
+          start_time
+        )
+      `)
+      .eq("tenant_id", profile.tenant_id)
+      .is("deleted_at", null)
+  ]);
 
-  if (error) {
-    console.error("Error fetching owners:", error);
+  if (ownersResult.error) {
+    logger.error("Error fetching owners", { error: ownersResult.error.message });
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="rounded-lg p-4" style={{ backgroundColor: "var(--status-error-bg)", border: "1px solid var(--status-error-light)" }}>
@@ -119,17 +112,34 @@ export default async function PatientsPage({ params }: Props): Promise<React.Rea
     );
   }
 
-  // Transform data to get last visit
-  const owners: Owner[] = (rawOwners as unknown as RawOwnerData[] || []).map((owner) => {
-    const appointments = Array.isArray(owner.appointments) ? owner.appointments : [];
-    const lastVisit =
-      appointments.length > 0
-        ? appointments.sort(
-            (a, b) => new Date(b.appointment_date).getTime() - new Date(a.appointment_date).getTime()
-          )[0]?.appointment_date
-        : null;
+  const rawOwners = ownersResult.data || [];
+  const rawPets = (petsResult.data || []) as RawPetData[];
 
-    const pets = Array.isArray(owner.pets) ? owner.pets : [];
+  // Group pets by owner and calculate last visit
+  const petsByOwner = new Map<string, RawPetData[]>();
+  for (const pet of rawPets) {
+    const ownerPets = petsByOwner.get(pet.owner_id) || [];
+    ownerPets.push(pet);
+    petsByOwner.set(pet.owner_id, ownerPets);
+  }
+
+  // Transform data
+  const owners: Owner[] = rawOwners.map((owner) => {
+    const ownerPets = petsByOwner.get(owner.id) || [];
+
+    // Collect all appointments from all pets to find the last visit
+    const allAppointments: Array<{ start_time: string }> = [];
+    for (const pet of ownerPets) {
+      const petAppointments = Array.isArray(pet.appointments) ? pet.appointments : [];
+      allAppointments.push(...petAppointments);
+    }
+
+    const lastVisit =
+      allAppointments.length > 0
+        ? allAppointments.sort(
+            (a, b) => new Date(b.start_time).getTime() - new Date(a.start_time).getTime()
+          )[0]?.start_time
+        : null;
 
     return {
       id: owner.id,
@@ -139,16 +149,16 @@ export default async function PatientsPage({ params }: Props): Promise<React.Rea
       address: owner.address,
       created_at: owner.created_at,
       last_visit: lastVisit,
-      pets: pets.map((pet) => ({
+      pets: ownerPets.map((pet) => ({
         id: pet.id,
         name: pet.name,
         species: pet.species,
         breed: pet.breed,
-        date_of_birth: pet.date_of_birth,
+        birth_date: pet.birth_date,
         photo_url: pet.photo_url,
         sex: pet.sex,
-        neutered: pet.neutered,
-        microchip_id: pet.microchip_id,
+        is_neutered: pet.is_neutered,
+        microchip_number: pet.microchip_number,
       })),
     };
   });

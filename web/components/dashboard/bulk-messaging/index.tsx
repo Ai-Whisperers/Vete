@@ -99,7 +99,10 @@ export function BulkMessaging({
           ]);
         }
       } catch (error) {
-        console.error('Error fetching clients:', error);
+        // Client-side error logging - only in development
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Error fetching clients:', error);
+        }
       } finally {
         setIsLoading(false);
       }

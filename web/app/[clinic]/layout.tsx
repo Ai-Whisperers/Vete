@@ -1,6 +1,7 @@
 
 import { getClinicData } from '@/lib/clinics';
 import { notFound } from 'next/navigation';
+import { headers } from 'next/headers';
 import { ClinicThemeProvider } from '@/components/clinic-theme-provider';
 import { Metadata } from 'next';
 import Link from 'next/link';
@@ -195,8 +196,27 @@ export default async function ClinicLayout({
   const { data: { user } } = await supabase.auth.getUser();
   const isLoggedIn = !!user;
 
+  // Detect if we're on a dashboard route (staff area) to hide public header/footer
+  const headersList = await headers();
+  const pathname = headersList.get('x-pathname') || '';
+  const isDashboardRoute = pathname.includes('/dashboard');
+
   // Generate structured data for SEO
   const structuredData = generateStructuredData(clinic, config);
+
+  // Dashboard routes get a minimal layout (no public header/footer)
+  if (isDashboardRoute) {
+    return (
+      <ToastProvider>
+        <CartProvider>
+          <div className="min-h-screen font-sans bg-[var(--bg-subtle)] text-[var(--text-main)] font-body">
+            <ClinicThemeProvider theme={data.theme} />
+            {children}
+          </div>
+        </CartProvider>
+      </ToastProvider>
+    );
+  }
 
   return (
     <ToastProvider>
@@ -228,8 +248,7 @@ export default async function ClinicLayout({
                     alt={`${config.name} Logo`}
                     width={config.branding.logo_width || 150}
                     height={config.branding.logo_height || 56}
-                    className="object-contain"
-                    style={{ width: 'auto', height: 'auto' }}
+                    className="object-contain max-h-14 w-auto"
                     priority
                   />
                 ) : (

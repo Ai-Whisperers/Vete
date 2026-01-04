@@ -50,7 +50,10 @@ export default function LoyaltyWidget({ userId, compact = false, className }: Lo
         const loyaltyData = await res.json();
         setData(loyaltyData);
       } catch (e) {
-        console.error('Error fetching loyalty data:', e);
+        // Client-side error logging - only in development
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Error fetching loyalty data:', e);
+        }
         setError(true);
       } finally {
         setLoading(false);
@@ -172,7 +175,10 @@ export function LoyaltyWidgetWithAuth(props: Omit<LoyaltyWidgetProps, 'userId'>)
           setUserId(data.user?.id || null);
         }
       } catch (e) {
-        console.error('Auth check failed:', e);
+        // Client-side error logging - only in development
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Auth check failed:', e);
+        }
       }
     };
 

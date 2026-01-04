@@ -66,7 +66,10 @@ export function ClientNotes({
           setNotes(data.notes || []);
         }
       } catch (error) {
-        console.error("Error fetching notes:", error);
+        // Client-side error logging - only in development
+        if (process.env.NODE_ENV === 'development') {
+          console.error("Error fetching notes:", error);
+        }
       } finally {
         setIsLoading(false);
       }
@@ -98,7 +101,10 @@ export function ClientNotes({
         setIsAdding(false);
       }
     } catch (error) {
-      console.error("Error adding note:", error);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Error adding note:", error);
+      }
     } finally {
       setIsSaving(false);
     }
@@ -130,7 +136,10 @@ export function ClientNotes({
         setEditContent("");
       }
     } catch (error) {
-      console.error("Error editing note:", error);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Error editing note:", error);
+      }
     } finally {
       setIsSaving(false);
     }
@@ -149,7 +158,10 @@ export function ClientNotes({
         setNotes((prev) => prev.filter((note) => note.id !== noteId));
       }
     } catch (error) {
-      console.error("Error deleting note:", error);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Error deleting note:", error);
+      }
     } finally {
       setDeletingId(null);
     }

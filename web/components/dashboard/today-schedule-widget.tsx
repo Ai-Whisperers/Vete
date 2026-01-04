@@ -201,6 +201,7 @@ export function TodayScheduleWidget({ appointments, clinic }: TodayScheduleWidge
                     href={`tel:${apt.pets.owner.phone}`}
                     className="p-2 hover:bg-gray-100 rounded-lg transition-colors shrink-0"
                     title={`Llamar a ${apt.pets.owner.phone}`}
+                    aria-label={`Llamar a ${apt.pets.owner.full_name || 'propietario'} al ${apt.pets.owner.phone}`}
                   >
                     <Icons.Phone className="w-4 h-4 text-[var(--text-secondary)]" />
                   </a>

@@ -161,7 +161,10 @@ export function AppointmentForm({
       router.refresh();
       onSuccess?.();
     } catch (err) {
-      console.error("Error creating appointment:", err);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Error creating appointment:", err);
+      }
       setError(err instanceof Error ? err.message : "Error al crear la cita");
     } finally {
       setIsSubmitting(false);

@@ -168,7 +168,10 @@ export default function CatalogApprovalsClient({ clinic }: CatalogApprovalsClien
       setSummary(data.summary || {});
       setPagination(data.pagination);
     } catch (err) {
-      console.error("Error fetching products:", err);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Error fetching products:", err);
+      }
       setError("Error al cargar los productos pendientes");
     } finally {
       setLoading(false);
@@ -202,7 +205,10 @@ export default function CatalogApprovalsClient({ clinic }: CatalogApprovalsClien
       setShowDetail(false);
       fetchProducts();
     } catch (err) {
-      console.error("Error approving product:", err);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Error approving product:", err);
+      }
       setError("Error al procesar el producto");
     } finally {
       setProcessing(false);

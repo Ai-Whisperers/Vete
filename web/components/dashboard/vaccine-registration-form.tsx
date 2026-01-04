@@ -80,7 +80,10 @@ export function VaccineRegistrationForm({
         .order("name");
 
       if (fetchError) {
-        console.error("Error fetching pets:", fetchError);
+        // Client-side error logging - only in development
+        if (process.env.NODE_ENV === 'development') {
+          console.error("Error fetching pets:", fetchError);
+        }
         setError("Error al cargar mascotas");
       } else {
         setPets((data || []) as unknown as Pet[]);
@@ -149,7 +152,10 @@ export function VaccineRegistrationForm({
       });
 
       if (insertError) {
-        console.error("Vaccine insert error:", insertError);
+        // Client-side error logging - only in development
+        if (process.env.NODE_ENV === 'development') {
+          console.error("Vaccine insert error:", insertError);
+        }
         throw new Error("Error al registrar la vacuna");
       }
 
@@ -161,7 +167,10 @@ export function VaccineRegistrationForm({
         onSuccess?.();
       }, 1500);
     } catch (err) {
-      console.error("Error registering vaccine:", err);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Error registering vaccine:", err);
+      }
       setError(err instanceof Error ? err.message : "Error al registrar vacuna");
     } finally {
       setIsSubmitting(false);

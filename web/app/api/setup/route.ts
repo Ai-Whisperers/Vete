@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { execSync } from 'child_process';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { logger } from '@/lib/logger';
@@ -13,16 +12,19 @@ interface SetupResponse {
 
 /**
  * POST /api/setup
- * Database setup and seeding via API
+ * Database setup via API
  *
  * Query params:
- * - action: 'schema' | 'seeds' | 'full' | 'clinic'
+ * - action: 'schema' | 'clinic' | 'status'
  * - clinic: clinic slug (for clinic-specific setup)
+ *
+ * NOTE: Seeding is now handled by the CLI script:
+ *   npx tsx db/seeds/scripts/seed.ts
  */
 export async function POST(request: NextRequest): Promise<NextResponse<SetupResponse>> {
   const supabase = await createClient();
   const { searchParams } = new URL(request.url);
-  const action = searchParams.get('action') || 'full';
+  const action = searchParams.get('action') || 'status';
   const clinic = searchParams.get('clinic');
 
   try {
@@ -55,9 +57,6 @@ export async function POST(request: NextRequest): Promise<NextResponse<SetupResp
       case 'schema':
         result = await runSchemaSetup();
         break;
-      case 'seeds':
-        result = await runSeeds();
-        break;
       case 'clinic':
         if (!clinic) {
           return NextResponse.json(
@@ -67,12 +66,18 @@ export async function POST(request: NextRequest): Promise<NextResponse<SetupResp
         }
         result = await setupClinicData(clinic);
         break;
-      case 'full':
-        result = await runFullSetup();
-        break;
+      case 'status':
+        return NextResponse.json({
+          success: true,
+          message: 'Setup API is available. Use GET /api/setup to check database status.',
+          details: {
+            available_actions: ['schema', 'clinic'],
+            seeding_note: 'Seeding is now handled by CLI: npx tsx db/seeds/scripts/seed.ts'
+          }
+        });
       default:
         return NextResponse.json(
-          { success: false, message: 'Invalid action. Use: schema, seeds, clinic, or full' },
+          { success: false, message: 'Invalid action. Use: schema, clinic, or status' },
           { status: 400 }
         );
     }
@@ -201,120 +206,6 @@ async function runSchemaSetup(): Promise<SetupResponse> {
     return {
       success: false,
       message: 'Schema setup failed',
-      details: message
-    };
-  }
-}
-
-async function runSeeds(): Promise<SetupResponse> {
-  try {
-    logger.info('Running database seeding via API');
-
-    const { spawn } = await import('child_process');
-
-    return new Promise((resolve) => {
-      const child = spawn('node', ['db/setup-db.mjs', 'seeds'], {
-        cwd: process.cwd(),
-        stdio: 'pipe'
-      });
-
-      let stdout = '';
-      let stderr = '';
-
-      child.stdout.on('data', (data) => {
-        stdout += data.toString();
-      });
-
-      child.stderr.on('data', (data) => {
-        stderr += data.toString();
-      });
-
-      child.on('close', (code) => {
-        if (code === 0) {
-          resolve({
-            success: true,
-            message: 'Database seeding completed successfully',
-            details: { stdout, stderr }
-          });
-        } else {
-          resolve({
-            success: false,
-            message: 'Database seeding failed',
-            details: stderr || 'Unknown error'
-          });
-        }
-      });
-
-      child.on('error', (error) => {
-        resolve({
-          success: false,
-          message: 'Seeding process failed',
-          details: error.message
-        });
-      });
-    });
-  } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Unknown error';
-    return {
-      success: false,
-      message: 'Database seeding failed',
-      details: message
-    };
-  }
-}
-
-async function runFullSetup(): Promise<SetupResponse> {
-  try {
-    logger.info('Running full setup (schema + seeds) via API');
-
-    const { spawn } = await import('child_process');
-
-    return new Promise((resolve) => {
-      const child = spawn('node', ['db/setup-db.mjs', 'full'], {
-        cwd: process.cwd(),
-        stdio: 'pipe'
-      });
-
-      let stdout = '';
-      let stderr = '';
-
-      child.stdout.on('data', (data) => {
-        stdout += data.toString();
-      });
-
-      child.stderr.on('data', (data) => {
-        stderr += data.toString();
-      });
-
-      child.on('close', (code) => {
-        if (code === 0) {
-          resolve({
-            success: true,
-            message: 'Full setup completed successfully',
-            details: { stdout, stderr }
-          });
-        } else {
-          resolve({
-            success: false,
-            message: 'Full setup failed',
-            details: stderr || 'Unknown error'
-          });
-        }
-      });
-
-      child.on('error', (error) => {
-        resolve({
-          success: false,
-          message: 'Full setup process failed',
-          details: error.message
-        });
-      });
-    });
-  } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Unknown error';
-    return {
-      success: false,
-      message: 'Full setup failed',
       details: message
     };
   }

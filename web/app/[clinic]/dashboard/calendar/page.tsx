@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { CalendarContainer } from '@/components/calendar'
 import { appointmentToCalendarEvent, timeOffToCalendarEvent, shiftToCalendarEvent } from '@/lib/types/calendar'
 import type { CalendarEvent, TimeOffRequest } from '@/lib/types/calendar'
+import { logger } from '@/lib/logger'
 import Link from 'next/link'
 
 interface Props {
@@ -72,7 +73,7 @@ export default async function CalendarPage({ params, searchParams }: Props) {
     .order('start_time', { ascending: true })
 
   if (appointmentsError) {
-    console.error('Error fetching appointments:', appointmentsError)
+    logger.error('Error fetching appointments', { error: appointmentsError.message })
   }
 
   // Fetch staff profiles with schedules
@@ -259,45 +260,43 @@ export default async function CalendarPage({ params, searchParams }: Props) {
   const initialDate = date ? new Date(date) : new Date()
 
   return (
-    <div className="p-6 max-w-full mx-auto h-[calc(100vh-100px)]">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-[var(--text-primary)]">
-            Calendario
+    <div className="flex flex-col h-[calc(100vh-64px)] max-w-full mx-auto">
+      {/* Minimal Header with Actions */}
+      <div className="flex items-center justify-between gap-2 px-4 py-2 border-b border-[var(--border-light)] bg-white">
+        <div className="flex items-center gap-3">
+          <h1 className="text-base font-semibold text-[var(--text-primary)]">
+            📅 Calendario
           </h1>
-          <p className="text-[var(--text-secondary)]">
-            Vista general de citas, turnos y ausencias
-          </p>
-        </div>
-
-        <div className="flex flex-wrap gap-3">
           <Link
             href={`/${clinic}/dashboard/appointments`}
-            className="px-4 py-2 text-sm font-medium text-[var(--text-primary)] bg-white border border-[var(--border)] rounded-lg hover:bg-[var(--bg-subtle)] inline-flex items-center gap-2"
+            className="px-2.5 py-1 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-subtle)] rounded transition-colors"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-            </svg>
-            Ver Lista
+            Lista
           </Link>
           {isAdmin && (
             <Link
               href={`/${clinic}/dashboard/schedules`}
-              className="px-4 py-2 text-sm font-medium text-white rounded-lg hover:opacity-90 inline-flex items-center gap-2"
-              style={{ backgroundColor: 'var(--primary)' }}
+              className="px-2.5 py-1 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-subtle)] rounded transition-colors"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              Gestionar Horarios
+              Horarios
             </Link>
           )}
         </div>
+
+        <Link
+          href={`/${clinic}/dashboard/appointments?action=new`}
+          className="px-3 py-1.5 text-sm font-medium text-white rounded-lg hover:opacity-90 inline-flex items-center gap-1.5 shadow-sm"
+          style={{ backgroundColor: 'var(--primary)' }}
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          </svg>
+          Nueva Cita
+        </Link>
       </div>
 
-      {/* Calendar */}
-      <div className="bg-white rounded-xl border border-[var(--border-light)] p-4 h-[calc(100%-80px)]">
+      {/* Calendar - fills remaining space */}
+      <div className="flex-1 min-h-0 bg-white p-3">
         <CalendarContainer
           initialEvents={events}
           initialDate={initialDate}

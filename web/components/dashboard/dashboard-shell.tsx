@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, useState } from "react";
+import { usePathname } from "next/navigation";
 import { DashboardSidebar } from "./dashboard-sidebar";
 import { BottomNavigation } from "./bottom-navigation";
 import { QuickActionsHandler } from "./quick-actions-handler";
@@ -9,6 +10,9 @@ import { useKeyboardShortcuts, commonShortcuts } from "@/hooks/use-keyboard-shor
 import { RecentItemsProvider } from "./recent-items-provider";
 import { KeyboardShortcutsModal, useKeyboardShortcuts as useShortcutsModal } from "./keyboard-shortcuts-modal";
 import { DashboardLabelsProvider } from "@/lib/hooks/use-dashboard-labels";
+
+// Pages that need full-bleed layout (no container padding)
+const FULL_BLEED_PAGES = ['/calendar', '/hospital', '/lab'];
 
 interface DashboardShellProps {
   clinic: string;
@@ -23,8 +27,12 @@ export function DashboardShell({
   isAdmin = false,
   children,
 }: DashboardShellProps): React.ReactElement {
+  const pathname = usePathname();
   const { isOpen, open, close } = useCommandPalette();
   const { isOpen: isShortcutsOpen, closeShortcuts, openShortcuts } = useShortcutsModal();
+
+  // Check if current page needs full-bleed layout (no padding)
+  const isFullBleed = FULL_BLEED_PAGES.some(page => pathname.includes(page));
 
   // Enable global keyboard shortcuts
   useKeyboardShortcuts({
@@ -58,11 +66,15 @@ export function DashboardShell({
             onOpenCommandPalette={open}
           />
 
-          {/* Main Content */}
+          {/* Main Content - Full bleed pages get no padding */}
           <main className="flex-1 overflow-auto lg:pb-0 pb-20">
-            <div className="page-container-xl py-6 md:py-8">
-              {children}
-            </div>
+            {isFullBleed ? (
+              children
+            ) : (
+              <div className="page-container-xl py-4 md:py-6">
+                {children}
+              </div>
+            )}
           </main>
         </div>
 

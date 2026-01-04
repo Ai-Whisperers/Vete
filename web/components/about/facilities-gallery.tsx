@@ -46,14 +46,15 @@ export function FacilitiesGallery({ images }: FacilitiesGalleryProps) {
             key={index}
             onClick={() => openLightbox(index)}
             className="group relative aspect-[4/3] rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300"
+            aria-label={`Ver imagen de instalacion ${index + 1} en pantalla completa`}
           >
             <img
               src={image}
-              alt={`Instalación ${index + 1}`}
+              alt={`Instalacion de la clinica ${index + 1}`}
               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
             />
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-300 flex items-center justify-center">
-              <ZoomIn className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <ZoomIn className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" aria-hidden="true" />
             </div>
           </button>
         ))}

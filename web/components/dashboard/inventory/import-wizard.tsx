@@ -147,7 +147,10 @@ export function ImportWizard({ isOpen, onClose, onImportComplete, clinic }: Impo
                 setSavedMappings(data.mappings || []);
             }
         } catch (e) {
-            console.error('Error loading mappings:', e);
+            // Client-side error logging - only in development
+            if (process.env.NODE_ENV === 'development') {
+                console.error('Error loading mappings:', e);
+            }
         }
     };
 
@@ -281,7 +284,10 @@ export function ImportWizard({ isOpen, onClose, onImportComplete, clinic }: Impo
                 }
             }
         } catch (e) {
-            console.error('Error deleting mapping:', e);
+            // Client-side error logging - only in development
+            if (process.env.NODE_ENV === 'development') {
+                console.error('Error deleting mapping:', e);
+            }
         }
     };
 

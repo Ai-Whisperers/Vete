@@ -117,7 +117,10 @@ export default function CustomerAnalyticsPage(): React.ReactElement {
           setError(errorData.message || "Error al cargar analíticas");
         }
       } catch (err) {
-        console.error("Error fetching customer analytics:", err);
+        // Client-side error logging - only in development
+        if (process.env.NODE_ENV === 'development') {
+          console.error("Error fetching customer analytics:", err);
+        }
         setError("Error de conexión");
       } finally {
         setIsLoading(false);

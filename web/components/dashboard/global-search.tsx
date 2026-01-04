@@ -74,7 +74,10 @@ const searchGlobalData = async (query: string, clinic: string): Promise<SearchRe
       );
     }
   } catch (error) {
-    console.error("Search error:", error);
+    // Client-side error logging - only in development
+    if (process.env.NODE_ENV === 'development') {
+      console.error("Search error:", error);
+    }
     return [];
   }
 };
@@ -174,6 +177,7 @@ export function GlobalSearch({ clinic }: GlobalSearchProps): React.ReactElement 
                     <button
                       onClick={() => commandPalette.setQuery("")}
                       className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+                      aria-label="Limpiar busqueda"
                     >
                       <X className="w-4 h-4 text-gray-400" />
                     </button>

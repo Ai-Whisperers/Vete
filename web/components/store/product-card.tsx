@@ -17,7 +17,7 @@ import {
   AlertCircle,
   ImageIcon,
 } from 'lucide-react';
-import type { StoreProductWithDetails } from '@/lib/types/store';
+import type { ProductListItem } from '@/lib/types/store';
 import { useCart } from '@/context/cart-context';
 import { useWishlist } from '@/context/wishlist-context';
 import { NotifyWhenAvailable } from './notify-when-available';
@@ -27,7 +27,7 @@ import { NotifyWhenAvailable } from './notify-when-available';
  */
 export interface ProductCardProps {
   /** Product data */
-  product: StoreProductWithDetails;
+  product: ProductListItem;
   /** Clinic slug for routing */
   clinic: string;
   /** Card variant - 'minimal' shows basic info, 'full' shows all features */
@@ -47,7 +47,7 @@ export interface ProductCardProps {
   /** Show quantity selector (default: true for 'minimal' variant) */
   showQuantitySelector?: boolean;
   /** Callback for quick view action */
-  onQuickView?: (product: StoreProductWithDetails) => void;
+  onQuickView?: (product: ProductListItem) => void;
 }
 
 /**
@@ -112,7 +112,8 @@ export function ProductCard({
 
   // Derived values
   const productIsWishlisted = isWishlisted(product.id);
-  const stock = product.inventory?.stock_quantity || 0;
+  // Support both direct stock_quantity and nested inventory.stock_quantity
+  const stock = product.stock_quantity ?? product.inventory?.stock_quantity ?? 0;
   const inStock = stock > 0;
   const lowStock = stock > 0 && stock <= 5;
 
@@ -323,14 +324,14 @@ export function ProductCard({
         )}
 
         {/* Rating */}
-        {displayRatings && product.review_count > 0 && (
+        {displayRatings && (product.review_count ?? 0) > 0 && (
           <div className="flex items-center gap-1.5 mt-2">
             <div className="flex items-center gap-0.5">
               {[1, 2, 3, 4, 5].map((star) => (
                 <Star
                   key={star}
                   className={`w-4 h-4 ${
-                    star <= Math.round(product.avg_rating)
+                    star <= Math.round(product.avg_rating ?? 0)
                       ? 'text-yellow-400 fill-yellow-400'
                       : 'text-gray-200'
                   }`}
@@ -338,7 +339,7 @@ export function ProductCard({
               ))}
             </div>
             <span className="text-xs font-medium text-[var(--text-secondary)]">
-              {product.avg_rating.toFixed(1)} ({product.review_count})
+              {(product.avg_rating ?? 0).toFixed(1)} ({product.review_count ?? 0})
             </span>
           </div>
         )}

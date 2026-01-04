@@ -31,9 +31,10 @@ export function VaccinesFilter({ clinic, currentStatus }: VaccinesFilterProps): 
         className="px-3 py-2 rounded-lg border border-gray-200 focus:border-[var(--primary)] outline-none"
       >
         <option value="all">Todos los estados</option>
-        <option value="pending">Pendientes</option>
-        <option value="verified">Verificadas</option>
-        <option value="rejected">Rechazadas</option>
+        <option value="scheduled">Pendientes</option>
+        <option value="completed">Verificadas</option>
+        <option value="missed">Perdidas</option>
+        <option value="cancelled">Canceladas</option>
       </select>
     </div>
   );

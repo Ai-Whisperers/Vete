@@ -88,7 +88,10 @@ export default function TimeOffTypesPage(): JSX.Element {
       const result = await response.json();
       setTypes(result.data || []);
     } catch (e) {
-      console.error('Error fetching types:', e);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error fetching types:', e);
+      }
       setError('Error al cargar tipos de ausencia');
     } finally {
       setLoading(false);

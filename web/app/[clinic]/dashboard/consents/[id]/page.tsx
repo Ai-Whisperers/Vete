@@ -107,7 +107,10 @@ export default function ConsentDetailPage(): JSX.Element {
       const data = await response.json();
       setConsent(data);
     } catch (error) {
-      console.error('Error fetching consent:', error);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error fetching consent:', error);
+      }
     } finally {
       setLoading(false);
     }
@@ -139,7 +142,10 @@ export default function ConsentDetailPage(): JSX.Element {
       setShowRevokeModal(false);
       setRevocationReason('');
     } catch (error) {
-      console.error('Error revoking consent:', error);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error revoking consent:', error);
+      }
       alert('Error al revocar el consentimiento');
     } finally {
       setRevoking(false);
@@ -196,7 +202,10 @@ export default function ConsentDetailPage(): JSX.Element {
         })
       });
     } catch (error) {
-      console.error('Error generating PDF:', error);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error generating PDF:', error);
+      }
       alert('Error al generar el PDF');
     }
   };
@@ -228,7 +237,10 @@ export default function ConsentDetailPage(): JSX.Element {
       // Refresh to update audit log
       fetchConsent();
     } catch (error) {
-      console.error('Error sending email:', error);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error sending email:', error);
+      }
       alert(error instanceof Error ? error.message : 'Error al enviar email');
     }
   };

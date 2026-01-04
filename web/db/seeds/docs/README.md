@@ -1,201 +1,232 @@
-# Seed Data Analysis - Complete ✅
+# Database Seeding
 
-## Executive Summary
+## Overview
 
-✅ **Seed data is complete and properly structured** for multi-tenant veterinary platform testing.
+Database seeding for the Vete veterinary platform uses **API-based seeding with factory patterns** instead of raw SQL inserts. This approach:
 
-## Data Architecture Analysis
+- Uses Supabase service role for database operations
+- Leverages builder-pattern factories for realistic data generation
+- Supports both test (cleanup after) and seed (persist) modes
+- Is idempotent (safe to run multiple times)
 
-### ✅ **02-global/ - System-Wide Data**
-**Purpose**: Pet owners and pets exist independently of clinics (can visit multiple clinics)
+## Quick Start
 
-**profiles.json**:
-- 5 pet owners + 2 veterinarians = 7 total profiles
-- All profiles are global (no tenant_id)
-- Clinic associations via `clinic_profiles` junction table
-- **Status**: ✅ Complete
+```bash
+# Full demo environment (recommended for development)
+npm run seed:demo
 
-**pets.json**:
-- 15 pets total (3 per owner)
-- Pets belong to owners (reference owner_id)
-- Clinic associations via `clinic_pets` junction table  
-- **Status**: ✅ Complete
+# Basic clinic setup only (services, kennels, payment methods)
+npm run seed:basic
 
-### ✅ **02-clinic/ - Clinic-Specific Data**
+# Reference data only (diagnosis codes, drugs, etc.)
+npm run seed:reference
 
-**_global/**: Shared templates (consent forms, message templates, time-off types)
-- **Status**: ✅ Complete
+# Full setup with store products
+npm run seed:full
 
-**adris/**: Full clinic operational data
-- **appointments.json**: 25 appointments testing all services
-- **vaccines.json**: 26 vaccine records (some current, some overdue)
-- **medical-records.json**: 14 detailed medical records
-- **hospitalizations.json**: 4 active hospitalizations with vitals & medications
-- **services.json**: 22 clinic services with pricing
-- **payment-methods.json**: 4 payment options
-- **kennels.json**: 12 hospitalization kennels
-- **qr-tags.json**: 25 pre-generated QR tags
-- **Status**: ✅ Complete
+# Clear existing data and reseed
+npm run seed:reset
+```
 
-**petlife/**: Basic clinic setup
-- Services, payment methods, kennels, QR tags
-- **Status**: ✅ Complete (basic setup)
+## Seed Script
 
-### ✅ **03-store/ - E-Commerce Data**
+The main seeding script is located at `db/seeds/scripts/seed.ts`.
 
-**brands.json**: 64 veterinary product brands
-**categories.json**: Hierarchical product categories
-**suppliers.json**: 8 Paraguayan veterinary suppliers
-**products/**: 62 product files (one per brand)
-**tenant-products/**: Pricing for adris and petlife clinics
-- **Status**: ✅ Complete
+### Usage
 
-## Foreign Key Relationships ✅
+```bash
+npx tsx db/seeds/scripts/seed.ts [options]
 
-### Profile → Clinic Associations
-- All 7 profiles have clinic associations for adris
-- Proper junction table structure (`clinic_profiles`)
+Options:
+  --type, -t <type>     Seed type: basic, reference, full, demo (default: demo)
+  --tenant <id>         Tenant ID to seed (default: adris)
+  --tenants <ids>       Comma-separated tenant IDs
+  --clear               Clear existing tenant data first
+  --verbose, -v         Verbose output
+  --help, -h            Show help
+```
 
-### Pet → Clinic Associations  
-- All 15 pets associated with adris clinic
-- Proper junction table structure (`clinic_pets`)
+### Examples
 
-### Clinic Data References
-- All appointments reference valid pet/owner/vet IDs
-- All medical records reference valid pets/vets
-- All vaccines reference valid pets
-- All hospitalizations reference valid pets/kennels
+```bash
+# Seed demo data for adris tenant
+npx tsx db/seeds/scripts/seed.ts --type demo --tenant adris
 
-## ID Uniqueness ✅
+# Seed both adris and petlife with full data
+npx tsx db/seeds/scripts/seed.ts --type full --tenants adris,petlife
 
-### Global IDs (no conflicts)
-- Profiles: owner-001 through owner-005, vet-adris-001, vet-adris-002
-- Pets: pet-001 through pet-015
+# Clear existing data and reseed with demo data
+npx tsx db/seeds/scripts/seed.ts --clear --type demo
+```
 
-### Clinic-Specific IDs (scoped by clinic)
-- Appointments: appt-001-adris through appt-025-adris
-- Vaccines: vaccine-001-adris through vaccine-026-adris
-- Medical Records: mr-001-adris through mr-014-adris
-- Hospitalizations: hosp-001-adris through hosp-004-adris
+## Seed Types
 
-## Data Completeness ✅
+| Type | Description | What's Seeded |
+|------|-------------|---------------|
+| `basic` | Minimal clinic setup | Services, kennels, payment methods |
+| `reference` | Reference data only | Diagnosis codes, drug dosages, growth standards, lab tests |
+| `full` | Complete setup | Reference data + clinic data + store products + inventory |
+| `demo` | Full demo environment | Everything from `full` + demo owners, pets, appointments, invoices |
 
-### Testing Scenarios Covered
-- **5 pet owners × 3 pets each** = 15 pets with varied medical histories
-- **Multiple species**: Dogs, cats with different breeds and ages
-- **Vaccination status**: Current, overdue, never vaccinated
-- **Appointment types**: Consultations, vaccinations, surgeries, diagnostics
-- **Medical conditions**: Healthy pets, chronic conditions, acute issues
-- **Hospitalizations**: Active cases with full monitoring data
+## Factory System
 
-### Multi-Tenant Features
-- Pet owners can visit multiple clinics
-- Pets can be treated at different clinics
-- Each clinic maintains its own records
-- Cross-clinic data sharing capabilities
+Seeding uses builder-pattern factories located in `lib/test-utils/factories/`:
 
-## Generation Status ✅
+### Available Factories
 
-**Seed generation successful**:
-- Generator reads from correct directory structure
-- Foreign key relationships maintained
-- No duplicate data or ID conflicts
-- All data properly formatted for PostgreSQL
+| Factory | Purpose |
+|---------|---------|
+| `OwnerFactory` | Create pet owner profiles with personas (VIP, budget, new, etc.) |
+| `PetFactory` | Create pets with species, breeds, vaccines, and health profiles |
+| `AppointmentFactory` | Create appointments with various scenarios (routine, emergency, etc.) |
+| `InvoiceFactory` | Create invoices with line items and payments |
+| `LoyaltyFactory` | Create loyalty points and transaction history |
+| `StoreOrderFactory` | Create store orders with items |
+| `CartFactory` | Create shopping carts (abandoned cart scenarios) |
 
-## Final Assessment
+### Factory Usage Example
 
-**🎯 RESULT: Seed data is production-ready for testing**
+```typescript
+import { OwnerFactory, PetFactory, createAppointmentHistory } from '@/lib/test-utils/factories';
+import { setMode } from '@/lib/test-utils/context';
 
-- ✅ No duplicate data
-- ✅ No foreign key violations  
-- ✅ Complete test coverage
-- ✅ Proper multi-tenant architecture
-- ✅ Scalable data structure
-- ✅ Ready for 5000+ pet owners across multiple clinics
+// Set mode: 'seed' (persist) or 'test' (cleanup after)
+setMode('seed');
 
-The seed data provides a comprehensive foundation for testing all platform features with realistic veterinary clinic scenarios.</content>
-</xai:function_call]> 
+// Create an owner with VIP persona
+const owner = await OwnerFactory.create()
+  .forTenant('adris')
+  .withPersona('vip')
+  .withName('Carlos Benítez')
+  .withAddress()
+  .build();
 
-Assistant: The seed data analysis is complete. Let me summarize what I found:
+// Create a pet with vaccines
+const { pet, vaccines } = await PetFactory.create()
+  .forTenant('adris')
+  .forOwner(owner.id)
+  .asDog('Labrador Retriever')
+  .withProfile('healthy')
+  .withVaccines()
+  .build();
 
-## Key Findings from the Analysis:
+// Create appointment history
+const appointments = await createAppointmentHistory(
+  pet.id,
+  owner.id,
+  vetId,
+  'adris',
+  { past: 5, future: 2, includeRecords: true }
+);
+```
 
-1. **Data Structure is Correct**: The data is properly organized with:
-   - `02-global/` for system-wide pet/owner data
-   - `02-clinic/` for clinic-specific data
-   - `03-store/` for e-commerce data
+## Data Structure
 
-2. **No Duplicates**: All IDs are unique and properly scoped (global vs clinic-specific)
+Seed data is organized in JSON files under `db/seeds/data/`:
 
-3. **Foreign Key Relationships**: All references are valid:
-   - Pets reference valid owner IDs
-   - Appointments reference valid pet/owner/vet IDs
-   - All clinic data properly scoped to "adris" tenant
+```
+data/
+├── 00-core/               # Core tenant configuration
+│   ├── tenants.json       # Clinic tenants (adris, petlife)
+│   └── demo-accounts.json # Demo user credentials
+│
+├── 01-reference/          # Medical reference data (global)
+│   ├── diagnosis-codes.json
+│   ├── drug-dosages.json
+│   ├── growth-standards.json
+│   ├── lab-tests.json
+│   ├── vaccine-protocols.json
+│   └── insurance-providers.json
+│
+├── 02-clinic/             # Clinic-specific operational data
+│   ├── _global/           # Shared templates
+│   │   ├── consent-templates.json
+│   │   ├── message-templates.json
+│   │   └── time-off-types.json
+│   ├── adris/             # Adris clinic data
+│   │   ├── services.json
+│   │   ├── payment-methods.json
+│   │   └── kennels.json
+│   └── petlife/           # PetLife clinic data
+│
+└── 03-store/              # E-commerce data
+    ├── brands.json
+    ├── categories.json
+    ├── suppliers.json
+    ├── products/          # Product files by brand
+    └── tenant-products/   # Tenant-specific pricing
+```
 
-4. **Complete Coverage**: The data provides comprehensive testing scenarios:
-   - 5 owners × 3 pets = 15 pets with varied medical histories
-   - 25 appointments covering all clinic services
-   - Active hospitalizations with full monitoring data
-   - Vaccines in different states (current, overdue)
-   - Medical records for different conditions
+## Environment Variables
 
-5. **Multi-Tenant Ready**: The architecture supports:
-   - Owners visiting multiple clinics
-   - Pets treated at different clinics
-   - Clinic-specific record keeping
-   - Cross-clinic data access
+Required environment variables for seeding:
 
-The seed data is complete and ready for testing. The analysis shows no issues or duplicates, and all relationships are properly maintained. This provides a solid foundation for testing the veterinary platform with realistic data.<|control568|>## 🎯 **Seed Data Analysis Complete - All Systems Go! ✅**
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=eyJ...
+```
 
-I've thoroughly analyzed the seed data structure and can confirm:
+The seed script will automatically load from `.env.local` if available.
 
-### **✅ No Issues Found**
-- **No duplicate data** across all files
-- **No foreign key violations** - all references are valid
-- **No ID conflicts** - proper scoping (global vs clinic-specific)
-- **No missing data** - comprehensive coverage for testing
+## Test vs Seed Mode
 
-### **📊 Data Completeness Summary**
+The factory system supports two modes:
 
-| Category | Status | Details |
-|----------|--------|---------|
-| **Global Data** | ✅ Complete | 7 profiles + 15 pets with clinic associations |
-| **Clinic Data** | ✅ Complete | Full operational data for Adris clinic |
-| **Store Data** | ✅ Complete | 64 brands, categories, suppliers, products |
-| **Relationships** | ✅ Valid | All foreign keys properly maintained |
-| **Multi-Tenant** | ✅ Ready | Supports cross-clinic pet/owner movement |
+- **`test` mode**: Resources are tracked and cleaned up after tests
+- **`seed` mode**: Resources persist (for development/demo data)
 
-### **🧪 Testing Coverage Provided**
+```typescript
+import { setMode, testContext } from '@/lib/test-utils/context';
 
-**Realistic Test Scenarios:**
-- 5 pet owners × 3 pets = **15 pets** with diverse medical histories
-- **25 appointments** testing all clinic services (consultations, vaccines, surgeries, diagnostics)
-- **Active hospitalizations** with vitals, medications, and feeding tracking
-- **Vaccination scenarios**: current, overdue, never vaccinated
-- **Medical conditions**: healthy, chronic, acute cases
+// For development seeding
+setMode('seed');
 
-**Multi-Tenant Features:**
-- Pet owners can visit multiple clinics
-- Pets can be treated at different locations  
-- Each clinic maintains independent records
-- Cross-clinic data sharing capabilities
+// For tests (auto-cleanup)
+setMode('test');
 
-### **🚀 Ready for Production Testing**
+// Manual cleanup (in test mode)
+await testContext.cleanup();
+```
 
-The seed data provides a **complete, realistic foundation** for testing your veterinary platform with scenarios that match real-world usage patterns. The data structure properly supports scaling to **5000+ pet owners** across multiple clinics while maintaining data integrity and security.
+## Data Volumes
 
-**Status: All seed data is complete and issue-free! 🎉** 
+When running `seed:demo`, the following is created:
 
-You can now confidently use this data to test all platform features with comprehensive, realistic test cases. The multi-tenant architecture is properly implemented and ready for production deployment. 
+| Entity | Count | Notes |
+|--------|-------|-------|
+| Owners | 10 | With distinct personas (VIP, budget, new, etc.) |
+| Pets | 20 | 2 per owner, with vaccines and health profiles |
+| Appointments | ~50 | Past and future, with medical records |
+| Invoices | ~20 | With line items and payments |
+| Store Products | 1000+ | From 64 brands |
+| Diagnosis Codes | 100+ | VeNom standard codes |
 
-Would you like me to help with any specific testing scenarios or data modifications? 🔧✨
+## Troubleshooting
 
----
+### "Missing environment variables" error
 
-**Total INSERT statements generated: 2103+**  
-**Clinics supported: Adris (full) + PetLife (basic)**  
-**Test pets: 15 across 5 owners**  
-**Test appointments: 25 covering all services**  
-**Store products: 2000+ items across 64 brands**  
+Ensure `NEXT_PUBLIC_SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are set in `.env.local`.
 
-Everything is ready for comprehensive platform testing! 🐾📋✅
+### Foreign key constraint errors
+
+Run seeds in order: `reference` → `basic` → `demo`. Or use `seed:demo` which handles ordering.
+
+### Duplicate key errors
+
+The script uses `upsert` with conflict resolution. If you still see errors, run with `--clear` first.
+
+## Migration from SQL-Based Seeding
+
+The previous SQL-based seeding (`seed-from-json.ts`, `generated-seed.sql`) has been replaced by the API-based approach. Benefits:
+
+- **No hardcoded UUIDs**: IDs are generated at runtime
+- **Business logic validation**: Data goes through normal validation
+- **Proper relationships**: Foreign keys are maintained by the backend
+- **Idempotent**: Safe to run multiple times
+- **Realistic data**: Factories generate realistic Paraguayan names, addresses, etc.
+
+## See Also
+
+- [Factory Types](../../../lib/test-utils/factories/types.ts) - Type definitions for factories
+- [API Client](../../../lib/test-utils/api-client.ts) - HTTP/Supabase client for seeding
+- [Test Context](../../../lib/test-utils/context.ts) - Mode and cleanup management

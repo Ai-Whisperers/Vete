@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { logger } from '@/lib/logger'
 import Link from 'next/link'
 import * as Icons from 'lucide-react'
 import { LabOrdersList } from '@/components/lab/lab-orders-list'
@@ -61,7 +62,7 @@ export default async function LabOrdersPage({ params, searchParams }: Props) {
     .order('ordered_at', { ascending: false })
 
   if (error) {
-    console.error('Error fetching lab orders:', error)
+    logger.error('Error fetching lab orders', { error: error.message })
   }
 
   // Transform data

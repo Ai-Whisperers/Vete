@@ -53,7 +53,10 @@ export default function NotificationSettingsPage(): React.ReactElement {
           setSettings(data);
         }
       } catch (err) {
-        console.error("Error fetching settings:", err);
+        // Client-side error logging - only in development
+        if (process.env.NODE_ENV === 'development') {
+          console.error("Error fetching settings:", err);
+        }
       } finally {
         setLoading(false);
       }

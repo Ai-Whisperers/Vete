@@ -55,9 +55,9 @@ export function PetProfileHeader({ pet, clinic, isStaff }: PetProfileHeaderProps
           {/* Avatar */}
           <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full border-4 border-white shadow-lg bg-white flex items-center justify-center shrink-0">
             {pet.photo_url ? (
-              <img src={pet.photo_url} alt={pet.name} className="w-full h-full rounded-full object-cover" />
+              <img src={pet.photo_url} alt={`Foto de ${pet.name}`} className="w-full h-full rounded-full object-cover" />
             ) : (
-              <Icons.PawPrint className="w-12 sm:w-16 h-12 sm:h-16 text-gray-300" />
+              <Icons.PawPrint className="w-12 sm:w-16 h-12 sm:h-16 text-gray-300" aria-hidden="true" />
             )}
           </div>
 

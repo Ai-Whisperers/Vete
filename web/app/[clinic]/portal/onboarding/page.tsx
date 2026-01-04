@@ -17,14 +17,19 @@ export default async function OnboardingPage({ params }: Props): Promise<React.R
     redirect(`/${clinic}/portal/login?redirect=onboarding`);
   }
 
-  // Get user profile
+  // Get user profile with role
   const { data: profile } = await supabase
     .from("profiles")
-    .select("full_name, onboarding_completed")
+    .select("full_name, role, onboarding_completed")
     .eq("id", user.id)
     .single();
 
-  // If onboarding is already complete, redirect to dashboard
+  // Staff (vets/admins) don't need pet onboarding - redirect to dashboard
+  if (profile?.role === 'vet' || profile?.role === 'admin') {
+    redirect(`/${clinic}/dashboard`);
+  }
+
+  // If onboarding is already complete, redirect to portal dashboard
   if (profile?.onboarding_completed) {
     redirect(`/${clinic}/portal/dashboard`);
   }

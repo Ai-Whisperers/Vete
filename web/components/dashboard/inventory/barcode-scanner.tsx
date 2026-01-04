@@ -93,7 +93,10 @@ export function BarcodeScanner({ isOpen, onClose, onScan, title = "Escanear Cód
 
             setIsLoading(false);
         } catch (e) {
-            console.error('Camera error:', e);
+            // Client-side error logging - only in development
+            if (process.env.NODE_ENV === 'development') {
+                console.error('Camera error:', e);
+            }
             setError(
                 e instanceof Error
                     ? e.message.includes('NotAllowedError') || e.message.includes('Permission')

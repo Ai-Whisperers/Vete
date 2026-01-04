@@ -141,8 +141,9 @@ export default function FilterSidebar({
           <button
             onClick={onClearFilters}
             className="text-sm text-[var(--primary)] hover:underline font-medium flex items-center gap-1"
+            aria-label="Limpiar todos los filtros"
           >
-            <X className="w-3.5 h-3.5" />
+            <X className="w-3.5 h-3.5" aria-hidden="true" />
             Limpiar
           </button>
         )}
@@ -292,6 +293,7 @@ export default function FilterSidebar({
                 <button
                   onClick={() => setBrandSearch('')}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  aria-label="Limpiar busqueda de marca"
                 >
                   <X className="w-4 h-4" />
                 </button>

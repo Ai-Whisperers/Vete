@@ -127,7 +127,10 @@ export default function LabOrderDetailPage() {
       setAttachments(attachmentsData || [])
 
     } catch (error) {
-      console.error('Error fetching order details:', error)
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error fetching order details:', error)
+      }
       alert('Error al cargar la orden')
     } finally {
       setLoading(false)
@@ -146,7 +149,10 @@ export default function LabOrderDetailPage() {
 
       await fetchOrderDetails()
     } catch (error) {
-      console.error('Error updating status:', error)
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error updating status:', error)
+      }
       alert('Error al actualizar el estado')
     }
   }
@@ -167,7 +173,10 @@ export default function LabOrderDetailPage() {
       setNewComment('')
       await fetchOrderDetails()
     } catch (error) {
-      console.error('Error adding comment:', error)
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error adding comment:', error)
+      }
       alert('Error al agregar comentario')
     } finally {
       setAddingComment(false)

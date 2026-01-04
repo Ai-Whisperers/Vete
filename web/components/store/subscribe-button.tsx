@@ -84,7 +84,10 @@ export default function SubscribeButton({
       }, 2000);
 
     } catch (e) {
-      console.error('Subscribe error:', e);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Subscribe error:', e);
+      }
       setError('Error de conexión');
     } finally {
       setLoading(false);

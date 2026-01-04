@@ -47,16 +47,16 @@ function TrendIndicator({ change, label }: { change?: number; label?: string }) 
       : DASHBOARD_ICONS.trendingDown;
 
   const colorClass = isNeutral
-    ? 'text-gray-500 bg-gray-100'
+    ? 'text-[var(--text-muted)] bg-[var(--bg-subtle)]'
     : isPositive
-      ? 'text-emerald-600 bg-emerald-50'
-      : 'text-red-600 bg-red-50';
+      ? 'text-[var(--status-success)] bg-[var(--status-success-bg)]'
+      : 'text-[var(--status-error)] bg-[var(--status-error-bg)]';
 
   return (
     <div className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${colorClass}`}>
       <Icon className="w-3 h-3" />
       <span>{isNeutral ? '0%' : `${isPositive ? '+' : ''}${change}%`}</span>
-      {label && <span className="text-gray-500 ml-1">{label}</span>}
+      {label && <span className="text-[var(--text-muted)] ml-1">{label}</span>}
     </div>
   );
 }
@@ -82,16 +82,16 @@ function StatCard({ card, clinic }: { card: StatCardConfig; clinic: string }) {
       href={card.href}
       className={`group relative overflow-hidden rounded-2xl p-5 shadow-sm border border-white/20 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 ${card.gradient}`}
     >
-      {/* Background decoration */}
-      <div className="absolute top-0 right-0 w-32 h-32 opacity-10">
-        <Icon className="w-full h-full" />
+      {/* Background decoration - increased opacity for premium feel */}
+      <div className="absolute top-0 right-0 w-32 h-32 opacity-20">
+        <Icon className="w-full h-full text-white" />
       </div>
 
       {/* Alert badge */}
       {card.alert && (
         <div className="absolute top-3 right-3 flex items-center gap-1 bg-red-500 text-white text-xs px-2 py-1 rounded-full animate-pulse">
           <DASHBOARD_ICONS.alertTriangle className="w-3 h-3" />
-          <span>{card.alertMessage || 'Atenci\u00f3n'}</span>
+          <span>{card.alertMessage || 'Atención'}</span>
         </div>
       )}
 
@@ -142,13 +142,13 @@ function LoadingSkeleton() {
       {[...Array(4)].map((_, i) => (
         <div
           key={i}
-          className="animate-pulse rounded-2xl p-5 bg-gradient-to-br from-gray-100 to-gray-200"
+          className="animate-pulse rounded-2xl p-5 bg-gradient-to-br from-[var(--bg-subtle)] to-[var(--bg-subtle)]/80"
         >
           <div className="flex items-start justify-between mb-3">
-            <div className="w-10 h-10 bg-gray-300 rounded-xl" />
+            <div className="w-10 h-10 bg-[var(--border-default)] rounded-xl" />
           </div>
-          <div className="h-9 bg-gray-300 rounded w-20 mb-2" />
-          <div className="h-4 bg-gray-300 rounded w-28" />
+          <div className="h-9 bg-[var(--border-default)] rounded w-20 mb-2" />
+          <div className="h-4 bg-[var(--border-default)] rounded w-28" />
         </div>
       ))}
     </div>

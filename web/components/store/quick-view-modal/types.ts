@@ -1,7 +1,7 @@
-import type { StoreProductWithDetails } from '@/lib/types/store';
+import type { ProductListItem } from '@/lib/types/store';
 
 export interface QuickViewModalProps {
-  product: StoreProductWithDetails;
+  product: ProductListItem;
   clinic: string;
   onClose: () => void;
 }
@@ -21,7 +21,7 @@ export interface ImageGalleryProps {
 }
 
 export interface ProductInfoProps {
-  product: StoreProductWithDetails;
+  product: ProductListItem;
   stock: number;
   inStock: boolean;
   lowStock: boolean;

@@ -19,7 +19,10 @@ export default function LogoutPage() {
       try {
         const { error } = await supabase.auth.signOut();
         if (error) {
-          console.error("Logout error:", error);
+          // Client-side error logging - only in development
+          if (process.env.NODE_ENV === 'development') {
+            console.error("Logout error:", error);
+          }
           setStatus("error");
           return;
         }
@@ -31,7 +34,10 @@ export default function LogoutPage() {
           router.push(`/${clinic}/portal/login`);
         }, 1500);
       } catch (err) {
-        console.error("Logout error:", err);
+        // Client-side error logging - only in development
+        if (process.env.NODE_ENV === 'development') {
+          console.error("Logout error:", err);
+        }
         setStatus("error");
       }
     };

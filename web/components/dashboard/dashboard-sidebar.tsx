@@ -135,7 +135,15 @@ export function DashboardSidebar({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname, sections]);
 
-  const isActive = (href: string): boolean => pathname === href || pathname.startsWith(href + "/");
+  // Check if a nav item is active
+  // Dashboard link requires exact match to avoid highlighting when on sub-pages
+  const isActive = (href: string): boolean => {
+    const isDashboardLink = href.endsWith('/dashboard');
+    if (isDashboardLink) {
+      return pathname === href; // Exact match only for dashboard
+    }
+    return pathname === href || pathname.startsWith(href + "/");
+  };
 
   const toggleSection = (title: string): void => {
     setOpenSections((prev) => ({
@@ -155,8 +163,8 @@ export function DashboardSidebar({
           onClick={() => toggleSection(section.title)}
           className={`w-full flex items-center justify-between px-3 py-2.5 text-sm font-semibold transition-colors rounded-xl ${
             hasActiveItem
-              ? "text-[var(--primary)] bg-[var(--primary)]/10"
-              : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+              ? "text-[var(--primary)]"
+              : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-subtle)]"
           }`}
         >
           <div className="flex items-center gap-2">
@@ -179,7 +187,7 @@ export function DashboardSidebar({
               transition={{ duration: 0.15 }}
               className="overflow-hidden"
             >
-              <div className="mt-1 space-y-0.5 ml-3 pl-3 border-l-2 border-gray-100">
+              <div className="mt-1 space-y-0.5 ml-3 pl-3 border-l-2 border-[var(--border-light)]">
                 {section.items.map((item) => {
                   const Icon = item.icon;
                   const active = isActive(item.href);
@@ -187,10 +195,10 @@ export function DashboardSidebar({
                     <Link
                       key={item.href}
                       href={item.href}
-                      className={`flex items-center justify-between gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+                      className={`flex items-center justify-between gap-3 px-3 py-2 rounded-lg text-sm transition-all ${
                         active
-                          ? "bg-[var(--primary)] text-white font-medium"
-                          : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                          ? "bg-[var(--primary)] text-white font-medium shadow-sm ring-2 ring-[var(--primary)] ring-offset-1"
+                          : "text-[var(--text-muted)] hover:bg-[var(--bg-subtle)] hover:text-[var(--text-primary)] opacity-70 hover:opacity-100"
                       }`}
                     >
                       <div className="flex items-center gap-2">
@@ -199,7 +207,7 @@ export function DashboardSidebar({
                       </div>
                       {item.badge && item.badge > 0 && (
                         <span className={`text-xs font-bold px-1.5 py-0.5 rounded-full ${
-                          active ? "bg-white/20" : "bg-red-100 text-red-600"
+                          active ? "bg-white/20" : "bg-[var(--status-error-bg)] text-[var(--status-error)]"
                         }`}>
                           {item.badge}
                         </span>
@@ -217,12 +225,12 @@ export function DashboardSidebar({
 
   return (
     <aside
-      className={`hidden lg:flex flex-col bg-white border-r border-gray-200 h-screen sticky top-0 transition-all duration-200 ${
+      className={`hidden lg:flex flex-col bg-[var(--bg-paper)] border-r border-[var(--border-light)] h-screen sticky top-0 transition-all duration-200 ${
         isCollapsed ? "w-16" : "w-64"
       }`}
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-4 border-b border-gray-200">
+      <div className="flex items-center justify-between px-4 py-4 border-b border-[var(--border-light)]">
         <Link
           href={`/${clinic}/portal/dashboard`}
           className="flex items-center gap-2 text-[var(--primary)] font-bold hover:opacity-80 transition-opacity"
@@ -232,8 +240,10 @@ export function DashboardSidebar({
         </Link>
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="p-2 rounded-lg text-gray-400 hover:bg-gray-100 transition-colors"
+          className="p-2 rounded-lg text-[var(--text-muted)] hover:bg-[var(--bg-subtle)] transition-colors"
           title={isCollapsed ? "Expandir" : "Colapsar"}
+          aria-label={isCollapsed ? "Expandir menu lateral" : "Colapsar menu lateral"}
+          aria-expanded={!isCollapsed}
         >
           <ChevronLeft className={`w-5 h-5 transition-transform ${isCollapsed ? "rotate-180" : ""}`} />
         </button>
@@ -241,21 +251,21 @@ export function DashboardSidebar({
 
       {/* Clinic Name & Search */}
       {!isCollapsed && (
-        <div className="px-4 py-3 border-b border-gray-100 space-y-3">
+        <div className="px-4 py-3 border-b border-[var(--border-light)] space-y-3">
           <div>
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Clínica</p>
-            <p className="font-bold text-gray-800 truncate">{clinicName}</p>
+            <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">Clínica</p>
+            <p className="font-bold text-[var(--text-primary)] truncate">{clinicName}</p>
           </div>
 
           {/* Command Palette Trigger */}
           {onOpenCommandPalette && (
             <button
               onClick={onOpenCommandPalette}
-              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-500 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors"
+              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-[var(--text-muted)] bg-[var(--bg-subtle)] hover:bg-[var(--bg-subtle)]/80 rounded-xl transition-colors"
             >
               <Search className="w-4 h-4" />
               <span className="flex-1 text-left">Buscar...</span>
-              <kbd className="hidden sm:flex items-center gap-0.5 px-1.5 py-0.5 text-xs font-medium bg-white rounded border shadow-sm">
+              <kbd className="hidden sm:flex items-center gap-0.5 px-1.5 py-0.5 text-xs font-medium bg-[var(--bg-paper)] rounded border border-[var(--border-light)] shadow-sm">
                 <Command className="w-3 h-3" />K
               </kbd>
             </button>
@@ -270,28 +280,28 @@ export function DashboardSidebar({
 
       {/* Footer - Clinical Tools Quick Access */}
       {!isCollapsed && (
-        <div className="px-4 py-3 border-t border-gray-100">
-          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
+        <div className="px-4 py-3 border-t border-[var(--border-light)]">
+          <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">
             Herramientas
           </p>
           <div className="flex flex-wrap gap-1">
             <Link
               href={`/${clinic}/drug_dosages`}
-              className="px-2 py-1 text-xs font-medium text-gray-500 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
+              className="px-2 py-1 text-xs font-medium text-[var(--text-muted)] bg-[var(--bg-subtle)] hover:bg-[var(--bg-subtle)]/80 rounded-lg transition-colors"
               title="Calculadora de dosis"
             >
               Dosis
             </Link>
             <Link
               href={`/${clinic}/diagnosis_codes`}
-              className="px-2 py-1 text-xs font-medium text-gray-500 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
+              className="px-2 py-1 text-xs font-medium text-[var(--text-muted)] bg-[var(--bg-subtle)] hover:bg-[var(--bg-subtle)]/80 rounded-lg transition-colors"
               title="Códigos diagnóstico"
             >
               Diagnóstico
             </Link>
             <Link
               href={`/${clinic}/growth_charts`}
-              className="px-2 py-1 text-xs font-medium text-gray-500 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
+              className="px-2 py-1 text-xs font-medium text-[var(--text-muted)] bg-[var(--bg-subtle)] hover:bg-[var(--bg-subtle)]/80 rounded-lg transition-colors"
               title="Curvas de crecimiento"
             >
               Crecimiento

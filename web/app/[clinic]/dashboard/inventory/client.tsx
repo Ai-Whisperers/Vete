@@ -107,18 +107,47 @@ const initialNewProduct: NewProductForm = {
 export default function InventoryClient({ googleSheetUrl }: InventoryClientProps) {
     const { clinic } = useParams() as { clinic: string };
 
+    // Import Result Type
+    interface ImportResult {
+        success: number;
+        errors: string[];
+        message?: string;
+    }
+
+    // Inventory Stats Type
+    interface InventoryStats {
+        totalProducts: number;
+        lowStockCount: number;
+        totalValue: number;
+    }
+
+    // Inventory Alerts Type
+    interface StockAlertItem {
+        id: string;
+        name: string;
+        stock_quantity: number;
+        min_stock_level: number;
+        expiry_date?: string;
+    }
+
+    interface InventoryAlerts {
+        hasAlerts: boolean;
+        lowStock: StockAlertItem[];
+        expiring: StockAlertItem[];
+    }
+
     // UI State
     const [isUploading, setIsUploading] = useState(false);
-    const [result, setResult] = useState<any>(null);
+    const [result, setResult] = useState<ImportResult | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [templateDropdownOpen, setTemplateDropdownOpen] = useState(false);
     const templateDropdownRef = useRef<HTMLDivElement>(null);
 
     // Data State
-    const [stats, setStats] = useState<any>(null);
+    const [stats, setStats] = useState<InventoryStats | null>(null);
     const [products, setProducts] = useState<Product[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
-    const [alerts, setAlerts] = useState<any>(null);
+    const [alerts, setAlerts] = useState<InventoryAlerts | null>(null);
     const [isLoadingProducts, setIsLoadingProducts] = useState(false);
 
     // Filter/Search State
@@ -193,7 +222,10 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
                 setStats(data);
             }
         } catch (e) {
-            console.error('Error al cargar estadísticas', e);
+            // Client-side error logging - only in development
+            if (process.env.NODE_ENV === 'development') {
+                console.error('Error al cargar estadísticas', e);
+            }
         }
     }, []);
 
@@ -205,7 +237,10 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
                 setAlerts(data);
             }
         } catch (e) {
-            console.error('Error al cargar alertas', e);
+            // Client-side error logging - only in development
+            if (process.env.NODE_ENV === 'development') {
+                console.error('Error al cargar alertas', e);
+            }
         }
     }, []);
 
@@ -217,7 +252,10 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
                 setCategories(data.categories || []);
             }
         } catch (e) {
-            console.error('Error al cargar categorías', e);
+            // Client-side error logging - only in development
+            if (process.env.NODE_ENV === 'development') {
+                console.error('Error al cargar categorías', e);
+            }
         }
     }, [clinic]);
 
@@ -247,7 +285,10 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
                 }
             }
         } catch (e) {
-            console.error('Error al cargar productos', e);
+            // Client-side error logging - only in development
+            if (process.env.NODE_ENV === 'development') {
+                console.error('Error al cargar productos', e);
+            }
         } finally {
             setIsLoadingProducts(false);
         }
@@ -378,7 +419,10 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
                 setError(text || 'Error al guardar');
             }
         } catch (e) {
-            console.error('Error al guardar', e);
+            // Client-side error logging - only in development
+            if (process.env.NODE_ENV === 'development') {
+                console.error('Error al guardar', e);
+            }
             setError('Error de conexión');
         } finally {
             setIsSaving(false);
@@ -422,7 +466,10 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
                 setError(text || 'Error al crear producto');
             }
         } catch (e) {
-            console.error('Error al crear producto', e);
+            // Client-side error logging - only in development
+            if (process.env.NODE_ENV === 'development') {
+                console.error('Error al crear producto', e);
+            }
             setError('Error de conexión');
         } finally {
             setIsCreating(false);
@@ -446,7 +493,10 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
                 setError(data.error || 'Error al eliminar producto');
             }
         } catch (e) {
-            console.error('Error al eliminar', e);
+            // Client-side error logging - only in development
+            if (process.env.NODE_ENV === 'development') {
+                console.error('Error al eliminar', e);
+            }
             setError('Error de conexión');
         } finally {
             setIsDeleting(false);
@@ -723,7 +773,7 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
                                         {alerts.lowStock.length} producto{alerts.lowStock.length > 1 ? 's' : ''} por debajo del nivel mínimo
                                     </p>
                                     <div className="flex flex-wrap gap-2 mt-2">
-                                        {alerts.lowStock.slice(0, 5).map((item: any) => (
+                                        {alerts.lowStock.slice(0, 5).map((item: StockAlertItem) => (
                                             <span key={item.id} className="bg-white px-2 py-1 rounded text-xs font-medium text-orange-700 border border-orange-200">
                                                 {item.name} ({item.stock_quantity}/{item.min_stock_level})
                                             </span>
@@ -757,9 +807,9 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
                                         {alerts.expiring.length} producto{alerts.expiring.length > 1 ? 's' : ''} vencen en los próximos 30 días
                                     </p>
                                     <div className="flex flex-wrap gap-2 mt-2">
-                                        {alerts.expiring.slice(0, 5).map((item: any) => (
+                                        {alerts.expiring.slice(0, 5).map((item: StockAlertItem) => (
                                             <span key={item.id} className="bg-white px-2 py-1 rounded text-xs font-medium text-red-700 border border-red-200">
-                                                {item.name} (Vence: {new Date(item.expiry_date).toLocaleDateString('es-PY')})
+                                                {item.name} (Vence: {item.expiry_date ? new Date(item.expiry_date).toLocaleDateString('es-PY') : 'N/A'})
                                             </span>
                                         ))}
                                     </div>

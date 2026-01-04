@@ -1,10 +1,12 @@
 'use client'
 
-import { Calendar as BigCalendar, Views } from 'react-big-calendar'
+import { useMemo, useCallback } from 'react'
+import { Calendar as BigCalendar, Views, type DateCellWrapperProps, type Components } from 'react-big-calendar'
 import type {
   CalendarEvent,
   CalendarView,
   CalendarEventType,
+  CalendarEventResource,
 } from '@/lib/types/calendar'
 
 import 'react-big-calendar/lib/css/react-big-calendar.css'
@@ -16,6 +18,28 @@ import { getEventStyle } from './calendar-styling'
 import { CalendarEventComponent } from './CalendarEvent'
 import { CalendarStyles } from './CalendarStyles'
 import { useCalendarState } from './useCalendarState'
+import {
+  ResourceHeader,
+  resourceAccessor,
+  resourceIdAccessor,
+  resourceTitleAccessor,
+  type CalendarResourceData,
+} from './calendar-resource-header'
+
+// Custom formats to hide time range inside event chips
+const CALENDAR_FORMATS = {
+  // Don't show time range in event - we show pet name instead
+  eventTimeRangeFormat: () => '',
+  // Time gutter format
+  timeGutterFormat: 'HH:mm',
+}
+
+// =============================================================================
+// TYPES
+// =============================================================================
+
+// Re-export the resource type for external use
+export type CalendarResource = CalendarResourceData
 
 // =============================================================================
 // COMPONENT PROPS
@@ -36,6 +60,10 @@ interface CalendarProps {
   maxTime?: Date
   selectable?: boolean
   className?: string
+  /** Enable resource view (columns by staff) - only works in day/week views */
+  resourceMode?: boolean
+  /** Staff resources for resource view */
+  resources?: CalendarResource[]
 }
 
 // =============================================================================
@@ -57,6 +85,8 @@ export function Calendar({
   maxTime,
   selectable = true,
   className = '',
+  resourceMode = false,
+  resources = [],
 }: CalendarProps) {
   // Use custom hook for state management
   const {
@@ -82,8 +112,237 @@ export function Calendar({
     selectable,
   })
 
+  // Custom title accessor - show pet name for appointments
+  const titleAccessor = useMemo(() => (event: CalendarEvent) => {
+    const resource = event.resource as CalendarEventResource | undefined
+    if (resource?.type === 'appointment' && resource.petName) {
+      return resource.petName
+    }
+    return event.title
+  }, [])
+
+  // Tooltip accessor - show full details on hover
+  const tooltipAccessor = useMemo(() => (event: CalendarEvent) => {
+    const resource = event.resource as CalendarEventResource | undefined
+    if (resource?.type === 'appointment') {
+      const parts = [resource.petName || event.title]
+      if (resource.reason) parts.push(resource.reason)
+      if (resource.ownerName) parts.push(`Dueño: ${resource.ownerName}`)
+      return parts.join('\n')
+    }
+    return event.title
+  }, [])
+
+  // Pre-compute daily event counts by type for O(1) lookup
+  // This runs once per filteredEvents change, not per cell
+  const dailyEventCounts = useMemo(() => {
+    const counts = new Map<string, Map<CalendarEventType, number>>()
+
+    for (const event of filteredEvents) {
+      const dateKey = event.start.toISOString().split('T')[0]
+      if (!counts.has(dateKey)) {
+        counts.set(dateKey, new Map())
+      }
+      const dayMap = counts.get(dateKey)!
+      const type = event.type || 'appointment'
+      dayMap.set(type, (dayMap.get(type) || 0) + 1)
+    }
+
+    return counts
+  }, [filteredEvents])
+
+  // Get total appointment count for capacity indicator
+  const getTotalAppointments = useCallback((dateKey: string): number => {
+    const dayMap = dailyEventCounts.get(dateKey)
+    return dayMap?.get('appointment') || 0
+  }, [dailyEventCounts])
+
+  // Capacity color helper - extracted to avoid recreation
+  const getCapacityColor = useCallback((count: number): string => {
+    if (count === 0) return 'transparent'
+    if (count <= 3) return 'var(--status-success, #22C55E)'      // Green (low)
+    if (count <= 6) return 'var(--status-warning, #F59E0B)'      // Amber (medium)
+    if (count <= 10) return 'var(--status-error, #EF4444)'       // Red (high)
+    return 'var(--status-error-dark, #DC2626)'                    // Dark red (overbooked)
+  }, [])
+
+  // Pre-compute daily event details for month view summary
+  const dailyEventDetails = useMemo(() => {
+    const details = new Map<string, {
+      appointments: Array<{ petName: string; time: string; service?: string }>
+      shifts: number
+      timeOff: Array<{ staffName: string }>
+      blocks: number
+      firstTime?: string
+      lastTime?: string
+    }>()
+
+    for (const event of filteredEvents) {
+      const dateKey = event.start.toISOString().split('T')[0]
+      if (!details.has(dateKey)) {
+        details.set(dateKey, { appointments: [], shifts: 0, timeOff: [], blocks: 0 })
+      }
+      const day = details.get(dateKey)!
+      const resource = event.resource as CalendarEventResource | undefined
+      const timeStr = event.start.toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' })
+
+      switch (event.type) {
+        case 'appointment':
+          day.appointments.push({
+            petName: resource?.petName || event.title.split(' - ')[0] || 'Mascota',
+            time: timeStr,
+            service: resource?.serviceName || resource?.reason,
+          })
+          // Track time range
+          if (!day.firstTime || timeStr < day.firstTime) day.firstTime = timeStr
+          if (!day.lastTime || timeStr > day.lastTime) day.lastTime = timeStr
+          break
+        case 'shift':
+          day.shifts++
+          break
+        case 'time_off':
+          day.timeOff.push({ staffName: resource?.staffName || 'Personal' })
+          break
+        case 'block':
+          day.blocks++
+          break
+      }
+    }
+
+    // Sort appointments by time
+    details.forEach(day => {
+      day.appointments.sort((a, b) => a.time.localeCompare(b.time))
+    })
+
+    return details
+  }, [filteredEvents])
+
+  // Custom date cell wrapper for month view - shows readable day summary
+  const DateCellWrapper = useCallback(({ value, children }: DateCellWrapperProps) => {
+    const dateKey = value.toISOString().split('T')[0]
+    const dayDetails = dailyEventDetails.get(dateKey)
+    const appointmentCount = dayDetails?.appointments.length || 0
+
+    const capacityWidth = Math.min((appointmentCount / 15) * 100, 100)
+    const capacityColor = getCapacityColor(appointmentCount)
+
+    // Get unique pet names (max 3 for display)
+    const petNames = dayDetails?.appointments.map(a => a.petName) || []
+    const uniquePets = [...new Set(petNames)]
+    const displayPets = uniquePets.slice(0, 3)
+    const morePets = uniquePets.length - 3
+
+    const hasEvents = dayDetails && (
+      dayDetails.appointments.length > 0 ||
+      dayDetails.shifts > 0 ||
+      dayDetails.timeOff.length > 0 ||
+      dayDetails.blocks > 0
+    )
+
+    return (
+      <div className="rbc-day-bg relative h-full flex flex-col">
+        {children}
+
+        {/* Readable day summary - only in month view */}
+        {currentView === 'month' && hasEvents && (
+          <div className="month-day-summary">
+            {/* Appointments section */}
+            {dayDetails.appointments.length > 0 && (
+              <div className="day-section appointments-section">
+                <div className="section-header">
+                  <span className="section-icon">🐾</span>
+                  <span className="section-count">{appointmentCount}</span>
+                  <span className="section-label">
+                    {appointmentCount === 1 ? 'cita' : 'citas'}
+                  </span>
+                </div>
+                {dayDetails.firstTime && (
+                  <div className="time-range">
+                    {dayDetails.firstTime}
+                    {dayDetails.lastTime && dayDetails.lastTime !== dayDetails.firstTime && (
+                      <> - {dayDetails.lastTime}</>
+                    )}
+                  </div>
+                )}
+                <div className="pet-names">
+                  {displayPets.join(', ')}
+                  {morePets > 0 && <span className="more-pets">+{morePets}</span>}
+                </div>
+              </div>
+            )}
+
+            {/* Staff time off */}
+            {dayDetails.timeOff.length > 0 && (
+              <div className="day-section timeoff-section">
+                <span className="section-icon">🏖️</span>
+                <span className="section-text">
+                  {dayDetails.timeOff.length === 1
+                    ? dayDetails.timeOff[0].staffName
+                    : `${dayDetails.timeOff.length} ausencias`
+                  }
+                </span>
+              </div>
+            )}
+
+            {/* Shifts */}
+            {dayDetails.shifts > 0 && (
+              <div className="day-section shifts-section">
+                <span className="section-icon">👤</span>
+                <span className="section-text">
+                  {dayDetails.shifts} {dayDetails.shifts === 1 ? 'turno' : 'turnos'}
+                </span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Capacity indicator bar at bottom of cell */}
+        {appointmentCount > 0 && (
+          <div
+            className="capacity-bar"
+            title={`${appointmentCount} cita${appointmentCount !== 1 ? 's' : ''} - ${
+              appointmentCount <= 3 ? 'Disponible' :
+              appointmentCount <= 6 ? 'Moderado' :
+              appointmentCount <= 10 ? 'Ocupado' : 'Muy ocupado'
+            }`}
+          >
+            <div
+              className="capacity-fill"
+              style={{
+                width: `${capacityWidth}%`,
+                backgroundColor: capacityColor,
+              }}
+            />
+          </div>
+        )}
+      </div>
+    )
+  }, [dailyEventDetails, getCapacityColor, currentView])
+
+  // Resource view only works in day/week views
+  const showResourceView = resourceMode && resources.length > 0 && (currentView === 'day' || currentView === 'week')
+
+  // Calendar components - add resource header when in resource mode
+  const calendarComponents = useMemo((): Components<CalendarEvent, CalendarResourceData> => ({
+    event: CalendarEventComponent,
+    dateCellWrapper: DateCellWrapper,
+    ...(showResourceView && {
+      resourceHeader: ResourceHeader,
+    }),
+  }), [DateCellWrapper, showResourceView])
+
+  // Resource-specific props
+  const resourceProps = showResourceView
+    ? {
+        resources,
+        resourceAccessor,
+        resourceIdAccessor,
+        resourceTitleAccessor,
+      }
+    : {}
+
   return (
-    <div className={`calendar-wrapper ${className}`}>
+    <div className={`calendar-wrapper ${showResourceView ? 'resource-mode' : ''} ${className}`}>
       <CalendarStyles />
       <BigCalendar
         localizer={calendarLocalizer}
@@ -98,9 +357,10 @@ export function Calendar({
         onRangeChange={handlers.handleRangeChange}
         selectable={selectable}
         eventPropGetter={getEventStyle}
-        components={{
-          event: CalendarEventComponent,
-        }}
+        titleAccessor={titleAccessor}
+        tooltipAccessor={tooltipAccessor}
+        formats={CALENDAR_FORMATS}
+        components={calendarComponents}
         messages={CALENDAR_MESSAGES}
         min={defaultMinTime}
         max={defaultMaxTime}
@@ -110,6 +370,7 @@ export function Calendar({
         popup
         showMultiDayTimes
         dayLayoutAlgorithm="no-overlap"
+        {...resourceProps}
       />
     </div>
   )

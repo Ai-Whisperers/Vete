@@ -26,7 +26,7 @@ interface Vaccine {
   name: string;
   administered_date: string;
   next_due_date: string | null;
-  status: 'verified' | 'pending' | 'rejected';
+  status: 'scheduled' | 'completed' | 'missed' | 'cancelled';
   pets: {
     id: string;
     name: string;
@@ -40,9 +40,10 @@ interface Vaccine {
 }
 
 const statusConfig = {
-  verified: { label: 'Verificada', bgColor: 'var(--status-success-bg)', textColor: 'var(--status-success-dark)', icon: CheckCircle2 },
-  pending: { label: 'Pendiente', bgColor: 'var(--status-warning-bg)', textColor: 'var(--status-warning-dark)', icon: Clock },
-  rejected: { label: 'Rechazada', bgColor: 'var(--status-error-bg)', textColor: 'var(--status-error-dark)', icon: AlertTriangle },
+  completed: { label: 'Verificada', bgColor: 'var(--status-success-bg)', textColor: 'var(--status-success-dark)', icon: CheckCircle2 },
+  scheduled: { label: 'Pendiente', bgColor: 'var(--status-warning-bg)', textColor: 'var(--status-warning-dark)', icon: Clock },
+  missed: { label: 'Perdida', bgColor: 'var(--status-error-bg)', textColor: 'var(--status-error-dark)', icon: AlertTriangle },
+  cancelled: { label: 'Cancelada', bgColor: 'var(--bg-subtle)', textColor: 'var(--text-muted)', icon: AlertTriangle },
 };
 
 export default async function VaccinesPage({ params, searchParams }: Props): Promise<React.ReactElement> {
@@ -196,7 +197,7 @@ export default async function VaccinesPage({ params, searchParams }: Props): Pro
             <span className="text-xs font-bold uppercase">Pendientes</span>
           </div>
           <p className="text-2xl font-black" style={{ color: "var(--status-info-dark)" }}>
-            {typedVaccines.filter((v) => v.status === 'pending').length}
+            {typedVaccines.filter((v) => v.status === 'scheduled').length}
           </p>
         </div>
         <div className="rounded-xl p-4" style={{ backgroundColor: "var(--status-success-bg)", border: "1px solid var(--status-success)" }}>
@@ -205,7 +206,7 @@ export default async function VaccinesPage({ params, searchParams }: Props): Pro
             <span className="text-xs font-bold uppercase">Verificadas</span>
           </div>
           <p className="text-2xl font-black" style={{ color: "var(--status-success-dark)" }}>
-            {typedVaccines.filter((v) => v.status === 'verified').length}
+            {typedVaccines.filter((v) => v.status === 'completed').length}
           </p>
         </div>
       </div>

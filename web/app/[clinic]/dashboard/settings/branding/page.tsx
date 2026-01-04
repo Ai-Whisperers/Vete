@@ -52,7 +52,10 @@ export default function BrandingSettingsPage(): React.ReactElement {
           setBranding(data);
         }
       } catch (error) {
-        console.error("Error fetching branding:", error);
+        // Client-side error logging - only in development
+        if (process.env.NODE_ENV === 'development') {
+          console.error("Error fetching branding:", error);
+        }
       } finally {
         setIsLoading(false);
       }
@@ -81,7 +84,10 @@ export default function BrandingSettingsPage(): React.ReactElement {
         setSaveStatus("error");
       }
     } catch (error) {
-      console.error("Error saving branding:", error);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Error saving branding:", error);
+      }
       setSaveStatus("error");
     } finally {
       setIsSaving(false);

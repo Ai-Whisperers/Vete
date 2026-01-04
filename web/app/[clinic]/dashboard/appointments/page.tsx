@@ -3,6 +3,7 @@ import { requireStaff } from '@/lib/auth'
 import { AppointmentQueue } from '@/components/dashboard/appointments/appointment-queue'
 import { DateFilter } from '@/components/dashboard/appointments/date-filter'
 import { StatusFilter } from '@/components/dashboard/appointments/status-filter'
+import { logger } from '@/lib/logger'
 import * as Icons from 'lucide-react'
 
 interface Props {
@@ -57,7 +58,7 @@ export default async function StaffAppointmentsPage({ params, searchParams }: Pr
 
   // Show error state if query failed
   if (error) {
-    console.error('Error fetching appointments:', error)
+    logger.error('Error fetching appointments', { error: error.message })
     return (
       <div className="p-6 max-w-7xl mx-auto">
         <div className="rounded-xl p-6 text-center" style={{ backgroundColor: "var(--status-error-bg)", border: "1px solid var(--status-error-light)" }}>

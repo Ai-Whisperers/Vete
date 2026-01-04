@@ -117,6 +117,7 @@ export function CartItem({ item, compact = false }: CartItemProps) {
                 type="button"
                 onClick={handleDecrement}
                 className="w-6 h-6 rounded bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+                aria-label="Disminuir cantidad"
               >
                 <Minus className="w-3 h-3" />
               </button>
@@ -128,6 +129,7 @@ export function CartItem({ item, compact = false }: CartItemProps) {
                 onClick={handleIncrement}
                 disabled={stockStatus?.atLimit}
                 className="w-6 h-6 rounded bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label="Aumentar cantidad"
               >
                 <Plus className="w-3 h-3" />
               </button>
@@ -247,6 +249,7 @@ export function CartItem({ item, compact = false }: CartItemProps) {
               type="button"
               onClick={handleDecrement}
               className="w-8 h-8 rounded-lg border border-gray-200 hover:border-[var(--primary)] hover:bg-[var(--primary)]/5 flex items-center justify-center transition-colors"
+              aria-label="Disminuir cantidad"
             >
               <Minus className="w-4 h-4" />
             </button>
@@ -258,6 +261,7 @@ export function CartItem({ item, compact = false }: CartItemProps) {
               onClick={handleIncrement}
               disabled={stockStatus?.atLimit}
               className="w-8 h-8 rounded-lg border border-gray-200 hover:border-[var(--primary)] hover:bg-[var(--primary)]/5 flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              aria-label="Aumentar cantidad"
             >
               <Plus className="w-4 h-4" />
             </button>

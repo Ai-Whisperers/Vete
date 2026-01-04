@@ -83,7 +83,10 @@ export default function EpidemiologyDashboard({ clinic, tenantId, diagnosisCodes
         setData(json.sort((a, b) => b.case_count - a.case_count));
       }
     } catch (e) {
-      console.error('Error fetching epidemiology data:', e);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error fetching epidemiology data:', e);
+      }
     } finally {
       setLoading(false);
     }
@@ -103,7 +106,10 @@ export default function EpidemiologyDashboard({ clinic, tenantId, diagnosisCodes
         setReports(json.data);
       }
     } catch (e) {
-      console.error('Error fetching reports:', e);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error fetching reports:', e);
+      }
     }
   };
 
@@ -141,7 +147,10 @@ export default function EpidemiologyDashboard({ clinic, tenantId, diagnosisCodes
         alert(json.error || 'Error al crear reporte');
       }
     } catch (e) {
-      console.error('Error submitting report:', e);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error submitting report:', e);
+      }
       alert('Error al crear reporte');
     } finally {
       setSubmitting(false);

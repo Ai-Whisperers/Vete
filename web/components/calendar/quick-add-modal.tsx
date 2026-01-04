@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 
@@ -71,6 +71,49 @@ export function QuickAddModal({
   const [error, setError] = useState('')
   const [petSearch, setPetSearch] = useState('')
 
+  // Conflict detection state
+  const [conflicts, setConflicts] = useState<Array<{ id: string; pet_name: string; start_time: string; end_time: string }>>([])
+  const [isCheckingAvailability, setIsCheckingAvailability] = useState(false)
+  const checkTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  // Check availability function
+  const checkAvailability = useCallback(async (start: string, end: string, vet?: string) => {
+    if (!slotInfo || !start || !end) return
+
+    setIsCheckingAvailability(true)
+    try {
+      const [startHours, startMinutes] = start.split(':').map(Number)
+      const [endHours, endMinutes] = end.split(':').map(Number)
+
+      const startDateTime = new Date(slotInfo.start)
+      startDateTime.setHours(startHours, startMinutes, 0, 0)
+
+      const endDateTime = new Date(slotInfo.start)
+      endDateTime.setHours(endHours, endMinutes, 0, 0)
+
+      if (endDateTime <= startDateTime) return
+
+      const response = await fetch('/api/calendar/check-availability', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          start_time: startDateTime.toISOString(),
+          end_time: endDateTime.toISOString(),
+          vet_id: vet || undefined,
+        }),
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setConflicts(data.conflicts || [])
+      }
+    } catch {
+      // Silently fail - conflicts won't prevent booking
+    } finally {
+      setIsCheckingAvailability(false)
+    }
+  }, [slotInfo])
+
   // Reset form when modal opens
   useEffect(() => {
     if (isOpen && slotInfo) {
@@ -81,10 +124,32 @@ export function QuickAddModal({
       setNotes('')
       setError('')
       setPetSearch('')
+      setConflicts([])
       setStartTime(format(slotInfo.start, 'HH:mm'))
       setEndTime(format(slotInfo.end, 'HH:mm'))
     }
   }, [isOpen, slotInfo])
+
+  // Debounced availability check when times or vet changes
+  useEffect(() => {
+    if (!isOpen || !slotInfo || !startTime || !endTime) return
+
+    // Clear previous timeout
+    if (checkTimeoutRef.current) {
+      clearTimeout(checkTimeoutRef.current)
+    }
+
+    // Debounce the check
+    checkTimeoutRef.current = setTimeout(() => {
+      checkAvailability(startTime, endTime, vetId)
+    }, 500)
+
+    return () => {
+      if (checkTimeoutRef.current) {
+        clearTimeout(checkTimeoutRef.current)
+      }
+    }
+  }, [isOpen, slotInfo, startTime, endTime, vetId, checkAvailability])
 
   // Update end time when service changes
   useEffect(() => {
@@ -200,6 +265,47 @@ export function QuickAddModal({
               {error && (
                 <div role="alert" aria-live="assertive" className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
                   {error}
+                </div>
+              )}
+
+              {/* Conflict warning */}
+              {conflicts.length > 0 && (
+                <div
+                  role="alert"
+                  aria-live="polite"
+                  className="p-3 bg-amber-50 border border-amber-200 rounded-lg"
+                >
+                  <div className="flex items-start gap-2">
+                    <svg className="w-5 h-5 text-amber-600 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    <div>
+                      <p className="text-sm font-medium text-amber-800">
+                        {conflicts.length} cita{conflicts.length !== 1 ? 's' : ''} en conflicto
+                      </p>
+                      <ul className="mt-1 text-xs text-amber-700 space-y-0.5">
+                        {conflicts.slice(0, 3).map(conflict => (
+                          <li key={conflict.id}>
+                            {conflict.pet_name} ({format(new Date(conflict.start_time), 'HH:mm')} - {format(new Date(conflict.end_time), 'HH:mm')})
+                          </li>
+                        ))}
+                        {conflicts.length > 3 && (
+                          <li className="text-amber-600">... y {conflicts.length - 3} más</li>
+                        )}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Availability check indicator */}
+              {isCheckingAvailability && (
+                <div className="flex items-center gap-2 text-xs text-gray-500">
+                  <svg className="animate-spin h-3 w-3" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  Verificando disponibilidad...
                 </div>
               )}
 
@@ -355,9 +461,32 @@ export function QuickAddModal({
               <button
                 type="submit"
                 disabled={isSaving || isLoading}
-                className="px-4 py-2 text-sm font-medium text-white rounded-lg hover:opacity-90 disabled:opacity-50"
+                className="px-4 py-2 text-sm font-medium text-white rounded-lg hover:opacity-90 disabled:opacity-50 inline-flex items-center gap-2"
                 style={{ backgroundColor: 'var(--primary, #3B82F6)' }}
               >
+                {(isSaving || isLoading) && (
+                  <svg
+                    className="animate-spin h-4 w-4"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    />
+                  </svg>
+                )}
                 {isSaving ? 'Guardando...' : 'Crear Cita'}
               </button>
             </div>

@@ -123,7 +123,10 @@ export default function ExpiringProductsClient({ clinic }: ExpiringProductsClien
       setProducts(data.products || []);
       setTotals(data.totals || {});
     } catch (err) {
-      console.error("Error fetching expiring products:", err);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Error fetching expiring products:", err);
+      }
       setError("Error al cargar los productos por vencer");
     } finally {
       setLoading(false);

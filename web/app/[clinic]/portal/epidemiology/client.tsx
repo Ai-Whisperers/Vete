@@ -15,6 +15,11 @@ interface HeatmapPoint {
     avg_severity: number;
 }
 
+interface ChartDataPoint {
+    name: string;
+    value: number;
+}
+
 export default function EpidemiologyPage({ params }: { params: { clinic: string } }) {
     const [data, setData] = useState<HeatmapPoint[]>([]);
     const [loading, setLoading] = useState(true);
@@ -36,11 +41,17 @@ export default function EpidemiologyPage({ params }: { params: { clinic: string 
                 if (Array.isArray(json)) {
                     setData(json.sort((a: HeatmapPoint, b: HeatmapPoint) => b.case_count - a.case_count));
                 } else {
-                    console.error('API Error:', json.error);
+                    // Client-side error logging - only in development
+                    if (process.env.NODE_ENV === 'development') {
+                        console.error('API Error:', json.error);
+                    }
                     setData([]);
                 }
             } catch (e) {
-                console.error('Error fetching epidemiology data:', e);
+                // Client-side error logging - only in development
+                if (process.env.NODE_ENV === 'development') {
+                    console.error('Error fetching epidemiology data:', e);
+                }
                 setData([]);
             } finally {
                 setLoading(false);
@@ -51,25 +62,25 @@ export default function EpidemiologyPage({ params }: { params: { clinic: string 
     }, [speciesFilter]);
 
     // Aggregate data for visualization
-    const locationData = data.reduce((acc: any, curr) => {
-        const existing = acc.find((x: any) => x.name === curr.location_zone);
+    const locationData: ChartDataPoint[] = data.reduce((acc: ChartDataPoint[], curr) => {
+        const existing = acc.find((x: ChartDataPoint) => x.name === curr.location_zone);
         if (existing) {
             existing.value += curr.case_count;
         } else {
             acc.push({ name: curr.location_zone, value: curr.case_count });
         }
         return acc;
-    }, []).sort((a: any, b: any) => b.value - a.value).slice(0, 10);
+    }, []).sort((a: ChartDataPoint, b: ChartDataPoint) => b.value - a.value).slice(0, 10);
 
-    const diagnosisData = data.reduce((acc: any, curr) => {
-        const existing = acc.find((x: any) => x.name === curr.diagnosis_name);
+    const diagnosisData: ChartDataPoint[] = data.reduce((acc: ChartDataPoint[], curr) => {
+        const existing = acc.find((x: ChartDataPoint) => x.name === curr.diagnosis_name);
         if (existing) {
             existing.value += curr.case_count;
         } else {
             acc.push({ name: curr.diagnosis_name, value: curr.case_count });
         }
         return acc;
-    }, []).sort((a: any, b: any) => b.value - a.value).slice(0, 10);
+    }, []).sort((a: ChartDataPoint, b: ChartDataPoint) => b.value - a.value).slice(0, 10);
 
     const downloadCSV = () => {
         const headers = ['Diagnóstico', 'Especie', 'Zona', 'Semana', 'Casos', 'Severidad Promedio'];
@@ -179,7 +190,7 @@ export default function EpidemiologyPage({ params }: { params: { clinic: string 
                                             contentStyle={{borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)'}}
                                         />
                                         <Bar dataKey="value" fill="var(--primary)" radius={[0, 4, 4, 0]}>
-                                            {diagnosisData.map((entry: any, index: number) => (
+                                            {diagnosisData.map((entry: ChartDataPoint, index: number) => (
                                                 <Cell key={`cell-${index}`} fill={index === 0 ? '#ef4444' : 'var(--primary)'} />
                                             ))}
                                         </Bar>

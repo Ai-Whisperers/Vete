@@ -244,6 +244,7 @@ export default function SearchAutocomplete({
               inputRef.current?.focus();
             }}
             className="absolute right-2 top-1/2 -translate-y-1/2 p-2 min-h-[40px] min-w-[40px] flex items-center justify-center hover:bg-gray-100 rounded-full"
+            aria-label="Limpiar busqueda"
           >
             <X className="w-4 h-4 text-gray-400" />
           </button>
@@ -380,6 +381,7 @@ export default function SearchAutocomplete({
                 <button
                   onClick={clearRecentSearches}
                   className="text-xs text-[var(--primary)] hover:underline"
+                  aria-label="Limpiar busquedas recientes"
                 >
                   Limpiar
                 </button>

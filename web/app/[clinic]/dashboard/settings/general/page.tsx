@@ -61,7 +61,10 @@ export default function GeneralSettingsPage(): React.ReactElement {
           });
         }
       } catch (error) {
-        console.error("Error fetching settings:", error);
+        // Client-side error logging - only in development
+        if (process.env.NODE_ENV === 'development') {
+          console.error("Error fetching settings:", error);
+        }
       } finally {
         setIsLoading(false);
       }
@@ -84,12 +87,18 @@ export default function GeneralSettingsPage(): React.ReactElement {
         setSaveStatus("success");
         setTimeout(() => setSaveStatus("idle"), 3000);
       } else {
-        const errData = await res.json();
-        console.error("Save error:", errData);
+        // Client-side error logging - only in development
+        if (process.env.NODE_ENV === 'development') {
+          const errData = await res.json();
+          console.error("Save error:", errData);
+        }
         setSaveStatus("error");
       }
     } catch (error) {
-      console.error("Error saving settings:", error);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Error saving settings:", error);
+      }
       setSaveStatus("error");
     }
   };

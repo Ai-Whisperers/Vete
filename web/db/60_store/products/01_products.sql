@@ -175,6 +175,16 @@ DROP POLICY IF EXISTS "Service role full access products" ON public.store_produc
 CREATE POLICY "Service role full access products" ON public.store_products
     FOR ALL TO service_role USING (true) WITH CHECK (true);
 
+-- Public can read active global catalog products (for store browsing without auth)
+DROP POLICY IF EXISTS "Public read products" ON public.store_products;
+CREATE POLICY "Public read products" ON public.store_products
+    FOR SELECT
+    USING (
+        is_active = true
+        AND deleted_at IS NULL
+        AND tenant_id IS NULL  -- Only global catalog
+    );
+
 -- Authenticated users can view products
 DROP POLICY IF EXISTS "Authenticated users view products" ON public.store_products;
 CREATE POLICY "Authenticated users view products" ON public.store_products

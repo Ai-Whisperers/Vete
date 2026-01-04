@@ -97,7 +97,10 @@ export function SubscriptionsClient({ clinic, initialSubscriptions }: Subscripti
 
       showFeedback('success', newStatus === 'paused' ? 'Suscripción pausada' : 'Suscripción reactivada');
     } catch (e) {
-      console.error('Error:', e);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error:', e);
+      }
       showFeedback('error', 'Error al actualizar suscripción');
     } finally {
       setLoadingId(null);
@@ -125,7 +128,10 @@ export function SubscriptionsClient({ clinic, initialSubscriptions }: Subscripti
 
       showFeedback('success', data.message);
     } catch (e) {
-      console.error('Error:', e);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error:', e);
+      }
       showFeedback('error', 'Error al saltar pedido');
     } finally {
       setLoadingId(null);
@@ -149,7 +155,10 @@ export function SubscriptionsClient({ clinic, initialSubscriptions }: Subscripti
       setSubscriptions(prev => prev.filter(s => s.id !== subscription.id));
       showFeedback('success', 'Suscripción cancelada');
     } catch (e) {
-      console.error('Error:', e);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error:', e);
+      }
       showFeedback('error', 'Error al cancelar suscripción');
     } finally {
       setLoadingId(null);
@@ -174,7 +183,10 @@ export function SubscriptionsClient({ clinic, initialSubscriptions }: Subscripti
 
       showFeedback('success', 'Frecuencia actualizada');
     } catch (e) {
-      console.error('Error:', e);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error:', e);
+      }
       showFeedback('error', 'Error al actualizar frecuencia');
     } finally {
       setLoadingId(null);
@@ -201,7 +213,10 @@ export function SubscriptionsClient({ clinic, initialSubscriptions }: Subscripti
 
       showFeedback('success', 'Cantidad actualizada');
     } catch (e) {
-      console.error('Error:', e);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error:', e);
+      }
       showFeedback('error', 'Error al actualizar cantidad');
     } finally {
       setLoadingId(null);

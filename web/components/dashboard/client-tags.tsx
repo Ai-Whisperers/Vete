@@ -113,7 +113,10 @@ export function ClientTags({
         onTagsChange?.(newTags);
       }
     } catch (error) {
-      console.error("Error adding tag:", error);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Error adding tag:", error);
+      }
     } finally {
       setIsSaving(false);
       setIsAdding(false);
@@ -135,7 +138,10 @@ export function ClientTags({
         onTagsChange?.(newTags);
       }
     } catch (error) {
-      console.error("Error removing tag:", error);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Error removing tag:", error);
+      }
     } finally {
       setIsSaving(false);
     }

@@ -1,6 +1,7 @@
 import { getClinicData } from '@/lib/clinics'
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
+import { logger } from '@/lib/logger'
 import {
   Bell,
   Syringe,
@@ -161,7 +162,7 @@ export default async function NotificationsPage({ params }: Props) {
     .order('created_at', { ascending: false })
 
   if (error) {
-    console.error('Error fetching notifications:', error)
+    logger.error('Error fetching notifications', { error: error.message })
   }
 
   const notificationsList = (notifications || []) as Notification[]

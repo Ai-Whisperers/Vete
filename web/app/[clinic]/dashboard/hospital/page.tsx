@@ -6,6 +6,29 @@ interface Props {
   params: Promise<{ clinic: string }>
 }
 
+type AcuityLevel = 'critical' | 'urgent' | 'routine';
+
+interface HospitalizationRaw {
+  id: string;
+  hospitalization_number: string;
+  hospitalization_type: string;
+  acuity_level: AcuityLevel;
+  admission_date: string;
+  status: string;
+  pets: { name: string; species: string } | { name: string; species: string }[];
+  kennels: { kennel_number: string; location: string } | { kennel_number: string; location: string }[] | null;
+}
+
+interface TransformedHospitalization {
+  id: string;
+  hospitalization_number: string;
+  hospitalization_type: string;
+  acuity_level: AcuityLevel;
+  admission_date: string;
+  pet: { name: string; species: string };
+  kennel: { kennel_number: string; location: string } | null;
+}
+
 export default async function HospitalPage({ params }: Props) {
   const { clinic } = await params
   const supabase = await createClient()
@@ -59,23 +82,29 @@ export default async function HospitalPage({ params }: Props) {
   const availableKennels = kennels?.filter(k => k.kennel_status === 'available').length || 0
 
   // Transform data
-  const transformedHospitalizations = (hospitalizations || []).map((h: any) => ({
-    id: h.id,
-    hospitalization_number: h.hospitalization_number,
-    hospitalization_type: h.hospitalization_type,
-    acuity_level: h.acuity_level,
-    admission_date: h.admission_date,
-    pet: Array.isArray(h.pets) ? h.pets[0] : h.pets,
-    kennel: Array.isArray(h.kennels) ? h.kennels[0] : h.kennels,
-  }))
+  const transformedHospitalizations: TransformedHospitalization[] = ((hospitalizations || []) as HospitalizationRaw[])
+    .filter((h: HospitalizationRaw) => {
+      // Ensure pet exists before including
+      const pet = Array.isArray(h.pets) ? h.pets[0] : h.pets;
+      return pet !== undefined && pet !== null;
+    })
+    .map((h: HospitalizationRaw) => ({
+      id: h.id,
+      hospitalization_number: h.hospitalization_number,
+      hospitalization_type: h.hospitalization_type,
+      acuity_level: h.acuity_level,
+      admission_date: h.admission_date,
+      pet: (Array.isArray(h.pets) ? h.pets[0] : h.pets) as { name: string; species: string },
+      kennel: Array.isArray(h.kennels) ? h.kennels[0] : h.kennels,
+    }))
 
   // Calculate stats
   const stats = {
     total_active: transformedHospitalizations.length,
     by_acuity: {
-      critical: transformedHospitalizations.filter((h: any) => h.acuity_level === 'critical').length,
-      urgent: transformedHospitalizations.filter((h: any) => h.acuity_level === 'urgent').length,
-      routine: transformedHospitalizations.filter((h: any) => h.acuity_level === 'routine').length,
+      critical: transformedHospitalizations.filter((h: TransformedHospitalization) => h.acuity_level === 'critical').length,
+      urgent: transformedHospitalizations.filter((h: TransformedHospitalization) => h.acuity_level === 'urgent').length,
+      routine: transformedHospitalizations.filter((h: TransformedHospitalization) => h.acuity_level === 'routine').length,
     },
     available_kennels: availableKennels,
   }

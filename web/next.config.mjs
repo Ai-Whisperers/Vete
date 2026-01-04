@@ -85,6 +85,19 @@ const nextConfig = {
 
   // Webpack optimizations for better performance
   webpack: (config, { dev, isServer }) => {
+    // Suppress known next-intl dynamic import parsing warnings
+    // These warnings are harmless - the package uses dynamic imports that webpack can't statically analyze
+    config.ignoreWarnings = [
+      ...(config.ignoreWarnings || []),
+      {
+        module: /next-intl/,
+        message: /Parsing of .* for build dependencies failed/,
+      },
+      {
+        message: /Serializing big strings/,
+      },
+    ];
+
     // Optimize webpack cache to reduce serialization warnings
     // Use Buffer for large strings to improve cache performance
     if (config.cache) {

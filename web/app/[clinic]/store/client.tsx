@@ -27,7 +27,7 @@ import type { ClinicConfig } from '@/lib/clinics';
 import type {
   ProductFilters,
   AvailableFilters,
-  StoreProductWithDetails,
+  ProductListItem,
   SortOption,
   ProductListResponse,
   Species,
@@ -98,7 +98,7 @@ function StorePageClient({ config, heroImage, initialProductData }: StorePageCli
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
   const [searchInput, setSearchInput] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
-  const [quickViewProduct, setQuickViewProduct] = useState<StoreProductWithDetails | null>(null);
+  const [quickViewProduct, setQuickViewProduct] = useState<ProductListItem | null>(null);
 
   const {
     data: productData,
@@ -242,7 +242,7 @@ function StorePageClient({ config, heroImage, initialProductData }: StorePageCli
     setPage(1);
   }, []);
 
-  const handleQuickView = useCallback((product: StoreProductWithDetails) => {
+  const handleQuickView = useCallback((product: ProductListItem) => {
     setQuickViewProduct(product);
   }, []);
 

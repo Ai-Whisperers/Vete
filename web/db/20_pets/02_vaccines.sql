@@ -182,17 +182,24 @@ DROP POLICY IF EXISTS "Service role full access templates" ON public.vaccine_tem
 CREATE POLICY "Service role full access templates" ON public.vaccine_templates
     FOR ALL TO service_role USING (true);
 
--- Vaccines: Staff manage, owners view (OPTIMIZED with direct tenant_id)
+-- Vaccines: Staff manage, owners view
 DROP POLICY IF EXISTS "Owners view pet vaccines" ON public.vaccines;
 CREATE POLICY "Owners view pet vaccines" ON public.vaccines
     FOR SELECT TO authenticated
     USING (public.is_owner_of_pet(pet_id) AND deleted_at IS NULL);
 
--- Temporarily disabled RLS policies for vaccines due to syntax issues
--- DROP POLICY IF EXISTS "Staff manage vaccines" ON public.vaccines;
--- CREATE POLICY "Staff manage vaccines" ON public.vaccines
---     FOR ALL TO authenticated
---     USING (administered_by_clinic IS NULL OR public.is_staff_of(administered_by_clinic)) AND deleted_at IS NULL;
+-- Staff manage vaccines for pets in their clinic
+DROP POLICY IF EXISTS "Staff manage vaccines" ON public.vaccines;
+CREATE POLICY "Staff manage vaccines" ON public.vaccines
+    FOR ALL TO authenticated
+    USING (
+        EXISTS (
+            SELECT 1 FROM public.pets p
+            WHERE p.id = vaccines.pet_id
+            AND public.is_staff_of(p.tenant_id)
+        )
+        AND deleted_at IS NULL
+    );
 
 DROP POLICY IF EXISTS "Service role full access vaccines" ON public.vaccines;
 CREATE POLICY "Service role full access vaccines" ON public.vaccines
@@ -204,11 +211,18 @@ CREATE POLICY "Owners view pet reactions" ON public.vaccine_reactions
     FOR SELECT TO authenticated
     USING (public.is_owner_of_pet(pet_id));
 
--- Temporarily disabled RLS policies for vaccine_reactions due to syntax issues
--- DROP POLICY IF EXISTS "Staff manage reactions" ON public.vaccine_reactions;
--- CREATE POLICY "Staff manage reactions" ON public.vaccine_reactions
---     FOR ALL TO authenticated
---     USING (EXISTS (SELECT 1 FROM public.vaccines v WHERE v.id = vaccine_id AND (v.administered_by_clinic IS NULL OR public.is_staff_of(v.administered_by_clinic))));
+-- Staff manage reactions for pets in their clinic
+-- Uses pet_id (NOT NULL) instead of vaccine_id (nullable) for reliability
+DROP POLICY IF EXISTS "Staff manage reactions" ON public.vaccine_reactions;
+CREATE POLICY "Staff manage reactions" ON public.vaccine_reactions
+    FOR ALL TO authenticated
+    USING (
+        EXISTS (
+            SELECT 1 FROM public.pets p
+            WHERE p.id = vaccine_reactions.pet_id
+            AND public.is_staff_of(p.tenant_id)
+        )
+    );
 
 DROP POLICY IF EXISTS "Service role full access reactions" ON public.vaccine_reactions;
 CREATE POLICY "Service role full access reactions" ON public.vaccine_reactions

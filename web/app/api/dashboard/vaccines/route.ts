@@ -36,6 +36,20 @@ export async function GET(request: Request) {
     const pastDate = new Date(today);
     pastDate.setDate(pastDate.getDate() - 30); // Include up to 30 days overdue
 
+    // First get pet IDs for this tenant
+    const { data: tenantPets } = await supabase
+      .from('pets')
+      .select('id')
+      .eq('tenant_id', profile.tenant_id)
+      .is('deleted_at', null);
+
+    const petIds = tenantPets?.map(p => p.id) || [];
+
+    if (petIds.length === 0) {
+      return NextResponse.json([]);
+    }
+
+    // Query vaccines for tenant's pets (vaccines table doesn't have tenant_id)
     const { data: vaccines, error } = await supabase
       .from('vaccines')
       .select(`
@@ -45,10 +59,11 @@ export async function GET(request: Request) {
           owner:profiles!pets_owner_id_fkey(id, full_name, phone)
         )
       `)
-      .eq('tenant_id', profile.tenant_id)
+      .in('pet_id', petIds)
       .gte('next_due_date', pastDate.toISOString())
       .lte('next_due_date', futureDate.toISOString())
       .not('next_due_date', 'is', null)
+      .is('deleted_at', null)
       .order('next_due_date', { ascending: true });
 
     if (error) throw error;

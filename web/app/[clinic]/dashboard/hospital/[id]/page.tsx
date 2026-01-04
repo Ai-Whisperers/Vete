@@ -154,7 +154,10 @@ export default function HospitalizationDetailPage({
       const data = await response.json();
       setHospitalization(data);
     } catch (error) {
-      console.error('Error fetching hospitalization:', error);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error fetching hospitalization:', error);
+      }
       alert('Error al cargar los datos de hospitalización');
     } finally {
       setLoading(false);
@@ -196,7 +199,10 @@ export default function HospitalizationDetailPage({
         router.push('/dashboard/hospital');
       }
     } catch (error) {
-      console.error('Error discharging patient:', error);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error discharging patient:', error);
+      }
       alert(error instanceof Error ? error.message : 'Error al dar de alta al paciente');
     } finally {
       setSaving(false);
@@ -232,7 +238,10 @@ export default function HospitalizationDetailPage({
         router.push(`/dashboard/invoices/${data.invoice.id}`);
       }
     } catch (error) {
-      console.error('Error generating invoice:', error);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error generating invoice:', error);
+      }
       alert(error instanceof Error ? error.message : 'Error al generar factura');
     } finally {
       setSaving(false);

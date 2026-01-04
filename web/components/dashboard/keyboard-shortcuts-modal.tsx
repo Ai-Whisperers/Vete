@@ -161,6 +161,7 @@ export function KeyboardShortcutsModal({
               <button
                 onClick={close}
                 className="p-2 rounded-lg bg-white/20 hover:bg-white/30 transition-colors"
+                aria-label="Cerrar"
               >
                 <X className="w-5 h-5 text-white" />
               </button>

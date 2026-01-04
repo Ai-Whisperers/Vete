@@ -108,7 +108,7 @@ function ClinicListItem({ clinic, isSelected, onClick }: {
       onClick={onClick}
       className={`w-full text-left p-4 rounded-xl transition-all ${
         isSelected
-          ? 'bg-[#2DCEA3]/10 border-2 border-[#2DCEA3]/30'
+          ? 'bg-[var(--primary)]/10 border-2 border-[var(--primary)]/30'
           : 'bg-white/5 border border-white/10 hover:border-white/20'
       }`}
     >
@@ -122,7 +122,7 @@ function ClinicListItem({ clinic, isSelected, onClick }: {
         </div>
         <div className="flex flex-col items-end gap-1">
           <div className="flex items-center gap-1">
-            <Star className="w-3 h-3 text-[#2DCEA3] fill-[#2DCEA3]" />
+            <Star className="w-3 h-3 text-[var(--primary)] fill-[var(--primary)]" />
             <span className="text-white text-sm font-bold">{clinic.rating}</span>
           </div>
           <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
@@ -160,7 +160,7 @@ function ClinicListItem({ clinic, isSelected, onClick }: {
 
 function ClinicDetailPanel({ clinic, onClose }: { clinic: ClinicLocation; onClose: () => void }) {
   return (
-    <div className="absolute inset-0 bg-[#0F172A]/95 backdrop-blur-sm z-20 p-4 overflow-y-auto">
+    <div className="absolute inset-0 bg-[var(--bg-dark)]/95 backdrop-blur-sm z-20 p-4 overflow-y-auto">
       <button
         onClick={onClose}
         className="absolute top-4 right-4 p-2 rounded-full bg-white/10 text-white/60 hover:bg-white/20 hover:text-white"
@@ -180,7 +180,7 @@ function ClinicDetailPanel({ clinic, onClose }: { clinic: ClinicLocation; onClos
           {[...Array(5)].map((_, i) => (
             <Star
               key={i}
-              className={`w-5 h-5 ${i < Math.floor(clinic.rating) ? 'text-[#2DCEA3] fill-[#2DCEA3]' : 'text-white/20'}`}
+              className={`w-5 h-5 ${i < Math.floor(clinic.rating) ? 'text-[var(--primary)] fill-[var(--primary)]' : 'text-white/20'}`}
             />
           ))}
           <span className="text-white font-bold">{clinic.rating}</span>
@@ -189,7 +189,7 @@ function ClinicDetailPanel({ clinic, onClose }: { clinic: ClinicLocation; onClos
         {/* Hours */}
         <div className="mb-6">
           <h4 className="text-white font-bold mb-2 flex items-center gap-2">
-            <Clock className="w-4 h-4 text-[#2DCEA3]" />
+            <Clock className="w-4 h-4 text-[var(--primary)]" />
             Horarios
           </h4>
           <div className="space-y-1 text-sm">
@@ -227,10 +227,10 @@ function ClinicDetailPanel({ clinic, onClose }: { clinic: ClinicLocation; onClos
         {/* Contact */}
         <div className="mb-6">
           <h4 className="text-white font-bold mb-2 flex items-center gap-2">
-            <Phone className="w-4 h-4 text-[#2DCEA3]" />
+            <Phone className="w-4 h-4 text-[var(--primary)]" />
             Contacto
           </h4>
-          <a href={`tel:${clinic.phone.replace(/\s/g, '')}`} className="text-[#2DCEA3] hover:underline">
+          <a href={`tel:${clinic.phone.replace(/\s/g, '')}`} className="text-[var(--primary)] hover:underline">
             {clinic.phone}
           </a>
         </div>
@@ -239,7 +239,7 @@ function ClinicDetailPanel({ clinic, onClose }: { clinic: ClinicLocation; onClos
         <div className="space-y-3">
           <Link
             href={`/${clinic.id}`}
-            className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-[#2DCEA3] to-[#00C9FF] text-[#0F172A] font-bold rounded-xl"
+            className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-[var(--primary)] to-[var(--accent)] text-[var(--bg-dark)] font-bold rounded-xl"
           >
             Visitar Sitio
             <ExternalLink className="w-4 h-4" />
@@ -289,11 +289,11 @@ export function NetworkMap() {
   const hasActiveFilters = searchQuery || selectedCity || selectedSpecialty;
 
   return (
-    <section id="mapa" className="py-20 md:py-28 bg-gradient-to-b from-[#0F172A] to-[#131B2E] relative overflow-hidden">
+    <section id="mapa" className="py-20 md:py-28 bg-gradient-to-b from-[var(--bg-dark)] to-[var(--bg-dark-alt)] relative overflow-hidden">
       <div className="container mx-auto px-4 md:px-6 relative z-10">
         {/* Section Header */}
         <div className="text-center mb-12">
-          <span className="inline-block text-[#2DCEA3] font-bold tracking-widest uppercase text-sm mb-3">
+          <span className="inline-block text-[var(--primary)] font-bold tracking-widest uppercase text-sm mb-3">
             Encuentra tu Veterinaria
           </span>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-white mb-6">
@@ -316,7 +316,7 @@ export function NetworkMap() {
                 placeholder="Buscar por nombre, ciudad o barrio..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/40 focus:border-[#2DCEA3]/50 focus:outline-none transition-all"
+                className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/40 focus:border-[var(--primary)]/50 focus:outline-none transition-all"
               />
             </div>
 
@@ -325,14 +325,14 @@ export function NetworkMap() {
               onClick={() => setShowFilters(!showFilters)}
               className={`flex items-center gap-2 px-4 py-3 rounded-xl border transition-all ${
                 showFilters || hasActiveFilters
-                  ? 'bg-[#2DCEA3]/10 border-[#2DCEA3]/30 text-[#2DCEA3]'
+                  ? 'bg-[var(--primary)]/10 border-[var(--primary)]/30 text-[var(--primary)]'
                   : 'bg-white/5 border-white/10 text-white/60 hover:border-white/20'
               }`}
             >
               <Filter className="w-5 h-5" />
               Filtros
               {hasActiveFilters && (
-                <span className="w-2 h-2 rounded-full bg-[#2DCEA3]" />
+                <span className="w-2 h-2 rounded-full bg-[var(--primary)]" />
               )}
               <ChevronDown className={`w-4 h-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
             </button>
@@ -348,7 +348,7 @@ export function NetworkMap() {
                   <select
                     value={selectedCity || ''}
                     onChange={(e) => setSelectedCity(e.target.value || null)}
-                    className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:border-[#2DCEA3]/50 focus:outline-none"
+                    className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:border-[var(--primary)]/50 focus:outline-none"
                   >
                     <option value="">Todas las ciudades</option>
                     {allCities.map(city => (
@@ -363,7 +363,7 @@ export function NetworkMap() {
                   <select
                     value={selectedSpecialty || ''}
                     onChange={(e) => setSelectedSpecialty(e.target.value || null)}
-                    className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:border-[#2DCEA3]/50 focus:outline-none"
+                    className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:border-[var(--primary)]/50 focus:outline-none"
                   >
                     <option value="">Todas las especialidades</option>
                     {allSpecialties.map(spec => (
@@ -412,7 +412,7 @@ export function NetworkMap() {
                   <p className="text-white/50">No se encontraron clinicas con esos criterios.</p>
                   <button
                     onClick={clearFilters}
-                    className="mt-4 text-[#2DCEA3] hover:underline"
+                    className="mt-4 text-[var(--primary)] hover:underline"
                   >
                     Limpiar filtros
                   </button>
@@ -458,19 +458,19 @@ export function NetworkMap() {
                         <div className={`relative ${selectedClinic?.id === clinic.id ? 'animate-pulse' : ''}`}>
                           <div className={`w-10 h-10 rounded-full flex items-center justify-center shadow-lg ${
                             selectedClinic?.id === clinic.id
-                              ? 'bg-[#2DCEA3]'
-                              : 'bg-[#5C6BFF]'
+                              ? 'bg-[var(--primary)]'
+                              : 'bg-[var(--secondary)]'
                           }`}>
                             <MapPin className="w-5 h-5 text-white" />
                           </div>
                           {/* Pulse effect */}
                           <div className={`absolute inset-0 rounded-full animate-ping opacity-20 ${
-                            selectedClinic?.id === clinic.id ? 'bg-[#2DCEA3]' : 'bg-[#5C6BFF]'
+                            selectedClinic?.id === clinic.id ? 'bg-[var(--primary)]' : 'bg-[var(--secondary)]'
                           }`} />
                         </div>
                         {/* Label */}
                         <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 whitespace-nowrap">
-                          <span className="px-2 py-1 bg-[#0F172A]/90 rounded text-white text-xs font-medium">
+                          <span className="px-2 py-1 bg-[var(--bg-dark)]/90 rounded text-white text-xs font-medium">
                             {clinic.name}
                           </span>
                         </div>
@@ -512,7 +512,7 @@ export function NetworkMap() {
                 href="https://www.google.com/maps/search/veterinaria+vetepy+paraguay"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-white/50 hover:text-[#2DCEA3] transition-colors text-sm"
+                className="inline-flex items-center gap-2 text-white/50 hover:text-[var(--primary)] transition-colors text-sm"
               >
                 <Navigation className="w-4 h-4" />
                 Ver en Google Maps

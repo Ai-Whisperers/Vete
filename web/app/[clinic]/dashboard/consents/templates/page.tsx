@@ -61,7 +61,10 @@ export default function TemplatesPage(): JSX.Element {
       const data = await response.json();
       setTemplates(data);
     } catch (error) {
-      console.error('Error fetching templates:', error);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error fetching templates:', error);
+      }
     } finally {
       setLoading(false);
     }
@@ -115,7 +118,10 @@ export default function TemplatesPage(): JSX.Element {
       // Clear feedback after 3 seconds
       setTimeout(() => setFeedback(null), 3000);
     } catch (error) {
-      console.error('Error saving template:', error);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error saving template:', error);
+      }
       setFeedback({
         type: 'error',
         message: error instanceof Error ? error.message : 'Error al guardar la plantilla'

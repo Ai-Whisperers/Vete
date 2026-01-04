@@ -2,6 +2,7 @@ import { getClinicData } from '@/lib/clinics'
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import { requireStaff } from '@/lib/auth'
+import { logger } from '@/lib/logger'
 import Link from 'next/link'
 import { Users, Search, Phone, Mail, PawPrint, UserPlus, Calendar, CheckCircle, AlertCircle } from 'lucide-react'
 import ClientSearch from './client-search'
@@ -23,6 +24,24 @@ interface Client {
   created_at: string
   pet_count: number
   last_visit: string | null
+}
+
+interface RawAppointment {
+  start_time: string;
+}
+
+interface RawPet {
+  id: string;
+  appointments: RawAppointment[];
+}
+
+interface RawClient {
+  id: string;
+  full_name: string | null;
+  email: string;
+  phone: string | null;
+  created_at: string;
+  pets: RawPet[];
 }
 
 export default async function ClientsPage({ params, searchParams }: Props) {
@@ -65,7 +84,7 @@ export default async function ClientsPage({ params, searchParams }: Props) {
   const { data: rawClients, error } = await query
 
   if (error) {
-    console.error('Error fetching clients:', error)
+    logger.error('Error fetching clients', { error: error.message })
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="rounded-lg p-4" style={{ backgroundColor: "var(--status-error-bg)", border: "1px solid var(--status-error-light)" }}>
@@ -76,16 +95,16 @@ export default async function ClientsPage({ params, searchParams }: Props) {
   }
 
   // Transform data to get pet count and last visit
-  const clients: Client[] = (rawClients || []).map((client: any) => {
+  const clients: Client[] = ((rawClients || []) as RawClient[]).map((client: RawClient) => {
     const pets = Array.isArray(client.pets) ? client.pets : []
     const petCount = pets.length
 
     // Collect all appointments from all pets and find the most recent
-    const allAppointments = pets.flatMap((pet: any) =>
+    const allAppointments: RawAppointment[] = pets.flatMap((pet: RawPet) =>
       Array.isArray(pet.appointments) ? pet.appointments : []
     )
     const lastVisit = allAppointments.length > 0
-      ? allAppointments.sort((a: any, b: any) =>
+      ? allAppointments.sort((a: RawAppointment, b: RawAppointment) =>
           new Date(b.start_time).getTime() - new Date(a.start_time).getTime()
         )[0]?.start_time
       : null

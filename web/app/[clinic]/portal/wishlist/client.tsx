@@ -93,7 +93,10 @@ export function WishlistClient({ clinic, initialProducts }: WishlistClientProps)
         setNotifiedIds(prev => new Set(prev).add(productId));
       }
     } catch (error) {
-      console.error("Error subscribing to stock alert:", error);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Error subscribing to stock alert:", error);
+      }
     } finally {
       setNotifyingIds(prev => {
         const next = new Set(prev);

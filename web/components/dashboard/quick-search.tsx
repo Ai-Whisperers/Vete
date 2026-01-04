@@ -24,29 +24,43 @@ interface SearchResult {
   subtitle?: string;
   species?: 'dog' | 'cat';
   href: string;
-  meta?: Record<string, any>;
+  meta?: Record<string, string | number | boolean>;
 }
 
 interface QuickSearchProps {
   clinic: string;
 }
 
+interface SearchPet {
+  id: string;
+  name: string;
+  species: 'dog' | 'cat';
+  owner_name?: string;
+}
+
+interface SearchClient {
+  id: string;
+  full_name: string;
+  email?: string;
+  phone?: string;
+}
+
 function ResultItem({ result, onSelect }: { result: SearchResult; onSelect: () => void }) {
   const typeConfig = {
     pet: {
       icon: result.species === 'cat' ? Cat : Dog,
-      color: 'text-purple-500',
-      bg: 'bg-purple-100',
+      color: 'text-[var(--primary)]',
+      bg: 'bg-[var(--primary)]/10',
     },
     client: {
       icon: User,
-      color: 'text-blue-500',
-      bg: 'bg-blue-100',
+      color: 'text-[var(--status-info)]',
+      bg: 'bg-[var(--status-info-bg)]',
     },
     appointment: {
       icon: Calendar,
-      color: 'text-emerald-500',
-      bg: 'bg-emerald-100',
+      color: 'text-[var(--status-success)]',
+      bg: 'bg-[var(--status-success-bg)]',
     },
   };
 
@@ -57,7 +71,7 @@ function ResultItem({ result, onSelect }: { result: SearchResult; onSelect: () =
     <Link
       href={result.href}
       onClick={onSelect}
-      className="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-xl transition-colors group"
+      className="flex items-center gap-3 p-3 hover:bg-[var(--bg-subtle)] rounded-xl transition-colors group"
     >
       <div className={`p-2 rounded-lg ${config.bg} ${config.color}`}>
         <Icon className="w-4 h-4" />
@@ -67,10 +81,10 @@ function ResultItem({ result, onSelect }: { result: SearchResult; onSelect: () =
           {result.title}
         </p>
         {result.subtitle && (
-          <p className="text-xs text-gray-500 truncate">{result.subtitle}</p>
+          <p className="text-xs text-[var(--text-muted)] truncate">{result.subtitle}</p>
         )}
       </div>
-      <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-[var(--primary)] group-hover:translate-x-0.5 transition-all" />
+      <ChevronRight className="w-4 h-4 text-[var(--text-muted)] group-hover:text-[var(--primary)] group-hover:translate-x-0.5 transition-all" />
     </Link>
   );
 }
@@ -127,19 +141,19 @@ export function QuickSearch({ clinic }: QuickSearchProps) {
           const searchResults: SearchResult[] = [];
 
           // Add pets
-          (data.pets || []).forEach((pet: any) => {
+          (data.pets || []).forEach((pet: SearchPet) => {
             searchResults.push({
               id: `pet-${pet.id}`,
               type: 'pet',
               title: pet.name,
-              subtitle: `${pet.species === 'dog' ? 'Perro' : 'Gato'} - ${pet.owner_name || 'Sin due\u00f1o'}`,
+              subtitle: `${pet.species === 'dog' ? 'Perro' : 'Gato'} - ${pet.owner_name || 'Sin dueño'}`,
               species: pet.species,
               href: `/${clinic}/dashboard/patients/${pet.id}`,
             });
           });
 
           // Add clients
-          (data.clients || []).forEach((client: any) => {
+          (data.clients || []).forEach((client: SearchClient) => {
             searchResults.push({
               id: `client-${client.id}`,
               type: 'client',
@@ -152,7 +166,10 @@ export function QuickSearch({ clinic }: QuickSearchProps) {
           setResults(searchResults);
         }
       } catch (error) {
-        console.error('Search error:', error);
+        // Client-side error logging - only in development
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Search error:', error);
+        }
       } finally {
         setLoading(false);
       }
@@ -211,9 +228,9 @@ export function QuickSearch({ clinic }: QuickSearchProps) {
       <div className="relative">
         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
           {loading ? (
-            <Loader2 className="w-5 h-5 text-gray-400 animate-spin" />
+            <Loader2 className="w-5 h-5 text-[var(--text-muted)] animate-spin" />
           ) : (
-            <Search className="w-5 h-5 text-gray-400" />
+            <Search className="w-5 h-5 text-[var(--text-muted)]" />
           )}
         </div>
         <input
@@ -223,18 +240,19 @@ export function QuickSearch({ clinic }: QuickSearchProps) {
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setIsOpen(true)}
           placeholder="Buscar mascotas, clientes..."
-          className="w-full pl-12 pr-24 py-3 bg-[var(--bg-subtle)] border border-gray-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/30 focus:border-[var(--primary)] transition-all placeholder:text-gray-400"
+          className="w-full pl-12 pr-24 py-3 bg-[var(--bg-subtle)] border border-[var(--border-light)] rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/30 focus:border-[var(--primary)] transition-all placeholder:text-[var(--text-muted)]"
         />
         <div className="absolute inset-y-0 right-0 pr-3 flex items-center gap-2">
           {query && (
             <button
               onClick={clearSearch}
-              className="p-1 hover:bg-gray-200 rounded-full transition-colors"
+              className="p-1 hover:bg-[var(--bg-subtle)] rounded-full transition-colors"
+              aria-label="Limpiar busqueda"
             >
-              <X className="w-4 h-4 text-gray-400" />
+              <X className="w-4 h-4 text-[var(--text-muted)]" />
             </button>
           )}
-          <kbd className="hidden sm:inline-flex items-center gap-1 px-2 py-1 bg-white border border-gray-200 rounded-lg text-xs text-gray-500 shadow-sm">
+          <kbd className="hidden sm:inline-flex items-center gap-1 px-2 py-1 bg-[var(--bg-paper)] border border-[var(--border-light)] rounded-lg text-xs text-[var(--text-muted)] shadow-sm">
             <span className="text-[10px]">Ctrl</span>
             <span>K</span>
           </kbd>
@@ -243,27 +261,27 @@ export function QuickSearch({ clinic }: QuickSearchProps) {
 
       {/* Results Dropdown */}
       {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden z-50">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-[var(--bg-paper)] rounded-2xl shadow-xl border border-[var(--border-light)] overflow-hidden z-50">
           {/* Results */}
           {query.length >= 2 && (
             <div className="max-h-[400px] overflow-y-auto">
               {loading ? (
                 <div className="p-6 text-center">
                   <Loader2 className="w-6 h-6 text-[var(--primary)] animate-spin mx-auto mb-2" />
-                  <p className="text-sm text-gray-500">Buscando...</p>
+                  <p className="text-sm text-[var(--text-muted)]">Buscando...</p>
                 </div>
               ) : results.length === 0 ? (
                 <div className="p-6 text-center">
-                  <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3">
-                    <Search className="w-6 h-6 text-gray-400" />
+                  <div className="w-12 h-12 rounded-full bg-[var(--bg-subtle)] flex items-center justify-center mx-auto mb-3">
+                    <Search className="w-6 h-6 text-[var(--text-muted)]" />
                   </div>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-[var(--text-muted)]">
                     No se encontraron resultados para &quot;{query}&quot;
                   </p>
                 </div>
               ) : (
                 <div className="p-2">
-                  <p className="text-xs text-gray-500 px-3 py-2 font-medium">
+                  <p className="text-xs text-[var(--text-muted)] px-3 py-2 font-medium">
                     {results.length} resultado{results.length !== 1 ? 's' : ''}
                   </p>
                   {results.map((result) => (
@@ -282,8 +300,8 @@ export function QuickSearch({ clinic }: QuickSearchProps) {
           {query.length < 2 && recentSearches.length > 0 && (
             <div className="p-2">
               <div className="flex items-center gap-2 px-3 py-2">
-                <History className="w-4 h-4 text-gray-400" />
-                <span className="text-xs text-gray-500 font-medium">B\u00fasquedas recientes</span>
+                <History className="w-4 h-4 text-[var(--text-muted)]" />
+                <span className="text-xs text-[var(--text-muted)] font-medium">Búsquedas recientes</span>
               </div>
               {recentSearches.map((result) => (
                 <ResultItem
@@ -302,9 +320,9 @@ export function QuickSearch({ clinic }: QuickSearchProps) {
                 <Sparkles className="w-6 h-6 text-[var(--primary)]" />
               </div>
               <p className="text-sm font-medium text-[var(--text-primary)] mb-1">
-                B\u00fasqueda r\u00e1pida
+                Búsqueda rápida
               </p>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-[var(--text-muted)]">
                 Escribe al menos 2 caracteres para buscar
               </p>
             </div>

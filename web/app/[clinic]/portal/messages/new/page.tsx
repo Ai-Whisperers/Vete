@@ -73,7 +73,8 @@ export default async function NewMessagePage({ params }: Props): Promise<React.R
       .single();
 
     if (convError || !conversation) {
-      console.error('Error creating conversation:', convError);
+      const { logger } = await import('@/lib/logger');
+      logger.error('Error creating conversation', { error: convError?.message });
       return;
     }
 

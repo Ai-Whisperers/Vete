@@ -270,7 +270,10 @@ export default function OrdersClient({ clinic }: OrdersClientProps): React.React
       setSummary(data.summary || {});
       setPagination(data.pagination);
     } catch (err) {
-      console.error("Error fetching orders:", err);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Error fetching orders:", err);
+      }
       setError("Error al cargar los pedidos");
     } finally {
       setLoading(false);
@@ -294,7 +297,10 @@ export default function OrdersClient({ clinic }: OrdersClientProps): React.React
       setOrderItems(data.items || []);
       setShowDetail(true);
     } catch (err) {
-      console.error("Error fetching order details:", err);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Error fetching order details:", err);
+      }
       setError("Error al cargar detalles del pedido");
     }
   };
@@ -326,7 +332,10 @@ export default function OrdersClient({ clinic }: OrdersClientProps): React.React
         setSelectedOrder(data.order);
       }
     } catch (err) {
-      console.error("Error updating order:", err);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Error updating order:", err);
+      }
       setError("Error al actualizar el pedido");
     } finally {
       setUpdating(false);

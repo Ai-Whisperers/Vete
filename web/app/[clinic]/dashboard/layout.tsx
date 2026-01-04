@@ -1,20 +1,47 @@
-"use client";
+import { getClinicData } from "@/lib/clinics";
+import { notFound } from "next/navigation";
+import { requireStaff } from "@/lib/auth";
+import { DashboardShell } from "@/components/dashboard/dashboard-shell";
+import { DashboardProviders } from "./providers";
 
-import { CommandPaletteProvider } from "@/components/search/command-palette-provider";
+interface DashboardLayoutProps {
+  children: React.ReactNode;
+  params: Promise<{ clinic: string }>;
+}
 
 /**
- * Dashboard Layout - Adds command palette for staff members
- * This keeps the Cmd+K functionality scoped to dashboard pages only,
- * avoiding unnecessary keyboard listeners on public pages.
+ * Dashboard Layout - Server component that provides the dashboard shell
+ *
+ * This layout:
+ * 1. Requires staff authentication (vet/admin only)
+ * 2. Provides the sidebar navigation
+ * 3. Provides keyboard shortcuts and command palette
+ * 4. Removes the public website header/footer (handled by parent layout)
  */
-export default function DashboardLayout({
+export default async function DashboardLayout({
   children,
-}: {
-  children: React.ReactNode;
-}) {
+  params,
+}: DashboardLayoutProps) {
+  const { clinic } = await params;
+
+  // Require staff authentication
+  const { isAdmin } = await requireStaff(clinic);
+
+  // Get clinic data for the shell
+  const clinicData = await getClinicData(clinic);
+  if (!clinicData) {
+    notFound();
+  }
+
   return (
-    <CommandPaletteProvider>
-      {children}
-    </CommandPaletteProvider>
+    <DashboardProviders>
+      <DashboardShell
+        clinic={clinic}
+        clinicName={clinicData.config.name}
+        isAdmin={isAdmin}
+      >
+        {children}
+      </DashboardShell>
+    </DashboardProviders>
   );
 }

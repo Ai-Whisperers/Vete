@@ -6,10 +6,7 @@ import {
   Users,
   FileText,
   Plus,
-  ChevronRight,
   CalendarClock,
-  Clock,
-  Settings,
 } from "lucide-react";
 import { StatsCards } from "@/components/dashboard/stats-cards";
 import { TodayScheduleWidget } from "@/components/dashboard/today-schedule-widget";
@@ -136,70 +133,8 @@ export default async function ClinicalDashboardPage({ params }: Props): Promise<
 
           {/* Lost & Found Widget */}
           <LostFoundWidget />
-
-          {/* Quick Links */}
-          <div className="card-base overflow-hidden">
-            <div className="card-header">
-              <Clock className="w-5 h-5 text-[var(--primary)]" />
-              <h3 className="card-header-title">Accesos Rápidos</h3>
-            </div>
-            <div className="card-body-sm space-y-1">
-              <QuickLinkItem
-                href={`/${clinic}/dashboard/calendar`}
-                label="Calendario Completo"
-              />
-              <QuickLinkItem
-                href={`/${clinic}/dashboard/patients`}
-                label="Todos los Pacientes"
-              />
-              <QuickLinkItem
-                href={`/${clinic}/dashboard/consents`}
-                label="Consentimientos"
-              />
-              <QuickLinkItem
-                href={`/${clinic}/dashboard/whatsapp`}
-                label="WhatsApp"
-              />
-              {isAdmin && (
-                <>
-                  <QuickLinkItem
-                    href={`/${clinic}/dashboard/schedules`}
-                    label="Horarios del Equipo"
-                  />
-                  <QuickLinkItem
-                    href={`/${clinic}/dashboard/settings`}
-                    label="Configuraci\u00f3n"
-                    icon={<Settings className="w-4 h-4" />}
-                  />
-                </>
-              )}
-            </div>
-          </div>
         </div>
       </div>
     </div>
-  );
-}
-
-// Quick Link Item Component
-function QuickLinkItem({
-  href,
-  label,
-  icon,
-}: {
-  href: string;
-  label: string;
-  icon?: React.ReactNode;
-}) {
-  return (
-    <Link href={href} className="list-item justify-between group">
-      <div className="flex items-center gap-2">
-        {icon && <span className="text-[var(--text-muted)]">{icon}</span>}
-        <span className="text-sm font-medium text-[var(--text-primary)] group-hover:text-[var(--primary)] transition-colors">
-          {label}
-        </span>
-      </div>
-      <ChevronRight className="w-4 h-4 text-[var(--text-muted)] group-hover:text-[var(--primary)] group-hover:translate-x-0.5 transition-all" />
-    </Link>
   );
 }

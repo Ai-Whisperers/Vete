@@ -51,7 +51,10 @@ export default function BuyAgainSection({ maxItems = 4 }: BuyAgainSectionProps) 
         const data = await res.json();
         setProducts(data.products || []);
       } catch (e) {
-        console.error('Error fetching reorder suggestions:', e);
+        // Client-side error logging - only in development
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Error fetching reorder suggestions:', e);
+        }
         setError(e instanceof Error ? e.message : 'Error');
       } finally {
         setLoading(false);
@@ -85,7 +88,10 @@ export default function BuyAgainSection({ maxItems = 4 }: BuyAgainSectionProps) 
         }, 2000);
       }
     } catch (e) {
-      console.error('Error adding to cart:', e);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error adding to cart:', e);
+      }
     } finally {
       setAddingId(null);
     }
@@ -192,6 +198,7 @@ export default function BuyAgainSection({ maxItems = 4 }: BuyAgainSectionProps) 
                       : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                   }`}
                   title={product.is_available ? 'Agregar al carrito' : 'Sin stock'}
+                  aria-label={product.is_available ? `Agregar ${product.name} al carrito` : `${product.name} sin stock`}
                 >
                   {addingId === product.id ? (
                     <Loader2 className="w-4 h-4 animate-spin" />

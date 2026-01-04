@@ -174,7 +174,8 @@ export default async function NewStaffAppointmentPage({ params, searchParams }: 
     });
 
     if (error) {
-      console.error('Error creating appointment:', error);
+      const { logger } = await import('@/lib/logger');
+      logger.error('Error creating appointment', { error: error.message });
       return;
     }
 

@@ -109,12 +109,12 @@ export function BottomNavigation({ clinic }: BottomNavigationProps): React.React
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
               className="fixed bottom-24 left-0 right-0 z-50 px-4 lg:hidden"
             >
-              <div className="bg-white rounded-3xl shadow-2xl p-4 max-w-sm mx-auto">
+              <div className="bg-[var(--bg-paper)] rounded-3xl shadow-2xl p-4 max-w-sm mx-auto">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-bold text-gray-900">Acciones rápidas</h3>
+                  <h3 className="font-bold text-[var(--text-primary)]">Acciones rápidas</h3>
                   <button
                     onClick={() => setShowQuickActions(false)}
-                    className="p-1 text-gray-400 hover:text-gray-600"
+                    className="p-1 text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
                   >
                     <X className="w-5 h-5" />
                   </button>
@@ -127,14 +127,14 @@ export function BottomNavigation({ clinic }: BottomNavigationProps): React.React
                         key={action.label}
                         href={action.href}
                         onClick={() => setShowQuickActions(false)}
-                        className="flex items-center gap-3 p-3 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-colors"
+                        className="flex items-center gap-3 p-3 bg-[var(--bg-subtle)] rounded-2xl hover:bg-[var(--bg-subtle)]/80 transition-colors"
                       >
                         <span
                           className={`w-10 h-10 ${action.color} rounded-xl flex items-center justify-center text-white`}
                         >
                           <Icon className="w-5 h-5" />
                         </span>
-                        <span className="font-medium text-gray-900 text-sm">
+                        <span className="font-medium text-[var(--text-primary)] text-sm">
                           {action.label}
                         </span>
                       </Link>
@@ -149,7 +149,7 @@ export function BottomNavigation({ clinic }: BottomNavigationProps): React.React
 
       {/* Bottom Navigation Bar */}
       <nav className="fixed bottom-0 left-0 right-0 z-30 lg:hidden">
-        <div className="bg-white border-t border-gray-200 px-2 pb-safe">
+        <div className="bg-[var(--bg-paper)] border-t border-[var(--border-light)] px-2 pb-safe">
           <div className="flex items-center justify-around h-16">
             {navItems.map((item, index) => {
               // Center button (FAB)
@@ -179,7 +179,7 @@ export function BottomNavigation({ clinic }: BottomNavigationProps): React.React
                   className={`flex flex-col items-center justify-center w-16 h-full transition-colors ${
                     active
                       ? "text-[var(--primary)]"
-                      : "text-gray-400 hover:text-gray-600"
+                      : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
                   }`}
                 >
                   <Icon className={`w-5 h-5 ${active ? "stroke-[2.5]" : ""}`} />

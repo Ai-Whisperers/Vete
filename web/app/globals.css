@@ -6,36 +6,203 @@
   --background: #ffffff;
   --foreground: #171717;
 
-  /* Base colors (overridden by clinic themes) */
+  /* ========================================
+   * COMPREHENSIVE DESIGN SYSTEM TOKENS
+   * ======================================== */
+
+  /* ----------------------------------------
+   * 1. PRIMARY & SECONDARY COLORS
+   * (Overridden by clinic themes)
+   * ---------------------------------------- */
+  --primary: #2F5233;
+  --primary-light: #4E7C54;
+  --primary-dark: #1A331D;
+  --primary-contrast: #ffffff;
+  --primary-50: #f0f7f1;
+  --primary-100: #dcece0;
+  --primary-200: #b9d9c1;
+  --primary-300: #8fc09b;
+  --primary-400: #5ea170;
+  --primary-500: #2F5233;
+  --primary-600: #2a4a2e;
+  --primary-700: #1f3822;
+  --primary-800: #152617;
+  --primary-900: #0a130b;
+  /* RGB for opacity manipulation */
+  --primary-rgb: 47, 82, 51;
+
+  --secondary: #F0C808;
+  --secondary-light: #F5D74D;
+  --secondary-dark: #B39506;
+  --secondary-contrast: #1A331D;
+  --secondary-50: #fffbeb;
+  --secondary-100: #fef3c7;
+  --secondary-200: #fde68a;
+  --secondary-300: #fcd34d;
+  --secondary-400: #fbbf24;
+  --secondary-500: #F0C808;
+  --secondary-600: #d97706;
+  --secondary-700: #b45309;
+  --secondary-800: #92400e;
+  --secondary-900: #78350f;
+  --secondary-rgb: 240, 200, 8;
+
+  /* ----------------------------------------
+   * 2. NEUTRAL/GRAY PALETTE
+   * Complete gray scale for consistent UI
+   * ---------------------------------------- */
+  --neutral-50: #fafafa;
+  --neutral-100: #f4f4f5;
+  --neutral-200: #e4e4e7;
+  --neutral-300: #d4d4d8;
+  --neutral-400: #a1a1aa;
+  --neutral-500: #71717a;
+  --neutral-600: #52525b;
+  --neutral-700: #3f3f46;
+  --neutral-800: #27272a;
+  --neutral-900: #18181b;
+  --neutral-950: #09090b;
+
+  /* Slate (cooler gray) for backgrounds */
+  --slate-50: #f8fafc;
+  --slate-100: #f1f5f9;
+  --slate-200: #e2e8f0;
+  --slate-300: #cbd5e1;
+  --slate-400: #94a3b8;
+  --slate-500: #64748b;
+  --slate-600: #475569;
+  --slate-700: #334155;
+  --slate-800: #1e293b;
+  --slate-900: #0f172a;
+  --slate-950: #020617;
+
+  /* ----------------------------------------
+   * 3. BACKGROUND COLORS
+   * Surface colors for elevation and layering
+   * ---------------------------------------- */
   --bg-default: #ffffff;
   --bg-paper: #ffffff;
   --bg-subtle: #f9fafb;
+  --bg-muted: #f3f4f6;
   --bg-inverse: #1f2937;
-  /* IMPROVED CONTRAST: Darkened text colors for better readability */
-  --text-primary: #111827;      /* Near black - headings, important text */
-  --text-secondary: #374151;    /* Dark grey - body text (was #4b5563) */
-  --text-muted: #6b7280;        /* Medium grey - captions, hints (was #9ca3af) */
-  --text-inverse: #ffffff;
-  --border: #e5e7eb;
+  --bg-dark: #111827;
+  --bg-darker: #030712;
+
+  /* Elevated surfaces (cards, modals) */
+  --surface-0: #ffffff;         /* Base level */
+  --surface-1: #ffffff;         /* Cards */
+  --surface-2: #fafafa;         /* Nested cards */
+  --surface-3: #f5f5f5;         /* Deeply nested */
+  --surface-raised: #ffffff;    /* Dropdowns, popovers */
+  --surface-overlay: #ffffff;   /* Modals */
+  --surface-sunken: #f3f4f6;    /* Inset areas */
+
+  /* ----------------------------------------
+   * 4. TEXT COLORS
+   * Semantic text colors with proper contrast
+   * ---------------------------------------- */
+  --text-primary: #111827;      /* Near black - headings */
+  --text-secondary: #374151;    /* Dark grey - body text */
+  --text-tertiary: #6b7280;     /* Medium grey - less emphasis */
+  --text-muted: #9ca3af;        /* Light grey - hints, captions */
+  --text-placeholder: #9ca3af;  /* Placeholder text */
+  --text-disabled: #d1d5db;     /* Disabled state */
+  --text-inverse: #ffffff;      /* On dark backgrounds */
+  --text-on-primary: #ffffff;   /* Text on primary color */
+  --text-on-secondary: #1A331D; /* Text on secondary color */
+
+  /* Link colors */
+  --link-default: #2563eb;
+  --link-hover: #1d4ed8;
+  --link-visited: #7c3aed;
+  --link-active: #1e40af;
+
+  /* ----------------------------------------
+   * 5. BORDER COLORS
+   * Consistent borders throughout the UI
+   * ---------------------------------------- */
+  --border-default: #e5e7eb;
   --border-light: #f3f4f6;
   --border-strong: #d1d5db;
+  --border-muted: #e5e7eb;
+  --border-inverse: #374151;
+  --border-focus: var(--primary);
+  --border-error: #ef4444;
+  --border-success: #22c55e;
+  --border-warning: #f59e0b;
+  /* Backwards compatibility */
+  --border: #e5e7eb;
 
-  /* Status colors */
+  /* ----------------------------------------
+   * 6. STATUS/SEMANTIC COLORS
+   * Success, warning, error, info with variants
+   * ---------------------------------------- */
+  /* Success */
   --status-success: #22c55e;
-  --status-success-bg: #dcfce7;
+  --status-success-light: #86efac;
   --status-success-dark: #15803d;
-  --status-warning: #eab308;
+  --status-success-bg: #dcfce7;
+  --status-success-border: #bbf7d0;
+  --status-success-text: #166534;
+  --success: #22c55e;
+  --success-rgb: 34, 197, 94;
+
+  /* Warning */
+  --status-warning: #f59e0b;
+  --status-warning-light: #fcd34d;
+  --status-warning-dark: #d97706;
   --status-warning-bg: #fef3c7;
-  --status-warning-dark: #ca8a04;
+  --status-warning-border: #fde68a;
+  --status-warning-text: #92400e;
+  --warning: #f59e0b;
+  --warning-rgb: 245, 158, 11;
+
+  /* Error/Danger */
   --status-error: #ef4444;
-  --status-error-bg: #fee2e2;
   --status-error-light: #fca5a5;
   --status-error-dark: #dc2626;
-  --status-info: #3b82f6;
-  --status-info-bg: #dbeafe;
-  --status-info-dark: #2563eb;
+  --status-error-bg: #fee2e2;
+  --status-error-border: #fecaca;
+  --status-error-text: #991b1b;
+  --error: #ef4444;
+  --danger: #ef4444;
+  --error-rgb: 239, 68, 68;
 
-  /* Chart color palette - for data visualization */
+  /* Info */
+  --status-info: #3b82f6;
+  --status-info-light: #93c5fd;
+  --status-info-dark: #2563eb;
+  --status-info-bg: #dbeafe;
+  --status-info-border: #bfdbfe;
+  --status-info-text: #1e40af;
+  --info: #3b82f6;
+  --info-rgb: 59, 130, 246;
+
+  /* ----------------------------------------
+   * 7. INTERACTIVE STATE COLORS
+   * Hover, active, focus, disabled states
+   * ---------------------------------------- */
+  --hover-bg: rgba(0, 0, 0, 0.04);
+  --hover-bg-dark: rgba(255, 255, 255, 0.08);
+  --active-bg: rgba(0, 0, 0, 0.08);
+  --active-bg-dark: rgba(255, 255, 255, 0.12);
+  --focus-ring: var(--primary);
+  --focus-ring-offset: 2px;
+  --disabled-bg: #f3f4f6;
+  --disabled-text: #9ca3af;
+  --disabled-border: #e5e7eb;
+
+  /* Selected/Highlighted states */
+  --selected-bg: rgba(47, 82, 51, 0.08);
+  --selected-bg-strong: rgba(47, 82, 51, 0.16);
+  --selected-border: var(--primary);
+  --highlight-bg: #fef9c3;
+  --highlight-text: #854d0e;
+
+  /* ----------------------------------------
+   * 8. CHART & DATA VISUALIZATION
+   * 12-color palette for charts and graphs
+   * ---------------------------------------- */
   --chart-1: #3b82f6;  /* Blue */
   --chart-2: #22c55e;  /* Green */
   --chart-3: #f59e0b;  /* Amber */
@@ -44,55 +211,297 @@
   --chart-6: #ec4899;  /* Pink */
   --chart-7: #06b6d4;  /* Cyan */
   --chart-8: #84cc16;  /* Lime */
+  --chart-9: #f97316;  /* Orange */
+  --chart-10: #14b8a6; /* Teal */
+  --chart-11: #6366f1; /* Indigo */
+  --chart-12: #a855f7; /* Violet */
 
-  /* Dashboard accent colors - for stat cards and highlights */
+  /* ----------------------------------------
+   * 9. ACCENT COLORS
+   * For stat cards, tags, and highlights
+   * ---------------------------------------- */
+  /* Blue */
   --accent-blue: #3b82f6;
   --accent-blue-light: #dbeafe;
   --accent-blue-dark: #1d4ed8;
+  --accent-blue-rgb: 59, 130, 246;
+
+  /* Green */
   --accent-green: #22c55e;
   --accent-green-light: #dcfce7;
   --accent-green-dark: #15803d;
+  --accent-green-rgb: 34, 197, 94;
+
+  /* Purple */
   --accent-purple: #8b5cf6;
   --accent-purple-light: #ede9fe;
   --accent-purple-dark: #6d28d9;
+  --accent-purple-rgb: 139, 92, 246;
+
+  /* Orange */
   --accent-orange: #f97316;
   --accent-orange-light: #ffedd5;
   --accent-orange-dark: #c2410c;
+  --accent-orange-rgb: 249, 115, 22;
+
+  /* Cyan */
   --accent-cyan: #06b6d4;
   --accent-cyan-light: #cffafe;
   --accent-cyan-dark: #0891b2;
+  --accent-cyan-rgb: 6, 182, 212;
+
+  /* Pink */
   --accent-pink: #ec4899;
   --accent-pink-light: #fce7f3;
   --accent-pink-dark: #be185d;
+  --accent-pink-rgb: 236, 72, 153;
 
-  /* Dashboard gradients */
+  /* Teal */
+  --accent-teal: #14b8a6;
+  --accent-teal-light: #ccfbf1;
+  --accent-teal-dark: #0f766e;
+  --accent-teal-rgb: 20, 184, 166;
+
+  /* Indigo */
+  --accent-indigo: #6366f1;
+  --accent-indigo-light: #e0e7ff;
+  --accent-indigo-dark: #4338ca;
+  --accent-indigo-rgb: 99, 102, 241;
+
+  /* Rose */
+  --accent-rose: #f43f5e;
+  --accent-rose-light: #ffe4e6;
+  --accent-rose-dark: #be123c;
+  --accent-rose-rgb: 244, 63, 94;
+
+  /* Amber */
+  --accent-amber: #f59e0b;
+  --accent-amber-light: #fef3c7;
+  --accent-amber-dark: #b45309;
+  --accent-amber-rgb: 245, 158, 11;
+
+  /* ----------------------------------------
+   * 10. GRADIENTS
+   * Pre-defined gradients for UI elements
+   * ---------------------------------------- */
+  /* Directional gradients */
   --gradient-blue: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
   --gradient-green: linear-gradient(135deg, #22c55e 0%, #15803d 100%);
   --gradient-purple: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
   --gradient-orange: linear-gradient(135deg, #f97316 0%, #c2410c 100%);
+  --gradient-pink: linear-gradient(135deg, #ec4899 0%, #be185d 100%);
+  --gradient-cyan: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+  --gradient-teal: linear-gradient(135deg, #14b8a6 0%, #0f766e 100%);
+  --gradient-indigo: linear-gradient(135deg, #6366f1 0%, #4338ca 100%);
 
-  /* Spacing system */
+  /* Brand gradients (overridden by clinic themes) */
+  --gradient-hero: linear-gradient(135deg, #2F5233 0%, #1A331D 100%);
+  --gradient-primary: linear-gradient(135deg, #4E7C54 0%, #2F5233 100%);
+  --gradient-accent: linear-gradient(135deg, #F0C808 0%, #F5D74D 100%);
+  --gradient-dark: linear-gradient(180deg, #1f2937 0%, #111827 100%);
+  --gradient-card: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+
+  /* Special gradients */
+  --gradient-shimmer: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%);
+  --gradient-glass: linear-gradient(145deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.7) 100%);
+  --gradient-dark-overlay: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.6) 100%);
+  --gradient-light-overlay: linear-gradient(180deg, rgba(255,255,255,0.8) 0%, transparent 100%);
+
+  /* ----------------------------------------
+   * 11. OVERLAY & BACKDROP COLORS
+   * For modals, dialogs, and popovers
+   * ---------------------------------------- */
+  --overlay-light: rgba(255, 255, 255, 0.8);
+  --overlay-dark: rgba(0, 0, 0, 0.5);
+  --overlay-darker: rgba(0, 0, 0, 0.7);
+  --overlay-blur: rgba(255, 255, 255, 0.85);
+  --backdrop-blur: 12px;
+
+  /* ----------------------------------------
+   * 12. FORM INPUT COLORS
+   * Consistent form styling
+   * ---------------------------------------- */
+  --input-bg: #ffffff;
+  --input-bg-disabled: #f3f4f6;
+  --input-border: #d1d5db;
+  --input-border-hover: #9ca3af;
+  --input-border-focus: var(--primary);
+  --input-border-error: #ef4444;
+  --input-border-success: #22c55e;
+  --input-placeholder: #9ca3af;
+  --input-text: #111827;
+  --input-ring: rgba(47, 82, 51, 0.2);
+  --input-ring-error: rgba(239, 68, 68, 0.2);
+
+  /* ----------------------------------------
+   * 13. SKELETON & LOADING COLORS
+   * For loading states and placeholders
+   * ---------------------------------------- */
+  --skeleton-base: #e5e7eb;
+  --skeleton-highlight: #f3f4f6;
+  --skeleton-animation: shimmer 2s infinite;
+  --loading-spinner: var(--primary);
+  --loading-track: #e5e7eb;
+
+  /* ----------------------------------------
+   * 14. SCROLLBAR COLORS
+   * Custom scrollbar styling
+   * ---------------------------------------- */
+  --scrollbar-track: #f1f5f9;
+  --scrollbar-thumb: #cbd5e1;
+  --scrollbar-thumb-hover: #94a3b8;
+  --scrollbar-width: 8px;
+
+  /* ----------------------------------------
+   * 15. SHADOWS
+   * Elevation system with consistent shadows
+   * ---------------------------------------- */
+  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  --shadow-inner: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
+
+  /* Colored shadows */
+  --shadow-primary: 0 4px 14px 0 rgba(47, 82, 51, 0.25);
+  --shadow-error: 0 4px 14px 0 rgba(239, 68, 68, 0.25);
+  --shadow-success: 0 4px 14px 0 rgba(34, 197, 94, 0.25);
+
+  /* Component-specific shadows */
+  --shadow-card: 0 4px 20px -2px rgb(0 0 0 / 0.08);
+  --shadow-card-hover: 0 12px 32px -4px rgb(0 0 0 / 0.12);
+  --shadow-button: 0 4px 14px 0 rgb(0 0 0 / 0.15);
+  --shadow-dropdown: 0 10px 40px -10px rgb(0 0 0 / 0.15);
+  --shadow-modal: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  --shadow-tooltip: 0 4px 12px rgb(0 0 0 / 0.15);
+
+  /* ----------------------------------------
+   * 16. BORDER RADIUS
+   * Consistent radius tokens
+   * ---------------------------------------- */
+  --radius-none: 0;
+  --radius-xs: 0.25rem;   /* 4px */
+  --radius-sm: 0.5rem;    /* 8px */
+  --radius-md: 0.75rem;   /* 12px */
+  --radius-lg: 1rem;      /* 16px */
+  --radius-xl: 1.5rem;    /* 24px */
+  --radius-2xl: 2rem;     /* 32px */
+  --radius-3xl: 3rem;     /* 48px */
+  --radius-full: 9999px;
+  /* Default radius (overridden by clinic themes) */
+  --radius: 1rem;
+
+  /* ----------------------------------------
+   * 17. SPACING SCALE
+   * Consistent spacing tokens
+   * ---------------------------------------- */
+  --space-0: 0;
+  --space-px: 1px;
+  --space-0-5: 0.125rem;  /* 2px */
+  --space-1: 0.25rem;     /* 4px */
+  --space-1-5: 0.375rem;  /* 6px */
+  --space-2: 0.5rem;      /* 8px */
+  --space-2-5: 0.625rem;  /* 10px */
+  --space-3: 0.75rem;     /* 12px */
+  --space-3-5: 0.875rem;  /* 14px */
+  --space-4: 1rem;        /* 16px */
+  --space-5: 1.25rem;     /* 20px */
+  --space-6: 1.5rem;      /* 24px */
+  --space-7: 1.75rem;     /* 28px */
+  --space-8: 2rem;        /* 32px */
+  --space-9: 2.25rem;     /* 36px */
+  --space-10: 2.5rem;     /* 40px */
+  --space-11: 2.75rem;    /* 44px */
+  --space-12: 3rem;       /* 48px */
+  --space-14: 3.5rem;     /* 56px */
+  --space-16: 4rem;       /* 64px */
+  --space-20: 5rem;       /* 80px */
+  --space-24: 6rem;       /* 96px */
+  --space-28: 7rem;       /* 112px */
+  --space-32: 8rem;       /* 128px */
+
+  /* Section spacing */
   --section-spacing: 6rem;
   --section-spacing-sm: 4rem;
   --container-padding: 1rem;
 
-  /* Consistent shadows */
-  --shadow-card: 0 4px 20px -2px rgb(0 0 0 / 0.08);
-  --shadow-card-hover: 0 12px 32px -4px rgb(0 0 0 / 0.12);
-  --shadow-button: 0 4px 14px 0 rgb(0 0 0 / 0.15);
+  /* ----------------------------------------
+   * 18. Z-INDEX SCALE
+   * Consistent layering system
+   * ---------------------------------------- */
+  --z-behind: -1;
+  --z-base: 0;
+  --z-raised: 1;
+  --z-dropdown: 10;
+  --z-sticky: 20;
+  --z-fixed: 30;
+  --z-header: 40;
+  --z-drawer: 50;
+  --z-modal: 60;
+  --z-popover: 70;
+  --z-tooltip: 80;
+  --z-toast: 90;
+  --z-max: 9999;
 
-  /* Animation durations */
+  /* ----------------------------------------
+   * 19. ANIMATION & TRANSITION
+   * Consistent motion tokens
+   * ---------------------------------------- */
+  --duration-instant: 0ms;
+  --duration-fast: 100ms;
+  --duration-normal: 200ms;
+  --duration-moderate: 300ms;
+  --duration-slow: 400ms;
+  --duration-slower: 500ms;
+
+  --ease-linear: linear;
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+  /* Legacy transition tokens */
   --transition-fast: 150ms;
   --transition-normal: 250ms;
   --transition-slow: 400ms;
 
-  /* Design System Tokens - Consistent Radius */
-  --radius-sm: 0.75rem;    /* 12px - badges, small buttons */
-  --radius-md: 1rem;       /* 16px - buttons, inputs */
-  --radius-lg: 1.5rem;     /* 24px - cards */
-  --radius-xl: 2rem;       /* 32px - modals, large cards */
+  /* ----------------------------------------
+   * 20. TYPOGRAPHY SCALE
+   * Font sizes and line heights
+   * ---------------------------------------- */
+  --font-size-xs: 0.75rem;    /* 12px */
+  --font-size-sm: 0.875rem;   /* 14px */
+  --font-size-base: 1rem;     /* 16px */
+  --font-size-lg: 1.125rem;   /* 18px */
+  --font-size-xl: 1.25rem;    /* 20px */
+  --font-size-2xl: 1.5rem;    /* 24px */
+  --font-size-3xl: 1.875rem;  /* 30px */
+  --font-size-4xl: 2.25rem;   /* 36px */
+  --font-size-5xl: 3rem;      /* 48px */
+  --font-size-6xl: 3.75rem;   /* 60px */
 
-  /* shadcn/ui compatible variables */
+  --line-height-none: 1;
+  --line-height-tight: 1.25;
+  --line-height-snug: 1.375;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.625;
+  --line-height-loose: 2;
+
+  --font-weight-thin: 100;
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+  --font-weight-black: 900;
+
+  /* ----------------------------------------
+   * 21. shadcn/ui COMPATIBLE VARIABLES
+   * HSL format for shadcn components
+   * ---------------------------------------- */
   --card: 0 0% 100%;
   --card-foreground: 222.2 84% 4.9%;
   --popover: 0 0% 100%;
@@ -101,8 +510,8 @@
   --muted-foreground: 215.4 16.3% 46.9%;
   --destructive: 0 84.2% 60.2%;
   --destructive-foreground: 210 40% 98%;
-  --border: 214.3 31.8% 91.4%;
-  --input: 214.3 31.8% 91.4%;
+  --accent: 210 40% 96.1%;
+  --accent-foreground: 222.2 47.4% 11.2%;
   --ring: 222.2 84% 4.9%;
 }
 

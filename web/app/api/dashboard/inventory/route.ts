@@ -184,6 +184,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     }
 
     // Fetch catalog-assigned products (source: 'catalog')
+    // Note: clinic_product_assignments table may not exist in all deployments
     if (source === 'all' || source === 'catalog') {
       // First get assignments for this clinic
       const { data: assignments, error: assignError } = await supabase
@@ -200,14 +201,25 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         .eq('tenant_id', clinic)
         .eq('is_active', true);
 
+      // If table doesn't exist or other error, just skip catalog products
       if (assignError) {
-        logger.error('Error fetching assignments', { error: assignError, tenantId: clinic });
-        throw assignError;
+        // Check if it's a "relation does not exist" error (table not found)
+        const errorMessage = typeof assignError === 'object' && assignError !== null
+          ? JSON.stringify(assignError)
+          : String(assignError);
+
+        if (errorMessage.includes('does not exist') || errorMessage.includes('42P01')) {
+          logger.warn('clinic_product_assignments table not found, skipping catalog products', { tenantId: clinic });
+          // Continue without catalog products
+        } else {
+          logger.error('Error fetching assignments', { error: errorMessage, tenantId: clinic });
+          // Don't throw - just continue without catalog products
+        }
       }
 
-      const catalogProductIds = assignments?.map(a => a.catalog_product_id) || [];
+      const catalogProductIds = (assignments && !assignError) ? assignments.map(a => a.catalog_product_id) : [];
 
-      if (catalogProductIds.length > 0) {
+      if (catalogProductIds.length > 0 && !assignError) {
         // Fetch the catalog products
         let catalogQuery = supabase
           .from('store_products')

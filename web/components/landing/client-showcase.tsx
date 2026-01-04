@@ -84,7 +84,7 @@ const clinics: ClinicShowcase[] = [
 
 function ClinicCard({ clinic }: { clinic: ClinicShowcase }) {
   return (
-    <div className="group relative p-6 md:p-8 rounded-2xl bg-white/5 border border-white/10 hover:border-[#2DCEA3]/30 transition-all duration-300">
+    <div className="group relative p-6 md:p-8 rounded-2xl bg-white/5 border border-white/10 hover:border-[var(--primary)]/30 transition-all duration-300">
       {/* Header */}
       <div className="flex items-start justify-between mb-6">
         <div>
@@ -94,26 +94,26 @@ function ClinicCard({ clinic }: { clinic: ClinicShowcase }) {
             {clinic.city}
           </p>
         </div>
-        <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-[#2DCEA3]/10">
-          <Star className="w-3 h-3 text-[#2DCEA3] fill-[#2DCEA3]" />
-          <span className="text-[#2DCEA3] text-sm font-bold">{clinic.metrics.satisfactionScore}</span>
+        <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-[var(--primary)]/10">
+          <Star className="w-3 h-3 text-[var(--primary)] fill-[var(--primary)]" />
+          <span className="text-[var(--primary)] text-sm font-bold">{clinic.metrics.satisfactionScore}</span>
         </div>
       </div>
 
       {/* Metrics Grid */}
       <div className="grid grid-cols-3 gap-3 mb-6">
         <div className="text-center p-3 rounded-lg bg-white/5">
-          <TrendingUp className="w-4 h-4 text-[#2DCEA3] mx-auto mb-1" />
+          <TrendingUp className="w-4 h-4 text-[var(--primary)] mx-auto mb-1" />
           <div className="text-white font-bold text-sm">{clinic.metrics.appointmentsGrowth}</div>
           <div className="text-white/40 text-xs">Citas</div>
         </div>
         <div className="text-center p-3 rounded-lg bg-white/5">
-          <Calendar className="w-4 h-4 text-[#5C6BFF] mx-auto mb-1" />
+          <Calendar className="w-4 h-4 text-[var(--secondary)] mx-auto mb-1" />
           <div className="text-white font-bold text-sm">{clinic.metrics.onlineBookingsPercent}</div>
           <div className="text-white/40 text-xs">Online</div>
         </div>
         <div className="text-center p-3 rounded-lg bg-white/5">
-          <Users className="w-4 h-4 text-[#00C9FF] mx-auto mb-1" />
+          <Users className="w-4 h-4 text-[var(--accent)] mx-auto mb-1" />
           <div className="text-white font-bold text-sm">{clinic.metrics.patientsRegistered}</div>
           <div className="text-white/40 text-xs">Pacientes</div>
         </div>
@@ -138,7 +138,7 @@ function ClinicCard({ clinic }: { clinic: ClinicShowcase }) {
 
       {/* Testimonial */}
       <div className="relative mb-6">
-        <Quote className="absolute -top-2 -left-1 w-6 h-6 text-[#2DCEA3]/20" />
+        <Quote className="absolute -top-2 -left-1 w-6 h-6 text-[var(--primary)]/20" />
         <p className="text-white/60 text-sm leading-relaxed pl-4 italic">
           "{clinic.shortTestimonial}"
         </p>
@@ -150,7 +150,7 @@ function ClinicCard({ clinic }: { clinic: ClinicShowcase }) {
       {/* CTA */}
       <Link
         href={`/${clinic.id}`}
-        className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-white/5 border border-white/20 text-white font-medium rounded-xl hover:bg-white/10 hover:border-white/30 transition-all group-hover:border-[#2DCEA3]/30"
+        className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-white/5 border border-white/20 text-white font-medium rounded-xl hover:bg-white/10 hover:border-white/30 transition-all group-hover:border-[var(--primary)]/30"
       >
         Ver Sitio
         <ExternalLink className="w-4 h-4" />
@@ -170,13 +170,13 @@ function TestimonialCarousel() {
   return (
     <div className="relative max-w-4xl mx-auto">
       {/* Large testimonial */}
-      <div className="text-center p-8 md:p-12 rounded-3xl bg-gradient-to-br from-[#2DCEA3]/10 to-[#5C6BFF]/10 border border-white/10">
-        <Quote className="w-12 h-12 text-[#2DCEA3]/30 mx-auto mb-6" />
+      <div className="text-center p-8 md:p-12 rounded-3xl bg-gradient-to-br from-[var(--primary)]/10 to-[var(--secondary)]/10 border border-white/10">
+        <Quote className="w-12 h-12 text-[var(--primary)]/30 mx-auto mb-6" />
         <p className="text-xl md:text-2xl text-white/80 leading-relaxed mb-8 font-light">
           "{clinic.testimonial}"
         </p>
         <div className="flex items-center justify-center gap-4">
-          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#2DCEA3] to-[#5C6BFF] flex items-center justify-center">
+          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] flex items-center justify-center">
             <Stethoscope className="w-6 h-6 text-white" />
           </div>
           <div className="text-left">
@@ -201,7 +201,7 @@ function TestimonialCarousel() {
                 key={idx}
                 onClick={() => setCurrent(idx)}
                 className={`w-2 h-2 rounded-full transition-all ${
-                  idx === current ? 'bg-[#2DCEA3] w-6' : 'bg-white/20'
+                  idx === current ? 'bg-[var(--primary)] w-6' : 'bg-white/20'
                 }`}
               />
             ))}
@@ -220,15 +220,15 @@ function TestimonialCarousel() {
 
 export function ClientShowcase() {
   return (
-    <section id="clinicas" className="py-20 md:py-28 bg-[#0F172A] relative overflow-hidden">
+    <section id="clinicas" className="py-20 md:py-28 bg-[var(--bg-dark)] relative overflow-hidden">
       {/* Background decoration */}
-      <div className="absolute top-1/2 left-0 w-[400px] h-[400px] bg-[#2DCEA3]/5 rounded-full blur-[150px] -translate-y-1/2" />
-      <div className="absolute top-1/2 right-0 w-[400px] h-[400px] bg-[#5C6BFF]/5 rounded-full blur-[150px] -translate-y-1/2" />
+      <div className="absolute top-1/2 left-0 w-[400px] h-[400px] bg-[var(--primary)]/5 rounded-full blur-[150px] -translate-y-1/2" />
+      <div className="absolute top-1/2 right-0 w-[400px] h-[400px] bg-[var(--secondary)]/5 rounded-full blur-[150px] -translate-y-1/2" />
 
       <div className="container mx-auto px-4 md:px-6 relative z-10">
         {/* Section Header */}
         <div className="text-center mb-12">
-          <span className="inline-block text-[#2DCEA3] font-bold tracking-widest uppercase text-sm mb-3">
+          <span className="inline-block text-[var(--primary)] font-bold tracking-widest uppercase text-sm mb-3">
             Nuestros Clientes
           </span>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-white mb-6">
@@ -243,7 +243,7 @@ export function ClientShowcase() {
         {/* Stats bar */}
         <div className="flex flex-wrap justify-center gap-6 md:gap-12 mb-12">
           <div className="text-center">
-            <div className="text-3xl md:text-4xl font-black text-[#2DCEA3]">{clinics.length}</div>
+            <div className="text-3xl md:text-4xl font-black text-[var(--primary)]">{clinics.length}</div>
             <div className="text-white/50 text-sm">Clinicas Activas</div>
           </div>
           <div className="hidden md:block w-px h-12 bg-white/10" />
@@ -287,7 +287,7 @@ export function ClientShowcase() {
             href="https://wa.me/595981324569?text=Hola!%20Quiero%20unir%20mi%20clinica%20a%20VetePy"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#2DCEA3] to-[#00C9FF] text-[#0F172A] font-bold rounded-full hover:shadow-lg hover:shadow-[#2DCEA3]/20 transition-all"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[var(--primary)] to-[var(--accent)] text-[var(--bg-dark)] font-bold rounded-full hover:shadow-lg hover:shadow-[var(--primary)]/20 transition-all"
           >
             <Building2 className="w-5 h-5" />
             Unir mi Clinica

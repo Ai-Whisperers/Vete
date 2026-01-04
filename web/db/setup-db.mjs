@@ -20,10 +20,9 @@
  */
 
 import pg from "pg";
-import { readFileSync, existsSync, writeFileSync } from "fs";
+import { readFileSync, existsSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
-import { execSync } from "child_process";
 
 const { Client } = pg;
 const __filename = fileURLToPath(import.meta.url);
@@ -111,8 +110,11 @@ const SCHEMA_ORDER = [
   "02_functions/03_helper_functions.sql",
 ];
 
-// Seeds are now generated from JSON files in seeds/data/
-// See seeds/seed-from-json.ts for the generator
+// =============================================================================
+// SEEDING NOTE: Seed data is now handled by the API-based seeding script
+// Run: npx tsx db/seeds/scripts/seed.ts
+// See: db/seeds/scripts/seed.ts for details
+// =============================================================================
 
 // Tables to drop (in reverse dependency order)
 const TABLES_TO_DROP = [
@@ -397,82 +399,24 @@ async function runSchema(client, dryRun = false) {
 }
 
 /**
- * Generate SQL from JSON seed files using TypeScript generator
+ * Show seed instructions
  */
-function generateSeedsFromJSON(dryRun = false) {
-  console.log("\n--- Generating Seeds from JSON ---\n");
-
-  const generatorPath = join(
-    __dirname,
-    "seeds",
-    "scripts",
-    "seed-from-json.ts"
-  );
-  const outputPath = join(__dirname, "seeds", "generated-seed.sql");
-
-  if (!existsSync(generatorPath)) {
-    log(`Generator not found: ${generatorPath}`, "error");
-    return null;
-  }
-
-  if (dryRun) {
-    log("Would generate SQL from JSON files", "info");
-    return outputPath;
-  }
-
-  try {
-    log("Running seed-from-json.ts generator...", "info");
-
-    // Run the TypeScript generator and capture output
-    const sql = execSync(`npx tsx "${generatorPath}"`, {
-      cwd: join(__dirname, ".."),
-      encoding: "utf-8",
-      maxBuffer: 50 * 1024 * 1024, // 50MB buffer for large output
-    });
-
-    // Write generated SQL to file
-    writeFileSync(outputPath, sql, "utf-8");
-    log(`Generated SQL saved to: seeds/generated-seed.sql`, "success");
-
-    return outputPath;
-  } catch (err) {
-    log(`Generation failed: ${err.message}`, "error");
-    if (err.stderr) log(err.stderr, "error");
-    return null;
-  }
-}
-
-/**
- * Run seeds from generated JSON-based SQL
- */
-async function runJSONSeeds(client, dryRun = false) {
-  console.log("\n--- Running JSON-Generated Seeds ---\n");
-
-  // First, generate the SQL from JSON
-  const generatedPath = generateSeedsFromJSON(dryRun);
-
-  if (!generatedPath) {
-    log("Seed generation failed, aborting", "error");
-    return { successCount: 0, errorCount: 1 };
-  }
-
-  if (dryRun) {
-    log("Would execute generated-seed.sql", "info");
-    return { successCount: 1, errorCount: 0 };
-  }
-
-  // Execute the generated SQL
-  const result = await runSQLFile(
-    client,
-    generatedPath,
-    "generated-seed.sql",
-    dryRun
-  );
-
-  return {
-    successCount: result.success ? 1 : 0,
-    errorCount: result.success ? 0 : 1,
-  };
+function showSeedInstructions() {
+  console.log("\n--- Seeding Instructions ---\n");
+  log("Seed data is now handled by the API-based seeding script.", "info");
+  log("", "info");
+  log("Run: npx tsx db/seeds/scripts/seed.ts", "info");
+  log("", "info");
+  log("Options:", "info");
+  log("  --type basic     Basic clinic setup (services, kennels)", "info");
+  log("  --type reference Reference data only (diagnosis codes, drugs)", "info");
+  log("  --type full      Full setup with store data", "info");
+  log("  --type demo      Full demo environment (default)", "info");
+  log("  --tenant <id>    Specific tenant (default: adris)", "info");
+  log("  --clear          Clear existing data first", "info");
+  log("", "info");
+  log("Example:", "success");
+  log("  npx tsx db/seeds/scripts/seed.ts --type demo --tenant adris", "info");
 }
 
 // =============================================================================
@@ -507,10 +451,11 @@ async function main() {
   try {
     switch (command) {
       case "full":
-        log("Running FULL setup (clean + schema + seeds)", "info");
+        log("Running FULL setup (clean + schema)", "info");
+        log("NOTE: Run seed script separately after schema setup", "info");
         if (client) await cleanDatabase(client, dryRun);
         await runSchema(client, dryRun);
-        await runJSONSeeds(client, dryRun);
+        showSeedInstructions();
         break;
 
       case "schema":
@@ -519,13 +464,8 @@ async function main() {
         break;
 
       case "seeds":
-        log("Running SEEDS only", "info");
-        await runJSONSeeds(client, dryRun);
-        break;
-
-      case "generate":
-        log("Generating SQL from JSON (no execution)", "info");
-        generateSeedsFromJSON(dryRun);
+        log("DEPRECATED: SQL-based seeding has been replaced", "warning");
+        showSeedInstructions();
         break;
 
       case "clean":
@@ -538,18 +478,20 @@ async function main() {
 Usage: node db/setup-db.mjs <command> [options]
 
 Commands:
-  full       Drop all, recreate schema + seeds (default)
+  full       Drop all tables, recreate schema (default)
   schema     Run schema files only
-  seeds      Run seed data only (from JSON)
-  generate   Generate SQL from JSON (no execution)
+  seeds      [DEPRECATED] Shows API-based seeding instructions
   clean      Drop all tables
 
 Options:
   --dry-run  Show what would be run without executing
 
-Seed Data:
-  All seed data is in db/seeds/data/ as JSON files.
-  Run 'generate' to see the SQL without executing.
+Seeding:
+  Seed data is now handled by the API-based seeding script:
+
+  npx tsx db/seeds/scripts/seed.ts                # Full demo seed
+  npx tsx db/seeds/scripts/seed.ts --type basic   # Basic setup
+  npx tsx db/seeds/scripts/seed.ts --help         # Show all options
 
 Environment:
   DATABASE_URL  PostgreSQL connection string from Supabase

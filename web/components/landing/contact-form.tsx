@@ -95,11 +95,11 @@ ${formData.message ? `Mensaje adicional: ${formData.message}` : ''}`;
 
   if (isSubmitted) {
     return (
-      <section id="contacto" className="py-20 md:py-28 bg-gradient-to-b from-[#131B2E] to-[#0F172A] relative overflow-hidden">
+      <section id="contacto" className="py-20 md:py-28 bg-gradient-to-b from-[var(--bg-dark-alt)] to-[var(--bg-dark)] relative overflow-hidden">
         <div className="container mx-auto px-4 md:px-6">
           <div className="max-w-lg mx-auto text-center">
-            <div className="w-20 h-20 rounded-full bg-[#2DCEA3]/20 flex items-center justify-center mx-auto mb-6">
-              <CheckCircle className="w-10 h-10 text-[#2DCEA3]" />
+            <div className="w-20 h-20 rounded-full bg-[var(--primary)]/20 flex items-center justify-center mx-auto mb-6">
+              <CheckCircle className="w-10 h-10 text-[var(--primary)]" />
             </div>
             <h2 className="text-3xl font-bold text-white mb-4">
               ¡Mensaje Enviado!
@@ -135,15 +135,15 @@ ${formData.message ? `Mensaje adicional: ${formData.message}` : ''}`;
   }
 
   return (
-    <section id="contacto" className="py-20 md:py-28 bg-gradient-to-b from-[#131B2E] to-[#0F172A] relative overflow-hidden">
+    <section id="contacto" className="py-20 md:py-28 bg-gradient-to-b from-[var(--bg-dark-alt)] to-[var(--bg-dark)] relative overflow-hidden">
       {/* Background decoration */}
-      <div className="absolute top-1/4 left-0 w-[400px] h-[400px] bg-[#2DCEA3]/5 rounded-full blur-[150px]" />
-      <div className="absolute bottom-1/4 right-0 w-[400px] h-[400px] bg-[#5C6BFF]/5 rounded-full blur-[150px]" />
+      <div className="absolute top-1/4 left-0 w-[400px] h-[400px] bg-[var(--primary)]/5 rounded-full blur-[150px]" />
+      <div className="absolute bottom-1/4 right-0 w-[400px] h-[400px] bg-[var(--secondary)]/5 rounded-full blur-[150px]" />
 
       <div className="container mx-auto px-4 md:px-6 relative z-10">
         {/* Section Header */}
         <div className="text-center mb-12">
-          <span className="inline-block text-[#2DCEA3] font-bold tracking-widest uppercase text-sm mb-3">
+          <span className="inline-block text-[var(--primary)] font-bold tracking-widest uppercase text-sm mb-3">
             Contacto
           </span>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-white mb-6">
@@ -173,7 +173,7 @@ ${formData.message ? `Mensaje adicional: ${formData.message}` : ''}`;
                       onChange={(e) => handleChange('clinicName', e.target.value)}
                       placeholder="Veterinaria Mi Mascota"
                       className={`w-full pl-12 pr-4 py-3 bg-white/5 border rounded-xl text-white placeholder-white/30 focus:outline-none transition-all ${
-                        errors.clinicName ? 'border-red-500' : 'border-white/10 focus:border-[#2DCEA3]/50'
+                        errors.clinicName ? 'border-red-500' : 'border-white/10 focus:border-[var(--primary)]/50'
                       }`}
                     />
                   </div>
@@ -195,7 +195,7 @@ ${formData.message ? `Mensaje adicional: ${formData.message}` : ''}`;
                       onChange={(e) => handleChange('contactName', e.target.value)}
                       placeholder="Dr. Juan Perez"
                       className={`w-full pl-12 pr-4 py-3 bg-white/5 border rounded-xl text-white placeholder-white/30 focus:outline-none transition-all ${
-                        errors.contactName ? 'border-red-500' : 'border-white/10 focus:border-[#2DCEA3]/50'
+                        errors.contactName ? 'border-red-500' : 'border-white/10 focus:border-[var(--primary)]/50'
                       }`}
                     />
                   </div>
@@ -218,7 +218,7 @@ ${formData.message ? `Mensaje adicional: ${formData.message}` : ''}`;
                         onChange={(e) => handleChange('email', e.target.value)}
                         placeholder="juan@clinica.com"
                         className={`w-full pl-12 pr-4 py-3 bg-white/5 border rounded-xl text-white placeholder-white/30 focus:outline-none transition-all ${
-                          errors.email ? 'border-red-500' : 'border-white/10 focus:border-[#2DCEA3]/50'
+                          errors.email ? 'border-red-500' : 'border-white/10 focus:border-[var(--primary)]/50'
                         }`}
                       />
                     </div>
@@ -238,7 +238,7 @@ ${formData.message ? `Mensaje adicional: ${formData.message}` : ''}`;
                         onChange={(e) => handleChange('phone', e.target.value)}
                         placeholder="0981 123 456"
                         className={`w-full pl-12 pr-4 py-3 bg-white/5 border rounded-xl text-white placeholder-white/30 focus:outline-none transition-all ${
-                          errors.phone ? 'border-red-500' : 'border-white/10 focus:border-[#2DCEA3]/50'
+                          errors.phone ? 'border-red-500' : 'border-white/10 focus:border-[var(--primary)]/50'
                         }`}
                       />
                     </div>
@@ -259,13 +259,13 @@ ${formData.message ? `Mensaje adicional: ${formData.message}` : ''}`;
                       <select
                         value={formData.vetCount}
                         onChange={(e) => handleChange('vetCount', e.target.value)}
-                        className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:border-[#2DCEA3]/50 focus:outline-none transition-all appearance-none"
+                        className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:border-[var(--primary)]/50 focus:outline-none transition-all appearance-none"
                       >
-                        <option value="" className="bg-[#0F172A]">Seleccionar</option>
-                        <option value="1" className="bg-[#0F172A]">1 veterinario</option>
-                        <option value="2-3" className="bg-[#0F172A]">2-3 veterinarios</option>
-                        <option value="4-6" className="bg-[#0F172A]">4-6 veterinarios</option>
-                        <option value="7+" className="bg-[#0F172A]">7 o mas</option>
+                        <option value="" className="bg-[var(--bg-dark)]">Seleccionar</option>
+                        <option value="1" className="bg-[var(--bg-dark)]">1 veterinario</option>
+                        <option value="2-3" className="bg-[var(--bg-dark)]">2-3 veterinarios</option>
+                        <option value="4-6" className="bg-[var(--bg-dark)]">4-6 veterinarios</option>
+                        <option value="7+" className="bg-[var(--bg-dark)]">7 o mas</option>
                       </select>
                     </div>
                   </div>
@@ -278,12 +278,12 @@ ${formData.message ? `Mensaje adicional: ${formData.message}` : ''}`;
                       <select
                         value={formData.hasWebsite}
                         onChange={(e) => handleChange('hasWebsite', e.target.value)}
-                        className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:border-[#2DCEA3]/50 focus:outline-none transition-all appearance-none"
+                        className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:border-[var(--primary)]/50 focus:outline-none transition-all appearance-none"
                       >
-                        <option value="" className="bg-[#0F172A]">Seleccionar</option>
-                        <option value="no" className="bg-[#0F172A]">No, no tengo</option>
-                        <option value="basic" className="bg-[#0F172A]">Si, basico (Facebook/Insta)</option>
-                        <option value="yes" className="bg-[#0F172A]">Si, tengo sitio web</option>
+                        <option value="" className="bg-[var(--bg-dark)]">Seleccionar</option>
+                        <option value="no" className="bg-[var(--bg-dark)]">No, no tengo</option>
+                        <option value="basic" className="bg-[var(--bg-dark)]">Si, basico (Facebook/Insta)</option>
+                        <option value="yes" className="bg-[var(--bg-dark)]">Si, tengo sitio web</option>
                       </select>
                     </div>
                   </div>
@@ -299,7 +299,7 @@ ${formData.message ? `Mensaje adicional: ${formData.message}` : ''}`;
                     onChange={(e) => handleChange('message', e.target.value)}
                     placeholder="Contanos que te gustaria lograr con VetePy, dudas que tengas, etc."
                     rows={4}
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/30 focus:border-[#2DCEA3]/50 focus:outline-none transition-all resize-none"
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/30 focus:border-[var(--primary)]/50 focus:outline-none transition-all resize-none"
                   />
                 </div>
 
@@ -307,7 +307,7 @@ ${formData.message ? `Mensaje adicional: ${formData.message}` : ''}`;
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full inline-flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-[#2DCEA3] to-[#00C9FF] text-[#0F172A] font-bold rounded-xl hover:shadow-lg hover:shadow-[#2DCEA3]/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full inline-flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-[var(--primary)] to-[var(--accent)] text-[var(--bg-dark)] font-bold rounded-xl hover:shadow-lg hover:shadow-[var(--primary)]/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isSubmitting ? (
                     <>
@@ -352,10 +352,10 @@ ${formData.message ? `Mensaje adicional: ${formData.message}` : ''}`;
                     </a>
                     <a
                       href="mailto:contacto@vetepy.com"
-                      className="flex items-center gap-3 text-white/70 hover:text-[#2DCEA3] transition-colors"
+                      className="flex items-center gap-3 text-white/70 hover:text-[var(--primary)] transition-colors"
                     >
-                      <div className="w-10 h-10 rounded-lg bg-[#2DCEA3]/20 flex items-center justify-center">
-                        <Mail className="w-5 h-5 text-[#2DCEA3]" />
+                      <div className="w-10 h-10 rounded-lg bg-[var(--primary)]/20 flex items-center justify-center">
+                        <Mail className="w-5 h-5 text-[var(--primary)]" />
                       </div>
                       <div>
                         <p className="font-medium">Email</p>
@@ -366,19 +366,19 @@ ${formData.message ? `Mensaje adicional: ${formData.message}` : ''}`;
                 </div>
 
                 {/* What to expect */}
-                <div className="p-6 rounded-2xl bg-gradient-to-br from-[#2DCEA3]/10 to-[#5C6BFF]/10 border border-white/10">
+                <div className="p-6 rounded-2xl bg-gradient-to-br from-[var(--primary)]/10 to-[var(--secondary)]/10 border border-white/10">
                   <h3 className="text-white font-bold mb-4">¿Que sigue despues?</h3>
                   <ol className="space-y-3 text-sm">
                     <li className="flex items-start gap-3">
-                      <span className="w-6 h-6 rounded-full bg-[#2DCEA3] text-[#0F172A] font-bold flex items-center justify-center flex-shrink-0 text-xs">1</span>
+                      <span className="w-6 h-6 rounded-full bg-[var(--primary)] text-[var(--bg-dark)] font-bold flex items-center justify-center flex-shrink-0 text-xs">1</span>
                       <span className="text-white/70">Te contactamos por WhatsApp para conocer tu clinica</span>
                     </li>
                     <li className="flex items-start gap-3">
-                      <span className="w-6 h-6 rounded-full bg-[#00C9FF] text-[#0F172A] font-bold flex items-center justify-center flex-shrink-0 text-xs">2</span>
+                      <span className="w-6 h-6 rounded-full bg-[var(--accent)] text-[var(--bg-dark)] font-bold flex items-center justify-center flex-shrink-0 text-xs">2</span>
                       <span className="text-white/70">Te mostramos una demo personalizada</span>
                     </li>
                     <li className="flex items-start gap-3">
-                      <span className="w-6 h-6 rounded-full bg-[#5C6BFF] text-white font-bold flex items-center justify-center flex-shrink-0 text-xs">3</span>
+                      <span className="w-6 h-6 rounded-full bg-[var(--secondary)] text-white font-bold flex items-center justify-center flex-shrink-0 text-xs">3</span>
                       <span className="text-white/70">Si te interesa, comenzamos la configuracion</span>
                     </li>
                   </ol>

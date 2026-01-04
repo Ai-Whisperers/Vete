@@ -57,10 +57,10 @@ function TrendBadge({ change }: { change?: number }) {
 
   const Icon = isNeutral ? Minus : isPositive ? TrendingUp : TrendingDown;
   const colorClass = isNeutral
-    ? 'text-gray-500 bg-gray-100'
+    ? 'text-white/70 bg-white/20'
     : isPositive
-      ? 'text-emerald-600 bg-emerald-50'
-      : 'text-red-600 bg-red-50';
+      ? 'text-[var(--status-success)] bg-[var(--status-success-bg)]'
+      : 'text-[var(--status-error)] bg-[var(--status-error-bg)]';
 
   return (
     <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-xs font-medium ${colorClass}`}>
@@ -76,13 +76,13 @@ function LoadingSkeleton() {
       <div className="grid grid-cols-3 gap-4 mb-4">
         {[...Array(3)].map((_, i) => (
           <div key={i} className="text-center">
-            <div className="h-3 bg-gray-200 rounded w-12 mx-auto mb-2" />
-            <div className="h-6 bg-gray-200 rounded w-20 mx-auto mb-1" />
-            <div className="h-3 bg-gray-200 rounded w-10 mx-auto" />
+            <div className="h-3 bg-white/20 rounded w-12 mx-auto mb-2" />
+            <div className="h-6 bg-white/20 rounded w-20 mx-auto mb-1" />
+            <div className="h-3 bg-white/20 rounded w-10 mx-auto" />
           </div>
         ))}
       </div>
-      <div className="h-20 bg-gray-100 rounded-xl" />
+      <div className="h-20 bg-white/10 rounded-xl" />
     </div>
   );
 }
@@ -100,7 +100,10 @@ export function RevenueWidget({ clinic }: RevenueWidgetProps) {
           setData(revenueData);
         }
       } catch (error) {
-        console.error('Error fetching revenue:', error);
+        // Client-side error logging - only in development
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Error fetching revenue:', error);
+        }
       } finally {
         setLoading(false);
       }

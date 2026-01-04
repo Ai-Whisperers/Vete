@@ -65,6 +65,16 @@ DROP POLICY IF EXISTS "Service role full access brands" ON public.store_brands;
 CREATE POLICY "Service role full access brands" ON public.store_brands
     FOR ALL TO service_role USING (true) WITH CHECK (true);
 
+-- Public can read active global brands (for store browsing without auth)
+DROP POLICY IF EXISTS "Public read brands" ON public.store_brands;
+CREATE POLICY "Public read brands" ON public.store_brands
+    FOR SELECT
+    USING (
+        is_active = true
+        AND deleted_at IS NULL
+        AND tenant_id IS NULL  -- Only global brands
+    );
+
 -- Authenticated users can view brands
 DROP POLICY IF EXISTS "Authenticated users view brands" ON public.store_brands;
 CREATE POLICY "Authenticated users view brands" ON public.store_brands

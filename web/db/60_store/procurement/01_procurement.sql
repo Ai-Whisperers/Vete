@@ -141,6 +141,11 @@ DROP POLICY IF EXISTS "Service role full access assignments" ON public.clinic_pr
 CREATE POLICY "Service role full access assignments" ON public.clinic_product_assignments
     FOR ALL TO service_role USING (true) WITH CHECK (true);
 
+-- Public can read active assignments (for store browsing without auth)
+DROP POLICY IF EXISTS "Public read active assignments" ON public.clinic_product_assignments;
+CREATE POLICY "Public read active assignments" ON public.clinic_product_assignments
+    FOR SELECT USING (is_active = true);
+
 -- Clinic staff can manage their clinic's procurement data and product assignments
 DROP POLICY IF EXISTS "Clinic staff manage procurement" ON public.procurement_leads;
 CREATE POLICY "Clinic staff manage procurement" ON public.procurement_leads

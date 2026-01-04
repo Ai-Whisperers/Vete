@@ -3,11 +3,11 @@ export interface Pet {
   name: string;
   species: string;
   breed: string | null;
-  date_of_birth: string | null;
+  birth_date: string | null;
   photo_url: string | null;
   sex: string | null;
-  neutered: boolean | null;
-  microchip_id: string | null;
+  is_neutered: boolean | null;
+  microchip_number: string | null;
 }
 
 export interface Owner {

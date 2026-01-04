@@ -33,27 +33,35 @@ interface AlertsPanelProps {
   clinic: string;
 }
 
+interface Vaccine {
+  id: string;
+  pet_id: string;
+  vaccine_name: string;
+  is_overdue: boolean;
+  due_date?: string;
+}
+
 const severityConfig = {
   critical: {
-    bg: 'bg-red-50',
-    border: 'border-red-200',
-    icon: 'text-red-500',
-    badge: 'bg-red-100 text-red-700',
-    dot: 'bg-red-500',
+    bg: 'bg-[var(--status-error-bg)]',
+    border: 'border-[var(--status-error)]/30',
+    icon: 'text-[var(--status-error)]',
+    badge: 'bg-[var(--status-error-bg)] text-[var(--status-error)]',
+    dot: 'bg-[var(--status-error)]',
   },
   warning: {
-    bg: 'bg-amber-50',
-    border: 'border-amber-200',
-    icon: 'text-amber-500',
-    badge: 'bg-amber-100 text-amber-700',
-    dot: 'bg-amber-500',
+    bg: 'bg-[var(--status-warning-bg)]',
+    border: 'border-[var(--status-warning)]/30',
+    icon: 'text-[var(--status-warning)]',
+    badge: 'bg-[var(--status-warning-bg)] text-[var(--status-warning)]',
+    dot: 'bg-[var(--status-warning)]',
   },
   info: {
-    bg: 'bg-blue-50',
-    border: 'border-blue-200',
-    icon: 'text-blue-500',
-    badge: 'bg-blue-100 text-blue-700',
-    dot: 'bg-blue-500',
+    bg: 'bg-[var(--status-info-bg)]',
+    border: 'border-[var(--status-info)]/30',
+    icon: 'text-[var(--status-info)]',
+    badge: 'bg-[var(--status-info-bg)] text-[var(--status-info)]',
+    dot: 'bg-[var(--status-info)]',
   },
 };
 
@@ -82,7 +90,7 @@ function AlertCard({
       <div className={`absolute top-4 left-0 w-1 h-8 rounded-r-full ${config.dot}`} />
 
       {/* Icon */}
-      <div className={`p-2 rounded-lg bg-white shadow-sm ${config.icon} flex-shrink-0`}>
+      <div className={`p-2 rounded-lg bg-[var(--bg-paper)] shadow-sm ${config.icon} flex-shrink-0`}>
         <Icon className="w-4 h-4" />
       </div>
 
@@ -98,13 +106,13 @@ function AlertCard({
             </span>
           )}
         </div>
-        <p className="text-xs text-gray-600 line-clamp-2">{alert.description}</p>
+        <p className="text-xs text-[var(--text-secondary)] line-clamp-2">{alert.description}</p>
       </div>
 
       {/* Actions */}
       <div className="flex items-center gap-1 flex-shrink-0">
         {alert.href && (
-          <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-[var(--primary)] group-hover:translate-x-0.5 transition-all" />
+          <ChevronRight className="w-4 h-4 text-[var(--text-muted)] group-hover:text-[var(--primary)] group-hover:translate-x-0.5 transition-all" />
         )}
         {alert.dismissable && onDismiss && (
           <button
@@ -113,9 +121,9 @@ function AlertCard({
               e.stopPropagation();
               onDismiss(alert.id);
             }}
-            className="p-1 hover:bg-white/50 rounded transition-colors"
+            className="p-1 hover:bg-[var(--bg-paper)]/50 rounded transition-colors"
           >
-            <X className="w-3.5 h-3.5 text-gray-400 hover:text-gray-600" />
+            <X className="w-3.5 h-3.5 text-[var(--text-muted)] hover:text-[var(--text-secondary)]" />
           </button>
         )}
       </div>
@@ -134,12 +142,12 @@ function LoadingSkeleton() {
       {[...Array(3)].map((_, i) => (
         <div
           key={i}
-          className="animate-pulse flex items-start gap-3 p-4 rounded-xl bg-gray-50 border border-gray-100"
+          className="animate-pulse flex items-start gap-3 p-4 rounded-xl bg-[var(--bg-subtle)] border border-[var(--border-light)]"
         >
-          <div className="w-8 h-8 bg-gray-200 rounded-lg flex-shrink-0" />
+          <div className="w-8 h-8 bg-[var(--border-light)] rounded-lg flex-shrink-0" />
           <div className="flex-1">
-            <div className="h-4 bg-gray-200 rounded w-32 mb-2" />
-            <div className="h-3 bg-gray-200 rounded w-48" />
+            <div className="h-4 bg-[var(--border-light)] rounded w-32 mb-2" />
+            <div className="h-3 bg-[var(--border-light)] rounded w-48" />
           </div>
         </div>
       ))}
@@ -150,14 +158,14 @@ function LoadingSkeleton() {
 function EmptyState() {
   return (
     <div className="flex flex-col items-center justify-center py-8 text-center">
-      <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center mb-3">
-        <CheckCircle2 className="w-6 h-6 text-emerald-600" />
+      <div className="w-12 h-12 rounded-full bg-[var(--status-success-bg)] flex items-center justify-center mb-3">
+        <CheckCircle2 className="w-6 h-6 text-[var(--status-success)]" />
       </div>
       <h4 className="text-sm font-semibold text-[var(--text-primary)] mb-1">
         Sin alertas
       </h4>
-      <p className="text-xs text-gray-500">
-        Todo est\u00e1 funcionando correctamente
+      <p className="text-xs text-[var(--text-muted)]">
+        Todo está funcionando correctamente
       </p>
     </div>
   );
@@ -180,14 +188,13 @@ export function AlertsPanel({ clinic }: AlertsPanelProps) {
         const alertItems: Alert[] = [];
 
         // Process inventory alerts
+        // API returns { low_stock: [], expiring_soon: [], out_of_stock: [] }
         if (inventoryRes.ok) {
           const inventoryData = await inventoryRes.json();
-          const criticalCount = (inventoryData.alerts || []).filter(
-            (a: any) => a.alert_type === 'critical' || a.alert_type === 'low_stock'
-          ).length;
-          const expiringCount = (inventoryData.alerts || []).filter(
-            (a: any) => a.alert_type === 'expiring'
-          ).length;
+          const lowStockCount = (inventoryData.low_stock || []).length;
+          const outOfStockCount = (inventoryData.out_of_stock || []).length;
+          const expiringCount = (inventoryData.expiring_soon || []).length;
+          const criticalCount = lowStockCount + outOfStockCount;
 
           if (criticalCount > 0) {
             alertItems.push({
@@ -195,7 +202,7 @@ export function AlertsPanel({ clinic }: AlertsPanelProps) {
               type: 'inventory',
               severity: 'critical',
               title: 'Stock bajo',
-              description: `${criticalCount} productos necesitan reposici\u00f3n urgente`,
+              description: `${criticalCount} productos necesitan reposición urgente`,
               count: criticalCount,
               href: `/${clinic}/dashboard/inventory?filter=low_stock`,
             });
@@ -215,10 +222,12 @@ export function AlertsPanel({ clinic }: AlertsPanelProps) {
         }
 
         // Process vaccine alerts
+        // API returns array with is_overdue flag
         if (vaccinesRes.ok) {
           const vaccinesData = await vaccinesRes.json();
-          const overdueCount = (vaccinesData.overdue || []).length;
-          const upcomingCount = (vaccinesData.upcoming || []).length;
+          const vaccines = Array.isArray(vaccinesData) ? vaccinesData : [];
+          const overdueCount = vaccines.filter((v: Vaccine) => v.is_overdue).length;
+          const upcomingCount = vaccines.filter((v: Vaccine) => !v.is_overdue).length;
 
           if (overdueCount > 0) {
             alertItems.push({
@@ -237,7 +246,7 @@ export function AlertsPanel({ clinic }: AlertsPanelProps) {
               id: 'vaccines-upcoming',
               type: 'vaccine',
               severity: 'warning',
-              title: 'Vacunas pr\u00f3ximas',
+              title: 'Vacunas próximas',
               description: `${upcomingCount} vacunaciones programadas esta semana`,
               count: upcomingCount,
               href: `/${clinic}/dashboard/vaccines`,
@@ -251,7 +260,10 @@ export function AlertsPanel({ clinic }: AlertsPanelProps) {
 
         setAlerts(alertItems);
       } catch (error) {
-        console.error('Error fetching alerts:', error);
+        // Client-side error logging - only in development
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Error fetching alerts:', error);
+        }
       } finally {
         setLoading(false);
       }
@@ -271,31 +283,31 @@ export function AlertsPanel({ clinic }: AlertsPanelProps) {
   const criticalCount = visibleAlerts.filter((a) => a.severity === 'critical').length;
 
   return (
-    <div className="bg-[var(--bg-paper)] rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+    <div className="bg-[var(--bg-paper)] rounded-2xl shadow-sm border border-[var(--border-light)] overflow-hidden">
       {/* Header */}
-      <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+      <div className="px-5 py-4 border-b border-[var(--border-light)] flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div
             className={`p-2 rounded-lg ${
-              criticalCount > 0 ? 'bg-red-100' : 'bg-[var(--primary)]/10'
+              criticalCount > 0 ? 'bg-[var(--status-error-bg)]' : 'bg-[var(--primary)]/10'
             }`}
           >
             <AlertTriangle
               className={`w-5 h-5 ${
-                criticalCount > 0 ? 'text-red-600' : 'text-[var(--primary)]'
+                criticalCount > 0 ? 'text-[var(--status-error)]' : 'text-[var(--primary)]'
               }`}
             />
           </div>
           <div>
             <h3 className="font-bold text-[var(--text-primary)]">Alertas</h3>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-[var(--text-muted)]">
               {visibleAlerts.length} activa{visibleAlerts.length !== 1 ? 's' : ''}
             </p>
           </div>
         </div>
         {criticalCount > 0 && (
-          <span className="px-2.5 py-1 bg-red-100 text-red-700 text-xs font-bold rounded-full animate-pulse">
-            {criticalCount} cr\u00edtica{criticalCount !== 1 ? 's' : ''}
+          <span className="px-2.5 py-1 bg-[var(--status-error-bg)] text-[var(--status-error)] text-xs font-bold rounded-full animate-pulse">
+            {criticalCount} crítica{criticalCount !== 1 ? 's' : ''}
           </span>
         )}
       </div>
@@ -321,7 +333,7 @@ export function AlertsPanel({ clinic }: AlertsPanelProps) {
 
       {/* Footer */}
       {visibleAlerts.length > 0 && (
-        <div className="px-5 py-3 border-t border-gray-100 bg-gray-50/50 flex items-center justify-between">
+        <div className="px-5 py-3 border-t border-[var(--border-light)] bg-[var(--bg-subtle)]/50 flex items-center justify-between">
           <Link
             href={`/${clinic}/dashboard/alerts`}
             className="text-sm text-[var(--primary)] hover:underline font-medium flex items-center gap-1"
@@ -332,7 +344,7 @@ export function AlertsPanel({ clinic }: AlertsPanelProps) {
           {dismissed.size > 0 && (
             <button
               onClick={() => setDismissed(new Set())}
-              className="text-xs text-gray-500 hover:text-gray-700"
+              className="text-xs text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
             >
               Mostrar descartadas ({dismissed.size})
             </button>

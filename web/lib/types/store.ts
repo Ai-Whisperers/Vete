@@ -492,8 +492,38 @@ export interface ProductQueryParams extends ProductFilters {
   sort?: SortOption;
 }
 
+// Lightweight product type for list views (not full StoreProductWithDetails)
+export interface ProductListItem {
+  id: string;
+  sku: string | null;
+  name: string;
+  description: string | null;
+  short_description: string | null;
+  base_price: number;
+  sale_price: number | null;
+  current_price: number;
+  image_url: string | null;
+  target_species: string[] | null;
+  is_prescription_required: boolean;
+  stock_quantity: number;
+  is_active: boolean;
+  brand: { id: string; name: string; slug: string } | null;
+  category: { id: string; name: string; slug: string } | null;
+  // Optional display-only fields (may not always be populated)
+  original_price?: number | null;
+  has_discount?: boolean;
+  discount_percentage?: number | null;
+  is_new_arrival?: boolean;
+  is_best_seller?: boolean;
+  avg_rating?: number;
+  review_count?: number;
+  inventory?: { stock_quantity: number; min_stock_level?: number | null } | null;
+  // Product images (may be empty for list views)
+  images?: StoreProductImage[];
+}
+
 export interface ProductListResponse {
-  products: StoreProductWithDetails[];
+  products: ProductListItem[];
   pagination: {
     page: number;
     limit: number;

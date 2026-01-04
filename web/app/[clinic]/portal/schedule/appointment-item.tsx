@@ -4,7 +4,29 @@ import * as Icons from "lucide-react"
 import { updateAppointmentStatus } from "@/app/actions/update-appointment"
 import { useState } from "react"
 
-export default function AppointmentItem({ appointment, clinic }: { appointment: any, clinic: string }) {
+type AppointmentStatus = 'pending' | 'confirmed' | 'completed' | 'cancelled' | 'rejected';
+
+interface AppointmentOwner {
+    full_name?: string;
+    phone?: string;
+}
+
+interface AppointmentPet {
+    name: string;
+    species: string;
+    owner?: AppointmentOwner;
+}
+
+interface Appointment {
+    id: string;
+    pet: AppointmentPet;
+    start_time: string;
+    status: AppointmentStatus;
+    reason: string;
+    notes?: string;
+}
+
+export default function AppointmentItem({ appointment, clinic }: { appointment: Appointment, clinic: string }) {
     const [loading, setLoading] = useState(false)
     const { pet, start_time, status, reason, notes } = appointment
     const date = new Date(start_time)
@@ -16,7 +38,7 @@ export default function AppointmentItem({ appointment, clinic }: { appointment: 
         setLoading(false)
     }
 
-    const statusColors = {
+    const statusColors: Record<AppointmentStatus, string> = {
         pending: 'bg-yellow-100 text-yellow-700 border-yellow-200',
         confirmed: 'bg-blue-100 text-blue-700 border-blue-200',
         completed: 'bg-green-100 text-green-700 border-green-200',
@@ -24,7 +46,6 @@ export default function AppointmentItem({ appointment, clinic }: { appointment: 
         rejected: 'bg-red-100 text-red-700 border-red-200'
     }
 
-    // @ts-ignore
     const badgeClass = statusColors[status] || 'bg-gray-100 text-gray-500'
 
     return (

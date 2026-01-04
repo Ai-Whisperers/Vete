@@ -62,7 +62,10 @@ export function LoyaltyPointsWidget({
           setTransactions(data.transactions || []);
         }
       } catch (error) {
-        console.error("Error fetching loyalty data:", error);
+        // Client-side error logging - only in development
+        if (process.env.NODE_ENV === 'development') {
+          console.error("Error fetching loyalty data:", error);
+        }
       } finally {
         setIsLoading(false);
       }
@@ -100,7 +103,10 @@ export function LoyaltyPointsWidget({
         setShowAddPoints(false);
       }
     } catch (error) {
-      console.error("Error adding points:", error);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Error adding points:", error);
+      }
     } finally {
       setIsSubmitting(false);
     }

@@ -12,6 +12,7 @@ import {
   Clock,
   Activity,
   RefreshCw,
+  LucideIcon,
 } from 'lucide-react';
 
 type ActivityType =
@@ -30,7 +31,7 @@ interface ActivityItem {
   timestamp: string;
   href?: string;
   actor?: string;
-  meta?: Record<string, any>;
+  meta?: Record<string, string | number | boolean>;
 }
 
 interface ActivityFeedProps {
@@ -38,7 +39,27 @@ interface ActivityFeedProps {
   maxItems?: number;
 }
 
-const activityConfig: Record<ActivityType, { icon: any; color: string; bgColor: string }> = {
+interface Appointment {
+  id: string;
+  status: string;
+  pet_name?: string;
+  service_name?: string;
+  updated_at?: string;
+  end_time?: string;
+  start_time: string;
+  created_at?: string;
+  vet_name?: string;
+}
+
+interface Pet {
+  id: string;
+  name: string;
+  species: 'dog' | 'cat';
+  breed?: string;
+  created_at: string;
+}
+
+const activityConfig: Record<ActivityType, { icon: LucideIcon; color: string; bgColor: string }> = {
   appointment_completed: {
     icon: CheckCircle2,
     color: 'text-emerald-600',
@@ -88,7 +109,7 @@ function ActivityItemRow({ item }: { item: ActivityItem }) {
   const Icon = config.icon;
 
   const content = (
-    <div className="flex items-start gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors group">
+    <div className="flex items-start gap-3 p-3 rounded-xl hover:bg-[var(--bg-subtle)] transition-colors group">
       <div className={`p-2 rounded-lg ${config.bgColor} ${config.color} flex-shrink-0`}>
         <Icon className="w-4 h-4" />
       </div>
@@ -96,16 +117,16 @@ function ActivityItemRow({ item }: { item: ActivityItem }) {
         <p className="text-sm text-[var(--text-primary)] group-hover:text-[var(--primary)] transition-colors">
           <span className="font-medium">{item.title}</span>
           {item.description && (
-            <span className="text-gray-500"> - {item.description}</span>
+            <span className="text-[var(--text-muted)]"> - {item.description}</span>
           )}
         </p>
         <div className="flex items-center gap-2 mt-0.5">
-          <span className="text-xs text-gray-400 flex items-center gap-1">
+          <span className="text-xs text-[var(--text-muted)] flex items-center gap-1">
             <Clock className="w-3 h-3" />
             {formatRelativeTime(item.timestamp)}
           </span>
           {item.actor && (
-            <span className="text-xs text-gray-400">
+            <span className="text-xs text-[var(--text-muted)]">
               por {item.actor}
             </span>
           )}
@@ -125,10 +146,10 @@ function LoadingSkeleton() {
     <div className="space-y-2">
       {[...Array(5)].map((_, i) => (
         <div key={i} className="animate-pulse flex items-start gap-3 p-3">
-          <div className="w-8 h-8 bg-gray-200 rounded-lg flex-shrink-0" />
+          <div className="w-8 h-8 bg-[var(--border-light)] rounded-lg flex-shrink-0" />
           <div className="flex-1">
-            <div className="h-4 bg-gray-200 rounded w-3/4 mb-2" />
-            <div className="h-3 bg-gray-200 rounded w-1/3" />
+            <div className="h-4 bg-[var(--border-light)] rounded w-3/4 mb-2" />
+            <div className="h-3 bg-[var(--border-light)] rounded w-1/3" />
           </div>
         </div>
       ))}
@@ -139,10 +160,10 @@ function LoadingSkeleton() {
 function EmptyState() {
   return (
     <div className="flex flex-col items-center justify-center py-8 text-center">
-      <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mb-3">
-        <Activity className="w-6 h-6 text-gray-400" />
+      <div className="w-12 h-12 rounded-full bg-[var(--bg-subtle)] flex items-center justify-center mb-3">
+        <Activity className="w-6 h-6 text-[var(--text-muted)]" />
       </div>
-      <p className="text-sm text-gray-500">Sin actividad reciente</p>
+      <p className="text-sm text-[var(--text-muted)]">Sin actividad reciente</p>
     </div>
   );
 }
@@ -160,7 +181,7 @@ export function ActivityFeed({ clinic, maxItems = 8 }: ActivityFeedProps) {
       // Fetch recent activities from multiple sources
       const [appointmentsRes, petsRes] = await Promise.all([
         fetch(`/api/dashboard/today-appointments?clinic=${clinic}`),
-        fetch(`/api/pets?clinic=${clinic}&limit=5&sort=created_at`),
+        fetch(`/api/dashboard/pets?clinic=${clinic}&limit=5`),
       ]);
 
       const activityItems: ActivityItem[] = [];
@@ -168,12 +189,12 @@ export function ActivityFeed({ clinic, maxItems = 8 }: ActivityFeedProps) {
       // Process completed appointments
       if (appointmentsRes.ok) {
         const data = await appointmentsRes.json();
-        const appointments = data.appointments || [];
+        const appointments: Appointment[] = data.appointments || [];
 
         appointments
-          .filter((apt: any) => apt.status === 'completed')
+          .filter((apt: Appointment) => apt.status === 'completed')
           .slice(0, 4)
-          .forEach((apt: any) => {
+          .forEach((apt: Appointment) => {
             activityItems.push({
               id: `apt-${apt.id}`,
               type: 'appointment_completed',
@@ -187,9 +208,9 @@ export function ActivityFeed({ clinic, maxItems = 8 }: ActivityFeedProps) {
 
         // Scheduled appointments
         appointments
-          .filter((apt: any) => apt.status === 'scheduled' || apt.status === 'confirmed')
+          .filter((apt: Appointment) => apt.status === 'scheduled' || apt.status === 'confirmed')
           .slice(0, 3)
-          .forEach((apt: any) => {
+          .forEach((apt: Appointment) => {
             activityItems.push({
               id: `apt-scheduled-${apt.id}`,
               type: 'appointment_scheduled',
@@ -204,9 +225,9 @@ export function ActivityFeed({ clinic, maxItems = 8 }: ActivityFeedProps) {
       // Process recently registered pets
       if (petsRes.ok) {
         const data = await petsRes.json();
-        const pets = data.data || data.pets || [];
+        const pets: Pet[] = data.data || data.pets || [];
 
-        pets.slice(0, 3).forEach((pet: any) => {
+        pets.slice(0, 3).forEach((pet: Pet) => {
           activityItems.push({
             id: `pet-${pet.id}`,
             type: 'pet_registered',
@@ -225,7 +246,10 @@ export function ActivityFeed({ clinic, maxItems = 8 }: ActivityFeedProps) {
 
       setActivities(activityItems.slice(0, maxItems));
     } catch (error) {
-      console.error('Error fetching activities:', error);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error fetching activities:', error);
+      }
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -240,25 +264,25 @@ export function ActivityFeed({ clinic, maxItems = 8 }: ActivityFeedProps) {
   }, [clinic, maxItems]);
 
   return (
-    <div className="bg-[var(--bg-paper)] rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+    <div className="bg-[var(--bg-paper)] rounded-2xl shadow-sm border border-[var(--border-light)] overflow-hidden">
       {/* Header */}
-      <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+      <div className="px-5 py-4 border-b border-[var(--border-light)] flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="p-2 bg-[var(--primary)]/10 rounded-lg">
             <Activity className="w-5 h-5 text-[var(--primary)]" />
           </div>
           <div>
             <h3 className="font-bold text-[var(--text-primary)]">Actividad Reciente</h3>
-            <p className="text-xs text-gray-500">Actualizaciones en tiempo real</p>
+            <p className="text-xs text-[var(--text-muted)]">Actualizaciones en tiempo real</p>
           </div>
         </div>
         <button
           onClick={() => fetchActivities(true)}
           disabled={refreshing}
-          className="p-2 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
+          className="p-2 hover:bg-[var(--bg-subtle)] rounded-lg transition-colors disabled:opacity-50"
           title="Actualizar"
         >
-          <RefreshCw className={`w-4 h-4 text-gray-500 ${refreshing ? 'animate-spin' : ''}`} />
+          <RefreshCw className={`w-4 h-4 text-[var(--text-muted)] ${refreshing ? 'animate-spin' : ''}`} />
         </button>
       </div>
 
@@ -271,7 +295,7 @@ export function ActivityFeed({ clinic, maxItems = 8 }: ActivityFeedProps) {
         ) : activities.length === 0 ? (
           <EmptyState />
         ) : (
-          <div className="divide-y divide-gray-50">
+          <div className="divide-y divide-[var(--border-light)]/50">
             {activities.map(activity => (
               <ActivityItemRow key={activity.id} item={activity} />
             ))}
@@ -281,7 +305,7 @@ export function ActivityFeed({ clinic, maxItems = 8 }: ActivityFeedProps) {
 
       {/* Footer */}
       {activities.length > 0 && (
-        <div className="px-5 py-3 border-t border-gray-100 bg-gray-50/50">
+        <div className="px-5 py-3 border-t border-[var(--border-light)] bg-[var(--bg-subtle)]/50">
           <Link
             href={`/${clinic}/dashboard/activity`}
             className="text-sm text-[var(--primary)] hover:underline font-medium"

@@ -12,10 +12,12 @@ import {
   FileText,
   ChevronRight,
 } from 'lucide-react';
+import { MissingVaccinesCard } from '../missing-vaccines-card';
 
 interface Vaccine {
   id: string;
   name: string;
+  vaccine_code?: string | null;
   administered_date?: string | null;
   next_due_date?: string | null;
   status: string;
@@ -36,6 +38,8 @@ interface VaccineReaction {
 interface PetVaccinesTabProps {
   petId: string;
   petName: string;
+  petSpecies: string;
+  petBirthDate?: string | null;
   vaccines: Vaccine[];
   reactions?: VaccineReaction[];
   clinic: string;
@@ -45,11 +49,21 @@ interface PetVaccinesTabProps {
 export function PetVaccinesTab({
   petId,
   petName,
+  petSpecies,
+  petBirthDate,
   vaccines,
   reactions = [],
   clinic,
   isStaff = false,
 }: PetVaccinesTabProps) {
+  // Extract vaccine codes and names from existing vaccines for the recommendation API
+  const existingVaccineCodes = vaccines
+    .map(v => v.vaccine_code)
+    .filter((code): code is string => !!code);
+
+  const existingVaccineNames = vaccines
+    .map(v => v.name)
+    .filter((name): name is string => !!name);
   const today = new Date();
   const thirtyDaysFromNow = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000);
 
@@ -281,24 +295,44 @@ export function PetVaccinesTab({
         </div>
       )}
 
-      {/* Empty State */}
+      {/* Missing Vaccines Card - Shows when pet has no vaccines or is missing core vaccines */}
       {vaccines.length === 0 && (
-        <div className="text-center py-12 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
-          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Syringe className="w-8 h-8 text-gray-400" />
+        <div className="space-y-6">
+          {/* Show missing vaccines recommendations */}
+          <MissingVaccinesCard
+            petId={petId}
+            petName={petName}
+            species={petSpecies}
+            birthDate={petBirthDate}
+            existingVaccineCodes={existingVaccineCodes}
+            existingVaccineNames={existingVaccineNames}
+            clinic={clinic}
+          />
+
+          {/* Empty state message */}
+          <div className="text-center py-8 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
+            <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+              <Syringe className="w-6 h-6 text-gray-400" />
+            </div>
+            <h3 className="font-bold text-gray-900 mb-1">Sin vacunas registradas</h3>
+            <p className="text-sm text-gray-500 max-w-xs mx-auto">
+              No hay registros de vacunación para {petName}
+            </p>
           </div>
-          <h3 className="font-bold text-gray-900 mb-2">Sin vacunas registradas</h3>
-          <p className="text-sm text-gray-500 mb-4 max-w-xs mx-auto">
-            No hay registros de vacunación para {petName}
-          </p>
-          <Link
-            href={`/${clinic}/book?pet=${petId}&service=vacunacion`}
-            className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--primary)] text-white rounded-xl font-bold hover:opacity-90 transition-opacity"
-          >
-            <Calendar className="w-4 h-4" />
-            Agendar Vacunación
-          </Link>
         </div>
+      )}
+
+      {/* Show missing vaccines card even when pet has some vaccines (to show missing core vaccines) */}
+      {vaccines.length > 0 && (
+        <MissingVaccinesCard
+          petId={petId}
+          petName={petName}
+          species={petSpecies}
+          birthDate={petBirthDate}
+          existingVaccineCodes={existingVaccineCodes}
+          existingVaccineNames={existingVaccineNames}
+          clinic={clinic}
+        />
       )}
     </div>
   );

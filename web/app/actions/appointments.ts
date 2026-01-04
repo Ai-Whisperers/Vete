@@ -589,5 +589,100 @@ export async function checkAvailableSlots(
   }
 }
 
+/**
+ * Reschedule an appointment via drag-and-drop in the calendar
+ * Staff only - accepts Date objects directly for easier integration
+ */
+export const rescheduleAppointmentByDrag = withActionAuth(
+  async (
+    { user, profile, supabase }: AuthContext,
+    appointmentId: string,
+    newStartTime: Date,
+    newEndTime: Date
+  ) => {
+    // Get appointment to verify ownership/permissions
+    const { data: appointment, error: fetchError } = await supabase
+      .from('appointments')
+      .select(`
+        id,
+        tenant_id,
+        start_time,
+        end_time,
+        status,
+        vet_id
+      `)
+      .eq('id', appointmentId)
+      .single()
+
+    if (fetchError || !appointment) {
+      return actionError('Cita no encontrada')
+    }
+
+    // Verify staff permission - only staff can drag-and-drop reschedule
+    if (profile.tenant_id !== appointment.tenant_id) {
+      return actionError('Solo el personal puede reprogramar citas')
+    }
+
+    // Check if appointment can be rescheduled
+    if (['cancelled', 'completed', 'no_show'].includes(appointment.status)) {
+      return actionError('Esta cita no puede ser reprogramada')
+    }
+
+    // Validate times
+    if (newStartTime >= newEndTime) {
+      return actionError('La hora de fin debe ser posterior a la hora de inicio')
+    }
+
+    if (newStartTime < new Date()) {
+      return actionError('No se puede reprogramar a una fecha pasada')
+    }
+
+    // Check for overlaps - exclude current appointment
+    const { data: conflicts } = await supabase
+      .from('appointments')
+      .select('id')
+      .eq('tenant_id', appointment.tenant_id)
+      .in('status', ['scheduled', 'confirmed', 'in_progress'])
+      .neq('id', appointmentId)
+      .lt('start_time', newEndTime.toISOString())
+      .gt('end_time', newStartTime.toISOString())
+      .limit(1)
+
+    if (conflicts && conflicts.length > 0) {
+      return actionError('El horario seleccionado no está disponible')
+    }
+
+    // Update appointment
+    const { error: updateError } = await supabase
+      .from('appointments')
+      .update({
+        start_time: newStartTime.toISOString(),
+        end_time: newEndTime.toISOString(),
+      })
+      .eq('id', appointmentId)
+
+    if (updateError) {
+      logger.error('Reschedule by drag error', {
+        appointmentId,
+        tenantId: profile.tenant_id,
+        userId: user.id,
+        error: updateError instanceof Error ? updateError.message : String(updateError)
+      })
+      return actionError('Error al reprogramar la cita')
+    }
+
+    // Revalidate paths
+    revalidatePath('/[clinic]/dashboard/calendar')
+    revalidatePath('/[clinic]/dashboard/appointments')
+    revalidatePath('/[clinic]/portal/appointments')
+
+    return actionSuccess({
+      newStartTime: newStartTime.toISOString(),
+      newEndTime: newEndTime.toISOString(),
+    })
+  },
+  { roles: ['vet', 'admin'] }
+)
+
 // Keep the import at the top as it's needed for checkAvailableSlots
 import { createClient } from '@/lib/supabase/server'

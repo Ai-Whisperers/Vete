@@ -29,14 +29,14 @@ export function ProductInfo({
       </h2>
 
       {/* Rating */}
-      {product.review_count > 0 && (
+      {(product.review_count ?? 0) > 0 && (
         <div className="flex items-center gap-2 mb-4">
           <div className="flex items-center">
             {[1, 2, 3, 4, 5].map((star) => (
               <Star
                 key={star}
                 className={`w-4 h-4 ${
-                  star <= Math.round(product.avg_rating)
+                  star <= Math.round(product.avg_rating ?? 0)
                     ? 'text-yellow-400 fill-yellow-400'
                     : 'text-gray-300'
                 }`}
@@ -44,7 +44,7 @@ export function ProductInfo({
             ))}
           </div>
           <span className="text-sm text-[var(--text-muted)]">
-            ({product.review_count} reseñas)
+            ({product.review_count ?? 0} reseñas)
           </span>
         </div>
       )}

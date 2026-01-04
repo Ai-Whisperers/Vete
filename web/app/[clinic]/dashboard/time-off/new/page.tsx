@@ -103,7 +103,8 @@ export default async function NewTimeOffPage({ params }: Props): Promise<React.R
     });
 
     if (error) {
-      console.error('Error creating time-off request:', error);
+      const { logger } = await import('@/lib/logger');
+      logger.error('Error creating time-off request', { error: error.message });
       return;
     }
 

@@ -61,7 +61,10 @@ export default function ConsentsPage(): JSX.Element {
       const data = await response.json();
       setConsents(data);
     } catch (error) {
-      console.error('Error fetching consents:', error);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error fetching consents:', error);
+      }
     } finally {
       setLoading(false);
     }
@@ -298,12 +301,28 @@ export default function ConsentsPage(): JSX.Element {
       {/* Consents List */}
       {filteredConsents.length === 0 ? (
         <div className="bg-[var(--bg-paper)] rounded-lg border border-[var(--primary)]/20 p-12 text-center">
-          <AlertCircle className="w-12 h-12 text-[var(--text-secondary)] mx-auto mb-4" />
-          <p className="text-[var(--text-secondary)]">
+          <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-[var(--primary)]/10 to-[var(--accent)]/10 rounded-2xl flex items-center justify-center">
+            <FileText className="w-8 h-8 text-[var(--primary)]" />
+          </div>
+          <h4 className="text-lg font-bold text-[var(--text-primary)] mb-2">
             {searchTerm || statusFilter !== 'all' || categoryFilter !== 'all'
-              ? 'No se encontraron consentimientos con los filtros aplicados'
-              : 'No hay consentimientos registrados'}
+              ? 'Sin resultados'
+              : 'Sin consentimientos'}
+          </h4>
+          <p className="text-[var(--text-secondary)] mb-6 max-w-md mx-auto">
+            {searchTerm || statusFilter !== 'all' || categoryFilter !== 'all'
+              ? 'No se encontraron consentimientos con los filtros aplicados. Prueba con otros criterios.'
+              : 'Aún no tienes consentimientos registrados. Crea uno nuevo para empezar a gestionar los consentimientos informados de tus pacientes.'}
           </p>
+          {!(searchTerm || statusFilter !== 'all' || categoryFilter !== 'all') && (
+            <button
+              onClick={() => router.push('./consents/new')}
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--primary)] text-white font-semibold rounded-xl hover:opacity-90 transition-opacity"
+            >
+              <Plus className="w-5 h-5" />
+              Nuevo Consentimiento
+            </button>
+          )}
         </div>
       ) : (
         <>

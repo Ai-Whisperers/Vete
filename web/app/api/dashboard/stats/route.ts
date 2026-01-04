@@ -2,54 +2,74 @@ import { NextResponse } from 'next/server';
 import { withAuth } from '@/lib/api/with-auth';
 import { apiError, HTTP_STATUS } from '@/lib/api/errors';
 
-// GET /api/dashboard/stats - Get clinic dashboard stats from materialized view
+// GET /api/dashboard/stats - Get clinic dashboard stats (live query)
 export const GET = withAuth(async ({ profile, supabase }) => {
   try {
-    // Get from materialized view for fast access
-    const { data: stats, error } = await supabase
-      .from('mv_clinic_dashboard_stats')
-      .select('tenant_id, total_pets, appointments_today, pending_vaccines, pending_invoices, pending_amount, last_updated')
+    // Use live queries for accurate, real-time data
+    const today = new Date().toISOString().split('T')[0];
+    const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    const nextWeek = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+    // First get pets for this tenant
+    const { data: tenantPets } = await supabase
+      .from('pets')
+      .select('id')
       .eq('tenant_id', profile.tenant_id)
-      .single();
+      .is('deleted_at', null);
 
-    if (error) {
-      // Fallback to live query if materialized view not available
-      const [petsResult, appointmentsResult, vaccinesResult, invoicesResult] = await Promise.all([
-        supabase
-          .from('pets')
-          .select('id', { count: 'exact', head: true })
-          .eq('tenant_id', profile.tenant_id)
-          .is('deleted_at', null),
-        supabase
-          .from('appointments')
-          .select('id', { count: 'exact', head: true })
-          .eq('tenant_id', profile.tenant_id)
-          .gte('start_time', new Date().toISOString().split('T')[0]),
-        supabase
-          .from('vaccines')
-          .select('id', { count: 'exact', head: true })
-          .eq('tenant_id', profile.tenant_id)
-          .lte('next_due_date', new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()),
-        supabase
-          .from('invoices')
-          .select('id, amount_due', { count: 'exact' })
-          .eq('tenant_id', profile.tenant_id)
-          .in('status', ['sent', 'partial'])
-      ]);
+    const petIds = tenantPets?.map(p => p.id) || [];
 
-      const pendingAmount = invoicesResult.data?.reduce((sum, inv) => sum + (inv.amount_due || 0), 0) || 0;
+    const [petsResult, appointmentsResult, completedResult, vaccinesResult, invoicesResult] = await Promise.all([
+      // Pets count
+      supabase
+        .from('pets')
+        .select('id', { count: 'exact', head: true })
+        .eq('tenant_id', profile.tenant_id)
+        .is('deleted_at', null),
+      // Today's appointments (all statuses except cancelled)
+      supabase
+        .from('appointments')
+        .select('id', { count: 'exact', head: true })
+        .eq('tenant_id', profile.tenant_id)
+        .gte('start_time', today)
+        .lt('start_time', tomorrow)
+        .neq('status', 'cancelled'),
+      // Today's completed appointments
+      supabase
+        .from('appointments')
+        .select('id', { count: 'exact', head: true })
+        .eq('tenant_id', profile.tenant_id)
+        .gte('start_time', today)
+        .lt('start_time', tomorrow)
+        .eq('status', 'completed'),
+      // Pending vaccines for tenant's pets (due within 7 days)
+      petIds.length > 0
+        ? supabase
+            .from('vaccines')
+            .select('id', { count: 'exact', head: true })
+            .in('pet_id', petIds)
+            .lte('next_due_date', nextWeek)
+            .is('deleted_at', null)
+        : Promise.resolve({ count: 0 }),
+      // Pending invoices
+      supabase
+        .from('invoices')
+        .select('id, amount_due', { count: 'exact' })
+        .eq('tenant_id', profile.tenant_id)
+        .in('status', ['sent', 'partial'])
+    ]);
 
-      return NextResponse.json({
-        total_pets: petsResult.count || 0,
-        appointments_today: appointmentsResult.count || 0,
-        pending_vaccines: vaccinesResult.count || 0,
-        pending_invoices: invoicesResult.count || 0,
-        pending_amount: pendingAmount,
-        last_updated: new Date().toISOString()
-      });
-    }
+    const pendingAmount = invoicesResult.data?.reduce((sum, inv) => sum + (inv.amount_due || 0), 0) || 0;
 
-    return NextResponse.json(stats);
+    return NextResponse.json({
+      total_pets: petsResult.count || 0,
+      appointments_today: appointmentsResult.count || 0,
+      completed_today: completedResult.count || 0,
+      pending_vaccines: vaccinesResult.count || 0,
+      pending_invoices: invoicesResult.count || 0,
+      pending_amount: pendingAmount,
+      last_updated: new Date().toISOString()
+    });
   } catch (e) {
     console.error('Error loading dashboard stats:', e);
     return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {

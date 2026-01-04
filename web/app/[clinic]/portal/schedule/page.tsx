@@ -1,8 +1,28 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { logger } from '@/lib/logger'
 import Link from 'next/link'
 import * as Icons from 'lucide-react'
 import AppointmentItem from './appointment-item'
+
+type AppointmentStatus = 'pending' | 'confirmed' | 'completed' | 'cancelled' | 'rejected';
+
+interface ScheduleAppointment {
+    id: string;
+    start_time: string;
+    status: AppointmentStatus;
+    reason: string;
+    notes?: string;
+    pet: {
+        name: string;
+        species: string;
+        photo_url?: string;
+        owner?: {
+            full_name?: string;
+            phone?: string;
+        };
+    };
+}
 
 export default async function SchedulePage({ params }: { params: Promise<{ clinic: string }> }) {
   const supabase = await createClient()
@@ -59,7 +79,7 @@ export default async function SchedulePage({ params }: { params: Promise<{ clini
     .order('start_time', { ascending: true })
 
     if (error) {
-        console.error("Schedule Error", error)
+        logger.error("Schedule Error", { error: error.message })
     }
 
   return (
@@ -89,7 +109,7 @@ export default async function SchedulePage({ params }: { params: Promise<{ clini
                     <p className="text-gray-400">La agenda está libre por ahora.</p>
                 </div>
             ) : (
-                rawData.map((apt: any) => (
+                (rawData as ScheduleAppointment[]).map((apt: ScheduleAppointment) => (
                     <AppointmentItem key={apt.id} appointment={apt} clinic={clinic} />
                 ))
             )}

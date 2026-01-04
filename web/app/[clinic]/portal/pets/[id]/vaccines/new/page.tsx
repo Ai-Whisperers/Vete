@@ -148,7 +148,10 @@ export default function NewVaccinePage() {
         }
       }
     } catch (e) {
-      console.error(e);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error(e);
+      }
     }
   };
 

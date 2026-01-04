@@ -64,7 +64,10 @@ export function InvoiceFormWrapper({
         setServices(("data" in servicesResult ? servicesResult.data : []) as Service[]);
       } catch (err) {
         setError("Error al cargar datos");
-        console.error(err);
+        // Client-side error logging - only in development
+        if (process.env.NODE_ENV === 'development') {
+          console.error(err);
+        }
       } finally {
         setLoading(false);
       }

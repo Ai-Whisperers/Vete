@@ -143,7 +143,10 @@ export function ScheduleEditorClient({
       }
     } catch (err) {
       setError('Error al guardar el horario')
-      console.error('Save schedule error:', err)
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Save schedule error:', err)
+      }
     } finally {
       setIsSaving(false)
     }
@@ -170,7 +173,10 @@ export function ScheduleEditorClient({
       }
     } catch (err) {
       setError('Error al eliminar el horario')
-      console.error('Delete schedule error:', err)
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Delete schedule error:', err)
+      }
     } finally {
       setIsDeleting(false)
     }

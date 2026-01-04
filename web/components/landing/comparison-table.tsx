@@ -88,8 +88,8 @@ function CellValue({ value, isVetepy = false }: { value: string | boolean; isVet
   if (value === true) {
     return (
       <div className="flex justify-center">
-        <div className={`w-6 h-6 rounded-full flex items-center justify-center ${isVetepy ? 'bg-[#2DCEA3]/30' : 'bg-[#2DCEA3]/20'}`}>
-          <Check className="w-4 h-4 text-[#2DCEA3]" />
+        <div className={`w-6 h-6 rounded-full flex items-center justify-center ${isVetepy ? 'bg-[var(--primary)]/30' : 'bg-[var(--primary)]/20'}`}>
+          <Check className="w-4 h-4 text-[var(--primary)]" />
         </div>
       </div>
     );
@@ -115,23 +115,23 @@ function CellValue({ value, isVetepy = false }: { value: string | boolean; isVet
       </span>
     );
   }
-  return <span className={`text-xs md:text-sm font-medium ${isVetepy ? 'text-[#2DCEA3]' : 'text-white'}`}>{value}</span>;
+  return <span className={`text-xs md:text-sm font-medium ${isVetepy ? 'text-[var(--primary)]' : 'text-white'}`}>{value}</span>;
 }
 
 export function ComparisonTable() {
   return (
-    <section className="py-16 md:py-24 bg-[#0F172A] relative overflow-hidden">
+    <section className="py-16 md:py-24 bg-[var(--bg-dark)] relative overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#2DCEA3]/5 rounded-full blur-[150px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[var(--primary)]/5 rounded-full blur-[150px]" />
       </div>
 
       <div className="container mx-auto px-4 md:px-6 relative z-10">
         {/* Section Header */}
         <div className="text-center mb-10 md:mb-12">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#2DCEA3]/10 border border-[#2DCEA3]/20 mb-4">
-            <Trophy className="w-4 h-4 text-[#2DCEA3]" />
-            <span className="text-[#2DCEA3] text-sm font-bold">Comparacion</span>
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--primary)]/10 border border-[var(--primary)]/20 mb-4">
+            <Trophy className="w-4 h-4 text-[var(--primary)]" />
+            <span className="text-[var(--primary)] text-sm font-bold">Comparacion</span>
           </div>
           <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-white mb-4 md:mb-6">
             VetePy vs las alternativas
@@ -144,24 +144,24 @@ export function ComparisonTable() {
         {/* Mobile View - Cards */}
         <div className="md:hidden space-y-4 max-w-sm mx-auto">
           {/* VetePy Card */}
-          <div className="p-5 rounded-2xl bg-gradient-to-br from-[#2DCEA3]/10 to-[#5C6BFF]/10 border border-[#2DCEA3]/30">
+          <div className="p-5 rounded-2xl bg-gradient-to-br from-[var(--primary)]/10 to-[var(--secondary)]/10 border border-[var(--primary)]/30">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <Zap className="w-5 h-5 text-[#2DCEA3]" />
+                <Zap className="w-5 h-5 text-[var(--primary)]" />
                 <span className="text-white font-bold">VetePy</span>
               </div>
-              <span className="px-2 py-1 rounded-full bg-[#2DCEA3] text-[#0F172A] text-[10px] font-bold">
+              <span className="px-2 py-1 rounded-full bg-[var(--primary)] text-[var(--bg-dark)] text-[10px] font-bold">
                 RECOMENDADO
               </span>
             </div>
             <div className="space-y-3">
               <div className="flex justify-between">
                 <span className="text-white/60 text-sm">Costo inicial</span>
-                <span className="text-[#2DCEA3] font-bold text-sm">desde ₲0*</span>
+                <span className="text-[var(--primary)] font-bold text-sm">desde ₲0*</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-white/60 text-sm">Mensualidad</span>
-                <span className="text-[#2DCEA3] font-bold text-sm">desde ₲150K</span>
+                <span className="text-[var(--primary)] font-bold text-sm">desde ₲150K</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-white/60 text-sm">Tiempo online</span>
@@ -170,7 +170,7 @@ export function ComparisonTable() {
               <div className="pt-2 border-t border-white/10 space-y-2">
                 {['Sistema de citas', 'Historial medico', 'Portal dueños', 'Soporte incluido'].map((item, idx) => (
                   <div key={idx} className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-[#2DCEA3]" />
+                    <Check className="w-4 h-4 text-[var(--primary)]" />
                     <span className="text-white/70 text-sm">{item}</span>
                   </div>
                 ))}
@@ -243,10 +243,10 @@ export function ComparisonTable() {
                 </th>
                 <th className="py-4 px-4 text-center">
                   <div className="inline-flex flex-col items-center gap-1">
-                    <div className="px-3 py-1 rounded-full bg-gradient-to-r from-[#2DCEA3] to-[#00C9FF]">
-                      <span className="text-[#0F172A] font-bold text-sm">VetePy</span>
+                    <div className="px-3 py-1 rounded-full bg-gradient-to-r from-[var(--primary)] to-[var(--accent)]">
+                      <span className="text-[var(--bg-dark)] font-bold text-sm">VetePy</span>
                     </div>
-                    <span className="text-[#2DCEA3] text-xs">Recomendado</span>
+                    <span className="text-[var(--primary)] text-xs">Recomendado</span>
                   </div>
                 </th>
                 <th className="py-4 px-4 text-center">
@@ -272,7 +272,7 @@ export function ComparisonTable() {
                   <td className="py-3 px-4 text-white/70 text-sm">
                     {row.feature}
                   </td>
-                  <td className="py-3 px-4 text-center bg-[#2DCEA3]/5">
+                  <td className="py-3 px-4 text-center bg-[var(--primary)]/5">
                     <CellValue value={row.vetepy} isVetepy />
                   </td>
                   <td className="py-3 px-4 text-center">
@@ -294,24 +294,24 @@ export function ComparisonTable() {
         {/* Bottom Summary - Desktop only */}
         <div className="hidden md:grid md:grid-cols-3 gap-6 max-w-4xl mx-auto mt-10">
           {/* VetePy Summary */}
-          <div className="p-5 rounded-2xl bg-gradient-to-br from-[#2DCEA3]/10 to-[#5C6BFF]/10 border border-[#2DCEA3]/30">
+          <div className="p-5 rounded-2xl bg-gradient-to-br from-[var(--primary)]/10 to-[var(--secondary)]/10 border border-[var(--primary)]/30">
             <div className="flex items-center gap-2 mb-3">
-              <Zap className="w-5 h-5 text-[#2DCEA3]" />
+              <Zap className="w-5 h-5 text-[var(--primary)]" />
               <h3 className="text-white font-bold">VetePy</h3>
             </div>
             <p className="text-white/60 text-sm mb-4">
               Resultados rapidos sin complicaciones tecnicas.
             </p>
             <ul className="space-y-2 text-sm">
-              <li className="flex items-center gap-2 text-[#2DCEA3]">
+              <li className="flex items-center gap-2 text-[var(--primary)]">
                 <Check className="w-4 h-4" />
                 Listo en dias
               </li>
-              <li className="flex items-center gap-2 text-[#2DCEA3]">
+              <li className="flex items-center gap-2 text-[var(--primary)]">
                 <Check className="w-4 h-4" />
                 Todo incluido
               </li>
-              <li className="flex items-center gap-2 text-[#2DCEA3]">
+              <li className="flex items-center gap-2 text-[var(--primary)]">
                 <Check className="w-4 h-4" />
                 Sin dolores de cabeza
               </li>
@@ -367,7 +367,7 @@ export function ComparisonTable() {
         <div className="text-center mt-10">
           <a
             href="#precios"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#2DCEA3] to-[#00C9FF] text-[#0F172A] font-bold rounded-full hover:shadow-lg hover:shadow-[#2DCEA3]/20 transition-all text-sm md:text-base"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[var(--primary)] to-[var(--accent)] text-[var(--bg-dark)] font-bold rounded-full hover:shadow-lg hover:shadow-[var(--primary)]/20 transition-all text-sm md:text-base"
           >
             Ver Precios de VetePy
             <ArrowRight className="w-4 h-4 md:w-5 md:h-5" />

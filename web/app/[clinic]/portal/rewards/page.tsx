@@ -109,7 +109,10 @@ export default function RewardsPage(): JSX.Element {
         }
       }
     } catch (e) {
-      console.error('Error fetching data:', e);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error fetching data:', e);
+      }
     } finally {
       setLoading(false);
     }

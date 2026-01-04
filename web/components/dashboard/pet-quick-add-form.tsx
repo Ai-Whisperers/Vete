@@ -85,7 +85,10 @@ export function PetQuickAddForm({
         .order("full_name");
 
       if (fetchError) {
-        console.error("Error fetching clients:", fetchError);
+        // Client-side error logging - only in development
+        if (process.env.NODE_ENV === 'development') {
+          console.error("Error fetching clients:", fetchError);
+        }
         setError("Error al cargar clientes");
       } else {
         setClients((data || []) as Client[]);
@@ -161,7 +164,10 @@ export function PetQuickAddForm({
         .single();
 
       if (insertError) {
-        console.error("Pet insert error:", insertError);
+        // Client-side error logging - only in development
+        if (process.env.NODE_ENV === 'development') {
+          console.error("Pet insert error:", insertError);
+        }
         throw new Error("Error al registrar la mascota");
       }
 
@@ -173,7 +179,10 @@ export function PetQuickAddForm({
         onSuccess?.(newPet.id);
       }, 1500);
     } catch (err) {
-      console.error("Error creating pet:", err);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Error creating pet:", err);
+      }
       setError(err instanceof Error ? err.message : "Error al registrar mascota");
     } finally {
       setIsSubmitting(false);

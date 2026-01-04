@@ -120,7 +120,10 @@ export function InlineEditField({
       setIsCopied(true);
       setTimeout(() => setIsCopied(false), 2000);
     } catch (err) {
-      console.error("Failed to copy:", err);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Failed to copy:", err);
+      }
     }
   };
 

@@ -87,7 +87,10 @@ export default function CampaignsClient() {
             setSelectedProducts([]);
             fetchData();
         } catch (e) {
-            console.error(e);
+            // Client-side error logging - only in development
+            if (process.env.NODE_ENV === 'development') {
+                console.error(e);
+            }
         } finally {
             setIsSaving(false);
         }

@@ -32,16 +32,66 @@ const stockFilterOptions = [
     { value: 'out_of_stock', label: 'Sin Stock' },
 ];
 
+// Type definitions
+interface ImportResult {
+    success: number;
+    errors: string[];
+    message?: string;
+}
+
+interface InventoryStats {
+    totalProducts: number;
+    lowStockCount: number;
+    totalValue: number;
+}
+
+interface StockAlertItem {
+    id: string;
+    name: string;
+    stock_quantity: number;
+    min_stock_level: number;
+    expiry_date?: string;
+}
+
+interface InventoryAlerts {
+    hasAlerts: boolean;
+    lowStock: StockAlertItem[];
+    expiring: StockAlertItem[];
+}
+
+interface ProductInventory {
+    stock_quantity?: number;
+    min_stock_level?: number;
+    expiry_date?: string;
+    batch_number?: string;
+    location?: string;
+    bin_number?: string;
+    supplier_name?: string;
+}
+
+interface Product {
+    id: string;
+    name: string;
+    sku?: string;
+    base_price?: number;
+    price?: number;
+    image_url?: string;
+    image?: string;
+    stock?: number;
+    inventory?: ProductInventory;
+    category?: { id: string; name: string; slug: string };
+}
+
 export default function InventoryClient({ googleSheetUrl }: InventoryClientProps) {
     const { clinic } = useParams() as { clinic: string };
     const [isUploading, setIsUploading] = useState(false);
-    const [result, setResult] = useState<any>(null);
+    const [result, setResult] = useState<ImportResult | null>(null);
     const [error, setError] = useState<string | null>(null);
-    const [stats, setStats] = useState<any>(null);
+    const [stats, setStats] = useState<InventoryStats | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
-    const [products, setProducts] = useState<any[]>([]);
+    const [products, setProducts] = useState<Product[]>([]);
     const [isLoadingProducts, setIsLoadingProducts] = useState(false);
-    const [editingProduct, setEditingProduct] = useState<any>(null);
+    const [editingProduct, setEditingProduct] = useState<Product | null>(null);
     const [editValues, setEditValues] = useState({
       price: 0,
       stock: 0,
@@ -54,7 +104,7 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
     });
     const [activeTab, setActiveTab] = useState<'basic' | 'inventory' | 'location'>('basic');
     const [isSaving, setIsSaving] = useState(false);
-    const [alerts, setAlerts] = useState<any>(null);
+    const [alerts, setAlerts] = useState<InventoryAlerts | null>(null);
     const [templateDropdownOpen, setTemplateDropdownOpen] = useState(false);
     const templateDropdownRef = useRef<HTMLDivElement>(null);
 
@@ -81,7 +131,10 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
                 setStats(data);
             }
         } catch (e) {
-            console.error('Failed to fetch stats', e);
+            // Client-side error logging - only in development
+            if (process.env.NODE_ENV === 'development') {
+                console.error('Failed to fetch stats', e);
+            }
         }
     };
 
@@ -93,7 +146,10 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
                 setAlerts(data);
             }
         } catch (e) {
-            console.error('Failed to fetch alerts', e);
+            // Client-side error logging - only in development
+            if (process.env.NODE_ENV === 'development') {
+                console.error('Failed to fetch alerts', e);
+            }
         }
     };
 
@@ -116,7 +172,10 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
                 setCategories(data.categories || []);
             }
         } catch (e) {
-            console.error('Failed to fetch categories', e);
+            // Client-side error logging - only in development
+            if (process.env.NODE_ENV === 'development') {
+                console.error('Failed to fetch categories', e);
+            }
         }
     };
 
@@ -144,7 +203,10 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
                 }
             }
         } catch (e) {
-            console.error('Failed to fetch products', e);
+            // Client-side error logging - only in development
+            if (process.env.NODE_ENV === 'development') {
+                console.error('Failed to fetch products', e);
+            }
         } finally {
             setIsLoadingProducts(false);
         }
@@ -153,7 +215,7 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
     // Apply local stock filtering for low_stock and out_of_stock
     const filteredProducts = useMemo(() => {
         if (stockFilter === 'low_stock') {
-            return products.filter(p => p.inventory?.stock_quantity > 0 && p.inventory?.stock_quantity <= (p.inventory?.min_stock_level || 5));
+            return products.filter(p => (p.inventory?.stock_quantity ?? 0) > 0 && (p.inventory?.stock_quantity ?? 0) <= (p.inventory?.min_stock_level || 5));
         }
         if (stockFilter === 'out_of_stock') {
             return products.filter(p => (p.inventory?.stock_quantity || 0) === 0);
@@ -190,7 +252,7 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
         fetchProducts(searchQuery, 1, newLimit);
     };
 
-    const openEdit = (p: any) => {
+    const openEdit = (p: Product) => {
         setEditingProduct(p);
         setEditValues({
             price: p.base_price ?? p.price ?? 0,
@@ -232,7 +294,10 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
                 fetchStats();
             }
         } catch (e) {
-            console.error('Save failed', e);
+            // Client-side error logging - only in development
+            if (process.env.NODE_ENV === 'development') {
+                console.error('Save failed', e);
+            }
         } finally {
             setIsSaving(false);
         }
@@ -418,7 +483,7 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
                                         {alerts.lowStock.length} product{alerts.lowStock.length > 1 ? 's' : ''} below minimum stock level
                                     </p>
                                     <div className="flex flex-wrap gap-2">
-                                        {alerts.lowStock.slice(0, 5).map((item: any) => (
+                                        {alerts.lowStock.slice(0, 5).map((item: StockAlertItem) => (
                                             <span key={item.id} className="bg-white px-3 py-1 rounded-lg text-xs font-bold text-orange-700 border border-orange-200">
                                                 {item.name} ({item.stock_quantity}/{item.min_stock_level})
                                             </span>
@@ -444,9 +509,9 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
                                         {alerts.expiring.length} product{alerts.expiring.length > 1 ? 's' : ''} expiring within 30 days
                                     </p>
                                     <div className="flex flex-wrap gap-2">
-                                        {alerts.expiring.slice(0, 5).map((item: any) => (
+                                        {alerts.expiring.slice(0, 5).map((item: StockAlertItem) => (
                                             <span key={item.id} className="bg-white px-3 py-1 rounded-lg text-xs font-bold text-red-700 border border-red-200">
-                                                {item.name} (Exp: {new Date(item.expiry_date).toLocaleDateString()})
+                                                {item.name} (Exp: {item.expiry_date ? new Date(item.expiry_date).toLocaleDateString() : 'N/A'})
                                             </span>
                                         ))}
                                         {alerts.expiring.length > 5 && (

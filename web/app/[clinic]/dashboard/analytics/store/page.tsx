@@ -267,7 +267,10 @@ export default function StoreAnalyticsPage(): React.ReactElement {
           setTurnoverData(result);
         }
       } catch (err) {
-        console.error("Error fetching store analytics:", err);
+        // Client-side error logging - only in development
+        if (process.env.NODE_ENV === 'development') {
+          console.error("Error fetching store analytics:", err);
+        }
         setError("Error de conexión");
       } finally {
         setIsLoading(false);

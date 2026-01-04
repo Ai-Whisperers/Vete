@@ -1069,7 +1069,13 @@ CREATE POLICY "Service role full access procurement leads" ON public.procurement
 -- =============================================================================
 -- CLINIC PRODUCT ASSIGNMENTS POLICIES
 -- =============================================================================
+-- Public can read active assignments (for store browsing)
 -- Staff manage their clinic's product assignments
+
+-- Public read for store catalog display
+DROP POLICY IF EXISTS "Public read active assignments" ON public.clinic_product_assignments;
+CREATE POLICY "Public read active assignments" ON public.clinic_product_assignments
+    FOR SELECT USING (is_active = true);
 
 DROP POLICY IF EXISTS "Staff manage product assignments" ON public.clinic_product_assignments;
 CREATE POLICY "Staff manage product assignments" ON public.clinic_product_assignments

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
+import Link from 'next/link'
 import type {
   CalendarEvent,
   CalendarEventResource,
@@ -21,7 +22,10 @@ interface EventDetailModalProps {
   onClose: () => void
   onEdit?: (event: CalendarEvent) => void
   onDelete?: (event: CalendarEvent) => void
-  onStatusChange?: (event: CalendarEvent, newStatus: string) => void
+  onStatusChange?: (event: CalendarEvent, newStatus: string) => Promise<void>
+  onCheckIn?: (event: CalendarEvent) => Promise<void>
+  onSendReminder?: (event: CalendarEvent) => Promise<void>
+  clinicSlug?: string
 }
 
 // =============================================================================
@@ -120,8 +124,14 @@ export function EventDetailModal({
   onEdit,
   onDelete,
   onStatusChange,
+  onCheckIn,
+  onSendReminder,
+  clinicSlug,
 }: EventDetailModalProps) {
   const [isDeleting, setIsDeleting] = useState(false)
+  const [isChangingStatus, setIsChangingStatus] = useState(false)
+  const [isCheckingIn, setIsCheckingIn] = useState(false)
+  const [isSendingReminder, setIsSendingReminder] = useState(false)
 
   if (!isOpen || !event) return null
 
@@ -143,6 +153,39 @@ export function EventDetailModal({
       onClose()
     } finally {
       setIsDeleting(false)
+    }
+  }
+
+  const handleStatusChange = async (newStatus: string) => {
+    if (!onStatusChange || !event) return
+
+    setIsChangingStatus(true)
+    try {
+      await onStatusChange(event, newStatus)
+    } finally {
+      setIsChangingStatus(false)
+    }
+  }
+
+  const handleCheckIn = async () => {
+    if (!onCheckIn || !event) return
+
+    setIsCheckingIn(true)
+    try {
+      await onCheckIn(event)
+    } finally {
+      setIsCheckingIn(false)
+    }
+  }
+
+  const handleSendReminder = async () => {
+    if (!onSendReminder || !event) return
+
+    setIsSendingReminder(true)
+    try {
+      await onSendReminder(event)
+    } finally {
+      setIsSendingReminder(false)
     }
   }
 
@@ -243,16 +286,33 @@ export function EventDetailModal({
               </div>
             </div>
 
-            {/* Status */}
+            {/* Status with dropdown for appointments */}
             {resource?.status && (
               <div className="flex items-center gap-3">
                 <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <StatusBadge
-                  status={resource.status}
-                  type={event.type as 'appointment' | 'time_off' | 'shift'}
-                />
+                {onStatusChange && event.type === 'appointment' ? (
+                  <select
+                    value={resource.status}
+                    onChange={(e) => handleStatusChange(e.target.value)}
+                    disabled={isChangingStatus}
+                    className="text-sm border border-gray-300 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent disabled:opacity-50"
+                    aria-label="Cambiar estado de la cita"
+                  >
+                    <option value="scheduled">Programada</option>
+                    <option value="confirmed">Confirmada</option>
+                    <option value="in_progress">En Progreso</option>
+                    <option value="completed">Completada</option>
+                    <option value="cancelled">Cancelada</option>
+                    <option value="no_show">No Asistió</option>
+                  </select>
+                ) : (
+                  <StatusBadge
+                    status={resource.status}
+                    type={event.type as 'appointment' | 'time_off' | 'shift'}
+                  />
+                )}
               </div>
             )}
 
@@ -266,18 +326,40 @@ export function EventDetailModal({
               </div>
             )}
 
-            {/* Pet (for appointments) */}
+            {/* Pet (for appointments) with link to profile */}
             {resource?.petName && event.type === 'appointment' && (
               <div className="flex items-center gap-3">
                 <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
                 </svg>
-                <div>
-                  <p className="text-sm text-gray-900">{resource.petName}</p>
+                <div className="flex-1">
+                  {clinicSlug && resource.petId ? (
+                    <Link
+                      href={`/${clinicSlug}/dashboard/pets/${resource.petId}`}
+                      className="text-sm text-[var(--primary)] hover:underline font-medium"
+                      onClick={onClose}
+                    >
+                      {resource.petName}
+                    </Link>
+                  ) : (
+                    <p className="text-sm text-gray-900">{resource.petName}</p>
+                  )}
                   {resource.species && (
                     <p className="text-xs text-gray-500">{resource.species}</p>
                   )}
                 </div>
+                {clinicSlug && resource.petId && (
+                  <Link
+                    href={`/${clinicSlug}/dashboard/pets/${resource.petId}`}
+                    className="text-xs text-gray-400 hover:text-[var(--primary)]"
+                    onClick={onClose}
+                    title="Ver perfil de la mascota"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                  </Link>
+                )}
               </div>
             )}
 
@@ -349,14 +431,81 @@ export function EventDetailModal({
             )}
           </div>
 
+          {/* Action buttons for appointments */}
+          {event.type === 'appointment' && (onCheckIn || onSendReminder) && (
+            <div className="border-t border-gray-200 px-6 py-3 flex gap-2 bg-gray-50">
+              {onCheckIn && resource?.status === 'confirmed' && (
+                <button
+                  onClick={handleCheckIn}
+                  disabled={isCheckingIn}
+                  className="flex-1 px-3 py-2 text-sm font-medium text-green-700 bg-green-100 rounded-lg hover:bg-green-200 disabled:opacity-50 inline-flex items-center justify-center gap-2"
+                >
+                  {isCheckingIn ? (
+                    <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                  ) : (
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  )}
+                  Check-in
+                </button>
+              )}
+              {onSendReminder && ['scheduled', 'confirmed'].includes(resource?.status || '') && (
+                <button
+                  onClick={handleSendReminder}
+                  disabled={isSendingReminder}
+                  className="flex-1 px-3 py-2 text-sm font-medium text-blue-700 bg-blue-100 rounded-lg hover:bg-blue-200 disabled:opacity-50 inline-flex items-center justify-center gap-2"
+                >
+                  {isSendingReminder ? (
+                    <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                  ) : (
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                    </svg>
+                  )}
+                  Enviar Recordatorio
+                </button>
+              )}
+            </div>
+          )}
+
           {/* Footer */}
           <div className="border-t border-gray-200 px-6 py-4 flex justify-end gap-3">
             {onDelete && (
               <button
                 onClick={handleDelete}
                 disabled={isDeleting}
-                className="px-4 py-2 text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 disabled:opacity-50"
+                className="px-4 py-2 text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 disabled:opacity-50 inline-flex items-center gap-2"
               >
+                {isDeleting && (
+                  <svg
+                    className="animate-spin h-4 w-4"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    />
+                  </svg>
+                )}
                 {isDeleting ? 'Eliminando...' : 'Eliminar'}
               </button>
             )}

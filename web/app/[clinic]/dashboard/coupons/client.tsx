@@ -198,7 +198,10 @@ export default function CouponsClient({ clinic }: CouponsClientProps): React.Rea
       setCoupons(data.coupons || []);
       setPagination(data.pagination);
     } catch (err) {
-      console.error("Error fetching coupons:", err);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Error fetching coupons:", err);
+      }
       setError("Error al cargar los cupones");
     } finally {
       setLoading(false);
@@ -303,7 +306,10 @@ export default function CouponsClient({ clinic }: CouponsClientProps): React.Rea
       setShowDeleteConfirm(null);
       fetchCoupons();
     } catch (err) {
-      console.error("Error deleting coupon:", err);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Error deleting coupon:", err);
+      }
       setError("Error al eliminar el cupón");
     }
   };

@@ -123,7 +123,10 @@ export function LoyaltyClient({ clinic, initialData }: LoyaltyClientProps) {
           setRedemptions(redemptionsData.data || []);
         }
       } catch (e) {
-        console.error('Error fetching loyalty data:', e);
+        // Client-side error logging - only in development
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Error fetching loyalty data:', e);
+        }
       } finally {
         setLoading(false);
       }
@@ -221,7 +224,10 @@ export function LoyaltyClient({ clinic, initialData }: LoyaltyClientProps) {
         setRedemptions(redemptionsData.data || []);
       }
     } catch (e) {
-      console.error('Error redeeming:', e);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error redeeming:', e);
+      }
       showFeedback('error', 'Error de conexión');
     } finally {
       setRedeemingId(null);

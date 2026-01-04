@@ -49,7 +49,7 @@ export function TeamMemberCard({ member, gradient, badgeClass, iconName }: TeamM
         {photoUrl && !imageError ? (
           <img
             src={photoUrl}
-            alt={member.name}
+            alt={`Foto de ${member.name}, ${member.role}`}
             className="w-full h-full object-cover"
             onError={() => setImageError(true)}
           />

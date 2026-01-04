@@ -103,6 +103,7 @@ export default function FilterDrawer({
           <button
             onClick={onClose}
             className="p-2 hover:bg-[var(--bg-subtle)] rounded-full transition-colors"
+            aria-label="Cerrar filtros"
           >
             <X className="w-5 h-5" />
           </button>

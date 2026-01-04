@@ -308,11 +308,25 @@ export function WaitingRoom({ clinic }: { clinic: string }): React.ReactElement 
         </div>
       )}
 
-      {/* Empty State */}
+      {/* Empty State - Warm and inviting */}
       {appointments.length === 0 && !isLoading && (
-        <div className="px-6 py-12 text-center">
-          <Clock className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-          <p className="text-gray-500">No hay citas programadas para hoy</p>
+        <div className="px-6 py-10 text-center">
+          <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-[var(--primary)]/10 to-[var(--accent)]/10 rounded-2xl flex items-center justify-center">
+            <Clock className="w-8 h-8 text-[var(--primary)]" />
+          </div>
+          <h4 className="text-base font-bold text-[var(--text-primary)] mb-2">
+            Sin citas para hoy
+          </h4>
+          <p className="text-sm text-[var(--text-secondary)] mb-4 max-w-xs mx-auto">
+            La sala de espera está vacía. ¡Buen momento para organizar!
+          </p>
+          <button
+            onClick={() => router.push(`/${clinic}/dashboard/appointments?action=new`)}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--primary)] text-white font-semibold rounded-xl hover:opacity-90 transition-opacity text-sm"
+          >
+            <PawPrint className="w-4 h-4" />
+            Agendar Cita
+          </button>
         </div>
       )}
 

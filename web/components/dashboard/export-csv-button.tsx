@@ -77,7 +77,10 @@ export function ExportCSVButton({
       setTimeout(() => setExported(false), 3000);
       setShowOptions(false);
     } catch (error) {
-      console.error("Export error:", error);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Export error:", error);
+      }
       alert("Error al exportar. Por favor, intente nuevamente.");
     } finally {
       setIsExporting(false);

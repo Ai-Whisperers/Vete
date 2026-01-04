@@ -87,7 +87,10 @@ export function ClientInviteForm({
         .single();
 
       if (profileError) {
-        console.error("Profile creation error:", profileError);
+        // Client-side error logging - only in development
+        if (process.env.NODE_ENV === 'development') {
+          console.error("Profile creation error:", profileError);
+        }
         throw new Error("Error al crear el perfil del cliente");
       }
 
@@ -102,7 +105,10 @@ export function ClientInviteForm({
         });
 
         if (petError) {
-          console.error("Pet creation error:", petError);
+          // Client-side error logging - only in development
+          if (process.env.NODE_ENV === 'development') {
+            console.error("Pet creation error:", petError);
+          }
           // Don't fail the whole operation if pet creation fails
         }
       }

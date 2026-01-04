@@ -121,7 +121,10 @@ export default function ConversationPage() {
         setCurrentUser({ id: userData.id, role: userData.role })
       }
     } catch (err) {
-      console.error('Error fetching user:', err)
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error fetching user:', err)
+      }
     }
   }
 

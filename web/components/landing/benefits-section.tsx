@@ -86,16 +86,16 @@ const ownerBenefits = [
 
 export function BenefitsSection() {
   return (
-    <section className="py-16 md:py-24 bg-[#0F172A] relative overflow-hidden">
+    <section className="py-16 md:py-24 bg-[var(--bg-dark)] relative overflow-hidden">
       {/* Decorative elements */}
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
 
       <div className="container mx-auto px-4 md:px-6">
         {/* Section Header */}
         <div className="text-center mb-10 md:mb-14">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#2DCEA3]/10 border border-[#2DCEA3]/20 mb-4">
-            <Heart className="w-4 h-4 text-[#2DCEA3]" />
-            <span className="text-[#2DCEA3] text-sm font-bold">Beneficios</span>
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--primary)]/10 border border-[var(--primary)]/20 mb-4">
+            <Heart className="w-4 h-4 text-[var(--primary)]" />
+            <span className="text-[var(--primary)] text-sm font-bold">Beneficios</span>
           </div>
           <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-white mb-4 md:mb-6">
             Todos ganan con VetePy
@@ -110,8 +110,8 @@ export function BenefitsSection() {
           {/* For Clinics */}
           <div>
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-11 h-11 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-[#2DCEA3] to-[#00C9FF] flex items-center justify-center shadow-lg shadow-[#2DCEA3]/20">
-                <Building2 className="w-5 h-5 md:w-6 md:h-6 text-[#0F172A]" />
+              <div className="w-11 h-11 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-[var(--primary)] to-[var(--accent)] flex items-center justify-center shadow-lg shadow-[var(--primary)]/20">
+                <Building2 className="w-5 h-5 md:w-6 md:h-6 text-[var(--bg-dark)]" />
               </div>
               <div>
                 <h3 className="text-lg md:text-xl font-bold text-white">Para tu Clinica</h3>
@@ -123,15 +123,15 @@ export function BenefitsSection() {
               {clinicBenefits.map((benefit, idx) => (
                 <div
                   key={idx}
-                  className="flex gap-3 p-4 rounded-xl bg-white/[0.03] border border-white/10 hover:border-[#2DCEA3]/30 hover:bg-white/[0.05] transition-all group"
+                  className="flex gap-3 p-4 rounded-xl bg-white/[0.03] border border-white/10 hover:border-[var(--primary)]/30 hover:bg-white/[0.05] transition-all group"
                 >
-                  <div className="w-9 h-9 md:w-10 md:h-10 rounded-lg bg-[#2DCEA3]/10 flex items-center justify-center flex-shrink-0 group-hover:bg-[#2DCEA3]/20 transition-colors">
-                    <benefit.icon className="w-4 h-4 md:w-5 md:h-5 text-[#2DCEA3]" />
+                  <div className="w-9 h-9 md:w-10 md:h-10 rounded-lg bg-[var(--primary)]/10 flex items-center justify-center flex-shrink-0 group-hover:bg-[var(--primary)]/20 transition-colors">
+                    <benefit.icon className="w-4 h-4 md:w-5 md:h-5 text-[var(--primary)]" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <h4 className="text-white font-bold text-sm md:text-base">{benefit.title}</h4>
-                      <span className="px-2 py-0.5 rounded-full bg-[#2DCEA3]/10 text-[#2DCEA3] text-[10px] md:text-xs font-medium whitespace-nowrap">
+                      <span className="px-2 py-0.5 rounded-full bg-[var(--primary)]/10 text-[var(--primary)] text-[10px] md:text-xs font-medium whitespace-nowrap">
                         {benefit.highlight}
                       </span>
                     </div>
@@ -145,7 +145,7 @@ export function BenefitsSection() {
           {/* For Pet Owners */}
           <div>
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-11 h-11 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-[#5C6BFF] to-[#00C9FF] flex items-center justify-center shadow-lg shadow-[#5C6BFF]/20">
+              <div className="w-11 h-11 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-[var(--secondary)] to-[var(--accent)] flex items-center justify-center shadow-lg shadow-[var(--secondary)]/20">
                 <PawPrint className="w-5 h-5 md:w-6 md:h-6 text-white" />
               </div>
               <div>
@@ -158,15 +158,15 @@ export function BenefitsSection() {
               {ownerBenefits.map((benefit, idx) => (
                 <div
                   key={idx}
-                  className="flex gap-3 p-4 rounded-xl bg-white/[0.03] border border-white/10 hover:border-[#5C6BFF]/30 hover:bg-white/[0.05] transition-all group"
+                  className="flex gap-3 p-4 rounded-xl bg-white/[0.03] border border-white/10 hover:border-[var(--secondary)]/30 hover:bg-white/[0.05] transition-all group"
                 >
-                  <div className="w-9 h-9 md:w-10 md:h-10 rounded-lg bg-[#5C6BFF]/10 flex items-center justify-center flex-shrink-0 group-hover:bg-[#5C6BFF]/20 transition-colors">
-                    <benefit.icon className="w-4 h-4 md:w-5 md:h-5 text-[#5C6BFF]" />
+                  <div className="w-9 h-9 md:w-10 md:h-10 rounded-lg bg-[var(--secondary)]/10 flex items-center justify-center flex-shrink-0 group-hover:bg-[var(--secondary)]/20 transition-colors">
+                    <benefit.icon className="w-4 h-4 md:w-5 md:h-5 text-[var(--secondary)]" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <h4 className="text-white font-bold text-sm md:text-base">{benefit.title}</h4>
-                      <span className="px-2 py-0.5 rounded-full bg-[#5C6BFF]/10 text-[#5C6BFF] text-[10px] md:text-xs font-medium whitespace-nowrap">
+                      <span className="px-2 py-0.5 rounded-full bg-[var(--secondary)]/10 text-[var(--secondary)] text-[10px] md:text-xs font-medium whitespace-nowrap">
                         {benefit.highlight}
                       </span>
                     </div>
@@ -180,9 +180,9 @@ export function BenefitsSection() {
 
         {/* Bottom callout */}
         <div className="mt-10 md:mt-14 text-center">
-          <div className="inline-flex flex-col sm:flex-row items-center gap-4 sm:gap-6 px-6 py-5 rounded-2xl bg-gradient-to-r from-[#2DCEA3]/10 to-[#5C6BFF]/10 border border-white/10">
+          <div className="inline-flex flex-col sm:flex-row items-center gap-4 sm:gap-6 px-6 py-5 rounded-2xl bg-gradient-to-r from-[var(--primary)]/10 to-[var(--secondary)]/10 border border-white/10">
             <div className="flex items-center gap-3">
-              <Users className="w-5 h-5 text-[#2DCEA3]" />
+              <Users className="w-5 h-5 text-[var(--primary)]" />
               <div className="text-left">
                 <p className="text-white font-bold text-sm">Clinicas mas eficientes</p>
                 <p className="text-white/50 text-xs">Menos admin, mas medicina</p>
@@ -190,7 +190,7 @@ export function BenefitsSection() {
             </div>
             <div className="hidden sm:block w-px h-10 bg-white/10" />
             <div className="flex items-center gap-3">
-              <HeartHandshake className="w-5 h-5 text-[#5C6BFF]" />
+              <HeartHandshake className="w-5 h-5 text-[var(--secondary)]" />
               <div className="text-left">
                 <p className="text-white font-bold text-sm">Mascotas mejor cuidadas</p>
                 <p className="text-white/50 text-xs">Dueños mas informados</p>

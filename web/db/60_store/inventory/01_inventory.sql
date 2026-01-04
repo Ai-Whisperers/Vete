@@ -121,6 +121,11 @@ DROP POLICY IF EXISTS "Service role full access inventory_txns" ON public.store_
 CREATE POLICY "Service role full access inventory_txns" ON public.store_inventory_transactions
     FOR ALL TO service_role USING (true) WITH CHECK (true);
 
+-- Public can read inventory levels (for store stock display)
+DROP POLICY IF EXISTS "Public read inventory levels" ON public.store_inventory;
+CREATE POLICY "Public read inventory levels" ON public.store_inventory
+    FOR SELECT USING (true);
+
 -- Clinic staff can manage their clinic's inventory
 DROP POLICY IF EXISTS "Clinic staff manage inventory" ON public.store_inventory;
 CREATE POLICY "Clinic staff manage inventory" ON public.store_inventory

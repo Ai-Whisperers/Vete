@@ -84,7 +84,10 @@ export default function ServicesSettingsPage(): React.ReactElement {
           setServices(data.services || []);
         }
       } catch (error) {
-        console.error("Error fetching services:", error);
+        // Client-side error logging - only in development
+        if (process.env.NODE_ENV === 'development') {
+          console.error("Error fetching services:", error);
+        }
       } finally {
         setIsLoading(false);
       }
@@ -149,7 +152,10 @@ export default function ServicesSettingsPage(): React.ReactElement {
         setSaveStatus("error");
       }
     } catch (error) {
-      console.error("Error saving services:", error);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Error saving services:", error);
+      }
       setSaveStatus("error");
     } finally {
       setIsSaving(false);

@@ -15,6 +15,7 @@ import {
 interface Vaccine {
   id: string;
   name: string;
+  vaccine_code?: string | null;
   administered_date?: string | null;
   next_due_date?: string | null;
   status: string;
@@ -243,6 +244,8 @@ export function PetDetailContent({
           <PetVaccinesTab
             petId={pet.id}
             petName={pet.name}
+            petSpecies={pet.species}
+            petBirthDate={pet.birth_date}
             vaccines={pet.vaccines || []}
             reactions={pet.vaccine_reactions || []}
             clinic={clinic}

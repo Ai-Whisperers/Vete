@@ -65,6 +65,7 @@ export default function ProductGallery({
         <button
           onClick={() => setIsZoomed(true)}
           className="absolute top-4 right-4 z-10 p-2 bg-white/80 backdrop-blur rounded-full shadow-lg hover:bg-white transition-colors"
+          aria-label="Ampliar imagen"
         >
           <ZoomIn className="w-5 h-5 text-gray-700" />
         </button>
@@ -87,12 +88,14 @@ export default function ProductGallery({
             <button
               onClick={goToPrevious}
               className="absolute left-2 top-1/2 -translate-y-1/2 p-2 bg-white/80 backdrop-blur rounded-full shadow-lg hover:bg-white transition-colors"
+              aria-label="Imagen anterior"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
             <button
               onClick={goToNext}
               className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-white/80 backdrop-blur rounded-full shadow-lg hover:bg-white transition-colors"
+              aria-label="Siguiente imagen"
             >
               <ChevronRight className="w-5 h-5" />
             </button>
@@ -112,6 +115,8 @@ export default function ProductGallery({
                   ? 'border-[var(--primary)] ring-2 ring-[var(--primary)]/20'
                   : 'border-[var(--border-default)] hover:border-[var(--primary)]/50'
               }`}
+              aria-label={`Ver imagen ${index + 1} de ${productName}`}
+              aria-selected={selectedIndex === index}
             >
               <Image
                 src={image.image_url}
@@ -160,6 +165,7 @@ export default function ProductGallery({
                   goToPrevious();
                 }}
                 className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
+                aria-label="Imagen anterior"
               >
                 <ChevronLeft className="w-8 h-8 text-white" />
               </button>
@@ -169,6 +175,7 @@ export default function ProductGallery({
                   goToNext();
                 }}
                 className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
+                aria-label="Siguiente imagen"
               >
                 <ChevronRight className="w-8 h-8 text-white" />
               </button>
@@ -177,7 +184,7 @@ export default function ProductGallery({
 
           {/* Zoom Thumbnails */}
           {images.length > 1 && (
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2" role="tablist" aria-label="Miniaturas de imagenes">
               {images.map((_, index) => (
                 <button
                   key={index}
@@ -190,6 +197,9 @@ export default function ProductGallery({
                       ? 'bg-white scale-125'
                       : 'bg-white/50 hover:bg-white/75'
                   }`}
+                  aria-label={`Ver imagen ${index + 1}`}
+                  aria-selected={selectedIndex === index}
+                  role="tab"
                 />
               ))}
             </div>

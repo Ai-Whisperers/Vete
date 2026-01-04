@@ -37,15 +37,17 @@ export default function QuickViewModal({
 
   const productIsWishlisted = isWishlisted(product.id);
 
-  const stock = product.inventory?.stock_quantity || 0;
+  // Support both direct stock_quantity and nested inventory.stock_quantity
+  const stock = product.stock_quantity ?? product.inventory?.stock_quantity ?? 0;
   const inStock = stock > 0;
   const lowStock = stock > 0 && stock <= 5;
 
-  // Combine main image with gallery images
+  // Combine main image with gallery images (safely handle optional images array)
+  const productImages = product.images ?? [];
   const images: ProductImage[] = product.image_url
-    ? [{ id: 'main', image_url: product.image_url, alt_text: product.name }, ...product.images]
-    : product.images.length > 0
-    ? product.images
+    ? [{ id: 'main', image_url: product.image_url, alt_text: product.name }, ...productImages]
+    : productImages.length > 0
+    ? productImages
     : [{ id: 'placeholder', image_url: '/placeholder-product.svg', alt_text: product.name }];
 
   // Lock body scroll when modal is open
@@ -126,7 +128,7 @@ export default function QuickViewModal({
             images={images}
             productName={product.name}
             inStock={inStock}
-            hasDiscount={product.has_discount}
+            hasDiscount={product.has_discount ?? false}
             discountPercentage={product.discount_percentage}
           />
 

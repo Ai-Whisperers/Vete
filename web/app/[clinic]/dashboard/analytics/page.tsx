@@ -121,7 +121,10 @@ export default function AnalyticsPage(): React.ReactElement {
           });
         }
       } catch (error) {
-        console.error("Error fetching analytics:", error);
+        // Client-side error logging - only in development
+        if (process.env.NODE_ENV === 'development') {
+          console.error("Error fetching analytics:", error);
+        }
       } finally {
         setIsLoading(false);
       }

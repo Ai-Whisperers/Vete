@@ -49,16 +49,16 @@ export function PetCard({ pet, clinic }: PetCardProps): React.ReactElement {
         <div className="flex flex-wrap gap-2 text-xs">
           <span className="inline-flex items-center gap-1 px-2 py-1 bg-white rounded-md text-[var(--text-secondary)]">
             <Calendar className="w-3 h-3" />
-            {calculateAge(pet.date_of_birth)}
+            {calculateAge(pet.birth_date)}
           </span>
-          {pet.neutered && (
+          {pet.is_neutered && (
             <span className="inline-flex items-center gap-1 px-2 py-1 bg-white rounded-md text-[var(--text-secondary)]">
               <Activity className="w-3 h-3" />
               Esterilizado
             </span>
           )}
-          {pet.microchip_id && (
-            <span className="inline-flex items-center gap-1 px-2 py-1 bg-white rounded-md text-[var(--text-secondary)]" title={pet.microchip_id}>
+          {pet.microchip_number && (
+            <span className="inline-flex items-center gap-1 px-2 py-1 bg-white rounded-md text-[var(--text-secondary)]" title={pet.microchip_number}>
               <span className="w-3 h-3 flex items-center justify-center">📍</span>
               Chip
             </span>

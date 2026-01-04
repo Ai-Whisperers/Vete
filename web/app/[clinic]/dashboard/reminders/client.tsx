@@ -99,7 +99,10 @@ export default function RemindersDashboard({ clinic, isAdmin }: Props) {
         setRules(data.data || []);
       }
     } catch (e) {
-      console.error('Error fetching data:', e);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error fetching data:', e);
+      }
     } finally {
       setLoading(false);
     }
@@ -139,7 +142,10 @@ export default function RemindersDashboard({ clinic, isAdmin }: Props) {
         setRules(rules.map(r => r.id === rule.id ? { ...r, is_active: !r.is_active } : r));
       }
     } catch (e) {
-      console.error('Error toggling rule:', e);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error toggling rule:', e);
+      }
     }
   };
 

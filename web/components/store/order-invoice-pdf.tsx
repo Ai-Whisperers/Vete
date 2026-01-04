@@ -399,7 +399,10 @@ export function OrderInvoicePDFButton({
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
     } catch (e) {
-      console.error('Error generating PDF:', e);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error generating PDF:', e);
+      }
       alert('Error al generar PDF');
     } finally {
       setLoading(false);

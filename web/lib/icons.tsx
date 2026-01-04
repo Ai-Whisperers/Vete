@@ -79,14 +79,20 @@ export {
   Minus, DollarSign, Bell, AlertTriangle, CalendarCheck, ClipboardList
 }
 
-// Type definition for Lucide icon component
-export type LucideIcon = React.ComponentType<{
+// Standard SVG props that Lucide icons accept
+interface LucideIconProps {
   className?: string
   size?: number | string
   strokeWidth?: number | string
   color?: string
-  [key: string]: any
-}>
+  absoluteStrokeWidth?: boolean
+  'aria-hidden'?: boolean
+  'aria-label'?: string
+  role?: string
+}
+
+// Type definition for Lucide icon component
+export type LucideIcon = React.ComponentType<LucideIconProps>
 
 /**
  * NOTE: Dynamic icon loading via async imports is not currently supported

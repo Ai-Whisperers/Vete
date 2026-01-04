@@ -76,7 +76,10 @@ export default function AlertSettingsClient({ clinic }: AlertSettingsClientProps
       const data = await response.json();
       setPreferences(data.preferences || defaultPreferences);
     } catch (err) {
-      console.error("Error fetching preferences:", err);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Error fetching preferences:", err);
+      }
       setError("Error al cargar las preferencias");
     } finally {
       setLoading(false);
@@ -109,7 +112,10 @@ export default function AlertSettingsClient({ clinic }: AlertSettingsClientProps
 
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
-      console.error("Error saving preferences:", err);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Error saving preferences:", err);
+      }
       setError("Error al guardar las preferencias");
     } finally {
       setSaving(false);
@@ -131,7 +137,10 @@ export default function AlertSettingsClient({ clinic }: AlertSettingsClientProps
 
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
-      console.error("Error resetting preferences:", err);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Error resetting preferences:", err);
+      }
       setError("Error al restablecer las preferencias");
     }
   };

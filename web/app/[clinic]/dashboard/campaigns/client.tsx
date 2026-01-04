@@ -208,7 +208,10 @@ export default function CampaignsClient({ clinic }: CampaignsClientProps): React
       setCampaigns(data.campaigns || []);
       setPagination(data.pagination);
     } catch (err) {
-      console.error("Error fetching campaigns:", err);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Error fetching campaigns:", err);
+      }
       setError("Error al cargar las campañas");
     } finally {
       setLoading(false);
@@ -299,7 +302,10 @@ export default function CampaignsClient({ clinic }: CampaignsClientProps): React
       setShowDeleteConfirm(null);
       fetchCampaigns();
     } catch (err) {
-      console.error("Error deleting campaign:", err);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Error deleting campaign:", err);
+      }
       setError("Error al eliminar la campaña");
     }
   };

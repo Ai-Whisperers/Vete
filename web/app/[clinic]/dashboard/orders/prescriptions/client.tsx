@@ -116,7 +116,10 @@ export default function PrescriptionOrdersClient({ clinic, config }: Props) {
       setOrders(data.orders || []);
       setPagination(data.pagination);
     } catch (err) {
-      console.error('Error fetching orders:', err);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error fetching orders:', err);
+      }
       setError(err instanceof Error ? err.message : 'Error desconocido');
     } finally {
       setIsLoading(false);
@@ -164,7 +167,10 @@ export default function PrescriptionOrdersClient({ clinic, config }: Props) {
       setNotes('');
       fetchOrders(currentPage);
     } catch (err) {
-      console.error('Error reviewing order:', err);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error reviewing order:', err);
+      }
       setError(err instanceof Error ? err.message : 'Error desconocido');
     } finally {
       setIsReviewing(false);

@@ -152,7 +152,7 @@ export function ROICalculator() {
   }, [monthlyConsultations, avgConsultationPrice, currentPlan]);
 
   return (
-    <section id="calculadora" className="py-20 md:py-28 bg-[#0F172A] relative overflow-hidden">
+    <section id="calculadora" className="py-20 md:py-28 bg-[var(--bg-dark)] relative overflow-hidden">
       {/* Background */}
       <div
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full blur-[150px] transition-colors duration-500"
@@ -162,9 +162,9 @@ export function ROICalculator() {
       <div className="container mx-auto px-4 md:px-6 relative z-10">
         {/* Section Header */}
         <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#2DCEA3]/10 border border-[#2DCEA3]/20 mb-4">
-            <Calculator className="w-4 h-4 text-[#2DCEA3]" />
-            <span className="text-[#2DCEA3] text-sm font-medium">Calculadora de ROI</span>
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--primary)]/10 border border-[var(--primary)]/20 mb-4">
+            <Calculator className="w-4 h-4 text-[var(--primary)]" />
+            <span className="text-[var(--primary)] text-sm font-medium">Calculadora de ROI</span>
           </div>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-white mb-6">
             ¿Vale la pena la inversion?
@@ -180,7 +180,7 @@ export function ROICalculator() {
             {/* Input Panel */}
             <div className="lg:col-span-1 p-6 rounded-2xl bg-white/5 border border-white/10">
               <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
-                <DollarSign className="w-5 h-5 text-[#2DCEA3]" />
+                <DollarSign className="w-5 h-5 text-[var(--primary)]" />
                 Tu Clinica
               </h3>
 
@@ -225,7 +225,7 @@ export function ROICalculator() {
                     step="10000"
                     value={avgConsultationPrice}
                     onChange={(e) => setAvgConsultationPrice(Number(e.target.value))}
-                    className="flex-1 h-2 bg-white/10 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:bg-[#2DCEA3]"
+                    className="flex-1 h-2 bg-white/10 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:bg-[var(--primary)]"
                   />
                   <div className="w-20 text-center">
                     <span className="text-lg font-bold text-white">{formatCurrencyShort(avgConsultationPrice)}</span>
@@ -238,7 +238,7 @@ export function ROICalculator() {
                 <label className="block text-white/70 text-sm mb-3">
                   Plan
                   {!selectedPlanId && (
-                    <span className="ml-2 text-xs text-[#2DCEA3]">(auto-sugerido)</span>
+                    <span className="ml-2 text-xs text-[var(--primary)]">(auto-sugerido)</span>
                   )}
                 </label>
                 <div className="space-y-2">
@@ -416,7 +416,7 @@ export function ROICalculator() {
               href={`https://wa.me/595981324569?text=${encodeURIComponent(`Hola! Use la calculadora de ROI de VetePy. Tengo ${monthlyConsultations} pacientes/mes y me interesa el Plan ${currentPlan.name}`)}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-8 py-4 font-bold rounded-full transition-all hover:-translate-y-0.5 text-[#0F172A]"
+              className="inline-flex items-center gap-2 px-8 py-4 font-bold rounded-full transition-all hover:-translate-y-0.5 text-[var(--bg-dark)]"
               style={{
                 background: `linear-gradient(135deg, ${currentPlan.color}, ${currentPlan.color}CC)`,
                 boxShadow: `0 10px 40px ${currentPlan.color}30`

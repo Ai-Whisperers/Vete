@@ -121,7 +121,10 @@ export default function ModulesSettingsPage(): React.ReactElement {
           setModules(data.modules || {});
         }
       } catch (error) {
-        console.error("Error fetching modules:", error);
+        // Client-side error logging - only in development
+        if (process.env.NODE_ENV === 'development') {
+          console.error("Error fetching modules:", error);
+        }
       } finally {
         setIsLoading(false);
       }
@@ -155,7 +158,10 @@ export default function ModulesSettingsPage(): React.ReactElement {
         setSaveStatus("error");
       }
     } catch (error) {
-      console.error("Error saving modules:", error);
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Error saving modules:", error);
+      }
       setSaveStatus("error");
     } finally {
       setIsSaving(false);

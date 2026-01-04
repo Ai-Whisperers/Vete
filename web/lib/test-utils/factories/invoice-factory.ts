@@ -266,10 +266,10 @@ export class InvoiceFactory {
   }
 
   /**
-   * Set as cancelled
+   * Set as cancelled (void)
    */
   cancelled(): InvoiceFactory {
-    this.data.status = 'cancelled';
+    this.data.status = 'void';
     return this;
   }
 
@@ -459,7 +459,7 @@ export class InvoiceFactory {
         received_by: null,
       };
 
-      const { error: paymentError } = await apiClient.dbInsert('payments', paymentData);
+      const { error: paymentError } = await apiClient.dbInsert('payments', paymentData as unknown as Record<string, unknown>);
       if (paymentError) {
         console.warn(`Failed to create payment: ${paymentError}`);
         continue;

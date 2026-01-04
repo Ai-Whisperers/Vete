@@ -165,13 +165,15 @@ ${formData.message ? `Mensaje adicional: ${formData.message}` : ''}`;
                   <label className="block text-white/70 text-sm mb-2">
                     Nombre de la Clinica *
                   </label>
-                  <div className="relative">
+                  <div className="relative" suppressHydrationWarning>
                     <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
                     <input
                       type="text"
                       value={formData.clinicName}
                       onChange={(e) => handleChange('clinicName', e.target.value)}
                       placeholder="Veterinaria Mi Mascota"
+                      data-lpignore="true"
+                      data-form-type="other"
                       className={`w-full pl-12 pr-4 py-3 bg-white/5 border rounded-xl text-white placeholder-white/30 focus:outline-none transition-all ${
                         errors.clinicName ? 'border-red-500' : 'border-white/10 focus:border-[var(--primary)]/50'
                       }`}
@@ -187,13 +189,15 @@ ${formData.message ? `Mensaje adicional: ${formData.message}` : ''}`;
                   <label className="block text-white/70 text-sm mb-2">
                     Tu Nombre *
                   </label>
-                  <div className="relative">
+                  <div className="relative" suppressHydrationWarning>
                     <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
                     <input
                       type="text"
                       value={formData.contactName}
                       onChange={(e) => handleChange('contactName', e.target.value)}
                       placeholder="Dr. Juan Perez"
+                      data-lpignore="true"
+                      data-form-type="other"
                       className={`w-full pl-12 pr-4 py-3 bg-white/5 border rounded-xl text-white placeholder-white/30 focus:outline-none transition-all ${
                         errors.contactName ? 'border-red-500' : 'border-white/10 focus:border-[var(--primary)]/50'
                       }`}
@@ -210,13 +214,15 @@ ${formData.message ? `Mensaje adicional: ${formData.message}` : ''}`;
                     <label className="block text-white/70 text-sm mb-2">
                       Email *
                     </label>
-                    <div className="relative">
+                    <div className="relative" suppressHydrationWarning>
                       <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
                       <input
                         type="email"
                         value={formData.email}
                         onChange={(e) => handleChange('email', e.target.value)}
                         placeholder="juan@clinica.com"
+                        data-lpignore="true"
+                        data-form-type="other"
                         className={`w-full pl-12 pr-4 py-3 bg-white/5 border rounded-xl text-white placeholder-white/30 focus:outline-none transition-all ${
                           errors.email ? 'border-red-500' : 'border-white/10 focus:border-[var(--primary)]/50'
                         }`}
@@ -230,13 +236,15 @@ ${formData.message ? `Mensaje adicional: ${formData.message}` : ''}`;
                     <label className="block text-white/70 text-sm mb-2">
                       Telefono/WhatsApp *
                     </label>
-                    <div className="relative">
+                    <div className="relative" suppressHydrationWarning>
                       <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
                       <input
                         type="tel"
                         value={formData.phone}
                         onChange={(e) => handleChange('phone', e.target.value)}
                         placeholder="0981 123 456"
+                        data-lpignore="true"
+                        data-form-type="other"
                         className={`w-full pl-12 pr-4 py-3 bg-white/5 border rounded-xl text-white placeholder-white/30 focus:outline-none transition-all ${
                           errors.phone ? 'border-red-500' : 'border-white/10 focus:border-[var(--primary)]/50'
                         }`}

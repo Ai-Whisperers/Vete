@@ -7,32 +7,30 @@
       "name": "Primocao Adultos Pequeños Pollo y Vegetal",
       "description": "Alimento económico para perros adultos de razas pequeñas",
       "category_slug": "NUT-CAN-SEC",
-      "target_species": [
-        "dog"
-      ],
+      "target_species": ["dog"],
       "variants": [
         {
           "size": "1kg",
-          "base_price": 27300,
-          "cost_price": 16380,
+          "base_price": 25000,
+          "cost_price": 15000,
           "sku_suffix": "-1KG"
         },
         {
           "size": "3kg",
-          "base_price": 69000,
-          "cost_price": 41400,
+          "base_price": 62000,
+          "cost_price": 37200,
           "sku_suffix": "-3KG"
         },
         {
           "size": "8kg",
-          "base_price": 159000,
-          "cost_price": 95400,
+          "base_price": 145000,
+          "cost_price": 87000,
           "sku_suffix": "-8KG"
         },
         {
           "size": "20kg",
-          "base_price": 345000,
-          "cost_price": 207000,
+          "base_price": 315000,
+          "cost_price": 189000,
           "sku_suffix": "-20KG"
         }
       ],
@@ -48,32 +46,30 @@
       "name": "Primocao Adultos Medianos y Grandes",
       "description": "Alimento económico para perros adultos de razas medianas y grandes",
       "category_slug": "NUT-CAN-SEC",
-      "target_species": [
-        "dog"
-      ],
+      "target_species": ["dog"],
       "variants": [
         {
           "size": "1kg",
-          "base_price": 25000,
-          "cost_price": 15000,
+          "base_price": 22000,
+          "cost_price": 13200,
           "sku_suffix": "-1KG"
         },
         {
           "size": "3kg",
-          "base_price": 65000,
-          "cost_price": 39000,
+          "base_price": 58000,
+          "cost_price": 34800,
           "sku_suffix": "-3KG"
         },
         {
           "size": "8kg",
-          "base_price": 149000,
-          "cost_price": 89400,
+          "base_price": 135000,
+          "cost_price": 81000,
           "sku_suffix": "-8KG"
         },
         {
           "size": "20kg",
-          "base_price": 325000,
-          "cost_price": 195000,
+          "base_price": 295000,
+          "cost_price": 177000,
           "sku_suffix": "-20KG"
         }
       ],
@@ -88,32 +84,30 @@
       "name": "Primocao Cachorros",
       "description": "Alimento económico para cachorros de todas las razas",
       "category_slug": "NUT-CAN-SEC",
-      "target_species": [
-        "dog"
-      ],
+      "target_species": ["dog"],
       "variants": [
         {
           "size": "1kg",
-          "base_price": 29000,
-          "cost_price": 17400,
+          "base_price": 28000,
+          "cost_price": 16800,
           "sku_suffix": "-1KG"
         },
         {
           "size": "3kg",
-          "base_price": 75000,
-          "cost_price": 45000,
+          "base_price": 68000,
+          "cost_price": 40800,
           "sku_suffix": "-3KG"
         },
         {
           "size": "8kg",
-          "base_price": 169000,
-          "cost_price": 101400,
+          "base_price": 155000,
+          "cost_price": 93000,
           "sku_suffix": "-8KG"
         },
         {
           "size": "20kg",
-          "base_price": 365000,
-          "cost_price": 219000,
+          "base_price": 335000,
+          "cost_price": 201000,
           "sku_suffix": "-20KG"
         }
       ],

@@ -1,0 +1,69 @@
+{
+  "$schema": "../../../schemas/store.schema.json",
+  "brand_slug": "sandcat",
+  "products": [
+    {
+      "sku": "SANDCAT-4KG",
+      "name": "Sand Cat Arena 4kg",
+      "description": "Arena sanitaria aglomerante para gatos con control de olores",
+      "category_slug": "ACC-HIG-ARE",
+      "target_species": ["cat"],
+      "requires_prescription": false,
+      "variants": [
+        {
+          "size": "4kg",
+          "base_price": 45000,
+          "cost_price": 27000,
+          "sku_suffix": ""
+        }
+      ],
+      "image_url": "/placeholder-product.svg",
+      "attributes": {
+        "type": "Aglomerante",
+        "odor_control": true
+      }
+    },
+    {
+      "sku": "SANDCAT-2KG",
+      "name": "Sand Cat Arena 2kg",
+      "description": "Arena sanitaria aglomerante para gatos - Presentación pequeña",
+      "category_slug": "ACC-HIG-ARE",
+      "target_species": ["cat"],
+      "requires_prescription": false,
+      "variants": [
+        {
+          "size": "2kg",
+          "base_price": 25000,
+          "cost_price": 15000,
+          "sku_suffix": ""
+        }
+      ],
+      "image_url": "/placeholder-product.svg",
+      "attributes": {
+        "type": "Aglomerante",
+        "odor_control": true
+      }
+    },
+    {
+      "sku": "SANDCAT-7.5KG",
+      "name": "Sand Cat Arena 7.5kg",
+      "description": "Arena sanitaria aglomerante para gatos - Presentación familiar",
+      "category_slug": "ACC-HIG-ARE",
+      "target_species": ["cat"],
+      "requires_prescription": false,
+      "variants": [
+        {
+          "size": "7.5kg",
+          "base_price": 75000,
+          "cost_price": 45000,
+          "sku_suffix": ""
+        }
+      ],
+      "image_url": "/placeholder-product.svg",
+      "attributes": {
+        "type": "Aglomerante",
+        "odor_control": true
+      }
+    }
+  ]
+}

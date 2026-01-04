@@ -2,13 +2,16 @@
 import { useParams } from 'next/navigation';
 import { useCart } from '@/context/cart-context';
 import Link from 'next/link';
-import { ShoppingBag, X, ArrowRight, Trash2, ArrowLeft, ShieldCheck, Plus, Minus, Tag, AlertCircle } from 'lucide-react';
+import { ShoppingBag, X, ArrowRight, Trash2, ArrowLeft, ShieldCheck, Plus, Minus, Tag, AlertCircle, Calendar, Package, PawPrint } from 'lucide-react';
+import { DynamicIcon } from '@/lib/icons';
 import LoyaltyRedemption from '@/components/commerce/loyalty-redemption';
 import { createClient } from '@/lib/supabase/client';
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import { ClinicConfig } from '@/lib/clinics';
 import type { User as SupabaseUser } from '@supabase/supabase-js';
 import { AuthGate } from '@/components/auth/auth-gate';
+import { ServiceGroup } from '@/components/cart/service-group';
+import { organizeCart } from '@/lib/utils/cart-utils';
 
 interface CartPageClientProps {
   readonly config: ClinicConfig;
@@ -50,6 +53,9 @@ export default function CartPageClient({ config }: CartPageClientProps) {
   const labels = config.ui_labels?.cart || {};
   const currency = config.settings?.currency || 'PYG';
   const whatsappNumber = config.contact?.whatsapp_number;
+
+  // Organize cart items into service groups and products
+  const organizedCart = useMemo(() => organizeCart(items), [items]);
 
   // Safe quantity update with validation
   const handleQuantityUpdate = useCallback((itemId: string, delta: number) => {
@@ -93,8 +99,10 @@ export default function CartPageClient({ config }: CartPageClientProps) {
             <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
               {item.image_url ? (
                 <img src={item.image_url} alt={item.name} className="w-8 h-8 object-contain" />
+              ) : item.type === 'service' ? (
+                <DynamicIcon name={item.service_icon} className="w-5 h-5 text-[var(--primary)]" />
               ) : (
-                <ShoppingBag className="w-4 h-4 text-gray-400" />
+                <Package className="w-4 h-4 text-gray-400" />
               )}
             </div>
             <span className="flex-1 truncate text-gray-700">{item.name}</span>
@@ -167,18 +175,42 @@ export default function CartPageClient({ config }: CartPageClientProps) {
                   </div>
                 )}
 
-                <div className="space-y-3">
-                    {items.map((item) => (
-                        <div key={`${item.type}-${item.id}`} className="flex items-center gap-4 sm:gap-6 bg-white p-4 sm:p-5 rounded-3xl shadow-sm border border-gray-50 hover:border-gray-100 hover:shadow-md transition-all group">
+                {/* Service Groups - Service-centric view */}
+                {organizedCart.serviceGroups.length > 0 && (
+                  <div className="space-y-4 mb-6">
+                    <div className="flex items-center gap-2 text-sm font-bold text-gray-500 uppercase tracking-wider px-2">
+                      <PawPrint className="w-4 h-4" />
+                      <span>Servicios</span>
+                    </div>
+                    {organizedCart.serviceGroups.map((group) => (
+                      <ServiceGroup
+                        key={`${group.service_id}-${group.variant_name}`}
+                        {...group}
+                      />
+                    ))}
+                  </div>
+                )}
+
+                {/* Products Section */}
+                {organizedCart.unassignedProducts.length > 0 && (
+                  <div className="space-y-3">
+                    {organizedCart.serviceGroups.length > 0 && (
+                      <div className="flex items-center gap-2 text-sm font-bold text-gray-500 uppercase tracking-wider px-2 mt-8">
+                        <Package className="w-4 h-4" />
+                        <span>Productos</span>
+                      </div>
+                    )}
+                    {organizedCart.unassignedProducts.map((item) => (
+                        <div key={`product-${item.id}`} className="flex items-center gap-4 sm:gap-6 bg-white p-4 sm:p-5 rounded-3xl shadow-sm border border-gray-50 hover:border-gray-100 hover:shadow-md transition-all group">
                             {/* Image Container */}
                             <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gray-50 rounded-2xl flex items-center justify-center shrink-0 overflow-hidden relative border border-gray-100/50">
                                 {item.image_url ? (
                                 <img src={item.image_url} alt={item.name} className="w-full h-full object-contain p-3 group-hover:scale-110 transition-transform" />
                                 ) : (
-                                <ShoppingBag className="w-8 h-8 text-gray-300" />
+                                <Package className="w-8 h-8 text-gray-300" />
                                 )}
                             </div>
-                            
+
                             {/* Details */}
                             <div className="flex-1 min-w-0">
                                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
@@ -187,11 +219,11 @@ export default function CartPageClient({ config }: CartPageClientProps) {
                                         {new Intl.NumberFormat('es-PY', { style: 'currency', currency: currency }).format(item.price * item.quantity)}
                                     </span>
                                 </div>
-                                
+
                                 <div className="flex items-center justify-between gap-4">
                                      <div className="flex flex-col gap-1">
                                         <span className="text-[10px] font-black uppercase tracking-widest text-[var(--primary)] bg-[var(--primary)]/5 px-2 py-0.5 rounded-md inline-block">
-                                            {item.type === 'service' ? (labels.item_service || 'Servicio') : (labels.item_product || 'Producto')}
+                                            {labels.item_product || 'Producto'}
                                         </span>
                                         {item.quantity > 1 && (
                                             <span className="text-[10px] text-gray-400 font-medium">
@@ -224,16 +256,17 @@ export default function CartPageClient({ config }: CartPageClientProps) {
                             </div>
 
                             {/* Remove button */}
-                            <button 
-                                onClick={() => removeItem(item.id)} 
-                                className="text-gray-200 hover:text-red-400 p-2 hover:bg-red-50 rounded-full transition-all group-hover:text-gray-300" 
+                            <button
+                                onClick={() => removeItem(item.id)}
+                                className="text-gray-200 hover:text-red-400 p-2 hover:bg-red-50 rounded-full transition-all group-hover:text-gray-300"
                                 aria-label="Eliminar"
                             >
                                 <X className="w-5 h-5 text-current" strokeWidth={3} />
                             </button>
                         </div>
                     ))}
-                </div>
+                  </div>
+                )}
             </div>
 
             {/* Right Column: Summary Card */}

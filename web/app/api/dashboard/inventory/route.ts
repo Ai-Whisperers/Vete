@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { logger } from '@/lib/logger';
 import { apiError, HTTP_STATUS } from '@/lib/api/errors';
+import { isCategoryJoin, isBrandJoin } from '@/lib/utils/type-guards';
+import { createLookup } from '@/lib/utils/map';
 
 export type ProductSource = 'all' | 'own' | 'catalog';
 
@@ -147,15 +149,14 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         .eq('tenant_id', clinic)
         .in('product_id', ownProductIds);
 
-      const inventoryMap = new Map();
-      ownInventory?.forEach(inv => {
-        inventoryMap.set(inv.product_id, inv);
-      });
+      // Create type-safe inventory lookup map
+      const inventoryMap = createLookup(ownInventory ?? [], inv => inv.product_id);
 
       ownProducts?.forEach(p => {
-        // Handle joined data - Supabase returns object for single relation
-        const category = p.store_categories as unknown as { id: string; name: string; slug: string } | null;
-        const brand = p.store_brands as unknown as { id: string; name: string; slug: string } | null;
+        // Handle joined data with type guards - no unsafe casts
+        const category = isCategoryJoin(p.store_categories) ? p.store_categories : undefined;
+        const brand = isBrandJoin(p.store_brands) ? p.store_brands : undefined;
+        const inv = inventoryMap.get(p.id);
 
         products.push({
           id: p.id,
@@ -167,17 +168,17 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
           base_price: p.base_price,
           sale_price: p.sale_price,
           category_id: p.category_id,
-          category: category || undefined,
+          category,
           brand: brand ? { id: brand.id, name: brand.name } : undefined,
           is_active: p.is_active,
           created_at: p.created_at,
           source: 'own',
-          inventory: inventoryMap.get(p.id) ? {
-            stock_quantity: inventoryMap.get(p.id).stock_quantity,
-            min_stock_level: inventoryMap.get(p.id).min_stock_level,
-            weighted_average_cost: inventoryMap.get(p.id).weighted_average_cost,
-            expiry_date: inventoryMap.get(p.id).expiry_date,
-            batch_number: inventoryMap.get(p.id).batch_number,
+          inventory: inv ? {
+            stock_quantity: inv.stock_quantity,
+            min_stock_level: inv.min_stock_level,
+            weighted_average_cost: inv.weighted_average_cost,
+            expiry_date: inv.expiry_date,
+            batch_number: inv.batch_number,
           } : undefined,
         });
       });
@@ -269,21 +270,16 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
           .eq('tenant_id', clinic)
           .in('product_id', catalogProductIds);
 
-        const catalogInventoryMap = new Map();
-        catalogInventory?.forEach(inv => {
-          catalogInventoryMap.set(inv.product_id, inv);
-        });
-
-        const assignmentMap = new Map();
-        assignments?.forEach(a => {
-          assignmentMap.set(a.catalog_product_id, a);
-        });
+        // Create type-safe lookup maps
+        const catalogInventoryMap = createLookup(catalogInventory ?? [], inv => inv.product_id);
+        const assignmentMap = createLookup(assignments ?? [], a => a.catalog_product_id);
 
         catalogProducts?.forEach(p => {
           const assignment = assignmentMap.get(p.id);
-          // Handle joined data - Supabase returns object for single relation
-          const category = p.store_categories as unknown as { id: string; name: string; slug: string } | null;
-          const brand = p.store_brands as unknown as { id: string; name: string; slug: string } | null;
+          // Handle joined data with type guards - no unsafe casts
+          const category = isCategoryJoin(p.store_categories) ? p.store_categories : undefined;
+          const brand = isBrandJoin(p.store_brands) ? p.store_brands : undefined;
+          const inv = catalogInventoryMap.get(p.id);
 
           products.push({
             id: p.id,
@@ -295,7 +291,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
             base_price: p.base_price,
             sale_price: assignment?.sale_price,
             category_id: p.category_id,
-            category: category || undefined,
+            category,
             brand: brand ? { id: brand.id, name: brand.name } : undefined,
             is_active: p.is_active,
             created_at: p.created_at,
@@ -306,12 +302,12 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
               location: assignment?.location,
               margin_percentage: assignment?.margin_percentage,
             },
-            inventory: catalogInventoryMap.get(p.id) ? {
-              stock_quantity: catalogInventoryMap.get(p.id).stock_quantity,
-              min_stock_level: catalogInventoryMap.get(p.id).min_stock_level,
-              weighted_average_cost: catalogInventoryMap.get(p.id).weighted_average_cost,
-              expiry_date: catalogInventoryMap.get(p.id).expiry_date,
-              batch_number: catalogInventoryMap.get(p.id).batch_number,
+            inventory: inv ? {
+              stock_quantity: inv.stock_quantity,
+              min_stock_level: inv.min_stock_level,
+              weighted_average_cost: inv.weighted_average_cost,
+              expiry_date: inv.expiry_date,
+              batch_number: inv.batch_number,
             } : undefined,
           });
         });

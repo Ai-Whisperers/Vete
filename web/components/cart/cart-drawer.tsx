@@ -6,7 +6,7 @@ import { useParams } from "next/navigation";
 import { X, ShoppingBag, ShoppingCart, ArrowRight, Stethoscope, Package, PawPrint, User, Star } from "lucide-react";
 import { useCart } from "@/context/cart-context";
 import { CartItem } from "./cart-item";
-import { PetServiceGroup } from "./pet-service-group";
+import { ServiceGroup } from "./service-group";
 import { formatPriceGs } from "@/lib/utils/pet-size";
 import { organizeCart } from "@/lib/utils/cart-utils";
 import { createClient } from "@/lib/supabase/client";
@@ -172,19 +172,19 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
           ) : (
             /* Cart Items - Organized by Services first, then Products */
             <div className="px-4 py-4 space-y-5">
-              {/* Services by Pet (displayed first) */}
-              {organizedCart.petGroups.length > 0 && (
+              {/* Services by Service Type (displayed first) */}
+              {organizedCart.serviceGroups.length > 0 && (
                 <div>
                   <div className="flex items-center gap-2 mb-3 px-1">
                     <div className="w-7 h-7 rounded-full bg-[var(--primary)]/10 flex items-center justify-center">
-                      <PawPrint className="w-4 h-4 text-[var(--primary)]" />
+                      <Stethoscope className="w-4 h-4 text-[var(--primary)]" />
                     </div>
                     <div>
                       <h3 className="text-sm font-bold text-[var(--text-primary)]">
-                        Servicios por Mascota
+                        Servicios
                       </h3>
                       <p className="text-xs text-[var(--text-muted)]">
-                        {organizedCart.petGroups.length} mascota{organizedCart.petGroups.length !== 1 ? "s" : ""}
+                        {organizedCart.serviceGroups.length} servicio{organizedCart.serviceGroups.length !== 1 ? "s" : ""}
                       </p>
                     </div>
                     <span className="ml-auto text-sm font-bold text-[var(--primary)]">
@@ -192,14 +192,10 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                     </span>
                   </div>
                   <div className="space-y-3">
-                    {organizedCart.petGroups.map((group) => (
-                      <PetServiceGroup
-                        key={group.pet_id}
-                        petId={group.pet_id}
-                        petName={group.pet_name}
-                        petSize={group.pet_size}
-                        services={group.services}
-                        subtotal={group.subtotal}
+                    {organizedCart.serviceGroups.map((group) => (
+                      <ServiceGroup
+                        key={`${group.service_id}-${group.variant_name}`}
+                        {...group}
                         compact
                       />
                     ))}

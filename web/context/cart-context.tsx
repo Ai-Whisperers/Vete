@@ -39,6 +39,7 @@ export interface CartItem {
   pet_name?: string;
   pet_size?: PetSizeCategory;
   service_id?: string;
+  service_icon?: string; // Icon name for service (e.g., "stethoscope", "syringe")
   variant_name?: string;
   base_price?: number;
 }

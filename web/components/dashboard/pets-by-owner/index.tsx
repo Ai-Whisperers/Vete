@@ -1,53 +1,104 @@
 "use client";
 
 import { useState } from "react";
-import type { PetsByOwnerProps } from "./types";
+import { useRouter } from "next/navigation";
+import type { PetsByOwnerProps, FilterOptions } from "./types";
 import { useOwnerFiltering } from "./useOwnerFiltering";
 import { SearchHeader } from "./SearchHeader";
 import { OwnerList } from "./OwnerList";
 import { OwnerDetailsCard } from "./OwnerDetailsCard";
 import { PetsSection } from "./PetsSection";
 import { EmptyState } from "./EmptyState";
+import { InsightsBar } from "./InsightsBar";
 
-export function PetsByOwner({ clinic, owners }: PetsByOwnerProps): React.ReactElement {
+const DEFAULT_FILTERS: FilterOptions = {
+  searchQuery: "",
+  species: "all",
+  vaccine: "all",
+  lastVisit: "all",
+  neutered: "all",
+};
+
+export function PetsByOwner({ clinic, owners, insights, vaccineStatusByPet }: PetsByOwnerProps): React.ReactElement {
+  const router = useRouter();
   const [selectedOwnerId, setSelectedOwnerId] = useState<string | null>(
     owners.length > 0 ? owners[0].id : null
   );
-  const [searchQuery, setSearchQuery] = useState("");
+  const [filters, setFilters] = useState<FilterOptions>(DEFAULT_FILTERS);
 
-  const filteredOwners = useOwnerFiltering(owners, searchQuery);
+  const filteredOwners = useOwnerFiltering(owners, filters, vaccineStatusByPet);
   const selectedOwner = filteredOwners.find((o) => o.id === selectedOwnerId) || filteredOwners[0] || null;
 
+  const handleFilterChange = (key: keyof FilterOptions, value: string): void => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleSearchChange = (value: string): void => {
+    setFilters((prev) => ({ ...prev, searchQuery: value }));
+  };
+
+  const handleInsightClick = (key: keyof FilterOptions, value: string): void => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handlePendingFilesClick = (): void => {
+    router.push(`/${clinic}/dashboard/orders?status=pending_prescription`);
+  };
+
+  const clearFilters = (): void => {
+    setFilters(DEFAULT_FILTERS);
+  };
+
+  const hasActiveFilters =
+    filters.species !== "all" ||
+    filters.vaccine !== "all" ||
+    filters.lastVisit !== "all" ||
+    filters.neutered !== "all";
+
   return (
-    <div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-12rem)]">
-      {/* Left Panel - Owner List */}
-      <div className="w-full lg:w-96 flex flex-col bg-white rounded-xl shadow-sm border border-[var(--border-color)] overflow-hidden">
-        <SearchHeader
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          resultCount={filteredOwners.length}
-        />
+    <div className="space-y-6">
+      {/* Insights Bar */}
+      <InsightsBar
+        insights={insights}
+        onFilterClick={handleInsightClick}
+        onPendingFilesClick={handlePendingFilesClick}
+      />
 
-        <div className="flex-1 overflow-y-auto">
-          <OwnerList
-            owners={filteredOwners}
-            selectedOwnerId={selectedOwnerId}
-            onSelectOwner={setSelectedOwnerId}
-            searchQuery={searchQuery}
+      {/* Main Layout */}
+      <div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-20rem)]">
+        {/* Left Panel - Owner List */}
+        <div className="w-full lg:w-96 flex flex-col bg-white rounded-xl shadow-sm border border-[var(--border-color)] overflow-hidden">
+          <SearchHeader
+            searchQuery={filters.searchQuery}
+            onSearchChange={handleSearchChange}
+            resultCount={filteredOwners.length}
+            filters={filters}
+            onFilterChange={handleFilterChange}
+            onClearFilters={clearFilters}
+            hasActiveFilters={hasActiveFilters}
           />
-        </div>
-      </div>
 
-      {/* Right Panel - Owner Details & Pets */}
-      <div className="flex-1 flex flex-col gap-6 overflow-y-auto">
-        {selectedOwner ? (
-          <>
-            <OwnerDetailsCard owner={selectedOwner} clinic={clinic} />
-            <PetsSection owner={selectedOwner} clinic={clinic} />
-          </>
-        ) : (
-          <EmptyState />
-        )}
+          <div className="flex-1 overflow-y-auto">
+            <OwnerList
+              owners={filteredOwners}
+              selectedOwnerId={selectedOwnerId}
+              onSelectOwner={setSelectedOwnerId}
+              searchQuery={filters.searchQuery}
+            />
+          </div>
+        </div>
+
+        {/* Right Panel - Owner Details & Pets */}
+        <div className="flex-1 flex flex-col gap-6 overflow-y-auto">
+          {selectedOwner ? (
+            <>
+              <OwnerDetailsCard owner={selectedOwner} clinic={clinic} />
+              <PetsSection owner={selectedOwner} clinic={clinic} />
+            </>
+          ) : (
+            <EmptyState />
+          )}
+        </div>
       </div>
     </div>
   );

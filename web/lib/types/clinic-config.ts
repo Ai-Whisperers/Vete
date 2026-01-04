@@ -931,8 +931,11 @@ export interface HomeData {
 
 export interface ServiceVariant {
   name: string;
+  description?: string;
   price_display: string;
   price_value: number;
+  image?: string;
+  size_pricing?: any;
 }
 
 export interface ServiceDetails {

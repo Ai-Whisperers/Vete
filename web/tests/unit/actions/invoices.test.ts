@@ -207,7 +207,8 @@ describe('Invoice Server Actions', () => {
         error: null,
       })
 
-      const result = await recordPayment('invoice-123', {
+      const result = await recordPayment({
+        invoice_id: 'invoice-123',
         amount: 50000,
         payment_method: 'cash',
       })
@@ -231,7 +232,8 @@ describe('Invoice Server Actions', () => {
       }))
       mockSupabaseClient.from = mockFrom
 
-      const result = await recordPayment('invoice-123', {
+      const result = await recordPayment({
+        invoice_id: 'invoice-123',
         amount: 50000,
         payment_method: 'cash',
       })
@@ -267,7 +269,8 @@ describe('Invoice Server Actions', () => {
       }))
       mockSupabaseClient.from = mockFrom
 
-      const result = await recordPayment('invoice-123', {
+      const result = await recordPayment({
+        invoice_id: 'invoice-123',
         amount: 50000,
         payment_method: 'cash',
       })
@@ -301,7 +304,8 @@ describe('Invoice Server Actions', () => {
       }))
       mockSupabaseClient.from = mockFrom
 
-      const result = await recordPayment('invoice-123', {
+      const result = await recordPayment({
+        invoice_id: 'invoice-123',
         amount: 50000,
         payment_method: 'cash',
       })
@@ -335,7 +339,8 @@ describe('Invoice Server Actions', () => {
       }))
       mockSupabaseClient.from = mockFrom
 
-      const result = await recordPayment('invoice-123', {
+      const result = await recordPayment({
+        invoice_id: 'invoice-123',
         amount: 50000,
         payment_method: 'cash',
       })
@@ -369,7 +374,8 @@ describe('Invoice Server Actions', () => {
       }))
       mockSupabaseClient.from = mockFrom
 
-      const result = await recordPayment('invoice-123', {
+      const result = await recordPayment({
+        invoice_id: 'invoice-123',
         amount: 0,
         payment_method: 'cash',
       })
@@ -403,7 +409,8 @@ describe('Invoice Server Actions', () => {
       }))
       mockSupabaseClient.from = mockFrom
 
-      const result = await recordPayment('invoice-123', {
+      const result = await recordPayment({
+        invoice_id: 'invoice-123',
         amount: 60000, // More than 50000 due
         payment_method: 'cash',
       })

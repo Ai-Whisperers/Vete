@@ -19,6 +19,8 @@ export interface ServiceVariant {
   description?: string;
   /** Display string for the price (e.g., "60.000 Gs" or "Desde 48.000 Gs") */
   price_display: string;
+  /** Optional image URL for the specific variant (e.g. icon) */
+  image?: string;
   /** Base/default price (used when no size pricing is defined) */
   price_value: number;
   /**

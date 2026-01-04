@@ -551,7 +551,7 @@ export class PetFactory {
       notes: nextDueType === 'overdue' ? 'Vacuna vencida - requiere refuerzo' : null,
     };
 
-    const { error } = await apiClient.dbInsert('vaccines', vaccineData);
+    const { error } = await apiClient.dbInsert('vaccines', vaccineData as unknown as Record<string, unknown>);
     if (error) {
       console.warn(`Failed to create vaccine: ${error}`);
       return;
@@ -589,7 +589,7 @@ export class PetFactory {
       notes: 'Cita programada para vacunación',
     };
 
-    const { error } = await apiClient.dbInsert('vaccines', vaccineData);
+    const { error } = await apiClient.dbInsert('vaccines', vaccineData as unknown as Record<string, unknown>);
     if (error) {
       console.warn(`Failed to create scheduled vaccine: ${error}`);
       return;
@@ -627,7 +627,7 @@ export class PetFactory {
       notes: 'Cita perdida - reprogramar',
     };
 
-    const { error } = await apiClient.dbInsert('vaccines', vaccineData);
+    const { error } = await apiClient.dbInsert('vaccines', vaccineData as unknown as Record<string, unknown>);
     if (error) {
       console.warn(`Failed to create missed vaccine: ${error}`);
       return;

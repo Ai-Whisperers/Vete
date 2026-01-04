@@ -103,7 +103,7 @@ interface SeedResult {
  */
 async function getOrCreateVet(): Promise<string | null> {
   // Try to find an existing vet
-  const { data: vets } = await apiClient.dbSelect<{ id: string }>('profiles', {
+  const { data: vets } = await apiClient.dbSelect('profiles', {
     select: 'id',
     eq: { tenant_id: TENANT_ID, role: 'vet' },
     limit: 1,
@@ -184,7 +184,7 @@ async function seedAdrisDemo(): Promise<SeedResult> {
           stats.vaccines += vaccines.length;
         }
 
-        console.log(`  ✓ ${owner.full_name}: ${ownerPets.length} pets, ${ownerPets.reduce((sum, p) => sum + p.vaccines.length, 0)} vaccines`);
+        console.log(`  ✓ ${owner.full_name}: ${ownerPets.length} pets, ${ownerPets.reduce((sum: number, p: any) => sum + p.vaccines.length, 0)} vaccines`);
       } catch (err) {
         const msg = `Failed to create pets for ${owner.full_name}: ${err}`;
         console.error(`  ✗ ${msg}`);
@@ -207,7 +207,7 @@ async function seedAdrisDemo(): Promise<SeedResult> {
           );
 
           stats.appointments += appointments.length;
-          stats.medicalRecords += appointments.filter(a => a.medicalRecord).length;
+          stats.medicalRecords += appointments.filter((a: any) => a.medicalRecord).length;
         } catch (err) {
           const msg = `Failed to create appointments for pet ${pet.name}: ${err}`;
           console.error(`  ✗ ${msg}`);
@@ -354,7 +354,7 @@ async function seedAdrisDemo(): Promise<SeedResult> {
     // 6. Create store orders
     console.log('6️⃣ Creating store orders...');
     for (const owner of owners) {
-      const presetOwner = PREDEFINED_OWNERS.find(p => p.email === owner.email);
+      const presetOwner = PREDEFINED_OWNERS.find((p: any) => p.email === owner.email);
       const persona = presetOwner?.persona || 'standard';
 
       // VIP and loyal customers have more orders
@@ -381,7 +381,7 @@ async function seedAdrisDemo(): Promise<SeedResult> {
     // 7. Create abandoned carts
     console.log('7️⃣ Creating abandoned carts...');
     try {
-      const carts = await createAbandonedCarts(owners.map(o => o.id), TENANT_ID);
+      const carts = await createAbandonedCarts(owners.map((o: any) => o.id), TENANT_ID);
       stats.carts = carts.length;
       console.log(`  ✓ Created ${carts.length} abandoned carts\n`);
     } catch (err) {
@@ -393,7 +393,7 @@ async function seedAdrisDemo(): Promise<SeedResult> {
     // 8. Create loyalty points based on persona
     console.log('8️⃣ Creating loyalty points...');
     for (const owner of owners) {
-      const presetOwner = PREDEFINED_OWNERS.find(p => p.email === owner.email);
+      const presetOwner = PREDEFINED_OWNERS.find((p: any) => p.email === owner.email);
       const persona = presetOwner?.persona || 'standard';
 
       try {
@@ -497,4 +497,5 @@ async function main() {
 main().catch(console.error);
 
 // Export for programmatic use
-export { seedAdrisDemo, SeedResult, SeedStats };
+export { seedAdrisDemo };
+export type { SeedResult, SeedStats };

@@ -2,6 +2,32 @@ import type { CartItem } from "@/context/cart-context";
 import type { PetSizeCategory } from "./pet-size";
 
 /**
+ * Pet entry within a service group
+ */
+export interface ServiceCartPet {
+  pet_id: string;
+  pet_name: string;
+  pet_size: PetSizeCategory;
+  price: number;
+  quantity: number;
+  cart_item_id: string;
+}
+
+/**
+ * Service-centric cart group
+ * Groups cart items by service + variant, showing which pets have it
+ */
+export interface ServiceCartGroup {
+  service_id: string;
+  service_name: string;
+  service_icon?: string;
+  variant_name: string;
+  image_url?: string;
+  pets: ServiceCartPet[];
+  subtotal: number;
+}
+
+/**
  * Pet with associated services
  */
 export interface PetServiceGroup {
@@ -41,6 +67,8 @@ export interface OrganizedCart {
   totalItems: number;
   /** Grand total */
   grandTotal: number;
+  /** Services grouped by service+variant (service-centric view) */
+  serviceGroups: ServiceCartGroup[];
 }
 
 /**
@@ -116,6 +144,9 @@ export function organizeCart(items: CartItem[]): OrganizedCart {
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
 
+  // Generate service-centric groups
+  const serviceGroups = groupByService(items);
+
   return {
     petGroups,
     servicesSubtotal,
@@ -124,6 +155,65 @@ export function organizeCart(items: CartItem[]): OrganizedCart {
     unassignedProducts,
     productsSubtotal,
     totalItems,
-    grandTotal: productsSubtotal + servicesSubtotal
+    grandTotal: productsSubtotal + servicesSubtotal,
+    serviceGroups
   };
+}
+
+/**
+ * Groups cart items by service + variant (service-centric view)
+ * Each group shows which pets have that service variant
+ */
+export function groupByService(items: CartItem[]): ServiceCartGroup[] {
+  const serviceMap = new Map<string, ServiceCartGroup>();
+
+  // Filter to only services with pet assignment
+  const serviceItems = items.filter(
+    (item) => item.type === "service" && item.service_id && item.pet_id && item.pet_name && item.pet_size
+  );
+
+  for (const item of serviceItems) {
+    // Create composite key: service_id + variant_name
+    const key = `${item.service_id}-${item.variant_name || "default"}`;
+
+    const existing = serviceMap.get(key);
+
+    if (existing) {
+      // Add pet to existing group
+      existing.pets.push({
+        pet_id: item.pet_id!,
+        pet_name: item.pet_name!,
+        pet_size: item.pet_size as PetSizeCategory,
+        price: item.price,
+        quantity: item.quantity,
+        cart_item_id: item.id
+      });
+      existing.subtotal += item.price * item.quantity;
+    } else {
+      // Create new group
+      serviceMap.set(key, {
+        service_id: item.service_id!,
+        service_name: item.name,
+        service_icon: item.service_icon,
+        variant_name: item.variant_name || "default",
+        image_url: item.image_url,
+        pets: [
+          {
+            pet_id: item.pet_id!,
+            pet_name: item.pet_name!,
+            pet_size: item.pet_size as PetSizeCategory,
+            price: item.price,
+            quantity: item.quantity,
+            cart_item_id: item.id
+          }
+        ],
+        subtotal: item.price * item.quantity
+      });
+    }
+  }
+
+  // Convert to array and sort by service name
+  return Array.from(serviceMap.values()).sort((a, b) =>
+    a.service_name.localeCompare(b.service_name)
+  );
 }

@@ -294,7 +294,7 @@ export class LoyaltyFactory {
         expires_at: tx.type === 'earn' ? this.getExpirationDate(tx.date || new Date()) : null,
       };
 
-      const { error } = await apiClient.dbInsert('loyalty_transactions', txData);
+      const { error } = await apiClient.dbInsert('loyalty_transactions', txData as unknown as Record<string, unknown>);
       if (error) {
         console.warn(`Failed to create loyalty transaction: ${error}`);
         continue;

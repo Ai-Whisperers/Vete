@@ -1,7 +1,10 @@
 "use client";
 
-import { Minus, Plus, Trash2, PawPrint, Package, Stethoscope, AlertTriangle } from "lucide-react";
+import { Minus, Plus, Trash2, PawPrint, Package, AlertTriangle, Calendar } from "lucide-react";
+import Link from "next/link";
+import { useParams } from "next/navigation";
 import { useCart, type CartItem as CartItemType } from "@/context/cart-context";
+import { DynamicIcon } from "@/lib/icons";
 import { useToast } from "@/components/ui/Toast";
 import {
   formatPriceGs,
@@ -25,6 +28,7 @@ interface CartItemProps {
 export function CartItem({ item, compact = false }: CartItemProps) {
   const { updateQuantity, removeItem, getStockStatus } = useCart();
   const { showToast } = useToast();
+  const { clinic } = useParams() as { clinic: string };
 
   const isService = item.type === "service";
   const hasPetInfo = isService && item.pet_id && item.pet_name && item.pet_size;
@@ -63,7 +67,7 @@ export function CartItem({ item, compact = false }: CartItemProps) {
           ) : (
             <div className="w-14 h-14 rounded-lg bg-[var(--bg-subtle)] flex items-center justify-center">
               {isService ? (
-                <Stethoscope className="w-6 h-6 text-[var(--primary)]" />
+                <DynamicIcon name={item.service_icon} className="w-6 h-6 text-[var(--primary)]" />
               ) : (
                 <Package className="w-6 h-6 text-gray-400" />
               )}
@@ -92,6 +96,17 @@ export function CartItem({ item, compact = false }: CartItemProps) {
                 {SIZE_SHORT_LABELS[item.pet_size as PetSizeCategory]}
               </span>
             </div>
+          )}
+
+          {/* Schedule Button for Services - Compact */}
+          {isService && item.service_id && clinic && (
+            <Link
+              href={`/${clinic}/book?service=${item.service_id}${item.pet_id ? `&pet=${item.pet_id}` : ''}`}
+              className="flex items-center gap-1 mt-1.5 px-2 py-1 bg-[var(--primary)]/10 hover:bg-[var(--primary)]/20 text-[var(--primary)] font-bold text-[10px] rounded-md transition-colors w-fit"
+            >
+              <Calendar className="w-3 h-3" />
+              Agendar
+            </Link>
           )}
 
           {/* Stock Warning Badge - Compact */}
@@ -164,7 +179,7 @@ export function CartItem({ item, compact = false }: CartItemProps) {
         ) : (
           <div className="w-20 h-20 rounded-xl bg-[var(--bg-subtle)] flex items-center justify-center">
             {isService ? (
-              <Stethoscope className="w-8 h-8 text-[var(--primary)]" />
+              <DynamicIcon name={item.service_icon} className="w-8 h-8 text-[var(--primary)]" />
             ) : (
               <Package className="w-8 h-8 text-gray-400" />
             )}
@@ -222,6 +237,17 @@ export function CartItem({ item, compact = false }: CartItemProps) {
           <p className="text-sm text-[var(--text-muted)] mt-1">
             Variante: {item.variant_name}
           </p>
+        )}
+
+        {/* Schedule Button for Services */}
+        {isService && item.service_id && clinic && (
+          <Link
+            href={`/${clinic}/book?service=${item.service_id}${item.pet_id ? `&pet=${item.pet_id}` : ''}`}
+            className="flex items-center justify-center gap-2 mt-3 px-4 py-2.5 bg-[var(--primary)]/10 hover:bg-[var(--primary)]/20 text-[var(--primary)] font-bold text-sm rounded-xl transition-colors border border-[var(--primary)]/20"
+          >
+            <Calendar className="w-4 h-4" />
+            Agendar Cita
+          </Link>
         )}
 
         {/* Stock Warning - Full Size */}

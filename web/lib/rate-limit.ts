@@ -26,6 +26,24 @@ export const RATE_LIMITS = {
     maxRequests: 20,
     message: 'Demasiadas solicitudes. Intente de nuevo en',
   },
+  // Stricter limit for sensitive financial operations
+  financial: {
+    windowMs: 60 * 1000, // 1 minute
+    maxRequests: 10,
+    message: 'Demasiadas operaciones financieras. Intente de nuevo en',
+  },
+  // Very strict limit for refunds (potential fraud prevention)
+  refund: {
+    windowMs: 60 * 60 * 1000, // 1 hour
+    maxRequests: 5,
+    message: 'Límite de reembolsos alcanzado. Intente de nuevo en',
+  },
+  // Strict limit for checkout operations
+  checkout: {
+    windowMs: 60 * 1000, // 1 minute
+    maxRequests: 5,
+    message: 'Demasiados intentos de pago. Intente de nuevo en',
+  },
   default: {
     windowMs: 60 * 1000, // 1 minute
     maxRequests: 60,

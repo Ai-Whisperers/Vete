@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation'
 import { requireStaff } from '@/lib/auth'
 import { logger } from '@/lib/logger'
 import Link from 'next/link'
-import { Users, Search, Phone, Mail, PawPrint, UserPlus, Calendar, CheckCircle, AlertCircle } from 'lucide-react'
+import { Users, Search, Phone, Mail, PawPrint, UserPlus, Calendar, CheckCircle, AlertCircle, MessageCircle } from 'lucide-react'
 import ClientSearch from './client-search'
 
 interface Props {
@@ -28,6 +28,7 @@ interface Client {
 
 interface RawAppointment {
   start_time: string;
+  status: string;
 }
 
 interface RawPet {
@@ -69,7 +70,7 @@ export default async function ClientsPage({ params, searchParams }: Props) {
       created_at,
       pets:pets!owner_id(
         id,
-        appointments(start_time)
+        appointments(start_time, status)
       )
     `)
     .eq('tenant_id', profile.tenant_id)
@@ -99,12 +100,16 @@ export default async function ClientsPage({ params, searchParams }: Props) {
     const pets = Array.isArray(client.pets) ? client.pets : []
     const petCount = pets.length
 
-    // Collect all appointments from all pets and find the most recent
+    // Collect all appointments from all pets and find the most recent COMPLETED one
     const allAppointments: RawAppointment[] = pets.flatMap((pet: RawPet) =>
       Array.isArray(pet.appointments) ? pet.appointments : []
     )
-    const lastVisit = allAppointments.length > 0
-      ? allAppointments.sort((a: RawAppointment, b: RawAppointment) =>
+    // Filter to only completed appointments (excludes scheduled/future appointments)
+    const completedAppointments = allAppointments.filter(
+      (appt) => appt.status === 'completed'
+    )
+    const lastVisit = completedAppointments.length > 0
+      ? completedAppointments.sort((a: RawAppointment, b: RawAppointment) =>
           new Date(b.start_time).getTime() - new Date(a.start_time).getTime()
         )[0]?.start_time
       : null
@@ -137,6 +142,21 @@ export default async function ClientsPage({ params, searchParams }: Props) {
       month: 'short',
       day: 'numeric'
     })
+  }
+
+  const formatPhoneNumber = (phone: string): string => {
+    const cleaned = phone.replace(/\D/g, '')
+    // Format Paraguay numbers: +595 XXX XXX XXX
+    if (cleaned.startsWith('595') && cleaned.length === 12) {
+      return `+595 ${cleaned.slice(3, 6)} ${cleaned.slice(6, 9)} ${cleaned.slice(9)}`
+    }
+    // Fallback: add spaces every 3 digits after country code
+    if (cleaned.length > 3) {
+      const countryCode = cleaned.slice(0, 3)
+      const rest = cleaned.slice(3).match(/.{1,3}/g)?.join(' ') || cleaned.slice(3)
+      return `+${countryCode} ${rest}`
+    }
+    return phone
   }
 
   const activeClients = clients.filter(c => isClientActive(c.last_visit))
@@ -267,7 +287,7 @@ export default async function ClientsPage({ params, searchParams }: Props) {
                 {clients.map((client) => (
                   <tr
                     key={client.id}
-                    className="hover:bg-[var(--primary)] hover:bg-opacity-5 transition-colors"
+                    className="group hover:bg-[var(--bg-subtle)] transition-colors"
                   >
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
@@ -293,9 +313,21 @@ export default async function ClientsPage({ params, searchParams }: Props) {
                           <span>{client.email}</span>
                         </div>
                         {client.phone && (
-                          <div className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
-                            <Phone className="h-4 w-4" />
-                            <span>{client.phone}</span>
+                          <div className="flex items-center gap-3 text-sm text-[var(--text-secondary)]">
+                            <div className="flex items-center gap-2">
+                              <Phone className="h-4 w-4" />
+                              <span>{formatPhoneNumber(client.phone)}</span>
+                            </div>
+                            <a
+                              href={`https://wa.me/${client.phone.replace(/\D/g, '')}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                              className="text-green-600 hover:text-green-700 transition-colors"
+                              title="Abrir WhatsApp"
+                            >
+                              <MessageCircle className="h-4 w-4" />
+                            </a>
                           </div>
                         )}
                       </div>
@@ -387,9 +419,21 @@ export default async function ClientsPage({ params, searchParams }: Props) {
                     <span>{client.email}</span>
                   </div>
                   {client.phone && (
-                    <div className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
-                      <Phone className="h-4 w-4" />
-                      <span>{client.phone}</span>
+                    <div className="flex items-center gap-3 text-sm text-[var(--text-secondary)]">
+                      <div className="flex items-center gap-2">
+                        <Phone className="h-4 w-4" />
+                        <span>{formatPhoneNumber(client.phone)}</span>
+                      </div>
+                      <a
+                        href={`https://wa.me/${client.phone.replace(/\D/g, '')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="text-green-600 hover:text-green-700 transition-colors"
+                        title="Abrir WhatsApp"
+                      >
+                        <MessageCircle className="h-4 w-4" />
+                      </a>
                     </div>
                   )}
                   <div className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">

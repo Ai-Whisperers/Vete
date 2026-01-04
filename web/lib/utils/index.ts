@@ -3,6 +3,10 @@ export * from './api-client';
 export * from './formatting';
 export * from './validation';
 
+// Type safety utilities
+export * from './type-guards';
+export * from './map';
+
 // Domain-specific utilities
 export * from './pet-size';
 export * from './cart-utils';

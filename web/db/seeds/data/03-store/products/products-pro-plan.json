@@ -7,20 +7,18 @@
       "name": "Pro Plan Adult Medium",
       "description": "Alimento premium para perros adultos medianos con OptiHealth",
       "category_slug": "NUT-CAN-SEC",
-      "target_species": [
-        "dog"
-      ],
+      "target_species": ["dog"],
       "variants": [
         {
           "size": "3kg",
-          "base_price": 189000,
-          "cost_price": 113400,
+          "base_price": 165000,
+          "cost_price": 99000,
           "sku_suffix": "-3KG"
         },
         {
           "size": "15kg",
-          "base_price": 695000,
-          "cost_price": 417000,
+          "base_price": 585000,
+          "cost_price": 351000,
           "sku_suffix": "-15KG"
         }
       ],
@@ -36,20 +34,18 @@
       "name": "Pro Plan Adult Large",
       "description": "Alimento premium para perros adultos grandes con glucosamina",
       "category_slug": "NUT-CAN-SEC",
-      "target_species": [
-        "dog"
-      ],
+      "target_species": ["dog"],
       "variants": [
         {
           "size": "3kg",
-          "base_price": 195000,
-          "cost_price": 117000,
+          "base_price": 175000,
+          "cost_price": 105000,
           "sku_suffix": "-3KG"
         },
         {
           "size": "15kg",
-          "base_price": 715000,
-          "cost_price": 429000,
+          "base_price": 615000,
+          "cost_price": 369000,
           "sku_suffix": "-15KG"
         }
       ],
@@ -65,20 +61,18 @@
       "name": "Pro Plan Puppy Medium",
       "description": "Alimento para cachorros medianos con OptiStart y DHA",
       "category_slug": "NUT-CAN-SEC",
-      "target_species": [
-        "dog"
-      ],
+      "target_species": ["dog"],
       "variants": [
         {
           "size": "3kg",
-          "base_price": 199000,
-          "cost_price": 119400,
+          "base_price": 185000,
+          "cost_price": 111000,
           "sku_suffix": "-3KG"
         },
         {
           "size": "15kg",
-          "base_price": 735000,
-          "cost_price": 441000,
+          "base_price": 635000,
+          "cost_price": 381000,
           "sku_suffix": "-15KG"
         }
       ],
@@ -94,20 +88,18 @@
       "name": "Pro Plan Puppy Large",
       "description": "Alimento para cachorros grandes con crecimiento controlado",
       "category_slug": "NUT-CAN-SEC",
-      "target_species": [
-        "dog"
-      ],
+      "target_species": ["dog"],
       "variants": [
         {
           "size": "3kg",
-          "base_price": 205000,
-          "cost_price": 123000,
+          "base_price": 195000,
+          "cost_price": 117000,
           "sku_suffix": "-3KG"
         },
         {
           "size": "15kg",
-          "base_price": 755000,
-          "cost_price": 453000,
+          "base_price": 665000,
+          "cost_price": 399000,
           "sku_suffix": "-15KG"
         }
       ],
@@ -123,20 +115,18 @@
       "name": "Pro Plan Sensitive Skin & Stomach",
       "description": "Alimento para perros con piel y estómago sensible",
       "category_slug": "NUT-CAN-SEC",
-      "target_species": [
-        "dog"
-      ],
+      "target_species": ["dog"],
       "variants": [
         {
           "size": "3kg",
-          "base_price": 215000,
-          "cost_price": 129000,
+          "base_price": 198000,
+          "cost_price": 118800,
           "sku_suffix": "-3KG"
         },
         {
           "size": "13.6kg",
-          "base_price": 785000,
-          "cost_price": 471000,
+          "base_price": 685000,
+          "cost_price": 411000,
           "sku_suffix": "-13.6KG"
         }
       ],
@@ -151,14 +141,12 @@
       "name": "Pro Plan Performance",
       "description": "Alimento de alto rendimiento para perros activos y de trabajo",
       "category_slug": "NUT-CAN-SEC",
-      "target_species": [
-        "dog"
-      ],
+      "target_species": ["dog"],
       "variants": [
         {
           "size": "15kg",
-          "base_price": 765000,
-          "cost_price": 459000,
+          "base_price": 695000,
+          "cost_price": 417000,
           "sku_suffix": "-15KG"
         }
       ],
@@ -174,26 +162,24 @@
       "name": "Pro Plan Adult Cat",
       "description": "Alimento premium para gatos adultos con OptiRenal",
       "category_slug": "NUT-FEL-SEC",
-      "target_species": [
-        "cat"
-      ],
+      "target_species": ["cat"],
       "variants": [
         {
           "size": "1.5kg",
-          "base_price": 125000,
-          "cost_price": 75000,
+          "base_price": 115000,
+          "cost_price": 69000,
           "sku_suffix": "-1.5KG"
         },
         {
           "size": "3kg",
-          "base_price": 225000,
-          "cost_price": 135000,
+          "base_price": 205000,
+          "cost_price": 123000,
           "sku_suffix": "-3KG"
         },
         {
           "size": "7.5kg",
-          "base_price": 495000,
-          "cost_price": 297000,
+          "base_price": 445000,
+          "cost_price": 267000,
           "sku_suffix": "-7.5KG"
         }
       ],
@@ -208,20 +194,18 @@
       "name": "Pro Plan Kitten",
       "description": "Alimento para gatitos con OptiStart y DHA",
       "category_slug": "NUT-FEL-SEC",
-      "target_species": [
-        "cat"
-      ],
+      "target_species": ["cat"],
       "variants": [
         {
           "size": "1.5kg",
-          "base_price": 135000,
-          "cost_price": 81000,
+          "base_price": 125000,
+          "cost_price": 75000,
           "sku_suffix": "-1.5KG"
         },
         {
           "size": "3kg",
-          "base_price": 245000,
-          "cost_price": 147000,
+          "base_price": 225000,
+          "cost_price": 135000,
           "sku_suffix": "-3KG"
         }
       ],
@@ -236,26 +220,24 @@
       "name": "Pro Plan Sterilised Cat",
       "description": "Alimento para gatos esterilizados con control de peso",
       "category_slug": "NUT-FEL-SEC",
-      "target_species": [
-        "cat"
-      ],
+      "target_species": ["cat"],
       "variants": [
         {
           "size": "1.5kg",
-          "base_price": 129000,
-          "cost_price": 77400,
+          "base_price": 119000,
+          "cost_price": 71400,
           "sku_suffix": "-1.5KG"
         },
         {
           "size": "3kg",
-          "base_price": 235000,
-          "cost_price": 141000,
+          "base_price": 215000,
+          "cost_price": 129000,
           "sku_suffix": "-3KG"
         },
         {
           "size": "7.5kg",
-          "base_price": 515000,
-          "cost_price": 309000,
+          "base_price": 465000,
+          "cost_price": 279000,
           "sku_suffix": "-7.5KG"
         }
       ],
@@ -270,20 +252,18 @@
       "name": "Pro Plan Urinary Cat",
       "description": "Alimento para gatos con salud urinaria óptima",
       "category_slug": "NUT-FEL-SEC",
-      "target_species": [
-        "cat"
-      ],
+      "target_species": ["cat"],
       "variants": [
         {
           "size": "1.5kg",
-          "base_price": 145000,
-          "cost_price": 87000,
+          "base_price": 135000,
+          "cost_price": 81000,
           "sku_suffix": "-1.5KG"
         },
         {
           "size": "3kg",
-          "base_price": 265000,
-          "cost_price": 159000,
+          "base_price": 245000,
+          "cost_price": 147000,
           "sku_suffix": "-3KG"
         }
       ],

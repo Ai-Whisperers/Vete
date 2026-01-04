@@ -442,7 +442,7 @@ export class AppointmentFactory {
       notes: null,
     };
 
-    const { error } = await apiClient.dbInsert('medical_records', recordData);
+    const { error } = await apiClient.dbInsert('medical_records', recordData as unknown as Record<string, unknown>);
     if (error) {
       throw new Error(`Failed to create medical record: ${error}`);
     }

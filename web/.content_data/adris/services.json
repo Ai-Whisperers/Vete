@@ -18,12 +18,12 @@
         "includes": ["Revisión General", "Control de Peso", "Plan Sanitario"]
       },
       "variants": [
-        { "name": "Consulta Clínica General", "price_display": "100.000 Gs", "price_value": 100000 },
-        { "name": "Consulta Puppy/Kitten (Primera Visita)", "price_display": "80.000 Gs", "price_value": 80000 },
-        { "name": "Consulta Gerontológica (Senior)", "price_display": "120.000 Gs", "price_value": 120000 },
-        { "name": "Consulta de Urgencia (24hs)", "price_display": "250.000 Gs", "price_value": 250000 },
-        { "name": "Telemedicina (Video Consulta)", "price_display": "80.000 Gs", "price_value": 80000 },
-        { "name": "Consulta a Domicilio (Mobile Vet)", "price_display": "150.000 Gs", "price_value": 150000 }
+        { "name": "Consulta Clínica General", "price_display": "100.000 Gs", "price_value": 100000, "image": "/branding/adris/images/icons/consultation_general.png" },
+        { "name": "Consulta Puppy/Kitten (Primera Visita)", "price_display": "80.000 Gs", "price_value": 80000, "image": "/branding/adris/images/icons/consultation_puppy.png" },
+        { "name": "Consulta Gerontológica (Senior)", "price_display": "120.000 Gs", "price_value": 120000, "image": "/branding/adris/images/icons/consultation_senior.png" },
+        { "name": "Consulta de Urgencia (24hs)", "price_display": "250.000 Gs", "price_value": 250000, "image": "/branding/adris/images/icons/consultation_emergency.png" },
+        { "name": "Telemedicina (Video Consulta)", "price_display": "80.000 Gs", "price_value": 80000, "image": "/branding/adris/images/icons/telemedicine.png" },
+        { "name": "Consulta a Domicilio (Mobile Vet)", "price_display": "150.000 Gs", "price_value": 150000, "image": "/branding/adris/images/icons/mobile_vet.png" }
       ],
       "booking": { "online_enabled": true, "emergency_available": true }
     },
@@ -41,15 +41,16 @@
         "includes": ["Revisión Pre-vacunal", "Registro Digital"]
       },
       "variants": [
-        { "name": "Antirrábica", "price_display": "80.000 Gs", "price_value": 80000 },
-        { "name": "Polivalente Canina (Séxtuple/Óctuple)", "price_display": "100.000 Gs", "price_value": 100000 },
-        { "name": "Triple Felina", "price_display": "100.000 Gs", "price_value": 100000 },
-        { "name": "Tos de las Perreras (Intranasal)", "price_display": "120.000 Gs", "price_value": 120000 },
-        { "name": "Vacuna Leishmaniasis (Dosis)", "price_display": "Consultar", "price_value": 0 },
+        { "name": "Antirrábica", "price_display": "80.000 Gs", "price_value": 80000, "image": "/branding/adris/images/icons/rabies.png" },
+        { "name": "Polivalente Canina (Séxtuple/Óctuple)", "price_display": "100.000 Gs", "price_value": 100000, "image": "/branding/adris/images/icons/polyvalent.png" },
+        { "name": "Triple Felina", "price_display": "100.000 Gs", "price_value": 100000, "image": "/branding/adris/images/icons/polyvalent.png" },
+        { "name": "Tos de las Perreras (Intranasal)", "price_display": "120.000 Gs", "price_value": 120000, "image": "/branding/adris/images/icons/kennel_cough.png" },
+        { "name": "Vacuna Leishmaniasis (Dosis)", "price_display": "Consultar", "price_value": 0, "image": "/branding/adris/images/icons/vaccination_generic.png" },
         {
           "name": "Desparasitación Interna (Comprimido)",
           "price_display": "Desde 25.000 Gs",
           "price_value": 30000,
+          "image": "/branding/adris/images/icons/deworming.png",
           "size_pricing": {
             "mini": 25000,
             "pequeño": 30000,
@@ -75,14 +76,14 @@
         "includes": ["Evaluación Específica", "Informe Escrito"]
       },
       "variants": [
-        { "name": "Consulta Cardiología", "price_display": "150.000 Gs", "price_value": 150000 },
-        { "name": "Consulta Dermatología (Alergias)", "price_display": "150.000 Gs", "price_value": 150000 },
-        { "name": "Consulta Oftalmología", "price_display": "150.000 Gs", "price_value": 150000 },
-        { "name": "Consulta Neurología", "price_display": "180.000 Gs", "price_value": 180000 },
-        { "name": "Consulta Oncología", "price_display": "180.000 Gs", "price_value": 180000 },
+        { "name": "Consulta Cardiología", "price_display": "150.000 Gs", "price_value": 150000, "image": "/branding/adris/images/icons/cardiology.png" },
+        { "name": "Consulta Dermatología (Alergias)", "price_display": "150.000 Gs", "price_value": 150000, "image": "/branding/adris/images/icons/dermatology.png" },
+        { "name": "Consulta Oftalmología", "price_display": "150.000 Gs", "price_value": 150000, "image": "/branding/adris/images/icons/ophthalmology.png" },
+        { "name": "Consulta Neurología", "price_display": "180.000 Gs", "price_value": 180000, "image": "/branding/adris/images/icons/neurology.png" },
+        { "name": "Consulta Oncología", "price_display": "180.000 Gs", "price_value": 180000, "image": "/branding/adris/images/icons/oncology.png" },
         { "name": "Consulta Reproducción (Theriogenology)", "price_display": "150.000 Gs", "price_value": 150000 },
-        { "name": "Consulta Animales Exóticos (Birds/Reptiles)", "price_display": "150.000 Gs", "price_value": 150000 },
-        { "name": "Consulta Comportamiento (Etología)", "price_display": "200.000 Gs", "price_value": 200000 }
+        { "name": "Consulta Animales Exóticos (Birds/Reptiles)", "price_display": "150.000 Gs", "price_value": 150000, "image": "/branding/adris/images/icons/exotic.png" },
+        { "name": "Consulta Comportamiento (Etología)", "price_display": "200.000 Gs", "price_value": 200000, "image": "/branding/adris/images/icons/behavior.png" }
       ],
       "booking": { "online_enabled": true, "emergency_available": false }
     },
@@ -100,10 +101,10 @@
         "includes": []
       },
       "variants": [
-        { "name": "Hemograma + Bioquímica", "price_display": "150.000 Gs", "price_value": 150000 },
-        { "name": "Radiografía Digital", "price_display": "120.000 Gs", "price_value": 120000 },
-        { "name": "Ecografía Doppler Color", "price_display": "250.000 Gs", "price_value": 250000 },
-        { "name": "Ecocardiograma", "price_display": "300.000 Gs", "price_value": 300000 },
+        { "name": "Hemograma + Bioquímica", "price_display": "150.000 Gs", "price_value": 150000, "image": "/branding/adris/images/icons/bloodwork.png" },
+        { "name": "Radiografía Digital", "price_display": "120.000 Gs", "price_value": 120000, "image": "/branding/adris/images/icons/xray.png" },
+        { "name": "Ecografía Doppler Color", "price_display": "250.000 Gs", "price_value": 250000, "image": "/branding/adris/images/icons/ultrasound.png" },
+        { "name": "Ecocardiograma", "price_display": "300.000 Gs", "price_value": 300000, "image": "/branding/adris/images/icons/ultrasound.png" },
         { "name": "Tomografía (CT Scan)", "price_display": "Consultar", "price_value": 0 },
         { "name": "Resonancia Magnética (MRI)", "price_display": "Consultar", "price_value": 0 },
         { "name": "Endoscopía Digestiva", "price_display": "800.000 Gs", "price_value": 800000 },

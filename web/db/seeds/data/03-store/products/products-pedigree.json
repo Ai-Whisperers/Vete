@@ -7,32 +7,30 @@
       "name": "Pedigree Adulto",
       "description": "Alimento completo para perros adultos con carne y vegetales",
       "category_slug": "NUT-CAN-SEC",
-      "target_species": [
-        "dog"
-      ],
+      "target_species": ["dog"],
       "variants": [
         {
           "size": "3kg",
-          "base_price": 65000,
-          "cost_price": 39000,
+          "base_price": 58000,
+          "cost_price": 34800,
           "sku_suffix": "-3KG"
         },
         {
           "size": "8kg",
-          "base_price": 145000,
-          "cost_price": 87000,
+          "base_price": 135000,
+          "cost_price": 81000,
           "sku_suffix": "-8KG"
         },
         {
           "size": "15kg",
-          "base_price": 245000,
-          "cost_price": 147000,
+          "base_price": 225000,
+          "cost_price": 135000,
           "sku_suffix": "-15KG"
         },
         {
           "size": "21kg",
-          "base_price": 325000,
-          "cost_price": 195000,
+          "base_price": 295000,
+          "cost_price": 177000,
           "sku_suffix": "-21KG"
         }
       ],
@@ -47,26 +45,24 @@
       "name": "Pedigree Adulto Carne",
       "description": "Alimento para perros adultos sabor carne",
       "category_slug": "NUT-CAN-SEC",
-      "target_species": [
-        "dog"
-      ],
+      "target_species": ["dog"],
       "variants": [
         {
           "size": "3kg",
-          "base_price": 69000,
-          "cost_price": 41400,
+          "base_price": 62000,
+          "cost_price": 37200,
           "sku_suffix": "-3KG"
         },
         {
           "size": "15kg",
-          "base_price": 255000,
-          "cost_price": 153000,
+          "base_price": 235000,
+          "cost_price": 141000,
           "sku_suffix": "-15KG"
         },
         {
           "size": "21kg",
-          "base_price": 335000,
-          "cost_price": 201000,
+          "base_price": 305000,
+          "cost_price": 183000,
           "sku_suffix": "-21KG"
         }
       ],
@@ -81,32 +77,30 @@
       "name": "Pedigree Cachorro",
       "description": "Alimento para cachorros con vitaminas y minerales esenciales",
       "category_slug": "NUT-CAN-SEC",
-      "target_species": [
-        "dog"
-      ],
+      "target_species": ["dog"],
       "variants": [
         {
           "size": "3kg",
-          "base_price": 75000,
-          "cost_price": 45000,
+          "base_price": 68000,
+          "cost_price": 40800,
           "sku_suffix": "-3KG"
         },
         {
           "size": "8kg",
-          "base_price": 165000,
-          "cost_price": 99000,
+          "base_price": 155000,
+          "cost_price": 93000,
           "sku_suffix": "-8KG"
         },
         {
           "size": "15kg",
-          "base_price": 285000,
-          "cost_price": 171000,
+          "base_price": 265000,
+          "cost_price": 159000,
           "sku_suffix": "-15KG"
         },
         {
           "size": "21kg",
-          "base_price": 375000,
-          "cost_price": 225000,
+          "base_price": 345000,
+          "cost_price": 207000,
           "sku_suffix": "-21KG"
         }
       ],
@@ -121,20 +115,18 @@
       "name": "Pedigree Senior 7+",
       "description": "Alimento para perros mayores de 7 años con antioxidantes",
       "category_slug": "NUT-CAN-SEC",
-      "target_species": [
-        "dog"
-      ],
+      "target_species": ["dog"],
       "variants": [
         {
           "size": "3kg",
-          "base_price": 72000,
-          "cost_price": 43200,
+          "base_price": 65000,
+          "cost_price": 39000,
           "sku_suffix": "-3KG"
         },
         {
           "size": "15kg",
-          "base_price": 265000,
-          "cost_price": 159000,
+          "base_price": 245000,
+          "cost_price": 147000,
           "sku_suffix": "-15KG"
         }
       ],
@@ -149,26 +141,24 @@
       "name": "Pedigree Razas Pequeñas",
       "description": "Alimento para perros adultos de razas pequeñas",
       "category_slug": "NUT-CAN-SEC",
-      "target_species": [
-        "dog"
-      ],
+      "target_species": ["dog"],
       "variants": [
         {
           "size": "1kg",
-          "base_price": 35000,
-          "cost_price": 21000,
+          "base_price": 32000,
+          "cost_price": 19200,
           "sku_suffix": "-1KG"
         },
         {
           "size": "3kg",
-          "base_price": 85000,
-          "cost_price": 51000,
+          "base_price": 78000,
+          "cost_price": 46800,
           "sku_suffix": "-3KG"
         },
         {
           "size": "6kg",
-          "base_price": 155000,
-          "cost_price": 93000,
+          "base_price": 145000,
+          "cost_price": 87000,
           "sku_suffix": "-6KG"
         }
       ],
@@ -182,15 +172,13 @@
       "sku": "PED-DOG-WET-CARNE",
       "name": "Pedigree Húmedo Carne",
       "description": "Alimento húmedo en lata sabor carne para perros adultos",
-      "category_slug": "NUT-CAN-SEC",
-      "target_species": [
-        "dog"
-      ],
+      "category_slug": "NUT-CAN-HUM",
+      "target_species": ["dog"],
       "variants": [
         {
           "size": "290g",
-          "base_price": 22000,
-          "cost_price": 13200,
+          "base_price": 18000,
+          "cost_price": 10800,
           "sku_suffix": "-290G"
         }
       ],
@@ -204,15 +192,13 @@
       "sku": "PED-DOG-WET-POLLO",
       "name": "Pedigree Húmedo Pollo",
       "description": "Alimento húmedo en lata sabor pollo para perros adultos",
-      "category_slug": "NUT-CAN-SEC",
-      "target_species": [
-        "dog"
-      ],
+      "category_slug": "NUT-CAN-HUM",
+      "target_species": ["dog"],
       "variants": [
         {
           "size": "290g",
-          "base_price": 22000,
-          "cost_price": 13200,
+          "base_price": 18000,
+          "cost_price": 10800,
           "sku_suffix": "-290G"
         }
       ],
@@ -227,20 +213,18 @@
       "name": "Pedigree Dentastix",
       "description": "Snacks dentales para limpieza de dientes y aliento fresco",
       "category_slug": "NUT-CAN-SNA",
-      "target_species": [
-        "dog"
-      ],
+      "target_species": ["dog"],
       "variants": [
         {
           "size": "7 unidades",
-          "base_price": 45000,
-          "cost_price": 27000,
+          "base_price": 42000,
+          "cost_price": 25200,
           "sku_suffix": "-7"
         },
         {
           "size": "28 unidades",
-          "base_price": 145000,
-          "cost_price": 87000,
+          "base_price": 135000,
+          "cost_price": 81000,
           "sku_suffix": "-28"
         }
       ],
@@ -254,21 +238,19 @@
       "sku": "PED-BISCROK",
       "name": "Pedigree Biscrok",
       "description": "Galletas crujientes para perros adultos",
-      "category_slug": "NUT-CAN-SEC",
-      "target_species": [
-        "dog"
-      ],
+      "category_slug": "NUT-CAN-SNA",
+      "target_species": ["dog"],
       "variants": [
         {
           "size": "500g",
-          "base_price": 35000,
-          "cost_price": 21000,
+          "base_price": 32000,
+          "cost_price": 19200,
           "sku_suffix": "-500G"
         },
         {
           "size": "1kg",
-          "base_price": 55000,
-          "cost_price": 33000,
+          "base_price": 52000,
+          "cost_price": 31200,
           "sku_suffix": "-1KG"
         }
       ],

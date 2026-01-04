@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
 import { apiError, HTTP_STATUS } from '@/lib/api/errors';
+import { isPlainObject, hasProperty } from '@/lib/utils/type-guards';
 
 // GET /api/dashboard/vaccines - Get upcoming vaccine reminders
 export async function GET(request: Request) {
@@ -71,15 +72,19 @@ export async function GET(request: Request) {
     const reminders = vaccines?.map(v => {
       const dueDate = new Date(v.next_due_date);
       const daysUntil = Math.ceil((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-      const pet = v.pet as any;
-      const owner = pet?.owner;
+
+      // Safely extract pet and owner from Supabase join results
+      const pet = isPlainObject(v.pet) ? v.pet : null;
+      const owner = pet && hasProperty(pet, 'owner') && isPlainObject(pet.owner)
+        ? pet.owner
+        : null;
 
       return {
-        pet_id: pet?.id,
-        pet_name: pet?.name || 'Desconocido',
-        pet_photo: pet?.photo_url,
-        owner_name: owner?.full_name || 'Sin dueño',
-        owner_phone: owner?.phone,
+        pet_id: pet && hasProperty(pet, 'id') ? String(pet.id) : undefined,
+        pet_name: pet && hasProperty(pet, 'name') ? String(pet.name) : 'Desconocido',
+        pet_photo: pet && hasProperty(pet, 'photo_url') ? String(pet.photo_url) : undefined,
+        owner_name: owner && hasProperty(owner, 'full_name') ? String(owner.full_name) : 'Sin dueño',
+        owner_phone: owner && hasProperty(owner, 'phone') ? String(owner.phone) : undefined,
         vaccine_name: v.name,
         due_date: v.next_due_date,
         days_until: daysUntil,

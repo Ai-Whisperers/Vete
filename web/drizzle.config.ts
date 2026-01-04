@@ -3,7 +3,13 @@ import * as dotenv from "dotenv";
 
 dotenv.config({ path: ".env.local" });
 
-export const DATABASE_URL = process.env.DATABASE_URL!;
+// Validate DATABASE_URL exists
+const DATABASE_URL = process.env.DATABASE_URL;
+if (!DATABASE_URL) {
+  throw new Error('[Drizzle Config] Missing required DATABASE_URL environment variable');
+}
+
+export { DATABASE_URL };
 
 export default defineConfig({
   schema: "./db/schema/index.ts",

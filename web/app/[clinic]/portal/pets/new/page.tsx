@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState, useEffect } from "react";
 import { ArrowLeft, Loader2, AlertCircle, Info, CheckCircle2 } from "lucide-react";
 import { createPet } from "@/app/actions/create-pet";
 import Link from "next/link";
@@ -47,6 +47,20 @@ export default function NewPetPage() {
   const { clinic } = useParams();
   const [state, formAction, isPending] = useActionState(createPet, null);
   const fieldErrors = getFieldErrors(state);
+
+  // Client-side only rendering to prevent hydration mismatches from extensions (LastPass, etc.)
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return (
+      <div className="max-w-xl mx-auto flex justify-center py-20">
+        <Loader2 className="w-8 h-8 animate-spin text-[var(--primary)]" />
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-xl mx-auto">
@@ -104,8 +118,8 @@ export default function NewPetPage() {
             </h3>
 
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="name" className="block text-sm font-bold text-[var(--text-secondary)] mb-1">
+              <div suppressHydrationWarning>
+                <label htmlFor="name" className="block text-sm font-bold text-[var(--text-secondary)] mb-1" suppressHydrationWarning>
                   Nombre <span className="text-red-500">*</span>
                 </label>
                 <input

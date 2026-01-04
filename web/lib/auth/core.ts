@@ -5,7 +5,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import type { UserRole, UserProfile, AuthContext, UnauthenticatedContext, AppAuthContext, AuthResult } from './types'
-import { apiError } from '@/lib/api/errors'
+import { drizzleProfileToUserProfile, type DrizzleProfileRow } from './mappers'
 import { db } from "@/db"
 import { profiles } from "@/db/schema"
 import { eq } from "drizzle-orm"
@@ -29,17 +29,30 @@ export class AuthService {
         }
       }
 
-      // Refactored to use Drizzle
+      // Refactored to use Drizzle with type-safe mapping
       const result = await db
         .select()
         .from(profiles)
         .where(eq(profiles.id, user.id))
         .limit(1);
 
-      const profile = result[0];
+      const row = result[0];
+
+      if (!row) {
+        console.warn('Profile not found for authenticated user:', user.id)
+        return {
+          user: null,
+          profile: null,
+          supabase,
+          isAuthenticated: false
+        }
+      }
+
+      // Convert Drizzle row to UserProfile using type-safe mapper
+      const profile = drizzleProfileToUserProfile(row as DrizzleProfileRow)
 
       if (!profile) {
-        console.warn('Profile not found for authenticated user:', user.id)
+        console.warn('User profile missing tenant_id:', user.id)
         return {
           user: null,
           profile: null,
@@ -50,7 +63,7 @@ export class AuthService {
 
       return {
         user,
-        profile: profile as unknown as UserProfile,
+        profile,
         supabase,
         isAuthenticated: true
       }

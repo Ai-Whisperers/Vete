@@ -84,6 +84,7 @@ export const GET = withAuth(async ({ user, profile, supabase, request }) => {
 });
 
 // POST /api/invoices - Create new invoice (staff only)
+// Rate limited: 10 requests per minute (financial operations)
 export const POST = withAuth(
   async ({ user, profile, supabase, request }) => {
     try {
@@ -193,5 +194,5 @@ export const POST = withAuth(
       return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR);
     }
   },
-  { roles: ['vet', 'admin'] }
+  { roles: ['vet', 'admin'], rateLimit: 'financial' }
 );

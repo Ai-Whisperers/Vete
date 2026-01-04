@@ -4,8 +4,9 @@ import { useState, useMemo } from "react";
 import Link from "next/link";
 import * as Icons from "lucide-react";
 import { DynamicIcon } from "@/lib/icons";
-import { PetSelector } from "./pet-selector";
+import { MultiPetSelector } from "./multi-pet-selector";
 import { useCart } from "@/context/cart-context";
+import { useServiceCartStatus } from "@/hooks/use-cart-variant-status";
 import {
   getServicePriceForSize,
   hasSizeBasedPricing,
@@ -44,40 +45,58 @@ export function ServiceDetailClient({
   isLoggedIn
 }: ServiceDetailClientProps) {
   const { addItem } = useCart();
-  const [selectedPet, setSelectedPet] = useState<PetForService | null>(null);
+  const [selectedPets, setSelectedPets] = useState<PetForService[]>([]);
   const [addingVariant, setAddingVariant] = useState<string | null>(null);
   const [justAddedVariant, setJustAddedVariant] = useState<string | null>(null);
   const [showPetPrompt, setShowPetPrompt] = useState(false);
 
+  // Track which pets have each variant in cart
+  const variantCartStatus = useServiceCartStatus(service.id);
+
   // Check if any variant has size-based pricing
   const hasSizeDependentVariants = service.variants?.some((v) => hasSizeBasedPricing(v.size_pricing));
 
-  // Calculate prices for all variants based on selected pet
+  // Get selected pet IDs for the selector
+  const selectedPetIds = useMemo(() => selectedPets.map((p) => p.id), [selectedPets]);
+
+  // Calculate prices for all variants based on selected pets
+  // For multi-pet, we show price breakdown per pet
   const calculatedPrices = useMemo(() => {
     if (!service.variants) return {};
 
     return service.variants.reduce((acc, variant) => {
       const variantHasSizePricing = hasSizeBasedPricing(variant.size_pricing);
 
-      let calculatedPrice = variant.price_value;
-      if (selectedPet && variantHasSizePricing) {
-        const sizePrice = getServicePriceForSize(variant.size_pricing, selectedPet.size_category);
-        calculatedPrice = sizePrice ?? variant.price_value;
-      }
+      // Calculate per-pet prices
+      const petPrices = selectedPets.map((pet) => {
+        const price = variantHasSizePricing
+          ? (getServicePriceForSize(variant.size_pricing, pet.size_category) ?? variant.price_value)
+          : variant.price_value;
+        return { petId: pet.id, petName: pet.name, petSize: pet.size_category, price };
+      });
+
+      // Total for all selected pets
+      const totalPrice = petPrices.reduce((sum, p) => sum + p.price, 0);
 
       acc[variant.name] = {
-        price: calculatedPrice,
-        difference: calculatedPrice - variant.price_value,
+        basePrice: variant.price_value,
+        petPrices,
+        totalPrice,
         isSizeDependent: variantHasSizePricing
       };
       return acc;
-    }, {} as Record<string, { price: number; difference: number; isSizeDependent: boolean }>);
-  }, [service.variants, selectedPet]);
+    }, {} as Record<string, {
+      basePrice: number;
+      petPrices: Array<{ petId: string; petName: string; petSize: string; price: number }>;
+      totalPrice: number;
+      isSizeDependent: boolean;
+    }>);
+  }, [service.variants, selectedPets]);
 
-  // Handle add to cart - always requires pet selection
+  // Handle add to cart - adds service for all selected pets
   const handleAddToCart = async (variant: ServiceVariant) => {
-    // Always require pet selection
-    if (!selectedPet) {
+    // Require at least one pet selected
+    if (selectedPets.length === 0) {
       setShowPetPrompt(true);
       // Scroll to pet selector on mobile
       const petSelector = document.getElementById('pet-selector-card');
@@ -94,25 +113,30 @@ export function ServiceDetailClient({
     await new Promise((resolve) => setTimeout(resolve, 300));
 
     const variantHasSizePricing = hasSizeBasedPricing(variant.size_pricing);
-    const calculatedPrice = variantHasSizePricing
-      ? (calculatedPrices[variant.name]?.price ?? variant.price_value)
-      : variant.price_value;
+    const priceInfo = calculatedPrices[variant.name];
 
-    // Always add with pet info
-    addItem({
-      id: `${service.id}-${selectedPet.id}-${variant.name}`,
-      name: `${service.title} - ${variant.name}`,
-      price: calculatedPrice,
-      type: "service",
-      image_url: service.image,
-      description: variant.description || service.summary,
-      pet_id: selectedPet.id,
-      pet_name: selectedPet.name,
-      pet_size: selectedPet.size_category,
-      service_id: service.id,
-      variant_name: variant.name,
-      base_price: variant.price_value
-    });
+    // Add cart item for each selected pet
+    for (const pet of selectedPets) {
+      // Get price for this specific pet
+      const petPrice = priceInfo?.petPrices.find((p) => p.petId === pet.id);
+      const calculatedPrice = petPrice?.price ?? variant.price_value;
+
+      addItem({
+        id: `${service.id}-${pet.id}-${variant.name}`,
+        name: `${service.title} - ${variant.name}`,
+        price: calculatedPrice,
+        type: "service",
+        image_url: variant.image || service.image,
+        description: variant.description || service.summary,
+        pet_id: pet.id,
+        pet_name: pet.name,
+        pet_size: pet.size_category,
+        service_id: service.id,
+        service_icon: service.icon,
+        variant_name: variant.name,
+        base_price: variant.price_value
+      });
+    }
 
     setAddingVariant(null);
     setJustAddedVariant(variant.name);
@@ -219,31 +243,38 @@ export function ServiceDetailClient({
               <h2 className="text-xl font-bold text-[var(--text-primary)] font-heading">
                 Precios y Variantes
               </h2>
-              {selectedPet && (
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-[var(--primary)]/10 rounded-full">
+              {selectedPets.length > 0 && (
+                <div className="flex flex-wrap items-center gap-2">
                   <Icons.PawPrint className="w-4 h-4 text-[var(--primary)]" />
-                  <span className="text-sm font-bold text-[var(--primary)]">
-                    {selectedPet.name}
-                  </span>
-                  {hasSizeDependentVariants && (
-                    <span
-                      className={`px-2 py-0.5 rounded-full text-xs font-bold ${getSizeBadgeColor(
-                        selectedPet.size_category
-                      )}`}
+                  {selectedPets.map((pet) => (
+                    <div
+                      key={pet.id}
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-[var(--primary)]/10 rounded-full"
                     >
-                      {SIZE_SHORT_LABELS[selectedPet.size_category]}
-                    </span>
-                  )}
+                      <span className="text-sm font-bold text-[var(--primary)]">
+                        {pet.name}
+                      </span>
+                      {hasSizeDependentVariants && (
+                        <span
+                          className={`px-1.5 py-0.5 rounded-full text-xs font-bold ${getSizeBadgeColor(
+                            pet.size_category
+                          )}`}
+                        >
+                          {SIZE_SHORT_LABELS[pet.size_category]}
+                        </span>
+                      )}
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
 
             {/* Pet selection prompt - shows when user tries to add without pet */}
-            {showPetPrompt && !selectedPet && (
+            {showPetPrompt && selectedPets.length === 0 && (
               <div className="p-4 bg-amber-50 border-b border-amber-100 flex items-center gap-3">
                 <Icons.AlertCircle className="w-5 h-5 text-amber-600 shrink-0" />
                 <p className="text-sm text-amber-800 font-medium">
-                  Primero selecciona una mascota para agregar este servicio
+                  Primero selecciona al menos una mascota para agregar este servicio
                 </p>
               </div>
             )}
@@ -270,42 +301,75 @@ export function ServiceDetailClient({
                     const justAdded = justAddedVariant === variant.name;
                     const variantHasSizePricing = hasSizeBasedPricing(variant.size_pricing);
 
+                    // Get cart status for this variant
+                    const cartStatus = variantCartStatus.get(variant.name);
+                    const petsAlreadyInCart = cartStatus?.petNames || [];
+
                     return (
                       <tr key={idx} className="hover:bg-gray-50 transition-colors">
                         <td className="px-6 py-4">
-                          <div className="font-bold text-[var(--text-primary)] text-lg">
-                            {variant.name}
+                          <div className="flex items-center gap-4">
+                             {variant.image && (
+                                <div className="relative w-12 h-12 rounded-xl overflow-hidden border border-gray-100 bg-gray-50 flex-shrink-0">
+                                     <img src={variant.image} alt={variant.name} className="w-full h-full object-cover p-1" />
+                                </div>
+                             )}
+                             <div>
+                                <div className="font-bold text-[var(--text-primary)] text-lg leading-tight">
+                                    {variant.name}
+                                </div>
+                                {variant.description && (
+                                    <div className="text-sm text-[var(--text-muted)] mt-1">
+                                    {variant.description}
+                                    </div>
+                                )}
+                             </div>
                           </div>
-                          {variant.description && (
-                            <div className="text-sm text-[var(--text-muted)] mt-1">
-                              {variant.description}
-                            </div>
-                          )}
                           {variantHasSizePricing && (
                             <div className="flex items-center gap-1 mt-2 text-xs text-amber-600">
                               <Icons.Calculator className="w-3.5 h-3.5" />
                               <span>Precio según tamaño de mascota</span>
                             </div>
                           )}
+                          {/* Show pets already in cart for this variant */}
+                          {petsAlreadyInCart.length > 0 && (
+                            <div className="flex items-center gap-1.5 mt-2 text-xs text-green-600">
+                              <Icons.CheckCircle2 className="w-3.5 h-3.5" />
+                              <span>Ya en carrito: {petsAlreadyInCart.join(", ")}</span>
+                            </div>
+                          )}
                         </td>
                         <td className="px-6 py-4 text-right">
                           <div className="flex flex-col items-end gap-1">
-                            {/* Show calculated price if pet selected and size-dependent */}
-                            {selectedPet && priceInfo?.isSizeDependent ? (
+                            {/* Show per-pet prices when multiple pets selected */}
+                            {selectedPets.length > 0 && priceInfo ? (
                               <>
-                                <span className="inline-block bg-[var(--primary)] px-3 py-1 rounded-full text-white font-black">
-                                  {formatPriceGs(priceInfo.price)}
-                                </span>
-                                {priceInfo.difference !== 0 && (
-                                  <span
-                                    className={`text-xs ${
-                                      priceInfo.difference > 0
-                                        ? "text-amber-600"
-                                        : "text-green-600"
-                                    }`}
-                                  >
-                                    {priceInfo.difference > 0 ? "+" : ""}
-                                    {formatPriceGs(priceInfo.difference)} vs base
+                                {/* Show individual pet prices for size-dependent variants */}
+                                {priceInfo.isSizeDependent && priceInfo.petPrices.length > 1 ? (
+                                  <div className="space-y-1">
+                                    {priceInfo.petPrices.map((petPrice) => (
+                                      <div key={petPrice.petId} className="flex items-center gap-2 justify-end">
+                                        <span className="text-xs text-[var(--text-muted)]">{petPrice.petName}:</span>
+                                        <span className="text-sm font-bold text-[var(--primary)]">
+                                          {formatPriceGs(petPrice.price)}
+                                        </span>
+                                      </div>
+                                    ))}
+                                    <div className="pt-1 border-t border-gray-200 mt-1">
+                                      <span className="inline-block bg-[var(--primary)] px-3 py-1 rounded-full text-white font-black text-sm">
+                                        Total: {formatPriceGs(priceInfo.totalPrice)}
+                                      </span>
+                                    </div>
+                                  </div>
+                                ) : priceInfo.petPrices.length === 1 ? (
+                                  /* Single pet selected */
+                                  <span className="inline-block bg-[var(--primary)] px-3 py-1 rounded-full text-white font-black">
+                                    {formatPriceGs(priceInfo.petPrices[0].price)}
+                                  </span>
+                                ) : (
+                                  /* Multiple pets, flat pricing */
+                                  <span className="inline-block bg-[var(--primary)] px-3 py-1 rounded-full text-white font-black">
+                                    {formatPriceGs(priceInfo.totalPrice)}
                                   </span>
                                 )}
                               </>
@@ -318,18 +382,20 @@ export function ServiceDetailClient({
                         </td>
                         {isLoggedIn && (
                           <td className="px-6 py-4">
-                            <div className="flex justify-center">
+                            <div className="flex flex-col items-center gap-2">
                               {variant.price_value > 0 ? (
                                 <button
                                   type="button"
                                   onClick={() => handleAddToCart(variant)}
-                                  disabled={isAdding || justAdded}
+                                  disabled={isAdding || justAdded || selectedPets.length === 0}
                                   className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm transition-all ${
                                     justAdded
                                       ? "bg-green-500 text-white"
-                                      : "bg-[var(--primary)] text-white hover:brightness-110"
+                                      : selectedPets.length === 0
+                                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                        : "bg-[var(--primary)] text-white hover:brightness-110"
                                   } disabled:opacity-70`}
-                                  title="Agregar al carrito"
+                                  title={selectedPets.length === 0 ? "Selecciona una mascota primero" : "Agregar al carrito"}
                                 >
                                   {isAdding ? (
                                     <>
@@ -349,7 +415,10 @@ export function ServiceDetailClient({
                                     <>
                                       <Icons.ShoppingBag className="w-4 h-4" />
                                       <span className="hidden sm:inline">
-                                        Agregar
+                                        {selectedPets.length > 1
+                                          ? `Agregar (${selectedPets.length})`
+                                          : "Agregar"
+                                        }
                                       </span>
                                     </>
                                   )}
@@ -378,7 +447,7 @@ export function ServiceDetailClient({
             <div
               id="pet-selector-card"
               className={`bg-white p-6 rounded-[var(--radius)] shadow-[var(--shadow-sm)] border transition-all ${
-                showPetPrompt && !selectedPet
+                showPetPrompt && selectedPets.length === 0
                   ? 'border-amber-400 ring-2 ring-amber-200'
                   : 'border-gray-100'
               }`}
@@ -386,21 +455,21 @@ export function ServiceDetailClient({
               <div className="flex items-center gap-2 mb-4">
                 <Icons.PawPrint className="w-5 h-5 text-[var(--primary)]" />
                 <h3 className="text-lg font-bold text-[var(--text-primary)] font-heading">
-                  Selecciona tu Mascota
+                  Selecciona tus Mascotas
                 </h3>
               </div>
               <p className="text-sm text-[var(--text-muted)] mb-4">
                 {hasSizeDependentVariants
-                  ? "Selecciona tu mascota para ver precios personalizados y agregar servicios."
-                  : "Selecciona la mascota para la cual deseas este servicio."
+                  ? "Selecciona tus mascotas para ver precios personalizados y agregar servicios para todas a la vez."
+                  : "Selecciona las mascotas para las cuales deseas este servicio."
                 }
               </p>
-              <PetSelector
-                onSelect={(pet) => {
-                  setSelectedPet(pet);
+              <MultiPetSelector
+                onSelectionChange={(pets) => {
+                  setSelectedPets(pets);
                   setShowPetPrompt(false);
                 }}
-                selectedPetId={selectedPet?.id}
+                selectedPetIds={selectedPetIds}
               />
             </div>
           )}

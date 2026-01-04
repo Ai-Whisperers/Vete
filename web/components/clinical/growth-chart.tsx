@@ -24,46 +24,107 @@ interface GrowthChartProps {
     patientRecords: WeightRecord[];
 }
 
-// Breed size classifications for fallback
-const BREED_SIZE_MAP: Record<string, string> = {
-    // Small breeds
-    'Chihuahua': 'Small Dog',
-    'Yorkshire': 'Small Dog',
-    'Pomeranian': 'Small Dog',
-    'Maltese': 'Small Dog',
-    'Shih Tzu': 'Small Dog',
-    // Medium breeds
-    'Beagle': 'Medium Dog',
-    'Bulldog': 'Medium Dog',
-    'Cocker': 'Medium Dog',
-    'Border Collie': 'Medium Dog',
-    // Large breeds
-    'Labrador': 'Large Dog',
-    'Retriever': 'Large Dog',
-    'Golden Retriever': 'Large Dog',
-    'German Shepherd': 'Large Dog',
-    'Rottweiler': 'Large Dog',
-    // Giant breeds
-    'Great Dane': 'Giant Dog',
-    'Mastiff': 'Giant Dog',
-    'Saint Bernard': 'Giant Dog',
+// Breed to category mapping for growth standards lookup
+// Categories match the breed_category values in the growth_standards table
+const BREED_CATEGORY_MAP: Record<string, string> = {
+    // Toy breeds (adult weight < 4.5 kg)
+    'Chihuahua': 'toy',
+    'Yorkshire Terrier': 'toy',
+    'Yorkshire': 'toy',
+    'Pomeranian': 'toy',
+    'Maltese': 'toy',
+    'Papillon': 'toy',
+    'Toy Poodle': 'toy',
+
+    // Small breeds (adult weight 4.5 - 10 kg)
+    'Shih Tzu': 'small',
+    'Poodle': 'small',
+    'French Bulldog': 'small',
+    'Beagle': 'small',
+    'Cocker Spaniel': 'small',
+    'Cocker': 'small',
+    'Miniature Schnauzer': 'small',
+    'Boston Terrier': 'small',
+    'Cavalier King Charles': 'small',
+    'Dachshund': 'small',
+    'Jack Russell': 'small',
+    'West Highland': 'small',
+    'Westie': 'small',
+
+    // Medium breeds (adult weight 10 - 25 kg)
+    'Bulldog': 'medium',
+    'Bulldog Inglés': 'medium',
+    'Border Collie': 'medium',
+    'Australian Shepherd': 'medium',
+    'Boxer': 'medium',
+    'Vizsla': 'medium',
+    'Brittany': 'medium',
+    'English Springer Spaniel': 'medium',
+    'Shar Pei': 'medium',
+    'Basset Hound': 'medium',
+    'Collie': 'medium',
+
+    // Large breeds (adult weight 25 - 45 kg)
+    'Labrador': 'large',
+    'Labrador Retriever': 'large',
+    'Retriever': 'large',
+    'Golden Retriever': 'large',
+    'German Shepherd': 'large',
+    'Pastor Alemán': 'large',
+    'Rottweiler': 'large',
+    'Doberman': 'large',
+    'Doberman Pinscher': 'large',
+    'Husky': 'large',
+    'Siberian Husky': 'large',
+    'Weimaraner': 'large',
+    'Belgian Malinois': 'large',
+    'Rhodesian Ridgeback': 'large',
+    'Akita': 'large',
+
+    // Giant breeds (adult weight > 45 kg)
+    'Great Dane': 'giant',
+    'Mastiff': 'giant',
+    'English Mastiff': 'giant',
+    'Saint Bernard': 'giant',
+    'Irish Wolfhound': 'giant',
+    'Newfoundland': 'giant',
+    'Bernese Mountain Dog': 'giant',
+    'Leonberger': 'giant',
+    'Great Pyrenees': 'giant',
+    'Cane Corso': 'giant',
+
+    // Cat breeds
+    'Maine Coon': 'cat_large',
+    'Ragdoll': 'cat_large',
+    'Norwegian Forest': 'cat_large',
+    'British Shorthair': 'cat_standard',
+    'Persian': 'cat_standard',
+    'Siamese': 'cat_standard',
+    'Bengal': 'cat_standard',
+    'Abyssinian': 'cat_standard',
+    'Sphynx': 'cat_standard',
+    'Russian Blue': 'cat_standard',
+    'Domestic Shorthair': 'cat_standard',
+    'Domestic Longhair': 'cat_standard',
+    'Mestizo': 'cat_standard', // Default for cats
 };
 
-function getBreedFallback(breed: string): { searchBreed: string; isExact: boolean } {
+function getBreedCategory(breed: string): { category: string; displayName: string; isExact: boolean } {
     // First try exact match
-    if (breed in BREED_SIZE_MAP) {
-        return { searchBreed: breed, isExact: true };
+    if (breed in BREED_CATEGORY_MAP) {
+        return { category: BREED_CATEGORY_MAP[breed], displayName: breed, isExact: true };
     }
 
     // Try to find a partial match in the breed name
-    for (const [key, size] of Object.entries(BREED_SIZE_MAP)) {
-        if (breed.toLowerCase().includes(key.toLowerCase())) {
-            return { searchBreed: size, isExact: false };
+    for (const [key, category] of Object.entries(BREED_CATEGORY_MAP)) {
+        if (breed.toLowerCase().includes(key.toLowerCase()) || key.toLowerCase().includes(breed.toLowerCase())) {
+            return { category, displayName: key, isExact: false };
         }
     }
 
-    // Default to Medium Dog if no match found
-    return { searchBreed: 'Medium Dog', isExact: false };
+    // Default to medium for dogs if no match found
+    // Note: cats should be detected by species, but if only breed is passed, assume dog
+    return { category: 'medium', displayName: 'Perro Mediano', isExact: false };
 }
 
 export function GrowthChart({ breed, gender, patientRecords }: GrowthChartProps) {
@@ -78,27 +139,15 @@ export function GrowthChart({ breed, gender, patientRecords }: GrowthChartProps)
             setLoading(true);
             setError(null);
 
-            // Determine which breed to search for
-            const { searchBreed, isExact } = getBreedFallback(breed);
-            setActualBreedUsed(searchBreed);
+            // Determine which breed category to search for
+            const { category, displayName, isExact } = getBreedCategory(breed);
+            setActualBreedUsed(displayName);
             setUsingFallback(!isExact);
 
             try {
-                // First try with the exact breed
-                let res = await fetch(`/api/growth_standards?breed=${encodeURIComponent(breed)}&gender=${gender}`);
-                let data = res.ok ? await res.json() : [];
-
-                // If no data, try with the fallback breed
-                if (!data || data.length === 0) {
-                    res = await fetch(`/api/growth_standards?breed=${encodeURIComponent(searchBreed)}&gender=${gender}`);
-                    if (res.ok) {
-                        data = await res.json();
-                        setUsingFallback(true);
-                    }
-                } else {
-                    setUsingFallback(false);
-                    setActualBreedUsed(breed);
-                }
+                // Fetch by breed_category (not breed name)
+                const res = await fetch(`/api/growth_standards?breed_category=${encodeURIComponent(category)}&gender=${gender}`);
+                const data = res.ok ? await res.json() : [];
 
                 setStandardData(data || []);
             } catch {

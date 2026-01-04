@@ -133,30 +133,6 @@ export function Calendar({
     return event.title
   }, [])
 
-  // Pre-compute daily event counts by type for O(1) lookup
-  // This runs once per filteredEvents change, not per cell
-  const dailyEventCounts = useMemo(() => {
-    const counts = new Map<string, Map<CalendarEventType, number>>()
-
-    for (const event of filteredEvents) {
-      const dateKey = event.start.toISOString().split('T')[0]
-      if (!counts.has(dateKey)) {
-        counts.set(dateKey, new Map())
-      }
-      const dayMap = counts.get(dateKey)!
-      const type = event.type || 'appointment'
-      dayMap.set(type, (dayMap.get(type) || 0) + 1)
-    }
-
-    return counts
-  }, [filteredEvents])
-
-  // Get total appointment count for capacity indicator
-  const getTotalAppointments = useCallback((dateKey: string): number => {
-    const dayMap = dailyEventCounts.get(dateKey)
-    return dayMap?.get('appointment') || 0
-  }, [dailyEventCounts])
-
   // Capacity color helper - extracted to avoid recreation
   const getCapacityColor = useCallback((count: number): string => {
     if (count === 0) return 'transparent'

@@ -1,47 +1,542 @@
 {
   "$schema": "../../_schemas/store.schema.json#/definitions/TenantProductsFile",
   "tenant_id": "adris",
-  "description": "Products carried by Veterinaria Adris with local pricing",
+  "description": "Real inventory from Veterinaria Adris - Updated January 2026",
   "products": [
-    {"sku": "MON-DOG-ADULT-25KG", "sale_price": 578500, "min_stock_level": 5, "location": "Estante A1", "initial_stock": 8},
-    {"sku": "MON-DOG-ADULT-15KG", "sale_price": 383500, "min_stock_level": 5, "location": "Estante A1", "initial_stock": 12},
-    {"sku": "MON-DOG-PUPPY-7KG", "sale_price": 195000, "min_stock_level": 5, "location": "Estante A1", "initial_stock": 10},
-    {"sku": "MON-CAT-CASTRADO-10KG", "sale_price": 290000, "min_stock_level": 3, "location": "Estante A1", "initial_stock": 6},
-    {"sku": "PP-DOG-PUPPY-LARGE-3KG", "sale_price": 266500, "min_stock_level": 8, "location": "Estante A2", "initial_stock": 15},
-    {"sku": "FN-DOG-PUPPY-LARGE-14KG", "sale_price": 643500, "min_stock_level": 4, "location": "Estante A2", "initial_stock": 6},
-    {"sku": "FN-DOG-PUPPY-SMALL-7KG", "sale_price": 388700, "min_stock_level": 6, "location": "Estante A3", "initial_stock": 10},
-    {"sku": "FN-DOG-ADULT-LARGE-14KG", "sale_price": 480000, "min_stock_level": 4, "location": "Estante A2", "initial_stock": 8},
-    {"sku": "FN-DOG-PUPPY-MED-2.5KG", "sale_price": 135000, "min_stock_level": 6, "location": "Estante A3", "initial_stock": 12},
-    {"sku": "ND-DOG-QUINOA-DIGESTION-7KG", "sale_price": 785000, "min_stock_level": 2, "location": "Estante B1", "initial_stock": 4},
-    {"sku": "ND-CAT-CHICKEN-POME-1.5KG", "sale_price": 205000, "min_stock_level": 4, "location": "Estante B1", "initial_stock": 8},
-    {"sku": "ND-CAT-KITTEN-5KG", "sale_price": 575000, "min_stock_level": 2, "location": "Estante B1", "initial_stock": 3},
-    {"sku": "PED-DOG-PUPPY-15KG", "sale_price": 300000, "min_stock_level": 5, "location": "Estante A4", "initial_stock": 10},
-    {"sku": "PED-DOG-PUPPY-8KG", "sale_price": 175000, "min_stock_level": 6, "location": "Estante A4", "initial_stock": 12},
-    {"sku": "DC-DOG-ADULT-MED-LG-1.5KG", "sale_price": 49000, "min_stock_level": 10, "location": "Estante A5", "initial_stock": 20},
-    {"sku": "DC-DOG-ADULT-SMALL-3KG", "sale_price": 90000, "min_stock_level": 8, "location": "Estante A5", "initial_stock": 15},
-    {"sku": "DC-DOG-ADULT-SMALL-1.5KG", "sale_price": 49000, "min_stock_level": 10, "location": "Estante A5", "initial_stock": 20},
-    {"sku": "PC-DOG-ADULT-MED-LG-20KG", "sale_price": 345000, "min_stock_level": 4, "location": "Estante A6", "initial_stock": 6},
-    {"sku": "EXC-DOG-PUPPY-SMALL-1KG", "sale_price": 40000, "min_stock_level": 8, "location": "Estante A7", "initial_stock": 15},
-    {"sku": "EXC-CAT-ADULT-7.5KG", "sale_price": 225000, "min_stock_level": 3, "location": "Estante A7", "initial_stock": 5},
-    {"sku": "PG-CAT-CASTRADO-1KG", "sale_price": 39000, "min_stock_level": 8, "location": "Estante B2", "initial_stock": 12},
-    {"sku": "PG-CAT-KITTEN-1KG", "sale_price": 40000, "min_stock_level": 8, "location": "Estante B2", "initial_stock": 12},
-    {"sku": "PROGATO-ARENA-4KG", "sale_price": 37000, "min_stock_level": 10, "location": "Estante B3", "initial_stock": 25},
-    {"sku": "VIR-ANXITANE-S", "sale_price": 240500, "min_stock_level": 3, "location": "Vitrina B1", "initial_stock": 8},
-    {"sku": "FPL-CARRIER-ATLAS-XL-40", "sale_price": 405000, "min_stock_level": 2, "location": "Exhibidor C1", "initial_stock": 3},
-    {"sku": "FPL-HARNESS-AGILA-7", "sale_price": 100000, "min_stock_level": 4, "location": "Exhibidor C2", "initial_stock": 6},
-    {"sku": "FPL-HARNESS-AGILA-5", "sale_price": 90000, "min_stock_level": 4, "location": "Exhibidor C2", "initial_stock": 8},
-    {"sku": "LIT-CLASSIC-III-NVY", "sale_price": 685000, "min_stock_level": 2, "location": "Vitrina D1", "initial_stock": 3},
-    {"sku": "LIT-CARDIO-IV-BLK", "sale_price": 1625000, "min_stock_level": 1, "location": "Equipo D1", "initial_stock": 2},
-    {"sku": "IDEXX-SNAP-GIARDIA-5", "sale_price": 195000, "min_stock_level": 3, "location": "Laboratorio", "initial_stock": 5},
-    {"sku": "MED-GLOVE-NITRILE-S", "sale_price": 110500, "min_stock_level": 10, "location": "Almacen C1", "initial_stock": 50},
-    {"sku": "MED-SHOE-COVER-100", "sale_price": 71500, "min_stock_level": 5, "location": "Almacen C1", "initial_stock": 30},
-    {"sku": "MED-TAPE-SURGICAL-25", "sale_price": 90000, "min_stock_level": 8, "location": "Almacen C1", "initial_stock": 25},
-    {"sku": "MED-GOWN-SURGICAL-XL", "sale_price": 145000, "min_stock_level": 4, "location": "Almacen C1", "initial_stock": 15},
-    {"sku": "BRAUN-EXTENSION-SET-15CM", "sale_price": 123500, "min_stock_level": 5, "location": "Almacen C2", "initial_stock": 20},
-    {"sku": "BRAUN-INJECTION-PORT-100", "sale_price": 195000, "min_stock_level": 3, "location": "Almacen C2", "initial_stock": 10},
-    {"sku": "BD-SYRINGE-1ML-27G", "sale_price": 85000, "min_stock_level": 10, "location": "Almacen C1", "initial_stock": 40},
-    {"sku": "BD-SYRINGE-3ML-23G", "sale_price": 75000, "min_stock_level": 10, "location": "Almacen C1", "initial_stock": 40},
-    {"sku": "BD-SYRINGE-5ML-21G", "sale_price": 80000, "min_stock_level": 10, "location": "Almacen C1", "initial_stock": 40},
-    {"sku": "BD-NEEDLE-21G-100", "sale_price": 82000, "min_stock_level": 8, "location": "Almacen C1", "initial_stock": 30}
+    {
+      "sku": "DOMINAL-10ML",
+      "sale_price": 15000,
+      "min_stock_level": 5,
+      "location": "Farmacia A1",
+      "initial_stock": 12,
+      "barcode": "7791432889068"
+    },
+    {
+      "sku": "DOMINAL-100ML",
+      "sale_price": 95000,
+      "min_stock_level": 3,
+      "location": "Farmacia A1",
+      "initial_stock": 6,
+      "barcode": "7791432889099"
+    },
+    {
+      "sku": "DOMINAL-50ML",
+      "sale_price": 55000,
+      "min_stock_level": 4,
+      "location": "Farmacia A1",
+      "initial_stock": 8,
+      "barcode": "7791432889082"
+    },
+    {
+      "sku": "DOMINAL-5ML",
+      "sale_price": 10000,
+      "min_stock_level": 6,
+      "location": "Farmacia A1",
+      "initial_stock": 15,
+      "barcode": "7791432889051"
+    },
+    {
+      "sku": "DOMINAL-20ML",
+      "sale_price": 25000,
+      "min_stock_level": 5,
+      "location": "Farmacia A1",
+      "initial_stock": 10,
+      "barcode": "7791432889075"
+    },
+    {
+      "sku": "DOMINAL-30ML",
+      "sale_price": 35000,
+      "min_stock_level": 4,
+      "location": "Farmacia A1",
+      "initial_stock": 8,
+      "barcode": "7791432889112"
+    },
+    {
+      "sku": "NXG-SPECTRA-3.5-7.5-1",
+      "sale_price": 145000,
+      "min_stock_level": 3,
+      "location": "Farmacia A2",
+      "initial_stock": 6,
+      "barcode": "3661103047315"
+    },
+    {
+      "sku": "NXG-SPECTRA-7.5-15-1",
+      "sale_price": 165000,
+      "min_stock_level": 3,
+      "location": "Farmacia A2",
+      "initial_stock": 8,
+      "barcode": "3661103047322"
+    },
+    {
+      "sku": "NXG-SPECTRA-15-30-1",
+      "sale_price": 189000,
+      "min_stock_level": 3,
+      "location": "Farmacia A2",
+      "initial_stock": 10,
+      "barcode": "3661103047339"
+    },
+    {
+      "sku": "NXG-SPECTRA-30-60-1",
+      "sale_price": 215000,
+      "min_stock_level": 2,
+      "location": "Farmacia A2",
+      "initial_stock": 5,
+      "barcode": "3661103047346"
+    },
+    {
+      "sku": "COLLAR-TEA-DOG-S",
+      "sale_price": 35000,
+      "min_stock_level": 4,
+      "location": "Accesorios B1",
+      "initial_stock": 8
+    },
+    {
+      "sku": "COLLAR-TEA-DOG-M",
+      "sale_price": 40000,
+      "min_stock_level": 4,
+      "location": "Accesorios B1",
+      "initial_stock": 10
+    },
+    {
+      "sku": "COLLAR-TEA-DOG-L",
+      "sale_price": 45000,
+      "min_stock_level": 3,
+      "location": "Accesorios B1",
+      "initial_stock": 6
+    },
+    {
+      "sku": "COLLAR-TEA-CAT",
+      "sale_price": 32000,
+      "min_stock_level": 4,
+      "location": "Accesorios B1",
+      "initial_stock": 8
+    },
+    {
+      "sku": "COLLAR-SCALIBOR-DOG-S",
+      "sale_price": 120000,
+      "min_stock_level": 2,
+      "location": "Farmacia A2",
+      "initial_stock": 4
+    },
+    {
+      "sku": "COLLAR-SCALIBOR-DOG-L",
+      "sale_price": 145000,
+      "min_stock_level": 2,
+      "location": "Farmacia A2",
+      "initial_stock": 3
+    },
+    {
+      "sku": "AFOXOPET-2-4KG-1",
+      "sale_price": 75000,
+      "min_stock_level": 3,
+      "location": "Farmacia A2",
+      "initial_stock": 6
+    },
+    {
+      "sku": "AFOXOPET-4-10KG-1",
+      "sale_price": 85000,
+      "min_stock_level": 4,
+      "location": "Farmacia A2",
+      "initial_stock": 8
+    },
+    {
+      "sku": "AFOXOPET-10-25KG-1",
+      "sale_price": 95000,
+      "min_stock_level": 4,
+      "location": "Farmacia A2",
+      "initial_stock": 10
+    },
+    {
+      "sku": "AFOXOPET-25-50KG-1",
+      "sale_price": 105000,
+      "min_stock_level": 3,
+      "location": "Farmacia A2",
+      "initial_stock": 6
+    },
+    {
+      "sku": "FLURAPET-0-10KG-1",
+      "sale_price": 95000,
+      "min_stock_level": 3,
+      "location": "Farmacia A3",
+      "initial_stock": 5
+    },
+    {
+      "sku": "FLURAPET-10-20KG-1",
+      "sale_price": 115000,
+      "min_stock_level": 3,
+      "location": "Farmacia A3",
+      "initial_stock": 6
+    },
+    {
+      "sku": "FLURAPET-20-40KG-1",
+      "sale_price": 135000,
+      "min_stock_level": 3,
+      "location": "Farmacia A3",
+      "initial_stock": 5
+    },
+    {
+      "sku": "FLURAPET-40-56KG-1",
+      "sale_price": 155000,
+      "min_stock_level": 2,
+      "location": "Farmacia A3",
+      "initial_stock": 3
+    },
+    {
+      "sku": "IVERM-ANTEL-50ML",
+      "sale_price": 45000,
+      "min_stock_level": 3,
+      "location": "Farmacia A1",
+      "initial_stock": 6
+    },
+    {
+      "sku": "FIPROMET-PIP-DOG",
+      "sale_price": 25000,
+      "min_stock_level": 10,
+      "location": "Farmacia A3",
+      "initial_stock": 20
+    },
+    {
+      "sku": "FIPROMET-PIP-CAT",
+      "sale_price": 22000,
+      "min_stock_level": 8,
+      "location": "Farmacia A3",
+      "initial_stock": 15
+    },
+    {
+      "sku": "FINTOX-TAB-10",
+      "sale_price": 35000,
+      "min_stock_level": 5,
+      "location": "Farmacia A1",
+      "initial_stock": 10
+    },
+    {
+      "sku": "SHOOTER-SPRAY-250ML",
+      "sale_price": 45000,
+      "min_stock_level": 4,
+      "location": "Farmacia A3",
+      "initial_stock": 8
+    },
+    {
+      "sku": "GALPET-SHA-NEUTRO-500ML",
+      "sale_price": 35000,
+      "min_stock_level": 5,
+      "location": "Higiene B2",
+      "initial_stock": 12
+    },
+    {
+      "sku": "GALPET-SHA-CLORHEX-500ML",
+      "sale_price": 45000,
+      "min_stock_level": 4,
+      "location": "Higiene B2",
+      "initial_stock": 8
+    },
+    {
+      "sku": "GALPET-SHA-BLANCO-500ML",
+      "sale_price": 40000,
+      "min_stock_level": 4,
+      "location": "Higiene B2",
+      "initial_stock": 8
+    },
+    {
+      "sku": "PUPPY-SHA-500ML",
+      "sale_price": 38000,
+      "min_stock_level": 5,
+      "location": "Higiene B2",
+      "initial_stock": 10
+    },
+    {
+      "sku": "GALPET-SHA-COND-500ML",
+      "sale_price": 42000,
+      "min_stock_level": 4,
+      "location": "Higiene B2",
+      "initial_stock": 8
+    },
+    {
+      "sku": "GALPET-COLONIA-120ML",
+      "sale_price": 28000,
+      "min_stock_level": 6,
+      "location": "Higiene B2",
+      "initial_stock": 12
+    },
+    {
+      "sku": "GALPET-TALCO-200G",
+      "sale_price": 25000,
+      "min_stock_level": 5,
+      "location": "Higiene B2",
+      "initial_stock": 10
+    },
+    {
+      "sku": "SANDCAT-4KG",
+      "sale_price": 45000,
+      "min_stock_level": 10,
+      "location": "Arena B3",
+      "initial_stock": 25
+    },
+    {
+      "sku": "SANDCAT-2KG",
+      "sale_price": 25000,
+      "min_stock_level": 8,
+      "location": "Arena B3",
+      "initial_stock": 20
+    },
+    {
+      "sku": "SANDCAT-7.5KG",
+      "sale_price": 75000,
+      "min_stock_level": 5,
+      "location": "Arena B3",
+      "initial_stock": 12
+    },
+    {
+      "sku": "NUTRIMIX-ADULT-25KG",
+      "sale_price": 185000,
+      "min_stock_level": 4,
+      "location": "Alimentos C1",
+      "initial_stock": 8
+    },
+    {
+      "sku": "NUTRIMIX-ADULT-15KG",
+      "sale_price": 120000,
+      "min_stock_level": 5,
+      "location": "Alimentos C1",
+      "initial_stock": 10
+    },
+    {
+      "sku": "NUTRIMIX-ADULT-8KG",
+      "sale_price": 75000,
+      "min_stock_level": 6,
+      "location": "Alimentos C1",
+      "initial_stock": 12
+    },
+    {
+      "sku": "NUTRIMIX-PUPPY-15KG",
+      "sale_price": 135000,
+      "min_stock_level": 4,
+      "location": "Alimentos C1",
+      "initial_stock": 8
+    },
+    {
+      "sku": "NUTRIMIX-PUPPY-8KG",
+      "sale_price": 85000,
+      "min_stock_level": 5,
+      "location": "Alimentos C1",
+      "initial_stock": 10
+    },
+    {
+      "sku": "BRAVO-ADULT-25KG",
+      "sale_price": 195000,
+      "min_stock_level": 4,
+      "location": "Alimentos C2",
+      "initial_stock": 6
+    },
+    {
+      "sku": "BRAVO-ADULT-15KG",
+      "sale_price": 130000,
+      "min_stock_level": 5,
+      "location": "Alimentos C2",
+      "initial_stock": 8
+    },
+    {
+      "sku": "BRAVO-ADULT-8KG",
+      "sale_price": 80000,
+      "min_stock_level": 6,
+      "location": "Alimentos C2",
+      "initial_stock": 10
+    },
+    {
+      "sku": "BRAVO-ADULT-4KG",
+      "sale_price": 48000,
+      "min_stock_level": 6,
+      "location": "Alimentos C2",
+      "initial_stock": 12
+    },
+    {
+      "sku": "BRAVO-PUPPY-15KG",
+      "sale_price": 145000,
+      "min_stock_level": 4,
+      "location": "Alimentos C2",
+      "initial_stock": 6
+    },
+    {
+      "sku": "BRAVO-PUPPY-8KG",
+      "sale_price": 90000,
+      "min_stock_level": 5,
+      "location": "Alimentos C2",
+      "initial_stock": 8
+    },
+    {
+      "sku": "HOP-ADULT-CARNE-21KG",
+      "sale_price": 245000,
+      "min_stock_level": 3,
+      "location": "Alimentos C3",
+      "initial_stock": 5
+    },
+    {
+      "sku": "HOP-ADULT-CARNE-10KG",
+      "sale_price": 135000,
+      "min_stock_level": 4,
+      "location": "Alimentos C3",
+      "initial_stock": 8
+    },
+    {
+      "sku": "HOP-ADULT-CARNE-3KG",
+      "sale_price": 55000,
+      "min_stock_level": 6,
+      "location": "Alimentos C3",
+      "initial_stock": 12
+    },
+    {
+      "sku": "HOP-ADULT-POLLO-21KG",
+      "sale_price": 245000,
+      "min_stock_level": 3,
+      "location": "Alimentos C3",
+      "initial_stock": 5
+    },
+    {
+      "sku": "HOP-ADULT-POLLO-10KG",
+      "sale_price": 135000,
+      "min_stock_level": 4,
+      "location": "Alimentos C3",
+      "initial_stock": 8
+    },
+    {
+      "sku": "HOP-PUPPY-10KG",
+      "sale_price": 145000,
+      "min_stock_level": 4,
+      "location": "Alimentos C3",
+      "initial_stock": 6
+    },
+    {
+      "sku": "HOP-PUPPY-3KG",
+      "sale_price": 58000,
+      "min_stock_level": 6,
+      "location": "Alimentos C3",
+      "initial_stock": 12
+    },
+    {
+      "sku": "BELCATS-ADULT-10KG",
+      "sale_price": 175000,
+      "min_stock_level": 3,
+      "location": "Gatos D1",
+      "initial_stock": 5
+    },
+    {
+      "sku": "BELCATS-ADULT-3KG",
+      "sale_price": 65000,
+      "min_stock_level": 5,
+      "location": "Gatos D1",
+      "initial_stock": 10
+    },
+    {
+      "sku": "BELCATS-ADULT-1KG",
+      "sale_price": 28000,
+      "min_stock_level": 8,
+      "location": "Gatos D1",
+      "initial_stock": 15
+    },
+    {
+      "sku": "BELCATS-KITTEN-3KG",
+      "sale_price": 72000,
+      "min_stock_level": 4,
+      "location": "Gatos D1",
+      "initial_stock": 8
+    },
+    {
+      "sku": "BELCATS-KITTEN-1KG",
+      "sale_price": 32000,
+      "min_stock_level": 6,
+      "location": "Gatos D1",
+      "initial_stock": 12
+    },
+    {
+      "sku": "BELCAN-ADULT-25KG",
+      "sale_price": 225000,
+      "min_stock_level": 3,
+      "location": "Alimentos C4",
+      "initial_stock": 5
+    },
+    {
+      "sku": "BELCAN-ADULT-15KG",
+      "sale_price": 155000,
+      "min_stock_level": 4,
+      "location": "Alimentos C4",
+      "initial_stock": 6
+    },
+    {
+      "sku": "BELCAN-ADULT-8KG",
+      "sale_price": 95000,
+      "min_stock_level": 5,
+      "location": "Alimentos C4",
+      "initial_stock": 8
+    },
+    {
+      "sku": "BELCAN-ADULT-3KG",
+      "sale_price": 48000,
+      "min_stock_level": 6,
+      "location": "Alimentos C4",
+      "initial_stock": 12
+    },
+    {
+      "sku": "BELCAN-PUPPY-15KG",
+      "sale_price": 165000,
+      "min_stock_level": 3,
+      "location": "Alimentos C4",
+      "initial_stock": 5
+    },
+    {
+      "sku": "BELCAN-PUPPY-8KG",
+      "sale_price": 105000,
+      "min_stock_level": 4,
+      "location": "Alimentos C4",
+      "initial_stock": 8
+    },
+    {
+      "sku": "BELCAN-PUPPY-3KG",
+      "sale_price": 52000,
+      "min_stock_level": 6,
+      "location": "Alimentos C4",
+      "initial_stock": 10
+    },
+    {
+      "sku": "WET-COMPLETE-CARNE-100G",
+      "sale_price": 8500,
+      "min_stock_level": 20,
+      "location": "Húmedos D2",
+      "initial_stock": 50
+    },
+    {
+      "sku": "WET-COMPLETE-POLLO-100G",
+      "sale_price": 8500,
+      "min_stock_level": 20,
+      "location": "Húmedos D2",
+      "initial_stock": 50
+    },
+    {
+      "sku": "WET-COMPLETE-RES-100G",
+      "sale_price": 8500,
+      "min_stock_level": 20,
+      "location": "Húmedos D2",
+      "initial_stock": 50
+    },
+    {
+      "sku": "WET-BALANCED-CARNE-100G",
+      "sale_price": 7500,
+      "min_stock_level": 20,
+      "location": "Húmedos D2",
+      "initial_stock": 40
+    },
+    {
+      "sku": "WET-BALANCED-POLLO-100G",
+      "sale_price": 7500,
+      "min_stock_level": 20,
+      "location": "Húmedos D2",
+      "initial_stock": 40
+    },
+    {
+      "sku": "WET-CAT-COMPLETE-85G",
+      "sale_price": 7000,
+      "min_stock_level": 15,
+      "location": "Gatos D1",
+      "initial_stock": 35
+    }
   ]
 }

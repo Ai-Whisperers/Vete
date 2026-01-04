@@ -2,11 +2,21 @@
   "name": "web",
   "version": "0.1.0",
   "private": true,
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix --max-warnings 0"
+    ],
+    "*.{json,md,css}": [
+      "prettier --write --ignore-unknown"
+    ]
+  },
   "scripts": {
+    "prepare": "husky",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "typecheck": "tsc --noEmit",
     "test": "npm run test:unit && npm run test:integration && npm run test:api && npm run test:e2e",
     "test:all": "npm run test",
     "test:watch": "vitest watch",
@@ -55,6 +65,19 @@
     "seed:clear": "npx tsx db/seeds/scripts/seed.ts --clear --type demo",
     "seed:reset": "npx tsx db/seeds/scripts/seed.ts --clear --type demo",
     "seed:dashboard": "npx tsx scripts/seed-dashboard-test-data.ts",
+    "seed:v2": "npx tsx db/seeds/scripts/seed-v2.ts",
+    "seed:v2:basic": "npx tsx db/seeds/scripts/seed-v2.ts --variant basic",
+    "seed:v2:integration": "npx tsx db/seeds/scripts/seed-v2.ts --variant integration",
+    "seed:v2:e2e": "npx tsx db/seeds/scripts/seed-v2.ts --variant e2e",
+    "seed:v2:demo": "npx tsx db/seeds/scripts/seed-v2.ts --variant demo",
+    "seed:v2:reset": "npx tsx db/seeds/scripts/seed-v2.ts --variant reset",
+    "seed:v2:dry-run": "npx tsx db/seeds/scripts/seed-v2.ts --variant demo --dry-run",
+    "seed:v2:verbose": "npx tsx db/seeds/scripts/seed-v2.ts --variant demo --verbose",
+    "seed:v2:adris": "npx tsx db/seeds/scripts/seed-v2.ts --variant demo --tenant adris",
+    "seed:v2:petlife": "npx tsx db/seeds/scripts/seed-v2.ts --variant demo --tenant petlife",
+    "seed:v2:all": "npx tsx db/seeds/scripts/seed-v2.ts --variant demo --tenants adris,petlife",
+    "seed:demo-data": "npx tsx db/seeds/scripts/seed-demo-data.ts",
+    "seed:demo-data:all": "npx tsx db/seeds/scripts/seed-demo-data.ts --tenants adris,petlife --verbose",
     "db:fixes": "node db/setup-db.mjs fixes",
     "reset-dev": "powershell -ExecutionPolicy Bypass -File reset-dev.ps1",
     "kill-node": "powershell -ExecutionPolicy Bypass -File kill-node.ps1 -Force"
@@ -139,6 +162,7 @@
     "swagger-jsdoc": "^6.2.8",
     "tailwindcss": "^3.4.19",
     "typescript": "^5",
+    "typescript-eslint": "^8.51.0",
     "vite": "^7.3.0",
     "vitest": "^4.0.16"
   }

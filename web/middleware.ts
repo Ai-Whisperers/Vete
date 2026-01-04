@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
+import { env } from '@/lib/env'
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname
@@ -33,8 +34,8 @@ export async function middleware(request: NextRequest) {
   // Refresh session - this is critical for Supabase SSR
   // Without this, session tokens can expire between requests
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    env.SUPABASE_URL,
+    env.SUPABASE_ANON_KEY,
     {
       cookies: {
         getAll() {

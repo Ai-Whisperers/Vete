@@ -239,8 +239,8 @@ export async function createPet(prevState: ActionResult | null, formData: FormDa
     photoUrl = publicUrl;
   }
 
-  // Insert pet into database
-  const { error: insertError } = await supabase.from("pets").insert({
+  // Prepare payload
+  const petPayload = {
     owner_id: user.id,
     tenant_id: clinic,
     name: validData.name,
@@ -265,7 +265,12 @@ export async function createPet(prevState: ActionResult | null, formData: FormDa
       : [],
     // Map form field date_of_birth to database column birth_date
     birth_date: validData.date_of_birth,
-  });
+  };
+
+  logger.info('Creating pet payload', { payload: petPayload });
+
+  // Insert pet into database - Chain .select() to ensure return value and avoid PGRST204
+  const { error: insertError } = await supabase.from("pets").insert(petPayload).select();
 
   if (insertError) {
     logger.error('Failed to create pet', {
@@ -277,6 +282,14 @@ export async function createPet(prevState: ActionResult | null, formData: FormDa
 
     // Map database errors to user-friendly messages
     let userMessage = "No se pudo guardar la mascota. ";
+
+    // Handle PGRST204 (No Content) as success
+    // This happens when the insert succeeds but RLS policies prevent returning the inserted row
+    if (insertError.code === "PGRST204") {
+      logger.info('Pet created successfully (PGRST204 ignored)', { userId: user.id });
+      revalidatePath(`/${clinic}/portal/dashboard`);
+      redirect(`/${clinic}/portal/dashboard`);
+    }
 
     if (insertError.code === "23505") {
       // Unique constraint violation

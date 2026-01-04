@@ -1398,4 +1398,5 @@ main().catch((error) => {
   process.exit(1);
 });
 
-export { seed, SeedConfig };
+export { seed };
+export type { SeedConfig };

@@ -5,6 +5,7 @@ import { logger } from "@/lib/logger";
 import Link from "next/link";
 import { PawPrint, Users, ArrowLeft } from "lucide-react";
 import { PetsByOwner } from "@/components/dashboard/pets-by-owner";
+import type { InsightsData, VaccineStatus } from "@/components/dashboard/pets-by-owner/types";
 
 interface Props {
   params: Promise<{ clinic: string }>;
@@ -72,8 +73,8 @@ export default async function PatientsPage({ params }: Props): Promise<React.Rea
     redirect(`/${clinic}/portal/dashboard`);
   }
 
-  // Fetch owners and pets separately (Supabase can't infer profiles→pets reverse relationship)
-  const [ownersResult, petsResult] = await Promise.all([
+  // Fetch owners, pets, vaccines, and pending prescription orders
+  const [ownersResult, petsResult, vaccinesResult, pendingOrdersResult] = await Promise.all([
     supabase
       .from("profiles")
       .select("id, full_name, email, phone, address, created_at")
@@ -98,7 +99,19 @@ export default async function PatientsPage({ params }: Props): Promise<React.Rea
         )
       `)
       .eq("tenant_id", profile.tenant_id)
-      .is("deleted_at", null)
+      .is("deleted_at", null),
+    // Fetch vaccines with next_due_date for vaccine status tracking
+    supabase
+      .from("vaccines")
+      .select("id, pet_id, next_due_date, status")
+      .eq("tenant_id", profile.tenant_id)
+      .eq("status", "completed"),
+    // Fetch pending prescription orders
+    supabase
+      .from("store_orders")
+      .select("id, customer_id")
+      .eq("tenant_id", profile.tenant_id)
+      .eq("status", "pending_prescription")
   ]);
 
   if (ownersResult.error) {
@@ -114,6 +127,8 @@ export default async function PatientsPage({ params }: Props): Promise<React.Rea
 
   const rawOwners = ownersResult.data || [];
   const rawPets = (petsResult.data || []) as RawPetData[];
+  const rawVaccines = vaccinesResult.data || [];
+  const pendingOrders = pendingOrdersResult.data || [];
 
   // Group pets by owner and calculate last visit
   const petsByOwner = new Map<string, RawPetData[]>();
@@ -167,6 +182,85 @@ export default async function PatientsPage({ params }: Props): Promise<React.Rea
   const totalPets = owners.reduce((sum, owner) => sum + owner.pets.length, 0);
   const ownersWithPets = owners.filter((o) => o.pets.length > 0).length;
 
+  // Build vaccine status by pet
+  const now = new Date();
+  const fourteenDaysFromNow = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
+
+  const vaccineStatusByPet: Record<string, VaccineStatus> = {};
+  const vaccinesByPetId = new Map<string, Array<{ next_due_date: string | null }>>();
+
+  for (const vaccine of rawVaccines) {
+    if (!vaccine.pet_id) continue;
+    const petVaccines = vaccinesByPetId.get(vaccine.pet_id) || [];
+    petVaccines.push({ next_due_date: vaccine.next_due_date });
+    vaccinesByPetId.set(vaccine.pet_id, petVaccines);
+  }
+
+  for (const [petId, vaccines] of vaccinesByPetId) {
+    let hasOverdue = false;
+    let hasDueSoon = false;
+    const hasVaccines = vaccines.length > 0;
+
+    for (const vaccine of vaccines) {
+      if (vaccine.next_due_date) {
+        const dueDate = new Date(vaccine.next_due_date);
+        if (dueDate < now) {
+          hasOverdue = true;
+        } else if (dueDate <= fourteenDaysFromNow) {
+          hasDueSoon = true;
+        }
+      }
+    }
+
+    vaccineStatusByPet[petId] = {
+      petId,
+      hasOverdue,
+      hasDueSoon,
+      hasVaccines,
+    };
+  }
+
+  // Calculate insights
+  const allPets = owners.flatMap((o) => o.pets);
+  const dogs = allPets.filter((p) => p.species.toLowerCase() === "dog").length;
+  const cats = allPets.filter((p) => p.species.toLowerCase() === "cat").length;
+  const others = allPets.filter((p) => !["dog", "cat"].includes(p.species.toLowerCase())).length;
+
+  const vaccinesPending = rawVaccines.filter((v) => {
+    if (!v.next_due_date) return false;
+    const dueDate = new Date(v.next_due_date);
+    return dueDate <= fourteenDaysFromNow;
+  }).length;
+
+  const vaccinesOverdue = rawVaccines.filter((v) => {
+    if (!v.next_due_date) return false;
+    return new Date(v.next_due_date) < now;
+  }).length;
+
+  const pendingFiles = pendingOrders.length;
+
+  const needsFollowUp = owners.filter((o) => {
+    if (!o.last_visit) return true;
+    const daysSince = (now.getTime() - new Date(o.last_visit).getTime()) / (1000 * 60 * 60 * 24);
+    return daysSince > 90;
+  }).length;
+
+  const newThisMonth = owners.filter((o) => {
+    const created = new Date(o.created_at);
+    return created.getMonth() === now.getMonth() && created.getFullYear() === now.getFullYear();
+  }).length;
+
+  const insights: InsightsData = {
+    dogs,
+    cats,
+    others,
+    vaccinesPending,
+    vaccinesOverdue,
+    pendingFiles,
+    needsFollowUp,
+    newThisMonth,
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -215,7 +309,12 @@ export default async function PatientsPage({ params }: Props): Promise<React.Rea
       </div>
 
       {/* Main Content */}
-      <PetsByOwner clinic={clinic} owners={owners} />
+      <PetsByOwner
+        clinic={clinic}
+        owners={owners}
+        insights={insights}
+        vaccineStatusByPet={vaccineStatusByPet}
+      />
     </div>
   );
 }

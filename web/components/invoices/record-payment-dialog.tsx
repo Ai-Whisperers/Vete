@@ -24,7 +24,8 @@ export function RecordPaymentDialog({ invoiceId, amountDue, isOpen, onClose }: R
   // Use the new useFormSubmit hook to handle form submission
   const { submit, isSubmitting: loading, error } = useFormSubmit(
     async (paymentData: RecordPaymentData) => {
-      const result = await recordPayment(invoiceId, paymentData)
+      // recordPayment takes paymentData with invoice_id included
+      const result = await recordPayment(paymentData)
       return result
     },
     {

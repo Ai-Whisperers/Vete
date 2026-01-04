@@ -282,7 +282,7 @@ export function CalendarStyles() {
       }
 
       /* ============================================= */
-      /* MONTH VIEW SUMMARY MODE (Event Type Counts) */
+      /* MONTH VIEW READABLE SUMMARY */
       /* ============================================= */
 
       /* Hide individual events in month view - show summary instead */
@@ -296,91 +296,207 @@ export function CalendarStyles() {
         display: none !important;
       }
 
-      /* Event summary container in month cells */
-      .month-event-summary {
+      /* Day summary container */
+      .month-day-summary {
         position: absolute;
-        top: 22px;
-        left: 0;
-        right: 0;
-        bottom: 20px;
+        top: 24px;
+        left: 4px;
+        right: 4px;
+        bottom: 22px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
         overflow-y: auto;
         overflow-x: hidden;
         z-index: 1;
       }
 
       /* Scrollbar for summary */
-      .month-event-summary::-webkit-scrollbar {
+      .month-day-summary::-webkit-scrollbar {
         width: 3px;
       }
-      .month-event-summary::-webkit-scrollbar-thumb {
+      .month-day-summary::-webkit-scrollbar-thumb {
         background: var(--border-color, #cbd5e1);
         border-radius: 3px;
       }
 
-      /* Event type badge styling */
-      .event-type-badge {
+      /* Day section styling */
+      .day-section {
+        padding: 4px 6px;
+        border-radius: 6px;
+        font-size: 11px;
+        line-height: 1.3;
+      }
+
+      /* Appointments section - main highlight */
+      .appointments-section {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(59, 130, 246, 0.15) 100%);
+        border-left: 3px solid #3B82F6;
+      }
+
+      .section-header {
         display: flex;
         align-items: center;
         gap: 4px;
-        padding: 2px 6px;
-        border-radius: 4px;
-        font-size: 11px;
-        font-weight: 500;
-        transition: all 0.15s ease;
-        cursor: pointer;
+        font-weight: 600;
+        color: #1e40af;
+        margin-bottom: 2px;
       }
 
-      .event-type-badge:hover {
-        transform: translateX(2px);
-        filter: brightness(0.95);
+      .section-icon {
+        font-size: 12px;
       }
 
-      .badge-count {
+      .section-count {
+        font-size: 14px;
         font-weight: 700;
-        min-width: 14px;
-        text-align: center;
+        color: #3B82F6;
       }
 
-      .badge-label {
+      .section-label {
+        font-size: 11px;
+        color: #3B82F6;
+      }
+
+      .time-range {
+        font-size: 10px;
+        color: #64748b;
+        font-weight: 500;
+        margin-bottom: 2px;
+      }
+
+      .pet-names {
+        font-size: 10px;
+        color: #475569;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+      }
+
+      .more-pets {
+        color: #3B82F6;
+        font-weight: 600;
+        margin-left: 4px;
+      }
+
+      /* Time off section */
+      .timeoff-section {
+        background: rgba(236, 72, 153, 0.1);
+        border-left: 3px solid #EC4899;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .timeoff-section .section-text {
+        color: #be185d;
+        font-weight: 500;
         font-size: 10px;
       }
 
-      /* Mobile: Compact month view badges */
+      /* Shifts section */
+      .shifts-section {
+        background: rgba(6, 182, 212, 0.1);
+        border-left: 3px solid #06B6D4;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .shifts-section .section-text {
+        color: #0891b2;
+        font-weight: 500;
+        font-size: 10px;
+      }
+
+      /* Capacity bar */
+      .capacity-bar {
+        position: absolute;
+        bottom: 6px;
+        left: 6px;
+        right: 6px;
+        height: 4px;
+        border-radius: 4px;
+        overflow: hidden;
+        background: var(--bg-muted, #f1f5f9);
+      }
+
+      .capacity-fill {
+        height: 100%;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+      }
+
+      /* Mobile: Compact summary */
       @media (max-width: 640px) {
-        .month-event-summary {
+        .month-day-summary {
           top: 20px;
-          bottom: 16px;
+          left: 2px;
+          right: 2px;
+          bottom: 18px;
           gap: 2px;
         }
 
-        .event-type-badge {
-          padding: 1px 4px;
+        .day-section {
+          padding: 2px 4px;
+          border-radius: 4px;
+        }
+
+        .appointments-section {
+          border-left-width: 2px;
+        }
+
+        .section-header {
+          gap: 2px;
+        }
+
+        .section-icon {
+          font-size: 10px;
+        }
+
+        .section-count {
+          font-size: 12px;
+        }
+
+        .section-label {
           font-size: 9px;
-          gap: 2px;
-          border-left-width: 2px !important;
         }
 
-        .badge-label {
+        .time-range,
+        .pet-names {
           display: none;
         }
 
-        .badge-count {
-          min-width: 12px;
-          font-size: 10px;
+        .timeoff-section,
+        .shifts-section {
+          border-left-width: 2px;
+          padding: 2px 3px;
+        }
+
+        .timeoff-section .section-text,
+        .shifts-section .section-text {
+          font-size: 9px;
+        }
+
+        .capacity-bar {
+          height: 3px;
+          bottom: 4px;
+          left: 4px;
+          right: 4px;
         }
       }
 
-      /* Tablet: Medium badges */
+      /* Tablet adjustments */
       @media (min-width: 641px) and (max-width: 900px) {
-        .event-type-badge {
-          padding: 1px 4px;
-          font-size: 10px;
+        .month-day-summary {
+          gap: 3px;
         }
 
-        .badge-label {
+        .day-section {
+          padding: 3px 5px;
+        }
+
+        .pet-names {
           font-size: 9px;
         }
       }

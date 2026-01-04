@@ -1,11 +1,14 @@
 /**
  * Authentication middleware wrapper for API routes
  * ARCH-006: Create Auth Middleware Wrapper
+ * Enhanced with rate limiting support
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { apiError, ApiErrorResponse } from './errors';
+import { rateLimit, RateLimitType } from '@/lib/rate-limit';
+import { scopedQueries, ScopedQueries } from '@/lib/supabase/scoped';
 import type { User } from '@supabase/supabase-js';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
@@ -30,6 +33,11 @@ export interface AuthContext {
   profile: UserProfile;
   /** Supabase client for database operations */
   supabase: SupabaseClient;
+  /**
+   * Tenant-scoped query builders - automatically filter by tenant_id
+   * Use this instead of raw supabase client to ensure tenant isolation
+   */
+  scoped: ScopedQueries;
   /** Request object */
   request: NextRequest;
 }
@@ -48,6 +56,12 @@ export interface WithAuthOptions {
    * If true, validates user belongs to that tenant
    */
   requireTenant?: boolean;
+  /**
+   * Rate limit type to apply to this route
+   * Options: 'auth' (5/min), 'search' (30/min), 'write' (20/min), 'default' (60/min)
+   * If undefined, no rate limiting is applied
+   */
+  rateLimit?: RateLimitType;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -82,7 +96,14 @@ type AuthHandlerWithParams<P> = (
  *
  * @example
  * ```typescript
- * // Basic auth check (no params)
+ * // Using scoped queries for automatic tenant isolation (RECOMMENDED)
+ * export const GET = withAuth(async ({ scoped }) => {
+ *   // No need to add .eq('tenant_id', ...) - it's automatic!
+ *   const { data } = await scoped.select('pets', '*');
+ *   return NextResponse.json(data);
+ * });
+ *
+ * // Raw supabase client still available when needed
  * export const GET = withAuth(async ({ profile, supabase }) => {
  *   const { data } = await supabase
  *     .from('pets')
@@ -91,22 +112,24 @@ type AuthHandlerWithParams<P> = (
  *   return NextResponse.json(data);
  * });
  *
- * // Route with dynamic params
+ * // Route with dynamic params and rate limiting
  * export const DELETE = withAuth(
- *   async ({ supabase }, { params }) => {
+ *   async ({ scoped }, { params }) => {
  *     const { id } = await params;
- *     await supabase.from('pets').delete().eq('id', id);
+ *     await scoped.delete('pets', (q) => q.eq('id', id));
  *     return new NextResponse(null, { status: 204 });
  *   },
- *   { roles: ['admin'] }
+ *   { roles: ['admin'], rateLimit: 'write' }
  * );
  *
- * // Staff-only route (vet or admin)
+ * // Staff-only route with financial rate limiting
  * export const POST = withAuth(
- *   async (ctx) => {
- *     // ...
+ *   async ({ scoped, request }) => {
+ *     const body = await request.json();
+ *     const { data } = await scoped.insert('invoices', body);
+ *     return NextResponse.json(data);
  *   },
- *   { roles: ['vet', 'admin'] }
+ *   { roles: ['vet', 'admin'], rateLimit: 'financial' }
  * );
  * ```
  */
@@ -129,6 +152,14 @@ export function withAuth<P extends Record<string, string> = Record<string, strin
     context?: RouteContext<P>
   ): Promise<ApiResponse> => {
     try {
+      // Apply rate limiting first (before auth to prevent DoS)
+      if (options?.rateLimit) {
+        const rateLimitResult = await rateLimit(request, options.rateLimit);
+        if (!rateLimitResult.success) {
+          return rateLimitResult.response;
+        }
+      }
+
       // Create Supabase client
       const supabase = await createClient();
 
@@ -179,11 +210,15 @@ export function withAuth<P extends Record<string, string> = Record<string, strin
         }
       }
 
+      // Create scoped queries for tenant isolation
+      const scoped = scopedQueries(supabase, profile.tenant_id);
+
       // Execute the wrapped handler
       const authContext: AuthContext = {
         user,
         profile: profile as UserProfile,
         supabase,
+        scoped,
         request,
       };
 

@@ -21,7 +21,35 @@ export interface Owner {
   pets: Pet[];
 }
 
+export interface FilterOptions {
+  searchQuery: string;
+  species: 'all' | 'dog' | 'cat' | 'other';
+  vaccine: 'all' | 'overdue' | 'due-soon' | 'up-to-date' | 'none';
+  lastVisit: 'all' | 'recent' | '1-3' | '3-6' | '6+' | 'never';
+  neutered: 'all' | 'yes' | 'no';
+}
+
+export interface VaccineStatus {
+  petId: string;
+  hasOverdue: boolean;
+  hasDueSoon: boolean;
+  hasVaccines: boolean;
+}
+
+export interface InsightsData {
+  dogs: number;
+  cats: number;
+  others: number;
+  vaccinesPending: number;
+  vaccinesOverdue: number;
+  pendingFiles: number;
+  needsFollowUp: number;
+  newThisMonth: number;
+}
+
 export interface PetsByOwnerProps {
   clinic: string;
   owners: Owner[];
+  insights: InsightsData;
+  vaccineStatusByPet: Record<string, VaccineStatus>;
 }

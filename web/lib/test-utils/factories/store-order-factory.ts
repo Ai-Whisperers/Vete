@@ -51,19 +51,19 @@ interface StoreCartData {
 }
 
 // Sample products (used as fallback if no products in DB)
-const SAMPLE_PRODUCTS = [
-  { id: null, name: 'Alimento Premium Perros 15kg', price: 450000, prescription: false },
-  { id: null, name: 'Alimento Gatos Adultos 10kg', price: 380000, prescription: false },
-  { id: null, name: 'Juguete Kong Classic', price: 75000, prescription: false },
-  { id: null, name: 'Pelota de Tenis (Pack 3)', price: 35000, prescription: false },
-  { id: null, name: 'Collar Antipulgas 6 meses', price: 120000, prescription: false },
-  { id: null, name: 'Shampoo Hipoalergénico', price: 65000, prescription: false },
-  { id: null, name: 'Vitaminas Multifuncionales', price: 95000, prescription: false },
-  { id: null, name: 'Antiparasitario Oral', price: 85000, prescription: true },
-  { id: null, name: 'Antibiótico Amoxicilina', price: 125000, prescription: true },
-  { id: null, name: 'Antiinflamatorio Meloxicam', price: 95000, prescription: true },
-  { id: null, name: 'Cama Ortopédica Mediana', price: 250000, prescription: false },
-  { id: null, name: 'Transportador Plástico', price: 180000, prescription: false },
+const SAMPLE_PRODUCTS: Array<{ id: string; name: string; price: number; prescription: boolean }> = [
+  { id: generateId(), name: 'Alimento Premium Perros 15kg', price: 450000, prescription: false },
+  { id: generateId(), name: 'Alimento Gatos Adultos 10kg', price: 380000, prescription: false },
+  { id: generateId(), name: 'Juguete Kong Classic', price: 75000, prescription: false },
+  { id: generateId(), name: 'Pelota de Tenis (Pack 3)', price: 35000, prescription: false },
+  { id: generateId(), name: 'Collar Antipulgas 6 meses', price: 120000, prescription: false },
+  { id: generateId(), name: 'Shampoo Hipoalergénico', price: 65000, prescription: false },
+  { id: generateId(), name: 'Vitaminas Multifuncionales', price: 95000, prescription: false },
+  { id: generateId(), name: 'Antiparasitario Oral', price: 85000, prescription: true },
+  { id: generateId(), name: 'Antibiótico Amoxicilina', price: 125000, prescription: true },
+  { id: generateId(), name: 'Antiinflamatorio Meloxicam', price: 95000, prescription: true },
+  { id: generateId(), name: 'Cama Ortopédica Mediana', price: 250000, prescription: false },
+  { id: generateId(), name: 'Transportador Plástico', price: 180000, prescription: false },
 ];
 
 // Cache for database products
@@ -431,7 +431,7 @@ export class StoreOrderFactory {
           total_price: totalPrice,
         };
 
-        const { error: itemError } = await apiClient.dbInsert('store_order_items', itemData);
+        const { error: itemError } = await apiClient.dbInsert('store_order_items', itemData as unknown as Record<string, unknown>);
         if (itemError) {
           console.warn(`Failed to create order item: ${itemError}`);
           continue;

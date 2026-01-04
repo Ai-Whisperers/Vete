@@ -141,7 +141,20 @@ export const env = {
 
   /** Direct PostgreSQL connection string */
   get DATABASE_URL(): string {
-    return requireEnv('DATABASE_URL')
+    const value = process.env.DATABASE_URL
+    if (!value) {
+      // During build time, DATABASE_URL might not be available
+      // This is okay for static page generation
+      if (process.env.NEXT_PHASE === 'phase-production-build') {
+        console.warn('[ENV] DATABASE_URL not available during build - using placeholder')
+        return 'postgresql://placeholder:placeholder@localhost:5432/placeholder'
+      }
+      throw new Error(
+        `[ENV ERROR] Missing required environment variable: DATABASE_URL\n` +
+          `Please ensure this variable is set in your .env.local file.`
+      )
+    }
+    return value
   },
 
   // =============================================================================

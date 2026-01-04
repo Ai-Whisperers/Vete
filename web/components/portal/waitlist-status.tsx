@@ -1,0 +1,326 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { useParams } from 'next/navigation'
+import {
+  Clock,
+  Calendar,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+  Loader2,
+  RefreshCw,
+  Timer,
+} from 'lucide-react'
+import { useToast } from '@/components/ui/Toast'
+
+interface WaitlistEntry {
+  id: string
+  pet: { id: string; name: string; species: string }
+  service: { id: string; name: string }
+  preferred_date: string
+  preferred_time_start: string | null
+  preferred_time_end: string | null
+  position: number
+  status: 'waiting' | 'offered' | 'booked' | 'expired' | 'cancelled'
+  offered_appointment?: {
+    id: string
+    start_time: string
+    end_time: string
+  }
+  offer_expires_at: string | null
+  created_at: string
+}
+
+export function WaitlistStatus(): React.ReactElement {
+  const params = useParams()
+  const clinic = params?.clinic as string
+  const { toast } = useToast()
+
+  const [entries, setEntries] = useState<WaitlistEntry[]>([])
+  const [loading, setLoading] = useState(true)
+  const [actionLoading, setActionLoading] = useState<string | null>(null)
+
+  const fetchEntries = async () => {
+    try {
+      const res = await fetch('/api/appointments/waitlist?status=waiting,offered')
+      if (!res.ok) throw new Error('Error al cargar')
+      const data = await res.json()
+      setEntries(data.waitlist || [])
+    } catch (error) {
+      console.error('Error fetching waitlist:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchEntries()
+    // Refresh every 30 seconds to check for offers
+    const interval = setInterval(fetchEntries, 30000)
+    return () => clearInterval(interval)
+  }, [])
+
+  const handleAccept = async (entryId: string) => {
+    setActionLoading(entryId)
+    try {
+      const res = await fetch(`/api/appointments/waitlist/${entryId}/accept`, {
+        method: 'POST',
+      })
+
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || 'Error al aceptar')
+      }
+
+      toast({
+        title: '¡Cita confirmada!',
+        description: 'Tu cita ha sido reservada exitosamente.',
+      })
+      fetchEntries()
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'No se pudo aceptar',
+        variant: 'destructive',
+      })
+    } finally {
+      setActionLoading(null)
+    }
+  }
+
+  const handleDecline = async (entryId: string) => {
+    setActionLoading(entryId)
+    try {
+      const res = await fetch(`/api/appointments/waitlist/${entryId}/decline`, {
+        method: 'POST',
+      })
+
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || 'Error al rechazar')
+      }
+
+      toast({
+        title: 'Oferta rechazada',
+        description: 'Se notificará a la siguiente persona.',
+      })
+      fetchEntries()
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'No se pudo rechazar',
+        variant: 'destructive',
+      })
+    } finally {
+      setActionLoading(null)
+    }
+  }
+
+  const handleCancel = async (entryId: string) => {
+    if (!confirm('¿Seguro que quieres salir de la lista de espera?')) return
+
+    setActionLoading(entryId)
+    try {
+      const res = await fetch(`/api/appointments/waitlist/${entryId}`, {
+        method: 'DELETE',
+      })
+
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || 'Error al cancelar')
+      }
+
+      toast({
+        title: 'Eliminado de la lista',
+        description: 'Has salido de la lista de espera.',
+      })
+      fetchEntries()
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'No se pudo cancelar',
+        variant: 'destructive',
+      })
+    } finally {
+      setActionLoading(null)
+    }
+  }
+
+  const formatDate = (dateStr: string): string => {
+    return new Date(dateStr).toLocaleDateString('es-PY', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+    })
+  }
+
+  const formatTime = (dateStr: string): string => {
+    return new Date(dateStr).toLocaleTimeString('es-PY', {
+      hour: '2-digit',
+      minute: '2-digit',
+    })
+  }
+
+  const getTimeRemaining = (expiresAt: string): string => {
+    const diff = new Date(expiresAt).getTime() - Date.now()
+    if (diff <= 0) return 'Expirado'
+
+    const hours = Math.floor(diff / (1000 * 60 * 60))
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+
+    if (hours > 0) return `${hours}h ${minutes}m restantes`
+    return `${minutes} minutos restantes`
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <Loader2 className="h-6 w-6 animate-spin text-[var(--primary)]" />
+      </div>
+    )
+  }
+
+  if (entries.length === 0) {
+    return (
+      <div className="rounded-xl border border-gray-200 bg-gray-50 p-6 text-center">
+        <Clock className="mx-auto h-10 w-10 text-gray-400" />
+        <p className="mt-3 font-medium text-gray-600">
+          No estás en ninguna lista de espera
+        </p>
+        <p className="mt-1 text-sm text-gray-500">
+          Si no hay citas disponibles, puedes unirte a la lista de espera
+        </p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h3 className="font-bold text-[var(--text-primary)]">Lista de Espera</h3>
+        <button
+          onClick={fetchEntries}
+          className="rounded-lg p-2 text-gray-500 hover:bg-gray-100"
+        >
+          <RefreshCw className="h-4 w-4" />
+        </button>
+      </div>
+
+      {entries.map((entry) => {
+        const isOffer = entry.status === 'offered'
+        const isLoading = actionLoading === entry.id
+
+        return (
+          <div
+            key={entry.id}
+            className={`rounded-xl border-2 p-4 ${
+              isOffer
+                ? 'border-green-300 bg-green-50'
+                : 'border-gray-200 bg-white'
+            }`}
+          >
+            {/* Offer Banner */}
+            {isOffer && (
+              <div className="mb-3 flex items-center gap-2 rounded-lg bg-green-100 px-3 py-2 text-sm font-medium text-green-700">
+                <CheckCircle className="h-4 w-4" />
+                ¡Hay una cita disponible para ti!
+                {entry.offer_expires_at && (
+                  <span className="ml-auto flex items-center gap-1 text-xs">
+                    <Timer className="h-3 w-3" />
+                    {getTimeRemaining(entry.offer_expires_at)}
+                  </span>
+                )}
+              </div>
+            )}
+
+            {/* Entry Info */}
+            <div className="flex items-start gap-3">
+              <div
+                className={`flex h-10 w-10 items-center justify-center rounded-full ${
+                  isOffer ? 'bg-green-200' : 'bg-amber-100'
+                }`}
+              >
+                {isOffer ? (
+                  <CheckCircle className="h-5 w-5 text-green-600" />
+                ) : (
+                  <Clock className="h-5 w-5 text-amber-600" />
+                )}
+              </div>
+
+              <div className="flex-1">
+                <p className="font-medium text-[var(--text-primary)]">
+                  {entry.pet.name} - {entry.service.name}
+                </p>
+                <div className="mt-1 flex flex-wrap items-center gap-3 text-sm text-gray-600">
+                  <span className="flex items-center gap-1">
+                    <Calendar className="h-3.5 w-3.5" />
+                    {isOffer && entry.offered_appointment
+                      ? formatDate(entry.offered_appointment.start_time)
+                      : formatDate(entry.preferred_date)}
+                  </span>
+                  {isOffer && entry.offered_appointment && (
+                    <span>
+                      {formatTime(entry.offered_appointment.start_time)} -{' '}
+                      {formatTime(entry.offered_appointment.end_time)}
+                    </span>
+                  )}
+                  {!isOffer && (
+                    <span className="rounded bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
+                      Posición #{entry.position}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="mt-4 flex gap-2">
+              {isOffer ? (
+                <>
+                  <button
+                    onClick={() => handleAccept(entry.id)}
+                    disabled={isLoading}
+                    className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-2.5 font-medium text-white hover:bg-green-700 disabled:opacity-50"
+                  >
+                    {isLoading ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <CheckCircle className="h-4 w-4" />
+                    )}
+                    Aceptar
+                  </button>
+                  <button
+                    onClick={() => handleDecline(entry.id)}
+                    disabled={isLoading}
+                    className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-gray-300 px-4 py-2.5 font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                  >
+                    {isLoading ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <XCircle className="h-4 w-4" />
+                    )}
+                    Rechazar
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={() => handleCancel(entry.id)}
+                  disabled={isLoading}
+                  className="flex items-center gap-2 rounded-lg border border-red-200 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 disabled:opacity-50"
+                >
+                  {isLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <XCircle className="h-4 w-4" />
+                  )}
+                  Salir de la lista
+                </button>
+              )}
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )
+}

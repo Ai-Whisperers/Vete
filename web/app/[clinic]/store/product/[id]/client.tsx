@@ -207,13 +207,23 @@ export default function ProductDetailClient({ clinic, productId, clinicConfig }:
           <p className="mb-6 text-[var(--text-secondary)]">
             El producto que buscas no existe o no está disponible.
           </p>
-          <Link
-            href={`/${clinic}/store`}
-            className="inline-flex items-center gap-2 rounded-lg bg-[var(--primary)] px-6 py-3 text-white transition-opacity hover:opacity-90"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Volver a la tienda
-          </Link>
+          {/* UX-004: Retry button */}
+          <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
+            <button
+              onClick={() => fetchProduct()}
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-[var(--primary)] px-6 py-3 text-[var(--primary)] transition-colors hover:bg-[var(--primary)]/10"
+            >
+              <RotateCcw className="h-4 w-4" />
+              Reintentar
+            </button>
+            <Link
+              href={`/${clinic}/store`}
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-[var(--primary)] px-6 py-3 text-white transition-opacity hover:opacity-90"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Volver a la tienda
+            </Link>
+          </div>
         </div>
       </div>
     )

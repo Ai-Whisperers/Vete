@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useToast } from '@/components/ui/Toast'
+import { AlertCircle, Loader2 } from 'lucide-react'
 
 interface PreAuthFormProps {
   petId?: string
@@ -30,6 +31,8 @@ export default function PreAuthForm({ petId, policyId, onSuccess }: PreAuthFormP
   const { showToast } = useToast()
 
   const [loading, setLoading] = useState(false)
+  const [initialLoading, setInitialLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
   const [policies, setPolicies] = useState<Policy[]>([])
   const [pets, setPets] = useState<Pet[]>([])
 
@@ -55,8 +58,18 @@ export default function PreAuthForm({ petId, policyId, onSuccess }: PreAuthFormP
   }, [selectedPetId])
 
   const loadPets = async () => {
-    const { data } = await supabase.from('pets').select('id, name, species').order('name')
-    if (data) setPets(data)
+    setInitialLoading(true)
+    setLoadError(null)
+    try {
+      const { data, error } = await supabase.from('pets').select('id, name, species').order('name')
+      if (error) throw error
+      setPets(data || [])
+    } catch (err) {
+      setLoadError('Error al cargar datos. Por favor, intenta de nuevo.')
+      console.error('Pre-auth form pets load error:', err)
+    } finally {
+      setInitialLoading(false)
+    }
   }
 
   const loadPolicies = async (petId: string) => {
@@ -124,6 +137,32 @@ export default function PreAuthForm({ petId, policyId, onSuccess }: PreAuthFormP
     } finally {
       setLoading(false)
     }
+  }
+
+  // UX-002: Loading state
+  if (initialLoading) {
+    return (
+      <div className="flex items-center justify-center p-12">
+        <Loader2 className="h-8 w-8 animate-spin text-[var(--primary)]" />
+      </div>
+    )
+  }
+
+  // UX-002: Error state with retry
+  if (loadError) {
+    return (
+      <div className="rounded-2xl border border-red-200 bg-red-50 p-8 text-center">
+        <AlertCircle className="mx-auto mb-4 h-12 w-12 text-red-500" />
+        <h3 className="mb-2 text-lg font-semibold text-red-800">Error al cargar</h3>
+        <p className="mb-4 text-red-600">{loadError}</p>
+        <button
+          onClick={() => loadPets()}
+          className="rounded-xl bg-red-600 px-6 py-2 font-medium text-white transition-colors hover:bg-red-700"
+        >
+          Reintentar
+        </button>
+      </div>
+    )
   }
 
   return (

@@ -12,57 +12,31 @@
  */
 import { describe, it, expect } from 'vitest'
 
+// Import REAL functions from lib module - this is the key fix!
+import {
+  validateInvoiceForm,
+  calculateLineTotal,
+  calculateInvoiceTotals,
+  getDefaultDueDate,
+  isDueDateValid,
+  getDaysUntilDue,
+  getDueDateStatus,
+  serviceToLineItem,
+  createCustomLineItem,
+  generateInvoiceNumber,
+  filterPetsByOwner,
+  searchPets,
+  getSubmitButtonState,
+  formatInvoiceError,
+  type InvoiceFormData,
+  type LineItem,
+  type LineItemWithTotal,
+  type Service,
+  type Pet,
+  type FormState,
+} from '@/lib/invoices/calculations'
+
 describe('Invoice Form Validation', () => {
-  interface LineItem {
-    id: string
-    service_id: string | null
-    description: string
-    quantity: number
-    unit_price: number
-    discount_percent: number
-  }
-
-  interface InvoiceFormData {
-    pet_id: string | null
-    items: LineItem[]
-    notes: string
-    due_date: string
-    tax_rate: number
-  }
-
-  interface ValidationResult {
-    valid: boolean
-    errors: Record<string, string>
-  }
-
-  const validateInvoiceForm = (data: InvoiceFormData): ValidationResult => {
-    const errors: Record<string, string> = {}
-
-    if (!data.pet_id) {
-      errors.pet_id = 'Debe seleccionar una mascota'
-    }
-
-    if (data.items.length === 0) {
-      errors.items = 'Debe agregar al menos un artículo'
-    }
-
-    const invalidItems = data.items.filter(
-      (i) => !i.description || i.unit_price <= 0
-    )
-    if (invalidItems.length > 0) {
-      errors.item_details = 'Todos los artículos deben tener descripción y precio'
-    }
-
-    if (!data.due_date) {
-      errors.due_date = 'Debe seleccionar una fecha de vencimiento'
-    }
-
-    return {
-      valid: Object.keys(errors).length === 0,
-      errors,
-    }
-  }
-
   it('should require pet selection', () => {
     const data: InvoiceFormData = {
       pet_id: null,
@@ -141,19 +115,6 @@ describe('Invoice Form Validation', () => {
 })
 
 describe('Line Item Calculations', () => {
-  /**
-   * Calculate line total: quantity * unit_price * (1 - discount/100)
-   */
-  const calculateLineTotal = (
-    quantity: number,
-    unitPrice: number,
-    discountPercent: number
-  ): number => {
-    const subtotal = quantity * unitPrice
-    const discountAmount = (subtotal * discountPercent) / 100
-    return Math.round(subtotal - discountAmount)
-  }
-
   it('should calculate line total without discount', () => {
     expect(calculateLineTotal(1, 50000, 0)).toBe(50000)
     expect(calculateLineTotal(2, 50000, 0)).toBe(100000)
@@ -184,53 +145,10 @@ describe('Line Item Calculations', () => {
 })
 
 describe('Invoice Totals Calculation', () => {
-  interface LineItemWithTotal {
-    id: string
-    description: string
-    quantity: number
-    unit_price: number
-    discount_percent: number
-    line_total: number
-  }
-
-  interface InvoiceTotals {
-    subtotal: number
-    discountTotal: number
-    taxableAmount: number
-    taxAmount: number
-    total: number
-  }
-
-  const calculateInvoiceTotals = (
-    items: LineItemWithTotal[],
-    taxRate: number
-  ): InvoiceTotals => {
-    const subtotal = items.reduce((sum, item) => {
-      return sum + item.quantity * item.unit_price
-    }, 0)
-
-    const discountTotal = items.reduce((sum, item) => {
-      const lineSubtotal = item.quantity * item.unit_price
-      return sum + (lineSubtotal * item.discount_percent) / 100
-    }, 0)
-
-    const taxableAmount = subtotal - discountTotal
-    const taxAmount = Math.round((taxableAmount * taxRate) / 100)
-    const total = taxableAmount + taxAmount
-
-    return {
-      subtotal: Math.round(subtotal),
-      discountTotal: Math.round(discountTotal),
-      taxableAmount: Math.round(taxableAmount),
-      taxAmount,
-      total: Math.round(total),
-    }
-  }
-
   it('should calculate totals without discounts', () => {
     const items: LineItemWithTotal[] = [
-      { id: '1', description: 'Consulta', quantity: 1, unit_price: 50000, discount_percent: 0, line_total: 50000 },
-      { id: '2', description: 'Vacuna', quantity: 1, unit_price: 80000, discount_percent: 0, line_total: 80000 },
+      { id: '1', service_id: 'svc-1', description: 'Consulta', quantity: 1, unit_price: 50000, discount_percent: 0, line_total: 50000 },
+      { id: '2', service_id: 'svc-2', description: 'Vacuna', quantity: 1, unit_price: 80000, discount_percent: 0, line_total: 80000 },
     ]
 
     const totals = calculateInvoiceTotals(items, 10)
@@ -244,7 +162,7 @@ describe('Invoice Totals Calculation', () => {
 
   it('should calculate totals with discounts', () => {
     const items: LineItemWithTotal[] = [
-      { id: '1', description: 'Consulta', quantity: 1, unit_price: 100000, discount_percent: 10, line_total: 90000 },
+      { id: '1', service_id: 'svc-1', description: 'Consulta', quantity: 1, unit_price: 100000, discount_percent: 10, line_total: 90000 },
     ]
 
     const totals = calculateInvoiceTotals(items, 10)
@@ -265,7 +183,7 @@ describe('Invoice Totals Calculation', () => {
 
   it('should handle different tax rates', () => {
     const items: LineItemWithTotal[] = [
-      { id: '1', description: 'Test', quantity: 1, unit_price: 100000, discount_percent: 0, line_total: 100000 },
+      { id: '1', service_id: 'svc-1', description: 'Test', quantity: 1, unit_price: 100000, discount_percent: 0, line_total: 100000 },
     ]
 
     const totals5 = calculateInvoiceTotals(items, 5)
@@ -279,41 +197,6 @@ describe('Invoice Totals Calculation', () => {
 })
 
 describe('Due Date Handling', () => {
-  const getDefaultDueDate = (daysFromNow: number = 30): string => {
-    const date = new Date()
-    date.setDate(date.getDate() + daysFromNow)
-    return date.toISOString().split('T')[0]
-  }
-
-  const isDueDateValid = (dueDate: string): boolean => {
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-
-    // Parse date parts to avoid timezone issues with Date constructor
-    const [year, month, day] = dueDate.split('-').map(Number)
-    const due = new Date(year, month - 1, day) // month is 0-indexed
-    return due >= today
-  }
-
-  const getDaysUntilDue = (dueDate: string): number => {
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-
-    // Parse date parts to avoid timezone issues with Date constructor
-    const [year, month, day] = dueDate.split('-').map(Number)
-    const due = new Date(year, month - 1, day) // month is 0-indexed
-    const diffTime = due.getTime() - today.getTime()
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-  }
-
-  const getDueDateStatus = (dueDate: string): 'overdue' | 'due_soon' | 'normal' => {
-    const daysUntil = getDaysUntilDue(dueDate)
-
-    if (daysUntil < 0) return 'overdue'
-    if (daysUntil <= 7) return 'due_soon'
-    return 'normal'
-  }
-
   it('should generate default due date 30 days from now', () => {
     const defaultDate = getDefaultDueDate()
     const expected = new Date()
@@ -371,44 +254,6 @@ describe('Due Date Handling', () => {
 })
 
 describe('Service to Line Item Conversion', () => {
-  interface Service {
-    id: string
-    name: string
-    base_price: number
-    category?: string
-  }
-
-  interface LineItem {
-    id: string
-    service_id: string | null
-    description: string
-    quantity: number
-    unit_price: number
-    discount_percent: number
-  }
-
-  const serviceToLineItem = (service: Service, itemId: string): LineItem => {
-    return {
-      id: itemId,
-      service_id: service.id,
-      description: service.name,
-      quantity: 1,
-      unit_price: service.base_price,
-      discount_percent: 0,
-    }
-  }
-
-  const createCustomLineItem = (itemId: string): LineItem => {
-    return {
-      id: itemId,
-      service_id: null,
-      description: '',
-      quantity: 1,
-      unit_price: 0,
-      discount_percent: 0,
-    }
-  }
-
   it('should convert service to line item', () => {
     const service: Service = {
       id: 'svc-1',
@@ -437,15 +282,6 @@ describe('Service to Line Item Conversion', () => {
 })
 
 describe('Invoice Number Generation', () => {
-  const generateInvoiceNumber = (
-    existingCount: number,
-    tenantPrefix: string = 'FAC'
-  ): string => {
-    const year = new Date().getFullYear()
-    const sequence = String(existingCount + 1).padStart(6, '0')
-    return `${tenantPrefix}-${year}-${sequence}`
-  }
-
   it('should generate invoice number with correct format', () => {
     const year = new Date().getFullYear()
     const invoiceNum = generateInvoiceNumber(0)
@@ -471,29 +307,6 @@ describe('Invoice Number Generation', () => {
 })
 
 describe('Pet Selector Logic', () => {
-  interface Pet {
-    id: string
-    name: string
-    species: string
-    owner?: {
-      id: string
-      full_name: string
-    }
-  }
-
-  const filterPetsByOwner = (pets: Pet[], ownerId: string): Pet[] => {
-    return pets.filter((p) => p.owner?.id === ownerId)
-  }
-
-  const searchPets = (pets: Pet[], query: string): Pet[] => {
-    const q = query.toLowerCase()
-    return pets.filter(
-      (p) =>
-        p.name.toLowerCase().includes(q) ||
-        p.owner?.full_name.toLowerCase().includes(q)
-    )
-  }
-
   const samplePets: Pet[] = [
     { id: '1', name: 'Max', species: 'dog', owner: { id: 'o1', full_name: 'Juan García' } },
     { id: '2', name: 'Luna', species: 'cat', owner: { id: 'o1', full_name: 'Juan García' } },
@@ -524,33 +337,6 @@ describe('Pet Selector Logic', () => {
 })
 
 describe('Form State Management', () => {
-  interface FormState {
-    loading: boolean
-    error: string | null
-    dirty: boolean
-    submitted: boolean
-  }
-
-  const getSubmitButtonState = (state: FormState): {
-    disabled: boolean
-    text: string
-    showSpinner: boolean
-  } => {
-    if (state.loading) {
-      return {
-        disabled: true,
-        text: 'Guardando...',
-        showSpinner: true,
-      }
-    }
-
-    return {
-      disabled: false,
-      text: 'Crear factura',
-      showSpinner: false,
-    }
-  }
-
   it('should show loading state', () => {
     const state: FormState = { loading: true, error: null, dirty: true, submitted: false }
     const buttonState = getSubmitButtonState(state)
@@ -571,18 +357,6 @@ describe('Form State Management', () => {
 })
 
 describe('Error Message Formatting', () => {
-  const formatInvoiceError = (errorType: string): string => {
-    const messages: Record<string, string> = {
-      VALIDATION_ERROR: 'Por favor revise los campos marcados en rojo',
-      PET_NOT_FOUND: 'La mascota seleccionada no existe',
-      DUPLICATE_INVOICE: 'Ya existe una factura con estos datos',
-      SAVE_FAILED: 'Error al guardar la factura. Por favor intente de nuevo.',
-      NETWORK_ERROR: 'Error de conexión. Verifique su internet.',
-    }
-
-    return messages[errorType] || 'Error desconocido'
-  }
-
   it('should format validation error', () => {
     expect(formatInvoiceError('VALIDATION_ERROR')).toContain('campos marcados')
   })

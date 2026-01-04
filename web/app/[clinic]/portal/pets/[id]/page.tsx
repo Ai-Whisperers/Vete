@@ -4,6 +4,7 @@ import { PetProfileHeader } from '@/components/pets/pet-profile-header'
 import { VaccineReactionAlert } from '@/components/pets/vaccine-reaction-alert'
 import { PetDetailContent } from '@/components/pets/pet-detail-content'
 import { getPetProfile } from '@/app/actions/pets'
+import { getPetDocuments } from '@/app/actions/pet-documents'
 import { AuthService } from '@/lib/auth/core'
 import { createClient } from '@/lib/supabase/server'
 import type { MedicalRecord, Vaccine, Prescription } from '@/lib/types/database'
@@ -183,8 +184,9 @@ export default async function PetProfilePage({
       : null,
   }))
 
-  // For now, documents are empty (would need a pet_documents table)
-  const documents: any[] = []
+  // Fetch pet documents
+  const documentsResult = await getPetDocuments(id)
+  const documents = documentsResult.success ? documentsResult.data || [] : []
 
   // Fetch invoices related to this pet (via appointments or directly)
   const { data: invoices } = await supabase

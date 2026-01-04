@@ -5,7 +5,7 @@ import { useRouter, useParams, usePathname } from 'next/navigation'
 import { useCart, CartItem } from '@/context/cart-context'
 import { useToast } from '@/components/ui/Toast'
 import { createClient } from '@/lib/supabase/client'
-import { ShoppingBag, Loader2, Check, AlertTriangle } from 'lucide-react'
+import { ShoppingBag, Check, AlertTriangle } from 'lucide-react'
 import { clsx } from 'clsx'
 
 interface AddToCartButtonProps {
@@ -34,7 +34,6 @@ export function AddToCartButton({
   const pathname = usePathname()
   const clinic = params?.clinic as string
 
-  const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [stockWarning, setStockWarning] = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
@@ -62,49 +61,42 @@ export function AddToCartButton({
       return
     }
 
-    setLoading(true)
+    // UX-005: Removed fake 500ms delay - addItem is synchronous
+    const result = addItem(item, quantity)
 
-    // Simulate network delay for effect or just add immediately
-    setTimeout(() => {
-      const result = addItem(item, quantity)
-      setLoading(false)
-
-      if (result.limitedByStock) {
-        if (!result.success) {
-          // Could not add any - show error
-          setStockWarning(true)
-          showToast(
-            result.message ||
-              `Stock insuficiente. Solo hay ${result.availableStock} unidades disponibles.`
-          )
-          setTimeout(() => setStockWarning(false), 2000)
-        } else {
-          // Added partial quantity - show warning but also success
-          setSuccess(true)
-          showToast(result.message || `Solo hay ${result.availableStock} unidades disponibles`)
-          setTimeout(() => setSuccess(false), 2000)
-        }
+    if (result.limitedByStock) {
+      if (!result.success) {
+        // Could not add any - show error
+        setStockWarning(true)
+        showToast(
+          result.message ||
+            `Stock insuficiente. Solo hay ${result.availableStock} unidades disponibles.`
+        )
+        setTimeout(() => setStockWarning(false), 2000)
       } else {
-        // Normal success
+        // Added partial quantity - show warning but also success
         setSuccess(true)
+        showToast(result.message || `Solo hay ${result.availableStock} unidades disponibles`)
         setTimeout(() => setSuccess(false), 2000)
       }
-    }, 500)
+    } else {
+      // Normal success
+      setSuccess(true)
+      setTimeout(() => setSuccess(false), 2000)
+    }
   }
 
   return (
     <button
       onClick={handleClick}
-      disabled={loading || success || stockWarning}
+      disabled={success || stockWarning}
       className={clsx(
         'flex items-center justify-center gap-2 transition-all active:scale-95 disabled:cursor-not-allowed disabled:opacity-70',
         stockWarning && '!border-amber-500 !bg-amber-500',
         className
       )}
     >
-      {loading ? (
-        <Loader2 className="h-5 w-5 animate-spin" />
-      ) : stockWarning ? (
+      {stockWarning ? (
         iconOnly ? (
           <AlertTriangle className="h-5 w-5" />
         ) : (

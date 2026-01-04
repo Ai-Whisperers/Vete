@@ -57,6 +57,7 @@ export function LabOrderForm({ onSuccess, onCancel }: LabOrderFormProps) {
   const [submitting, setSubmitting] = useState(false)
   // TICKET-FORM-002: Replace alert() with proper error state
   const [formError, setFormError] = useState<FormError | null>(null)
+  const [loadError, setLoadError] = useState<string | null>(null)
 
   // Form state
   const [selectedPetId, setSelectedPetId] = useState('')
@@ -77,22 +78,27 @@ export function LabOrderForm({ onSuccess, onCancel }: LabOrderFormProps) {
 
   const fetchData = async () => {
     setLoading(true)
+    setLoadError(null)
     try {
       // Fetch pets
-      const { data: petsData } = await supabase
+      const { data: petsData, error: petsError } = await supabase
         .from('pets')
         .select('id, name, species, breed')
         .order('name')
 
+      if (petsError) throw petsError
+
       // Fetch test catalog
-      const { data: testsData } = await supabase
+      const { data: testsData, error: testsError } = await supabase
         .from('lab_test_catalog')
         .select('id, code, name, category, specimen_type, typical_turnaround_hours')
         .eq('active', true)
         .order('name')
 
+      if (testsError) throw testsError
+
       // Fetch panels
-      const { data: panelsData } = await supabase
+      const { data: panelsData, error: panelsError } = await supabase
         .from('lab_test_panels')
         .select(
           `
@@ -105,6 +111,8 @@ export function LabOrderForm({ onSuccess, onCancel }: LabOrderFormProps) {
         .eq('active', true)
         .order('name')
 
+      if (panelsError) throw panelsError
+
       setPets(petsData || [])
       setTests(testsData || [])
       setPanels(
@@ -115,8 +123,9 @@ export function LabOrderForm({ onSuccess, onCancel }: LabOrderFormProps) {
           tests: p.lab_test_panel_items as { test_id: string }[],
         })) || []
       )
-    } catch {
-      // Error fetching data - silently fail
+    } catch (err) {
+      setLoadError('Error al cargar datos del laboratorio. Por favor, intenta de nuevo.')
+      console.error('Lab order form data fetch error:', err)
     } finally {
       setLoading(false)
     }
@@ -214,6 +223,23 @@ export function LabOrderForm({ onSuccess, onCancel }: LabOrderFormProps) {
     return (
       <div className="flex items-center justify-center p-12">
         <Loader2 className="h-8 w-8 animate-spin text-[var(--primary)]" />
+      </div>
+    )
+  }
+
+  // UX-001: Show error state with retry option
+  if (loadError) {
+    return (
+      <div className="rounded-2xl border border-red-200 bg-red-50 p-8 text-center">
+        <AlertCircle className="mx-auto mb-4 h-12 w-12 text-red-500" />
+        <h3 className="mb-2 text-lg font-semibold text-red-800">Error al cargar</h3>
+        <p className="mb-4 text-red-600">{loadError}</p>
+        <button
+          onClick={() => fetchData()}
+          className="rounded-xl bg-red-600 px-6 py-2 font-medium text-white transition-colors hover:bg-red-700"
+        >
+          Reintentar
+        </button>
       </div>
     )
   }

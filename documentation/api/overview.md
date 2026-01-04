@@ -4,7 +4,7 @@ Vete provides both REST API endpoints and Server Actions for data operations.
 
 > **Last Updated**: January 2026
 > **Total REST Endpoints**: 167
-> **Total Server Actions**: 22
+> **Total Server Actions**: 35
 > **Total Cron Jobs**: 5
 
 ---
@@ -236,7 +236,7 @@ Vete provides both REST API endpoints and Server Actions for data operations.
 
 ---
 
-## Server Actions (20 Total)
+## Server Actions (35 Total)
 
 Server Actions are used for mutations from Server Components.
 
@@ -247,23 +247,36 @@ Server Actions are used for mutations from Server Components.
 | `appointments.ts` | `cancelAppointment()`, `rescheduleAppointment()` | Appointment management |
 | `create-appointment.ts` | `createAppointment()` | Book new appointment |
 | `update-appointment.ts` | - | Update appointment details |
+| `update-appointment-status.ts` | - | Change appointment status |
 | `create-pet.ts` | `createPet()` | Add new pet |
 | `pets.ts` | - | Pet management operations |
+| `pet-documents.ts` | `uploadPetDocuments()`, `deletePetDocument()`, `getPetDocuments()` | Pet document management |
 | `create-vaccine.ts` | `createVaccine()` | Record vaccination |
 | `create-medical-record.ts` | `createMedicalRecord()` | Add clinical notes |
 | `medical-records.ts` | - | Medical record operations |
 | `assign-tag.ts` | - | Assign QR tag to pet |
 | `create-product.ts` | - | Create store product |
+| `update-product.ts` | - | Update store product |
+| `delete-product.ts` | - | Delete store product |
+| `store.ts` | - | Store operations |
 | `invoices.ts` | - | Invoice operations |
+| `invoices/create.ts` | - | Create invoice |
+| `invoices/update.ts` | - | Update invoice |
+| `invoices/send.ts` | - | Send invoice email |
+| `invoices/payment.ts` | - | Record payment |
+| `invoices/void.ts` | - | Void invoice |
 | `invite-staff.ts` | - | Invite team members |
 | `invite-client.ts` | - | Invite pet owners |
 | `update-profile.ts` | - | Update user profile |
 | `schedules.ts` | - | Schedule management |
 | `time-off.ts` | - | Time off requests |
 | `whatsapp.ts` | `getConversations()` | WhatsApp operations |
+| `messages.ts` | - | Message operations |
 | `send-email.ts` | - | Email notifications |
+| `contact-form.ts` | - | Public contact form |
 | `safety.ts` | - | Security operations |
 | `network-actions.ts` | - | Network operations |
+| `system-configs.ts` | - | System configuration |
 
 ### Example Usage
 

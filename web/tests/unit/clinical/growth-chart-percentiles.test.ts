@@ -15,6 +15,27 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { GET } from '@/app/api/growth_standards/route'
 
+// Import REAL functions from lib module - this is the key fix!
+import {
+  interpolatePercentile,
+  classifyWeight,
+  isSeverelyUnderweight,
+  isUnderweight,
+  isNormalWeight,
+  isOverweight,
+  isObese,
+  assessWeight,
+  calculateGrowthVelocity,
+  assessGrowthVelocity,
+  getExpectedAdultWeightRange,
+  isWeightAppropriateForBreed,
+  getMaleToFemaleRatio,
+  adjustWeightForGender,
+  type BreedCategory,
+  type Gender,
+  type GrowthStandard,
+} from '@/lib/clinical/growth'
+
 // Mock response type helper
 interface MockResponse {
   status: number
@@ -184,53 +205,22 @@ describe('Growth Chart Percentile Calculations', () => {
   /**
    * These tests document expected percentile calculations and serve as
    * verification for the growth chart feature.
+   * Now using REAL functions from lib/clinical/growth.ts
    */
 
   describe('Percentile Interpolation', () => {
-    /**
-     * Interpolate weight percentile based on age and reference data
-     */
-    const interpolatePercentile = (
-      currentWeight: number,
-      ageWeeks: number,
-      standards: Array<{ age_weeks: number; weight_kg: number; percentile: number }>
-    ): number => {
-      // Filter standards for the exact age or closest ages
-      const atAge = standards.filter((s) => s.age_weeks === ageWeeks)
+    // Using imported interpolatePercentile from @/lib/clinical/growth
 
-      if (atAge.length === 0) {
-        return -1 // Age not in standards
-      }
-
-      // Sort by weight
-      const sorted = [...atAge].sort((a, b) => a.weight_kg - b.weight_kg)
-
-      // Find where current weight falls
-      if (currentWeight <= sorted[0].weight_kg) {
-        return sorted[0].percentile
-      }
-      if (currentWeight >= sorted[sorted.length - 1].weight_kg) {
-        return sorted[sorted.length - 1].percentile
-      }
-
-      // Linear interpolation between two percentile points
-      for (let i = 0; i < sorted.length - 1; i++) {
-        if (currentWeight >= sorted[i].weight_kg && currentWeight <= sorted[i + 1].weight_kg) {
-          const ratio =
-            (currentWeight - sorted[i].weight_kg) /
-            (sorted[i + 1].weight_kg - sorted[i].weight_kg)
-          return Math.round(
-            sorted[i].percentile + ratio * (sorted[i + 1].percentile - sorted[i].percentile)
-          )
-        }
-      }
-
-      return 50 // Default to median
-    }
-
-    const mediumMaleStandards = mockGrowthStandards.filter(
-      (s) => s.breed_category === 'medium' && s.gender === 'male'
-    )
+    // Convert mock data to GrowthStandard format for the lib function
+    const mediumMaleStandards: GrowthStandard[] = mockGrowthStandards
+      .filter((s) => s.breed_category === 'medium' && s.gender === 'male')
+      .map((s) => ({
+        age_weeks: s.age_weeks,
+        weight_kg: s.weight_kg,
+        percentile: s.percentile,
+        breed_category: s.breed_category as BreedCategory,
+        gender: s.gender as Gender,
+      }))
 
     it('should return P50 for median weight', () => {
       const percentile = interpolatePercentile(6.5, 16, mediumMaleStandards)
@@ -322,61 +312,86 @@ describe('Growth Chart Percentile Calculations', () => {
   })
 
   describe('Clinical Interpretation', () => {
+    // Using imported classification functions from @/lib/clinical/growth
+
+    describe('Weight Classification Function', () => {
+      it('should classify percentiles correctly', () => {
+        expect(classifyWeight(3)).toBe('severely_underweight')
+        expect(classifyWeight(10)).toBe('underweight')
+        expect(classifyWeight(50)).toBe('normal')
+        expect(classifyWeight(88)).toBe('overweight')
+        expect(classifyWeight(97)).toBe('obese')
+      })
+    })
+
     describe('Underweight Classification', () => {
       it('should identify severely underweight (<P5)', () => {
-        const percentile = 3
-        const isSeverelyUnderweight = percentile < 5
-
-        expect(isSeverelyUnderweight).toBe(true)
+        expect(isSeverelyUnderweight(3)).toBe(true)
+        expect(isSeverelyUnderweight(5)).toBe(false)
         // Clinical action: Investigate malnutrition, parasites, illness
       })
 
       it('should identify underweight (P5-P15)', () => {
-        const percentile = 10
-        const isUnderweight = percentile >= 5 && percentile < 15
-
-        expect(isUnderweight).toBe(true)
+        expect(isUnderweight(10)).toBe(true)
+        expect(isUnderweight(3)).toBe(false) // Too low
+        expect(isUnderweight(20)).toBe(false) // Too high
         // Clinical action: Monitor closely, may need dietary adjustment
       })
     })
 
     describe('Normal Weight Classification', () => {
       it('should identify normal weight (P15-P85)', () => {
-        const percentile = 50
-        const isNormal = percentile >= 15 && percentile <= 85
-
-        expect(isNormal).toBe(true)
+        expect(isNormalWeight(50)).toBe(true)
+        expect(isNormalWeight(15)).toBe(true) // Lower bound
+        expect(isNormalWeight(85)).toBe(true) // Upper bound
+        expect(isNormalWeight(10)).toBe(false) // Underweight
+        expect(isNormalWeight(90)).toBe(false) // Overweight
         // Clinical action: Continue normal care
       })
     })
 
     describe('Overweight Classification', () => {
       it('should identify overweight (P85-P95)', () => {
-        const percentile = 88
-        const isOverweight = percentile > 85 && percentile <= 95
-
-        expect(isOverweight).toBe(true)
+        expect(isOverweight(88)).toBe(true)
+        expect(isOverweight(95)).toBe(true) // Upper bound
+        expect(isOverweight(85)).toBe(false) // Normal
+        expect(isOverweight(97)).toBe(false) // Obese
         // Clinical action: Dietary counseling, increased exercise
       })
 
       it('should identify obese (>P95)', () => {
-        const percentile = 97
-        const isObese = percentile > 95
-
-        expect(isObese).toBe(true)
+        expect(isObese(97)).toBe(true)
+        expect(isObese(99)).toBe(true)
+        expect(isObese(95)).toBe(false) // Just overweight
         // Clinical action: Weight management program, rule out endocrine issues
+      })
+    })
+
+    describe('Full Weight Assessment', () => {
+      // Using imported assessWeight from @/lib/clinical/growth
+      it('should provide complete assessment with clinical action', () => {
+        const assessment = assessWeight(3)
+        expect(assessment.percentile).toBe(3)
+        expect(assessment.classification).toBe('severely_underweight')
+        expect(assessment.clinicalAction).toContain('malnutrición')
+      })
+
+      it('should recommend normal care for healthy weight', () => {
+        const assessment = assessWeight(50)
+        expect(assessment.classification).toBe('normal')
+        expect(assessment.clinicalAction).toContain('normal')
+      })
+
+      it('should recommend weight management for obesity', () => {
+        const assessment = assessWeight(97)
+        expect(assessment.classification).toBe('obese')
+        expect(assessment.clinicalAction).toContain('manejo de peso')
       })
     })
   })
 
   describe('Growth Velocity', () => {
-    const calculateGrowthVelocity = (
-      weight1: number,
-      weight2: number,
-      weeks: number
-    ): number => {
-      return (weight2 - weight1) / weeks
-    }
+    // Using imported calculateGrowthVelocity and assessGrowthVelocity from @/lib/clinical/growth
 
     it('should calculate expected growth velocity', () => {
       const week8Weight = 5.0
@@ -386,24 +401,94 @@ describe('Growth Chart Percentile Calculations', () => {
       expect(velocity).toBe(1.25) // 1.25 kg per week
     })
 
-    it('should flag slow growth', () => {
+    it('should handle zero week difference', () => {
+      const velocity = calculateGrowthVelocity(5.0, 5.0, 0)
+      expect(velocity).toBe(0) // Safe handling of division by zero
+    })
+
+    it('should assess slow growth', () => {
       const expectedVelocity = 1.25 // kg/week for large breed puppy
       const actualVelocity = 0.5 // kg/week
 
-      const isSlowGrowth = actualVelocity < expectedVelocity * 0.7
+      const assessment = assessGrowthVelocity(actualVelocity, expectedVelocity)
 
-      expect(isSlowGrowth).toBe(true)
+      expect(assessment.isNormal).toBe(false)
+      expect(assessment.classification).toBe('slow')
+      expect(assessment.message).toContain('lento')
       // Clinical action: Investigate poor growth
     })
 
-    it('should flag excessive growth', () => {
+    it('should assess excessive growth', () => {
       const expectedVelocity = 1.25 // kg/week
       const actualVelocity = 2.0 // kg/week
 
-      const isExcessiveGrowth = actualVelocity > expectedVelocity * 1.3
+      const assessment = assessGrowthVelocity(actualVelocity, expectedVelocity)
 
-      expect(isExcessiveGrowth).toBe(true)
+      expect(assessment.isNormal).toBe(false)
+      expect(assessment.classification).toBe('excessive')
+      expect(assessment.message).toContain('excesivo')
       // Clinical action: Risk of developmental orthopedic disease in large breeds
+    })
+
+    it('should assess normal growth', () => {
+      const expectedVelocity = 1.25 // kg/week
+      const actualVelocity = 1.2 // kg/week - within normal range
+
+      const assessment = assessGrowthVelocity(actualVelocity, expectedVelocity)
+
+      expect(assessment.isNormal).toBe(true)
+      expect(assessment.classification).toBe('normal')
+    })
+  })
+
+  describe('Breed Category Helpers', () => {
+    // Using imported getExpectedAdultWeightRange, isWeightAppropriateForBreed from @/lib/clinical/growth
+
+    it('should get expected adult weight ranges by breed category', () => {
+      expect(getExpectedAdultWeightRange('toy')).toEqual({ min: 1, max: 5 })
+      expect(getExpectedAdultWeightRange('small')).toEqual({ min: 5, max: 10 })
+      expect(getExpectedAdultWeightRange('medium')).toEqual({ min: 10, max: 25 })
+      expect(getExpectedAdultWeightRange('large')).toEqual({ min: 25, max: 45 })
+      expect(getExpectedAdultWeightRange('giant')).toEqual({ min: 45, max: 90 })
+    })
+
+    it('should validate adult weight for breed category', () => {
+      // Adult dog (52 weeks)
+      expect(isWeightAppropriateForBreed(3, 52, 'toy')).toBe(true)
+      expect(isWeightAppropriateForBreed(30, 52, 'toy')).toBe(false) // Too heavy for toy
+
+      expect(isWeightAppropriateForBreed(35, 52, 'large')).toBe(true)
+      expect(isWeightAppropriateForBreed(5, 52, 'large')).toBe(false) // Too light for large
+    })
+
+    it('should use proportional expectations for puppies', () => {
+      // Young puppy (16 weeks) - more lenient expectations
+      expect(isWeightAppropriateForBreed(8, 16, 'medium')).toBe(true)
+    })
+  })
+
+  describe('Gender Differences', () => {
+    // Using imported getMaleToFemaleRatio, adjustWeightForGender from @/lib/clinical/growth
+
+    it('should document that males typically weigh more', () => {
+      // All ratios should be > 1 (male heavier)
+      expect(getMaleToFemaleRatio('toy')).toBeGreaterThan(1)
+      expect(getMaleToFemaleRatio('large')).toBeGreaterThan(1)
+    })
+
+    it('should have larger ratio for larger breeds', () => {
+      // Giant breeds have larger gender weight difference
+      expect(getMaleToFemaleRatio('giant')).toBeGreaterThan(getMaleToFemaleRatio('toy'))
+    })
+
+    it('should adjust base weight for gender', () => {
+      const baseWeight = 10 // kg
+
+      const maleWeight = adjustWeightForGender(baseWeight, 'male', 'medium')
+      const femaleWeight = adjustWeightForGender(baseWeight, 'female', 'medium')
+
+      expect(maleWeight).toBeGreaterThan(baseWeight)
+      expect(femaleWeight).toBeLessThan(baseWeight)
     })
   })
 })

@@ -11,72 +11,72 @@
  */
 import { describe, it, expect } from 'vitest'
 
+// Import REAL functions from lib module - this is the key fix!
+import {
+  interpretPainScore,
+  interpretCRT,
+  interpretMMColor,
+  isDogFever,
+  isDogHypothermia,
+  isCritical,
+  getMonitoringIntervalHours,
+  isVitalsOverdue,
+  isValidTemperature,
+  isValidHeartRate,
+  isValidRespiratoryRate,
+  isValidPainScore,
+  canRecordVitals,
+  isIncreasingTrend,
+  isDecreasingTrend,
+  calculateAverageReading,
+  DOG_VITAL_RANGES,
+  CAT_VITAL_RANGES,
+} from '@/lib/hospitalization/vitals'
+
 describe('Vital Signs Business Rules', () => {
   describe('Normal Vital Ranges by Species', () => {
     describe('Dogs', () => {
-      const dogVitalRanges = {
-        temperature: { min: 38.0, max: 39.2 },
-        heart_rate: { min: 60, max: 140 },
-        respiratory_rate: { min: 10, max: 30 },
-      }
-
       it('should document normal temperature range', () => {
-        expect(dogVitalRanges.temperature.min).toBeLessThan(dogVitalRanges.temperature.max)
-        expect(dogVitalRanges.temperature.min).toBeGreaterThanOrEqual(37)
-        expect(dogVitalRanges.temperature.max).toBeLessThanOrEqual(40)
+        expect(DOG_VITAL_RANGES.temperature.min).toBeLessThan(DOG_VITAL_RANGES.temperature.max)
+        expect(DOG_VITAL_RANGES.temperature.min).toBeGreaterThanOrEqual(37)
+        expect(DOG_VITAL_RANGES.temperature.max).toBeLessThanOrEqual(40)
       })
 
       it('should document normal heart rate range', () => {
-        expect(dogVitalRanges.heart_rate.min).toBeLessThan(dogVitalRanges.heart_rate.max)
+        expect(DOG_VITAL_RANGES.heart_rate.min).toBeLessThan(DOG_VITAL_RANGES.heart_rate.max)
       })
 
       it('should document normal respiratory rate range', () => {
-        expect(dogVitalRanges.respiratory_rate.min).toBeLessThan(dogVitalRanges.respiratory_rate.max)
+        expect(DOG_VITAL_RANGES.respiratory_rate.min).toBeLessThan(DOG_VITAL_RANGES.respiratory_rate.max)
       })
 
       it('should flag fever for dogs', () => {
-        const isFever = (temp: number) => temp > 39.2
-        expect(isFever(40.0)).toBe(true)
-        expect(isFever(38.5)).toBe(false)
+        expect(isDogFever(40.0)).toBe(true)
+        expect(isDogFever(38.5)).toBe(false)
       })
 
       it('should flag hypothermia for dogs', () => {
-        const isHypothermia = (temp: number) => temp < 37.5
-        expect(isHypothermia(36.0)).toBe(true)
-        expect(isHypothermia(38.0)).toBe(false)
+        expect(isDogHypothermia(36.0)).toBe(true)
+        expect(isDogHypothermia(38.0)).toBe(false)
       })
     })
 
     describe('Cats', () => {
-      const catVitalRanges = {
-        temperature: { min: 38.0, max: 39.4 },
-        heart_rate: { min: 120, max: 220 },
-        respiratory_rate: { min: 20, max: 40 },
-      }
-
       it('should document normal temperature range', () => {
-        expect(catVitalRanges.temperature.min).toBeLessThan(catVitalRanges.temperature.max)
+        expect(CAT_VITAL_RANGES.temperature.min).toBeLessThan(CAT_VITAL_RANGES.temperature.max)
       })
 
       it('should document normal heart rate range', () => {
-        expect(catVitalRanges.heart_rate.min).toBeLessThan(catVitalRanges.heart_rate.max)
+        expect(CAT_VITAL_RANGES.heart_rate.min).toBeLessThan(CAT_VITAL_RANGES.heart_rate.max)
       })
 
       it('should document normal respiratory rate range', () => {
-        expect(catVitalRanges.respiratory_rate.min).toBeLessThan(catVitalRanges.respiratory_rate.max)
+        expect(CAT_VITAL_RANGES.respiratory_rate.min).toBeLessThan(CAT_VITAL_RANGES.respiratory_rate.max)
       })
     })
   })
 
   describe('Pain Score Interpretation', () => {
-    const interpretPainScore = (score: number): string => {
-      if (score === 0) return 'no_pain'
-      if (score <= 3) return 'mild'
-      if (score <= 6) return 'moderate'
-      if (score <= 9) return 'severe'
-      return 'extreme'
-    }
-
     it('should classify pain score 0 as no pain', () => {
       expect(interpretPainScore(0)).toBe('no_pain')
     })
@@ -105,12 +105,6 @@ describe('Vital Signs Business Rules', () => {
   })
 
   describe('Capillary Refill Time (CRT) Interpretation', () => {
-    const interpretCRT = (seconds: number): string => {
-      if (seconds <= 2) return 'normal'
-      if (seconds <= 4) return 'delayed'
-      return 'severely_delayed'
-    }
-
     it('should classify CRT <= 2 seconds as normal', () => {
       expect(interpretCRT(1)).toBe('normal')
       expect(interpretCRT(2)).toBe('normal')
@@ -128,21 +122,6 @@ describe('Vital Signs Business Rules', () => {
   })
 
   describe('Mucous Membrane Color Interpretation', () => {
-    const interpretMMColor = (
-      color: string
-    ): { severity: string; possibleCause: string } => {
-      const interpretations: Record<string, { severity: string; possibleCause: string }> = {
-        pink: { severity: 'normal', possibleCause: 'None - healthy' },
-        pale: { severity: 'warning', possibleCause: 'Anemia, blood loss, shock' },
-        white: { severity: 'critical', possibleCause: 'Severe anemia, shock' },
-        cyanotic: { severity: 'critical', possibleCause: 'Hypoxia, respiratory failure' },
-        yellow: { severity: 'warning', possibleCause: 'Liver disease, hemolysis' },
-        brick_red: { severity: 'warning', possibleCause: 'Sepsis, heat stroke, toxicity' },
-        muddy: { severity: 'critical', possibleCause: 'Septic shock, severe illness' },
-      }
-      return interpretations[color] || { severity: 'unknown', possibleCause: 'Unknown' }
-    }
-
     it('should classify pink as normal', () => {
       expect(interpretMMColor('pink').severity).toBe('normal')
     })
@@ -167,47 +146,21 @@ describe('Vital Signs Business Rules', () => {
   describe('Vitals Trending', () => {
     it('should detect temperature increase trend', () => {
       const readings = [38.0, 38.5, 39.0, 39.5]
-      const isIncreasing = readings.every((val, i) => i === 0 || val > readings[i - 1])
-
-      expect(isIncreasing).toBe(true)
+      expect(isIncreasingTrend(readings)).toBe(true)
     })
 
     it('should detect heart rate stabilization', () => {
       const readings = [120, 118, 115, 110, 108]
-      const isDecreasing = readings.every((val, i) => i === 0 || val <= readings[i - 1])
-
-      expect(isDecreasing).toBe(true)
+      expect(isDecreasingTrend(readings)).toBe(true)
     })
 
     it('should calculate average over readings', () => {
       const readings = [38.0, 38.5, 39.0, 38.5]
-      const average = readings.reduce((a, b) => a + b, 0) / readings.length
-
-      expect(average).toBe(38.5)
+      expect(calculateAverageReading(readings)).toBe(38.5)
     })
   })
 
   describe('Critical Values Alert', () => {
-    const isCritical = (vital: string, value: number, species: 'dog' | 'cat'): boolean => {
-      const criticalRanges = {
-        dog: {
-          temperature: { low: 36.5, high: 41.0 },
-          heart_rate: { low: 40, high: 180 },
-          respiratory_rate: { low: 5, high: 60 },
-        },
-        cat: {
-          temperature: { low: 36.5, high: 41.0 },
-          heart_rate: { low: 100, high: 260 },
-          respiratory_rate: { low: 10, high: 80 },
-        },
-      }
-
-      const range = criticalRanges[species]?.[vital as keyof typeof criticalRanges.dog]
-      if (!range) return false
-
-      return value < range.low || value > range.high
-    }
-
     it('should flag critical low temperature', () => {
       expect(isCritical('temperature', 35.0, 'dog')).toBe(true)
     })
@@ -232,17 +185,6 @@ describe('Vital Signs Business Rules', () => {
 
 describe('Vitals Recording Scheduling', () => {
   describe('Monitoring Frequency by Acuity', () => {
-    const getMonitoringIntervalHours = (acuity: string): number => {
-      const intervals: Record<string, number> = {
-        critical: 1,
-        high: 2,
-        medium: 4,
-        low: 8,
-        routine: 12,
-      }
-      return intervals[acuity] || 12
-    }
-
     it('should require hourly monitoring for critical patients', () => {
       expect(getMonitoringIntervalHours('critical')).toBe(1)
     })
@@ -265,15 +207,6 @@ describe('Vitals Recording Scheduling', () => {
   })
 
   describe('Overdue Vitals Detection', () => {
-    const isVitalsOverdue = (
-      lastRecordedAt: Date,
-      intervalHours: number,
-      now: Date = new Date()
-    ): boolean => {
-      const hoursSinceLastReading = (now.getTime() - lastRecordedAt.getTime()) / (1000 * 60 * 60)
-      return hoursSinceLastReading > intervalHours
-    }
-
     it('should detect overdue vitals', () => {
       const fiveHoursAgo = new Date(Date.now() - 5 * 60 * 60 * 1000)
       expect(isVitalsOverdue(fiveHoursAgo, 4)).toBe(true)
@@ -288,11 +221,6 @@ describe('Vitals Recording Scheduling', () => {
 
 describe('Vitals Data Validation', () => {
   describe('Valid Ranges', () => {
-    const isValidTemperature = (temp: number): boolean => temp >= 35 && temp <= 43
-    const isValidHeartRate = (hr: number): boolean => hr >= 20 && hr <= 300
-    const isValidRespiratoryRate = (rr: number): boolean => rr >= 5 && rr <= 100
-    const isValidPainScore = (score: number): boolean => score >= 0 && score <= 10 && Number.isInteger(score)
-
     it('should validate normal dog temperature', () => {
       expect(isValidTemperature(38.5)).toBe(true)
     })
@@ -327,10 +255,6 @@ describe('Vitals Data Validation', () => {
 
 describe('API Authorization Rules', () => {
   describe('Role-Based Access', () => {
-    const canRecordVitals = (role: string): boolean => {
-      return ['vet', 'admin'].includes(role)
-    }
-
     it('should allow vets to record vitals', () => {
       expect(canRecordVitals('vet')).toBe(true)
     })

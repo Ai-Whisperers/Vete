@@ -120,9 +120,17 @@ export default function BookingWizard({
     )
   }
 
+  // A11Y-001: Get current step info for screen reader announcement
+  const currentStepInfo = BOOKING_STEPS[currentStepIndex]
+
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="mx-auto max-w-6xl px-4 py-12">
+      <div className="mx-auto max-w-6xl px-4 py-12" role="region" aria-label="Reservar cita">
+        {/* A11Y-001: Screen reader announcement for step changes */}
+        <div className="sr-only" aria-live="polite" aria-atomic="true">
+          {currentStepInfo && `Paso ${currentStepIndex + 1} de ${BOOKING_STEPS.length}: ${currentStepInfo.label}. ${currentStepInfo.description}`}
+        </div>
+
         {/* Progress Stepper */}
         <div className="mx-auto mb-8 max-w-3xl sm:mb-12">
           <ProgressStepper

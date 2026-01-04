@@ -10,3 +10,6 @@ export * from './filters'
 
 // Product detail components
 export * from './product-detail'
+
+// Subscription components
+export { SubscribeButton } from './subscribe-button'

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { PetDetailTabs, TabId } from './pet-detail-tabs'
 import {
@@ -11,6 +11,7 @@ import {
   PetDocumentsTab,
   PetFinancesTab,
 } from './tabs'
+import { uploadPetDocuments, deletePetDocument } from '@/app/actions/pet-documents'
 
 interface Vaccine {
   id: string
@@ -199,20 +200,50 @@ export function PetDetailContent({
     }
   }, [searchParams])
 
-  // Handle document upload (placeholder - would be implemented with server action)
-  const handleDocumentUpload = async (files: File[], category: string) => {
-    // TODO: Implement with server action
-    console.log('Uploading files:', files, 'Category:', category)
-    // This would call a server action to upload files to Supabase Storage
-    throw new Error('Upload not implemented yet')
-  }
+  // Track documents locally for optimistic updates
+  const [localDocuments, setLocalDocuments] = useState(documents)
 
-  // Handle document delete (placeholder - would be implemented with server action)
-  const handleDocumentDelete = async (documentId: string) => {
-    // TODO: Implement with server action
-    console.log('Deleting document:', documentId)
-    throw new Error('Delete not implemented yet')
-  }
+  // Update local documents when props change
+  useEffect(() => {
+    setLocalDocuments(documents)
+  }, [documents])
+
+  // Handle document upload via server action
+  const handleDocumentUpload = useCallback(
+    async (files: File[], category: string) => {
+      const formData = new FormData()
+      formData.set('category', category)
+      formData.set('clinic', clinic)
+      files.forEach((file) => formData.append('files', file))
+
+      const result = await uploadPetDocuments(pet.id, formData)
+
+      if (!result.success) {
+        throw new Error(result.error || 'Error al subir documentos')
+      }
+
+      // Update local state with new documents
+      if (result.data) {
+        setLocalDocuments((prev) => [...result.data!, ...prev])
+      }
+    },
+    [pet.id, clinic]
+  )
+
+  // Handle document delete via server action
+  const handleDocumentDelete = useCallback(
+    async (documentId: string) => {
+      const result = await deletePetDocument(documentId, clinic)
+
+      if (!result.success) {
+        throw new Error(result.error || 'Error al eliminar documento')
+      }
+
+      // Remove from local state
+      setLocalDocuments((prev) => prev.filter((doc) => doc.id !== documentId))
+    },
+    [clinic]
+  )
 
   return (
     <div className="space-y-6">
@@ -257,7 +288,7 @@ export function PetDetailContent({
           <PetDocumentsTab
             petId={pet.id}
             petName={pet.name}
-            documents={documents}
+            documents={localDocuments}
             clinic={clinic}
             onUpload={handleDocumentUpload}
             onDelete={handleDocumentDelete}

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { sendEmail } from '@/lib/email/client'
+import { sendWhatsAppMessage, isWhatsAppConfigured } from '@/lib/whatsapp/client'
 import { logger } from '@/lib/logger'
 
 export const dynamic = 'force-dynamic'
@@ -17,6 +18,8 @@ interface Reminder {
   status: string
   attempts: number
   max_attempts: number
+  channels: string[] | null
+  channels_sent: string[] | null
   custom_subject: string | null
   custom_body: string | null
   client:
@@ -83,6 +86,7 @@ export async function GET(request: NextRequest) {
         id, tenant_id, client_id, pet_id, type,
         reference_type, reference_id, scheduled_at,
         status, attempts, max_attempts,
+        channels, channels_sent,
         custom_subject, custom_body,
         client:profiles!reminders_client_id_fkey(id, full_name, email, phone),
         pet:pets(id, name, species)
@@ -146,10 +150,6 @@ export async function GET(request: NextRequest) {
             : reminder.pet
           : null
 
-        if (!client?.email) {
-          throw new Error(`No email for client ${reminder.client_id}`)
-        }
-
         // Get tenant info
         const tenant = tenantMap.get(reminder.tenant_id)
         const clinicName = tenant?.name || 'Veterinaria'
@@ -164,40 +164,153 @@ export async function GET(request: NextRequest) {
           templateMap
         )
 
-        // Send email
-        const emailResult = await sendEmail({
-          to: client.email,
-          subject,
-          html: htmlBody,
-          text: textBody,
-        })
+        // Determine channels to send (default to email if not specified)
+        const channels = reminder.channels || ['email']
+        const alreadySent = reminder.channels_sent || []
+        const channelsToSend = channels.filter((ch) => !alreadySent.includes(ch))
 
-        if (!emailResult.success) {
-          throw new Error(emailResult.error || 'Email send failed')
+        // Get user's communication preferences
+        const { data: prefs } = await supabase
+          .from('communication_preferences')
+          .select('allow_email, allow_sms, allow_whatsapp')
+          .eq('user_id', reminder.client_id)
+          .single()
+
+        const channelResults: { channel: string; success: boolean; error?: string }[] = []
+
+        // Send to each channel
+        for (const channel of channelsToSend) {
+          try {
+            switch (channel) {
+              case 'email': {
+                // Check if email is allowed and client has email
+                if (prefs?.allow_email === false) {
+                  channelResults.push({ channel: 'email', success: false, error: 'User opted out' })
+                  break
+                }
+                if (!client?.email) {
+                  channelResults.push({ channel: 'email', success: false, error: 'No email address' })
+                  break
+                }
+
+                const emailResult = await sendEmail({
+                  to: client.email,
+                  subject,
+                  html: htmlBody,
+                  text: textBody,
+                })
+
+                if (emailResult.success) {
+                  channelResults.push({ channel: 'email', success: true })
+                  await supabase.from('notification_queue').insert({
+                    tenant_id: reminder.tenant_id,
+                    reminder_id: reminder.id,
+                    client_id: reminder.client_id,
+                    channel_type: 'email',
+                    destination: client.email,
+                    subject,
+                    body: textBody,
+                    status: 'sent',
+                    sent_at: now.toISOString(),
+                  })
+                } else {
+                  channelResults.push({ channel: 'email', success: false, error: emailResult.error })
+                }
+                break
+              }
+
+              case 'whatsapp': {
+                // Check if WhatsApp is allowed and configured
+                if (prefs?.allow_whatsapp === false) {
+                  channelResults.push({ channel: 'whatsapp', success: false, error: 'User opted out' })
+                  break
+                }
+                if (!isWhatsAppConfigured()) {
+                  channelResults.push({ channel: 'whatsapp', success: false, error: 'WhatsApp not configured' })
+                  break
+                }
+                if (!client?.phone) {
+                  channelResults.push({ channel: 'whatsapp', success: false, error: 'No phone number' })
+                  break
+                }
+
+                const waResult = await sendWhatsAppMessage({
+                  to: client.phone,
+                  body: textBody,
+                })
+
+                if (waResult.success) {
+                  channelResults.push({ channel: 'whatsapp', success: true })
+                  await supabase.from('notification_queue').insert({
+                    tenant_id: reminder.tenant_id,
+                    reminder_id: reminder.id,
+                    client_id: reminder.client_id,
+                    channel_type: 'whatsapp',
+                    destination: client.phone,
+                    subject: null,
+                    body: textBody,
+                    status: 'sent',
+                    sent_at: now.toISOString(),
+                    external_id: waResult.sid,
+                  })
+                } else {
+                  channelResults.push({ channel: 'whatsapp', success: false, error: waResult.error })
+                }
+                break
+              }
+
+              case 'sms': {
+                // Check if SMS is allowed
+                if (prefs?.allow_sms === false) {
+                  channelResults.push({ channel: 'sms', success: false, error: 'User opted out' })
+                  break
+                }
+                if (!client?.phone) {
+                  channelResults.push({ channel: 'sms', success: false, error: 'No phone number' })
+                  break
+                }
+
+                // SMS uses same Twilio client but different method - send as regular SMS
+                // For now, fall back to WhatsApp if configured, otherwise skip
+                // TODO: Implement dedicated SMS sending via Twilio
+                channelResults.push({ channel: 'sms', success: false, error: 'SMS not yet implemented' })
+                break
+              }
+
+              default:
+                channelResults.push({ channel, success: false, error: 'Unknown channel' })
+            }
+          } catch (channelError) {
+            channelResults.push({
+              channel,
+              success: false,
+              error: channelError instanceof Error ? channelError.message : 'Unknown error',
+            })
+          }
         }
 
-        // Mark as sent
-        await supabase
-          .from('reminders')
-          .update({
-            status: 'sent',
-          })
-          .eq('id', reminder.id)
+        // Determine overall status
+        const successfulChannels = channelResults.filter((r) => r.success).map((r) => r.channel)
+        const allChannelsSent = [...alreadySent, ...successfulChannels]
+        const atLeastOneSuccess = successfulChannels.length > 0
 
-        // Log to notification queue
-        await supabase.from('notification_queue').insert({
-          tenant_id: reminder.tenant_id,
-          reminder_id: reminder.id,
-          client_id: reminder.client_id,
-          channel_type: 'email',
-          destination: client.email,
-          subject,
-          body: textBody,
-          status: 'sent',
-          sent_at: now.toISOString(),
-        })
+        if (atLeastOneSuccess) {
+          // Mark as sent if at least one channel succeeded
+          await supabase
+            .from('reminders')
+            .update({
+              status: 'sent',
+              channels_sent: allChannelsSent,
+            })
+            .eq('id', reminder.id)
 
-        results.sent++
+          results.sent++
+        } else {
+          // All channels failed
+          throw new Error(
+            `All channels failed: ${channelResults.map((r) => `${r.channel}: ${r.error}`).join(', ')}`
+          )
+        }
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error'
         results.errors.push(`Reminder ${reminder.id}: ${errorMessage}`)

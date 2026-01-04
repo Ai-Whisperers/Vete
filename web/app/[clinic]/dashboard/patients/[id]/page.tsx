@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { getClinicData } from '@/lib/clinics'
 import { getPetProfile } from '@/app/actions/pets'
+import { getPetDocuments } from '@/app/actions/pet-documents'
 import { PetProfileHeader } from '@/components/pets/pet-profile-header'
 import { VaccineReactionAlert } from '@/components/pets/vaccine-reaction-alert'
 import { PetDetailContent } from '@/components/pets/pet-detail-content'
@@ -208,15 +209,9 @@ export default async function PatientDetailPage({ params }: Props): Promise<Reac
     }
   })
 
-  // Empty documents (would need pet_documents table)
-  const documents: Array<{
-    id: string
-    name: string
-    file_url: string
-    file_type: string
-    category: 'medical' | 'lab' | 'xray' | 'vaccine' | 'prescription' | 'other'
-    created_at: string
-  }> = []
+  // Fetch pet documents
+  const documentsResult = await getPetDocuments(id)
+  const documents = documentsResult.success ? documentsResult.data || [] : []
 
   // Fetch invoices for this pet's owner
   const { data: invoices } = await supabase

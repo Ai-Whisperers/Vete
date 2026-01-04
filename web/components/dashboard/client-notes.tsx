@@ -15,6 +15,8 @@ import {
   Unlock,
 } from 'lucide-react'
 import { useDashboardLabels } from '@/lib/hooks/use-dashboard-labels'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+import { useToast } from '@/components/ui/Toast'
 
 interface Note {
   id: string
@@ -49,6 +51,7 @@ export function ClientNotes({
   const [editContent, setEditContent] = useState('')
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const labels = useDashboardLabels()
+  const { showToast } = useToast()
 
   useEffect(() => {
     if (initialNotes.length > 0) {
@@ -64,7 +67,8 @@ export function ClientNotes({
           setNotes(data.notes || [])
         }
       } catch (error) {
-        // Client-side error logging - only in development
+        // UX-011: Show toast on network error
+        showToast('Error al cargar notas')
         if (process.env.NODE_ENV === 'development') {
           console.error('Error fetching notes:', error)
         }
@@ -99,7 +103,8 @@ export function ClientNotes({
         setIsAdding(false)
       }
     } catch (error) {
-      // Client-side error logging - only in development
+      // UX-011: Show toast on network error
+      showToast('Error al guardar nota')
       if (process.env.NODE_ENV === 'development') {
         console.error('Error adding note:', error)
       }
@@ -134,7 +139,8 @@ export function ClientNotes({
         setEditContent('')
       }
     } catch (error) {
-      // Client-side error logging - only in development
+      // UX-011: Show toast on network error
+      showToast('Error al editar nota')
       if (process.env.NODE_ENV === 'development') {
         console.error('Error editing note:', error)
       }
@@ -156,7 +162,8 @@ export function ClientNotes({
         setNotes((prev) => prev.filter((note) => note.id !== noteId))
       }
     } catch (error) {
-      // Client-side error logging - only in development
+      // UX-011: Show toast on network error
+      showToast('Error al eliminar nota')
       if (process.env.NODE_ENV === 'development') {
         console.error('Error deleting note:', error)
       }
@@ -354,18 +361,23 @@ export function ClientNotes({
                         >
                           <Edit2 className="h-4 w-4" />
                         </button>
-                        <button
-                          onClick={() => handleDeleteNote(note.id)}
-                          disabled={deletingId === note.id}
-                          className="rounded p-1.5 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
-                          title={labels.common.delete}
-                        >
-                          {deletingId === note.id ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                          ) : (
-                            <Trash2 className="h-4 w-4" />
-                          )}
-                        </button>
+                        {/* UX-007: Confirmation dialog for delete */}
+                        <ConfirmDialog
+                          trigger={
+                            <button
+                              className="rounded p-1.5 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600"
+                              title={labels.common.delete}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          }
+                          title="¿Eliminar nota?"
+                          description="Esta acción no se puede deshacer."
+                          confirmLabel="Eliminar"
+                          cancelLabel="Cancelar"
+                          variant="danger"
+                          onConfirm={() => handleDeleteNote(note.id)}
+                        />
                       </div>
                     )}
                   </div>

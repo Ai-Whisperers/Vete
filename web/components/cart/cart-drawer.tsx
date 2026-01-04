@@ -13,8 +13,11 @@ import {
   PawPrint,
   User,
   Star,
+  Trash2,
 } from 'lucide-react'
 import { useCart } from '@/context/cart-context'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+import { useToast } from '@/components/ui/Toast'
 import { CartItem } from './cart-item'
 import { ServiceGroup } from './service-group'
 import { formatPriceGs } from '@/lib/utils/pet-size'
@@ -36,6 +39,7 @@ interface CartDrawerProps {
 export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
   const { clinic } = useParams<{ clinic: string }>()
   const { items, itemCount: totalItems, total: subtotal, clearCart } = useCart()
+  const { showToast } = useToast()
   const [mounted, setMounted] = useState(false)
   const [userId, setUserId] = useState<string | null>(null)
   const [loyaltyPoints, setLoyaltyPoints] = useState<number | null>(null)
@@ -63,6 +67,8 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
             setLoyaltyPoints(data.points || 0)
           }
         } catch (e) {
+          // UX-011: Show toast on network error
+          showToast('Error al cargar puntos de lealtad')
           console.error('Error fetching loyalty points:', e)
         }
       } else {
@@ -288,14 +294,24 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                 </div>
               )}
 
-              {/* Clear Cart Button */}
-              <button
-                type="button"
-                onClick={clearCart}
-                className="w-full rounded-lg py-2 text-sm font-medium text-red-500 transition-colors hover:bg-red-50 hover:text-red-700"
-              >
-                Vaciar carrito
-              </button>
+              {/* Clear Cart Button - UX-006: With confirmation dialog */}
+              <ConfirmDialog
+                trigger={
+                  <button
+                    type="button"
+                    className="flex w-full items-center justify-center gap-2 rounded-lg py-2 text-sm font-medium text-red-500 transition-colors hover:bg-red-50 hover:text-red-700"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    Vaciar carrito
+                  </button>
+                }
+                title="¿Vaciar carrito?"
+                description={`Se eliminarán ${totalItems} artículo${totalItems !== 1 ? 's' : ''} de tu carrito. Esta acción no se puede deshacer.`}
+                confirmLabel="Vaciar"
+                cancelLabel="Cancelar"
+                variant="danger"
+                onConfirm={clearCart}
+              />
             </div>
           )}
         </div>

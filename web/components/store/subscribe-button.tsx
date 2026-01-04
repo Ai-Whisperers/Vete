@@ -1,56 +1,56 @@
 'use client'
 
 import { useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
-import { RefreshCw, Loader2, ChevronDown, Check, X } from 'lucide-react'
-import { clsx } from 'clsx'
+import { useParams } from 'next/navigation'
+import { RefreshCw, Check } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Modal, ModalFooter } from '@/components/ui/modal'
+import { useToast } from '@/components/ui/Toast'
 
 interface SubscribeButtonProps {
   productId: string
+  variantId?: string | null
   productName: string
   price: number
-  variantId?: string | null
-  variantName?: string | null
-  className?: string
-  compact?: boolean
+  disabled?: boolean
 }
 
-const FREQUENCY_OPTIONS = [
-  { value: 14, label: '2 semanas' },
-  { value: 30, label: '1 mes' },
-  { value: 45, label: '6 semanas' },
-  { value: 60, label: '2 meses' },
-  { value: 90, label: '3 meses' },
+const frequencyOptions = [
+  { value: 7, label: 'Cada semana', discount: '10%' },
+  { value: 14, label: 'Cada 2 semanas', discount: '8%' },
+  { value: 30, label: 'Cada mes', discount: '5%' },
+  { value: 60, label: 'Cada 2 meses', discount: '3%' },
 ]
 
-export default function SubscribeButton({
+function formatCurrency(amount: number): string {
+  return new Intl.NumberFormat('es-PY', {
+    style: 'currency',
+    currency: 'PYG',
+    maximumFractionDigits: 0,
+  }).format(amount)
+}
+
+export function SubscribeButton({
   productId,
+  variantId,
   productName,
   price,
-  variantId,
-  variantName,
-  className,
-  compact = false,
-}: SubscribeButtonProps) {
-  const { clinic } = useParams() as { clinic: string }
-  const router = useRouter()
+  disabled,
+}: SubscribeButtonProps): React.ReactElement {
+  const params = useParams()
+  const clinic = params?.clinic as string
+  const { toast } = useToast()
 
   const [isOpen, setIsOpen] = useState(false)
-  const [loading, setLoading] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [success, setSuccess] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-
-  const [quantity, setQuantity] = useState(1)
   const [frequency, setFrequency] = useState(30)
+  const [quantity, setQuantity] = useState(1)
 
-  const formatPrice = (p: number): string => {
-    return `Gs ${p.toLocaleString('es-PY')}`
-  }
+  const selectedOption = frequencyOptions.find((o) => o.value === frequency)
 
   const handleSubscribe = async () => {
-    setLoading(true)
-    setError(null)
-
+    setIsSubmitting(true)
     try {
       const res = await fetch('/api/store/subscriptions', {
         method: 'POST',
@@ -64,181 +64,149 @@ export default function SubscribeButton({
         }),
       })
 
-      if (res.status === 401) {
-        // User not logged in, redirect to login
-        router.push(`/${clinic}/portal/login?returnTo=/${clinic}/store/product/${productId}`)
-        return
-      }
-
       const data = await res.json()
 
       if (!res.ok) {
-        setError(data.details?.message || 'Error al crear suscripción')
-        return
+        throw new Error(data.details?.message || 'Error al crear suscripción')
       }
 
       setSuccess(true)
+      toast({
+        title: '¡Suscripción creada!',
+        description: data.message,
+        variant: 'success',
+      })
+
+      // Close modal after success animation
       setTimeout(() => {
         setIsOpen(false)
         setSuccess(false)
       }, 2000)
-    } catch (e) {
-      // Client-side error logging - only in development
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Subscribe error:', e)
-      }
-      setError('Error de conexión')
+    } catch (err) {
+      toast({
+        title: 'Error',
+        description: err instanceof Error ? err.message : 'Error al crear suscripción',
+        variant: 'destructive',
+      })
     } finally {
-      setLoading(false)
+      setIsSubmitting(false)
     }
   }
 
-  if (success) {
-    return (
-      <div
-        className={clsx(
-          'flex items-center justify-center gap-2 rounded-xl bg-green-500 px-4 py-3 font-bold text-white',
-          className
-        )}
-      >
-        <Check className="h-5 w-5" />
-        ¡Suscripción creada!
-      </div>
-    )
-  }
-
-  if (compact && !isOpen) {
-    return (
-      <button
-        onClick={() => setIsOpen(true)}
-        className={clsx(
-          'flex items-center justify-center gap-2 rounded-xl border-2 border-purple-200 px-4 py-2.5 font-bold text-purple-600 transition hover:bg-purple-50',
-          className
-        )}
-      >
-        <RefreshCw className="h-4 w-4" />
-        Suscribirse
-      </button>
-    )
-  }
-
   return (
-    <div className={clsx('relative', className)}>
-      {/* Toggle Button */}
-      {!isOpen && (
-        <button
-          onClick={() => setIsOpen(true)}
-          className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-purple-200 px-4 py-3 font-bold text-purple-600 transition hover:bg-purple-50"
-        >
-          <RefreshCw className="h-5 w-5" />
-          <span>Suscribirse y Ahorrar</span>
-          <ChevronDown className="h-4 w-4" />
-        </button>
-      )}
+    <>
+      <Button
+        variant="secondary"
+        onClick={() => setIsOpen(true)}
+        disabled={disabled}
+        leftIcon={<RefreshCw className="h-4 w-4" />}
+      >
+        Suscribirse y Ahorrar
+      </Button>
 
-      {/* Subscription Form */}
-      {isOpen && (
-        <div className="space-y-4 rounded-xl border-2 border-purple-200 bg-purple-50 p-4">
-          {/* Header */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <RefreshCw className="h-5 w-5 text-purple-600" />
-              <span className="font-bold text-purple-900">Auto-envío</span>
-            </div>
-            <button
-              onClick={() => {
-                setIsOpen(false)
-                setError(null)
-              }}
-              className="rounded-lg p-1 transition hover:bg-purple-100"
-            >
-              <X className="h-5 w-5 text-purple-600" />
-            </button>
+      <Modal
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        title="Suscribirse al Producto"
+        size="md"
+      >
+        <div className="space-y-6">
+          {/* Product info */}
+          <div className="rounded-xl bg-gray-50 p-4">
+            <p className="font-medium text-[var(--text-primary)]">{productName}</p>
+            <p className="text-sm text-gray-500">{formatCurrency(price)} por unidad</p>
           </div>
 
-          {/* Quantity */}
+          {/* Frequency selector */}
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-purple-900">Cantidad</label>
-            <div className="flex items-center gap-2">
+            <label className="mb-2 block text-sm font-medium text-gray-700">
+              Frecuencia de entrega
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              {frequencyOptions.map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => setFrequency(option.value)}
+                  className={`rounded-xl border-2 p-3 text-left transition-all ${
+                    frequency === option.value
+                      ? 'border-[var(--primary)] bg-[var(--primary)]/5'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                >
+                  <p className="font-medium text-[var(--text-primary)]">{option.label}</p>
+                  <p className="text-sm text-green-600">Ahorra {option.discount}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Quantity selector */}
+          <div>
+            <label className="mb-2 block text-sm font-medium text-gray-700">
+              Cantidad por entrega
+            </label>
+            <div className="flex items-center gap-3">
               <button
-                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                className="flex h-10 w-10 items-center justify-center rounded-lg border border-purple-200 bg-white transition hover:bg-purple-100"
+                onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                className="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 text-lg font-bold hover:bg-gray-50"
               >
-                -
+                −
               </button>
-              <span className="w-12 text-center text-lg font-bold text-purple-900">{quantity}</span>
+              <span className="min-w-[3rem] text-center text-lg font-bold">{quantity}</span>
               <button
-                onClick={() => setQuantity((q) => Math.min(10, q + 1))}
-                className="flex h-10 w-10 items-center justify-center rounded-lg border border-purple-200 bg-white transition hover:bg-purple-100"
+                onClick={() => setQuantity(Math.min(10, quantity + 1))}
+                className="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 text-lg font-bold hover:bg-gray-50"
               >
                 +
               </button>
             </div>
           </div>
 
-          {/* Frequency */}
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-purple-900">
-              Entregar cada
-            </label>
-            <select
-              value={frequency}
-              onChange={(e) => setFrequency(parseInt(e.target.value))}
-              className="w-full rounded-lg border border-purple-200 bg-white px-4 py-2.5 outline-none focus:ring-2 focus:ring-purple-400"
-            >
-              {FREQUENCY_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
           {/* Summary */}
-          <div className="rounded-lg border border-purple-100 bg-white p-3">
-            <div className="flex justify-between text-sm">
-              <span className="text-purple-700">
-                {quantity} x {productName}
-                {variantName && <span className="text-purple-500"> ({variantName})</span>}
-              </span>
-            </div>
-            <div className="mt-1 flex justify-between">
-              <span className="text-purple-700">
-                Cada {FREQUENCY_OPTIONS.find((o) => o.value === frequency)?.label}
-              </span>
-              <span className="font-bold text-purple-900">{formatPrice(price * quantity)}</span>
+          <div className="rounded-xl border border-[var(--primary)] bg-[var(--primary)]/5 p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">Total por entrega</p>
+                <p className="text-xl font-bold text-[var(--text-primary)]">
+                  {formatCurrency(price * quantity)}
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-sm text-gray-600">Próxima entrega</p>
+                <p className="font-medium text-[var(--text-primary)]">
+                  {new Date(Date.now() + frequency * 24 * 60 * 60 * 1000).toLocaleDateString(
+                    'es-PY',
+                    { day: 'numeric', month: 'short' }
+                  )}
+                </p>
+              </div>
             </div>
           </div>
 
-          {/* Error Message */}
-          {error && (
-            <div className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</div>
-          )}
+          {/* Benefits */}
+          <div className="space-y-2 text-sm text-gray-600">
+            <p>✓ Cancela cuando quieras</p>
+            <p>✓ Omite entregas fácilmente</p>
+            <p>✓ Modifica la cantidad en cualquier momento</p>
+          </div>
+        </div>
 
-          {/* Subscribe Button */}
-          <button
-            onClick={handleSubscribe}
-            disabled={loading}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-purple-600 px-4 py-3 font-bold text-white transition hover:bg-purple-700 disabled:opacity-50"
-          >
-            {loading ? (
+        <ModalFooter>
+          <Button variant="ghost" onClick={() => setIsOpen(false)} disabled={isSubmitting}>
+            Cancelar
+          </Button>
+          <Button onClick={handleSubscribe} isLoading={isSubmitting} disabled={success}>
+            {success ? (
               <>
-                <Loader2 className="h-5 w-5 animate-spin" />
-                Creando...
+                <Check className="mr-2 h-4 w-4" />
+                ¡Suscrito!
               </>
             ) : (
-              <>
-                <RefreshCw className="h-5 w-5" />
-                Iniciar Suscripción
-              </>
+              `Suscribirme ${selectedOption ? `(${selectedOption.discount} desc.)` : ''}`
             )}
-          </button>
-
-          <p className="text-center text-xs text-purple-600">
-            Puedes pausar o cancelar en cualquier momento
-          </p>
-        </div>
-      )}
-    </div>
+          </Button>
+        </ModalFooter>
+      </Modal>
+    </>
   )
 }

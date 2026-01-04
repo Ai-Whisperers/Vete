@@ -101,7 +101,7 @@ export default async function OwnerDashboardPage({
   }
 
   // Fetch Owner's upcoming appointments
-  const { data: appointmentsData } = await supabase
+  const { data: appointmentsData, error: appointmentsError } = await supabase
     .from('appointments')
     .select('id, start_time, status, reason, pets(name)')
     .eq('tenant_id', clinic)
@@ -126,8 +126,30 @@ export default async function OwnerDashboardPage({
     })
   }
 
-  const { data: petsData } = await petQuery
+  const { data: petsData, error: petsError } = await petQuery
   const pets = petsData as Pet[] | null
+
+  // UX-003: Show error state when data fetching fails
+  const hasDataError = appointmentsError || petsError
+  if (hasDataError) {
+    return (
+      <div className="mx-auto max-w-4xl">
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-8 text-center">
+          <AlertCircle className="mx-auto mb-4 h-12 w-12 text-red-500" />
+          <h2 className="mb-2 text-xl font-bold text-red-800">Error al cargar datos</h2>
+          <p className="mb-4 text-red-600">
+            Hubo un problema al cargar tu información. Por favor, intenta recargar la página.
+          </p>
+          <a
+            href={`/${clinic}/portal/dashboard`}
+            className="inline-block rounded-xl bg-red-600 px-6 py-3 font-medium text-white transition-colors hover:bg-red-700"
+          >
+            Recargar página
+          </a>
+        </div>
+      </div>
+    )
+  }
 
   // Import search component
   const PetSearch = (await import('./PetSearch')).default

@@ -25,8 +25,12 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref
   ) => {
+    // A11Y-004: Use distinct colors for disabled state instead of just opacity for better contrast
     const baseStyles =
-      'inline-flex items-center justify-center font-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50'
+      'inline-flex items-center justify-center font-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:cursor-not-allowed'
+
+    const disabledStyles =
+      'disabled:bg-gray-200 disabled:text-gray-500 disabled:border-gray-200 disabled:shadow-none disabled:hover:transform-none'
 
     const variants = {
       primary:
@@ -50,7 +54,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <button
         ref={ref}
-        className={clsx(baseStyles, variants[variant], sizes[size], className)}
+        className={clsx(baseStyles, variants[variant], sizes[size], disabledStyles, className)}
         disabled={disabled || isLoading}
         aria-busy={isLoading}
         aria-live={isLoading ? 'polite' : undefined}

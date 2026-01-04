@@ -21,3 +21,10 @@ export type {
   User,
   Step,
 } from './booking-wizard/types'
+
+// Waitlist
+export { JoinWaitlistButton } from './join-waitlist-button'
+
+// Recurrences
+export { RecurrenceSelector } from './recurrence-selector'
+export { RecurrencePreview } from './recurrence-preview'

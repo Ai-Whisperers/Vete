@@ -15,6 +15,28 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { GET } from '@/app/api/drug_dosages/route'
 import { NextRequest } from 'next/server'
 
+// Import REAL functions from lib module - this is the key fix!
+import {
+  calculateDose,
+  calculateTreatmentCourse,
+  exceedsMaxDose,
+  getSpeciesDose,
+  isPediatric,
+  isGeriatricDog,
+  isGeriatricCat,
+  getAgeAdjustmentFactor,
+  detectConcurrentNSAIDs,
+  detectNSAIDSteroidInteraction,
+  checkDrugInteractions,
+  isNSAIDContraindicatedForRenal,
+  canAccessDrugDosages,
+  getSpeciesSafetyRatio,
+  NSAIDS,
+  CORTICOSTEROIDS,
+  COMMON_DOSES,
+  MAX_DAILY_DOSES,
+} from '@/lib/clinical/dosage'
+
 // Mock response type helper
 interface MockResponse {
   status: number
@@ -272,12 +294,11 @@ describe('Dosage Calculation Safety', () => {
   /**
    * These tests document expected dosage calculations.
    * They serve as safety checks for the dosage calculator feature.
+   * Now using REAL functions from lib/clinical/dosage.ts
    */
 
   describe('Weight-Based Calculations', () => {
-    const calculateDose = (weightKg: number, doseMgPerKg: number): number => {
-      return Math.round(weightKg * doseMgPerKg * 100) / 100
-    }
+    // Using imported calculateDose from @/lib/clinical/dosage
 
     describe('Dog Dosages', () => {
       it('should calculate Amoxicilina for small dog (5kg)', () => {
@@ -332,10 +353,12 @@ describe('Dosage Calculation Safety', () => {
   })
 
   describe('Dose Boundaries and Limits', () => {
+    // Using imported MAX_DAILY_DOSES and exceedsMaxDose from @/lib/clinical/dosage
+
     describe('Minimum Effective Doses', () => {
       it('should not recommend sub-therapeutic doses', () => {
         const minimumDogWeight = 0.5 // kg (toy puppy)
-        const meloxicamDose = minimumDogWeight * 0.2
+        const meloxicamDose = calculateDose(minimumDogWeight, 0.2)
 
         expect(meloxicamDose).toBe(0.1)
         // This is still a valid therapeutic dose
@@ -344,106 +367,166 @@ describe('Dosage Calculation Safety', () => {
     })
 
     describe('Maximum Safe Doses', () => {
-      // These are hypothetical maximums for testing
-      const MELOXICAM_MAX_DAILY_DOG = 10 // mg total
-      const AMOXICILINA_MAX_DAILY_DOG = 2000 // mg total
+      // Using imported MAX_DAILY_DOSES from @/lib/clinical/dosage
+      it('should have defined max doses in lib module', () => {
+        expect(MAX_DAILY_DOSES.meloxicam).toBeDefined()
+        expect(MAX_DAILY_DOSES.meloxicam.dog).toBe(10)
+        expect(MAX_DAILY_DOSES.meloxicam.cat).toBe(1)
+        expect(MAX_DAILY_DOSES.amoxicilina.dog).toBe(2000)
+      })
 
-      it('should warn when calculated dose exceeds maximum', () => {
+      it('should detect when calculated dose exceeds maximum', () => {
         const giantDogWeight = 80 // kg Great Dane
-        const calculatedMeloxicamDose = giantDogWeight * 0.2 // 16 mg
+        const calculatedMeloxicamDose = calculateDose(giantDogWeight, 0.2) // 16 mg
 
-        expect(calculatedMeloxicamDose).toBeGreaterThan(MELOXICAM_MAX_DAILY_DOG)
+        expect(exceedsMaxDose(calculatedMeloxicamDose, 'meloxicam', 'dog')).toBe(true)
         // System should flag this for veterinary review
       })
 
-      it('should handle very large dogs appropriately', () => {
+      it('should not flag doses within acceptable range', () => {
         const giantDogWeight = 80 // kg
-        const calculatedAmoxDose = giantDogWeight * 22 // 1760 mg
+        const calculatedAmoxDose = calculateDose(giantDogWeight, 22) // 1760 mg
 
-        expect(calculatedAmoxDose).toBeLessThan(AMOXICILINA_MAX_DAILY_DOG)
+        expect(exceedsMaxDose(calculatedAmoxDose, 'amoxicilina', 'dog')).toBe(false)
         // This is within acceptable range
       })
     })
 
     describe('Pediatric Adjustments', () => {
-      it('should document puppy dosing considerations', () => {
-        // Puppies often need lower doses or different drugs
+      // Using imported isPediatric from @/lib/clinical/dosage
+      it('should identify puppies as pediatric', () => {
         const puppyAge = 8 // weeks
-        const isPediatric = puppyAge < 12
-
-        expect(isPediatric).toBe(true)
+        expect(isPediatric(puppyAge)).toBe(true)
         // Veterinarian should review pediatric dosing
       })
 
-      it('should document kitten dosing considerations', () => {
+      it('should identify kittens as pediatric', () => {
         const kittenAge = 6 // weeks
-        const isPediatric = kittenAge < 12
+        expect(isPediatric(kittenAge)).toBe(true)
+      })
 
-        expect(isPediatric).toBe(true)
+      it('should not flag older animals as pediatric', () => {
+        expect(isPediatric(16)).toBe(false)
+        expect(isPediatric(52)).toBe(false)
+      })
+
+      it('should get age adjustment factor for pediatrics', () => {
+        const adjustment = getAgeAdjustmentFactor('dog', 8) // 8 week puppy
+        expect(adjustment.factor).toBe(0.75)
+        expect(adjustment.reason).toContain('pediátrico')
       })
     })
 
     describe('Geriatric Adjustments', () => {
-      it('should document senior pet considerations', () => {
-        const dogAge = 10 // years
-        const isGeriatric = dogAge > 7
-
-        expect(isGeriatric).toBe(true)
+      // Using imported isGeriatricDog, isGeriatricCat from @/lib/clinical/dosage
+      it('should identify senior dogs correctly', () => {
+        expect(isGeriatricDog(10)).toBe(true)
+        expect(isGeriatricDog(5)).toBe(false)
         // Senior pets may need dose reductions, especially for renal-excreted drugs
+      })
+
+      it('should identify senior cats correctly', () => {
+        expect(isGeriatricCat(12)).toBe(true)
+        expect(isGeriatricCat(8)).toBe(false)
+      })
+
+      it('should get age adjustment factor for geriatrics', () => {
+        const dogAdjustment = getAgeAdjustmentFactor('dog', undefined, 10)
+        expect(dogAdjustment.factor).toBe(0.85)
+        expect(dogAdjustment.reason).toContain('geriátrico')
       })
     })
   })
 
   describe('Drug Interaction Warnings', () => {
+    // Using imported detectConcurrentNSAIDs, detectNSAIDSteroidInteraction from @/lib/clinical/dosage
+
+    describe('NSAID Lists', () => {
+      it('should have correct NSAID list defined', () => {
+        expect(NSAIDS).toContain('Meloxicam')
+        expect(NSAIDS).toContain('Carprofen')
+        expect(NSAIDS).toContain('Rimadyl')
+        expect(NSAIDS).toContain('Metacam')
+        expect(NSAIDS).toContain('Previcox')
+      })
+
+      it('should have correct corticosteroid list defined', () => {
+        expect(CORTICOSTEROIDS).toContain('Prednisona')
+        expect(CORTICOSTEROIDS).toContain('Prednisolona')
+        expect(CORTICOSTEROIDS).toContain('Dexametasona')
+      })
+    })
+
     describe('NSAID Interactions', () => {
-      it('should flag concurrent NSAID use', () => {
+      it('should detect concurrent NSAID use', () => {
         const currentMedications = ['Meloxicam', 'Carprofen']
-        const nsaids = ['Meloxicam', 'Carprofen', 'Rimadyl', 'Metacam', 'Previcox']
+        const interaction = detectConcurrentNSAIDs(currentMedications)
 
-        const concurrentNsaids = currentMedications.filter(med =>
-          nsaids.some(nsaid => med.toLowerCase().includes(nsaid.toLowerCase()))
-        )
-
-        expect(concurrentNsaids.length).toBeGreaterThan(1)
+        expect(interaction.detected).toBe(true)
+        expect(interaction.severity).toBe('critical')
+        expect(interaction.drugs.length).toBeGreaterThan(1)
+        expect(interaction.message).toContain('PELIGRO')
         // DANGER: Multiple NSAIDs should never be used together
       })
 
-      it('should flag NSAID with corticosteroid', () => {
+      it('should not flag single NSAID use', () => {
+        const currentMedications = ['Meloxicam']
+        const interaction = detectConcurrentNSAIDs(currentMedications)
+
+        expect(interaction.detected).toBe(false)
+      })
+
+      it('should detect NSAID with corticosteroid', () => {
         const currentMedications = ['Meloxicam', 'Prednisona']
-        const nsaids = ['Meloxicam', 'Carprofen', 'Rimadyl']
-        const steroids = ['Prednisona', 'Prednisolona', 'Dexametasona']
+        const interaction = detectNSAIDSteroidInteraction(currentMedications)
 
-        const hasNsaid = currentMedications.some(med =>
-          nsaids.some(n => med.toLowerCase().includes(n.toLowerCase()))
-        )
-        const hasSteroid = currentMedications.some(med =>
-          steroids.some(s => med.toLowerCase().includes(s.toLowerCase()))
-        )
-
-        expect(hasNsaid && hasSteroid).toBe(true)
+        expect(interaction.detected).toBe(true)
+        expect(interaction.severity).toBe('critical')
+        expect(interaction.message).toContain('PELIGRO')
         // DANGER: GI ulceration risk is extremely high
+      })
+
+      it('should not flag NSAID without steroid', () => {
+        const currentMedications = ['Meloxicam', 'Amoxicilina']
+        const interaction = detectNSAIDSteroidInteraction(currentMedications)
+
+        expect(interaction.detected).toBe(false)
+      })
+    })
+
+    describe('Combined Interaction Checks', () => {
+      it('should check all interactions at once', () => {
+        const currentMedications = ['Meloxicam', 'Carprofen', 'Prednisona']
+        const interactions = checkDrugInteractions(currentMedications)
+
+        expect(interactions.length).toBe(2) // Both NSAID+NSAID and NSAID+Steroid
+        expect(interactions.every((i) => i.severity === 'critical')).toBe(true)
       })
     })
 
     describe('Renal Function Considerations', () => {
+      // Using imported isNSAIDContraindicatedForRenal from @/lib/clinical/dosage
       it('should flag NSAIDs in renal patients', () => {
         const patientConditions = ['Enfermedad renal crónica']
-        const drugContraindications = 'Enfermedad renal'
 
-        const isContraindicated = patientConditions.some(condition =>
-          condition.toLowerCase().includes('renal')
-        )
+        expect(isNSAIDContraindicatedForRenal(patientConditions)).toBe(true)
+      })
 
-        expect(isContraindicated).toBe(true)
+      it('should not flag for healthy patients', () => {
+        const patientConditions = ['Ninguna']
+
+        expect(isNSAIDContraindicatedForRenal(patientConditions)).toBe(false)
       })
     })
   })
 
   describe('Common Veterinary Drug Scenarios', () => {
+    // Using imported calculateDose and calculateTreatmentCourse from @/lib/clinical/dosage
+
     describe('Post-Surgical Pain Management', () => {
       it('should calculate appropriate post-op Meloxicam for medium dog', () => {
         const patientWeight = 20 // kg
-        const initialDose = patientWeight * 0.2 // First day dose
+        const initialDose = calculateDose(patientWeight, 0.2) // First day dose
 
         expect(initialDose).toBe(4) // 4 mg
       })
@@ -452,13 +535,11 @@ describe('Dosage Calculation Safety', () => {
     describe('Antibiotic Therapy', () => {
       it('should calculate 7-day Amoxicilina course for cat', () => {
         const patientWeight = 4 // kg
-        const dosePerAdmin = patientWeight * 10 // mg
-        const administrations = 2 // BID
-        const days = 7
-        const totalDose = dosePerAdmin * administrations * days
+        const course = calculateTreatmentCourse(patientWeight, 10, 2, 7) // 10 mg/kg, BID, 7 days
 
-        expect(dosePerAdmin).toBe(40)
-        expect(totalDose).toBe(560) // 560 mg total for course
+        expect(course.dosePerAdmin).toBe(40)
+        expect(course.dailyDose).toBe(80)
+        expect(course.totalDose).toBe(560) // 560 mg total for course
       })
     })
 
@@ -466,10 +547,40 @@ describe('Dosage Calculation Safety', () => {
       it('should calculate accurate emergency drug doses', () => {
         // Epinephrine for anaphylaxis: 0.01 mg/kg IV/IM
         const patientWeight = 25 // kg
-        const epinephrineDose = patientWeight * 0.01
+        const epinephrineDose = calculateDose(patientWeight, 0.01)
 
         expect(epinephrineDose).toBe(0.25) // 0.25 mg
       })
+    })
+
+    describe('Species-Specific Dosing', () => {
+      // Using imported getSpeciesDose and getSpeciesSafetyRatio from @/lib/clinical/dosage
+      it('should get species-specific dose from reference', () => {
+        expect(getSpeciesDose('amoxicilina', 'dog')).toBe(22)
+        expect(getSpeciesDose('amoxicilina', 'cat')).toBe(10)
+        expect(getSpeciesDose('meloxicam', 'dog')).toBe(0.2)
+        expect(getSpeciesDose('meloxicam', 'cat')).toBe(0.05)
+      })
+
+      it('should calculate species safety ratio for meloxicam', () => {
+        const ratio = getSpeciesSafetyRatio('meloxicam')
+        expect(ratio).toBe(4) // Dog dose is 4x cat dose
+      })
+    })
+  })
+
+  describe('Authorization', () => {
+    // Using imported canAccessDrugDosages from @/lib/clinical/dosage
+    it('should allow vets to access drug dosages', () => {
+      expect(canAccessDrugDosages('vet')).toBe(true)
+    })
+
+    it('should allow admins to access drug dosages', () => {
+      expect(canAccessDrugDosages('admin')).toBe(true)
+    })
+
+    it('should deny owners access to drug dosages', () => {
+      expect(canAccessDrugDosages('owner')).toBe(false)
     })
   })
 })

@@ -171,7 +171,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
       uploadedAttachments.push({
         url: urlData.publicUrl,
-        name: sanitizedName,
+        name: file.name,
         type: file.type,
         size: file.size,
       })

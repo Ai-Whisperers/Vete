@@ -274,6 +274,8 @@ export function CalendarContainer({
   // State
   const [currentDate, setCurrentDate] = useState<Date>(initialDate)
   const [currentView, setCurrentView] = useState<CalendarView>(initialView)
+  // A11Y-002: Screen reader announcement for navigation
+  const [announcement, setAnnouncement] = useState('')
 
   // Dynamic event loading
   const {
@@ -304,13 +306,35 @@ export function CalendarContainer({
   // Loading states
   const [isLoading, setIsLoading] = useState(false)
 
+  // A11Y-002: Helper to format date for announcements
+  const formatDateAnnouncement = (date: Date, view: CalendarView): string => {
+    const options: Intl.DateTimeFormatOptions = {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    }
+    if (view === 'month') {
+      return date.toLocaleDateString('es-PY', { month: 'long', year: 'numeric' })
+    } else if (view === 'week') {
+      const weekStart = new Date(date)
+      weekStart.setDate(date.getDate() - date.getDay())
+      const weekEnd = new Date(weekStart)
+      weekEnd.setDate(weekStart.getDate() + 6)
+      return `Semana del ${weekStart.toLocaleDateString('es-PY', { day: 'numeric', month: 'long' })} al ${weekEnd.toLocaleDateString('es-PY', { day: 'numeric', month: 'long' })}`
+    }
+    return date.toLocaleDateString('es-PY', options)
+  }
+
   // Handlers
   const handleNavigate = useCallback(
     (date: Date) => {
       setCurrentDate(date)
       onDateChange?.(date)
+      // A11Y-002: Announce date change
+      setAnnouncement(formatDateAnnouncement(date, currentView))
     },
-    [onDateChange]
+    [onDateChange, currentView]
   )
 
   // Keyboard shortcuts navigation handler
@@ -353,6 +377,14 @@ export function CalendarContainer({
     (view: CalendarView) => {
       setCurrentView(view)
       onViewChange?.(view)
+      // A11Y-002: Announce view change
+      const viewLabels: Record<CalendarView, string> = {
+        day: 'Vista de día',
+        week: 'Vista de semana',
+        month: 'Vista de mes',
+        agenda: 'Vista de agenda'
+      }
+      setAnnouncement(viewLabels[view])
     },
     [onViewChange]
   )
@@ -497,6 +529,11 @@ export function CalendarContainer({
 
   return (
     <div className="flex h-full flex-col">
+      {/* A11Y-002: Screen reader announcement for navigation/view changes */}
+      <div className="sr-only" aria-live="polite" aria-atomic="true">
+        {announcement}
+      </div>
+
       {/* Filter toolbar - always show since event type filters are always useful */}
       <FilterToolbar
         staff={staff}

@@ -59,27 +59,43 @@ describe('Authentication - Login', () => {
       expect(result.error).not.toBeNull()
     })
 
-    // Note: Success tests require actual test users in the database
-    // These should be created during test setup or via fixtures
-    test.skip('succeeds with valid owner credentials', async () => {
-      // This test requires a real test user in the database
-      // Uncomment when test users are seeded
-      /*
-      const result = await signIn(DEFAULT_OWNER.email, DEFAULT_OWNER.password);
+    // Integration tests for success scenarios
+    // These require actual test users seeded in the database
+    // To run: set TEST_AUTH_INTEGRATION=true and ensure users are seeded
+    const runIntegrationTests = process.env.TEST_AUTH_INTEGRATION === 'true'
 
-      expect(result.error).toBeNull();
-      expect(result.user).not.toBeNull();
-      expect(result.session).not.toBeNull();
-      expect(result.user?.email).toBe(DEFAULT_OWNER.email);
-      */
+    test.skipIf(!runIntegrationTests)('succeeds with valid owner credentials', async () => {
+      // Import here to avoid circular dependency issues in tests
+      const { DEFAULT_OWNER } = await import('../../__fixtures__/users')
+
+      const result = await signIn(DEFAULT_OWNER.email, DEFAULT_OWNER.password)
+
+      expect(result.error).toBeNull()
+      expect(result.user).not.toBeNull()
+      expect(result.session).not.toBeNull()
+      expect(result.user?.email).toBe(DEFAULT_OWNER.email)
     })
 
-    test.skip('succeeds with valid vet credentials', async () => {
-      // This test requires a real test user in the database
+    test.skipIf(!runIntegrationTests)('succeeds with valid vet credentials', async () => {
+      const { DEFAULT_VET } = await import('../../__fixtures__/users')
+
+      const result = await signIn(DEFAULT_VET.email, DEFAULT_VET.password)
+
+      expect(result.error).toBeNull()
+      expect(result.user).not.toBeNull()
+      expect(result.session).not.toBeNull()
+      expect(result.user?.email).toBe(DEFAULT_VET.email)
     })
 
-    test.skip('succeeds with valid admin credentials', async () => {
-      // This test requires a real test user in the database
+    test.skipIf(!runIntegrationTests)('succeeds with valid admin credentials', async () => {
+      const { DEFAULT_ADMIN } = await import('../../__fixtures__/users')
+
+      const result = await signIn(DEFAULT_ADMIN.email, DEFAULT_ADMIN.password)
+
+      expect(result.error).toBeNull()
+      expect(result.user).not.toBeNull()
+      expect(result.session).not.toBeNull()
+      expect(result.user?.email).toBe(DEFAULT_ADMIN.email)
     })
   })
 

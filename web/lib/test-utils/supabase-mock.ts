@@ -1,6 +1,56 @@
 import { vi } from 'vitest'
 
+// =============================================================================
+// Types
+// =============================================================================
+
 type MockResponse<T> = { data: T | null; error: Error | null }
+
+export interface MockUser {
+  id: string
+  email: string
+}
+
+export interface MockProfile {
+  tenant_id: string
+  role: 'owner' | 'vet' | 'admin'
+  full_name: string
+}
+
+export interface TableMockConfig {
+  select?: unknown
+  insert?: unknown
+  update?: unknown
+  delete?: unknown
+  error?: Error | null
+}
+
+// =============================================================================
+// Default Mocks - Common patterns used across tests
+// =============================================================================
+
+export const DEFAULT_MOCK_USER: MockUser = {
+  id: 'user-123',
+  email: 'vet@clinic.com',
+}
+
+export const DEFAULT_MOCK_VET_PROFILE: MockProfile = {
+  tenant_id: 'tenant-adris',
+  role: 'vet',
+  full_name: 'Dr. Test',
+}
+
+export const DEFAULT_MOCK_ADMIN_PROFILE: MockProfile = {
+  tenant_id: 'tenant-adris',
+  role: 'admin',
+  full_name: 'Admin User',
+}
+
+export const DEFAULT_MOCK_OWNER_PROFILE: MockProfile = {
+  tenant_id: 'tenant-adris',
+  role: 'owner',
+  full_name: 'Pet Owner',
+}
 
 export function createSupabaseMock<T = unknown>() {
   // Chain methods - create chainable mock
@@ -126,3 +176,158 @@ export function createSupabaseMock<T = unknown>() {
 
 // Type for the mock
 export type SupabaseMock = ReturnType<typeof createSupabaseMock>
+
+// =============================================================================
+// Convenience Factory Functions
+// =============================================================================
+
+/**
+ * Creates a mock Supabase client with a pre-configured authenticated user
+ */
+export function createAuthenticatedMock(
+  user: MockUser = DEFAULT_MOCK_USER,
+  profile: MockProfile = DEFAULT_MOCK_VET_PROFILE
+) {
+  const mock = createSupabaseMock()
+  mock.helpers.setUser(user)
+
+  // Configure profiles table to return the profile
+  mock.supabase.from = vi.fn().mockImplementation((table: string) => {
+    if (table === 'profiles') {
+      return {
+        select: vi.fn().mockReturnThis(),
+        eq: vi.fn().mockReturnThis(),
+        single: vi.fn().mockResolvedValue({ data: profile, error: null }),
+      }
+    }
+    return mock.mocks.chain
+  })
+
+  return { ...mock, user, profile }
+}
+
+/**
+ * Creates a mock Supabase client configured for RPC calls
+ */
+export function createRpcMock<TResult = unknown>(
+  result: TResult,
+  error: Error | null = null
+) {
+  const mock = createSupabaseMock()
+  mock.supabase.rpc.mockResolvedValue({ data: result, error })
+  return mock
+}
+
+/**
+ * Creates a mock Supabase client with table-specific configurations
+ */
+export function createTableMock(
+  tableConfigs: Record<string, TableMockConfig>
+) {
+  const mock = createSupabaseMock()
+
+  mock.supabase.from = vi.fn().mockImplementation((table: string) => {
+    const config = tableConfigs[table]
+
+    if (!config) {
+      return mock.mocks.chain
+    }
+
+    const tableChain = {
+      select: vi.fn().mockReturnThis(),
+      insert: vi.fn().mockReturnThis(),
+      update: vi.fn().mockReturnThis(),
+      delete: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      neq: vi.fn().mockReturnThis(),
+      order: vi.fn().mockReturnThis(),
+      limit: vi.fn().mockReturnThis(),
+      single: vi.fn().mockResolvedValue({
+        data: config.select,
+        error: config.error || null,
+      }),
+      maybeSingle: vi.fn().mockResolvedValue({
+        data: config.select,
+        error: config.error || null,
+      }),
+    }
+
+    // Make methods return the chain
+    Object.entries(tableChain).forEach(([key, fn]) => {
+      if (key !== 'single' && key !== 'maybeSingle') {
+        (fn as ReturnType<typeof vi.fn>).mockReturnValue(tableChain)
+      }
+    })
+
+    return tableChain
+  })
+
+  return mock
+}
+
+// =============================================================================
+// Mock Module Helpers
+// =============================================================================
+
+/**
+ * Common vi.mock configuration for @/lib/supabase/server
+ * Usage: vi.mock('@/lib/supabase/server', () => getSupabaseServerMock(mockSupabase))
+ */
+export function getSupabaseServerMock(supabaseMock: SupabaseMock) {
+  return {
+    createClient: vi.fn().mockResolvedValue(supabaseMock.supabase),
+  }
+}
+
+/**
+ * Common vi.mock configuration for @/lib/auth with API handler wrapper
+ * Usage: vi.mock('@/lib/auth', () => getAuthMock(user, profile, supabase))
+ */
+export function getAuthHandlerMock(
+  user: MockUser = DEFAULT_MOCK_USER,
+  profile: MockProfile = DEFAULT_MOCK_VET_PROFILE,
+  supabase?: SupabaseMock['supabase']
+) {
+  return {
+    withApiAuthParams: (
+      handler: Function,
+      _options?: { roles: string[] }
+    ) => {
+      return async (
+        request: Request,
+        context: { params: Promise<Record<string, string>> }
+      ) => {
+        const params = await context.params
+        return handler(
+          {
+            user,
+            profile,
+            supabase: supabase || createSupabaseMock().supabase,
+            request,
+          },
+          params
+        )
+      }
+    },
+    isStaff: (p: { role: string }) => ['vet', 'admin'].includes(p.role),
+    isOwner: (p: { role: string }) => p.role === 'owner',
+  }
+}
+
+/**
+ * Common vi.mock configuration for @/lib/audit
+ */
+export function getAuditMock() {
+  return {
+    logAudit: vi.fn().mockResolvedValue(undefined),
+  }
+}
+
+/**
+ * Common vi.mock configuration for @/lib/rate-limit
+ */
+export function getRateLimitMock(success = true) {
+  return {
+    rateLimit: vi.fn().mockResolvedValue({ success }),
+  }
+}

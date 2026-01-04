@@ -56,18 +56,8 @@ export function withActionAuth<T = void, Args extends unknown[] = []>(
   }
 }
 
-/**
- * Utility function to check resource ownership within actions
- */
-export function requireOwnership(resourceOwnerId: string, context: AuthContext): boolean {
-  if (AuthService.isAdmin(context.profile)) return true
-  if (
-    AuthService.isStaff(context.profile) &&
-    AuthService.belongsToTenant(context.profile, context.profile.tenant_id)
-  )
-    return true
-  return AuthService.ownsResource(context.profile, resourceOwnerId)
-}
+// Re-export from core
+export { requireOwnership } from './core'
 
 /**
  * Utility function to check tenant access within actions

@@ -1,14 +1,23 @@
 /**
  * Single source of truth for all status types and transitions
  * Consolidates duplicate status definitions across the codebase
+ *
+ * IMPORTANT: These values MUST match the database CHECK constraints
+ * See: db/01_types/01_enums_and_domains.sql
+ * See: db/40_scheduling/02_appointments.sql
+ * See: db/50_finance/01_invoicing.sql
  */
 
 // =============================================================================
 // APPOINTMENT STATUSES
 // =============================================================================
 
+/**
+ * Appointment lifecycle: scheduled → confirmed → checked_in → in_progress → completed
+ * Terminal states: completed, cancelled, no_show
+ */
 export const APPOINTMENT_STATUSES = [
-  'pending',
+  'scheduled',
   'confirmed',
   'checked_in',
   'in_progress',
@@ -22,14 +31,19 @@ export type AppointmentStatus = (typeof APPOINTMENT_STATUSES)[number]
 // INVOICE STATUSES
 // =============================================================================
 
+/**
+ * Invoice lifecycle: draft → sent → viewed → partial/paid
+ * Terminal states: paid, void, refunded
+ */
 export const INVOICE_STATUSES = [
   'draft',
   'sent',
-  'paid',
+  'viewed',
   'partial',
+  'paid',
   'overdue',
-  'cancelled',
   'void',
+  'refunded',
 ] as const
 export type InvoiceStatus = (typeof INVOICE_STATUSES)[number]
 
@@ -103,7 +117,7 @@ export type PrescriptionStatus = (typeof PRESCRIPTION_STATUSES)[number]
  * Each status maps to an array of allowed next statuses
  */
 export const APPOINTMENT_TRANSITIONS: Record<AppointmentStatus, AppointmentStatus[]> = {
-  pending: ['confirmed', 'cancelled'],
+  scheduled: ['confirmed', 'cancelled'],
   confirmed: ['checked_in', 'cancelled', 'no_show'],
   checked_in: ['in_progress', 'cancelled'],
   in_progress: ['completed'],
@@ -116,13 +130,14 @@ export const APPOINTMENT_TRANSITIONS: Record<AppointmentStatus, AppointmentStatu
  * Valid state transitions for invoices
  */
 export const INVOICE_TRANSITIONS: Record<InvoiceStatus, InvoiceStatus[]> = {
-  draft: ['sent', 'cancelled'],
-  sent: ['paid', 'partial', 'overdue', 'cancelled'],
-  partial: ['paid', 'overdue', 'cancelled'],
-  paid: ['void'],
-  overdue: ['paid', 'partial', 'cancelled'],
-  cancelled: [],
+  draft: ['sent', 'void'],
+  sent: ['viewed', 'paid', 'partial', 'overdue', 'void'],
+  viewed: ['paid', 'partial', 'overdue', 'void'],
+  partial: ['paid', 'overdue', 'void'],
+  paid: ['refunded'],
+  overdue: ['paid', 'partial', 'void'],
   void: [],
+  refunded: [],
 }
 
 /**

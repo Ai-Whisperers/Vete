@@ -17,7 +17,11 @@
           "sku_suffix": ""
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://http2.mlstatic.com/D_NQ_NP_966122-MLA82942988806_032025-O.jpg",
+      "images": [
+        "https://http2.mlstatic.com/D_NQ_NP_966122-MLA82942988806_032025-O.jpg",
+        "https://http2.mlstatic.com/D_NQ_NP_823079-MLA83226786437_032025-O.jpg"
+      ],
       "attributes": {
         "life_stage": "Adulto",
         "flavor": "Carne",
@@ -39,7 +43,11 @@
           "sku_suffix": ""
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://http2.mlstatic.com/D_NQ_NP_966122-MLA82942988806_032025-O.jpg",
+      "images": [
+        "https://http2.mlstatic.com/D_NQ_NP_966122-MLA82942988806_032025-O.jpg",
+        "https://http2.mlstatic.com/D_NQ_NP_823079-MLA83226786437_032025-O.jpg"
+      ],
       "attributes": {
         "life_stage": "Adulto",
         "flavor": "Carne",
@@ -61,7 +69,11 @@
           "sku_suffix": ""
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://http2.mlstatic.com/D_NQ_NP_966122-MLA82942988806_032025-O.jpg",
+      "images": [
+        "https://http2.mlstatic.com/D_NQ_NP_966122-MLA82942988806_032025-O.jpg",
+        "https://http2.mlstatic.com/D_NQ_NP_823079-MLA83226786437_032025-O.jpg"
+      ],
       "attributes": {
         "life_stage": "Adulto",
         "flavor": "Carne",
@@ -83,7 +95,11 @@
           "sku_suffix": ""
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://http2.mlstatic.com/D_NQ_NP_966122-MLA82942988806_032025-O.jpg",
+      "images": [
+        "https://http2.mlstatic.com/D_NQ_NP_966122-MLA82942988806_032025-O.jpg",
+        "https://http2.mlstatic.com/D_NQ_NP_823079-MLA83226786437_032025-O.jpg"
+      ],
       "attributes": {
         "life_stage": "Adulto",
         "flavor": "Pollo",
@@ -105,7 +121,11 @@
           "sku_suffix": ""
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://http2.mlstatic.com/D_NQ_NP_966122-MLA82942988806_032025-O.jpg",
+      "images": [
+        "https://http2.mlstatic.com/D_NQ_NP_966122-MLA82942988806_032025-O.jpg",
+        "https://http2.mlstatic.com/D_NQ_NP_823079-MLA83226786437_032025-O.jpg"
+      ],
       "attributes": {
         "life_stage": "Adulto",
         "flavor": "Pollo",
@@ -127,7 +147,11 @@
           "sku_suffix": ""
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://http2.mlstatic.com/D_NQ_NP_966122-MLA82942988806_032025-O.jpg",
+      "images": [
+        "https://http2.mlstatic.com/D_NQ_NP_966122-MLA82942988806_032025-O.jpg",
+        "https://http2.mlstatic.com/D_NQ_NP_823079-MLA83226786437_032025-O.jpg"
+      ],
       "attributes": {
         "life_stage": "Cachorro",
         "protein": "28%"
@@ -148,7 +172,11 @@
           "sku_suffix": ""
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://http2.mlstatic.com/D_NQ_NP_966122-MLA82942988806_032025-O.jpg",
+      "images": [
+        "https://http2.mlstatic.com/D_NQ_NP_966122-MLA82942988806_032025-O.jpg",
+        "https://http2.mlstatic.com/D_NQ_NP_823079-MLA83226786437_032025-O.jpg"
+      ],
       "attributes": {
         "life_stage": "Cachorro",
         "protein": "28%"

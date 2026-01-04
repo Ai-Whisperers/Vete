@@ -208,3 +208,62 @@ export class AuthService {
     return profile.tenant_id === tenantId
   }
 }
+
+// Standalone function exports for easier importing
+// These wrap AuthService static methods for backward compatibility
+
+/**
+ * Minimal profile interface for authorization checks
+ * Compatible with both old and new UserProfile types
+ */
+export interface MinimalProfile {
+  id: string
+  tenant_id: string
+  role: UserRole
+}
+
+/**
+ * Check if user is staff (vet or admin)
+ */
+export function isStaff(profile: MinimalProfile): boolean {
+  return profile.role === 'vet' || profile.role === 'admin'
+}
+
+/**
+ * Check if user is admin
+ */
+export function isAdmin(profile: MinimalProfile): boolean {
+  return profile.role === 'admin'
+}
+
+/**
+ * Check if user owns a resource
+ */
+export function ownsResource(profile: MinimalProfile, resourceOwnerId: string): boolean {
+  return profile.id === resourceOwnerId
+}
+
+/**
+ * Check if user belongs to tenant
+ */
+export function belongsToTenant(profile: MinimalProfile, tenantId: string): boolean {
+  return profile.tenant_id === tenantId
+}
+
+/**
+ * Check if user can access a resource (ownership or staff/admin privilege)
+ * Allows access if:
+ * - User is admin
+ * - User is staff and belongs to the tenant
+ * - User owns the resource
+ */
+export function requireOwnership(
+  resourceOwnerId: string,
+  context: { profile: MinimalProfile }
+): boolean {
+  if (isAdmin(context.profile)) return true
+  if (isStaff(context.profile) && belongsToTenant(context.profile, context.profile.tenant_id)) {
+    return true
+  }
+  return ownsResource(context.profile, resourceOwnerId)
+}

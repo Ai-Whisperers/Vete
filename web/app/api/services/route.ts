@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
-import { withAuth } from '@/lib/api/with-auth'
+import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { apiError, apiSuccess } from '@/lib/api/errors'
 
 /**
@@ -77,8 +77,8 @@ export async function GET(request: Request) {
 }
 
 // POST /api/services - Create service (staff only)
-export const POST = withAuth(
-  async ({ profile, supabase, request }) => {
+export const POST = withApiAuth(
+  async ({ profile, supabase, request }: ApiHandlerContext) => {
     try {
       const body = await request.json()
       const { name, description, category, base_price, duration_minutes, is_active } = body

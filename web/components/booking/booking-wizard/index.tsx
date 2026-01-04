@@ -20,6 +20,7 @@ interface BookingWizardProps {
   user: User | any // Allow Supabase User
   userPets: Pet[]
   initialService?: string
+  initialPetId?: string
 }
 
 /**
@@ -31,6 +32,7 @@ export default function BookingWizard({
   user,
   userPets,
   initialService,
+  initialPetId,
 }: BookingWizardProps) {
   const [queryClient] = useState(() => new QueryClient())
 
@@ -48,8 +50,8 @@ export default function BookingWizard({
 
   // Initialize store with props on mount
   useEffect(() => {
-    initialize(clinic, userPets, initialService)
-  }, [clinic, userPets, initialService, initialize])
+    initialize(clinic, userPets, initialService, initialPetId)
+  }, [clinic, userPets, initialService, initialPetId, initialize])
 
   // Derived values from store
   const currentService = useMemo(

@@ -17,7 +17,13 @@
           "sku_suffix": ""
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://http2.mlstatic.com/D_NQ_NP_766570-MLA44925817485_022021-O.jpg",
+      "images": [
+        "https://http2.mlstatic.com/D_NQ_NP_766570-MLA44925817485_022021-O.jpg",
+        "https://http2.mlstatic.com/D_NQ_NP_885770-MLA29054372696_122018-O.jpg",
+        "https://http2.mlstatic.com/D_NQ_NP_630740-MLA29818558786_042019-O.jpg",
+        "https://http2.mlstatic.com/D_NQ_NP_957538-MLA44938566625_022021-O.jpg"
+      ],
       "attributes": {
         "life_stage": "Adulto",
         "protein": "30%"
@@ -38,7 +44,11 @@
           "sku_suffix": ""
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://http2.mlstatic.com/D_NQ_NP_766570-MLA44925817485_022021-O.jpg",
+      "images": [
+        "https://http2.mlstatic.com/D_NQ_NP_766570-MLA44925817485_022021-O.jpg",
+        "https://http2.mlstatic.com/D_NQ_NP_885770-MLA29054372696_122018-O.jpg"
+      ],
       "attributes": {
         "life_stage": "Adulto",
         "protein": "30%"
@@ -59,7 +69,10 @@
           "sku_suffix": ""
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://http2.mlstatic.com/D_NQ_NP_766570-MLA44925817485_022021-O.jpg",
+      "images": [
+        "https://http2.mlstatic.com/D_NQ_NP_766570-MLA44925817485_022021-O.jpg"
+      ],
       "attributes": {
         "life_stage": "Adulto",
         "protein": "30%"
@@ -80,7 +93,10 @@
           "sku_suffix": ""
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://http2.mlstatic.com/D_NQ_NP_914069-MLA29054372699_122018-O.jpg",
+      "images": [
+        "https://http2.mlstatic.com/D_NQ_NP_914069-MLA29054372699_122018-O.jpg"
+      ],
       "attributes": {
         "life_stage": "Gatito",
         "protein": "34%"
@@ -101,7 +117,10 @@
           "sku_suffix": ""
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://http2.mlstatic.com/D_NQ_NP_914069-MLA29054372699_122018-O.jpg",
+      "images": [
+        "https://http2.mlstatic.com/D_NQ_NP_914069-MLA29054372699_122018-O.jpg"
+      ],
       "attributes": {
         "life_stage": "Gatito",
         "protein": "34%"

@@ -1,5 +1,6 @@
 // Main store components
 export { ProductCard } from './product-card'
+/** @deprecated Use ProductCard instead */
 export { default as EnhancedProductCard } from './enhanced-product-card'
 export { default as QuickViewModal } from './quick-view-modal/index'
 export { default as SearchAutocomplete } from './search-autocomplete'

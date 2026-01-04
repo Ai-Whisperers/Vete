@@ -2,7 +2,13 @@
 // DATABASE TYPES - Auto-generated from SQL schema
 // =============================================================================
 // These types match the Supabase database schema for type-safe queries.
+// Status types are imported from lib/types/status.ts as the single source of truth.
 // =============================================================================
+
+// Import core status types from canonical source
+// Only importing types that are consistent with database schema
+import type { AppointmentStatus, InvoiceStatus } from './status'
+export type { AppointmentStatus, InvoiceStatus }
 
 // =============================================================================
 // ENUMS
@@ -30,7 +36,7 @@ export type DietCategory =
   | 'balanced'
 
 export type VaccineStatus = 'pending' | 'verified' | 'expired' | 'exempted'
-export type AppointmentStatus = 'pending' | 'confirmed' | 'completed' | 'cancelled' | 'no_show'
+// AppointmentStatus is imported from ./status
 export type MedicalRecordType =
   | 'consultation'
   | 'exam'
@@ -44,16 +50,9 @@ export type MedicalRecordType =
   | 'grooming'
   | 'other'
 
-export type InvoiceStatus =
-  | 'draft'
-  | 'sent'
-  | 'paid'
-  | 'partial'
-  | 'overdue'
-  | 'cancelled'
-  | 'refunded'
+// InvoiceStatus is imported from ./status
 export type PaymentMethod = 'cash' | 'card' | 'transfer' | 'check' | 'credit' | 'other'
-export type PaymentStatus = 'pending' | 'completed' | 'failed' | 'refunded'
+export type PaymentStatus = 'pending' | 'completed' | 'failed' | 'refunded' | 'cancelled'
 
 export type ReminderType =
   | 'vaccine'

@@ -3,7 +3,53 @@
  *
  * Centralized constants for the multi-tenant veterinary platform.
  * These constants are used across the application for validation, limits, and enums.
+ *
+ * NOTE: Status types (APPOINTMENT_STATUSES, INVOICE_STATUSES, etc.) are defined in
+ * lib/types/status.ts as the single source of truth. This file re-exports them
+ * with labels and colors for UI rendering.
  */
+
+// Re-export status constants from canonical source
+export {
+  // Appointment
+  APPOINTMENT_STATUSES,
+  type AppointmentStatus,
+  APPOINTMENT_TRANSITIONS,
+  canTransitionAppointment,
+  // Invoice
+  INVOICE_STATUSES,
+  type InvoiceStatus,
+  INVOICE_TRANSITIONS,
+  canTransitionInvoice,
+  // Hospitalization
+  HOSPITALIZATION_STATUSES,
+  type HospitalizationStatus,
+  HOSPITALIZATION_TRANSITIONS,
+  canTransitionHospitalization,
+  // Lab Orders
+  LAB_ORDER_STATUSES,
+  type LabOrderStatus,
+  LAB_ORDER_TRANSITIONS,
+  canTransitionLabOrder,
+  // Insurance Claims
+  INSURANCE_CLAIM_STATUSES,
+  type InsuranceClaimStatus,
+  INSURANCE_CLAIM_TRANSITIONS,
+  canTransitionInsuranceClaim,
+  // Messages
+  MESSAGE_STATUSES,
+  type MessageStatus,
+  // Payments
+  PAYMENT_STATUSES,
+  type PaymentStatus,
+  // Prescriptions
+  PRESCRIPTION_STATUSES,
+  type PrescriptionStatus,
+  // Generic transition helper
+  canTransitionTo,
+} from '@/lib/types/status'
+
+import type { AppointmentStatus, InvoiceStatus } from '@/lib/types/status'
 
 // =============================================================================
 // PAGINATION & LIMITS
@@ -145,22 +191,13 @@ export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
 }
 
 // =============================================================================
-// APPOINTMENT STATUSES
+// APPOINTMENT STATUS LABELS & COLORS
 // =============================================================================
-
-export const APPOINTMENT_STATUSES = [
-  'scheduled',
-  'confirmed',
-  'in_progress',
-  'completed',
-  'cancelled',
-  'no_show',
-] as const
-export type AppointmentStatus = (typeof APPOINTMENT_STATUSES)[number]
 
 export const APPOINTMENT_STATUS_LABELS: Record<AppointmentStatus, string> = {
   scheduled: 'Programado',
   confirmed: 'Confirmado',
+  checked_in: 'Registrado',
   in_progress: 'En Progreso',
   completed: 'Completado',
   cancelled: 'Cancelado',
@@ -170,6 +207,7 @@ export const APPOINTMENT_STATUS_LABELS: Record<AppointmentStatus, string> = {
 export const APPOINTMENT_STATUS_COLORS: Record<AppointmentStatus, string> = {
   scheduled: 'bg-blue-100 text-blue-700',
   confirmed: 'bg-green-100 text-green-700',
+  checked_in: 'bg-teal-100 text-teal-700',
   in_progress: 'bg-yellow-100 text-yellow-700',
   completed: 'bg-gray-100 text-gray-700',
   cancelled: 'bg-red-100 text-red-700',
@@ -177,28 +215,29 @@ export const APPOINTMENT_STATUS_COLORS: Record<AppointmentStatus, string> = {
 }
 
 // =============================================================================
-// INVOICE STATUSES
+// INVOICE STATUS LABELS & COLORS
 // =============================================================================
-
-export const INVOICE_STATUSES = ['draft', 'sent', 'paid', 'overdue', 'void', 'cancelled'] as const
-export type InvoiceStatus = (typeof INVOICE_STATUSES)[number]
 
 export const INVOICE_STATUS_LABELS: Record<InvoiceStatus, string> = {
   draft: 'Borrador',
   sent: 'Enviado',
+  viewed: 'Visto',
+  partial: 'Pago Parcial',
   paid: 'Pagado',
   overdue: 'Vencido',
   void: 'Anulado',
-  cancelled: 'Cancelado',
+  refunded: 'Reembolsado',
 }
 
 export const INVOICE_STATUS_COLORS: Record<InvoiceStatus, string> = {
   draft: 'bg-gray-100 text-gray-700',
   sent: 'bg-blue-100 text-blue-700',
+  viewed: 'bg-indigo-100 text-indigo-700',
+  partial: 'bg-amber-100 text-amber-700',
   paid: 'bg-green-100 text-green-700',
   overdue: 'bg-red-100 text-red-700',
   void: 'bg-gray-300 text-gray-600',
-  cancelled: 'bg-red-200 text-red-800',
+  refunded: 'bg-purple-100 text-purple-700',
 }
 
 // =============================================================================

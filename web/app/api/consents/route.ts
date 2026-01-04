@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
-import { withAuth } from '@/lib/api/with-auth'
+import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 
-export const GET = withAuth(async ({ request, user, profile, supabase }) => {
+export const GET = withApiAuth(async ({ request, user, profile, supabase }) => {
   const { searchParams } = new URL(request.url)
   const petId = searchParams.get('pet_id')
   const ownerId = searchParams.get('owner_id')
@@ -57,8 +57,8 @@ export const GET = withAuth(async ({ request, user, profile, supabase }) => {
   return NextResponse.json(data)
 })
 
-export const POST = withAuth(
-  async ({ request, user, profile, supabase }) => {
+export const POST = withApiAuth(
+  async ({ request, user, profile, supabase }: ApiHandlerContext) => {
     // Parse body
     let body
     try {

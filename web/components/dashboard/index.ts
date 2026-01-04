@@ -4,6 +4,7 @@ export { AppointmentsChart } from './appointments-chart'
 export { RevenueChart } from './revenue-chart'
 export { InventoryAlerts } from './inventory-alerts'
 export { UpcomingVaccines } from './upcoming-vaccines'
+export { MandatoryVaccinesWidget } from './mandatory-vaccines-widget'
 
 // Dashboard Home Widgets
 export { TodayFocus } from './today-focus'

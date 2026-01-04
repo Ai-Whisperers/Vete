@@ -17,7 +17,10 @@
           "sku_suffix": ""
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://http2.mlstatic.com/D_NQ_NP_2X_759377-MLA70114093107_062023-F.webp",
+      "images": [
+        "https://http2.mlstatic.com/D_NQ_NP_2X_759377-MLA70114093107_062023-F.webp"
+      ],
       "attributes": {
         "flavor": "Carne",
         "type": "Complete"
@@ -38,7 +41,10 @@
           "sku_suffix": ""
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://http2.mlstatic.com/D_NQ_NP_2X_759377-MLA70114093107_062023-F.webp",
+      "images": [
+        "https://http2.mlstatic.com/D_NQ_NP_2X_759377-MLA70114093107_062023-F.webp"
+      ],
       "attributes": {
         "flavor": "Pollo",
         "type": "Complete"
@@ -59,7 +65,10 @@
           "sku_suffix": ""
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://http2.mlstatic.com/D_NQ_NP_2X_759377-MLA70114093107_062023-F.webp",
+      "images": [
+        "https://http2.mlstatic.com/D_NQ_NP_2X_759377-MLA70114093107_062023-F.webp"
+      ],
       "attributes": {
         "flavor": "Res",
         "type": "Complete"
@@ -80,7 +89,10 @@
           "sku_suffix": ""
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://http2.mlstatic.com/D_NQ_NP_2X_759377-MLA70114093107_062023-F.webp",
+      "images": [
+        "https://http2.mlstatic.com/D_NQ_NP_2X_759377-MLA70114093107_062023-F.webp"
+      ],
       "attributes": {
         "flavor": "Carne",
         "type": "Balanced"
@@ -101,7 +113,10 @@
           "sku_suffix": ""
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://http2.mlstatic.com/D_NQ_NP_2X_759377-MLA70114093107_062023-F.webp",
+      "images": [
+        "https://http2.mlstatic.com/D_NQ_NP_2X_759377-MLA70114093107_062023-F.webp"
+      ],
       "attributes": {
         "flavor": "Pollo",
         "type": "Balanced"
@@ -122,7 +137,10 @@
           "sku_suffix": ""
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://http2.mlstatic.com/D_NQ_NP_2X_759377-MLA70114093107_062023-F.webp",
+      "images": [
+        "https://http2.mlstatic.com/D_NQ_NP_2X_759377-MLA70114093107_062023-F.webp"
+      ],
       "attributes": {
         "flavor": "Mix",
         "type": "Complete"

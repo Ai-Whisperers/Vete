@@ -17,7 +17,11 @@
           "sku_suffix": ""
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://http2.mlstatic.com/D_NQ_NP_739554-MLA99409884620_112025-O.jpg",
+      "images": [
+        "https://http2.mlstatic.com/D_NQ_NP_739554-MLA99409884620_112025-O.jpg",
+        "https://http2.mlstatic.com/D_Q_NP_996096-MLA92795306733_092025-F.jpg"
+      ],
       "attributes": {
         "life_stage": "Adulto",
         "protein": "24%"
@@ -38,7 +42,11 @@
           "sku_suffix": ""
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://http2.mlstatic.com/D_NQ_NP_739554-MLA99409884620_112025-O.jpg",
+      "images": [
+        "https://http2.mlstatic.com/D_NQ_NP_739554-MLA99409884620_112025-O.jpg",
+        "https://http2.mlstatic.com/D_Q_NP_996096-MLA92795306733_092025-F.jpg"
+      ],
       "attributes": {
         "life_stage": "Adulto",
         "protein": "24%"
@@ -59,7 +67,10 @@
           "sku_suffix": ""
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://http2.mlstatic.com/D_NQ_NP_739554-MLA99409884620_112025-O.jpg",
+      "images": [
+        "https://http2.mlstatic.com/D_NQ_NP_739554-MLA99409884620_112025-O.jpg"
+      ],
       "attributes": {
         "life_stage": "Adulto",
         "protein": "24%"
@@ -80,7 +91,10 @@
           "sku_suffix": ""
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://http2.mlstatic.com/D_NQ_NP_739554-MLA99409884620_112025-O.jpg",
+      "images": [
+        "https://http2.mlstatic.com/D_NQ_NP_739554-MLA99409884620_112025-O.jpg"
+      ],
       "attributes": {
         "life_stage": "Adulto",
         "protein": "24%"
@@ -101,7 +115,10 @@
           "sku_suffix": ""
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://http2.mlstatic.com/D_NQ_NP_996096-MLA92795306733_092025-O.jpg",
+      "images": [
+        "https://http2.mlstatic.com/D_NQ_NP_996096-MLA92795306733_092025-O.jpg"
+      ],
       "attributes": {
         "life_stage": "Cachorro",
         "protein": "28%"
@@ -122,7 +139,10 @@
           "sku_suffix": ""
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://http2.mlstatic.com/D_NQ_NP_996096-MLA92795306733_092025-O.jpg",
+      "images": [
+        "https://http2.mlstatic.com/D_NQ_NP_996096-MLA92795306733_092025-O.jpg"
+      ],
       "attributes": {
         "life_stage": "Cachorro",
         "protein": "28%"
@@ -143,7 +163,10 @@
           "sku_suffix": ""
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://http2.mlstatic.com/D_NQ_NP_996096-MLA92795306733_092025-O.jpg",
+      "images": [
+        "https://http2.mlstatic.com/D_NQ_NP_996096-MLA92795306733_092025-O.jpg"
+      ],
       "attributes": {
         "life_stage": "Cachorro",
         "protein": "28%"

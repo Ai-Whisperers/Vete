@@ -219,3 +219,63 @@ DROP TRIGGER IF EXISTS handle_updated_at_assignments ON public.clinic_product_as
 CREATE TRIGGER handle_updated_at_assignments
     BEFORE UPDATE ON public.clinic_product_assignments
     FOR EACH ROW EXECUTE FUNCTION handle_updated_at();
+
+-- =============================================================================
+-- AUTO-CREATE CLINIC PRODUCT ASSIGNMENTS
+-- =============================================================================
+-- When inventory is created for a tenant, automatically create a matching
+-- clinic_product_assignment if one doesn't exist. This ensures products
+-- are visible in the store without manual assignment.
+--
+-- Trigger fires AFTER INSERT on store_inventory.
+
+CREATE OR REPLACE FUNCTION auto_create_clinic_assignment()
+RETURNS TRIGGER AS $$
+DECLARE
+    v_base_price NUMERIC(12,2);
+    v_requires_prescription BOOLEAN;
+BEGIN
+    -- Get product details for default values
+    SELECT base_price, requires_prescription
+    INTO v_base_price, v_requires_prescription
+    FROM public.store_products
+    WHERE id = NEW.product_id;
+
+    -- Insert assignment if it doesn't exist
+    INSERT INTO public.clinic_product_assignments (
+        tenant_id,
+        catalog_product_id,
+        sale_price,
+        min_stock_level,
+        location,
+        requires_prescription,
+        is_active
+    )
+    SELECT
+        NEW.tenant_id,
+        NEW.product_id,
+        COALESCE(v_base_price, 0),
+        COALESCE(NEW.min_stock_level, 0),
+        NEW.location,
+        COALESCE(v_requires_prescription, false),
+        true
+    WHERE NOT EXISTS (
+        SELECT 1 FROM public.clinic_product_assignments
+        WHERE tenant_id = NEW.tenant_id
+        AND catalog_product_id = NEW.product_id
+    );
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+COMMENT ON FUNCTION auto_create_clinic_assignment() IS 'Auto-creates clinic_product_assignments when inventory is created, ensuring store visibility';
+
+-- Drop existing trigger if any
+DROP TRIGGER IF EXISTS trg_auto_clinic_assignment ON public.store_inventory;
+
+-- Create trigger on store_inventory
+CREATE TRIGGER trg_auto_clinic_assignment
+    AFTER INSERT ON public.store_inventory
+    FOR EACH ROW
+    EXECUTE FUNCTION auto_create_clinic_assignment();

@@ -1,13 +1,14 @@
 import { NextResponse } from 'next/server'
-import { withAuth, type AuthContext, type RouteContext } from '@/lib/api/with-auth'
+import { withApiAuthParams, type ApiHandlerContext } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 
 type Params = { id: string }
 
 // GET a single pet by ID
-export const GET = withAuth<Params>(
-  async ({ user, profile, supabase }: AuthContext, context: RouteContext<Params>) => {
-    const { id } = await context.params
+export const GET = withApiAuthParams<Params>(
+  async (ctx: ApiHandlerContext, params: Params) => {
+    const { id } = params
+    const { user, profile, supabase } = ctx
 
     const { data: pet, error } = await supabase
       .from('pets')
@@ -34,9 +35,10 @@ export const GET = withAuth<Params>(
 )
 
 // PATCH update a pet
-export const PATCH = withAuth<Params>(
-  async ({ request, user, profile, supabase }: AuthContext, context: RouteContext<Params>) => {
-    const { id } = await context.params
+export const PATCH = withApiAuthParams<Params>(
+  async (ctx: ApiHandlerContext, params: Params) => {
+    const { request, user, profile, supabase } = ctx
+    const { id } = params
 
     // Fetch pet to verify ownership
     const { data: pet, error: fetchError } = await supabase
@@ -130,9 +132,10 @@ export const PATCH = withAuth<Params>(
 )
 
 // DELETE soft-delete a pet
-export const DELETE = withAuth<Params>(
-  async ({ user, supabase }: AuthContext, context: RouteContext<Params>) => {
-    const { id } = await context.params
+export const DELETE = withApiAuthParams<Params>(
+  async (ctx: ApiHandlerContext, params: Params) => {
+    const { user, supabase } = ctx
+    const { id } = params
 
     // Fetch pet to verify ownership
     const { data: pet, error: fetchError } = await supabase

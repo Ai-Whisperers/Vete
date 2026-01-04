@@ -13,6 +13,10 @@ import {
   ChevronDown,
   ChevronUp,
   Filter,
+  Search,
+  Trash2,
+  Check,
+  X,
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -44,6 +48,7 @@ interface ExpiringProductsClientProps {
 }
 
 type UrgencyFilter = 'all' | 'expired' | 'critical' | 'high' | 'medium' | 'low'
+type DisposeStatus = 'idle' | 'loading' | 'success' | 'error'
 
 const urgencyConfig = {
   expired: {
@@ -108,6 +113,9 @@ export default function ExpiringProductsClient({
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [filter, setFilter] = useState<UrgencyFilter>('all')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [selectedProducts, setSelectedProducts] = useState<Set<string>>(new Set())
+  const [disposeStatus, setDisposeStatus] = useState<DisposeStatus>('idle')
   const [expandedSections, setExpandedSections] = useState<Set<string>>(
     new Set(['expired', 'critical', 'high'])
   )
@@ -161,8 +169,99 @@ export default function ExpiringProductsClient({
     })
   }
 
+  const toggleProductSelection = (productId: string): void => {
+    setSelectedProducts((prev) => {
+      const newSet = new Set(prev)
+      if (newSet.has(productId)) {
+        newSet.delete(productId)
+      } else {
+        newSet.add(productId)
+      }
+      return newSet
+    })
+  }
+
+  const selectAllInSection = (sectionProducts: ExpiringProduct[]): void => {
+    setSelectedProducts((prev) => {
+      const newSet = new Set(prev)
+      sectionProducts.forEach((p) => newSet.add(p.id))
+      return newSet
+    })
+  }
+
+  const clearSelection = (): void => {
+    setSelectedProducts(new Set())
+  }
+
+  const disposeProduct = async (productId: string, quantity: number): Promise<boolean> => {
+    try {
+      const response = await fetch('/api/inventory/adjust', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          productId,
+          quantityChange: -quantity,
+          reason: 'expired',
+          notes: 'Producto vencido - desechado desde Control de Vencimientos',
+        }),
+      })
+
+      if (!response.ok) {
+        return false
+      }
+
+      return true
+    } catch {
+      return false
+    }
+  }
+
+  const handleDisposeSelected = async (): Promise<void> => {
+    if (selectedProducts.size === 0) return
+
+    setDisposeStatus('loading')
+    const productsToDispose = products.filter((p) => selectedProducts.has(p.id))
+
+    let successCount = 0
+    for (const product of productsToDispose) {
+      const success = await disposeProduct(product.id, product.stock_quantity)
+      if (success) successCount++
+    }
+
+    if (successCount === productsToDispose.length) {
+      setDisposeStatus('success')
+      setSelectedProducts(new Set())
+      await fetchProducts()
+    } else {
+      setDisposeStatus('error')
+    }
+
+    setTimeout(() => setDisposeStatus('idle'), 3000)
+  }
+
+  const handleDisposeSingle = async (product: ExpiringProduct): Promise<void> => {
+    const success = await disposeProduct(product.id, product.stock_quantity)
+    if (success) {
+      await fetchProducts()
+    }
+  }
+
+  // Apply search filter
+  const searchFilteredProducts = products.filter((p) => {
+    if (!searchQuery.trim()) return true
+    const query = searchQuery.toLowerCase()
+    return (
+      p.name.toLowerCase().includes(query) ||
+      (p.sku && p.sku.toLowerCase().includes(query)) ||
+      (p.batch_number && p.batch_number.toLowerCase().includes(query)) ||
+      (p.category_name && p.category_name.toLowerCase().includes(query))
+    )
+  })
+
   const filteredProducts =
-    filter === 'all' ? products : products.filter((p) => p.urgency_level === filter)
+    filter === 'all'
+      ? searchFilteredProducts
+      : searchFilteredProducts.filter((p) => p.urgency_level === filter)
 
   const groupedProducts: Record<string, ExpiringProduct[]> = {
     expired: filteredProducts.filter((p) => p.urgency_level === 'expired'),
@@ -244,6 +343,71 @@ export default function ExpiringProductsClient({
         })}
       </div>
 
+      {/* Search and Bulk Actions Bar */}
+      <div className="flex flex-col gap-4 rounded-xl border border-gray-100 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+        {/* Search */}
+        <div className="relative max-w-md flex-1">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Buscar por nombre, SKU, lote..."
+            className="w-full rounded-lg border border-gray-200 py-2 pl-10 pr-4 text-sm focus:border-[var(--primary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+
+        {/* Bulk Actions */}
+        {selectedProducts.size > 0 && (
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-[var(--text-secondary)]">
+              {selectedProducts.size} seleccionado{selectedProducts.size !== 1 ? 's' : ''}
+            </span>
+            <button
+              onClick={clearSelection}
+              className="rounded-lg px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100"
+            >
+              Limpiar
+            </button>
+            <button
+              onClick={handleDisposeSelected}
+              disabled={disposeStatus === 'loading'}
+              className="flex items-center gap-2 rounded-lg bg-red-500 px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-red-600 disabled:opacity-50"
+            >
+              {disposeStatus === 'loading' ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Procesando...
+                </>
+              ) : disposeStatus === 'success' ? (
+                <>
+                  <Check className="h-4 w-4" />
+                  ¡Desechados!
+                </>
+              ) : disposeStatus === 'error' ? (
+                <>
+                  <X className="h-4 w-4" />
+                  Error
+                </>
+              ) : (
+                <>
+                  <Trash2 className="h-4 w-4" />
+                  Desechar Seleccionados
+                </>
+              )}
+            </button>
+          </div>
+        )}
+      </div>
+
       {/* Error */}
       {error && (
         <div className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-700">
@@ -305,9 +469,30 @@ export default function ExpiringProductsClient({
 
             {isExpanded && (
               <div className="divide-y divide-gray-100">
+                {/* Select All Row */}
+                <div className="flex items-center gap-2 bg-gray-50 px-4 py-2">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      selectAllInSection(products)
+                    }}
+                    className="text-xs font-medium text-[var(--primary)] hover:underline"
+                  >
+                    Seleccionar todos ({products.length})
+                  </button>
+                </div>
                 {products.map((product) => (
                   <div key={product.id} className="p-4 transition-colors hover:bg-gray-50">
                     <div className="flex items-start gap-4">
+                      {/* Checkbox */}
+                      <label className="flex h-6 w-6 flex-shrink-0 cursor-pointer items-center justify-center">
+                        <input
+                          type="checkbox"
+                          checked={selectedProducts.has(product.id)}
+                          onChange={() => toggleProductSelection(product.id)}
+                          className="h-4 w-4 cursor-pointer rounded border-gray-300 text-[var(--primary)] focus:ring-[var(--primary)]"
+                        />
+                      </label>
                       {/* Product Image */}
                       <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
                         {product.image_url ? (
@@ -379,14 +564,21 @@ export default function ExpiringProductsClient({
                           </span>
                           <div className="flex gap-2">
                             {key === 'expired' && (
-                              <button className="rounded-lg bg-red-50 px-3 py-1.5 text-xs font-medium text-red-600 transition-colors hover:bg-red-100">
+                              <button
+                                onClick={() => handleDisposeSingle(product)}
+                                className="flex items-center gap-1 rounded-lg bg-red-50 px-3 py-1.5 text-xs font-medium text-red-600 transition-colors hover:bg-red-100"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
                                 Marcar como Desechado
                               </button>
                             )}
                             {(key === 'critical' || key === 'high') && (
-                              <button className="rounded-lg bg-orange-50 px-3 py-1.5 text-xs font-medium text-orange-600 transition-colors hover:bg-orange-100">
+                              <Link
+                                href={`/${clinic}/dashboard/campaigns/new?product=${product.id}&discount=15`}
+                                className="rounded-lg bg-orange-50 px-3 py-1.5 text-xs font-medium text-orange-600 transition-colors hover:bg-orange-100"
+                              >
                                 Crear Promoción
-                              </button>
+                              </Link>
                             )}
                           </div>
                         </div>

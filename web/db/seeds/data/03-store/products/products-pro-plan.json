@@ -22,7 +22,14 @@
           "sku_suffix": "-15KG"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://purina.com.py/sites/default/files/2022-08/adult_pro_plan.png",
+      "images": [
+        "https://purina.com.py/sites/default/files/2022-08/adult_pro_plan.png",
+        "https://purina.com.py/sites/default/files/2022-08/puppy_pro_plan.png",
+        "https://purina.com.py/sites/default/files/2022-08/sensitive_skin_pro_plan.png",
+        "https://purina.com.py/sites/default/files/2022-08/reduced_calorie_pro_plan.png",
+        "https://purina.com.py/sites/default/files/2022-11/perros_exigent_pro_plan.png"
+      ],
       "attributes": {
         "age_range": "1-7 años",
         "breed_size": "Mediano",
@@ -49,7 +56,14 @@
           "sku_suffix": "-15KG"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://purina.com.py/sites/default/files/2022-08/adult_pro_plan.png",
+      "images": [
+        "https://purina.com.py/sites/default/files/2022-08/adult_pro_plan.png",
+        "https://purina.com.py/sites/default/files/2022-08/active_mind_pro_plan.png",
+        "https://purina.com.py/sites/default/files/2022-08/sensitive_skin_pro_plan.png",
+        "https://purina.com.py/sites/default/files/2022-08/reduced_calorie_pro_plan.png",
+        "https://purina.com.py/sites/default/files/2022-11/perros_exigent_pro_plan.png"
+      ],
       "attributes": {
         "age_range": "1-7 años",
         "breed_size": "Grande",
@@ -76,7 +90,14 @@
           "sku_suffix": "-15KG"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://purina.com.py/sites/default/files/2022-08/puppy_pro_plan.png",
+      "images": [
+        "https://purina.com.py/sites/default/files/2022-08/puppy_pro_plan.png",
+        "https://purina.com.py/sites/default/files/2022-08/adult_pro_plan.png",
+        "https://purina.com.py/sites/default/files/2022-08/sensitive_skin_pro_plan.png",
+        "https://purina.com.py/sites/default/files/2022-08/reduced_calorie_pro_plan.png",
+        "https://purina.com.py/sites/default/files/2022-11/perros_exigent_pro_plan.png"
+      ],
       "attributes": {
         "age_range": "Hasta 1 año",
         "breed_size": "Mediano",
@@ -103,7 +124,14 @@
           "sku_suffix": "-15KG"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://purina.com.py/sites/default/files/2022-08/puppy_pro_plan.png",
+      "images": [
+        "https://purina.com.py/sites/default/files/2022-08/puppy_pro_plan.png",
+        "https://purina.com.py/sites/default/files/2022-08/adult_pro_plan.png",
+        "https://purina.com.py/sites/default/files/2022-08/active_mind_pro_plan.png",
+        "https://purina.com.py/sites/default/files/2022-08/sensitive_skin_pro_plan.png",
+        "https://purina.com.py/sites/default/files/2022-08/reduced_calorie_pro_plan.png"
+      ],
       "attributes": {
         "age_range": "Hasta 2 años",
         "breed_size": "Grande",
@@ -130,7 +158,14 @@
           "sku_suffix": "-13.6KG"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://purina.com.py/sites/default/files/2022-08/sensitive_skin_pro_plan.png",
+      "images": [
+        "https://purina.com.py/sites/default/files/2022-08/sensitive_skin_pro_plan.png",
+        "https://purina.com.py/sites/default/files/2022-08/adult_pro_plan.png",
+        "https://purina.com.py/sites/default/files/2022-08/puppy_pro_plan.png",
+        "https://purina.com.py/sites/default/files/2022-08/reduced_calorie_pro_plan.png",
+        "https://purina.com.py/sites/default/files/2022-11/perros_exigent_pro_plan.png"
+      ],
       "attributes": {
         "special_need": "Piel y estómago sensible",
         "protein_source": "Salmón"
@@ -150,7 +185,14 @@
           "sku_suffix": "-15KG"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://purina.com.py/sites/default/files/2022-08/active_mind_pro_plan.png",
+      "images": [
+        "https://purina.com.py/sites/default/files/2022-08/active_mind_pro_plan.png",
+        "https://purina.com.py/sites/default/files/2022-08/adult_pro_plan.png",
+        "https://purina.com.py/sites/default/files/2022-08/sensitive_skin_pro_plan.png",
+        "https://purina.com.py/sites/default/files/2022-08/reduced_calorie_pro_plan.png",
+        "https://purina.com.py/sites/default/files/2022-08/puppy_pro_plan.png"
+      ],
       "attributes": {
         "activity_level": "Alto",
         "protein_content": "30%",
@@ -183,7 +225,14 @@
           "sku_suffix": "-7.5KG"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://purina.com.py/sites/default/files/2022-08/Purina%C2%AE-Proplan%C2%AE-Optiprebio_0.png",
+      "images": [
+        "https://purina.com.py/sites/default/files/2022-08/Purina%C2%AE-Proplan%C2%AE-Optiprebio_0.png",
+        "https://purina.com.py/sites/default/files/2022-08/Purina%C2%AE-Proplan%C2%AE-Optirenal.png",
+        "https://purina.com.py/sites/default/files/2022-08/Purina%C2%AE-Proplan%C2%AE-Optistar.png",
+        "https://purina.com.py/sites/default/files/2022-08/Purina%C2%AE-Proplan%C2%AE-Optifit.png",
+        "https://purina.com.py/sites/default/files/2022-08/adulto_pollo_alimento_humedo_frente_pro_plan.png"
+      ],
       "attributes": {
         "age_range": "1-7 años",
         "main_ingredient": "Pollo"
@@ -209,7 +258,14 @@
           "sku_suffix": "-3KG"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://purina.com.py/sites/default/files/2022-08/Purina%C2%AE-Proplan%C2%AE-Optistar.png",
+      "images": [
+        "https://purina.com.py/sites/default/files/2022-08/Purina%C2%AE-Proplan%C2%AE-Optistar.png",
+        "https://purina.com.py/sites/default/files/2022-08/kitten_pollo_alimento_humedo_frente_pro_plan.png",
+        "https://purina.com.py/sites/default/files/2022-08/Purina%C2%AE-Proplan%C2%AE-Optiprebio_0.png",
+        "https://purina.com.py/sites/default/files/2022-08/Purina%C2%AE-Proplan%C2%AE-Optirenal.png",
+        "https://purina.com.py/sites/default/files/2022-08/Purina%C2%AE-Proplan%C2%AE-Optifit.png"
+      ],
       "attributes": {
         "age_range": "Hasta 1 año",
         "lifestage": "Kitten"
@@ -241,7 +297,14 @@
           "sku_suffix": "-7.5KG"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://purina.com.py/sites/default/files/2022-08/Purina%C2%AE-Proplan%C2%AE-Optifit.png",
+      "images": [
+        "https://purina.com.py/sites/default/files/2022-08/Purina%C2%AE-Proplan%C2%AE-Optifit.png",
+        "https://purina.com.py/sites/default/files/2022-08/adulto_esterilizado_pollo_alimento_humedo_frente_pro_plan.png",
+        "https://purina.com.py/sites/default/files/2022-08/Purina%C2%AE-Proplan%C2%AE-Optiprebio_0.png",
+        "https://purina.com.py/sites/default/files/2022-08/Purina%C2%AE-Proplan%C2%AE-Optirenal.png",
+        "https://purina.com.py/sites/default/files/2022-08/Purina%C2%AE-Proplan%C2%AE-Optistar.png"
+      ],
       "attributes": {
         "special_need": "Esterilizado",
         "weight_control": true
@@ -267,7 +330,14 @@
           "sku_suffix": "-3KG"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://purina.com.py/sites/default/files/2022-08/Purina%C2%AE-Proplan%C2%AE-Optritact.png",
+      "images": [
+        "https://purina.com.py/sites/default/files/2022-08/Purina%C2%AE-Proplan%C2%AE-Optritact.png",
+        "https://purina.com.py/sites/default/files/2022-08/Purina%C2%AE-Proplan%C2%AE-Optirenal.png",
+        "https://purina.com.py/sites/default/files/2022-08/Purina%C2%AE-Proplan%C2%AE-Optifit.png",
+        "https://purina.com.py/sites/default/files/2022-08/Purina%C2%AE-Proplan%C2%AE-Optiprebio_0.png",
+        "https://purina.com.py/sites/default/files/2022-08/Purina%C2%AE-Proplan%C2%AE-Optistar.png"
+      ],
       "attributes": {
         "special_need": "Salud urinaria",
         "ph_balanced": true

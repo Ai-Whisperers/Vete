@@ -425,7 +425,102 @@ Stock movements.
 | `unit_cost` | NUMERIC | Cost per unit |
 | `performed_by` | UUID | FK to profiles |
 | `notes` | TEXT | Transaction notes |
+| `reference_type` | TEXT | Reference source ('order', 'adjustment', etc.) |
+| `reference_id` | UUID | FK to source record |
 | `created_at` | TIMESTAMPTZ | Creation timestamp |
+
+### `clinic_product_assignments`
+
+Maps global catalog products to clinics with optional overrides.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | UUID | Primary key |
+| `tenant_id` | TEXT | FK to tenants |
+| `catalog_product_id` | UUID | FK to store_products (global) |
+| `sale_price` | NUMERIC | Clinic-specific price override |
+| `min_stock_level` | INTEGER | Clinic-specific minimum |
+| `location` | TEXT | Storage location |
+| `requires_prescription` | BOOLEAN | Prescription requirement override |
+| `is_active` | BOOLEAN | Active for this clinic |
+| `created_at` | TIMESTAMPTZ | Creation timestamp |
+| `updated_at` | TIMESTAMPTZ | Last update |
+
+---
+
+## Views
+
+### `unified_clinic_inventory`
+
+Combines own products and catalog assigned products into a single queryable view.
+
+See [Unified Inventory View Documentation](./unified-inventory-view.md) for complete details.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `source` | TEXT | `'own'` or `'catalog'` |
+| `product_id` | UUID | Product identifier |
+| `name` | TEXT | Product name |
+| `stock_quantity` | INTEGER | Current stock |
+| `reserved_quantity` | INTEGER | Stock in carts |
+| `available_quantity` | INTEGER | Available for sale |
+| `stock_status` | TEXT | `'in_stock'`, `'low_stock'`, `'out_of_stock'` |
+| `tenant_id` | TEXT | Clinic tenant ID |
+| ... | ... | (see full reference) |
+
+---
+
+## Helper Functions
+
+### `get_clinic_inventory()`
+
+Retrieves filtered inventory for a tenant.
+
+```sql
+SELECT * FROM get_clinic_inventory(
+    p_tenant_id := 'adris',
+    p_source := 'own',
+    p_category_id := NULL,
+    p_stock_status := 'low_stock',
+    p_search := 'flea',
+    p_limit := 50,
+    p_offset := 0
+);
+```
+
+### `get_inventory_stats()`
+
+Returns inventory summary statistics.
+
+```sql
+SELECT * FROM get_inventory_stats('adris');
+-- Returns: total_products, low_stock_count, out_of_stock_count, total_value, etc.
+```
+
+### `release_expired_reservations()`
+
+Releases stock reservations from expired/abandoned carts.
+
+```sql
+SELECT * FROM release_expired_reservations();
+-- Returns: released_count
+```
+
+### `reserve_stock()`
+
+Reserves stock for a cart item.
+
+```sql
+SELECT * FROM reserve_stock(p_tenant_id, p_cart_id, p_product_id, p_quantity);
+```
+
+### `release_reservation()`
+
+Releases a specific cart item reservation.
+
+```sql
+SELECT * FROM release_reservation(p_cart_id, p_product_id);
+```
 
 ---
 

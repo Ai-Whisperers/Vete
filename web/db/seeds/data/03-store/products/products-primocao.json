@@ -34,7 +34,12 @@
           "sku_suffix": "-20KG"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://cdn.awsli.com.br/2500x2500/1095/1095221/produto/40598676/3648f6a20e.jpg",
+      "images": [
+        "https://cdn.awsli.com.br/2500x2500/1095/1095221/produto/40598676/3648f6a20e.jpg",
+        "https://cdn.awsli.com.br/600x1000/1095/1095221/produto/40598676/f06ad3a6b3.jpg",
+        "https://cdn.awsli.com.br/400x400/1095/1095221/produto/41670662/427d98a859.jpg"
+      ],
       "attributes": {
         "age_range": "1+ años",
         "breed_size": "Pequeño",
@@ -73,7 +78,12 @@
           "sku_suffix": "-20KG"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://cdn.awsli.com.br/2500x2500/1095/1095221/produto/40598676/3648f6a20e.jpg",
+      "images": [
+        "https://cdn.awsli.com.br/2500x2500/1095/1095221/produto/40598676/3648f6a20e.jpg",
+        "https://cdn.awsli.com.br/600x1000/1095/1095221/produto/40598676/f06ad3a6b3.jpg",
+        "https://cdn.awsli.com.br/400x400/1095/1095221/produto/41670662/427d98a859.jpg"
+      ],
       "attributes": {
         "age_range": "1+ años",
         "breed_size": "Mediano y Grande"
@@ -111,7 +121,12 @@
           "sku_suffix": "-20KG"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://cdn.awsli.com.br/2500x2500/1095/1095221/produto/40598676/3648f6a20e.jpg",
+      "images": [
+        "https://cdn.awsli.com.br/2500x2500/1095/1095221/produto/40598676/3648f6a20e.jpg",
+        "https://cdn.awsli.com.br/600x1000/1095/1095221/produto/40598676/f06ad3a6b3.jpg",
+        "https://cdn.awsli.com.br/400x400/1095/1095221/produto/41670662/427d98a859.jpg"
+      ],
       "attributes": {
         "age_range": "Hasta 1 año",
         "lifestage": "Puppy"

@@ -6,6 +6,7 @@ import { Users, FileText, Plus, CalendarClock } from 'lucide-react'
 import { StatsCards } from '@/components/dashboard/stats-cards'
 import { TodayScheduleWidget } from '@/components/dashboard/today-schedule-widget'
 import { UpcomingVaccines } from '@/components/dashboard/upcoming-vaccines'
+import { MandatoryVaccinesWidget } from '@/components/dashboard/mandatory-vaccines-widget'
 import { LostFoundWidget } from '@/components/safety/lost-found-widget'
 import { WaitingRoomWrapper as WaitingRoom } from '@/components/dashboard/waiting-room'
 import { TodayFocus } from '@/components/dashboard/today-focus'
@@ -121,6 +122,9 @@ export default async function ClinicalDashboardPage({
 
           {/* Alerts Panel - Consolidated alerts */}
           <AlertsPanel clinic={clinic} />
+
+          {/* Mandatory Vaccines Widget - High priority */}
+          <MandatoryVaccinesWidget clinic={clinic} />
 
           {/* Activity Feed - Recent activities */}
           <ActivityFeed clinic={clinic} maxItems={6} />

@@ -95,7 +95,7 @@ interface BookingState {
   // Actions
   setStep: (step: Step) => void
   updateSelection: (updates: Partial<BookingSelection>) => void
-  initialize: (clinic: ClinicConfig, userPets: Pet[], initialService?: string) => void
+  initialize: (clinic: ClinicConfig, userPets: Pet[], initialService?: string, initialPetId?: string) => void
   submitBooking: (currentServiceName?: string) => Promise<boolean>
   reset: () => void
 }
@@ -124,19 +124,34 @@ export const useBookingStore = create<BookingState>((set, get) => ({
       selection: { ...state.selection, ...updates },
     })),
 
-  initialize: (clinic, userPets, initialService) => {
+  initialize: (clinic, userPets, initialService, initialPetId) => {
     const servicesList = extractServices(clinic.services)
     const transformed = transformServices(servicesList)
+
+    // Determine initial pet: explicit param > single pet auto-select > null
+    const resolvedPetId = initialPetId && userPets.some((p) => p.id === initialPetId)
+      ? initialPetId
+      : userPets.length === 1
+        ? userPets[0].id
+        : null
+
+    // Determine initial step based on what's pre-selected
+    let initialStep: Step = 'service'
+    if (initialService && resolvedPetId) {
+      initialStep = 'datetime' // Both service and pet selected, go to date
+    } else if (initialService) {
+      initialStep = 'pet' // Service selected, need pet
+    }
 
     set({
       clinicId: clinic.config.id,
       pets: userPets,
       services: transformed,
-      step: initialService ? 'pet' : 'service',
+      step: initialStep,
       selection: {
         ...initialSelection,
         serviceId: initialService || null,
-        petId: userPets.length === 1 ? userPets[0].id : null,
+        petId: resolvedPetId,
       },
     })
   },

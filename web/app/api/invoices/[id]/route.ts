@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { withAuth, isStaff, type AuthContext, type RouteContext } from '@/lib/api/with-auth'
+import { withApiAuthParams, isStaff, type ApiHandlerContext } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 
 type Params = { id: string }
@@ -14,9 +14,10 @@ interface InvoiceItem {
 }
 
 // GET /api/invoices/[id] - Get single invoice
-export const GET = withAuth<Params>(
-  async ({ user, profile, supabase }: AuthContext, context: RouteContext<Params>) => {
-    const { id } = await context.params
+export const GET = withApiAuthParams<Params>(
+  async (ctx: ApiHandlerContext, params: Params) => {
+    const { user, profile, supabase } = ctx
+    const { id } = params
 
     try {
       const { data: invoice, error } = await supabase
@@ -59,9 +60,10 @@ export const GET = withAuth<Params>(
 )
 
 // PATCH /api/invoices/[id] - Update invoice
-export const PATCH = withAuth<Params>(
-  async ({ user, profile, supabase, request }: AuthContext, context: RouteContext<Params>) => {
-    const { id } = await context.params
+export const PATCH = withApiAuthParams<Params>(
+  async (ctx: ApiHandlerContext, params: Params) => {
+    const { user, profile, supabase, request } = ctx
+    const { id } = params
 
     try {
       // Get current invoice
@@ -181,9 +183,10 @@ export const PATCH = withAuth<Params>(
 )
 
 // DELETE /api/invoices/[id] - Delete invoice (soft delete or void)
-export const DELETE = withAuth<Params>(
-  async ({ user, profile, supabase }: AuthContext, context: RouteContext<Params>) => {
-    const { id } = await context.params
+export const DELETE = withApiAuthParams<Params>(
+  async (ctx: ApiHandlerContext, params: Params) => {
+    const { user, profile, supabase } = ctx
+    const { id } = params
 
     try {
       const { data: invoice } = await supabase

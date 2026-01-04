@@ -7,23 +7,30 @@ import { NextRequest, NextResponse } from 'next/server'
 import { AuthService } from './core'
 import { apiError, type ApiErrorType } from '@/lib/api/errors'
 import type { AuthContext, UserRole } from './types'
-import type { ApiResponse } from '@/lib/errors/types'
+import { scopedQueries, type ScopedQueries } from '@/lib/supabase/scoped'
+import { rateLimit, type RateLimitType } from '@/lib/rate-limit'
 
 export interface ApiHandlerContext extends AuthContext {
   request: NextRequest
+  /**
+   * Tenant-scoped query builders - automatically filter by tenant_id
+   * Use this instead of raw supabase client to ensure tenant isolation
+   */
+  scoped: ScopedQueries
 }
 
 export interface ApiRouteOptions {
   roles?: UserRole[]
   requireTenant?: boolean
   requireActive?: boolean
+  /** Rate limit type for this endpoint */
+  rateLimit?: RateLimitType
 }
 
-type ApiHandler<T = unknown> = (context: ApiHandlerContext) => Promise<NextResponse<ApiResponse<T>>>
-type ApiHandlerWithParams<P, T = unknown> = (
-  context: ApiHandlerContext,
-  params: P
-) => Promise<NextResponse<ApiResponse<T>>>
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type ApiHandler = (context: ApiHandlerContext) => Promise<NextResponse<any>>
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type ApiHandlerWithParams<P> = (context: ApiHandlerContext, params: P) => Promise<NextResponse<any>>
 
 /**
  * Enhanced API route wrapper with centralized authentication
@@ -39,11 +46,13 @@ type ApiHandlerWithParams<P, T = unknown> = (
  * )
  * ```
  */
-export function withApiAuth<T = unknown>(
-  handler: ApiHandler<T>,
+export function withApiAuth(
+  handler: ApiHandler,
   options: ApiRouteOptions = {}
-): (request: NextRequest) => Promise<NextResponse<ApiResponse<T>>> {
-  return async (request: NextRequest): Promise<NextResponse<ApiResponse<T>>> => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+): (request: NextRequest) => Promise<NextResponse<any>> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return async (request: NextRequest): Promise<NextResponse<any>> => {
     try {
       // Validate authentication
       const authResult = await AuthService.validateAuth(options)
@@ -54,10 +63,19 @@ export function withApiAuth<T = unknown>(
         })
       }
 
-      // Execute handler
+      // Apply rate limiting if configured
+      if (options.rateLimit) {
+        const rateLimitResult = await rateLimit(request, options.rateLimit, authResult.context.user.id)
+        if (!rateLimitResult.success) {
+          return rateLimitResult.response
+        }
+      }
+
+      // Execute handler with scoped queries for tenant isolation
       const context: ApiHandlerContext = {
         ...authResult.context,
         request,
+        scoped: scopedQueries(authResult.context.supabase, authResult.context.profile.tenant_id),
       }
 
       return await handler(context)
@@ -71,19 +89,21 @@ export function withApiAuth<T = unknown>(
 /**
  * API route wrapper for routes with dynamic parameters
  */
-export function withApiAuthParams<P extends Record<string, string>, T = unknown>(
-  handler: ApiHandlerWithParams<P, T>,
+export function withApiAuthParams<P extends Record<string, string>>(
+  handler: ApiHandlerWithParams<P>,
   options: ApiRouteOptions & {
     paramName?: keyof P
   } = {}
 ): (
   request: NextRequest,
   context: { params: Promise<P> }
-) => Promise<NextResponse<ApiResponse<T>>> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+) => Promise<NextResponse<any>> {
   return async (
     request: NextRequest,
     context: { params: Promise<P> }
-  ): Promise<NextResponse<ApiResponse<T>>> => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ): Promise<NextResponse<any>> => {
     try {
       const params = await context.params
 
@@ -105,10 +125,19 @@ export function withApiAuthParams<P extends Record<string, string>, T = unknown>
         })
       }
 
-      // Execute handler
+      // Apply rate limiting if configured
+      if (options.rateLimit) {
+        const rateLimitResult = await rateLimit(request, options.rateLimit, authResult.context.user.id)
+        if (!rateLimitResult.success) {
+          return rateLimitResult.response
+        }
+      }
+
+      // Execute handler with scoped queries for tenant isolation
       const handlerContext: ApiHandlerContext = {
         ...authResult.context,
         request,
+        scoped: scopedQueries(authResult.context.supabase, authResult.context.profile.tenant_id),
       }
 
       return await handler(handlerContext, params)
@@ -119,18 +148,8 @@ export function withApiAuthParams<P extends Record<string, string>, T = unknown>
   }
 }
 
-/**
- * Utility function to check resource ownership within handlers
- */
-export function requireOwnership(resourceOwnerId: string, context: AuthContext): boolean {
-  if (AuthService.isAdmin(context.profile)) return true
-  if (
-    AuthService.isStaff(context.profile) &&
-    AuthService.belongsToTenant(context.profile, context.profile.tenant_id)
-  )
-    return true
-  return AuthService.ownsResource(context.profile, resourceOwnerId)
-}
+// Re-export from core
+export { requireOwnership } from './core'
 
 /**
  * Utility function to check tenant access within handlers

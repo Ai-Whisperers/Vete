@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { logger } from '@/lib/logger'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
-import { withAuth } from '@/lib/api/with-auth'
+import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 
 // TICKET-BIZ-003: Checkout API that validates stock and decrements inventory
 // TICKET-BIZ-004: Server-side stock validation
@@ -41,8 +41,8 @@ interface PrescriptionError {
 
 // POST /api/store/checkout - Process checkout (atomic)
 // Rate limited: 5 requests per minute (checkout operations - strict for fraud prevention)
-export const POST = withAuth(
-  async ({ user, profile, supabase, request }) => {
+export const POST = withApiAuth(
+  async ({ user, profile, supabase, request }: ApiHandlerContext) => {
     // Parse request body
     let body: CheckoutRequest
     try {
@@ -146,7 +146,32 @@ export const POST = withAuth(
         })
       }
 
-      // Success - log the transaction
+      // Success - convert reservations to sales and clear cart
+      // Get user's cart to convert reservations
+      const { data: cart } = await supabase
+        .from('store_carts')
+        .select('id')
+        .eq('customer_id', user.id)
+        .eq('tenant_id', clinic)
+        .single()
+
+      if (cart?.id) {
+        // Convert reservations to actual sales
+        const { error: convertError } = await supabase.rpc('convert_reservations_to_sale', {
+          p_cart_id: cart.id,
+          p_order_id: result.invoice?.id,
+        })
+
+        if (convertError) {
+          logger.warn('Failed to convert reservations', { error: convertError })
+          // Don't fail the checkout - reservations will expire naturally
+        }
+
+        // Clear the cart
+        await supabase.from('store_carts').delete().eq('id', cart.id)
+      }
+
+      // Log the transaction
       const { logAudit } = await import('@/lib/audit')
       await logAudit('CHECKOUT', `invoices/${result.invoice?.id}`, {
         total: result.invoice?.total,

@@ -31,7 +31,7 @@ import type {
 import { SPECIES } from '@/lib/types/store'
 import SortDropdown from '@/components/store/filters/sort-dropdown'
 import FilterChips from '@/components/store/filters/filter-chips'
-import EnhancedProductCard from '@/components/store/enhanced-product-card'
+import { ProductCard } from '@/components/store/product-card'
 
 // Lazy load heavy components to reduce initial bundle size
 
@@ -509,7 +509,7 @@ function StorePageClient({ config, heroImage, initialProductData }: StorePageCli
               <>
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                   {products.map((product) => (
-                    <EnhancedProductCard
+                    <ProductCard
                       key={product.id}
                       product={product}
                       clinic={clinic}

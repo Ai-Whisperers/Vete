@@ -11,6 +11,7 @@ Welcome to the technical documentation for **Vete**, a comprehensive multi-tenan
 | [Database](database/overview.md) | Schema, migrations, and RLS |
 | [API Reference](api/overview.md) | REST endpoints and Server Actions |
 | [Features](features/overview.md) | All implemented features |
+| [Backend Systems](backend/error-handling.md) | Error handling, auth, logging, validation |
 | [Development](development/setup.md) | Contributing and coding standards |
 
 ---
@@ -62,12 +63,13 @@ Vete is a **SaaS veterinary management platform** that provides:
 
 | Metric | Count |
 |--------|-------|
-| **Database Tables** | 94 |
-| **API Endpoints** | 83 |
+| **Database Tables** | 100+ |
+| **API Endpoints** | 167 |
 | **Server Actions** | 22 |
-| **React Components** | 120+ |
-| **Pages (Routes)** | 98 |
-| **SQL Migrations** | 58 |
+| **React Components** | 316 |
+| **Pages (Routes)** | 130 |
+| **Cron Jobs** | 5 |
+| **Custom Hooks** | 8 |
 
 See [Codebase Statistics](reference/codebase-statistics.md) for detailed breakdown.
 
@@ -79,41 +81,56 @@ See [Codebase Statistics](reference/codebase-statistics.md) for detailed breakdo
 documentation/
 ├── getting-started/         # Setup and first steps
 │   ├── quick-start.md
-│   ├── installation.md
 │   └── environment-variables.md
 │
 ├── architecture/            # System design
 │   ├── overview.md
 │   ├── multi-tenancy.md
 │   ├── CODE_PATTERNS.md
-│   └── security reviews
+│   ├── context-providers.md     # Cart, Wishlist, Notification contexts
+│   ├── theme-system.md          # CSS variable theming
+│   ├── state-management.md      # Zustand + Context patterns
+│   └── diagrams/
 │
 ├── database/               # Supabase/PostgreSQL
 │   ├── overview.md
-│   └── schema-reference.md
+│   ├── schema-reference.md
+│   ├── unified-inventory-view.md
+│   └── scoped-queries.md        # Tenant-isolated query builders
 │
 ├── api/                    # API documentation
 │   ├── overview.md
-│   └── endpoints/
+│   ├── rate-limiting.md
+│   └── checkout-endpoint.md
+│
+├── backend/                # Backend systems
+│   ├── error-handling.md
+│   ├── authentication-patterns.md
+│   ├── rate-limiting.md
+│   ├── logging-and-monitoring.md
+│   └── validation-system.md
 │
 ├── features/               # Feature documentation
 │   ├── overview.md
-│   └── [feature subdirectories]
+│   ├── store-components.md
+│   ├── clinical-components.md   # Dosage calculator, QoL, etc.
+│   └── integrations.md          # WhatsApp, Email
 │
 ├── development/            # Developer guides
 │   ├── setup.md
-│   └── testing.md
+│   ├── testing-utilities.md
+│   ├── hooks-library.md
+│   ├── cron-jobs.md
+│   └── formatting-utilities.md  # Currency, date, number formatting
 │
-├── tickets/               # Development backlog (NEW)
-│   ├── refactoring/       # Code improvements
-│   ├── bugs/              # Known issues
-│   ├── features/          # New features
-│   ├── performance/       # Optimizations
-│   ├── security/          # Security fixes
-│   └── technical-debt/    # Cleanup
+├── tickets/               # Development backlog
+│   ├── refactoring/
+│   ├── bugs/
+│   ├── features/
+│   └── technical-debt/
 │
 ├── reference/             # Reference materials
-│   ├── glossary.md
+│   ├── routing-map.md
 │   └── codebase-statistics.md
 │
 └── product/               # Product documentation
@@ -259,5 +276,5 @@ See [Contributing Guide](development/contributing.md) for:
 
 ---
 
-*Last updated: December 2024*
-*Codebase analysis completed with 16 improvement tickets identified*
+*Last updated: January 2026*
+*Documentation updated with: architecture (context providers, theme system, state management), database (scoped queries), features (clinical components, integrations), development (formatting utilities)*

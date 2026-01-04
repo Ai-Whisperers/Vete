@@ -28,7 +28,10 @@
           "sku_suffix": "-1000"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://www.bbraunusa.com/-/media/B-Braun/Product-Images/IV-Solutions/Sodium-Chloride-09-Percent/L8000.ashx",
+      "images": [
+        "https://www.bbraunusa.com/-/media/B-Braun/Product-Images/IV-Solutions/Sodium-Chloride-09-Percent/L8000.ashx"
+      ],
       "attributes": {
         "osmolarity": "308 mOsm/L",
         "sterile": true,
@@ -55,7 +58,10 @@
           "sku_suffix": "-1000"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://www.bbraunusa.com/-/media/B-Braun/Product-Images/IV-Solutions/Sodium-Chloride-09-Percent/L8000.ashx",
+      "images": [
+        "https://www.bbraunusa.com/-/media/B-Braun/Product-Images/IV-Solutions/Sodium-Chloride-09-Percent/L8000.ashx"
+      ],
       "attributes": {
         "electrolytes": "Na, K, Ca, Cl, Lactato",
         "sterile": true,
@@ -82,7 +88,10 @@
           "sku_suffix": "-1000"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://www.bbraunusa.com/-/media/B-Braun/Product-Images/IV-Solutions/Sodium-Chloride-09-Percent/L8000.ashx",
+      "images": [
+        "https://www.bbraunusa.com/-/media/B-Braun/Product-Images/IV-Solutions/Sodium-Chloride-09-Percent/L8000.ashx"
+      ],
       "attributes": {
         "glucose_concentration": "50g/L",
         "sterile": true,
@@ -109,7 +118,10 @@
           "sku_suffix": "-1000"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://www.bbraunusa.com/-/media/B-Braun/Product-Images/IV-Solutions/Sodium-Chloride-09-Percent/L8000.ashx",
+      "images": [
+        "https://www.bbraunusa.com/-/media/B-Braun/Product-Images/IV-Solutions/Sodium-Chloride-09-Percent/L8000.ashx"
+      ],
       "attributes": {
         "sterile": true
       }
@@ -128,7 +140,10 @@
           "sku_suffix": "-50"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://www.bbraunusa.com/-/media/B-Braun/Product-Images/IV-Solutions/Sodium-Chloride-09-Percent/L8000.ashx",
+      "images": [
+        "https://www.bbraunusa.com/-/media/B-Braun/Product-Images/IV-Solutions/Sodium-Chloride-09-Percent/L8000.ashx"
+      ],
       "attributes": {
         "drop_factor": "20 gotas/ml",
         "tubing_length": "180cm",
@@ -150,7 +165,10 @@
           "sku_suffix": "-50"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://www.bbraunusa.com/-/media/B-Braun/Product-Images/IV-Solutions/Sodium-Chloride-09-Percent/L8000.ashx",
+      "images": [
+        "https://www.bbraunusa.com/-/media/B-Braun/Product-Images/IV-Solutions/Sodium-Chloride-09-Percent/L8000.ashx"
+      ],
       "attributes": {
         "drop_factor": "60 gotas/ml",
         "tubing_length": "150cm",
@@ -178,7 +196,10 @@
           "sku_suffix": "-30CM"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://www.bbraunusa.com/-/media/B-Braun/Product-Images/IV-Solutions/Sodium-Chloride-09-Percent/L8000.ashx",
+      "images": [
+        "https://www.bbraunusa.com/-/media/B-Braun/Product-Images/IV-Solutions/Sodium-Chloride-09-Percent/L8000.ashx"
+      ],
       "attributes": {
         "sterile": true,
         "luer_lock": true
@@ -198,7 +219,10 @@
           "sku_suffix": "-50"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://www.bbraunusa.com/-/media/B-Braun/Product-Images/IV-Solutions/Sodium-Chloride-09-Percent/L8000.ashx",
+      "images": [
+        "https://www.bbraunusa.com/-/media/B-Braun/Product-Images/IV-Solutions/Sodium-Chloride-09-Percent/L8000.ashx"
+      ],
       "attributes": {
         "sterile": true,
         "luer_lock": true,
@@ -219,7 +243,10 @@
           "sku_suffix": "-100"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://www.bbraunusa.com/-/media/B-Braun/Product-Images/IV-Solutions/Sodium-Chloride-09-Percent/L8000.ashx",
+      "images": [
+        "https://www.bbraunusa.com/-/media/B-Braun/Product-Images/IV-Solutions/Sodium-Chloride-09-Percent/L8000.ashx"
+      ],
       "attributes": {
         "needle_free": true,
         "sterile": true,
@@ -246,7 +273,10 @@
           "sku_suffix": "-50ML"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://www.bbraunusa.com/-/media/B-Braun/Product-Images/IV-Solutions/Sodium-Chloride-09-Percent/L8000.ashx",
+      "images": [
+        "https://www.bbraunusa.com/-/media/B-Braun/Product-Images/IV-Solutions/Sodium-Chloride-09-Percent/L8000.ashx"
+      ],
       "attributes": {
         "sterile": true,
         "luer_lock": true,

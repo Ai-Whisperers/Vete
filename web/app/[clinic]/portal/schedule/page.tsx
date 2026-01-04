@@ -4,8 +4,7 @@ import { logger } from '@/lib/logger'
 import Link from 'next/link'
 import * as Icons from 'lucide-react'
 import AppointmentItem from './appointment-item'
-
-type AppointmentStatus = 'pending' | 'confirmed' | 'completed' | 'cancelled' | 'rejected'
+import type { AppointmentStatus } from '@/lib/types/status'
 
 interface ScheduleAppointment {
   id: string

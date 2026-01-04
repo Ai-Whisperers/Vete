@@ -34,9 +34,13 @@ import {
   Layers,
   Wand2,
   ScanLine,
+  History,
+  ShoppingCart,
 } from 'lucide-react'
 import { useParams } from 'next/navigation'
-import { ImportWizard, BarcodeScanModal } from '@/components/dashboard/inventory'
+import Link from 'next/link'
+import { ImportWizard, MultiModeScanner } from '@/components/dashboard/inventory'
+import { StockHistoryModal } from '@/components/dashboard/inventory/stock-history-modal'
 import Image from 'next/image'
 
 type ProductSource = 'all' | 'own' | 'catalog'
@@ -198,6 +202,10 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
   const [alerts, setAlerts] = useState<InventoryAlerts | null>(null)
   const [isLoadingProducts, setIsLoadingProducts] = useState(false)
 
+  // Bulk Selection State
+  const [selectedProducts, setSelectedProducts] = useState<Set<string>>(new Set())
+  const [isBulkActionLoading, setIsBulkActionLoading] = useState(false)
+
   // Filter/Search State
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
@@ -226,7 +234,7 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
   const [isCreating, setIsCreating] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
-  const [selectedProducts, setSelectedProducts] = useState<Set<string>>(new Set())
+  const [historyProduct, setHistoryProduct] = useState<{ id: string; name: string } | null>(null)
   const [showProductDetail, setShowProductDetail] = useState<Product | null>(null)
 
   // Import Wizard State
@@ -326,6 +334,7 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
         if (res.ok) {
           const data = await res.json()
           setProducts(data.products || [])
+          setSelectedProducts(new Set()) // Clear selection when products change
           if (data.pagination) {
             setPagination(data.pagination)
           }
@@ -446,6 +455,56 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
       price: p.base_price || 0,
       stock: p.inventory?.stock_quantity || 0,
     })
+  }
+
+  // Bulk Selection Handlers
+  const toggleSelectProduct = (productId: string) => {
+    setSelectedProducts((prev) => {
+      const newSet = new Set(prev)
+      if (newSet.has(productId)) {
+        newSet.delete(productId)
+      } else {
+        newSet.add(productId)
+      }
+      return newSet
+    })
+  }
+
+  const toggleSelectAll = () => {
+    if (selectedProducts.size === products.length) {
+      setSelectedProducts(new Set())
+    } else {
+      setSelectedProducts(new Set(products.map((p) => p.id)))
+    }
+  }
+
+  const clearSelection = () => {
+    setSelectedProducts(new Set())
+  }
+
+  const handleBulkExport = () => {
+    const selected = products.filter((p) => selectedProducts.has(p.id))
+    const csvContent = [
+      ['SKU', 'Nombre', 'Categoría', 'Precio', 'Stock', 'Stock Mínimo'].join(','),
+      ...selected.map((p) =>
+        [
+          p.sku || '',
+          `"${p.name.replace(/"/g, '""')}"`,
+          p.category?.name || '',
+          p.base_price || 0,
+          p.inventory?.stock_quantity || 0,
+          p.inventory?.min_stock_level || 0,
+        ].join(',')
+      ),
+    ].join('\n')
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `inventario-seleccionado-${new Date().toISOString().split('T')[0]}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
   }
 
   const handleQuickEditSave = async () => {
@@ -939,6 +998,58 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
         </div>
       </div>
 
+      {/* Quick Links */}
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <Link
+          href={`/${clinic}/dashboard/inventory/reorders`}
+          className="flex items-center gap-3 rounded-xl border border-gray-100 bg-white p-4 transition-colors hover:border-[var(--primary)] hover:bg-[var(--primary)]/5"
+        >
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50">
+            <ShoppingCart className="h-5 w-5 text-blue-600" />
+          </div>
+          <div>
+            <p className="font-medium text-[var(--text-primary)]">Reorden</p>
+            <p className="text-xs text-[var(--text-secondary)]">Sugerencias</p>
+          </div>
+        </Link>
+        <Link
+          href={`/${clinic}/dashboard/inventory/expiring`}
+          className="flex items-center gap-3 rounded-xl border border-gray-100 bg-white p-4 transition-colors hover:border-[var(--primary)] hover:bg-[var(--primary)]/5"
+        >
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-50">
+            <Clock className="h-5 w-5 text-red-600" />
+          </div>
+          <div>
+            <p className="font-medium text-[var(--text-primary)]">Vencimientos</p>
+            <p className="text-xs text-[var(--text-secondary)]">Control</p>
+          </div>
+        </Link>
+        <button
+          onClick={() => setShowBarcodeScanner(true)}
+          className="flex items-center gap-3 rounded-xl border border-gray-100 bg-white p-4 text-left transition-colors hover:border-[var(--primary)] hover:bg-[var(--primary)]/5"
+        >
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-50">
+            <ScanLine className="h-5 w-5 text-purple-600" />
+          </div>
+          <div>
+            <p className="font-medium text-[var(--text-primary)]">Escáner</p>
+            <p className="text-xs text-[var(--text-secondary)]">Código de barras</p>
+          </div>
+        </button>
+        <button
+          onClick={() => {/* TODO: Add new product modal */}}
+          className="flex items-center gap-3 rounded-xl border border-gray-100 bg-white p-4 text-left transition-colors hover:border-[var(--primary)] hover:bg-[var(--primary)]/5"
+        >
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-50">
+            <Plus className="h-5 w-5 text-green-600" />
+          </div>
+          <div>
+            <p className="font-medium text-[var(--text-primary)]">Nuevo</p>
+            <p className="text-xs text-[var(--text-secondary)]">Producto</p>
+          </div>
+        </button>
+      </div>
+
       {/* Import Section */}
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="flex min-h-[280px] flex-col items-center justify-center rounded-xl border border-gray-100 bg-white p-6">
@@ -1144,6 +1255,32 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
           </div>
         ) : (
           <>
+            {/* Bulk Actions Toolbar */}
+            {selectedProducts.size > 0 && (
+              <div className="mb-4 flex items-center justify-between rounded-lg bg-[var(--primary)]/10 px-4 py-3">
+                <div className="flex items-center gap-3">
+                  <span className="font-medium text-[var(--primary)]">
+                    {selectedProducts.size} producto{selectedProducts.size !== 1 ? 's' : ''} seleccionado{selectedProducts.size !== 1 ? 's' : ''}
+                  </span>
+                  <button
+                    onClick={clearSelection}
+                    className="text-sm text-gray-500 hover:text-gray-700 underline"
+                  >
+                    Deseleccionar
+                  </button>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleBulkExport}
+                    className="inline-flex items-center gap-2 rounded-lg bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50"
+                  >
+                    <Download className="h-4 w-4" />
+                    Exportar CSV
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* Desktop Table */}
             <div className="hidden overflow-x-auto md:block">
               <table className="w-full text-left">
@@ -1286,6 +1423,13 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
                         <td className="px-4 py-3 text-right">
                           <div className="flex items-center justify-end gap-1">
                             <button
+                              onClick={() => setHistoryProduct({ id: p.id, name: p.name })}
+                              className="hover:bg-purple-50 rounded-lg p-2 text-gray-400 transition hover:text-purple-600"
+                              title="Ver Historial"
+                            >
+                              <History className="h-4 w-4" />
+                            </button>
+                            <button
                               onClick={() => openEdit(p)}
                               className="hover:bg-[var(--primary)]/5 rounded-lg p-2 text-gray-400 transition hover:text-[var(--primary)]"
                               title="Editar"
@@ -1361,6 +1505,13 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
                         <p className="mt-1 font-mono text-xs text-gray-400">SKU: {p.sku || '—'}</p>
                       </div>
                       <div className="flex gap-1">
+                        <button
+                          onClick={() => setHistoryProduct({ id: p.id, name: p.name })}
+                          className="p-2 text-gray-400 hover:text-purple-600"
+                          title="Historial"
+                        >
+                          <History className="h-4 w-4" />
+                        </button>
                         <button
                           onClick={() => openEdit(p)}
                           className="p-2 text-gray-400 hover:text-[var(--primary)]"
@@ -1744,25 +1895,37 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
         clinic={clinic}
       />
 
-      {/* Barcode Scanner Modal */}
-      <BarcodeScanModal
+      {/* Multi-Mode Barcode Scanner */}
+      <MultiModeScanner
         isOpen={showBarcodeScanner}
         onClose={() => setShowBarcodeScanner(false)}
         clinic={clinic}
-        onProductFound={(product, barcode) => {
-          setShowBarcodeScanner(false)
-          // Find the product in our list and open edit modal
-          const foundProduct = products.find((p) => p.id === product.id)
-          if (foundProduct) {
-            openEdit(foundProduct)
-          } else {
-            // Product not in current view, search for it
-            setSearchQuery(product.sku || product.name)
-            // Show success toast
+        onActionComplete={(action) => {
+          // Handle different modes
+          if (action.mode === 'lookup') {
+            // Find the product in our list and open edit modal
+            const foundProduct = products.find((p) => p.id === action.product.id)
+            if (foundProduct) {
+              openEdit(foundProduct)
+            } else {
+              // Product not in current view, search for it
+              setSearchQuery(action.product.sku || action.product.name)
+              setResult({
+                success: 1,
+                errors: [],
+                message: `Producto encontrado: ${action.product.name}`,
+              })
+            }
+          } else if (action.mode === 'receive' || action.mode === 'count') {
+            // Refresh products to reflect stock changes
+            fetchProducts()
             setResult({
               success: 1,
               errors: [],
-              message: `Producto encontrado: ${product.name}`,
+              message:
+                action.mode === 'receive'
+                  ? `Stock actualizado: +${action.quantity} unidades de ${action.product.name}`
+                  : `Conteo registrado: ${action.product.name} → ${action.quantity} unidades`,
             })
           }
         }}
@@ -1942,6 +2105,17 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
             </div>
           </div>
         </div>
+      )}
+
+      {/* Stock History Modal */}
+      {historyProduct && (
+        <StockHistoryModal
+          productId={historyProduct.id}
+          productName={historyProduct.name}
+          isOpen={!!historyProduct}
+          onClose={() => setHistoryProduct(null)}
+          clinic={clinic}
+        />
       )}
     </div>
   )

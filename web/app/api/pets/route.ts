@@ -102,6 +102,28 @@ export async function POST(request: Request) {
 }
 
 export async function GET(request: Request) {
+  const supabase = await createClient()
+
+  // Authenticate user
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
+  if (authError || !user) {
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED)
+  }
+
+  // Get user profile to check role
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('id, tenant_id, role')
+    .eq('id', user.id)
+    .single()
+
+  if (!profile) {
+    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED)
+  }
+
   const { searchParams } = new URL(request.url)
   const userId = searchParams.get('userId')
   const query = searchParams.get('query')
@@ -110,7 +132,35 @@ export async function GET(request: Request) {
     return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, { details: { field: 'userId' } })
   }
 
-  const supabase = await createClient()
+  // Security check: users can only query their own pets,
+  // staff (vet/admin) can query any user's pets within their tenant
+  const isStaff = ['vet', 'admin'].includes(profile.role)
+
+  if (userId !== user.id && !isStaff) {
+    logger.warn('Unauthorized attempt to access other user pets', {
+      requestingUserId: user.id,
+      targetUserId: userId,
+    })
+    return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN)
+  }
+
+  // If staff, verify the target user belongs to the same tenant
+  if (isStaff && userId !== user.id) {
+    const { data: targetProfile } = await supabase
+      .from('profiles')
+      .select('tenant_id')
+      .eq('id', userId)
+      .single()
+
+    if (!targetProfile || targetProfile.tenant_id !== profile.tenant_id) {
+      logger.warn('Staff attempted to access pets from different tenant', {
+        staffId: user.id,
+        staffTenant: profile.tenant_id,
+        targetUserId: userId,
+      })
+      return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN)
+    }
+  }
 
   let petsQuery = supabase
     .from('pets')

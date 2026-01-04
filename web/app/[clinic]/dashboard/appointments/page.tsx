@@ -114,7 +114,7 @@ export default async function StaffAppointmentsPage({ params, searchParams }: Pr
   // Calculate stats
   const stats = {
     total: transformedAppointments.length,
-    pending: transformedAppointments.filter((a) => ['pending', 'confirmed'].includes(a.status))
+    pending: transformedAppointments.filter((a) => ['scheduled', 'confirmed'].includes(a.status))
       .length,
     checkedIn: transformedAppointments.filter((a) => a.status === 'checked_in').length,
     inProgress: transformedAppointments.filter((a) => a.status === 'in_progress').length,

@@ -56,10 +56,10 @@ export default async function BookingPage({
   searchParams,
 }: {
   params: Promise<{ clinic: string }>
-  searchParams: Promise<{ service?: string }>
+  searchParams: Promise<{ service?: string; pet?: string }>
 }) {
   const { clinic } = await params
-  const { service } = await searchParams // Pre-select service if passed
+  const { service, pet } = await searchParams // Pre-select service and/or pet if passed
 
   const data = await getClinicData(clinic)
   if (!data) notFound()
@@ -105,7 +105,7 @@ export default async function BookingPage({
     <>
       <BreadcrumbSchema items={breadcrumbItems} />
       <div className="min-h-screen bg-gray-50">
-        <BookingWizard clinic={data} user={user} userPets={userPets} initialService={service} />
+        <BookingWizard clinic={data} user={user} userPets={userPets} initialService={service} initialPetId={pet} />
       </div>
     </>
   )

@@ -12,6 +12,15 @@ export const dynamic = 'force-dynamic' // Prevent caching
  * and sends back-in-stock emails to subscribed customers.
  */
 export async function GET(request: NextRequest) {
+  // Verify cron secret if configured
+  const authHeader = request.headers.get('authorization')
+  const cronSecret = process.env.CRON_SECRET
+
+  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+    logger.warn('Unauthorized cron attempt for stock-alerts')
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   const supabase = await createClient()
 
   try {

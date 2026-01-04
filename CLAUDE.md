@@ -52,7 +52,13 @@ Vete/
 │   │   └── ...
 │   ├── lib/
 │   │   ├── clinics.ts            # Content loading (JSON-CMS)
-│   │   └── supabase/             # DB client (server/client)
+│   │   ├── supabase/             # DB client (server/client)
+│   │   └── hooks/                # Custom React hooks library
+│   │       ├── index.ts          # Exports all hooks and types
+│   │       ├── use-async-data.ts # Data fetching with loading/error states
+│   │       ├── use-form-state.ts # Form management with Zod validation
+│   │       ├── use-modal.ts      # Modal/dialog state management
+│   │       └── use-synced-state.ts # localStorage + API synchronization
 │   ├── db/                       # SQL migrations (numbered)
 │   ├── .content_data/            # JSON content per clinic
 │   │   ├── _TEMPLATE/            # Copy for new clinics
@@ -155,6 +161,10 @@ store_coupons (id, tenant_id, code, discount_type, discount_value, usage_limit)
 store_carts (id, tenant_id, customer_id, items JSONB, updated_at)
 store_wishlists (id, tenant_id, user_id, product_id, created_at)
 store_stock_alerts (id, tenant_id, product_id, email, notified, created_at)
+store_inventory_transactions (id, product_id, type, quantity, unit_cost, notes, reference_type, reference_id, performed_by, created_at)
+
+-- Views
+unified_clinic_inventory (VIEW) -- Combines own products + catalog assignments with stock levels
 
 -- Finance
 expenses (id, clinic_id, category, amount, description, date, proof_url)
@@ -382,6 +392,32 @@ CREATE TRIGGER handle_updated_at
 
 Create `web/app/api/[resource]/route.ts` using the pattern in Coding Standards above.
 
+### Using Custom Hooks
+
+Import from `@/lib/hooks`:
+
+```typescript
+import { useAsyncData, useFormState, useModal } from '@/lib/hooks'
+
+// Data fetching with loading states
+const { data, isLoading, error, refetch } = useAsyncData(
+  () => fetch('/api/pets').then(r => r.json()),
+  [tenantId],
+  { refetchInterval: 30000, enabled: !!tenantId }
+)
+
+// Form with Zod validation
+const form = useFormState({
+  initialValues: { name: '', species: 'dog' },
+  schema: petSchema,
+  onSubmit: async (values) => await createPet(values),
+})
+
+// Modal state management
+const editModal = useModalWithData<Pet>()
+editModal.open(selectedPet)
+```
+
 ### Adding a New Page
 
 ```typescript
@@ -513,6 +549,38 @@ The `.claude/SUPABASE_AUDIT.md` contains a comprehensive security audit with all
 - "Notify when available" for out-of-stock products
 - Stock alerts for low inventory
 
+### Inventory Management (Enhanced) ✅
+- Unified inventory view combining own products + catalog product assignments
+- Stock adjustment with reason codes (damage, theft, expired, correction, etc.)
+- Stock receiving with WAC (Weighted Average Cost) recalculation
+- Stock history modal with complete transaction timeline
+- Reorder suggestions grouped by supplier with urgency levels
+- Expiring products dashboard
+- Product-level movement history API
+- Barcode scanning for quick lookups
+
+### Stock Reservation System ✅
+- Cart items with automatic stock reservation
+- Reserved quantity tracking per cart
+- Automatic release of expired reservations via cron job
+- Prevents overselling during checkout
+
+### Background Jobs (Cron) ✅
+- `/api/cron/release-reservations` - Release expired cart stock reservations
+- `/api/cron/process-subscriptions` - Process recurring subscription renewals
+- `/api/cron/expiry-alerts` - Send product expiry notifications
+- `/api/cron/stock-alerts` - Send low stock email alerts
+- `/api/cron/reminders` - Process scheduled appointment/vaccine reminders
+
+### Custom React Hooks Library ✅
+Located in `lib/hooks/`:
+- `useAsyncData` / `useSimpleAsyncData` - Data fetching with loading/error/success states
+- `useFormState` - Form management with Zod schema validation
+- `useModal` / `useModalWithData` - Modal state management
+- `useConfirmation` - Promise-based confirmation dialogs
+- `useSyncedState` / `useLocalStorage` - localStorage + API synchronization
+- `useDashboardLabels` - Dashboard label provider
+
 ### Communications ✅
 - Internal messaging (clinic ↔ owner)
 - WhatsApp integration (bidirectional)
@@ -546,8 +614,9 @@ The `.claude/SUPABASE_AUDIT.md` contains a comprehensive security audit with all
 - QR tag scanning and assignment
 
 ### API Coverage
-- **87 REST API endpoints** across all modules
+- **167 REST API endpoints** across all modules
 - **22 Server Actions** for form mutations
+- **5 Cron job endpoints** for background tasks
 - Rate limiting on sensitive endpoints
 - Full Zod validation on inputs
 
@@ -560,4 +629,4 @@ The `.claude/SUPABASE_AUDIT.md` contains a comprehensive security audit with all
 
 ---
 
-*Last updated: December 2024*
+*Last updated: January 2026*

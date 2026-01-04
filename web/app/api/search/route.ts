@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { withAuth } from '@/lib/api/with-auth'
+import { withApiAuth } from '@/lib/auth'
 import { rateLimit } from '@/lib/rate-limit'
 
 interface SearchResult {
@@ -12,7 +12,7 @@ interface SearchResult {
 }
 
 // GET /api/search?q=query&clinic=clinic_slug
-export const GET = withAuth(async ({ request, user, profile, supabase }) => {
+export const GET = withApiAuth(async ({ request, user, profile, supabase }) => {
   const { searchParams } = new URL(request.url)
   const query = searchParams.get('q')?.trim()
   const clinic = searchParams.get('clinic')

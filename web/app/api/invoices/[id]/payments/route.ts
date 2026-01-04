@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
-import { withAuth, isStaff } from '@/lib/api/with-auth'
+import { withApiAuthParams, isStaff, type ApiHandlerContext } from '@/lib/auth'
 
 // TICKET-BIZ-005: POST /api/invoices/[id]/payments - Record a payment (atomic)
 // Rate limited: 10 requests per minute (financial operations)
-export const POST = withAuth<{ id: string }>(
-  async ({ user, profile, supabase, request }, { params }) => {
-    const { id: invoiceId } = await params
+export const POST = withApiAuthParams<{ id: string }>(
+  async (ctx: ApiHandlerContext, params: { id: string }) => {
+    const { user, profile, supabase, request } = ctx
+    const { id: invoiceId } = params
 
     try {
       const body = await request.json()
@@ -71,42 +72,45 @@ export const POST = withAuth<{ id: string }>(
 )
 
 // GET /api/invoices/[id]/payments - List payments for an invoice
-export const GET = withAuth<{ id: string }>(async ({ user, profile, supabase }, { params }) => {
-  const { id: invoiceId } = await params
+export const GET = withApiAuthParams<{ id: string }>(
+  async (ctx: ApiHandlerContext, params: { id: string }) => {
+    const { user, profile, supabase } = ctx
+    const { id: invoiceId } = params
 
-  try {
-    // Verify invoice exists and user has access
-    const { data: invoice } = await supabase
-      .from('invoices')
-      .select('id, owner_id, tenant_id')
-      .eq('id', invoiceId)
-      .single()
+    try {
+      // Verify invoice exists and user has access
+      const { data: invoice } = await supabase
+        .from('invoices')
+        .select('id, owner_id, tenant_id')
+        .eq('id', invoiceId)
+        .single()
 
-    if (!invoice) {
-      return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND)
+      if (!invoice) {
+        return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND)
+      }
+
+      const userIsStaff = isStaff(profile)
+      if (!userIsStaff && invoice.owner_id !== user.id) {
+        return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN)
+      }
+
+      const { data: payments, error } = await supabase
+        .from('payments')
+        .select(
+          `
+            *,
+            receiver:profiles!payments_received_by_fkey(full_name)
+          `
+        )
+        .eq('invoice_id', invoiceId)
+        .order('paid_at', { ascending: false })
+
+      if (error) throw error
+
+      return NextResponse.json(payments)
+    } catch (e) {
+      console.error('Error loading payments:', e)
+      return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
     }
-
-    const userIsStaff = isStaff(profile)
-    if (!userIsStaff && invoice.owner_id !== user.id) {
-      return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN)
-    }
-
-    const { data: payments, error } = await supabase
-      .from('payments')
-      .select(
-        `
-          *,
-          receiver:profiles!payments_received_by_fkey(full_name)
-        `
-      )
-      .eq('invoice_id', invoiceId)
-      .order('paid_at', { ascending: false })
-
-    if (error) throw error
-
-    return NextResponse.json(payments)
-  } catch (e) {
-    console.error('Error loading payments:', e)
-    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
   }
-})
+)

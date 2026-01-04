@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
-import { withAuth } from '@/lib/api/with-auth'
+import { withApiAuthParams, type ApiHandlerContext } from '@/lib/auth'
 
 // TICKET-BIZ-005: POST /api/invoices/[id]/refund - Process a refund (atomic)
 // Rate limited: 5 requests per hour (refund operations - very strict for fraud prevention)
-export const POST = withAuth<{ id: string }>(
-  async ({ user, profile, supabase, request }, { params }) => {
-    const { id: invoiceId } = await params
+export const POST = withApiAuthParams<{ id: string }>(
+  async (ctx: ApiHandlerContext, params: { id: string }) => {
+    const { user, profile, supabase, request } = ctx
+    const { id: invoiceId } = params
 
     try {
       const body = await request.json()

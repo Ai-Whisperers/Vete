@@ -22,7 +22,10 @@
           "sku_suffix": "-25G"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://www.bd.com/-/media/global-pages/homepage/bd-products-syringe.ashx",
+      "images": [
+        "https://www.bd.com/-/media/global-pages/homepage/bd-products-syringe.ashx"
+      ],
       "attributes": {
         "sterile": true,
         "single_use": true,
@@ -49,7 +52,10 @@
           "sku_suffix": "-21G"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://www.bd.com/-/media/global-pages/homepage/bd-products-syringe.ashx",
+      "images": [
+        "https://www.bd.com/-/media/global-pages/homepage/bd-products-syringe.ashx"
+      ],
       "attributes": {
         "sterile": true,
         "single_use": true,
@@ -76,7 +82,10 @@
           "sku_suffix": "-22G"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://www.bd.com/-/media/global-pages/homepage/bd-products-syringe.ashx",
+      "images": [
+        "https://www.bd.com/-/media/global-pages/homepage/bd-products-syringe.ashx"
+      ],
       "attributes": {
         "sterile": true,
         "single_use": true,
@@ -103,7 +112,10 @@
           "sku_suffix": "-18G"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://www.bd.com/-/media/global-pages/homepage/bd-products-syringe.ashx",
+      "images": [
+        "https://www.bd.com/-/media/global-pages/homepage/bd-products-syringe.ashx"
+      ],
       "attributes": {
         "sterile": true,
         "single_use": true,
@@ -124,7 +136,10 @@
           "sku_suffix": "-50"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://www.bd.com/-/media/global-pages/homepage/bd-products-syringe.ashx",
+      "images": [
+        "https://www.bd.com/-/media/global-pages/homepage/bd-products-syringe.ashx"
+      ],
       "attributes": {
         "sterile": true,
         "single_use": true,
@@ -145,7 +160,10 @@
           "sku_suffix": "-100"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://www.bd.com/-/media/global-pages/homepage/bd-products-syringe.ashx",
+      "images": [
+        "https://www.bd.com/-/media/global-pages/homepage/bd-products-syringe.ashx"
+      ],
       "attributes": {
         "gauge": "18G",
         "length": "1.5 pulgadas",
@@ -166,7 +184,10 @@
           "sku_suffix": "-100"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://www.bd.com/-/media/global-pages/homepage/bd-products-syringe.ashx",
+      "images": [
+        "https://www.bd.com/-/media/global-pages/homepage/bd-products-syringe.ashx"
+      ],
       "attributes": {
         "gauge": "21G",
         "length": "1 pulgada",
@@ -187,7 +208,10 @@
           "sku_suffix": "-100"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://www.bd.com/-/media/global-pages/homepage/bd-products-syringe.ashx",
+      "images": [
+        "https://www.bd.com/-/media/global-pages/homepage/bd-products-syringe.ashx"
+      ],
       "attributes": {
         "gauge": "23G",
         "length": "1 pulgada",
@@ -208,7 +232,10 @@
           "sku_suffix": "-100"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://www.bd.com/-/media/global-pages/homepage/bd-products-syringe.ashx",
+      "images": [
+        "https://www.bd.com/-/media/global-pages/homepage/bd-products-syringe.ashx"
+      ],
       "attributes": {
         "gauge": "25G",
         "length": "5/8 pulgada",
@@ -229,7 +256,10 @@
           "sku_suffix": "-50"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://www.bd.com/-/media/global-pages/homepage/bd-products-syringe.ashx",
+      "images": [
+        "https://www.bd.com/-/media/global-pages/homepage/bd-products-syringe.ashx"
+      ],
       "attributes": {
         "gauge": "22G",
         "length": "25mm",
@@ -251,7 +281,10 @@
           "sku_suffix": "-50"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://www.bd.com/-/media/global-pages/homepage/bd-products-syringe.ashx",
+      "images": [
+        "https://www.bd.com/-/media/global-pages/homepage/bd-products-syringe.ashx"
+      ],
       "attributes": {
         "gauge": "20G",
         "length": "30mm",
@@ -273,7 +306,10 @@
           "sku_suffix": "-50"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://www.bd.com/-/media/global-pages/homepage/bd-products-syringe.ashx",
+      "images": [
+        "https://www.bd.com/-/media/global-pages/homepage/bd-products-syringe.ashx"
+      ],
       "attributes": {
         "gauge": "18G",
         "length": "32mm",
@@ -301,7 +337,10 @@
           "sku_suffix": "-4ML"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://www.bd.com/-/media/global-pages/homepage/bd-products-syringe.ashx",
+      "images": [
+        "https://www.bd.com/-/media/global-pages/homepage/bd-products-syringe.ashx"
+      ],
       "attributes": {
         "anticoagulant": "K2 EDTA",
         "cap_color": "Lavanda",
@@ -328,7 +367,10 @@
           "sku_suffix": "-6ML"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://www.bd.com/-/media/global-pages/homepage/bd-products-syringe.ashx",
+      "images": [
+        "https://www.bd.com/-/media/global-pages/homepage/bd-products-syringe.ashx"
+      ],
       "attributes": {
         "anticoagulant": "Ninguno",
         "cap_color": "Rojo",
@@ -349,7 +391,10 @@
           "sku_suffix": "-4ML"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://www.bd.com/-/media/global-pages/homepage/bd-products-syringe.ashx",
+      "images": [
+        "https://www.bd.com/-/media/global-pages/homepage/bd-products-syringe.ashx"
+      ],
       "attributes": {
         "anticoagulant": "Heparina de litio",
         "cap_color": "Verde",
@@ -370,7 +415,10 @@
           "sku_suffix": "-50"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://www.bd.com/-/media/global-pages/homepage/bd-products-syringe.ashx",
+      "images": [
+        "https://www.bd.com/-/media/global-pages/homepage/bd-products-syringe.ashx"
+      ],
       "attributes": {
         "gauge": "23G",
         "tubing_length": "30cm",
@@ -391,7 +439,10 @@
           "sku_suffix": "-50"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://www.bd.com/-/media/global-pages/homepage/bd-products-syringe.ashx",
+      "images": [
+        "https://www.bd.com/-/media/global-pages/homepage/bd-products-syringe.ashx"
+      ],
       "attributes": {
         "gauge": "25G",
         "tubing_length": "30cm",

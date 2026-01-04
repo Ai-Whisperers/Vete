@@ -149,18 +149,27 @@ export interface PortalPetCard {
   qr_code: string
 }
 
-export interface AppointmentStatus {
-  confirmed: string
-  pending: string
-  cancelled: string
-  completed: string
+/**
+ * UI labels for appointment status display
+ * All properties are optional to allow partial translations
+ */
+export interface AppointmentStatusLabels {
+  scheduled?: string
+  confirmed?: string
+  checked_in?: string
+  in_progress?: string
+  completed?: string
+  cancelled?: string
+  no_show?: string
+  /** @deprecated Use 'scheduled' instead */
+  pending?: string
 }
 
 export interface PortalAppointmentWidget {
   title: string
   empty: string
   new_appointment: string
-  status: AppointmentStatus
+  status: AppointmentStatusLabels
 }
 
 export interface PortalForms {

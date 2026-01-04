@@ -375,9 +375,19 @@ export class StoreProductSeeder extends JsonSeeder<StoreProduct> {
  * Store Inventory Seeder
  *
  * Creates inventory records for products in a specific tenant.
+ * Also creates clinic_product_assignments for store visibility.
+ *
+ * Loads ALL files matching pattern: {tenant_id}*.json
+ * This allows multiple product files per tenant (e.g., adris.json, adris-real.json)
  */
 export class StoreInventorySeeder extends JsonSeeder<StoreInventory> {
-  private productIds: string[] = []
+  // Track processed data for postProcess to create assignments
+  private processedProducts: Array<{
+    product_id: string
+    sale_price: number | null
+    min_stock_level: number
+    location: string | null
+  }> = []
 
   getTableName(): string {
     return 'store_inventory'
@@ -388,6 +398,7 @@ export class StoreInventorySeeder extends JsonSeeder<StoreInventory> {
   }
 
   getJsonPath(): string {
+    // Not used - we load multiple files in loadData()
     return `db/seeds/data/03-store/tenant-products/${this.getTenantId()}.json`
   }
 
@@ -397,17 +408,63 @@ export class StoreInventorySeeder extends JsonSeeder<StoreInventory> {
   }
 
   /**
+   * Override loadData to load ALL files matching tenant pattern
+   * This supports multiple product files per tenant (e.g., adris.json, adris-real.json)
+   */
+  async loadData(): Promise<unknown[]> {
+    const fs = await import('fs/promises')
+    const path = await import('path')
+
+    const tenantId = this.getTenantId()
+    const dir = path.resolve(process.cwd(), 'db/seeds/data/03-store/tenant-products')
+    const allProducts: unknown[] = []
+
+    try {
+      const files = await fs.readdir(dir)
+      // Match files starting with tenant ID (e.g., adris.json, adris-real.json)
+      const tenantFiles = files.filter(
+        (f) => f.startsWith(tenantId) && f.endsWith('.json')
+      )
+
+      this.log(`Found ${tenantFiles.length} product files for tenant ${tenantId}: ${tenantFiles.join(', ')}`)
+
+      for (const file of tenantFiles) {
+        const filePath = path.join(dir, file)
+        const content = await fs.readFile(filePath, 'utf-8')
+        const json = JSON.parse(content) as { products?: unknown[] }
+
+        if (json.products && Array.isArray(json.products)) {
+          this.log(`  Loading ${json.products.length} products from ${file}`)
+          allProducts.push(...json.products)
+        }
+      }
+    } catch (e) {
+      this.log(`Error loading tenant products: ${e}`)
+    }
+
+    return allProducts
+  }
+
+  /**
    * Pre-process to look up product IDs by SKU
    */
   protected async preProcess(data: unknown[]): Promise<unknown[]> {
     if (!data || !Array.isArray(data)) return []
-    // Get all SKUs from data
-    const skus = data.map((item) => (item as Record<string, unknown>).sku as string)
 
-    // Look up product IDs
+    // Get all SKUs from data (filter out any without SKU)
+    const skus = data
+      .map((item) => (item as Record<string, unknown>).sku as string)
+      .filter(Boolean)
+
+    if (skus.length === 0) {
+      this.log('No valid SKUs found in data')
+      return []
+    }
+
+    // Look up product IDs and base prices
     const { data: products } = await this.client
       .from('store_products')
-      .select('id, sku')
+      .select('id, sku, base_price')
       .in('sku', skus)
 
     if (!products || products.length === 0) {
@@ -415,27 +472,104 @@ export class StoreInventorySeeder extends JsonSeeder<StoreInventory> {
       return []
     }
 
-    const skuToId = new Map(products.map((p) => [p.sku, p.id]))
+    const skuToProduct = new Map(products.map((p) => [p.sku, p]))
 
-    return data
+    // Clear previous processed products
+    this.processedProducts = []
+
+    const result = data
       .map((item) => {
         const record = item as Record<string, unknown>
-        const productId = skuToId.get(record.sku as string)
+        const sku = record.sku as string
+        const product = skuToProduct.get(sku)
 
-        if (!productId) {
+        if (!product) {
           return null // Skip - product not found
         }
 
+        // Track for postProcess to create assignments
+        this.processedProducts.push({
+          product_id: product.id,
+          sale_price: (record.sale_price as number) ?? product.base_price ?? null,
+          min_stock_level: (record.min_stock_level as number) ?? 5,
+          location: (record.location as string) ?? null,
+        })
+
         return {
-          product_id: productId,
+          product_id: product.id,
           tenant_id: this.getTenantId(),
           stock_quantity: record.initial_stock ?? 0,
           min_stock_level: record.min_stock_level ?? 5,
           location: record.location ?? null,
-          // Note: sale_price in JSON is for reference, not stored in inventory
         }
       })
       .filter(Boolean)
+
+    this.log(`Prepared ${result.length} inventory records, ${this.processedProducts.length} for assignments`)
+    return result
+  }
+
+  /**
+   * Post-process to create clinic_product_assignments for store visibility
+   * Products without assignments won't appear in the store!
+   */
+  protected async postProcess(_created: StoreInventory[]): Promise<void> {
+    if (this.processedProducts.length === 0) {
+      this.log('No products to create assignments for')
+      return
+    }
+
+    const tenantId = this.getTenantId()
+
+    // Get existing assignments to avoid duplicates
+    const productIds = this.processedProducts.map((p) => p.product_id)
+    const { data: existingAssignments } = await this.client
+      .from('clinic_product_assignments')
+      .select('catalog_product_id')
+      .eq('tenant_id', tenantId)
+      .in('catalog_product_id', productIds)
+
+    const existingProductIds = new Set(
+      (existingAssignments || []).map((a) => a.catalog_product_id)
+    )
+
+    // Filter to only new assignments
+    const newAssignments = this.processedProducts
+      .filter((p) => !existingProductIds.has(p.product_id))
+      .map((p) => ({
+        tenant_id: tenantId,
+        catalog_product_id: p.product_id,
+        sale_price: p.sale_price,
+        min_stock_level: p.min_stock_level,
+        location: p.location,
+        is_active: true,
+      }))
+
+    if (newAssignments.length === 0) {
+      this.log('All products already have assignments')
+      return
+    }
+
+    this.log(`Creating ${newAssignments.length} clinic_product_assignments...`)
+
+    // Insert in batches of 50
+    const batchSize = 50
+    let created = 0
+    let errors = 0
+
+    for (let i = 0; i < newAssignments.length; i += batchSize) {
+      const batch = newAssignments.slice(i, i + batchSize)
+      const { error } = await this.client.from('clinic_product_assignments').insert(batch)
+
+      if (error) {
+        this.log(`  Error inserting assignments batch: ${error.message}`)
+        errors++
+      } else {
+        created += batch.length
+      }
+    }
+
+    this.log(`  Created ${created} assignments, ${errors} batch errors`)
   }
 }
 

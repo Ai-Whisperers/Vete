@@ -28,7 +28,12 @@
           "sku_suffix": "-BRG"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://s7d9.scene7.com/is/image/mmmspinco/5624-01-HERO-01x?qlt=85&dpr=off",
+      "images": [
+        "https://s7d9.scene7.com/is/image/mmmspinco/5624-01-HERO-01x?qlt=85&dpr=off",
+        "https://s7d9.scene7.com/is/image/mmmspinco/5803_Classic_III_Black_Dancing?qlt=85&dpr=off",
+        "https://s7d9.scene7.com/is/image/mmmspinco/Classic-III_5806_04-AuxView_Angled?qlt=85&dpr=off"
+      ],
       "attributes": {
         "diaphragm": "Doble cara",
         "tubing_length": "69cm",
@@ -55,7 +60,11 @@
           "sku_suffix": "-NVY"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://s7d9.scene7.com/is/image/mmmspinco/6152-01-HERO-00?qlt=85&dpr=off",
+      "images": [
+        "https://s7d9.scene7.com/is/image/mmmspinco/6152-01-HERO-00?qlt=85&dpr=off",
+        "https://s7d9.scene7.com/is/image/mmmspinco/6152-01-ANGLE-01?qlt=85&dpr=off"
+      ],
       "attributes": {
         "diaphragm": "Doble cara sintonizable",
         "tubing_length": "69cm",
@@ -77,7 +86,10 @@
           "sku_suffix": "-BLK"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://s7d9.scene7.com/is/image/mmmspinco/2450-01-HERO-00?qlt=85&dpr=off",
+      "images": [
+        "https://s7d9.scene7.com/is/image/mmmspinco/2450-01-HERO-00?qlt=85&dpr=off"
+      ],
       "attributes": {
         "weight": "118g",
         "tubing_length": "71cm",

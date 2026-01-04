@@ -16,11 +16,12 @@ import { getClinicData } from '@/lib/clinics'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import { MandatoryVaccinesAlert } from '@/components/portal/mandatory-vaccines-alert'
 
 interface Appointment {
   id: string
   start_time: string
-  status: string
+  status: 'scheduled' | 'confirmed' | 'checked_in' | 'in_progress' | 'completed' | 'cancelled' | 'no_show'
   reason: string
   pets: { name: string } | null
 }
@@ -55,6 +56,7 @@ interface Pet {
   name: string
   species: 'dog' | 'cat'
   breed: string | null
+  birth_date: string | null
   weight_kg: number | null
   photo_url: string | null
   vaccines: Vaccine[] | null
@@ -168,6 +170,19 @@ export default async function OwnerDashboardPage({
         </div>
       </div>
 
+      {/* Mandatory Vaccine Alerts - Prominent at top */}
+      {pets && pets.length > 0 && (
+        <MandatoryVaccinesAlert
+          clinic={clinic}
+          pets={pets.map((p) => ({
+            id: p.id,
+            name: p.name,
+            species: p.species,
+            birth_date: p.birth_date,
+          }))}
+        />
+      )}
+
       {/* Upcoming Appointments */}
       {myAppointments.length > 0 && (
         <div>
@@ -205,7 +220,7 @@ export default async function OwnerDashboardPage({
                   className={`rounded-full px-3 py-1 text-xs font-bold capitalize ${
                     apt.status === 'confirmed'
                       ? 'bg-green-100 text-green-700'
-                      : apt.status === 'pending'
+                      : apt.status === 'scheduled'
                         ? 'bg-yellow-100 text-yellow-700'
                         : 'bg-gray-100 text-gray-500'
                   }`}
@@ -213,9 +228,9 @@ export default async function OwnerDashboardPage({
                   {apt.status === 'confirmed'
                     ? data.config.ui_labels?.portal?.appointment_widget?.status?.confirmed ||
                       'Confirmada'
-                    : apt.status === 'pending'
-                      ? data.config.ui_labels?.portal?.appointment_widget?.status?.pending ||
-                        'Pendiente'
+                    : apt.status === 'scheduled'
+                      ? data.config.ui_labels?.portal?.appointment_widget?.status?.scheduled ||
+                        'Programada'
                       : apt.status}
                 </div>
               </div>

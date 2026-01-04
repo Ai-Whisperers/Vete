@@ -20,7 +20,7 @@ const ContentSecurityPolicy = isDev
     default-src 'self';
     script-src 'self' 'unsafe-inline' 'unsafe-eval';
     style-src 'self' 'unsafe-inline';
-    img-src 'self' blob: data: https://*.supabase.co https://assets.ruralmakro.org https://www.4pets.com.py https://www.ruralcenter.com.py https://www.bayer.com https://*.cloudinary.com https://images.unsplash.com https://assets.petco.com https://www.royalcanin.com https://www.bd.com https://http2.mlstatic.com https://m.media-amazon.com https://cdn.shopify.com https://d36tnp772eyphs.cloudfront.net https://www.nexgard.com.ar;
+    img-src 'self' blob: data: https://*.supabase.co https://assets.ruralmakro.org https://www.4pets.com.py https://www.ruralcenter.com.py https://www.bayer.com https://*.cloudinary.com https://images.unsplash.com https://assets.petco.com https://www.royalcanin.com https://www.bd.com https://http2.mlstatic.com https://m.media-amazon.com https://cdn.shopify.com https://d36tnp772eyphs.cloudfront.net https://www.nexgard.com.ar https://s.turbifycdn.com https://cdn.awsli.com.br https://s7d9.scene7.com https://www.idexx.com https://www.bbraunusa.com https://www.purina.com.py https://purina.com.py;
     font-src 'self';
     connect-src 'self' https://*.supabase.co wss://*.supabase.co;
     frame-ancestors 'self';
@@ -29,7 +29,7 @@ const ContentSecurityPolicy = isDev
     default-src 'self';
     script-src 'self' 'unsafe-inline';
     style-src 'self' 'unsafe-inline';
-    img-src 'self' blob: data: https://*.supabase.co https://assets.ruralmakro.org https://www.4pets.com.py https://www.ruralcenter.com.py https://www.bayer.com https://*.cloudinary.com https://images.unsplash.com https://assets.petco.com https://www.royalcanin.com https://www.bd.com https://http2.mlstatic.com https://m.media-amazon.com https://cdn.shopify.com https://d36tnp772eyphs.cloudfront.net https://www.nexgard.com.ar;
+    img-src 'self' blob: data: https://*.supabase.co https://assets.ruralmakro.org https://www.4pets.com.py https://www.ruralcenter.com.py https://www.bayer.com https://*.cloudinary.com https://images.unsplash.com https://assets.petco.com https://www.royalcanin.com https://www.bd.com https://http2.mlstatic.com https://m.media-amazon.com https://cdn.shopify.com https://d36tnp772eyphs.cloudfront.net https://www.nexgard.com.ar https://s.turbifycdn.com https://cdn.awsli.com.br https://s7d9.scene7.com https://www.idexx.com https://www.bbraunusa.com https://www.purina.com.py https://purina.com.py;
     font-src 'self';
     connect-src 'self' https://*.supabase.co wss://*.supabase.co;
     frame-ancestors 'self';
@@ -223,6 +223,35 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'www.nexgard.com.ar',
+      },
+      // Additional CDNs for product images
+      {
+        protocol: 'https',
+        hostname: 's.turbifycdn.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.awsli.com.br',
+      },
+      {
+        protocol: 'https',
+        hostname: 's7d9.scene7.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.idexx.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.bbraunusa.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.purina.com.py',
+      },
+      {
+        protocol: 'https',
+        hostname: 'purina.com.py',
       },
     ],
     formats: ['image/avif', 'image/webp'],

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { withAuth, isStaff } from '@/lib/api/with-auth'
+import { withApiAuth, isStaff, type ApiHandlerContext } from '@/lib/auth'
 import { apiError, apiSuccess, HTTP_STATUS } from '@/lib/api/errors'
 import { parsePagination, paginatedResponse } from '@/lib/api/pagination'
 import { logger } from '@/lib/logger'
@@ -15,7 +15,7 @@ interface InvoiceItem {
 }
 
 // GET /api/invoices - List invoices for a clinic
-export const GET = withAuth(async ({ user, profile, supabase, request }) => {
+export const GET = withApiAuth(async ({ user, profile, supabase, request }) => {
   const { searchParams } = new URL(request.url)
   const clinic = searchParams.get('clinic') || profile.tenant_id
   const status = searchParams.get('status')
@@ -87,8 +87,8 @@ export const GET = withAuth(async ({ user, profile, supabase, request }) => {
 
 // POST /api/invoices - Create new invoice (staff only)
 // Rate limited: 10 requests per minute (financial operations)
-export const POST = withAuth(
-  async ({ user, profile, supabase, request }) => {
+export const POST = withApiAuth(
+  async ({ user, profile, supabase, request }: ApiHandlerContext) => {
     try {
       const body = await request.json()
       const { pet_id, items, notes, due_date } = body

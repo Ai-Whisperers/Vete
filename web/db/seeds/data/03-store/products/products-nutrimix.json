@@ -17,7 +17,14 @@
           "sku_suffix": ""
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://www.schroedercia.com.py/wp-content/uploads/2024/05/balanceado-razas-pequenas-1.png",
+      "images": [
+        "https://www.schroedercia.com.py/wp-content/uploads/2024/05/balanceado-razas-pequenas-1.png",
+        "https://www.schroedercia.com.py/wp-content/uploads/2024/05/producto-2.png",
+        "https://www.schroedercia.com.py/wp-content/uploads/2024/05/producto-3.png",
+        "https://www.schroedercia.com.py/wp-content/uploads/2024/05/producto-4.png",
+        "https://www.schroedercia.com.py/wp-content/uploads/2024/05/balanceado-razas-pequenas-1.png"
+      ],
       "attributes": {
         "life_stage": "Adulto",
         "protein": "21%"
@@ -38,7 +45,14 @@
           "sku_suffix": ""
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://www.schroedercia.com.py/wp-content/uploads/2024/05/producto-2.png",
+      "images": [
+        "https://www.schroedercia.com.py/wp-content/uploads/2024/05/producto-2.png",
+        "https://www.schroedercia.com.py/wp-content/uploads/2024/05/balanceado-razas-pequenas-1.png",
+        "https://www.schroedercia.com.py/wp-content/uploads/2024/05/producto-3.png",
+        "https://www.schroedercia.com.py/wp-content/uploads/2024/05/producto-4.png",
+        "https://www.schroedercia.com.py/wp-content/uploads/2024/05/balanceado-razas-pequenas-1.png"
+      ],
       "attributes": {
         "life_stage": "Adulto",
         "protein": "21%"
@@ -59,7 +73,14 @@
           "sku_suffix": ""
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://www.schroedercia.com.py/wp-content/uploads/2024/05/producto-3.png",
+      "images": [
+        "https://www.schroedercia.com.py/wp-content/uploads/2024/05/producto-3.png",
+        "https://www.schroedercia.com.py/wp-content/uploads/2024/05/balanceado-razas-pequenas-1.png",
+        "https://www.schroedercia.com.py/wp-content/uploads/2024/05/producto-2.png",
+        "https://www.schroedercia.com.py/wp-content/uploads/2024/05/producto-4.png",
+        "https://www.schroedercia.com.py/wp-content/uploads/2024/05/balanceado-razas-pequenas-1.png"
+      ],
       "attributes": {
         "life_stage": "Adulto",
         "protein": "21%"
@@ -80,7 +101,14 @@
           "sku_suffix": ""
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://www.schroedercia.com.py/wp-content/uploads/2024/05/producto-4.png",
+      "images": [
+        "https://www.schroedercia.com.py/wp-content/uploads/2024/05/producto-4.png",
+        "https://www.schroedercia.com.py/wp-content/uploads/2024/05/balanceado-razas-pequenas-1.png",
+        "https://www.schroedercia.com.py/wp-content/uploads/2024/05/producto-2.png",
+        "https://www.schroedercia.com.py/wp-content/uploads/2024/05/producto-3.png",
+        "https://www.schroedercia.com.py/wp-content/uploads/2024/05/balanceado-razas-pequenas-1.png"
+      ],
       "attributes": {
         "life_stage": "Cachorro",
         "protein": "26%"
@@ -101,7 +129,14 @@
           "sku_suffix": ""
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://www.schroedercia.com.py/wp-content/uploads/2024/05/balanceado-razas-pequenas-1.png",
+      "images": [
+        "https://www.schroedercia.com.py/wp-content/uploads/2024/05/balanceado-razas-pequenas-1.png",
+        "https://www.schroedercia.com.py/wp-content/uploads/2024/05/producto-4.png",
+        "https://www.schroedercia.com.py/wp-content/uploads/2024/05/producto-2.png",
+        "https://www.schroedercia.com.py/wp-content/uploads/2024/05/producto-3.png",
+        "https://www.schroedercia.com.py/wp-content/uploads/2024/05/producto-4.png"
+      ],
       "attributes": {
         "life_stage": "Cachorro",
         "protein": "26%"

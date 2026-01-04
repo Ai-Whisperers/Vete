@@ -31,6 +31,21 @@ export async function POST(req: NextRequest) {
   const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp']
   const MAX_ROWS = 1000 // Prevent DoS via huge spreadsheets
 
+  // SEC-004: Extension whitelists
+  const ALLOWED_EXCEL_EXTENSIONS = ['xlsx', 'xls', 'csv']
+  const ALLOWED_IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp']
+
+  /**
+   * Validates file extension against whitelist
+   */
+  function validateExtension(filename: string, allowedExtensions: string[]): string | null {
+    const extension = filename.split('.').pop()?.toLowerCase()
+    if (!extension || !allowedExtensions.includes(extension)) {
+      return null
+    }
+    return extension
+  }
+
   try {
     let rpcData: Record<string, unknown>[] = []
     const contentType = req.headers.get('content-type') || ''
@@ -62,10 +77,18 @@ export async function POST(req: NextRequest) {
             { status: 400 }
           )
         }
+        // SEC-004: Validate image extension
+        const imageExt = validateExtension(file.name, ALLOWED_IMAGE_EXTENSIONS)
+        if (!imageExt) {
+          return NextResponse.json(
+            { error: 'Extensión de imagen no permitida. Use .jpg, .jpeg, .png o .webp' },
+            { status: 400 }
+          )
+        }
 
         const bytes = await file.arrayBuffer()
-        const fileExt = file.name.split('.').pop()
-        const fileName = `${profile.tenant_id}/${sku}_${Date.now()}.${fileExt}`
+        // Use validated extension from SEC-004 check
+        const fileName = `${profile.tenant_id}/${sku}_${Date.now()}.${imageExt}`
 
         // Upload to Storage
         const { data: storageData, error: sError } = await supabase.storage
@@ -101,6 +124,14 @@ export async function POST(req: NextRequest) {
       if (!ALLOWED_EXCEL_TYPES.includes(file.type)) {
         return NextResponse.json(
           { error: 'Tipo de archivo no permitido. Use Excel (.xlsx) o CSV' },
+          { status: 400 }
+        )
+      }
+      // SEC-004: Validate spreadsheet extension
+      const spreadsheetExt = validateExtension(file.name, ALLOWED_EXCEL_EXTENSIONS)
+      if (!spreadsheetExt) {
+        return NextResponse.json(
+          { error: 'Extensión de archivo no permitida. Use .xlsx, .xls o .csv' },
           { status: 400 }
         )
       }

@@ -34,7 +34,14 @@
           "sku_suffix": "-21KG"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://www.pedigree.com.mx/cdn-cgi/image/width=410,format=auto,q=90/sites/g/files/fnmzdf1501/files/2024-11/ADULTO-11KG_0.png",
+      "images": [
+        "https://www.pedigree.com.mx/cdn-cgi/image/width=410,format=auto,q=90/sites/g/files/fnmzdf1501/files/2024-11/ADULTO-11KG_0.png",
+        "https://www.pedigree.com.mx/cdn-cgi/image/width=410,format=auto,q=90/sites/g/files/fnmzdf1501/files/2024-11/CACHORRO-4KG.png",
+        "https://www.pedigree.com.mx/cdn-cgi/image/width=410,format=auto,q=90/sites/g/files/fnmzdf1501/files/2024-11/RP-10KG.png",
+        "https://www.pedigree.com.mx/cdn-cgi/image/width=410,format=auto,q=90/sites/g/files/fnmzdf1501/files/2024-12/balance-natural-croquetas-adulto-con-res-y-vegetales-4kg_0.png",
+        "https://www.pedigree.com.mx/cdn-cgi/image/width=410,format=auto,q=90/sites/g/files/fnmzdf1501/files/2022-10/7506174515065-product-image-1.png"
+      ],
       "attributes": {
         "age_range": "1+ años",
         "main_ingredient": "Carne"
@@ -66,7 +73,14 @@
           "sku_suffix": "-21KG"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://www.pedigree.com.mx/cdn-cgi/image/width=410,format=auto,q=90/sites/g/files/fnmzdf1501/files/2022-10/7506174515065-product-image-1.png",
+      "images": [
+        "https://www.pedigree.com.mx/cdn-cgi/image/width=410,format=auto,q=90/sites/g/files/fnmzdf1501/files/2022-10/7506174515065-product-image-1.png",
+        "https://www.pedigree.com.mx/cdn-cgi/image/width=410,format=auto,q=90/sites/g/files/fnmzdf1501/files/2024-11/ADULTO-11KG_0.png",
+        "https://www.pedigree.com.mx/cdn-cgi/image/width=410,format=auto,q=90/sites/g/files/fnmzdf1501/files/2024-12/balance-natural-croquetas-adulto-con-res-y-vegetales-4kg_0.png",
+        "https://www.pedigree.com.mx/cdn-cgi/image/width=410,format=auto,q=90/sites/g/files/fnmzdf1501/files/2024-11/RP-10KG.png",
+        "https://www.pedigree.com.mx/cdn-cgi/image/width=410,format=auto,q=90/sites/g/files/fnmzdf1501/files/2024-11/CACHORRO-4KG.png"
+      ],
       "attributes": {
         "flavor": "Carne",
         "age_range": "1+ años"
@@ -104,7 +118,14 @@
           "sku_suffix": "-21KG"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://www.pedigree.com.mx/cdn-cgi/image/width=410,format=auto,q=90/sites/g/files/fnmzdf1501/files/2024-11/CACHORRO-4KG.png",
+      "images": [
+        "https://www.pedigree.com.mx/cdn-cgi/image/width=410,format=auto,q=90/sites/g/files/fnmzdf1501/files/2024-11/CACHORRO-4KG.png",
+        "https://www.pedigree.com.mx/cdn-cgi/image/width=410,format=auto,q=90/sites/g/files/fnmzdf1501/files/2024-11/ADULTO-11KG_0.png",
+        "https://www.pedigree.com.mx/cdn-cgi/image/width=410,format=auto,q=90/sites/g/files/fnmzdf1501/files/2024-11/RP-10KG.png",
+        "https://www.pedigree.com.mx/cdn-cgi/image/width=410,format=auto,q=90/sites/g/files/fnmzdf1501/files/2024-12/balance-natural-croquetas-adulto-con-res-y-vegetales-4kg_0.png",
+        "https://www.pedigree.com.mx/cdn-cgi/image/width=410,format=auto,q=90/sites/g/files/fnmzdf1501/files/2022-10/7506174515065-product-image-1.png"
+      ],
       "attributes": {
         "age_range": "Hasta 1 año",
         "lifestage": "Puppy"
@@ -130,7 +151,14 @@
           "sku_suffix": "-15KG"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://www.pedigree.com.mx/cdn-cgi/image/width=410,format=auto,q=90/sites/g/files/fnmzdf1501/files/2024-11/ADULTO-11KG_0.png",
+      "images": [
+        "https://www.pedigree.com.mx/cdn-cgi/image/width=410,format=auto,q=90/sites/g/files/fnmzdf1501/files/2024-11/ADULTO-11KG_0.png",
+        "https://www.pedigree.com.mx/cdn-cgi/image/width=410,format=auto,q=90/sites/g/files/fnmzdf1501/files/2024-12/balance-natural-croquetas-adulto-con-res-y-vegetales-4kg_0.png",
+        "https://www.pedigree.com.mx/cdn-cgi/image/width=410,format=auto,q=90/sites/g/files/fnmzdf1501/files/2024-11/CACHORRO-4KG.png",
+        "https://www.pedigree.com.mx/cdn-cgi/image/width=410,format=auto,q=90/sites/g/files/fnmzdf1501/files/2024-11/RP-10KG.png",
+        "https://www.pedigree.com.mx/cdn-cgi/image/width=410,format=auto,q=90/sites/g/files/fnmzdf1501/files/2022-10/7506174515065-product-image-1.png"
+      ],
       "attributes": {
         "age_range": "7+ años",
         "special_need": "Senior"
@@ -162,7 +190,14 @@
           "sku_suffix": "-6KG"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://www.pedigree.com.mx/cdn-cgi/image/width=410,format=auto,q=90/sites/g/files/fnmzdf1501/files/2024-11/RP-10KG.png",
+      "images": [
+        "https://www.pedigree.com.mx/cdn-cgi/image/width=410,format=auto,q=90/sites/g/files/fnmzdf1501/files/2024-11/RP-10KG.png",
+        "https://www.pedigree.com.mx/cdn-cgi/image/width=410,format=auto,q=90/sites/g/files/fnmzdf1501/files/2024-11/ADULTO-11KG_0.png",
+        "https://www.pedigree.com.mx/cdn-cgi/image/width=410,format=auto,q=90/sites/g/files/fnmzdf1501/files/2024-11/CACHORRO-4KG.png",
+        "https://www.pedigree.com.mx/cdn-cgi/image/width=410,format=auto,q=90/sites/g/files/fnmzdf1501/files/2024-12/balance-natural-croquetas-adulto-con-res-y-vegetales-4kg_0.png",
+        "https://www.pedigree.com.mx/cdn-cgi/image/width=410,format=auto,q=90/sites/g/files/fnmzdf1501/files/2022-10/7506174515065-product-image-1.png"
+      ],
       "attributes": {
         "breed_size": "Pequeño",
         "kibble_size": "Mini"
@@ -182,7 +217,14 @@
           "sku_suffix": "-290G"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://www.ciudaddemascotas.com/pub/media/catalog/product/p/e/pedigree_lata_adulto_carne.jpg",
+      "images": [
+        "https://www.ciudaddemascotas.com/pub/media/catalog/product/p/e/pedigree_lata_adulto_carne.jpg",
+        "https://www.pedigree.com.mx/cdn-cgi/image/width=410,format=auto,q=90/sites/g/files/fnmzdf1501/files/2024-08/12345678-product-image-1.png",
+        "https://www.pedigree.com.mx/cdn-cgi/image/width=410,format=auto,q=90/sites/g/files/fnmzdf1501/files/2024-11/ADULTO-11KG_0.png",
+        "https://www.pedigree.com.mx/cdn-cgi/image/width=410,format=auto,q=90/sites/g/files/fnmzdf1501/files/2024-11/CACHORRO-4KG.png",
+        "https://www.pedigree.com.mx/cdn-cgi/image/width=410,format=auto,q=90/sites/g/files/fnmzdf1501/files/2024-11/RP-10KG.png"
+      ],
       "attributes": {
         "format": "Lata",
         "flavor": "Carne"
@@ -202,7 +244,14 @@
           "sku_suffix": "-290G"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://www.ciudaddemascotas.com/pub/media/catalog/product/p/e/pedigree_lata_adulto_carne.jpg",
+      "images": [
+        "https://www.ciudaddemascotas.com/pub/media/catalog/product/p/e/pedigree_lata_adulto_carne.jpg",
+        "https://www.pedigree.com.mx/cdn-cgi/image/width=410,format=auto,q=90/sites/g/files/fnmzdf1501/files/2024-08/12345678-product-image-1.png",
+        "https://www.pedigree.com.mx/cdn-cgi/image/width=410,format=auto,q=90/sites/g/files/fnmzdf1501/files/2024-11/ADULTO-11KG_0.png",
+        "https://www.pedigree.com.mx/cdn-cgi/image/width=410,format=auto,q=90/sites/g/files/fnmzdf1501/files/2024-11/CACHORRO-4KG.png",
+        "https://www.pedigree.com.mx/cdn-cgi/image/width=410,format=auto,q=90/sites/g/files/fnmzdf1501/files/2024-11/RP-10KG.png"
+      ],
       "attributes": {
         "format": "Lata",
         "flavor": "Pollo"
@@ -228,7 +277,14 @@
           "sku_suffix": "-28"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://www.pedigree.com.mx/cdn-cgi/image/width=410,format=auto,q=90/sites/g/files/fnmzdf1501/files/2024-11/ADULTO-11KG_0.png",
+      "images": [
+        "https://www.pedigree.com.mx/cdn-cgi/image/width=410,format=auto,q=90/sites/g/files/fnmzdf1501/files/2024-11/ADULTO-11KG_0.png",
+        "https://www.pedigree.com.mx/cdn-cgi/image/width=410,format=auto,q=90/sites/g/files/fnmzdf1501/files/2024-11/CACHORRO-4KG.png",
+        "https://www.pedigree.com.mx/cdn-cgi/image/width=410,format=auto,q=90/sites/g/files/fnmzdf1501/files/2024-11/RP-10KG.png",
+        "https://www.pedigree.com.mx/cdn-cgi/image/width=410,format=auto,q=90/sites/g/files/fnmzdf1501/files/2024-12/balance-natural-croquetas-adulto-con-res-y-vegetales-4kg_0.png",
+        "https://www.pedigree.com.mx/cdn-cgi/image/width=410,format=auto,q=90/sites/g/files/fnmzdf1501/files/2022-10/7506174515065-product-image-1.png"
+      ],
       "attributes": {
         "purpose": "Salud dental",
         "texture": "Masticable"
@@ -254,7 +310,14 @@
           "sku_suffix": "-1KG"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://www.pedigree.com.mx/cdn-cgi/image/width=410,format=auto,q=90/sites/g/files/fnmzdf1501/files/2024-12/balance-natural-croquetas-adulto-con-res-y-vegetales-4kg_0.png",
+      "images": [
+        "https://www.pedigree.com.mx/cdn-cgi/image/width=410,format=auto,q=90/sites/g/files/fnmzdf1501/files/2024-12/balance-natural-croquetas-adulto-con-res-y-vegetales-4kg_0.png",
+        "https://www.pedigree.com.mx/cdn-cgi/image/width=410,format=auto,q=90/sites/g/files/fnmzdf1501/files/2024-11/ADULTO-11KG_0.png",
+        "https://www.pedigree.com.mx/cdn-cgi/image/width=410,format=auto,q=90/sites/g/files/fnmzdf1501/files/2024-11/CACHORRO-4KG.png",
+        "https://www.pedigree.com.mx/cdn-cgi/image/width=410,format=auto,q=90/sites/g/files/fnmzdf1501/files/2024-11/RP-10KG.png",
+        "https://www.pedigree.com.mx/cdn-cgi/image/width=410,format=auto,q=90/sites/g/files/fnmzdf1501/files/2022-10/7506174515065-product-image-1.png"
+      ],
       "attributes": {
         "type": "Galletas",
         "texture": "Crujiente"

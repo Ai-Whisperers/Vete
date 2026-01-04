@@ -63,7 +63,7 @@ export const cancelAppointment = withActionAuth(
         status: 'cancelled',
         notes: reason
           ? `[Cancelado] ${reason}`
-          : appointment.status === 'pending'
+          : appointment.status === 'scheduled'
             ? '[Cancelado por el cliente]'
             : '[Cancelado]',
       })
@@ -300,7 +300,7 @@ export const checkInAppointment = withActionAuth(
     }
 
     // Validate status
-    if (!['pending', 'confirmed'].includes(appointment.status)) {
+    if (!['scheduled', 'confirmed'].includes(appointment.status)) {
       return actionError(`No se puede registrar llegada para estado: ${appointment.status}`)
     }
 
@@ -457,8 +457,8 @@ export const markNoShow = withActionAuth(
       return actionError('Solo el personal puede marcar no presentados')
     }
 
-    if (!['pending', 'confirmed'].includes(appointment.status)) {
-      return actionError('Solo se puede marcar como no presentado a citas pendientes o confirmadas')
+    if (!['scheduled', 'confirmed'].includes(appointment.status)) {
+      return actionError('Solo se puede marcar como no presentado a citas programadas o confirmadas')
     }
 
     const { error: updateError } = await supabase

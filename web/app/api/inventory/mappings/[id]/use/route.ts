@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { withAuth, type AuthContext, type RouteContext } from '@/lib/api/with-auth'
+import { withApiAuthParams, type ApiHandlerContext } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
 
@@ -10,10 +10,11 @@ type IdParams = { id: string }
 // =============================================================================
 // This endpoint is called when a mapping is used for an import to track
 // usage statistics and order mappings by popularity
-export const POST = withAuth<IdParams>(
-  async ({ profile, supabase }: AuthContext, context: RouteContext<IdParams>) => {
+export const POST = withApiAuthParams<IdParams>(
+  async (ctx: ApiHandlerContext, params: IdParams) => {
+    const { profile, supabase } = ctx
     try {
-      const { id } = await context.params
+      const { id } = params
 
       // Verify the mapping exists and belongs to this tenant
       const { data: existing, error: fetchError } = await supabase

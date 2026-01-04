@@ -2,9 +2,10 @@
 
 Vete provides both REST API endpoints and Server Actions for data operations.
 
-> **Last Updated**: January 2025
-> **Total REST Endpoints**: 87
-> **Total Server Actions**: 20
+> **Last Updated**: January 2026
+> **Total REST Endpoints**: 167
+> **Total Server Actions**: 22
+> **Total Cron Jobs**: 5
 
 ---
 
@@ -131,7 +132,7 @@ Vete provides both REST API endpoints and Server Actions for data operations.
 | GET/POST | `/api/insurance/pre-authorizations` | Pre-auth requests |
 | GET | `/api/insurance/providers` | Provider directory |
 
-### E-Commerce / Store (16 endpoints)
+### E-Commerce / Store (18 endpoints)
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
@@ -140,6 +141,7 @@ Vete provides both REST API endpoints and Server Actions for data operations.
 | GET | `/api/store/products/[id]` | Product details |
 | GET | `/api/store/search` | Product search |
 | GET/PUT/DELETE | `/api/store/cart` | Cart persistence (logged-in users) |
+| POST/DELETE | `/api/store/cart/items` | Add/remove cart items with stock reservation |
 | GET/POST | `/api/store/orders` | Order management |
 | POST | `/api/store/checkout` | Process checkout |
 | GET | `/api/store/orders/pending-prescriptions` | Orders pending prescription review |
@@ -149,6 +151,7 @@ Vete provides both REST API endpoints and Server Actions for data operations.
 | GET/POST | `/api/store/reviews` | Product reviews |
 | GET/POST/DELETE | `/api/store/wishlist` | User wishlist |
 | GET/POST | `/api/store/stock-alerts` | Stock alerts |
+| GET/POST | `/api/store/subscriptions` | Recurring order management |
 
 ### Communications (11 endpoints)
 
@@ -175,14 +178,32 @@ Vete provides both REST API endpoints and Server Actions for data operations.
 | GET/POST | `/api/staff/time-off` | Time off requests |
 | GET | `/api/staff/time-off/types` | Time off types |
 
-### Inventory (4 endpoints)
+### Inventory (12 endpoints)
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET | `/api/inventory/alerts` | Low stock alerts |
 | GET/POST | `/api/inventory/stats` | Inventory statistics |
-| POST | `/api/inventory/import` | Bulk import |
-| POST | `/api/inventory/export` | Export inventory |
+| POST | `/api/inventory/import` | Bulk import from CSV/Excel |
+| POST | `/api/inventory/import/preview` | Preview import before commit |
+| POST | `/api/inventory/export` | Export inventory to file |
+| POST | `/api/inventory/adjust` | Adjust stock with reason |
+| POST | `/api/inventory/receive` | Receive stock, update WAC |
+| GET | `/api/inventory/reorder-suggestions` | Products needing reorder |
+| GET | `/api/inventory/[productId]/history` | Stock transaction history |
+| GET | `/api/inventory/barcode-lookup` | Product lookup by barcode |
+| GET/POST | `/api/inventory/mappings` | Catalog product mappings |
+| PUT/DELETE | `/api/inventory/mappings/[id]` | Update/delete mapping |
+
+### Cron / Background Jobs (5 endpoints)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/cron/release-reservations` | Release expired cart reservations |
+| GET | `/api/cron/process-subscriptions` | Process subscription renewals |
+| GET | `/api/cron/expiry-alerts` | Send product expiry notifications |
+| GET | `/api/cron/stock-alerts` | Send low stock email alerts |
+| GET | `/api/cron/reminders` | Process scheduled reminders |
 
 ### Finance (3 endpoints)
 
@@ -209,7 +230,7 @@ Vete provides both REST API endpoints and Server Actions for data operations.
 | GET | `/api/services` | Service catalog |
 | GET | `/api/notifications` | User notifications |
 | POST | `/api/notifications/mark-all-read` | Mark all read |
-| GET | `/api/loyalty_points` | Loyalty program |
+| GET | `/api/loyalty/points` | Loyalty program |
 | GET | `/api/search` | Global search |
 | GET | `/api/epidemiology/heatmap` | Disease heatmap |
 

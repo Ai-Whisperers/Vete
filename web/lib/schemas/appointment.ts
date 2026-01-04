@@ -4,19 +4,10 @@
 
 import { z } from 'zod'
 import { uuidSchema, futureDateSchema, optionalString, enumSchema } from './common'
+import { APPOINTMENT_STATUSES, type AppointmentStatus } from '@/lib/types/status'
 
-/**
- * Appointment status options
- */
-export const APPOINTMENT_STATUSES = [
-  'pending',
-  'confirmed',
-  'in_progress',
-  'completed',
-  'cancelled',
-  'no_show',
-] as const
-export type AppointmentStatus = (typeof APPOINTMENT_STATUSES)[number]
+// Re-export for backward compatibility
+export { APPOINTMENT_STATUSES, type AppointmentStatus }
 
 /**
  * Schema for creating a new appointment

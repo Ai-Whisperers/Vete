@@ -5,7 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { withAuth, type AuthContext } from '@/lib/api/with-auth'
+import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { apiError, apiSuccess, API_ERRORS } from '@/lib/api/errors'
 import {
   createAppointmentSchema,
@@ -15,7 +15,7 @@ import {
 import { rateLimit } from '@/lib/rate-limit'
 
 // GET /api/booking - List appointments
-export const GET = withAuth(async (ctx: AuthContext) => {
+export const GET = withApiAuth(async (ctx: ApiHandlerContext) => {
   // Apply rate limiting for search endpoints (30 requests per minute)
   const rateLimitResult = await rateLimit(ctx.request, 'search', ctx.user.id)
   if (!rateLimitResult.success) {
@@ -95,7 +95,7 @@ export const GET = withAuth(async (ctx: AuthContext) => {
 })
 
 // POST /api/booking - Create appointment
-export const POST = withAuth(async (ctx: AuthContext) => {
+export const POST = withApiAuth(async (ctx: ApiHandlerContext) => {
   // Apply rate limiting for write endpoints (20 requests per minute)
   const rateLimitResult = await rateLimit(ctx.request, 'write', ctx.user.id)
   if (!rateLimitResult.success) {
@@ -227,7 +227,7 @@ export const POST = withAuth(async (ctx: AuthContext) => {
 })
 
 // PUT /api/booking - Update appointment
-export const PUT = withAuth(async (ctx: AuthContext) => {
+export const PUT = withApiAuth(async (ctx: ApiHandlerContext) => {
   // Apply rate limiting for write endpoints (20 requests per minute)
   const rateLimitResult = await rateLimit(ctx.request, 'write', ctx.user.id)
   if (!rateLimitResult.success) {
@@ -378,8 +378,8 @@ export const PUT = withAuth(async (ctx: AuthContext) => {
 })
 
 // DELETE /api/booking - Delete appointment (admin only)
-export const DELETE = withAuth(
-  async (ctx: AuthContext) => {
+export const DELETE = withApiAuth(
+  async (ctx: ApiHandlerContext) => {
     const { supabase, request } = ctx
 
     const { searchParams } = new URL(request.url)

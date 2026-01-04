@@ -28,7 +28,14 @@
           "sku_suffix": "-7.5KG"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://http2.mlstatic.com/D_NQ_NP_689752-MLA99428009828_112025-O.jpg",
+      "images": [
+        "https://http2.mlstatic.com/D_NQ_NP_689752-MLA99428009828_112025-O.jpg",
+        "https://http2.mlstatic.com/D_Q_NP_708468-MLU76068103644_052024-F.jpg",
+        "https://http2.mlstatic.com/D_Q_NP_889320-MLU73128697756_122023-F.jpg",
+        "https://http2.mlstatic.com/D_Q_NP_665249-MLA88397752409_072025-F.jpg",
+        "https://http2.mlstatic.com/D_Q_NP_722929-MLA88397841009_072025-F.jpg"
+      ],
       "attributes": {
         "age_range": "1+ años",
         "breed_size": "Pequeño"
@@ -60,7 +67,14 @@
           "sku_suffix": "-15KG"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://http2.mlstatic.com/D_Q_NP_708468-MLU76068103644_052024-F.jpg",
+      "images": [
+        "https://http2.mlstatic.com/D_Q_NP_708468-MLU76068103644_052024-F.jpg",
+        "https://http2.mlstatic.com/D_NQ_NP_689752-MLA99428009828_112025-O.jpg",
+        "https://http2.mlstatic.com/D_Q_NP_889320-MLU73128697756_122023-F.jpg",
+        "https://http2.mlstatic.com/D_Q_NP_665249-MLA88397752409_072025-F.jpg",
+        "https://http2.mlstatic.com/D_Q_NP_722929-MLA88397841009_072025-F.jpg"
+      ],
       "attributes": {
         "age_range": "1+ años",
         "breed_size": "Mediano y Grande"
@@ -92,7 +106,14 @@
           "sku_suffix": "-7.5KG"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://http2.mlstatic.com/D_Q_NP_889320-MLU73128697756_122023-F.jpg",
+      "images": [
+        "https://http2.mlstatic.com/D_Q_NP_889320-MLU73128697756_122023-F.jpg",
+        "https://http2.mlstatic.com/D_NQ_NP_689752-MLA99428009828_112025-O.jpg",
+        "https://http2.mlstatic.com/D_Q_NP_708468-MLU76068103644_052024-F.jpg",
+        "https://http2.mlstatic.com/D_Q_NP_665249-MLA88397752409_072025-F.jpg",
+        "https://http2.mlstatic.com/D_Q_NP_722929-MLA88397841009_072025-F.jpg"
+      ],
       "attributes": {
         "age_range": "Hasta 12 meses",
         "breed_size": "Pequeño"
@@ -124,7 +145,14 @@
           "sku_suffix": "-15KG"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://http2.mlstatic.com/D_Q_NP_665249-MLA88397752409_072025-F.jpg",
+      "images": [
+        "https://http2.mlstatic.com/D_Q_NP_665249-MLA88397752409_072025-F.jpg",
+        "https://http2.mlstatic.com/D_NQ_NP_689752-MLA99428009828_112025-O.jpg",
+        "https://http2.mlstatic.com/D_Q_NP_708468-MLU76068103644_052024-F.jpg",
+        "https://http2.mlstatic.com/D_Q_NP_889320-MLU73128697756_122023-F.jpg",
+        "https://http2.mlstatic.com/D_Q_NP_722929-MLA88397841009_072025-F.jpg"
+      ],
       "attributes": {
         "age_range": "Hasta 18 meses",
         "breed_size": "Mediano y Grande"
@@ -156,7 +184,14 @@
           "sku_suffix": "-7.5KG"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://http2.mlstatic.com/D_Q_NP_722929-MLA88397841009_072025-F.jpg",
+      "images": [
+        "https://http2.mlstatic.com/D_Q_NP_722929-MLA88397841009_072025-F.jpg",
+        "https://http2.mlstatic.com/D_NQ_NP_689752-MLA99428009828_112025-O.jpg",
+        "https://http2.mlstatic.com/D_Q_NP_708468-MLU76068103644_052024-F.jpg",
+        "https://http2.mlstatic.com/D_Q_NP_889320-MLU73128697756_122023-F.jpg",
+        "https://http2.mlstatic.com/D_Q_NP_665249-MLA88397752409_072025-F.jpg"
+      ],
       "attributes": {
         "age_range": "1+ años"
       }
@@ -181,7 +216,14 @@
           "sku_suffix": "-3KG"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://http2.mlstatic.com/D_Q_NP_889320-MLU73128697756_122023-F.jpg",
+      "images": [
+        "https://http2.mlstatic.com/D_Q_NP_889320-MLU73128697756_122023-F.jpg",
+        "https://http2.mlstatic.com/D_Q_NP_722929-MLA88397841009_072025-F.jpg",
+        "https://http2.mlstatic.com/D_NQ_NP_689752-MLA99428009828_112025-O.jpg",
+        "https://http2.mlstatic.com/D_Q_NP_708468-MLU76068103644_052024-F.jpg",
+        "https://http2.mlstatic.com/D_Q_NP_665249-MLA88397752409_072025-F.jpg"
+      ],
       "attributes": {
         "age_range": "Hasta 1 año",
         "lifestage": "Kitten"
@@ -213,7 +255,14 @@
           "sku_suffix": "-7.5KG"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://http2.mlstatic.com/D_Q_NP_665249-MLA88397752409_072025-F.jpg",
+      "images": [
+        "https://http2.mlstatic.com/D_Q_NP_665249-MLA88397752409_072025-F.jpg",
+        "https://http2.mlstatic.com/D_Q_NP_722929-MLA88397841009_072025-F.jpg",
+        "https://http2.mlstatic.com/D_NQ_NP_689752-MLA99428009828_112025-O.jpg",
+        "https://http2.mlstatic.com/D_Q_NP_708468-MLU76068103644_052024-F.jpg",
+        "https://http2.mlstatic.com/D_Q_NP_889320-MLU73128697756_122023-F.jpg"
+      ],
       "attributes": {
         "special_need": "Esterilizado",
         "weight_control": true

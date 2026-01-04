@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
-import { withAuth } from '@/lib/api/with-auth'
+import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 
-export const GET = withAuth(
+export const GET = withApiAuth(
   async ({ request, profile, supabase }) => {
     const { searchParams } = new URL(request.url)
     const status = searchParams.get('status')
@@ -47,8 +47,8 @@ export const GET = withAuth(
   { roles: ['vet', 'admin'] }
 )
 
-export const POST = withAuth(
-  async ({ request, user, profile, supabase }) => {
+export const POST = withApiAuth(
+  async ({ request, user, profile, supabase }: ApiHandlerContext) => {
     // Parse body
     let body
     try {
@@ -175,8 +175,8 @@ export const POST = withAuth(
   { roles: ['vet', 'admin'] }
 )
 
-export const PATCH = withAuth(
-  async ({ request, user, profile, supabase }) => {
+export const PATCH = withApiAuth(
+  async ({ request, user, profile, supabase }: ApiHandlerContext) => {
     // Parse body
     let body
     try {

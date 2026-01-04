@@ -4,6 +4,23 @@ import type { JSX } from 'react'
 import DOMPurify from 'dompurify'
 import type { ConsentTemplate, Pet, Owner } from './types'
 
+// SEC-005: Strict DOMPurify configuration to prevent XSS
+// Only allow safe formatting tags for consent documents
+const DOMPURIFY_CONFIG: DOMPurify.Config = {
+  ALLOWED_TAGS: [
+    'p', 'br', 'strong', 'b', 'em', 'i', 'u',
+    'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+    'ul', 'ol', 'li',
+    'table', 'thead', 'tbody', 'tr', 'th', 'td',
+    'div', 'span',
+  ],
+  ALLOWED_ATTR: [
+    'class', // Allow CSS classes for styling
+  ],
+  FORBID_TAGS: ['script', 'style', 'iframe', 'form', 'input', 'button', 'link', 'meta', 'object', 'embed'],
+  FORBID_ATTR: ['onclick', 'onerror', 'onload', 'onmouseover', 'onfocus', 'onblur', 'href', 'src', 'action'],
+}
+
 interface ConsentPreviewProps {
   template: ConsentTemplate
   pet: Pet
@@ -49,7 +66,7 @@ export default function ConsentPreview({
       </h3>
       <div
         className="prose max-w-none text-[var(--text-primary)]"
-        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(renderContent()) }}
+        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(renderContent(), DOMPURIFY_CONFIG) }}
       />
     </div>
   )

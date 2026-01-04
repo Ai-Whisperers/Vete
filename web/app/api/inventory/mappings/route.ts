@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { withAuth } from '@/lib/api/with-auth'
+import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
 import { z } from 'zod'
@@ -17,7 +17,7 @@ const createMappingSchema = z.object({
 // =============================================================================
 // GET /api/inventory/mappings - List saved mappings for the clinic
 // =============================================================================
-export const GET = withAuth(
+export const GET = withApiAuth(
   async ({ profile, supabase }) => {
     try {
       const { data, error } = await supabase
@@ -51,8 +51,8 @@ export const GET = withAuth(
 // =============================================================================
 // POST /api/inventory/mappings - Create a new mapping
 // =============================================================================
-export const POST = withAuth(
-  async ({ profile, supabase, request }) => {
+export const POST = withApiAuth(
+  async ({ profile, supabase, request }: ApiHandlerContext) => {
     try {
       const body = await request.json()
 

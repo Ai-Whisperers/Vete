@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server'
-import { withAuth } from '@/lib/api/with-auth'
+import { withApiAuth } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 
 // GET /api/dashboard/stats - Get clinic dashboard stats (live query)
-export const GET = withAuth(
+export const GET = withApiAuth(
   async ({ profile, supabase }) => {
     try {
       // Use live queries for accurate, real-time data

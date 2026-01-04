@@ -136,6 +136,7 @@ export function ImportWizard({ isOpen, onClose, onImportComplete, clinic }: Impo
   // Step 4: Preview results
   const [previewResult, setPreviewResult] = useState<PreviewResult | null>(null)
   const [isLoadingPreview, setIsLoadingPreview] = useState(false)
+  const [showOnlyErrors, setShowOnlyErrors] = useState(false)
 
   // Step 5: Import
   const [isImporting, setIsImporting] = useState(false)
@@ -694,6 +695,27 @@ export function ImportWizard({ isOpen, onClose, onImportComplete, clinic }: Impo
                 </div>
               </div>
 
+              {/* Filter Bar */}
+              {previewResult.summary.errors > 0 && (
+                <div className="flex items-center justify-between rounded-lg bg-red-50 border border-red-200 p-3">
+                  <div className="flex items-center gap-2 text-red-700">
+                    <AlertCircle className="h-5 w-5" />
+                    <span className="font-medium">
+                      {previewResult.summary.errors} error{previewResult.summary.errors > 1 ? 'es' : ''} encontrado{previewResult.summary.errors > 1 ? 's' : ''}
+                    </span>
+                  </div>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={showOnlyErrors}
+                      onChange={(e) => setShowOnlyErrors(e.target.checked)}
+                      className="h-4 w-4 rounded border-gray-300 text-red-600 focus:ring-red-500"
+                    />
+                    <span className="text-sm text-red-700">Mostrar solo errores</span>
+                  </label>
+                </div>
+              )}
+
               {/* Preview Table */}
               <div className="overflow-hidden rounded-xl border">
                 <div className="max-h-[300px] overflow-x-auto">
@@ -721,7 +743,9 @@ export function ImportWizard({ isOpen, onClose, onImportComplete, clinic }: Impo
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
-                      {previewResult.preview.map((row, idx) => (
+                      {previewResult.preview
+                        .filter(row => !showOnlyErrors || row.status === 'error')
+                        .map((row, idx) => (
                         <tr
                           key={idx}
                           className={

@@ -4,7 +4,9 @@
  * Pre-defined appointment data for testing booking functionality.
  */
 
-export type AppointmentStatus = 'pending' | 'confirmed' | 'completed' | 'cancelled'
+import { APPOINTMENT_STATUSES, type AppointmentStatus } from '@/lib/types/status'
+
+export { type AppointmentStatus }
 export type AppointmentType =
   | 'consultation'
   | 'vaccination'
@@ -53,7 +55,7 @@ export const APPOINTMENTS: Record<string, AppointmentFixture> = {
     date: '2025-02-01',
     time: '10:30',
     duration: 15,
-    status: 'pending',
+    status: 'scheduled',
     reason: 'Vacuna antirrábica anual',
   },
   lunaGrooming: {
@@ -78,7 +80,7 @@ export const APPOINTMENTS: Record<string, AppointmentFixture> = {
     date: '2025-01-18',
     time: '11:00',
     duration: 30,
-    status: 'pending',
+    status: 'scheduled',
     reason: 'Perdida de apetito',
     notes: 'Gata no come hace 2 días',
   },
@@ -159,13 +161,8 @@ export const ALL_APPOINTMENT_TYPES: AppointmentType[] = [
   'emergency',
 ]
 
-/** All appointment statuses */
-export const ALL_APPOINTMENT_STATUSES: AppointmentStatus[] = [
-  'pending',
-  'confirmed',
-  'completed',
-  'cancelled',
-]
+/** All appointment statuses - using canonical source */
+export const ALL_APPOINTMENT_STATUSES = APPOINTMENT_STATUSES
 
 /** Generate appointment data for creation tests */
 export function generateAppointmentData(
@@ -182,7 +179,7 @@ export function generateAppointmentData(
     date: tomorrow.toISOString().split('T')[0],
     time: '10:00',
     duration: 30,
-    status: 'pending',
+    status: 'scheduled',
     reason: 'Consulta general',
     ...overrides,
   }

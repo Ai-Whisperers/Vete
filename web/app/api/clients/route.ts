@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { withAuth } from '@/lib/api/with-auth'
+import { withApiAuth } from '@/lib/auth'
 import { rateLimit } from '@/lib/rate-limit'
 import { parsePagination, paginatedResponse } from '@/lib/api/pagination'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
@@ -14,7 +14,7 @@ interface Client {
   last_appointment: string | null
 }
 
-export const GET = withAuth(
+export const GET = withApiAuth(
   async ({ request, user, profile, supabase }) => {
     // Apply rate limiting for search endpoints (30 requests per minute)
     const rateLimitResult = await rateLimit(request, 'search', user.id)

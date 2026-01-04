@@ -10,19 +10,10 @@ import {
   requiredString,
   optionalString,
 } from './common'
+import { INVOICE_STATUSES, type InvoiceStatus } from '@/lib/types/status'
 
-/**
- * Invoice status enum
- */
-export const INVOICE_STATUSES = [
-  'draft',
-  'sent',
-  'paid',
-  'partial',
-  'overdue',
-  'cancelled',
-] as const
-export type InvoiceStatus = (typeof INVOICE_STATUSES)[number]
+// Re-export for backward compatibility
+export { INVOICE_STATUSES, type InvoiceStatus }
 
 /**
  * Invoice item types

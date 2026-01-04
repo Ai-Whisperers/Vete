@@ -15,8 +15,16 @@ export type {
   AuthResult,
 } from './types'
 
-// Core service
-export { AuthService } from './core'
+// Core service and utilities
+export {
+  AuthService,
+  isStaff,
+  isAdmin,
+  ownsResource,
+  belongsToTenant,
+  requireOwnership,
+  type MinimalProfile,
+} from './core'
 
 // API route wrappers
 export {

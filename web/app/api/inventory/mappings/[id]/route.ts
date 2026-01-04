@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { withAuth, type AuthContext, type RouteContext } from '@/lib/api/with-auth'
+import { withApiAuthParams, type ApiHandlerContext } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
 import { z } from 'zod'
@@ -19,10 +19,11 @@ type IdParams = { id: string }
 // =============================================================================
 // GET /api/inventory/mappings/[id] - Get a specific mapping
 // =============================================================================
-export const GET = withAuth<IdParams>(
-  async ({ profile, supabase }: AuthContext, context: RouteContext<IdParams>) => {
+export const GET = withApiAuthParams<IdParams>(
+  async (ctx: ApiHandlerContext, params: IdParams) => {
+    const { profile, supabase } = ctx
     try {
-      const { id } = await context.params
+      const { id } = params
 
       const { data, error } = await supabase
         .from('store_import_mappings')
@@ -51,10 +52,11 @@ export const GET = withAuth<IdParams>(
 // =============================================================================
 // PATCH /api/inventory/mappings/[id] - Update a mapping
 // =============================================================================
-export const PATCH = withAuth<IdParams>(
-  async ({ profile, supabase, request }: AuthContext, context: RouteContext<IdParams>) => {
+export const PATCH = withApiAuthParams<IdParams>(
+  async (ctx: ApiHandlerContext, params: IdParams) => {
+    const { profile, supabase, request } = ctx
     try {
-      const { id } = await context.params
+      const { id } = params
       const body = await request.json()
 
       // Validate input
@@ -127,10 +129,11 @@ export const PATCH = withAuth<IdParams>(
 // =============================================================================
 // DELETE /api/inventory/mappings/[id] - Delete a mapping
 // =============================================================================
-export const DELETE = withAuth<IdParams>(
-  async ({ profile, supabase }: AuthContext, context: RouteContext<IdParams>) => {
+export const DELETE = withApiAuthParams<IdParams>(
+  async (ctx: ApiHandlerContext, params: IdParams) => {
+    const { profile, supabase } = ctx
     try {
-      const { id } = await context.params
+      const { id } = params
 
       // Verify the mapping exists and belongs to this tenant
       const { data: existing, error: fetchError } = await supabase

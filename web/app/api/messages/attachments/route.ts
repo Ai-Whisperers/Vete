@@ -13,7 +13,27 @@ const ALLOWED_TYPES = [
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
 ]
 
+// SEC-004: Whitelist of allowed file extensions (prevents path traversal and dangerous extensions)
+const ALLOWED_EXTENSIONS = [
+  'jpg', 'jpeg', 'png', 'gif', 'webp',  // Images
+  'pdf',                                  // Documents
+  'txt',                                  // Text
+  'doc', 'docx',                          // Word documents
+]
+
 const MAX_SIZE = 10 * 1024 * 1024 // 10MB
+
+/**
+ * Validates file extension against whitelist
+ * Returns normalized lowercase extension or null if invalid
+ */
+function validateExtension(filename: string): string | null {
+  const extension = filename.split('.').pop()?.toLowerCase()
+  if (!extension || !ALLOWED_EXTENSIONS.includes(extension)) {
+    return null
+  }
+  return extension
+}
 
 interface UploadedAttachment {
   url: string
@@ -82,6 +102,17 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const uploadedAttachments: UploadedAttachment[] = []
 
     for (const file of files) {
+      // SEC-004: Validate extension
+      const validExtension = validateExtension(file.name)
+      if (!validExtension) {
+        return NextResponse.json(
+          {
+            error: `Extensión de archivo no permitida: "${file.name}". Extensiones permitidas: ${ALLOWED_EXTENSIONS.join(', ')}.`,
+          },
+          { status: 400 }
+        )
+      }
+
       // Validate type
       if (!ALLOWED_TYPES.includes(file.type)) {
         return NextResponse.json(
@@ -102,12 +133,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         )
       }
 
-      // Generate unique filename
+      // Generate unique filename using validated extension
       const timestamp = Date.now()
       const randomSuffix = Math.random().toString(36).substring(7)
-      const extension = file.name.split('.').pop() || 'bin'
-      const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_')
-      const storagePath = `${user.id}/${conversationId}/${timestamp}-${randomSuffix}.${extension}`
+      // Use validExtension from SEC-004 check above (guaranteed non-null at this point)
+      const storagePath = `${user.id}/${conversationId}/${timestamp}-${randomSuffix}.${validExtension}`
 
       // Upload to Supabase Storage
       const arrayBuffer = await file.arrayBuffer()

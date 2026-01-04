@@ -47,6 +47,13 @@
     "test:portal": "playwright test e2e/portal",
     "test:dashboard": "playwright test e2e/dashboard",
     "test:tools": "playwright test e2e/tools",
+    "screenshots": "npx playwright test e2e/screenshots.spec.ts",
+    "screenshots:owner": "ROLE=owner npx playwright test e2e/screenshots.spec.ts",
+    "screenshots:vet": "ROLE=vet npx playwright test e2e/screenshots.spec.ts",
+    "screenshots:admin": "ROLE=admin npx playwright test e2e/screenshots.spec.ts",
+    "screenshots:public": "ROLE=public npx playwright test e2e/screenshots.spec.ts",
+    "screenshots:all": "npx tsx scripts/screenshots/run-all.ts",
+    "screenshots:capture": "npx tsx scripts/screenshots/capture.ts",
     "test:coverage": "vitest run --coverage",
     "test:coverage:html": "vitest run --coverage --coverage.reporter=html",
     "test:db:reset": "node scripts/reset-test-db.js",
@@ -83,7 +90,9 @@
     "seed:demo-data:all": "npx tsx db/seeds/scripts/seed-demo-data.ts --tenants adris,petlife --verbose",
     "db:fixes": "node db/setup-db.mjs fixes",
     "reset-dev": "powershell -ExecutionPolicy Bypass -File reset-dev.ps1",
-    "kill-node": "powershell -ExecutionPolicy Bypass -File kill-node.ps1 -Force"
+    "kill-node": "powershell -ExecutionPolicy Bypass -File kill-node.ps1 -Force",
+    "update:images": "npx tsx scripts/update-product-images.ts",
+    "update:images:dry-run": "npx tsx scripts/update-product-images.ts --dry-run --verbose"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

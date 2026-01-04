@@ -2,6 +2,10 @@
  * Authentication middleware wrapper for API routes
  * ARCH-006: Create Auth Middleware Wrapper
  * Enhanced with rate limiting support
+ *
+ * @deprecated Use withApiAuth from '@/lib/auth/api-wrapper' instead.
+ * This wrapper is maintained for backward compatibility during migration.
+ * See: lib/auth/api-wrapper.ts for the new pattern
  */
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -11,20 +15,17 @@ import { rateLimit, RateLimitType } from '@/lib/rate-limit'
 import { scopedQueries, ScopedQueries } from '@/lib/supabase/scoped'
 import type { User } from '@supabase/supabase-js'
 import type { SupabaseClient } from '@supabase/supabase-js'
+import type { UserProfile as BaseUserProfile, UserRole } from '@/lib/auth/types'
 
 /**
  * User profile from the profiles table
+ * @deprecated Import UserProfile from '@/lib/auth/types' instead
  */
-export interface UserProfile {
-  id: string
-  tenant_id: string
-  role: 'owner' | 'vet' | 'admin'
-  full_name: string | null
-  email: string | null
-}
+export type UserProfile = Pick<BaseUserProfile, 'id' | 'tenant_id' | 'role' | 'full_name' | 'email'>
 
 /**
  * Authentication context passed to handlers
+ * @deprecated Import AuthContext from '@/lib/auth/types' and use ApiHandlerContext from '@/lib/auth/api-wrapper'
  */
 export interface AuthContext {
   /** Authenticated Supabase user */
@@ -230,17 +231,9 @@ export function withAuth<P extends Record<string, string> = Record<string, strin
 
 /**
  * Check if user is staff (vet or admin)
+ * @deprecated Use AuthService.isStaff() from '@/lib/auth' instead
  */
-export function isStaff(profile: UserProfile): boolean {
-  return profile.role === 'vet' || profile.role === 'admin'
-}
-
-/**
- * Check if user is admin
- */
-export function isAdmin(profile: UserProfile): boolean {
-  return profile.role === 'admin'
-}
+export { isStaff, isAdmin } from '@/lib/auth/core'
 
 /**
  * Helper to get tenant-filtered query

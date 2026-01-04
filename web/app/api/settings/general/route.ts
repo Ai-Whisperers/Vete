@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { withAuth, type AuthContext } from '@/lib/api/with-auth'
+import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { apiError, apiSuccess, validationError } from '@/lib/api/errors'
 import { generalSettingsSchema } from '@/lib/schemas/settings'
 import * as fs from 'fs/promises'
@@ -8,7 +8,7 @@ import * as path from 'path'
 
 const CONTENT_DATA_PATH = path.join(process.cwd(), '.content_data')
 
-export const GET = withAuth(
+export const GET = withApiAuth(
   async ({ request, profile }) => {
     const { searchParams } = new URL(request.url)
     const clinic = searchParams.get('clinic')
@@ -46,8 +46,8 @@ export const GET = withAuth(
   { roles: ['admin'] }
 )
 
-export const PUT = withAuth(
-  async ({ request, profile }) => {
+export const PUT = withApiAuth(
+  async ({ request, profile }: ApiHandlerContext) => {
     let body: unknown
     try {
       body = await request.json()

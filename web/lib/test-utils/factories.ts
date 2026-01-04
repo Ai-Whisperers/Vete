@@ -77,7 +77,7 @@ export function createMockAppointment(overrides: Partial<Appointment> = {}): App
     created_by: generateId(),
     start_time: startTime.toISOString(),
     end_time: endTime.toISOString(),
-    status: 'pending',
+    status: 'scheduled',
     reason: 'Test appointment',
     notes: null,
     created_at: new Date().toISOString(),

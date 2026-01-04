@@ -3,8 +3,7 @@
 import * as Icons from 'lucide-react'
 import { updateAppointmentStatus } from '@/app/actions/update-appointment'
 import { useState } from 'react'
-
-type AppointmentStatus = 'pending' | 'confirmed' | 'completed' | 'cancelled' | 'rejected'
+import type { AppointmentStatus } from '@/lib/types/status'
 
 interface AppointmentOwner {
   full_name?: string
@@ -45,11 +44,13 @@ export default function AppointmentItem({
   }
 
   const statusColors: Record<AppointmentStatus, string> = {
-    pending: 'bg-yellow-100 text-yellow-700 border-yellow-200',
+    scheduled: 'bg-yellow-100 text-yellow-700 border-yellow-200',
     confirmed: 'bg-blue-100 text-blue-700 border-blue-200',
+    checked_in: 'bg-purple-100 text-purple-700 border-purple-200',
+    in_progress: 'bg-indigo-100 text-indigo-700 border-indigo-200',
     completed: 'bg-green-100 text-green-700 border-green-200',
     cancelled: 'bg-gray-100 text-gray-500 border-gray-200',
-    rejected: 'bg-red-100 text-red-700 border-red-200',
+    no_show: 'bg-red-100 text-red-700 border-red-200',
   }
 
   const badgeClass = statusColors[status] || 'bg-gray-100 text-gray-500'
@@ -101,7 +102,7 @@ export default function AppointmentItem({
 
       {/* Actions */}
       <div className="flex justify-center gap-2 border-t border-gray-100 pt-4 md:flex-col md:border-l md:border-t-0 md:pl-6 md:pt-0">
-        {status === 'pending' && (
+        {status === 'scheduled' && (
           <>
             <button
               onClick={() => handleStatus('confirmed')}
@@ -112,10 +113,10 @@ export default function AppointmentItem({
               <Icons.Check className="h-5 w-5" />
             </button>
             <button
-              onClick={() => handleStatus('rejected')}
+              onClick={() => handleStatus('cancelled')}
               disabled={loading}
               className="rounded-lg bg-red-50 p-2 text-red-600 transition-colors hover:bg-red-100"
-              title="Rechazar"
+              title="Cancelar"
             >
               <Icons.X className="h-5 w-5" />
             </button>
@@ -131,7 +132,7 @@ export default function AppointmentItem({
             <Icons.CheckCircle2 className="h-5 w-5" />
           </button>
         )}
-        {status !== 'cancelled' && status !== 'completed' && status !== 'rejected' && (
+        {status !== 'cancelled' && status !== 'completed' && status !== 'no_show' && (
           <button
             onClick={() => handleStatus('cancelled')}
             disabled={loading}

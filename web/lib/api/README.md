@@ -39,7 +39,7 @@ Parse pagination parameters from URL search params.
 **Example:**
 
 ```typescript
-export const GET = withAuth(async ({ request, supabase }) => {
+export const GET = withApiAuth(async ({ request, supabase }) => {
   const { searchParams } = new URL(request.url)
   const { page, limit, offset } = parsePagination(searchParams)
 
@@ -353,7 +353,7 @@ deceased → (terminal)
 
 ```typescript
 import { NextResponse } from 'next/server'
-import { withAuth } from '@/lib/api/with-auth'
+import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import {
   parsePagination,
   paginatedResponse,
@@ -365,7 +365,7 @@ import {
 } from '@/lib/api'
 
 // GET - List resources with pagination
-export const GET = withAuth(async ({ request, profile, supabase }) => {
+export const GET = withApiAuth(async ({ request, profile, supabase }: ApiHandlerContext) => {
   const { searchParams } = new URL(request.url)
   const { page, limit, offset } = parsePagination(searchParams)
 
@@ -386,8 +386,8 @@ export const GET = withAuth(async ({ request, profile, supabase }) => {
 })
 
 // POST - Create resource
-export const POST = withAuth(
-  async ({ request, profile, supabase }) => {
+export const POST = withApiAuth(
+  async ({ request, profile, supabase }: ApiHandlerContext) => {
     try {
       const body = await request.json()
 
@@ -415,8 +415,8 @@ export const POST = withAuth(
 )
 
 // PATCH - Update resource status
-export const PATCH = withAuth(
-  async ({ request, profile, supabase }) => {
+export const PATCH = withApiAuth(
+  async ({ request, profile, supabase }: ApiHandlerContext) => {
     const { searchParams } = new URL(request.url)
     const id = searchParams.get('id')
 

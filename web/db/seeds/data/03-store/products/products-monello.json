@@ -34,7 +34,14 @@
           "sku_suffix": "-25KG"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://www.nutrire.ind.br/images/vu09hWGNA5_p.png",
+      "images": [
+        "https://www.nutrire.ind.br/images/vu09hWGNA5_p.png",
+        "https://www.nutrire.ind.br/images/8e9qaGUTQ_tz.png",
+        "https://www.nutrire.ind.br/images/isED4xp9SdCR.png",
+        "https://www.nutrire.ind.br/images/15UJAhWMRHuk.png",
+        "https://www.nutrire.ind.br/images/vStjGl9yX4_u.png"
+      ],
       "attributes": {
         "age_range": "1+ años",
         "main_ingredient": "Pollo"
@@ -66,7 +73,14 @@
           "sku_suffix": "-15KG"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://www.nutrire.ind.br/images/8e9qaGUTQ_tz.png",
+      "images": [
+        "https://www.nutrire.ind.br/images/8e9qaGUTQ_tz.png",
+        "https://www.nutrire.ind.br/images/vu09hWGNA5_p.png",
+        "https://www.nutrire.ind.br/images/isED4xp9SdCR.png",
+        "https://www.nutrire.ind.br/images/15UJAhWMRHuk.png",
+        "https://www.nutrire.ind.br/images/vStjGl9yX4_u.png"
+      ],
       "attributes": {
         "age_range": "Hasta 1 año",
         "lifestage": "Puppy"
@@ -92,7 +106,14 @@
           "sku_suffix": "-15KG"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://www.nutrire.ind.br/images/isED4xp9SdCR.png",
+      "images": [
+        "https://www.nutrire.ind.br/images/isED4xp9SdCR.png",
+        "https://www.nutrire.ind.br/images/vu09hWGNA5_p.png",
+        "https://www.nutrire.ind.br/images/8e9qaGUTQ_tz.png",
+        "https://www.nutrire.ind.br/images/15UJAhWMRHuk.png",
+        "https://www.nutrire.ind.br/images/vStjGl9yX4_u.png"
+      ],
       "attributes": {
         "special_need": "Control de peso",
         "low_calorie": true
@@ -118,7 +139,14 @@
           "sku_suffix": "-15KG"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://www.nutrire.ind.br/images/15UJAhWMRHuk.png",
+      "images": [
+        "https://www.nutrire.ind.br/images/15UJAhWMRHuk.png",
+        "https://www.nutrire.ind.br/images/vu09hWGNA5_p.png",
+        "https://www.nutrire.ind.br/images/8e9qaGUTQ_tz.png",
+        "https://www.nutrire.ind.br/images/isED4xp9SdCR.png",
+        "https://www.nutrire.ind.br/images/vStjGl9yX4_u.png"
+      ],
       "attributes": {
         "line": "Premium Select",
         "main_ingredient": "Carne y pollo"
@@ -156,7 +184,14 @@
           "sku_suffix": "-10KG"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://www.nutrire.ind.br/images/vStjGl9yX4_u.png",
+      "images": [
+        "https://www.nutrire.ind.br/images/vStjGl9yX4_u.png",
+        "https://www.nutrire.ind.br/images/UsLviWo4edXw.png",
+        "https://www.nutrire.ind.br/images/vu09hWGNA5_p.png",
+        "https://www.nutrire.ind.br/images/8e9qaGUTQ_tz.png",
+        "https://www.nutrire.ind.br/images/isED4xp9SdCR.png"
+      ],
       "attributes": {
         "age_range": "1+ años",
         "main_ingredient": "Salmón y pollo"
@@ -182,7 +217,14 @@
           "sku_suffix": "-1KG"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://www.nutrire.ind.br/images/UsLviWo4edXw.png",
+      "images": [
+        "https://www.nutrire.ind.br/images/UsLviWo4edXw.png",
+        "https://www.nutrire.ind.br/images/vStjGl9yX4_u.png",
+        "https://www.nutrire.ind.br/images/vu09hWGNA5_p.png",
+        "https://www.nutrire.ind.br/images/8e9qaGUTQ_tz.png",
+        "https://www.nutrire.ind.br/images/isED4xp9SdCR.png"
+      ],
       "attributes": {
         "age_range": "Hasta 1 año",
         "lifestage": "Kitten"
@@ -214,7 +256,14 @@
           "sku_suffix": "-10KG"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://www.nutrire.ind.br/images/vStjGl9yX4_u.png",
+      "images": [
+        "https://www.nutrire.ind.br/images/vStjGl9yX4_u.png",
+        "https://www.nutrire.ind.br/images/UsLviWo4edXw.png",
+        "https://www.nutrire.ind.br/images/vu09hWGNA5_p.png",
+        "https://www.nutrire.ind.br/images/8e9qaGUTQ_tz.png",
+        "https://www.nutrire.ind.br/images/isED4xp9SdCR.png"
+      ],
       "attributes": {
         "special_need": "Esterilizado",
         "weight_control": true

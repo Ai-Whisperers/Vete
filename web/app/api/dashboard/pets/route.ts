@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server'
-import { withAuth } from '@/lib/api/with-auth'
+import { withApiAuth } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 
 // GET /api/dashboard/pets - Get recent pets for the clinic dashboard
-export const GET = withAuth(
+export const GET = withApiAuth(
   async ({ profile, supabase, request }) => {
     try {
       const { searchParams } = new URL(request.url)

@@ -34,7 +34,12 @@
           "sku_suffix": "-10KG"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://cdn.awsli.com.br/2500x2500/1095/1095221/produto/109352460/57a29d3524.jpg",
+      "images": [
+        "https://cdn.awsli.com.br/2500x2500/1095/1095221/produto/109352460/57a29d3524.jpg",
+        "https://cdn.awsli.com.br/600x1000/1095/1095221/produto/109352460/975186ed02.jpg",
+        "https://cdn.awsli.com.br/400x400/1095/1095221/produto/48867203/921a6e8577.jpg"
+      ],
       "attributes": {
         "age_range": "1+ años",
         "flavor": "Carne y Pollo"
@@ -60,7 +65,12 @@
           "sku_suffix": "-1KG"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://cdn.awsli.com.br/2500x2500/1095/1095221/produto/78327979/8bc5d73f47.jpg",
+      "images": [
+        "https://cdn.awsli.com.br/2500x2500/1095/1095221/produto/78327979/8bc5d73f47.jpg",
+        "https://cdn.awsli.com.br/600x1000/1095/1095221/produto/78327979/5f39ef3d49.jpg",
+        "https://cdn.awsli.com.br/400x400/1095/1095221/produto/109352460/57a29d3524.jpg"
+      ],
       "attributes": {
         "age_range": "Hasta 1 año",
         "lifestage": "Kitten",
@@ -99,7 +109,12 @@
           "sku_suffix": "-10KG"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://cdn.awsli.com.br/2500x2500/1095/1095221/produto/48867203/921a6e8577.jpg",
+      "images": [
+        "https://cdn.awsli.com.br/2500x2500/1095/1095221/produto/48867203/921a6e8577.jpg",
+        "https://cdn.awsli.com.br/600x1000/1095/1095221/produto/48867203/ddf80fe445.jpg",
+        "https://cdn.awsli.com.br/400x400/1095/1095221/produto/78327979/8bc5d73f47.jpg"
+      ],
       "attributes": {
         "special_need": "Esterilizado",
         "weight_control": true

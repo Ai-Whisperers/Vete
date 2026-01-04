@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server'
-import { withAuth } from '@/lib/api/with-auth'
+import { withApiAuth } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 
 // GET /api/dashboard/today-appointments - Get today's appointments for the clinic
 // SEC-FIX: Added authentication and tenant verification
-export const GET = withAuth(
+export const GET = withApiAuth(
   async ({ profile, supabase }) => {
     try {
       const today = new Date().toISOString().split('T')[0]

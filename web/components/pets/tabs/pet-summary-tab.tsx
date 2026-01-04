@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import {
   Info,
@@ -56,7 +57,56 @@ interface PetSummaryTabProps {
   clinicName?: string
 }
 
+interface MissingVaccine {
+  vaccine_name: string
+  vaccine_code: string
+  status: 'missing' | 'due' | 'overdue'
+}
+
 export function PetSummaryTab({ pet, weightHistory, clinic, clinicName }: PetSummaryTabProps) {
+  const [missingMandatoryVaccines, setMissingMandatoryVaccines] = useState<MissingVaccine[]>([])
+
+  // Fetch missing mandatory vaccines
+  useEffect(() => {
+    async function fetchMissingVaccines(): Promise<void> {
+      if (pet.species !== 'dog' && pet.species !== 'cat') return
+
+      // Calculate age in weeks
+      let ageWeeks: number | null = null
+      if (pet.birth_date) {
+        const birth = new Date(pet.birth_date)
+        const now = new Date()
+        const msPerWeek = 7 * 24 * 60 * 60 * 1000
+        ageWeeks = Math.floor((now.getTime() - birth.getTime()) / msPerWeek)
+      }
+
+      // Get existing vaccine names
+      const existingVaccineNames = (pet.vaccines || []).map((v) => v.name).join(',')
+
+      const params = new URLSearchParams({
+        species: pet.species,
+        ...(ageWeeks !== null && { age_weeks: ageWeeks.toString() }),
+        ...(existingVaccineNames && { existing_vaccine_names: existingVaccineNames }),
+      })
+
+      try {
+        const response = await fetch(`/api/vaccines/recommendations?${params}`)
+        if (!response.ok) return
+
+        const data = await response.json()
+        // Filter core vaccines that are overdue or due (actionable)
+        const actionableCoreVaccines = (data.core_vaccines || []).filter(
+          (v: MissingVaccine) => v.status === 'overdue' || v.status === 'due'
+        )
+        setMissingMandatoryVaccines(actionableCoreVaccines)
+      } catch (error) {
+        console.error('Error fetching missing vaccines:', error)
+      }
+    }
+
+    fetchMissingVaccines()
+  }, [pet.species, pet.birth_date, pet.vaccines])
+
   // Calculate age
   const calculateAge = (): string => {
     if (!pet.birth_date) return 'Edad desconocida'
@@ -168,18 +218,42 @@ export function PetSummaryTab({ pet, weightHistory, clinic, clinicName }: PetSum
               <Syringe className="h-4 w-4" />
               <span className="text-xs font-medium">Vacunas</span>
             </div>
-            <p
-              className={`font-bold ${overdueVaccines.length > 0 ? 'text-red-600' : 'text-green-600'}`}
-            >
-              {overdueVaccines.length > 0
-                ? `${overdueVaccines.length} vencida${overdueVaccines.length > 1 ? 's' : ''}`
-                : 'Al día'}
-            </p>
+            {(() => {
+              // Count overdue from existing vaccines + missing mandatory vaccines
+              const overdueCount = overdueVaccines.length
+              const missingOverdueCount = missingMandatoryVaccines.filter((v) => v.status === 'overdue').length
+              const missingDueCount = missingMandatoryVaccines.filter((v) => v.status === 'due').length
+              const totalOverdue = overdueCount + missingOverdueCount
+              const totalMissing = missingMandatoryVaccines.length
+
+              if (totalOverdue > 0) {
+                return (
+                  <p className="font-bold text-red-600">
+                    {totalOverdue} vencida{totalOverdue > 1 ? 's' : ''}
+                  </p>
+                )
+              }
+              if (missingDueCount > 0) {
+                return (
+                  <p className="font-bold text-amber-600">
+                    {missingDueCount} pendiente{missingDueCount > 1 ? 's' : ''}
+                  </p>
+                )
+              }
+              if (totalMissing > 0) {
+                return (
+                  <p className="font-bold text-amber-600">
+                    {totalMissing} faltante{totalMissing > 1 ? 's' : ''}
+                  </p>
+                )
+              }
+              return <p className="font-bold text-green-600">Al día</p>
+            })()}
           </div>
         </div>
 
         {/* Health Alerts */}
-        {(allergies.length > 0 || conditions.length > 0 || overdueVaccines.length > 0) && (
+        {(allergies.length > 0 || conditions.length > 0 || overdueVaccines.length > 0 || missingMandatoryVaccines.length > 0) && (
           <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
             <div className="mb-3 flex items-center gap-2 font-bold text-amber-700">
               <AlertTriangle className="h-5 w-5" />
@@ -209,6 +283,16 @@ export function PetSummaryTab({ pet, weightHistory, clinic, clinicName }: PetSum
                   </span>
                   <span className="text-sm text-amber-800">
                     {overdueVaccines.map((v) => v.name).join(', ')}
+                  </span>
+                </div>
+              )}
+              {missingMandatoryVaccines.length > 0 && (
+                <div className="flex items-start gap-2">
+                  <span className="rounded bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700">
+                    Vacunas Obligatorias Faltantes
+                  </span>
+                  <span className="text-sm text-amber-800">
+                    {missingMandatoryVaccines.map((v) => v.vaccine_name).join(', ')}
                   </span>
                 </div>
               )}

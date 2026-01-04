@@ -28,7 +28,11 @@
           "sku_suffix": "-20KG"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://http2.mlstatic.com/D_NQ_NP_663559-MLA99939926671_112025-O.jpg",
+      "images": [
+        "https://http2.mlstatic.com/D_NQ_NP_663559-MLA99939926671_112025-O.jpg",
+        "https://http2.mlstatic.com/D_NQ_NP_2X_778180-MLA75022949570_032024-O.webp"
+      ],
       "attributes": {
         "type": "Piedra sanitaria",
         "clumping": false,
@@ -55,7 +59,11 @@
           "sku_suffix": "-10KG"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://http2.mlstatic.com/D_NQ_NP_663559-MLA99939926671_112025-O.jpg",
+      "images": [
+        "https://http2.mlstatic.com/D_NQ_NP_663559-MLA99939926671_112025-O.jpg",
+        "https://http2.mlstatic.com/D_NQ_NP_2X_778180-MLA75022949570_032024-O.webp"
+      ],
       "attributes": {
         "type": "Bentonita",
         "clumping": true,
@@ -82,7 +90,11 @@
           "sku_suffix": "-10KG"
         }
       ],
-      "image_url": "/placeholder-product.svg",
+      "image_url": "https://http2.mlstatic.com/D_NQ_NP_663559-MLA99939926671_112025-O.jpg",
+      "images": [
+        "https://http2.mlstatic.com/D_NQ_NP_663559-MLA99939926671_112025-O.jpg",
+        "https://http2.mlstatic.com/D_NQ_NP_2X_778180-MLA75022949570_032024-O.webp"
+      ],
       "attributes": {
         "type": "Bentonita",
         "clumping": true,

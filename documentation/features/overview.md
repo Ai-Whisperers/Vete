@@ -2,12 +2,14 @@
 
 Comprehensive list of all implemented features in the Vete platform.
 
-> **Last Updated**: January 2025
-> **Total API Endpoints**: 87
+> **Last Updated**: January 2026
+> **Total API Endpoints**: 167
 > **Total Server Actions**: 22
-> **Total Pages**: 100
-> **Database Tables**: 96
-> **React Components**: 125+
+> **Total Pages**: 130
+> **Database Tables**: 96+
+> **Database Views**: 1 (unified_clinic_inventory)
+> **React Components**: 316
+> **Custom Hooks**: 8
 
 ---
 
@@ -195,7 +197,45 @@ Comprehensive list of all implemented features in the Vete platform.
 | Inventory Stats | ✅ Live | API: `/api/inventory/stats` |
 | Bulk Import | ✅ Live | API: `/api/inventory/import` |
 | Bulk Export | ✅ Live | API: `/api/inventory/export` |
-| Loyalty Points | ✅ Live | API: `/api/loyalty_points` |
+| Loyalty Points | ✅ Live | API: `/api/loyalty/points` |
+
+### Inventory Management (Enhanced)
+
+| Feature | Status | Routes |
+|---------|--------|--------|
+| Unified Inventory View | ✅ Live | `/[clinic]/dashboard/inventory` |
+| Reorder Suggestions | ✅ Live | `/[clinic]/dashboard/inventory/reorders` |
+| Expiring Products | ✅ Live | `/[clinic]/dashboard/inventory/expiring` |
+| Stock Adjustment | ✅ Live | API: `/api/inventory/adjust` |
+| Stock Receiving | ✅ Live | API: `/api/inventory/receive` |
+| Reorder Suggestions API | ✅ Live | API: `/api/inventory/reorder-suggestions` |
+| Product History | ✅ Live | API: `/api/inventory/[productId]/history` |
+| Stock History Modal | ✅ Live | Component: `StockHistoryModal` |
+| Barcode Lookup | ✅ Live | API: `/api/inventory/barcode-lookup` |
+| Product Mappings | ✅ Live | API: `/api/inventory/mappings` |
+
+### Background Jobs (Cron)
+
+| Feature | Status | Endpoint |
+|---------|--------|----------|
+| Release Cart Reservations | ✅ Live | `/api/cron/release-reservations` |
+| Process Subscriptions | ✅ Live | `/api/cron/process-subscriptions` |
+| Expiry Alerts | ✅ Live | `/api/cron/expiry-alerts` |
+| Stock Alerts | ✅ Live | `/api/cron/stock-alerts` |
+| Reminders | ✅ Live | `/api/cron/reminders` |
+
+### Developer Utilities
+
+| Feature | Status | Location |
+|---------|--------|----------|
+| Custom Hooks Library | ✅ Live | `web/lib/hooks/` |
+| useAsyncData | ✅ Live | Data fetching with loading/error states |
+| useFormState | ✅ Live | Form management with Zod validation |
+| useModal / useModalWithData | ✅ Live | Modal state management |
+| useSyncedState | ✅ Live | localStorage + API sync |
+| useConfirmation | ✅ Live | Promise-based confirmation dialogs |
+| useLocalStorage | ✅ Live | Simple localStorage persistence |
+| useDashboardLabels | ✅ Live | Dashboard label provider |
 
 ### Administration
 
@@ -354,8 +394,9 @@ Multi-channel communication:
 
 All features are accessible via:
 
-- **REST API** - 82 endpoints at `/api/*`
-- **Server Actions** - 20 actions at `/app/actions/*.ts`
+- **REST API** - 167 endpoints at `/api/*`
+- **Server Actions** - 22 actions at `/app/actions/*.ts`
+- **Cron Jobs** - 5 endpoints at `/api/cron/*`
 
 See [API Documentation](../api/overview.md) for details.
 

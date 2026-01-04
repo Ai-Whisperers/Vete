@@ -98,6 +98,15 @@ interface PetRecord {
  * - Follow-ups after visits
  */
 export async function GET(request: NextRequest) {
+  // Verify cron secret if configured
+  const authHeader = request.headers.get('authorization')
+  const cronSecret = process.env.CRON_SECRET
+
+  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+    logger.warn('Unauthorized cron attempt for reminders/generate')
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   const supabase = await createClient()
   const today = new Date()
   const todayStr = today.toISOString().split('T')[0]

@@ -119,32 +119,32 @@ export function PetHistoryTab({
   }
 
   const getTypeColor = (item: TimelineItem): string => {
-    if (item.type === 'prescription') return 'bg-purple-500'
+    if (item.type === 'prescription') return 'bg-[var(--primary)]'
     switch (item.record_type) {
       case 'surgery':
-        return 'bg-red-500'
+        return 'bg-[var(--status-error)]'
       case 'emergency':
-        return 'bg-orange-500'
+        return 'bg-[var(--status-warning)]'
       case 'vaccination':
-        return 'bg-green-500'
+        return 'bg-[var(--status-success)]'
       default:
-        return 'bg-blue-500'
+        return 'bg-[var(--status-info)]'
     }
   }
 
   const getTypeBadge = (item: TimelineItem): { label: string; color: string } => {
     if (item.type === 'prescription') {
-      return { label: 'Receta', color: 'bg-purple-100 text-purple-700' }
+      return { label: 'Receta', color: 'bg-[var(--primary)]/10 text-[var(--primary)]' }
     }
     switch (item.record_type) {
       case 'surgery':
-        return { label: 'Cirugía', color: 'bg-red-100 text-red-700' }
+        return { label: 'Cirugía', color: 'bg-[var(--status-error-bg)] text-[var(--status-error-text)]' }
       case 'emergency':
-        return { label: 'Emergencia', color: 'bg-orange-100 text-orange-700' }
+        return { label: 'Emergencia', color: 'bg-[var(--status-warning-bg)] text-[var(--status-warning-text)]' }
       case 'vaccination':
-        return { label: 'Vacunación', color: 'bg-green-100 text-green-700' }
+        return { label: 'Vacunación', color: 'bg-[var(--status-success-bg)] text-[var(--status-success-text)]' }
       default:
-        return { label: 'Consulta', color: 'bg-blue-100 text-blue-700' }
+        return { label: 'Consulta', color: 'bg-[var(--status-info-bg)] text-[var(--status-info-text)]' }
     }
   }
 
@@ -267,8 +267,8 @@ export function PetHistoryTab({
                           item.vitals.temp ||
                           item.vitals.hr ||
                           item.vitals.rr) && (
-                          <div className="rounded-xl border border-blue-100/50 bg-blue-50/50 p-3">
-                            <span className="mb-2 block text-xs font-bold uppercase text-blue-600">
+                          <div className="rounded-xl border border-[var(--status-info-border)]/50 bg-[var(--status-info-bg)]/50 p-3">
+                            <span className="mb-2 block text-xs font-bold uppercase text-[var(--status-info)]">
                               Signos Vitales
                             </span>
                             <div className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">

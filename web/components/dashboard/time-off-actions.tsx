@@ -40,7 +40,7 @@ export function TimeOffActions({ requestId, clinic }: TimeOffActionsProps): Reac
       <button
         onClick={() => handleAction('approved')}
         disabled={isLoading !== null}
-        className="rounded-lg p-2 text-green-600 transition-colors hover:bg-green-50 disabled:opacity-50"
+        className="rounded-lg p-2 text-[var(--status-success)] transition-colors hover:bg-[var(--status-success-bg)] disabled:opacity-50"
         title="Aprobar"
       >
         {isLoading === 'approve' ? (
@@ -52,7 +52,7 @@ export function TimeOffActions({ requestId, clinic }: TimeOffActionsProps): Reac
       <button
         onClick={() => handleAction('rejected')}
         disabled={isLoading !== null}
-        className="rounded-lg p-2 text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50"
+        className="rounded-lg p-2 text-[var(--status-error)] transition-colors hover:bg-[var(--status-error-bg)] disabled:opacity-50"
         title="Rechazar"
       >
         {isLoading === 'reject' ? (

@@ -123,8 +123,8 @@ export function MissingVaccinesCard({
   // Loading state
   if (loading) {
     return (
-      <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6">
-        <div className="flex items-center justify-center gap-3 text-amber-700">
+      <div className="rounded-2xl border border-[var(--status-warning-border)] bg-[var(--status-warning-bg)] p-6">
+        <div className="flex items-center justify-center gap-3 text-[var(--status-warning-text)]">
           <Loader2 className="h-5 w-5 animate-spin" />
           <span>Cargando recomendaciones de vacunas...</span>
         </div>
@@ -135,8 +135,8 @@ export function MissingVaccinesCard({
   // Error state
   if (error) {
     return (
-      <div className="rounded-2xl border border-red-200 bg-red-50 p-6">
-        <div className="flex items-center gap-3 text-red-700">
+      <div className="rounded-2xl border border-[var(--status-error-border)] bg-[var(--status-error-bg)] p-6">
+        <div className="flex items-center gap-3 text-[var(--status-error-text)]">
           <AlertCircle className="h-5 w-5" />
           <span>{error}</span>
         </div>
@@ -154,12 +154,12 @@ export function MissingVaccinesCard({
 
   // Determine card urgency level
   const cardBgClass = hasOverdue
-    ? 'bg-red-50 border-red-200'
+    ? 'bg-[var(--status-error-bg)] border-[var(--status-error-border)]'
     : hasDue
-      ? 'bg-amber-50 border-amber-200'
-      : 'bg-amber-50/50 border-amber-100'
+      ? 'bg-[var(--status-warning-bg)] border-[var(--status-warning-border)]'
+      : 'bg-[var(--status-warning-bg)]/50 border-[var(--status-warning-border)]/50'
 
-  const headerClass = hasOverdue ? 'text-red-700' : 'text-amber-700'
+  const headerClass = hasOverdue ? 'text-[var(--status-error-text)]' : 'text-[var(--status-warning-text)]'
 
   const HeaderIcon = hasOverdue ? AlertCircle : AlertTriangle
 
@@ -169,7 +169,7 @@ export function MissingVaccinesCard({
       <div className="flex items-center gap-3">
         <div
           className={`flex h-10 w-10 items-center justify-center rounded-full ${
-            hasOverdue ? 'bg-red-100' : 'bg-amber-100'
+            hasOverdue ? 'bg-[var(--status-error-bg)]' : 'bg-[var(--status-warning-bg)]'
           }`}
         >
           <HeaderIcon className={`h-5 w-5 ${headerClass}`} />
@@ -186,7 +186,7 @@ export function MissingVaccinesCard({
       {/* Core Vaccines (Obligatorias) */}
       {recommendations.core_vaccines.length > 0 && (
         <div className="space-y-3">
-          <div className="flex items-center gap-2 text-red-700">
+          <div className="flex items-center gap-2 text-[var(--status-error-text)]">
             <Shield className="h-4 w-4" />
             <span className="text-sm font-bold uppercase tracking-wide">Vacunas Obligatorias</span>
           </div>
@@ -201,7 +201,7 @@ export function MissingVaccinesCard({
       {/* Recommended Vaccines (Non-core) */}
       {recommendations.recommended_vaccines.length > 0 && (
         <div className="space-y-3">
-          <div className="flex items-center gap-2 text-amber-700">
+          <div className="flex items-center gap-2 text-[var(--status-warning-text)]">
             <ShieldCheck className="h-4 w-4" />
             <span className="text-sm font-bold uppercase tracking-wide">Vacunas Recomendadas</span>
           </div>
@@ -237,8 +237,8 @@ export function MissingVaccinesCard({
         href={`/${clinic}/book?pet=${petId}&service=vacunacion`}
         className={`flex w-full items-center justify-center gap-2 rounded-xl py-3 font-bold transition-colors ${
           hasOverdue
-            ? 'bg-red-600 text-white hover:bg-red-700'
-            : 'bg-amber-500 text-white hover:bg-amber-600'
+            ? 'bg-[var(--status-error)] text-white hover:opacity-90'
+            : 'bg-[var(--status-warning)] text-white hover:opacity-90'
         }`}
       >
         <Calendar className="h-4 w-4" />
@@ -260,16 +260,16 @@ function VaccineItem({ vaccine, isOptional = false }: VaccineItemProps) {
 
   const statusColorClass =
     vaccine.status === 'overdue'
-      ? 'text-red-600'
+      ? 'text-[var(--status-error)]'
       : vaccine.status === 'due'
-        ? 'text-amber-600'
+        ? 'text-[var(--status-warning)]'
         : 'text-gray-500'
 
   const bgColorClass =
     vaccine.status === 'overdue'
-      ? 'bg-red-100/50'
+      ? 'bg-[var(--status-error-bg)]/50'
       : vaccine.status === 'due'
-        ? 'bg-amber-100/50'
+        ? 'bg-[var(--status-warning-bg)]/50'
         : 'bg-white/50'
 
   return (
@@ -285,8 +285,8 @@ function VaccineItem({ vaccine, isOptional = false }: VaccineItemProps) {
               <span
                 className={`rounded px-2 py-0.5 text-xs font-medium ${
                   vaccine.protocol_type === 'core'
-                    ? 'bg-red-100 text-red-700'
-                    : 'bg-amber-100 text-amber-700'
+                    ? 'bg-[var(--status-error-bg)] text-[var(--status-error-text)]'
+                    : 'bg-[var(--status-warning-bg)] text-[var(--status-warning-text)]'
                 }`}
               >
                 {vaccine.protocol_type === 'core' ? 'Obligatoria' : 'Recomendada'}

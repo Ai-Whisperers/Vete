@@ -250,7 +250,7 @@ export function ScheduleEditor({ entries, onChange, disabled = false }: Schedule
           type="button"
           onClick={() => applyTemplate('clear')}
           disabled={disabled}
-          className="rounded-lg bg-red-50 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-100 disabled:opacity-50"
+          className="rounded-lg bg-[var(--status-error-bg)] px-3 py-1.5 text-xs font-medium text-[var(--status-error-text)] hover:opacity-80 disabled:opacity-50"
         >
           Limpiar todo
         </button>
@@ -277,9 +277,9 @@ export function ScheduleEditor({ entries, onChange, disabled = false }: Schedule
 
       {/* Summary */}
       {entriesMap.size > 0 && (
-        <div className="mt-4 rounded-lg bg-blue-50 p-4">
-          <h4 className="mb-2 text-sm font-medium text-blue-900">Resumen del horario</h4>
-          <div className="text-sm text-blue-700">
+        <div className="mt-4 rounded-lg bg-[var(--status-info-bg)] p-4">
+          <h4 className="mb-2 text-sm font-medium text-[var(--status-info-text)]">Resumen del horario</h4>
+          <div className="text-sm text-[var(--status-info-text)]">
             <p>
               <strong>{entriesMap.size}</strong> día{entriesMap.size !== 1 ? 's' : ''} laborable
               {entriesMap.size !== 1 ? 's' : ''}

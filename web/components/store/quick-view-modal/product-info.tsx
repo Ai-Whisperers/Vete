@@ -90,18 +90,18 @@ function StockStatus({
     <div className="mb-4">
       {inStock ? (
         lowStock ? (
-          <div className="flex items-center gap-2 text-amber-600">
+          <div className="flex items-center gap-2 text-[var(--status-warning)]">
             <AlertTriangle className="h-4 w-4" />
             <span className="font-medium">¡Solo {stock} disponibles!</span>
           </div>
         ) : (
-          <div className="flex items-center gap-2 text-green-600">
+          <div className="flex items-center gap-2 text-[var(--status-success)]">
             <Check className="h-4 w-4" />
             <span className="font-medium">En Stock</span>
           </div>
         )
       ) : (
-        <div className="flex items-center gap-2 text-red-500">
+        <div className="flex items-center gap-2 text-[var(--status-error)]">
           <AlertCircle className="h-4 w-4" />
           <span className="font-medium">Sin Stock</span>
         </div>
@@ -112,12 +112,12 @@ function StockStatus({
 
 function PrescriptionWarning(): React.ReactElement {
   return (
-    <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-3">
+    <div className="mb-4 rounded-lg border border-[var(--status-warning-border)] bg-[var(--status-warning-bg)] p-3">
       <div className="flex items-start gap-2">
-        <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-600" />
+        <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-[var(--status-warning)]" />
         <div>
-          <p className="font-medium text-amber-800">Requiere Receta</p>
-          <p className="text-sm text-amber-700">
+          <p className="font-medium text-[var(--status-warning-text)]">Requiere Receta</p>
+          <p className="text-sm text-[var(--status-warning-text)]">
             Este producto necesita receta veterinaria para ser despachado.
           </p>
         </div>

@@ -79,8 +79,8 @@ function CompletedState({
 }): React.ReactElement {
   return (
     <div className="text-center">
-      <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
-        <Check className="h-8 w-8 text-green-600" />
+      <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--status-success-bg)]">
+        <Check className="h-8 w-8 text-[var(--status-success)]" />
       </div>
       <p className="mb-2 text-lg font-medium text-gray-900">{labels.completed}</p>
       <p className="mb-6 text-sm text-gray-500">

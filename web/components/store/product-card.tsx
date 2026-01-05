@@ -366,18 +366,18 @@ export function ProductCard({
           <div className="mt-2 flex items-center gap-1 text-xs">
             {inStock ? (
               lowStock ? (
-                <span className="flex items-center gap-1 font-semibold text-amber-600">
+                <span className="flex items-center gap-1 font-semibold text-[var(--status-warning)]">
                   <AlertCircle className="h-3 w-3" />
                   ¡Últimos {stock}!
                 </span>
               ) : (
-                <span className="flex items-center gap-1 font-medium text-green-600">
+                <span className="flex items-center gap-1 font-medium text-[var(--status-success)]">
                   <Truck className="h-3.5 w-3.5" />
                   Envío disponible
                 </span>
               )
             ) : (
-              <span className="flex items-center gap-1 font-semibold text-red-500">
+              <span className="flex items-center gap-1 font-semibold text-[var(--status-error)]">
                 <AlertCircle className="h-3 w-3" />
                 Sin Stock
               </span>
@@ -392,7 +392,7 @@ export function ProductCard({
             disabled={addingToCart}
             className={`mt-3 flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 font-semibold transition-all ${
               addedToCart
-                ? 'bg-green-500 text-white shadow-md'
+                ? 'bg-[var(--status-success)] text-white shadow-md'
                 : 'bg-[var(--primary)] text-white hover:scale-[1.02] hover:shadow-md active:scale-[0.98]'
             }`}
           >

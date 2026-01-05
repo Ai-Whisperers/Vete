@@ -42,8 +42,8 @@ interface SubscriptionCardProps {
 }
 
 const statusConfig = {
-  active: { label: 'Activa', color: 'bg-green-100 text-green-700' },
-  paused: { label: 'Pausada', color: 'bg-yellow-100 text-yellow-700' },
+  active: { label: 'Activa', color: 'bg-[var(--status-success-bg)] text-[var(--status-success-text)]' },
+  paused: { label: 'Pausada', color: 'bg-[var(--status-warning-bg)] text-[var(--status-warning-text)]' },
   cancelled: { label: 'Cancelada', color: 'bg-gray-100 text-gray-700' },
 }
 

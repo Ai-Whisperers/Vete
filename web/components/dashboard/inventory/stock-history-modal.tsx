@@ -60,49 +60,49 @@ const TYPE_CONFIG: Record<
   purchase: {
     label: 'Compra',
     icon: Truck,
-    color: 'text-green-600',
-    bgColor: 'bg-green-100',
+    color: 'text-[var(--status-success)]',
+    bgColor: 'bg-[var(--status-success-bg)]',
   },
   sale: {
     label: 'Venta',
     icon: ShoppingCart,
-    color: 'text-blue-600',
-    bgColor: 'bg-blue-100',
+    color: 'text-[var(--status-info)]',
+    bgColor: 'bg-[var(--status-info-bg)]',
   },
   adjustment: {
     label: 'Ajuste',
     icon: Settings,
-    color: 'text-purple-600',
-    bgColor: 'bg-purple-100',
+    color: 'text-[var(--primary)]',
+    bgColor: 'bg-[var(--primary)]/10',
   },
   return: {
     label: 'Devolución',
     icon: RotateCcw,
-    color: 'text-orange-600',
-    bgColor: 'bg-orange-100',
+    color: 'text-[var(--status-warning)]',
+    bgColor: 'bg-[var(--status-warning-bg)]',
   },
   damage: {
     label: 'Daño',
     icon: AlertTriangle,
-    color: 'text-red-600',
-    bgColor: 'bg-red-100',
+    color: 'text-[var(--status-error)]',
+    bgColor: 'bg-[var(--status-error-bg)]',
   },
   theft: {
     label: 'Robo',
     icon: AlertTriangle,
-    color: 'text-red-700',
-    bgColor: 'bg-red-100',
+    color: 'text-[var(--status-error)]',
+    bgColor: 'bg-[var(--status-error-bg)]',
   },
   expired: {
     label: 'Vencido',
     icon: AlertTriangle,
-    color: 'text-amber-600',
-    bgColor: 'bg-amber-100',
+    color: 'text-[var(--status-warning)]',
+    bgColor: 'bg-[var(--status-warning-bg)]',
   },
   transfer: {
     label: 'Transferencia',
     icon: Package,
-    color: 'text-gray-600',
+    color: 'text-[var(--text-secondary)]',
     bgColor: 'bg-gray-100',
   },
 }
@@ -200,33 +200,33 @@ export function StockHistoryModal({
         {/* Summary Cards */}
         {data && (
           <div className="grid grid-cols-4 gap-4 p-4 border-b">
-            <div className="p-3 rounded-lg bg-green-50">
-              <div className="flex items-center gap-2 text-green-600 mb-1">
+            <div className="p-3 rounded-lg bg-[var(--status-success-bg)]">
+              <div className="flex items-center gap-2 text-[var(--status-success)] mb-1">
                 <TrendingUp className="w-4 h-4" />
                 <span className="text-xs font-medium">Entradas</span>
               </div>
-              <p className="text-lg font-bold text-green-700">{data.summary.total_in}</p>
+              <p className="text-lg font-bold text-[var(--status-success)]">{data.summary.total_in}</p>
             </div>
-            <div className="p-3 rounded-lg bg-red-50">
-              <div className="flex items-center gap-2 text-red-600 mb-1">
+            <div className="p-3 rounded-lg bg-[var(--status-error-bg)]">
+              <div className="flex items-center gap-2 text-[var(--status-error)] mb-1">
                 <TrendingDown className="w-4 h-4" />
                 <span className="text-xs font-medium">Salidas</span>
               </div>
-              <p className="text-lg font-bold text-red-700">{data.summary.total_out}</p>
+              <p className="text-lg font-bold text-[var(--status-error)]">{data.summary.total_out}</p>
             </div>
-            <div className="p-3 rounded-lg bg-blue-50">
-              <div className="flex items-center gap-2 text-blue-600 mb-1">
+            <div className="p-3 rounded-lg bg-[var(--status-info-bg)]">
+              <div className="flex items-center gap-2 text-[var(--status-info)] mb-1">
                 <Package className="w-4 h-4" />
                 <span className="text-xs font-medium">Stock Actual</span>
               </div>
-              <p className="text-lg font-bold text-blue-700">{data.summary.current_stock}</p>
+              <p className="text-lg font-bold text-[var(--status-info)]">{data.summary.current_stock}</p>
             </div>
-            <div className="p-3 rounded-lg bg-purple-50">
-              <div className="flex items-center gap-2 text-purple-600 mb-1">
+            <div className="p-3 rounded-lg bg-[var(--primary)]/10">
+              <div className="flex items-center gap-2 text-[var(--primary)] mb-1">
                 <Settings className="w-4 h-4" />
                 <span className="text-xs font-medium">Costo Prom.</span>
               </div>
-              <p className="text-lg font-bold text-purple-700">
+              <p className="text-lg font-bold text-[var(--primary)]">
                 {formatCurrency(data.summary.wac)}
               </p>
             </div>
@@ -257,7 +257,7 @@ export function StockHistoryModal({
               <Loader2 className="w-8 h-8 animate-spin text-[var(--primary)]" />
             </div>
           ) : error ? (
-            <div className="text-center py-12 text-red-600">
+            <div className="text-center py-12 text-[var(--status-error)]">
               <AlertTriangle className="w-8 h-8 mx-auto mb-2" />
               <p>{error}</p>
             </div>
@@ -312,7 +312,7 @@ export function StockHistoryModal({
                     <div className="text-right">
                       <p
                         className={`text-lg font-bold ${
-                          isPositive ? 'text-green-600' : 'text-red-600'
+                          isPositive ? 'text-[var(--status-success)]' : 'text-[var(--status-error)]'
                         }`}
                       >
                         {isPositive ? '+' : ''}

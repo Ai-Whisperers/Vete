@@ -20,34 +20,34 @@ const statusBadgeVariants = cva(
     variants: {
       variant: {
         // Success states
-        success: 'bg-green-100 text-green-700 border border-green-200',
-        confirmed: 'bg-green-100 text-green-700 border border-green-200',
-        paid: 'bg-green-100 text-green-700 border border-green-200',
-        verified: 'bg-green-100 text-green-700 border border-green-200',
-        completed: 'bg-green-100 text-green-700 border border-green-200',
-        active: 'bg-green-100 text-green-700 border border-green-200',
+        success: 'bg-[var(--status-success-bg)] text-[var(--status-success-text)] border border-[var(--status-success-border)]',
+        confirmed: 'bg-[var(--status-success-bg)] text-[var(--status-success-text)] border border-[var(--status-success-border)]',
+        paid: 'bg-[var(--status-success-bg)] text-[var(--status-success-text)] border border-[var(--status-success-border)]',
+        verified: 'bg-[var(--status-success-bg)] text-[var(--status-success-text)] border border-[var(--status-success-border)]',
+        completed: 'bg-[var(--status-success-bg)] text-[var(--status-success-text)] border border-[var(--status-success-border)]',
+        active: 'bg-[var(--status-success-bg)] text-[var(--status-success-text)] border border-[var(--status-success-border)]',
 
         // Warning states
-        warning: 'bg-amber-100 text-amber-700 border border-amber-200',
-        pending: 'bg-amber-100 text-amber-700 border border-amber-200',
-        review: 'bg-amber-100 text-amber-700 border border-amber-200',
-        upcoming: 'bg-amber-100 text-amber-700 border border-amber-200',
-        expiring: 'bg-amber-100 text-amber-700 border border-amber-200',
+        warning: 'bg-[var(--status-warning-bg)] text-[var(--status-warning-text)] border border-[var(--status-warning-border)]',
+        pending: 'bg-[var(--status-warning-bg)] text-[var(--status-warning-text)] border border-[var(--status-warning-border)]',
+        review: 'bg-[var(--status-warning-bg)] text-[var(--status-warning-text)] border border-[var(--status-warning-border)]',
+        upcoming: 'bg-[var(--status-warning-bg)] text-[var(--status-warning-text)] border border-[var(--status-warning-border)]',
+        expiring: 'bg-[var(--status-warning-bg)] text-[var(--status-warning-text)] border border-[var(--status-warning-border)]',
 
         // Error states
-        error: 'bg-red-100 text-red-700 border border-red-200',
-        rejected: 'bg-red-100 text-red-700 border border-red-200',
-        overdue: 'bg-red-100 text-red-700 border border-red-200',
-        cancelled: 'bg-red-100 text-red-700 border border-red-200',
-        critical: 'bg-red-100 text-red-700 border border-red-200',
-        expired: 'bg-red-100 text-red-700 border border-red-200',
+        error: 'bg-[var(--status-error-bg)] text-[var(--status-error-text)] border border-[var(--status-error-border)]',
+        rejected: 'bg-[var(--status-error-bg)] text-[var(--status-error-text)] border border-[var(--status-error-border)]',
+        overdue: 'bg-[var(--status-error-bg)] text-[var(--status-error-text)] border border-[var(--status-error-border)]',
+        cancelled: 'bg-[var(--status-error-bg)] text-[var(--status-error-text)] border border-[var(--status-error-border)]',
+        critical: 'bg-[var(--status-error-bg)] text-[var(--status-error-text)] border border-[var(--status-error-border)]',
+        expired: 'bg-[var(--status-error-bg)] text-[var(--status-error-text)] border border-[var(--status-error-border)]',
 
         // Info states
-        info: 'bg-blue-100 text-blue-700 border border-blue-200',
-        scheduled: 'bg-blue-100 text-blue-700 border border-blue-200',
-        sent: 'bg-blue-100 text-blue-700 border border-blue-200',
-        'in-progress': 'bg-blue-100 text-blue-700 border border-blue-200',
-        processing: 'bg-blue-100 text-blue-700 border border-blue-200',
+        info: 'bg-[var(--status-info-bg)] text-[var(--status-info-text)] border border-[var(--status-info-border)]',
+        scheduled: 'bg-[var(--status-info-bg)] text-[var(--status-info-text)] border border-[var(--status-info-border)]',
+        sent: 'bg-[var(--status-info-bg)] text-[var(--status-info-text)] border border-[var(--status-info-border)]',
+        'in-progress': 'bg-[var(--status-info-bg)] text-[var(--status-info-text)] border border-[var(--status-info-border)]',
+        processing: 'bg-[var(--status-info-bg)] text-[var(--status-info-text)] border border-[var(--status-info-border)]',
 
         // Purple states (special/in consultation)
         purple: 'bg-purple-100 text-purple-700 border border-purple-200',
@@ -55,9 +55,9 @@ const statusBadgeVariants = cva(
         hospitalized: 'bg-purple-100 text-purple-700 border border-purple-200',
 
         // Orange states
-        orange: 'bg-orange-100 text-orange-700 border border-orange-200',
-        'no-show': 'bg-orange-100 text-orange-700 border border-orange-200',
-        urgent: 'bg-orange-100 text-orange-700 border border-orange-200',
+        orange: 'bg-[var(--status-warning-bg)] text-[var(--status-warning-text)] border border-[var(--status-warning-border)]',
+        'no-show': 'bg-[var(--status-warning-bg)] text-[var(--status-warning-text)] border border-[var(--status-warning-border)]',
+        urgent: 'bg-[var(--status-warning-bg)] text-[var(--status-warning-text)] border border-[var(--status-warning-border)]',
 
         // Neutral states
         neutral: 'bg-gray-100 text-gray-600 border border-gray-200',

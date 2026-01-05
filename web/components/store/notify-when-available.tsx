@@ -111,7 +111,7 @@ export function NotifyWhenAvailable({
   // Success state
   if (status === 'success') {
     return (
-      <div className={`flex items-center gap-2 ${compact ? 'text-xs' : 'text-sm'} text-green-600`}>
+      <div className={`flex items-center gap-2 ${compact ? 'text-xs' : 'text-sm'} text-[var(--status-success)]`}>
         <Check className={compact ? 'h-3 w-3' : 'h-4 w-4'} />
         <span>¡Te avisaremos cuando llegue!</span>
       </div>
@@ -137,7 +137,7 @@ export function NotifyWhenAvailable({
   return (
     <div className={compact ? 'space-y-2' : 'space-y-3'}>
       {!compact && (
-        <div className="flex items-center gap-2 text-amber-600">
+        <div className="flex items-center gap-2 text-[var(--status-warning)]">
           <Bell className="h-4 w-4" />
           <span className="text-sm font-medium">
             {productName ? `"${productName}" no está disponible` : 'Producto no disponible'}
@@ -171,7 +171,7 @@ export function NotifyWhenAvailable({
 
         {error && (
           <div
-            className={`flex items-center gap-1 text-red-600 ${compact ? 'text-xs' : 'text-sm'}`}
+            className={`flex items-center gap-1 text-[var(--status-error)] ${compact ? 'text-xs' : 'text-sm'}`}
           >
             <AlertCircle className={compact ? 'h-3 w-3' : 'h-4 w-4'} />
             <span>{error}</span>

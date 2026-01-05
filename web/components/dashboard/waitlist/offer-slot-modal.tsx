@@ -170,9 +170,9 @@ export function OfferSlotModal({
         {/* Content */}
         <div className="p-4">
           {/* Requested Info */}
-          <div className="mb-4 rounded-lg bg-amber-50 p-3">
-            <p className="text-sm font-medium text-amber-800">Preferencias del cliente:</p>
-            <div className="mt-1 flex flex-wrap gap-3 text-sm text-amber-700">
+          <div className="mb-4 rounded-lg bg-[var(--status-warning-bg)] p-3">
+            <p className="text-sm font-medium text-[var(--status-warning-text)]">Preferencias del cliente:</p>
+            <div className="mt-1 flex flex-wrap gap-3 text-sm text-[var(--status-warning)]">
               <span className="flex items-center gap-1">
                 <Calendar className="h-4 w-4" />
                 {formatDate(entry.preferred_date)}
@@ -216,7 +216,7 @@ export function OfferSlotModal({
                     key={slot.id}
                     className={`flex cursor-pointer items-center gap-3 rounded-lg border-2 p-3 transition ${
                       selectedSlot === slot.id
-                        ? 'border-[var(--primary)] bg-blue-50'
+                        ? 'border-[var(--primary)] bg-[var(--primary)]/10'
                         : 'border-gray-200 hover:border-gray-300'
                     }`}
                   >

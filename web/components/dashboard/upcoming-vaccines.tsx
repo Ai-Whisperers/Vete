@@ -210,7 +210,7 @@ export function UpcomingVaccines({ clinic }: UpcomingVaccinesProps) {
           {reminderResult && (
             <div
               className={`flex items-center gap-2 rounded-lg p-2 text-sm ${
-                reminderResult.success ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
+                reminderResult.success ? 'bg-[var(--status-success-bg)] text-[var(--status-success)]' : 'bg-[var(--status-error-bg)] text-[var(--status-error)]'
               }`}
             >
               {reminderResult.success ? (

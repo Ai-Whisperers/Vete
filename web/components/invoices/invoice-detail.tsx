@@ -85,7 +85,7 @@ export function InvoiceDetail({ invoice, clinic, clinicName, isAdmin }: InvoiceD
           {canSendInvoice(invoice.status) && (
             <button
               onClick={() => setShowSendDialog(true)}
-              className="inline-flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-blue-700 hover:bg-blue-100"
+              className="inline-flex items-center gap-2 rounded-lg border border-[var(--status-info-border)] bg-[var(--status-info-bg)] px-4 py-2 text-[var(--status-info-text)] hover:bg-[var(--status-info-bg)]/80"
             >
               <Icons.Send className="h-4 w-4" />
               Enviar
@@ -95,7 +95,7 @@ export function InvoiceDetail({ invoice, clinic, clinicName, isAdmin }: InvoiceD
           {canRecordPayment(invoice.status, invoice.amount_due) && (
             <button
               onClick={() => setShowPaymentDialog(true)}
-              className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-white hover:bg-green-700"
+              className="inline-flex items-center gap-2 rounded-lg bg-[var(--status-success)] px-4 py-2 text-white hover:bg-[var(--status-success)]/90"
             >
               <Icons.DollarSign className="h-4 w-4" />
               Registrar pago
@@ -106,7 +106,7 @@ export function InvoiceDetail({ invoice, clinic, clinicName, isAdmin }: InvoiceD
             <button
               onClick={handleVoid}
               disabled={voidLoading}
-              className="inline-flex items-center gap-2 rounded-lg border border-red-200 px-4 py-2 text-red-600 hover:bg-red-50 disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-lg border border-[var(--status-error-border)] px-4 py-2 text-[var(--status-error)] hover:bg-[var(--status-error-bg)] disabled:opacity-50"
             >
               {voidLoading ? (
                 <Icons.Loader2 className="h-4 w-4 animate-spin" />
@@ -234,7 +234,7 @@ export function InvoiceDetail({ invoice, clinic, clinicName, isAdmin }: InvoiceD
                         </p>
                       )}
                     </div>
-                    <Icons.CheckCircle className="h-5 w-5 text-green-500" />
+                    <Icons.CheckCircle className="h-5 w-5 text-[var(--status-success)]" />
                   </div>
                 ))}
               </div>
@@ -271,13 +271,13 @@ export function InvoiceDetail({ invoice, clinic, clinicName, isAdmin }: InvoiceD
                 </div>
               </div>
               {invoice.amount_paid > 0 && (
-                <div className="flex justify-between text-sm text-green-600">
+                <div className="flex justify-between text-sm text-[var(--status-success)]">
                   <span>Pagado</span>
                   <span>-{formatCurrency(invoice.amount_paid)}</span>
                 </div>
               )}
               {invoice.amount_due > 0 && (
-                <div className="flex justify-between border-t border-gray-100 pt-2 font-bold text-orange-600">
+                <div className="flex justify-between border-t border-gray-100 pt-2 font-bold text-[var(--status-warning)]">
                   <span>Pendiente</span>
                   <span>{formatCurrency(invoice.amount_due)}</span>
                 </div>
@@ -306,7 +306,7 @@ export function InvoiceDetail({ invoice, clinic, clinicName, isAdmin }: InvoiceD
                 </div>
               )}
               {invoice.paid_at && (
-                <div className="flex justify-between text-green-600">
+                <div className="flex justify-between text-[var(--status-success)]">
                   <span>Pagada</span>
                   <span>{formatDate(invoice.paid_at)}</span>
                 </div>

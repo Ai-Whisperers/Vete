@@ -81,13 +81,13 @@ export function EmptyState({
     },
     search: {
       container: 'bg-white',
-      iconWrapper: 'bg-blue-50',
-      icon: 'text-blue-400',
+      iconWrapper: 'bg-[var(--status-info-bg)]',
+      icon: 'text-[var(--status-info)]',
     },
     error: {
-      container: 'bg-red-50',
-      iconWrapper: 'bg-red-100',
-      icon: 'text-red-400',
+      container: 'bg-[var(--status-error-bg)]',
+      iconWrapper: 'bg-[var(--status-error-bg)]',
+      icon: 'text-[var(--status-error)]',
     },
     card: {
       container: 'bg-white border border-dashed border-gray-300 rounded-2xl',

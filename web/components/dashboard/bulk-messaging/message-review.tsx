@@ -52,12 +52,12 @@ export function MessageReview({
         </div>
 
         {/* Warning */}
-        <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4">
+        <div className="rounded-lg border border-[var(--status-warning-border)] bg-[var(--status-warning-bg)] p-4">
           <div className="flex items-start gap-3">
-            <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-yellow-600" />
+            <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-[var(--status-warning)]" />
             <div>
-              <p className="font-medium text-yellow-800">{labels.confirm_send}</p>
-              <p className="mt-1 text-sm text-yellow-700">
+              <p className="font-medium text-[var(--status-warning-text)]">{labels.confirm_send}</p>
+              <p className="mt-1 text-sm text-[var(--status-warning)]">
                 {labels.send_warning.replace('{count}', String(selectedCount))}
               </p>
             </div>

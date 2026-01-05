@@ -59,8 +59,8 @@ const STATUS_CONFIG = {
   draft: { label: 'Borrador', icon: FileText, color: 'text-gray-500', bg: 'bg-gray-100' },
   submitted: { label: 'Enviado', icon: Clock, color: 'text-[var(--status-info)]', bg: 'bg-[var(--status-info-bg)]' },
   confirmed: { label: 'Confirmado', icon: CheckCircle, color: 'text-[var(--status-success)]', bg: 'bg-[var(--status-success-bg)]' },
-  shipped: { label: 'En Camino', icon: Truck, color: 'text-purple-500', bg: 'bg-purple-100' },
-  received: { label: 'Recibido', icon: Package, color: 'text-emerald-500', bg: 'bg-emerald-100' },
+  shipped: { label: 'En Camino', icon: Truck, color: 'text-[var(--primary)]', bg: 'bg-[var(--primary)]/10' },
+  received: { label: 'Recibido', icon: Package, color: 'text-[var(--status-success)]', bg: 'bg-[var(--status-success-bg)]' },
   cancelled: { label: 'Cancelado', icon: XCircle, color: 'text-[var(--status-error)]', bg: 'bg-[var(--status-error-bg)]' },
 }
 

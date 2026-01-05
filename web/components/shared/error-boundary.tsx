@@ -53,8 +53,8 @@ export class ErrorBoundary extends Component<Props, State> {
 
       return (
         <div className="flex min-h-[400px] flex-col items-center justify-center gap-6 p-8">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
-            <AlertTriangle className="h-8 w-8 text-red-600" />
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[var(--status-error-bg)]">
+            <AlertTriangle className="h-8 w-8 text-[var(--status-error)]" />
           </div>
 
           <div className="space-y-2 text-center">
@@ -64,10 +64,10 @@ export class ErrorBoundary extends Component<Props, State> {
             </p>
             {process.env.NODE_ENV === 'development' && this.state.error && (
               <details className="mt-4 text-left">
-                <summary className="cursor-pointer text-sm text-red-500">
+                <summary className="cursor-pointer text-sm text-[var(--status-error)]">
                   Detalles del error (desarrollo)
                 </summary>
-                <pre className="mt-2 overflow-auto rounded bg-red-50 p-2 font-mono text-xs text-red-500">
+                <pre className="mt-2 overflow-auto rounded bg-[var(--status-error-bg)] p-2 font-mono text-xs text-[var(--status-error)]">
                   {this.state.error.stack}
                 </pre>
               </details>

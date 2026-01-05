@@ -20,7 +20,7 @@ export function ActionButtons({
         className={`flex flex-1 items-center justify-center gap-2 rounded-xl px-6 py-3 font-bold transition-all ${
           inStock
             ? addedToCart
-              ? 'bg-green-500 text-white'
+              ? 'bg-[var(--status-success)] text-white'
               : 'bg-[var(--primary)] text-white hover:opacity-90'
             : 'cursor-not-allowed bg-gray-100 text-gray-400'
         }`}

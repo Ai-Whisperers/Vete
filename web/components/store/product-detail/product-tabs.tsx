@@ -113,7 +113,7 @@ export default function ProductTabs({
                 <ul className="space-y-2">
                   {product.features.map((feature, index) => (
                     <li key={index} className="flex items-start gap-3">
-                      <span className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-green-100 text-green-600">
+                      <span className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-[var(--status-success-bg)] text-[var(--status-success)]">
                         <svg
                           className="h-3 w-3"
                           fill="none"
@@ -214,7 +214,7 @@ export default function ProductTabs({
                     {product.health_conditions.map((condition) => (
                       <span
                         key={condition}
-                        className="rounded-full bg-blue-50 px-3 py-1 text-sm text-blue-700"
+                        className="rounded-full bg-[var(--status-info-bg)] px-3 py-1 text-sm text-[var(--status-info-text)]"
                       >
                         {HEALTH_CONDITION_LABELS[condition] || condition}
                       </span>

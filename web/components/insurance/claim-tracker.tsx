@@ -28,15 +28,15 @@ export default function ClaimTracker({
 }: ClaimTrackerProps) {
   const steps: StatusStep[] = [
     { key: 'draft', label: 'Borrador', icon: Circle, color: 'text-gray-400' },
-    { key: 'submitted', label: 'Enviado', icon: Clock, color: 'text-blue-500' },
-    { key: 'under_review', label: 'En Revisión', icon: Clock, color: 'text-yellow-500' },
-    { key: 'approved', label: 'Aprobado', icon: CheckCircle2, color: 'text-green-500' },
-    { key: 'paid', label: 'Pagado', icon: CheckCircle2, color: 'text-green-600' },
+    { key: 'submitted', label: 'Enviado', icon: Clock, color: 'text-[var(--status-info)]' },
+    { key: 'under_review', label: 'En Revisión', icon: Clock, color: 'text-[var(--status-warning)]' },
+    { key: 'approved', label: 'Aprobado', icon: CheckCircle2, color: 'text-[var(--status-success)]' },
+    { key: 'paid', label: 'Pagado', icon: CheckCircle2, color: 'text-[var(--status-success)]' },
   ]
 
   // Handle denied status
   if (status === 'denied') {
-    steps[3] = { key: 'denied', label: 'Denegado', icon: XCircle, color: 'text-red-500' }
+    steps[3] = { key: 'denied', label: 'Denegado', icon: XCircle, color: 'text-[var(--status-error)]' }
     steps.pop() // Remove paid step
   }
 
@@ -46,7 +46,7 @@ export default function ClaimTracker({
       key: 'pending_documents',
       label: 'Documentos Pendientes',
       icon: AlertCircle,
-      color: 'text-orange-500',
+      color: 'text-[var(--status-warning)]',
     })
   }
 

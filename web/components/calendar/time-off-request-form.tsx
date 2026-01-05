@@ -159,7 +159,7 @@ export function TimeOffRequestForm({
                 onClick={() => setTypeId(type.id)}
                 className={`rounded-lg border-2 p-4 text-left transition-all ${
                   isSelected
-                    ? 'border-[var(--primary)] bg-blue-50'
+                    ? 'border-[var(--primary)] bg-[var(--primary)]/10'
                     : 'border-gray-200 hover:border-gray-300'
                 }`}
               >
@@ -182,7 +182,7 @@ export function TimeOffRequestForm({
                   </p>
                 )}
                 {type.requires_approval && (
-                  <p className="mt-1 text-xs text-yellow-600">Requiere aprobación</p>
+                  <p className="mt-1 text-xs text-[var(--status-warning)]">Requiere aprobación</p>
                 )}
               </button>
             )
@@ -276,10 +276,10 @@ export function TimeOffRequestForm({
 
       {/* Notice about approval */}
       {selectedType?.requires_approval && (
-        <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4">
+        <div className="rounded-lg border border-[var(--status-warning-border)] bg-[var(--status-warning-bg)] p-4">
           <div className="flex items-start gap-3">
             <svg
-              className="h-5 w-5 flex-shrink-0 text-yellow-600"
+              className="h-5 w-5 flex-shrink-0 text-[var(--status-warning)]"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -292,10 +292,10 @@ export function TimeOffRequestForm({
               />
             </svg>
             <div>
-              <p className="text-sm font-medium text-yellow-800">
+              <p className="text-sm font-medium text-[var(--status-warning-text)]">
                 Esta solicitud requiere aprobación
               </p>
-              <p className="mt-1 text-xs text-yellow-700">
+              <p className="mt-1 text-xs text-[var(--status-warning-text)]">
                 Tu solicitud será revisada por un administrador antes de ser confirmada.
               </p>
             </div>

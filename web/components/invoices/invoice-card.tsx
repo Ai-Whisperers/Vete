@@ -43,11 +43,11 @@ export function InvoiceCard({ invoice, clinic }: InvoiceCardProps) {
         <div className="text-right">
           <p className="font-bold text-[var(--text-primary)]">{formatCurrency(invoice.total)}</p>
           {invoice.amount_due > 0 && invoice.status !== 'draft' && (
-            <p className="text-sm text-orange-600">
+            <p className="text-sm text-[var(--status-warning)]">
               Pendiente: {formatCurrency(invoice.amount_due)}
             </p>
           )}
-          {invoice.status === 'paid' && <p className="text-sm text-green-600">Pagado</p>}
+          {invoice.status === 'paid' && <p className="text-sm text-[var(--status-success)]">Pagado</p>}
         </div>
 
         {/* Arrow */}

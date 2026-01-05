@@ -218,7 +218,7 @@ export function SubscriptionManager({
   if (error) {
     return (
       <div className="flex min-h-[300px] flex-col items-center justify-center gap-4">
-        <AlertCircle className="h-12 w-12 text-red-400" />
+        <AlertCircle className="h-12 w-12 text-[var(--status-error)]" />
         <p className="text-gray-600">{error}</p>
         <button
           onClick={fetchSubscriptions}
@@ -241,15 +241,15 @@ export function SubscriptionManager({
             {subscriptions.length}
           </p>
         </div>
-        <div className="rounded-xl bg-green-50 p-4 shadow-sm">
-          <p className="text-sm text-green-600">Activas</p>
-          <p className="text-2xl font-bold text-green-700">
+        <div className="rounded-xl bg-[var(--status-success-bg)] p-4 shadow-sm">
+          <p className="text-sm text-[var(--status-success)]">Activas</p>
+          <p className="text-2xl font-bold text-[var(--status-success-text)]">
             {statusCounts['active'] || 0}
           </p>
         </div>
-        <div className="rounded-xl bg-amber-50 p-4 shadow-sm">
-          <p className="text-sm text-amber-600">Pausadas</p>
-          <p className="text-2xl font-bold text-amber-700">
+        <div className="rounded-xl bg-[var(--status-warning-bg)] p-4 shadow-sm">
+          <p className="text-sm text-[var(--status-warning)]">Pausadas</p>
+          <p className="text-2xl font-bold text-[var(--status-warning-text)]">
             {statusCounts['paused'] || 0}
           </p>
         </div>
@@ -329,12 +329,12 @@ export function SubscriptionManager({
 
       {/* Upcoming Orders Info */}
       {filteredSubscriptions.filter((s) => s.status === 'active').length > 0 && (
-        <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">
+        <div className="rounded-xl border border-[var(--status-info-border)] bg-[var(--status-info-bg)] p-4">
           <div className="flex items-start gap-3">
-            <Calendar className="h-5 w-5 text-blue-600" />
+            <Calendar className="h-5 w-5 text-[var(--status-info)]" />
             <div>
-              <h4 className="font-medium text-blue-900">Próximos pedidos</h4>
-              <p className="mt-1 text-sm text-blue-700">
+              <h4 className="font-medium text-[var(--status-info-text)]">Próximos pedidos</h4>
+              <p className="mt-1 text-sm text-[var(--status-info-text)]">
                 Tus suscripciones activas generarán pedidos automáticamente en las fechas
                 indicadas. Recibirás un email de confirmación antes de cada envío.
               </p>

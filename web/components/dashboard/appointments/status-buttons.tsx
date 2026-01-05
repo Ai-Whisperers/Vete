@@ -56,7 +56,7 @@ export function StatusButtons({ appointmentId, currentStatus, clinic }: StatusBu
           <button
             onClick={() => handleAction(() => checkInAppointment(appointmentId), 'checkin')}
             disabled={loading !== null}
-            className={`${buttonBaseClass} bg-yellow-100 text-yellow-700 hover:bg-yellow-200`}
+            className={`${buttonBaseClass} bg-[var(--status-warning-bg)] text-[var(--status-warning)] hover:opacity-80`}
             title="Registrar llegada"
           >
             {loading === 'checkin' ? (
@@ -70,7 +70,7 @@ export function StatusButtons({ appointmentId, currentStatus, clinic }: StatusBu
           <button
             onClick={() => handleAction(() => markNoShow(appointmentId), 'noshow')}
             disabled={loading !== null}
-            className={`${buttonBaseClass} bg-orange-100 text-orange-700 hover:bg-orange-200`}
+            className={`${buttonBaseClass} bg-[var(--status-warning-bg)] text-[var(--status-warning-text)] hover:opacity-80`}
             title="Marcar como no presentado"
           >
             {loading === 'noshow' ? (
@@ -84,7 +84,7 @@ export function StatusButtons({ appointmentId, currentStatus, clinic }: StatusBu
           <button
             onClick={() => handleAction(() => cancelAppointment(appointmentId), 'cancel')}
             disabled={loading !== null}
-            className={`${buttonBaseClass} bg-red-100 text-red-700 hover:bg-red-200`}
+            className={`${buttonBaseClass} bg-[var(--status-error-bg)] text-[var(--status-error)] hover:opacity-80`}
             title="Cancelar cita"
           >
             {loading === 'cancel' ? (
@@ -94,7 +94,7 @@ export function StatusButtons({ appointmentId, currentStatus, clinic }: StatusBu
             )}
           </button>
 
-          {error && <span className="text-xs text-red-500">{error}</span>}
+          {error && <span className="text-xs text-[var(--status-error)]">{error}</span>}
         </div>
       )
 
@@ -119,7 +119,7 @@ export function StatusButtons({ appointmentId, currentStatus, clinic }: StatusBu
           <button
             onClick={() => handleAction(() => completeAppointment(appointmentId), 'complete')}
             disabled={loading !== null}
-            className={`${buttonBaseClass} bg-green-100 text-green-700 hover:bg-green-200`}
+            className={`${buttonBaseClass} bg-[var(--status-success-bg)] text-[var(--status-success)] hover:opacity-80`}
             title="Completar"
           >
             {loading === 'complete' ? (
@@ -129,7 +129,7 @@ export function StatusButtons({ appointmentId, currentStatus, clinic }: StatusBu
             )}
           </button>
 
-          {error && <span className="text-xs text-red-500">{error}</span>}
+          {error && <span className="text-xs text-[var(--status-error)]">{error}</span>}
         </div>
       )
 
@@ -140,7 +140,7 @@ export function StatusButtons({ appointmentId, currentStatus, clinic }: StatusBu
           <button
             onClick={() => handleAction(() => completeAppointment(appointmentId), 'complete')}
             disabled={loading !== null}
-            className={`${buttonBaseClass} bg-green-100 text-green-700 hover:bg-green-200`}
+            className={`${buttonBaseClass} bg-[var(--status-success-bg)] text-[var(--status-success)] hover:opacity-80`}
             title="Completar consulta"
           >
             {loading === 'complete' ? (
@@ -150,7 +150,7 @@ export function StatusButtons({ appointmentId, currentStatus, clinic }: StatusBu
             )}
           </button>
 
-          {error && <span className="text-xs text-red-500">{error}</span>}
+          {error && <span className="text-xs text-[var(--status-error)]">{error}</span>}
         </div>
       )
 

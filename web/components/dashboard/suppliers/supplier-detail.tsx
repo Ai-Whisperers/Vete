@@ -318,7 +318,7 @@ export function SupplierDetailModal({ supplierId, onClose, onVerify }: SupplierD
                             <div className="flex items-center gap-2">
                               {lead.catalog_products?.name || 'Producto'}
                               {lead.is_preferred && (
-                                <span className="rounded-full bg-amber-100 px-1.5 py-0.5 text-xs text-amber-700">
+                                <span className="rounded-full bg-[var(--status-warning-bg)] px-1.5 py-0.5 text-xs text-[var(--status-warning)]">
                                   Preferido
                                 </span>
                               )}

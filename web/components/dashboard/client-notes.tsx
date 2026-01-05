@@ -238,7 +238,7 @@ export function ClientNotes({
                   onClick={() => setIsPrivate(!isPrivate)}
                   className={`flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm transition-colors ${
                     isPrivate
-                      ? 'bg-amber-100 text-amber-700'
+                      ? 'bg-[var(--status-warning-bg)] text-[var(--status-warning)]'
                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                   }`}
                 >
@@ -341,7 +341,7 @@ export function ClientNotes({
                         {note.is_private && (
                           <>
                             <span>•</span>
-                            <span className="flex items-center gap-1 text-amber-600">
+                            <span className="flex items-center gap-1 text-[var(--status-warning)]">
                               <Lock className="h-3 w-3" />
                               Privada
                             </span>
@@ -365,7 +365,7 @@ export function ClientNotes({
                         <ConfirmDialog
                           trigger={
                             <button
-                              className="rounded p-1.5 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600"
+                              className="rounded p-1.5 text-gray-400 transition-colors hover:bg-[var(--status-error-bg)] hover:text-[var(--status-error)]"
                               title={labels.common.delete}
                             >
                               <Trash2 className="h-4 w-4" />

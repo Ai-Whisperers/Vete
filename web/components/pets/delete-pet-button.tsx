@@ -38,7 +38,7 @@ export function DeletePetButton({ petId, petName, clinic }: Props): React.ReactE
       <button
         type="button"
         onClick={() => setShowConfirm(true)}
-        className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-red-200 py-3 font-bold text-red-500 transition-colors hover:border-red-300 hover:text-red-700"
+        className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-[var(--status-error-border)] py-3 font-bold text-[var(--status-error)] transition-colors hover:bg-[var(--status-error-bg)]"
       >
         <Icons.Trash2 className="h-4 w-4" />
         Eliminar Mascota
@@ -47,20 +47,20 @@ export function DeletePetButton({ petId, petName, clinic }: Props): React.ReactE
   }
 
   return (
-    <div className="space-y-4 rounded-xl border border-red-200 bg-red-50 p-4">
+    <div className="space-y-4 rounded-xl border border-[var(--status-error-border)] bg-[var(--status-error-bg)] p-4">
       <div className="flex items-start gap-3">
-        <div className="rounded-full bg-red-100 p-2">
-          <Icons.AlertTriangle className="h-5 w-5 text-red-600" />
+        <div className="rounded-full bg-[var(--status-error-bg)] p-2">
+          <Icons.AlertTriangle className="h-5 w-5 text-[var(--status-error)]" />
         </div>
         <div>
-          <h4 className="font-bold text-red-900">¿Eliminar a {petName}?</h4>
-          <p className="text-sm text-red-700">
+          <h4 className="font-bold text-[var(--status-error-text)]">¿Eliminar a {petName}?</h4>
+          <p className="text-sm text-[var(--status-error-text)]">
             Esta acción no se puede deshacer. Se eliminarán todos los registros asociados.
           </p>
         </div>
       </div>
 
-      {error && <div className="rounded-lg bg-red-100 p-2 text-sm text-red-700">{error}</div>}
+      {error && <div className="rounded-lg bg-[var(--status-error-bg)] p-2 text-sm text-[var(--status-error-text)]">{error}</div>}
 
       <div className="flex gap-3">
         <button
@@ -75,7 +75,7 @@ export function DeletePetButton({ petId, petName, clinic }: Props): React.ReactE
           type="button"
           onClick={handleDelete}
           disabled={isPending}
-          className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-red-600 px-4 py-2 font-bold text-white transition-colors hover:bg-red-700"
+          className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[var(--status-error)] px-4 py-2 font-bold text-white transition-colors hover:opacity-90"
         >
           {isPending ? (
             <Icons.Loader2 className="h-4 w-4 animate-spin" />

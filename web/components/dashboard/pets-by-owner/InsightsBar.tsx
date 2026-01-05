@@ -48,20 +48,20 @@ export function InsightsBar({
         onClick={() => onFilterClick('vaccine', 'overdue')}
         className={`rounded-xl border bg-white p-4 text-left transition-colors ${
           insights.vaccinesOverdue > 0
-            ? 'border-red-300 bg-red-50 hover:border-red-400'
+            ? 'border-[var(--status-error-border)] bg-[var(--status-error-bg)] hover:opacity-80'
             : 'border-[var(--border-color)] hover:border-[var(--primary)]'
         }`}
       >
-        <div className="mb-1 flex items-center gap-2 text-red-600">
+        <div className="mb-1 flex items-center gap-2 text-[var(--status-error)]">
           <Syringe className="h-4 w-4" />
           <span className="text-xs font-medium">Vacunas Pendientes</span>
           {insights.vaccinesOverdue > 0 && (
-            <span className="h-2 w-2 animate-pulse rounded-full bg-red-500" />
+            <span className="h-2 w-2 animate-pulse rounded-full bg-[var(--status-error)]" />
           )}
         </div>
         <p className="text-2xl font-bold text-[var(--text-primary)]">{insights.vaccinesPending}</p>
         {insights.vaccinesOverdue > 0 && (
-          <p className="text-xs text-red-600">{insights.vaccinesOverdue} vencidas</p>
+          <p className="text-xs text-[var(--status-error)]">{insights.vaccinesOverdue} vencidas</p>
         )}
       </button>
 
@@ -71,19 +71,19 @@ export function InsightsBar({
         onClick={onPendingFilesClick}
         className={`rounded-xl border bg-white p-4 text-left transition-colors ${
           insights.pendingFiles > 0
-            ? 'border-orange-300 bg-orange-50 hover:border-orange-400'
+            ? 'border-[var(--status-warning-border)] bg-[var(--status-warning-bg)] hover:opacity-80'
             : 'border-[var(--border-color)] hover:border-[var(--primary)]'
         }`}
       >
-        <div className="mb-1 flex items-center gap-2 text-orange-600">
+        <div className="mb-1 flex items-center gap-2 text-[var(--status-warning)]">
           <FileCheck className="h-4 w-4" />
           <span className="text-xs font-medium">Archivos por Validar</span>
           {insights.pendingFiles > 0 && (
-            <span className="h-2 w-2 animate-pulse rounded-full bg-orange-500" />
+            <span className="h-2 w-2 animate-pulse rounded-full bg-[var(--status-warning)]" />
           )}
         </div>
         <p className="text-2xl font-bold text-[var(--text-primary)]">{insights.pendingFiles}</p>
-        {insights.pendingFiles > 0 && <p className="text-xs text-orange-600">recetas pendientes</p>}
+        {insights.pendingFiles > 0 && <p className="text-xs text-[var(--status-warning)]">recetas pendientes</p>}
       </button>
 
       {/* Needs Follow-up */}
@@ -92,16 +92,16 @@ export function InsightsBar({
         onClick={() => onFilterClick('lastVisit', '6+')}
         className={`rounded-xl border bg-white p-4 text-left transition-colors ${
           insights.needsFollowUp > 0
-            ? 'border-amber-300 bg-amber-50 hover:border-amber-400'
+            ? 'border-[var(--status-warning-border)] bg-[var(--status-warning-bg)] hover:opacity-80'
             : 'border-[var(--border-color)] hover:border-[var(--primary)]'
         }`}
       >
-        <div className="mb-1 flex items-center gap-2 text-amber-600">
+        <div className="mb-1 flex items-center gap-2 text-[var(--status-warning)]">
           <AlertTriangle className="h-4 w-4" />
           <span className="text-xs font-medium">Necesitan Seguimiento</span>
         </div>
         <p className="text-2xl font-bold text-[var(--text-primary)]">{insights.needsFollowUp}</p>
-        <p className="text-xs text-amber-600">&gt;90 dias sin visita</p>
+        <p className="text-xs text-[var(--status-warning)]">&gt;90 dias sin visita</p>
       </button>
 
       {/* New This Month */}
@@ -110,7 +110,7 @@ export function InsightsBar({
         onClick={() => onFilterClick('lastVisit', 'recent')}
         className="rounded-xl border border-[var(--border-color)] bg-white p-4 text-left transition-colors hover:border-[var(--primary)]"
       >
-        <div className="mb-1 flex items-center gap-2 text-green-600">
+        <div className="mb-1 flex items-center gap-2 text-[var(--status-success)]">
           <UserPlus className="h-4 w-4" />
           <span className="text-xs font-medium">Nuevos este Mes</span>
         </div>

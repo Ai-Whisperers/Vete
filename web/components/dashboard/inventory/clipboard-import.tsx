@@ -198,14 +198,14 @@ export function ClipboardImport({ onDataParsed }: ClipboardImportProps) {
         </div>
 
         {parseError && (
-          <div className="mb-4 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-600">
+          <div className="mb-4 flex items-start gap-2 rounded-lg border border-[var(--status-error-border)] bg-[var(--status-error-bg)] p-3 text-sm text-[var(--status-error)]">
             <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
             {parseError}
           </div>
         )}
 
         {rowCount > 0 && !parseError && (
-          <div className="mb-4 flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-600">
+          <div className="mb-4 flex items-center gap-2 rounded-lg border border-[var(--status-success-border)] bg-[var(--status-success-bg)] p-3 text-sm text-[var(--status-success)]">
             <Check className="h-4 w-4" />
             {rowCount} filas de datos detectadas
           </div>
@@ -237,16 +237,16 @@ export function ClipboardImport({ onDataParsed }: ClipboardImportProps) {
       disabled={isPasting}
       className="rounded-2xl border-2 border-dashed border-gray-200 p-8 text-center transition-all hover:border-[var(--primary)] hover:bg-gray-50"
     >
-      <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-purple-100">
+      <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--primary)]/10">
         {isPasting ? (
-          <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
+          <Loader2 className="h-8 w-8 animate-spin text-[var(--primary)]" />
         ) : (
-          <ClipboardPaste className="h-8 w-8 text-purple-600" />
+          <ClipboardPaste className="h-8 w-8 text-[var(--primary)]" />
         )}
       </div>
       <h4 className="mb-2 font-bold text-gray-900">Pegar desde Hoja de Cálculo</h4>
       <p className="mb-4 text-sm text-gray-500">Excel, Google Sheets, etc.</p>
-      <span className="inline-flex items-center gap-2 rounded-lg bg-purple-600 px-4 py-2 font-medium text-white">
+      <span className="inline-flex items-center gap-2 rounded-lg bg-[var(--primary)] px-4 py-2 font-medium text-white">
         <ClipboardPaste className="h-4 w-4" />
         {isPasting ? 'Leyendo...' : 'Pegar del Portapapeles'}
       </span>

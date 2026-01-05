@@ -210,12 +210,12 @@ export function RecurrenceList(): React.ReactElement {
 
   const getStatusBadge = (recurrence: Recurrence) => {
     if (!recurrence.is_active) {
-      return <Badge className="bg-gray-100 text-gray-600">Cancelada</Badge>
+      return <Badge className="bg-gray-100 text-[var(--text-secondary)]">Cancelada</Badge>
     }
     if (recurrence.paused_until) {
-      return <Badge className="bg-amber-100 text-amber-700">Pausada</Badge>
+      return <Badge className="bg-[var(--status-warning-bg)] text-[var(--status-warning)]">Pausada</Badge>
     }
-    return <Badge className="bg-green-100 text-green-700">Activa</Badge>
+    return <Badge className="bg-[var(--status-success-bg)] text-[var(--status-success)]">Activa</Badge>
   }
 
   // Filter recurrences
@@ -304,7 +304,7 @@ export function RecurrenceList(): React.ReactElement {
                   !recurrence.is_active
                     ? 'border-gray-200 bg-gray-50'
                     : isPaused
-                      ? 'border-amber-200'
+                      ? 'border-[var(--status-warning-border)]'
                       : 'border-gray-200'
                 }`}
               >
@@ -350,7 +350,7 @@ export function RecurrenceList(): React.ReactElement {
 
                       {/* Paused Until */}
                       {isPaused && (
-                        <div className="mt-2 flex items-center gap-2 text-sm text-amber-600">
+                        <div className="mt-2 flex items-center gap-2 text-sm text-[var(--status-warning)]">
                           <AlertCircle className="h-4 w-4" />
                           Pausada hasta {formatDate(recurrence.paused_until!)}
                         </div>
@@ -364,7 +364,7 @@ export function RecurrenceList(): React.ReactElement {
                           <button
                             onClick={() => handleResume(recurrence)}
                             disabled={isLoading}
-                            className="flex items-center gap-1 rounded-lg bg-green-100 px-3 py-2 text-sm font-medium text-green-700 hover:bg-green-200 disabled:opacity-50"
+                            className="flex items-center gap-1 rounded-lg bg-[var(--status-success-bg)] px-3 py-2 text-sm font-medium text-[var(--status-success)] hover:opacity-80 disabled:opacity-50"
                           >
                             {isLoading ? (
                               <Loader2 className="h-4 w-4 animate-spin" />
@@ -377,7 +377,7 @@ export function RecurrenceList(): React.ReactElement {
                           <button
                             onClick={() => handlePause(recurrence)}
                             disabled={isLoading}
-                            className="flex items-center gap-1 rounded-lg bg-amber-100 px-3 py-2 text-sm font-medium text-amber-700 hover:bg-amber-200 disabled:opacity-50"
+                            className="flex items-center gap-1 rounded-lg bg-[var(--status-warning-bg)] px-3 py-2 text-sm font-medium text-[var(--status-warning)] hover:opacity-80 disabled:opacity-50"
                           >
                             {isLoading ? (
                               <Loader2 className="h-4 w-4 animate-spin" />
@@ -419,7 +419,7 @@ export function RecurrenceList(): React.ReactElement {
                       <button
                         onClick={() => handleDeactivate(recurrence, false)}
                         disabled={isLoading}
-                        className="flex items-center gap-2 rounded-lg border border-red-200 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 disabled:opacity-50"
+                        className="flex items-center gap-2 rounded-lg border border-[var(--status-error-border)] px-4 py-2 text-sm font-medium text-[var(--status-error)] hover:bg-[var(--status-error-bg)] disabled:opacity-50"
                       >
                         <Trash2 className="h-4 w-4" />
                         Cancelar recurrencia
@@ -428,7 +428,7 @@ export function RecurrenceList(): React.ReactElement {
                       <button
                         onClick={() => handleDeactivate(recurrence, true)}
                         disabled={isLoading}
-                        className="flex items-center gap-2 rounded-lg bg-red-100 px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-200 disabled:opacity-50"
+                        className="flex items-center gap-2 rounded-lg bg-[var(--status-error-bg)] px-4 py-2 text-sm font-medium text-[var(--status-error)] hover:opacity-80 disabled:opacity-50"
                       >
                         <Trash2 className="h-4 w-4" />
                         Cancelar todo (incluir citas futuras)

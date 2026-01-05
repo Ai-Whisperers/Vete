@@ -134,7 +134,7 @@ export function SubscribeButton({
                   }`}
                 >
                   <p className="font-medium text-[var(--text-primary)]">{option.label}</p>
-                  <p className="text-sm text-green-600">Ahorra {option.discount}</p>
+                  <p className="text-sm text-[var(--status-success)]">Ahorra {option.discount}</p>
                 </button>
               ))}
             </div>

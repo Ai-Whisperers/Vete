@@ -90,12 +90,12 @@ export function QoLAssessment({ onComplete }: QoLAssessmentProps) {
       </p>
 
       {/* Important disclaimer */}
-      <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 p-4">
+      <div className="mb-6 rounded-xl border border-[var(--status-warning-border)] bg-[var(--status-warning-bg)] p-4">
         <div className="flex gap-3">
-          <Icons.AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-600" />
-          <div className="text-sm text-amber-800">
+          <Icons.AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-[var(--status-warning)]" />
+          <div className="text-sm text-[var(--status-warning-text)]">
             <p className="mb-1 font-bold">Esta herramienta es solo una guía</p>
-            <p className="text-amber-700">
+            <p className="text-[var(--status-warning-text)]">
               Las decisiones sobre el final de la vida deben tomarse junto con un veterinario,
               considerando el contexto completo del paciente. Esta escala NO sustituye el juicio
               profesional.
@@ -128,17 +128,17 @@ export function QoLAssessment({ onComplete }: QoLAssessmentProps) {
 
       {/* Critical warnings */}
       {criticalWarnings.length > 0 && (
-        <div className="mt-6 rounded-xl border border-red-200 bg-red-50 p-4">
+        <div className="mt-6 rounded-xl border border-[var(--status-error-border)] bg-[var(--status-error-bg)] p-4">
           <div className="flex gap-3">
-            <Icons.AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-600" />
+            <Icons.AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-[var(--status-error)]" />
             <div>
-              <p className="mb-2 font-bold text-red-800">Valores críticos detectados:</p>
-              <ul className="space-y-1 text-sm text-red-700">
+              <p className="mb-2 font-bold text-[var(--status-error-text)]">Valores críticos detectados:</p>
+              <ul className="space-y-1 text-sm text-[var(--status-error-text)]">
                 {criticalWarnings.map((warning, idx) => (
                   <li key={idx}>• {warning}</li>
                 ))}
               </ul>
-              <p className="mt-2 text-sm font-medium text-red-600">
+              <p className="mt-2 text-sm font-medium text-[var(--status-error)]">
                 Puntuaciones críticas en categorías esenciales requieren atención veterinaria
                 inmediata.
               </p>
@@ -155,7 +155,7 @@ export function QoLAssessment({ onComplete }: QoLAssessmentProps) {
           </div>
           <div className="text-right">
             <p
-              className={`text-xl font-black uppercase tracking-tighter ${total > POOR_TOTAL_THRESHOLD ? 'text-green-400' : 'text-red-400'}`}
+              className={`text-xl font-black uppercase tracking-tighter ${total > POOR_TOTAL_THRESHOLD ? 'text-[var(--status-success)]' : 'text-[var(--status-error)]'}`}
             >
               {total > POOR_TOTAL_THRESHOLD ? 'Calidad Aceptable' : 'Calidad Comprometida'}
             </p>
@@ -165,13 +165,13 @@ export function QoLAssessment({ onComplete }: QoLAssessmentProps) {
         {/* Score interpretation guide */}
         <div className="mt-4 border-t border-gray-700 pt-4 text-xs opacity-70">
           <p className="mb-1">
-            <span className="text-green-400">{'>'} 35:</span> Calidad de vida aceptable
+            <span className="text-[var(--status-success)]">{'>'} 35:</span> Calidad de vida aceptable
           </p>
           <p className="mb-1">
-            <span className="text-yellow-400">25-35:</span> Calidad comprometida, evaluar opciones
+            <span className="text-[var(--status-warning)]">25-35:</span> Calidad comprometida, evaluar opciones
           </p>
           <p>
-            <span className="text-red-400">{'<'} 25:</span> Calidad pobre, considerar cuidados
+            <span className="text-[var(--status-error)]">{'<'} 25:</span> Calidad pobre, considerar cuidados
             paliativos
           </p>
         </div>

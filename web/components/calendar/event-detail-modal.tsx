@@ -77,9 +77,9 @@ function StatusBadge({ status, type }: StatusBadgeProps) {
       withdrawn: 'Retirada',
     }
     const timeOffColors: Record<string, string> = {
-      pending: 'bg-yellow-100 text-yellow-800',
-      approved: 'bg-green-100 text-green-800',
-      denied: 'bg-red-100 text-red-800',
+      pending: 'bg-[var(--status-warning-bg)] text-[var(--status-warning-text)]',
+      approved: 'bg-[var(--status-success-bg)] text-[var(--status-success-text)]',
+      denied: 'bg-[var(--status-error-bg)] text-[var(--status-error-text)]',
       cancelled: 'bg-gray-100 text-gray-500',
       withdrawn: 'bg-gray-100 text-gray-500',
     }
@@ -95,12 +95,12 @@ function StatusBadge({ status, type }: StatusBadgeProps) {
       cancelled: 'Cancelado',
     }
     const shiftColors: Record<string, string> = {
-      scheduled: 'bg-blue-100 text-blue-800',
-      confirmed: 'bg-green-100 text-green-800',
-      in_progress: 'bg-purple-100 text-purple-800',
+      scheduled: 'bg-[var(--status-info-bg)] text-[var(--status-info-text)]',
+      confirmed: 'bg-[var(--status-success-bg)] text-[var(--status-success-text)]',
+      in_progress: 'bg-[var(--status-info-bg)] text-[var(--status-info-text)]',
       completed: 'bg-gray-100 text-gray-800',
-      no_show: 'bg-orange-100 text-orange-800',
-      cancelled: 'bg-red-100 text-red-800',
+      no_show: 'bg-[var(--status-warning-bg)] text-[var(--status-warning-text)]',
+      cancelled: 'bg-[var(--status-error-bg)] text-[var(--status-error-text)]',
     }
     label = shiftLabels[status] || status
     className = shiftColors[status] || className
@@ -576,7 +576,7 @@ export function EventDetailModal({
                 <button
                   onClick={handleCheckIn}
                   disabled={isCheckingIn}
-                  className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg bg-green-100 px-3 py-2 text-sm font-medium text-green-700 hover:bg-green-200 disabled:opacity-50"
+                  className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg bg-[var(--status-success-bg)] px-3 py-2 text-sm font-medium text-[var(--status-success-text)] hover:opacity-80 disabled:opacity-50"
                 >
                   {isCheckingIn ? (
                     <svg
@@ -616,7 +616,7 @@ export function EventDetailModal({
                 <button
                   onClick={handleSendReminder}
                   disabled={isSendingReminder}
-                  className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg bg-blue-100 px-3 py-2 text-sm font-medium text-blue-700 hover:bg-blue-200 disabled:opacity-50"
+                  className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg bg-[var(--status-info-bg)] px-3 py-2 text-sm font-medium text-[var(--status-info-text)] hover:opacity-80 disabled:opacity-50"
                 >
                   {isSendingReminder ? (
                     <svg
@@ -661,7 +661,7 @@ export function EventDetailModal({
               <button
                 onClick={handleDelete}
                 disabled={isDeleting}
-                className="inline-flex items-center gap-2 rounded-lg bg-red-50 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-100 disabled:opacity-50"
+                className="inline-flex items-center gap-2 rounded-lg bg-[var(--status-error-bg)] px-4 py-2 text-sm font-medium text-[var(--status-error-text)] hover:opacity-80 disabled:opacity-50"
               >
                 {isDeleting && (
                   <svg

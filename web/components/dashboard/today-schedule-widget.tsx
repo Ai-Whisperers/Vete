@@ -88,20 +88,20 @@ export function TodayScheduleWidget({ appointments, clinic }: TodayScheduleWidge
       {/* Stats Bar */}
       <div className="flex items-center gap-4 bg-gray-50 px-5 py-3 text-xs">
         <div className="flex items-center gap-1.5">
-          <div className="h-2 w-2 rounded-full bg-blue-500" />
+          <div className="h-2 w-2 rounded-full bg-[var(--status-info)]" />
           <span className="text-[var(--text-secondary)]">
             {activeAppointments.filter((a) => ['pending', 'confirmed'].includes(a.status)).length}{' '}
             pendientes
           </span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="h-2 w-2 animate-pulse rounded-full bg-purple-500" />
+          <div className="h-2 w-2 animate-pulse rounded-full bg-[var(--primary)]" />
           <span className="text-[var(--text-secondary)]">
             {activeAppointments.filter((a) => a.status === 'in_progress').length} en consulta
           </span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="h-2 w-2 rounded-full bg-green-500" />
+          <div className="h-2 w-2 rounded-full bg-[var(--status-success)]" />
           <span className="text-[var(--text-secondary)]">{completedCount} completadas</span>
         </div>
       </div>
@@ -132,15 +132,15 @@ export function TodayScheduleWidget({ appointments, clinic }: TodayScheduleWidge
               <div
                 key={apt.id}
                 className={`flex items-center gap-4 px-5 py-3 transition-colors hover:bg-gray-50 ${
-                  apt.status === 'in_progress' ? 'bg-purple-50/50' : ''
-                } ${isNext ? 'bg-blue-50/50' : ''}`}
+                  apt.status === 'in_progress' ? 'bg-[var(--primary)]/10' : ''
+                } ${isNext ? 'bg-[var(--status-info-bg)]' : ''}`}
               >
                 {/* Time Column */}
                 <div className={`w-16 shrink-0 ${isPast ? 'opacity-50' : ''}`}>
                   <p
                     className={`text-sm font-bold ${
                       apt.status === 'in_progress'
-                        ? 'text-purple-600'
+                        ? 'text-[var(--primary)]'
                         : isNext
                           ? 'text-[var(--primary)]'
                           : 'text-[var(--text-primary)]'

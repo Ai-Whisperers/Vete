@@ -211,7 +211,7 @@ export function GrowthChart({ breed, gender, patientRecords }: GrowthChartProps)
   if (error) {
     return (
       <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-        <div className="flex items-center gap-3 text-red-500">
+        <div className="flex items-center gap-3 text-[var(--status-error)]">
           <AlertCircle className="h-5 w-5" />
           <p>{error}</p>
         </div>
@@ -235,10 +235,10 @@ export function GrowthChart({ breed, gender, patientRecords }: GrowthChartProps)
 
       {/* Warning if using fallback data */}
       {usingFallback && (
-        <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-3">
+        <div className="mb-4 rounded-lg border border-[var(--status-warning-border)] bg-[var(--status-warning-bg)] p-3">
           <div className="flex gap-2 text-sm">
-            <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-amber-600" />
-            <p className="text-amber-700">
+            <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-[var(--status-warning)]" />
+            <p className="text-[var(--status-warning-text)]">
               No hay datos específicos para "{breed}". Usando datos de referencia para{' '}
               {actualBreedUsed}. Los valores pueden no ser exactos para esta raza.
             </p>

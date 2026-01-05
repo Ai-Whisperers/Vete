@@ -102,7 +102,7 @@ export function PetProfileHeader({ pet, clinic, isStaff }: PetProfileHeaderProps
                 </span>
               )}
               {pet.microchip_number && (
-                <span className="hidden items-center gap-1 rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-sm text-blue-700 sm:flex">
+                <span className="hidden items-center gap-1 rounded-full border border-[var(--status-info-border)] bg-[var(--status-info-bg)] px-3 py-1 text-sm text-[var(--status-info-text)] sm:flex">
                   <Icons.QrCode className="h-4 w-4" /> {pet.microchip_number}
                 </span>
               )}

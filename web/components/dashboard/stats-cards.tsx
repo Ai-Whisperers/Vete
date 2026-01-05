@@ -99,7 +99,7 @@ function StatCard({ card, clinic }: { card: StatCardConfig; clinic: string }) {
 
       {/* Alert badge */}
       {card.alert && (
-        <div className="absolute right-3 top-3 flex animate-pulse items-center gap-1 rounded-full bg-red-500 px-2 py-1 text-xs text-white">
+        <div className="absolute right-3 top-3 flex animate-pulse items-center gap-1 rounded-full bg-[var(--status-error)] px-2 py-1 text-xs text-white">
           <DASHBOARD_ICONS.alertTriangle className="h-3 w-3" />
           <span>{card.alertMessage || 'Atención'}</span>
         </div>

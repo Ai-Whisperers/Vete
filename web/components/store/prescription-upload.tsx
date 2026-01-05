@@ -297,7 +297,7 @@ export function PrescriptionUpload({
       >
         {label}
         {required && (
-          <span className="ml-1 text-red-500" aria-hidden="true">
+          <span className="ml-1 text-[var(--status-error)]" aria-hidden="true">
             *
           </span>
         )}
@@ -320,7 +320,7 @@ export function PrescriptionUpload({
               : !disabled
                 ? 'border-gray-300 hover:border-[var(--primary)] hover:bg-gray-50'
                 : 'border-gray-200'
-          } ${status === 'error' ? 'border-red-300 bg-red-50' : ''} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] focus-visible:ring-offset-2`}
+          } ${status === 'error' ? 'border-[var(--status-error-border)] bg-[var(--status-error-bg)]' : ''} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] focus-visible:ring-offset-2`}
           onDragEnter={handleDrag}
           onDragLeave={handleDrag}
           onDragOver={handleDrag}
@@ -346,7 +346,7 @@ export function PrescriptionUpload({
           <Upload
             className={`mb-3 h-10 w-10 ${
               status === 'error'
-                ? 'text-red-400'
+                ? 'text-[var(--status-error)]'
                 : dragActive
                   ? 'text-[var(--primary)]'
                   : 'text-gray-400'
@@ -425,7 +425,7 @@ export function PrescriptionUpload({
       ) : status === 'success' && fileUrl ? (
         /* Success State with Preview */
         <div
-          className="rounded-xl border border-green-200 bg-green-50 p-4"
+          className="rounded-xl border border-[var(--status-success-border)] bg-[var(--status-success-bg)] p-4"
           role="status"
           aria-live="polite"
         >
@@ -437,7 +437,7 @@ export function PrescriptionUpload({
               <p className="truncate text-sm font-medium text-[var(--text-primary)]">
                 {fileName ?? 'Receta subida'}
               </p>
-              <div className="mt-1 flex items-center gap-1 text-xs text-green-600">
+              <div className="mt-1 flex items-center gap-1 text-xs text-[var(--status-success)]">
                 <Check className="h-3 w-3" aria-hidden="true" />
                 <span>Archivo subido correctamente</span>
               </div>
@@ -463,7 +463,7 @@ export function PrescriptionUpload({
                 size="sm"
                 onClick={handleRemove}
                 disabled={disabled}
-                className="min-h-[44px] min-w-[44px] text-gray-400 hover:bg-red-50 hover:text-red-500"
+                className="min-h-[44px] min-w-[44px] text-gray-400 hover:bg-[var(--status-error-bg)] hover:text-[var(--status-error)]"
                 aria-label="Eliminar archivo subido"
               >
                 <X className="h-5 w-5" />
@@ -477,7 +477,7 @@ export function PrescriptionUpload({
       {error && (
         <div
           role="alert"
-          className="flex items-center gap-2 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600"
+          className="flex items-center gap-2 rounded-lg bg-[var(--status-error-bg)] px-3 py-2 text-sm text-[var(--status-error-text)]"
         >
           <AlertCircle className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
           <span>{error}</span>

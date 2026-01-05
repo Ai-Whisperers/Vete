@@ -23,7 +23,7 @@ export function PetSidebarInfo({ pet, vaccines, clinic }: PetSidebarInfoProps) {
       {/* Bio & Health Card */}
       <div className="rounded-3xl border border-gray-100 bg-white p-6 shadow-sm">
         <h3 className="mb-4 flex items-center gap-2 text-lg font-bold text-[var(--text-primary)]">
-          <Icons.Info className="h-5 w-5 text-blue-500" /> Bio & Salud
+          <Icons.Info className="h-5 w-5 text-[var(--status-info)]" /> Bio & Salud
         </h3>
         <div className="space-y-4">
           {pet.temperament && (
@@ -35,8 +35,8 @@ export function PetSidebarInfo({ pet, vaccines, clinic }: PetSidebarInfoProps) {
 
           {pet.allergies && (
             <div>
-              <span className="text-xs font-bold uppercase text-red-400">Alergias</span>
-              <p className="inline-block rounded-lg bg-red-50 px-2 py-1 font-medium text-red-600">
+              <span className="text-xs font-bold uppercase text-[var(--status-error)]">Alergias</span>
+              <p className="inline-block rounded-lg bg-[var(--status-error-bg)] px-2 py-1 font-medium text-[var(--status-error-text)]">
                 {pet.allergies}
               </p>
             </div>
@@ -84,9 +84,9 @@ export function PetSidebarInfo({ pet, vaccines, clinic }: PetSidebarInfoProps) {
                 </p>
               </div>
               {v.status === 'verified' ? (
-                <Icons.CheckCircle2 className="h-4 w-4 text-green-500" />
+                <Icons.CheckCircle2 className="h-4 w-4 text-[var(--status-success)]" />
               ) : (
-                <Icons.Clock className="h-4 w-4 text-yellow-500" />
+                <Icons.Clock className="h-4 w-4 text-[var(--status-warning)]" />
               )}
             </div>
           ))}

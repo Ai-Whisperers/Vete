@@ -63,24 +63,24 @@ const MODE_CONFIG: Record<
   lookup: {
     label: 'Consultar',
     icon: Package,
-    color: 'text-blue-600',
-    bgColor: 'bg-blue-100',
+    color: 'text-[var(--status-info)]',
+    bgColor: 'bg-[var(--status-info-bg)]',
     description: 'Ver información del producto',
     actionLabel: 'Ver Detalles',
   },
   receive: {
     label: 'Recibir Stock',
     icon: PackagePlus,
-    color: 'text-green-600',
-    bgColor: 'bg-green-100',
+    color: 'text-[var(--status-success)]',
+    bgColor: 'bg-[var(--status-success-bg)]',
     description: 'Agregar unidades al inventario',
     actionLabel: 'Agregar Stock',
   },
   count: {
     label: 'Conteo Físico',
     icon: ClipboardList,
-    color: 'text-purple-600',
-    bgColor: 'bg-purple-100',
+    color: 'text-[var(--primary)]',
+    bgColor: 'bg-[var(--primary)]/10',
     description: 'Registrar conteo de inventario',
     actionLabel: 'Registrar Conteo',
   },
@@ -175,12 +175,12 @@ function ErrorScreen({ notFound, error, onChangMode, onRetry }: ErrorScreenProps
       <div className="w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl">
         <div className="p-6 text-center">
           <div
-            className={`mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full ${notFound ? 'bg-amber-100' : 'bg-red-100'}`}
+            className={`mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full ${notFound ? 'bg-[var(--status-warning-bg)]' : 'bg-[var(--status-error-bg)]'}`}
           >
             {notFound ? (
-              <ScanLine className="h-8 w-8 text-amber-600" />
+              <ScanLine className="h-8 w-8 text-[var(--status-warning)]" />
             ) : (
-              <AlertCircle className="h-8 w-8 text-red-600" />
+              <AlertCircle className="h-8 w-8 text-[var(--status-error)]" />
             )}
           </div>
           <h3 className="mb-2 font-bold text-gray-900">
@@ -349,9 +349,9 @@ function ActionScreen({
                   <span
                     className={`font-bold ${
                       quantity - product.stock_quantity > 0
-                        ? 'text-green-600'
+                        ? 'text-[var(--status-success)]'
                         : quantity - product.stock_quantity < 0
-                          ? 'text-red-600'
+                          ? 'text-[var(--status-error)]'
                           : 'text-gray-600'
                     }`}
                   >
@@ -374,7 +374,7 @@ function ActionScreen({
             </div>
 
             {error && (
-              <div className="rounded-lg bg-red-50 p-3 text-sm text-red-700">
+              <div className="rounded-lg bg-[var(--status-error-bg)] p-3 text-sm text-[var(--status-error)]">
                 <AlertCircle className="mr-2 inline h-4 w-4" />
                 {error}
               </div>
@@ -385,8 +385,8 @@ function ActionScreen({
         {/* Success State */}
         {actionSuccess && (
           <div className="p-6 text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
-              <Check className="h-8 w-8 text-green-600" />
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--status-success-bg)]">
+              <Check className="h-8 w-8 text-[var(--status-success)]" />
             </div>
             <h3 className="mb-2 font-bold text-gray-900">¡Operación Exitosa!</h3>
             <p className="text-sm text-gray-500">

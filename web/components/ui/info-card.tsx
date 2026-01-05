@@ -61,7 +61,7 @@ export function InfoCard({
         <div
           className={cn(
             'mt-4 flex items-center gap-1 text-sm font-semibold',
-            trend.isPositive ? 'text-green-600' : 'text-red-600'
+            trend.isPositive ? 'text-[var(--status-success)]' : 'text-[var(--status-error)]'
           )}
         >
           <span className="text-lg">{trend.isPositive ? '↑' : '↓'}</span>

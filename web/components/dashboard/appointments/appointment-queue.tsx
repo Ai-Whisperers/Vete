@@ -46,9 +46,9 @@ function WaitingTimeIndicator({ checkedInAt }: { checkedInAt: string }) {
 
   const urgency = getWaitUrgency(minutes)
   const urgencyStyles = {
-    normal: 'bg-blue-50 text-blue-700 border-blue-200',
-    warning: 'bg-yellow-50 text-yellow-700 border-yellow-200',
-    urgent: 'bg-red-50 text-red-700 border-red-200 animate-pulse',
+    normal: 'bg-[var(--status-info-bg)] text-[var(--status-info)] border-[var(--status-info-border)]',
+    warning: 'bg-[var(--status-warning-bg)] text-[var(--status-warning)] border-[var(--status-warning-border)]',
+    urgent: 'bg-[var(--status-error-bg)] text-[var(--status-error)] border-[var(--status-error-border)] animate-pulse',
   }
 
   return (
@@ -77,7 +77,7 @@ function EstimatedWaitBadge({
 
   if (estimatedMinutes === 0) {
     return (
-      <span className="flex items-center gap-1 text-xs font-medium text-green-600">
+      <span className="flex items-center gap-1 text-xs font-medium text-[var(--status-success)]">
         <Icons.Zap className="h-3 w-3" />
         Siguiente
       </span>
@@ -171,7 +171,7 @@ export function AppointmentQueue({ appointments, clinic }: AppointmentQueueProps
       {inProgress.length > 0 && (
         <section aria-labelledby="in-progress-heading">
           <div className="mb-3 flex items-center gap-2">
-            <div className="h-2 w-2 animate-pulse rounded-full bg-purple-500" aria-hidden="true" />
+            <div className="h-2 w-2 animate-pulse rounded-full bg-[var(--primary)]" aria-hidden="true" />
             <h2 id="in-progress-heading" className="font-bold text-[var(--text-primary)]">
               En Consulta
             </h2>
@@ -194,7 +194,7 @@ export function AppointmentQueue({ appointments, clinic }: AppointmentQueueProps
         <section aria-labelledby="checked-in-heading">
           <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center">
             <div className="flex items-center gap-2">
-              <div className="h-2 w-2 rounded-full bg-yellow-500" aria-hidden="true" />
+              <div className="h-2 w-2 rounded-full bg-[var(--status-warning)]" aria-hidden="true" />
               <h2 id="checked-in-heading" className="font-bold text-[var(--text-primary)]">
                 Cola de Espera
               </h2>
@@ -213,7 +213,7 @@ export function AppointmentQueue({ appointments, clinic }: AppointmentQueueProps
                   <span
                     className={cn(
                       'flex items-center gap-1',
-                      waitStats.max >= 45 ? 'text-red-600' : 'text-yellow-600'
+                      waitStats.max >= 45 ? 'text-[var(--status-error)]' : 'text-[var(--status-warning)]'
                     )}
                   >
                     <Icons.AlertTriangle className="h-3 w-3" aria-hidden="true" />
@@ -246,7 +246,7 @@ export function AppointmentQueue({ appointments, clinic }: AppointmentQueueProps
       {waiting.length > 0 && (
         <section aria-labelledby="waiting-heading">
           <div className="mb-3 flex items-center gap-2">
-            <div className="h-2 w-2 rounded-full bg-blue-500" aria-hidden="true" />
+            <div className="h-2 w-2 rounded-full bg-[var(--status-info)]" aria-hidden="true" />
             <h2 id="waiting-heading" className="font-bold text-[var(--text-primary)]">
               Próximas Citas
             </h2>
@@ -309,9 +309,9 @@ function AppointmentRow({
 
   const highlightBorder =
     highlight === 'purple'
-      ? 'border-l-4 border-l-purple-500'
+      ? 'border-l-4 border-l-[var(--primary)]'
       : highlight === 'yellow'
-        ? 'border-l-4 border-l-yellow-500'
+        ? 'border-l-4 border-l-[var(--status-warning)]'
         : ''
 
   return (

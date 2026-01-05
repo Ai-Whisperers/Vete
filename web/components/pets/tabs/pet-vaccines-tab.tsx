@@ -113,9 +113,9 @@ export function PetVaccinesTab({
       <div
         className={`rounded-xl border p-4 transition-all ${
           status === 'overdue'
-            ? 'border-red-200 bg-red-50'
+            ? 'border-[var(--status-error-border)] bg-[var(--status-error-bg)]'
             : status === 'upcoming'
-              ? 'border-amber-200 bg-amber-50'
+              ? 'border-[var(--status-warning-border)] bg-[var(--status-warning-bg)]'
               : 'border-gray-100 bg-white'
         }`}
       >
@@ -140,9 +140,9 @@ export function PetVaccinesTab({
                 <p
                   className={`flex items-center gap-2 ${
                     status === 'overdue'
-                      ? 'font-medium text-red-600'
+                      ? 'font-medium text-[var(--status-error)]'
                       : status === 'upcoming'
-                        ? 'font-medium text-amber-600'
+                        ? 'font-medium text-[var(--status-warning)]'
                         : ''
                   }`}
                 >
@@ -187,16 +187,16 @@ export function PetVaccinesTab({
 
           <div className="flex-shrink-0">
             {status === 'overdue' ? (
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100">
-                <AlertCircle className="h-5 w-5 text-red-600" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--status-error-bg)]">
+                <AlertCircle className="h-5 w-5 text-[var(--status-error)]" />
               </div>
             ) : status === 'upcoming' ? (
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100">
-                <Clock className="h-5 w-5 text-amber-600" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--status-warning-bg)]">
+                <Clock className="h-5 w-5 text-[var(--status-warning)]" />
               </div>
             ) : (
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100">
-                <CheckCircle2 className="h-5 w-5 text-green-600" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--status-success-bg)]">
+                <CheckCircle2 className="h-5 w-5 text-[var(--status-success)]" />
               </div>
             )}
           </div>
@@ -239,35 +239,35 @@ export function PetVaccinesTab({
       {/* Status Summary */}
       <div className="grid grid-cols-3 gap-3">
         <div
-          className={`rounded-xl p-4 text-center ${overdueVaccines.length > 0 ? 'bg-red-50' : 'bg-gray-50'}`}
+          className={`rounded-xl p-4 text-center ${overdueVaccines.length > 0 ? 'bg-[var(--status-error-bg)]' : 'bg-gray-50'}`}
         >
           <div
-            className={`text-2xl font-black ${overdueVaccines.length > 0 ? 'text-red-600' : 'text-gray-400'}`}
+            className={`text-2xl font-black ${overdueVaccines.length > 0 ? 'text-[var(--status-error)]' : 'text-gray-400'}`}
           >
             {overdueVaccines.length}
           </div>
           <div className="text-xs font-medium text-gray-500">Vencidas</div>
         </div>
         <div
-          className={`rounded-xl p-4 text-center ${upcomingVaccines.length > 0 ? 'bg-amber-50' : 'bg-gray-50'}`}
+          className={`rounded-xl p-4 text-center ${upcomingVaccines.length > 0 ? 'bg-[var(--status-warning-bg)]' : 'bg-gray-50'}`}
         >
           <div
-            className={`text-2xl font-black ${upcomingVaccines.length > 0 ? 'text-amber-600' : 'text-gray-400'}`}
+            className={`text-2xl font-black ${upcomingVaccines.length > 0 ? 'text-[var(--status-warning)]' : 'text-gray-400'}`}
           >
             {upcomingVaccines.length}
           </div>
           <div className="text-xs font-medium text-gray-500">Próximas</div>
         </div>
-        <div className="rounded-xl bg-green-50 p-4 text-center">
-          <div className="text-2xl font-black text-green-600">{upToDateVaccines.length}</div>
+        <div className="rounded-xl bg-[var(--status-success-bg)] p-4 text-center">
+          <div className="text-2xl font-black text-[var(--status-success)]">{upToDateVaccines.length}</div>
           <div className="text-xs font-medium text-gray-500">Al día</div>
         </div>
       </div>
 
       {/* Overdue Vaccines Alert */}
       {overdueVaccines.length > 0 && (
-        <div className="rounded-xl border border-red-200 bg-red-50 p-4">
-          <div className="mb-3 flex items-center gap-2 font-bold text-red-700">
+        <div className="rounded-xl border border-[var(--status-error-border)] bg-[var(--status-error-bg)] p-4">
+          <div className="mb-3 flex items-center gap-2 font-bold text-[var(--status-error-text)]">
             <AlertCircle className="h-5 w-5" />
             Vacunas Vencidas - Requieren Atención
           </div>
@@ -278,7 +278,7 @@ export function PetVaccinesTab({
           </div>
           <Link
             href={`/${clinic}/book?pet=${petId}&service=vacunacion`}
-            className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-red-600 py-3 font-bold text-white transition-colors hover:bg-red-700"
+            className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--status-error)] py-3 font-bold text-white transition-colors hover:opacity-90"
           >
             <Calendar className="h-4 w-4" />
             Agendar Vacunación
@@ -291,7 +291,7 @@ export function PetVaccinesTab({
       {upcomingVaccines.length > 0 && (
         <div>
           <h3 className="mb-3 flex items-center gap-2 font-bold text-[var(--text-primary)]">
-            <Clock className="h-4 w-4 text-amber-500" />
+            <Clock className="h-4 w-4 text-[var(--status-warning)]" />
             Próximas (30 días)
           </h3>
           <div className="space-y-3">
@@ -306,7 +306,7 @@ export function PetVaccinesTab({
       {upToDateVaccines.length > 0 && (
         <div>
           <h3 className="mb-3 flex items-center gap-2 font-bold text-[var(--text-primary)]">
-            <CheckCircle2 className="h-4 w-4 text-green-500" />
+            <CheckCircle2 className="h-4 w-4 text-[var(--status-success)]" />
             Al Día
           </h3>
           <div className="space-y-3">

@@ -24,12 +24,12 @@ export function OwnerDetailsCard({ owner, clinic }: OwnerDetailsCardProps): Reac
             <div className="mb-1 flex items-center gap-2">
               <h2 className="text-xl font-bold text-[var(--text-primary)]">{owner.full_name}</h2>
               {isActive ? (
-                <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
+                <span className="inline-flex items-center gap-1 rounded-full bg-[var(--status-success-bg)] px-2 py-0.5 text-xs font-medium text-[var(--status-success)]">
                   <CheckCircle className="h-3 w-3" />
                   Activo
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1 rounded-full bg-orange-100 px-2 py-0.5 text-xs font-medium text-orange-700">
+                <span className="inline-flex items-center gap-1 rounded-full bg-[var(--status-warning-bg)] px-2 py-0.5 text-xs font-medium text-[var(--status-warning)]">
                   <AlertCircle className="h-3 w-3" />
                   Inactivo
                 </span>

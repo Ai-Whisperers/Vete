@@ -200,7 +200,7 @@ export function LoyaltyPointsWidget({
           </div>
           <div className="text-right">
             <p className="text-sm text-[var(--text-secondary)]">{labels.loyalty.lifetime_earned}</p>
-            <div className="flex items-center gap-1 text-green-600">
+            <div className="flex items-center gap-1 text-[var(--status-success)]">
               <TrendingUp className="h-4 w-4" />
               <span className="font-semibold">{lifetimeEarned.toLocaleString()}</span>
             </div>
@@ -342,9 +342,9 @@ export function LoyaltyPointsWidget({
                         <div
                           className={`rounded-full p-1.5 ${
                             tx.type === 'earned'
-                              ? 'bg-green-100 text-green-600'
+                              ? 'bg-[var(--status-success-bg)] text-[var(--status-success)]'
                               : tx.type === 'redeemed'
-                                ? 'bg-orange-100 text-orange-600'
+                                ? 'bg-[var(--status-warning-bg)] text-[var(--status-warning)]'
                                 : 'bg-gray-100 text-gray-600'
                           }`}
                         >
@@ -365,7 +365,7 @@ export function LoyaltyPointsWidget({
                       </div>
                       <span
                         className={`font-semibold ${
-                          tx.points > 0 ? 'text-green-600' : 'text-orange-600'
+                          tx.points > 0 ? 'text-[var(--status-success)]' : 'text-[var(--status-warning)]'
                         }`}
                       >
                         {tx.points > 0 ? '+' : ''}

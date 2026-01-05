@@ -369,8 +369,8 @@ export function BarcodeScanModal({
               </div>
             ) : notFound ? (
               <div>
-                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-amber-100">
-                  <ScanLine className="h-8 w-8 text-amber-600" />
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--status-warning-bg)]">
+                  <ScanLine className="h-8 w-8 text-[var(--status-warning)]" />
                 </div>
                 <h3 className="mb-2 font-bold text-gray-900">Producto No Encontrado</h3>
                 <p className="mb-1 text-sm text-gray-500">

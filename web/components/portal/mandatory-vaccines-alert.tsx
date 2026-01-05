@@ -161,7 +161,7 @@ export function MandatoryVaccinesAlert({
                   {alert.overdueVaccines.map((v) => (
                     <span
                       key={v.vaccine_code}
-                      className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-700"
+                      className="inline-flex items-center gap-1 rounded-full bg-[var(--status-error-bg)] px-2.5 py-0.5 text-xs font-medium text-[var(--status-error-text)]"
                     >
                       <AlertTriangle className="h-3 w-3" />
                       {v.vaccine_name}
@@ -170,7 +170,7 @@ export function MandatoryVaccinesAlert({
                   {alert.dueVaccines.map((v) => (
                     <span
                       key={v.vaccine_code}
-                      className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-700"
+                      className="inline-flex items-center gap-1 rounded-full bg-[var(--status-warning-bg)] px-2.5 py-0.5 text-xs font-medium text-[var(--status-warning-text)]"
                     >
                       <Calendar className="h-3 w-3" />
                       {v.vaccine_name}

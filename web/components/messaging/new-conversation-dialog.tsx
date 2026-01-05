@@ -181,7 +181,7 @@ export default function NewConversationDialog({
             {isStaff && (
               <div>
                 <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">
-                  Cliente <span className="text-red-500">*</span>
+                  Cliente <span className="text-[var(--status-error)]">*</span>
                 </label>
                 {!selectedClient ? (
                   <div className="relative">
@@ -253,7 +253,7 @@ export default function NewConversationDialog({
             {/* Subject */}
             <div>
               <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">
-                Asunto <span className="text-red-500">*</span>
+                Asunto <span className="text-[var(--status-error)]">*</span>
               </label>
               <input
                 type="text"
@@ -294,7 +294,7 @@ export default function NewConversationDialog({
             {/* Message */}
             <div>
               <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">
-                Mensaje <span className="text-red-500">*</span>
+                Mensaje <span className="text-[var(--status-error)]">*</span>
               </label>
               <textarea
                 value={message}
@@ -315,9 +315,9 @@ export default function NewConversationDialog({
               <div
                 role="alert"
                 aria-live="assertive"
-                className="rounded-xl border border-red-200 bg-red-50 p-4"
+                className="rounded-xl border border-[var(--status-error-border)] bg-[var(--status-error-bg)] p-4"
               >
-                <p className="text-sm text-red-600">{error}</p>
+                <p className="text-sm text-[var(--status-error-text)]">{error}</p>
               </div>
             )}
           </div>

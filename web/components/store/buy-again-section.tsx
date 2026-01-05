@@ -158,7 +158,7 @@ export default function BuyAgainSection({ maxItems = 4 }: BuyAgainSectionProps) 
                   )}
                   {!product.is_available && (
                     <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-                      <span className="rounded bg-red-500 px-2 py-1 text-xs font-medium text-white">
+                      <span className="rounded bg-[var(--status-error)] px-2 py-1 text-xs font-medium text-white">
                         Sin Stock
                       </span>
                     </div>
@@ -196,7 +196,7 @@ export default function BuyAgainSection({ maxItems = 4 }: BuyAgainSectionProps) 
                   disabled={!product.is_available || addingId === product.id}
                   className={`rounded-lg p-2 transition-all ${
                     addedIds.has(product.id)
-                      ? 'bg-green-500 text-white'
+                      ? 'bg-[var(--status-success)] text-white'
                       : product.is_available
                         ? 'bg-[var(--primary)] text-white hover:opacity-90'
                         : 'cursor-not-allowed bg-gray-200 text-gray-400'

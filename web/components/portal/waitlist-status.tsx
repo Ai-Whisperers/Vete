@@ -216,13 +216,13 @@ export function WaitlistStatus(): React.ReactElement {
             key={entry.id}
             className={`rounded-xl border-2 p-4 ${
               isOffer
-                ? 'border-green-300 bg-green-50'
+                ? 'border-[var(--status-success-border)] bg-[var(--status-success-bg)]'
                 : 'border-gray-200 bg-white'
             }`}
           >
             {/* Offer Banner */}
             {isOffer && (
-              <div className="mb-3 flex items-center gap-2 rounded-lg bg-green-100 px-3 py-2 text-sm font-medium text-green-700">
+              <div className="mb-3 flex items-center gap-2 rounded-lg bg-[var(--status-success-bg)] px-3 py-2 text-sm font-medium text-[var(--status-success-text)]">
                 <CheckCircle className="h-4 w-4" />
                 ¡Hay una cita disponible para ti!
                 {entry.offer_expires_at && (
@@ -238,13 +238,13 @@ export function WaitlistStatus(): React.ReactElement {
             <div className="flex items-start gap-3">
               <div
                 className={`flex h-10 w-10 items-center justify-center rounded-full ${
-                  isOffer ? 'bg-green-200' : 'bg-amber-100'
+                  isOffer ? 'bg-[var(--status-success-bg)]' : 'bg-[var(--status-warning-bg)]'
                 }`}
               >
                 {isOffer ? (
-                  <CheckCircle className="h-5 w-5 text-green-600" />
+                  <CheckCircle className="h-5 w-5 text-[var(--status-success)]" />
                 ) : (
-                  <Clock className="h-5 w-5 text-amber-600" />
+                  <Clock className="h-5 w-5 text-[var(--status-warning)]" />
                 )}
               </div>
 
@@ -266,7 +266,7 @@ export function WaitlistStatus(): React.ReactElement {
                     </span>
                   )}
                   {!isOffer && (
-                    <span className="rounded bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
+                    <span className="rounded bg-[var(--status-warning-bg)] px-2 py-0.5 text-xs font-medium text-[var(--status-warning-text)]">
                       Posición #{entry.position}
                     </span>
                   )}
@@ -281,7 +281,7 @@ export function WaitlistStatus(): React.ReactElement {
                   <button
                     onClick={() => handleAccept(entry.id)}
                     disabled={isLoading}
-                    className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-2.5 font-medium text-white hover:bg-green-700 disabled:opacity-50"
+                    className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-[var(--status-success)] px-4 py-2.5 font-medium text-white hover:opacity-90 disabled:opacity-50"
                   >
                     {isLoading ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
@@ -307,7 +307,7 @@ export function WaitlistStatus(): React.ReactElement {
                 <button
                   onClick={() => handleCancel(entry.id)}
                   disabled={isLoading}
-                  className="flex items-center gap-2 rounded-lg border border-red-200 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 disabled:opacity-50"
+                  className="flex items-center gap-2 rounded-lg border border-[var(--status-error-border)] px-4 py-2 text-sm font-medium text-[var(--status-error-text)] hover:bg-[var(--status-error-bg)] disabled:opacity-50"
                 >
                   {isLoading ? (
                     <Loader2 className="h-4 w-4 animate-spin" />

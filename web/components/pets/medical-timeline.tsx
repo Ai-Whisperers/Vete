@@ -70,12 +70,12 @@ export function MedicalTimeline({ timelineItems, clinic, petId, isStaff }: Medic
               <div
                 className={`absolute -left-[41px] top-0 h-5 w-5 rounded-full border-4 border-white shadow-sm ${
                   item.timelineType === 'prescription'
-                    ? 'bg-purple-500'
+                    ? 'bg-[var(--primary)]'
                     : item.type === 'surgery'
-                      ? 'bg-red-500'
+                      ? 'bg-[var(--status-error)]'
                       : item.type === 'consultation'
-                        ? 'bg-blue-500'
-                        : 'bg-green-500'
+                        ? 'bg-[var(--status-info)]'
+                        : 'bg-[var(--status-success)]'
                 }`}
               ></div>
 

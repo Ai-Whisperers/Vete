@@ -228,70 +228,70 @@ export function PetSummaryTab({ pet, weightHistory, clinic, clinicName }: PetSum
 
               if (totalOverdue > 0) {
                 return (
-                  <p className="font-bold text-red-600">
+                  <p className="font-bold text-[var(--status-error)]">
                     {totalOverdue} vencida{totalOverdue > 1 ? 's' : ''}
                   </p>
                 )
               }
               if (missingDueCount > 0) {
                 return (
-                  <p className="font-bold text-amber-600">
+                  <p className="font-bold text-[var(--status-warning)]">
                     {missingDueCount} pendiente{missingDueCount > 1 ? 's' : ''}
                   </p>
                 )
               }
               if (totalMissing > 0) {
                 return (
-                  <p className="font-bold text-amber-600">
+                  <p className="font-bold text-[var(--status-warning)]">
                     {totalMissing} faltante{totalMissing > 1 ? 's' : ''}
                   </p>
                 )
               }
-              return <p className="font-bold text-green-600">Al día</p>
+              return <p className="font-bold text-[var(--status-success)]">Al día</p>
             })()}
           </div>
         </div>
 
         {/* Health Alerts */}
         {(allergies.length > 0 || conditions.length > 0 || overdueVaccines.length > 0 || missingMandatoryVaccines.length > 0) && (
-          <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
-            <div className="mb-3 flex items-center gap-2 font-bold text-amber-700">
+          <div className="rounded-xl border border-[var(--status-warning-border)] bg-[var(--status-warning-bg)] p-4">
+            <div className="mb-3 flex items-center gap-2 font-bold text-[var(--status-warning-text)]">
               <AlertTriangle className="h-5 w-5" />
               Alertas de Salud
             </div>
             <div className="space-y-2">
               {allergies.length > 0 && (
                 <div className="flex items-start gap-2">
-                  <span className="rounded bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700">
+                  <span className="rounded bg-[var(--status-error-bg)] px-2 py-0.5 text-xs font-medium text-[var(--status-error-text)]">
                     Alergias
                   </span>
-                  <span className="text-sm text-amber-800">{allergies.join(', ')}</span>
+                  <span className="text-sm text-[var(--status-warning-text)]">{allergies.join(', ')}</span>
                 </div>
               )}
               {conditions.length > 0 && (
                 <div className="flex items-start gap-2">
-                  <span className="rounded bg-orange-100 px-2 py-0.5 text-xs font-medium text-orange-700">
+                  <span className="rounded bg-[var(--status-warning-bg)] px-2 py-0.5 text-xs font-medium text-[var(--status-warning-text)]">
                     Condiciones
                   </span>
-                  <span className="text-sm text-amber-800">{conditions.join(', ')}</span>
+                  <span className="text-sm text-[var(--status-warning-text)]">{conditions.join(', ')}</span>
                 </div>
               )}
               {overdueVaccines.length > 0 && (
                 <div className="flex items-start gap-2">
-                  <span className="rounded bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700">
+                  <span className="rounded bg-[var(--status-error-bg)] px-2 py-0.5 text-xs font-medium text-[var(--status-error-text)]">
                     Vacunas Vencidas
                   </span>
-                  <span className="text-sm text-amber-800">
+                  <span className="text-sm text-[var(--status-warning-text)]">
                     {overdueVaccines.map((v) => v.name).join(', ')}
                   </span>
                 </div>
               )}
               {missingMandatoryVaccines.length > 0 && (
                 <div className="flex items-start gap-2">
-                  <span className="rounded bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700">
+                  <span className="rounded bg-[var(--status-error-bg)] px-2 py-0.5 text-xs font-medium text-[var(--status-error-text)]">
                     Vacunas Obligatorias Faltantes
                   </span>
-                  <span className="text-sm text-amber-800">
+                  <span className="text-sm text-[var(--status-warning-text)]">
                     {missingMandatoryVaccines.map((v) => v.vaccine_name).join(', ')}
                   </span>
                 </div>

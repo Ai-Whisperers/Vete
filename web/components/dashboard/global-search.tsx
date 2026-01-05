@@ -227,7 +227,7 @@ export function GlobalSearch({ clinic }: GlobalSearchProps): React.ReactElement 
                                   {getTypeLabel(result.type as SearchResult['type'])}
                                 </span>
                                 {result.meta && (
-                                  <span className="flex-shrink-0 rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-700">
+                                  <span className="flex-shrink-0 rounded-full bg-[var(--status-warning-bg)] px-2 py-0.5 text-xs font-medium text-[var(--status-warning)]">
                                     {result.meta}
                                   </span>
                                 )}

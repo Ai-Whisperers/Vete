@@ -271,7 +271,7 @@ export function QuickAddModal({
                 <div
                   role="alert"
                   aria-live="assertive"
-                  className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700"
+                  className="rounded-lg border border-[var(--status-error-border)] bg-[var(--status-error-bg)] p-3 text-sm text-[var(--status-error-text)]"
                 >
                   {error}
                 </div>
@@ -282,11 +282,11 @@ export function QuickAddModal({
                 <div
                   role="alert"
                   aria-live="polite"
-                  className="rounded-lg border border-amber-200 bg-amber-50 p-3"
+                  className="rounded-lg border border-[var(--status-warning-border)] bg-[var(--status-warning-bg)] p-3"
                 >
                   <div className="flex items-start gap-2">
                     <svg
-                      className="mt-0.5 h-5 w-5 shrink-0 text-amber-600"
+                      className="mt-0.5 h-5 w-5 shrink-0 text-[var(--status-warning)]"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -299,10 +299,10 @@ export function QuickAddModal({
                       />
                     </svg>
                     <div>
-                      <p className="text-sm font-medium text-amber-800">
+                      <p className="text-sm font-medium text-[var(--status-warning-text)]">
                         {conflicts.length} cita{conflicts.length !== 1 ? 's' : ''} en conflicto
                       </p>
-                      <ul className="mt-1 space-y-0.5 text-xs text-amber-700">
+                      <ul className="mt-1 space-y-0.5 text-xs text-[var(--status-warning-text)]">
                         {conflicts.slice(0, 3).map((conflict) => (
                           <li key={conflict.id}>
                             {conflict.pet_name} ({format(new Date(conflict.start_time), 'HH:mm')} -{' '}
@@ -310,7 +310,7 @@ export function QuickAddModal({
                           </li>
                         ))}
                         {conflicts.length > 3 && (
-                          <li className="text-amber-600">... y {conflicts.length - 3} más</li>
+                          <li className="text-[var(--status-warning)]">... y {conflicts.length - 3} más</li>
                         )}
                       </ul>
                     </div>
@@ -362,7 +362,7 @@ export function QuickAddModal({
                         type="button"
                         onClick={() => setPetId(pet.id)}
                         className={`flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-gray-50 ${
-                          petId === pet.id ? 'bg-blue-50' : ''
+                          petId === pet.id ? 'bg-[var(--primary)]/10' : ''
                         }`}
                       >
                         <span>
@@ -374,7 +374,7 @@ export function QuickAddModal({
                         )}
                         {petId === pet.id && (
                           <svg
-                            className="h-4 w-4 text-blue-600"
+                            className="h-4 w-4 text-[var(--primary)]"
                             fill="currentColor"
                             viewBox="0 0 20 20"
                           >

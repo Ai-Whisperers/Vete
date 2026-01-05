@@ -58,11 +58,11 @@ interface WaitlistEntry {
 }
 
 const statusConfig = {
-  waiting: { label: 'Esperando', color: 'bg-amber-100 text-amber-700', icon: Clock },
-  offered: { label: 'Ofrecido', color: 'bg-blue-100 text-blue-700', icon: Send },
-  booked: { label: 'Reservado', color: 'bg-green-100 text-green-700', icon: CheckCircle },
-  expired: { label: 'Expirado', color: 'bg-gray-100 text-gray-600', icon: AlertCircle },
-  cancelled: { label: 'Cancelado', color: 'bg-red-100 text-red-600', icon: XCircle },
+  waiting: { label: 'Esperando', color: 'bg-[var(--status-warning-bg)] text-[var(--status-warning)]', icon: Clock },
+  offered: { label: 'Ofrecido', color: 'bg-[var(--status-info-bg)] text-[var(--status-info)]', icon: Send },
+  booked: { label: 'Reservado', color: 'bg-[var(--status-success-bg)] text-[var(--status-success)]', icon: CheckCircle },
+  expired: { label: 'Expirado', color: 'bg-gray-100 text-[var(--text-secondary)]', icon: AlertCircle },
+  cancelled: { label: 'Cancelado', color: 'bg-[var(--status-error-bg)] text-[var(--status-error)]', icon: XCircle },
 }
 
 export function WaitlistManager(): React.ReactElement {
@@ -248,7 +248,7 @@ export function WaitlistManager(): React.ReactElement {
                     >
                       <div className="flex items-start gap-4">
                         {/* Position */}
-                        <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-amber-100 text-lg font-bold text-amber-700">
+                        <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-[var(--status-warning-bg)] text-lg font-bold text-[var(--status-warning)]">
                           #{entry.position}
                         </div>
 
@@ -283,7 +283,7 @@ export function WaitlistManager(): React.ReactElement {
                               Horario: {formatTime(entry.preferred_time_start)} -{' '}
                               {formatTime(entry.preferred_time_end)}
                               {entry.is_flexible_date && (
-                                <span className="ml-2 text-amber-600">
+                                <span className="ml-2 text-[var(--status-warning)]">
                                   (Fecha flexible)
                                 </span>
                               )}
@@ -299,7 +299,7 @@ export function WaitlistManager(): React.ReactElement {
                             {entry.owner?.owner?.phone && (
                               <a
                                 href={`tel:${entry.owner.owner.phone}`}
-                                className="flex items-center gap-1 text-blue-600 hover:underline"
+                                className="flex items-center gap-1 text-[var(--primary)] hover:underline"
                               >
                                 <Phone className="h-3.5 w-3.5" />
                                 {entry.owner.owner.phone}
@@ -308,7 +308,7 @@ export function WaitlistManager(): React.ReactElement {
                             {entry.owner?.owner?.email && (
                               <a
                                 href={`mailto:${entry.owner.owner.email}`}
-                                className="flex items-center gap-1 text-blue-600 hover:underline"
+                                className="flex items-center gap-1 text-[var(--primary)] hover:underline"
                               >
                                 <Mail className="h-3.5 w-3.5" />
                                 {entry.owner.owner.email}
@@ -340,7 +340,7 @@ export function WaitlistManager(): React.ReactElement {
 
                         {entry.status === 'offered' && entry.offer_expires_at && (
                           <div className="text-right text-sm">
-                            <p className="font-medium text-blue-600">Oferta enviada</p>
+                            <p className="font-medium text-[var(--status-info)]">Oferta enviada</p>
                             <p className="text-gray-500">
                               Expira:{' '}
                               {new Date(entry.offer_expires_at).toLocaleTimeString('es-PY', {

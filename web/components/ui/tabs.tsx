@@ -313,9 +313,9 @@ export function DashboardTabs({
                 <span
                   className={cn(
                     'absolute -right-1 -top-1 min-w-[18px] rounded-full px-1.5 py-0.5 text-center text-[10px] font-bold',
-                    tab.badgeVariant === 'warning' && 'bg-yellow-100 text-yellow-700',
-                    tab.badgeVariant === 'error' && 'bg-red-100 text-red-700',
-                    tab.badgeVariant === 'success' && 'bg-green-100 text-green-700',
+                    tab.badgeVariant === 'warning' && 'bg-[var(--status-warning-bg)] text-[var(--status-warning-text)]',
+                    tab.badgeVariant === 'error' && 'bg-[var(--status-error-bg)] text-[var(--status-error-text)]',
+                    tab.badgeVariant === 'success' && 'bg-[var(--status-success-bg)] text-[var(--status-success-text)]',
                     (!tab.badgeVariant || tab.badgeVariant === 'default') &&
                       'bg-gray-100 text-gray-700'
                   )}

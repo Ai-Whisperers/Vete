@@ -33,9 +33,9 @@ export function OwnerListItem({
           <div className="mb-1 flex items-center gap-2">
             <p className="truncate font-medium text-[var(--text-primary)]">{owner.full_name}</p>
             {isClientActive(owner.last_visit) ? (
-              <span className="h-2 w-2 flex-shrink-0 rounded-full bg-green-500" title="Activo" />
+              <span className="h-2 w-2 flex-shrink-0 rounded-full bg-[var(--status-success)]" title="Activo" />
             ) : (
-              <span className="h-2 w-2 flex-shrink-0 rounded-full bg-orange-400" title="Inactivo" />
+              <span className="h-2 w-2 flex-shrink-0 rounded-full bg-[var(--status-warning)]" title="Inactivo" />
             )}
           </div>
           <div className="flex items-center gap-2 text-xs text-[var(--text-secondary)]">

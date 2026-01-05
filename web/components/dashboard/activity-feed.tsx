@@ -62,33 +62,33 @@ interface Pet {
 const activityConfig: Record<ActivityType, { icon: LucideIcon; color: string; bgColor: string }> = {
   appointment_completed: {
     icon: CheckCircle2,
-    color: 'text-emerald-600',
-    bgColor: 'bg-emerald-100',
+    color: 'text-[var(--status-success)]',
+    bgColor: 'bg-[var(--status-success-bg)]',
   },
   appointment_scheduled: {
     icon: Calendar,
-    color: 'text-blue-600',
-    bgColor: 'bg-blue-100',
+    color: 'text-[var(--status-info)]',
+    bgColor: 'bg-[var(--status-info-bg)]',
   },
   pet_registered: {
     icon: PawPrint,
-    color: 'text-purple-600',
-    bgColor: 'bg-purple-100',
+    color: 'text-[var(--primary)]',
+    bgColor: 'bg-[var(--primary)]/10',
   },
   vaccine_administered: {
     icon: Syringe,
-    color: 'text-amber-600',
-    bgColor: 'bg-amber-100',
+    color: 'text-[var(--status-warning)]',
+    bgColor: 'bg-[var(--status-warning-bg)]',
   },
   invoice_paid: {
     icon: Receipt,
-    color: 'text-green-600',
-    bgColor: 'bg-green-100',
+    color: 'text-[var(--status-success)]',
+    bgColor: 'bg-[var(--status-success-bg)]',
   },
   client_registered: {
     icon: UserPlus,
-    color: 'text-indigo-600',
-    bgColor: 'bg-indigo-100',
+    color: 'text-[var(--status-info)]',
+    bgColor: 'bg-[var(--status-info-bg)]',
   },
 }
 

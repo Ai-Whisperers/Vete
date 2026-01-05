@@ -176,17 +176,17 @@ export function MandatoryVaccinesWidget({ clinic }: MandatoryVaccinesWidgetProps
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="relative">
-            <Syringe className="h-5 w-5 text-red-500" />
+            <Syringe className="h-5 w-5 text-[var(--status-error)]" />
             {summary && summary.overdue_count > 0 && (
               <span className="absolute -right-1 -top-1 flex h-3 w-3">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75"></span>
-                <span className="relative inline-flex h-3 w-3 rounded-full bg-red-500"></span>
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--status-error)] opacity-75"></span>
+                <span className="relative inline-flex h-3 w-3 rounded-full bg-[var(--status-error)]"></span>
               </span>
             )}
           </div>
           <h3 className="font-semibold text-[var(--text-primary)]">Vacunas Obligatorias</h3>
           {summary && summary.total_pets > 0 && (
-            <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700">
+            <span className="rounded-full bg-[var(--status-error-bg)] px-2 py-0.5 text-xs font-medium text-[var(--status-error)]">
               {summary.total_pets}
             </span>
           )}
@@ -216,13 +216,13 @@ export function MandatoryVaccinesWidget({ clinic }: MandatoryVaccinesWidgetProps
       {summary && summary.total_pets > 0 && (
         <div className="mb-4 flex flex-wrap gap-2">
           {summary.overdue_count > 0 && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2.5 py-1 text-xs font-medium text-red-700">
+            <span className="inline-flex items-center gap-1 rounded-full bg-[var(--status-error-bg)] px-2.5 py-1 text-xs font-medium text-[var(--status-error)]">
               <AlertTriangle className="h-3 w-3" />
               {summary.overdue_count} vencida{summary.overdue_count !== 1 ? 's' : ''}
             </span>
           )}
           {summary.due_count > 0 && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-1 text-xs font-medium text-amber-700">
+            <span className="inline-flex items-center gap-1 rounded-full bg-[var(--status-warning-bg)] px-2.5 py-1 text-xs font-medium text-[var(--status-warning)]">
               <Calendar className="h-3 w-3" />
               {summary.due_count} próxima{summary.due_count !== 1 ? 's' : ''}
             </span>
@@ -232,7 +232,7 @@ export function MandatoryVaccinesWidget({ clinic }: MandatoryVaccinesWidgetProps
 
       {alerts.length === 0 ? (
         <div className="py-8 text-center text-[var(--text-secondary)]">
-          <CheckCircle className="mx-auto mb-2 h-12 w-12 text-green-500" />
+          <CheckCircle className="mx-auto mb-2 h-12 w-12 text-[var(--status-success)]" />
           <p className="font-medium">Todas las vacunas al día</p>
           <p className="text-sm">No hay vacunas obligatorias pendientes</p>
         </div>
@@ -265,7 +265,7 @@ export function MandatoryVaccinesWidget({ clinic }: MandatoryVaccinesWidgetProps
           {/* Overdue section */}
           {overdue.length > 0 && (
             <>
-              <div className="py-2 text-xs font-medium uppercase tracking-wide text-red-600">
+              <div className="py-2 text-xs font-medium uppercase tracking-wide text-[var(--status-error)]">
                 Vencidas ({overdue.length})
               </div>
               {overdue.slice(0, 5).map((alert) => (
@@ -283,7 +283,7 @@ export function MandatoryVaccinesWidget({ clinic }: MandatoryVaccinesWidgetProps
           {/* Due section */}
           {due.length > 0 && (
             <>
-              <div className="mt-2 py-2 text-xs font-medium uppercase tracking-wide text-amber-600">
+              <div className="mt-2 py-2 text-xs font-medium uppercase tracking-wide text-[var(--status-warning)]">
                 Próximas ({due.length})
               </div>
               {due.slice(0, 5).map((alert) => (
@@ -337,7 +337,7 @@ export function MandatoryVaccinesWidget({ clinic }: MandatoryVaccinesWidgetProps
           {reminderResult && (
             <div
               className={`flex items-center gap-2 rounded-lg p-2 text-sm ${
-                reminderResult.success ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
+                reminderResult.success ? 'bg-[var(--status-success-bg)] text-[var(--status-success)]' : 'bg-[var(--status-error-bg)] text-[var(--status-error)]'
               }`}
             >
               {reminderResult.success ? (
@@ -400,7 +400,7 @@ function AlertItem({
             </div>
           )}
           {alert.urgency === 'overdue' && (
-            <div className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500">
+            <div className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-[var(--status-error)]">
               <span className="text-[10px] text-white">!</span>
             </div>
           )}
@@ -417,14 +417,14 @@ function AlertItem({
       {/* Status */}
       <div className="shrink-0 text-right">
         {alert.urgency === 'overdue' ? (
-          <span className="text-xs font-medium text-red-600">
+          <span className="text-xs font-medium text-[var(--status-error)]">
             Hace {maxDaysOverdue} día{maxDaysOverdue !== 1 ? 's' : ''}
           </span>
         ) : (
-          <span className="text-xs font-medium text-amber-600">Próxima</span>
+          <span className="text-xs font-medium text-[var(--status-warning)]">Próxima</span>
         )}
         {alert.reminder_sent_at && (
-          <p className="text-[10px] text-green-600">
+          <p className="text-[10px] text-[var(--status-success)]">
             Recordatorio enviado
           </p>
         )}

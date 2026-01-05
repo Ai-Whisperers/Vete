@@ -163,7 +163,7 @@ export function ImportWizard({ isOpen, onClose, onImportComplete, clinic }: Impo
           {wizard.currentStep === 4 && (
             <button
               onClick={wizard.handleFinish}
-              className="flex items-center gap-2 rounded-xl bg-green-600 px-6 py-3 font-bold text-white transition hover:bg-green-700"
+              className="flex items-center gap-2 rounded-xl bg-[var(--status-success)] px-6 py-3 font-bold text-white transition hover:opacity-90"
             >
               <Check className="h-4 w-4" />
               Finalizar

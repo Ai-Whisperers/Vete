@@ -35,16 +35,16 @@ export function SourceStep({ isParsingFile, onFileSelect, onClipboardData }: Sou
             onChange={(e) => e.target.files?.[0] && onFileSelect(e.target.files[0])}
             disabled={isParsingFile}
           />
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blue-100">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--primary)]/10">
             {isParsingFile ? (
-              <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+              <Loader2 className="h-8 w-8 animate-spin text-[var(--primary)]" />
             ) : (
-              <FileSpreadsheet className="h-8 w-8 text-blue-600" />
+              <FileSpreadsheet className="h-8 w-8 text-[var(--primary)]" />
             )}
           </div>
           <h4 className="mb-2 font-bold text-gray-900">Subir Archivo</h4>
           <p className="mb-4 text-sm text-gray-500">Excel (.xlsx, .xls) o CSV</p>
-          <span className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 font-medium text-white">
+          <span className="inline-flex items-center gap-2 rounded-lg bg-[var(--primary)] px-4 py-2 font-medium text-white">
             <Upload className="h-4 w-4" />
             Seleccionar Archivo
           </span>

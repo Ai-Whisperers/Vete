@@ -164,7 +164,7 @@ export function PatientFilters({
         <button
           type="button"
           onClick={onClearFilters}
-          className="flex w-full items-center justify-center gap-2 rounded-lg bg-red-50 px-3 py-2 text-xs text-red-600 transition-colors hover:bg-red-100"
+          className="flex w-full items-center justify-center gap-2 rounded-lg bg-[var(--status-error-bg)] px-3 py-2 text-xs text-[var(--status-error)] transition-colors hover:opacity-80"
         >
           <X className="h-3 w-3" />
           Limpiar filtros

@@ -110,9 +110,9 @@ export function Confirmation() {
         <div
           role="alert"
           aria-live="assertive"
-          className="mb-6 rounded-2xl border border-red-200 bg-red-50 p-4"
+          className="mb-6 rounded-2xl border border-[var(--status-error-border)] bg-[var(--status-error-bg)] p-4"
         >
-          <div className="flex items-center gap-3 text-red-700">
+          <div className="flex items-center gap-3 text-[var(--status-error-text)]">
             <AlertCircle className="h-5 w-5 flex-shrink-0" aria-hidden="true" />
             <p className="font-medium">{submitError}</p>
           </div>

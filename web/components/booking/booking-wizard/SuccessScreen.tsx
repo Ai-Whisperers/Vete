@@ -26,9 +26,9 @@ export function SuccessScreen({
   return (
     <div className="animate-in zoom-in-95 mx-auto mt-8 max-w-2xl rounded-2xl border border-gray-100 bg-white p-6 text-center shadow-2xl duration-500 sm:mt-20 sm:rounded-[3rem] sm:p-12">
       {/* Success Icon */}
-      <div className="relative mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-green-50 text-green-600 sm:mb-8 sm:h-24 sm:w-24">
+      <div className="relative mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-[var(--status-success-bg)] text-[var(--status-success)] sm:mb-8 sm:h-24 sm:w-24">
         <Check className="relative z-10 h-10 w-10 sm:h-12 sm:w-12" />
-        <div className="absolute inset-0 animate-ping rounded-full bg-green-400 opacity-20"></div>
+        <div className="absolute inset-0 animate-ping rounded-full bg-[var(--status-success)] opacity-20"></div>
       </div>
 
       {/* Title */}

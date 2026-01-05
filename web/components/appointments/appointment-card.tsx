@@ -62,7 +62,7 @@ export function AppointmentCard({
     <div
       className={`rounded-2xl border bg-white transition-all hover:shadow-lg ${
         appointment.status === 'cancelled'
-          ? 'border-red-100 bg-red-50/30'
+          ? 'border-[var(--status-error-border)] bg-[var(--status-error-bg)]/30'
           : isPast
             ? 'border-gray-100 opacity-75'
             : 'hover:border-[var(--primary)]/30 border-gray-100'

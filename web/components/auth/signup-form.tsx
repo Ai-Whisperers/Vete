@@ -17,7 +17,7 @@ export function SignupForm({ clinic, redirectTo }: SignupFormProps) {
   if (state?.success) {
     return (
       <div className="animate-in fade-in zoom-in mx-auto mt-4 max-w-md overflow-hidden rounded-3xl border border-gray-100 bg-white p-6 text-center shadow-xl sm:mt-8 sm:p-8 md:mt-12">
-        <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-green-100 text-green-600">
+        <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-[var(--status-success-bg)] text-[var(--status-success)]">
           <Icons.MailCheck className="h-10 w-10" />
         </div>
         <h2 className="font-heading text-xl font-black text-[var(--text-primary)] sm:text-2xl">
@@ -118,7 +118,7 @@ export function SignupForm({ clinic, redirectTo }: SignupFormProps) {
         {state?.error && (
           <div
             role="alert"
-            className="flex items-center gap-2 rounded-lg bg-red-50 p-3 text-sm text-red-600"
+            className="flex items-center gap-2 rounded-lg bg-[var(--status-error-bg)] p-3 text-sm text-[var(--status-error-text)]"
           >
             <Icons.AlertCircle className="h-4 w-4" aria-hidden="true" />
             {state.error}

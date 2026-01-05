@@ -14,7 +14,7 @@ export function StepIndicator({ currentStep, steps }: StepIndicatorProps) {
         <div key={idx} className="flex items-center">
           <div
             className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold transition-colors ${
-              idx < currentStep ? 'bg-green-500 text-white' : ''
+              idx < currentStep ? 'bg-[var(--status-success)] text-white' : ''
             } ${idx === currentStep ? 'bg-[var(--primary)] text-white' : ''} ${
               idx > currentStep ? 'bg-gray-200 text-gray-400' : ''
             }`}
@@ -24,7 +24,7 @@ export function StepIndicator({ currentStep, steps }: StepIndicatorProps) {
           {idx < steps.length - 1 && (
             <div
               className={`mx-2 h-1 w-12 rounded ${
-                idx < currentStep ? 'bg-green-500' : 'bg-gray-200'
+                idx < currentStep ? 'bg-[var(--status-success)]' : 'bg-gray-200'
               }`}
             />
           )}

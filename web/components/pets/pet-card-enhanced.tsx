@@ -177,10 +177,10 @@ export function PetCardEnhanced({ pet, clinic }: PetCardProps) {
               <div
                 className={`flex flex-shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${
                   vaccineStatus.status === 'danger'
-                    ? 'bg-red-100 text-red-700'
+                    ? 'bg-[var(--status-error-bg)] text-[var(--status-error-text)]'
                     : vaccineStatus.status === 'warning'
-                      ? 'bg-amber-100 text-amber-700'
-                      : 'bg-green-100 text-green-700'
+                      ? 'bg-[var(--status-warning-bg)] text-[var(--status-warning-text)]'
+                      : 'bg-[var(--status-success-bg)] text-[var(--status-success-text)]'
                 }`}
               >
                 {vaccineStatus.status === 'danger' ? (
@@ -238,7 +238,7 @@ export function PetCardEnhanced({ pet, clinic }: PetCardProps) {
 
               {/* Health alerts */}
               {hasHealthAlerts() && (
-                <div className="flex items-center gap-2 text-amber-600">
+                <div className="flex items-center gap-2 text-[var(--status-warning)]">
                   <AlertTriangle className="h-3.5 w-3.5" />
                   <span>
                     {pet.allergies &&

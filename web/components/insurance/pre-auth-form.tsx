@@ -151,13 +151,13 @@ export default function PreAuthForm({ petId, policyId, onSuccess }: PreAuthFormP
   // UX-002: Error state with retry
   if (loadError) {
     return (
-      <div className="rounded-2xl border border-red-200 bg-red-50 p-8 text-center">
-        <AlertCircle className="mx-auto mb-4 h-12 w-12 text-red-500" />
-        <h3 className="mb-2 text-lg font-semibold text-red-800">Error al cargar</h3>
-        <p className="mb-4 text-red-600">{loadError}</p>
+      <div className="rounded-2xl border border-[var(--status-error-border)] bg-[var(--status-error-bg)] p-8 text-center">
+        <AlertCircle className="mx-auto mb-4 h-12 w-12 text-[var(--status-error)]" />
+        <h3 className="mb-2 text-lg font-semibold text-[var(--status-error-text)]">Error al cargar</h3>
+        <p className="mb-4 text-[var(--status-error)]">{loadError}</p>
         <button
           onClick={() => loadPets()}
-          className="rounded-xl bg-red-600 px-6 py-2 font-medium text-white transition-colors hover:bg-red-700"
+          className="rounded-xl bg-[var(--status-error)] px-6 py-2 font-medium text-white transition-colors hover:bg-[var(--status-error)]/90"
         >
           Reintentar
         </button>

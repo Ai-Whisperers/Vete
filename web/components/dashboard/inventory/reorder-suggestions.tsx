@@ -55,24 +55,24 @@ interface ReorderSuggestionsProps {
 const urgencyConfig = {
   critical: {
     label: 'Sin Stock',
-    bgColor: 'bg-red-50',
-    borderColor: 'border-red-200',
-    textColor: 'text-red-700',
-    icon: <AlertCircle className="h-4 w-4 text-red-500" />,
+    bgColor: 'bg-[var(--status-error-bg)]',
+    borderColor: 'border-[var(--status-error-border)]',
+    textColor: 'text-[var(--status-error)]',
+    icon: <AlertCircle className="h-4 w-4 text-[var(--status-error)]" />,
   },
   low: {
     label: 'Stock Bajo',
-    bgColor: 'bg-orange-50',
-    borderColor: 'border-orange-200',
-    textColor: 'text-orange-700',
-    icon: <AlertTriangle className="h-4 w-4 text-orange-500" />,
+    bgColor: 'bg-[var(--status-warning-bg)]',
+    borderColor: 'border-[var(--status-warning-border)]',
+    textColor: 'text-[var(--status-warning)]',
+    icon: <AlertTriangle className="h-4 w-4 text-[var(--status-warning)]" />,
   },
   reorder: {
     label: 'Reordenar',
-    bgColor: 'bg-yellow-50',
-    borderColor: 'border-yellow-200',
-    textColor: 'text-yellow-700',
-    icon: <ShoppingCart className="h-4 w-4 text-yellow-600" />,
+    bgColor: 'bg-[var(--status-warning-bg)]',
+    borderColor: 'border-[var(--status-warning-border)]',
+    textColor: 'text-[var(--status-warning-text)]',
+    icon: <ShoppingCart className="h-4 w-4 text-[var(--status-warning)]" />,
   },
 }
 
@@ -149,12 +149,12 @@ export default function ReorderSuggestions({ clinic }: ReorderSuggestionsProps):
 
   if (error) {
     return (
-      <div className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-700">
+      <div className="flex items-center gap-2 rounded-xl border border-[var(--status-error-border)] bg-[var(--status-error-bg)] px-4 py-3 text-[var(--status-error)]">
         <AlertCircle className="h-5 w-5" />
         {error}
         <button
           onClick={fetchSuggestions}
-          className="ml-auto flex items-center gap-1 rounded-lg bg-red-100 px-3 py-1 text-sm font-medium hover:bg-red-200"
+          className="ml-auto flex items-center gap-1 rounded-lg bg-[var(--status-error-bg)] px-3 py-1 text-sm font-medium hover:opacity-80"
         >
           <RefreshCw className="h-4 w-4" />
           Reintentar
@@ -166,7 +166,7 @@ export default function ReorderSuggestions({ clinic }: ReorderSuggestionsProps):
   if (groups.length === 0) {
     return (
       <div className="rounded-2xl border border-gray-100 bg-white p-12 text-center shadow-sm">
-        <Package className="mx-auto mb-4 h-12 w-12 text-green-300" />
+        <Package className="mx-auto mb-4 h-12 w-12 text-[var(--status-success)]" />
         <h3 className="text-lg font-semibold text-[var(--text-primary)]">
           ¡Inventario en orden!
         </h3>
@@ -192,22 +192,22 @@ export default function ReorderSuggestions({ clinic }: ReorderSuggestionsProps):
           <div className="text-xs text-[var(--text-secondary)]">productos a reordenar</div>
         </div>
 
-        <div className="rounded-xl border border-red-100 bg-red-50 p-4 shadow-sm">
-          <div className="flex items-center gap-2 text-red-500">
+        <div className="rounded-xl border border-[var(--status-error-border)] bg-[var(--status-error-bg)] p-4 shadow-sm">
+          <div className="flex items-center gap-2 text-[var(--status-error)]">
             <AlertCircle className="h-5 w-5" />
             <span className="text-sm">Críticos</span>
           </div>
-          <div className="mt-2 text-2xl font-bold text-red-700">{summary?.critical_count || 0}</div>
-          <div className="text-xs text-red-600">sin stock</div>
+          <div className="mt-2 text-2xl font-bold text-[var(--status-error)]">{summary?.critical_count || 0}</div>
+          <div className="text-xs text-[var(--status-error)]">sin stock</div>
         </div>
 
-        <div className="rounded-xl border border-orange-100 bg-orange-50 p-4 shadow-sm">
-          <div className="flex items-center gap-2 text-orange-500">
+        <div className="rounded-xl border border-[var(--status-warning-border)] bg-[var(--status-warning-bg)] p-4 shadow-sm">
+          <div className="flex items-center gap-2 text-[var(--status-warning)]">
             <AlertTriangle className="h-5 w-5" />
             <span className="text-sm">Stock Bajo</span>
           </div>
-          <div className="mt-2 text-2xl font-bold text-orange-700">{summary?.low_count || 0}</div>
-          <div className="text-xs text-orange-600">necesitan atención</div>
+          <div className="mt-2 text-2xl font-bold text-[var(--status-warning)]">{summary?.low_count || 0}</div>
+          <div className="text-xs text-[var(--status-warning)]">necesitan atención</div>
         </div>
 
         <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">

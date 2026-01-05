@@ -76,26 +76,26 @@ const statusConfig: Record<
 > = {
   pending: {
     label: 'Pendiente',
-    color: 'text-yellow-700',
-    bgColor: 'bg-yellow-50 border-yellow-200',
+    color: 'text-[var(--status-warning-text)]',
+    bgColor: 'bg-[var(--status-warning-bg)] border-[var(--status-warning-border)]',
     icon: <Clock className="h-4 w-4" />,
   },
   confirmed: {
     label: 'Confirmado',
-    color: 'text-blue-700',
-    bgColor: 'bg-blue-50 border-blue-200',
+    color: 'text-[var(--status-info-text)]',
+    bgColor: 'bg-[var(--status-info-bg)] border-[var(--status-info-border)]',
     icon: <CheckCircle className="h-4 w-4" />,
   },
   checked_in: {
     label: 'En Espera',
-    color: 'text-purple-700',
-    bgColor: 'bg-purple-50 border-purple-200',
+    color: 'text-[var(--primary)]',
+    bgColor: 'bg-[var(--primary)]/10 border-[var(--primary)]/20',
     icon: <LogIn className="h-4 w-4" />,
   },
   in_progress: {
     label: 'En Consulta',
-    color: 'text-green-700',
-    bgColor: 'bg-green-50 border-green-200',
+    color: 'text-[var(--status-success-text)]',
+    bgColor: 'bg-[var(--status-success-bg)] border-[var(--status-success-border)]',
     icon: <Stethoscope className="h-4 w-4" />,
   },
   completed: {
@@ -106,14 +106,14 @@ const statusConfig: Record<
   },
   cancelled: {
     label: 'Cancelado',
-    color: 'text-red-700',
-    bgColor: 'bg-red-50 border-red-200',
+    color: 'text-[var(--status-error-text)]',
+    bgColor: 'bg-[var(--status-error-bg)] border-[var(--status-error-border)]',
     icon: <XCircle className="h-4 w-4" />,
   },
   no_show: {
     label: 'No Asistió',
-    color: 'text-orange-700',
-    bgColor: 'bg-orange-50 border-orange-200',
+    color: 'text-[var(--status-warning-text)]',
+    bgColor: 'bg-[var(--status-warning-bg)] border-[var(--status-warning-border)]',
     icon: <AlertCircle className="h-4 w-4" />,
   },
 }
@@ -191,16 +191,16 @@ export function WaitingRoom({ clinic }: { clinic: string }): React.ReactElement 
     switch (currentStatus) {
       case 'pending':
         return [
-          { label: 'Confirmar', status: 'confirmed', color: 'bg-blue-500' },
-          { label: 'Cancelar', status: 'cancelled', color: 'bg-red-500' },
+          { label: 'Confirmar', status: 'confirmed', color: 'bg-[var(--status-info)]' },
+          { label: 'Cancelar', status: 'cancelled', color: 'bg-[var(--status-error)]' },
         ]
       case 'confirmed':
         return [
-          { label: 'Check-in', status: 'checked_in', color: 'bg-purple-500' },
-          { label: 'No Asistió', status: 'no_show', color: 'bg-orange-500' },
+          { label: 'Check-in', status: 'checked_in', color: 'bg-[var(--primary)]' },
+          { label: 'No Asistió', status: 'no_show', color: 'bg-[var(--status-warning)]' },
         ]
       case 'checked_in':
-        return [{ label: 'Iniciar Consulta', status: 'in_progress', color: 'bg-green-500' }]
+        return [{ label: 'Iniciar Consulta', status: 'in_progress', color: 'bg-[var(--status-success)]' }]
       case 'in_progress':
         return [{ label: 'Completar', status: 'completed', color: 'bg-gray-700' }]
       default:
@@ -239,8 +239,8 @@ export function WaitingRoom({ clinic }: { clinic: string }): React.ReactElement 
       {/* Waiting (Checked In) */}
       {grouped.waiting.length > 0 && (
         <div className="border-b border-gray-100">
-          <div className="bg-purple-50 px-6 py-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-purple-700">
+          <div className="bg-[var(--primary)]/10 px-6 py-2">
+            <span className="text-xs font-bold uppercase tracking-wider text-[var(--primary)]">
               En Sala de Espera ({grouped.waiting.length})
             </span>
           </div>
@@ -264,8 +264,8 @@ export function WaitingRoom({ clinic }: { clinic: string }): React.ReactElement 
       {/* In Progress */}
       {grouped.inProgress.length > 0 && (
         <div className="border-b border-gray-100">
-          <div className="bg-green-50 px-6 py-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-green-700">
+          <div className="bg-[var(--status-success-bg)] px-6 py-2">
+            <span className="text-xs font-bold uppercase tracking-wider text-[var(--status-success-text)]">
               En Consulta ({grouped.inProgress.length})
             </span>
           </div>

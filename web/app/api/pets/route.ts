@@ -1,21 +1,12 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
 import { logger } from '@/lib/logger'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
+import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 
-// POST - Create a new pet (used by onboarding wizard)
-export async function POST(request: Request) {
-  const supabase = await createClient()
-
-  // Check authentication
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-  if (authError || !user) {
-    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED)
-  }
-
+/**
+ * POST /api/pets - Create a new pet (used by onboarding wizard)
+ */
+export const POST = withApiAuth(async ({ user, supabase, request }: ApiHandlerContext) => {
   try {
     // Handle FormData or JSON
     const contentType = request.headers.get('content-type') || ''
@@ -99,31 +90,12 @@ export async function POST(request: Request) {
     })
     return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
   }
-}
+})
 
-export async function GET(request: Request) {
-  const supabase = await createClient()
-
-  // Authenticate user
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-  if (authError || !user) {
-    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED)
-  }
-
-  // Get user profile to check role
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('id, tenant_id, role')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile) {
-    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED)
-  }
-
+/**
+ * GET /api/pets - List pets for a user
+ */
+export const GET = withApiAuth(async ({ user, profile, supabase, request }: ApiHandlerContext) => {
   const { searchParams } = new URL(request.url)
   const userId = searchParams.get('userId')
   const query = searchParams.get('query')
@@ -194,4 +166,4 @@ export async function GET(request: Request) {
   }
 
   return NextResponse.json(data, { status: 200 })
-}
+})

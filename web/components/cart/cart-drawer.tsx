@@ -81,7 +81,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
     if (isOpen) {
       fetchUserAndPoints()
     }
-  }, [isOpen])
+  }, [isOpen, showToast])
 
   // Focus trap and keyboard handling
   const handleKeyDown = useCallback(

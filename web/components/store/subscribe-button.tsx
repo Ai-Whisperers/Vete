@@ -10,6 +10,7 @@ import { useToast } from '@/components/ui/Toast'
 interface SubscribeButtonProps {
   productId: string
   variantId?: string | null
+  variantName?: string | null
   productName: string
   price: number
   disabled?: boolean

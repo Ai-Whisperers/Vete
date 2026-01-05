@@ -132,14 +132,14 @@ export default function NewPetPage() {
               Información Básica
             </h3>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div suppressHydrationWarning>
                 <label
                   htmlFor="name"
                   className="mb-1 block text-sm font-bold text-[var(--text-secondary)]"
                   suppressHydrationWarning
                 >
-                  Nombre <span className="text-red-500">*</span>
+                  Nombre <span className="text-[var(--status-error)]">*</span>
                 </label>
                 <input
                   id="name"
@@ -158,7 +158,7 @@ export default function NewPetPage() {
                   htmlFor="species"
                   className="mb-1 block text-sm font-bold text-[var(--text-secondary)]"
                 >
-                  Especie <span className="text-red-500">*</span>
+                  Especie <span className="text-[var(--status-error)]">*</span>
                 </label>
                 <select
                   id="species"
@@ -173,7 +173,7 @@ export default function NewPetPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
                 <label
                   htmlFor="breed"
@@ -214,7 +214,7 @@ export default function NewPetPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
                 <label
                   htmlFor="weight"
@@ -258,7 +258,7 @@ export default function NewPetPage() {
             {/* Sex and Neutered Status */}
             <div className="rounded-xl bg-[var(--bg-subtle)] p-4">
               <p className="mb-3 text-sm font-bold text-[var(--text-secondary)]">
-                Sexo <span className="text-red-500">*</span>
+                Sexo <span className="text-[var(--status-error)]">*</span>
               </p>
               <div className="flex flex-wrap items-center gap-6">
                 <div className="flex items-center gap-2">
@@ -316,7 +316,7 @@ export default function NewPetPage() {
               durante las consultas.
             </p>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
                 <label
                   htmlFor="temperament"
@@ -416,7 +416,7 @@ export default function NewPetPage() {
               </FieldHint>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
                 <label
                   htmlFor="diet_category"
@@ -461,15 +461,15 @@ export default function NewPetPage() {
           </div>
 
           {/* Success tips */}
-          <div className="rounded-xl border border-green-200 bg-green-50 p-4">
+          <div className="rounded-xl border border-[var(--status-success-border)] bg-[var(--status-success-bg)] p-4">
             <div className="flex items-start gap-3">
               <CheckCircle2
-                className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-600"
+                className="mt-0.5 h-5 w-5 flex-shrink-0 text-[var(--status-success)]"
                 aria-hidden="true"
               />
-              <div className="text-sm text-green-800">
+              <div className="text-sm text-[var(--status-success-text)]">
                 <p className="font-bold">Consejos para un buen registro:</p>
-                <ul className="mt-1 list-inside list-disc space-y-1 text-green-700">
+                <ul className="mt-1 list-inside list-disc space-y-1 text-[var(--status-success)]">
                   <li>Completa todos los campos que conozcas</li>
                   <li>Si no estás seguro de algo, déjalo vacío o pon &quot;No sé&quot;</li>
                   <li>Puedes editar esta información más tarde</li>

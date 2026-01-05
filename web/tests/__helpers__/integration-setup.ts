@@ -304,7 +304,7 @@ export async function createTestPet(
     name: string
     species: 'dog' | 'cat' | 'bird' | 'other'
     breed: string
-    date_of_birth: string
+    birth_date: string
   }> = {}
 ): Promise<{ id: string; name: string; species: string }> {
   const petId = idGenerator.generate('pet')
@@ -316,7 +316,7 @@ export async function createTestPet(
     name: `Test Pet ${petId.slice(-4)}`,
     species: 'dog',
     breed: 'Mixed',
-    date_of_birth: '2020-01-01',
+    birth_date: '2020-01-01',
     ...overrides,
   }
 
@@ -451,23 +451,22 @@ export async function createTestLabTest(
     name: string
     code: string
     category: string
-    reference_min: number
-    reference_max: number
-    unit: string
+    sample_type: string
+    reference_ranges: Record<string, { min?: number; max?: number; unit?: string }>
+    is_active: boolean
   }> = {}
 ): Promise<{ id: string; name: string; code: string }> {
   const testId = idGenerator.generate('lab-test')
-  const code = `TEST-${testId.slice(-4).toUpperCase()}`
+  const code = overrides.code || `TEST-${testId.slice(-4).toUpperCase()}`
 
   const testData = {
     id: testId,
     tenant_id: tenantId,
     name: `Test Lab Test ${testId.slice(-4)}`,
     code,
-    category: 'general',
-    reference_min: 0,
-    reference_max: 100,
-    unit: 'mg/dL',
+    category: 'Hematology',
+    sample_type: 'blood',
+    is_active: true,
     ...overrides,
   }
 
@@ -478,6 +477,95 @@ export async function createTestLabTest(
   }
 
   cleanupManager.track('lab_test_catalog', data.id)
+  return data
+}
+
+/**
+ * Creates a test lab order.
+ *
+ * @param supabase - Service role client
+ * @param petId - Pet ID
+ * @param orderedBy - Vet profile ID who ordered the test
+ * @param tenantId - Tenant ID
+ * @param overrides - Optional field overrides
+ */
+export async function createTestLabOrder(
+  supabase: SupabaseClient,
+  petId: string,
+  orderedBy: string,
+  tenantId: string = TEST_TENANT_ID,
+  overrides: Partial<{
+    order_number: string
+    status: 'pending' | 'collected' | 'processing' | 'completed' | 'reviewed' | 'cancelled'
+    priority: 'stat' | 'urgent' | 'routine'
+    lab_type: 'in_house' | 'reference_lab'
+    has_critical_values: boolean
+    specimen_quality: string
+    clinical_notes: string
+  }> = {}
+): Promise<{ id: string; order_number: string; status: string }> {
+  const orderId = idGenerator.generate('lab-order')
+  const orderNumber = overrides.order_number || `LAB-TEST-${orderId.slice(-6).toUpperCase()}`
+
+  const orderData = {
+    id: orderId,
+    tenant_id: tenantId,
+    pet_id: petId,
+    ordered_by: orderedBy,
+    order_number: orderNumber,
+    status: 'pending',
+    priority: 'routine',
+    lab_type: 'in_house',
+    ...overrides,
+  }
+
+  const { data, error } = await supabase.from('lab_orders').insert(orderData).select().single()
+
+  if (error) {
+    throw new Error(`[Integration Test] Failed to create lab order: ${error.message}`)
+  }
+
+  cleanupManager.track('lab_orders', data.id)
+  return data
+}
+
+/**
+ * Creates a test lab order item.
+ *
+ * @param supabase - Service role client
+ * @param labOrderId - Lab order ID
+ * @param testId - Lab test catalog ID
+ * @param tenantId - Tenant ID
+ * @param overrides - Optional field overrides
+ */
+export async function createTestLabOrderItem(
+  supabase: SupabaseClient,
+  labOrderId: string,
+  testId: string,
+  tenantId: string = TEST_TENANT_ID,
+  overrides: Partial<{
+    status: 'pending' | 'processing' | 'completed' | 'cancelled'
+    price: number
+  }> = {}
+): Promise<{ id: string; lab_order_id: string; test_id: string }> {
+  const itemId = idGenerator.generate('lab-order-item')
+
+  const itemData = {
+    id: itemId,
+    lab_order_id: labOrderId,
+    tenant_id: tenantId,
+    test_id: testId,
+    status: 'pending',
+    ...overrides,
+  }
+
+  const { data, error } = await supabase.from('lab_order_items').insert(itemData).select().single()
+
+  if (error) {
+    throw new Error(`[Integration Test] Failed to create lab order item: ${error.message}`)
+  }
+
+  cleanupManager.track('lab_order_items', data.id)
   return data
 }
 
@@ -515,6 +603,91 @@ export async function createTestStaffProfile(
   }
 
   cleanupManager.track('staff_profiles', data.id)
+  return data
+}
+
+/**
+ * Creates a test purchase order.
+ *
+ * @param supabase - Service role client
+ * @param supplierId - Supplier ID
+ * @param createdBy - Profile ID who created the order
+ * @param tenantId - Tenant ID
+ * @param overrides - Optional field overrides
+ */
+export async function createTestPurchaseOrder(
+  supabase: SupabaseClient,
+  supplierId: string,
+  createdBy: string,
+  tenantId: string = TEST_TENANT_ID,
+  overrides: Partial<{
+    order_number: string
+    status: 'draft' | 'submitted' | 'confirmed' | 'shipped' | 'received' | 'cancelled'
+    expected_delivery_date: string
+    shipping_address: string
+    notes: string
+  }> = {}
+): Promise<{ id: string; order_number: string; status: string }> {
+  const orderId = idGenerator.generate('purchase-order')
+  const orderNumber = overrides.order_number || `PO-TEST-${orderId.slice(-6).toUpperCase()}`
+
+  const orderData = {
+    id: orderId,
+    tenant_id: tenantId,
+    supplier_id: supplierId,
+    order_number: orderNumber,
+    status: 'draft',
+    created_by: createdBy,
+    ...overrides,
+  }
+
+  const { data, error } = await supabase.from('purchase_orders').insert(orderData).select().single()
+
+  if (error) {
+    throw new Error(`[Integration Test] Failed to create purchase order: ${error.message}`)
+  }
+
+  cleanupManager.track('purchase_orders', data.id)
+  return data
+}
+
+/**
+ * Creates a test purchase order item.
+ *
+ * @param supabase - Service role client
+ * @param purchaseOrderId - Purchase order ID
+ * @param productId - Store product ID
+ * @param overrides - Optional field overrides
+ */
+export async function createTestPurchaseOrderItem(
+  supabase: SupabaseClient,
+  purchaseOrderId: string,
+  productId: string,
+  overrides: Partial<{
+    quantity: number
+    unit_cost: number
+    received_quantity: number
+    notes: string
+  }> = {}
+): Promise<{ id: string; purchase_order_id: string; catalog_product_id: string }> {
+  const itemId = idGenerator.generate('po-item')
+
+  const itemData = {
+    id: itemId,
+    purchase_order_id: purchaseOrderId,
+    catalog_product_id: productId,
+    quantity: 10,
+    unit_cost: 100.0,
+    ...overrides,
+  }
+
+  const { data, error } = await supabase.from('purchase_order_items').insert(itemData).select().single()
+
+  if (error) {
+    throw new Error(`[Integration Test] Failed to create purchase order item: ${error.message}`)
+  }
+
+  cleanupManager.track('purchase_order_items', data.id)
   return data
 }
 

@@ -197,18 +197,18 @@ export function SupplierForm({ supplier, onClose, onSuccess }: SupplierFormProps
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <label className="mb-1 block text-sm font-medium text-gray-700">
-                    Nombre <span className="text-red-500">*</span>
+                    Nombre <span className="text-[var(--status-error)]">*</span>
                   </label>
                   <input
                     type="text"
                     value={formData.name}
                     onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                     className={`w-full rounded-lg border px-3 py-2 focus:outline-none ${
-                      errors.name ? 'border-red-300 focus:border-red-500' : 'border-gray-200 focus:border-[var(--primary)]'
+                      errors.name ? 'border-[var(--status-error-border)] focus:border-[var(--status-error)]' : 'border-gray-200 focus:border-[var(--primary)]'
                     }`}
                     placeholder="Nombre comercial"
                   />
-                  {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name}</p>}
+                  {errors.name && <p className="mt-1 text-xs text-[var(--status-error)]">{errors.name}</p>}
                 </div>
 
                 <div>
@@ -293,11 +293,11 @@ export function SupplierForm({ supplier, onClose, onSuccess }: SupplierFormProps
                     value={formData.contact_info.email}
                     onChange={(e) => updateContactInfo('email', e.target.value)}
                     className={`w-full rounded-lg border px-3 py-2 focus:outline-none ${
-                      errors.email ? 'border-red-300 focus:border-red-500' : 'border-gray-200 focus:border-[var(--primary)]'
+                      errors.email ? 'border-[var(--status-error-border)] focus:border-[var(--status-error)]' : 'border-gray-200 focus:border-[var(--primary)]'
                     }`}
                     placeholder="contacto@proveedor.com"
                   />
-                  {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email}</p>}
+                  {errors.email && <p className="mt-1 text-xs text-[var(--status-error)]">{errors.email}</p>}
                 </div>
 
                 <div>
@@ -341,12 +341,12 @@ export function SupplierForm({ supplier, onClose, onSuccess }: SupplierFormProps
                     value={formData.minimum_order_amount}
                     onChange={(e) => setFormData(prev => ({ ...prev, minimum_order_amount: e.target.value }))}
                     className={`w-full rounded-lg border px-3 py-2 focus:outline-none ${
-                      errors.minimum_order_amount ? 'border-red-300 focus:border-red-500' : 'border-gray-200 focus:border-[var(--primary)]'
+                      errors.minimum_order_amount ? 'border-[var(--status-error-border)] focus:border-[var(--status-error)]' : 'border-gray-200 focus:border-[var(--primary)]'
                     }`}
                     placeholder="500000"
                     min="0"
                   />
-                  {errors.minimum_order_amount && <p className="mt-1 text-xs text-red-500">{errors.minimum_order_amount}</p>}
+                  {errors.minimum_order_amount && <p className="mt-1 text-xs text-[var(--status-error)]">{errors.minimum_order_amount}</p>}
                 </div>
 
                 <div>
@@ -358,12 +358,12 @@ export function SupplierForm({ supplier, onClose, onSuccess }: SupplierFormProps
                     value={formData.delivery_time_days}
                     onChange={(e) => setFormData(prev => ({ ...prev, delivery_time_days: e.target.value }))}
                     className={`w-full rounded-lg border px-3 py-2 focus:outline-none ${
-                      errors.delivery_time_days ? 'border-red-300 focus:border-red-500' : 'border-gray-200 focus:border-[var(--primary)]'
+                      errors.delivery_time_days ? 'border-[var(--status-error-border)] focus:border-[var(--status-error)]' : 'border-gray-200 focus:border-[var(--primary)]'
                     }`}
                     placeholder="3"
                     min="0"
                   />
-                  {errors.delivery_time_days && <p className="mt-1 text-xs text-red-500">{errors.delivery_time_days}</p>}
+                  {errors.delivery_time_days && <p className="mt-1 text-xs text-[var(--status-error)]">{errors.delivery_time_days}</p>}
                 </div>
 
                 <div>

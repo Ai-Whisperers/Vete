@@ -1,5 +1,52 @@
 import { createClient } from '@/lib/supabase/server'
 
+// Raw response shape from Supabase (nested relations come as arrays)
+interface RawAppointmentFromDB {
+  id: string
+  start_time: string
+  end_time: string
+  status: string
+  reason: string
+  pets:
+    | {
+        id: string
+        name: string
+        species: string
+        photo_url?: string | null
+        owner:
+          | {
+              id: string
+              full_name: string
+              phone?: string | null
+            }
+          | {
+              id: string
+              full_name: string
+              phone?: string | null
+            }[]
+          | null
+      }
+    | {
+        id: string
+        name: string
+        species: string
+        photo_url?: string | null
+        owner:
+          | {
+              id: string
+              full_name: string
+              phone?: string | null
+            }
+          | {
+              id: string
+              full_name: string
+              phone?: string | null
+            }[]
+          | null
+      }[]
+    | null
+}
+
 interface TodayAppointment {
   id: string
   start_time: string
@@ -59,7 +106,7 @@ export async function getTodayAppointmentsForClinic(clinicId: string): Promise<T
 
   // The database returns an array of pets for each appointment,
   // but our UI expects a single pet object. This transforms the data.
-  const transformedData = (data || []).map((apt: any) => {
+  const transformedData = ((data || []) as RawAppointmentFromDB[]).map((apt) => {
     const pet = Array.isArray(apt.pets) ? apt.pets[0] : apt.pets
     const owner = pet?.owner ? (Array.isArray(pet.owner) ? pet.owner[0] : pet.owner) : undefined
     return {

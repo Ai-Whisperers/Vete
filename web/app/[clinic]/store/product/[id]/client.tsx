@@ -30,7 +30,7 @@ import { useWishlist } from '@/context/wishlist-context'
 import ProductGallery from '@/components/store/product-detail/product-gallery'
 import ProductTabs from '@/components/store/product-detail/product-tabs'
 import RelatedProducts from '@/components/store/product-detail/related-products'
-import SubscribeButton from '@/components/store/subscribe-button'
+import { SubscribeButton } from '@/components/store/subscribe-button'
 
 interface ProductDetailResponse {
   product: StoreProductWithDetails

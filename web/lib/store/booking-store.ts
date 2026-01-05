@@ -58,11 +58,22 @@ function parsePrice(priceStr: string | undefined): number {
   return parseInt(priceStr.replace(/\./g, ''), 10) || 0
 }
 
-function extractServices(servicesData: any): ServiceFromJSON[] {
+// Type for services data which can be either a direct array or categorized structure
+interface ServiceCategory {
+  services?: ServiceFromJSON[]
+}
+
+interface CategorizedServices {
+  categories: ServiceCategory[]
+}
+
+type ServicesData = ServiceFromJSON[] | CategorizedServices | null | undefined
+
+function extractServices(servicesData: ServicesData): ServiceFromJSON[] {
   if (!servicesData) return []
   if (Array.isArray(servicesData)) return servicesData
-  if (servicesData.categories && Array.isArray(servicesData.categories)) {
-    return servicesData.categories.flatMap((cat: any) => cat.services || [])
+  if ('categories' in servicesData && Array.isArray(servicesData.categories)) {
+    return servicesData.categories.flatMap((cat) => cat.services || [])
   }
   return []
 }

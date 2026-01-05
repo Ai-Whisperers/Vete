@@ -12,17 +12,33 @@ export const GET = withApiAuthParams(
     const { id } = params
 
     // Fetch order with all related data
+    // Note: lab_results has lab_order_id FK to lab_orders, not through lab_order_items
     const { data: order, error } = await supabase
       .from('lab_orders')
       .select(
         `
         *,
-        pets!inner(id, name, species, breed, date_of_birth, tenant_id),
+        pets!inner(id, name, species, breed, birth_date, tenant_id),
         lab_order_items(
           id,
           test_id,
-          lab_test_catalog(id, code, name, unit, result_type),
-          lab_results(id, value_numeric, value_text, flag, verified_at, verified_by, result_date)
+          status,
+          price,
+          lab_test_catalog(id, code, name, category, sample_type, reference_ranges)
+        ),
+        lab_results(
+          id,
+          test_id,
+          value,
+          numeric_value,
+          unit,
+          reference_min,
+          reference_max,
+          flag,
+          is_abnormal,
+          notes,
+          entered_by,
+          created_at
         )
       `
       )
@@ -68,7 +84,7 @@ export const PATCH = withApiAuthParams(
       return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST)
     }
 
-    const { status, has_critical_values, specimen_collected_at, completed_at } = body
+    const { status, collected_at, completed_at } = body
 
     // Verify order belongs to staff's clinic
     const { data: existing } = await supabase
@@ -92,15 +108,14 @@ export const PATCH = withApiAuthParams(
     const updates: Record<string, unknown> = {}
     if (status) {
       updates.status = status
-      if (status === 'specimen_collected' && !specimen_collected_at) {
-        updates.specimen_collected_at = new Date().toISOString()
+      if (status === 'collected' && !collected_at) {
+        updates.collected_at = new Date().toISOString()
       }
       if (status === 'completed' && !completed_at) {
         updates.completed_at = new Date().toISOString()
       }
     }
-    if (has_critical_values !== undefined) updates.has_critical_values = has_critical_values
-    if (specimen_collected_at) updates.specimen_collected_at = specimen_collected_at
+    if (collected_at) updates.collected_at = collected_at
     if (completed_at) updates.completed_at = completed_at
 
     const { data, error } = await supabase
@@ -140,34 +155,8 @@ export const PATCH = withApiAuthParams(
           data: {
             lab_order_id: id,
             pet_id: petData.id,
-            has_critical_values: data.has_critical_values,
           },
         })
-
-        // If there are critical values, also notify the vet
-        if (data.has_critical_values) {
-          // Get ordering vet
-          const { data: orderDetails } = await supabase
-            .from('lab_orders')
-            .select('ordered_by')
-            .eq('id', id)
-            .single()
-
-          if (orderDetails?.ordered_by) {
-            await supabase.from('notifications').insert({
-              user_id: orderDetails.ordered_by,
-              title: '⚠️ Valores críticos detectados',
-              message: `Resultados de laboratorio para ${petData.name} contienen valores críticos.`,
-              type: 'lab_critical',
-              link: `/dashboard/lab/${id}`,
-              data: {
-                lab_order_id: id,
-                pet_id: petData.id,
-                has_critical_values: true,
-              },
-            })
-          }
-        }
       } catch (notifyError) {
         // Log but don't fail the request if notification fails
         logger.error('Error sending lab order notification', {

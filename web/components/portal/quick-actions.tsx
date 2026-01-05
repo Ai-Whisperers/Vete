@@ -1,0 +1,69 @@
+import Link from 'next/link'
+import {
+  CalendarPlus,
+  PawPrint,
+  ShoppingBag,
+  FileText,
+  MessageSquare,
+  Plus,
+} from 'lucide-react'
+
+interface PortalQuickActionsProps {
+  clinic: string
+}
+
+interface QuickActionProps {
+  icon: React.ReactNode
+  label: string
+  href: string
+  primary?: boolean
+}
+
+function QuickAction({ icon, label, href, primary }: QuickActionProps): React.ReactElement {
+  return (
+    <Link
+      href={href}
+      className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5 ${
+        primary
+          ? 'bg-[var(--primary)] text-white shadow-md hover:bg-[var(--primary-dark)] hover:shadow-lg'
+          : 'border border-[var(--border)] bg-white text-[var(--text-primary)] shadow-sm hover:bg-[var(--bg-subtle)] hover:shadow-md'
+      }`}
+    >
+      {icon}
+      {label}
+    </Link>
+  )
+}
+
+export function PortalQuickActions({ clinic }: PortalQuickActionsProps): React.ReactElement {
+  return (
+    <div className="flex flex-wrap gap-2">
+      <QuickAction
+        icon={<CalendarPlus className="h-4 w-4" />}
+        label="Agendar Cita"
+        href={`/${clinic}/book`}
+        primary
+      />
+      <QuickAction
+        icon={<Plus className="h-4 w-4" />}
+        label="Agregar Mascota"
+        href={`/${clinic}/portal/pets/new`}
+      />
+      <QuickAction
+        icon={<ShoppingBag className="h-4 w-4" />}
+        label="Tienda"
+        href={`/${clinic}/store`}
+      />
+      <QuickAction
+        icon={<FileText className="h-4 w-4" />}
+        label="Facturas"
+        href={`/${clinic}/portal/invoices`}
+      />
+      <QuickAction
+        icon={<MessageSquare className="h-4 w-4" />}
+        label="Mensajes"
+        href={`/${clinic}/portal/messages`}
+      />
+    </div>
+  )
+}

@@ -31,7 +31,7 @@ interface Supplier {
 export default function SuppliersPage(): React.ReactElement {
   const params = useParams()
   const clinic = params?.clinic as string
-  const { toast } = useToast()
+  const { showToast } = useToast()
 
   const [showForm, setShowForm] = useState(false)
   const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null)
@@ -73,19 +73,12 @@ export default function SuppliersPage(): React.ReactElement {
 
       if (!res.ok) throw new Error('Error al eliminar proveedor')
 
-      toast({
-        title: 'Proveedor eliminado',
-        description: `${deletingSupplier.name} ha sido eliminado`,
-      })
+      showToast(`Proveedor eliminado: ${deletingSupplier.name}`)
 
       setDeletingSupplier(null)
       setRefreshKey(k => k + 1)
     } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'No se pudo eliminar el proveedor',
-        variant: 'destructive',
-      })
+      showToast('Error: No se pudo eliminar el proveedor')
     }
   }
 

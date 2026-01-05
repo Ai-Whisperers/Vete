@@ -44,12 +44,9 @@ export async function GET(request: NextRequest) {
       .select(
         `
         id,
-        user_id,
-        job_title,
-        color_code,
-        can_be_booked,
-        employment_status,
-        profiles!staff_profiles_user_id_fkey (
+        profile_id,
+        title,
+        profiles!staff_profiles_profile_id_fkey (
           id,
           full_name,
           email
@@ -59,7 +56,7 @@ export async function GET(request: NextRequest) {
           name,
           is_active,
           effective_from,
-          effective_to,
+          effective_until,
           staff_schedule_entries (
             id,
             day_of_week,
@@ -73,7 +70,7 @@ export async function GET(request: NextRequest) {
       `
       )
       .eq('tenant_id', clinicSlug)
-      .eq('employment_status', 'active')
+      .eq('is_active', true)
 
     if (staffId) {
       staffQuery = staffQuery.eq('id', staffId)
@@ -104,12 +101,10 @@ export async function GET(request: NextRequest) {
 
         return {
           staff_profile_id: staff.id,
-          user_id: staff.user_id,
+          profile_id: staff.profile_id,
           staff_name: profile?.full_name || 'Sin nombre',
           email: profile?.email,
-          job_title: staff.job_title,
-          color_code: staff.color_code,
-          can_be_booked: staff.can_be_booked,
+          title: staff.title,
           schedules: activeSchedules || [],
         }
       }) || []
@@ -184,7 +179,7 @@ export async function POST(request: NextRequest) {
     // Verify the staff profile exists and belongs to this tenant
     const { data: staffProfile, error: profileError } = await supabase
       .from('staff_profiles')
-      .select('id, user_id, tenant_id')
+      .select('id, profile_id, tenant_id')
       .eq('id', staff_profile_id)
       .eq('tenant_id', clinic)
       .single()
@@ -201,7 +196,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     const isAdmin = userProfile?.role === 'admin'
-    const isOwnProfile = staffProfile.user_id === user.id
+    const isOwnProfile = staffProfile.profile_id === user.id
 
     if (!isAdmin && !isOwnProfile) {
       return NextResponse.json({ error: 'Solo puedes editar tu propio horario' }, { status: 403 })
@@ -216,9 +211,10 @@ export async function POST(request: NextRequest) {
     }
 
     for (const entry of entries) {
-      if (entry.day_of_week < 0 || entry.day_of_week > 6) {
+      // ISO week: 1=Monday through 7=Sunday
+      if (entry.day_of_week < 1 || entry.day_of_week > 7) {
         return NextResponse.json(
-          { error: 'Día de la semana inválido (debe ser 0-6)' },
+          { error: 'Día de la semana inválido (debe ser 1-7, donde 1=Lunes)' },
           { status: 400 }
         )
       }
@@ -231,7 +227,7 @@ export async function POST(request: NextRequest) {
     const { error: deactivateError } = await supabase
       .from('staff_schedules')
       .update({ is_active: false })
-      .eq('staff_profile_id', staff_profile_id)
+      .eq('staff_id', staff_profile_id)
       .eq('is_active', true)
 
     if (deactivateError) {
@@ -247,11 +243,12 @@ export async function POST(request: NextRequest) {
     const { data: schedule, error: scheduleError } = await supabase
       .from('staff_schedules')
       .insert({
-        staff_profile_id,
+        staff_id: staff_profile_id,
+        tenant_id: clinic,
         name,
         is_active: true,
         effective_from,
-        effective_to: effective_to || null,
+        effective_until: effective_to || null,
       })
       .select()
       .single()
@@ -373,9 +370,9 @@ export async function PATCH(request: NextRequest) {
       .select(
         `
         id,
-        staff_profile_id,
+        staff_id,
         staff_profiles!inner (
-          user_id,
+          profile_id,
           tenant_id
         )
       `
@@ -388,7 +385,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     const staffProfiles = schedule.staff_profiles as unknown as {
-      user_id: string
+      profile_id: string
       tenant_id: string
     }
     if (staffProfiles.tenant_id !== clinic) {
@@ -403,7 +400,7 @@ export async function PATCH(request: NextRequest) {
       .single()
 
     const isAdmin = userProfile?.role === 'admin'
-    const isOwnProfile = staffProfiles.user_id === user.id
+    const isOwnProfile = staffProfiles.profile_id === user.id
 
     if (!isAdmin && !isOwnProfile) {
       return NextResponse.json({ error: 'Solo puedes editar tu propio horario' }, { status: 403 })
@@ -412,7 +409,7 @@ export async function PATCH(request: NextRequest) {
     // Build update object
     const updates: Record<string, unknown> = {}
     if (typeof is_active === 'boolean') updates.is_active = is_active
-    if (effective_to !== undefined) updates.effective_to = effective_to || null
+    if (effective_to !== undefined) updates.effective_until = effective_to || null
 
     if (Object.keys(updates).length === 0) {
       return NextResponse.json({ error: 'No hay cambios para guardar' }, { status: 400 })

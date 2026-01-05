@@ -211,7 +211,9 @@ export const deletePetDocument = withActionAuth(
     // Authorization: staff, owner of pet, or original uploader
     const isStaff = ['vet', 'admin'].includes(profile.role)
     const sameTenant = profile.tenant_id === document.tenant_id
-    const isOwner = (document.pets as { owner_id: string }).owner_id === user.id
+    const petData = document.pets as { owner_id: string } | { owner_id: string }[]
+    const petOwnerId = Array.isArray(petData) ? petData[0]?.owner_id : petData?.owner_id
+    const isOwner = petOwnerId === user.id
     const isUploader = document.uploaded_by === user.id
 
     if (!((isStaff && sameTenant) || isOwner || isUploader)) {
@@ -320,17 +322,21 @@ export const getPetDocuments = withActionAuth(
     }
 
     // Format response
-    const formattedDocs = (documents || []).map((doc) => ({
-      id: doc.id,
-      name: doc.name,
-      file_url: doc.file_url,
-      file_type: doc.file_type,
-      file_size: doc.file_size,
-      category: doc.category as DocumentCategory,
-      description: doc.description,
-      uploaded_by: (doc.profiles as { full_name: string } | null)?.full_name || 'Usuario',
-      created_at: doc.created_at,
-    }))
+    const formattedDocs = (documents || []).map((doc) => {
+      const profileData = doc.profiles as { full_name: string } | { full_name: string }[] | null
+      const uploaderName = Array.isArray(profileData) ? profileData[0]?.full_name : profileData?.full_name
+      return {
+        id: doc.id,
+        name: doc.name,
+        file_url: doc.file_url,
+        file_type: doc.file_type,
+        file_size: doc.file_size,
+        category: doc.category as DocumentCategory,
+        description: doc.description,
+        uploaded_by: uploaderName || 'Usuario',
+        created_at: doc.created_at,
+      }
+    })
 
     return actionSuccess(formattedDocs)
   }

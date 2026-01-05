@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Send,
   Building2,
@@ -36,10 +36,17 @@ const initialFormData: FormData = {
 }
 
 export function ContactForm() {
+  const [mounted, setMounted] = useState(false)
   const [formData, setFormData] = useState<FormData>(initialFormData)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [errors, setErrors] = useState<Partial<FormData>>({})
+
+  // Defer form rendering until after hydration to prevent mismatches
+  // from browser extensions (LastPass, 1Password, etc.) injecting DOM nodes
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const validateForm = (): boolean => {
     const newErrors: Partial<FormData> = {}
@@ -99,6 +106,53 @@ ${formData.message ? `Mensaje adicional: ${formData.message}` : ''}`
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: undefined }))
     }
+  }
+
+  // Show skeleton during SSR/hydration to prevent extension-caused mismatches
+  if (!mounted) {
+    return (
+      <section
+        id="contacto"
+        className="relative overflow-hidden bg-gradient-to-b from-[var(--bg-dark-alt)] to-[var(--bg-dark)] py-20 md:py-28"
+      >
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="mb-12 text-center">
+            <span className="mb-3 inline-block text-sm font-bold uppercase tracking-widest text-[var(--primary)]">
+              Contacto
+            </span>
+            <h2 className="mb-6 text-3xl font-black text-white md:text-4xl lg:text-5xl">
+              Contanos sobre tu clinica
+            </h2>
+            <p className="mx-auto max-w-2xl text-lg text-white/60">
+              Completa el formulario y te contactamos para explicarte como funciona VetePy y responder
+              todas tus preguntas.
+            </p>
+          </div>
+          <div className="mx-auto max-w-4xl">
+            <div className="grid gap-8 lg:grid-cols-5">
+              <div className="lg:col-span-3">
+                {/* Form skeleton */}
+                <div className="space-y-6">
+                  {[1, 2, 3, 4].map((i) => (
+                    <div key={i} className="animate-pulse">
+                      <div className="mb-2 h-4 w-24 rounded bg-white/10" />
+                      <div className="h-12 w-full rounded-xl bg-white/5" />
+                    </div>
+                  ))}
+                  <div className="h-14 w-full animate-pulse rounded-xl bg-white/10" />
+                </div>
+              </div>
+              <div className="lg:col-span-2">
+                <div className="space-y-6">
+                  <div className="h-40 animate-pulse rounded-2xl bg-white/5" />
+                  <div className="h-48 animate-pulse rounded-2xl bg-white/5" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    )
   }
 
   if (isSubmitted) {
@@ -175,7 +229,7 @@ ${formData.message ? `Mensaje adicional: ${formData.message}` : ''}`
                 {/* Clinic Name */}
                 <div>
                   <label className="mb-2 block text-sm text-white/70">Nombre de la Clinica *</label>
-                  <div className="relative" suppressHydrationWarning>
+                  <div className="relative">
                     <Building2 className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-white/40" />
                     <input
                       type="text"
@@ -199,7 +253,7 @@ ${formData.message ? `Mensaje adicional: ${formData.message}` : ''}`
                 {/* Contact Name */}
                 <div>
                   <label className="mb-2 block text-sm text-white/70">Tu Nombre *</label>
-                  <div className="relative" suppressHydrationWarning>
+                  <div className="relative">
                     <User className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-white/40" />
                     <input
                       type="text"
@@ -224,7 +278,7 @@ ${formData.message ? `Mensaje adicional: ${formData.message}` : ''}`
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
                     <label className="mb-2 block text-sm text-white/70">Email *</label>
-                    <div className="relative" suppressHydrationWarning>
+                    <div className="relative">
                       <Mail className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-white/40" />
                       <input
                         type="email"
@@ -244,7 +298,7 @@ ${formData.message ? `Mensaje adicional: ${formData.message}` : ''}`
                   </div>
                   <div>
                     <label className="mb-2 block text-sm text-white/70">Telefono/WhatsApp *</label>
-                    <div className="relative" suppressHydrationWarning>
+                    <div className="relative">
                       <Phone className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-white/40" />
                       <input
                         type="tel"

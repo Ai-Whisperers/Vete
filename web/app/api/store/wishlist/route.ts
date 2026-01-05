@@ -2,12 +2,14 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { logger } from '@/lib/logger'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
+import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 
 export const dynamic = 'force-dynamic'
 
 /**
  * GET /api/store/wishlist
  * Load wishlist product IDs for logged-in user
+ * Note: Returns empty array for unauthenticated users (not an error)
  */
 export async function GET() {
   const supabase = await createClient()
@@ -25,7 +27,7 @@ export async function GET() {
     .from('profiles')
     .select('tenant_id')
     .eq('id', user.id)
-    .maybeSingle() // Use maybeSingle to avoid 406
+    .maybeSingle()
 
   // If no profile, return empty wishlist (user might be new)
   if (profileError || !profile) {
@@ -80,34 +82,12 @@ export async function GET() {
  * POST /api/store/wishlist
  * Add a product to wishlist
  */
-export async function POST(request: Request) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
-    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED)
-  }
-
+export const POST = withApiAuth(async ({ user, profile, supabase, request }: ApiHandlerContext) => {
   const { productId } = await request.json()
 
   if (!productId) {
     return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
       details: { message: 'ID de producto requerido' },
-    })
-  }
-
-  // Get user's profile to determine tenant
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('tenant_id')
-    .eq('id', user.id)
-    .maybeSingle() // Use maybeSingle to avoid 406
-
-  if (!profile) {
-    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
-      details: { message: 'Perfil no encontrado' },
     })
   }
 
@@ -135,48 +115,41 @@ export async function POST(request: Request) {
   }
 
   return NextResponse.json({ success: true, added: true })
-}
+})
 
 /**
  * DELETE /api/store/wishlist
  * Remove a product from wishlist
  */
-export async function DELETE(request: Request) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+export const DELETE = withApiAuth(
+  async ({ user, supabase, request }: ApiHandlerContext) => {
+    const { searchParams } = new URL(request.url)
+    const productId = searchParams.get('productId')
 
-  if (!user) {
-    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED)
+    if (!productId) {
+      return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
+        details: { message: 'ID de producto requerido' },
+      })
+    }
+
+    // Delete from wishlist
+    const { error } = await supabase
+      .from('store_wishlist')
+      .delete()
+      .eq('customer_id', user.id)
+      .eq('product_id', productId)
+
+    if (error) {
+      logger.error('Error removing from wishlist', {
+        userId: user.id,
+        productId,
+        error: error instanceof Error ? error.message : String(error),
+      })
+      return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
+        details: { message: 'Error al eliminar de lista de deseos' },
+      })
+    }
+
+    return NextResponse.json({ success: true })
   }
-
-  const { searchParams } = new URL(request.url)
-  const productId = searchParams.get('productId')
-
-  if (!productId) {
-    return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
-      details: { message: 'ID de producto requerido' },
-    })
-  }
-
-  // Delete from wishlist
-  const { error } = await supabase
-    .from('store_wishlist')
-    .delete()
-    .eq('customer_id', user.id)
-    .eq('product_id', productId)
-
-  if (error) {
-    logger.error('Error removing from wishlist', {
-      userId: user.id,
-      productId,
-      error: error instanceof Error ? error.message : String(error),
-    })
-    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
-      details: { message: 'Error al eliminar de lista de deseos' },
-    })
-  }
-
-  return NextResponse.json({ success: true })
-}
+)

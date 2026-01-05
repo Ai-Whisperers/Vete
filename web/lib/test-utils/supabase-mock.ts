@@ -290,7 +290,10 @@ export function getAuthHandlerMock(
 ) {
   return {
     withApiAuthParams: (
-      handler: Function,
+      handler: (
+        ctx: { user: MockUser; profile: MockProfile; supabase: ReturnType<typeof createSupabaseMock>['supabase']; request: Request },
+        params: Record<string, string>
+      ) => Promise<Response>,
       _options?: { roles: string[] }
     ) => {
       return async (

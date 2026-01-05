@@ -28,6 +28,7 @@ export function CartLoyaltyDisplay({
   const { clinic } = useParams() as { clinic: string }
   const [points, setPoints] = useState<number | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
 
   // Calculate points to earn from this purchase
   const pointsToEarn = Math.floor(cartTotal * EARN_RATE)
@@ -39,14 +40,17 @@ export function CartLoyaltyDisplay({
     }
 
     const fetchPoints = async () => {
+      setError(false)
       try {
         const res = await fetch(`/api/loyalty/points?userId=${userId}`)
         if (res.ok) {
           const data = await res.json()
           setPoints(data.points || 0)
+        } else {
+          setError(true)
         }
       } catch {
-        // Silent fail - loyalty points are non-critical UI enhancement
+        setError(true)
       } finally {
         setLoading(false)
       }
@@ -55,8 +59,8 @@ export function CartLoyaltyDisplay({
     fetchPoints()
   }, [userId])
 
-  // Don't show if no user
-  if (!userId) return null
+  // Don't show if no user or if there was an error (avoid misleading "0 puntos")
+  if (!userId || error) return null
 
   // Loading state
   if (loading) {

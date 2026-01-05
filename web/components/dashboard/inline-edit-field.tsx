@@ -153,14 +153,14 @@ export function InlineEditField({
                 disabled={isSaving}
                 className={`flex-1 rounded-lg border px-3 py-1.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 disabled:opacity-50 ${
                   hasError
-                    ? 'border-red-300 focus:ring-red-500'
+                    ? 'border-[var(--status-error-border)] focus:ring-[var(--status-error)]'
                     : 'border-[var(--border-color)] focus:ring-[var(--primary)]'
                 }`}
               />
               <button
                 onClick={handleSave}
                 disabled={isSaving}
-                className="rounded-lg bg-green-100 p-1.5 text-green-700 transition-colors hover:bg-green-200 disabled:opacity-50"
+                className="rounded-lg bg-[var(--status-success-bg)] p-1.5 text-[var(--status-success)] transition-colors hover:opacity-80 disabled:opacity-50"
                 title="Guardar"
               >
                 {isSaving ? (
@@ -178,7 +178,7 @@ export function InlineEditField({
                 <X className="h-4 w-4" />
               </button>
             </div>
-            {hasError && <p className="text-xs text-red-600">{saveError || fieldProps.error}</p>}
+            {hasError && <p className="text-xs text-[var(--status-error)]">{saveError || fieldProps.error}</p>}
           </div>
         ) : (
           <div className="group flex items-center gap-2">
@@ -204,7 +204,7 @@ export function InlineEditField({
                   title={isCopied ? '¡Copiado!' : 'Copiar'}
                 >
                   {isCopied ? (
-                    <CheckCheck className="h-3.5 w-3.5 text-green-600" />
+                    <CheckCheck className="h-3.5 w-3.5 text-[var(--status-success)]" />
                   ) : (
                     <Copy className="h-3.5 w-3.5" />
                   )}

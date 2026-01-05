@@ -110,7 +110,7 @@ export function ExportCSVButton({
         {isExporting ? (
           <Loader2 className="h-4 w-4 animate-spin" />
         ) : exported ? (
-          <Check className="h-4 w-4 text-green-600" />
+          <Check className="h-4 w-4 text-[var(--status-success)]" />
         ) : (
           <Download className="h-4 w-4" />
         )}

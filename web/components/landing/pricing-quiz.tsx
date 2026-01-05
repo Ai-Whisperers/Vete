@@ -12,12 +12,32 @@ import {
   Check,
   Sparkles,
   MessageCircle,
-  Sprout,
-  TreeDeciduous,
-  Trees,
+  Gift,
+  Zap,
+  ShoppingBag,
+  Stethoscope,
   Crown,
   RotateCcw,
+  Megaphone,
 } from 'lucide-react'
+import {
+  pricingTiers,
+  discounts,
+  trialConfig,
+  roiGuarantee,
+  getTierById,
+  formatTierPrice,
+  type TierId,
+} from '@/lib/pricing/tiers'
+import { brandConfig } from '@/lib/branding/config'
+
+interface TierPoints {
+  gratis: number
+  basico: number
+  crecimiento: number
+  profesional: number
+  empresarial: number
+}
 
 interface QuizQuestion {
   id: string
@@ -28,25 +48,22 @@ interface QuizQuestion {
     label: string
     value: string
     description?: string
-    points: {
-      semilla: number
-      crecimiento: number
-      establecida: number
-      premium: number
-    }
+    points: TierPoints
   }[]
 }
 
 interface RecommendedPlan {
-  id: string
+  id: TierId
   name: string
   icon: React.ReactNode
   color: string
   monthlyPrice: number
-  setupPrice: string
+  priceDisplay: string
   tagline: string
   reasons: string[]
   ctaMessage: string
+  showAds?: boolean
+  trialDays?: number
 }
 
 const questions: QuizQuestion[] = [
@@ -57,197 +74,290 @@ const questions: QuizQuestion[] = [
     icon: <PawPrint className="h-6 w-6" />,
     options: [
       {
-        label: 'Menos de 50',
+        label: 'Menos de 30',
+        value: 'very_low',
+        description: 'Clinica muy nueva o tiempo parcial',
+        points: { gratis: 3, basico: 2, crecimiento: 0, profesional: 0, empresarial: 0 },
+      },
+      {
+        label: '30 - 80',
         value: 'low',
         description: 'Clinica nueva o de bajo volumen',
-        points: { semilla: 3, crecimiento: 1, establecida: 0, premium: 0 },
+        points: { gratis: 2, basico: 3, crecimiento: 1, profesional: 0, empresarial: 0 },
       },
       {
-        label: '50 - 150',
+        label: '80 - 200',
         value: 'medium',
         description: 'Volumen moderado, creciendo',
-        points: { semilla: 1, crecimiento: 3, establecida: 1, premium: 0 },
+        points: { gratis: 0, basico: 1, crecimiento: 3, profesional: 1, empresarial: 0 },
       },
       {
-        label: '150 - 400',
+        label: '200 - 500',
         value: 'high',
         description: 'Clinica establecida',
-        points: { semilla: 0, crecimiento: 1, establecida: 3, premium: 1 },
+        points: { gratis: 0, basico: 0, crecimiento: 1, profesional: 3, empresarial: 1 },
       },
       {
-        label: 'Mas de 400',
+        label: 'Mas de 500',
         value: 'very_high',
         description: 'Alto volumen o multiples sucursales',
-        points: { semilla: 0, crecimiento: 0, establecida: 1, premium: 3 },
+        points: { gratis: 0, basico: 0, crecimiento: 0, profesional: 1, empresarial: 3 },
       },
     ],
   },
   {
     id: 'staff',
-    question: '¿Cuantos veterinarios trabajan en la clinica?',
-    description: 'Incluyendo veterinarios a tiempo parcial',
+    question: '¿Cuantas personas usaran el sistema?',
+    description: 'Veterinarios, recepcionistas, administradores',
     icon: <Users className="h-6 w-6" />,
     options: [
       {
-        label: '1 - 2 veterinarios',
+        label: '1 - 2 personas',
+        value: 'tiny',
+        description: 'Solo yo o con un asistente',
+        points: { gratis: 3, basico: 2, crecimiento: 0, profesional: 0, empresarial: 0 },
+      },
+      {
+        label: '3 - 4 personas',
         value: 'small',
         description: 'Equipo pequeno',
-        points: { semilla: 3, crecimiento: 1, establecida: 0, premium: 0 },
+        points: { gratis: 1, basico: 3, crecimiento: 2, profesional: 0, empresarial: 0 },
       },
       {
-        label: '3 - 4 veterinarios',
+        label: '5 - 8 personas',
         value: 'medium',
         description: 'Equipo mediano',
-        points: { semilla: 1, crecimiento: 3, establecida: 1, premium: 0 },
+        points: { gratis: 0, basico: 0, crecimiento: 3, profesional: 2, empresarial: 0 },
       },
       {
-        label: '5 - 8 veterinarios',
+        label: '9 - 15 personas',
         value: 'large',
         description: 'Equipo grande',
-        points: { semilla: 0, crecimiento: 1, establecida: 3, premium: 1 },
+        points: { gratis: 0, basico: 0, crecimiento: 0, profesional: 3, empresarial: 1 },
       },
       {
-        label: 'Mas de 8',
+        label: 'Mas de 15',
         value: 'enterprise',
         description: 'Equipo muy grande o multiples turnos',
-        points: { semilla: 0, crecimiento: 0, establecida: 1, premium: 3 },
+        points: { gratis: 0, basico: 0, crecimiento: 0, profesional: 1, empresarial: 3 },
       },
     ],
   },
   {
-    id: 'current_system',
-    question: '¿Que sistema usan actualmente?',
-    description: 'Como manejan los registros de pacientes hoy',
-    icon: <Laptop className="h-6 w-6" />,
+    id: 'ads_tolerance',
+    question: '¿Te molestaria ver anuncios en tu sitio?',
+    description: 'El plan gratuito muestra anuncios para financiarse',
+    icon: <Megaphone className="h-6 w-6" />,
     options: [
       {
-        label: 'Papel / Excel',
-        value: 'manual',
-        description: 'Registros fisicos o planillas',
-        points: { semilla: 2, crecimiento: 2, establecida: 1, premium: 0 },
+        label: 'No me molesta',
+        value: 'ok',
+        description: 'Entiendo que es gratis por algo',
+        points: { gratis: 3, basico: 0, crecimiento: 0, profesional: 0, empresarial: 0 },
       },
       {
-        label: 'Software basico',
-        value: 'basic',
-        description: 'Sistema simple de gestion',
-        points: { semilla: 1, crecimiento: 3, establecida: 1, premium: 0 },
+        label: 'Prefiero sin anuncios',
+        value: 'prefer_no',
+        description: 'Quiero una experiencia mas profesional',
+        points: { gratis: 0, basico: 3, crecimiento: 2, profesional: 1, empresarial: 1 },
       },
       {
-        label: 'Software completo',
-        value: 'advanced',
-        description: 'Sistema veterinario profesional',
-        points: { semilla: 0, crecimiento: 1, establecida: 3, premium: 1 },
-      },
-      {
-        label: 'Multiple sistemas',
-        value: 'multiple',
-        description: 'Varios sistemas que quieren integrar',
-        points: { semilla: 0, crecimiento: 0, establecida: 2, premium: 3 },
+        label: 'Definitivamente sin anuncios',
+        value: 'no_ads',
+        description: 'Mis clientes no deben ver anuncios',
+        points: { gratis: 0, basico: 1, crecimiento: 2, profesional: 3, empresarial: 2 },
       },
     ],
   },
   {
-    id: 'needs',
-    question: '¿Que es lo mas importante para tu clinica?',
+    id: 'ecommerce',
+    question: '¿Te interesa vender productos online?',
+    description: 'Tienda integrada con comision del 3-5%',
+    icon: <ShoppingBag className="h-6 w-6" />,
+    options: [
+      {
+        label: 'No por ahora',
+        value: 'no',
+        description: 'Solo necesito gestion clinica',
+        points: { gratis: 2, basico: 3, crecimiento: 0, profesional: 0, empresarial: 0 },
+      },
+      {
+        label: 'Me interesa',
+        value: 'interested',
+        description: 'Quiero poder vender productos',
+        points: { gratis: 0, basico: 0, crecimiento: 3, profesional: 2, empresarial: 1 },
+      },
+      {
+        label: 'Es prioritario',
+        value: 'priority',
+        description: 'Es una parte importante de mi negocio',
+        points: { gratis: 0, basico: 0, crecimiento: 2, profesional: 3, empresarial: 2 },
+      },
+    ],
+  },
+  {
+    id: 'features',
+    question: '¿Que modulos necesitas?',
+    description: 'Algunos modulos solo estan en planes superiores',
+    icon: <Stethoscope className="h-6 w-6" />,
+    options: [
+      {
+        label: 'Lo basico',
+        value: 'basic',
+        description: 'Citas, fichas, vacunas',
+        points: { gratis: 3, basico: 2, crecimiento: 1, profesional: 0, empresarial: 0 },
+      },
+      {
+        label: 'Con tienda y analiticas',
+        value: 'growth',
+        description: 'E-commerce, reportes, QR tags',
+        points: { gratis: 0, basico: 0, crecimiento: 3, profesional: 1, empresarial: 0 },
+      },
+      {
+        label: 'Hospitalizacion y laboratorio',
+        value: 'professional',
+        description: 'Internacion, lab, WhatsApp API',
+        points: { gratis: 0, basico: 0, crecimiento: 0, profesional: 3, empresarial: 1 },
+      },
+      {
+        label: 'Todo y mas',
+        value: 'enterprise',
+        description: 'Multi-sucursal, API, personalizaciones',
+        points: { gratis: 0, basico: 0, crecimiento: 0, profesional: 0, empresarial: 3 },
+      },
+    ],
+  },
+  {
+    id: 'priority',
+    question: '¿Que es lo mas importante para vos?',
     description: 'Tu prioridad principal ahora',
     icon: <Building2 className="h-6 w-6" />,
     options: [
       {
-        label: 'Empezar barato',
-        value: 'budget',
-        description: 'Necesito una solucion economica',
-        points: { semilla: 3, crecimiento: 1, establecida: 0, premium: 0 },
+        label: 'Empezar gratis',
+        value: 'free',
+        description: 'Probar sin compromiso',
+        points: { gratis: 3, basico: 1, crecimiento: 0, profesional: 0, empresarial: 0 },
       },
       {
-        label: 'Crecer y profesionalizar',
+        label: 'Bajo costo sin anuncios',
+        value: 'budget',
+        description: 'Economico pero profesional',
+        points: { gratis: 0, basico: 3, crecimiento: 1, profesional: 0, empresarial: 0 },
+      },
+      {
+        label: 'Crecer y vender mas',
         value: 'growth',
-        description: 'Quiero modernizar mi clinica',
-        points: { semilla: 1, crecimiento: 3, establecida: 1, premium: 0 },
+        description: 'Tienda, compras grupales',
+        points: { gratis: 0, basico: 0, crecimiento: 3, profesional: 1, empresarial: 0 },
       },
       {
         label: 'Funcionalidades completas',
         value: 'features',
-        description: 'Necesito todas las herramientas',
-        points: { semilla: 0, crecimiento: 1, establecida: 3, premium: 1 },
+        description: 'Todas las herramientas clinicas',
+        points: { gratis: 0, basico: 0, crecimiento: 0, profesional: 3, empresarial: 1 },
       },
       {
         label: 'Solucion empresarial',
         value: 'enterprise',
-        description: 'Necesito algo a medida',
-        points: { semilla: 0, crecimiento: 0, establecida: 1, premium: 3 },
+        description: 'A medida para mi cadena',
+        points: { gratis: 0, basico: 0, crecimiento: 0, profesional: 0, empresarial: 3 },
       },
     ],
   },
 ]
 
-const plans: Record<string, RecommendedPlan> = {
-  semilla: {
-    id: 'semilla',
-    name: 'Plan Semilla',
-    icon: <Sprout className="h-8 w-8" />,
-    color: '#4ADE80',
-    monthlyPrice: 150000,
-    setupPrice: 'Gs 0 (diferido)',
-    tagline: 'Perfecto para empezar sin riesgo',
+const plans: Record<TierId, RecommendedPlan> = {
+  gratis: {
+    id: 'gratis',
+    name: 'Plan Gratis',
+    icon: <Gift className="h-8 w-8" />,
+    color: '#94A3B8',
+    monthlyPrice: 0,
+    priceDisplay: 'Gratis',
+    tagline: 'Empieza sin pagar nada',
+    showAds: true,
+    trialDays: 0,
     reasons: [
-      'Sin costo inicial - el setup se difiere en 12 meses',
-      'Todas las funcionalidades esenciales incluidas',
-      'Soporte incluido para arrancar bien',
-      'Podes crecer a otro plan cuando estes listo',
+      'Sitio web profesional para tu clinica',
+      'Portal de mascotas para tus clientes',
+      'Citas, fichas medicas y vacunas incluidas',
+      'Muestra anuncios - asi se financia',
+      'Podes subir a un plan pago cuando quieras',
     ],
-    ctaMessage:
-      'Hola! Hice el quiz de VetePy y me recomendaron el Plan Semilla. Me gustaria saber mas!',
+    ctaMessage: `Hola! Hice el quiz de ${brandConfig.name} y quiero empezar con el Plan Gratis. Me pueden ayudar?`,
+  },
+  basico: {
+    id: 'basico',
+    name: 'Plan Basico',
+    icon: <Zap className="h-8 w-8" />,
+    color: '#60A5FA',
+    monthlyPrice: 100000,
+    priceDisplay: 'Gs 100.000',
+    tagline: 'Sin anuncios, experiencia profesional',
+    trialDays: trialConfig.standardDays,
+    reasons: [
+      'Sin anuncios - imagen profesional',
+      'Incluye 3 usuarios (Gs 30.000/extra)',
+      'Soporte por email (48 horas)',
+      'Todas las funciones clinicas basicas',
+      'Ideal para clinicas pequenas',
+    ],
+    ctaMessage: `Hola! Hice el quiz de ${brandConfig.name} y me recomendaron el Plan Basico. Me gustaria saber mas!`,
   },
   crecimiento: {
     id: 'crecimiento',
     name: 'Plan Crecimiento',
-    icon: <TreeDeciduous className="h-8 w-8" />,
+    icon: <ShoppingBag className="h-8 w-8" />,
     color: '#2DCEA3',
     monthlyPrice: 200000,
-    setupPrice: 'Gs 500.000',
-    tagline: 'El favorito de clinicas en expansion',
+    priceDisplay: 'Gs 200.000',
+    tagline: 'El favorito - vende y crece',
+    trialDays: trialConfig.standardDays,
     reasons: [
-      'Balance perfecto entre precio y funcionalidades',
-      'Soporte por WhatsApp en horario laboral',
-      'Todas las herramientas clinicas incluidas',
-      'Modulos adicionales disponibles cuando los necesites',
+      'Tienda online integrada (3% comision)',
+      'Acceso a compras grupales con descuentos',
+      'Incluye 5 usuarios (Gs 40.000/extra)',
+      'Analiticas basicas de tu negocio',
+      'Soporte por email (24 horas)',
     ],
-    ctaMessage:
-      'Hola! Hice el quiz de VetePy y me recomendaron el Plan Crecimiento. Me gustaria saber mas!',
+    ctaMessage: `Hola! Hice el quiz de ${brandConfig.name} y me recomendaron el Plan Crecimiento. Me gustaria saber mas!`,
   },
-  establecida: {
-    id: 'establecida',
-    name: 'Plan Establecida',
-    icon: <Trees className="h-8 w-8" />,
+  profesional: {
+    id: 'profesional',
+    name: 'Plan Profesional',
+    icon: <Stethoscope className="h-8 w-8" />,
     color: '#5C6BFF',
-    monthlyPrice: 300000,
-    setupPrice: 'Gs 700.000',
-    tagline: 'Para clinicas que quieren lo mejor',
+    monthlyPrice: 400000,
+    priceDisplay: 'Gs 400.000',
+    tagline: 'Para clinicas completas',
+    trialDays: trialConfig.standardDays,
     reasons: [
-      'Soporte prioritario 24/7 por WhatsApp',
-      'WhatsApp Business API incluido',
-      'Modulos de laboratorio y hospitalizacion',
-      'Account manager dedicado para tu clinica',
+      'Modulo de hospitalizacion e internacion',
+      'Laboratorio con resultados y paneles',
+      'WhatsApp Business API integrado',
+      'Incluye 10 usuarios (Gs 50.000/extra)',
+      'Soporte prioritario por WhatsApp (12 hrs)',
     ],
-    ctaMessage:
-      'Hola! Hice el quiz de VetePy y me recomendaron el Plan Establecida. Me gustaria saber mas!',
+    ctaMessage: `Hola! Hice el quiz de ${brandConfig.name} y me recomendaron el Plan Profesional. Me gustaria saber mas!`,
   },
-  premium: {
-    id: 'premium',
-    name: 'Plan Premium',
+  empresarial: {
+    id: 'empresarial',
+    name: 'Plan Empresarial',
     icon: <Crown className="h-8 w-8" />,
     color: '#F59E0B',
-    monthlyPrice: 500000,
-    setupPrice: 'A medida',
-    tagline: 'Solucion empresarial completa',
+    monthlyPrice: 0,
+    priceDisplay: 'Personalizado',
+    tagline: 'Solucion a medida para cadenas',
+    trialDays: 0,
     reasons: [
-      'Soporte para multiples sucursales',
-      'API personalizada e integraciones',
-      'Desarrollo a medida segun necesidades',
-      'SLA garantizado y revisiones trimestrales',
+      'Multiples sucursales en una cuenta',
+      'API para integraciones personalizadas',
+      'Analiticas avanzadas con IA',
+      'SLA garantizado con soporte 24/7',
+      'Account manager dedicado',
     ],
-    ctaMessage:
-      'Hola! Hice el quiz de VetePy y me recomendaron el Plan Premium. Tengo una clinica grande y me gustaria saber mas!',
+    ctaMessage: `Hola! Hice el quiz de ${brandConfig.name} y me recomendaron el Plan Empresarial. Tengo una cadena de clinicas y me gustaria una reunion.`,
   },
 }
 
@@ -277,29 +387,38 @@ export function PricingQuiz() {
     }, 300)
   }
 
-  const calculateRecommendation = (): string => {
-    const scores = { semilla: 0, crecimiento: 0, establecida: 0, premium: 0 }
+  const calculateRecommendation = (): TierId => {
+    const scores: TierPoints = {
+      gratis: 0,
+      basico: 0,
+      crecimiento: 0,
+      profesional: 0,
+      empresarial: 0,
+    }
 
     questions.forEach((question) => {
       const answer = answers[question.id]
       if (answer) {
         const option = question.options.find((o) => o.value === answer)
         if (option) {
-          scores.semilla += option.points.semilla
+          scores.gratis += option.points.gratis
+          scores.basico += option.points.basico
           scores.crecimiento += option.points.crecimiento
-          scores.establecida += option.points.establecida
-          scores.premium += option.points.premium
+          scores.profesional += option.points.profesional
+          scores.empresarial += option.points.empresarial
         }
       }
     })
 
     // Find highest score
     let maxScore = 0
-    let recommended = 'crecimiento'
-    Object.entries(scores).forEach(([plan, score]) => {
-      if (score > maxScore) {
-        maxScore = score
-        recommended = plan
+    let recommended: TierId = 'crecimiento' // Default to popular tier
+
+    const tierOrder: TierId[] = ['gratis', 'basico', 'crecimiento', 'profesional', 'empresarial']
+    tierOrder.forEach((tier) => {
+      if (scores[tier] > maxScore) {
+        maxScore = scores[tier]
+        recommended = tier
       }
     })
 
@@ -359,18 +478,52 @@ export function PricingQuiz() {
                 style={{ backgroundColor: `${recommendedPlan.color}15` }}
               >
                 <div className="mb-4 flex items-center justify-between">
-                  <span className="text-white/70">Mensualidad</span>
+                  <span className="text-white/70">Precio mensual</span>
                   <div>
                     <span className="text-3xl font-black" style={{ color: recommendedPlan.color }}>
-                      Gs {formatPrice(recommendedPlan.monthlyPrice)}
+                      {recommendedPlan.priceDisplay}
                     </span>
-                    <span className="text-white/50">/mes</span>
+                    {recommendedPlan.monthlyPrice > 0 && (
+                      <span className="text-white/50">/mes</span>
+                    )}
                   </div>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-white/70">Configuracion</span>
-                  <span className="text-xl font-bold text-white">{recommendedPlan.setupPrice}</span>
-                </div>
+
+                {/* Annual discount callout */}
+                {recommendedPlan.monthlyPrice > 0 && (
+                  <div className="flex items-center justify-between border-t border-white/10 pt-4">
+                    <span className="text-white/70">Plan anual</span>
+                    <div className="text-right">
+                      <span className="text-lg font-bold text-white">
+                        Gs {formatPrice(Math.round(recommendedPlan.monthlyPrice * (1 - discounts.annual)))}
+                      </span>
+                      <span className="text-white/50">/mes</span>
+                      <span className="ml-2 rounded-full bg-[#2DCEA3]/20 px-2 py-0.5 text-xs font-bold text-[#2DCEA3]">
+                        -{Math.round(discounts.annual * 100)}%
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Trial info */}
+                {recommendedPlan.trialDays && recommendedPlan.trialDays > 0 && (
+                  <div className="mt-4 flex items-center justify-center gap-2 rounded-lg bg-white/5 p-3">
+                    <Gift className="h-4 w-4 text-[#2DCEA3]" />
+                    <span className="text-sm text-white/70">
+                      Prueba gratis por {recommendedPlan.trialDays} dias
+                    </span>
+                  </div>
+                )}
+
+                {/* Ads warning for free tier */}
+                {recommendedPlan.showAds && (
+                  <div className="mt-4 flex items-center justify-center gap-2 rounded-lg bg-amber-500/10 p-3">
+                    <Megaphone className="h-4 w-4 text-amber-400" />
+                    <span className="text-sm text-amber-300">
+                      Este plan muestra anuncios en tu sitio
+                    </span>
+                  </div>
+                )}
               </div>
 
               {/* Reasons */}
@@ -389,6 +542,27 @@ export function PricingQuiz() {
                 </div>
               </div>
 
+              {/* ROI Guarantee for paid plans */}
+              {recommendedPlan.monthlyPrice > 0 && recommendedPlan.id !== 'empresarial' && (
+                <div className="mb-8 rounded-xl border border-[#2DCEA3]/30 bg-[#2DCEA3]/10 p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-[#2DCEA3]/20">
+                      <Sparkles className="h-5 w-5 text-[#2DCEA3]" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-white">Garantia de ROI</h4>
+                      <p className="text-sm text-white/60">
+                        Si no conseguis al menos{' '}
+                        <span className="font-bold text-[#2DCEA3]">
+                          {Math.ceil(recommendedPlan.monthlyPrice / roiGuarantee.averageClientValue)} clientes nuevos
+                        </span>{' '}
+                        en {roiGuarantee.evaluationMonths} meses, los proximos {roiGuarantee.freeMonthsIfFailed} meses son gratis.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* CTAs */}
               <div className="flex flex-col gap-3">
                 <a
@@ -402,7 +576,7 @@ export function PricingQuiz() {
                   }}
                 >
                   <MessageCircle className="h-5 w-5" />
-                  Quiero este plan
+                  {recommendedPlan.id === 'gratis' ? 'Empezar gratis' : 'Quiero este plan'}
                 </a>
 
                 <button
@@ -441,13 +615,16 @@ export function PricingQuiz() {
         <div className="mb-12 text-center">
           <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#5C6BFF]/20 bg-[#5C6BFF]/10 px-4 py-2">
             <HelpCircle className="h-4 w-4 text-[#5C6BFF]" />
-            <span className="text-sm font-medium text-[#5C6BFF]">Quiz de 4 preguntas</span>
+            <span className="text-sm font-medium text-[#5C6BFF]">
+              Quiz de {questions.length} preguntas
+            </span>
           </div>
           <h2 className="mb-6 text-3xl font-black text-white md:text-4xl lg:text-5xl">
             ¿Que plan te conviene?
           </h2>
           <p className="mx-auto max-w-2xl text-lg text-white/60">
-            Responde estas preguntas rapidas y te recomendamos el plan perfecto para tu clinica.
+            Responde estas preguntas y te recomendamos el plan perfecto para tu clinica.
+            Desde gratis hasta empresarial.
           </p>
         </div>
 
@@ -545,6 +722,16 @@ export function PricingQuiz() {
                 </button>
               )}
             </div>
+          </div>
+
+          {/* Skip quiz link */}
+          <div className="mt-6 text-center">
+            <a
+              href="#precios"
+              className="text-sm text-white/50 transition-colors hover:text-white"
+            >
+              Prefiero ver todos los planes directamente →
+            </a>
           </div>
         </div>
       </div>

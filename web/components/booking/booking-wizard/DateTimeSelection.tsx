@@ -86,11 +86,16 @@ export function DateTimeSelection({ clinicName }: DateTimeSelectionProps) {
               <p className="font-medium text-gray-400">Selecciona una fecha para ver horarios</p>
             </div>
           ) : isLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-[var(--primary)]" />
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {[...Array(6)].map((_, i) => (
+                <div
+                  key={i}
+                  className="h-14 animate-pulse rounded-2xl bg-gray-100"
+                />
+              ))}
             </div>
           ) : error ? (
-            <div className="flex items-center gap-2 rounded-2xl bg-red-50 p-4 text-sm font-medium text-red-600">
+            <div className="flex items-center gap-2 rounded-2xl bg-[var(--status-error-bg)] p-4 text-sm font-medium text-[var(--status-error)]">
               <AlertCircle className="h-4 w-4" />
               Error al cargar horarios. Intenta con otra fecha.
             </div>

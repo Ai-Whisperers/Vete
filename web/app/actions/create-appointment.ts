@@ -131,34 +131,13 @@ export async function createAppointment(
   const start = new Date(start_time)
   const end = new Date(start.getTime() + 30 * 60000)
 
-  // Check for overlapping appointments (Global Clinic check)
-  // Prevent double booking the same slot
-  const { data: busySlot } = await supabase
-    .from('appointments')
-    .select('id')
-    .eq('tenant_id', pet.tenant_id)
-    .not('status', 'in', '("cancelled")') // Ignore cancelled
-    .lt('start_time', end.toISOString())
-    .gt('end_time', start.toISOString())
-    .maybeSingle()
-
-  if (busySlot) {
-    return {
-      success: false,
-      error: ERROR_MESSAGES.SLOT_ALREADY_TAKEN,
-      fieldErrors: {
-        start_time: ERROR_MESSAGES.SLOT_ALREADY_TAKEN,
-      },
-    }
-  }
-
-  // Check for Same Pet multiple appointments (Business Rule: 1 per day?)
-  // Existing logic kept but optimized
+  // Check for Same Pet multiple appointments on same day (Business Rule)
+  // This check stays here as it's a business rule, not a race condition concern
   const { data: existingAppointments } = await supabase
     .from('appointments')
     .select('id, start_time')
     .eq('pet_id', pet_id)
-    .neq('status', 'cancelled') // Fix: explicitly exclude cancelled instead of just "pending"
+    .neq('status', 'cancelled')
     .gte('start_time', new Date().toISOString())
 
   if (existingAppointments && existingAppointments.length > 0) {
@@ -176,46 +155,63 @@ export async function createAppointment(
         success: false,
         error: ERROR_MESSAGES.APPOINTMENT_ON_SAME_DAY(pet.name, existingTime),
         fieldErrors: {
-          start_time: ERROR_MESSAGES.APPOINTMENT_ON_SAME_DAY(pet.name, existingTime).split('. ')[1], // Extracting just the second sentence
+          start_time: ERROR_MESSAGES.APPOINTMENT_ON_SAME_DAY(pet.name, existingTime).split('. ')[1],
         },
       }
     }
   }
 
-  // Insert Appointment
-  const { error: insertError } = await supabase.from('appointments').insert({
-    tenant_id: pet.tenant_id,
-    pet_id: pet_id,
-    start_time: start.toISOString(),
-    end_time: end.toISOString(),
-    status: 'pending',
-    reason: reason,
-    notes: notes,
-    created_by: user.id,
+  // Atomic appointment creation with advisory lock to prevent race conditions
+  // This replaces the separate overlap check + INSERT pattern
+  const { data: result, error: rpcError } = await supabase.rpc('create_appointment_atomic', {
+    p_tenant_id: pet.tenant_id,
+    p_pet_id: pet_id,
+    p_start_time: start.toISOString(),
+    p_end_time: end.toISOString(),
+    p_reason: reason,
+    p_notes: notes,
+    p_created_by: user.id,
   })
 
-  if (insertError) {
-    logger.error('Failed to create appointment', {
-      error: insertError,
+  if (rpcError) {
+    logger.error('Failed to create appointment (RPC error)', {
+      error: rpcError,
       userId: user.id,
       tenantId: pet.tenant_id,
       petId: pet_id,
-      errorCode: insertError.code,
+      errorCode: rpcError.code,
     })
 
-    if (insertError.code === '23505') {
+    return {
+      success: false,
+      error: ERROR_MESSAGES.GENERIC_APPOINTMENT_ERROR,
+    }
+  }
+
+  // Handle atomic function result
+  if (!result?.success) {
+    const errorCode = result?.error_code
+
+    if (errorCode === 'slot_taken' || errorCode === 'vet_busy') {
       return {
         success: false,
-        error: ERROR_MESSAGES.SLOT_ALREADY_TAKEN, // Re-using for unique constraint, which implies slot taken
+        error: result?.error || ERROR_MESSAGES.SLOT_ALREADY_TAKEN,
         fieldErrors: {
           start_time: ERROR_MESSAGES.SLOT_ALREADY_TAKEN,
         },
       }
     }
 
+    logger.error('Failed to create appointment (atomic)', {
+      result,
+      userId: user.id,
+      tenantId: pet.tenant_id,
+      petId: pet_id,
+    })
+
     return {
       success: false,
-      error: ERROR_MESSAGES.GENERIC_APPOINTMENT_ERROR,
+      error: result?.error || ERROR_MESSAGES.GENERIC_APPOINTMENT_ERROR,
     }
   }
 
@@ -333,27 +329,7 @@ export async function createAppointmentJson(input: {
   const start = new Date(start_time)
   const end = new Date(start.getTime() + 30 * 60000)
 
-  // Check for overlapping appointments
-  const { data: busySlot } = await supabase
-    .from('appointments')
-    .select('id')
-    .eq('tenant_id', pet.tenant_id)
-    .not('status', 'in', '("cancelled")')
-    .lt('start_time', end.toISOString())
-    .gt('end_time', start.toISOString())
-    .maybeSingle()
-
-  if (busySlot) {
-    return {
-      success: false,
-      error: ERROR_MESSAGES.SLOT_ALREADY_TAKEN,
-      fieldErrors: {
-        start_time: ERROR_MESSAGES.SLOT_ALREADY_TAKEN,
-      },
-    }
-  }
-
-  // Check for Same Pet multiple appointments on same day
+  // Check for Same Pet multiple appointments on same day (Business Rule)
   const { data: existingAppointments } = await supabase
     .from('appointments')
     .select('id, start_time')
@@ -382,40 +358,56 @@ export async function createAppointmentJson(input: {
     }
   }
 
-  // Insert Appointment
-  const { error: insertError } = await supabase.from('appointments').insert({
-    tenant_id: pet.tenant_id,
-    pet_id: pet_id,
-    start_time: start.toISOString(),
-    end_time: end.toISOString(),
-    status: 'pending',
-    reason: reason,
-    notes: notes,
-    created_by: user.id,
+  // Atomic appointment creation with advisory lock to prevent race conditions
+  const { data: result, error: rpcError } = await supabase.rpc('create_appointment_atomic', {
+    p_tenant_id: pet.tenant_id,
+    p_pet_id: pet_id,
+    p_start_time: start.toISOString(),
+    p_end_time: end.toISOString(),
+    p_reason: reason,
+    p_notes: notes,
+    p_created_by: user.id,
   })
 
-  if (insertError) {
-    logger.error('Failed to create appointment (JSON)', {
-      error: insertError,
+  if (rpcError) {
+    logger.error('Failed to create appointment (JSON RPC error)', {
+      error: rpcError,
       userId: user.id,
       tenantId: pet.tenant_id,
       petId: pet_id,
-      errorCode: insertError.code,
+      errorCode: rpcError.code,
     })
 
-    if (insertError.code === '23505') {
+    return {
+      success: false,
+      error: ERROR_MESSAGES.GENERIC_APPOINTMENT_ERROR,
+    }
+  }
+
+  // Handle atomic function result
+  if (!result?.success) {
+    const errorCode = result?.error_code
+
+    if (errorCode === 'slot_taken' || errorCode === 'vet_busy') {
       return {
         success: false,
-        error: ERROR_MESSAGES.SLOT_ALREADY_TAKEN,
+        error: result?.error || ERROR_MESSAGES.SLOT_ALREADY_TAKEN,
         fieldErrors: {
           start_time: ERROR_MESSAGES.SLOT_ALREADY_TAKEN,
         },
       }
     }
 
+    logger.error('Failed to create appointment (JSON atomic)', {
+      result,
+      userId: user.id,
+      tenantId: pet.tenant_id,
+      petId: pet_id,
+    })
+
     return {
       success: false,
-      error: ERROR_MESSAGES.GENERIC_APPOINTMENT_ERROR,
+      error: result?.error || ERROR_MESSAGES.GENERIC_APPOINTMENT_ERROR,
     }
   }
 

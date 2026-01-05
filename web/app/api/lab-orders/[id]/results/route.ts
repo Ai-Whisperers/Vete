@@ -6,6 +6,15 @@ import { logger } from '@/lib/logger'
 /**
  * POST /api/lab-orders/[id]/results
  * Enter or update lab results for an order
+ *
+ * Body: {
+ *   results: Array<{
+ *     test_id: string,      // ID of the lab test from catalog
+ *     value: string,        // Text representation of result (required)
+ *     numeric_value?: number, // Numeric value if applicable
+ *     flag?: 'low' | 'normal' | 'high' | 'critical_low' | 'critical_high'
+ *   }>
+ * }
  */
 export const POST = withApiAuthParams(
   async ({ request, params, user, profile, supabase }: ApiHandlerContextWithParams<{ id: string }>) => {
@@ -19,7 +28,7 @@ export const POST = withApiAuthParams(
       return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST)
     }
 
-    const { results, specimen_quality, specimen_issues } = body
+    const { results } = body
 
     if (!results || !Array.isArray(results)) {
       return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
@@ -30,7 +39,7 @@ export const POST = withApiAuthParams(
     // Verify order belongs to staff's clinic
     const { data: order } = await supabase
       .from('lab_orders')
-      .select('id, pets!inner(tenant_id)')
+      .select('id, tenant_id, pets!inner(tenant_id)')
       .eq('id', orderId)
       .single()
 
@@ -45,24 +54,31 @@ export const POST = withApiAuthParams(
       return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN)
     }
 
-    // Insert or update results
+    // Insert or update results (keyed by lab_order_id + test_id)
     let hasCriticalValues = false
     const resultPromises = results.map(
       async (result: {
-        order_item_id: string
-        value_numeric?: number | null
-        value_text?: string | null
+        test_id: string
+        value: string
+        numeric_value?: number | null
         flag?: string
       }) => {
+        const isAbnormal =
+          result.flag === 'low' ||
+          result.flag === 'high' ||
+          result.flag === 'critical_low' ||
+          result.flag === 'critical_high'
+
         if (result.flag === 'critical_low' || result.flag === 'critical_high') {
           hasCriticalValues = true
         }
 
-        // Check if result already exists
+        // Check if result already exists for this order + test
         const { data: existing } = await supabase
           .from('lab_results')
           .select('id')
-          .eq('order_item_id', result.order_item_id)
+          .eq('lab_order_id', orderId)
+          .eq('test_id', result.test_id)
           .single()
 
         if (existing) {
@@ -70,21 +86,23 @@ export const POST = withApiAuthParams(
           return supabase
             .from('lab_results')
             .update({
-              value_numeric: result.value_numeric,
-              value_text: result.value_text,
+              value: result.value,
+              numeric_value: result.numeric_value ?? null,
               flag: result.flag || 'normal',
-              result_date: new Date().toISOString(),
+              is_abnormal: isAbnormal,
               entered_by: user.id,
             })
             .eq('id', existing.id)
         } else {
           // Insert new result
           return supabase.from('lab_results').insert({
-            order_item_id: result.order_item_id,
-            value_numeric: result.value_numeric,
-            value_text: result.value_text,
+            lab_order_id: orderId,
+            tenant_id: order.tenant_id,
+            test_id: result.test_id,
+            value: result.value,
+            numeric_value: result.numeric_value ?? null,
             flag: result.flag || 'normal',
-            result_date: new Date().toISOString(),
+            is_abnormal: isAbnormal,
             entered_by: user.id,
           })
         }
@@ -103,14 +121,11 @@ export const POST = withApiAuthParams(
       return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
     }
 
-    // Update order with specimen quality and critical values flag
+    // Update order status to processing when results are entered
     const { error: updateError } = await supabase
       .from('lab_orders')
       .update({
-        specimen_quality: specimen_quality || 'acceptable',
-        specimen_issues: specimen_issues || null,
-        has_critical_values: hasCriticalValues,
-        status: 'in_progress', // Move to in_progress when results are entered
+        status: 'processing',
       })
       .eq('id', orderId)
 

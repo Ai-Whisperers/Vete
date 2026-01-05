@@ -195,8 +195,10 @@ export const COMPLETE_TABLE_DEPENDENCY_ORDER = [
   'store_categories',
   'store_brands',
   'suppliers',
-  'procurement_orders',
-  'procurement_order_items',
+
+  // Procurement
+  'purchase_order_items',
+  'purchase_orders',
 
   // Templates
   'consent_templates',

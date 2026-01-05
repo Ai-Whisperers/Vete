@@ -212,9 +212,9 @@ export default function WishlistPage(): React.ReactElement {
       </div>
 
       {error && (
-        <div className="mb-6 flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 p-4">
-          <AlertCircle className="h-5 w-5 flex-shrink-0 text-red-500" />
-          <p className="text-red-700">{error}</p>
+        <div className="mb-6 flex items-center gap-3 rounded-lg border border-[var(--status-error-border)] bg-[var(--status-error-bg)] p-4">
+          <AlertCircle className="h-5 w-5 flex-shrink-0 text-[var(--status-error)]" />
+          <p className="text-[var(--status-error)]">{error}</p>
         </div>
       )}
 

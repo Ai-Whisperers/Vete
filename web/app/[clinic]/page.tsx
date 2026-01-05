@@ -3,7 +3,10 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import * as Icons from 'lucide-react'
 import { AppointmentForm } from '@/components/forms/appointment-form'
-import { HeroImage } from '@/components/seo/hero-image'
+import { createClient } from '@/lib/supabase/server'
+import { PersonalizedHero } from '@/components/home/personalized-hero'
+import { OwnerDashboardPreview } from '@/components/home/widgets/owner-dashboard-preview'
+import { StaffDashboardPreview } from '@/components/home/widgets/staff-dashboard-preview'
 
 // Dynamic Icon Component - safely handles icon name lookup
 const DynamicIcon = ({ name, className }: { name: string; className?: string }) => {
@@ -21,6 +24,45 @@ const DynamicIcon = ({ name, className }: { name: string; className?: string }) 
   return <Icon className={className} />
 }
 
+// Helper function to get staff quick stats for the hero
+async function getStaffQuickStats(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  clinic: string
+): Promise<{ appointmentsToday: number; pendingCheckIn: number; completedToday: number }> {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const tomorrow = new Date(today)
+  tomorrow.setDate(tomorrow.getDate() + 1)
+
+  const [todayResult, checkedInResult, completedResult] = await Promise.all([
+    supabase
+      .from('appointments')
+      .select('id', { count: 'exact', head: true })
+      .eq('tenant_id', clinic)
+      .gte('start_time', today.toISOString())
+      .lt('start_time', tomorrow.toISOString())
+      .neq('status', 'cancelled'),
+    supabase
+      .from('appointments')
+      .select('id', { count: 'exact', head: true })
+      .eq('tenant_id', clinic)
+      .eq('status', 'checked_in'),
+    supabase
+      .from('appointments')
+      .select('id', { count: 'exact', head: true })
+      .eq('tenant_id', clinic)
+      .gte('start_time', today.toISOString())
+      .lt('start_time', tomorrow.toISOString())
+      .eq('status', 'completed'),
+  ])
+
+  return {
+    appointmentsToday: todayResult.count || 0,
+    pendingCheckIn: checkedInResult.count || 0,
+    completedToday: completedResult.count || 0,
+  }
+}
+
 export default async function ClinicHomePage({ params }: { params: Promise<{ clinic: string }> }) {
   const { clinic } = await params
   const data = await getClinicData(clinic)
@@ -29,72 +71,65 @@ export default async function ClinicHomePage({ params }: { params: Promise<{ cli
 
   const { home, config } = data
 
+  // Check authentication
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  // Fetch profile and stats if authenticated
+  let profile: {
+    id: string
+    tenant_id: string
+    role: 'owner' | 'vet' | 'admin'
+    full_name: string | null
+  } | null = null
+  let staffStats: { appointmentsToday: number; pendingCheckIn: number; completedToday: number } | null =
+    null
+
+  if (user) {
+    const { data: profileData } = await supabase
+      .from('profiles')
+      .select('id, tenant_id, role, full_name')
+      .eq('id', user.id)
+      .single()
+
+    // Only use profile if it matches this clinic
+    if (profileData?.tenant_id === clinic) {
+      profile = {
+        id: profileData.id,
+        tenant_id: profileData.tenant_id,
+        role: profileData.role as 'owner' | 'vet' | 'admin',
+        full_name: profileData.full_name,
+      }
+
+      // Fetch staff stats for staff users
+      if (profile.role === 'vet' || profile.role === 'admin') {
+        staffStats = await getStaffQuickStats(supabase, clinic)
+      }
+    }
+  }
+
   return (
     <div className="flex min-h-screen flex-col">
-      {/* HERO SECTION - Improved overlay and visual hierarchy */}
-      <section className="relative flex min-h-[85vh] items-center overflow-hidden">
-        {/* Background Image with optimized next/image */}
-        {config.branding?.hero_image_url ? (
-          <HeroImage
-            src={config.branding.hero_image_url}
-            alt={`${config.name} - ${home.hero.headline}`}
-          />
-        ) : (
-          <div className="absolute inset-0 z-0" style={{ background: 'var(--gradient-hero)' }} />
-        )}
+      {/* PERSONALIZED HERO SECTION */}
+      <PersonalizedHero
+        clinic={clinic}
+        home={home}
+        config={config}
+        profile={profile}
+        staffStats={staffStats}
+      />
 
-        {/* Subtle pattern overlay */}
-        <div
-          className="absolute inset-0 z-0 opacity-[0.03]"
-          style={{
-            backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)',
-            backgroundSize: '40px 40px',
-          }}
-        />
-
-        {/* Emergency Badge - Positioned as corner ribbon */}
-        <div className="absolute right-0 top-24 z-20 md:top-28">
-          <div className="flex items-center gap-2 rounded-l-full bg-[var(--accent)] px-6 py-2 pr-8 text-sm font-bold tracking-wide text-[var(--secondary-contrast)] shadow-lg">
-            <Icons.Zap className="h-4 w-4" />
-            {home.hero.badge_text || 'Urgencias 24hs'}
-          </div>
-        </div>
-
-        <div className="container relative z-10 mx-auto px-4 py-20 md:px-6">
-          <div className="max-w-4xl">
-            <h1 className="font-heading animate-fade-in mb-6 text-balance text-3xl font-black leading-[1.1] tracking-tight text-white drop-shadow-2xl sm:text-4xl md:text-6xl lg:text-7xl">
-              {home.hero.headline}
-            </h1>
-            <p className="animate-fade-in stagger-1 mb-10 max-w-2xl text-balance text-lg font-medium leading-relaxed text-white/90 drop-shadow-md md:text-xl">
-              {home.hero.subhead}
-            </p>
-
-            {/* CTAs - Improved visual hierarchy */}
-            <div className="animate-fade-in stagger-2 flex flex-col gap-4 sm:flex-row">
-              <a
-                href={`https://wa.me/${config.contact.whatsapp_number}`}
-                target="_blank"
-                className="group inline-flex h-14 items-center justify-center gap-3 rounded-full bg-[var(--accent)] px-8 text-base font-bold text-[var(--secondary-contrast)] shadow-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl active:scale-95 md:h-16 md:px-10 md:text-lg"
-              >
-                <Icons.MessageCircle className="h-5 w-5 transition-transform group-hover:scale-110" />
-                {home.hero.cta_primary}
-              </a>
-              <Link
-                href={`/${clinic}/services`}
-                className="inline-flex h-14 items-center justify-center gap-2 rounded-full border-2 border-white/50 bg-white/10 px-8 text-base font-bold text-white shadow-lg backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-white hover:bg-white/20 active:scale-95 md:h-16 md:px-10 md:text-lg"
-              >
-                {home.hero.cta_secondary}
-                <Icons.ArrowRight className="h-5 w-5" />
-              </Link>
-            </div>
-          </div>
-        </div>
-
-        {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 z-10 hidden -translate-x-1/2 animate-bounce md:block">
-          <Icons.ChevronDown className="h-8 w-8 text-white/60" />
-        </div>
-      </section>
+      {/* DASHBOARD PREVIEW WIDGETS (only for logged-in users) */}
+      {profile && (
+        <>
+          {profile.role === 'owner' && <OwnerDashboardPreview clinic={clinic} />}
+          {(profile.role === 'vet' || profile.role === 'admin') && (
+            <StaffDashboardPreview clinic={clinic} />
+          )}
+        </>
+      )}
 
       {/* PROMO BANNER - Improved as floating card */}
       {home.promo_banner?.enabled && (
@@ -198,7 +233,7 @@ export default async function ClinicHomePage({ params }: { params: Promise<{ cli
 
             {/* Testimonials Grid - Show 3 max on desktop */}
             <div className="grid gap-6 md:grid-cols-2 md:gap-8 lg:grid-cols-3">
-              {(data.testimonials ?? []).slice(0, 6).map((t, idx) => (
+              {(data.testimonials ?? []).slice(0, 6).map((t) => (
                 <div
                   key={t.id}
                   className="group relative rounded-2xl border border-gray-100 bg-white p-6 shadow-[var(--shadow-card)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[var(--shadow-card-hover)] md:p-8"
@@ -220,7 +255,7 @@ export default async function ClinicHomePage({ params }: { params: Promise<{ cli
 
                   {/* Testimonial text */}
                   <p className="mb-6 line-clamp-4 text-base leading-relaxed text-[var(--text-primary)]">
-                    "{t.text}"
+                    &ldquo;{t.text}&rdquo;
                   </p>
 
                   {/* Author */}
@@ -229,9 +264,7 @@ export default async function ClinicHomePage({ params }: { params: Promise<{ cli
                       <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[var(--primary)] to-[var(--primary-dark)] text-sm font-bold text-white">
                         {t.author.charAt(0)}
                       </div>
-                      <span className="text-sm font-bold text-[var(--text-primary)]">
-                        {t.author}
-                      </span>
+                      <span className="text-sm font-bold text-[var(--text-primary)]">{t.author}</span>
                     </div>
                     <span className="rounded-full bg-gray-100 px-2 py-1 text-xs font-medium uppercase tracking-wider text-[var(--text-muted)]">
                       {t.source}

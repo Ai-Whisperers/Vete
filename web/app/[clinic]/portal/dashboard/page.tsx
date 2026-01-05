@@ -1,6 +1,5 @@
 import {
   Plus,
-  CalendarPlus,
   Dog,
   Cat,
   PawPrint,
@@ -9,7 +8,6 @@ import {
   Clock,
   XCircle,
   AlertCircle,
-  Calendar,
 } from 'lucide-react'
 import Image from 'next/image'
 import { getClinicData } from '@/lib/clinics'
@@ -17,6 +15,11 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { MandatoryVaccinesAlert } from '@/components/portal/mandatory-vaccines-alert'
+import { PortalWelcomeHero } from '@/components/portal/welcome-hero'
+import { PortalQuickActions } from '@/components/portal/quick-actions'
+import { PortalLoyaltyCard } from '@/components/portal/loyalty-card'
+import { PortalActivitySummary } from '@/components/portal/activity-summary'
+import { UpcomingAppointmentsCard } from '@/components/portal/upcoming-appointments-card'
 
 interface Appointment {
   id: string
@@ -49,6 +52,12 @@ function filterPendingVaccines(vaccines: Vaccine[] | null): Vaccine[] {
   return vaccines.filter(
     (v) => v.status === 'pending' || v.status === 'rejected' || isUpcoming(v.next_due_date)
   )
+}
+
+// Count total pending vaccines across all pets
+function countPendingVaccines(pets: Pet[] | null): number {
+  if (!pets) return 0
+  return pets.reduce((total, pet) => total + filterPendingVaccines(pet.vaccines).length, 0)
 }
 
 interface Pet {
@@ -85,10 +94,10 @@ export default async function OwnerDashboardPage({
     redirect(`/${clinic}/portal/login`)
   }
 
-  // Get Profile Role
+  // Get Profile Role with full_name
   const { data: profile } = await supabase
     .from('profiles')
-    .select('role')
+    .select('role, full_name')
     .eq('id', user.id)
     .single()
 
@@ -151,280 +160,226 @@ export default async function OwnerDashboardPage({
     )
   }
 
+  // Calculate stats for welcome hero
+  const pendingVaccinesCount = countPendingVaccines(pets)
+
   // Import search component
   const PetSearch = (await import('./PetSearch')).default
 
   return (
-    <div className="mx-auto max-w-4xl space-y-8">
-      {/* Header Section */}
-      <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
-        <div>
-          <h1 className="font-heading text-3xl font-black text-[var(--text-primary)]">
-            {data.config.ui_labels?.portal?.dashboard?.owner_title || 'Mis Mascotas'}
-          </h1>
-          <p className="mt-1 text-[var(--text-secondary)]">
-            {data.config.ui_labels?.portal?.dashboard?.welcome?.replace(
-              '{name}',
-              user.email || ''
-            ) || `Bienvenido, ${user.email || ''}`}
-          </p>
-        </div>
+    <div className="space-y-0">
+      {/* Welcome Hero */}
+      <PortalWelcomeHero
+        userName={profile?.full_name || user.email || ''}
+        petCount={pets?.length || 0}
+        upcomingAppointments={myAppointments.length}
+        pendingVaccines={pendingVaccinesCount}
+        clinicName={data.config.name}
+      />
 
-        <div className="flex flex-col gap-3 sm:flex-row">
-          {/* Search Bar */}
-          {pets && pets.length > 0 && <PetSearch />}
+      {/* Main Content Area */}
+      <div className="mx-auto max-w-6xl space-y-6 px-4 py-8 md:px-6">
+        {/* Quick Actions */}
+        <PortalQuickActions clinic={clinic} />
 
-          <Link
-            href={`/${clinic}/services`}
-            className="bg-[var(--primary)]/10 flex shrink-0 items-center justify-center gap-2 rounded-xl px-6 py-3 font-bold text-[var(--primary)] transition-all hover:bg-[var(--primary)] hover:text-white"
-          >
-            <CalendarPlus className="h-5 w-5" />
-            <span className="hidden md:inline">Agendar Cita</span>
-          </Link>
-          <Link
-            href={`/${clinic}/portal/pets/new`}
-            className="flex shrink-0 items-center justify-center gap-2 rounded-xl px-4 py-3 font-bold text-[var(--text-secondary)] transition-colors hover:bg-gray-100"
-            title="Nueva Mascota"
-          >
-            <Plus className="h-5 w-5" />
-            <span className="hidden md:inline">Nueva Mascota</span>
-          </Link>
-        </div>
-      </div>
+        {/* Mandatory Vaccine Alerts - Prominent at top */}
+        {pets && pets.length > 0 && (
+          <MandatoryVaccinesAlert
+            clinic={clinic}
+            pets={pets.map((p) => ({
+              id: p.id,
+              name: p.name,
+              species: p.species,
+              birth_date: p.birth_date,
+            }))}
+          />
+        )}
 
-      {/* Mandatory Vaccine Alerts - Prominent at top */}
-      {pets && pets.length > 0 && (
-        <MandatoryVaccinesAlert
-          clinic={clinic}
-          pets={pets.map((p) => ({
-            id: p.id,
-            name: p.name,
-            species: p.species,
-            birth_date: p.birth_date,
-          }))}
-        />
-      )}
-
-      {/* Upcoming Appointments */}
-      {myAppointments.length > 0 && (
-        <div>
-          <h2 className="mb-4 flex items-center gap-2 text-lg font-bold text-[var(--text-primary)]">
-            <Calendar className="h-5 w-5 text-[var(--primary)]" />
-            {data.config.ui_labels?.portal?.appointment_widget?.title || 'Próximas Citas'}
-          </h2>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            {myAppointments.map((apt) => (
-              <div
-                key={apt.id}
-                className="flex items-center justify-between rounded-2xl border border-gray-100 bg-white p-4 shadow-sm"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="bg-[var(--primary)]/10 flex h-12 w-12 flex-col items-center justify-center rounded-xl text-xs font-bold leading-none text-[var(--primary)]">
-                    <span>{new Date(apt.start_time).getDate()}</span>
-                    <span className="text-[10px] uppercase">
-                      {new Date(apt.start_time)
-                        .toLocaleDateString('es-ES', { month: 'short' })
-                        .slice(0, 3)}
-                    </span>
-                  </div>
-                  <div>
-                    <p className="font-bold text-gray-800">{apt.reason}</p>
-                    <p className="text-sm text-gray-500">
-                      {new Date(apt.start_time).toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}{' '}
-                      - {apt.pets?.name}
-                    </p>
-                  </div>
-                </div>
-                <div
-                  className={`rounded-full px-3 py-1 text-xs font-bold capitalize ${
-                    apt.status === 'confirmed'
-                      ? 'bg-[var(--status-success-bg)] text-[var(--status-success-text)]'
-                      : apt.status === 'scheduled'
-                        ? 'bg-[var(--status-warning-bg)] text-[var(--status-warning-text)]'
-                        : 'bg-gray-100 text-gray-500'
-                  }`}
-                >
-                  {apt.status === 'confirmed'
-                    ? data.config.ui_labels?.portal?.appointment_widget?.status?.confirmed ||
-                      'Confirmada'
-                    : apt.status === 'scheduled'
-                      ? data.config.ui_labels?.portal?.appointment_widget?.status?.scheduled ||
-                        'Programada'
-                      : apt.status}
-                </div>
+        {/* Main Grid Layout */}
+        <div className="grid gap-6 lg:grid-cols-3">
+          {/* Left Column - Pets (2 cols on lg) */}
+          <div className="space-y-6 lg:col-span-2">
+            {/* Search Bar */}
+            {pets && pets.length > 3 && (
+              <div className="flex items-center justify-between">
+                <h2 className="flex items-center gap-2 text-lg font-bold text-[var(--text-primary)]">
+                  <PawPrint className="h-5 w-5 text-[var(--primary)]" />
+                  Mis Mascotas
+                </h2>
+                <PetSearch />
               </div>
-            ))}
-          </div>
-        </div>
-      )}
+            )}
 
-      {/* Empty State */}
-      {(!pets || pets.length === 0) && !query && (
-        <div className="rounded-3xl border border-dashed border-gray-300 bg-white py-16 text-center">
-          <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-gray-50 text-gray-400">
-            <Dog className="h-10 w-10" />
-          </div>
-          <h3 className="text-xl font-bold text-gray-600">
-            {data.config.ui_labels?.portal?.empty_states?.no_pets ||
-              'No tienes mascotas registradas'}
-          </h3>
-          <p className="mb-6 text-gray-500">
-            {data.config.ui_labels?.portal?.empty_states?.no_pets_desc ||
-              'Registra tu primera mascota para comenzar'}
-          </p>
-          <Link
-            href={`/${clinic}/portal/pets/new`}
-            className="inline-block rounded-xl bg-[var(--primary)] px-6 py-3 font-bold text-white shadow-lg transition-all hover:-translate-y-1 hover:shadow-xl"
-          >
-            {data.config.ui_labels?.portal?.empty_states?.add_pet_btn || 'Agregar Mascota'}
-          </Link>
-        </div>
-      )}
-
-      {/* Pet List */}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {pets?.map((pet) => (
-          <div
-            key={pet.id}
-            className="group overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-lg transition-shadow hover:shadow-xl"
-          >
-            {/* Pet Header */}
-            <div className="flex items-center gap-4 bg-[var(--bg-subtle)] p-6">
-              <Link
-                href={`/${clinic}/portal/pets/${pet.id}`}
-                className="relative shrink-0 transition-transform group-hover:scale-105"
-              >
-                {pet.photo_url ? (
-                  <Image
-                    src={pet.photo_url}
-                    alt={pet.name}
-                    width={80}
-                    height={80}
-                    className="h-20 w-20 rounded-full border-4 border-white object-cover shadow-sm"
-                  />
-                ) : (
-                  <div className="flex h-20 w-20 items-center justify-center rounded-full border-4 border-white bg-white text-gray-300 shadow-sm">
-                    <PawPrint className="h-10 w-10" />
-                  </div>
-                )}
-              </Link>
-              <div>
-                <Link href={`/${clinic}/portal/pets/${pet.id}`} className="hover:underline">
-                  <h2 className="text-2xl font-black text-[var(--text-primary)]">{pet.name}</h2>
-                </Link>
-                <p className="flex items-center gap-2 text-sm font-medium uppercase text-[var(--text-secondary)]">
-                  {pet.species === 'dog' ? (
-                    <Dog className="h-4 w-4" />
-                  ) : (
-                    <Cat className="h-4 w-4" />
-                  )}
-                  {pet.breed || 'Mestizo'}
+            {/* Empty State */}
+            {(!pets || pets.length === 0) && !query && (
+              <div className="rounded-3xl border border-dashed border-gray-300 bg-white py-16 text-center">
+                <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-gray-50 text-gray-400">
+                  <Dog className="h-10 w-10" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-600">
+                  {data.config.ui_labels?.portal?.empty_states?.no_pets ||
+                    'No tienes mascotas registradas'}
+                </h3>
+                <p className="mb-6 text-gray-500">
+                  {data.config.ui_labels?.portal?.empty_states?.no_pets_desc ||
+                    'Registra tu primera mascota para comenzar'}
                 </p>
+                <Link
+                  href={`/${clinic}/portal/pets/new`}
+                  className="inline-block rounded-xl bg-[var(--primary)] px-6 py-3 font-bold text-white shadow-lg transition-all hover:-translate-y-1 hover:shadow-xl"
+                >
+                  {data.config.ui_labels?.portal?.empty_states?.add_pet_btn || 'Agregar Mascota'}
+                </Link>
               </div>
-            </div>
+            )}
 
-            {/* Stats */}
-            <div className="grid grid-cols-2 divide-x divide-gray-100 border-b border-gray-100">
-              <div className="p-4 text-center">
-                <span className="block text-xs font-bold uppercase tracking-wider text-gray-400">
-                  {data.config.ui_labels?.portal?.pet_card?.weight || 'Peso'}
-                </span>
-                <span className="font-bold text-[var(--text-primary)]">
-                  {pet.weight_kg ? `${pet.weight_kg} kg` : '-'}
-                </span>
-              </div>
-              <div className="p-4 text-center">
-                <span className="block text-xs font-bold uppercase tracking-wider text-gray-400">
-                  {data.config.ui_labels?.portal?.pet_card?.chip || 'Chip'}
-                </span>
-                <span className="font-bold text-[var(--text-primary)]">-</span>
-              </div>
-            </div>
-
-            {/* Vaccines */}
-            <div className="p-6">
-              <h3 className="mb-4 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-[var(--text-secondary)]">
-                <Syringe className="h-4 w-4" /> Pendientes
-              </h3>
-
-              {(() => {
-                const pendingVaccines = filterPendingVaccines(pet.vaccines)
-
-                if (pendingVaccines.length === 0) {
-                  return (
-                    <p className="flex items-center gap-2 text-sm italic text-gray-400">
-                      <CheckCircle2 className="h-4 w-4 text-[var(--status-success)]" />
-                      Todo al día
-                    </p>
-                  )
-                }
-
-                return (
-                  <div className="space-y-3">
-                    {pendingVaccines.map((v: Vaccine) => (
-                      <div
-                        key={v.id}
-                        className="flex items-center justify-between rounded-xl border border-gray-100 bg-gray-50 p-3"
+            {/* Pet Cards Grid */}
+            {pets && pets.length > 0 && (
+              <div className="grid gap-6 sm:grid-cols-2">
+                {pets.map((pet) => (
+                  <div
+                    key={pet.id}
+                    className="group overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-md transition-all hover:-translate-y-1 hover:shadow-lg"
+                  >
+                    {/* Pet Header */}
+                    <div className="flex items-center gap-4 bg-[var(--bg-subtle)] p-4">
+                      <Link
+                        href={`/${clinic}/portal/pets/${pet.id}`}
+                        className="relative shrink-0 transition-transform group-hover:scale-105"
                       >
-                        <div>
-                          <div className="flex flex-wrap items-center gap-2">
-                            <span className="block text-sm font-bold text-[var(--text-primary)]">
-                              {v.name}
-                            </span>
-                            {v.status === 'pending' && (
-                              <span className="flex items-center gap-1 rounded-full bg-[var(--status-warning-bg)] px-2 py-0.5 text-[10px] font-bold text-[var(--status-warning)]">
-                                <Clock className="h-3 w-3" /> Revisión
-                              </span>
-                            )}
-                            {v.status === 'rejected' && (
-                              <span className="flex items-center gap-1 rounded-full bg-[var(--status-error-bg)] px-2 py-0.5 text-[10px] font-bold text-[var(--status-error)]">
-                                <XCircle className="h-3 w-3" /> Rechazada
-                              </span>
-                            )}
-                            {v.status === 'verified' && isUpcoming(v.next_due_date) && (
-                              <span className="flex items-center gap-1 rounded-full bg-[var(--status-info-bg)] px-2 py-0.5 text-[10px] font-bold text-[var(--status-info)]">
-                                <AlertCircle className="h-3 w-3" /> Vence pronto
-                              </span>
+                        {pet.photo_url ? (
+                          <Image
+                            src={pet.photo_url}
+                            alt={pet.name}
+                            width={64}
+                            height={64}
+                            className="h-16 w-16 rounded-full border-2 border-white object-cover shadow-sm"
+                          />
+                        ) : (
+                          <div className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-white bg-white text-gray-300 shadow-sm">
+                            <PawPrint className="h-8 w-8" />
+                          </div>
+                        )}
+                      </Link>
+                      <div className="min-w-0 flex-1">
+                        <Link href={`/${clinic}/portal/pets/${pet.id}`} className="hover:underline">
+                          <h2 className="truncate text-xl font-bold text-[var(--text-primary)]">
+                            {pet.name}
+                          </h2>
+                        </Link>
+                        <p className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
+                          {pet.species === 'dog' ? (
+                            <Dog className="h-4 w-4" />
+                          ) : (
+                            <Cat className="h-4 w-4" />
+                          )}
+                          {pet.breed || 'Mestizo'}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Stats Row */}
+                    <div className="grid grid-cols-2 divide-x divide-gray-100 border-b border-gray-100 text-center text-sm">
+                      <div className="p-3">
+                        <span className="block text-xs font-medium text-[var(--text-muted)]">Peso</span>
+                        <span className="font-semibold text-[var(--text-primary)]">
+                          {pet.weight_kg ? `${pet.weight_kg} kg` : '-'}
+                        </span>
+                      </div>
+                      <div className="p-3">
+                        <span className="block text-xs font-medium text-[var(--text-muted)]">Vacunas</span>
+                        <span className="font-semibold text-[var(--text-primary)]">
+                          {pet.vaccines?.filter((v) => v.status === 'verified').length || 0} activas
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Pending Vaccines Summary */}
+                    <div className="p-4">
+                      {(() => {
+                        const pendingVaccines = filterPendingVaccines(pet.vaccines)
+
+                        if (pendingVaccines.length === 0) {
+                          return (
+                            <p className="flex items-center justify-center gap-2 rounded-lg bg-[var(--status-success-bg)] p-3 text-sm font-medium text-[var(--status-success-text)]">
+                              <CheckCircle2 className="h-4 w-4" />
+                              Todo al día con vacunas
+                            </p>
+                          )
+                        }
+
+                        return (
+                          <div className="space-y-2">
+                            {pendingVaccines.slice(0, 2).map((v: Vaccine) => (
+                              <div
+                                key={v.id}
+                                className="flex items-center justify-between rounded-lg bg-gray-50 p-2.5 text-sm"
+                              >
+                                <div className="flex items-center gap-2">
+                                  <Syringe className="h-4 w-4 text-[var(--text-muted)]" />
+                                  <span className="font-medium text-[var(--text-primary)]">{v.name}</span>
+                                </div>
+                                {v.status === 'pending' && (
+                                  <span className="flex items-center gap-1 text-xs text-[var(--status-warning)]">
+                                    <Clock className="h-3 w-3" /> Revisión
+                                  </span>
+                                )}
+                                {v.status === 'rejected' && (
+                                  <span className="flex items-center gap-1 text-xs text-[var(--status-error)]">
+                                    <XCircle className="h-3 w-3" /> Rechazada
+                                  </span>
+                                )}
+                                {v.status === 'verified' && isUpcoming(v.next_due_date) && (
+                                  <span className="flex items-center gap-1 text-xs text-[var(--status-info)]">
+                                    <AlertCircle className="h-3 w-3" /> Vence pronto
+                                  </span>
+                                )}
+                              </div>
+                            ))}
+                            {pendingVaccines.length > 2 && (
+                              <p className="text-center text-xs text-[var(--text-muted)]">
+                                +{pendingVaccines.length - 2} más
+                              </p>
                             )}
                           </div>
-                          {v.next_due_date && isUpcoming(v.next_due_date) ? (
-                            <span className="text-xs font-medium text-[var(--status-info)]">
-                              Vence: {v.next_due_date}
-                            </span>
-                          ) : (
-                            <span className="text-xs text-gray-500">
-                              Puesta: {v.administered_date}
-                            </span>
-                          )}
-                        </div>
+                        )
+                      })()}
+
+                      {/* Actions */}
+                      <div className="mt-4 flex gap-2">
+                        <Link
+                          href={`/${clinic}/portal/pets/${pet.id}/vaccines/new`}
+                          className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-[var(--primary)] py-2 text-sm font-semibold text-white transition-colors hover:bg-[var(--primary-dark)]"
+                        >
+                          <Plus className="h-4 w-4" />
+                          Vacuna
+                        </Link>
+                        <Link
+                          href={`/${clinic}/portal/pets/${pet.id}`}
+                          className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-[var(--border)] py-2 text-sm font-semibold text-[var(--text-primary)] transition-colors hover:bg-[var(--bg-subtle)]"
+                        >
+                          Ver perfil
+                        </Link>
                       </div>
-                    ))}
+                    </div>
                   </div>
-                )
-              })()}
-
-              <div className="mt-6 grid grid-cols-2 gap-3">
-                <Link
-                  href={`/${clinic}/portal/pets/${pet.id}/vaccines/new`}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--primary)] py-3 text-sm font-bold text-white shadow-md transition-all hover:-translate-y-1 hover:shadow-lg"
-                >
-                  <Plus className="h-4 w-4" />
-                  {data.config.ui_labels?.portal?.pet_card?.add_vaccine || 'Agregar Vacuna'}
-                </Link>
-
-                <Link
-                  href={`/${clinic}/portal/pets/${pet.id}`}
-                  className="hover:bg-[var(--primary)]/5 flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[var(--primary)] py-3 text-sm font-bold text-[var(--primary)] transition-colors"
-                >
-                  Ver historial completo
-                </Link>
+                ))}
               </div>
-            </div>
+            )}
           </div>
-        ))}
+
+          {/* Right Sidebar */}
+          <div className="space-y-6">
+            {/* Loyalty Points */}
+            <PortalLoyaltyCard userId={user.id} clinic={clinic} />
+
+            {/* Upcoming Appointments */}
+            <UpcomingAppointmentsCard appointments={myAppointments} clinic={clinic} />
+
+            {/* Activity Summary */}
+            <PortalActivitySummary userId={user.id} clinic={clinic} />
+          </div>
+        </div>
       </div>
     </div>
   )

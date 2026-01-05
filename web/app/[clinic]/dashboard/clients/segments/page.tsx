@@ -68,7 +68,7 @@ function formatCurrency(amount: number): string {
 export default function ClientSegmentsPage(): React.ReactElement {
   const params = useParams()
   const clinic = params?.clinic as string
-  const { toast } = useToast()
+  const { showToast } = useToast()
 
   const [data, setData] = useState<AnalyticsData | null>(null)
   const [loading, setLoading] = useState(true)
@@ -96,31 +96,19 @@ export default function ClientSegmentsPage(): React.ReactElement {
   }, [period])
 
   const handleSendEmail = (customerIds: string[]) => {
-    toast({
-      title: 'Próximamente',
-      description: `Enviar email a ${customerIds.length} clientes`,
-    })
+    showToast(`Próximamente: Enviar email a ${customerIds.length} clientes`)
   }
 
   const handleSendWhatsApp = (customerIds: string[]) => {
-    toast({
-      title: 'Próximamente',
-      description: `Enviar WhatsApp a ${customerIds.length} clientes`,
-    })
+    showToast(`Próximamente: Enviar WhatsApp a ${customerIds.length} clientes`)
   }
 
   const handleApplyDiscount = (customerIds: string[]) => {
-    toast({
-      title: 'Próximamente',
-      description: `Aplicar descuento a ${customerIds.length} clientes`,
-    })
+    showToast(`Próximamente: Aplicar descuento a ${customerIds.length} clientes`)
   }
 
   const handleExport = () => {
-    toast({
-      title: 'Próximamente',
-      description: 'Exportar datos de segmentación',
-    })
+    showToast('Próximamente: Exportar datos de segmentación')
   }
 
   // Combine all customers

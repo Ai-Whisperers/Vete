@@ -1,16 +1,20 @@
 /**
- * Complete Screenshot Capture
+ * Complete Screenshot Capture v2
  *
- * Features:
- * - Waits for complete page load (skeleton loaders, spinners)
- * - Expands all collapsible sections (accordions, dropdowns, sidebar menus)
- * - Captures full page screenshots
- * - Supports multiple user roles
+ * Improvements over v1:
+ * - Uses 'networkidle' instead of 'domcontentloaded' for complete data loading
+ * - Tracks clicked elements to prevent double-clicking
+ * - Intelligent waits based on page complexity
+ * - Better authentication flow with URL-based success detection
+ * - Specific selectors instead of wildcard class matching
+ * - Recursive expansion for nested collapsibles
+ * - Per-image timeout for load detection
+ * - Better error handling and logging
  *
  * Run with: npx tsx scripts/screenshots/capture-complete.ts
  */
 
-import { chromium, Page, BrowserContext } from 'playwright'
+import { chromium, Page, BrowserContext, Locator } from 'playwright'
 import * as fs from 'fs'
 import * as path from 'path'
 
@@ -20,7 +24,8 @@ const CONFIG = {
   outputDir: './screenshots',
   viewport: { width: 1920, height: 1080 },
   loadTimeout: 60000,
-  renderDelay: 3000,
+  networkIdleTimeout: 30000,
+  imageLoadTimeout: 5000,
 }
 
 const CREDENTIALS = {
@@ -87,162 +92,322 @@ function getTimestamp(): string {
 }
 
 /**
- * Wait for page to be fully loaded
- * - Waits for network idle
- * - Waits for loading indicators to disappear
- * - Waits for skeleton loaders to disappear
+ * Detect page complexity to determine appropriate wait times
+ */
+async function getPageComplexity(page: Page): Promise<'simple' | 'medium' | 'complex'> {
+  const metrics = await page.evaluate(() => {
+    const tables = document.querySelectorAll('table, [role="grid"], [role="table"]').length
+    const charts = document.querySelectorAll('canvas, svg[class*="chart"], [class*="recharts"]').length
+    const forms = document.querySelectorAll('form').length
+    const dataLists = document.querySelectorAll('[role="listbox"], [role="list"], ul, ol').length
+    const totalElements = document.querySelectorAll('*').length
+
+    return { tables, charts, forms, dataLists, totalElements }
+  })
+
+  if (metrics.tables > 0 || metrics.charts > 0 || metrics.totalElements > 500) {
+    return 'complex'
+  } else if (metrics.forms > 0 || metrics.dataLists > 3 || metrics.totalElements > 200) {
+    return 'medium'
+  }
+  return 'simple'
+}
+
+/**
+ * Wait for page to be fully loaded with intelligent detection
+ * - Uses networkidle for complete API data loading
+ * - Waits for specific loading indicators (not wildcards)
+ * - Handles images with per-image timeout
+ * - Adjusts delay based on page complexity
  */
 async function waitForPageLoad(page: Page): Promise<void> {
-  // Wait for basic network idle
-  await page.waitForLoadState('domcontentloaded')
+  // 1. Wait for network to be idle (critical for API data)
+  try {
+    await Promise.race([
+      page.waitForLoadState('networkidle'),
+      new Promise(resolve => setTimeout(resolve, CONFIG.networkIdleTimeout))
+    ])
+  } catch {
+    // Continue if networkidle times out
+  }
 
-  // Wait for loading spinners to disappear
+  // 2. Wait for specific loading indicators (not wildcards)
   const loadingSelectors = [
-    '[class*="loading"]',
-    '[class*="spinner"]',
-    '[class*="skeleton"]',
+    // Specific data attributes
     '[data-loading="true"]',
+    '[data-state="loading"]',
+    '[aria-busy="true"]',
+    // Specific class names (exact match preferred)
+    '.skeleton',
+    '.loader',
+    // Tailwind animation
     '.animate-pulse',
+    '.animate-spin',
+    // Accessibility
     '[role="progressbar"]',
+    '[role="status"][aria-live="polite"]',
   ]
 
   for (const selector of loadingSelectors) {
     try {
-      await page.waitForSelector(selector, { state: 'hidden', timeout: 5000 })
+      const hasLoader = await page.locator(selector).first().isVisible().catch(() => false)
+      if (hasLoader) {
+        await page.waitForSelector(selector, { state: 'hidden', timeout: 8000 })
+      }
     } catch {
-      // Selector not found or already hidden, continue
+      // Selector not found or timeout, continue
     }
   }
 
-  // Wait for images to load
-  await page.evaluate(() => {
-    return Promise.all(
-      Array.from(document.images)
-        .filter((img) => !img.complete)
-        .map(
-          (img) =>
-            new Promise((resolve) => {
-              img.onload = img.onerror = resolve
-            })
-        )
+  // 3. Wait for images with per-image timeout
+  await page.evaluate((imageTimeout) => {
+    const images = Array.from(document.images).filter(img => !img.complete)
+    return Promise.allSettled(
+      images.map(img =>
+        Promise.race([
+          new Promise<void>(resolve => {
+            img.onload = () => resolve()
+            img.onerror = () => resolve()
+          }),
+          new Promise<void>(resolve => setTimeout(resolve, imageTimeout))
+        ])
+      )
     )
+  }, CONFIG.imageLoadTimeout)
+
+  // 4. Check React hydration complete
+  await page.evaluate(() => {
+    return new Promise<void>(resolve => {
+      if (document.readyState === 'complete') {
+        resolve()
+      } else {
+        window.addEventListener('load', () => resolve(), { once: true })
+        setTimeout(resolve, 5000) // Fallback timeout
+      }
+    })
   })
 
-  // Additional delay for React/Next.js hydration and data fetching
-  await page.waitForTimeout(CONFIG.renderDelay)
+  // 5. Dynamic delay based on page complexity
+  const complexity = await getPageComplexity(page)
+  const delays = { simple: 500, medium: 1000, complex: 2000 }
+  await page.waitForTimeout(delays[complexity])
 }
 
 /**
- * Expand all collapsible elements on the page
- * - Sidebar menu sections
- * - Accordion panels
- * - Dropdown menus
- * - Collapsible cards
+ * Get unique identifier for an element to track clicks
  */
-async function expandAllCollapsibles(page: Page): Promise<void> {
-  // Common expand button/trigger selectors
+async function getElementId(element: Locator): Promise<string> {
+  try {
+    return await element.evaluate((el) => {
+      // Try multiple identifiers
+      if (el.id) return `id:${el.id}`
+      if (el.getAttribute('data-testid')) return `testid:${el.getAttribute('data-testid')}`
+      if (el.getAttribute('aria-label')) return `aria:${el.getAttribute('aria-label')}`
+
+      // Fallback to text content + class
+      const text = el.textContent?.slice(0, 30) || ''
+      const className = el.className?.toString().slice(0, 30) || ''
+      return `text:${text}|class:${className}`
+    })
+  } catch {
+    return `unknown:${Date.now()}`
+  }
+}
+
+/**
+ * Expand all collapsible elements with click tracking
+ * - Tracks clicked elements to prevent double-clicking
+ * - Uses specific selectors
+ * - Supports recursive expansion for nested items
+ */
+async function expandAllCollapsibles(page: Page, depth = 0): Promise<void> {
+  if (depth > 2) return // Prevent infinite recursion
+
+  const clickedElements = new Set<string>()
+
+  // Specific selectors in priority order (most specific first)
   const expandSelectors = [
-    // Sidebar navigation collapse buttons (data attributes)
-    '[data-state="closed"]',
-    '[aria-expanded="false"]',
+    // Radix/Shadcn patterns (most reliable)
+    '[data-state="closed"]:not([data-disabled])',
+    // ARIA standard
+    '[aria-expanded="false"]:not([disabled])',
     // Accordion triggers
     '[data-accordion-trigger]',
-    'button[aria-controls]',
-    // Shadcn/Radix collapsible
-    '[data-radix-collection-item][data-state="closed"]',
-    // Common expand icons/buttons
-    'button:has(svg[class*="chevron-down"])',
-    'button:has(svg[class*="chevron-right"])',
-    // Sidebar sections that might be collapsed
-    '.sidebar button[aria-expanded="false"]',
-    'nav button[aria-expanded="false"]',
+    'button[data-radix-collection-item]',
+    // Sidebar navigation (specific)
+    'aside [aria-expanded="false"]',
+    'nav [aria-expanded="false"]',
   ]
 
   for (const selector of expandSelectors) {
     try {
       const elements = await page.locator(selector).all()
+
       for (const element of elements) {
+        // Get unique ID
+        const elementId = await getElementId(element)
+
+        // Skip if already clicked
+        if (clickedElements.has(elementId)) continue
+
+        // Check visibility and enabled state
         const isVisible = await element.isVisible().catch(() => false)
-        if (isVisible) {
-          await element.click().catch(() => {})
-          await page.waitForTimeout(200) // Small delay between clicks
+        const isDisabled = await element.getAttribute('disabled').catch(() => null)
+        const ariaDisabled = await element.getAttribute('aria-disabled').catch(() => null)
+
+        if (!isVisible || isDisabled !== null || ariaDisabled === 'true') {
+          continue
+        }
+
+        try {
+          // Click to expand
+          await element.click({ timeout: 2000 })
+          clickedElements.add(elementId)
+
+          // Wait for animation (dynamic based on transition)
+          const animDuration = await element.evaluate((el) => {
+            const style = window.getComputedStyle(el)
+            const duration = parseFloat(style.transitionDuration) || 0.3
+            return Math.min(duration * 1000 + 100, 500)
+          }).catch(() => 300)
+
+          await page.waitForTimeout(animDuration)
+        } catch {
+          // Click failed, continue
         }
       }
     } catch {
-      // Selector not found, continue
+      // Selector error, continue
     }
   }
 
-  // Specifically expand sidebar menu sections
+  // Wait for animations to complete
+  await page.waitForTimeout(300)
+
+  // Check for newly visible collapsibles (recursive)
+  const hasNewCollapsibles = await page.evaluate(() => {
+    return document.querySelectorAll('[aria-expanded="false"]:not([disabled]), [data-state="closed"]:not([data-disabled])').length
+  })
+
+  if (hasNewCollapsibles > 0 && depth < 2) {
+    await expandAllCollapsibles(page, depth + 1)
+  }
+
+  // Wait for network idle after expansions (expanded content may load data)
   try {
-    const sidebarButtons = await page.locator('aside button, nav button, [class*="sidebar"] button').all()
-    for (const btn of sidebarButtons) {
-      const expanded = await btn.getAttribute('aria-expanded')
-      if (expanded === 'false') {
-        await btn.click().catch(() => {})
-        await page.waitForTimeout(200)
+    await Promise.race([
+      page.waitForLoadState('networkidle'),
+      new Promise(resolve => setTimeout(resolve, 5000))
+    ])
+  } catch {
+    // Continue
+  }
+}
+
+/**
+ * Login with intelligent success detection
+ * - Uses multiple button selectors for robustness
+ * - Waits for URL change instead of fixed timeout
+ * - Validates with both cookie and URL checks
+ */
+async function login(page: Page, email: string, password: string, retries = 3): Promise<boolean> {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      // Navigate with networkidle for complete form loading
+      await page.goto(`${CONFIG.baseUrl}/${CONFIG.tenant}/portal/login`, {
+        waitUntil: 'networkidle',
+        timeout: CONFIG.loadTimeout,
+      })
+
+      // Wait for form elements
+      await Promise.all([
+        page.waitForSelector('input[name="email"], input#email, input[type="email"]', { timeout: 15000 }),
+        page.waitForSelector('input[name="password"], input#password, input[type="password"]', { timeout: 15000 }),
+      ])
+
+      // Small delay for hydration
+      await page.waitForTimeout(1000)
+
+      // Fill credentials
+      const emailInput = page.locator('input[name="email"], input#email, input[type="email"]').first()
+      const passwordInput = page.locator('input[name="password"], input#password, input[type="password"]').first()
+
+      await emailInput.fill(email)
+      await page.waitForTimeout(200)
+      await passwordInput.fill(password)
+      await page.waitForTimeout(200)
+
+      // Find login button with multiple selectors (robust)
+      const loginButton = page.locator([
+        'button[type="submit"]:has-text("Iniciar")',
+        'button[type="submit"]:has-text("Login")',
+        'button[type="submit"]:has-text("Entrar")',
+        'button:has-text("Iniciar Sesión")',
+        'form button[type="submit"]',
+      ].join(', ')).first()
+
+      // Click and wait for navigation
+      await Promise.all([
+        // Wait for URL to change away from login
+        page.waitForURL(url => !url.toString().includes('/login'), { timeout: 20000 }).catch(() => {}),
+        loginButton.click(),
+      ])
+
+      // Additional wait for session to establish
+      await page.waitForTimeout(2000)
+
+      // Verify success with URL check
+      const currentUrl = page.url()
+      if (currentUrl.includes('/login')) {
+        // Check for error message
+        const errorElement = page.locator('[role="alert"], [class*="error"], .text-red-500, .text-destructive').first()
+        const hasError = await errorElement.isVisible().catch(() => false)
+
+        if (hasError) {
+          const errorText = await errorElement.textContent().catch(() => 'Unknown error')
+          console.log(`      ⚠️ ${errorText?.slice(0, 50)}`)
+        }
+
+        if (attempt < retries) {
+          console.log(`      🔄 Retry ${attempt + 1}/${retries}...`)
+          await page.waitForTimeout(1000) // Backoff
+          continue
+        }
+        return false
+      }
+
+      // Verify auth cookie exists
+      const cookies = await page.context().cookies()
+      const hasAuth = cookies.some(c =>
+        c.name.includes('auth-token') ||
+        c.name.includes('sb-') ||
+        c.name.includes('session')
+      )
+
+      if (!hasAuth) {
+        if (attempt < retries) {
+          console.log(`      🔄 No auth cookie, retry ${attempt + 1}/${retries}...`)
+          await page.waitForTimeout(1000)
+          continue
+        }
+        console.log('      ⚠️ No auth cookie found')
+        return false
+      }
+
+      return true
+    } catch (error) {
+      console.log(`      ⚠️ Attempt ${attempt}: ${(error as Error).message.slice(0, 40)}`)
+      if (attempt < retries) {
+        console.log(`      🔄 Retry ${attempt + 1}/${retries}...`)
+        await page.waitForTimeout(1000)
       }
     }
-  } catch {
-    // No sidebar buttons, continue
   }
-
-  // Wait for any animations to complete
-  await page.waitForTimeout(500)
+  return false
 }
 
 /**
- * Login with email/password - simplified and robust
- */
-async function login(page: Page, email: string, password: string): Promise<boolean> {
-  try {
-    // Navigate to login page
-    await page.goto(`${CONFIG.baseUrl}/${CONFIG.tenant}/portal/login`, {
-      waitUntil: 'networkidle',
-      timeout: CONFIG.loadTimeout,
-    })
-
-    // Wait for form to be fully loaded
-    await page.waitForSelector('input#email', { timeout: 15000 })
-    await page.waitForTimeout(1000)
-
-    // Fill credentials slowly to ensure stability
-    await page.fill('input#email', email)
-    await page.waitForTimeout(500)
-    await page.fill('input#password', password)
-    await page.waitForTimeout(500)
-
-    // Click the email login button
-    await page.click('button:has-text("Iniciar Sesión")')
-
-    // Wait longer for auth to complete (Supabase can be slow)
-    await page.waitForTimeout(8000)
-
-    // Check if we're still on login page
-    const currentUrl = page.url()
-    if (currentUrl.includes('/login')) {
-      const errorText = await page.locator('[role="alert"]').textContent().catch(() => null)
-      if (errorText) console.log(`      ⚠️ ${errorText.slice(0, 40)}`)
-      return false
-    }
-
-    // Verify auth cookie exists
-    const cookies = await page.context().cookies()
-    const hasAuth = cookies.some(c => c.name.includes('auth-token'))
-    if (!hasAuth) {
-      console.log('      ⚠️ No auth cookie')
-      return false
-    }
-
-    return true
-  } catch (error) {
-    console.log(`      ❌ ${(error as Error).message.slice(0, 50)}`)
-    return false
-  }
-}
-
-/**
- * Capture a single page screenshot
+ * Capture a single page screenshot with full loading
  */
 async function capturePage(
   page: Page,
@@ -257,33 +422,50 @@ async function capturePage(
   try {
     ensureDir(outputDir)
 
-    // Navigate to page
+    // Navigate with networkidle for complete data loading
     await page.goto(url, {
-      waitUntil: 'domcontentloaded',
+      waitUntil: 'networkidle',
       timeout: CONFIG.loadTimeout,
     })
 
-    // Check for redirect to login
+    // Check for auth redirect
     if (page.url().includes('/login') && !pageDef.path.includes('/login')) {
       console.log('⚠️ (auth redirect)')
       return false
     }
 
-    // Wait for complete load
+    // Wait for complete page load
     await waitForPageLoad(page)
 
-    // Expand all collapsible sections
+    // Expand all collapsibles
     await expandAllCollapsibles(page)
 
-    // Additional wait after expansions
-    await page.waitForTimeout(1000)
+    // Final stabilization wait
+    const complexity = await getPageComplexity(page)
+    const finalWait = { simple: 500, medium: 1000, complex: 1500 }
+    await page.waitForTimeout(finalWait[complexity])
 
-    // Capture screenshot
-    await page.screenshot({ path: outputPath, fullPage: true })
-    console.log('✓')
+    // Scroll to top before capture
+    await page.evaluate(() => window.scrollTo(0, 0))
+    await page.waitForTimeout(200)
+
+    // Capture full page screenshot
+    const buffer = await page.screenshot({
+      path: outputPath,
+      fullPage: true,
+      timeout: 30000,
+    })
+
+    const sizeKB = Math.round((buffer?.length || 0) / 1024)
+    console.log(`✓ (${sizeKB}KB)`)
     return true
   } catch (error) {
-    console.log(`✗ ${(error as Error).message.slice(0, 40)}`)
+    const errorMsg = (error as Error).message
+    // Truncate common long errors
+    const shortError = errorMsg.includes('Timeout')
+      ? 'Timeout'
+      : errorMsg.slice(0, 35)
+    console.log(`✗ ${shortError}`)
     return false
   }
 }
@@ -329,11 +511,16 @@ async function main(): Promise<void> {
   const browser = await chromium.launch({ headless: true })
 
   console.log('═'.repeat(60))
-  console.log('📸 COMPLETE SCREENSHOT CAPTURE')
+  console.log('📸 COMPLETE SCREENSHOT CAPTURE v2')
   console.log('═'.repeat(60))
   console.log(`\nOutput: ${CONFIG.outputDir}/${timestamp}`)
   console.log(`Tenant: ${CONFIG.tenant}`)
-  console.log(`Features: Full load wait + Expand collapsibles\n`)
+  console.log(`Features:`)
+  console.log(`  ✓ Network idle waiting (complete API data)`)
+  console.log(`  ✓ Click tracking (no double-clicks)`)
+  console.log(`  ✓ Recursive expansion`)
+  console.log(`  ✓ Page complexity detection`)
+  console.log(`  ✓ Intelligent login detection\n`)
 
   let totalSuccess = 0
   let totalFailed = 0
@@ -395,6 +582,7 @@ async function main(): Promise<void> {
   }
 
   // Summary
+  const successRate = Math.round((totalSuccess / (totalSuccess + totalFailed)) * 100)
   console.log('\n' + '═'.repeat(60))
   console.log('📊 SUMMARY')
   console.log('═'.repeat(60))
@@ -402,6 +590,7 @@ async function main(): Promise<void> {
   ✓ Successful: ${totalSuccess}
   ✗ Failed:     ${totalFailed}
   Total:        ${totalSuccess + totalFailed}
+  Success Rate: ${successRate}%
 
   Output: ${path.resolve(CONFIG.outputDir, timestamp)}
 `)

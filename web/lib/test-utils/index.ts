@@ -2,6 +2,9 @@
 export * from './factories'
 export * from './supabase-mock'
 
+// Explicit exports from factories.ts that might be shadowed
+export { createMockAppointment, resetIdCounter } from './factories'
+
 // New builder-pattern factories
 export * from './factories/index'
 

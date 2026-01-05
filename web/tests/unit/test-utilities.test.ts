@@ -16,7 +16,7 @@ describe('Test Utilities', () => {
     it('creates a pet with default values', () => {
       const pet = createMockPet()
 
-      expect(pet.id).toBeDefined()
+      expect(pet.id).toMatch(/^test-\d+$/)
       expect(pet.tenant_id).toBe('test-tenant')
       expect(pet.species).toBe('dog')
       expect(pet.name).toContain('Pet')
@@ -46,10 +46,10 @@ describe('Test Utilities', () => {
     it('creates a profile with default values', () => {
       const profile = createMockProfile()
 
-      expect(profile.id).toBeDefined()
+      expect(profile.id).toMatch(/^test-\d+$/)
       expect(profile.tenant_id).toBe('test-tenant')
       expect(profile.role).toBe('owner')
-      expect(profile.email).toContain('@test.com')
+      expect(profile.email).toMatch(/^usertest-\d+@test\.com$/)
     })
 
     it('allows overriding values', () => {
@@ -67,11 +67,11 @@ describe('Test Utilities', () => {
     it('creates an appointment with default values', () => {
       const appointment = createMockAppointment()
 
-      expect(appointment.id).toBeDefined()
+      expect(appointment.id).toMatch(/^test-\d+$/)
       expect(appointment.tenant_id).toBe('test-tenant')
-      expect(appointment.status).toBe('pending')
-      expect(appointment.start_time).toBeDefined()
-      expect(appointment.end_time).toBeDefined()
+      expect(appointment.status).toBe('scheduled')
+      expect(appointment.start_time).toMatch(/^\d{4}-\d{2}-\d{2}T/)
+      expect(appointment.end_time).toMatch(/^\d{4}-\d{2}-\d{2}T/)
     })
 
     it('generates end time after start time', () => {
@@ -93,9 +93,9 @@ describe('Test Utilities', () => {
     it('creates a mock supabase client', () => {
       const { supabase, helpers } = createSupabaseMock()
 
-      expect(supabase.from).toBeDefined()
-      expect(supabase.auth).toBeDefined()
-      expect(supabase.storage).toBeDefined()
+      expect(typeof supabase.from).toBe('function')
+      expect(supabase.auth).toHaveProperty('getUser')
+      expect(supabase.storage).toHaveProperty('from')
     })
 
     it('can set query results', async () => {

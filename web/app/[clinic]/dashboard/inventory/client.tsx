@@ -925,22 +925,22 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
           )}
 
           {alerts.expiring?.length > 0 && (
-            <div className="rounded-xl border-l-4 border-red-500 bg-red-50 p-4">
+            <div className="rounded-xl border-l-4 border-[var(--status-error)] bg-[var(--status-error-bg)] p-4">
               <div className="flex items-start gap-3">
-                <Clock className="mt-0.5 h-5 w-5 text-red-500" />
+                <Clock className="mt-0.5 h-5 w-5 text-[var(--status-error)]" />
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-bold text-red-900">Productos por Vencer</h3>
+                    <h3 className="font-bold text-[var(--status-error-text)]">Productos por Vencer</h3>
                     <button
                       onClick={() =>
                         (window.location.href = `/${clinic}/dashboard/inventory/expiring`)
                       }
-                      className="text-xs font-medium text-red-600 hover:text-red-800 hover:underline"
+                      className="text-xs font-medium text-[var(--status-error)] hover:text-[var(--status-error-text)] hover:underline"
                     >
                       Ver todo →
                     </button>
                   </div>
-                  <p className="mt-1 text-sm text-red-700">
+                  <p className="mt-1 text-sm text-[var(--status-error-text)]">
                     {alerts.expiring.length} producto{alerts.expiring.length > 1 ? 's' : ''} vencen
                     en los próximos 30 días
                   </p>
@@ -948,7 +948,7 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
                     {alerts.expiring.slice(0, 5).map((item: StockAlertItem) => (
                       <span
                         key={item.id}
-                        className="rounded border border-red-200 bg-white px-2 py-1 text-xs font-medium text-red-700"
+                        className="rounded border border-[var(--status-error-border)] bg-white px-2 py-1 text-xs font-medium text-[var(--status-error-text)]"
                       >
                         {item.name} (Vence:{' '}
                         {item.expiry_date
@@ -968,30 +968,30 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
       {/* Stats Cards */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <div className="flex items-center gap-4 rounded-xl border border-gray-100 bg-white p-5">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--status-info-bg)] text-[var(--status-info)]">
             <Package className="h-6 w-6" />
           </div>
           <div>
-            <p className="text-xs font-bold uppercase text-gray-400">Productos Activos</p>
-            <p className="text-2xl font-black text-gray-900">{stats?.totalProducts ?? '—'}</p>
+            <p className="text-xs font-bold uppercase text-[var(--text-secondary)]">Productos Activos</p>
+            <p className="text-2xl font-black text-[var(--text-primary)]">{stats?.totalProducts ?? '—'}</p>
           </div>
         </div>
         <div className="flex items-center gap-4 rounded-xl border border-gray-100 bg-white p-5">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-orange-50 text-orange-600">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--status-warning-bg)] text-[var(--status-warning)]">
             <AlertCircle className="h-6 w-6" />
           </div>
           <div>
-            <p className="text-xs font-bold uppercase text-gray-400">Stock Bajo</p>
-            <p className="text-2xl font-black text-gray-900">{stats?.lowStockCount ?? '—'}</p>
+            <p className="text-xs font-bold uppercase text-[var(--text-secondary)]">Stock Bajo</p>
+            <p className="text-2xl font-black text-[var(--text-primary)]">{stats?.lowStockCount ?? '—'}</p>
           </div>
         </div>
         <div className="flex items-center gap-4 rounded-xl border border-gray-100 bg-white p-5">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-green-50 text-green-600">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--status-success-bg)] text-[var(--status-success)]">
             <TrendingUp className="h-6 w-6" />
           </div>
           <div>
-            <p className="text-xs font-bold uppercase text-gray-400">Valor Inventario</p>
-            <p className="text-2xl font-black text-gray-900">
+            <p className="text-xs font-bold uppercase text-[var(--text-secondary)]">Valor Inventario</p>
+            <p className="text-2xl font-black text-[var(--text-primary)]">
               {stats ? formatPrice(stats.totalValue) : '—'}
             </p>
           </div>
@@ -1004,8 +1004,8 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
           href={`/${clinic}/dashboard/inventory/reorders`}
           className="flex items-center gap-3 rounded-xl border border-gray-100 bg-white p-4 transition-colors hover:border-[var(--primary)] hover:bg-[var(--primary)]/5"
         >
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50">
-            <ShoppingCart className="h-5 w-5 text-blue-600" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--status-info-bg)]">
+            <ShoppingCart className="h-5 w-5 text-[var(--status-info)]" />
           </div>
           <div>
             <p className="font-medium text-[var(--text-primary)]">Reorden</p>
@@ -1016,8 +1016,8 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
           href={`/${clinic}/dashboard/inventory/expiring`}
           className="flex items-center gap-3 rounded-xl border border-gray-100 bg-white p-4 transition-colors hover:border-[var(--primary)] hover:bg-[var(--primary)]/5"
         >
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-50">
-            <Clock className="h-5 w-5 text-red-600" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--status-error-bg)]">
+            <Clock className="h-5 w-5 text-[var(--status-error)]" />
           </div>
           <div>
             <p className="font-medium text-[var(--text-primary)]">Vencimientos</p>
@@ -1040,8 +1040,8 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
           onClick={() => {/* TODO: Add new product modal */}}
           className="flex items-center gap-3 rounded-xl border border-gray-100 bg-white p-4 text-left transition-colors hover:border-[var(--primary)] hover:bg-[var(--primary)]/5"
         >
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-50">
-            <Plus className="h-5 w-5 text-green-600" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--status-success-bg)]">
+            <Plus className="h-5 w-5 text-[var(--status-success)]" />
           </div>
           <div>
             <p className="font-medium text-[var(--text-primary)]">Nuevo</p>
@@ -1088,15 +1088,15 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
 
         <div className="space-y-4">
           {error && (
-            <div className="flex items-start gap-3 rounded-xl border border-red-100 bg-red-50 p-4">
-              <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-red-500" />
+            <div className="flex items-start gap-3 rounded-xl border border-[var(--status-error-border)] bg-[var(--status-error-bg)] p-4">
+              <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-[var(--status-error)]" />
               <div>
-                <h3 className="font-bold text-red-900">Error</h3>
-                <p className="mt-1 text-sm text-red-700">{error}</p>
+                <h3 className="font-bold text-[var(--status-error-text)]">Error</h3>
+                <p className="mt-1 text-sm text-[var(--status-error-text)]">{error}</p>
               </div>
               <button
                 onClick={() => setError(null)}
-                className="ml-auto text-red-400 hover:text-red-600"
+                className="ml-auto text-[var(--status-error)] hover:text-[var(--status-error-text)]"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -1104,28 +1104,28 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
           )}
 
           {result && (
-            <div className="rounded-xl border border-green-100 bg-green-50 p-4">
+            <div className="rounded-xl border border-[var(--status-success-border)] bg-[var(--status-success-bg)] p-4">
               <div className="flex items-start gap-3">
-                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-green-500" />
+                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-[var(--status-success)]" />
                 <div className="flex-1">
-                  <h3 className="font-bold text-green-900">Importación Exitosa</h3>
-                  <p className="mt-1 text-sm text-green-700">
+                  <h3 className="font-bold text-[var(--status-success-text)]">Importación Exitosa</h3>
+                  <p className="mt-1 text-sm text-[var(--status-success-text)]">
                     Se procesaron <strong>{result.success}</strong> filas correctamente.
                   </p>
                 </div>
                 <button
                   onClick={() => setResult(null)}
-                  className="text-green-400 hover:text-green-600"
+                  className="text-[var(--status-success)] hover:text-[var(--status-success-text)]"
                 >
                   <X className="h-4 w-4" />
                 </button>
               </div>
               {result.errors?.length > 0 && (
                 <div className="mt-3 rounded-lg bg-white/50 p-3">
-                  <p className="mb-2 text-xs font-bold uppercase text-orange-600">
+                  <p className="mb-2 text-xs font-bold uppercase text-[var(--status-warning)]">
                     Observaciones ({result.errors.length}):
                   </p>
-                  <ul className="max-h-32 list-inside list-disc space-y-1 overflow-y-auto text-xs text-gray-600">
+                  <ul className="max-h-32 list-inside list-disc space-y-1 overflow-y-auto text-xs text-[var(--text-secondary)]">
                     {result.errors.map((err: string, i: number) => (
                       <li key={i}>{err}</li>
                     ))}

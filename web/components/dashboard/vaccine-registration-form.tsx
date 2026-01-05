@@ -181,11 +181,11 @@ export function VaccineRegistrationForm({
   if (success) {
     return (
       <div className="py-8 text-center">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
-          <CheckCircle className="h-8 w-8 text-green-600" />
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--status-success-bg)]">
+          <CheckCircle className="h-8 w-8 text-[var(--status-success)]" />
         </div>
-        <h2 className="mb-2 text-xl font-bold text-green-800">Vacuna Registrada</h2>
-        <p className="text-green-700">La vacuna ha sido registrada exitosamente.</p>
+        <h2 className="mb-2 text-xl font-bold text-[var(--status-success-text)]">Vacuna Registrada</h2>
+        <p className="text-[var(--status-success-text)]">La vacuna ha sido registrada exitosamente.</p>
       </div>
     )
   }
@@ -193,7 +193,7 @@ export function VaccineRegistrationForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {error && (
-        <div className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        <div className="flex items-start gap-2 rounded-xl border border-[var(--status-error-border)] bg-[var(--status-error-bg)] p-4 text-sm text-[var(--status-error-text)]">
           <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" />
           <span>{error}</span>
         </div>
@@ -281,7 +281,7 @@ export function VaccineRegistrationForm({
           </div>
         )}
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
             <label
               htmlFor="administeredDate"
@@ -319,7 +319,7 @@ export function VaccineRegistrationForm({
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
             <label htmlFor="batchNumber" className="mb-1 block text-sm font-medium text-gray-600">
               Número de Lote

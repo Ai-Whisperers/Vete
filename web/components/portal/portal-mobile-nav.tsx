@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -40,23 +40,67 @@ export function PortalMobileNav({
 }: PortalMobileNavProps): React.ReactElement {
   const [isOpen, setIsOpen] = useState(false)
   const pathname = usePathname()
+  const drawerRef = useRef<HTMLDivElement>(null)
+  const previousActiveElement = useRef<HTMLElement | null>(null)
+
+  // Handle keyboard events (escape and focus trap)
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (!isOpen || !drawerRef.current) return
+
+      // Close on Escape
+      if (e.key === 'Escape') {
+        setIsOpen(false)
+        return
+      }
+
+      // Focus trap on Tab
+      if (e.key === 'Tab') {
+        const focusableElements = drawerRef.current.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        )
+        const firstElement = focusableElements[0]
+        const lastElement = focusableElements[focusableElements.length - 1]
+
+        if (e.shiftKey && document.activeElement === firstElement) {
+          e.preventDefault()
+          lastElement?.focus()
+        } else if (!e.shiftKey && document.activeElement === lastElement) {
+          e.preventDefault()
+          firstElement?.focus()
+        }
+      }
+    },
+    [isOpen]
+  )
 
   // Close menu when route changes
   useEffect(() => {
     setIsOpen(false)
   }, [pathname])
 
-  // Prevent scroll when menu is open
+  // Prevent scroll when menu is open and manage focus
   useEffect(() => {
     if (isOpen) {
+      previousActiveElement.current = document.activeElement as HTMLElement
       document.body.style.overflow = 'hidden'
+      document.addEventListener('keydown', handleKeyDown)
+      // Focus close button when drawer opens
+      setTimeout(() => {
+        const closeButton = drawerRef.current?.querySelector<HTMLElement>('button[aria-label="Cerrar menú"]')
+        closeButton?.focus()
+      }, 100)
     } else {
       document.body.style.overflow = 'unset'
+      document.removeEventListener('keydown', handleKeyDown)
+      // Restore focus to previous element
+      previousActiveElement.current?.focus()
     }
     return () => {
       document.body.style.overflow = 'unset'
+      document.removeEventListener('keydown', handleKeyDown)
     }
-  }, [isOpen])
+  }, [isOpen, handleKeyDown])
 
   const isActive = (href: string): boolean => pathname === href || pathname.startsWith(href + '/')
 
@@ -118,15 +162,19 @@ export function PortalMobileNav({
 
             {/* Drawer */}
             <motion.div
+              ref={drawerRef}
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="mobile-nav-title"
               className="fixed right-0 top-0 z-50 flex h-full w-[85%] max-w-sm flex-col bg-white shadow-xl lg:hidden"
             >
               {/* Header */}
               <div className="flex items-center justify-between border-b border-gray-100 px-4 py-4">
-                <span className="text-lg font-bold text-gray-800">Menú Portal</span>
+                <span id="mobile-nav-title" className="text-lg font-bold text-gray-800">Menú Portal</span>
                 <button
                   onClick={() => setIsOpen(false)}
                   className="rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100"

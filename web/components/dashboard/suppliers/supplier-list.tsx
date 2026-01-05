@@ -47,15 +47,15 @@ interface SupplierListProps {
 }
 
 const SUPPLIER_TYPES = {
-  products: { label: 'Productos', color: 'bg-blue-100 text-blue-700' },
+  products: { label: 'Productos', color: 'bg-[var(--status-info-bg)] text-[var(--status-info-text)]' },
   services: { label: 'Servicios', color: 'bg-purple-100 text-purple-700' },
-  both: { label: 'Ambos', color: 'bg-green-100 text-green-700' },
+  both: { label: 'Ambos', color: 'bg-[var(--status-success-bg)] text-[var(--status-success-text)]' },
 }
 
 const VERIFICATION_STATUS = {
-  pending: { label: 'Pendiente', icon: Clock, color: 'text-amber-500' },
-  verified: { label: 'Verificado', icon: CheckCircle, color: 'text-green-500' },
-  rejected: { label: 'Rechazado', icon: XCircle, color: 'text-red-500' },
+  pending: { label: 'Pendiente', icon: Clock, color: 'text-[var(--status-warning)]' },
+  verified: { label: 'Verificado', icon: CheckCircle, color: 'text-[var(--status-success)]' },
+  rejected: { label: 'Rechazado', icon: XCircle, color: 'text-[var(--status-error)]' },
 }
 
 export function SupplierList({
@@ -168,7 +168,7 @@ export function SupplierList({
       </div>
 
       {error && (
-        <div className="rounded-lg bg-red-50 p-4 text-red-600">
+        <div className="rounded-lg bg-[var(--status-error-bg)] p-4 text-[var(--status-error)]">
           {error}
         </div>
       )}
@@ -251,7 +251,7 @@ export function SupplierList({
                               onDeleteClick(supplier)
                               setActiveMenu(null)
                             }}
-                            className="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                            className="flex w-full items-center gap-2 px-4 py-2 text-sm text-[var(--status-error)] hover:bg-[var(--status-error-bg)]"
                           >
                             <Trash2 className="h-4 w-4" />
                             Eliminar

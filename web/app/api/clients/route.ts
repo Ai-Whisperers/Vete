@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server'
-import { withApiAuth } from '@/lib/auth'
+import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { rateLimit } from '@/lib/rate-limit'
 import { parsePagination, paginatedResponse } from '@/lib/api/pagination'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
+import { logger } from '@/lib/logger'
 
 interface Client {
   id: string
@@ -15,7 +16,7 @@ interface Client {
 }
 
 export const GET = withApiAuth(
-  async ({ request, user, profile, supabase }) => {
+  async ({ request, user, profile, supabase }: ApiHandlerContext) => {
     // Apply rate limiting for search endpoints (30 requests per minute)
     const rateLimitResult = await rateLimit(request, 'search', user.id)
     if (!rateLimitResult.success) {
@@ -81,7 +82,11 @@ export const GET = withApiAuth(
         const { data: mvClients, error: mvError } = await mvQuery
 
         if (mvError) {
-          console.error('Error fetching from materialized view:', mvError)
+          logger.error('Error fetching from materialized view', {
+            tenantId: profile.tenant_id,
+            userId: user.id,
+            error: mvError.message,
+          })
           // Fall through to real-time query below
         } else if (mvClients) {
           // Success! Map to expected format
@@ -122,7 +127,11 @@ export const GET = withApiAuth(
         )
 
       if (countError) {
-        console.error('Error counting clients:', countError)
+        logger.error('Error counting clients', {
+          tenantId: profile.tenant_id,
+          userId: user.id,
+          error: countError.message,
+        })
         return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
       }
 
@@ -153,7 +162,11 @@ export const GET = withApiAuth(
       const { data: clients, error: clientsError } = await baseQuery
 
       if (clientsError) {
-        console.error('Error fetching clients:', clientsError)
+        logger.error('Error fetching clients', {
+          tenantId: profile.tenant_id,
+          userId: user.id,
+          error: clientsError.message,
+        })
         return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
       }
 
@@ -275,7 +288,11 @@ export const GET = withApiAuth(
         ...paginatedResponse(enrichedClients, totalCount || 0, { page, limit, offset }),
       })
     } catch (error) {
-      console.error('Unexpected error in clients API:', error)
+      logger.error('Unexpected error in clients API', {
+        tenantId: profile.tenant_id,
+        userId: user.id,
+        error: error instanceof Error ? error.message : 'Unknown',
+      })
       return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
     }
   },

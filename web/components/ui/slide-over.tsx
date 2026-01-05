@@ -37,18 +37,37 @@ export function SlideOver({
   const panelRef = useRef<HTMLDivElement>(null)
   const previousActiveElement = useRef<Element | null>(null)
 
-  // Handle escape key
+  // Handle keyboard events (escape and focus trap)
   useEffect(() => {
-    if (!closeOnEscape || !isOpen) return
+    if (!isOpen) return
 
-    const handleEscape = (e: KeyboardEvent): void => {
-      if (e.key === 'Escape') {
+    const handleKeyDown = (e: KeyboardEvent): void => {
+      // Close on Escape
+      if (e.key === 'Escape' && closeOnEscape) {
         onClose()
+        return
+      }
+
+      // Focus trap on Tab
+      if (e.key === 'Tab' && panelRef.current) {
+        const focusableElements = panelRef.current.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        )
+        const firstElement = focusableElements[0]
+        const lastElement = focusableElements[focusableElements.length - 1]
+
+        if (e.shiftKey && document.activeElement === firstElement) {
+          e.preventDefault()
+          lastElement?.focus()
+        } else if (!e.shiftKey && document.activeElement === lastElement) {
+          e.preventDefault()
+          firstElement?.focus()
+        }
       }
     }
 
-    document.addEventListener('keydown', handleEscape)
-    return () => document.removeEventListener('keydown', handleEscape)
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
   }, [isOpen, onClose, closeOnEscape])
 
   // Lock body scroll and manage focus
@@ -207,7 +226,7 @@ export function SlideOverFooter({
   const submitStyles = {
     primary:
       'bg-[var(--primary)] text-white hover:bg-[var(--primary)]/90 shadow-lg hover:shadow-xl',
-    danger: 'bg-red-600 text-white hover:bg-red-700 shadow-lg hover:shadow-xl',
+    danger: 'bg-[var(--status-error)] text-white hover:bg-[var(--status-error)]/90 shadow-lg hover:shadow-xl',
   }
 
   return (

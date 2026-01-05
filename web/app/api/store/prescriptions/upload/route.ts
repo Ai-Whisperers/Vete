@@ -1,6 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { NextResponse } from 'next/server'
+import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
+import { logger } from '@/lib/logger'
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
 const ALLOWED_TYPES = ['application/pdf', 'image/jpeg', 'image/png']
@@ -9,35 +10,10 @@ const ALLOWED_TYPES = ['application/pdf', 'image/jpeg', 'image/png']
  * POST /api/store/prescriptions/upload
  * Upload a prescription file to Supabase Storage
  */
-export async function POST(request: NextRequest) {
-  const supabase = await createClient()
-
-  // Auth check
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-  if (authError || !user) {
-    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED)
-  }
-
-  // Get user's profile for tenant
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('tenant_id')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile) {
-    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
-      details: { message: 'Perfil no encontrado' },
-    })
-  }
-
+export const POST = withApiAuth(async ({ request, user, profile, supabase }: ApiHandlerContext) => {
   try {
     const formData = await request.formData()
     const file = formData.get('file') as File | null
-    const clinic = formData.get('clinic') as string | null
     const productId = formData.get('productId') as string | null
 
     if (!file) {
@@ -76,15 +52,19 @@ export async function POST(request: NextRequest) {
     const buffer = new Uint8Array(arrayBuffer)
 
     // Upload to Supabase Storage
-    const { data: uploadData, error: uploadError } = await supabase.storage
-      .from('documents')
-      .upload(filePath, buffer, {
-        contentType: file.type,
-        upsert: false,
-      })
+    const { error: uploadError } = await supabase.storage.from('documents').upload(filePath, buffer, {
+      contentType: file.type,
+      upsert: false,
+    })
 
     if (uploadError) {
-      console.error('Error uploading prescription:', uploadError)
+      logger.error('Error uploading prescription', {
+        tenantId: profile.tenant_id,
+        userId: user.id,
+        fileType: file.type,
+        fileSize: file.size,
+        error: uploadError.message,
+      })
       return apiError('UPLOAD_FAILED', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
         details: { message: 'Error al subir archivo' },
       })
@@ -118,7 +98,11 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     )
   } catch (error) {
-    console.error('Error in prescription upload:', error)
+    logger.error('Error in prescription upload', {
+      tenantId: profile.tenant_id,
+      userId: user.id,
+      error: error instanceof Error ? error.message : 'Unknown',
+    })
     return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
   }
-}
+})

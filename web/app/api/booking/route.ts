@@ -172,51 +172,44 @@ export const POST = withApiAuth(async (ctx: ApiHandlerContext) => {
   const endMins = endMinutes % 60
   const endTime = `${String(endHours).padStart(2, '0')}:${String(endMins).padStart(2, '0')}`
 
-  // Create full timestamp strings for overlap checking
+  // Create full timestamp strings for atomic creation
   const newStartTimestamp = `${appointment_date}T${time_slot}:00`
   const newEndTimestamp = `${appointment_date}T${endTime}:00`
 
-  // Check for overlapping appointments
-  // An overlap occurs when: existing.start_time < new.end_time AND existing.end_time > new.start_time
-  let overlapQuery = supabase
-    .from('appointments')
-    .select('id, start_time, end_time, vet_id')
-    .eq('tenant_id', effectiveClinic)
-    .eq('appointment_date', appointment_date)
-    .not('status', 'in', '("cancelled","no_show")')
-    .lt('start_time', newEndTimestamp)
-    .gt('end_time', newStartTimestamp)
+  // Use atomic function to prevent race conditions (double-booking)
+  // The function uses advisory locks + exclusion constraint at DB level
+  const { data: appointmentId, error: rpcError } = await supabase.rpc('create_appointment_atomic', {
+    p_tenant_id: effectiveClinic,
+    p_pet_id: pet_id,
+    p_start_time: newStartTimestamp,
+    p_end_time: newEndTimestamp,
+    p_vet_id: vet_id || null,
+    p_service_id: service_id || null,
+    p_reason: notes || null,
+    p_notes: notes || null,
+    p_created_by: user.id,
+  })
 
-  // If a specific vet is assigned, check for that vet's availability
-  if (vet_id) {
-    overlapQuery = overlapQuery.eq('vet_id', vet_id)
+  if (rpcError) {
+    // Check for exclusion violation (double-booking attempt)
+    if (rpcError.code === '23P01' || rpcError.message?.includes('superpone')) {
+      return NextResponse.json(
+        { error: 'Este horario ya está ocupado', code: 'TIME_CONFLICT' },
+        { status: 409 }
+      )
+    }
+    return apiError('DATABASE_ERROR', 500)
   }
 
-  const { data: existingAppointments } = await overlapQuery
-
-  if (existingAppointments && existingAppointments.length > 0) {
-    return NextResponse.json(
-      { error: 'Este horario ya está ocupado', code: 'TIME_CONFLICT' },
-      { status: 409 }
-    )
-  }
-
-  // Insert appointment
+  // Fetch the created appointment to return full data
   const { data, error } = await supabase
     .from('appointments')
-    .insert({
-      tenant_id: effectiveClinic,
-      pet_id,
-      service_id,
-      appointment_date,
-      start_time: time_slot,
-      end_time: endTime,
-      vet_id: vet_id || null,
-      notes: notes || null,
-      status: 'scheduled',
-      created_by: user.id,
-    })
-    .select()
+    .select(`
+      *,
+      pet:pets(id, name, species, owner_id),
+      service:services(id, name, price)
+    `)
+    .eq('id', appointmentId)
     .single()
 
   if (error) {
@@ -331,38 +324,15 @@ export const PUT = withApiAuth(async (ctx: ApiHandlerContext) => {
     const endMinutes = endMins % 60
     updates.end_time = `${String(endHours).padStart(2, '0')}:${String(endMinutes).padStart(2, '0')}`
 
-    // Check for overlapping appointments when rescheduling
+    // Calculate full timestamps for the update
     const rescheduleDate = appointment_date || existing.appointment_date
-    const newStartTimestamp = `${rescheduleDate}T${time_slot}:00`
-    const newEndTimestamp = `${rescheduleDate}T${updates.end_time}:00`
-    const checkVetId = vet_id !== undefined ? vet_id : existing.vet_id
-
-    let overlapQuery = supabase
-      .from('appointments')
-      .select('id, start_time, end_time, vet_id')
-      .eq('tenant_id', pet.tenant_id)
-      .eq('appointment_date', rescheduleDate)
-      .neq('id', id) // Exclude the current appointment
-      .not('status', 'in', '("cancelled","no_show")')
-      .lt('start_time', newEndTimestamp)
-      .gt('end_time', newStartTimestamp)
-
-    // If a specific vet is assigned, check for that vet's availability
-    if (checkVetId) {
-      overlapQuery = overlapQuery.eq('vet_id', checkVetId)
-    }
-
-    const { data: existingAppointments } = await overlapQuery
-
-    if (existingAppointments && existingAppointments.length > 0) {
-      return NextResponse.json(
-        { error: 'Este horario ya está ocupado', code: 'TIME_CONFLICT' },
-        { status: 409 }
-      )
-    }
+    updates.start_time = `${rescheduleDate}T${time_slot}:00`
+    updates.end_time = `${rescheduleDate}T${updates.end_time}:00`
   }
   if (notes !== undefined) updates.notes = notes
 
+  // The exclusion constraint at database level prevents overlapping appointments
+  // If another transaction creates a conflicting appointment, this will fail atomically
   const { data, error } = await supabase
     .from('appointments')
     .update(updates)
@@ -371,6 +341,13 @@ export const PUT = withApiAuth(async (ctx: ApiHandlerContext) => {
     .single()
 
   if (error) {
+    // Check for exclusion violation (double-booking from concurrent update)
+    if (error.code === '23P01' || error.message?.includes('superpone') || error.message?.includes('overlap')) {
+      return NextResponse.json(
+        { error: 'Este horario ya está ocupado', code: 'TIME_CONFLICT' },
+        { status: 409 }
+      )
+    }
     return apiError('DATABASE_ERROR', 500)
   }
 

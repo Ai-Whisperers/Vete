@@ -48,15 +48,15 @@ export function ImportWizard({ isOpen, onClose, onImportComplete, clinic }: Impo
         <div className="flex-1 overflow-auto p-6">
           {/* Error Display */}
           {wizard.error && (
-            <div className="mb-4 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-4">
-              <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-red-500" />
+            <div className="mb-4 flex items-start gap-3 rounded-xl border border-[var(--status-error-border)] bg-[var(--status-error-bg)] p-4">
+              <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-[var(--status-error)]" />
               <div className="flex-1">
-                <p className="font-medium text-red-800">Error</p>
-                <p className="mt-1 text-sm text-red-600">{wizard.error}</p>
+                <p className="font-medium text-[var(--status-error-text)]">Error</p>
+                <p className="mt-1 text-sm text-[var(--status-error)]">{wizard.error}</p>
               </div>
               <button
                 onClick={() => wizard.setError(null)}
-                className="text-red-400 hover:text-red-600"
+                className="text-[var(--status-error)]/60 hover:text-[var(--status-error)]"
                 aria-label="Cerrar error"
               >
                 <X className="h-4 w-4" aria-hidden="true" />

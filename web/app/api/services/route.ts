@@ -1,7 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
-import { apiError, apiSuccess } from '@/lib/api/errors'
+import { apiError, apiSuccess, HTTP_STATUS } from '@/lib/api/errors'
+import { logger } from '@/lib/logger'
 
 /**
  * Public endpoint - no authentication required
@@ -71,8 +72,11 @@ export async function GET(request: Request) {
       },
     })
   } catch (e) {
-    console.error('Error loading services:', e)
-    return apiError('DATABASE_ERROR', 500)
+    logger.error('Error loading services', {
+      clinic,
+      error: e instanceof Error ? e.message : 'Unknown',
+    })
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
   }
 }
 
@@ -110,8 +114,11 @@ export const POST = withApiAuth(
 
       return apiSuccess(service, 'Servicio creado exitosamente', 201)
     } catch (e) {
-      console.error('Error creating service:', e)
-      return apiError('DATABASE_ERROR', 500)
+      logger.error('Error creating service', {
+        tenantId: profile.tenant_id,
+        error: e instanceof Error ? e.message : 'Unknown',
+      })
+      return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
     }
   },
   { roles: ['vet', 'admin'] }

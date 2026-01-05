@@ -1,5 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { NextResponse } from 'next/server'
+import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
+import { apiError, HTTP_STATUS } from '@/lib/api/errors'
+import { logger } from '@/lib/logger'
+import type { SupabaseClient } from '@supabase/supabase-js'
 
 export const dynamic = 'force-dynamic'
 
@@ -8,7 +11,7 @@ type ExportType = 'revenue' | 'appointments' | 'clients' | 'services' | 'invento
 interface ExportConfig {
   title: string
   getQuery: (
-    supabase: ReturnType<typeof createClient> extends Promise<infer T> ? T : never,
+    supabase: SupabaseClient,
     tenantId: string,
     startDate: string,
     endDate: string
@@ -35,84 +38,80 @@ const formatDateTime = (value: unknown): string => {
  * GET /api/analytics/export
  * Export analytics data in CSV or PDF format
  */
-export async function GET(request: NextRequest): Promise<NextResponse> {
-  const supabase = await createClient()
-  const { searchParams } = new URL(request.url)
+export const GET = withApiAuth(
+  async ({ request, user, profile, supabase }: ApiHandlerContext) => {
+    const { searchParams } = new URL(request.url)
 
-  const type = (searchParams.get('type') || 'revenue') as ExportType
-  const format = searchParams.get('format') || 'csv'
-  const startDate = searchParams.get('startDate') || getDefaultStartDate()
-  const endDate = searchParams.get('endDate') || new Date().toISOString().split('T')[0]
+    const type = (searchParams.get('type') || 'revenue') as ExportType
+    const format = searchParams.get('format') || 'csv'
+    const startDate = searchParams.get('startDate') || getDefaultStartDate()
+    const endDate = searchParams.get('endDate') || new Date().toISOString().split('T')[0]
 
-  try {
-    // Auth check
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
+    try {
+      const tenantId = profile.tenant_id
 
-    if (authError || !user) {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-    }
+      // Get export config based on type
+      const config = getExportConfig(type)
+      if (!config) {
+        return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+          details: { message: 'Tipo de exportación no válido' },
+        })
+      }
 
-    // Get user profile
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('tenant_id, role')
-      .eq('id', user.id)
-      .single()
+      // Fetch data
+      const { data, error } = await config.getQuery(supabase, tenantId, startDate, endDate)
 
-    if (!profile || !['vet', 'admin'].includes(profile.role)) {
-      return NextResponse.json({ error: 'Acceso denegado' }, { status: 403 })
-    }
+      if (error) {
+        logger.error('Export query error', {
+          tenantId: profile.tenant_id,
+          userId: user.id,
+          exportType: type,
+          error: error instanceof Error ? error.message : String(error),
+        })
+        return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      }
 
-    const tenantId = profile.tenant_id
+      if (!data || data.length === 0) {
+        return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
+          details: { message: 'No hay datos para exportar' },
+        })
+      }
 
-    // Get export config based on type
-    const config = getExportConfig(type)
-    if (!config) {
-      return NextResponse.json({ error: 'Tipo de exportación no válido' }, { status: 400 })
-    }
+      // Generate CSV
+      if (format === 'csv') {
+        const csv = generateCSV(data, config.columns)
+        return new NextResponse(csv, {
+          headers: {
+            'Content-Type': 'text/csv; charset=utf-8',
+            'Content-Disposition': `attachment; filename="${type}-${startDate}-${endDate}.csv"`,
+          },
+        })
+      }
 
-    // Fetch data
-    const { data, error } = await config.getQuery(supabase, tenantId, startDate, endDate)
+      // Generate PDF (simplified - would need a proper PDF library for production)
+      if (format === 'pdf') {
+        // For now, return a JSON response indicating PDF generation
+        // In production, use @react-pdf/renderer or similar
+        return NextResponse.json({
+          message: 'PDF generation not yet implemented',
+          suggestion: 'Use CSV export for now',
+        })
+      }
 
-    if (error) {
-      console.error('Export query error:', error)
-      return NextResponse.json({ error: 'Error al obtener datos' }, { status: 500 })
-    }
-
-    if (!data || data.length === 0) {
-      return NextResponse.json({ error: 'No hay datos para exportar' }, { status: 404 })
-    }
-
-    // Generate CSV
-    if (format === 'csv') {
-      const csv = generateCSV(data, config.columns)
-      return new NextResponse(csv, {
-        headers: {
-          'Content-Type': 'text/csv; charset=utf-8',
-          'Content-Disposition': `attachment; filename="${type}-${startDate}-${endDate}.csv"`,
-        },
+      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+        details: { message: 'Formato no soportado' },
       })
-    }
-
-    // Generate PDF (simplified - would need a proper PDF library for production)
-    if (format === 'pdf') {
-      // For now, return a JSON response indicating PDF generation
-      // In production, use @react-pdf/renderer or similar
-      return NextResponse.json({
-        message: 'PDF generation not yet implemented',
-        suggestion: 'Use CSV export for now',
+    } catch (error) {
+      logger.error('Export error', {
+        tenantId: profile.tenant_id,
+        userId: user.id,
+        error: error instanceof Error ? error.message : 'Unknown',
       })
+      return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
     }
-
-    return NextResponse.json({ error: 'Formato no soportado' }, { status: 400 })
-  } catch (error) {
-    console.error('Export error:', error)
-    return NextResponse.json({ error: 'Error del servidor' }, { status: 500 })
-  }
-}
+  },
+  { roles: ['vet', 'admin'] }
+)
 
 function getDefaultStartDate(): string {
   const date = new Date()

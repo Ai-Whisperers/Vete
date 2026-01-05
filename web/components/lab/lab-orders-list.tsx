@@ -47,12 +47,12 @@ const statusConfig: Record<
   },
   completed: {
     label: 'Completado',
-    className: 'bg-green-100 text-green-800',
+    className: 'bg-[var(--status-success-bg)] text-[var(--status-success-text)]',
     icon: Icons.CheckCircle,
   },
   cancelled: {
     label: 'Cancelado',
-    className: 'bg-red-100 text-red-800',
+    className: 'bg-[var(--status-error-bg)] text-[var(--status-error-text)]',
     icon: Icons.XCircle,
   },
 }
@@ -60,7 +60,7 @@ const statusConfig: Record<
 const priorityConfig: Record<string, { label: string; className: string }> = {
   stat: {
     label: 'STAT',
-    className: 'bg-red-500 text-white',
+    className: 'bg-[var(--status-error)] text-white',
   },
   urgent: {
     label: 'Urgente',
@@ -166,7 +166,7 @@ export function LabOrdersList({
                           {priority.label}
                         </span>
                         {order.has_critical_values && (
-                          <span className="flex items-center gap-1 rounded-full bg-red-100 px-3 py-1 text-xs font-bold text-red-800">
+                          <span className="flex items-center gap-1 rounded-full bg-[var(--status-error-bg)] px-3 py-1 text-xs font-bold text-[var(--status-error-text)]">
                             <Icons.AlertTriangle className="h-3 w-3" />
                             Crítico
                           </span>

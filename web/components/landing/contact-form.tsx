@@ -186,13 +186,13 @@ ${formData.message ? `Mensaje adicional: ${formData.message}` : ''}`
                       data-form-type="other"
                       className={`w-full rounded-xl border bg-white/5 py-3 pl-12 pr-4 text-white placeholder-white/30 transition-all focus:outline-none ${
                         errors.clinicName
-                          ? 'border-red-500'
+                          ? 'border-[var(--status-error)]'
                           : 'focus:border-[var(--primary)]/50 border-white/10'
                       }`}
                     />
                   </div>
                   {errors.clinicName && (
-                    <p className="mt-1 text-sm text-red-400">{errors.clinicName}</p>
+                    <p className="mt-1 text-sm text-[var(--status-error)]">{errors.clinicName}</p>
                   )}
                 </div>
 
@@ -210,13 +210,13 @@ ${formData.message ? `Mensaje adicional: ${formData.message}` : ''}`
                       data-form-type="other"
                       className={`w-full rounded-xl border bg-white/5 py-3 pl-12 pr-4 text-white placeholder-white/30 transition-all focus:outline-none ${
                         errors.contactName
-                          ? 'border-red-500'
+                          ? 'border-[var(--status-error)]'
                           : 'focus:border-[var(--primary)]/50 border-white/10'
                       }`}
                     />
                   </div>
                   {errors.contactName && (
-                    <p className="mt-1 text-sm text-red-400">{errors.contactName}</p>
+                    <p className="mt-1 text-sm text-[var(--status-error)]">{errors.contactName}</p>
                   )}
                 </div>
 
@@ -235,12 +235,12 @@ ${formData.message ? `Mensaje adicional: ${formData.message}` : ''}`
                         data-form-type="other"
                         className={`w-full rounded-xl border bg-white/5 py-3 pl-12 pr-4 text-white placeholder-white/30 transition-all focus:outline-none ${
                           errors.email
-                            ? 'border-red-500'
+                            ? 'border-[var(--status-error)]'
                             : 'focus:border-[var(--primary)]/50 border-white/10'
                         }`}
                       />
                     </div>
-                    {errors.email && <p className="mt-1 text-sm text-red-400">{errors.email}</p>}
+                    {errors.email && <p className="mt-1 text-sm text-[var(--status-error)]">{errors.email}</p>}
                   </div>
                   <div>
                     <label className="mb-2 block text-sm text-white/70">Telefono/WhatsApp *</label>
@@ -255,12 +255,12 @@ ${formData.message ? `Mensaje adicional: ${formData.message}` : ''}`
                         data-form-type="other"
                         className={`w-full rounded-xl border bg-white/5 py-3 pl-12 pr-4 text-white placeholder-white/30 transition-all focus:outline-none ${
                           errors.phone
-                            ? 'border-red-500'
+                            ? 'border-[var(--status-error)]'
                             : 'focus:border-[var(--primary)]/50 border-white/10'
                         }`}
                       />
                     </div>
-                    {errors.phone && <p className="mt-1 text-sm text-red-400">{errors.phone}</p>}
+                    {errors.phone && <p className="mt-1 text-sm text-[var(--status-error)]">{errors.phone}</p>}
                   </div>
                 </div>
 

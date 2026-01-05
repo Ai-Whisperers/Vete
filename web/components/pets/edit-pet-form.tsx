@@ -109,7 +109,7 @@ export function EditPetForm({ pet, clinic }: Props): React.ReactElement {
         </div>
 
         {/* TICKET-FORM-005: Added aria-invalid to form inputs */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
             <label
               htmlFor="pet-name"
@@ -149,7 +149,7 @@ export function EditPetForm({ pet, clinic }: Props): React.ReactElement {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
             <label
               htmlFor="pet-breed"
@@ -188,7 +188,7 @@ export function EditPetForm({ pet, clinic }: Props): React.ReactElement {
         </div>
 
         {/* Physical Specs */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
             <label className="mb-1 block text-sm font-bold text-[var(--text-secondary)]">
               Color/Señas
@@ -247,7 +247,7 @@ export function EditPetForm({ pet, clinic }: Props): React.ReactElement {
         <div className="space-y-4 border-t border-gray-100 pt-4">
           <h3 className="font-bold text-[var(--text-primary)]">Salud y Comportamiento</h3>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label className="mb-1 block text-sm font-bold text-[var(--text-secondary)]">
                 Temperamento
@@ -309,7 +309,7 @@ export function EditPetForm({ pet, clinic }: Props): React.ReactElement {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label className="mb-1 block text-sm font-bold text-[var(--text-secondary)]">
                 Tipo de Dieta
@@ -348,7 +348,7 @@ export function EditPetForm({ pet, clinic }: Props): React.ReactElement {
             role="alert"
             aria-live="assertive"
             id="pet-error"
-            className="flex items-center gap-2 rounded-lg bg-red-50 p-3 text-sm text-red-600"
+            className="flex items-center gap-2 rounded-lg bg-[var(--status-error-bg)] p-3 text-sm text-[var(--status-error)]"
           >
             <AlertCircle className="h-4 w-4" aria-hidden="true" />
             {error}

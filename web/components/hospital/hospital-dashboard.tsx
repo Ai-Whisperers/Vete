@@ -141,11 +141,11 @@ export function HospitalDashboard({
   const getAcuityColor = (level: string): string => {
     switch (level) {
       case 'critical':
-        return 'text-red-600 bg-red-100'
+        return 'text-[var(--status-error)] bg-[var(--status-error-bg)]'
       case 'urgent':
-        return 'text-orange-600 bg-orange-100'
+        return 'text-[var(--status-warning)] bg-[var(--status-warning-bg)]'
       case 'routine':
-        return 'text-green-600 bg-green-100'
+        return 'text-[var(--status-success)] bg-[var(--status-success-bg)]'
       default:
         return 'text-gray-600 bg-gray-100'
     }
@@ -229,8 +229,8 @@ export function HospitalDashboard({
 
           <div className="rounded-lg border border-gray-200 bg-white p-6">
             <div className="flex items-center gap-3">
-              <div className="rounded-lg bg-green-100 p-3">
-                <BedDouble className="h-6 w-6 text-green-600" />
+              <div className="rounded-lg bg-[var(--status-success-bg)] p-3">
+                <BedDouble className="h-6 w-6 text-[var(--status-success)]" />
               </div>
               <div>
                 <p className="text-sm text-[var(--text-secondary)]">Jaulas Disponibles</p>
@@ -243,8 +243,8 @@ export function HospitalDashboard({
 
           <div className="rounded-lg border border-gray-200 bg-white p-6">
             <div className="flex items-center gap-3">
-              <div className="rounded-lg bg-red-100 p-3">
-                <AlertCircle className="h-6 w-6 text-red-600" />
+              <div className="rounded-lg bg-[var(--status-error-bg)] p-3">
+                <AlertCircle className="h-6 w-6 text-[var(--status-error)]" />
               </div>
               <div>
                 <p className="text-sm text-[var(--text-secondary)]">Casos Críticos</p>

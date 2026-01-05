@@ -1,5 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { NextResponse } from 'next/server'
+import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
+import { apiError, HTTP_STATUS } from '@/lib/api/errors'
+import { logger } from '@/lib/logger'
 
 /**
  * GET /api/inventory/barcode-lookup
@@ -9,71 +11,64 @@ import { createClient } from '@/lib/supabase/server'
  * - barcode: The barcode to search for (required)
  * - clinic: The clinic/tenant ID (required)
  */
-export async function GET(req: NextRequest): Promise<NextResponse> {
-  const supabase = await createClient()
+export const GET = withApiAuth(
+  async ({ request, user, profile, supabase }: ApiHandlerContext) => {
+    // Get query params
+    const { searchParams } = new URL(request.url)
+    const barcode = searchParams.get('barcode')
+    const clinic = searchParams.get('clinic')
 
-  // Auth check
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-  }
-
-  // Get query params
-  const barcode = req.nextUrl.searchParams.get('barcode')
-  const clinic = req.nextUrl.searchParams.get('clinic')
-
-  if (!barcode) {
-    return NextResponse.json({ error: 'Código de barras requerido' }, { status: 400 })
-  }
-
-  if (!clinic) {
-    return NextResponse.json({ error: 'Clínica requerida' }, { status: 400 })
-  }
-
-  // Verify user belongs to this tenant
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('tenant_id, role')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile) {
-    return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 })
-  }
-
-  // Staff check - only vets and admins can look up products by barcode
-  if (profile.role !== 'admin' && profile.role !== 'vet') {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
-  }
-
-  // Verify tenant matches
-  if (profile.tenant_id !== clinic) {
-    return NextResponse.json({ error: 'Acceso denegado a esta clínica' }, { status: 403 })
-  }
-
-  try {
-    // Use the database function for optimized lookup
-    const { data, error } = await supabase.rpc('find_product_by_barcode', {
-      p_tenant_id: clinic,
-      p_barcode: barcode.trim(),
-    })
-
-    if (error) {
-      console.error('Barcode lookup error:', error)
-      return NextResponse.json({ error: 'Error al buscar producto' }, { status: 500 })
+    if (!barcode) {
+      return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
+        details: { field: 'barcode' },
+      })
     }
 
-    // The function returns a table, check if we got any results
-    if (!data || data.length === 0) {
-      return NextResponse.json({ error: 'Producto no encontrado' }, { status: 404 })
+    if (!clinic) {
+      return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
+        details: { field: 'clinic' },
+      })
     }
 
-    // Return the first (and should be only) result
-    return NextResponse.json(data[0])
-  } catch (e) {
-    console.error('Barcode lookup exception:', e)
-    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
-  }
-}
+    // Verify tenant matches
+    if (profile.tenant_id !== clinic) {
+      return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN)
+    }
+
+    try {
+      // Use the database function for optimized lookup
+      const { data, error } = await supabase.rpc('find_product_by_barcode', {
+        p_tenant_id: clinic,
+        p_barcode: barcode.trim(),
+      })
+
+      if (error) {
+        logger.error('Barcode lookup error', {
+          tenantId: profile.tenant_id,
+          userId: user.id,
+          barcode,
+          error: error.message,
+        })
+        return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      }
+
+      // The function returns a table, check if we got any results
+      if (!data || data.length === 0) {
+        return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
+          details: { resource: 'product' },
+        })
+      }
+
+      // Return the first (and should be only) result
+      return NextResponse.json(data[0])
+    } catch (e) {
+      logger.error('Barcode lookup exception', {
+        tenantId: profile.tenant_id,
+        userId: user.id,
+        error: e instanceof Error ? e.message : 'Unknown',
+      })
+      return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
+    }
+  },
+  { roles: ['vet', 'admin'] }
+)

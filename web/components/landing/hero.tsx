@@ -74,10 +74,7 @@ export function Hero() {
               isVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
             }`}
           >
-            Tu veterinaria,{' '}
-            <span className="bg-gradient-to-r from-[#2DCEA3] via-[#00C9FF] to-[#5C6BFF] bg-clip-text text-transparent">
-              digital
-            </span>
+            Tu veterinaria, digital
           </h1>
 
           {/* Subheadline - Direct pain point address */}

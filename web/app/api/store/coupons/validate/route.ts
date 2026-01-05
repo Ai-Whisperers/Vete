@@ -1,20 +1,14 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { NextResponse } from 'next/server'
+import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { rateLimit } from '@/lib/rate-limit'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
+import { logger } from '@/lib/logger'
 
-// POST - Validate a coupon code
-export async function POST(request: NextRequest) {
-  const supabase = await createClient()
-
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-  if (authError || !user) {
-    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED)
-  }
-
+/**
+ * POST /api/store/coupons/validate
+ * Validate a coupon code
+ */
+export const POST = withApiAuth(async ({ request, user, profile, supabase }: ApiHandlerContext) => {
   // Apply rate limiting for write endpoints (20 requests per minute)
   const rateLimitResult = await rateLimit(request, 'write', user.id)
   if (!rateLimitResult.success) {
@@ -57,9 +51,13 @@ export async function POST(request: NextRequest) {
       name: data.name,
     })
   } catch (e) {
-    console.error('Error validating coupon', e)
+    logger.error('Error validating coupon', {
+      tenantId: profile.tenant_id,
+      userId: user.id,
+      error: e instanceof Error ? e.message : 'Unknown',
+    })
     return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
       details: { message: 'No se pudo validar el cupón' },
     })
   }
-}
+})

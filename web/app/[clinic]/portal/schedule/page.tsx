@@ -41,11 +41,11 @@ export default async function SchedulePage({ params }: { params: Promise<{ clini
   if (!profile || !['vet', 'admin'].includes(profile.role)) {
     return (
       <div className="p-8 text-center">
-        <h1 className="text-2xl font-bold text-red-600">Acceso Restringido</h1>
+        <h1 className="text-2xl font-bold text-[var(--status-error)]">Acceso Restringido</h1>
         <p className="text-gray-500">Solo el personal veterinario puede ver la agenda.</p>
         <Link
           href={`/${clinic}/portal/dashboard`}
-          className="mt-4 block text-blue-500 hover:underline"
+          className="mt-4 block text-[var(--status-info)] hover:underline"
         >
           Volver al Inicio
         </Link>

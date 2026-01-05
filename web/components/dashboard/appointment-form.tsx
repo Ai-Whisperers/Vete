@@ -189,7 +189,7 @@ export function AppointmentForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {error && (
-        <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        <div className="rounded-xl border border-[var(--status-error-border)] bg-[var(--status-error-bg)] p-4 text-sm text-[var(--status-error-text)]">
           {error}
         </div>
       )}
@@ -271,7 +271,7 @@ export function AppointmentForm({
       </div>
 
       {/* Service & Duration */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
           <label className="mb-1 block text-sm font-medium text-gray-600">Servicio</label>
           <select
@@ -309,7 +309,7 @@ export function AppointmentForm({
       </div>
 
       {/* Date & Time */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
           <label className="mb-1 block text-sm font-medium text-gray-600">Fecha y Hora *</label>
           <div className="relative">

@@ -116,7 +116,7 @@ function ClinicCard({ clinic }: { clinic: ClinicShowcase }) {
       </div>
 
       {/* Metrics Grid */}
-      <div className="mb-6 grid grid-cols-3 gap-3">
+      <div className="mb-6 grid grid-cols-3 gap-2 sm:gap-3">
         <div className="rounded-lg bg-white/5 p-3 text-center">
           <TrendingUp className="mx-auto mb-1 h-4 w-4 text-[var(--primary)]" />
           <div className="text-sm font-bold text-white">{clinic.metrics.appointmentsGrowth}</div>

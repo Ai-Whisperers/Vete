@@ -53,10 +53,7 @@ export function SolutionSection() {
             <span className="text-sm font-bold text-[#2DCEA3]">La Solucion</span>
           </div>
           <h2 className="mb-4 text-2xl font-black leading-tight text-white sm:text-3xl md:mb-6 md:text-4xl lg:text-5xl">
-            Tecnologia profesional,{' '}
-            <span className="block bg-gradient-to-r from-[#2DCEA3] to-[#00C9FF] bg-clip-text text-transparent sm:inline">
-              precio accesible
-            </span>
+            Tecnologia profesional precio accesible
           </h2>
           <p className="mx-auto max-w-2xl text-sm text-white/60 md:text-base lg:text-lg">
             VetePy es una red de sitios veterinarios que comparten tecnologia. Vos obtenes un sitio

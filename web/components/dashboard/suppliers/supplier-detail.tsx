@@ -63,9 +63,9 @@ interface SupplierDetailModalProps {
 }
 
 const VERIFICATION_STATUS = {
-  pending: { label: 'Pendiente de Verificación', icon: AlertCircle, color: 'text-amber-500', bg: 'bg-amber-50' },
-  verified: { label: 'Verificado', icon: CheckCircle, color: 'text-green-500', bg: 'bg-green-50' },
-  rejected: { label: 'Rechazado', icon: XCircle, color: 'text-red-500', bg: 'bg-red-50' },
+  pending: { label: 'Pendiente de Verificación', icon: AlertCircle, color: 'text-[var(--status-warning)]', bg: 'bg-[var(--status-warning-bg)]' },
+  verified: { label: 'Verificado', icon: CheckCircle, color: 'text-[var(--status-success)]', bg: 'bg-[var(--status-success-bg)]' },
+  rejected: { label: 'Rechazado', icon: XCircle, color: 'text-[var(--status-error)]', bg: 'bg-[var(--status-error-bg)]' },
 }
 
 export function SupplierDetailModal({ supplierId, onClose, onVerify }: SupplierDetailModalProps): React.ReactElement {
@@ -142,7 +142,7 @@ export function SupplierDetailModal({ supplierId, onClose, onVerify }: SupplierD
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
         <div className="rounded-2xl bg-white p-8 text-center">
-          <AlertCircle className="mx-auto mb-4 h-12 w-12 text-red-400" />
+          <AlertCircle className="mx-auto mb-4 h-12 w-12 text-[var(--status-error)]" />
           <p className="text-gray-600">Proveedor no encontrado</p>
           <button
             onClick={onClose}
@@ -192,14 +192,14 @@ export function SupplierDetailModal({ supplierId, onClose, onVerify }: SupplierD
                 <button
                   onClick={() => handleVerify('rejected')}
                   disabled={verifying}
-                  className="rounded-lg border border-red-200 bg-white px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50 disabled:opacity-50"
+                  className="rounded-lg border border-[var(--status-error-border)] bg-white px-3 py-1.5 text-sm font-medium text-[var(--status-error)] hover:bg-[var(--status-error-bg)] disabled:opacity-50"
                 >
                   Rechazar
                 </button>
                 <button
                   onClick={() => handleVerify('verified')}
                   disabled={verifying}
-                  className="flex items-center gap-1 rounded-lg bg-green-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50"
+                  className="flex items-center gap-1 rounded-lg bg-[var(--status-success)] px-3 py-1.5 text-sm font-medium text-white hover:bg-[var(--status-success)]/90 disabled:opacity-50"
                 >
                   {verifying ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShieldCheck className="h-4 w-4" />}
                   Verificar

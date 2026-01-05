@@ -49,15 +49,6 @@ export async function GET(request: Request) {
 
   const supabase = await createClient()
 
-  // DEBUG: Log the query params
-  console.log('🔍 [Store Products API] Fetching products for:', {
-    clinic,
-    page,
-    limit,
-    sort,
-    search,
-    category,
-  })
 
   try {
     // Step 1: Get clinic product assignments
@@ -79,7 +70,6 @@ export async function GET(request: Request) {
     }
 
     if (!assignments || assignments.length === 0) {
-      console.log('✅ [Store Products API] No products assigned to clinic')
       return NextResponse.json({
         products: [],
         pagination: { page, limit, pages: 0, total: 0, hasNext: false, hasPrev: false },
@@ -194,13 +184,6 @@ export async function GET(request: Request) {
     const products = allProducts.slice(from, from + limit)
     const count = allProducts.length
 
-    // DEBUG: Log success
-    console.log('✅ [Store Products API] Found products:', {
-      count,
-      productCount: products?.length,
-      firstProduct: products?.[0]?.name,
-    })
-
     const totalPages = Math.ceil((count || 0) / limit)
 
     // In a real app, available filters would be calculated based on the full product set, not just the current page
@@ -241,7 +224,6 @@ export async function GET(request: Request) {
       errorDetails: err.details,
       errorHint: err.hint,
     })
-    console.error('🔴 [Store Products API] Error:', err.message)
     return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
       details: { message: err.message || 'Error loading products' },
     })

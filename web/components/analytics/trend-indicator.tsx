@@ -30,9 +30,9 @@ export function TrendIndicator({
   const getColor = () => {
     if (isNeutral) return 'text-gray-500 bg-gray-100'
     if (invertColors) {
-      return isPositive ? 'text-red-600 bg-red-100' : 'text-green-600 bg-green-100'
+      return isPositive ? 'text-[var(--status-error)] bg-[var(--status-error-bg)]' : 'text-[var(--status-success)] bg-[var(--status-success-bg)]'
     }
-    return isPositive ? 'text-green-600 bg-green-100' : 'text-red-600 bg-red-100'
+    return isPositive ? 'text-[var(--status-success)] bg-[var(--status-success-bg)]' : 'text-[var(--status-error)] bg-[var(--status-error-bg)]'
   }
 
   const formatValue = () => {
@@ -87,9 +87,9 @@ export function TrendBadge({
   const getColor = () => {
     if (isNeutral) return 'text-gray-500'
     if (invertColors) {
-      return isPositive ? 'text-red-600' : 'text-green-600'
+      return isPositive ? 'text-[var(--status-error)]' : 'text-[var(--status-success)]'
     }
-    return isPositive ? 'text-green-600' : 'text-red-600'
+    return isPositive ? 'text-[var(--status-success)]' : 'text-[var(--status-error)]'
   }
 
   const Icon = isNeutral ? Minus : isPositive ? TrendingUp : TrendingDown

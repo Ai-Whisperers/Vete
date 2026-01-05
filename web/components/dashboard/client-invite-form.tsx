@@ -146,11 +146,11 @@ export function ClientInviteForm({
   if (success) {
     return (
       <div className="py-8 text-center">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
-          <CheckCircle className="h-8 w-8 text-green-600" />
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--status-success-bg)]">
+          <CheckCircle className="h-8 w-8 text-[var(--status-success)]" />
         </div>
-        <h2 className="mb-2 text-xl font-bold text-green-800">Cliente Registrado</h2>
-        <p className="text-green-700">El cliente ha sido agregado exitosamente.</p>
+        <h2 className="mb-2 text-xl font-bold text-[var(--status-success-text)]">Cliente Registrado</h2>
+        <p className="text-[var(--status-success-text)]">El cliente ha sido agregado exitosamente.</p>
       </div>
     )
   }
@@ -164,7 +164,7 @@ export function ClientInviteForm({
             role="alert"
             aria-live="assertive"
             id="form-error"
-            className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700"
+            className="flex items-start gap-2 rounded-xl border border-[var(--status-error-border)] bg-[var(--status-error-bg)] p-4 text-sm text-[var(--status-error-text)]"
           >
             <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />
             <span>{submitError}</span>
@@ -192,12 +192,12 @@ export function ClientInviteForm({
               aria-describedby={submitError ? 'form-error' : undefined}
               className={`w-full rounded-xl border px-4 py-3 outline-none focus:ring-2 ${
                 form.getFieldProps('fullName').error
-                  ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20'
+                  ? 'border-[var(--status-error-border)] focus:border-[var(--status-error)] focus:ring-[var(--status-error)]/20'
                   : 'focus:ring-[var(--primary)]/20 border-gray-200 focus:border-[var(--primary)]'
               }`}
             />
             {form.getFieldProps('fullName').error && (
-              <p className="mt-1 text-xs text-red-600">{form.getFieldProps('fullName').error}</p>
+              <p className="mt-1 text-xs text-[var(--status-error)]">{form.getFieldProps('fullName').error}</p>
             )}
           </div>
 
@@ -220,13 +220,13 @@ export function ClientInviteForm({
                 aria-describedby={submitError ? 'form-error' : undefined}
                 className={`w-full rounded-xl border py-3 pl-12 pr-4 outline-none focus:ring-2 ${
                   form.getFieldProps('email').error
-                    ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20'
+                    ? 'border-[var(--status-error-border)] focus:border-[var(--status-error)] focus:ring-[var(--status-error)]/20'
                     : 'focus:ring-[var(--primary)]/20 border-gray-200 focus:border-[var(--primary)]'
                 }`}
               />
             </div>
             {form.getFieldProps('email').error && (
-              <p className="mt-1 text-xs text-red-600">{form.getFieldProps('email').error}</p>
+              <p className="mt-1 text-xs text-[var(--status-error)]">{form.getFieldProps('email').error}</p>
             )}
           </div>
 
@@ -285,7 +285,7 @@ export function ClientInviteForm({
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <label
                   htmlFor="petSpecies"

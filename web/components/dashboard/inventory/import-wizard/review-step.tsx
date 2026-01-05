@@ -31,26 +31,26 @@ export function ReviewStep({
           </div>
           <div className="text-xs text-gray-500">Total</div>
         </div>
-        <div className="rounded-xl bg-green-50 p-4 text-center">
-          <div className="text-2xl font-bold text-green-600">
+        <div className="rounded-xl bg-[var(--status-success-bg)] p-4 text-center">
+          <div className="text-2xl font-bold text-[var(--status-success)]">
             {previewResult.summary.newProducts}
           </div>
           <div className="text-xs text-gray-500">Nuevos</div>
         </div>
-        <div className="rounded-xl bg-blue-50 p-4 text-center">
-          <div className="text-2xl font-bold text-blue-600">
+        <div className="rounded-xl bg-[var(--status-info-bg)] p-4 text-center">
+          <div className="text-2xl font-bold text-[var(--status-info)]">
             {previewResult.summary.updates}
           </div>
           <div className="text-xs text-gray-500">Actualizaciones</div>
         </div>
-        <div className="rounded-xl bg-amber-50 p-4 text-center">
-          <div className="text-2xl font-bold text-amber-600">
+        <div className="rounded-xl bg-[var(--status-warning-bg)] p-4 text-center">
+          <div className="text-2xl font-bold text-[var(--status-warning)]">
             {previewResult.summary.adjustments}
           </div>
           <div className="text-xs text-gray-500">Ajustes</div>
         </div>
-        <div className="rounded-xl bg-red-50 p-4 text-center">
-          <div className="text-2xl font-bold text-red-600">
+        <div className="rounded-xl bg-[var(--status-error-bg)] p-4 text-center">
+          <div className="text-2xl font-bold text-[var(--status-error)]">
             {previewResult.summary.errors}
           </div>
           <div className="text-xs text-gray-500">Errores</div>
@@ -65,8 +65,8 @@ export function ReviewStep({
 
       {/* Filter Bar */}
       {previewResult.summary.errors > 0 && (
-        <div className="flex items-center justify-between rounded-lg border border-red-200 bg-red-50 p-3">
-          <div className="flex items-center gap-2 text-red-700">
+        <div className="flex items-center justify-between rounded-lg border border-[var(--status-error-border)] bg-[var(--status-error-bg)] p-3">
+          <div className="flex items-center gap-2 text-[var(--status-error-text)]">
             <AlertCircle className="h-5 w-5" />
             <span className="font-medium">
               {previewResult.summary.errors} error
@@ -79,9 +79,9 @@ export function ReviewStep({
               type="checkbox"
               checked={showOnlyErrors}
               onChange={(e) => onShowOnlyErrorsChange(e.target.checked)}
-              className="h-4 w-4 rounded border-gray-300 text-red-600 focus:ring-red-500"
+              className="h-4 w-4 rounded border-gray-300 text-[var(--status-error)] focus:ring-[var(--status-error)]"
             />
-            <span className="text-sm text-red-700">Mostrar solo errores</span>
+            <span className="text-sm text-[var(--status-error-text)]">Mostrar solo errores</span>
           </label>
         </div>
       )}
@@ -120,7 +120,7 @@ export function ReviewStep({
                     key={idx}
                     className={
                       row.status === 'error'
-                        ? 'bg-red-50'
+                        ? 'bg-[var(--status-error-bg)]'
                         : row.status === 'skip'
                           ? 'bg-gray-50 opacity-60'
                           : ''
@@ -140,8 +140,8 @@ export function ReviewStep({
                           <span
                             className={
                               row.newStock > row.currentStock
-                                ? 'font-medium text-green-600'
-                                : 'font-medium text-red-600'
+                                ? 'font-medium text-[var(--status-success)]'
+                                : 'font-medium text-[var(--status-error)]'
                             }
                           >
                             {row.newStock}
@@ -166,10 +166,10 @@ export function ReviewStep({
 
 function StatusBadge({ status }: { status: string }) {
   const styles: Record<string, string> = {
-    new: 'bg-green-100 text-green-700',
-    update: 'bg-blue-100 text-blue-700',
-    adjustment: 'bg-amber-100 text-amber-700',
-    error: 'bg-red-100 text-red-700',
+    new: 'bg-[var(--status-success-bg)] text-[var(--status-success-text)]',
+    update: 'bg-[var(--status-info-bg)] text-[var(--status-info-text)]',
+    adjustment: 'bg-[var(--status-warning-bg)] text-[var(--status-warning-text)]',
+    error: 'bg-[var(--status-error-bg)] text-[var(--status-error-text)]',
     skip: 'bg-gray-100 text-gray-500',
   }
 

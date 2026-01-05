@@ -1,27 +1,18 @@
-import { createClient } from '@/lib/supabase/server'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
+import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
+import { logger } from '@/lib/logger'
 
 /**
  * GET /api/loyalty/rewards
  * Get available rewards for a clinic
  */
-export async function GET(request: NextRequest): Promise<NextResponse> {
-  const supabase = await createClient()
+export const GET = withApiAuth(async ({ request, user, profile, supabase }: ApiHandlerContext) => {
   const { searchParams } = new URL(request.url)
   const clinic = searchParams.get('clinic')
 
   if (!clinic) {
     return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, { details: { field: 'clinic' } })
-  }
-
-  // Auth check
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-  if (authError || !user) {
-    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED)
   }
 
   try {
@@ -69,93 +60,83 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     return NextResponse.json({ data: rewards || [] })
   } catch (e) {
-    console.error('Error fetching rewards:', e)
+    logger.error('Error fetching loyalty rewards', {
+      tenantId: profile.tenant_id,
+      userId: user.id,
+      clinicParam: clinic,
+      error: e instanceof Error ? e.message : 'Unknown',
+    })
     return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
   }
-}
+})
 
 /**
  * POST /api/loyalty/rewards
  * Create a new reward (admin only)
  */
-export async function POST(request: NextRequest): Promise<NextResponse> {
-  const supabase = await createClient()
-
-  // Auth check
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-  if (authError || !user) {
-    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED)
-  }
-
-  // Admin check
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('tenant_id, role')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile || profile.role !== 'admin') {
-    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN)
-  }
-
-  try {
-    const body = await request.json()
-    const {
-      name,
-      description,
-      category,
-      points_cost,
-      value_display,
-      stock,
-      max_per_user,
-      valid_from,
-      valid_to,
-      service_id,
-      product_id,
-      discount_percentage,
-      discount_amount,
-      image_url,
-      display_order,
-    } = body
-
-    if (!name || !points_cost) {
-      return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
-        details: { required: ['name', 'points_cost'] },
-      })
-    }
-
-    const { data, error } = await supabase
-      .from('loyalty_rewards')
-      .insert({
-        tenant_id: profile.tenant_id,
+export const POST = withApiAuth(
+  async ({ request, user, profile, supabase }: ApiHandlerContext) => {
+    try {
+      const body = await request.json()
+      const {
         name,
         description,
-        category: category || 'discount',
+        category,
         points_cost,
         value_display,
-        stock: stock || null,
-        max_per_user: max_per_user || null,
-        valid_from: valid_from || null,
-        valid_to: valid_to || null,
-        service_id: service_id || null,
-        product_id: product_id || null,
-        discount_percentage: discount_percentage || null,
-        discount_amount: discount_amount || null,
-        image_url: image_url || null,
-        display_order: display_order || 0,
-        is_active: true,
+        stock,
+        max_per_user,
+        valid_from,
+        valid_to,
+        service_id,
+        product_id,
+        discount_percentage,
+        discount_amount,
+        image_url,
+        display_order,
+      } = body
+
+      if (!name || !points_cost) {
+        return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
+          details: { required: ['name', 'points_cost'] },
+        })
+      }
+
+      const { data, error } = await supabase
+        .from('loyalty_rewards')
+        .insert({
+          tenant_id: profile.tenant_id,
+          name,
+          description,
+          category: category || 'discount',
+          points_cost,
+          value_display,
+          stock: stock || null,
+          max_per_user: max_per_user || null,
+          valid_from: valid_from || null,
+          valid_to: valid_to || null,
+          service_id: service_id || null,
+          product_id: product_id || null,
+          discount_percentage: discount_percentage || null,
+          discount_amount: discount_amount || null,
+          image_url: image_url || null,
+          display_order: display_order || 0,
+          is_active: true,
+        })
+        .select()
+        .single()
+
+      if (error) throw error
+
+      return NextResponse.json({ data }, { status: 201 })
+    } catch (e) {
+      logger.error('Error creating loyalty reward', {
+        tenantId: profile.tenant_id,
+        userId: user.id,
+        error: e instanceof Error ? e.message : 'Unknown',
       })
-      .select()
-      .single()
-
-    if (error) throw error
-
-    return NextResponse.json({ data }, { status: 201 })
-  } catch (e) {
-    console.error('Error creating reward:', e)
-    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
-  }
-}
+      return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
+    }
+  },
+  { roles: ['admin'] }
+)

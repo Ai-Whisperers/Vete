@@ -57,11 +57,11 @@ interface PurchaseOrderListProps {
 
 const STATUS_CONFIG = {
   draft: { label: 'Borrador', icon: FileText, color: 'text-gray-500', bg: 'bg-gray-100' },
-  submitted: { label: 'Enviado', icon: Clock, color: 'text-blue-500', bg: 'bg-blue-100' },
-  confirmed: { label: 'Confirmado', icon: CheckCircle, color: 'text-green-500', bg: 'bg-green-100' },
+  submitted: { label: 'Enviado', icon: Clock, color: 'text-[var(--status-info)]', bg: 'bg-[var(--status-info-bg)]' },
+  confirmed: { label: 'Confirmado', icon: CheckCircle, color: 'text-[var(--status-success)]', bg: 'bg-[var(--status-success-bg)]' },
   shipped: { label: 'En Camino', icon: Truck, color: 'text-purple-500', bg: 'bg-purple-100' },
   received: { label: 'Recibido', icon: Package, color: 'text-emerald-500', bg: 'bg-emerald-100' },
-  cancelled: { label: 'Cancelado', icon: XCircle, color: 'text-red-500', bg: 'bg-red-100' },
+  cancelled: { label: 'Cancelado', icon: XCircle, color: 'text-[var(--status-error)]', bg: 'bg-[var(--status-error-bg)]' },
 }
 
 export function PurchaseOrderList({
@@ -153,7 +153,7 @@ export function PurchaseOrderList({
       </div>
 
       {error && (
-        <div className="rounded-lg bg-red-50 p-4 text-red-600">
+        <div className="rounded-lg bg-[var(--status-error-bg)] p-4 text-[var(--status-error)]">
           {error}
         </div>
       )}

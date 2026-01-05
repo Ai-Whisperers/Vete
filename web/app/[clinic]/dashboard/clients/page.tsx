@@ -351,7 +351,6 @@ export default async function ClientsPage({ params, searchParams }: Props) {
                               href={`https://wa.me/${client.phone.replace(/\D/g, '')}`}
                               target="_blank"
                               rel="noopener noreferrer"
-                              onClick={(e) => e.stopPropagation()}
                               className="text-green-600 transition-colors hover:text-green-700"
                               title="Abrir WhatsApp"
                             >
@@ -479,7 +478,6 @@ export default async function ClientsPage({ params, searchParams }: Props) {
                         href={`https://wa.me/${client.phone.replace(/\D/g, '')}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        onClick={(e) => e.stopPropagation()}
                         className="text-green-600 transition-colors hover:text-green-700"
                         title="Abrir WhatsApp"
                       >

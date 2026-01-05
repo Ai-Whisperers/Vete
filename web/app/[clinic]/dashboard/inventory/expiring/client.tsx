@@ -380,7 +380,7 @@ export default function ExpiringProductsClient({
             <button
               onClick={handleDisposeSelected}
               disabled={disposeStatus === 'loading'}
-              className="flex items-center gap-2 rounded-lg bg-red-500 px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-red-600 disabled:opacity-50"
+              className="flex items-center gap-2 rounded-lg bg-[var(--status-error)] px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-[var(--status-error-text)] disabled:opacity-50"
             >
               {disposeStatus === 'loading' ? (
                 <>
@@ -410,8 +410,8 @@ export default function ExpiringProductsClient({
 
       {/* Error */}
       {error && (
-        <div className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-700">
-          <AlertCircle className="h-5 w-5" />
+        <div className="flex items-center gap-2 rounded-xl border border-[var(--status-error-border)] bg-[var(--status-error-bg)] px-4 py-3 text-[var(--status-error-text)]">
+          <AlertCircle className="h-5 w-5 text-[var(--status-error)]" />
           {error}
         </div>
       )}
@@ -566,7 +566,7 @@ export default function ExpiringProductsClient({
                             {key === 'expired' && (
                               <button
                                 onClick={() => handleDisposeSingle(product)}
-                                className="flex items-center gap-1 rounded-lg bg-red-50 px-3 py-1.5 text-xs font-medium text-red-600 transition-colors hover:bg-red-100"
+                                className="flex items-center gap-1 rounded-lg bg-[var(--status-error-bg)] px-3 py-1.5 text-xs font-medium text-[var(--status-error)] transition-colors hover:bg-[var(--status-error-border)]"
                               >
                                 <Trash2 className="h-3.5 w-3.5" />
                                 Marcar como Desechado

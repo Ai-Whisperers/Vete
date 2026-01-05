@@ -92,7 +92,7 @@ export function PriceComparison({ productIds, onSelectSupplier }: PriceCompariso
 
   if (error) {
     return (
-      <div className="rounded-lg bg-red-50 p-4 text-center text-red-600">
+      <div className="rounded-lg bg-[var(--status-error-bg)] p-4 text-center text-[var(--status-error)]">
         {error}
       </div>
     )
@@ -179,7 +179,7 @@ export function PriceComparison({ productIds, onSelectSupplier }: PriceCompariso
                         return (
                           <tr
                             key={supplierData.supplier?.id || index}
-                            className={`border-b border-gray-50 ${isBest ? 'bg-green-50/50' : ''}`}
+                            className={`border-b border-gray-50 ${isBest ? 'bg-[var(--status-success-bg)]/50' : ''}`}
                           >
                             <td className="py-3">
                               <div className="flex items-center gap-2">
@@ -188,23 +188,23 @@ export function PriceComparison({ productIds, onSelectSupplier }: PriceCompariso
                                   <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
                                 )}
                                 {supplierData.supplier?.verification_status === 'verified' && (
-                                  <CheckCircle className="h-3.5 w-3.5 text-green-500" />
+                                  <CheckCircle className="h-3.5 w-3.5 text-[var(--status-success)]" />
                                 )}
                               </div>
                             </td>
                             <td className="py-3 text-right">
-                              <span className={`font-medium ${isBest ? 'text-green-600' : ''}`}>
+                              <span className={`font-medium ${isBest ? 'text-[var(--status-success)]' : ''}`}>
                                 ₲{supplierData.unit_cost.toLocaleString()}
                               </span>
                             </td>
                             <td className="py-3 text-right">
                               {isBest ? (
-                                <span className="flex items-center justify-end gap-1 text-green-600">
+                                <span className="flex items-center justify-end gap-1 text-[var(--status-success)]">
                                   <TrendingDown className="h-3.5 w-3.5" />
                                   Mejor precio
                                 </span>
                               ) : savings > 0 ? (
-                                <span className="flex items-center justify-end gap-1 text-red-500">
+                                <span className="flex items-center justify-end gap-1 text-[var(--status-error)]">
                                   <TrendingUp className="h-3.5 w-3.5" />
                                   +{savings.toFixed(1)}%
                                 </span>

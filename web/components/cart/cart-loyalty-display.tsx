@@ -45,8 +45,8 @@ export function CartLoyaltyDisplay({
           const data = await res.json()
           setPoints(data.points || 0)
         }
-      } catch (e) {
-        console.error('Error fetching loyalty points:', e)
+      } catch {
+        // Silent fail - loyalty points are non-critical UI enhancement
       } finally {
         setLoading(false)
       }

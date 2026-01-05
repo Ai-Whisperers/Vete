@@ -1,5 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { NextResponse } from 'next/server'
+import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
+import { apiError, HTTP_STATUS } from '@/lib/api/errors'
+import { logger } from '@/lib/logger'
 import { z } from 'zod'
 
 // Validation schemas
@@ -19,33 +21,13 @@ const createRecurrenceSchema = z.object({
   notes: z.string().max(500).optional(),
 })
 
-// GET /api/appointments/recurrences - List recurrences
-export async function GET(request: NextRequest): Promise<NextResponse> {
+/**
+ * GET /api/appointments/recurrences
+ * List recurrences - owners see their pets only, staff see all
+ */
+export const GET = withApiAuth(async ({ request, user, profile, supabase }: ApiHandlerContext) => {
   try {
-    const supabase = await createClient()
-
-    // Auth check
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-    }
-
-    // Get user profile
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('tenant_id, role')
-      .eq('id', user.id)
-      .single()
-
-    if (!profile) {
-      return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 })
-    }
-
-    const searchParams = request.nextUrl.searchParams
+    const searchParams = new URL(request.url).searchParams
     const petId = searchParams.get('pet_id')
     const activeOnly = searchParams.get('active') !== 'false'
 
@@ -65,10 +47,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     // Filter by pet for owners
     if (profile.role === 'owner') {
-      const { data: userPets } = await supabase
-        .from('pets')
-        .select('id')
-        .eq('owner_id', user.id)
+      const { data: userPets } = await supabase.from('pets').select('id').eq('owner_id', user.id)
 
       const petIds = userPets?.map((p) => p.id) || []
       query = query.in('pet_id', petIds.length > 0 ? petIds : ['00000000-0000-0000-0000-000000000000'])
@@ -85,52 +64,39 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const { data, error } = await query
 
     if (error) {
-      console.error('Error fetching recurrences:', error)
-      return NextResponse.json({ error: 'Error al cargar recurrencias' }, { status: 500 })
+      logger.error('Error fetching recurrences', {
+        tenantId: profile.tenant_id,
+        userId: user.id,
+        error: error.message,
+      })
+      return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
     }
 
     return NextResponse.json({ recurrences: data })
-  } catch (error) {
-    console.error('Recurrences GET error:', error)
-    return NextResponse.json({ error: 'Error del servidor' }, { status: 500 })
+  } catch (e) {
+    logger.error('Recurrences GET error', {
+      tenantId: profile.tenant_id,
+      userId: user.id,
+      error: e instanceof Error ? e.message : 'Unknown',
+    })
+    return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
   }
-}
+})
 
-// POST /api/appointments/recurrences - Create recurrence
-export async function POST(request: NextRequest): Promise<NextResponse> {
+/**
+ * POST /api/appointments/recurrences
+ * Create recurrence - owners can create for their pets, staff for any
+ */
+export const POST = withApiAuth(async ({ request, user, profile, supabase }: ApiHandlerContext) => {
   try {
-    const supabase = await createClient()
-
-    // Auth check
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-    }
-
-    // Get user profile
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('tenant_id, role')
-      .eq('id', user.id)
-      .single()
-
-    if (!profile) {
-      return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 })
-    }
-
     // Parse and validate body
     const body = await request.json()
     const validation = createRecurrenceSchema.safeParse(body)
 
     if (!validation.success) {
-      return NextResponse.json(
-        { error: 'Datos inválidos', details: validation.error.flatten() },
-        { status: 400 }
-      )
+      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+        details: { errors: validation.error.flatten() },
+      })
     }
 
     const data = validation.data
@@ -143,11 +109,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       .single()
 
     if (!pet) {
-      return NextResponse.json({ error: 'Mascota no encontrada' }, { status: 404 })
+      return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
+        details: { resource: 'pet' },
+      })
     }
 
     if (profile.role === 'owner' && pet.owner_id !== user.id) {
-      return NextResponse.json({ error: 'No autorizado para esta mascota' }, { status: 403 })
+      return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN)
     }
 
     // Get service duration if not provided
@@ -186,8 +154,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       .single()
 
     if (insertError) {
-      console.error('Error creating recurrence:', insertError)
-      return NextResponse.json({ error: 'Error al crear recurrencia' }, { status: 500 })
+      logger.error('Error creating recurrence', {
+        tenantId: profile.tenant_id,
+        userId: user.id,
+        petId: data.pet_id,
+        error: insertError.message,
+      })
+      return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
     }
 
     // Generate first appointments
@@ -198,12 +171,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({
       message: 'Recurrencia creada exitosamente',
       recurrence,
-      appointments_generated: generated?.filter(
-        (g: { recurrence_id: string }) => g.recurrence_id === recurrence.id
-      ).length || 0,
+      appointments_generated:
+        generated?.filter((g: { recurrence_id: string }) => g.recurrence_id === recurrence.id).length || 0,
     })
-  } catch (error) {
-    console.error('Recurrences POST error:', error)
-    return NextResponse.json({ error: 'Error del servidor' }, { status: 500 })
+  } catch (e) {
+    logger.error('Recurrences POST error', {
+      tenantId: profile.tenant_id,
+      userId: user.id,
+      error: e instanceof Error ? e.message : 'Unknown',
+    })
+    return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
   }
-}
+})

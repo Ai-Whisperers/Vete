@@ -114,9 +114,9 @@ export default function AdmissionForm({ onSuccess, onCancel }: AdmissionFormProp
         <div
           role="alert"
           aria-live="assertive"
-          className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4"
+          className="mb-6 rounded-lg border border-[var(--status-error-border)] bg-[var(--status-error-bg)] p-4"
         >
-          <div className="flex items-center gap-3 text-red-700">
+          <div className="flex items-center gap-3 text-[var(--status-error-text)]">
             <XCircle className="h-5 w-5 flex-shrink-0" aria-hidden="true" />
             <p className="font-medium">{formError}</p>
             <button

@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { rateLimit } from '@/lib/rate-limit'
-import type { SearchSuggestion, SearchResponse } from '@/lib/types/store'
+import type { SearchSuggestion } from '@/lib/types/store'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
+import { logger } from '@/lib/logger'
 
 // GET - Search products with autocomplete suggestions
 export async function GET(request: NextRequest) {
@@ -252,7 +253,11 @@ export async function GET(request: NextRequest) {
       total: formattedProducts.length,
     })
   } catch (error) {
-    console.error('Store search error:', error)
+    logger.error('Store search error', {
+      clinic,
+      query,
+      error: error instanceof Error ? error.message : 'Unknown',
+    })
     return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
       details: { message: 'Error en búsqueda' },
     })

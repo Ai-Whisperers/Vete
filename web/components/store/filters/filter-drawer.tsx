@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useRef, useCallback } from 'react'
 import { X, SlidersHorizontal, Star, Dog, Cat, Bird, Fish, Rabbit } from 'lucide-react'
 import type {
   ProductFilters,
@@ -50,17 +50,64 @@ export default function FilterDrawer({
   onApply,
   resultCount,
 }: Props) {
-  // Lock body scroll when open
+  const drawerRef = useRef<HTMLDivElement>(null)
+  const previousActiveElement = useRef<HTMLElement | null>(null)
+
+  // Handle keyboard events (escape and focus trap)
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (!isOpen || !drawerRef.current) return
+
+      // Close on Escape
+      if (e.key === 'Escape') {
+        onClose()
+        return
+      }
+
+      // Focus trap on Tab
+      if (e.key === 'Tab') {
+        const focusableElements = drawerRef.current.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        )
+        const firstElement = focusableElements[0]
+        const lastElement = focusableElements[focusableElements.length - 1]
+
+        if (e.shiftKey && document.activeElement === firstElement) {
+          e.preventDefault()
+          lastElement?.focus()
+        } else if (!e.shiftKey && document.activeElement === lastElement) {
+          e.preventDefault()
+          firstElement?.focus()
+        }
+      }
+    },
+    [isOpen, onClose]
+  )
+
+  // Lock body scroll and manage focus
   useEffect(() => {
     if (isOpen) {
+      previousActiveElement.current = document.activeElement as HTMLElement
       document.body.style.overflow = 'hidden'
+      document.addEventListener('keydown', handleKeyDown)
+      // Focus first focusable element in drawer
+      setTimeout(() => {
+        const firstFocusable = drawerRef.current?.querySelector<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        )
+        firstFocusable?.focus()
+      }, 100)
     } else {
       document.body.style.overflow = ''
+      document.removeEventListener('keydown', handleKeyDown)
+      // Restore focus to previous element
+      previousActiveElement.current?.focus()
     }
     return () => {
       document.body.style.overflow = ''
+      document.removeEventListener('keydown', handleKeyDown)
     }
-  }, [isOpen])
+  }, [isOpen, handleKeyDown])
 
   const updateFilter = <K extends keyof ProductFilters>(key: K, value: ProductFilters[K]) => {
     onFiltersChange({ ...filters, [key]: value })
@@ -90,12 +137,18 @@ export default function FilterDrawer({
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
 
       {/* Drawer */}
-      <div className="animate-slide-up absolute inset-x-0 bottom-0 flex max-h-[85vh] flex-col overflow-hidden rounded-t-2xl bg-white">
+      <div
+        ref={drawerRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="filter-drawer-title"
+        className="animate-slide-up absolute inset-x-0 bottom-0 flex max-h-[85vh] flex-col overflow-hidden rounded-t-2xl bg-white"
+      >
         {/* Header */}
         <div className="flex items-center justify-between border-b border-[var(--border-default)] px-4 py-3">
           <div className="flex items-center gap-2">
-            <SlidersHorizontal className="h-5 w-5" />
-            <span className="text-lg font-semibold">Filtros</span>
+            <SlidersHorizontal className="h-5 w-5" aria-hidden="true" />
+            <span id="filter-drawer-title" className="text-lg font-semibold">Filtros</span>
           </div>
           <button
             onClick={onClose}

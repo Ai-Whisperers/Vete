@@ -82,7 +82,7 @@ export function RecordPaymentDialog({
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {error && <div className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</div>}
+          {error && <div className="rounded-lg bg-[var(--status-error-bg)] p-3 text-sm text-[var(--status-error-text)]">{error}</div>}
 
           <div className="rounded-lg bg-gray-50 p-3">
             <p className="text-sm text-[var(--text-secondary)]">Saldo pendiente</p>
@@ -183,7 +183,7 @@ export function RecordPaymentDialog({
             <button
               type="submit"
               disabled={loading}
-              className="flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 font-medium text-white hover:bg-green-700 disabled:opacity-50"
+              className="flex items-center gap-2 rounded-lg bg-[var(--status-success)] px-4 py-2 font-medium text-white hover:bg-[var(--status-success)]/90 disabled:opacity-50"
             >
               {loading ? (
                 <Icons.Loader2 className="h-4 w-4 animate-spin" />

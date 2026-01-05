@@ -267,7 +267,7 @@ function StorePageClient({ config, heroImage, initialProductData }: StorePageCli
     return (
       <div className="flex min-h-screen items-center justify-center bg-[var(--bg-subtle)] px-4">
         <div className="max-w-md text-center">
-          <AlertCircle className="mx-auto mb-4 h-16 w-16 text-red-400" />
+          <AlertCircle className="mx-auto mb-4 h-16 w-16 text-[var(--status-error)]" />
           <h2 className="mb-2 text-xl font-bold text-[var(--text-primary)]">Error al cargar</h2>
           <p className="mb-6 text-[var(--text-secondary)]">{error.message}</p>
           <button

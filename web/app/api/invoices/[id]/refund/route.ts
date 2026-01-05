@@ -1,13 +1,16 @@
 import { NextResponse } from 'next/server'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
-import { withApiAuthParams, type ApiHandlerContext } from '@/lib/auth'
+import { withApiAuthParams, type ApiHandlerContextWithParams } from '@/lib/auth'
+import { logger } from '@/lib/logger'
 
-// TICKET-BIZ-005: POST /api/invoices/[id]/refund - Process a refund (atomic)
-// Rate limited: 5 requests per hour (refund operations - very strict for fraud prevention)
-export const POST = withApiAuthParams<{ id: string }>(
-  async (ctx: ApiHandlerContext, params: { id: string }) => {
-    const { user, profile, supabase, request } = ctx
-    const { id: invoiceId } = params
+/**
+ * POST /api/invoices/[id]/refund
+ * Process a refund (atomic using RPC)
+ * Rate limited: 5 requests per hour (refund operations - strict for fraud prevention)
+ */
+export const POST = withApiAuthParams(
+  async ({ request, params, user, profile, supabase }: ApiHandlerContextWithParams<{ id: string }>) => {
+    const invoiceId = params.id
 
     try {
       const body = await request.json()
@@ -36,7 +39,12 @@ export const POST = withApiAuthParams<{ id: string }>(
       })
 
       if (rpcError) {
-        console.error('RPC error:', rpcError)
+        logger.error('Error processing refund RPC', {
+          tenantId: profile.tenant_id,
+          userId: user.id,
+          invoiceId,
+          error: rpcError.message,
+        })
         return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
       }
 
@@ -67,7 +75,12 @@ export const POST = withApiAuthParams<{ id: string }>(
         { status: 201 }
       )
     } catch (e) {
-      console.error('Error processing refund:', e)
+      logger.error('Error processing refund', {
+        tenantId: profile.tenant_id,
+        userId: user.id,
+        invoiceId,
+        error: e instanceof Error ? e.message : 'Unknown',
+      })
       return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
     }
   },

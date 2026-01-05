@@ -75,7 +75,7 @@ function TrendBadge({ change }: { change?: number }) {
 function LoadingSkeleton() {
   return (
     <div className="animate-pulse">
-      <div className="mb-4 grid grid-cols-3 gap-4">
+      <div className="mb-4 grid grid-cols-3 gap-2 sm:gap-4">
         {[...Array(3)].map((_, i) => (
           <div key={i} className="text-center">
             <div className="mx-auto mb-2 h-3 w-12 rounded bg-white/20" />
@@ -146,7 +146,7 @@ export function RevenueWidget({ clinic }: RevenueWidgetProps) {
         ) : (
           <>
             {/* Revenue Grid */}
-            <div className="mb-4 grid grid-cols-3 gap-4">
+            <div className="mb-4 grid grid-cols-3 gap-2 sm:gap-4">
               <div className="text-center">
                 <p className="mb-1 text-xs text-white/70">Hoy</p>
                 <p className="text-lg font-bold">{formatCompactCurrency(data?.today || 0)}</p>

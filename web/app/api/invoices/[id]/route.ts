@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server'
-import { withApiAuthParams, isStaff, type ApiHandlerContext } from '@/lib/auth'
+import { withApiAuthParams, isStaff, type ApiHandlerContextWithParams } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
-
-type Params = { id: string }
+import { logger } from '@/lib/logger'
 
 interface InvoiceItem {
   service_id?: string
@@ -13,10 +12,12 @@ interface InvoiceItem {
   discount_percent?: number
 }
 
-// GET /api/invoices/[id] - Get single invoice
-export const GET = withApiAuthParams<Params>(
-  async (ctx: ApiHandlerContext, params: Params) => {
-    const { user, profile, supabase } = ctx
+/**
+ * GET /api/invoices/[id]
+ * Get single invoice with items, payments, and refunds
+ */
+export const GET = withApiAuthParams(
+  async ({ params, user, profile, supabase }: ApiHandlerContextWithParams<{ id: string }>) => {
     const { id } = params
 
     try {
@@ -45,7 +46,7 @@ export const GET = withApiAuthParams<Params>(
         return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND)
       }
 
-      // Check access
+      // Check access - staff or owner
       const userIsStaff = isStaff(profile)
       if (!userIsStaff && invoice.owner_id !== user.id) {
         return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN)
@@ -53,16 +54,23 @@ export const GET = withApiAuthParams<Params>(
 
       return NextResponse.json(invoice)
     } catch (e) {
-      console.error('Error loading invoice:', e)
+      logger.error('Error loading invoice', {
+        tenantId: profile.tenant_id,
+        userId: user.id,
+        invoiceId: id,
+        error: e instanceof Error ? e.message : 'Unknown',
+      })
       return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
     }
   }
 )
 
-// PATCH /api/invoices/[id] - Update invoice
-export const PATCH = withApiAuthParams<Params>(
-  async (ctx: ApiHandlerContext, params: Params) => {
-    const { user, profile, supabase, request } = ctx
+/**
+ * PATCH /api/invoices/[id]
+ * Update invoice (full edit for drafts, status/notes only for sent)
+ */
+export const PATCH = withApiAuthParams(
+  async ({ request, params, user, profile, supabase }: ApiHandlerContextWithParams<{ id: string }>) => {
     const { id } = params
 
     try {
@@ -175,17 +183,24 @@ export const PATCH = withApiAuthParams<Params>(
 
       return NextResponse.json(updated)
     } catch (e) {
-      console.error('Error updating invoice:', e)
+      logger.error('Error updating invoice', {
+        tenantId: profile.tenant_id,
+        userId: user.id,
+        invoiceId: id,
+        error: e instanceof Error ? e.message : 'Unknown',
+      })
       return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
     }
   },
   { roles: ['vet', 'admin'] }
 )
 
-// DELETE /api/invoices/[id] - Delete invoice (soft delete or void)
-export const DELETE = withApiAuthParams<Params>(
-  async (ctx: ApiHandlerContext, params: Params) => {
-    const { user, profile, supabase } = ctx
+/**
+ * DELETE /api/invoices/[id]
+ * Delete invoice (hard delete for drafts, void for sent)
+ */
+export const DELETE = withApiAuthParams(
+  async ({ params, user, profile, supabase }: ApiHandlerContextWithParams<{ id: string }>) => {
     const { id } = params
 
     try {
@@ -224,7 +239,12 @@ export const DELETE = withApiAuthParams<Params>(
 
       return NextResponse.json({ success: true })
     } catch (e) {
-      console.error('Error deleting invoice:', e)
+      logger.error('Error deleting invoice', {
+        tenantId: profile.tenant_id,
+        userId: user.id,
+        invoiceId: id,
+        error: e instanceof Error ? e.message : 'Unknown',
+      })
       return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
     }
   },

@@ -22,9 +22,10 @@ export function PetSelection() {
       <div className="mb-10 flex items-center gap-4">
         <button
           onClick={() => setStep('service')}
+          aria-label="Volver a selección de servicio"
           className="rounded-2xl bg-gray-50 p-3 text-gray-400 transition-all hover:bg-gray-100"
         >
-          <ArrowLeft className="h-5 w-5" />
+          <ArrowLeft className="h-5 w-5" aria-hidden="true" />
         </button>
         <h2 className="text-3xl font-black text-gray-900">¿Para quién es la cita?</h2>
       </div>

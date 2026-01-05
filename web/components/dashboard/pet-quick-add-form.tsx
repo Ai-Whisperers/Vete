@@ -200,11 +200,11 @@ export function PetQuickAddForm({
   if (success) {
     return (
       <div className="py-8 text-center">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
-          <CheckCircle className="h-8 w-8 text-green-600" />
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--status-success-bg)]">
+          <CheckCircle className="h-8 w-8 text-[var(--status-success)]" />
         </div>
-        <h2 className="mb-2 text-xl font-bold text-green-800">Mascota Registrada</h2>
-        <p className="text-green-700">La mascota ha sido agregada exitosamente.</p>
+        <h2 className="mb-2 text-xl font-bold text-[var(--status-success-text)]">Mascota Registrada</h2>
+        <p className="text-[var(--status-success-text)]">La mascota ha sido agregada exitosamente.</p>
       </div>
     )
   }
@@ -212,7 +212,7 @@ export function PetQuickAddForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {error && (
-        <div className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        <div className="flex items-start gap-2 rounded-xl border border-[var(--status-error-border)] bg-[var(--status-error-bg)] p-4 text-sm text-[var(--status-error-text)]">
           <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" />
           <span>{error}</span>
         </div>
@@ -293,7 +293,7 @@ export function PetQuickAddForm({
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
             <label htmlFor="species" className="mb-1 block text-sm font-medium text-gray-600">
               Especie *
@@ -346,7 +346,7 @@ export function PetQuickAddForm({
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
             <label htmlFor="birthDate" className="mb-1 block text-sm font-medium text-gray-600">
               Fecha de Nacimiento

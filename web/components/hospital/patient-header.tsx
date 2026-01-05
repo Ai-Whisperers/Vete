@@ -28,11 +28,11 @@ export function PatientHeader({
   const getAcuityColor = (level: string): string => {
     switch (level) {
       case 'critical':
-        return 'text-red-600 bg-red-100 border-red-300'
+        return 'text-[var(--status-error)] bg-[var(--status-error-bg)] border-[var(--status-error-border)]'
       case 'urgent':
-        return 'text-orange-600 bg-orange-100 border-orange-300'
+        return 'text-[var(--status-warning)] bg-[var(--status-warning-bg)] border-[var(--status-warning-border)]'
       case 'routine':
-        return 'text-green-600 bg-green-100 border-green-300'
+        return 'text-[var(--status-success)] bg-[var(--status-success-bg)] border-[var(--status-success-border)]'
       default:
         return 'text-gray-600 bg-gray-100 border-gray-300'
     }
@@ -73,7 +73,7 @@ export function PatientHeader({
           <button
             onClick={onDischarge}
             disabled={saving}
-            className="flex items-center gap-2 rounded-lg bg-green-600 px-6 py-3 text-white hover:opacity-90 disabled:opacity-50"
+            className="flex items-center gap-2 rounded-lg bg-[var(--status-success)] px-6 py-3 text-white hover:opacity-90 disabled:opacity-50"
           >
             <CheckCircle className="h-5 w-5" />
             Dar de Alta

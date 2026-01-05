@@ -282,7 +282,7 @@ export function TrialOffer() {
                 Nuestras garantias
               </h3>
 
-              <div className="mb-8 grid grid-cols-2 gap-4">
+              <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
                 {guarantees.map((guarantee, idx) => (
                   <div key={idx} className="rounded-xl bg-white/5 p-4">
                     <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-[#2DCEA3]/10 text-[#2DCEA3]">

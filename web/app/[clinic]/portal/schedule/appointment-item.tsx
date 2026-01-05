@@ -44,13 +44,13 @@ export default function AppointmentItem({
   }
 
   const statusColors: Record<AppointmentStatus, string> = {
-    scheduled: 'bg-yellow-100 text-yellow-700 border-yellow-200',
-    confirmed: 'bg-blue-100 text-blue-700 border-blue-200',
+    scheduled: 'bg-[var(--status-warning-bg)] text-[var(--status-warning-text)] border-[var(--status-warning-border)]',
+    confirmed: 'bg-[var(--status-info-bg)] text-[var(--status-info-text)] border-[var(--status-info-border)]',
     checked_in: 'bg-purple-100 text-purple-700 border-purple-200',
     in_progress: 'bg-indigo-100 text-indigo-700 border-indigo-200',
-    completed: 'bg-green-100 text-green-700 border-green-200',
+    completed: 'bg-[var(--status-success-bg)] text-[var(--status-success-text)] border-[var(--status-success-border)]',
     cancelled: 'bg-gray-100 text-gray-500 border-gray-200',
-    no_show: 'bg-red-100 text-red-700 border-red-200',
+    no_show: 'bg-[var(--status-error-bg)] text-[var(--status-error-text)] border-[var(--status-error-border)]',
   }
 
   const badgeClass = statusColors[status] || 'bg-gray-100 text-gray-500'
@@ -90,7 +90,7 @@ export default function AppointmentItem({
 
         <div className="mt-4 rounded-xl border border-gray-100 bg-gray-50 p-4">
           <div className="flex items-start gap-3">
-            <Icons.Info className="mt-1 h-4 w-4 shrink-0 text-blue-400" />
+            <Icons.Info className="mt-1 h-4 w-4 shrink-0 text-[var(--status-info)]" />
             <div>
               <span className="mb-0.5 block text-xs font-bold uppercase text-gray-400">Motivo</span>
               <p className="text-sm font-medium text-gray-700">{reason}</p>
@@ -107,7 +107,7 @@ export default function AppointmentItem({
             <button
               onClick={() => handleStatus('confirmed')}
               disabled={loading}
-              className="rounded-lg bg-blue-50 p-2 text-blue-600 transition-colors hover:bg-blue-100"
+              className="rounded-lg bg-[var(--status-info-bg)] p-2 text-[var(--status-info)] transition-colors hover:bg-[var(--status-info-border)]"
               title="Confirmar"
             >
               <Icons.Check className="h-5 w-5" />
@@ -115,7 +115,7 @@ export default function AppointmentItem({
             <button
               onClick={() => handleStatus('cancelled')}
               disabled={loading}
-              className="rounded-lg bg-red-50 p-2 text-red-600 transition-colors hover:bg-red-100"
+              className="rounded-lg bg-[var(--status-error-bg)] p-2 text-[var(--status-error)] transition-colors hover:bg-[var(--status-error-border)]"
               title="Cancelar"
             >
               <Icons.X className="h-5 w-5" />
@@ -126,7 +126,7 @@ export default function AppointmentItem({
           <button
             onClick={() => handleStatus('completed')}
             disabled={loading}
-            className="rounded-lg bg-green-50 p-2 text-green-600 transition-colors hover:bg-green-100"
+            className="rounded-lg bg-[var(--status-success-bg)] p-2 text-[var(--status-success)] transition-colors hover:bg-[var(--status-success-border)]"
             title="Completar"
           >
             <Icons.CheckCircle2 className="h-5 w-5" />

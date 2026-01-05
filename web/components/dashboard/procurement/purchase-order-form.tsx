@@ -233,7 +233,7 @@ export function PurchaseOrderForm({ onClose, onSuccess }: PurchaseOrderFormProps
             {/* Supplier Selection */}
             <div>
               <label className="mb-2 block text-sm font-medium text-gray-700">
-                Proveedor <span className="text-red-500">*</span>
+                Proveedor <span className="text-[var(--status-error)]">*</span>
               </label>
               {loadingSuppliers ? (
                 <div className="flex items-center gap-2 text-gray-500">
@@ -349,7 +349,7 @@ export function PurchaseOrderForm({ onClose, onSuccess }: PurchaseOrderFormProps
                             <button
                               type="button"
                               onClick={() => removeItem(index)}
-                              className="rounded p-1 text-red-500 hover:bg-red-50"
+                              className="rounded p-1 text-[var(--status-error)] hover:bg-[var(--status-error-bg)]"
                             >
                               <Trash2 className="h-4 w-4" />
                             </button>

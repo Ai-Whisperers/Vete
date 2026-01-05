@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
+import { logger } from '@/lib/logger'
 
 /**
  * POST /api/sms/webhook
@@ -45,7 +46,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       .eq('external_id', MessageSid)
 
     if (updateError) {
-      console.error('Error updating message status:', updateError)
+      logger.error('Error updating message status from webhook', {
+        messageSid: MessageSid,
+        error: updateError.message,
+      })
     }
 
     // Also update notification_queue if there's a matching entry
@@ -60,7 +64,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     return new NextResponse('OK', { status: 200 })
   } catch (e) {
-    console.error('Error processing SMS webhook:', e)
+    logger.error('Error processing SMS webhook', {
+      error: e instanceof Error ? e.message : 'Unknown',
+    })
     return new NextResponse('Error', { status: 500 })
   }
 }

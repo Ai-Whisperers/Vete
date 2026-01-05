@@ -1,26 +1,13 @@
-import { createClient } from '@/lib/supabase/server'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
+import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
+import { apiError, HTTP_STATUS } from '@/lib/api/errors'
+import { logger } from '@/lib/logger'
 
 /**
  * POST /api/notifications/mark-all-read
  * Mark all unread notifications as read for the authenticated user
- *
- * Schema: notifications table
- * - user_id: UUID (auth user ID)
- * - read_at: NULL = unread, timestamp = read
  */
-export async function POST(request: NextRequest) {
-  const supabase = await createClient()
-
-  // Check authentication
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-  if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-  }
-
+export const POST = withApiAuth(async ({ user, profile, supabase }: ApiHandlerContext) => {
   try {
     // Mark all unread notifications as read for this user
     const { data, error } = await supabase
@@ -33,8 +20,12 @@ export async function POST(request: NextRequest) {
       .select()
 
     if (error) {
-      console.error('Error marking notifications as read:', error)
-      return NextResponse.json({ error: 'Error al marcar las notificaciones' }, { status: 500 })
+      logger.error('Error marking notifications as read', {
+        userId: user.id,
+        tenantId: profile.tenant_id,
+        error: error.message,
+      })
+      return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
     }
 
     return NextResponse.json({
@@ -43,7 +34,11 @@ export async function POST(request: NextRequest) {
       message: 'Todas las notificaciones marcadas como leídas',
     })
   } catch (error) {
-    console.error('Unexpected error:', error)
-    return NextResponse.json({ error: 'Error del servidor' }, { status: 500 })
+    logger.error('Unexpected error marking notifications', {
+      userId: user.id,
+      tenantId: profile.tenant_id,
+      error: error instanceof Error ? error.message : 'Unknown',
+    })
+    return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
   }
-}
+})

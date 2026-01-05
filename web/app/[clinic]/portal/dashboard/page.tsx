@@ -134,15 +134,15 @@ export default async function OwnerDashboardPage({
   if (hasDataError) {
     return (
       <div className="mx-auto max-w-4xl">
-        <div className="rounded-2xl border border-red-200 bg-red-50 p-8 text-center">
-          <AlertCircle className="mx-auto mb-4 h-12 w-12 text-red-500" />
-          <h2 className="mb-2 text-xl font-bold text-red-800">Error al cargar datos</h2>
-          <p className="mb-4 text-red-600">
+        <div className="rounded-2xl border border-[var(--status-error-border)] bg-[var(--status-error-bg)] p-8 text-center">
+          <AlertCircle className="mx-auto mb-4 h-12 w-12 text-[var(--status-error)]" />
+          <h2 className="mb-2 text-xl font-bold text-[var(--status-error-text)]">Error al cargar datos</h2>
+          <p className="mb-4 text-[var(--status-error)]">
             Hubo un problema al cargar tu información. Por favor, intenta recargar la página.
           </p>
           <a
             href={`/${clinic}/portal/dashboard`}
-            className="inline-block rounded-xl bg-red-600 px-6 py-3 font-medium text-white transition-colors hover:bg-red-700"
+            className="inline-block rounded-xl bg-[var(--status-error)] px-6 py-3 font-medium text-white transition-colors hover:bg-[var(--status-error-dark)]"
           >
             Recargar página
           </a>
@@ -241,9 +241,9 @@ export default async function OwnerDashboardPage({
                 <div
                   className={`rounded-full px-3 py-1 text-xs font-bold capitalize ${
                     apt.status === 'confirmed'
-                      ? 'bg-green-100 text-green-700'
+                      ? 'bg-[var(--status-success-bg)] text-[var(--status-success-text)]'
                       : apt.status === 'scheduled'
-                        ? 'bg-yellow-100 text-yellow-700'
+                        ? 'bg-[var(--status-warning-bg)] text-[var(--status-warning-text)]'
                         : 'bg-gray-100 text-gray-500'
                   }`}
                 >
@@ -356,7 +356,7 @@ export default async function OwnerDashboardPage({
                 if (pendingVaccines.length === 0) {
                   return (
                     <p className="flex items-center gap-2 text-sm italic text-gray-400">
-                      <CheckCircle2 className="h-4 w-4 text-green-500" />
+                      <CheckCircle2 className="h-4 w-4 text-[var(--status-success)]" />
                       Todo al día
                     </p>
                   )
@@ -375,23 +375,23 @@ export default async function OwnerDashboardPage({
                               {v.name}
                             </span>
                             {v.status === 'pending' && (
-                              <span className="flex items-center gap-1 rounded-full bg-yellow-100 px-2 py-0.5 text-[10px] font-bold text-yellow-600">
+                              <span className="flex items-center gap-1 rounded-full bg-[var(--status-warning-bg)] px-2 py-0.5 text-[10px] font-bold text-[var(--status-warning)]">
                                 <Clock className="h-3 w-3" /> Revisión
                               </span>
                             )}
                             {v.status === 'rejected' && (
-                              <span className="flex items-center gap-1 rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-bold text-red-600">
+                              <span className="flex items-center gap-1 rounded-full bg-[var(--status-error-bg)] px-2 py-0.5 text-[10px] font-bold text-[var(--status-error)]">
                                 <XCircle className="h-3 w-3" /> Rechazada
                               </span>
                             )}
                             {v.status === 'verified' && isUpcoming(v.next_due_date) && (
-                              <span className="flex items-center gap-1 rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-bold text-blue-600">
+                              <span className="flex items-center gap-1 rounded-full bg-[var(--status-info-bg)] px-2 py-0.5 text-[10px] font-bold text-[var(--status-info)]">
                                 <AlertCircle className="h-3 w-3" /> Vence pronto
                               </span>
                             )}
                           </div>
                           {v.next_due_date && isUpcoming(v.next_due_date) ? (
-                            <span className="text-xs font-medium text-blue-600">
+                            <span className="text-xs font-medium text-[var(--status-info)]">
                               Vence: {v.next_due_date}
                             </span>
                           ) : (

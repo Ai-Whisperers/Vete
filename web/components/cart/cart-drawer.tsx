@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import {
@@ -43,6 +43,8 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
   const [mounted, setMounted] = useState(false)
   const [userId, setUserId] = useState<string | null>(null)
   const [loyaltyPoints, setLoyaltyPoints] = useState<number | null>(null)
+  const drawerRef = useRef<HTMLDivElement>(null)
+  const previousActiveElement = useRef<HTMLElement | null>(null)
 
   // Handle hydration mismatch
   useEffect(() => {
@@ -66,10 +68,9 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
             const data = await res.json()
             setLoyaltyPoints(data.points || 0)
           }
-        } catch (e) {
+        } catch {
           // UX-011: Show toast on network error
           showToast('Error al cargar puntos de lealtad')
-          console.error('Error fetching loyalty points:', e)
         }
       } else {
         setUserId(null)
@@ -82,17 +83,56 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
     }
   }, [isOpen])
 
-  // Close on escape key
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
-        onClose()
-      }
-    }
+  // Focus trap and keyboard handling
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (!isOpen || !drawerRef.current) return
 
-    document.addEventListener('keydown', handleEscape)
-    return () => document.removeEventListener('keydown', handleEscape)
-  }, [isOpen, onClose])
+      // Close on Escape
+      if (e.key === 'Escape') {
+        onClose()
+        return
+      }
+
+      // Focus trap on Tab
+      if (e.key === 'Tab') {
+        const focusableElements = drawerRef.current.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        )
+        const firstElement = focusableElements[0]
+        const lastElement = focusableElements[focusableElements.length - 1]
+
+        if (e.shiftKey && document.activeElement === firstElement) {
+          e.preventDefault()
+          lastElement?.focus()
+        } else if (!e.shiftKey && document.activeElement === lastElement) {
+          e.preventDefault()
+          firstElement?.focus()
+        }
+      }
+    },
+    [isOpen, onClose]
+  )
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [handleKeyDown])
+
+  // Focus management: focus first element on open, restore on close
+  useEffect(() => {
+    if (isOpen) {
+      previousActiveElement.current = document.activeElement as HTMLElement
+      // Focus the close button after a short delay for animation
+      setTimeout(() => {
+        const closeButton = drawerRef.current?.querySelector<HTMLElement>('button[aria-label="Cerrar carrito"]')
+        closeButton?.focus()
+      }, 100)
+    } else if (previousActiveElement.current) {
+      previousActiveElement.current.focus()
+      previousActiveElement.current = null
+    }
+  }, [isOpen])
 
   // Prevent body scroll when drawer is open
   useEffect(() => {
@@ -124,6 +164,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
 
       {/* Drawer */}
       <div
+        ref={drawerRef}
         className={`fixed right-0 top-0 z-50 flex h-full w-full max-w-md flex-col bg-white shadow-2xl transition-transform duration-300 ease-out ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
@@ -299,7 +340,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                 trigger={
                   <button
                     type="button"
-                    className="flex w-full items-center justify-center gap-2 rounded-lg py-2 text-sm font-medium text-red-500 transition-colors hover:bg-red-50 hover:text-red-700"
+                    className="flex w-full items-center justify-center gap-2 rounded-lg py-2 text-sm font-medium text-[var(--status-error)] transition-colors hover:bg-[var(--status-error-bg)] hover:text-[var(--status-error-text)]"
                   >
                     <Trash2 className="h-4 w-4" />
                     Vaciar carrito
@@ -399,7 +440,7 @@ export function FloatingCartButton({ onClick }: FloatingCartButtonProps) {
     >
       <ShoppingCart className="h-6 w-6" />
       {totalItems > 0 && (
-        <span className="animate-in zoom-in absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white shadow-md duration-200">
+        <span className="animate-in zoom-in absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-[var(--primary)] text-xs font-bold text-white shadow-md duration-200">
           {totalItems > 99 ? '99+' : totalItems}
         </span>
       )}

@@ -47,8 +47,8 @@ const PAGES = {
     { name: 'diagnosis-codes', path: '/diagnosis_codes' },
     { name: 'drug-dosages', path: '/drug_dosages' },
     { name: 'growth-charts', path: '/growth_charts' },
-    { name: 'age-calculator', path: '/tools/age_calculator' },
-    { name: 'toxic-foods', path: '/tools/toxic_checker' },
+    { name: 'age-calculator', path: '/tools/age-calculator' },
+    { name: 'toxic-foods', path: '/tools/toxic-food' },
   ],
   owner: [
     { name: 'portal-dashboard', path: '/portal/dashboard' },
@@ -384,6 +384,33 @@ async function capturePage(
     const complexity = await getPageComplexity(page)
     const finalWait = { simple: 500, medium: 1000, complex: 1500 }
     await page.waitForTimeout(finalWait[complexity])
+
+    // Hide Next.js dev tools panel and close dropdowns before capture
+    await page.evaluate(() => {
+      // Hide Next.js dev tools indicator
+      const devTools = document.querySelector('[data-nextjs-toast]') as HTMLElement
+      if (devTools) devTools.style.display = 'none'
+      
+      // Hide any element that looks like dev tools (bottom-left panels)
+      const devPanels = document.querySelectorAll('[class*="nextjs"], [class*="__next"]') as NodeListOf<HTMLElement>
+      devPanels.forEach(el => {
+        if (el.getBoundingClientRect().bottom > window.innerHeight - 100) {
+          el.style.display = 'none'
+        }
+      })
+      
+      // Close any open dropdowns by clicking elsewhere
+      document.body.click()
+      
+      // Hide common dropdown menus
+      const dropdowns = document.querySelectorAll('[data-state="open"], [aria-expanded="true"]') as NodeListOf<HTMLElement>
+      dropdowns.forEach(el => {
+        if (el.getAttribute('role') === 'listbox' || el.getAttribute('role') === 'menu') {
+          el.style.display = 'none'
+        }
+      })
+    })
+    await page.waitForTimeout(300)
 
     // Scroll to top before capture
     await page.evaluate(() => window.scrollTo(0, 0))

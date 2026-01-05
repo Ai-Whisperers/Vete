@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server'
 import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
+import { logger } from '@/lib/logger'
 
-export const GET = withApiAuth(async ({ request, user, profile, supabase }) => {
+export const GET = withApiAuth(async ({ request, user, profile, supabase }: ApiHandlerContext) => {
   const { searchParams } = new URL(request.url)
   const petId = searchParams.get('pet_id')
   const ownerId = searchParams.get('owner_id')
@@ -50,7 +51,11 @@ export const GET = withApiAuth(async ({ request, user, profile, supabase }) => {
   const { data, error } = await query
 
   if (error) {
-    console.error('[API] consents GET error:', error)
+    logger.error('Error fetching consent documents', {
+      tenantId: profile.tenant_id,
+      userId: user.id,
+      error: error.message,
+    })
     return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
   }
 
@@ -166,7 +171,11 @@ export const POST = withApiAuth(
       .single()
 
     if (error) {
-      console.error('[API] consents POST error:', error)
+      logger.error('Error creating consent document', {
+        tenantId: profile.tenant_id,
+        userId: user.id,
+        error: error.message,
+      })
       return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
     }
 

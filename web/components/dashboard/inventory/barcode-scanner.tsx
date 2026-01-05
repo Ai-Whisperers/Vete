@@ -249,7 +249,7 @@ export function BarcodeScanner({
                 {error && (
                   <div className="absolute inset-0 flex items-center justify-center bg-black/80 p-4">
                     <div className="text-center text-white">
-                      <AlertCircle className="mx-auto mb-3 h-12 w-12 text-red-400" />
+                      <AlertCircle className="mx-auto mb-3 h-12 w-12 text-[var(--status-error)]" />
                       <p className="text-sm">{error}</p>
                     </div>
                   </div>
@@ -380,11 +380,11 @@ export function BarcodeScanModal({
               </div>
             ) : error ? (
               <div>
-                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
-                  <AlertCircle className="h-8 w-8 text-red-600" />
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--status-error-bg)]">
+                  <AlertCircle className="h-8 w-8 text-[var(--status-error)]" />
                 </div>
                 <h3 className="mb-2 font-bold text-gray-900">Error</h3>
-                <p className="text-sm text-red-600">{error}</p>
+                <p className="text-sm text-[var(--status-error)]">{error}</p>
               </div>
             ) : null}
           </div>

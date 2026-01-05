@@ -1,30 +1,9 @@
-import { createClient } from '@/lib/supabase/server'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
+import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
+import { apiError, HTTP_STATUS } from '@/lib/api/errors'
+import { logger } from '@/lib/logger'
 
-export async function GET(request: NextRequest) {
-  const supabase = await createClient()
-
-  // Authentication check
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-  if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-  }
-
-  // Get user profile for tenant context
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('clinic_id:tenant_id, role')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile) {
-    return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 })
-  }
-
-  // Get optional pet_id filter
+export const GET = withApiAuth(async ({ request, user, profile, supabase }: ApiHandlerContext) => {
   const { searchParams } = new URL(request.url)
   const petId = searchParams.get('pet_id')
 
@@ -37,7 +16,7 @@ export async function GET(request: NextRequest) {
 
   if (['vet', 'admin'].includes(profile.role)) {
     // Staff: filter by clinic
-    query = query.eq('pet.tenant_id', profile.clinic_id)
+    query = query.eq('pet.tenant_id', profile.tenant_id)
   } else {
     // Owner: filter by ownership
     query = query.eq('pet.owner_id', user.id)
@@ -50,49 +29,36 @@ export async function GET(request: NextRequest) {
   const { data, error } = await query.order('created_at', { ascending: false })
 
   if (error) {
-    console.error('[API] vaccine_reactions GET error:', error)
-    return NextResponse.json({ error: 'Error al obtener reacciones' }, { status: 500 })
+    logger.error('Error fetching vaccine reactions', {
+      userId: user.id,
+      tenantId: profile.tenant_id,
+      petId,
+      error: error.message,
+    })
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
+      details: { message: 'Error al obtener reacciones' },
+    })
   }
 
   return NextResponse.json(data)
-}
+})
 
-export async function POST(request: NextRequest) {
-  const supabase = await createClient()
-
-  // Authentication check
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-  if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-  }
-
-  // Get user profile
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('clinic_id:tenant_id, role')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile) {
-    return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 })
-  }
-
+export const POST = withApiAuth(async ({ request, user, profile, supabase }: ApiHandlerContext) => {
   // Parse body
   let body
   try {
     body = await request.json()
   } catch {
-    return NextResponse.json({ error: 'JSON inválido' }, { status: 400 })
+    return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST)
   }
 
   const { pet_id, vaccine_id, reaction_type, severity, description, occurred_at } = body
 
   // Validate required fields
   if (!pet_id || !reaction_type) {
-    return NextResponse.json({ error: 'pet_id y reaction_type son requeridos' }, { status: 400 })
+    return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
+      details: { required: ['pet_id', 'reaction_type'] },
+    })
   }
 
   // Verify pet access (owner or staff)
@@ -103,14 +69,16 @@ export async function POST(request: NextRequest) {
     .single()
 
   if (!pet) {
-    return NextResponse.json({ error: 'Mascota no encontrada' }, { status: 404 })
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
+      details: { resource: 'pet' },
+    })
   }
 
   const isOwner = pet.owner_id === user.id
-  const isStaff = ['vet', 'admin'].includes(profile.role) && pet.tenant_id === profile.clinic_id
+  const isStaff = ['vet', 'admin'].includes(profile.role) && pet.tenant_id === profile.tenant_id
 
   if (!isOwner && !isStaff) {
-    return NextResponse.json({ error: 'No tienes acceso a esta mascota' }, { status: 403 })
+    return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN)
   }
 
   // Insert reaction
@@ -129,48 +97,35 @@ export async function POST(request: NextRequest) {
     .single()
 
   if (error) {
-    console.error('[API] vaccine_reactions POST error:', error)
-    return NextResponse.json({ error: 'Error al registrar reacción' }, { status: 500 })
+    logger.error('Error creating vaccine reaction', {
+      userId: user.id,
+      tenantId: profile.tenant_id,
+      petId: pet_id,
+      error: error.message,
+    })
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
+      details: { message: 'Error al registrar reacción' },
+    })
   }
 
   return NextResponse.json(data, { status: 201 })
-}
+})
 
-export async function PUT(request: NextRequest) {
-  const supabase = await createClient()
-
-  // Authentication check
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-  if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-  }
-
-  // Get user profile
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('clinic_id:tenant_id, role')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile) {
-    return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 })
-  }
-
+export const PUT = withApiAuth(async ({ request, user, profile, supabase }: ApiHandlerContext) => {
   // Parse body
   let body
   try {
     body = await request.json()
   } catch {
-    return NextResponse.json({ error: 'JSON inválido' }, { status: 400 })
+    return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST)
   }
 
   const { id, ...updates } = body
 
   if (!id) {
-    return NextResponse.json({ error: 'ID es requerido' }, { status: 400 })
+    return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
+      details: { required: ['id'] },
+    })
   }
 
   // Get existing reaction with pet info
@@ -181,17 +136,19 @@ export async function PUT(request: NextRequest) {
     .single()
 
   if (!existing) {
-    return NextResponse.json({ error: 'Reacción no encontrada' }, { status: 404 })
+    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
+      details: { resource: 'vaccine_reaction' },
+    })
   }
 
   // Verify access
   const petData = Array.isArray(existing.pet) ? existing.pet[0] : existing.pet
   const pet = petData as { owner_id: string; tenant_id: string }
   const isOwner = pet.owner_id === user.id
-  const isStaff = ['vet', 'admin'].includes(profile.role) && pet.tenant_id === profile.clinic_id
+  const isStaff = ['vet', 'admin'].includes(profile.role) && pet.tenant_id === profile.tenant_id
 
   if (!isOwner && !isStaff) {
-    return NextResponse.json({ error: 'No tienes acceso a esta reacción' }, { status: 403 })
+    return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN)
   }
 
   // Update
@@ -209,77 +166,73 @@ export async function PUT(request: NextRequest) {
     .single()
 
   if (error) {
-    console.error('[API] vaccine_reactions PUT error:', error)
-    return NextResponse.json({ error: 'Error al actualizar' }, { status: 500 })
+    logger.error('Error updating vaccine reaction', {
+      userId: user.id,
+      tenantId: profile.tenant_id,
+      reactionId: id,
+      error: error.message,
+    })
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
+      details: { message: 'Error al actualizar' },
+    })
   }
 
   return NextResponse.json(data)
-}
+})
 
-export async function DELETE(request: NextRequest) {
-  const supabase = await createClient()
+export const DELETE = withApiAuth(
+  async ({ request, user, profile, supabase }: ApiHandlerContext) => {
+    // Parse body
+    let body
+    try {
+      body = await request.json()
+    } catch {
+      return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST)
+    }
 
-  // Authentication check
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-  if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-  }
+    const { id } = body
 
-  // Get user profile - only staff can delete
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('clinic_id:tenant_id, role')
-    .eq('id', user.id)
-    .single()
+    if (!id) {
+      return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
+        details: { required: ['id'] },
+      })
+    }
 
-  if (!profile || !['vet', 'admin'].includes(profile.role)) {
-    return NextResponse.json(
-      { error: 'Solo el personal puede eliminar reacciones' },
-      { status: 403 }
-    )
-  }
+    // Verify reaction belongs to staff's clinic
+    const { data: existing } = await supabase
+      .from('vaccine_reactions')
+      .select('id, pet:pets!inner(tenant_id)')
+      .eq('id', id)
+      .single()
 
-  // Parse body
-  let body
-  try {
-    body = await request.json()
-  } catch {
-    return NextResponse.json({ error: 'JSON inválido' }, { status: 400 })
-  }
+    if (!existing) {
+      return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
+        details: { resource: 'vaccine_reaction' },
+      })
+    }
 
-  const { id } = body
+    const petData = Array.isArray(existing.pet) ? existing.pet[0] : existing.pet
+    const pet = petData as { tenant_id: string }
+    if (pet.tenant_id !== profile.tenant_id) {
+      return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN)
+    }
 
-  if (!id) {
-    return NextResponse.json({ error: 'ID es requerido' }, { status: 400 })
-  }
+    // Delete
+    const { error } = await supabase.from('vaccine_reactions').delete().eq('id', id)
 
-  // Verify reaction belongs to staff's clinic
-  const { data: existing } = await supabase
-    .from('vaccine_reactions')
-    .select('id, pet:pets!inner(tenant_id)')
-    .eq('id', id)
-    .single()
+    if (error) {
+      logger.error('Error deleting vaccine reaction', {
+        userId: user.id,
+        tenantId: profile.tenant_id,
+        reactionId: id,
+        error: error.message,
+      })
+      return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
+        details: { message: 'Error al eliminar' },
+      })
+    }
 
-  if (!existing) {
-    return NextResponse.json({ error: 'Reacción no encontrada' }, { status: 404 })
-  }
-
-  const petData = Array.isArray(existing.pet) ? existing.pet[0] : existing.pet
-  const pet = petData as { tenant_id: string }
-  if (pet.tenant_id !== profile.clinic_id) {
-    return NextResponse.json({ error: 'No tienes acceso a esta reacción' }, { status: 403 })
-  }
-
-  // Delete
-  const { error } = await supabase.from('vaccine_reactions').delete().eq('id', id)
-
-  if (error) {
-    console.error('[API] vaccine_reactions DELETE error:', error)
-    return NextResponse.json({ error: 'Error al eliminar' }, { status: 500 })
-  }
-
-  return new NextResponse(null, { status: 204 })
-}
+    return new NextResponse(null, { status: 204 })
+  },
+  { roles: ['vet', 'admin'] }
+)

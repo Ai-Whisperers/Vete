@@ -65,7 +65,7 @@ export function useLocalStorageValue<T>(key: string, defaultValue?: T): T | null
 export function useTypedLocalStorage<T>(
   key: string,
   initialValue: T,
-  validator?: (value: any) => value is T
+  validator?: (value: unknown) => value is T
 ): [T, (value: T | ((prevValue: T) => T)) => void, () => void] {
   const [storedValue, setValue, removeValue] = useLocalStorage(key, initialValue)
 

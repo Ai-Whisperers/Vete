@@ -1,7 +1,28 @@
 /**
  * Factory Index - Exports all builder-pattern factories
  *
- * Usage:
+ * ## NEW: Unified Factory API (Phase 1 Refactoring)
+ *
+ * The factory system has been consolidated into a unified API:
+ *
+ * ```typescript
+ * import { factories, factoryMode, idGenerator } from '@/lib/test-utils';
+ *
+ * // Configure for unit tests (in-memory, sequential IDs)
+ * factoryMode.configureForUnitTests();
+ * idGenerator.useSequentialMode();
+ *
+ * // Configure for integration tests (persist, UUID IDs)
+ * factoryMode.configureForIntegrationTests();
+ * idGenerator.useUuidMode();
+ *
+ * // Use factories
+ * const pet = factories.pet().asDog().forOwner(ownerId).build();
+ * const pet = await factories.pet().asDog().forOwner(ownerId).create();
+ * ```
+ *
+ * ## Legacy API (still supported)
+ *
  * ```typescript
  * import { OwnerFactory, PetFactory, AppointmentFactory } from '@/lib/test-utils/factories';
  *
@@ -18,22 +39,25 @@
  *   .asDog('Labrador')
  *   .withVaccines()
  *   .build();
- *
- * // Create appointment history
- * const appointments = await createAppointmentHistory(
- *   pet.id,
- *   owner.id,
- *   vetId,
- *   'adris',
- *   { past: 5, future: 2, includeRecords: true }
- * );
  * ```
  */
 
+// ============================================================================
+// NEW: Core Infrastructure (Phase 1 Refactoring)
+// ============================================================================
+
+export * from './core'
+
+// ============================================================================
 // Types
+// ============================================================================
+
 export * from './types'
 
-// Base utilities
+// ============================================================================
+// Base utilities (random generators, constants)
+// ============================================================================
+
 export {
   generateId,
   generateSequence,

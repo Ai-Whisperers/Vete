@@ -1,6 +1,7 @@
-import { createClient } from '@/lib/supabase/server'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
+import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
+import { logger } from '@/lib/logger'
 
 // Generate a unique redemption code
 function generateRedemptionCode(): string {
@@ -16,18 +17,7 @@ function generateRedemptionCode(): string {
  * POST /api/loyalty/redeem
  * Redeem a reward
  */
-export async function POST(request: NextRequest): Promise<NextResponse> {
-  const supabase = await createClient()
-
-  // Auth check
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-  if (authError || !user) {
-    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED)
-  }
-
+export const POST = withApiAuth(async ({ request, user, supabase }: ApiHandlerContext) => {
   try {
     const body = await request.json()
     const { reward_id, pet_id } = body
@@ -173,7 +163,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       })
 
       if (txnError) {
-        console.error('Error creating transaction:', txnError)
+        logger.error('Error creating loyalty transaction during redemption', {
+          userId: user.id,
+          rewardId: reward_id,
+          error: txnError.message,
+        })
         // Rollback redemption
         await supabase.from('loyalty_redemptions').delete().eq('id', redemption.id)
         throw txnError
@@ -215,27 +209,19 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       { status: 201 }
     )
   } catch (e) {
-    console.error('Error redeeming reward:', e)
+    logger.error('Error redeeming reward', {
+      userId: user.id,
+      error: e instanceof Error ? e.message : 'Unknown',
+    })
     return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
   }
-}
+})
 
 /**
  * GET /api/loyalty/redeem
  * Get user's redemption history
  */
-export async function GET(request: NextRequest): Promise<NextResponse> {
-  const supabase = await createClient()
-
-  // Auth check
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-  if (authError || !user) {
-    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED)
-  }
-
+export const GET = withApiAuth(async ({ user, supabase }: ApiHandlerContext) => {
   try {
     const { data: redemptions, error } = await supabase
       .from('loyalty_redemptions')
@@ -248,11 +234,20 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
 
-    if (error) throw error
+    if (error) {
+      logger.error('Error fetching redemptions', {
+        userId: user.id,
+        error: error.message,
+      })
+      return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
+    }
 
     return NextResponse.json({ data: redemptions || [] })
   } catch (e) {
-    console.error('Error fetching redemptions:', e)
+    logger.error('Unexpected error fetching redemptions', {
+      userId: user.id,
+      error: e instanceof Error ? e.message : 'Unknown',
+    })
     return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
   }
-}
+})

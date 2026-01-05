@@ -1,95 +1,82 @@
-import { createClient } from '@/lib/supabase/server'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
+import { withApiAuthParams, type ApiHandlerContext } from '@/lib/auth'
+import { apiError, apiSuccess, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
+
+type Params = { id: string }
 
 /**
  * POST /api/appointments/[id]/complete
  * Marks an appointment as completed
  * Staff only - requires vet/admin role
  */
-export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params
-  const supabase = await createClient()
+export const POST = withApiAuthParams<Params>(
+  async ({ request, user, profile, supabase }: ApiHandlerContext, { id }: Params) => {
+    // 1. Parse optional body for notes
+    let notes: string | undefined
+    try {
+      const body = await request.json()
+      notes = body.notes
+    } catch {
+      // No body is fine
+    }
 
-  // 1. Auth check
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-  }
+    // 2. Get appointment (tenant-isolated)
+    const { data: appointment, error: fetchError } = await supabase
+      .from('appointments')
+      .select('id, tenant_id, status, notes')
+      .eq('id', id)
+      .eq('tenant_id', profile.tenant_id)
+      .single()
 
-  // 2. Parse optional body for notes
-  let notes: string | undefined
-  try {
-    const body = await request.json()
-    notes = body.notes
-  } catch {
-    // No body is fine
-  }
+    if (fetchError || !appointment) {
+      return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND)
+    }
 
-  // 3. Get appointment
-  const { data: appointment, error: fetchError } = await supabase
-    .from('appointments')
-    .select('id, tenant_id, status, notes')
-    .eq('id', id)
-    .single()
+    // 3. Check staff permission
+    const isStaff = ['vet', 'admin'].includes(profile.role)
+    if (!isStaff) {
+      return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN, {
+        details: { reason: 'Solo el personal puede completar citas' },
+      })
+    }
 
-  if (fetchError || !appointment) {
-    return NextResponse.json({ error: 'Cita no encontrada' }, { status: 404 })
-  }
+    // 4. Validate appointment status
+    if (!['checked_in', 'in_progress'].includes(appointment.status)) {
+      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+        details: { reason: `No se puede completar una cita con estado: ${appointment.status}` },
+      })
+    }
 
-  // 4. Check staff permission
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role, tenant_id')
-    .eq('id', user.id)
-    .single()
+    // 5. Update appointment status
+    const updateData: Record<string, unknown> = {
+      status: 'completed',
+      completed_at: new Date().toISOString(),
+      completed_by: user.id,
+    }
 
-  const isStaff =
-    profile &&
-    ['vet', 'admin'].includes(profile.role) &&
-    profile.tenant_id === appointment.tenant_id
+    if (notes) {
+      updateData.notes = appointment.notes
+        ? `${appointment.notes}\n[Notas de cierre] ${notes}`
+        : `[Notas de cierre] ${notes}`
+    }
 
-  if (!isStaff) {
-    return NextResponse.json({ error: 'Solo el personal puede completar citas' }, { status: 403 })
-  }
+    const { error: updateError } = await supabase
+      .from('appointments')
+      .update(updateData)
+      .eq('id', id)
 
-  // 5. Validate appointment status
-  if (!['checked_in', 'in_progress'].includes(appointment.status)) {
-    return NextResponse.json(
-      { error: `No se puede completar una cita con estado: ${appointment.status}` },
-      { status: 400 }
-    )
-  }
+    if (updateError) {
+      logger.error('Complete appointment error', {
+        tenantId: profile.tenant_id,
+        userId: user.id,
+        appointmentId: id,
+        error: updateError instanceof Error ? updateError.message : String(updateError),
+      })
+      return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
+    }
 
-  // 6. Update appointment status
-  const updateData: Record<string, unknown> = {
-    status: 'completed',
-    completed_at: new Date().toISOString(),
-    completed_by: user.id,
-  }
-
-  if (notes) {
-    updateData.notes = appointment.notes
-      ? `${appointment.notes}\n[Notas de cierre] ${notes}`
-      : `[Notas de cierre] ${notes}`
-  }
-
-  const { error: updateError } = await supabase.from('appointments').update(updateData).eq('id', id)
-
-  if (updateError) {
-    logger.error('Complete appointment error', {
-      tenantId: appointment.tenant_id,
-      userId: user.id,
-      appointmentId: id,
-      error: updateError instanceof Error ? updateError.message : String(updateError),
-    })
-    return NextResponse.json({ error: 'Error al completar la cita' }, { status: 500 })
-  }
-
-  return NextResponse.json({
-    success: true,
-    message: 'Cita completada correctamente',
-  })
-}
+    return apiSuccess({ id }, 'Cita completada correctamente')
+  },
+  { roles: ['vet', 'admin'] }
+)

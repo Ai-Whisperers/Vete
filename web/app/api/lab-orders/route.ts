@@ -3,9 +3,10 @@ import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { rateLimit } from '@/lib/rate-limit'
 import { parsePagination, paginatedResponse } from '@/lib/api/pagination'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
+import { logger } from '@/lib/logger'
 
 export const GET = withApiAuth(
-  async ({ request, profile, supabase }) => {
+  async ({ request, profile, supabase }: ApiHandlerContext) => {
     const { searchParams } = new URL(request.url)
     const petId = searchParams.get('pet_id')
     const status = searchParams.get('status')
@@ -36,7 +37,10 @@ export const GET = withApiAuth(
     const { data, error, count } = await query
 
     if (error) {
-      console.error('[API] lab_orders GET error:', error)
+      logger.error('Error fetching lab orders', {
+        tenantId: profile.tenant_id,
+        error: error.message,
+      })
       return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
     }
 
@@ -117,7 +121,12 @@ export const POST = withApiAuth(
       .single()
 
     if (orderError) {
-      console.error('[API] lab_orders POST error:', orderError)
+      logger.error('Error creating lab order', {
+        tenantId: profile.tenant_id,
+        userId: user.id,
+        petId: pet_id,
+        error: orderError.message,
+      })
       return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
     }
 
@@ -130,7 +139,11 @@ export const POST = withApiAuth(
     const { error: itemsError } = await supabase.from('lab_order_items').insert(orderItems)
 
     if (itemsError) {
-      console.error('[API] lab_order_items POST error:', itemsError)
+      logger.error('Error creating lab order items', {
+        tenantId: profile.tenant_id,
+        orderId: order.id,
+        error: itemsError.message,
+      })
       // Rollback order creation
       await supabase.from('lab_orders').delete().eq('id', order.id)
       return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)

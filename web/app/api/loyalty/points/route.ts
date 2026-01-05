@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
+import { logger } from '@/lib/logger'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -33,7 +34,11 @@ export async function GET(request: Request) {
     .maybeSingle()
 
   if (error) {
-    console.error('Error fetching loyalty points:', error)
+    logger.error('Error fetching loyalty points', {
+      userId,
+      tenantId: profile.tenant_id,
+      error: error.message,
+    })
     return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
   }
 

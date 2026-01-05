@@ -1,32 +1,9 @@
-import { createClient } from '@/lib/supabase/server'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
+import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
+import { logger } from '@/lib/logger'
 
-export async function GET(request: NextRequest): Promise<NextResponse> {
-  const supabase = await createClient()
-
-  // Authentication check
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-  if (authError || !user) {
-    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED)
-  }
-
-  // Get user profile
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('clinic_id:tenant_id, role')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile) {
-    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
-      details: { resource: 'profile' },
-    })
-  }
-
+export const GET = withApiAuth(async ({ request, user, profile, supabase }: ApiHandlerContext) => {
   const { searchParams } = new URL(request.url)
   const petId = searchParams.get('pet_id')
   const ownerId = searchParams.get('owner_id')
@@ -47,7 +24,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
   if (['vet', 'admin'].includes(profile.role)) {
     // Staff sees all clinic blanket consents
-    query = query.eq('pet.tenant_id', profile.clinic_id)
+    query = query.eq('pet.tenant_id', profile.tenant_id)
   } else {
     // Owners see only their own blanket consents
     query = query.eq('owner_id', user.id)
@@ -64,134 +41,94 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const { data, error } = await query
 
   if (error) {
-    console.error('[API] blanket consents GET error:', error)
+    logger.error('Error fetching blanket consents', {
+      tenantId: profile.tenant_id,
+      userId: user.id,
+      error: error.message,
+    })
     return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
   }
 
   return NextResponse.json(data)
-}
+})
 
-export async function POST(request: NextRequest): Promise<NextResponse> {
-  const supabase = await createClient()
+export const POST = withApiAuth(
+  async ({ request, user, profile, supabase }: ApiHandlerContext) => {
+    // Parse body
+    let body
+    try {
+      body = await request.json()
+    } catch {
+      return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST)
+    }
 
-  // Authentication check
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-  if (authError || !user) {
-    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED)
-  }
+    const { pet_id, owner_id, consent_type, scope, conditions, signature_data, expires_at } = body
 
-  // Get user profile
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('clinic_id:tenant_id, role')
-    .eq('id', user.id)
-    .single()
+    // Validate required fields
+    if (!pet_id || !owner_id || !consent_type || !scope || !signature_data) {
+      return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
+        details: { required: ['pet_id', 'owner_id', 'consent_type', 'scope', 'signature_data'] },
+      })
+    }
 
-  if (!profile) {
-    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
-      details: { resource: 'profile' },
-    })
-  }
+    // Verify pet belongs to staff's clinic
+    const { data: pet } = await supabase
+      .from('pets')
+      .select('id, tenant_id, owner_id')
+      .eq('id', pet_id)
+      .single()
 
-  if (!['vet', 'admin'].includes(profile.role)) {
-    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN)
-  }
+    if (!pet) {
+      return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
+        details: { resource: 'pet' },
+      })
+    }
 
-  // Parse body
-  let body
-  try {
-    body = await request.json()
-  } catch {
-    return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST)
-  }
+    if (pet.tenant_id !== profile.tenant_id) {
+      return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN)
+    }
 
-  const { pet_id, owner_id, consent_type, scope, conditions, signature_data, expires_at } = body
+    // Verify owner
+    if (pet.owner_id !== owner_id) {
+      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+        details: { message: 'Owner does not match pet' },
+      })
+    }
 
-  // Validate required fields
-  if (!pet_id || !owner_id || !consent_type || !scope || !signature_data) {
-    return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
-      details: { required: ['pet_id', 'owner_id', 'consent_type', 'scope', 'signature_data'] },
-    })
-  }
+    // Insert blanket consent
+    const { data, error } = await supabase
+      .from('blanket_consents')
+      .insert({
+        pet_id,
+        owner_id,
+        consent_type,
+        scope,
+        conditions: conditions || null,
+        signature_data,
+        granted_by_id: user.id,
+        granted_at: new Date().toISOString(),
+        expires_at: expires_at || null,
+        is_active: true,
+      })
+      .select()
+      .single()
 
-  // Verify pet belongs to staff's clinic
-  const { data: pet } = await supabase
-    .from('pets')
-    .select('id, tenant_id, owner_id')
-    .eq('id', pet_id)
-    .single()
+    if (error) {
+      logger.error('Error creating blanket consent', {
+        tenantId: profile.tenant_id,
+        userId: user.id,
+        petId: pet_id,
+        error: error.message,
+      })
+      return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
+    }
 
-  if (!pet) {
-    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
-      details: { resource: 'pet' },
-    })
-  }
+    return NextResponse.json(data, { status: 201 })
+  },
+  { roles: ['vet', 'admin'] }
+)
 
-  if (pet.tenant_id !== profile.clinic_id) {
-    return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN)
-  }
-
-  // Verify owner
-  if (pet.owner_id !== owner_id) {
-    return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
-      details: { message: 'Owner does not match pet' },
-    })
-  }
-
-  // Insert blanket consent
-  const { data, error } = await supabase
-    .from('blanket_consents')
-    .insert({
-      pet_id,
-      owner_id,
-      consent_type,
-      scope,
-      conditions: conditions || null,
-      signature_data,
-      granted_by_id: user.id,
-      granted_at: new Date().toISOString(),
-      expires_at: expires_at || null,
-      is_active: true,
-    })
-    .select()
-    .single()
-
-  if (error) {
-    console.error('[API] blanket consents POST error:', error)
-    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
-  }
-
-  return NextResponse.json(data, { status: 201 })
-}
-
-export async function PATCH(request: NextRequest): Promise<NextResponse> {
-  const supabase = await createClient()
-
-  // Authentication check
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-  if (authError || !user) {
-    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED)
-  }
-
-  // Get user profile
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('clinic_id:tenant_id, role')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile) {
-    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
-      details: { resource: 'profile' },
-    })
-  }
-
+export const PATCH = withApiAuth(async ({ request, user, profile, supabase }: ApiHandlerContext) => {
   // Parse body
   let body
   try {
@@ -236,7 +173,7 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
   const isOwner = existing.owner_id === user.id
 
   if (isStaff) {
-    if (pet.tenant_id !== profile.clinic_id) {
+    if (pet.tenant_id !== profile.tenant_id) {
       return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN)
     }
   } else if (!isOwner) {
@@ -258,9 +195,14 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
     .single()
 
   if (error) {
-    console.error('[API] blanket consents PATCH error:', error)
+    logger.error('Error revoking blanket consent', {
+      tenantId: profile.tenant_id,
+      userId: user.id,
+      consentId: id,
+      error: error.message,
+    })
     return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
   }
 
   return NextResponse.json(data)
-}
+})

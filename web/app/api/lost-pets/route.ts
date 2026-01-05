@@ -1,11 +1,15 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
+import { apiError, apiSuccess, HTTP_STATUS } from '@/lib/api/errors'
+import { logger } from '@/lib/logger'
 
-export async function GET(request: Request) {
+/**
+ * GET /api/lost-pets
+ * List lost pet reports (public board)
+ */
+export const GET = withApiAuth(async ({ request, profile, supabase }: ApiHandlerContext) => {
   const { searchParams } = new URL(request.url)
   const status = searchParams.get('status')
-
-  const supabase = await createClient()
 
   let query = supabase.from('lost_pet_reports').select(`
       id,
@@ -45,26 +49,48 @@ export async function GET(request: Request) {
   const { data, error } = await query
 
   if (error) {
-    console.error('Error fetching lost pet reports:', error)
-    return NextResponse.json({ error: 'Failed to fetch lost pet reports' }, { status: 500 })
+    logger.error('Error fetching lost pet reports', {
+      tenantId: profile.tenant_id,
+      error: error.message,
+    })
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
   }
 
-  return NextResponse.json({ data }, { status: 200 })
-}
+  return NextResponse.json({ data })
+})
 
-export async function PATCH(request: Request) {
-  const supabase = await createClient()
-  const { id, status } = await request.json()
+/**
+ * PATCH /api/lost-pets
+ * Update lost pet report status
+ */
+export const PATCH = withApiAuth(
+  async ({ request, profile, supabase }: ApiHandlerContext) => {
+    const { id, status } = await request.json()
 
-  const { error } = await supabase
-    .from('lost_pet_reports')
-    .update({ status, resolved_at: status === 'reunited' ? new Date().toISOString() : null })
-    .eq('id', id)
+    if (!id || !status) {
+      return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
+        details: { required: ['id', 'status'] },
+      })
+    }
 
-  if (error) {
-    console.error('Error updating lost pet report status:', error)
-    return NextResponse.json({ error: 'Failed to update status' }, { status: 500 })
-  }
+    const { error } = await supabase
+      .from('lost_pet_reports')
+      .update({
+        status,
+        resolved_at: status === 'reunited' ? new Date().toISOString() : null,
+      })
+      .eq('id', id)
 
-  return NextResponse.json({ success: true }, { status: 200 })
-}
+    if (error) {
+      logger.error('Error updating lost pet report', {
+        tenantId: profile.tenant_id,
+        reportId: id,
+        error: error.message,
+      })
+      return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
+    }
+
+    return apiSuccess({ id }, 'Estado actualizado')
+  },
+  { roles: ['vet', 'admin'] }
+)

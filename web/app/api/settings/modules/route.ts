@@ -1,107 +1,107 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
+import { apiError, apiSuccess, HTTP_STATUS } from '@/lib/api/errors'
+import { logger } from '@/lib/logger'
 import * as fs from 'fs/promises'
 import * as path from 'path'
 
 const CONTENT_DATA_PATH = path.join(process.cwd(), '.content_data')
 
-export async function GET(request: NextRequest): Promise<NextResponse> {
-  const { searchParams } = new URL(request.url)
-  const clinic = searchParams.get('clinic')
+export const GET = withApiAuth(
+  async ({ request, profile }: ApiHandlerContext) => {
+    const { searchParams } = new URL(request.url)
+    const clinic = searchParams.get('clinic')
 
-  if (!clinic) {
-    return NextResponse.json({ error: 'Clinic parameter required' }, { status: 400 })
-  }
-
-  // Auth check
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-  }
-
-  // Admin check
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role, tenant_id')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile || profile.role !== 'admin' || profile.tenant_id !== clinic) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
-  }
-
-  try {
-    // Read config.json
-    const configPath = path.join(CONTENT_DATA_PATH, clinic, 'config.json')
-    const configData = await fs.readFile(configPath, 'utf-8')
-    const config = JSON.parse(configData)
-
-    return NextResponse.json({
-      modules: config.settings?.modules || {},
-    })
-  } catch (error) {
-    console.error('Error reading modules:', error)
-    return NextResponse.json({ error: 'Error al leer módulos' }, { status: 500 })
-  }
-}
-
-export async function PUT(request: NextRequest): Promise<NextResponse> {
-  const body = await request.json()
-  const { clinic, modules } = body
-
-  if (!clinic) {
-    return NextResponse.json({ error: 'Clinic parameter required' }, { status: 400 })
-  }
-
-  // Auth check
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-  }
-
-  // Admin check
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role, tenant_id')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile || profile.role !== 'admin' || profile.tenant_id !== clinic) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
-  }
-
-  try {
-    // Read existing config
-    const configPath = path.join(CONTENT_DATA_PATH, clinic, 'config.json')
-    const configData = await fs.readFile(configPath, 'utf-8')
-    const config = JSON.parse(configData)
-
-    // Update modules
-    const updatedConfig = {
-      ...config,
-      settings: {
-        ...config.settings,
-        modules: {
-          ...config.settings?.modules,
-          ...modules,
-        },
-      },
+    if (!clinic) {
+      return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
+        details: { message: 'Clinic parameter required' },
+      })
     }
 
-    // Write back
-    await fs.writeFile(configPath, JSON.stringify(updatedConfig, null, 2), 'utf-8')
+    // Verify tenant match
+    if (profile.tenant_id !== clinic) {
+      return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN)
+    }
 
-    return NextResponse.json({ success: true })
-  } catch (error) {
-    console.error('Error updating modules:', error)
-    return NextResponse.json({ error: 'Error al guardar módulos' }, { status: 500 })
-  }
-}
+    try {
+      // Read config.json
+      const configPath = path.join(CONTENT_DATA_PATH, clinic, 'config.json')
+      const configData = await fs.readFile(configPath, 'utf-8')
+      const config = JSON.parse(configData)
+
+      return apiSuccess({
+        modules: config.settings?.modules || {},
+      })
+    } catch (error) {
+      logger.error('Error reading modules', {
+        tenantId: profile.tenant_id,
+        clinic,
+        error: error instanceof Error ? error.message : 'Unknown',
+      })
+      return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
+        details: { message: 'Error al leer módulos' },
+      })
+    }
+  },
+  { roles: ['admin'] }
+)
+
+export const PUT = withApiAuth(
+  async ({ request, profile }: ApiHandlerContext) => {
+    let body: unknown
+    try {
+      body = await request.json()
+    } catch {
+      return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST)
+    }
+
+    const { clinic, modules } = body as {
+      clinic?: string
+      modules?: Record<string, boolean>
+    }
+
+    if (!clinic) {
+      return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
+        details: { message: 'Clinic parameter required' },
+      })
+    }
+
+    // Verify tenant match
+    if (profile.tenant_id !== clinic) {
+      return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN)
+    }
+
+    try {
+      // Read existing config
+      const configPath = path.join(CONTENT_DATA_PATH, clinic, 'config.json')
+      const configData = await fs.readFile(configPath, 'utf-8')
+      const config = JSON.parse(configData)
+
+      // Update modules
+      const updatedConfig = {
+        ...config,
+        settings: {
+          ...config.settings,
+          modules: {
+            ...config.settings?.modules,
+            ...modules,
+          },
+        },
+      }
+
+      // Write back
+      await fs.writeFile(configPath, JSON.stringify(updatedConfig, null, 2), 'utf-8')
+
+      return apiSuccess({ success: true })
+    } catch (error) {
+      logger.error('Error updating modules', {
+        tenantId: profile.tenant_id,
+        clinic,
+        error: error instanceof Error ? error.message : 'Unknown',
+      })
+      return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
+        details: { message: 'Error al guardar módulos' },
+      })
+    }
+  },
+  { roles: ['admin'] }
+)

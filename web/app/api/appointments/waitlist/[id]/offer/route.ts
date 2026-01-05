@@ -1,131 +1,120 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { NextResponse } from 'next/server'
+import { withApiAuthParams, type ApiHandlerContextWithParams } from '@/lib/auth'
+import { apiError, HTTP_STATUS } from '@/lib/api/errors'
+import { logger } from '@/lib/logger'
 import { z } from 'zod'
-
-interface RouteParams {
-  params: Promise<{ id: string }>
-}
 
 const offerSchema = z.object({
   appointment_id: z.string().uuid(),
   expires_in_hours: z.number().min(1).max(48).optional().default(2),
 })
 
-// POST /api/appointments/waitlist/[id]/offer - Staff offers slot to client
-export async function POST(request: NextRequest, { params }: RouteParams): Promise<NextResponse> {
-  try {
-    const { id } = await params
-    const supabase = await createClient()
+/**
+ * POST /api/appointments/waitlist/[id]/offer - Staff offers slot to client
+ */
+export const POST = withApiAuthParams(
+  async ({ request, params, user, profile, supabase }: ApiHandlerContextWithParams<{ id: string }>) => {
+    const entryId = params.id
 
-    // Auth check
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
+    try {
+      // Parse body
+      const body = await request.json()
+      const validation = offerSchema.safeParse(body)
 
-    if (authError || !user) {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-    }
+      if (!validation.success) {
+        return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+          details: validation.error.flatten(),
+        })
+      }
 
-    // Get user profile - must be staff
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('tenant_id, role')
-      .eq('id', user.id)
-      .single()
+      const { appointment_id, expires_in_hours } = validation.data
 
-    if (!profile || profile.role === 'owner') {
-      return NextResponse.json({ error: 'Solo el personal puede ofrecer citas' }, { status: 403 })
-    }
+      // Fetch waitlist entry
+      const { data: entry } = await supabase
+        .from('appointment_waitlists')
+        .select('*')
+        .eq('id', entryId)
+        .eq('tenant_id', profile.tenant_id)
+        .single()
 
-    // Parse body
-    const body = await request.json()
-    const validation = offerSchema.safeParse(body)
+      if (!entry) {
+        return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
+          details: { resource: 'waitlist_entry' },
+        })
+      }
 
-    if (!validation.success) {
-      return NextResponse.json(
-        { error: 'Datos inválidos', details: validation.error.flatten() },
-        { status: 400 }
-      )
-    }
+      if (entry.status !== 'waiting') {
+        return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+          details: { message: 'Solo se puede ofrecer a clientes en espera' },
+        })
+      }
 
-    const { appointment_id, expires_in_hours } = validation.data
+      // Verify appointment exists and is available
+      const { data: appointment } = await supabase
+        .from('appointments')
+        .select('id, status, start_time')
+        .eq('id', appointment_id)
+        .eq('tenant_id', profile.tenant_id)
+        .single()
 
-    // Fetch waitlist entry
-    const { data: entry } = await supabase
-      .from('appointment_waitlists')
-      .select('*')
-      .eq('id', id)
-      .eq('tenant_id', profile.tenant_id)
-      .single()
+      if (!appointment) {
+        return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
+          details: { resource: 'appointment' },
+        })
+      }
 
-    if (!entry) {
-      return NextResponse.json({ error: 'Entrada no encontrada' }, { status: 404 })
-    }
+      // Calculate expiry
+      const expiresAt = new Date()
+      expiresAt.setHours(expiresAt.getHours() + expires_in_hours)
 
-    if (entry.status !== 'waiting') {
-      return NextResponse.json(
-        { error: 'Solo se puede ofrecer a clientes en espera' },
-        { status: 400 }
-      )
-    }
+      // Update waitlist entry
+      const { error: updateError } = await supabase
+        .from('appointment_waitlists')
+        .update({
+          status: 'offered',
+          offered_appointment_id: appointment_id,
+          offered_at: new Date().toISOString(),
+          offer_expires_at: expiresAt.toISOString(),
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', entryId)
 
-    // Verify appointment exists and is available (cancelled or reschedulable)
-    const { data: appointment } = await supabase
-      .from('appointments')
-      .select('id, status, start_time')
-      .eq('id', appointment_id)
-      .eq('tenant_id', profile.tenant_id)
-      .single()
+      if (updateError) {
+        logger.error('Error offering slot', {
+          tenantId: profile.tenant_id,
+          entryId,
+          error: updateError.message,
+        })
+        return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      }
 
-    if (!appointment) {
-      return NextResponse.json({ error: 'Cita no encontrada' }, { status: 404 })
-    }
+      // Get pet owner for notification
+      const { data: pet } = await supabase
+        .from('pets')
+        .select('owner_id, owner:profiles!owner_id (email, phone, full_name)')
+        .eq('id', entry.pet_id)
+        .single()
 
-    // Calculate expiry
-    const expiresAt = new Date()
-    expiresAt.setHours(expiresAt.getHours() + expires_in_hours)
+      // TODO: Send notification to owner about available slot
 
-    // Update waitlist entry
-    const { error: updateError } = await supabase
-      .from('appointment_waitlists')
-      .update({
-        status: 'offered',
-        offered_appointment_id: appointment_id,
-        offered_at: new Date().toISOString(),
-        offer_expires_at: expiresAt.toISOString(),
-        updated_at: new Date().toISOString(),
+      return NextResponse.json({
+        message: 'Oferta enviada al cliente',
+        entry: {
+          id: entryId,
+          status: 'offered',
+          offered_appointment_id: appointment_id,
+          offer_expires_at: expiresAt.toISOString(),
+        },
+        owner: pet?.owner,
       })
-      .eq('id', id)
-
-    if (updateError) {
-      console.error('Error offering slot:', updateError)
-      return NextResponse.json({ error: 'Error al ofrecer cita' }, { status: 500 })
+    } catch (error) {
+      logger.error('Waitlist offer error', {
+        tenantId: profile.tenant_id,
+        entryId,
+        error: error instanceof Error ? error.message : 'Unknown',
+      })
+      return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
     }
-
-    // Get pet owner for notification
-    const { data: pet } = await supabase
-      .from('pets')
-      .select('owner_id, owner:profiles!owner_id (email, phone, full_name)')
-      .eq('id', entry.pet_id)
-      .single()
-
-    // TODO: Send notification to owner about available slot
-    // For now, we just return success
-    // await sendNotification(pet.owner, 'waitlist_offer', { appointment, expiresAt })
-
-    return NextResponse.json({
-      message: 'Oferta enviada al cliente',
-      entry: {
-        id,
-        status: 'offered',
-        offered_appointment_id: appointment_id,
-        offer_expires_at: expiresAt.toISOString(),
-      },
-      owner: pet?.owner,
-    })
-  } catch (error) {
-    console.error('Waitlist offer error:', error)
-    return NextResponse.json({ error: 'Error del servidor' }, { status: 500 })
-  }
-}
+  },
+  { roles: ['vet', 'admin'] }
+)

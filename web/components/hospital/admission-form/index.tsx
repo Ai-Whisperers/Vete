@@ -105,8 +105,8 @@ export default function AdmissionForm({ onSuccess, onCancel }: AdmissionFormProp
     <div className="mx-auto max-w-4xl rounded-lg bg-[var(--bg-default)] p-6">
       <div className="mb-6 flex items-center justify-between">
         <h2 className="text-2xl font-bold text-[var(--text-primary)]">Nueva Admisión</h2>
-        <button onClick={onCancel} className="rounded-lg p-2 hover:bg-[var(--bg-secondary)]">
-          <X className="h-5 w-5" />
+        <button onClick={onCancel} className="rounded-lg p-2 hover:bg-[var(--bg-secondary)]" aria-label="Cancelar admisión">
+          <X className="h-5 w-5" aria-hidden="true" />
         </button>
       </div>
 

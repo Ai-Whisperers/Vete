@@ -1,15 +1,21 @@
-import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
+import { apiError, HTTP_STATUS } from '@/lib/api/errors'
+import { logger } from '@/lib/logger'
 
-export async function POST(request: Request) {
+/**
+ * POST /api/vaccine_reactions/check
+ * Check if a pet has existing reactions to a vaccine brand
+ */
+export const POST = withApiAuth(async ({ request, profile, supabase }: ApiHandlerContext) => {
   try {
     const { pet_id, brand } = await request.json()
 
     if (!pet_id || !brand) {
-      return NextResponse.json({ error: 'Missing pet_id or brand' }, { status: 400 })
+      return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
+        details: { required: ['pet_id', 'brand'] },
+      })
     }
-
-    const supabase = await createClient()
 
     // Check for existing reactions to this brand
     // Case-insensitive check is better for safety
@@ -17,15 +23,19 @@ export async function POST(request: Request) {
       .from('vaccine_reactions')
       .select('*')
       .eq('pet_id', pet_id)
-      .ilike('vaccine_brand', brand) // e.g. "Rabies X" matches "rabies x"
+      .ilike('vaccine_brand', brand)
       .maybeSingle()
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      logger.error('Error checking vaccine reactions', {
+        tenantId: profile.tenant_id,
+        petId: pet_id,
+        error: error.message,
+      })
+      return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
     }
 
     if (data) {
-      // Reaction found!
       return NextResponse.json({
         hasReaction: true,
         record: data,
@@ -34,10 +44,10 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ hasReaction: false })
   } catch (e) {
-    // TICKET-TYPE-004: Proper error handling without any
-    return NextResponse.json(
-      { error: e instanceof Error ? e.message : 'Error desconocido' },
-      { status: 500 }
-    )
+    logger.error('Unexpected error checking vaccine reactions', {
+      tenantId: profile.tenant_id,
+      error: e instanceof Error ? e.message : 'Unknown',
+    })
+    return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
   }
-}
+})

@@ -1,84 +1,71 @@
-import { createClient } from '@/lib/supabase/server'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
+import { withApiAuthParams, type ApiHandlerContextWithParams } from '@/lib/auth'
+import { apiError, HTTP_STATUS } from '@/lib/api/errors'
+import { logger } from '@/lib/logger'
 
-interface RouteParams {
-  params: Promise<{ id: string }>
-}
+/**
+ * POST /api/lab-orders/[id]/comments - Add comment to lab order
+ */
+export const POST = withApiAuthParams(
+  async ({ request, params, user, profile, supabase }: ApiHandlerContextWithParams<{ id: string }>) => {
+    const orderId = params.id
 
-export async function POST(request: NextRequest, { params }: RouteParams) {
-  const supabase = await createClient()
-  const { id: orderId } = await params
+    // Parse body
+    let body
+    try {
+      body = await request.json()
+    } catch {
+      return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST)
+    }
 
-  // Authentication check
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-  if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-  }
+    const { comment_text, interpretation } = body
 
-  // Get user profile - only vets/admins can comment
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('clinic_id:tenant_id, role')
-    .eq('id', user.id)
-    .single()
+    if (!comment_text) {
+      return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
+        details: { required: ['comment_text'] },
+      })
+    }
 
-  if (!profile) {
-    return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 })
-  }
+    // Verify order belongs to staff's clinic
+    const { data: order } = await supabase
+      .from('lab_orders')
+      .select('id, pets!inner(tenant_id)')
+      .eq('id', orderId)
+      .single()
 
-  if (!['vet', 'admin'].includes(profile.role)) {
-    return NextResponse.json({ error: 'Solo veterinarios pueden comentar' }, { status: 403 })
-  }
+    if (!order) {
+      return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
+        details: { resource: 'lab_order' },
+      })
+    }
 
-  // Parse body
-  let body
-  try {
-    body = await request.json()
-  } catch {
-    return NextResponse.json({ error: 'JSON inválido' }, { status: 400 })
-  }
+    const pet = Array.isArray(order.pets) ? order.pets[0] : order.pets
+    if (pet.tenant_id !== profile.tenant_id) {
+      return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN)
+    }
 
-  const { comment_text, interpretation } = body
+    // Insert comment
+    const { data, error } = await supabase
+      .from('lab_result_comments')
+      .insert({
+        order_id: orderId,
+        comment_text,
+        interpretation: interpretation || null,
+        commented_by: user.id,
+      })
+      .select()
+      .single()
 
-  if (!comment_text) {
-    return NextResponse.json({ error: 'comment_text es requerido' }, { status: 400 })
-  }
+    if (error) {
+      logger.error('Error adding lab comment', {
+        tenantId: profile.tenant_id,
+        orderId,
+        error: error.message,
+      })
+      return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
+    }
 
-  // Verify order belongs to staff's clinic
-  const { data: order } = await supabase
-    .from('lab_orders')
-    .select('id, pets!inner(tenant_id)')
-    .eq('id', orderId)
-    .single()
-
-  if (!order) {
-    return NextResponse.json({ error: 'Orden no encontrada' }, { status: 404 })
-  }
-
-  const pet = Array.isArray(order.pets) ? order.pets[0] : order.pets
-  if (pet.tenant_id !== profile.clinic_id) {
-    return NextResponse.json({ error: 'No tienes acceso a esta orden' }, { status: 403 })
-  }
-
-  // Insert comment
-  const { data, error } = await supabase
-    .from('lab_result_comments')
-    .insert({
-      order_id: orderId,
-      comment_text,
-      interpretation: interpretation || null,
-      commented_by: user.id,
-    })
-    .select()
-    .single()
-
-  if (error) {
-    console.error('[API] lab_result_comments POST error:', error)
-    return NextResponse.json({ error: 'Error al agregar comentario' }, { status: 500 })
-  }
-
-  return NextResponse.json(data, { status: 201 })
-}
+    return NextResponse.json(data, { status: 201 })
+  },
+  { roles: ['vet', 'admin'] }
+)

@@ -41,8 +41,8 @@ export function PatientHeader({
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-4">
-        <button onClick={onBack} className="rounded-lg p-2 hover:bg-[var(--bg-secondary)]">
-          <ArrowLeft className="h-5 w-5" />
+        <button onClick={onBack} className="rounded-lg p-2 hover:bg-[var(--bg-secondary)]" aria-label="Volver atrás">
+          <ArrowLeft className="h-5 w-5" aria-hidden="true" />
         </button>
         <div>
           <h1 className="text-3xl font-bold text-[var(--text-primary)]">

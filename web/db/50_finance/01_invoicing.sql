@@ -639,20 +639,9 @@ CREATE TRIGGER payment_update_invoice
     FOR EACH ROW EXECUTE FUNCTION public.update_invoice_on_payment();
 
 -- =============================================================================
--- THREAD-SAFE INVOICE NUMBER GENERATION
--- =============================================================================
--- Uses next_document_number function from 00_setup
-
-CREATE OR REPLACE FUNCTION public.generate_invoice_number(p_tenant_id TEXT)
-RETURNS TEXT AS $$
-BEGIN
-    RETURN public.next_document_number(p_tenant_id, 'invoice', 'FAC');
-END;
-$$ LANGUAGE plpgsql SET search_path = public;
-
--- =============================================================================
 -- HELPER: GENERATE PAYMENT NUMBER
 -- =============================================================================
+-- Note: generate_invoice_number() is defined in 00_setup/02_core_functions.sql
 
 CREATE OR REPLACE FUNCTION public.generate_payment_number(p_tenant_id TEXT)
 RETURNS TEXT AS $$

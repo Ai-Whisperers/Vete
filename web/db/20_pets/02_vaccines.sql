@@ -116,6 +116,7 @@ COMMENT ON COLUMN public.vaccines.next_due_date IS 'Next booster due date (NULL 
 
 CREATE TABLE IF NOT EXISTS public.vaccine_reactions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id TEXT REFERENCES public.tenants(id) ON DELETE CASCADE,  -- Added for direct RLS (migration 024)
     pet_id UUID NOT NULL REFERENCES public.pets(id) ON DELETE CASCADE,
     vaccine_id UUID REFERENCES public.vaccines(id) ON DELETE SET NULL,
 
@@ -212,16 +213,30 @@ CREATE POLICY "Owners view pet reactions" ON public.vaccine_reactions
     USING (public.is_owner_of_pet(pet_id));
 
 -- Staff manage reactions for pets in their clinic
--- Uses pet_id (NOT NULL) instead of vaccine_id (nullable) for reliability
+-- NOTE: Uses tenant_id directly for O(1) performance (added in migration 024)
+-- Falls back to pet lookup if tenant_id is NULL (legacy records)
 DROP POLICY IF EXISTS "Staff manage reactions" ON public.vaccine_reactions;
 CREATE POLICY "Staff manage reactions" ON public.vaccine_reactions
     FOR ALL TO authenticated
     USING (
-        EXISTS (
-            SELECT 1 FROM public.pets p
-            WHERE p.id = vaccine_reactions.pet_id
-            AND public.is_staff_of(p.tenant_id)
-        )
+        CASE
+            WHEN tenant_id IS NOT NULL THEN public.is_staff_of(tenant_id)
+            ELSE EXISTS (
+                SELECT 1 FROM public.pets p
+                WHERE p.id = vaccine_reactions.pet_id
+                AND public.is_staff_of(p.tenant_id)
+            )
+        END
+    )
+    WITH CHECK (
+        CASE
+            WHEN tenant_id IS NOT NULL THEN public.is_staff_of(tenant_id)
+            ELSE EXISTS (
+                SELECT 1 FROM public.pets p
+                WHERE p.id = vaccine_reactions.pet_id
+                AND public.is_staff_of(p.tenant_id)
+            )
+        END
     );
 
 DROP POLICY IF EXISTS "Service role full access reactions" ON public.vaccine_reactions;
@@ -264,7 +279,7 @@ CREATE INDEX IF NOT EXISTS idx_vaccines_pet_history ON public.vaccines(pet_id, a
 
 -- Reactions
 CREATE INDEX IF NOT EXISTS idx_vaccine_reactions_pet ON public.vaccine_reactions(pet_id);
--- Note: vaccine_reactions no longer has tenant_id - uses vaccine relationship
+CREATE INDEX IF NOT EXISTS idx_vaccine_reactions_tenant ON public.vaccine_reactions(tenant_id);  -- Added for direct RLS (migration 024)
 CREATE INDEX IF NOT EXISTS idx_vaccine_reactions_vaccine ON public.vaccine_reactions(vaccine_id);
 CREATE INDEX IF NOT EXISTS idx_vaccine_reactions_severity ON public.vaccine_reactions(severity)
     WHERE severity IN ('high', 'critical');

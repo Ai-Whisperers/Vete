@@ -71,8 +71,8 @@ export function QuickSend({
         {/* Header */}
         <div className="flex items-center justify-between border-b border-gray-100 p-4">
           <h2 className="text-lg font-bold text-[var(--text-primary)]">Envío Rápido</h2>
-          <button onClick={onClose} className="rounded-lg p-2 hover:bg-gray-100">
-            <Icons.X className="h-5 w-5" />
+          <button onClick={onClose} className="rounded-lg p-2 hover:bg-gray-100" aria-label="Cerrar envío rápido">
+            <Icons.X className="h-5 w-5" aria-hidden="true" />
           </button>
         </div>
 

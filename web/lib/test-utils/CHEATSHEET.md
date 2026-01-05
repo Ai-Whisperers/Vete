@@ -1,253 +1,331 @@
 # Test Utilities - Quick Reference
 
-## Import
+## New Unified API (Recommended)
 
 ```typescript
 import {
-  // Factories
+  // Fixtures - use these for common test data
+  TENANTS, USERS, PETS, INVOICES, SERVICES,
+  DEFAULT_TENANT, DEFAULT_OWNER, DEFAULT_VET, DEFAULT_PET,
+
+  // Mocks - stateful Supabase mocking
+  mockState, AUTH_SCENARIOS, getSupabaseServerMock,
+
+  // Auth test generators
+  testStaffOnlyEndpoint, testAdminOnlyEndpoint,
+
+  // Factory infrastructure
+  idGenerator, factoryMode, resetIdCounter,
+
+  // Builder factories
+  PetFactory, OwnerFactory, AppointmentFactory, InvoiceFactory,
+} from '@/lib/test-utils';
+```
+
+---
+
+## Quick Setup
+
+### Unit Tests
+
+```typescript
+import { mockState, resetIdCounter, PETS } from '@/lib/test-utils';
+
+beforeEach(() => {
+  resetIdCounter();
+  mockState.reset();
+});
+
+it('should use fixture data', () => {
+  const pet = PETS.MAX_DOG;
+  expect(pet.name).toBe('Max');
+});
+```
+
+### API Route Tests
+
+```typescript
+import { vi, mockState, getSupabaseServerMock, testStaffOnlyEndpoint } from '@/lib/test-utils';
+import { POST } from '@/app/api/resource/route';
+
+vi.mock('@/lib/supabase/server', () => getSupabaseServerMock());
+
+// Generate 5 auth tests in one line
+testStaffOnlyEndpoint(POST, createRequest, 'Resource Name');
+
+// Business logic tests
+describe('Business Logic', () => {
+  beforeEach(() => mockState.reset());
+
+  it('handles request', async () => {
+    mockState.setAuthScenario('VET');
+    mockState.setTableResult('pets', [PETS.MAX_DOG]);
+
+    const response = await POST(request);
+    expect(response.status).toBe(200);
+  });
+});
+```
+
+---
+
+## Fixtures Cheat Sheet
+
+```typescript
+// Tenants
+TENANTS.ADRIS     // { id: 'adris', name: 'Veterinaria Adris', slug: 'adris' }
+TENANTS.PETLIFE   // { id: 'petlife', ... }
+TENANTS.TEST      // { id: 'test-tenant', ... }
+
+// Users by role
+USERS.OWNER_JUAN    // Owner at ADRIS
+USERS.OWNER_MARIA   // Owner at ADRIS
+USERS.VET_CARLOS    // Vet at ADRIS
+USERS.VET_ANA       // Vet at ADRIS
+USERS.ADMIN_PRINCIPAL // Admin at ADRIS
+
+// Pets
+PETS.MAX_DOG      // Labrador, owned by Juan
+PETS.LUNA_CAT     // Siamese, owned by Juan
+PETS.ROCKY_DOG    // Bulldog, owned by Maria
+
+// Invoices
+INVOICES.DRAFT    // Draft status
+INVOICES.SENT     // Sent status
+INVOICES.PARTIAL  // Partially paid
+INVOICES.PAID     // Fully paid
+
+// Services
+SERVICES.CONSULTATION  // Consulta General
+SERVICES.VACCINATION   // Vacunación
+SERVICES.SURGERY_MINOR // Cirugía Menor
+SERVICES.GROOMING      // Baño y Peluquería
+```
+
+---
+
+## MockState Cheat Sheet
+
+### Set Auth Scenario
+
+```typescript
+mockState.setAuthScenario('UNAUTHENTICATED'); // No auth
+mockState.setAuthScenario('OWNER');           // Pet owner
+mockState.setAuthScenario('VET');             // Veterinarian
+mockState.setAuthScenario('ADMIN');           // Admin
+```
+
+### Set Table Results
+
+```typescript
+mockState.setTableResult('invoices', [invoice1, invoice2]);
+mockState.setTableResult('pets', PETS.MAX_DOG);  // Single item
+mockState.setRpcResult('calculate_total', { total: 150000 });
+mockState.setTableError('invoices', new Error('DB error'));
+```
+
+### Reset Between Tests
+
+```typescript
+beforeEach(() => {
+  mockState.reset();  // Clears user, profile, and all results
+});
+```
+
+---
+
+## Auth Test Generators
+
+```typescript
+// Staff only (vet + admin)
+testStaffOnlyEndpoint(POST, createRequest, 'Resource Name');
+
+// Admin only
+testAdminOnlyEndpoint(DELETE, createRequest, 'Delete User');
+
+// Any authenticated user
+testAuthenticatedEndpoint(GET, createRequest, 'View Profile');
+
+// Custom roles
+testAuthorizationScenarios({
+  handler: POST,
+  createRequest: () => new NextRequest(url, options),
+  allowedRoles: ['vet', 'admin'],
+  resourceName: 'Discharge Patient',
+});
+```
+
+**Generated tests (5 per endpoint):**
+- should reject unauthenticated requests with 401
+- should reject owner role (if not allowed)
+- should allow vet role (if allowed)
+- should allow admin role (if allowed)
+- should reject user with missing profile
+
+---
+
+## Builder Factories
+
+```typescript
+// Pet
+const pet = PetFactory.create()
+  .forTenant('adris')
+  .forOwner('owner-123')
+  .asDog('Labrador')
+  .build();
+
+// Appointment
+const appointment = AppointmentFactory.create()
+  .forTenant('adris')
+  .forPet('pet-123')
+  .withVet('vet-456')
+  .withStatus('confirmed')
+  .build();
+
+// Invoice
+const invoice = InvoiceFactory.create()
+  .forTenant('adris')
+  .forClient('client-123')
+  .withStatus('sent')
+  .withAmount(150000)
+  .build();
+```
+
+---
+
+## Legacy Factories (Still Supported)
+
+```typescript
+import {
   createMockPet,
   createMockProfile,
   createMockAppointment,
   createMockInvoice,
-  createMockService,
-  createMockHospitalization,
-  createMockLabOrder,
-  createMockPets,
-  createMockAppointments,
-  resetIdCounter,
-
-  // Supabase Mock
   createSupabaseMock,
+  resetIdCounter,
+} from '@/lib/test-utils';
 
-  // Re-exported testing utilities
-  describe,
-  it,
-  expect,
-  beforeEach,
-  afterEach,
-  vi,
-  render,
-  screen,
-  fireEvent,
-  waitFor,
-} from '@/lib/test-utils'
+const pet = createMockPet({ name: 'Fido' });
+const vet = createMockProfile({ role: 'vet' });
+const appointment = createMockAppointment({ status: 'confirmed' });
+
+const { supabase, helpers } = createSupabaseMock();
+helpers.setQueryResult(pet);
+helpers.setUser({ id: 'user-123', email: 'test@example.com' });
 ```
 
-## Quick Setup
-
-```typescript
-describe('My Test Suite', () => {
-  beforeEach(() => {
-    resetIdCounter() // Always reset for predictable IDs
-  })
-
-  it('should test something', () => {
-    const pet = createMockPet({ name: 'Max' })
-    expect(pet.name).toBe('Max')
-  })
-})
-```
-
-## Factories Cheat Sheet
-
-```typescript
-// Create single items
-const pet = createMockPet({ name: 'Fido', species: 'dog' })
-const owner = createMockProfile({ role: 'owner', full_name: 'John Doe' })
-const vet = createMockProfile({ role: 'vet' })
-const appointment = createMockAppointment({ status: 'confirmed' })
-const invoice = createMockInvoice({ subtotal: 100000 })
-const service = createMockService({ name: 'Consulta', base_price: 50000 })
-const hospitalization = createMockHospitalization({ status: 'active' })
-const labOrder = createMockLabOrder({ priority: 'stat' })
-
-// Create multiple items
-const pets = createMockPets(5, { species: 'cat' })
-const appointments = createMockAppointments(10)
-```
-
-## Supabase Mock Cheat Sheet
-
-### Basic Setup
-
-```typescript
-const { supabase, helpers } = createSupabaseMock()
-```
-
-### Set Query Results
-
-```typescript
-// Single result
-helpers.setQueryResult(mockPet)
-await supabase.from('pets').select('*').single() // Returns mockPet
-
-// Multiple results
-helpers.setQueryResult([pet1, pet2])
-await supabase.from('pets').select('*') // Returns [pet1, pet2]
-```
-
-### Set Authenticated User
-
-```typescript
-helpers.setUser({ id: 'user-123', email: 'test@example.com' })
-const {
-  data: { user },
-} = await supabase.auth.getUser()
-```
-
-### Set Error
-
-```typescript
-helpers.setError(new Error('Database error'))
-const result = await supabase.from('pets').select('*')
-// result.error will be defined, result.data will be null
-```
-
-### Reset Mocks
-
-```typescript
-helpers.reset() // Clear all mocks
-```
+---
 
 ## Common Patterns
 
-### API Route Testing
+### API Route with Auth + Business Logic
 
 ```typescript
-it('returns data for authenticated user', async () => {
-  const { supabase, helpers } = createSupabaseMock()
-  const user = createMockProfile()
+import { vi, mockState, getSupabaseServerMock, testStaffOnlyEndpoint, INVOICES } from '@/lib/test-utils';
+import { POST } from '@/app/api/invoices/[id]/record-payment/route';
 
-  helpers.setUser({ id: user.id, email: user.email })
-  helpers.setQueryResult(mockData)
+vi.mock('@/lib/supabase/server', () => getSupabaseServerMock());
 
-  const response = await GET(request)
-  expect(response.status).toBe(200)
-})
-```
+const createRequest = () => new NextRequest(url, {
+  method: 'POST',
+  body: JSON.stringify({ amount: 50000 }),
+});
 
-### Component Testing
+const createContext = () => ({
+  params: Promise.resolve({ id: INVOICES.SENT.id }),
+});
 
-```typescript
-it('renders pet list', async () => {
-  const pets = createMockPets(3)
-  const { supabase, helpers } = createSupabaseMock()
-  helpers.setQueryResult(pets)
+// Auth tests (1 line = 5 tests)
+testStaffOnlyEndpoint(POST, createRequest, 'Record Payment', createContext);
 
-  render(<PetList />)
+// Business logic tests
+describe('Record Payment - Business Logic', () => {
+  beforeEach(() => mockState.reset());
 
-  await waitFor(() => {
-    expect(screen.getByText(pets[0].name)).toBeInTheDocument()
-  })
-})
-```
+  it('records payment successfully', async () => {
+    mockState.setAuthScenario('VET');
+    mockState.setTableResult('invoices', [INVOICES.SENT]);
 
-### Server Action Testing
+    const response = await POST(createRequest(), createContext());
+    expect(response.status).toBe(200);
+  });
 
-```typescript
-it('creates appointment', async () => {
-  const { supabase, helpers } = createSupabaseMock()
-  const owner = createMockProfile({ role: 'owner' })
-  const pet = createMockPet({ owner_id: owner.id })
+  it('rejects overpayment', async () => {
+    mockState.setAuthScenario('VET');
+    mockState.setTableResult('invoices', [INVOICES.PAID]);
 
-  helpers.setUser({ id: owner.id, email: owner.email })
-  helpers.setQueryResult(pet)
-
-  const result = await createAppointment({ petId: pet.id, ... })
-  expect(result.success).toBe(true)
-})
-```
-
-### Error Testing
-
-```typescript
-it('handles database errors', async () => {
-  const { supabase, helpers } = createSupabaseMock()
-  helpers.setError(new Error('Connection failed'))
-
-  const result = await supabase.from('pets').select('*')
-  expect(result.error).toBeDefined()
-  expect(result.data).toBeNull()
-})
+    const response = await POST(createRequest(), createContext());
+    expect(response.status).toBe(400);
+  });
+});
 ```
 
 ### Multi-Tenant Testing
 
 ```typescript
-it('isolates tenant data', async () => {
-  const clinic1Pet = createMockPet({ tenant_id: 'clinic-1' })
-  const clinic2User = createMockProfile({ tenant_id: 'clinic-2' })
+import { TENANTS, USERS, PETS } from '@/lib/test-utils';
 
-  helpers.setUser({ id: clinic2User.id, email: clinic2User.email })
-  helpers.setQueryResult([]) // RLS prevents access
+it('isolates tenant data', () => {
+  // ADRIS tenant
+  expect(PETS.MAX_DOG.tenant_id).toBe(TENANTS.ADRIS.id);
+  expect(USERS.OWNER_JUAN.tenantId).toBe(TENANTS.ADRIS.id);
 
-  const result = await supabase.from('pets').select('*')
-  expect(result.data).toHaveLength(0)
-})
+  // PETLIFE tenant
+  expect(PETS.MILO_PETLIFE.tenant_id).toBe(TENANTS.PETLIFE.id);
+  expect(USERS.OWNER_PETLIFE.tenantId).toBe(TENANTS.PETLIFE.id);
+});
 ```
 
-## Default Values Reference
+---
 
-### createMockPet
+## Migration Quick Reference
 
-- `species`: 'dog'
-- `breed`: 'Mixed'
-- `sex`: Random male/female
-- `weight_kg`: Random 0-30
-- `tenant_id`: 'test-tenant'
+### Inline Mocks → MockState
 
-### createMockProfile
+```typescript
+// BEFORE
+let mockUser = null;
+let mockProfile = null;
+vi.mock('@/lib/supabase/server', () => ({
+  createClient: vi.fn(() => Promise.resolve({
+    auth: { getUser: vi.fn(() => ({ data: { user: mockUser } })) },
+    from: vi.fn((table) => { /* complex logic */ }),
+  })),
+}));
 
-- `role`: 'owner'
-- `email`: 'user{id}@test.com'
-- `phone`: Random PY number
-- `tenant_id`: 'test-tenant'
+// AFTER
+vi.mock('@/lib/supabase/server', () => getSupabaseServerMock());
+mockState.setAuthScenario('VET');
+mockState.setTableResult('invoices', [invoice]);
+```
 
-### createMockAppointment
+### Manual Auth Tests → Generator
 
-- `status`: 'pending'
-- `start_time`: Random next 7 days
-- `end_time`: 30 min after start
-- `reason`: 'Test appointment'
-- `tenant_id`: 'test-tenant'
+```typescript
+// BEFORE: ~50 lines of repetitive tests
+it('should reject unauthenticated', async () => { /* 8 lines */ });
+it('should reject owner role', async () => { /* 10 lines */ });
+it('should allow vet role', async () => { /* 10 lines */ });
+it('should allow admin role', async () => { /* 10 lines */ });
+it('should reject missing profile', async () => { /* 10 lines */ });
 
-### createMockInvoice
+// AFTER: 1 line
+testStaffOnlyEndpoint(POST, createRequest, 'Resource Name', createContext);
+```
 
-- `status`: 'draft'
-- `subtotal`: Random 0-500,000
-- `tax_rate`: 0.1 (10%)
-- `tax_amount`: Calculated
-- `total_amount`: Calculated
-- `tenant_id`: 'test-tenant'
-
-### createMockService
-
-- `category`: 'consultation'
-- `base_price`: Random 0-200,000
-- `duration_minutes`: 30
-- `is_active`: true
-- `tenant_id`: 'test-tenant'
+---
 
 ## Tips
 
-1. Always call `resetIdCounter()` in `beforeEach()`
-2. Override only what you need - factories provide good defaults
-3. Use `helpers.reset()` if you need clean mocks mid-test
-4. Test both success and error paths
-5. Use batch factories for testing lists/pagination
-6. Mock authentication with `setUser()` before testing protected routes
-
-## Common Mistakes to Avoid
-
-- Forgetting to call `resetIdCounter()` (leads to flaky tests)
-- Not setting user before testing authenticated endpoints
-- Hardcoding IDs instead of using generated ones
-- Not testing error cases
-- Sharing state between tests
+1. **Use fixtures first** - `PETS.MAX_DOG` instead of `createMockPet()`
+2. **Reset mockState in beforeEach** - `mockState.reset()`
+3. **Use auth generators** - Saves 40+ lines per endpoint
+4. **Test both paths** - Auth tests + business logic tests
+5. **Match tenant IDs** - Fixtures are pre-configured for ADRIS
 
 ## File Locations
 
 - Source: `web/lib/test-utils/`
-- Tests: `web/tests/unit/test-utilities.test.ts`
+- Fixtures: `web/lib/test-utils/fixtures/`
+- Cleanup: `web/tests/__helpers__/cleanup-manager.ts`
 - Docs: `web/lib/test-utils/README.md`
-- Examples: `web/lib/test-utils/EXAMPLES.md`

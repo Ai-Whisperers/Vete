@@ -1,19 +1,13 @@
-import { createClient } from '@/lib/supabase/server'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
+import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
+import { logger } from '@/lib/logger'
 
-// GET /api/insurance/providers - List insurance providers
-export async function GET(request: NextRequest) {
-  const supabase = await createClient()
-
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-  if (authError || !user) {
-    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED)
-  }
-
+/**
+ * GET /api/insurance/providers
+ * List all insurance providers (authenticated users)
+ */
+export const GET = withApiAuth(async ({ request, profile, supabase }: ApiHandlerContext) => {
   const { searchParams } = new URL(request.url)
   const activeOnly = searchParams.get('active_only') === 'true'
 
@@ -26,11 +20,20 @@ export async function GET(request: NextRequest) {
 
     const { data: providers, error } = await query
 
-    if (error) throw error
+    if (error) {
+      logger.error('Error fetching insurance providers', {
+        tenantId: profile.tenant_id,
+        error: error.message,
+      })
+      return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
+    }
 
     return NextResponse.json({ data: providers })
   } catch (e) {
-    console.error('Error loading insurance providers:', e)
-    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
+    logger.error('Unexpected error fetching insurance providers', {
+      tenantId: profile.tenant_id,
+      error: e instanceof Error ? e.message : 'Unknown',
+    })
+    return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
   }
-}
+})

@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server'
 import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
+import { logger } from '@/lib/logger'
 
 export const GET = withApiAuth(
-  async ({ request, profile, supabase }) => {
+  async ({ request, profile, supabase }: ApiHandlerContext) => {
     const { searchParams } = new URL(request.url)
     const status = searchParams.get('status')
     const kennelId = searchParams.get('kennel_id')
@@ -38,7 +39,10 @@ export const GET = withApiAuth(
     const { data, error } = await query
 
     if (error) {
-      console.error('[API] hospitalizations GET error:', error)
+      logger.error('Error fetching hospitalizations', {
+        tenantId: profile.tenant_id,
+        error: error.message,
+      })
       return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
     }
 
@@ -163,7 +167,12 @@ export const POST = withApiAuth(
       .single()
 
     if (hospError) {
-      console.error('[API] hospitalizations POST error:', hospError)
+      logger.error('Error creating hospitalization', {
+        tenantId: profile.tenant_id,
+        userId: user.id,
+        petId: pet_id,
+        error: hospError.message,
+      })
       return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
     }
 
@@ -262,7 +271,12 @@ export const PATCH = withApiAuth(
       .single()
 
     if (error) {
-      console.error('[API] hospitalizations PATCH error:', error)
+      logger.error('Error updating hospitalization', {
+        tenantId: profile.tenant_id,
+        userId: user.id,
+        hospitalizationId: id,
+        error: error.message,
+      })
       return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
     }
 

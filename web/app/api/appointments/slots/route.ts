@@ -1,10 +1,18 @@
-import { createClient } from '@/lib/supabase/server'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
+import { withApiAuth, type ApiHandlerContext } from '@/lib/auth/api-wrapper'
+import { apiError, apiSuccess } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
 
 interface TimeSlot {
   time: string
   available: boolean
+}
+
+interface SlotsResponse {
+  date: string
+  clinic: string
+  slotDuration: number
+  slots: TimeSlot[]
 }
 
 /**
@@ -18,8 +26,7 @@ interface TimeSlot {
  *
  * Security: Users can only access slots for their own clinic
  */
-export async function GET(request: NextRequest) {
-  const supabase = await createClient()
+export const GET = withApiAuth(async ({ request, profile, supabase }: ApiHandlerContext) => {
   const { searchParams } = new URL(request.url)
 
   const clinicSlug = searchParams.get('clinic')
@@ -28,45 +35,23 @@ export async function GET(request: NextRequest) {
   const vetId = searchParams.get('vet_id')
 
   if (!clinicSlug || !date) {
-    return NextResponse.json(
-      { error: 'Faltan parámetros requeridos (clinic, date)' },
-      { status: 400 }
-    )
+    return apiError('MISSING_FIELDS', 400, {
+      details: { required: ['clinic', 'date'] },
+    })
   }
 
   // Validate date format
   const dateRegex = /^\d{4}-\d{2}-\d{2}$/
   if (!dateRegex.test(date)) {
-    return NextResponse.json(
-      { error: 'Formato de fecha inválido. Use YYYY-MM-DD' },
-      { status: 400 }
-    )
-  }
-
-  // SEC-001: Verify authentication and tenant access
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-  if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-  }
-
-  // Get user profile and verify tenant access
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('tenant_id, role')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+    return apiError('INVALID_FORMAT', 400, {
+      details: { field: 'date', expected: 'YYYY-MM-DD' },
+    })
   }
 
   // Verify tenant isolation - users can only access slots for their own clinic
   const isStaff = ['vet', 'admin'].includes(profile.role)
   if (clinicSlug !== profile.tenant_id && !isStaff) {
-    return NextResponse.json({ error: 'Acceso denegado' }, { status: 403 })
+    return apiError('FORBIDDEN', 403)
   }
 
   try {
@@ -107,11 +92,10 @@ export async function GET(request: NextRequest) {
     if (error) {
       logger.error('Error fetching available slots', {
         tenantId: clinicSlug,
-        userId: user.id,
         date,
-        error: error instanceof Error ? error.message : String(error),
+        error: error.message,
       })
-      return NextResponse.json({ error: 'Error al obtener horarios disponibles' }, { status: 500 })
+      return apiError('DATABASE_ERROR', 500)
     }
 
     // Transform database response to API format
@@ -121,7 +105,7 @@ export async function GET(request: NextRequest) {
         available: slot.is_available,
       })) || []
 
-    return NextResponse.json({
+    return NextResponse.json<SlotsResponse>({
       date,
       clinic: clinicSlug,
       slotDuration,
@@ -130,10 +114,9 @@ export async function GET(request: NextRequest) {
   } catch (e) {
     logger.error('Error generating slots', {
       tenantId: clinicSlug,
-      userId: user?.id,
       date,
       error: e instanceof Error ? e.message : 'Unknown',
     })
-    return NextResponse.json({ error: 'Error al generar horarios disponibles' }, { status: 500 })
+    return apiError('SERVER_ERROR', 500)
   }
-}
+})

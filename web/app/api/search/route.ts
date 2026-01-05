@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { withApiAuth } from '@/lib/auth'
+import { apiError } from '@/lib/api/errors'
 import { rateLimit } from '@/lib/rate-limit'
+import { logger } from '@/lib/logger'
 
 interface SearchResult {
   id: string
@@ -22,7 +24,9 @@ export const GET = withApiAuth(async ({ request, user, profile, supabase }) => {
   }
 
   if (!clinic) {
-    return NextResponse.json({ error: 'Falta parámetro clinic' }, { status: 400 })
+    return apiError('MISSING_FIELDS', 400, {
+      details: { required: ['clinic'] },
+    })
   }
 
   // Apply rate limiting for search endpoints (30 requests per minute)
@@ -33,7 +37,7 @@ export const GET = withApiAuth(async ({ request, user, profile, supabase }) => {
 
   // Verify tenant access
   if (profile.tenant_id !== clinic) {
-    return NextResponse.json({ error: 'Sin acceso a esta clínica' }, { status: 403 })
+    return apiError('FORBIDDEN', 403)
   }
 
   const results: SearchResult[] = []
@@ -151,7 +155,11 @@ export const GET = withApiAuth(async ({ request, user, profile, supabase }) => {
 
     return NextResponse.json({ results })
   } catch (error) {
-    console.error('Search error:', error)
-    return NextResponse.json({ error: 'Error en búsqueda' }, { status: 500 })
+    logger.error('Search error', {
+      tenantId: clinic,
+      query,
+      error: error instanceof Error ? error.message : 'Unknown',
+    })
+    return apiError('SERVER_ERROR', 500)
   }
 })

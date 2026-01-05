@@ -1,5 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { NextResponse } from 'next/server'
+import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
+import { apiError, HTTP_STATUS } from '@/lib/api/errors'
+import { logger } from '@/lib/logger'
 import { z } from 'zod'
 
 // Validation schemas
@@ -15,33 +17,12 @@ const joinWaitlistSchema = z.object({
   notes: z.string().max(500).optional(),
 })
 
-// GET /api/appointments/waitlist - List waitlist entries
-export async function GET(request: NextRequest): Promise<NextResponse> {
+/**
+ * GET /api/appointments/waitlist - List waitlist entries
+ */
+export const GET = withApiAuth(async ({ request, user, profile, supabase }: ApiHandlerContext) => {
   try {
-    const supabase = await createClient()
-
-    // Auth check
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-    }
-
-    // Get user profile
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('tenant_id, role')
-      .eq('id', user.id)
-      .single()
-
-    if (!profile) {
-      return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 })
-    }
-
-    const searchParams = request.nextUrl.searchParams
+    const searchParams = new URL(request.url).searchParams
     const status = searchParams.get('status')
     const date = searchParams.get('date')
     const petId = searchParams.get('pet_id')
@@ -64,10 +45,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     // Staff see all, owners see only their pets
     if (profile.role === 'owner') {
-      const { data: userPets } = await supabase
-        .from('pets')
-        .select('id')
-        .eq('owner_id', user.id)
+      const { data: userPets } = await supabase.from('pets').select('id').eq('owner_id', user.id)
 
       const petIds = userPets?.map((p) => p.id) || []
       query = query.in('pet_id', petIds.length > 0 ? petIds : ['00000000-0000-0000-0000-000000000000'])
@@ -87,52 +65,36 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const { data, error } = await query
 
     if (error) {
-      console.error('Error fetching waitlist:', error)
-      return NextResponse.json({ error: 'Error al cargar lista de espera' }, { status: 500 })
+      logger.error('Error fetching waitlist', {
+        tenantId: profile.tenant_id,
+        error: error.message,
+      })
+      return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
     }
 
     return NextResponse.json({ waitlist: data })
   } catch (error) {
-    console.error('Waitlist GET error:', error)
-    return NextResponse.json({ error: 'Error del servidor' }, { status: 500 })
+    logger.error('Waitlist GET error', {
+      tenantId: profile.tenant_id,
+      error: error instanceof Error ? error.message : 'Unknown',
+    })
+    return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
   }
-}
+})
 
-// POST /api/appointments/waitlist - Join waitlist
-export async function POST(request: NextRequest): Promise<NextResponse> {
+/**
+ * POST /api/appointments/waitlist - Join waitlist
+ */
+export const POST = withApiAuth(async ({ request, user, profile, supabase }: ApiHandlerContext) => {
   try {
-    const supabase = await createClient()
-
-    // Auth check
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-    }
-
-    // Get user profile
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('tenant_id')
-      .eq('id', user.id)
-      .single()
-
-    if (!profile) {
-      return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 })
-    }
-
     // Parse and validate body
     const body = await request.json()
     const validation = joinWaitlistSchema.safeParse(body)
 
     if (!validation.success) {
-      return NextResponse.json(
-        { error: 'Datos inválidos', details: validation.error.flatten() },
-        { status: 400 }
-      )
+      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+        details: validation.error.flatten(),
+      })
     }
 
     const data = validation.data
@@ -145,17 +107,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       .single()
 
     if (!pet) {
-      return NextResponse.json({ error: 'Mascota no encontrada' }, { status: 404 })
+      return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
+        details: { resource: 'pet' },
+      })
     }
 
-    const { data: userProfile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-
-    if (userProfile?.role === 'owner' && pet.owner_id !== user.id) {
-      return NextResponse.json({ error: 'No autorizado para esta mascota' }, { status: 403 })
+    if (profile.role === 'owner' && pet.owner_id !== user.id) {
+      return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN, {
+        details: { message: 'No autorizado para esta mascota' },
+      })
     }
 
     // Check if already on waitlist for same date/service
@@ -170,10 +130,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       .single()
 
     if (existing) {
-      return NextResponse.json(
-        { error: 'Ya estás en la lista de espera para esta fecha y servicio' },
-        { status: 409 }
-      )
+      return apiError('CONFLICT', HTTP_STATUS.CONFLICT, {
+        details: { message: 'Ya estás en la lista de espera para esta fecha y servicio' },
+      })
     }
 
     // Insert waitlist entry (position is auto-assigned by trigger)
@@ -196,8 +155,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       .single()
 
     if (insertError) {
-      console.error('Error joining waitlist:', insertError)
-      return NextResponse.json({ error: 'Error al unirse a la lista de espera' }, { status: 500 })
+      logger.error('Error joining waitlist', {
+        tenantId: profile.tenant_id,
+        petId: data.pet_id,
+        error: insertError.message,
+      })
+      return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
     }
 
     return NextResponse.json({
@@ -205,7 +168,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       waitlistEntry,
     })
   } catch (error) {
-    console.error('Waitlist POST error:', error)
-    return NextResponse.json({ error: 'Error del servidor' }, { status: 500 })
+    logger.error('Waitlist POST error', {
+      tenantId: profile.tenant_id,
+      error: error instanceof Error ? error.message : 'Unknown',
+    })
+    return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
   }
-}
+})

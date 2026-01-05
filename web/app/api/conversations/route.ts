@@ -1,27 +1,10 @@
-import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
+import { apiError, apiSuccess, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
 
 // GET /api/conversations - List conversations
-export async function GET(request: Request) {
-  const supabase = await createClient()
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-  }
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('tenant_id, role')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile) {
-    return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 })
-  }
+export const GET = withApiAuth(async ({ request, user, profile, supabase }: ApiHandlerContext) => {
 
   const { searchParams } = new URL(request.url)
   const status = searchParams.get('status')
@@ -79,102 +62,88 @@ export async function GET(request: Request) {
       tenantId: profile.tenant_id,
       error: e instanceof Error ? e.message : String(e),
     })
-    return NextResponse.json({ error: 'Error al cargar conversaciones' }, { status: 500 })
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
   }
-}
+})
 
 // POST /api/conversations - Start new conversation
-export async function POST(request: Request) {
-  const supabase = await createClient()
+export const POST = withApiAuth(
+  async ({ request, user, profile, supabase }: ApiHandlerContext) => {
+    try {
+      const body = await request.json()
+      const { subject, pet_id, message, client_id } = body
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-  }
+      if (!subject || !message) {
+        return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
+          details: { required: ['subject', 'message'] },
+        })
+      }
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('tenant_id, role')
-    .eq('id', user.id)
-    .single()
+      const isStaff = ['vet', 'admin'].includes(profile.role)
 
-  if (!profile) {
-    return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 })
-  }
+      // Determine client_id
+      let finalClientId = isStaff ? client_id : user.id
 
-  try {
-    const body = await request.json()
-    const { subject, pet_id, message, client_id } = body
+      if (!finalClientId) {
+        return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
+          details: { required: ['client_id'] },
+        })
+      }
 
-    if (!subject || !message) {
-      return NextResponse.json({ error: 'subject y message son requeridos' }, { status: 400 })
-    }
+      // Verify pet belongs to client if provided
+      if (pet_id) {
+        const { data: pet } = await supabase
+          .from('pets')
+          .select('id, owner_id')
+          .eq('id', pet_id)
+          .single()
 
-    const isStaff = ['vet', 'admin'].includes(profile.role)
+        if (!pet || pet.owner_id !== finalClientId) {
+          return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+            details: { reason: 'Mascota no encontrada o no pertenece al cliente' },
+          })
+        }
+      }
 
-    // Determine client_id
-    let finalClientId = isStaff ? client_id : user.id
-
-    if (!finalClientId) {
-      return NextResponse.json({ error: 'Se requiere client_id' }, { status: 400 })
-    }
-
-    // Verify pet belongs to client if provided
-    if (pet_id) {
-      const { data: pet } = await supabase
-        .from('pets')
-        .select('id, owner_id')
-        .eq('id', pet_id)
+      // Create conversation
+      const { data: conversation, error: convError } = await supabase
+        .from('conversations')
+        .insert({
+          tenant_id: profile.tenant_id,
+          client_id: finalClientId,
+          pet_id: pet_id || null,
+          subject,
+          status: 'open',
+          priority: 'normal',
+          started_by: isStaff ? 'staff' : 'client',
+          last_message_at: new Date().toISOString(),
+          unread_count_staff: isStaff ? 0 : 1,
+          unread_count_client: isStaff ? 1 : 0,
+        })
+        .select()
         .single()
 
-      if (!pet || pet.owner_id !== finalClientId) {
-        return NextResponse.json(
-          { error: 'Mascota no encontrada o no pertenece al cliente' },
-          { status: 400 }
-        )
-      }
-    }
+      if (convError) throw convError
 
-    // Create conversation
-    const { data: conversation, error: convError } = await supabase
-      .from('conversations')
-      .insert({
-        tenant_id: profile.tenant_id,
-        client_id: finalClientId,
-        pet_id: pet_id || null,
-        subject,
-        status: 'open',
-        priority: 'normal',
-        started_by: isStaff ? 'staff' : 'client',
-        last_message_at: new Date().toISOString(),
-        unread_count_staff: isStaff ? 0 : 1,
-        unread_count_client: isStaff ? 1 : 0,
+      // Create first message
+      const { error: msgError } = await supabase.from('messages').insert({
+        conversation_id: conversation.id,
+        sender_id: user.id,
+        sender_type: isStaff ? 'staff' : 'client',
+        content: message,
+        content_type: 'text',
       })
-      .select()
-      .single()
 
-    if (convError) throw convError
+      if (msgError) throw msgError
 
-    // Create first message
-    const { error: msgError } = await supabase.from('messages').insert({
-      conversation_id: conversation.id,
-      sender_id: user.id,
-      sender_type: isStaff ? 'staff' : 'client',
-      content: message,
-      content_type: 'text',
-    })
-
-    if (msgError) throw msgError
-
-    return NextResponse.json(conversation, { status: 201 })
-  } catch (e) {
-    logger.error('Error creating conversation', {
-      userId: user.id,
-      tenantId: profile.tenant_id,
-      error: e instanceof Error ? e.message : String(e),
-    })
-    return NextResponse.json({ error: 'Error al crear conversación' }, { status: 500 })
+      return apiSuccess(conversation, 'Conversación creada', HTTP_STATUS.CREATED)
+    } catch (e) {
+      logger.error('Error creating conversation', {
+        userId: user.id,
+        tenantId: profile.tenant_id,
+        error: e instanceof Error ? e.message : String(e),
+      })
+      return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
+    }
   }
-}
+)

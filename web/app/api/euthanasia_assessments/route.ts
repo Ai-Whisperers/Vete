@@ -1,29 +1,13 @@
-import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
+import { apiError, HTTP_STATUS } from '@/lib/api/errors'
+import { logger } from '@/lib/logger'
 
-export async function GET(request: Request) {
-  const supabase = await createClient()
-
-  // Authentication check
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-  if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-  }
-
-  // Get user profile
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('clinic_id:tenant_id, role')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile) {
-    return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 })
-  }
-
+/**
+ * GET /api/euthanasia_assessments
+ * Get euthanasia assessments (staff sees all, owners see own pets)
+ */
+export const GET = withApiAuth(async ({ request, user, profile, supabase }: ApiHandlerContext) => {
   const { searchParams } = new URL(request.url)
   const petId = searchParams.get('pet_id')
 
@@ -40,7 +24,7 @@ export async function GET(request: Request) {
 
   if (['vet', 'admin'].includes(profile.role)) {
     // Staff sees all clinic assessments
-    query = query.eq('pet.tenant_id', profile.clinic_id)
+    query = query.eq('pet.tenant_id', profile.tenant_id)
   } else {
     // Owners see only their pets' assessments
     query = query.eq('pet.owner_id', user.id)
@@ -53,218 +37,192 @@ export async function GET(request: Request) {
   const { data, error } = await query
 
   if (error) {
-    console.error('[API] euthanasia_assessments GET error:', error)
-    return NextResponse.json({ error: 'Error al obtener evaluaciones' }, { status: 500 })
-  }
-
-  return NextResponse.json(data)
-}
-
-export async function POST(request: Request) {
-  const supabase = await createClient()
-
-  // Authentication check
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-  if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-  }
-
-  // Get user profile - only staff can create assessments
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('clinic_id:tenant_id, role')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile || !['vet', 'admin'].includes(profile.role)) {
-    return NextResponse.json(
-      { error: 'Solo el personal veterinario puede crear evaluaciones' },
-      { status: 403 }
-    )
-  }
-
-  let body
-  try {
-    body = await request.json()
-  } catch {
-    return NextResponse.json({ error: 'JSON inválido' }, { status: 400 })
-  }
-
-  const { pet_id, ...assessmentData } = body
-
-  if (!pet_id) {
-    return NextResponse.json({ error: 'pet_id es requerido' }, { status: 400 })
-  }
-
-  // Verify pet belongs to staff's clinic
-  const { data: pet } = await supabase
-    .from('pets')
-    .select('id, tenant_id')
-    .eq('id', pet_id)
-    .single()
-
-  if (!pet) {
-    return NextResponse.json({ error: 'Mascota no encontrada' }, { status: 404 })
-  }
-
-  if (pet.tenant_id !== profile.clinic_id) {
-    return NextResponse.json({ error: 'No tienes acceso a esta mascota' }, { status: 403 })
-  }
-
-  const { data, error } = await supabase
-    .from('euthanasia_assessments')
-    .insert({
-      pet_id,
-      ...assessmentData,
-      assessed_by: user.id,
+    logger.error('Error fetching euthanasia assessments', {
+      tenantId: profile.tenant_id,
+      userId: user.id,
+      petId,
+      error: error.message,
     })
-    .select()
-    .single()
-
-  if (error) {
-    console.error('[API] euthanasia_assessments POST error:', error)
-    return NextResponse.json({ error: 'Error al crear evaluación' }, { status: 500 })
-  }
-
-  return NextResponse.json(data, { status: 201 })
-}
-
-export async function PUT(request: Request) {
-  const supabase = await createClient()
-
-  // Authentication check
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-  if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-  }
-
-  // Get user profile - only staff can update
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('clinic_id:tenant_id, role')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile || !['vet', 'admin'].includes(profile.role)) {
-    return NextResponse.json(
-      { error: 'Solo el personal veterinario puede modificar evaluaciones' },
-      { status: 403 }
-    )
-  }
-
-  let body
-  try {
-    body = await request.json()
-  } catch {
-    return NextResponse.json({ error: 'JSON inválido' }, { status: 400 })
-  }
-
-  const { id, ...updates } = body
-
-  if (!id) {
-    return NextResponse.json({ error: 'ID es requerido' }, { status: 400 })
-  }
-
-  // Verify assessment belongs to staff's clinic
-  const { data: existing } = await supabase
-    .from('euthanasia_assessments')
-    .select('id, pet:pets!inner(tenant_id)')
-    .eq('id', id)
-    .single()
-
-  if (!existing) {
-    return NextResponse.json({ error: 'Evaluación no encontrada' }, { status: 404 })
-  }
-
-  const petData = Array.isArray(existing.pet) ? existing.pet[0] : existing.pet
-  const pet = petData as { tenant_id: string }
-  if (pet.tenant_id !== profile.clinic_id) {
-    return NextResponse.json({ error: 'No tienes acceso a esta evaluación' }, { status: 403 })
-  }
-
-  const { data, error } = await supabase
-    .from('euthanasia_assessments')
-    .update({ ...updates, updated_at: new Date().toISOString() })
-    .eq('id', id)
-    .select()
-    .single()
-
-  if (error) {
-    console.error('[API] euthanasia_assessments PUT error:', error)
-    return NextResponse.json({ error: 'Error al actualizar' }, { status: 500 })
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
   }
 
   return NextResponse.json(data)
-}
+})
 
-export async function DELETE(request: Request) {
-  const supabase = await createClient()
+/**
+ * POST /api/euthanasia_assessments
+ * Create a euthanasia assessment (staff only)
+ */
+export const POST = withApiAuth(
+  async ({ request, user, profile, supabase }: ApiHandlerContext) => {
+    let body
+    try {
+      body = await request.json()
+    } catch {
+      return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST)
+    }
 
-  // Authentication check
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-  if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-  }
+    const { pet_id, ...assessmentData } = body
 
-  // Only admins can delete assessments
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('clinic_id:tenant_id, role')
-    .eq('id', user.id)
-    .single()
+    if (!pet_id) {
+      return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
+        details: { required: ['pet_id'] },
+      })
+    }
 
-  if (!profile || profile.role !== 'admin') {
-    return NextResponse.json(
-      { error: 'Solo administradores pueden eliminar evaluaciones' },
-      { status: 403 }
-    )
-  }
+    // Verify pet belongs to staff's clinic
+    const { data: pet } = await supabase
+      .from('pets')
+      .select('id, tenant_id')
+      .eq('id', pet_id)
+      .single()
 
-  let body
-  try {
-    body = await request.json()
-  } catch {
-    return NextResponse.json({ error: 'JSON inválido' }, { status: 400 })
-  }
+    if (!pet) {
+      return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
+        details: { resource: 'pet' },
+      })
+    }
 
-  const { id } = body
+    if (pet.tenant_id !== profile.tenant_id) {
+      return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN)
+    }
 
-  if (!id) {
-    return NextResponse.json({ error: 'ID es requerido' }, { status: 400 })
-  }
+    const { data, error } = await supabase
+      .from('euthanasia_assessments')
+      .insert({
+        pet_id,
+        ...assessmentData,
+        assessed_by: user.id,
+      })
+      .select()
+      .single()
 
-  // Verify belongs to admin's clinic
-  const { data: existing } = await supabase
-    .from('euthanasia_assessments')
-    .select('id, pet:pets!inner(tenant_id)')
-    .eq('id', id)
-    .single()
+    if (error) {
+      logger.error('Error creating euthanasia assessment', {
+        tenantId: profile.tenant_id,
+        userId: user.id,
+        petId: pet_id,
+        error: error.message,
+      })
+      return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
+    }
 
-  if (!existing) {
-    return NextResponse.json({ error: 'Evaluación no encontrada' }, { status: 404 })
-  }
+    return NextResponse.json(data, { status: 201 })
+  },
+  { roles: ['vet', 'admin'] }
+)
 
-  const petData = Array.isArray(existing.pet) ? existing.pet[0] : existing.pet
-  const pet = petData as { tenant_id: string }
-  if (pet.tenant_id !== profile.clinic_id) {
-    return NextResponse.json({ error: 'No tienes acceso a esta evaluación' }, { status: 403 })
-  }
+/**
+ * PUT /api/euthanasia_assessments
+ * Update a euthanasia assessment (staff only)
+ */
+export const PUT = withApiAuth(
+  async ({ request, user, profile, supabase }: ApiHandlerContext) => {
+    let body
+    try {
+      body = await request.json()
+    } catch {
+      return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST)
+    }
 
-  const { error } = await supabase.from('euthanasia_assessments').delete().eq('id', id)
+    const { id, ...updates } = body
 
-  if (error) {
-    console.error('[API] euthanasia_assessments DELETE error:', error)
-    return NextResponse.json({ error: 'Error al eliminar' }, { status: 500 })
-  }
+    if (!id) {
+      return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
+        details: { required: ['id'] },
+      })
+    }
 
-  return new NextResponse(null, { status: 204 })
-}
+    // Verify assessment belongs to staff's clinic
+    const { data: existing } = await supabase
+      .from('euthanasia_assessments')
+      .select('id, pet:pets!inner(tenant_id)')
+      .eq('id', id)
+      .single()
+
+    if (!existing) {
+      return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND)
+    }
+
+    const petData = Array.isArray(existing.pet) ? existing.pet[0] : existing.pet
+    const pet = petData as { tenant_id: string }
+    if (pet.tenant_id !== profile.tenant_id) {
+      return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN)
+    }
+
+    const { data, error } = await supabase
+      .from('euthanasia_assessments')
+      .update({ ...updates, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single()
+
+    if (error) {
+      logger.error('Error updating euthanasia assessment', {
+        tenantId: profile.tenant_id,
+        userId: user.id,
+        assessmentId: id,
+        error: error.message,
+      })
+      return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
+    }
+
+    return NextResponse.json(data)
+  },
+  { roles: ['vet', 'admin'] }
+)
+
+/**
+ * DELETE /api/euthanasia_assessments
+ * Delete a euthanasia assessment (admin only)
+ */
+export const DELETE = withApiAuth(
+  async ({ request, user, profile, supabase }: ApiHandlerContext) => {
+    let body
+    try {
+      body = await request.json()
+    } catch {
+      return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST)
+    }
+
+    const { id } = body
+
+    if (!id) {
+      return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
+        details: { required: ['id'] },
+      })
+    }
+
+    // Verify belongs to admin's clinic
+    const { data: existing } = await supabase
+      .from('euthanasia_assessments')
+      .select('id, pet:pets!inner(tenant_id)')
+      .eq('id', id)
+      .single()
+
+    if (!existing) {
+      return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND)
+    }
+
+    const petData = Array.isArray(existing.pet) ? existing.pet[0] : existing.pet
+    const pet = petData as { tenant_id: string }
+    if (pet.tenant_id !== profile.tenant_id) {
+      return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN)
+    }
+
+    const { error } = await supabase.from('euthanasia_assessments').delete().eq('id', id)
+
+    if (error) {
+      logger.error('Error deleting euthanasia assessment', {
+        tenantId: profile.tenant_id,
+        userId: user.id,
+        assessmentId: id,
+        error: error.message,
+      })
+      return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
+    }
+
+    return new NextResponse(null, { status: 204 })
+  },
+  { roles: ['admin'] }
+)

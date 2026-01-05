@@ -76,8 +76,8 @@ export function RecordPaymentDialog({
       <div className="w-full max-w-md rounded-xl bg-white p-6">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-bold text-[var(--text-primary)]">Registrar Pago</h2>
-          <button onClick={onClose} className="rounded-lg p-2 transition-colors hover:bg-gray-100">
-            <Icons.X className="h-5 w-5" />
+          <button onClick={onClose} className="rounded-lg p-2 transition-colors hover:bg-gray-100" aria-label="Cerrar registro de pago">
+            <Icons.X className="h-5 w-5" aria-hidden="true" />
           </button>
         </div>
 

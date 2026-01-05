@@ -23,9 +23,9 @@ const CONFIG = {
   tenant: 'adris',
   outputDir: './screenshots',
   viewport: { width: 1920, height: 1080 },
-  loadTimeout: 60000,
-  networkIdleTimeout: 30000,
-  imageLoadTimeout: 5000,
+  loadTimeout: 30000,
+  networkIdleTimeout: 3000, // Very short - just a bonus check
+  imageLoadTimeout: 2000,
 }
 
 const CREDENTIALS = {
@@ -41,7 +41,8 @@ const PAGES = {
     { name: 'services', path: '/services' },
     { name: 'store', path: '/store' },
     { name: 'book', path: '/book' },
-    { name: 'faq', path: '/faq' },
+    // FAQ page has WebSocket that prevents timeout - skip for now
+    // { name: 'faq', path: '/faq' },
     { name: 'login', path: '/portal/login' },
     { name: 'diagnosis-codes', path: '/diagnosis_codes' },
     { name: 'drug-dosages', path: '/drug_dosages' },
@@ -115,21 +116,18 @@ async function getPageComplexity(page: Page): Promise<'simple' | 'medium' | 'com
 
 /**
  * Wait for page to be fully loaded with intelligent detection
- * - Uses networkidle for complete API data loading
- * - Waits for specific loading indicators (not wildcards)
+ * - Uses 'load' event for reliable base loading
+ * - Short network idle timeout as fallback (not blocking)
+ * - Waits for specific loading indicators
  * - Handles images with per-image timeout
  * - Adjusts delay based on page complexity
  */
 async function waitForPageLoad(page: Page): Promise<void> {
-  // 1. Wait for network to be idle (critical for API data)
-  try {
-    await Promise.race([
-      page.waitForLoadState('networkidle'),
-      new Promise(resolve => setTimeout(resolve, CONFIG.networkIdleTimeout))
-    ])
-  } catch {
-    // Continue if networkidle times out
-  }
+  // 1. Short bonus network idle check (non-blocking)
+  await Promise.race([
+    page.waitForLoadState('networkidle').catch(() => {}),
+    new Promise(resolve => setTimeout(resolve, CONFIG.networkIdleTimeout))
+  ])
 
   // 2. Wait for specific loading indicators (not wildcards)
   const loadingSelectors = [
@@ -293,113 +291,55 @@ async function expandAllCollapsibles(page: Page, depth = 0): Promise<void> {
     await expandAllCollapsibles(page, depth + 1)
   }
 
-  // Wait for network idle after expansions (expanded content may load data)
-  try {
-    await Promise.race([
-      page.waitForLoadState('networkidle'),
-      new Promise(resolve => setTimeout(resolve, 5000))
-    ])
-  } catch {
-    // Continue
-  }
+  // Short wait for expanded content to load
+  await page.waitForTimeout(1000)
 }
 
 /**
- * Login with intelligent success detection
- * - Uses multiple button selectors for robustness
- * - Waits for URL change instead of fixed timeout
- * - Validates with both cookie and URL checks
+ * Login with simple, reliable approach (matching debug script)
  */
 async function login(page: Page, email: string, password: string, retries = 3): Promise<boolean> {
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
-      // Navigate with networkidle for complete form loading
+      // Navigate with domcontentloaded (faster, works in debug script)
       await page.goto(`${CONFIG.baseUrl}/${CONFIG.tenant}/portal/login`, {
-        waitUntil: 'networkidle',
+        waitUntil: 'domcontentloaded',
         timeout: CONFIG.loadTimeout,
       })
 
-      // Wait for form elements
-      await Promise.all([
-        page.waitForSelector('input[name="email"], input#email, input[type="email"]', { timeout: 15000 }),
-        page.waitForSelector('input[name="password"], input#password, input[type="password"]', { timeout: 15000 }),
-      ])
+      // Wait for email input specifically (like debug script)
+      await page.waitForSelector('input#email', { timeout: 20000 })
 
-      // Small delay for hydration
-      await page.waitForTimeout(1000)
+      // Fill credentials using simple page.fill (like debug script)
+      await page.fill('input#email', email)
+      await page.fill('input#password', password)
 
-      // Fill credentials
-      const emailInput = page.locator('input[name="email"], input#email, input[type="email"]').first()
-      const passwordInput = page.locator('input[name="password"], input#password, input[type="password"]').first()
+      // Click login button (like debug script)
+      await page.click('button:has-text("Iniciar Sesión")')
 
-      await emailInput.fill(email)
-      await page.waitForTimeout(200)
-      await passwordInput.fill(password)
-      await page.waitForTimeout(200)
+      // Wait for auth flow to complete
+      await page.waitForTimeout(5000)
 
-      // Find login button with multiple selectors (robust)
-      const loginButton = page.locator([
-        'button[type="submit"]:has-text("Iniciar")',
-        'button[type="submit"]:has-text("Login")',
-        'button[type="submit"]:has-text("Entrar")',
-        'button:has-text("Iniciar Sesión")',
-        'form button[type="submit"]',
-      ].join(', ')).first()
-
-      // Click and wait for navigation
-      await Promise.all([
-        // Wait for URL to change away from login
-        page.waitForURL(url => !url.toString().includes('/login'), { timeout: 20000 }).catch(() => {}),
-        loginButton.click(),
-      ])
-
-      // Additional wait for session to establish
-      await page.waitForTimeout(2000)
-
-      // Verify success with URL check
-      const currentUrl = page.url()
-      if (currentUrl.includes('/login')) {
-        // Check for error message
-        const errorElement = page.locator('[role="alert"], [class*="error"], .text-red-500, .text-destructive').first()
-        const hasError = await errorElement.isVisible().catch(() => false)
-
-        if (hasError) {
-          const errorText = await errorElement.textContent().catch(() => 'Unknown error')
-          console.log(`      ⚠️ ${errorText?.slice(0, 50)}`)
-        }
-
-        if (attempt < retries) {
-          console.log(`      🔄 Retry ${attempt + 1}/${retries}...`)
-          await page.waitForTimeout(1000) // Backoff
-          continue
-        }
-        return false
-      }
-
-      // Verify auth cookie exists
+      // Check cookies
       const cookies = await page.context().cookies()
-      const hasAuth = cookies.some(c =>
-        c.name.includes('auth-token') ||
-        c.name.includes('sb-') ||
-        c.name.includes('session')
+      const authToken = cookies.find(c =>
+        c.name.includes('auth-token') && !c.name.includes('code-verifier')
       )
 
-      if (!hasAuth) {
-        if (attempt < retries) {
-          console.log(`      🔄 No auth cookie, retry ${attempt + 1}/${retries}...`)
-          await page.waitForTimeout(1000)
-          continue
-        }
-        console.log('      ⚠️ No auth cookie found')
-        return false
+      if (authToken) {
+        console.log(`      🍪 ${authToken.name}`)
+        return true
       }
 
-      return true
+      if (attempt < retries) {
+        console.log(`      🔄 No auth token, retry ${attempt + 1}/${retries}...`)
+        await page.waitForTimeout(2000)
+      }
     } catch (error) {
-      console.log(`      ⚠️ Attempt ${attempt}: ${(error as Error).message.slice(0, 40)}`)
+      console.log(`      ⚠️ ${(error as Error).message.slice(0, 40)}`)
       if (attempt < retries) {
         console.log(`      🔄 Retry ${attempt + 1}/${retries}...`)
-        await page.waitForTimeout(1000)
+        await page.waitForTimeout(2000)
       }
     }
   }
@@ -422,9 +362,9 @@ async function capturePage(
   try {
     ensureDir(outputDir)
 
-    // Navigate with networkidle for complete data loading
+    // Navigate with 'load' event (more reliable than networkidle)
     await page.goto(url, {
-      waitUntil: 'networkidle',
+      waitUntil: 'load',
       timeout: CONFIG.loadTimeout,
     })
 
@@ -542,6 +482,9 @@ async function main(): Promise<void> {
     // ========================================
     // OWNER PAGES
     // ========================================
+    // Give server time to recover from public page captures
+    await new Promise(resolve => setTimeout(resolve, 5000))
+
     console.log('\n👤 OWNER PAGES')
     console.log('─'.repeat(40))
 

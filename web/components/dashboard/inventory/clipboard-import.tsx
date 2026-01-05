@@ -178,8 +178,8 @@ export function ClipboardImport({ onDataParsed }: ClipboardImportProps) {
             <ClipboardPaste className="h-5 w-5 text-[var(--primary)]" />
             <h4 className="font-bold text-gray-900">Pegar Datos</h4>
           </div>
-          <button onClick={handleCancelPaste} className="rounded p-1 hover:bg-gray-100">
-            <X className="h-4 w-4 text-gray-400" />
+          <button onClick={handleCancelPaste} className="rounded p-1 hover:bg-gray-100" aria-label="Cancelar pegado">
+            <X className="h-4 w-4 text-gray-400" aria-hidden="true" />
           </button>
         </div>
 

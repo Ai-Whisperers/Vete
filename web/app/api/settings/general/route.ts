@@ -1,15 +1,14 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
 import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
-import { apiError, apiSuccess, validationError } from '@/lib/api/errors'
+import { apiError, apiSuccess, validationError, HTTP_STATUS } from '@/lib/api/errors'
 import { generalSettingsSchema } from '@/lib/schemas/settings'
+import { logger } from '@/lib/logger'
 import * as fs from 'fs/promises'
 import * as path from 'path'
 
 const CONTENT_DATA_PATH = path.join(process.cwd(), '.content_data')
 
 export const GET = withApiAuth(
-  async ({ request, profile }) => {
+  async ({ request, profile }: ApiHandlerContext) => {
     const { searchParams } = new URL(request.url)
     const clinic = searchParams.get('clinic')
 
@@ -39,8 +38,14 @@ export const GET = withApiAuth(
         },
       })
     } catch (error) {
-      console.error('Error reading config:', error)
-      return apiError('SERVER_ERROR', 500, { details: { message: 'Error al leer configuración' } })
+      logger.error('Error reading config', {
+        tenantId: profile.tenant_id,
+        clinic,
+        error: error instanceof Error ? error.message : 'Unknown',
+      })
+      return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
+        details: { message: 'Error al leer configuración' },
+      })
     }
   },
   { roles: ['admin'] }
@@ -99,8 +104,12 @@ export const PUT = withApiAuth(
 
       return apiSuccess({ success: true })
     } catch (error) {
-      console.error('Error updating config:', error)
-      return apiError('SERVER_ERROR', 500, {
+      logger.error('Error updating config', {
+        tenantId: profile.tenant_id,
+        clinic,
+        error: error instanceof Error ? error.message : 'Unknown',
+      })
+      return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
         details: { message: 'Error al guardar configuración' },
       })
     }

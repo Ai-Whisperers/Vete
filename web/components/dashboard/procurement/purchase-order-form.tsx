@@ -223,8 +223,8 @@ export function PurchaseOrderForm({ onClose, onSuccess }: PurchaseOrderFormProps
             <h2 className="text-lg font-bold text-[var(--text-primary)]">Nueva Orden de Compra</h2>
             <p className="text-sm text-gray-500">Crea una orden de compra para tu proveedor</p>
           </div>
-          <button onClick={onClose} className="rounded-lg p-2 hover:bg-gray-100">
-            <X className="h-5 w-5 text-gray-500" />
+          <button onClick={onClose} className="rounded-lg p-2 hover:bg-gray-100" aria-label="Cerrar formulario">
+            <X className="h-5 w-5 text-gray-500" aria-hidden="true" />
           </button>
         </div>
 

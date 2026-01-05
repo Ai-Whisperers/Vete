@@ -2,7 +2,7 @@
 
 export const required =
   (message = 'Este campo es requerido') =>
-  (value: any) => {
+  (value: unknown) => {
     if (value === null || value === undefined || value === '') {
       return message
     }
@@ -47,7 +47,7 @@ export const phone =
 
 export const numeric =
   (message = 'Debe ser un número') =>
-  (value: any) => {
+  (value: unknown) => {
     if (value && isNaN(Number(value))) {
       return message
     }
@@ -78,10 +78,13 @@ export const pattern =
     return null
   }
 
+// Validation rule type
+type ValidationRule<T = unknown> = (value: T) => string | null
+
 // Custom validation helper
 export const createValidator =
-  (...rules: Array<(value: any) => string | null>) =>
-  (value: any) => {
+  <T = unknown>(...rules: Array<ValidationRule<T>>) =>
+  (value: T) => {
     for (const rule of rules) {
       const error = rule(value)
       if (error) return error
@@ -90,16 +93,19 @@ export const createValidator =
   }
 
 // Validate multiple fields
-export const validateFields = (
-  fields: Record<string, any>,
-  rules: Record<string, (value: any) => string | null>
-): Record<string, string> => {
-  const errors: Record<string, string> = {}
+export const validateFields = <T extends Record<string, unknown>>(
+  fields: T,
+  rules: { [K in keyof T]?: ValidationRule<T[K]> }
+): Partial<Record<keyof T, string>> => {
+  const errors: Partial<Record<keyof T, string>> = {}
 
-  Object.keys(rules).forEach((field) => {
-    const error = rules[field](fields[field])
-    if (error) {
-      errors[field] = error
+  ;(Object.keys(rules) as Array<keyof T>).forEach((field) => {
+    const rule = rules[field]
+    if (rule) {
+      const error = rule(fields[field])
+      if (error) {
+        errors[field] = error
+      }
     }
   })
 

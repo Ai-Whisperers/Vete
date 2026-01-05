@@ -641,7 +641,7 @@ async function seedGlobalTemplates(tenantId: string, verbose: boolean = false): 
 
   // Consent templates - check if global templates exist first (code is globally unique)
   const consentData = loadJSON<{ consent_templates: any[] }>(
-    join(DATA_DIR, '02-clinic', '_global', 'consent-templates.json')
+    join(DATA_DIR, '02-templates', 'consent-templates.json')
   )
   if (consentData?.consent_templates) {
     // Check if global templates already exist
@@ -665,7 +665,7 @@ async function seedGlobalTemplates(tenantId: string, verbose: boolean = false): 
 
   // Message templates
   const messageData = loadJSON<{ message_templates: any[] }>(
-    join(DATA_DIR, '02-clinic', '_global', 'message-templates.json')
+    join(DATA_DIR, '02-templates', 'message-templates.json')
   )
   if (messageData?.message_templates) {
     const templates = messageData.message_templates.map((t: any) => ({
@@ -684,7 +684,7 @@ async function seedGlobalTemplates(tenantId: string, verbose: boolean = false): 
 
   // Time-off types
   const timeOffData = loadJSON<{ time_off_types: any[] }>(
-    join(DATA_DIR, '02-clinic', '_global', 'time-off-types.json')
+    join(DATA_DIR, '02-templates', 'time-off-types.json')
   )
   if (timeOffData?.time_off_types) {
     const types = timeOffData.time_off_types.map((t: any) => ({

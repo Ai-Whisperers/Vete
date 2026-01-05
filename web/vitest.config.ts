@@ -17,16 +17,25 @@ export default defineConfig({
     setupFiles: ['./vitest.setup.ts'],
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'json', 'html'],
+      reporter: ['text', 'json', 'html', 'lcov'],
       reportsDirectory: './coverage',
       exclude: [
         'node_modules/**',
         '.next/**',
         'tests/__fixtures__/**',
         'tests/__helpers__/**',
+        'lib/test-utils/**',
         '**/*.d.ts',
         '**/*.config.*',
+        '**/route.ts', // API routes tested separately via integration tests
       ],
+      // Coverage thresholds - fail CI if coverage drops below these
+      thresholds: {
+        lines: 60,
+        functions: 60,
+        branches: 50,
+        statements: 60,
+      },
     },
     // Increase timeout for async operations
     testTimeout: 10000,

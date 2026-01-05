@@ -1,4 +1,4 @@
-interface ApiResponse<T = any> {
+interface ApiResponse<T = unknown> {
   data: T
   message?: string
   status: number
@@ -23,6 +23,8 @@ class ApiError extends Error {
     this.details = details
   }
 }
+
+type QueryParams = Record<string, string | number | boolean | null | undefined>
 
 class ApiClient {
   private baseUrl: string
@@ -72,26 +74,33 @@ class ApiClient {
     }
   }
 
-  async get<T>(endpoint: string, params?: Record<string, any>): Promise<ApiResponse<T>> {
-    const url = params ? `${endpoint}?${new URLSearchParams(params)}` : endpoint
+  async get<T>(endpoint: string, params?: QueryParams): Promise<ApiResponse<T>> {
+    const filteredParams = params
+      ? Object.fromEntries(
+          Object.entries(params).filter(([, v]) => v !== null && v !== undefined)
+        )
+      : undefined
+    const url = filteredParams
+      ? `${endpoint}?${new URLSearchParams(filteredParams as Record<string, string>)}`
+      : endpoint
     return this.request<T>(url)
   }
 
-  async post<T>(endpoint: string, data?: any): Promise<ApiResponse<T>> {
+  async post<T, D = unknown>(endpoint: string, data?: D): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, {
       method: 'POST',
       body: data ? JSON.stringify(data) : undefined,
     })
   }
 
-  async put<T>(endpoint: string, data?: any): Promise<ApiResponse<T>> {
+  async put<T, D = unknown>(endpoint: string, data?: D): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, {
       method: 'PUT',
       body: data ? JSON.stringify(data) : undefined,
     })
   }
 
-  async patch<T>(endpoint: string, data?: any): Promise<ApiResponse<T>> {
+  async patch<T, D = unknown>(endpoint: string, data?: D): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, {
       method: 'PATCH',
       body: data ? JSON.stringify(data) : undefined,
@@ -110,4 +119,4 @@ export const apiClient = new ApiClient()
 
 // Export the class for custom instances
 export { ApiClient, ApiError }
-export type { ApiResponse }
+export type { ApiResponse, QueryParams }

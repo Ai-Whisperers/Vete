@@ -1,5 +1,7 @@
-import { createClient } from '@/lib/supabase/server'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
+import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
+import { apiError, HTTP_STATUS } from '@/lib/api/errors'
+import { logger } from '@/lib/logger'
 
 interface VaccineProtocol {
   id: string
@@ -35,24 +37,8 @@ interface VaccineRecommendation {
  * - age_weeks: number (optional, for age-based recommendations)
  * - existing_vaccines: comma-separated vaccine codes (optional)
  * - existing_vaccine_names: comma-separated vaccine names (optional, for matching by name)
- *
- * Returns:
- * - core_vaccines: Array of missing core (obligatory) vaccines
- * - recommended_vaccines: Array of recommended non-core vaccines
- * - lifestyle_vaccines: Array of optional lifestyle vaccines
  */
-export async function GET(request: NextRequest) {
-  const supabase = await createClient()
-
-  // Authentication check - user must be logged in
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-  if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-  }
-
+export const GET = withApiAuth(async ({ request, profile, supabase }: ApiHandlerContext) => {
   const { searchParams } = new URL(request.url)
   const species = searchParams.get('species')
   const ageWeeksParam = searchParams.get('age_weeks')
@@ -61,21 +47,24 @@ export async function GET(request: NextRequest) {
 
   // Validate species
   if (!species) {
-    return NextResponse.json({ error: 'Se requiere el parámetro species' }, { status: 400 })
+    return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
+      details: { required: ['species'] },
+    })
   }
 
   const validSpecies = ['dog', 'cat', 'rabbit', 'bird']
   if (!validSpecies.includes(species)) {
-    return NextResponse.json(
-      { error: `Especie no válida. Valores permitidos: ${validSpecies.join(', ')}` },
-      { status: 400 }
-    )
+    return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+      details: { reason: `Especie no válida. Valores permitidos: ${validSpecies.join(', ')}` },
+    })
   }
 
   // Parse age in weeks
   const ageWeeks = ageWeeksParam ? parseInt(ageWeeksParam, 10) : null
   if (ageWeeksParam && (isNaN(ageWeeks!) || ageWeeks! < 0)) {
-    return NextResponse.json({ error: 'age_weeks debe ser un número positivo' }, { status: 400 })
+    return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+      details: { field: 'age_weeks', reason: 'Debe ser un número positivo' },
+    })
   }
 
   // Parse existing vaccine codes
@@ -97,11 +86,12 @@ export async function GET(request: NextRequest) {
     .order('protocol_type', { ascending: true })
 
   if (protocolsError) {
-    console.error('Error fetching vaccine protocols:', protocolsError)
-    return NextResponse.json(
-      { error: 'Error al obtener protocolos de vacunación' },
-      { status: 500 }
-    )
+    logger.error('Error fetching vaccine protocols', {
+      tenantId: profile.tenant_id,
+      species,
+      error: protocolsError.message,
+    })
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
   }
 
   // If no protocols found, return empty arrays
@@ -202,4 +192,4 @@ export async function GET(request: NextRequest) {
       },
     }
   )
-}
+})

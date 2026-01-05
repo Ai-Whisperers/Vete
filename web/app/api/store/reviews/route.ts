@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
+import { logger } from '@/lib/logger'
 
-// GET - Get reviews for a product
+// GET - Get reviews for a product (public)
 export async function GET(request: NextRequest) {
   const supabase = await createClient()
   const { searchParams } = new URL(request.url)
@@ -132,25 +134,18 @@ export async function GET(request: NextRequest) {
       },
     })
   } catch (e) {
-    console.error('Error fetching reviews', e)
+    logger.error('Error fetching reviews', {
+      productId,
+      error: e instanceof Error ? e.message : 'Unknown',
+    })
     return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
       details: { message: 'No se pudieron cargar las reseñas' },
     })
   }
 }
 
-// POST - Create a review
-export async function POST(request: NextRequest) {
-  const supabase = await createClient()
-
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-  if (authError || !user) {
-    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED)
-  }
-
+// POST - Create a review (authenticated users only)
+export const POST = withApiAuth(async ({ request, user, supabase }: ApiHandlerContext) => {
   try {
     const body = await request.json()
     const { product_id, clinic, rating, title, content, images } = body
@@ -206,7 +201,16 @@ export async function POST(request: NextRequest) {
       .select()
       .single()
 
-    if (error) throw error
+    if (error) {
+      logger.error('Error creating review', {
+        userId: user.id,
+        productId: product_id,
+        error: error.message,
+      })
+      return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
+        details: { message: 'No se pudo crear la reseña' },
+      })
+    }
 
     // Add images if provided
     if (images && images.length > 0) {
@@ -222,9 +226,12 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, review })
   } catch (e) {
-    console.error('Error creating review', e)
+    logger.error('Error creating review', {
+      userId: user.id,
+      error: e instanceof Error ? e.message : 'Unknown',
+    })
     return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
       details: { message: 'No se pudo crear la reseña' },
     })
   }
-}
+})

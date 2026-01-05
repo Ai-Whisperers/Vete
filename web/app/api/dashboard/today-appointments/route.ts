@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
-import { withApiAuth } from '@/lib/auth'
+import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
+import { logger } from '@/lib/logger'
 
 // GET /api/dashboard/today-appointments - Get today's appointments for the clinic
 // SEC-FIX: Added authentication and tenant verification
@@ -49,7 +50,10 @@ export const GET = withApiAuth(
         .order('start_time', { ascending: true })
 
       if (error) {
-        console.error("Error fetching today's appointments:", error)
+        logger.error("Error fetching today's appointments", {
+          tenantId: profile.tenant_id,
+          error: error.message,
+        })
         return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
           details: { message: error.message },
         })
@@ -86,7 +90,10 @@ export const GET = withApiAuth(
 
       return NextResponse.json(enrichedData, { status: 200 })
     } catch (error) {
-      console.error('Error in /api/dashboard/today-appointments:', error)
+      logger.error('Error in today-appointments endpoint', {
+        tenantId: profile.tenant_id,
+        error: error instanceof Error ? error.message : 'Unknown',
+      })
       return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
         details: { message: error instanceof Error ? error.message : 'Unknown error' },
       })

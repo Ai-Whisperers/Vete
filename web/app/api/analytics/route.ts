@@ -1,5 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
+import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
+import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { createClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/logger'
 
 export const dynamic = 'force-dynamic'
 
@@ -13,75 +16,61 @@ interface DateRange {
 /**
  * GET /api/analytics
  * Fetch analytics data for a clinic
+ * Staff only
  */
-export async function GET(request: NextRequest): Promise<NextResponse> {
-  const supabase = await createClient()
-  const { searchParams } = new URL(request.url)
-  const period = searchParams.get('period') || 'month'
-
-  try {
-    // 1. Auth check
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-    if (authError || !user) {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-    }
-
-    // 2. Get user profile and tenant
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('tenant_id, role')
-      .eq('id', user.id)
-      .single()
-
-    if (!profile || !['vet', 'admin'].includes(profile.role)) {
-      return NextResponse.json({ error: 'Acceso denegado' }, { status: 403 })
-    }
-
+export const GET = withApiAuth(
+  async ({ request, profile, supabase }: ApiHandlerContext) => {
+    const { searchParams } = new URL(request.url)
+    const period = searchParams.get('period') || 'month'
     const tenantId = profile.tenant_id
 
-    // 3. Calculate date ranges
-    const dateRange = getDateRange(period as 'week' | 'month' | 'quarter')
+    try {
+      // Calculate date ranges
+      const dateRange = getDateRange(period as 'week' | 'month' | 'quarter')
 
-    // 4. Fetch all analytics data in parallel
-    const [
-      revenueData,
-      appointmentData,
-      clientData,
-      petData,
-      dailyRevenue,
-      appointmentsByType,
-      topServices,
-    ] = await Promise.all([
-      getRevenueStats(supabase, tenantId, dateRange),
-      getAppointmentStats(supabase, tenantId, dateRange),
-      getClientStats(supabase, tenantId, dateRange),
-      getPetStats(supabase, tenantId, dateRange),
-      getDailyRevenue(supabase, tenantId, dateRange),
-      getAppointmentsByType(supabase, tenantId, dateRange),
-      getTopServices(supabase, tenantId, dateRange),
-    ])
-
-    return NextResponse.json({
-      stats: {
-        revenue: revenueData,
-        appointments: appointmentData,
-        newClients: clientData,
-        newPets: petData,
-      },
-      chartData: {
-        revenueByDay: dailyRevenue,
+      // Fetch all analytics data in parallel
+      const [
+        revenueData,
+        appointmentData,
+        clientData,
+        petData,
+        dailyRevenue,
         appointmentsByType,
         topServices,
-      },
-    })
-  } catch (error) {
-    console.error('Analytics error:', error)
-    return NextResponse.json({ error: 'Error al cargar analytics' }, { status: 500 })
-  }
-}
+      ] = await Promise.all([
+        getRevenueStats(supabase, tenantId, dateRange),
+        getAppointmentStats(supabase, tenantId, dateRange),
+        getClientStats(supabase, tenantId, dateRange),
+        getPetStats(supabase, tenantId, dateRange),
+        getDailyRevenue(supabase, tenantId, dateRange),
+        getAppointmentsByType(supabase, tenantId, dateRange),
+        getTopServices(supabase, tenantId, dateRange),
+      ])
+
+      return NextResponse.json({
+        stats: {
+          revenue: revenueData,
+          appointments: appointmentData,
+          newClients: clientData,
+          newPets: petData,
+        },
+        chartData: {
+          revenueByDay: dailyRevenue,
+          appointmentsByType,
+          topServices,
+        },
+      })
+    } catch (error) {
+      logger.error('Analytics error', {
+        tenantId,
+        period,
+        error: error instanceof Error ? error.message : 'Unknown',
+      })
+      return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
+    }
+  },
+  { roles: ['vet', 'admin'] }
+)
 
 /**
  * Get date range based on period

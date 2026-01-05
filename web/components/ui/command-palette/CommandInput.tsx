@@ -42,8 +42,8 @@ export function CommandInput({
       <kbd className="hidden items-center gap-1 rounded bg-gray-100 px-2 py-1 text-xs font-medium text-gray-400 sm:flex">
         ESC
       </kbd>
-      <button onClick={onClose} className="p-1 text-gray-400 hover:text-gray-600 sm:hidden">
-        <X className="h-5 w-5" />
+      <button onClick={onClose} className="p-1 text-gray-400 hover:text-gray-600 sm:hidden" aria-label="Cerrar búsqueda">
+        <X className="h-5 w-5" aria-hidden="true" />
       </button>
     </div>
   )

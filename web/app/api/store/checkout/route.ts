@@ -146,30 +146,8 @@ export const POST = withApiAuth(
         })
       }
 
-      // Success - convert reservations to sales and clear cart
-      // Get user's cart to convert reservations
-      const { data: cart } = await supabase
-        .from('store_carts')
-        .select('id')
-        .eq('customer_id', user.id)
-        .eq('tenant_id', clinic)
-        .single()
-
-      if (cart?.id) {
-        // Convert reservations to actual sales
-        const { error: convertError } = await supabase.rpc('convert_reservations_to_sale', {
-          p_cart_id: cart.id,
-          p_order_id: result.invoice?.id,
-        })
-
-        if (convertError) {
-          logger.warn('Failed to convert reservations', { error: convertError })
-          // Don't fail the checkout - reservations will expire naturally
-        }
-
-        // Clear the cart
-        await supabase.from('store_carts').delete().eq('id', cart.id)
-      }
+      // Success - cart clearing and reservation conversion now handled atomically
+      // in the process_checkout database function (migration 021)
 
       // Log the transaction
       const { logAudit } = await import('@/lib/audit')

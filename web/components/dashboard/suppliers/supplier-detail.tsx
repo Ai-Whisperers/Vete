@@ -174,8 +174,8 @@ export function SupplierDetailModal({ supplierId, onClose, onVerify }: SupplierD
               )}
             </div>
           </div>
-          <button onClick={onClose} className="rounded-lg p-2 hover:bg-gray-100">
-            <X className="h-5 w-5 text-gray-500" />
+          <button onClick={onClose} className="rounded-lg p-2 hover:bg-gray-100" aria-label="Cerrar detalles del proveedor">
+            <X className="h-5 w-5 text-gray-500" aria-hidden="true" />
           </button>
         </div>
 

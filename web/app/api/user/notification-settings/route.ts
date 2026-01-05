@@ -1,26 +1,12 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { NextResponse } from 'next/server'
+import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
+import { apiError, HTTP_STATUS } from '@/lib/api/errors'
+import { logger } from '@/lib/logger'
 
 /**
- * GET /api/user/notification-settings
- * Get user's notification preferences
+ * GET /api/user/notification-settings - Get user's notification preferences
  */
-export async function GET(request: NextRequest): Promise<NextResponse> {
-  const supabase = await createClient()
-
-  // Auth check
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-  if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-  }
-
-  // Get clinic from query param
-  const { searchParams } = new URL(request.url)
-  const clinic = searchParams.get('clinic')
-
+export const GET = withApiAuth(async ({ user, profile, supabase }: ApiHandlerContext) => {
   // Get user's communication preferences
   const { data: prefs, error } = await supabase
     .from('communication_preferences')
@@ -29,7 +15,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     .maybeSingle()
 
   if (error) {
-    return NextResponse.json({ error: 'Error al cargar preferencias' }, { status: 500 })
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
   }
 
   // Map to UI format (defaults if no record exists)
@@ -43,42 +29,25 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   }
 
   return NextResponse.json(settings)
-}
+})
 
 /**
- * POST /api/user/notification-settings
- * Update user's notification preferences
+ * POST /api/user/notification-settings - Update user's notification preferences
  */
-export async function POST(request: NextRequest): Promise<NextResponse> {
-  const supabase = await createClient()
-
-  // Auth check
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-  if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-  }
-
+export const POST = withApiAuth(async ({ request, user, profile, supabase }: ApiHandlerContext) => {
   const body = await request.json()
-  const { clinic, settings } = body
+  const { settings } = body
 
   if (!settings) {
-    return NextResponse.json({ error: 'Faltan configuraciones' }, { status: 400 })
+    return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
+      details: { required: ['settings'] },
+    })
   }
-
-  // Get user's tenant
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('tenant_id')
-    .eq('id', user.id)
-    .single()
 
   // Map from UI format to DB format
   const prefsData = {
     user_id: user.id,
-    tenant_id: profile?.tenant_id || null,
+    tenant_id: profile.tenant_id || null,
     allow_email: settings.email_vaccine_reminders || settings.email_appointment_reminders,
     allow_sms: settings.sms_vaccine_reminders || settings.sms_appointment_reminders,
     allow_whatsapp: settings.whatsapp_enabled,
@@ -94,9 +63,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   })
 
   if (error) {
-    console.error('Error saving notification settings:', error)
-    return NextResponse.json({ error: 'Error al guardar' }, { status: 500 })
+    logger.error('Error saving notification settings', {
+      userId: user.id,
+      tenantId: profile.tenant_id,
+      error: error.message,
+    })
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
   }
 
   return NextResponse.json({ success: true })
-}
+})

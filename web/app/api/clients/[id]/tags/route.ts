@@ -1,144 +1,142 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { NextResponse } from 'next/server'
+import { withApiAuthParams, type ApiHandlerContextWithParams } from '@/lib/auth'
+import { apiError, HTTP_STATUS } from '@/lib/api/errors'
+import { logger } from '@/lib/logger'
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-): Promise<NextResponse> {
-  const { id } = await params
-  const { searchParams } = new URL(request.url)
-  const clinic = searchParams.get('clinic')
+/**
+ * GET /api/clients/[id]/tags - Get tags for a client
+ */
+export const GET = withApiAuthParams(
+  async ({ params, user, profile, supabase }: ApiHandlerContextWithParams<{ id: string }>) => {
+    const clientId = params.id
 
-  if (!clinic) {
-    return NextResponse.json({ error: 'Clinic parameter required' }, { status: 400 })
-  }
+    try {
+      const { data: tags, error } = await supabase
+        .from('client_tags')
+        .select('tag_id, tag_name, tag_color, tag_icon')
+        .eq('client_id', clientId)
+        .eq('tenant_id', profile.tenant_id)
 
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+      if (error) {
+        logger.error('Error fetching client tags', {
+          tenantId: profile.tenant_id,
+          clientId,
+          error: error.message,
+        })
+        return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      }
 
-  if (!user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-  }
+      return NextResponse.json({
+        tags: (tags || []).map((t) => ({
+          id: t.tag_id,
+          name: t.tag_name,
+          color: t.tag_color,
+          icon: t.tag_icon,
+        })),
+      })
+    } catch (error) {
+      logger.error('Error fetching client tags', {
+        tenantId: profile.tenant_id,
+        userId: user.id,
+        clientId,
+        error: error instanceof Error ? error.message : 'Unknown',
+      })
+      return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
+    }
+  },
+  { roles: ['vet', 'admin'] }
+)
 
-  try {
-    const { data: tags, error } = await supabase
-      .from('client_tags')
-      .select('tag_id, tag_name, tag_color, tag_icon')
-      .eq('client_id', id)
-      .eq('tenant_id', clinic)
+/**
+ * POST /api/clients/[id]/tags - Add a tag to a client
+ */
+export const POST = withApiAuthParams(
+  async ({ request, params, user, profile, supabase }: ApiHandlerContextWithParams<{ id: string }>) => {
+    const clientId = params.id
+    const body = await request.json()
+    const { tagId } = body
 
-    if (error) throw error
+    if (!tagId) {
+      return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
+        details: { fields: ['tagId'] },
+      })
+    }
 
-    return NextResponse.json({
-      tags: (tags || []).map((t) => ({
-        id: t.tag_id,
-        name: t.tag_name,
-        color: t.tag_color,
-        icon: t.tag_icon,
-      })),
-    })
-  } catch (error) {
-    console.error('Error fetching client tags:', error)
-    return NextResponse.json({ error: 'Error al cargar etiquetas' }, { status: 500 })
-  }
-}
+    try {
+      const { error } = await supabase.from('client_tags').insert({
+        client_id: clientId,
+        tag_id: tagId,
+        tenant_id: profile.tenant_id,
+        created_by: user.id,
+      })
 
-export async function POST(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-): Promise<NextResponse> {
-  const { id } = await params
-  const body = await request.json()
-  const { clinic, tagId } = body
+      if (error) {
+        logger.error('Error adding client tag', {
+          tenantId: profile.tenant_id,
+          clientId,
+          tagId,
+          error: error.message,
+        })
+        return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      }
 
-  if (!clinic || !tagId) {
-    return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
-  }
+      return NextResponse.json({ success: true })
+    } catch (error) {
+      logger.error('Error adding client tag', {
+        tenantId: profile.tenant_id,
+        userId: user.id,
+        clientId,
+        error: error instanceof Error ? error.message : 'Unknown',
+      })
+      return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
+    }
+  },
+  { roles: ['vet', 'admin'] }
+)
 
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+/**
+ * DELETE /api/clients/[id]/tags - Remove a tag from a client
+ */
+export const DELETE = withApiAuthParams(
+  async ({ request, params, user, profile, supabase }: ApiHandlerContextWithParams<{ id: string }>) => {
+    const clientId = params.id
+    const body = await request.json()
+    const { tagId } = body
 
-  if (!user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-  }
+    if (!tagId) {
+      return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
+        details: { fields: ['tagId'] },
+      })
+    }
 
-  // Check staff role
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role, tenant_id')
-    .eq('id', user.id)
-    .single()
+    try {
+      const { error } = await supabase
+        .from('client_tags')
+        .delete()
+        .eq('client_id', clientId)
+        .eq('tag_id', tagId)
+        .eq('tenant_id', profile.tenant_id)
 
-  if (!profile || !['vet', 'admin'].includes(profile.role) || profile.tenant_id !== clinic) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
-  }
+      if (error) {
+        logger.error('Error removing client tag', {
+          tenantId: profile.tenant_id,
+          clientId,
+          tagId,
+          error: error.message,
+        })
+        return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      }
 
-  try {
-    const { error } = await supabase.from('client_tags').insert({
-      client_id: id,
-      tag_id: tagId,
-      tenant_id: clinic,
-      created_by: user.id,
-    })
-
-    if (error) throw error
-
-    return NextResponse.json({ success: true })
-  } catch (error) {
-    console.error('Error adding tag:', error)
-    return NextResponse.json({ error: 'Error al agregar etiqueta' }, { status: 500 })
-  }
-}
-
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-): Promise<NextResponse> {
-  const { id } = await params
-  const body = await request.json()
-  const { clinic, tagId } = body
-
-  if (!clinic || !tagId) {
-    return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
-  }
-
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-  }
-
-  // Check staff role
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role, tenant_id')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile || !['vet', 'admin'].includes(profile.role) || profile.tenant_id !== clinic) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
-  }
-
-  try {
-    const { error } = await supabase
-      .from('client_tags')
-      .delete()
-      .eq('client_id', id)
-      .eq('tag_id', tagId)
-      .eq('tenant_id', clinic)
-
-    if (error) throw error
-
-    return NextResponse.json({ success: true })
-  } catch (error) {
-    console.error('Error removing tag:', error)
-    return NextResponse.json({ error: 'Error al eliminar etiqueta' }, { status: 500 })
-  }
-}
+      return NextResponse.json({ success: true })
+    } catch (error) {
+      logger.error('Error removing client tag', {
+        tenantId: profile.tenant_id,
+        userId: user.id,
+        clientId,
+        error: error instanceof Error ? error.message : 'Unknown',
+      })
+      return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
+    }
+  },
+  { roles: ['vet', 'admin'] }
+)

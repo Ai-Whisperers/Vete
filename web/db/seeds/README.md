@@ -10,13 +10,19 @@ seeds/
 │   ├── _schemas/           # JSON schema definitions
 │   ├── 00-core/            # Core system data (tenants, demo accounts)
 │   ├── 01-reference/       # Reference data (diagnoses, drugs, etc.)
-│   ├── 02-clinic/          # Clinic-specific data
-│   └── 03-store/           # Store/e-commerce data
+│   ├── 02-clinic/          # Clinic-specific operational data (per tenant)
+│   │   ├── adris/          # Veterinaria Adris data
+│   │   └── petlife/        # PetLife Center data
+│   ├── 02-templates/       # Shared templates (consent, message, time-off)
+│   ├── 02-users/           # Global profiles, pets, vaccines
+│   ├── 03-store/           # Store/e-commerce data
+│   └── 05-demo/            # Demo environment data
 ├── scripts/                # Executable scripts
-│   ├── seed-from-json.ts   # SQL generation script
+│   ├── seed.ts             # Main orchestrator script
+│   ├── seeders/            # Individual seeder classes
 │   ├── setup-via-api.ts    # API-based setup script
 │   ├── setup               # CLI wrapper script
-│   └── transform-services.js # Utility script
+│   └── utils/              # Utility functions
 ├── docs/                   # Documentation
 │   ├── README-API-SETUP.md # API-based setup guide
 │   └── MIGRATION-GUIDE.md  # Migration documentation
@@ -113,8 +119,11 @@ npm run db:seeds:verify
 
 - **00-core/**: Tenants, demo accounts, global settings
 - **01-reference/**: Medical reference data (diagnoses, drugs, growth standards)
-- **02-clinic/**: Clinic-specific operational data
-- **03-store/**: Product catalog and e-commerce data
+- **02-clinic/**: Clinic-specific operational data (services, kennels, payment methods per tenant)
+- **02-templates/**: Shared templates used across all tenants (consent forms, message templates, time-off types)
+- **02-users/**: Global user data (profiles, pets, vaccines, medical records)
+- **03-store/**: Product catalog and e-commerce data (global products + tenant assignments)
+- **05-demo/**: Demo environment seed data
 
 ### Scripts (`scripts/`)
 

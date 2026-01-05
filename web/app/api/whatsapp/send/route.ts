@@ -1,8 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { NextResponse } from 'next/server'
+import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { sendWhatsAppMessage } from '@/lib/whatsapp/client'
 import { formatParaguayPhone } from '@/lib/types/whatsapp'
 import { rateLimit } from '@/lib/rate-limit'
+import { apiError, HTTP_STATUS } from '@/lib/api/errors'
+import { logger } from '@/lib/logger'
 import { z } from 'zod'
 
 const sendMessageSchema = z.object({
@@ -16,115 +18,104 @@ const sendMessageSchema = z.object({
   templateId: z.string().uuid().optional(),
 })
 
-export async function POST(request: NextRequest) {
-  try {
-    const supabase = await createClient()
-
-    // Auth check
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-    if (authError || !user) {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-    }
-
+/**
+ * POST /api/whatsapp/send - Send WhatsApp message
+ */
+export const POST = withApiAuth(
+  async ({ request, user, profile, supabase }: ApiHandlerContext) => {
     // Apply rate limiting for write endpoints (20 requests per minute)
     const rateLimitResult = await rateLimit(request, 'write', user.id)
     if (!rateLimitResult.success) {
       return rateLimitResult.response
     }
 
-    // Staff check
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role, tenant_id')
-      .eq('id', user.id)
-      .single()
+    try {
+      // Parse and validate body
+      const body = await request.json()
+      const validation = sendMessageSchema.safeParse(body)
 
-    if (!profile || !['vet', 'admin'].includes(profile.role)) {
-      return NextResponse.json({ error: 'Solo personal autorizado' }, { status: 403 })
-    }
-
-    // Parse and validate body
-    const body = await request.json()
-    const validation = sendMessageSchema.safeParse(body)
-
-    if (!validation.success) {
-      return NextResponse.json(
-        { error: 'Datos inválidos', details: validation.error.flatten() },
-        { status: 400 }
-      )
-    }
-
-    const { phone, message, clientId, petId, conversationType, templateId } = validation.data
-    const formattedPhone = formatParaguayPhone(phone)
-
-    // Create message record first
-    const { data: messageRecord, error: insertError } = await supabase
-      .from('whatsapp_messages')
-      .insert({
-        tenant_id: profile.tenant_id,
-        client_id: clientId || null,
-        pet_id: petId || null,
-        phone_number: formattedPhone,
-        direction: 'outbound',
-        content: message,
-        status: 'queued',
-        conversation_type: conversationType || 'general',
-        template_id: templateId || null,
-        sent_by: user.id,
-      })
-      .select()
-      .single()
-
-    if (insertError) {
-      console.error('Error creating message record:', insertError)
-      return NextResponse.json({ error: 'Error al crear registro' }, { status: 500 })
-    }
-
-    // Send via Twilio
-    const result = await sendWhatsAppMessage({
-      to: formattedPhone,
-      body: message,
-    })
-
-    // Update message status
-    if (result.success && result.sid) {
-      await supabase
-        .from('whatsapp_messages')
-        .update({
-          status: 'sent',
-          twilio_sid: result.sid,
-          sent_at: new Date().toISOString(),
+      if (!validation.success) {
+        return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+          details: validation.error.flatten(),
         })
-        .eq('id', messageRecord.id)
+      }
 
-      return NextResponse.json({
-        success: true,
-        messageId: messageRecord.id,
-        twilioSid: result.sid,
-      })
-    } else {
-      await supabase
+      const { phone, message, clientId, petId, conversationType, templateId } = validation.data
+      const formattedPhone = formatParaguayPhone(phone)
+
+      // Create message record first
+      const { data: messageRecord, error: insertError } = await supabase
         .from('whatsapp_messages')
-        .update({
-          status: 'failed',
-          error_message: result.error || 'Error desconocido',
+        .insert({
+          tenant_id: profile.tenant_id,
+          client_id: clientId || null,
+          pet_id: petId || null,
+          phone_number: formattedPhone,
+          direction: 'outbound',
+          content: message,
+          status: 'queued',
+          conversation_type: conversationType || 'general',
+          template_id: templateId || null,
+          sent_by: user.id,
         })
-        .eq('id', messageRecord.id)
+        .select()
+        .single()
 
-      return NextResponse.json(
-        {
-          success: false,
-          error: result.error || 'Error al enviar mensaje',
+      if (insertError) {
+        logger.error('Error creating WhatsApp message record', {
+          tenantId: profile.tenant_id,
+          error: insertError.message,
+        })
+        return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      }
+
+      // Send via Twilio
+      const result = await sendWhatsAppMessage({
+        to: formattedPhone,
+        body: message,
+      })
+
+      // Update message status
+      if (result.success && result.sid) {
+        await supabase
+          .from('whatsapp_messages')
+          .update({
+            status: 'sent',
+            twilio_sid: result.sid,
+            sent_at: new Date().toISOString(),
+          })
+          .eq('id', messageRecord.id)
+
+        return NextResponse.json({
+          success: true,
           messageId: messageRecord.id,
-        },
-        { status: 500 }
-      )
+          twilioSid: result.sid,
+        })
+      } else {
+        await supabase
+          .from('whatsapp_messages')
+          .update({
+            status: 'failed',
+            error_message: result.error || 'Error desconocido',
+          })
+          .eq('id', messageRecord.id)
+
+        return NextResponse.json(
+          {
+            success: false,
+            error: result.error || 'Error al enviar mensaje',
+            messageId: messageRecord.id,
+          },
+          { status: 500 }
+        )
+      }
+    } catch (error) {
+      logger.error('WhatsApp send error', {
+        tenantId: profile.tenant_id,
+        error: error instanceof Error ? error.message : 'Unknown',
+      })
+      return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
     }
-  } catch (error) {
-    console.error('WhatsApp send error:', error)
-    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
-  }
-}
+  },
+  { roles: ['vet', 'admin'] }
+)

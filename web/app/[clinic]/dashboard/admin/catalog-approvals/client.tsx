@@ -67,29 +67,30 @@ const statusOptions: { value: VerificationStatus; label: string }[] = [
 ]
 
 function getStatusBadge(status: string): React.ReactElement {
+  // Use CSS variables for themeable status colors
   const config: Record<string, { bg: string; text: string; icon: React.ReactNode; label: string }> =
     {
       pending: {
-        bg: 'bg-yellow-100',
-        text: 'text-yellow-700',
+        bg: 'bg-[var(--status-warning-bg)]',
+        text: 'text-[var(--status-warning-dark)]',
         icon: <Clock className="h-3 w-3" />,
         label: 'Pendiente',
       },
       verified: {
-        bg: 'bg-green-100',
-        text: 'text-green-700',
+        bg: 'bg-[var(--status-success-bg)]',
+        text: 'text-[var(--status-success-dark)]',
         icon: <CheckCircle className="h-3 w-3" />,
         label: 'Verificado',
       },
       rejected: {
-        bg: 'bg-red-100',
-        text: 'text-red-700',
+        bg: 'bg-[var(--status-error-bg)]',
+        text: 'text-[var(--status-error-dark)]',
         icon: <XCircle className="h-3 w-3" />,
         label: 'Rechazado',
       },
       needs_review: {
-        bg: 'bg-orange-100',
-        text: 'text-orange-700',
+        bg: 'bg-[var(--status-warning-bg)]',
+        text: 'text-[var(--status-warning)]',
         icon: <HelpCircle className="h-3 w-3" />,
         label: 'Requiere Revisión',
       },
@@ -252,16 +253,16 @@ export default function CatalogApprovalsClient({
           }}
           className={`rounded-xl border p-4 transition-all ${
             statusFilter === 'pending'
-              ? 'border-yellow-400 bg-yellow-50'
+              ? 'border-[var(--status-warning)] bg-[var(--status-warning-bg)]'
               : 'border-gray-100 bg-white hover:border-gray-200'
           }`}
         >
           <div className="flex items-center gap-3">
-            <div className="rounded-lg bg-yellow-100 p-2">
-              <Clock className="h-5 w-5 text-yellow-600" />
+            <div className="rounded-lg bg-[var(--status-warning-bg)] p-2">
+              <Clock className="h-5 w-5 text-[var(--status-warning)]" />
             </div>
             <div className="text-left">
-              <div className="text-2xl font-bold text-yellow-600">{summary.pending}</div>
+              <div className="text-2xl font-bold text-[var(--status-warning)]">{summary.pending}</div>
               <div className="text-xs text-[var(--text-secondary)]">Pendientes</div>
             </div>
           </div>
@@ -274,16 +275,16 @@ export default function CatalogApprovalsClient({
           }}
           className={`rounded-xl border p-4 transition-all ${
             statusFilter === 'verified'
-              ? 'border-green-400 bg-green-50'
+              ? 'border-[var(--status-success)] bg-[var(--status-success-bg)]'
               : 'border-gray-100 bg-white hover:border-gray-200'
           }`}
         >
           <div className="flex items-center gap-3">
-            <div className="rounded-lg bg-green-100 p-2">
-              <CheckCircle className="h-5 w-5 text-green-600" />
+            <div className="rounded-lg bg-[var(--status-success-bg)] p-2">
+              <CheckCircle className="h-5 w-5 text-[var(--status-success)]" />
             </div>
             <div className="text-left">
-              <div className="text-2xl font-bold text-green-600">{summary.verified}</div>
+              <div className="text-2xl font-bold text-[var(--status-success)]">{summary.verified}</div>
               <div className="text-xs text-[var(--text-secondary)]">Verificados</div>
             </div>
           </div>
@@ -296,16 +297,16 @@ export default function CatalogApprovalsClient({
           }}
           className={`rounded-xl border p-4 transition-all ${
             statusFilter === 'rejected'
-              ? 'border-red-400 bg-red-50'
+              ? 'border-[var(--status-error)] bg-[var(--status-error-bg)]'
               : 'border-gray-100 bg-white hover:border-gray-200'
           }`}
         >
           <div className="flex items-center gap-3">
-            <div className="rounded-lg bg-red-100 p-2">
-              <XCircle className="h-5 w-5 text-red-600" />
+            <div className="rounded-lg bg-[var(--status-error-bg)] p-2">
+              <XCircle className="h-5 w-5 text-[var(--status-error)]" />
             </div>
             <div className="text-left">
-              <div className="text-2xl font-bold text-red-600">{summary.rejected}</div>
+              <div className="text-2xl font-bold text-[var(--status-error)]">{summary.rejected}</div>
               <div className="text-xs text-[var(--text-secondary)]">Rechazados</div>
             </div>
           </div>

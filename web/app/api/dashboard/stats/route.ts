@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { withApiAuth } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
+import { logger } from '@/lib/logger'
 
 // GET /api/dashboard/stats - Get clinic dashboard stats (live query)
 export const GET = withApiAuth(
@@ -74,7 +75,10 @@ export const GET = withApiAuth(
         last_updated: new Date().toISOString(),
       })
     } catch (e) {
-      console.error('Error loading dashboard stats:', e)
+      logger.error('Error loading dashboard stats', {
+        tenantId: profile.tenant_id,
+        error: e instanceof Error ? e.message : 'Unknown',
+      })
       return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
         details: { message: e instanceof Error ? e.message : 'Unknown error' },
       })

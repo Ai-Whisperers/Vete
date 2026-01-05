@@ -1,5 +1,6 @@
-import { createClient } from '@/lib/supabase/server'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
+import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
+import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
 
 /**
@@ -15,24 +16,13 @@ import { logger } from '@/lib/logger'
  * - title, message: content
  * - read_at: NULL = unread, timestamp = read
  */
-export async function GET(request: NextRequest) {
-  const supabase = await createClient()
-
-  // 1. Auth check
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-  if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-  }
-
+export const GET = withApiAuth(async ({ request, user, supabase }: ApiHandlerContext) => {
   try {
-    // 2. Parse query params
+    // Parse query params
     const { searchParams } = new URL(request.url)
     const statusFilter = searchParams.get('status')
 
-    // 3. Check if notifications table exists and query it
+    // Check if notifications table exists and query it
     const { data: notifications, error: notificationsError } = await supabase
       .from('notifications')
       .select(
@@ -56,10 +46,10 @@ export async function GET(request: NextRequest) {
         error: notificationsError.message,
         userId: user.id,
       })
-      return NextResponse.json({ error: 'Error al cargar notificaciones' }, { status: 500 })
+      return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
     }
 
-    // 4. Filter by status if provided
+    // Filter by status if provided
     let filteredNotifications = notifications || []
     if (statusFilter === 'read') {
       filteredNotifications = filteredNotifications.filter((n) => n.read_at !== null)
@@ -67,10 +57,10 @@ export async function GET(request: NextRequest) {
       filteredNotifications = filteredNotifications.filter((n) => n.read_at === null)
     }
 
-    // 5. Count unread
+    // Count unread
     const unreadCount = (notifications || []).filter((n) => n.read_at === null).length
 
-    // 6. Return response (map to consistent format)
+    // Return response (map to consistent format)
     return NextResponse.json({
       notifications: filteredNotifications.map((n) => ({
         ...n,
@@ -83,12 +73,9 @@ export async function GET(request: NextRequest) {
       error: error instanceof Error ? error.message : 'Unknown',
       userId: user?.id,
     })
-    return NextResponse.json(
-      { error: 'Error inesperado al cargar notificaciones' },
-      { status: 500 }
-    )
+    return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
   }
-}
+})
 
 /**
  * PATCH /api/notifications
@@ -97,24 +84,12 @@ export async function GET(request: NextRequest) {
  *   - { notificationIds: string[] } - mark specific notifications
  *   - { markAllRead: true } - mark all unread notifications as read
  */
-export async function PATCH(request: NextRequest) {
-  const supabase = await createClient()
-
-  // 1. Auth check
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-  if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-  }
-
+export const PATCH = withApiAuth(async ({ request, user, supabase }: ApiHandlerContext) => {
   try {
-    // 2. Parse request body
     const body = await request.json()
     const { notificationIds, markAllRead } = body
 
-    // 3. Handle mark all read
+    // Handle mark all read
     if (markAllRead === true) {
       const { data, error: updateError } = await supabase
         .from('notifications')
@@ -138,10 +113,7 @@ export async function PATCH(request: NextRequest) {
           error: updateError.message,
           userId: user.id,
         })
-        return NextResponse.json(
-          { error: 'Error al marcar todas las notificaciones como leídas' },
-          { status: 500 }
-        )
+        return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
       }
 
       return NextResponse.json({
@@ -151,19 +123,20 @@ export async function PATCH(request: NextRequest) {
       })
     }
 
-    // 4. Handle specific notification IDs
+    // Handle specific notification IDs
     if (!notificationIds || !Array.isArray(notificationIds)) {
-      return NextResponse.json(
-        { error: "Se requiere 'notificationIds' (array) o 'markAllRead' (boolean)" },
-        { status: 400 }
-      )
+      return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
+        details: { required: ['notificationIds (array) o markAllRead (boolean)'] },
+      })
     }
 
     if (notificationIds.length === 0) {
-      return NextResponse.json({ error: 'El array de IDs no puede estar vacío' }, { status: 400 })
+      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+        details: { reason: 'El array de IDs no puede estar vacío' },
+      })
     }
 
-    // 5. Update specific notifications to read status
+    // Update specific notifications to read status
     // Only update notifications that belong to the current user
     const { data, error: updateError } = await supabase
       .from('notifications')
@@ -188,13 +161,10 @@ export async function PATCH(request: NextRequest) {
         userId: user.id,
         notificationIds,
       })
-      return NextResponse.json(
-        { error: 'Error al marcar notificaciones como leídas' },
-        { status: 500 }
-      )
+      return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
     }
 
-    // 6. Return success response
+    // Return success response
     return NextResponse.json({
       success: true,
       updated: data?.length || 0,
@@ -205,9 +175,6 @@ export async function PATCH(request: NextRequest) {
       error: error instanceof Error ? error.message : 'Unknown',
       userId: user?.id,
     })
-    return NextResponse.json(
-      { error: 'Error inesperado al actualizar notificaciones' },
-      { status: 500 }
-    )
+    return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
   }
-}
+})

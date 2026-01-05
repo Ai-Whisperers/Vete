@@ -151,11 +151,11 @@ export class ApiResponses {
   /**
    * Accepted response (for async operations)
    */
-  static accepted(data?: any, message?: string): NextResponse<SuccessResponse<any>> {
+  static accepted<T = unknown>(data?: T, message?: string): NextResponse<SuccessResponse<T | null>> {
     return NextResponse.json(
       {
         success: true,
-        data: data || null,
+        data: data ?? null,
         ...(message && { message }),
       },
       { status: 202 }

@@ -1,14 +1,22 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
-import { logger } from '@/lib/monitoring/logger'
+import { apiError, HTTP_STATUS } from '@/lib/api/errors'
+import { logger } from '@/lib/logger'
 
+/**
+ * GET /api/growth_standards
+ * Public endpoint - returns growth standard data for charts
+ * No auth required - read-only reference data
+ */
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const breedCategory = searchParams.get('breed_category')
   const gender = searchParams.get('gender')
 
   if (!breedCategory || !gender) {
-    return NextResponse.json({ error: 'Missing breed_category or gender' }, { status: 400 })
+    return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
+      details: { required: ['breed_category', 'gender'] },
+    })
   }
 
   const supabase = await createClient()
@@ -26,10 +34,12 @@ export async function GET(request: Request) {
       logger.warn('growth_standards table not found, returning empty data')
       return NextResponse.json([])
     }
-    logger.error('Error fetching growth standards', undefined, {
-      metadata: { errorMessage: error.message, breedCategory, gender },
+    logger.error('Error fetching growth standards', {
+      error: error.message,
+      breedCategory,
+      gender,
     })
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
   }
 
   return NextResponse.json(data || [])

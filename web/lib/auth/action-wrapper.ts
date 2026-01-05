@@ -75,9 +75,9 @@ export function createTenantQuery(context: AuthContext) {
   return {
     select: (table: string) =>
       context.supabase.from(table).select('*').eq('tenant_id', context.profile.tenant_id),
-    insert: (table: string, data: any) =>
+    insert: <T extends Record<string, unknown>>(table: string, data: T) =>
       context.supabase.from(table).insert({ ...data, tenant_id: context.profile.tenant_id }),
-    update: (table: string, data: any) =>
+    update: <T extends Record<string, unknown>>(table: string, data: T) =>
       context.supabase.from(table).update(data).eq('tenant_id', context.profile.tenant_id),
     delete: (table: string) =>
       context.supabase.from(table).delete().eq('tenant_id', context.profile.tenant_id),

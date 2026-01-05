@@ -1,36 +1,16 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { NextResponse } from 'next/server'
+import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
+import { logger } from '@/lib/logger'
 
 /**
  * GET /api/loyalty/transactions
  * Get current user's loyalty transaction history
  */
-export async function GET(request: NextRequest): Promise<NextResponse> {
-  const supabase = await createClient()
+export const GET = withApiAuth(async ({ request, user, profile, supabase }: ApiHandlerContext) => {
   const { searchParams } = new URL(request.url)
   const limit = parseInt(searchParams.get('limit') || '50', 10)
   const offset = parseInt(searchParams.get('offset') || '0', 10)
-
-  // Auth check
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-  if (authError || !user) {
-    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED)
-  }
-
-  // Get user's profile for tenant
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('tenant_id')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile) {
-    return NextResponse.json({ data: [], total: 0 })
-  }
 
   try {
     // Get total count
@@ -60,7 +40,14 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1)
 
-    if (error) throw error
+    if (error) {
+      logger.error('Error fetching loyalty transactions', {
+        userId: user.id,
+        tenantId: profile.tenant_id,
+        error: error.message,
+      })
+      return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
+    }
 
     return NextResponse.json({
       data: transactions || [],
@@ -69,7 +56,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       offset,
     })
   } catch (e) {
-    console.error('Error fetching transactions:', e)
+    logger.error('Unexpected error fetching loyalty transactions', {
+      userId: user.id,
+      tenantId: profile.tenant_id,
+      error: e instanceof Error ? e.message : 'Unknown',
+    })
     return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
   }
-}
+})

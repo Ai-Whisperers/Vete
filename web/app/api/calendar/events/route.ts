@@ -1,5 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { NextResponse } from 'next/server'
+import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
+import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { z } from 'zod'
 import {
   appointmentToCalendarEvent,
@@ -7,6 +8,7 @@ import {
   shiftToCalendarEvent,
 } from '@/lib/types/calendar'
 import type { CalendarEvent, TimeOffRequest } from '@/lib/types/calendar'
+import { logger } from '@/lib/logger'
 
 /**
  * API: Get calendar events for a date range
@@ -23,48 +25,21 @@ const getEventsSchema = z.object({
   end: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format (YYYY-MM-DD)'),
 })
 
-export async function GET(request: NextRequest) {
-  try {
-    const supabase = await createClient()
+export const GET = withApiAuth(
+  async ({ request, profile, supabase }: ApiHandlerContext) => {
+    try {
+      // Parse and validate query params
+      const { searchParams } = new URL(request.url)
+      const validation = getEventsSchema.safeParse({
+        start: searchParams.get('start'),
+        end: searchParams.get('end'),
+      })
 
-    // Auth check
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-    if (authError || !user) {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-    }
-
-    // Get user's tenant
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('tenant_id, role')
-      .eq('id', user.id)
-      .single()
-
-    if (profileError || !profile) {
-      return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 })
-    }
-
-    // Staff check (only vets and admins can view the full calendar)
-    if (!['vet', 'admin'].includes(profile.role)) {
-      return NextResponse.json({ error: 'Acceso denegado' }, { status: 403 })
-    }
-
-    // Parse and validate query params
-    const searchParams = request.nextUrl.searchParams
-    const validation = getEventsSchema.safeParse({
-      start: searchParams.get('start'),
-      end: searchParams.get('end'),
-    })
-
-    if (!validation.success) {
-      return NextResponse.json(
-        { error: 'Parámetros inválidos', details: validation.error.flatten() },
-        { status: 400 }
-      )
-    }
+      if (!validation.success) {
+        return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+          details: validation.error.flatten(),
+        })
+      }
 
     const { start: startDateStr, end: endDateStr } = validation.data
 
@@ -97,10 +72,13 @@ export async function GET(request: NextRequest) {
       .lte('start_time', `${endDateStr}T23:59:59`)
       .order('start_time', { ascending: true })
 
-    if (appointmentsError) {
-      console.error('Error fetching appointments:', appointmentsError)
-      return NextResponse.json({ error: 'Error al obtener citas' }, { status: 500 })
-    }
+      if (appointmentsError) {
+        logger.error('Error fetching appointments', {
+          tenantId: profile.tenant_id,
+          error: appointmentsError.message,
+        })
+        return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      }
 
     // Fetch staff profiles with their user data
     const { data: staffProfiles } = await supabase
@@ -253,16 +231,21 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({
-      events,
-      meta: {
-        start: startDateStr,
-        end: endDateStr,
-        count: events.length,
-      },
-    })
-  } catch (error) {
-    console.error('Calendar events error:', error)
-    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
-  }
-}
+      return NextResponse.json({
+        events,
+        meta: {
+          start: startDateStr,
+          end: endDateStr,
+          count: events.length,
+        },
+      })
+    } catch (error) {
+      logger.error('Calendar events error', {
+        tenantId: profile.tenant_id,
+        error: error instanceof Error ? error.message : 'Unknown',
+      })
+      return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
+    }
+  },
+  { roles: ['vet', 'admin'] }
+)

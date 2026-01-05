@@ -197,7 +197,7 @@ export class TimeOffTypeSeeder extends JsonSeeder<TimeOffType> {
   }
 
   getJsonPath(): string {
-    return `db/seeds/data/02-clinic/_global/time-off-types.json`
+    return `db/seeds/data/02-templates/time-off-types.json`
   }
 
   extractData(json: unknown): unknown[] {

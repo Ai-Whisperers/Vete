@@ -17,9 +17,10 @@ This document explains the complete data model for the Vete veterinary platform.
 9. [Communications](#communications)
 10. [Insurance Management](#insurance-management)
 11. [Staff Management](#staff-management)
-12. [System and Audit](#system-and-audit)
-13. [Security Model](#security-model)
-14. [Data Relationships Summary](#data-relationships-summary)
+12. [Procurement Management](#procurement-management)
+13. [System and Audit](#system-and-audit)
+14. [Security Model](#security-model)
+15. [Data Relationships Summary](#data-relationships-summary)
 
 ---
 
@@ -672,6 +673,73 @@ Managing absences:
 - Type of time off (vacation, sick, personal)
 - Approval workflow
 - Impact on appointment availability
+
+---
+
+## Procurement Management
+
+### Suppliers
+
+The clinic maintains relationships with suppliers for restocking inventory:
+
+- Supplier name and contact information
+- Payment terms and credit limits
+- Lead time for deliveries
+- Active/inactive status
+- Rating/performance metrics
+
+**Supplier Types**:
+- Distributors (pharmaceuticals, medical supplies)
+- Manufacturers (direct purchase)
+- Local vendors (food, consumables)
+
+### Purchase Orders
+
+When inventory needs replenishment:
+
+- Purchase order number (auto-generated)
+- Selected supplier
+- Order date and expected delivery
+- Line items with products and quantities
+- Status tracking (draft, sent, acknowledged, shipped, received, cancelled)
+- Total amount and payment terms
+
+### Purchase Order Items
+
+Each line item on a purchase order:
+
+- Product reference (links to store_products)
+- Quantity ordered
+- Unit cost (negotiated price)
+- Quantity received (may differ from ordered)
+- Quality status (accepted, rejected, partial)
+
+### Goods Receipt
+
+When products arrive:
+
+- Receiving date and time
+- Purchase order reference
+- Received by (staff member)
+- Inspection notes
+- Discrepancy handling (damaged, short, over)
+
+The goods receipt process:
+1. Match received items against purchase order
+2. Update inventory quantities
+3. Recalculate weighted average cost
+4. Flag discrepancies for resolution
+5. Generate supplier payment obligations
+
+### Supplier Payments
+
+Tracking what's owed to suppliers:
+
+- Invoice number from supplier
+- Amount due and due date
+- Payment status
+- Payment method and date
+- Reconciliation with purchase orders
 
 ---
 

@@ -1,3 +1,22 @@
+/**
+ * Legacy Simple Factories
+ *
+ * These factories are still fully supported but consider using the new unified API:
+ *
+ * @example New API
+ * ```typescript
+ * import { PetFactory, mockState, PETS } from '@/lib/test-utils';
+ *
+ * // Builder pattern factory
+ * const pet = PetFactory.create().asDog().forOwner('owner-123').build();
+ *
+ * // Or use fixtures for common test data
+ * const pet = PETS.MAX_DOG;
+ * ```
+ *
+ * @see README.md for migration guide
+ */
+
 import type {
   Pet,
   Profile,

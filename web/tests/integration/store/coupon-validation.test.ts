@@ -9,7 +9,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { NextRequest } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { POST } from '@/app/api/store/coupons/validate/route'
 import {
   mockState,
@@ -179,7 +179,7 @@ describe('POST /api/store/coupons/validate', () => {
       const { rateLimit } = await import('@/lib/rate-limit')
       vi.mocked(rateLimit).mockResolvedValueOnce({
         success: false,
-        response: new Response(JSON.stringify({ error: 'Too many requests' }), { status: 429 }),
+        response: NextResponse.json({ error: 'Too many requests', code: 'RATE_LIMITED' }, { status: 429 }),
       })
 
       const response = await POST(

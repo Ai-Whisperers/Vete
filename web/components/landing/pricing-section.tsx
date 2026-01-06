@@ -2,39 +2,53 @@
 
 import { useState } from 'react'
 import { Check, MessageCircle, Sparkles, Building2, Gift } from 'lucide-react'
-import { pricingTiers, discounts, trialConfig, type PricingTier } from '@/lib/pricing/tiers'
+import {
+  pricingTiers,
+  discounts,
+  trialConfig,
+  calculateStackedDiscount,
+  type PricingTier,
+  type BillingPeriod,
+} from '@/lib/pricing/tiers'
 import { tierFeatureDescriptions, tierCtaMessages } from '@/lib/pricing/tier-ui'
 import { getWhatsAppUrl, pricingMessages } from '@/lib/whatsapp'
 
-type BillingPeriod = 'monthly' | 'yearly'
+// Map UI billing period to tiers.ts BillingPeriod
+type UIBillingPeriod = 'monthly' | 'yearly'
+const billingPeriodMap: Record<UIBillingPeriod, BillingPeriod> = {
+  monthly: 'monthly',
+  yearly: 'annual',
+}
 
 /**
  * Format price for display with billing period
+ * Uses the centralized calculateStackedDiscount for accurate calculations
  */
-function formatPrice(tier: PricingTier, billingPeriod: BillingPeriod): string {
+function formatPrice(tier: PricingTier, billingPeriod: UIBillingPeriod): string {
   if (tier.enterprise) return 'Personalizado'
   if (tier.monthlyPrice === 0) return 'Gratis'
 
-  const monthlyPrice = tier.monthlyPrice
-  const yearlyMonthlyPrice = Math.round(monthlyPrice * (1 - discounts.annual))
+  const period = billingPeriodMap[billingPeriod]
+  const { monthlyEquivalent } = calculateStackedDiscount(tier.monthlyPrice, period, 0)
 
-  const price = billingPeriod === 'yearly' ? yearlyMonthlyPrice : monthlyPrice
-  return `Gs ${price.toLocaleString('es-PY')}`
+  return `Gs ${monthlyEquivalent.toLocaleString('es-PY')}`
 }
 
 /**
- * Calculate monthly savings when paying yearly
+ * Get pricing details for a tier using centralized discount function
  */
-function getMonthlySavings(tier: PricingTier): number {
-  if (tier.enterprise || tier.monthlyPrice === 0) return 0
-  return Math.round(tier.monthlyPrice * discounts.annual)
-}
+function getPricingDetails(tier: PricingTier, billingPeriod: UIBillingPeriod) {
+  if (tier.enterprise || tier.monthlyPrice === 0) {
+    return { monthlyEquivalent: 0, total: 0, savings: 0, monthlySavings: 0 }
+  }
 
-/**
- * Calculate total yearly savings compared to paying monthly
- */
-function getYearlySavings(tier: PricingTier): number {
-  return getMonthlySavings(tier) * 12
+  const period = billingPeriodMap[billingPeriod]
+  const result = calculateStackedDiscount(tier.monthlyPrice, period, 0)
+
+  return {
+    ...result,
+    monthlySavings: tier.monthlyPrice - result.monthlyEquivalent,
+  }
 }
 
 // Feature descriptions and CTA messages imported from lib/pricing/tier-ui.tsx
@@ -44,14 +58,13 @@ interface PricingCardProps {
   tier: PricingTier
   features: string[]
   cta: { cta: string; message: string }
-  billingPeriod: BillingPeriod
+  billingPeriod: UIBillingPeriod
 }
 
 function PricingCard({ tier, features, cta, billingPeriod }: PricingCardProps): React.ReactElement {
   const isEnterprise = tier.enterprise
   const isFree = tier.monthlyPrice === 0 && !isEnterprise
-  const monthlySavings = getMonthlySavings(tier)
-  const yearlySavings = getYearlySavings(tier)
+  const pricing = getPricingDetails(tier, billingPeriod)
   const showSavings = billingPeriod === 'yearly' && !isFree && !isEnterprise
 
   return (
@@ -106,7 +119,7 @@ function PricingCard({ tier, features, cta, billingPeriod }: PricingCardProps): 
               Gs {tier.monthlyPrice.toLocaleString('es-PY')}/mes
             </span>
             <span className="ml-2 text-sm font-bold text-green-600">
-              Ahorrás Gs {monthlySavings.toLocaleString('es-PY')}/mes
+              Ahorrás Gs {pricing.monthlySavings.toLocaleString('es-PY')}/mes
             </span>
           </div>
         )}
@@ -118,7 +131,7 @@ function PricingCard({ tier, features, cta, billingPeriod }: PricingCardProps): 
               <span className="text-[var(--landing-text-muted)]">Total anual:</span>
               <div className="text-right">
                 <span className="text-lg font-black text-[var(--landing-text-primary)]">
-                  Gs {(Math.round(tier.monthlyPrice * (1 - discounts.annual)) * 12).toLocaleString('es-PY')}
+                  Gs {pricing.total.toLocaleString('es-PY')}
                 </span>
               </div>
             </div>
@@ -130,7 +143,7 @@ function PricingCard({ tier, features, cta, billingPeriod }: PricingCardProps): 
             </div>
             <div className="mt-2 flex items-center justify-center gap-1 rounded bg-green-100 py-1">
               <span className="text-xs font-bold text-green-700">
-                💰 Ahorrás Gs {yearlySavings.toLocaleString('es-PY')}/año
+                💰 Ahorrás Gs {pricing.savings.toLocaleString('es-PY')}/año
               </span>
             </div>
           </div>
@@ -181,16 +194,16 @@ function PricingCard({ tier, features, cta, billingPeriod }: PricingCardProps): 
 }
 
 export function PricingSection(): React.ReactElement {
-  const [billingPeriod, setBillingPeriod] = useState<BillingPeriod>('monthly')
+  const [billingPeriod, setBillingPeriod] = useState<UIBillingPeriod>('monthly')
 
   // Split tiers into main (first 4) and enterprise (last 1) for layout
   const mainTiers = pricingTiers.slice(0, 4)
   const enterpriseTier = pricingTiers.find((t) => t.enterprise)
 
-  // Calculate total savings across all paid tiers for yearly
+  // Calculate total savings across all paid tiers for yearly using centralized function
   const totalYearlySavings = mainTiers
     .filter((t) => t.monthlyPrice > 0)
-    .reduce((sum, tier) => sum + getYearlySavings(tier), 0)
+    .reduce((sum, tier) => sum + getPricingDetails(tier, 'yearly').savings, 0)
 
   return (
     <section id="precios" className="relative overflow-hidden bg-[var(--landing-bg)] py-16 md:py-24">

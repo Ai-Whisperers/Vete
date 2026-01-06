@@ -25,6 +25,7 @@
  */
 
 import { vi } from 'vitest'
+import { NextRequest, NextResponse } from 'next/server'
 
 // =============================================================================
 // Types
@@ -145,8 +146,11 @@ class MockState {
 
   /**
    * Set result for a table query
+   * @param table - The table name
+   * @param result - The result to return
+   * @param _operation - Optional operation type (select, insert, update, delete) - kept for backward compatibility
    */
-  setTableResult(table: string, result: unknown): void {
+  setTableResult(table: string, result: unknown, _operation?: 'select' | 'insert' | 'update' | 'delete'): void {
     this._tableResults.set(table, result)
     this._errors.delete(table)
   }
@@ -159,10 +163,60 @@ class MockState {
   }
 
   /**
-   * Set error for a table query
+   * Set error for an RPC call
+   * @param functionName - The RPC function name
+   * @param error - The error to throw
    */
-  setTableError(table: string, error: Error): void {
-    this._errors.set(table, error)
+  setRpcError(functionName: string, error: Error): void {
+    this._errors.set(`rpc:${functionName}`, error)
+  }
+
+  /**
+   * Get RPC error
+   */
+  getRpcError(functionName: string): Error | undefined {
+    return this._errors.get(`rpc:${functionName}`)
+  }
+
+  /**
+   * Check if RPC has error configured
+   */
+  hasRpcError(functionName: string): boolean {
+    return this._errors.has(`rpc:${functionName}`)
+  }
+
+  /**
+   * Set error for storage operations
+   * @param bucket - The storage bucket name (or 'default' for any bucket)
+   * @param error - The error to throw
+   */
+  setStorageError(bucket: string, error: Error): void {
+    this._errors.set(`storage:${bucket}`, error)
+  }
+
+  /**
+   * Get storage error
+   */
+  getStorageError(bucket: string): Error | undefined {
+    return this._errors.get(`storage:${bucket}`) || this._errors.get('storage:default')
+  }
+
+  /**
+   * Check if storage has error configured
+   */
+  hasStorageError(bucket: string): boolean {
+    return this._errors.has(`storage:${bucket}`) || this._errors.has('storage:default')
+  }
+
+  /**
+   * Set error for a table query
+   * @param table - The table name
+   * @param error - Can be an Error object or a Postgrest-style error with code/message
+   */
+  setTableError(table: string, error: Error | { code?: string; message: string }): void {
+    // Convert Postgrest-style errors to Error objects
+    const errorObj = error instanceof Error ? error : Object.assign(new Error(error.message), { code: error.code })
+    this._errors.set(table, errorObj)
     this._tableResults.delete(table)
   }
 
@@ -276,12 +330,18 @@ export function createStatefulSupabaseMock() {
       const result = mockState.getTableResult(table)
       return createChainMock(result)
     }),
-    rpc: vi.fn((fn: string, params?: unknown) =>
-      Promise.resolve({
+    rpc: vi.fn((fn: string, params?: unknown) => {
+      if (mockState.hasRpcError(fn)) {
+        return Promise.resolve({
+          data: null,
+          error: { message: mockState.getRpcError(fn)!.message },
+        })
+      }
+      return Promise.resolve({
         data: mockState.getRpcResult(fn),
         error: null,
       })
-    ),
+    }),
     storage: createStorageMock(),
   }
 }
@@ -413,57 +473,140 @@ export function setupApiTestMocks(scenario: AuthScenario = 'VET'): void {
 // =============================================================================
 
 /**
+ * Type for the mock Supabase client returned by createStatefulSupabaseMock
+ */
+export type MockSupabaseClient = ReturnType<typeof createStatefulSupabaseMock>
+
+/**
+ * Context passed to API handlers in mocks
+ */
+export interface MockApiHandlerContext {
+  user: MockUser
+  profile: MockProfile
+  supabase: MockSupabaseClient
+  request: NextRequest
+}
+
+/**
+ * Context for handlers with route params
+ */
+export interface MockApiHandlerContextWithParams<P = Record<string, string>> extends MockApiHandlerContext {
+  params: P
+}
+
+/**
  * Get auth module mock for vi.mock('@/lib/auth', ...)
  *
- * This mocks the withApiAuthParams wrapper to use mockState
+ * This mocks both withApiAuth and withApiAuthParams wrappers to use mockState
  * instead of the real auth system (which requires DATABASE_URL).
+ *
+ * The mock accepts both Request and NextRequest for backward compatibility.
+ * At runtime, NextRequest extends Request so both work correctly.
+ *
+ * @example
+ * ```typescript
+ * vi.mock('@/lib/auth', () => getAuthMock())
+ * ```
  */
 export function getAuthMock() {
   return {
-    withApiAuthParams: (
-      handler: (ctx: { user: MockUser; profile: MockProfile; supabase: ReturnType<typeof createStatefulSupabaseMock>; request: Request }, params: Record<string, string>) => Promise<Response>,
-      _options?: { roles: string[] }
+    /**
+     * Mock for withApiAuth - wraps handlers without route params
+     * Accepts Request or NextRequest for test compatibility
+     */
+    withApiAuth: (
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      handler: (ctx: any) => Promise<NextResponse>,
+      _options?: { roles?: string[] }
     ) => {
-      return async (request: Request, context: { params: Promise<Record<string, string>> }) => {
+      // Return function that accepts Request (base type that NextRequest extends)
+      return async (request: Request): Promise<NextResponse> => {
         // Check auth scenario
         if (!mockState.user) {
-          return new Response(JSON.stringify({ error: 'No autorizado', code: 'AUTH_REQUIRED' }), {
-            status: 401,
-            headers: { 'Content-Type': 'application/json' },
-          })
+          return NextResponse.json(
+            { error: 'No autorizado', code: 'AUTH_REQUIRED' },
+            { status: 401 }
+          )
         }
 
         if (!mockState.profile) {
-          return new Response(JSON.stringify({ error: 'Acceso denegado', code: 'FORBIDDEN' }), {
-            status: 403,
-            headers: { 'Content-Type': 'application/json' },
-          })
+          return NextResponse.json(
+            { error: 'Acceso denegado', code: 'FORBIDDEN' },
+            { status: 403 }
+          )
         }
 
         // Check role if options provided
         if (_options?.roles && !_options.roles.includes(mockState.profile.role)) {
-          return new Response(JSON.stringify({ error: 'Acceso denegado', code: 'FORBIDDEN' }), {
-            status: 403,
-            headers: { 'Content-Type': 'application/json' },
-          })
+          return NextResponse.json(
+            { error: 'Acceso denegado', code: 'INSUFFICIENT_ROLE' },
+            { status: 403 }
+          )
+        }
+
+        const supabase = createStatefulSupabaseMock()
+
+        return handler({
+          user: mockState.user,
+          profile: mockState.profile,
+          supabase,
+          request: request as NextRequest,
+        })
+      }
+    },
+
+    /**
+     * Mock for withApiAuthParams - wraps handlers with route params
+     * Accepts Request or NextRequest for test compatibility
+     */
+    withApiAuthParams: <P extends Record<string, string> = Record<string, string>>(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      handler: (ctx: any) => Promise<NextResponse>,
+      _options?: { roles?: string[] }
+    ) => {
+      return async (
+        request: Request,
+        context: { params: Promise<P> }
+      ): Promise<NextResponse> => {
+        // Check auth scenario
+        if (!mockState.user) {
+          return NextResponse.json(
+            { error: 'No autorizado', code: 'AUTH_REQUIRED' },
+            { status: 401 }
+          )
+        }
+
+        if (!mockState.profile) {
+          return NextResponse.json(
+            { error: 'Acceso denegado', code: 'FORBIDDEN' },
+            { status: 403 }
+          )
+        }
+
+        // Check role if options provided
+        if (_options?.roles && !_options.roles.includes(mockState.profile.role)) {
+          return NextResponse.json(
+            { error: 'Acceso denegado', code: 'INSUFFICIENT_ROLE' },
+            { status: 403 }
+          )
         }
 
         const params = await context.params
         const supabase = createStatefulSupabaseMock()
 
-        return handler(
-          {
-            user: mockState.user,
-            profile: mockState.profile,
-            supabase,
-            request,
-          },
-          params
-        )
+        return handler({
+          user: mockState.user,
+          profile: mockState.profile,
+          supabase,
+          request: request as NextRequest,
+          params,
+        })
       }
     },
+
     isStaff: (profile: { role: string }) => ['vet', 'admin'].includes(profile.role),
     isAdmin: (profile: { role: string }) => profile.role === 'admin',
+    isOwner: (profile: { role: string }) => profile.role === 'owner',
   }
 }
 

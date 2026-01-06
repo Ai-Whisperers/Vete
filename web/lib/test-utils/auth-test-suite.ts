@@ -38,8 +38,9 @@ export type Role = 'owner' | 'vet' | 'admin'
 export interface AuthTestConfig {
   /**
    * The route handler function to test
+   * Uses `any` for context to support both optional and required params handlers
    */
-  handler: (request: NextRequest, context?: { params: Promise<Record<string, string>> }) => Promise<Response>
+  handler: (request: NextRequest, context?: any) => Promise<Response>
 
   /**
    * Factory function to create the request for each test

@@ -50,6 +50,9 @@ export {
   type MockUser,
   type MockProfile,
   type AuthScenario,
+  type MockSupabaseClient,
+  type MockApiHandlerContext,
+  type MockApiHandlerContextWithParams,
   // Default mock data
   DEFAULT_MOCK_USER,
   DEFAULT_MOCK_VET_PROFILE,
@@ -82,6 +85,32 @@ export {
   // Global reset
   resetAllMocks,
 } from './mock-presets'
+
+// =============================================================================
+// Request Helpers - Create typed NextRequest objects for tests
+// =============================================================================
+
+export {
+  // Types
+  type RequestOptions,
+  type RouteHandler,
+  type RouteHandlerWithParams,
+  // Main helper
+  createNextRequest,
+  createJsonRequest,
+  // Route handler wrappers (for calling handlers with Request objects)
+  callRoute,
+  callRouteWithParams,
+  // Convenience helpers
+  createGetRequest,
+  createPostRequest,
+  createPutRequest,
+  createPatchRequest,
+  createDeleteRequest,
+  createCronRequest,
+  createFormDataRequest,
+  createRouteContext,
+} from './request-helpers'
 
 // =============================================================================
 // Authorization Test Suite - Test generators

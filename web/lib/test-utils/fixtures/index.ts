@@ -74,7 +74,8 @@ export interface ProfileFixture {
 
 const TEST_PASSWORD = 'TestPassword123!'
 
-export const USERS = {
+// Define base users first
+const USERS_BASE = {
   // Owners
   OWNER_JUAN: {
     id: 'user-owner-juan',
@@ -145,6 +146,15 @@ export const USERS = {
   },
 } as const satisfies Record<string, UserFixture>
 
+// Export with legacy shorthand aliases included
+export const USERS = {
+  ...USERS_BASE,
+  // Legacy aliases for backward compatibility
+  OWNER: USERS_BASE.OWNER_JUAN,
+  VET: USERS_BASE.VET_CARLOS,
+  ADMIN: USERS_BASE.ADMIN_PRINCIPAL,
+} as const
+
 export const DEFAULT_OWNER = USERS.OWNER_JUAN
 export const DEFAULT_VET = USERS.VET_CARLOS
 export const DEFAULT_ADMIN = USERS.ADMIN_PRINCIPAL
@@ -180,14 +190,15 @@ export interface PetFixture {
   microchip_id?: string
 }
 
-export const PETS = {
+// Define base pets first (using USERS_BASE for references)
+const PETS_BASE = {
   MAX_DOG: {
     id: 'pet-max',
     name: 'Max',
     species: 'dog' as const,
     breed: 'Labrador Retriever',
     tenant_id: TENANTS.ADRIS.id,
-    owner_id: USERS.OWNER_JUAN.id,
+    owner_id: USERS_BASE.OWNER_JUAN.id,
     weight_kg: 28.5,
     birth_date: '2021-03-15',
     is_neutered: true,
@@ -198,7 +209,7 @@ export const PETS = {
     species: 'cat' as const,
     breed: 'Siamés',
     tenant_id: TENANTS.ADRIS.id,
-    owner_id: USERS.OWNER_JUAN.id,
+    owner_id: USERS_BASE.OWNER_JUAN.id,
     weight_kg: 4.2,
     birth_date: '2022-06-20',
     is_neutered: true,
@@ -209,7 +220,7 @@ export const PETS = {
     species: 'dog' as const,
     breed: 'Bulldog',
     tenant_id: TENANTS.ADRIS.id,
-    owner_id: USERS.OWNER_MARIA.id,
+    owner_id: USERS_BASE.OWNER_MARIA.id,
     weight_kg: 22.0,
     birth_date: '2020-09-01',
     is_neutered: false,
@@ -220,10 +231,20 @@ export const PETS = {
     species: 'dog' as const,
     breed: 'Golden Retriever',
     tenant_id: TENANTS.PETLIFE.id,
-    owner_id: USERS.OWNER_PETLIFE.id,
+    owner_id: USERS_BASE.OWNER_PETLIFE.id,
     weight_kg: 32.0,
   },
 } as const satisfies Record<string, PetFixture>
+
+// Export with legacy shorthand aliases included
+export const PETS = {
+  ...PETS_BASE,
+  // Legacy aliases for backward compatibility
+  MAX: PETS_BASE.MAX_DOG,
+  LUNA: PETS_BASE.LUNA_CAT,
+  ROCKY: PETS_BASE.ROCKY_DOG,
+  MILO: PETS_BASE.MILO_PETLIFE,
+} as const
 
 export const DEFAULT_PET = PETS.MAX_DOG
 
@@ -1141,6 +1162,16 @@ export const PRODUCTS = {
     is_prescription_required: false,
     is_active: true,
   },
+  CAT_TREATS: {
+    id: 'product-cat-treats',
+    tenant_id: TENANTS.ADRIS.id,
+    name: 'Snacks Premium Gatos 200g',
+    sku: 'SNK-CAT-200',
+    base_price: 25000,
+    stock_quantity: 40,
+    is_prescription_required: false,
+    is_active: true,
+  },
 } as const satisfies Record<string, ProductFixture>
 
 // =============================================================================
@@ -1151,3 +1182,4 @@ export const CRON_SECRETS = {
   VALID: 'test-cron-secret-valid',
   INVALID: 'invalid-cron-secret',
 } as const
+

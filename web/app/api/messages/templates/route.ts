@@ -1,99 +1,65 @@
-import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
+import { apiError, apiSuccess, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
 
-// GET /api/messages/templates - List message templates
-export async function GET(request: Request) {
-  const supabase = await createClient()
+/**
+ * GET /api/messages/templates - List message templates
+ * Uses scoped queries for automatic tenant isolation
+ */
+export const GET = withApiAuth(
+  async ({ user, profile, scoped, request }: ApiHandlerContext) => {
+    const { searchParams } = new URL(request.url)
+    const category = searchParams.get('category')
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-  }
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('tenant_id, role')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile || !['vet', 'admin'].includes(profile.role)) {
-    return NextResponse.json({ error: 'Solo el personal puede ver plantillas' }, { status: 403 })
-  }
-
-  const { searchParams } = new URL(request.url)
-  const category = searchParams.get('category')
-
-  try {
-    let query = supabase
-      .from('message_templates')
-      .select('*')
-      .eq('tenant_id', profile.tenant_id)
-      .eq('is_active', true)
-      .is('deleted_at', null)
-      .order('category')
-      .order('name')
-
-    if (category) {
-      query = query.eq('category', category)
-    }
-
-    const { data: templates, error } = await query
-
-    if (error) throw error
-
-    return NextResponse.json(templates)
-  } catch (e) {
-    logger.error('Error loading templates', {
-      userId: user.id,
-      tenantId: profile.tenant_id,
-      error: e instanceof Error ? e.message : String(e),
-    })
-    return NextResponse.json({ error: 'Error al cargar plantillas' }, { status: 500 })
-  }
-}
-
-// POST /api/messages/templates - Create template
-export async function POST(request: Request) {
-  const supabase = await createClient()
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-  }
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('tenant_id, role')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile || profile.role !== 'admin') {
-    return NextResponse.json(
-      { error: 'Solo administradores pueden crear plantillas' },
-      { status: 403 }
-    )
-  }
-
-  try {
-    const body = await request.json()
-    const { name, category, subject, content, variables } = body
-
-    if (!name || !category || !content) {
-      return NextResponse.json(
-        { error: 'name, category y content son requeridos' },
-        { status: 400 }
+    try {
+      const { data: templates, error } = await scoped.select(
+        'message_templates',
+        '*',
+        {
+          filter: (q) => {
+            let query = q.eq('is_active', true).is('deleted_at', null).order('category').order('name')
+            if (category) {
+              query = query.eq('category', category)
+            }
+            return query
+          },
+        }
       )
-    }
 
-    const { data: template, error } = await supabase
-      .from('message_templates')
-      .insert({
-        tenant_id: profile.tenant_id,
+      if (error) throw error
+
+      return NextResponse.json(templates)
+    } catch (e) {
+      logger.error('Error loading templates', {
+        userId: user.id,
+        tenantId: profile.tenant_id,
+        error: e instanceof Error ? e.message : String(e),
+      })
+      return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
+    }
+  },
+  { roles: ['vet', 'admin'] }
+)
+
+/**
+ * POST /api/messages/templates - Create template
+ * Uses scoped.insert() for automatic tenant_id injection
+ */
+export const POST = withApiAuth(
+  async ({ user, profile, scoped, request }: ApiHandlerContext) => {
+    try {
+      const body = await request.json()
+      const { name, category, subject, content, variables } = body
+
+      if (!name || !category || !content) {
+        return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
+          details: { required: ['name', 'category', 'content'] },
+        })
+      }
+
+      // scoped.insert() automatically adds tenant_id
+      const { data: templates, error } = await scoped.insert('message_templates', {
         name,
         category,
         subject,
@@ -102,18 +68,19 @@ export async function POST(request: Request) {
         is_active: true,
         created_by: user.id,
       })
-      .select()
-      .single()
 
-    if (error) throw error
+      if (error) throw error
 
-    return NextResponse.json(template, { status: 201 })
-  } catch (e) {
-    logger.error('Error creating template', {
-      userId: user.id,
-      tenantId: profile.tenant_id,
-      error: e instanceof Error ? e.message : String(e),
-    })
-    return NextResponse.json({ error: 'Error al crear plantilla' }, { status: 500 })
-  }
-}
+      const template = templates?.[0]
+      return apiSuccess(template, 'Plantilla creada exitosamente', HTTP_STATUS.CREATED)
+    } catch (e) {
+      logger.error('Error creating template', {
+        userId: user.id,
+        tenantId: profile.tenant_id,
+        error: e instanceof Error ? e.message : String(e),
+      })
+      return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
+    }
+  },
+  { roles: ['admin'] }
+)

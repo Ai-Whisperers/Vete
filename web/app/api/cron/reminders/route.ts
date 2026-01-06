@@ -8,14 +8,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { logger } from '@/lib/logger'
-import {
-  buildReminderContent,
-  sendReminderToChannels,
-  type Reminder,
-  type ClientInfo,
-  type PetInfo,
-  type MessageTemplate,
-} from '@/lib/reminders'
+import { buildReminderContent } from '@/lib/reminders/content-builder'
+import { sendReminderToChannels } from '@/lib/reminders/channel-sender'
+import type { Reminder, ClientInfo, PetInfo, MessageTemplate } from '@/lib/reminders/types'
 
 export const dynamic = 'force-dynamic'
 

@@ -70,8 +70,8 @@ export function TabList({
   const scrollRef = useRef<HTMLDivElement>(null)
 
   const variantStyles = {
-    underline: 'border-b border-gray-200',
-    pills: 'bg-gray-100 p-1 rounded-xl',
+    underline: 'border-b border-[var(--border)]',
+    pills: 'bg-[var(--bg-subtle)] p-1 rounded-xl',
     cards: 'gap-2',
     minimal: '',
   }
@@ -125,22 +125,22 @@ export function TabTrigger({
     underline: {
       base: 'border-b-2 -mb-px transition-colors',
       active: 'border-[var(--primary)] text-[var(--primary)]',
-      inactive: 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
+      inactive: 'border-transparent text-[var(--text-muted)] hover:text-[var(--text-secondary)] hover:border-[var(--border)]',
     },
     pills: {
       base: 'rounded-lg transition-all',
-      active: 'bg-white text-[var(--text-primary)] shadow-sm',
-      inactive: 'text-gray-500 hover:text-gray-700',
+      active: 'bg-[var(--bg-default)] text-[var(--text-primary)] shadow-sm',
+      inactive: 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]',
     },
     cards: {
       base: 'rounded-xl border transition-all',
-      active: 'bg-white border-[var(--primary)] text-[var(--primary)] shadow-md',
-      inactive: 'bg-gray-50 border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-white',
+      active: 'bg-[var(--bg-default)] border-[var(--primary)] text-[var(--primary)] shadow-md',
+      inactive: 'bg-[var(--bg-subtle)] border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--border-dark)] hover:bg-[var(--bg-default)]',
     },
     minimal: {
       base: 'transition-colors',
       active: 'text-[var(--primary)] font-bold',
-      inactive: 'text-gray-500 hover:text-gray-700',
+      inactive: 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]',
     },
   }
 
@@ -172,7 +172,7 @@ export function TabTrigger({
         <span
           className={cn(
             'min-w-[20px] rounded-full px-1.5 py-0.5 text-center text-xs font-bold',
-            isActive ? 'bg-[var(--primary)]/10 text-[var(--primary)]' : 'bg-gray-200 text-gray-500'
+            isActive ? 'bg-[var(--primary)]/10 text-[var(--primary)]' : 'bg-[var(--bg-subtle)] text-[var(--text-muted)]'
           )}
         >
           {count}
@@ -317,7 +317,7 @@ export function DashboardTabs({
                     tab.badgeVariant === 'error' && 'bg-[var(--status-error-bg)] text-[var(--status-error-text)]',
                     tab.badgeVariant === 'success' && 'bg-[var(--status-success-bg)] text-[var(--status-success-text)]',
                     (!tab.badgeVariant || tab.badgeVariant === 'default') &&
-                      'bg-gray-100 text-gray-700'
+                      'bg-[var(--bg-subtle)] text-[var(--text-secondary)]'
                   )}
                 >
                   {tab.badge}

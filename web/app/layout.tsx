@@ -18,12 +18,12 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: 'VetePy - La Red Veterinaria Digital de Paraguay',
-    template: '%s | VetePy',
+    default: 'Vetic - La Red Veterinaria Digital de Paraguay',
+    template: '%s | Vetic',
   },
   description:
     'Sitios web profesionales para veterinarias paraguayas. Una plataforma, múltiples clínicas.',
-  metadataBase: new URL('https://vetepy.vercel.app'),
+  metadataBase: new URL('https://Vetic.vercel.app'),
 }
 
 export default async function RootLayout({

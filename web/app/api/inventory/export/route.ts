@@ -70,7 +70,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 
   const buffer = workbookToBuffer(workbook)
 
-  return new NextResponse(buffer, {
+  return new NextResponse(new Uint8Array(buffer), {
     headers: {
       'Content-Disposition': `attachment; filename="${filename}"`,
       'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',

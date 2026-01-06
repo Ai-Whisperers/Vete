@@ -24,15 +24,18 @@ export interface Subscription {
   product_id: string
   product_name: string
   product_image?: string | null
+  product_image_url?: string | null
   variant_name?: string | null
   quantity: number
   frequency_days: number
-  subscribed_price: number
-  status: 'active' | 'paused' | 'cancelled'
+  subscribed_price?: number
+  discount_percent?: number
+  status: 'active' | 'paused' | 'cancelled' | 'expired'
   next_order_date: string
   last_order_date?: string | null
-  orders_count: number
+  orders_count?: number
   created_at: string
+  updated_at?: string
 }
 
 interface SubscriptionCardProps {
@@ -45,6 +48,7 @@ const statusConfig = {
   active: { label: 'Activa', color: 'bg-[var(--status-success-bg)] text-[var(--status-success-text)]' },
   paused: { label: 'Pausada', color: 'bg-[var(--status-warning-bg)] text-[var(--status-warning-text)]' },
   cancelled: { label: 'Cancelada', color: 'bg-gray-100 text-gray-700' },
+  expired: { label: 'Expirada', color: 'bg-gray-100 text-gray-500' },
 }
 
 function formatCurrency(amount: number): string {
@@ -186,9 +190,9 @@ export function SubscriptionCard({
         <div className="flex gap-4">
           {/* Product image */}
           <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
-            {subscription.product_image ? (
+            {(subscription.product_image || subscription.product_image_url) ? (
               <Image
-                src={subscription.product_image}
+                src={subscription.product_image || subscription.product_image_url || ''}
                 alt={subscription.product_name}
                 fill
                 className="object-cover"
@@ -223,9 +227,11 @@ export function SubscriptionCard({
                 <Package className="h-4 w-4" />
                 {subscription.quantity} unidad{subscription.quantity > 1 ? 'es' : ''}
               </span>
-              <span className="font-medium text-[var(--text-primary)]">
-                {formatCurrency(subscription.subscribed_price * subscription.quantity)}
-              </span>
+              {subscription.subscribed_price !== undefined && (
+                <span className="font-medium text-[var(--text-primary)]">
+                  {formatCurrency(subscription.subscribed_price * subscription.quantity)}
+                </span>
+              )}
             </div>
 
             {subscription.status === 'active' && (

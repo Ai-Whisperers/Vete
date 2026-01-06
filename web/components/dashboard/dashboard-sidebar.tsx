@@ -24,6 +24,7 @@ import {
   Command,
   ArrowLeft,
   BarChart3,
+  Percent,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -92,6 +93,7 @@ export function DashboardSidebar({
         defaultOpen: false,
         items: [
           { icon: BarChart3, label: 'Analytics', href: `/${clinic}/dashboard/analytics` },
+          { icon: Percent, label: 'Comisiones', href: `/${clinic}/dashboard/commissions` },
           { icon: FileText, label: 'Facturas', href: `/${clinic}/dashboard/invoices` },
           { icon: Package, label: 'Inventario', href: `/${clinic}/dashboard/inventory` },
           { icon: Shield, label: 'Seguros', href: `/${clinic}/dashboard/insurance` },

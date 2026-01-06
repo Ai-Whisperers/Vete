@@ -1,7 +1,16 @@
 import { MetadataRoute } from 'next'
 import { getAllClinics, getClinicData } from '@/lib/clinics'
 
-const BASE_URL = 'https://vetepy.vercel.app'
+const BASE_URL = 'https://Vetic.vercel.app'
+
+// Marketing pages at root level
+const MARKETING_PAGES = [
+  { path: '/funcionalidades', priority: 0.9, changeFrequency: 'weekly' as const },
+  { path: '/precios', priority: 0.9, changeFrequency: 'weekly' as const },
+  { path: '/red', priority: 0.8, changeFrequency: 'daily' as const },
+  { path: '/demo', priority: 0.9, changeFrequency: 'weekly' as const },
+  { path: '/nosotros', priority: 0.7, changeFrequency: 'monthly' as const },
+]
 
 // Static pages for each clinic
 const CLINIC_PAGES = [
@@ -29,6 +38,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     changeFrequency: 'weekly',
     priority: 1.0,
   })
+
+  // Marketing pages
+  for (const page of MARKETING_PAGES) {
+    entries.push({
+      url: `${BASE_URL}${page.path}`,
+      lastModified: new Date(),
+      changeFrequency: page.changeFrequency,
+      priority: page.priority,
+    })
+  }
 
   // Generate entries for each clinic
   for (const clinicSlug of clinics) {

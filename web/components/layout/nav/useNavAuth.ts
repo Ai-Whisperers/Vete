@@ -17,6 +17,7 @@ export interface UserProfile {
 interface UseNavAuthReturn {
   user: SupabaseUser | null
   profile: UserProfile | null
+  isLoading: boolean
   isLoggingOut: boolean
   logoutError: string | null
   handleLogout: () => Promise<void>
@@ -26,6 +27,7 @@ export function useNavAuth(clinic: string): UseNavAuthReturn {
   const router = useRouter()
   const [user, setUser] = useState<SupabaseUser | null>(null)
   const [profile, setProfile] = useState<UserProfile | null>(null)
+  const [isLoading, setIsLoading] = useState(true) // Start as loading to prevent flash
   const [isLoggingOut, setIsLoggingOut] = useState(false)
   const [logoutError, setLogoutError] = useState<string | null>(null)
 
@@ -72,24 +74,26 @@ export function useNavAuth(clinic: string): UseNavAuthReturn {
 
     const checkUser = async () => {
       try {
+        // Use getUser() instead of getSession() for reliable server-verified auth
         const {
-          data: { session },
+          data: { user: authUser },
           error,
-        } = await supabase.auth.getSession()
-        if (error) {
+        } = await supabase.auth.getUser()
+
+        if (error || !authUser) {
+          setUser(null)
+          setProfile(null)
           return
         }
 
-        if (session?.user) {
-          setUser(session.user)
-          const prof = await fetchProfile(session.user.id)
-          setProfile(prof)
-        } else {
-          setUser(null)
-          setProfile(null)
-        }
+        setUser(authUser)
+        const prof = await fetchProfile(authUser.id)
+        setProfile(prof)
       } catch {
-        // Error checking user - silently fail
+        setUser(null)
+        setProfile(null)
+      } finally {
+        setIsLoading(false)
       }
     }
 
@@ -97,15 +101,23 @@ export function useNavAuth(clinic: string): UseNavAuthReturn {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      if (session?.user) {
-        setUser(session.user)
-        const prof = await fetchProfile(session.user.id)
-        setProfile(prof)
-      } else {
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      // On auth state change, re-verify with server
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        if (session?.user) {
+          // Verify the user with the server to ensure token is valid
+          const { data: { user: verifiedUser } } = await supabase.auth.getUser()
+          if (verifiedUser) {
+            setUser(verifiedUser)
+            const prof = await fetchProfile(verifiedUser.id)
+            setProfile(prof)
+          }
+        }
+      } else if (event === 'SIGNED_OUT') {
         setUser(null)
         setProfile(null)
       }
+      setIsLoading(false)
     })
 
     return () => subscription.unsubscribe()
@@ -114,6 +126,7 @@ export function useNavAuth(clinic: string): UseNavAuthReturn {
   return {
     user,
     profile,
+    isLoading,
     isLoggingOut,
     logoutError,
     handleLogout,

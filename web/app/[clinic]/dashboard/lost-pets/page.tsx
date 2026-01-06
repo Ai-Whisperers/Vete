@@ -286,7 +286,7 @@ function LostPetsPage(): JSX.Element {
           {filteredReports.map((report) => (
             <div
               key={report.id}
-              className="rounded-xl border border-gray-100 bg-white p-4 transition-shadow hover:shadow-md"
+              className="rounded-xl border border-[var(--border-light,#f3f4f6)] bg-[var(--bg-paper)] p-4 transition-shadow hover:shadow-md"
             >
               <div className="flex items-start gap-4">
                 {/* Pet Photo */}

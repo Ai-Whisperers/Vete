@@ -35,6 +35,7 @@ import {
   Legend,
 } from 'recharts'
 import { useDashboardLabels } from '@/lib/hooks/use-dashboard-labels'
+import { useFeatureFlags, FeatureGate, UpgradePrompt } from '@/lib/features'
 
 interface Stats {
   revenue: {
@@ -75,6 +76,7 @@ export default function AnalyticsPage(): React.ReactElement {
   const [stats, setStats] = useState<Stats | null>(null)
   const [chartData, setChartData] = useState<ChartData | null>(null)
   const labels = useDashboardLabels()
+  const { hasFeature, isLoading: featuresLoading, tierId } = useFeatureFlags()
 
   useEffect(() => {
     const fetchAnalytics = async (): Promise<void> => {
@@ -189,10 +191,19 @@ export default function AnalyticsPage(): React.ReactElement {
     )
   }
 
-  if (isLoading) {
+  if (isLoading || featuresLoading) {
     return (
       <div className="flex min-h-[400px] items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-[var(--primary)]" />
+      </div>
+    )
+  }
+
+  // Feature gate: Analytics requires 'analyticsBasic' or higher
+  if (!hasFeature('analyticsBasic')) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <UpgradePrompt feature="analyticsBasic" currentTier={tierId} className="mx-auto max-w-lg" />
       </div>
     )
   }

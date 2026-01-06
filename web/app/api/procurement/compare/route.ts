@@ -92,25 +92,25 @@ export const GET = withApiAuth(
         const productId = lead.catalog_product_id
 
         if (!comparison[productId]) {
+          type ProductType = { id: string; sku: string; name: string; base_unit: string }
+          const productData = lead.catalog_products as ProductType | ProductType[] | null
+          const product = Array.isArray(productData) ? productData[0] : productData
           comparison[productId] = {
-            product: lead.catalog_products as {
-              id: string
-              sku: string
-              name: string
-              base_unit: string
-            } | null,
+            product,
             suppliers: [],
             best_price: null,
             price_range: null,
           }
         }
 
-        const supplierData = lead.suppliers as {
+        type SupplierType = {
           id: string
           name: string
           verification_status: string
           delivery_time_days: number | null
-        } | null
+        }
+        const supplierRawData = lead.suppliers as SupplierType | SupplierType[] | null
+        const supplierData = Array.isArray(supplierRawData) ? supplierRawData[0] : supplierRawData
 
         comparison[productId].suppliers.push({
           supplier: supplierData

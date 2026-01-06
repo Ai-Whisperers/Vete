@@ -20,6 +20,7 @@ export {
   AuthService,
   isStaff,
   isAdmin,
+  isPlatformAdmin,
   ownsResource,
   belongsToTenant,
   requireOwnership,
@@ -33,6 +34,7 @@ export {
   requireOwnership as requireApiOwnership,
   requireTenantAccess as requireApiTenantAccess,
   type ApiHandlerContext,
+  type ApiHandlerContextWithParams,
   type ApiRouteOptions,
 } from './api-wrapper'
 

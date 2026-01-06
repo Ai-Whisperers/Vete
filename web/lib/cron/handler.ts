@@ -109,7 +109,7 @@ export function createCronHandler<T = unknown>(options: CronHandlerOptions<T>) {
   const {
     name,
     query,
-    process,
+    process: processItem,
     batchSize = 5,
     maxRetries = 3,
     skipAuth = false,
@@ -199,7 +199,7 @@ export function createCronHandler<T = unknown>(options: CronHandlerOptions<T>) {
             let lastError: Error | null = null
             for (let attempt = 1; attempt <= maxRetries; attempt++) {
               try {
-                await process(item, supabase)
+                await processItem(item, supabase)
                 result.stats.processed++
                 result.stats.succeeded++
                 return { status: 'success', itemId }
@@ -427,8 +427,4 @@ export function createTenantCronHandler<T = unknown>(
   })
 }
 
-// =============================================================================
-// EXPORTS
-// =============================================================================
-
-export type { CronHandlerOptions, CronJobResult }
+// Note: Types are exported at declaration

@@ -1,289 +1,191 @@
-import { createClient } from '@/lib/supabase/server'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { logger } from '@/lib/logger'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
+import { withApiAuth, type ApiHandlerContext } from '@/lib/auth/api-wrapper'
 
 // GET /api/growth_charts - Get growth chart reference data
-// SEC-FIX: Added authentication and role verification
-export async function GET(request: NextRequest) {
-  const supabase = await createClient()
+export const GET = withApiAuth(
+  async ({ profile, supabase, request, user }: ApiHandlerContext) => {
+    // Parse query parameters
+    const { searchParams } = new URL(request.url)
+    const species = searchParams.get('species')
+    const breed = searchParams.get('breed')
 
-  // Authentication check
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-  if (authError || !user) {
-    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED)
+    // Build query
+    let query = supabase
+      .from('growth_charts')
+      .select('*')
+      .order('breed', { ascending: true })
+      .order('age_months', { ascending: true })
+
+    // Apply optional filters
+    if (species) {
+      query = query.eq('species', species)
+    }
+    if (breed) {
+      query = query.ilike('breed', `%${breed}%`)
+    }
+
+    const { data, error } = await query
+
+    if (error) {
+      logger.error('Growth charts GET error', {
+        userId: user.id,
+        tenantId: profile.tenant_id,
+        error: error instanceof Error ? error.message : String(error),
+      })
+      return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
+    }
+
+    return NextResponse.json(data)
   }
-
-  // Get user profile
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('tenant_id, role')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile) {
-    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND)
-  }
-
-  // Parse query parameters
-  const { searchParams } = new URL(request.url)
-  const species = searchParams.get('species')
-  const breed = searchParams.get('breed')
-
-  // Build query - filter by tenant_id if column exists
-  let query = supabase
-    .from('growth_charts')
-    .select('*')
-    .order('breed', { ascending: true })
-    .order('age_months', { ascending: true })
-
-  // Apply optional filters
-  if (species) {
-    query = query.eq('species', species)
-  }
-  if (breed) {
-    query = query.ilike('breed', `%${breed}%`)
-  }
-
-  const { data, error } = await query
-
-  if (error) {
-    logger.error('Growth charts GET error', {
-      userId: user.id,
-      tenantId: profile.tenant_id,
-      error: error instanceof Error ? error.message : String(error),
-    })
-    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
-  }
-
-  return NextResponse.json(data)
-}
+  // No roles restriction - any authenticated user can view
+)
 
 // POST /api/growth_charts - Create a new growth chart entry
-// SEC-FIX: Added authentication, rate limiting, and role verification
-export async function POST(request: NextRequest) {
-  const supabase = await createClient()
+export const POST = withApiAuth(
+  async ({ profile, supabase, request, user }: ApiHandlerContext) => {
+    // Parse body
+    let body
+    try {
+      body = await request.json()
+    } catch {
+      return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST)
+    }
 
-  // Authentication check
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-  if (authError || !user) {
-    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED)
-  }
+    const { breed, species, age_months, weight_kg, percentile, notes } = body
 
-  // Apply rate limiting for write endpoints
-  const { rateLimit } = await import('@/lib/rate-limit')
-  const rateLimitResult = await rateLimit(request, 'write', user.id)
-  if (!rateLimitResult.success) {
-    return rateLimitResult.response
-  }
+    // Validate required fields
+    if (!breed || age_months === undefined || weight_kg === undefined) {
+      return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
+        details: { required: ['breed', 'age_months', 'weight_kg'] },
+      })
+    }
 
-  // Get user profile - only staff can create
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('tenant_id, role')
-    .eq('id', user.id)
-    .single()
+    // Insert new growth chart entry
+    const { data, error } = await supabase
+      .from('growth_charts')
+      .insert({
+        breed,
+        species: species || 'perro',
+        age_months: Number(age_months),
+        weight_kg: Number(weight_kg),
+        percentile: percentile ? Number(percentile) : null,
+        notes: notes || null,
+      })
+      .select()
+      .single()
 
-  if (!profile) {
-    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND)
-  }
+    if (error) {
+      logger.error('Growth charts POST error', {
+        userId: user.id,
+        tenantId: profile.tenant_id,
+        error: error instanceof Error ? error.message : String(error),
+      })
+      return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
+    }
 
-  if (!['vet', 'admin'].includes(profile.role)) {
-    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN)
-  }
-
-  // Parse body
-  let body
-  try {
-    body = await request.json()
-  } catch {
-    return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST)
-  }
-
-  const { breed, species, age_months, weight_kg, percentile, notes } = body
-
-  // Validate required fields
-  if (!breed || age_months === undefined || weight_kg === undefined) {
-    return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
-      details: { required: ['breed', 'age_months', 'weight_kg'] },
-    })
-  }
-
-  // Insert new growth chart entry
-  const { data, error } = await supabase
-    .from('growth_charts')
-    .insert({
-      breed,
-      species: species || 'perro',
-      age_months: Number(age_months),
-      weight_kg: Number(weight_kg),
-      percentile: percentile ? Number(percentile) : null,
-      notes: notes || null,
-    })
-    .select()
-    .single()
-
-  if (error) {
-    logger.error('Growth charts POST error', {
-      userId: user.id,
-      tenantId: profile.tenant_id,
-      error: error instanceof Error ? error.message : String(error),
-    })
-    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
-  }
-
-  return NextResponse.json(data, { status: 201 })
-}
+    return NextResponse.json(data, { status: 201 })
+  },
+  { roles: ['vet', 'admin'], rateLimit: 'write' }
+)
 
 // PUT /api/growth_charts - Update a growth chart entry
-// SEC-FIX: Added authentication, rate limiting, and role verification
-export async function PUT(request: NextRequest) {
-  const supabase = await createClient()
+export const PUT = withApiAuth(
+  async ({ profile, supabase, request, user }: ApiHandlerContext) => {
+    // Parse body
+    let body
+    try {
+      body = await request.json()
+    } catch {
+      return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST)
+    }
 
-  // Authentication check
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-  if (authError || !user) {
-    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED)
-  }
+    const { id, breed, species, age_months, weight_kg, percentile, notes } = body
 
-  // Apply rate limiting for write endpoints
-  const { rateLimit } = await import('@/lib/rate-limit')
-  const rateLimitResult = await rateLimit(request, 'write', user.id)
-  if (!rateLimitResult.success) {
-    return rateLimitResult.response
-  }
+    if (!id) {
+      return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
+        details: { required: ['id'] },
+      })
+    }
 
-  // Get user profile - only staff can update
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('tenant_id, role')
-    .eq('id', user.id)
-    .single()
+    // Verify record exists
+    const { data: existing } = await supabase.from('growth_charts').select('id').eq('id', id).single()
 
-  if (!profile || !['vet', 'admin'].includes(profile.role)) {
-    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN)
-  }
+    if (!existing) {
+      return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND)
+    }
 
-  // Parse body
-  let body
-  try {
-    body = await request.json()
-  } catch {
-    return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST)
-  }
+    // Build update object
+    const updates: Record<string, unknown> = {}
+    if (breed !== undefined) updates.breed = breed
+    if (species !== undefined) updates.species = species
+    if (age_months !== undefined) updates.age_months = Number(age_months)
+    if (weight_kg !== undefined) updates.weight_kg = Number(weight_kg)
+    if (percentile !== undefined) updates.percentile = percentile ? Number(percentile) : null
+    if (notes !== undefined) updates.notes = notes || null
 
-  const { id, breed, species, age_months, weight_kg, percentile, notes } = body
+    const { data, error } = await supabase
+      .from('growth_charts')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single()
 
-  if (!id) {
-    return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
-      details: { required: ['id'] },
-    })
-  }
+    if (error) {
+      logger.error('Growth charts PUT error', {
+        userId: user.id,
+        tenantId: profile.tenant_id,
+        chartId: id,
+        error: error instanceof Error ? error.message : String(error),
+      })
+      return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
+    }
 
-  // Verify record exists
-  const { data: existing } = await supabase.from('growth_charts').select('id').eq('id', id).single()
+    return NextResponse.json(data)
+  },
+  { roles: ['vet', 'admin'], rateLimit: 'write' }
+)
 
-  if (!existing) {
-    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND)
-  }
+// DELETE /api/growth_charts - Delete a growth chart entry (admin only)
+export const DELETE = withApiAuth(
+  async ({ profile, supabase, request, user }: ApiHandlerContext) => {
+    // Parse body
+    let body
+    try {
+      body = await request.json()
+    } catch {
+      return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST)
+    }
 
-  // Build update object
-  const updates: Record<string, unknown> = {}
-  if (breed !== undefined) updates.breed = breed
-  if (species !== undefined) updates.species = species
-  if (age_months !== undefined) updates.age_months = Number(age_months)
-  if (weight_kg !== undefined) updates.weight_kg = Number(weight_kg)
-  if (percentile !== undefined) updates.percentile = percentile ? Number(percentile) : null
-  if (notes !== undefined) updates.notes = notes || null
+    const { id } = body
 
-  const { data, error } = await supabase
-    .from('growth_charts')
-    .update(updates)
-    .eq('id', id)
-    .select()
-    .single()
+    if (!id) {
+      return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
+        details: { required: ['id'] },
+      })
+    }
 
-  if (error) {
-    logger.error('Growth charts PUT error', {
-      userId: user.id,
-      tenantId: profile.tenant_id,
-      chartId: id,
-      error: error instanceof Error ? error.message : String(error),
-    })
-    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
-  }
+    // Verify record exists
+    const { data: existing } = await supabase.from('growth_charts').select('id').eq('id', id).single()
 
-  return NextResponse.json(data)
-}
+    if (!existing) {
+      return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND)
+    }
 
-// DELETE /api/growth_charts - Delete a growth chart entry
-// SEC-FIX: Added authentication and admin-only restriction
-export async function DELETE(request: NextRequest) {
-  const supabase = await createClient()
+    const { error } = await supabase.from('growth_charts').delete().eq('id', id)
 
-  // Authentication check
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-  if (authError || !user) {
-    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED)
-  }
+    if (error) {
+      logger.error('Growth charts DELETE error', {
+        userId: user.id,
+        tenantId: profile.tenant_id,
+        chartId: id,
+        error: error instanceof Error ? error.message : String(error),
+      })
+      return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
+    }
 
-  // Only admins can delete growth chart entries
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('tenant_id, role')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile || profile.role !== 'admin') {
-    return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN)
-  }
-
-  // Parse body
-  let body
-  try {
-    body = await request.json()
-  } catch {
-    return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST)
-  }
-
-  const { id } = body
-
-  if (!id) {
-    return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
-      details: { required: ['id'] },
-    })
-  }
-
-  // Verify record exists
-  const { data: existing } = await supabase.from('growth_charts').select('id').eq('id', id).single()
-
-  if (!existing) {
-    return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND)
-  }
-
-  const { error } = await supabase.from('growth_charts').delete().eq('id', id)
-
-  if (error) {
-    logger.error('Growth charts DELETE error', {
-      userId: user.id,
-      tenantId: profile.tenant_id,
-      chartId: id,
-      error: error instanceof Error ? error.message : String(error),
-    })
-    return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
-  }
-
-  return new NextResponse(null, { status: 204 })
-}
+    return new NextResponse(null, { status: 204 })
+  },
+  { roles: ['admin'] } // Only admins can delete
+)

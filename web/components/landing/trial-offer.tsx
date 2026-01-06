@@ -296,7 +296,7 @@ export function TrialOffer() {
 
               {/* CTA */}
               <a
-                href={`https://wa.me/595981324569?text=${encodeURIComponent('Hola! Me interesa la prueba de 3 meses gratis de VetePy para mi clinica')}`}
+                href={`https://wa.me/595981324569?text=${encodeURIComponent('Hola! Me interesa la prueba de 3 meses gratis de Vetic para mi clinica')}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#2DCEA3] to-[#00C9FF] px-6 py-4 font-bold text-[#0F172A] shadow-lg shadow-[#2DCEA3]/20 transition-all hover:-translate-y-0.5 hover:shadow-xl"

@@ -1,17 +1,18 @@
-# VetePy Pricing Strategy 2026
+# Vetic Pricing Strategy 2026
 
 **Version**: 1.0
 **Date**: January 2026
 **Status**: Approved by Founders
-**Company**: AI-Whisperers (Brand: VetePy)
+**Company**: AI-Whisperers (Brand: Vetic)
 
 ---
 
 ## Executive Summary
 
-VetePy is a veterinary clinic management platform targeting developing countries, starting with Paraguay. Our strategy prioritizes **adoption over short-term profit**, using a freemium model with multiple revenue streams to build a dominant market position.
+Vetic is a veterinary clinic management platform targeting developing countries, starting with Paraguay. Our strategy prioritizes **adoption over short-term profit**, using a freemium model with multiple revenue streams to build a dominant market position.
 
 ### Vision
+
 > "Become the dominant platform for vet clinics in developing countries, eventually expanding to 20+ countries with a focus on the 3rd world market."
 
 ### Key Strategic Pillars
@@ -28,66 +29,66 @@ VetePy is a veterinary clinic management platform targeting developing countries
 
 ### Tier Structure
 
-| Tier | Monthly Price | USD Equiv. | Included Users | Target Clinic |
-|------|--------------|------------|----------------|---------------|
-| **Gratis** | Gs 0 | $0 | Unlimited | Any clinic wanting digital presence |
-| **Básico** | Gs 100,000 | ~$14 | 3 | Small clinics, 1-2 vets |
-| **Crecimiento** | Gs 200,000 | ~$27 | 5 | Growing clinics, 2-4 vets |
-| **Profesional** | Gs 400,000 | ~$55 | 10 | Established clinics, 4+ vets |
-| **Empresarial** | Custom | Negotiated | 20+ | Chains, multi-location |
+| Tier            | Monthly Price | USD Equiv. | Included Users | Target Clinic                       |
+| --------------- | ------------- | ---------- | -------------- | ----------------------------------- |
+| **Gratis**      | Gs 0          | $0         | Unlimited      | Any clinic wanting digital presence |
+| **Básico**      | Gs 100,000    | ~$14       | 3              | Small clinics, 1-2 vets             |
+| **Crecimiento** | Gs 200,000    | ~$27       | 5              | Growing clinics, 2-4 vets           |
+| **Profesional** | Gs 400,000    | ~$55       | 10             | Established clinics, 4+ vets        |
+| **Empresarial** | Custom        | Negotiated | 20+            | Chains, multi-location              |
 
 ### Feature Matrix
 
-| Feature | Gratis | Básico | Crecimiento | Profesional | Empresarial |
-|---------|--------|--------|-------------|-------------|-------------|
-| **Core Platform** |
-| Professional website | Yes + Ads | Yes | Yes | Yes | Yes |
-| Pet portal | Yes + Ads | Yes | Yes | Yes | Yes |
-| Appointment booking | Yes + Ads | Yes | Yes | Yes | Yes |
-| Medical records | Yes | Yes | Yes | Yes | Yes |
-| Vaccine tracking | Yes | Yes | Yes | Yes | Yes |
-| Clinical tools | Yes | Yes | Yes | Yes | Yes |
-| **Premium Features** |
-| Ad-free experience | No | Yes | Yes | Yes | Yes |
-| E-commerce store | No | No | Yes (3% commission) | Yes (3%) | Yes (negotiated) |
-| QR tag generation | No | No | Yes | Yes | Yes |
-| Bulk ordering access | No | No | Yes | Yes | Yes |
-| Analytics dashboard | No | No | Basic | Advanced | AI-powered |
-| WhatsApp Business API | No | No | No | Yes | Yes |
-| Hospitalization module | No | No | No | Yes | Yes |
-| Laboratory module | No | No | No | Yes | Yes |
+| Feature                 | Gratis    | Básico | Crecimiento         | Profesional | Empresarial      |
+| ----------------------- | --------- | ------ | ------------------- | ----------- | ---------------- |
+| **Core Platform**       |
+| Professional website    | Yes + Ads | Yes    | Yes                 | Yes         | Yes              |
+| Pet portal              | Yes + Ads | Yes    | Yes                 | Yes         | Yes              |
+| Appointment booking     | Yes + Ads | Yes    | Yes                 | Yes         | Yes              |
+| Medical records         | Yes       | Yes    | Yes                 | Yes         | Yes              |
+| Vaccine tracking        | Yes       | Yes    | Yes                 | Yes         | Yes              |
+| Clinical tools          | Yes       | Yes    | Yes                 | Yes         | Yes              |
+| **Premium Features**    |
+| Ad-free experience      | No        | Yes    | Yes                 | Yes         | Yes              |
+| E-commerce store        | No        | No     | Yes (3% commission) | Yes (3%)    | Yes (negotiated) |
+| QR tag generation       | No        | No     | Yes                 | Yes         | Yes              |
+| Bulk ordering access    | No        | No     | Yes                 | Yes         | Yes              |
+| Analytics dashboard     | No        | No     | Basic               | Advanced    | AI-powered       |
+| WhatsApp Business API   | No        | No     | No                  | Yes         | Yes              |
+| Hospitalization module  | No        | No     | No                  | Yes         | Yes              |
+| Laboratory module       | No        | No     | No                  | Yes         | Yes              |
 | **Enterprise Features** |
-| Multi-location | No | No | No | No | Yes |
-| Custom API access | No | No | No | No | Yes |
-| SLA guarantee | No | No | No | No | Yes |
-| Dedicated support | No | No | No | No | Yes |
-| **Support** |
-| Community forum | Yes | Yes | Yes | Yes | Yes |
-| Email support | No | Yes | Yes | Yes | Yes |
-| WhatsApp support | No | No | No | Yes | Yes |
-| Priority support | No | No | No | No | Yes |
+| Multi-location          | No        | No     | No                  | No          | Yes              |
+| Custom API access       | No        | No     | No                  | No          | Yes              |
+| SLA guarantee           | No        | No     | No                  | No          | Yes              |
+| Dedicated support       | No        | No     | No                  | No          | Yes              |
+| **Support**             |
+| Community forum         | Yes       | Yes    | Yes                 | Yes         | Yes              |
+| Email support           | No        | Yes    | Yes                 | Yes         | Yes              |
+| WhatsApp support        | No        | No     | No                  | Yes         | Yes              |
+| Priority support        | No        | No     | No                  | No          | Yes              |
 
 ### Per-User Pricing (After Included)
 
-| Tier | Extra User Cost |
-|------|-----------------|
-| Gratis | N/A (unlimited) |
-| Básico | Gs 30,000/user |
-| Crecimiento | Gs 40,000/user |
-| Profesional | Gs 50,000/user |
-| Empresarial | Gs 60,000/user |
+| Tier        | Extra User Cost |
+| ----------- | --------------- |
+| Gratis      | N/A (unlimited) |
+| Básico      | Gs 30,000/user  |
+| Crecimiento | Gs 40,000/user  |
+| Profesional | Gs 50,000/user  |
+| Empresarial | Gs 60,000/user  |
 
 **Who counts as a "user"**: Anyone who logs in (staff OR pet owners with accounts)
 
 ### Discounts
 
-| Discount Type | Amount | Conditions |
-|---------------|--------|------------|
-| Annual prepay | 20% off | Pay 12 months upfront |
-| Semi-annual prepay | 10% off | Pay 6 months upfront |
+| Discount Type       | Amount               | Conditions                         |
+| ------------------- | -------------------- | ---------------------------------- |
+| Annual prepay       | 20% off              | Pay 12 months upfront              |
+| Semi-annual prepay  | 10% off              | Pay 6 months upfront               |
 | Referral (referrer) | 30% off next invoice | Per successful referral, stackable |
-| Referral (referred) | +2 months trial | On top of standard 3-month trial |
-| Early adopter | Locked rate forever | First 300 clinics |
+| Referral (referred) | +2 months trial      | On top of standard 3-month trial   |
+| Early adopter       | Locked rate forever  | First 300 clinics                  |
 
 ---
 
@@ -138,13 +139,14 @@ Margin: 15-25% (depending on product category)
 Example:
 - Retail vaccine price: Gs 50,000
 - Bulk price (100 units): Gs 35,000
-- VetePy margin: Gs 15,000 (30%)
+- Vetic margin: Gs 15,000 (30%)
 
 Revenue at scale:
 - 100 clinics × Gs 2M orders/month × 20% = Gs 40M/month (~$5,500 USD)
 ```
 
 **Bulk Ordering Rules:**
+
 - Access: Crecimiento+ tiers only
 - Minimum order: None (aggregate all small orders)
 - Payment: 100% upfront (pre-order model)
@@ -190,7 +192,7 @@ Model: Track sterilizations, report to government, take 10-15% commission
 Example (Paraguay):
 - Government bounty: $30/sterilization
 - Clinic receives: $25-27
-- VetePy commission: $3-5
+- Vetic commission: $3-5
 
 Revenue potential: $30,000/year (10,000 procedures)
 ```
@@ -203,72 +205,72 @@ Revenue potential: $30,000/year (10,000 procedures)
 
 #### Scenario 1: 50 Clinics (Month 6)
 
-| Revenue Stream | Monthly Revenue |
-|----------------|-----------------|
-| Subscriptions (30 paid × Gs 180K avg) | Gs 5.4M |
-| E-commerce (10 stores × 3%) | Gs 1.5M |
-| Advertising (20 free tier) | Gs 600K |
-| **Total** | **Gs 7.5M (~$1,000)** |
+| Revenue Stream                        | Monthly Revenue       |
+| ------------------------------------- | --------------------- |
+| Subscriptions (30 paid × Gs 180K avg) | Gs 5.4M               |
+| E-commerce (10 stores × 3%)           | Gs 1.5M               |
+| Advertising (20 free tier)            | Gs 600K               |
+| **Total**                             | **Gs 7.5M (~$1,000)** |
 
-| Costs | Monthly |
-|-------|---------|
-| Infrastructure | $150 |
-| Support | $100 |
+| Costs          | Monthly         |
+| -------------- | --------------- |
+| Infrastructure | $150            |
+| Support        | $100            |
 | **Net Margin** | **~$750 (75%)** |
 
 #### Scenario 2: 200 Clinics (Month 12)
 
-| Revenue Stream | Monthly Revenue |
-|----------------|-----------------|
-| Subscriptions (100 paid × Gs 200K avg) | Gs 20M |
-| E-commerce (40 stores × 4%) | Gs 8M |
-| Bulk orders (50 clinics × 20%) | Gs 10M |
-| Advertising (100 free tier) | Gs 3M |
-| **Total** | **Gs 41M (~$5,600)** |
+| Revenue Stream                         | Monthly Revenue      |
+| -------------------------------------- | -------------------- |
+| Subscriptions (100 paid × Gs 200K avg) | Gs 20M               |
+| E-commerce (40 stores × 4%)            | Gs 8M                |
+| Bulk orders (50 clinics × 20%)         | Gs 10M               |
+| Advertising (100 free tier)            | Gs 3M                |
+| **Total**                              | **Gs 41M (~$5,600)** |
 
-| Costs | Monthly |
-|-------|---------|
-| Infrastructure | $400 |
-| Support (part-time) | $500 |
-| **Net Margin** | **~$4,700 (84%)** |
+| Costs               | Monthly           |
+| ------------------- | ----------------- |
+| Infrastructure      | $400              |
+| Support (part-time) | $500              |
+| **Net Margin**      | **~$4,700 (84%)** |
 
 #### Scenario 3: 500 Clinics (Year 2)
 
-| Revenue Stream | Monthly Revenue |
-|----------------|-----------------|
-| Subscriptions (250 paid × Gs 220K avg) | Gs 55M |
-| E-commerce (100 stores × 4%) | Gs 20M |
-| Bulk orders (150 clinics × 20%) | Gs 45M |
-| Advertising (250 free tier) | Gs 7.5M |
-| Government bounties | Gs 2.5M |
-| **Total** | **Gs 130M (~$17,800)** |
+| Revenue Stream                         | Monthly Revenue        |
+| -------------------------------------- | ---------------------- |
+| Subscriptions (250 paid × Gs 220K avg) | Gs 55M                 |
+| E-commerce (100 stores × 4%)           | Gs 20M                 |
+| Bulk orders (150 clinics × 20%)        | Gs 45M                 |
+| Advertising (250 free tier)            | Gs 7.5M                |
+| Government bounties                    | Gs 2.5M                |
+| **Total**                              | **Gs 130M (~$17,800)** |
 
-| Costs | Monthly |
-|-------|---------|
-| Infrastructure | $1,500 |
-| Support (2 people) | $2,000 |
-| Operations | $1,000 |
-| **Net Margin** | **~$13,300 (75%)** |
+| Costs              | Monthly            |
+| ------------------ | ------------------ |
+| Infrastructure     | $1,500             |
+| Support (2 people) | $2,000             |
+| Operations         | $1,000             |
+| **Net Margin**     | **~$13,300 (75%)** |
 
 #### Scenario 4: 2,000 Clinics (Year 3 - Regional)
 
-| Revenue Stream | Monthly Revenue |
-|----------------|-----------------|
-| Subscriptions | Gs 400M |
-| E-commerce | Gs 60M |
-| Bulk orders | Gs 150M |
-| Advertising | Gs 30M |
-| Government bounties | Gs 10M |
-| Data licensing | Gs 15M |
-| **Total** | **Gs 665M (~$91,000)** |
+| Revenue Stream      | Monthly Revenue        |
+| ------------------- | ---------------------- |
+| Subscriptions       | Gs 400M                |
+| E-commerce          | Gs 60M                 |
+| Bulk orders         | Gs 150M                |
+| Advertising         | Gs 30M                 |
+| Government bounties | Gs 10M                 |
+| Data licensing      | Gs 15M                 |
+| **Total**           | **Gs 665M (~$91,000)** |
 
 ### Break-Even Analysis
 
-| Metric | Value |
-|--------|-------|
-| Fixed costs (minimum) | $500/month |
-| Variable cost per clinic | ~$5/month |
-| Break-even (paid only) | 8 clinics at Gs 200K avg |
+| Metric                   | Value                               |
+| ------------------------ | ----------------------------------- |
+| Fixed costs (minimum)    | $500/month                          |
+| Variable cost per clinic | ~$5/month                           |
+| Break-even (paid only)   | 8 clinics at Gs 200K avg            |
 | Break-even (mixed model) | 15 total clinics (10 free + 5 paid) |
 
 ---
@@ -287,7 +289,7 @@ Phase 1: DATA COLLECTION
 Phase 2: PRE-GENERATION
 ├── Auto-generate basic website for each clinic
 ├── Content: Verified public info + stock images
-├── URL: vetepy.com/[clinic-slug]
+├── URL: Vetic.com/[clinic-slug]
 └── Include: "Claim your website" prominent CTA
 
 Phase 3: OUTREACH
@@ -306,12 +308,14 @@ Phase 4: CONVERSION
 ### Referral Program
 
 **Referrer Benefits (Stackable):**
+
 - 30% discount on next invoice per referral
 - Can accumulate: 60%, 90%, 100%+ (free months)
 - Excess rolls over to following months
 - Also receives loyalty points
 
 **Referred Clinic Benefits:**
+
 - +2 months on top of standard 3-month trial (5 months total)
 - Loyalty points on signup
 - Same referral benefits once they become active
@@ -321,10 +325,10 @@ Phase 4: CONVERSION
 ```
 Flow:
 1. Pet owner visits new clinic
-2. Shows pet card/QR from their VetePy clinic
+2. Shows pet card/QR from their Vetic clinic
 3. New clinic sees the platform in action
 4. We capture new clinic's info
-5. Send "Set up your VetePy" email
+5. Send "Set up your Vetic" email
 6. Offer to migrate their patient data
 
 This creates organic growth through pet owners!
@@ -336,7 +340,7 @@ This creates organic growth through pet owners!
 
 ### Terms
 
-> "Garantía VetePy: Si no consigues X nuevos clientes en 6 meses, los próximos 6 meses son GRATIS hasta que recuperes tu inversión."
+> "Garantía Vetic: Si no consigues X nuevos clientes en 6 meses, los próximos 6 meses son GRATIS hasta que recuperes tu inversión."
 
 ### Calculation
 
@@ -353,7 +357,7 @@ Examples:
 
 - New pet owner registration
 - AND minimum spend of Gs 100,000 (service or product)
-- AND acquired AFTER joining VetePy
+- AND acquired AFTER joining Vetic
 
 ### Verification Process
 
@@ -368,29 +372,29 @@ Examples:
 
 ### Free Onboarding (First 300 Clinics)
 
-| Component | Details |
-|-----------|---------|
-| Video call setup | 30-minute personalized setup |
-| Data migration | Import from spreadsheets/other systems |
-| Staff training | 1-hour training session |
-| Follow-up | Check-in call after 2 weeks |
+| Component        | Details                                |
+| ---------------- | -------------------------------------- |
+| Video call setup | 30-minute personalized setup           |
+| Data migration   | Import from spreadsheets/other systems |
+| Staff training   | 1-hour training session                |
+| Follow-up        | Check-in call after 2 weeks            |
 
 ### AI-Assisted Onboarding (All Clinics)
 
-| Feature | Description |
-|---------|-------------|
-| Auto-fill from web | Scrape clinic's existing website/Facebook |
-| Service suggestions | Based on similar clinics in area |
-| Price recommendations | Market-based pricing guidance |
-| Description generation | AI-written service descriptions |
+| Feature                | Description                               |
+| ---------------------- | ----------------------------------------- |
+| Auto-fill from web     | Scrape clinic's existing website/Facebook |
+| Service suggestions    | Based on similar clinics in area          |
+| Price recommendations  | Market-based pricing guidance             |
+| Description generation | AI-written service descriptions           |
 
 ### Training Materials
 
-| Format | Content |
-|--------|---------|
-| Written guides | Step-by-step with screenshots |
-| Interactive tutorials | In-app guided tours |
-| Video library | Coming in Phase 2 |
+| Format                | Content                       |
+| --------------------- | ----------------------------- |
+| Written guides        | Step-by-step with screenshots |
+| Interactive tutorials | In-app guided tours           |
+| Video library         | Coming in Phase 2             |
 
 ---
 
@@ -398,19 +402,19 @@ Examples:
 
 ### By Tier
 
-| Tier | Channels | Response Time |
-|------|----------|---------------|
-| Gratis | Community forum only | Best effort |
-| Básico | Email | 48 hours |
-| Crecimiento | Email | 24 hours |
-| Profesional | Email + WhatsApp | 12 hours |
-| Empresarial | Email + WhatsApp + Phone | 4 hours SLA |
+| Tier        | Channels                 | Response Time |
+| ----------- | ------------------------ | ------------- |
+| Gratis      | Community forum only     | Best effort   |
+| Básico      | Email                    | 48 hours      |
+| Crecimiento | Email                    | 24 hours      |
+| Profesional | Email + WhatsApp         | 12 hours      |
+| Empresarial | Email + WhatsApp + Phone | 4 hours SLA   |
 
 ### Community Forum
 
 - Self-service knowledge base
 - Peer-to-peer support
-- Moderated by VetePy team
+- Moderated by Vetic team
 - Feature requests and voting
 
 ---
@@ -422,18 +426,18 @@ Examples:
 ```typescript
 // web/lib/branding/config.ts
 export const brandConfig = {
-  name: 'VetePy',
-  companyName: 'AI-Whisperers',
-  domain: 'vetepy.com',
-  tagline: 'Tu clínica veterinaria, digitalizada',
-  logo: '/images/logo.svg',
-  colors: { primary: 'var(--brand-primary)' },
+  name: "Vetic",
+  companyName: "AI-Whisperers",
+  domain: "Vetic.com",
+  tagline: "Tu clínica veterinaria, digitalizada",
+  logo: "/images/logo.svg",
+  colors: { primary: "var(--brand-primary)" },
   legal: {
-    companyFull: 'AI-Whisperers S.A.',
-    country: 'Paraguay',
-    taxId: 'XXXXXXX'
-  }
-}
+    companyFull: "AI-Whisperers S.A.",
+    country: "Paraguay",
+    taxId: "XXXXXXX",
+  },
+};
 ```
 
 ### Pricing Configuration
@@ -442,22 +446,22 @@ export const brandConfig = {
 // web/lib/pricing/tiers.ts
 export const pricingTiers = [
   {
-    id: 'gratis',
-    name: 'Gratis',
+    id: "gratis",
+    name: "Gratis",
     monthlyPrice: 0,
     includedUsers: Infinity,
-    features: { ads: true, ecommerce: false, analytics: false }
+    features: { ads: true, ecommerce: false, analytics: false },
   },
   {
-    id: 'basico',
-    name: 'Básico',
+    id: "basico",
+    name: "Básico",
     monthlyPrice: 100000,
     includedUsers: 3,
     extraUserPrice: 30000,
-    features: { ads: false, ecommerce: false, analytics: false }
+    features: { ads: false, ecommerce: false, analytics: false },
   },
   // ... etc
-]
+];
 ```
 
 ### Ad Integration
@@ -483,11 +487,11 @@ export const pricingTiers = [
 
 ### Market Analysis (Paraguay)
 
-| Competitor | Type | Weakness |
-|------------|------|----------|
-| Spreadsheets | Manual | No automation, error-prone |
-| Paper records | Manual | Loss risk, no remote access |
-| Generic SaaS | Foreign | Not localized, expensive |
+| Competitor    | Type    | Weakness                    |
+| ------------- | ------- | --------------------------- |
+| Spreadsheets  | Manual  | No automation, error-prone  |
+| Paper records | Manual  | Loss risk, no remote access |
+| Generic SaaS  | Foreign | Not localized, expensive    |
 
 ### Our Differentiators
 
@@ -500,13 +504,13 @@ export const pricingTiers = [
 
 ## 10. Risk Management
 
-| Risk | Likelihood | Impact | Mitigation |
-|------|------------|--------|------------|
-| Slow adoption | High | High | Proactive outreach, free tier |
-| High infrastructure costs | Medium | Medium | Optimize queries, CDN caching |
-| Bulk ordering logistics | Medium | High | Start with pre-orders only |
-| Competitor entry | Medium | Medium | First-mover advantage, network effects |
-| Currency volatility | Medium | Low | Price in USD internally, local display |
+| Risk                      | Likelihood | Impact | Mitigation                             |
+| ------------------------- | ---------- | ------ | -------------------------------------- |
+| Slow adoption             | High       | High   | Proactive outreach, free tier          |
+| High infrastructure costs | Medium     | Medium | Optimize queries, CDN caching          |
+| Bulk ordering logistics   | Medium     | High   | Start with pre-orders only             |
+| Competitor entry          | Medium     | Medium | First-mover advantage, network effects |
+| Currency volatility       | Medium     | Low    | Price in USD internally, local display |
 
 ---
 
@@ -514,12 +518,12 @@ export const pricingTiers = [
 
 ### KPIs by Phase
 
-| Phase | Timeline | Primary KPI | Target |
-|-------|----------|-------------|--------|
-| Launch | Month 1-3 | Total signups | 100 clinics |
-| Growth | Month 3-6 | Paid conversions | 30% of signups |
-| Scale | Month 6-12 | MRR | Gs 20M+ |
-| Regional | Year 2 | Countries | 3 (PY, BO, UY) |
+| Phase    | Timeline   | Primary KPI      | Target         |
+| -------- | ---------- | ---------------- | -------------- |
+| Launch   | Month 1-3  | Total signups    | 100 clinics    |
+| Growth   | Month 3-6  | Paid conversions | 30% of signups |
+| Scale    | Month 6-12 | MRR              | Gs 20M+        |
+| Regional | Year 2     | Countries        | 3 (PY, BO, UY) |
 
 ### Tracking Dashboard
 
@@ -605,6 +609,6 @@ A: No catch. We track new client registrations automatically. If you don't hit t
 
 ---
 
-*Document version: 1.0*
-*Last updated: January 2026*
-*Next review: April 2026*
+_Document version: 1.0_
+_Last updated: January 2026_
+_Next review: April 2026_

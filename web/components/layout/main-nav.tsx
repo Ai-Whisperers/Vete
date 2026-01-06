@@ -21,7 +21,7 @@ interface MainNavProps {
 export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
   const pathname = usePathname()
   const { itemCount } = useCart()
-  const { user, profile, isLoggingOut, logoutError, handleLogout } = useNavAuth(clinic)
+  const { user, profile, isLoading, isLoggingOut, logoutError, handleLogout } = useNavAuth(clinic)
   const currentLocale = useLocale()
 
   const navItems: NavItem[] = [
@@ -90,6 +90,7 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
           clinic={clinic}
           config={config}
           user={user}
+          isLoading={isLoading}
           isActive={isActive}
           isLoggingOut={isLoggingOut}
           logoutError={logoutError}
@@ -156,6 +157,7 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
           user={user}
           profile={profile}
           navItems={navItems}
+          isLoading={isLoading}
           isActive={isActive}
           isLoggingOut={isLoggingOut}
           handleLogout={handleLogout}

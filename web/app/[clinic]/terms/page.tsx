@@ -17,7 +17,7 @@ interface Props {
   params: Promise<{ clinic: string }>
 }
 
-const BASE_URL = 'https://vetepy.vercel.app'
+const BASE_URL = 'https://Vetic.vercel.app'
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { clinic } = await params

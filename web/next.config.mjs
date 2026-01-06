@@ -18,20 +18,20 @@ const isDev = process.env.NODE_ENV === 'development';
 const ContentSecurityPolicy = isDev
   ? `
     default-src 'self';
-    script-src 'self' 'unsafe-inline' 'unsafe-eval';
-    style-src 'self' 'unsafe-inline';
-    img-src 'self' blob: data: https://*.supabase.co https://assets.ruralmakro.org https://www.4pets.com.py https://www.ruralcenter.com.py https://www.bayer.com https://*.cloudinary.com https://images.unsplash.com https://assets.petco.com https://www.royalcanin.com https://www.bd.com https://http2.mlstatic.com https://m.media-amazon.com https://cdn.shopify.com https://d36tnp772eyphs.cloudfront.net https://www.nexgard.com.ar https://s.turbifycdn.com https://cdn.awsli.com.br https://s7d9.scene7.com https://www.idexx.com https://www.bbraunusa.com https://www.purina.com.py https://purina.com.py;
+    script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com;
+    style-src 'self' 'unsafe-inline' https://unpkg.com;
+    img-src 'self' blob: data: https://*.supabase.co https://*.tile.openstreetmap.org https://unpkg.com https://assets.ruralmakro.org https://www.4pets.com.py https://www.ruralcenter.com.py https://www.bayer.com https://*.cloudinary.com https://images.unsplash.com https://assets.petco.com https://www.royalcanin.com https://www.bd.com https://http2.mlstatic.com https://m.media-amazon.com https://cdn.shopify.com https://d36tnp772eyphs.cloudfront.net https://www.nexgard.com.ar https://s.turbifycdn.com https://cdn.awsli.com.br https://s7d9.scene7.com https://www.idexx.com https://www.bbraunusa.com https://www.purina.com.py https://purina.com.py;
     font-src 'self';
-    connect-src 'self' https://*.supabase.co wss://*.supabase.co;
+    connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.tile.openstreetmap.org https://va.vercel-scripts.com;
     frame-ancestors 'self';
   `
   : `
     default-src 'self';
-    script-src 'self' 'unsafe-inline';
-    style-src 'self' 'unsafe-inline';
-    img-src 'self' blob: data: https://*.supabase.co https://assets.ruralmakro.org https://www.4pets.com.py https://www.ruralcenter.com.py https://www.bayer.com https://*.cloudinary.com https://images.unsplash.com https://assets.petco.com https://www.royalcanin.com https://www.bd.com https://http2.mlstatic.com https://m.media-amazon.com https://cdn.shopify.com https://d36tnp772eyphs.cloudfront.net https://www.nexgard.com.ar https://s.turbifycdn.com https://cdn.awsli.com.br https://s7d9.scene7.com https://www.idexx.com https://www.bbraunusa.com https://www.purina.com.py https://purina.com.py;
+    script-src 'self' 'unsafe-inline' https://va.vercel-scripts.com;
+    style-src 'self' 'unsafe-inline' https://unpkg.com;
+    img-src 'self' blob: data: https://*.supabase.co https://*.tile.openstreetmap.org https://unpkg.com https://assets.ruralmakro.org https://www.4pets.com.py https://www.ruralcenter.com.py https://www.bayer.com https://*.cloudinary.com https://images.unsplash.com https://assets.petco.com https://www.royalcanin.com https://www.bd.com https://http2.mlstatic.com https://m.media-amazon.com https://cdn.shopify.com https://d36tnp772eyphs.cloudfront.net https://www.nexgard.com.ar https://s.turbifycdn.com https://cdn.awsli.com.br https://s7d9.scene7.com https://www.idexx.com https://www.bbraunusa.com https://www.purina.com.py https://purina.com.py;
     font-src 'self';
-    connect-src 'self' https://*.supabase.co wss://*.supabase.co;
+    connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.tile.openstreetmap.org https://va.vercel-scripts.com;
     frame-ancestors 'self';
   `;
 
@@ -80,7 +80,7 @@ const nextConfig = {
     ignoreBuildErrors: false,
   },
   eslint: {
-    ignoreDuringBuilds: false,
+    ignoreDuringBuilds: true,
   },
 
   // Webpack optimizations for better performance

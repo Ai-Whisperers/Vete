@@ -101,7 +101,7 @@ export const POST = withApiAuth(
 
       if (!validation.success) {
         return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
-          details: { errors: validation.error.errors },
+          details: { errors: validation.error.flatten().fieldErrors },
         })
       }
 

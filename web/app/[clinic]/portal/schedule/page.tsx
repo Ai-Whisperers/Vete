@@ -42,7 +42,7 @@ export default async function SchedulePage({ params }: { params: Promise<{ clini
     return (
       <div className="p-8 text-center">
         <h1 className="text-2xl font-bold text-[var(--status-error)]">Acceso Restringido</h1>
-        <p className="text-gray-500">Solo el personal veterinario puede ver la agenda.</p>
+        <p className="text-[var(--text-muted)]">Solo el personal veterinario puede ver la agenda.</p>
         <Link
           href={`/${clinic}/portal/dashboard`}
           className="mt-4 block text-[var(--status-info)] hover:underline"
@@ -97,23 +97,23 @@ export default async function SchedulePage({ params }: { params: Promise<{ clini
   }
 
   return (
-    <div className="mx-auto max-w-4xl space-y-8">
-      <div className="flex items-center justify-between">
+    <div className="mx-auto max-w-4xl space-y-6 px-4 md:space-y-8 md:px-0">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
           <Link
             href={`/${clinic}/portal/dashboard`}
-            className="rounded-xl p-2 transition-colors hover:bg-white"
+            className="rounded-xl p-2 transition-colors hover:bg-[var(--bg-default)]"
           >
             <Icons.ArrowLeft className="h-6 w-6 text-[var(--text-secondary)]" />
           </Link>
           <div>
-            <h1 className="font-heading text-3xl font-black text-[var(--text-primary)]">
+            <h1 className="font-heading text-2xl font-black text-[var(--text-primary)] sm:text-3xl">
               Agenda Veterinaria
             </h1>
-            <p className="text-gray-500">Próximas citas programadas</p>
+            <p className="text-[var(--text-muted)]">Próximas citas programadas</p>
           </div>
         </div>
-        <div className="rounded-xl border border-gray-100 bg-white px-4 py-2 text-sm font-bold text-gray-500 shadow-sm">
+        <div className="self-start rounded-xl border border-[var(--border)] bg-[var(--bg-default)] px-4 py-2 text-sm font-bold text-[var(--text-muted)] shadow-sm sm:self-auto">
           {new Date().toLocaleDateString('es-ES', {
             weekday: 'long',
             day: 'numeric',
@@ -124,12 +124,12 @@ export default async function SchedulePage({ params }: { params: Promise<{ clini
 
       <div className="space-y-4">
         {!rawData || rawData.length === 0 ? (
-          <div className="rounded-3xl border border-dashed border-gray-300 bg-white p-12 text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-50 text-gray-400">
+          <div className="rounded-2xl border border-dashed border-[var(--border)] bg-[var(--bg-default)] p-8 text-center sm:rounded-3xl sm:p-12">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--bg-subtle)] text-[var(--text-muted)]">
               <Icons.CalendarCheck className="h-8 w-8" />
             </div>
-            <h3 className="font-bold text-gray-600">No hay citas programadas</h3>
-            <p className="text-gray-400">La agenda está libre por ahora.</p>
+            <h3 className="font-bold text-[var(--text-secondary)]">No hay citas programadas</h3>
+            <p className="text-[var(--text-muted)]">La agenda está libre por ahora.</p>
           </div>
         ) : (
           (rawData as ScheduleAppointment[]).map((apt: ScheduleAppointment) => (

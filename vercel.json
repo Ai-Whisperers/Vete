@@ -2,5 +2,31 @@
   "framework": "nextjs",
   "buildCommand": "cd web && npm run build",
   "outputDirectory": "web/.next",
-  "installCommand": "cd web && npm install"
+  "installCommand": "cd web && npm install",
+  "crons": [
+    {
+      "path": "/api/cron/release-reservations",
+      "schedule": "*/15 * * * *"
+    },
+    {
+      "path": "/api/cron/process-subscriptions",
+      "schedule": "0 8 * * *"
+    },
+    {
+      "path": "/api/cron/expiry-alerts",
+      "schedule": "0 9 * * 1"
+    },
+    {
+      "path": "/api/cron/stock-alerts",
+      "schedule": "0 10 * * *"
+    },
+    {
+      "path": "/api/cron/reminders",
+      "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron/generate-commission-invoices",
+      "schedule": "0 6 1 * *"
+    }
+  ]
 }

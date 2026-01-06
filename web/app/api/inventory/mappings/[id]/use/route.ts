@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { withApiAuthParams, type ApiHandlerContext } from '@/lib/auth'
+import { withApiAuthParams, type ApiHandlerContextWithParams } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
 
@@ -11,8 +11,7 @@ type IdParams = { id: string }
 // This endpoint is called when a mapping is used for an import to track
 // usage statistics and order mappings by popularity
 export const POST = withApiAuthParams<IdParams>(
-  async (ctx: ApiHandlerContext, params: IdParams) => {
-    const { profile, supabase } = ctx
+  async ({ params, profile, supabase }: ApiHandlerContextWithParams<IdParams>) => {
     try {
       const { id } = params
 

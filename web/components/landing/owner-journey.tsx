@@ -24,7 +24,7 @@ const steps = [
     icon: Search,
     title: 'Encontra una Clinica',
     description:
-      'Busca en nuestro mapa la veterinaria VetePy mas cercana a vos. Todas tienen el mismo nivel de tecnologia.',
+      'Busca en nuestro mapa la veterinaria Vetic mas cercana a vos. Todas tienen el mismo nivel de tecnologia.',
     color: '#2DCEA3',
   },
   {
@@ -96,15 +96,15 @@ const faqs = [
   {
     question: '¿Cuanto cuesta para mi como dueno?',
     answer:
-      'Nada. El servicio es 100% gratuito para los duenos de mascotas. Solo la clinica paga por usar VetePy.',
+      'Nada. El servicio es 100% gratuito para los duenos de mascotas. Solo la clinica paga por usar Vetic.',
   },
   {
     question: '¿Puedo tener mascotas en varias clinicas?',
     answer:
-      'Si. Puedes registrar diferentes mascotas en diferentes clinicas VetePy. Cada una tendra su propio historial.',
+      'Si. Puedes registrar diferentes mascotas en diferentes clinicas Vetic. Cada una tendra su propio historial.',
   },
   {
-    question: '¿Que pasa si mi veterinaria no usa VetePy?',
+    question: '¿Que pasa si mi veterinaria no usa Vetic?',
     answer:
       'Puedes recomendarle a tu veterinaria que se una a la red. Contactanos y les explicamos los beneficios.',
   },
@@ -199,7 +199,7 @@ export function OwnerJourney() {
             <div>
               <h3 className="mb-4 text-2xl font-bold text-white">Siempre a mano, en tu celular</h3>
               <p className="mb-6 text-white/60">
-                El portal de VetePy funciona perfecto desde el navegador de tu celular. No necesitas
+                El portal de Vetic funciona perfecto desde el navegador de tu celular. No necesitas
                 descargar ninguna app. Guarda el link en tu pantalla de inicio y accede con un solo
                 toque.
               </p>
@@ -312,7 +312,7 @@ export function OwnerJourney() {
               Buscar Clinica Cercana
             </a>
             <a
-              href="https://wa.me/595981324569?text=Hola!%20Soy%20dueno%20de%20mascota%20y%20quiero%20saber%20mas%20sobre%20VetePy"
+              href="https://wa.me/595981324569?text=Hola!%20Soy%20dueno%20de%20mascota%20y%20quiero%20saber%20mas%20sobre%20Vetic"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center gap-2 rounded-full border border-white/20 bg-white/5 px-6 py-3 font-medium text-white transition-all hover:bg-white/10"

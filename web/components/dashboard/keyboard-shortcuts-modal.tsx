@@ -134,7 +134,19 @@ export function KeyboardShortcutsModal({
   return (
     <ErrorBoundary>
       {trigger && open && (
-        <div onClick={open} className="cursor-pointer">
+        <div
+          role="button"
+          tabIndex={0}
+          onClick={open}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault()
+              open()
+            }
+          }}
+          className="cursor-pointer"
+          aria-label="Abrir atajos de teclado"
+        >
           {trigger}
         </div>
       )}
@@ -148,24 +160,28 @@ export function KeyboardShortcutsModal({
               exit={{ opacity: 0 }}
               onClick={close}
               className="fixed inset-0 z-50 bg-black/50"
+              aria-hidden="true"
             />
 
             {/* Modal */}
             <motion.div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="keyboard-shortcuts-title"
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               transition={{ duration: 0.2 }}
-              className="fixed inset-4 z-50 flex flex-col overflow-hidden rounded-2xl bg-white shadow-2xl md:inset-auto md:left-1/2 md:top-1/2 md:max-h-[80vh] md:w-[800px] md:-translate-x-1/2 md:-translate-y-1/2"
+              className="fixed inset-4 z-50 flex flex-col overflow-hidden rounded-2xl bg-[var(--bg-default)] shadow-2xl md:inset-auto md:left-1/2 md:top-1/2 md:max-h-[80vh] md:w-[800px] md:-translate-x-1/2 md:-translate-y-1/2"
             >
               {/* Header */}
-              <div className="flex items-center justify-between border-b border-gray-200 bg-gradient-to-r from-[var(--primary)] to-[var(--primary-dark,var(--primary))] px-6 py-4">
+              <div className="flex items-center justify-between border-b border-[var(--border)] bg-gradient-to-r from-[var(--primary)] to-[var(--primary-dark,var(--primary))] px-6 py-4">
                 <div className="flex items-center gap-3">
                   <div className="rounded-lg bg-white/20 p-2">
-                    <Keyboard className="h-5 w-5 text-white" />
+                    <Keyboard className="h-5 w-5 text-white" aria-hidden="true" />
                   </div>
                   <div>
-                    <h2 className="text-lg font-bold text-white">{labels.shortcuts.title}</h2>
+                    <h2 id="keyboard-shortcuts-title" className="text-lg font-bold text-white">{labels.shortcuts.title}</h2>
                     <p className="text-sm text-white/70">{labels.shortcuts.subtitle}</p>
                   </div>
                 </div>

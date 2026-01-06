@@ -75,12 +75,12 @@ export function EmptyState({
 
   const variantClasses = {
     default: {
-      container: 'bg-white',
-      iconWrapper: 'bg-gray-100',
-      icon: 'text-gray-400',
+      container: 'bg-[var(--bg-default)]',
+      iconWrapper: 'bg-[var(--bg-subtle)]',
+      icon: 'text-[var(--text-muted)]',
     },
     search: {
-      container: 'bg-white',
+      container: 'bg-[var(--bg-default)]',
       iconWrapper: 'bg-[var(--status-info-bg)]',
       icon: 'text-[var(--status-info)]',
     },
@@ -90,9 +90,9 @@ export function EmptyState({
       icon: 'text-[var(--status-error)]',
     },
     card: {
-      container: 'bg-white border border-dashed border-gray-300 rounded-2xl',
-      iconWrapper: 'bg-gray-50',
-      icon: 'text-gray-400',
+      container: 'bg-[var(--bg-default)] border border-dashed border-[var(--border)] rounded-2xl',
+      iconWrapper: 'bg-[var(--bg-subtle)]',
+      icon: 'text-[var(--text-muted)]',
     },
   }
 
@@ -115,7 +115,7 @@ export function EmptyState({
       'font-bold rounded-xl transition-all inline-flex items-center justify-center gap-2',
       primary
         ? 'bg-[var(--primary)] text-white shadow-lg hover:shadow-xl hover:-translate-y-1'
-        : 'border border-gray-200 text-gray-600 hover:bg-gray-50'
+        : 'border border-[var(--border)] text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]'
     )
 
     if (href) {
@@ -145,10 +145,10 @@ export function EmptyState({
         <Icon className={cn(sizes.icon, variants.icon)} />
       </div>
 
-      <h3 className={cn('mb-2 font-bold text-gray-700', sizes.title)}>{title}</h3>
+      <h3 className={cn('mb-2 font-bold text-[var(--text-primary)]', sizes.title)}>{title}</h3>
 
       {description && (
-        <p className={cn('mx-auto mb-6 max-w-sm text-gray-500', sizes.description)}>
+        <p className={cn('mx-auto mb-6 max-w-sm text-[var(--text-muted)]', sizes.description)}>
           {description}
         </p>
       )}

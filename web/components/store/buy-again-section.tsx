@@ -103,15 +103,41 @@ export default function BuyAgainSection({ maxItems = 4 }: BuyAgainSectionProps) 
     return `Gs ${price.toLocaleString('es-PY')}`
   }
 
-  // Don't show section if loading, error, or no products
-  if (loading || error || products.length === 0) {
+  // Show skeleton during loading
+  if (loading) {
+    return (
+      <section className="border-b border-[var(--border-light)] bg-[var(--bg-default)]">
+        <div className="container mx-auto px-4 py-8">
+          <div className="mb-6 flex items-center gap-3">
+            <div className="h-10 w-10 animate-pulse rounded-xl bg-[var(--bg-muted)]" />
+            <div className="space-y-2">
+              <div className="h-5 w-32 animate-pulse rounded bg-[var(--bg-muted)]" />
+              <div className="h-4 w-48 animate-pulse rounded bg-[var(--bg-muted)]" />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="rounded-xl border border-[var(--border-light)] bg-[var(--bg-subtle)] p-4">
+                <div className="mb-3 aspect-square animate-pulse rounded-lg bg-[var(--bg-muted)]" />
+                <div className="mb-2 h-4 w-3/4 animate-pulse rounded bg-[var(--bg-muted)]" />
+                <div className="h-4 w-1/2 animate-pulse rounded bg-[var(--bg-muted)]" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  // Don't show section if error or no products
+  if (error || products.length === 0) {
     return null
   }
 
   const displayProducts = products.slice(0, maxItems)
 
   return (
-    <section className="border-b border-gray-100 bg-white">
+    <section className="border-b border-[var(--border-light)] bg-[var(--bg-default)]">
       <div className="container mx-auto px-4 py-8">
         <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -138,7 +164,7 @@ export default function BuyAgainSection({ maxItems = 4 }: BuyAgainSectionProps) 
           {displayProducts.map((product) => (
             <div
               key={product.id}
-              className="hover:border-[var(--primary)]/30 rounded-xl border border-gray-100 bg-gray-50 p-4 transition-colors"
+              className="hover:border-[var(--primary)]/30 rounded-xl border border-[var(--border-light)] bg-[var(--bg-subtle)] p-4 transition-colors"
             >
               {/* Product Image */}
               <Link href={`/${clinic}/store/product/${product.id}`} className="mb-3 block">
@@ -153,7 +179,7 @@ export default function BuyAgainSection({ maxItems = 4 }: BuyAgainSectionProps) 
                     />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center">
-                      <Package className="h-8 w-8 text-gray-300" />
+                      <Package className="h-8 w-8 text-[var(--text-muted)]" />
                     </div>
                   )}
                   {!product.is_available && (
@@ -180,7 +206,7 @@ export default function BuyAgainSection({ maxItems = 4 }: BuyAgainSectionProps) 
                       <span className="text-sm font-bold text-[var(--primary)]">
                         {formatPrice(product.sale_price)}
                       </span>
-                      <span className="text-xs text-gray-400 line-through">
+                      <span className="text-xs text-[var(--text-muted)] line-through">
                         {formatPrice(product.base_price)}
                       </span>
                     </div>
@@ -199,7 +225,7 @@ export default function BuyAgainSection({ maxItems = 4 }: BuyAgainSectionProps) 
                       ? 'bg-[var(--status-success)] text-white'
                       : product.is_available
                         ? 'bg-[var(--primary)] text-white hover:opacity-90'
-                        : 'cursor-not-allowed bg-gray-200 text-gray-400'
+                        : 'cursor-not-allowed bg-[var(--bg-muted)] text-[var(--text-muted)]'
                   }`}
                   title={product.is_available ? 'Agregar al carrito' : 'Sin stock'}
                   aria-label={

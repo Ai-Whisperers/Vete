@@ -4,6 +4,8 @@ import { logger } from '@/lib/logger'
 import Link from 'next/link'
 import * as Icons from 'lucide-react'
 import { LabOrdersList } from '@/components/lab/lab-orders-list'
+import { requireFeature } from '@/lib/features'
+import { UpgradePromptServer } from '@/components/dashboard/upgrade-prompt-server'
 
 interface Props {
   params: Promise<{ clinic: string }>
@@ -46,6 +48,19 @@ export default async function LabOrdersPage({ params, searchParams }: Props) {
 
   if (!profile || !['vet', 'admin'].includes(profile.role) || profile.tenant_id !== clinic) {
     redirect(`/${clinic}/portal/dashboard`)
+  }
+
+  // Feature gate: Laboratory requires 'laboratory' feature
+  const featureError = await requireFeature(profile.tenant_id, 'laboratory')
+  if (featureError) {
+    return (
+      <UpgradePromptServer
+        feature="laboratory"
+        title="Módulo de Laboratorio"
+        description="Gestiona órdenes de laboratorio, registra resultados y rastrea valores críticos."
+        clinic={clinic}
+      />
+    )
   }
 
   // Fetch lab orders with tenant filter

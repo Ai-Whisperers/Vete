@@ -142,7 +142,7 @@ export const PUT = withApiAuth(
 
       // Send test SMS
       const normalizedPhone = normalizePhoneNumber(testPhone)
-      const testMessage = `[PRUEBA] Este es un mensaje de prueba de ${tenant?.name || 'VetePy'}. Si recibiste esto, tu SMS está funcionando! 🎉`
+      const testMessage = `[PRUEBA] Este es un mensaje de prueba de ${tenant?.name || 'Vetic'}. Si recibiste esto, tu SMS está funcionando! 🎉`
 
       const response = await fetch(
         `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`,

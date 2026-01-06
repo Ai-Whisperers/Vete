@@ -4,7 +4,7 @@ import { Metadata } from 'next'
 import { MessageCircle } from 'lucide-react'
 import { ServicesGrid } from '@/components/services/services-grid'
 
-const BASE_URL = 'https://vetepy.vercel.app'
+const BASE_URL = 'https://Vetic.vercel.app'
 
 export async function generateMetadata({
   params,

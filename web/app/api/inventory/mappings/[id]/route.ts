@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { withApiAuthParams, type ApiHandlerContext } from '@/lib/auth'
+import { withApiAuthParams, type ApiHandlerContextWithParams } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
 import { z } from 'zod'
@@ -20,8 +20,7 @@ type IdParams = { id: string }
 // GET /api/inventory/mappings/[id] - Get a specific mapping
 // =============================================================================
 export const GET = withApiAuthParams<IdParams>(
-  async (ctx: ApiHandlerContext, params: IdParams) => {
-    const { profile, supabase } = ctx
+  async ({ params, profile, supabase }: ApiHandlerContextWithParams<IdParams>) => {
     try {
       const { id } = params
 
@@ -53,8 +52,7 @@ export const GET = withApiAuthParams<IdParams>(
 // PATCH /api/inventory/mappings/[id] - Update a mapping
 // =============================================================================
 export const PATCH = withApiAuthParams<IdParams>(
-  async (ctx: ApiHandlerContext, params: IdParams) => {
-    const { profile, supabase, request } = ctx
+  async ({ params, profile, supabase, request }: ApiHandlerContextWithParams<IdParams>) => {
     try {
       const { id } = params
       const body = await request.json()
@@ -130,8 +128,7 @@ export const PATCH = withApiAuthParams<IdParams>(
 // DELETE /api/inventory/mappings/[id] - Delete a mapping
 // =============================================================================
 export const DELETE = withApiAuthParams<IdParams>(
-  async (ctx: ApiHandlerContext, params: IdParams) => {
-    const { profile, supabase } = ctx
+  async ({ params, profile, supabase }: ApiHandlerContextWithParams<IdParams>) => {
     try {
       const { id } = params
 

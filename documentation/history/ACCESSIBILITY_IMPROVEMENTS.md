@@ -140,11 +140,7 @@ Added proper form labeling:
     <label htmlFor="newsletter-email" className="sr-only">
       Correo electrónico para suscripción
     </label>
-    <input
-      id="newsletter-email"
-      type="email"
-      aria-required="true"
-    />
+    <input id="newsletter-email" type="email" aria-required="true" />
   </form>
 </section>
 ```
@@ -152,6 +148,7 @@ Added proper form labeling:
 ### Decorative Elements
 
 Marked decorative elements with `aria-hidden="true"`:
+
 - Background gradients
 - Icons used purely for visual decoration
 - Animated pulse indicators
@@ -163,7 +160,10 @@ Marked decorative elements with `aria-hidden="true"`:
 ### Main Navigation
 
 ```typescript
-<nav className="hidden md:flex items-center gap-8" aria-label="Navegación principal">
+<nav
+  className="hidden md:flex items-center gap-8"
+  aria-label="Navegación principal"
+>
   {/* navigation items */}
 </nav>
 ```
@@ -182,26 +182,24 @@ Enhanced dropdown accessibility:
   <Wrench aria-hidden="true" />
   Herramientas
   <ChevronDown aria-hidden="true" />
-</button>
+</button>;
 
-{isToolsOpen && (
-  <div role="menu" aria-label="Opciones de herramientas">
-    <Link role="menuitem" href="/tools/calculator">
-      <Icon aria-hidden="true" />
-      Calculadora
-    </Link>
-  </div>
-)}
+{
+  isToolsOpen && (
+    <div role="menu" aria-label="Opciones de herramientas">
+      <Link role="menuitem" href="/tools/calculator">
+        <Icon aria-hidden="true" />
+        Calculadora
+      </Link>
+    </div>
+  );
+}
 ```
 
 ### Mobile Drawer
 
 ```typescript
-<div
-  role="dialog"
-  aria-modal="true"
-  aria-label="Menú de navegación"
->
+<div role="dialog" aria-modal="true" aria-label="Menú de navegación">
   {/* mobile menu content */}
 </div>
 ```
@@ -227,16 +225,17 @@ Cart icon with dynamic count announcement:
 ```typescript
 <Link
   href="/cart"
-  aria-label={itemCount > 0
-    ? `Carrito de compras (${itemCount} ${itemCount === 1 ? 'artículo' : 'artículos'})`
-    : 'Carrito de compras'
+  aria-label={
+    itemCount > 0
+      ? `Carrito de compras (${itemCount} ${
+          itemCount === 1 ? "artículo" : "artículos"
+        })`
+      : "Carrito de compras"
   }
 >
   <ShoppingCart aria-hidden="true" />
   {itemCount > 0 && (
-    <span aria-label={`${itemCount} artículos en el carrito`}>
-      {itemCount}
-    </span>
+    <span aria-label={`${itemCount} artículos en el carrito`}>{itemCount}</span>
   )}
 </Link>
 ```
@@ -249,7 +248,9 @@ Cart icon with dynamic count announcement:
 
 ```typescript
 <section aria-labelledby="filters-heading">
-  <h2 id="filters-heading" className="sr-only">Filtros de búsqueda</h2>
+  <h2 id="filters-heading" className="sr-only">
+    Filtros de búsqueda
+  </h2>
 
   {/* Search Input */}
   <input
@@ -286,9 +287,11 @@ Cart icon with dynamic count announcement:
 
 ```typescript
 <section aria-labelledby="services-heading">
-  <h2 id="services-heading" className="sr-only">Lista de servicios</h2>
+  <h2 id="services-heading" className="sr-only">
+    Lista de servicios
+  </h2>
   <div role="list">
-    {services.map(service => (
+    {services.map((service) => (
       <div key={service.id} role="listitem">
         <ServiceCard service={service} />
       </div>
@@ -338,6 +341,7 @@ Enhanced loading state announcements:
 ### Modal Component (`web/components/ui/modal.tsx`)
 
 Already implements:
+
 - `role="dialog"`
 - `aria-modal="true"`
 - `aria-labelledby` for title
@@ -349,6 +353,7 @@ Already implements:
 ### Input Components (`web/components/ui/input.tsx`)
 
 Already implements:
+
 - Proper `<label>` associations with `htmlFor`
 - `aria-invalid` for error states
 - `aria-describedby` for hints and errors
@@ -358,6 +363,7 @@ Already implements:
 ### Search Field (`web/components/ui/search-field.tsx`)
 
 Already implements:
+
 - `role="combobox"`
 - `aria-expanded` for dropdown state
 - `aria-haspopup="listbox"`
@@ -373,6 +379,7 @@ Already implements:
 ### Icon Accessibility
 
 All decorative icons marked with `aria-hidden="true"`:
+
 ```typescript
 <Search className="w-5 h-5" aria-hidden="true" />
 ```
@@ -380,6 +387,7 @@ All decorative icons marked with `aria-hidden="true"`:
 ### Link Descriptions
 
 Descriptive link text or aria-labels:
+
 ```typescript
 // Good - descriptive
 <a href="/services">Ver todos los servicios</a>
@@ -399,6 +407,7 @@ Descriptive link text or aria-labels:
 ### Form Inputs
 
 All inputs properly labeled:
+
 ```typescript
 <label htmlFor="email">Correo electrónico</label>
 <input id="email" type="email" aria-required="true" />
@@ -407,6 +416,7 @@ All inputs properly labeled:
 ### Live Regions
 
 Dynamic content updates announced:
+
 ```typescript
 <div role="status" aria-live="polite">
   Mostrando {count} resultados
@@ -445,7 +455,7 @@ useEffect(() => {
   if (!isOpen) return;
 
   const focusableElements = menuElement.querySelectorAll(
-    'a[href], button:not([disabled])'
+    "a[href], button:not([disabled])"
   );
   const firstElement = focusableElements[0];
   const lastElement = focusableElements[focusableElements.length - 1];
@@ -519,12 +529,14 @@ aria-live="polite"
 ### Manual Testing
 
 1. **Keyboard Navigation**
+
    - Tab through entire page
    - Test skip links
    - Navigate dropdowns with arrow keys
    - Close modals with Escape
 
 2. **Screen Reader Testing**
+
    - NVDA (Windows)
    - JAWS (Windows)
    - VoiceOver (macOS/iOS)
@@ -542,7 +554,7 @@ aria-live="polite"
 npm run test:a11y
 
 # Lighthouse CI
-lighthouse https://vetepy.vercel.app/adris --only-categories=accessibility
+lighthouse https://Vetic.vercel.app/adris --only-categories=accessibility
 ```
 
 ---
@@ -552,18 +564,22 @@ lighthouse https://vetepy.vercel.app/adris --only-categories=accessibility
 ### Planned Improvements
 
 1. **High Contrast Mode Support**
+
    - Detect `prefers-contrast: high`
    - Provide high contrast theme variant
 
 2. **Reduced Motion**
+
    - Already implemented in CSS
    - Further testing needed
 
 3. **Font Scaling**
+
    - Test at 200% zoom
    - Ensure no content loss
 
 4. **Language Switching**
+
    - Multi-language support
    - Proper `lang` attributes per element
 

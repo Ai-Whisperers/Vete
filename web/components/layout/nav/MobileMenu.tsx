@@ -34,6 +34,7 @@ interface MobileMenuProps {
   user: SupabaseUser | null
   profile: UserProfile | null
   navItems: NavItem[]
+  isLoading: boolean
   isActive: (href: string, exact?: boolean) => boolean
   isLoggingOut: boolean
   handleLogout: () => Promise<void>
@@ -52,6 +53,7 @@ export function MobileMenu({
   user,
   profile,
   navItems,
+  isLoading,
   isActive,
   isLoggingOut,
   handleLogout,
@@ -176,7 +178,17 @@ export function MobileMenu({
                   </button>
                 </div>
 
-                {user && profile && (
+                {isLoading ? (
+                  <div className="bg-[var(--primary)]/5 border-[var(--primary)]/10 border-b px-6 py-4">
+                    <div className="flex items-center gap-4">
+                      <div className="h-12 w-12 animate-pulse rounded-full bg-gray-200" />
+                      <div className="min-w-0 flex-1 space-y-2">
+                        <div className="h-4 w-24 animate-pulse rounded bg-gray-200" />
+                        <div className="h-3 w-32 animate-pulse rounded bg-gray-200" />
+                      </div>
+                    </div>
+                  </div>
+                ) : user && profile ? (
                   <div className="bg-[var(--primary)]/5 border-[var(--primary)]/10 border-b px-6 py-4">
                     <div className="flex items-center gap-4">
                       <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--primary)] text-lg font-bold text-white">
@@ -190,7 +202,7 @@ export function MobileMenu({
                       </div>
                     </div>
                   </div>
-                )}
+                ) : null}
 
                 <div className="px-4 py-4 sm:px-6">
                   <Link
@@ -256,22 +268,29 @@ export function MobileMenu({
                     {config.ui_labels?.nav?.my_account || 'Mi Cuenta'}
                   </p>
                   <div className="flex flex-col gap-1">
-                    <Link
-                      href={user ? `/${clinic}/portal/dashboard` : `/${clinic}/portal/login`}
-                      onClick={() => setIsOpen(false)}
-                      className={`flex min-h-[48px] items-center gap-4 rounded-xl px-4 py-4 transition-colors ${
-                        isActive(`/${clinic}/portal/dashboard`)
-                          ? 'bg-[var(--primary)]/10 text-[var(--primary)]'
-                          : 'text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]'
-                      }`}
-                    >
-                      <PawPrint className="h-5 w-5" />
-                      <span className="font-bold">
-                        {user
-                          ? config.ui_labels?.nav.my_pets || 'Mis Mascotas'
-                          : config.ui_labels?.nav.login || 'Iniciar Sesión'}
-                      </span>
-                    </Link>
+                    {isLoading ? (
+                      <div className="flex min-h-[48px] items-center gap-4 rounded-xl px-4 py-4">
+                        <div className="h-5 w-5 animate-pulse rounded bg-gray-200" />
+                        <div className="h-4 w-24 animate-pulse rounded bg-gray-200" />
+                      </div>
+                    ) : (
+                      <Link
+                        href={user ? `/${clinic}/portal/dashboard` : `/${clinic}/portal/login`}
+                        onClick={() => setIsOpen(false)}
+                        className={`flex min-h-[48px] items-center gap-4 rounded-xl px-4 py-4 transition-colors ${
+                          isActive(`/${clinic}/portal/dashboard`)
+                            ? 'bg-[var(--primary)]/10 text-[var(--primary)]'
+                            : 'text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]'
+                        }`}
+                      >
+                        <PawPrint className="h-5 w-5" />
+                        <span className="font-bold">
+                          {user
+                            ? config.ui_labels?.nav.my_pets || 'Mis Mascotas'
+                            : config.ui_labels?.nav.login || 'Iniciar Sesión'}
+                        </span>
+                      </Link>
+                    )}
 
                     {user && (
                       <>

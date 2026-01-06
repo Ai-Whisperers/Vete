@@ -661,6 +661,9 @@ export async function checkAvailableSlots(
 /**
  * Reschedule an appointment via drag-and-drop in the calendar
  * Staff only - accepts Date objects directly for easier integration
+ *
+ * Uses atomic database function to prevent race condition double-booking.
+ * The function uses advisory locks to serialize concurrent reschedule attempts.
  */
 export const rescheduleAppointmentByDrag = withActionAuth(
   async (
@@ -669,19 +672,10 @@ export const rescheduleAppointmentByDrag = withActionAuth(
     newStartTime: Date,
     newEndTime: Date
   ) => {
-    // Get appointment to verify ownership/permissions
+    // Verify staff has access to this appointment's tenant
     const { data: appointment, error: fetchError } = await supabase
       .from('appointments')
-      .select(
-        `
-        id,
-        tenant_id,
-        start_time,
-        end_time,
-        status,
-        vet_id
-      `
-      )
+      .select('tenant_id')
       .eq('id', appointmentId)
       .single()
 
@@ -689,57 +683,42 @@ export const rescheduleAppointmentByDrag = withActionAuth(
       return actionError('Cita no encontrada')
     }
 
-    // Verify staff permission - only staff can drag-and-drop reschedule
     if (profile.tenant_id !== appointment.tenant_id) {
       return actionError('Solo el personal puede reprogramar citas')
     }
 
-    // Check if appointment can be rescheduled
-    if (['cancelled', 'completed', 'no_show'].includes(appointment.status)) {
-      return actionError('Esta cita no puede ser reprogramada')
-    }
+    // Use atomic reschedule function to prevent race conditions
+    // This function acquires an advisory lock, checks for conflicts,
+    // and updates the appointment in a single atomic operation
+    const { data: result, error: rpcError } = await supabase.rpc(
+      'reschedule_appointment_atomic',
+      {
+        p_appointment_id: appointmentId,
+        p_new_start_time: newStartTime.toISOString(),
+        p_new_end_time: newEndTime.toISOString(),
+        p_performed_by: user.id,
+      }
+    )
 
-    // Validate times
-    if (newStartTime >= newEndTime) {
-      return actionError('La hora de fin debe ser posterior a la hora de inicio')
-    }
-
-    if (newStartTime < new Date()) {
-      return actionError('No se puede reprogramar a una fecha pasada')
-    }
-
-    // Check for overlaps - exclude current appointment
-    const { data: conflicts } = await supabase
-      .from('appointments')
-      .select('id')
-      .eq('tenant_id', appointment.tenant_id)
-      .in('status', ['scheduled', 'confirmed', 'in_progress'])
-      .neq('id', appointmentId)
-      .lt('start_time', newEndTime.toISOString())
-      .gt('end_time', newStartTime.toISOString())
-      .limit(1)
-
-    if (conflicts && conflicts.length > 0) {
-      return actionError('El horario seleccionado no está disponible')
-    }
-
-    // Update appointment
-    const { error: updateError } = await supabase
-      .from('appointments')
-      .update({
-        start_time: newStartTime.toISOString(),
-        end_time: newEndTime.toISOString(),
-      })
-      .eq('id', appointmentId)
-
-    if (updateError) {
-      logger.error('Reschedule by drag error', {
+    if (rpcError) {
+      logger.error('Reschedule by drag RPC error', {
         appointmentId,
         tenantId: profile.tenant_id,
         userId: user.id,
-        error: updateError instanceof Error ? updateError.message : String(updateError),
+        error: rpcError.message,
       })
       return actionError('Error al reprogramar la cita')
+    }
+
+    // Handle atomic function response
+    if (!result?.success) {
+      const errorMessage = result?.error || 'Error al reprogramar la cita'
+      logger.warn('Reschedule by drag conflict', {
+        appointmentId,
+        errorCode: result?.error_code,
+        conflict: result?.conflict,
+      })
+      return actionError(errorMessage)
     }
 
     // Revalidate paths

@@ -259,7 +259,8 @@ export const PUT = withApiAuth(async (ctx: ApiHandlerContext) => {
   }
 
   // Verify access
-  const pet = existing.pet as { owner_id: string; tenant_id: string }
+  const rawPet = existing.pet
+  const pet = (Array.isArray(rawPet) ? rawPet[0] : rawPet) as { owner_id: string; tenant_id: string }
   const isOwner = pet.owner_id === user.id
   const isStaff = ['vet', 'admin'].includes(profile.role)
 

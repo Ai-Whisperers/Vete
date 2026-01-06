@@ -3,53 +3,38 @@ import {
   LandingNav,
   LandingFooter,
   Hero,
-  ProblemSection,
-  SolutionSection,
-  HowItWorks,
-  FeaturesShowcase,
-  BenefitsSection,
-  PricingSection,
-  FAQSection,
-  CTASection,
-  ClientShowcase,
-  NetworkMap,
-  OwnerJourney,
-  ContactForm,
-  ComparisonTable,
   TrustBadges,
-  ROICalculator,
+  PricingTeaser,
+  CTASection,
   FloatingWhatsApp,
-  PricingQuiz,
-  TrialOffer,
 } from '@/components/landing'
 
 export const metadata: Metadata = {
-  title: 'VetePy - La Red Veterinaria Digital de Paraguay',
+  title: 'Vetic - Gestiona tu veterinaria sin complicaciones',
   description:
-    'Sitios web profesionales para veterinarias paraguayas. Una plataforma, multiples clinicas. Diseno de primer mundo, precio local. Sistema completo de gestion veterinaria con citas online, historial medico digital y mas.',
+    'Software de gestión veterinaria diseñado para Paraguay. Agenda, historial clínico y recordatorios automáticos por WhatsApp. Simple, rápido y eficiente.',
   keywords: [
-    'veterinaria',
-    'paraguay',
-    'sitio web veterinario',
-    'gestion veterinaria',
-    'citas online',
-    'mascotas',
-    'veterinaria asuncion',
     'software veterinario',
+    'gestión veterinaria',
+    'historial clínico digital',
+    'agenda veterinaria',
+    'veterinaria paraguay',
+    'sistema veterinario',
+    'Vetic',
   ],
-  authors: [{ name: 'VetePy' }],
+  authors: [{ name: 'Vetic' }],
   openGraph: {
-    title: 'VetePy - La Red Veterinaria Digital de Paraguay',
+    title: 'Vetic - Gestiona tu veterinaria sin complicaciones',
     description:
-      'Sitios web profesionales para veterinarias paraguayas. Una plataforma, multiples clinicas. Sistema completo de gestion veterinaria.',
+      'Software de gestión veterinaria diseñado para Paraguay. Agenda, historial clínico y recordatorios automáticos por WhatsApp.',
     type: 'website',
     locale: 'es_PY',
-    siteName: 'VetePy',
+    siteName: 'Vetic',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'VetePy - La Red Veterinaria Digital de Paraguay',
-    description: 'Sitios web profesionales para veterinarias paraguayas.',
+    title: 'Vetic - Gestiona tu veterinaria sin complicaciones',
+    description: 'Software de gestión veterinaria diseñado para Paraguay.',
   },
   robots: {
     index: true,
@@ -59,60 +44,18 @@ export const metadata: Metadata = {
 
 export default function LandingPage() {
   return (
-    <main className="min-h-screen bg-[#0F172A]">
-      {/* Navigation */}
+    <main className="min-h-screen bg-slate-50">
+      {/* Navigation - Sticky */}
       <LandingNav />
 
-      {/* Hero Section */}
+      {/* Hero Section - The Promise */}
       <Hero />
 
-      {/* Problem: Why vets need digital presence */}
-      <ProblemSection />
-
-      {/* Solution: How VetePy works */}
-      <SolutionSection />
-
-      {/* How It Works: 3 simple steps */}
-      <HowItWorks />
-
-      {/* Client Showcase: Real clinics using VetePy */}
-      <ClientShowcase />
-
-      {/* Network Map: Find clinics near you */}
-      <NetworkMap />
-
-      {/* Features: Everything included */}
-      <FeaturesShowcase />
-
-      {/* Comparison: VetePy vs alternatives */}
-      <ComparisonTable />
-
-      {/* Benefits: For clinics and pet owners */}
-      <BenefitsSection />
-
-      {/* Pet Owner Journey: How it works for B2C */}
-      <OwnerJourney />
-
-      {/* Pricing Quiz: Find the right plan */}
-      <PricingQuiz />
-
-      {/* Pricing: Tiered plans for every clinic */}
-      <PricingSection />
-
-      {/* Trial Offer: 3 months free */}
-      <TrialOffer />
-
-      {/* ROI Calculator: Is it worth it? */}
-      <ROICalculator />
-
-      {/* Trust Badges: Security and tech */}
+      {/* Trust Bar - Social Proof */}
       <TrustBadges />
 
-      {/* FAQ: Common questions */}
-      <FAQSection />
-
-      {/* Contact Form: Lead capture */}
-      <ContactForm />
+      {/* Pricing Teaser - Simple 3-plan preview */}
+      <PricingTeaser />
 
       {/* Final CTA */}
       <CTASection />

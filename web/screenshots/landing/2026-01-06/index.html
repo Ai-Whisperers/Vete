@@ -1,0 +1,222 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Landing Page Screenshots</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: #f5f5f5; padding: 20px; }
+    h1 { margin-bottom: 10px; color: #333; }
+    .subtitle { color: #666; margin-bottom: 20px; }
+    .filters { margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; }
+    .filter { padding: 8px 16px; border: 1px solid #ddd; border-radius: 20px; cursor: pointer; background: white; }
+    .filter.active { background: #0d9488; color: white; border-color: #0d9488; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 20px; }
+    .card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .card img { width: 100%; height: 250px; object-fit: cover; object-position: top; cursor: pointer; transition: transform 0.2s; }
+    .card img:hover { transform: scale(1.02); }
+    .card-body { padding: 16px; }
+    .card-title { font-weight: 600; font-size: 18px; margin-bottom: 4px; }
+    .card-meta { font-size: 13px; color: #666; display: flex; gap: 8px; align-items: center; }
+    .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+    .badge-desktop { background: #dbeafe; color: #1d4ed8; }
+    .badge-tablet { background: #dcfce7; color: #166534; }
+    .badge-mobile { background: #fef3c7; color: #92400e; }
+    .badge-full { background: #f3e8ff; color: #7c3aed; }
+    .badge-scroll { background: #e0e7ff; color: #4338ca; }
+    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 100; }
+    .modal.active { display: flex; align-items: center; justify-content: center; flex-direction: column; }
+    .modal img { max-width: 95%; max-height: 90%; object-fit: contain; }
+    .modal-info { color: white; margin-top: 10px; font-size: 14px; }
+    .modal-close { position: absolute; top: 20px; right: 20px; color: white; font-size: 40px; cursor: pointer; }
+    .hidden { display: none !important; }
+    .page-section { margin-bottom: 40px; }
+    .page-section h2 { margin-bottom: 15px; color: #333; font-size: 20px; border-bottom: 2px solid #0d9488; padding-bottom: 8px; }
+  </style>
+</head>
+<body>
+  <h1>📸 Vetic Landing Page Screenshots</h1>
+  <p class="subtitle">Generated: 6/1/2026, 10:10:48 a. m.</p>
+
+  <div class="filters">
+    <span style="padding: 8px 0;">Viewport:</span>
+    <button class="filter active" data-filter="viewport" data-value="all">All</button>
+    <button class="filter" data-filter="viewport" data-value="desktop">desktop</button>
+  </div>
+
+  <div class="filters">
+    <span style="padding: 8px 0;">Type:</span>
+    <button class="filter active" data-filter="type" data-value="all">All</button>
+    <button class="filter" data-filter="type" data-value="full">Full Page</button>
+    <button class="filter" data-filter="type" data-value="scroll">Scroll Positions</button>
+  </div>
+
+  
+    <div class="page-section" data-page="homepage">
+      <h2>homepage (/)</h2>
+      <p style="color: #666; margin-bottom: 15px; font-size: 14px;">Main landing page with Hero, TrustBadges, PricingTeaser, CTA</p>
+      <div class="grid">
+        
+          <div class="card"
+               data-viewport="desktop"
+               data-type="full">
+            <img src="screenshots\landing\2026-01-06\desktop\homepage--desktop--full.png"
+                 alt="homepage"
+                 onclick="openModal(this.src, 'homepage - desktop')">
+            <div class="card-body">
+              <div class="card-title">Full Page</div>
+              <div class="card-meta">
+                <span class="badge badge-desktop">desktop</span>
+                <span class="badge badge-full">full</span>
+              </div>
+            </div>
+          </div>
+        
+          <div class="card"
+               data-viewport="desktop"
+               data-type="scroll">
+            <img src="screenshots\landing\2026-01-06\desktop\homepage--desktop--top.png"
+                 alt="homepage"
+                 onclick="openModal(this.src, 'homepage - desktop (top)')">
+            <div class="card-body">
+              <div class="card-title">top</div>
+              <div class="card-meta">
+                <span class="badge badge-desktop">desktop</span>
+                <span class="badge badge-scroll">viewport</span>
+              </div>
+            </div>
+          </div>
+        
+          <div class="card"
+               data-viewport="desktop"
+               data-type="scroll">
+            <img src="screenshots\landing\2026-01-06\desktop\homepage--desktop--middle.png"
+                 alt="homepage"
+                 onclick="openModal(this.src, 'homepage - desktop (middle)')">
+            <div class="card-body">
+              <div class="card-title">middle</div>
+              <div class="card-meta">
+                <span class="badge badge-desktop">desktop</span>
+                <span class="badge badge-scroll">viewport</span>
+              </div>
+            </div>
+          </div>
+        
+          <div class="card"
+               data-viewport="desktop"
+               data-type="scroll">
+            <img src="screenshots\landing\2026-01-06\desktop\homepage--desktop--bottom.png"
+                 alt="homepage"
+                 onclick="openModal(this.src, 'homepage - desktop (bottom)')">
+            <div class="card-body">
+              <div class="card-title">bottom</div>
+              <div class="card-meta">
+                <span class="badge badge-desktop">desktop</span>
+                <span class="badge badge-scroll">viewport</span>
+              </div>
+            </div>
+          </div>
+        
+      </div>
+    </div>
+  
+    <div class="page-section" data-page="funcionalidades">
+      <h2>funcionalidades (/funcionalidades)</h2>
+      <p style="color: #666; margin-bottom: 15px; font-size: 14px;">Features showcase page with categorized feature cards</p>
+      <div class="grid">
+        
+      </div>
+    </div>
+  
+    <div class="page-section" data-page="precios">
+      <h2>precios (/precios)</h2>
+      <p style="color: #666; margin-bottom: 15px; font-size: 14px;">Pricing page with plan comparison, ROI calculator, payment methods</p>
+      <div class="grid">
+        
+      </div>
+    </div>
+  
+    <div class="page-section" data-page="demo">
+      <h2>demo (/demo)</h2>
+      <p style="color: #666; margin-bottom: 15px; font-size: 14px;">Demo booking page with video placeholder and scheduling</p>
+      <div class="grid">
+        
+      </div>
+    </div>
+  
+    <div class="page-section" data-page="faq">
+      <h2>faq (/faq)</h2>
+      <p style="color: #666; margin-bottom: 15px; font-size: 14px;">FAQ page with categorized questions</p>
+      <div class="grid">
+        
+      </div>
+    </div>
+  
+    <div class="page-section" data-page="nosotros">
+      <h2>nosotros (/nosotros)</h2>
+      <p style="color: #666; margin-bottom: 15px; font-size: 14px;">About us page with mission, story, values, and stats</p>
+      <div class="grid">
+        
+      </div>
+    </div>
+  
+    <div class="page-section" data-page="red">
+      <h2>red (/red)</h2>
+      <p style="color: #666; margin-bottom: 15px; font-size: 14px;">Clinic network page</p>
+      <div class="grid">
+        
+      </div>
+    </div>
+  
+
+  <div class="modal" id="modal">
+    <span class="modal-close" onclick="closeModal()">&times;</span>
+    <img id="modal-img" src="">
+    <div class="modal-info" id="modal-info"></div>
+  </div>
+
+  <script>
+    // Filtering
+    document.querySelectorAll('.filter').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const filter = btn.dataset.filter;
+        document.querySelectorAll('.filter[data-filter="' + filter + '"]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        filterCards();
+      });
+    });
+
+    function filterCards() {
+      const viewport = document.querySelector('.filter[data-filter="viewport"].active').dataset.value;
+      const type = document.querySelector('.filter[data-filter="type"].active').dataset.value;
+
+      document.querySelectorAll('.card').forEach(card => {
+        const matchViewport = viewport === 'all' || card.dataset.viewport === viewport;
+        const matchType = type === 'all' || card.dataset.type === type;
+        card.classList.toggle('hidden', !(matchViewport && matchType));
+      });
+    }
+
+    // Modal
+    function openModal(src, info) {
+      document.getElementById('modal-img').src = src;
+      document.getElementById('modal-info').textContent = info;
+      document.getElementById('modal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('modal').classList.remove('active');
+    }
+
+    document.getElementById('modal').addEventListener('click', (e) => {
+      if (e.target.id === 'modal') closeModal();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModal();
+    });
+  </script>
+</body>
+</html>

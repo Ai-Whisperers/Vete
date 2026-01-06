@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/server'
 import { PersonalizedHero } from '@/components/home/personalized-hero'
 import { OwnerDashboardPreview } from '@/components/home/widgets/owner-dashboard-preview'
 import { StaffDashboardPreview } from '@/components/home/widgets/staff-dashboard-preview'
+import { ClinicLocationMap } from '@/components/home/clinic-location-map'
 
 // Dynamic Icon Component - safely handles icon name lookup
 const DynamicIcon = ({ name, className }: { name: string; className?: string }) => {
@@ -339,26 +340,39 @@ export default async function ClinicHomePage({ params }: { params: Promise<{ cli
               <AppointmentForm />
             </div>
 
-            {/* Map Side */}
-            <div className="group relative h-[300px] w-full overflow-hidden rounded-2xl border border-gray-200 shadow-xl sm:h-[400px] lg:h-full lg:min-h-[600px]">
-              <div
-                className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
-                style={{ backgroundImage: `url('/branding/${clinic}/images/static-map.jpg')` }}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-
-              <div className="absolute inset-0 flex items-end justify-center p-8">
-                <a
-                  href={`https://www.google.com/maps/place/?q=place_id:${config.contact.google_maps_id}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-3 rounded-full bg-white px-8 py-4 font-bold text-[var(--text-primary)] shadow-xl transition-all duration-300 hover:scale-105 hover:shadow-2xl active:scale-95"
-                >
-                  <Icons.MapPin className="h-5 w-5 text-[var(--primary)]" />
-                  {config.ui_labels?.home?.map_button}
-                  <Icons.ExternalLink className="h-4 w-4 text-[var(--text-muted)]" />
-                </a>
-              </div>
+            {/* Map Side - Interactive Map */}
+            <div className="h-[300px] w-full sm:h-[400px] lg:h-full lg:min-h-[600px]">
+              {config.contact?.coordinates?.lat && config.contact?.coordinates?.lng ? (
+                <ClinicLocationMap
+                  clinicName={config.name}
+                  address={config.contact.address}
+                  lat={config.contact.coordinates.lat}
+                  lng={config.contact.coordinates.lng}
+                  googleMapsId={config.contact.google_maps_id}
+                  mapButtonLabel={config.ui_labels?.home?.map_button}
+                />
+              ) : (
+                // Fallback to static image if no coordinates
+                <div className="group relative h-full w-full overflow-hidden rounded-2xl border border-gray-200 shadow-xl">
+                  <div
+                    className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
+                    style={{ backgroundImage: `url('/branding/${clinic}/images/static-map.jpg')` }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+                  <div className="absolute inset-0 flex items-end justify-center p-8">
+                    <a
+                      href={`https://www.google.com/maps/place/?q=place_id:${config.contact?.google_maps_id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 rounded-full bg-white px-8 py-4 font-bold text-[var(--text-primary)] shadow-xl transition-all duration-300 hover:scale-105 hover:shadow-2xl active:scale-95"
+                    >
+                      <Icons.MapPin className="h-5 w-5 text-[var(--primary)]" />
+                      {config.ui_labels?.home?.map_button}
+                      <Icons.ExternalLink className="h-4 w-4 text-[var(--text-muted)]" />
+                    </a>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -1,11 +1,11 @@
 /**
- * VetePy Branding Configuration
+ * Vetic Branding Configuration
  *
  * This file centralizes all brand-related settings to enable easy white-labeling.
  * Change values here to rebrand the entire platform.
  *
  * Company: AI-Whisperers
- * Brand: VetePy
+ * Brand: Vetic
  */
 
 export interface BrandConfig {
@@ -61,13 +61,13 @@ export interface BrandConfig {
 }
 
 /**
- * Default brand configuration for VetePy
+ * Default brand configuration for Vetic
  * To white-label, create a new config object with your brand details
  */
 export const brandConfig: BrandConfig = {
-  name: 'VetePy',
+  name: 'Vetic',
   tagline: 'Tu clínica veterinaria, digitalizada',
-  domain: 'vetepy.com',
+  domain: 'Vetic.com',
 
   company: {
     name: 'AI-Whisperers',
@@ -75,7 +75,7 @@ export const brandConfig: BrandConfig = {
     country: 'Paraguay',
     taxId: '', // TODO: Add when registered
     address: 'Asunción, Paraguay',
-    email: 'contacto@vetepy.com',
+    email: 'contacto@Vetic.com',
     phone: '+595 XXX XXX XXX',
   },
 
@@ -88,14 +88,14 @@ export const brandConfig: BrandConfig = {
   },
 
   social: {
-    instagram: 'https://instagram.com/vetepy',
-    facebook: 'https://facebook.com/vetepy',
+    instagram: 'https://instagram.com/Vetic',
+    facebook: 'https://facebook.com/Vetic',
     whatsapp: 'https://wa.me/595XXXXXXXXX',
   },
 
   features: {
     showPoweredBy: true,
-    poweredByText: 'Powered by VetePy',
+    poweredByText: 'Powered by Vetic',
     allowWhiteLabel: true,
   },
 

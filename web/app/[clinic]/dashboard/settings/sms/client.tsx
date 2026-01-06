@@ -204,7 +204,7 @@ export default function SmsSettings({ clinic, userPhone }: Props) {
               <div className="rounded-2xl border border-blue-100 bg-blue-50 p-6">
                 <h3 className="mb-2 font-bold text-blue-900">Acerca de Twilio</h3>
                 <p className="mb-4 text-sm text-blue-700">
-                  VetePy usa Twilio para enviar mensajes SMS. Necesitarás una cuenta de Twilio con
+                  Vetic usa Twilio para enviar mensajes SMS. Necesitarás una cuenta de Twilio con
                   un número de teléfono habilitado para SMS.
                 </p>
                 <a

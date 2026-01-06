@@ -324,7 +324,7 @@ export function NetworkMap() {
             Encuentra tu Veterinaria
           </span>
           <h2 className="mb-6 text-3xl font-black text-white md:text-4xl lg:text-5xl">
-            Red de Clinicas VetePy
+            Red de Clinicas Vetic
           </h2>
           <p className="mx-auto max-w-2xl text-lg text-white/60">
             Busca la clinica mas cercana a vos. Todas con el mismo nivel de tecnologia y
@@ -547,7 +547,7 @@ export function NetworkMap() {
             {/* Open in Google Maps */}
             <div className="mt-4 text-center">
               <a
-                href="https://www.google.com/maps/search/veterinaria+vetepy+paraguay"
+                href="https://www.google.com/maps/search/veterinaria+Vetic+paraguay"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 text-sm text-white/50 transition-colors hover:text-[var(--primary)]"
@@ -563,7 +563,7 @@ export function NetworkMap() {
         <div className="mt-12 text-center">
           <p className="mb-4 text-white/50">¿Tu veterinaria favorita no esta en la red?</p>
           <a
-            href="https://wa.me/595981324569?text=Hola!%20Me%20gustaria%20que%20mi%20veterinaria%20use%20VetePy"
+            href="https://wa.me/595981324569?text=Hola!%20Me%20gustaria%20que%20mi%20veterinaria%20use%20Vetic"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-5 py-2.5 font-medium text-white transition-all hover:bg-white/10"

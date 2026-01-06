@@ -4,7 +4,7 @@ import { Check, Server, Users, Palette, ArrowRight, X, Sparkles } from 'lucide-r
 
 const benefits = [
   'Tu propio sitio web profesional en dias, no meses',
-  'URL personalizada (tunombre.vetepy.com o tu dominio)',
+  'URL personalizada (tunombre.Vetic.com o tu dominio)',
   'Tu logo, colores y fotos - tu identidad completa',
   'Citas online 24/7 + historial medico digital',
   'Actualizaciones automaticas sin costo extra',
@@ -56,7 +56,7 @@ export function SolutionSection() {
             Tecnologia profesional precio accesible
           </h2>
           <p className="mx-auto max-w-2xl text-sm text-white/60 md:text-base lg:text-lg">
-            VetePy es una red de sitios veterinarios que comparten tecnologia. Vos obtenes un sitio
+            Vetic es una red de sitios veterinarios que comparten tecnologia. Vos obtenes un sitio
             profesional completo, nosotros manejamos todo lo tecnico.
           </p>
         </div>
@@ -77,7 +77,7 @@ export function SolutionSection() {
           ))}
         </div>
 
-        {/* Comparison: VetePy vs Traditional */}
+        {/* Comparison: Vetic vs Traditional */}
         <div className="mx-auto mb-12 max-w-5xl md:mb-16">
           <h3 className="mb-6 text-center text-xl font-bold text-white md:mb-8 md:text-2xl">
             Compara los numeros
@@ -127,7 +127,7 @@ export function SolutionSection() {
               </div>
             </div>
 
-            {/* VetePy - Solution */}
+            {/* Vetic - Solution */}
             <div className="relative order-1 rounded-2xl border border-[#2DCEA3]/30 bg-gradient-to-br from-[#2DCEA3]/10 to-[#5C6BFF]/10 p-5 md:order-2 md:p-6">
               <div className="absolute -top-3 right-4">
                 <span className="rounded-full bg-[#2DCEA3] px-3 py-1 text-xs font-bold text-[#0F172A]">
@@ -140,7 +140,7 @@ export function SolutionSection() {
                   <Check className="h-5 w-5 text-[#2DCEA3]" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-white">VetePy</h4>
+                  <h4 className="font-bold text-white">Vetic</h4>
                   <p className="text-xs text-white/40">Todo incluido, sin sorpresas</p>
                 </div>
               </div>

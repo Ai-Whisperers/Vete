@@ -21,7 +21,7 @@ export async function generateClinicMetadata(
 ): Promise<Metadata> {
   const clinicData = await getClinicData(clinic)
   const clinicName = clinicData?.config?.name || 'Veterinaria'
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://vetepy.vercel.app'
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://Vetic.vercel.app'
 
   return {
     title: `${page.title} | ${clinicName}`,

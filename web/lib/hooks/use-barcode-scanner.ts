@@ -26,7 +26,7 @@ interface UseBarcodeScanner {
   error: string | null
   isManualMode: boolean
   manualInput: string
-  containerRef: React.RefObject<HTMLDivElement>
+  containerRef: React.RefObject<HTMLDivElement | null>
   setManualMode: (mode: boolean) => void
   setManualInput: (input: string) => void
   startScanner: () => Promise<void>

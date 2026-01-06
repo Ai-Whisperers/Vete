@@ -4,6 +4,8 @@ import Link from 'next/link'
 import * as Icons from 'lucide-react'
 import { Inbox } from '@/components/whatsapp/inbox'
 import { getConversations, getWhatsAppStats } from '@/app/actions/whatsapp'
+import { requireFeature } from '@/lib/features'
+import { UpgradePromptServer } from '@/components/dashboard/upgrade-prompt-server'
 
 interface Props {
   params: Promise<{ clinic: string }>
@@ -30,6 +32,19 @@ export default async function WhatsAppPage({ params }: Props) {
 
   if (!profile || !['vet', 'admin'].includes(profile.role) || profile.tenant_id !== clinic) {
     redirect(`/${clinic}/portal/dashboard`)
+  }
+
+  // Feature gate: WhatsApp Business API requires 'whatsappApi' feature
+  const featureError = await requireFeature(profile.tenant_id, 'whatsappApi')
+  if (featureError) {
+    return (
+      <UpgradePromptServer
+        feature="whatsappApi"
+        title="WhatsApp Business API"
+        description="Envía mensajes automatizados, recordatorios y comunicaciones masivas por WhatsApp."
+        clinic={clinic}
+      />
+    )
   }
 
   // Fetch conversations and stats in parallel

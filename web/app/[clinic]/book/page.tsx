@@ -5,7 +5,7 @@ import { Metadata } from 'next'
 import BookingWizard from '@/components/booking/booking-wizard'
 import { BreadcrumbSchema } from '@/components/seo/structured-data'
 
-const BASE_URL = 'https://vetepy.vercel.app'
+const BASE_URL = 'https://Vetic.vercel.app'
 
 export async function generateMetadata({
   params,

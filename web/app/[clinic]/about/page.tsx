@@ -27,7 +27,7 @@ import { FacilitiesGallery } from '@/components/about/facilities-gallery'
 import { CertificationBadge } from '@/components/about/certification-badge'
 import { TeamSchema, BreadcrumbSchema } from '@/components/seo/structured-data'
 
-const BASE_URL = 'https://vetepy.vercel.app'
+const BASE_URL = 'https://Vetic.vercel.app'
 
 // Generate metadata for SEO
 export async function generateMetadata({

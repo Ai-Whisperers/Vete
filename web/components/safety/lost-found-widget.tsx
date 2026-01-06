@@ -102,7 +102,7 @@ export function LostFoundWidget() {
           <Search className="h-5 w-5 text-[var(--status-error,#ef4444)]" />
           Mascotas Perdidas
         </h3>
-        <span className="rounded-full bg-red-100 px-2 py-1 text-xs font-bold text-red-700">
+        <span className="rounded-full bg-[var(--status-error-bg,#fef2f2)] px-2 py-1 text-xs font-bold text-[var(--status-error,#ef4444)]">
           {lostPets.length} Activos
         </span>
       </div>
@@ -111,30 +111,30 @@ export function LostFoundWidget() {
         {lostPets.map((report) => (
           <div
             key={report.id}
-            className="flex cursor-pointer items-start gap-3 rounded-2xl border border-red-100 bg-red-50/50 p-3 transition-colors hover:bg-red-50"
+            className="flex cursor-pointer items-start gap-3 rounded-2xl border border-[var(--status-error-bg,#fef2f2)] bg-[var(--status-error-bg,#fef2f2)]/50 p-3 transition-colors hover:bg-[var(--status-error-bg,#fef2f2)]"
           >
-            <div className="h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-gray-200">
+            <div className="h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-[var(--bg-subtle)]">
               {report.pets.photo_url ? (
                 <img src={report.pets.photo_url} className="h-full w-full object-cover" />
               ) : (
-                <div className="flex h-full w-full items-center justify-center bg-white">
-                  <PawPrint className="h-6 w-6 text-gray-300" />
+                <div className="flex h-full w-full items-center justify-center bg-[var(--bg-paper)]">
+                  <PawPrint className="h-6 w-6 text-[var(--text-muted)]" />
                 </div>
               )}
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex items-start justify-between">
-                <h4 className="truncate font-bold text-gray-900">{report.pets.name}</h4>
+                <h4 className="truncate font-bold text-[var(--text-primary)]">{report.pets.name}</h4>
                 {report.status === 'found' && (
-                  <span className="rounded bg-green-100 px-1.5 py-0.5 text-[10px] font-bold uppercase text-green-700">
+                  <span className="rounded bg-[var(--status-success-bg,#dcfce7)] px-1.5 py-0.5 text-[10px] font-bold uppercase text-[var(--status-success,#22c55e)]">
                     Encontrado
                   </span>
                 )}
               </div>
-              <p className="truncate text-xs text-gray-500">
+              <p className="truncate text-xs text-[var(--text-secondary)]">
                 Props: {report.pets.profiles.full_name}
               </p>
-              <div className="mt-1 flex items-center gap-1 text-xs font-medium text-red-600">
+              <div className="mt-1 flex items-center gap-1 text-xs font-medium text-[var(--status-error,#ef4444)]">
                 <MapPin className="h-3 w-3" />
                 <span className="truncate">{report.last_seen_location}</span>
               </div>

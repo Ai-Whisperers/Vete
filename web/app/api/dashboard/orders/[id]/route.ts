@@ -156,6 +156,39 @@ export const PUT = withApiAuthParams(
 
       if (error) throw error
 
+      // Calculate commission when payment is marked as paid
+      if (payment_status === 'paid') {
+        const { error: commissionError } = await supabase.rpc('calculate_order_commission', {
+          p_order_id: orderId,
+        })
+
+        if (commissionError) {
+          // Log but don't fail the order update
+          logger.warn('Failed to calculate commission', {
+            tenantId: profile.tenant_id,
+            orderId,
+            error: commissionError.message,
+          })
+        }
+      }
+
+      // Adjust commission when order is refunded
+      if (payment_status === 'refunded' || status === 'refunded') {
+        const { error: adjustError } = await supabase.rpc('adjust_commission_for_refund', {
+          p_order_id: orderId,
+          p_refund_amount: order.total,
+          p_reason: cancellation_reason || 'Order refunded',
+        })
+
+        if (adjustError) {
+          logger.warn('Failed to adjust commission for refund', {
+            tenantId: profile.tenant_id,
+            orderId,
+            error: adjustError.message,
+          })
+        }
+      }
+
       return NextResponse.json({ order })
     } catch (e) {
       logger.error('Error updating order', {

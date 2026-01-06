@@ -142,9 +142,9 @@ export default function BookingWizard({
           />
         </div>
 
-        <div className="grid items-start gap-12 lg:grid-cols-[1fr_350px]">
+        <div className="grid items-start gap-6 md:gap-8 lg:grid-cols-[1fr_350px] lg:gap-12">
           {/* Main Content Area */}
-          <div className="relative min-h-[500px] overflow-hidden rounded-[3rem] border border-white/50 bg-white/70 p-8 shadow-2xl shadow-gray-200/50 backdrop-blur-xl md:p-12">
+          <div className="relative min-h-[400px] overflow-hidden rounded-2xl border border-white/50 bg-white/70 p-6 shadow-2xl shadow-[var(--shadow-color)]/50 backdrop-blur-xl sm:min-h-[500px] sm:rounded-[3rem] md:p-12">
             {/* Background Decorations */}
             <div className="bg-[var(--primary)]/5 absolute -right-24 -top-24 h-64 w-64 rounded-full blur-3xl"></div>
             <div className="bg-[var(--primary)]/5 absolute -bottom-24 -left-24 h-64 w-64 rounded-full blur-3xl"></div>

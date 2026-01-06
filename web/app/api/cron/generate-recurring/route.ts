@@ -45,7 +45,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     )
 
     if (genError) {
-      logger.error('Error generating recurring appointments:', genError)
+      logger.error('Error generating recurring appointments:', { error: genError.message })
       results.errors.push(`Generation error: ${genError.message}`)
     } else {
       results.generated = generated?.length || 0
@@ -72,7 +72,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     if (expireError) {
       // This is not critical, just log it
-      logger.warn('Error expiring waitlist offers:', expireError)
+      logger.warn('Error expiring waitlist offers:', { error: expireError.message })
     } else {
       results.expired_offers_processed = expiredCount || 0
       if (expiredCount > 0) {
@@ -108,7 +108,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       .select('id')
 
     if (resumeError) {
-      logger.warn('Error resuming paused recurrences:', resumeError)
+      logger.warn('Error resuming paused recurrences:', { error: resumeError.message })
     } else if (toResume && toResume.length > 0) {
       logger.info(`Resumed ${toResume.length} paused recurrences`)
     }
@@ -121,7 +121,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       recurrences_processed: results.recurrences_processed.size,
     })
   } catch (error) {
-    logger.error('Fatal error in generate-recurring cron:', error)
+    logger.error('Fatal error in generate-recurring cron:', {
+      error: error instanceof Error ? error.message : String(error),
+    })
 
     return NextResponse.json(
       {

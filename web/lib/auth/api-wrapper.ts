@@ -19,6 +19,14 @@ export interface ApiHandlerContext extends AuthContext {
   scoped: ScopedQueries
 }
 
+/**
+ * API handler context with route params for dynamic routes
+ * @template P - The params type (e.g., { id: string })
+ */
+export type ApiHandlerContextWithParams<P = Record<string, string>> = ApiHandlerContext & {
+  params: P
+}
+
 export interface ApiRouteOptions {
   roles?: UserRole[]
   requireTenant?: boolean
@@ -30,7 +38,7 @@ export interface ApiRouteOptions {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ApiHandler = (context: ApiHandlerContext) => Promise<NextResponse<any>>
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type ApiHandlerWithParams<P> = (context: ApiHandlerContext, params: P) => Promise<NextResponse<any>>
+type ApiHandlerWithParams<P> = (context: ApiHandlerContextWithParams<P>) => Promise<NextResponse<any>>
 
 /**
  * Enhanced API route wrapper with centralized authentication
@@ -134,13 +142,14 @@ export function withApiAuthParams<P extends Record<string, string>>(
       }
 
       // Execute handler with scoped queries for tenant isolation
-      const handlerContext: ApiHandlerContext = {
+      const handlerContext: ApiHandlerContextWithParams<P> = {
         ...authResult.context,
         request,
         scoped: scopedQueries(authResult.context.supabase, authResult.context.profile.tenant_id),
+        params,
       }
 
-      return await handler(handlerContext, params)
+      return await handler(handlerContext)
     } catch (error) {
       console.error('API route error:', error)
       return apiError('SERVER_ERROR', 500)

@@ -18,6 +18,7 @@ export interface DrizzleProfileRow {
   email: string | null
   phone?: string | null
   avatarUrl?: string | null
+  isPlatformAdmin?: boolean
   createdAt: string | Date
   updatedAt: string | Date
 }
@@ -34,6 +35,7 @@ export interface SupabaseProfileRow {
   phone?: string | null
   avatar_url?: string | null
   is_active?: boolean
+  is_platform_admin?: boolean
   created_at: string
   updated_at: string
 }
@@ -68,6 +70,7 @@ export function drizzleProfileToUserProfile(row: DrizzleProfileRow): UserProfile
     phone: row.phone ?? null,
     avatar_url: row.avatarUrl ?? null,
     is_active: true, // Drizzle schema doesn't have is_active column, default to true
+    is_platform_admin: row.isPlatformAdmin ?? false,
     created_at: typeof row.createdAt === 'string' ? row.createdAt : row.createdAt.toISOString(),
     updated_at: typeof row.updatedAt === 'string' ? row.updatedAt : row.updatedAt.toISOString(),
   }
@@ -91,6 +94,7 @@ export function supabaseProfileToUserProfile(row: SupabaseProfileRow): UserProfi
     phone: row.phone ?? null,
     avatar_url: row.avatar_url ?? null,
     is_active: row.is_active ?? true,
+    is_platform_admin: row.is_platform_admin ?? false,
     created_at: row.created_at,
     updated_at: row.updated_at,
   }

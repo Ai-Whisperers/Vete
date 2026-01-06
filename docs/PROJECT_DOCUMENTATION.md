@@ -1,7 +1,7 @@
-# VetePy - Complete Project Documentation
+# Vetic - Complete Project Documentation
 
 > **Last Updated**: January 2026
-> **Purpose**: Comprehensive reference for understanding, maintaining, and extending the VetePy veterinary platform
+> **Purpose**: Comprehensive reference for understanding, maintaining, and extending the Vetic veterinary platform
 
 ---
 
@@ -26,19 +26,21 @@
 
 ## 1. Executive Summary
 
-**VetePy** is a multi-tenant SaaS veterinary clinic management platform built for the Paraguay market. It serves multiple veterinary clinics from a single codebase using dynamic routing and tenant isolation.
+**Vetic** is a multi-tenant SaaS veterinary clinic management platform built for the Paraguay market. It serves multiple veterinary clinics from a single codebase using dynamic routing and tenant isolation.
 
 ### Key Numbers
-| Metric | Count |
-|--------|-------|
-| REST API Endpoints | 82+ |
-| Server Actions | 27 |
-| React Components | 271 |
-| Database Tables | 100+ |
-| Test Coverage | 1,125 tests |
-| Static Pages | 127 |
+
+| Metric             | Count       |
+| ------------------ | ----------- |
+| REST API Endpoints | 82+         |
+| Server Actions     | 27          |
+| React Components   | 271         |
+| Database Tables    | 100+        |
+| Test Coverage      | 1,125 tests |
+| Static Pages       | 127         |
 
 ### Core Features
+
 - **Public Websites**: Each clinic gets a branded public website (services, team, contact)
 - **Pet Owner Portal**: Pet profiles, vaccine records, appointments, medical history
 - **Staff Dashboard**: Appointments, patients, invoices, inventory, analytics
@@ -54,53 +56,60 @@
 ## 2. Technology Stack
 
 ### Core Framework
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| Next.js | 15.5.9 | React framework (App Router) |
-| React | 19.2.3 | UI library |
-| TypeScript | 5.x | Type safety (strict mode) |
+
+| Technology   | Version    | Purpose                            |
+| ------------ | ---------- | ---------------------------------- |
+| Next.js      | 15.5.9     | React framework (App Router)       |
+| React        | 19.2.3     | UI library                         |
+| TypeScript   | 5.x        | Type safety (strict mode)          |
 | Tailwind CSS | **3.4.19** | Styling (**DO NOT upgrade to v4**) |
 
 ### Database & Auth
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| Supabase | 2.88.0 | PostgreSQL + Auth + Storage |
-| Row Level Security | - | Tenant isolation at DB level |
+
+| Technology         | Version | Purpose                      |
+| ------------------ | ------- | ---------------------------- |
+| Supabase           | 2.88.0  | PostgreSQL + Auth + Storage  |
+| Row Level Security | -       | Tenant isolation at DB level |
 
 ### Form & Validation
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| React Hook Form | 7.69.0 | Form state management |
-| Zod | 4.2.1 | Runtime validation |
+
+| Technology      | Version | Purpose               |
+| --------------- | ------- | --------------------- |
+| React Hook Form | 7.69.0  | Form state management |
+| Zod             | 4.2.1   | Runtime validation    |
 
 ### Data Management
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| TanStack Query | 5.90.12 | Server state caching |
-| Zustand | 5.0.9 | Client state management |
-| date-fns | 4.1.0 | Date utilities |
+
+| Technology     | Version | Purpose                 |
+| -------------- | ------- | ----------------------- |
+| TanStack Query | 5.90.12 | Server state caching    |
+| Zustand        | 5.0.9   | Client state management |
+| date-fns       | 4.1.0   | Date utilities          |
 
 ### UI & Features
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| lucide-react | 0.561.0 | Icons (600+) |
-| @react-pdf/renderer | 4.3.1 | PDF generation |
-| recharts | 3.6.0 | Charts & graphs |
-| framer-motion | 12.23.26 | Animations |
+
+| Technology          | Version  | Purpose         |
+| ------------------- | -------- | --------------- |
+| lucide-react        | 0.561.0  | Icons (600+)    |
+| @react-pdf/renderer | 4.3.1    | PDF generation  |
+| recharts            | 3.6.0    | Charts & graphs |
+| framer-motion       | 12.23.26 | Animations      |
 
 ### Communication
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| Resend | 6.6.0 | Email sending |
-| Twilio | 5.10.7 | SMS & WhatsApp |
-| Inngest | 3.48.1 | Background jobs |
+
+| Technology | Version | Purpose         |
+| ---------- | ------- | --------------- |
+| Resend     | 6.6.0   | Email sending   |
+| Twilio     | 5.10.7  | SMS & WhatsApp  |
+| Inngest    | 3.48.1  | Background jobs |
 
 ### Testing
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| Vitest | 4.0.16 | Unit testing |
-| Playwright | 1.57.0 | E2E testing |
-| MSW | 2.12.4 | API mocking |
+
+| Technology | Version | Purpose      |
+| ---------- | ------- | ------------ |
+| Vitest     | 4.0.16  | Unit testing |
+| Playwright | 1.57.0  | E2E testing  |
+| MSW        | 2.12.4  | API mocking  |
 
 ---
 
@@ -167,21 +176,22 @@ Vete/
 
 The database is organized into 13 logical domains:
 
-| Domain | Prefix | Tables | Key Entities |
-|--------|--------|--------|--------------|
-| Core | 10_ | 3 | tenants, profiles, clinic_invites |
-| Pets | 20_ | 4 | pets, vaccines, qr_tags, lost_pets |
-| Clinical | 30_ | 20+ | lab_orders, medical_records, hospitalizations |
-| Scheduling | 40_ | 2 | services, appointments |
-| Finance | 50_ | 12 | invoices, payments, expenses, loyalty |
-| Store | 60_ | 9+ | products, inventory, orders |
-| Communications | 70_ | 6 | messages, reminders |
-| Insurance | 80_ | 5 | policies, claims |
-| System | 85_ | 8+ | staff, audit, notifications |
+| Domain         | Prefix | Tables | Key Entities                                  |
+| -------------- | ------ | ------ | --------------------------------------------- |
+| Core           | 10\_   | 3      | tenants, profiles, clinic_invites             |
+| Pets           | 20\_   | 4      | pets, vaccines, qr_tags, lost_pets            |
+| Clinical       | 30\_   | 20+    | lab_orders, medical_records, hospitalizations |
+| Scheduling     | 40\_   | 2      | services, appointments                        |
+| Finance        | 50\_   | 12     | invoices, payments, expenses, loyalty         |
+| Store          | 60\_   | 9+     | products, inventory, orders                   |
+| Communications | 70\_   | 6      | messages, reminders                           |
+| Insurance      | 80\_   | 5      | policies, claims                              |
+| System         | 85\_   | 8+     | staff, audit, notifications                   |
 
 ### Core Tables
 
 #### `tenants` - Multi-Tenancy Root
+
 ```sql
 tenants (
   id TEXT PRIMARY KEY,           -- URL slug: "adris", "petlife"
@@ -193,6 +203,7 @@ tenants (
 ```
 
 #### `profiles` - Users
+
 ```sql
 profiles (
   id UUID PRIMARY KEY,           -- Links to auth.users
@@ -205,6 +216,7 @@ profiles (
 ```
 
 #### `pets` - Core Entity
+
 ```sql
 pets (
   id UUID PRIMARY KEY,
@@ -219,6 +231,7 @@ pets (
 ```
 
 #### `appointments`
+
 ```sql
 appointments (
   id UUID PRIMARY KEY,
@@ -233,6 +246,7 @@ appointments (
 ```
 
 #### `invoices` & `payments`
+
 ```sql
 invoices (
   id UUID PRIMARY KEY,
@@ -271,6 +285,7 @@ CREATE POLICY "Owner view own" ON pets
 ```
 
 **Key RLS Functions:**
+
 - `is_staff_of(tenant_id)` - Returns true if user is vet/admin in tenant
 - `is_owner_of(pet_id)` - Returns true if user owns the pet
 
@@ -304,51 +319,54 @@ api/
 All routes use `withAuth` middleware:
 
 ```typescript
-import { withAuth } from '@/lib/auth/api-wrapper';
+import { withAuth } from "@/lib/auth/api-wrapper";
 
 export const GET = withAuth(
   async ({ user, profile, supabase, request }) => {
     // profile contains: tenant_id, role, id
     const { data } = await supabase
-      .from('table')
-      .select('*')
-      .eq('tenant_id', profile.tenant_id);  // MANDATORY
+      .from("table")
+      .select("*")
+      .eq("tenant_id", profile.tenant_id); // MANDATORY
 
     return NextResponse.json(data);
   },
-  { roles: ['vet', 'admin'] }  // Optional role restriction
+  { roles: ["vet", "admin"] } // Optional role restriction
 );
 ```
 
 ### Common Endpoints
 
 #### Appointments
-| Method | Endpoint | Purpose |
-|--------|----------|---------|
-| GET | `/api/appointments` | List appointments |
-| POST | `/api/appointments` | Create appointment |
-| GET | `/api/appointments/[id]` | Get appointment |
-| PUT | `/api/appointments/[id]` | Update appointment |
-| POST | `/api/appointments/[id]/check-in` | Check-in patient |
-| POST | `/api/appointments/[id]/complete` | Complete appointment |
-| GET | `/api/appointments/slots` | Available time slots |
+
+| Method | Endpoint                          | Purpose              |
+| ------ | --------------------------------- | -------------------- |
+| GET    | `/api/appointments`               | List appointments    |
+| POST   | `/api/appointments`               | Create appointment   |
+| GET    | `/api/appointments/[id]`          | Get appointment      |
+| PUT    | `/api/appointments/[id]`          | Update appointment   |
+| POST   | `/api/appointments/[id]/check-in` | Check-in patient     |
+| POST   | `/api/appointments/[id]/complete` | Complete appointment |
+| GET    | `/api/appointments/slots`         | Available time slots |
 
 #### Invoices
-| Method | Endpoint | Purpose |
-|--------|----------|---------|
-| GET | `/api/invoices` | List invoices |
-| POST | `/api/invoices` | Create invoice |
-| GET | `/api/invoices/[id]/pdf` | Download PDF |
-| POST | `/api/invoices/[id]/send` | Email invoice |
-| POST | `/api/invoices/[id]/payments` | Record payment |
+
+| Method | Endpoint                      | Purpose        |
+| ------ | ----------------------------- | -------------- |
+| GET    | `/api/invoices`               | List invoices  |
+| POST   | `/api/invoices`               | Create invoice |
+| GET    | `/api/invoices/[id]/pdf`      | Download PDF   |
+| POST   | `/api/invoices/[id]/send`     | Email invoice  |
+| POST   | `/api/invoices/[id]/payments` | Record payment |
 
 #### Store
-| Method | Endpoint | Purpose |
-|--------|----------|---------|
-| GET | `/api/store/products` | List products |
-| POST | `/api/store/checkout` | Process checkout |
-| POST | `/api/store/coupons/validate` | Validate coupon |
-| GET | `/api/store/orders` | Order history |
+
+| Method | Endpoint                      | Purpose          |
+| ------ | ----------------------------- | ---------------- |
+| GET    | `/api/store/products`         | List products    |
+| POST   | `/api/store/checkout`         | Process checkout |
+| POST   | `/api/store/coupons/validate` | Validate coupon  |
+| GET    | `/api/store/orders`           | Order history    |
 
 ### Error Response Format
 
@@ -370,18 +388,18 @@ Server Actions handle form submissions and mutations. Located in `web/app/action
 
 ### Action Files
 
-| File | Purpose |
-|------|---------|
-| `create-pet.ts` | Create pet with photo upload |
-| `create-appointment.ts` | Book appointment |
-| `create-vaccine.ts` | Add vaccination record |
-| `update-appointment-status.ts` | Check-in/complete |
-| `invoices.ts` | Invoice operations |
-| `assign-tag.ts` | Assign QR tag to pet |
-| `contact-form.ts` | Contact page form |
-| `invite-client.ts` | Send client invite |
-| `invite-staff.ts` | Send staff invite |
-| `whatsapp.ts` | WhatsApp integration |
+| File                           | Purpose                      |
+| ------------------------------ | ---------------------------- |
+| `create-pet.ts`                | Create pet with photo upload |
+| `create-appointment.ts`        | Book appointment             |
+| `create-vaccine.ts`            | Add vaccination record       |
+| `update-appointment-status.ts` | Check-in/complete            |
+| `invoices.ts`                  | Invoice operations           |
+| `assign-tag.ts`                | Assign QR tag to pet         |
+| `contact-form.ts`              | Contact page form            |
+| `invite-client.ts`             | Send client invite           |
+| `invite-staff.ts`              | Send staff invite            |
+| `whatsapp.ts`                  | WhatsApp integration         |
 
 ### Action Pattern
 
@@ -393,7 +411,7 @@ import { createClient } from "@/lib/supabase/server";
 
 const schema = z.object({
   name: z.string().min(1, "Campo requerido"),
-  species: z.enum(["dog", "cat", "bird"])
+  species: z.enum(["dog", "cat", "bird"]),
 });
 
 export async function createPet(
@@ -402,26 +420,31 @@ export async function createPet(
 ): Promise<ActionResult> {
   // 1. Auth check
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return { success: false, error: "No autorizado" };
 
   // 2. Validation
   const validation = schema.safeParse(Object.fromEntries(formData));
   if (!validation.success) {
-    return { success: false, fieldErrors: validation.error.flatten().fieldErrors };
+    return {
+      success: false,
+      fieldErrors: validation.error.flatten().fieldErrors,
+    };
   }
 
   // 3. Database operation
-  const { error } = await supabase.from('pets').insert({
+  const { error } = await supabase.from("pets").insert({
     ...validation.data,
     owner_id: user.id,
-    tenant_id: profile.tenant_id
+    tenant_id: profile.tenant_id,
   });
 
   if (error) return { success: false, error: "Error al guardar" };
 
   // 4. Revalidate & redirect
-  revalidatePath('/portal/pets');
+  revalidatePath("/portal/pets");
   return { success: true };
 }
 ```
@@ -432,19 +455,20 @@ export async function createPet(
 
 ### Component Categories
 
-| Category | Count | Purpose |
-|----------|-------|---------|
-| `ui/` | 40+ | Base design system (Button, Card, Input) |
-| `dashboard/` | 25+ | Staff dashboard widgets |
-| `portal/` | 20+ | Pet owner portal |
-| `booking/` | 10+ | Appointment wizard |
-| `store/` | 15+ | E-commerce |
-| `clinical/` | 10+ | Clinical tools |
-| `forms/` | 15+ | Validated forms |
+| Category     | Count | Purpose                                  |
+| ------------ | ----- | ---------------------------------------- |
+| `ui/`        | 40+   | Base design system (Button, Card, Input) |
+| `dashboard/` | 25+   | Staff dashboard widgets                  |
+| `portal/`    | 20+   | Pet owner portal                         |
+| `booking/`   | 10+   | Appointment wizard                       |
+| `store/`     | 15+   | E-commerce                               |
+| `clinical/`  | 10+   | Clinical tools                           |
+| `forms/`     | 15+   | Validated forms                          |
 
 ### Key Components
 
 #### UI Components (`components/ui/`)
+
 - `Button`, `Card`, `Badge` - Core elements
 - `Input`, `Textarea`, `Select` - Form inputs
 - `DataTable` - Sortable/filterable tables
@@ -453,6 +477,7 @@ export async function createPet(
 - `Skeleton` - Loading states
 
 #### Dashboard Components (`components/dashboard/`)
+
 - `DashboardShell` - Layout wrapper
 - `StatsCards` - KPI metrics
 - `AppointmentList` - Today's schedule
@@ -460,6 +485,7 @@ export async function createPet(
 - `RevenueChart` - Financial overview
 
 #### Booking Components (`components/booking/`)
+
 - `BookingWizard` - Multi-step form
 - `ServiceSelector` - Choose service
 - `DateTimeSelection` - Pick slot
@@ -479,6 +505,7 @@ export async function createPet(
 ```
 
 **CSS Variables (defined in theme.json):**
+
 - `--primary`, `--primary-dark`, `--primary-light`
 - `--secondary`, `--accent`
 - `--text-primary`, `--text-secondary`, `--text-muted`
@@ -517,9 +544,9 @@ Examples:
 ```typescript
 // In API route or Server Action
 const { data } = await supabase
-  .from('pets')
-  .select('*')
-  .eq('tenant_id', profile.tenant_id);  // MANDATORY!
+  .from("pets")
+  .select("*")
+  .eq("tenant_id", profile.tenant_id); // MANDATORY!
 ```
 
 **RLS enforces at database level:**
@@ -549,11 +576,11 @@ CREATE POLICY "Staff manage" ON pets
 
 ### User Roles
 
-| Role | Access |
-|------|--------|
-| `owner` | Own pets, appointments, invoices |
-| `vet` | All patients in clinic, clinical tools |
-| `admin` | Everything + settings, team, finance |
+| Role    | Access                                 |
+| ------- | -------------------------------------- |
+| `owner` | Own pets, appointments, invoices       |
+| `vet`   | All patients in clinic, clinical tools |
+| `admin` | Everything + settings, team, finance   |
 
 ### Route Protection
 
@@ -567,9 +594,9 @@ Staff:      /[clinic]/dashboard/* (vet/admin only)
 
 ```typescript
 // Protects routes, refreshes sessions
-if (path.includes('/dashboard')) {
-  if (profile?.role !== 'vet' && profile?.role !== 'admin') {
-    return redirect('/portal');
+if (path.includes("/dashboard")) {
+  if (profile?.role !== "vet" && profile?.role !== "admin") {
+    return redirect("/portal");
   }
 }
 ```
@@ -646,7 +673,7 @@ if (path.includes('/dashboard')) {
 ### Loading Content
 
 ```typescript
-import { getClinicData } from '@/lib/clinics';
+import { getClinicData } from "@/lib/clinics";
 
 export default async function Page({ params }) {
   const { clinic } = await params;
@@ -749,10 +776,10 @@ npm run test:coverage
 
 ```typescript
 // tests/unit/actions/create-pet.test.ts
-describe('createPet', () => {
-  it('validates required fields', async () => {
+describe("createPet", () => {
+  it("validates required fields", async () => {
     const formData = new FormData();
-    formData.append('name', '');  // Invalid
+    formData.append("name", ""); // Invalid
 
     const result = await createPet(null, formData);
 
@@ -834,6 +861,7 @@ INNGEST_API_KEY=xxx          # Background jobs
 
 **Cause**: Tailwind v4 was installed
 **Solution**: Keep Tailwind at v3.4.19
+
 ```bash
 npm install tailwindcss@3.4.19
 ```
@@ -842,6 +870,7 @@ npm install tailwindcss@3.4.19
 
 **Cause**: Missing `tenant_id` filter in query
 **Solution**: Always filter:
+
 ```typescript
 .eq('tenant_id', profile.tenant_id)
 ```
@@ -850,8 +879,9 @@ npm install tailwindcss@3.4.19
 
 **Cause**: Hardcoded colors like `bg-blue-500`
 **Solution**: Use CSS variables:
+
 ```tsx
-className="bg-[var(--primary)]"
+className = "bg-[var(--primary)]";
 ```
 
 ### Issue: Auth redirect loop
@@ -863,13 +893,15 @@ className="bg-[var(--primary)]"
 
 **Cause**: Default Zod messages
 **Solution**: Add Spanish messages:
+
 ```typescript
-z.string().min(1, "Campo requerido")
+z.string().min(1, "Campo requerido");
 ```
 
 ### Issue: Large commit fails to push
 
 **Solution**: Increase buffer:
+
 ```bash
 git config http.postBuffer 524288000
 ```
@@ -880,14 +912,14 @@ git config http.postBuffer 524288000
 
 ### Key Files
 
-| File | Purpose |
-|------|---------|
-| `CLAUDE.md` | AI context, coding standards |
-| `middleware.ts` | Route protection |
-| `lib/supabase/server.ts` | Database client |
-| `lib/auth/api-wrapper.ts` | Auth middleware |
-| `lib/clinics.ts` | JSON-CMS loader |
-| `.content_data/*/config.json` | Clinic settings |
+| File                          | Purpose                      |
+| ----------------------------- | ---------------------------- |
+| `CLAUDE.md`                   | AI context, coding standards |
+| `middleware.ts`               | Route protection             |
+| `lib/supabase/server.ts`      | Database client              |
+| `lib/auth/api-wrapper.ts`     | Auth middleware              |
+| `lib/clinics.ts`              | JSON-CMS loader              |
+| `.content_data/*/config.json` | Clinic settings              |
 
 ### Critical Rules
 
@@ -900,5 +932,5 @@ git config http.postBuffer 524288000
 
 ---
 
-*For detailed technical documentation, see the `documentation/` folder.*
-*For AI assistant context, see `CLAUDE.md`.*
+_For detailed technical documentation, see the `documentation/` folder._
+_For AI assistant context, see `CLAUDE.md`._

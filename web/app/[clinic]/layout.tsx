@@ -9,9 +9,11 @@ import { MainNav } from '@/components/layout/main-nav'
 import { ToastProvider } from '@/components/ui/Toast'
 import { CartProvider } from '@/context/cart-context'
 import { CartLayoutWrapper } from '@/components/cart/cart-layout-wrapper'
+import { TenantProviders } from '@/components/tenant-providers'
 // Note: CommandPaletteProvider moved to portal/dashboard layouts
 // Note: WishlistProvider moved to store layout
 import { createClient } from '@/lib/supabase/server'
+import { getTierById, type TierId } from '@/lib/pricing/tiers'
 import {
   Facebook,
   Instagram,
@@ -28,7 +30,7 @@ import { NewsletterForm } from '@/components/layout/newsletter-form'
 import { NextIntlClientProvider } from 'next-intl'
 import { getMessages, getLocale } from 'next-intl/server'
 
-const BASE_URL = 'https://vetepy.vercel.app'
+const BASE_URL = 'https://Vetic.vercel.app'
 
 // Generate metadata dynamically with full SEO support
 export async function generateMetadata({
@@ -218,6 +220,23 @@ export default async function ClinicLayout({
   const headersList = await headers()
   const pathname = headersList.get('x-pathname') || ''
   const isDashboardRoute = pathname.includes('/dashboard')
+  const isPortalRoute = pathname.includes('/portal')
+
+  // Fetch tenant subscription tier for feature flags and ads
+  const { data: tenantData } = await supabase
+    .from('tenants')
+    .select('subscription_tier, is_trial, trial_end_date')
+    .eq('id', clinic)
+    .single()
+
+  const tier: TierId = (tenantData?.subscription_tier as TierId) || 'gratis'
+  const tierConfig = getTierById(tier)
+  const tierFeatures = tierConfig?.features || getTierById('gratis')!.features
+  const isOnTrial = tenantData?.is_trial || false
+  const trialEndsAt = tenantData?.trial_end_date || null
+
+  // Show ads only on public pages for free tier
+  const showAds = tier === 'gratis' && !isDashboardRoute && !isPortalRoute
 
   // Generate structured data for SEO
   const structuredData = generateStructuredData(clinic, config)
@@ -246,6 +265,13 @@ export default async function ClinicLayout({
     <ToastProvider>
       <CartProvider>
         <NextIntlClientProvider locale={locale} messages={messages}>
+          {/* Leaflet CSS for interactive maps */}
+          <link
+            rel="stylesheet"
+            href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+            integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+            crossOrigin=""
+          />
           <div className="font-body flex min-h-screen flex-col bg-[var(--bg-default)] font-sans text-[var(--text-main)]">
             <ClinicThemeProvider theme={data.theme} />
 
@@ -287,9 +313,18 @@ export default async function ClinicLayout({
               </div>
             </header>
 
-            <main id="main-content" tabIndex={-1} className="flex-1">
-              {children}
-            </main>
+            <TenantProviders
+              tenantId={clinic}
+              tier={tier}
+              tierFeatures={tierFeatures}
+              isOnTrial={isOnTrial}
+              trialEndsAt={trialEndsAt}
+              showAds={showAds}
+            >
+              <main id="main-content" tabIndex={-1} className="flex-1">
+                {children}
+              </main>
+            </TenantProviders>
 
             {/* Footer - Enhanced */}
             <footer

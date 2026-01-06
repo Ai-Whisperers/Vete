@@ -195,6 +195,13 @@ export class AuthService {
   }
 
   /**
+   * Check if user is platform admin (cross-tenant access)
+   */
+  static isPlatformAdmin(profile: UserProfile): boolean {
+    return profile.is_platform_admin === true
+  }
+
+  /**
    * Check if user owns a resource
    */
   static ownsResource(profile: UserProfile, resourceOwnerId: string): boolean {
@@ -234,6 +241,13 @@ export function isStaff(profile: MinimalProfile): boolean {
  */
 export function isAdmin(profile: MinimalProfile): boolean {
   return profile.role === 'admin'
+}
+
+/**
+ * Check if user is platform admin (cross-tenant access)
+ */
+export function isPlatformAdmin(profile: MinimalProfile & { is_platform_admin?: boolean }): boolean {
+  return profile.is_platform_admin === true
 }
 
 /**

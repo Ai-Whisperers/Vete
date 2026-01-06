@@ -6,7 +6,7 @@
 
 ## Nota Importante
 
-VetePy puede proporcionarle plantillas estándar de políticas de privacidad y términos de servicio adaptadas para clínicas veterinarias en Paraguay.
+Vetic puede proporcionarle plantillas estándar de políticas de privacidad y términos de servicio adaptadas para clínicas veterinarias en Paraguay.
 
 Si tiene políticas propias o requisitos específicos, complete este formulario.
 
@@ -16,14 +16,11 @@ Si tiene políticas propias o requisitos específicos, complete este formulario.
 
 ### ¿Cómo desea manejar las políticas legales?
 
-[ ] **Usar plantillas de VetePy** (recomendado)
-    > Usaremos plantillas estándar adaptadas con su información.
+[ ] **Usar plantillas de Vetic** (recomendado) > Usaremos plantillas estándar adaptadas con su información.
 
-[ ] **Tengo mis propias políticas**
-    > Adjunte los documentos o péguelos abajo.
+[ ] **Tengo mis propias políticas** > Adjunte los documentos o péguelos abajo.
 
-[ ] **Necesito asesoría legal**
-    > Le recomendaremos un abogado especializado.
+[ ] **Necesito asesoría legal** > Le recomendaremos un abogado especializado.
 
 [ ] **No deseo incluir políticas** (no recomendado)
 
@@ -31,14 +28,15 @@ Si tiene políticas propias o requisitos específicos, complete este formulario.
 
 ## 8.2 Política de Privacidad
 
-### Si usa plantilla de VetePy, confirme estos datos:
+### Si usa plantilla de Vetic, confirme estos datos:
 
-- **Nombre legal de la empresa:** _________________________________
-- **RUC:** _________________________________
-- **Dirección legal:** _________________________________
-- **Email para solicitudes de privacidad:** _________________________________
+- **Nombre legal de la empresa:** ****************\_****************
+- **RUC:** ****************\_****************
+- **Dirección legal:** ****************\_****************
+- **Email para solicitudes de privacidad:** ****************\_****************
 
 ### Datos que recopilan de los clientes:
+
 Marque todos los que apliquen:
 
 [ ] Nombre completo
@@ -51,21 +49,19 @@ Marque todos los que apliquen:
 [ ] Historial médico de mascotas
 [ ] Fotos de mascotas
 [ ] Ubicación GPS
-[ ] Otro: _______________
+[ ] Otro: ******\_\_\_******
 
 ### ¿Comparten datos con terceros?
+
 [ ] No, nunca
 [ ] Sí, con laboratorios para análisis
 [ ] Sí, con proveedores de seguros
 [ ] Sí, con empresas de marketing (requiere consentimiento)
-[ ] Otro: _______________
+[ ] Otro: ******\_\_\_******
 
 ### Si tiene su propia política de privacidad, péguela aquí:
 
 **[RESPUESTA]:**
-
-
-
 
 ---
 
@@ -74,6 +70,7 @@ Marque todos los que apliquen:
 ### Términos de Servicio Veterinario
 
 #### Consentimiento Informado
+
 > ¿Requieren firma de consentimiento antes de procedimientos?
 
 [ ] Sí, para todos los procedimientos
@@ -82,76 +79,70 @@ Marque todos los que apliquen:
 [ ] No
 
 #### Política de Cancelación
+
 > Describa su política de cancelación de citas.
 
 **[RESPUESTA]:**
 
-
-
 #### Política de Pagos
+
 > ¿Cuándo debe pagarse? ¿Ofrecen financiamiento?
 
 **[RESPUESTA]:**
 
-
-
 #### Política de Emergencias
+
 > ¿Qué pasa si el cliente no puede ser contactado durante una emergencia?
 
 **[RESPUESTA]:**
 
-
-
 #### Responsabilidad
+
 > ¿Tienen cláusulas de limitación de responsabilidad?
 
 **[RESPUESTA]:**
 
-
-
 ### Si tiene sus propios términos y condiciones, péguelos aquí:
 
 **[RESPUESTA]:**
-
-
-
 
 ---
 
 ## 8.4 Términos de la Tienda Online (si aplica)
 
 ### ¿Tiene tienda online?
+
 [ ] No (saltar esta sección)
 [ ] Sí
 
 ### Política de Devoluciones
+
 **[RESPUESTA]:**
-
-
 
 ### Política de Envíos
+
 **[RESPUESTA]:**
-
-
 
 ### Garantías de Productos
+
 **[RESPUESTA]:**
-
-
 
 ---
 
 ## 8.5 Consentimientos para el Sitio Web
 
 ### Cookies
+
 [ ] Aceptar uso de cookies para analytics
 [ ] No usar cookies
 
 ### Newsletter / Marketing
+
 [ ] Deseo recopilar emails para marketing
 [ ] No recopilaré emails para marketing
 
 ### WhatsApp Business
+
 [ ] Usaré WhatsApp Business y acepto sus términos
 [ ] No usaré WhatsApp Business
 
@@ -160,13 +151,15 @@ Marque todos los que apliquen:
 ## 8.6 Información del Representante Legal
 
 ### Representante Legal
-- **Nombre completo:** _________________________________
-- **Cargo:** _________________________________
-- **Cédula de identidad:** _________________________________
-- **Email:** _________________________________
-- **Teléfono:** _________________________________
+
+- **Nombre completo:** ****************\_****************
+- **Cargo:** ****************\_****************
+- **Cédula de identidad:** ****************\_****************
+- **Email:** ****************\_****************
+- **Teléfono:** ****************\_****************
 
 ### Firma Digital
+
 [ ] Autorizo que mi nombre aparezca como responsable en las políticas del sitio
 [ ] Prefiero que aparezca solo el nombre de la empresa
 
@@ -177,9 +170,6 @@ Marque todos los que apliquen:
 > Cualquier consideración legal específica que debamos tener en cuenta.
 
 **[RESPUESTA]:**
-
-
-
 
 ---
 

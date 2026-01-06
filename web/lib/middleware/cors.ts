@@ -91,7 +91,7 @@ function setCORSHeaders(
 export const apiCORS = withCORS({
   origin:
     process.env.NODE_ENV === 'production'
-      ? ['https://vetepy.vercel.app', 'https://www.vetepy.vercel.app']
+      ? ['https://Vetic.vercel.app', 'https://www.Vetic.vercel.app']
       : '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-Request-ID'],

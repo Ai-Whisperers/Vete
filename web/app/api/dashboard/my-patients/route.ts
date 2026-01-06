@@ -6,8 +6,8 @@ interface AppointmentRow {
   start_time: string
   reason: string | null
   status: string
-  pets: { id: string; name: string; species: string } | null
-  profiles: { full_name: string } | null
+  pets: { id: string; name: string; species: string } | { id: string; name: string; species: string }[] | null
+  profiles: { full_name: string } | { full_name: string }[] | null
 }
 
 /**
@@ -78,15 +78,19 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     }
 
     // Transform to patient format
-    const patients = ((appointments || []) as AppointmentRow[]).map((apt) => ({
-      id: apt.id,
-      pet_name: apt.pets?.name || 'Sin nombre',
-      species: apt.pets?.species || 'dog',
-      owner_name: apt.profiles?.full_name || 'Cliente',
-      appointment_time: apt.start_time,
-      reason: apt.reason || 'Consulta general',
-      status: apt.status,
-    }))
+    const patients = ((appointments || []) as AppointmentRow[]).map((apt) => {
+      const pet = Array.isArray(apt.pets) ? apt.pets[0] : apt.pets
+      const profile = Array.isArray(apt.profiles) ? apt.profiles[0] : apt.profiles
+      return {
+        id: apt.id,
+        pet_name: pet?.name || 'Sin nombre',
+        species: pet?.species || 'dog',
+        owner_name: profile?.full_name || 'Cliente',
+        appointment_time: apt.start_time,
+        reason: apt.reason || 'Consulta general',
+        status: apt.status,
+      }
+    })
 
     return NextResponse.json({ patients })
   } catch (error) {

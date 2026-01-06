@@ -5,7 +5,7 @@ import ProductDetailClient from './client'
 import { ProductSchema, BreadcrumbSchema } from '@/components/seo/structured-data'
 import { getStoreProduct } from '@/app/actions/store'
 
-const BASE_URL = 'https://vetepy.vercel.app'
+const BASE_URL = 'https://Vetic.vercel.app'
 
 interface Props {
   params: Promise<{ clinic: string; id: string }>

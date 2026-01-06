@@ -136,7 +136,7 @@ export const useBookingStore = create<BookingState>((set, get) => ({
     })),
 
   initialize: (clinic, userPets, initialService, initialPetId) => {
-    const servicesList = extractServices(clinic.services)
+    const servicesList = extractServices(clinic.services as ServicesData)
     const transformed = transformServices(servicesList)
 
     // Determine initial pet: explicit param > single pet auto-select > null

@@ -19,9 +19,9 @@ export const POST = withApiAuthParams(
         user.id
       )
 
-      if (!result.success) {
+      if (!result.success || !result.invoice) {
         return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
-          details: { message: result.error },
+          details: { message: result.error || 'No se pudo generar la factura' },
         })
       }
 

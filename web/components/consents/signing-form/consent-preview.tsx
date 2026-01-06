@@ -6,7 +6,7 @@ import type { ConsentTemplate, Pet, Owner } from './types'
 
 // SEC-005: Strict DOMPurify configuration to prevent XSS
 // Only allow safe formatting tags for consent documents
-const DOMPURIFY_CONFIG: DOMPurify.Config = {
+const DOMPURIFY_CONFIG = {
   ALLOWED_TAGS: [
     'p', 'br', 'strong', 'b', 'em', 'i', 'u',
     'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
@@ -66,7 +66,7 @@ export default function ConsentPreview({
       </h3>
       <div
         className="prose max-w-none text-[var(--text-primary)]"
-        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(renderContent(), DOMPURIFY_CONFIG) }}
+        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(renderContent(), DOMPURIFY_CONFIG as Parameters<typeof DOMPurify.sanitize>[1]) }}
       />
     </div>
   )

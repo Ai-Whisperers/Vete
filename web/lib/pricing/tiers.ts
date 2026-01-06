@@ -1,5 +1,5 @@
 /**
- * VetePy Pricing Tiers Configuration
+ * Vetic Pricing Tiers Configuration
  *
  * Centralized pricing configuration for all subscription tiers.
  * All prices in Paraguayan Guaraníes (PYG).
@@ -289,22 +289,29 @@ export const discounts = {
 }
 
 /**
- * Trial configuration
+ * Trial/Promotion configuration
+ * 2026 Promotion: 2 months free Professional tier for all new subscribers
+ * Charges start on the 3rd month
  */
 export const trialConfig = {
-  standardDays: 90, // 3 months
-  referralBonusDays: 60, // +2 months for referred clinics
-  trialTier: 'profesional' as TierId, // What tier they get during trial
+  freeMonths: 2, // 2 months free for 2026
+  trialTier: 'profesional' as TierId, // Professional tier during trial
+  chargesStartMonth: 3, // Billing starts on month 3
+  promotionYear: 2026, // Year this promotion is valid
+  promotionDescription: 'Primeros 2 meses GRATIS. Se cobra a partir del 3er mes.',
 }
 
 /**
  * ROI Guarantee configuration
+ * @deprecated ROI Guarantee discontinued as of January 2026
+ * Keeping for backwards compatibility but not used in UI
  */
 export const roiGuarantee = {
-  evaluationMonths: 6, // Evaluate after 6 months
-  freeMonthsIfFailed: 6, // Give 6 free months if ROI not met
-  averageClientValue: 50000, // Gs 50,000 average client value
-  minClientSpend: 100000, // Gs 100,000 minimum to count as "new client"
+  evaluationMonths: 6,
+  freeMonthsIfFailed: 6,
+  averageClientValue: 50000,
+  minClientSpend: 100000,
+  discontinued: true, // Flag to indicate this is no longer offered
 }
 
 /**

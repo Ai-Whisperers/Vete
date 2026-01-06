@@ -286,7 +286,7 @@ function StorePageClient({ config, heroImage, initialProductData }: StorePageCli
   return (
     <div className="min-h-screen bg-[var(--bg-subtle)] pb-20">
       {/* Header */}
-      <div className="sticky top-0 z-20 border-b border-gray-100 bg-white shadow-sm">
+      <div className="sticky top-0 z-20 border-b border-[var(--border)] bg-[var(--bg-default)] shadow-sm">
         <div className="container mx-auto flex h-16 items-center justify-between gap-4 px-4">
           <Link
             href={`/${clinic}`}
@@ -298,21 +298,21 @@ function StorePageClient({ config, heroImage, initialProductData }: StorePageCli
 
           {/* Search - Desktop */}
           <form onSubmit={handleSearchSubmit} className="relative hidden max-w-md flex-1 md:block">
-            <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+            <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[var(--text-muted)]" />
             <input
               type="text"
               placeholder={labels.search_placeholder || 'Buscar productos...'}
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              className="w-full rounded-full border-none bg-gray-100 py-2.5 pl-12 pr-4 text-sm outline-none transition-all focus:ring-2 focus:ring-[var(--primary)]"
+              className="w-full rounded-full border-none bg-[var(--bg-subtle)] py-2.5 pl-12 pr-4 text-sm outline-none transition-all focus:ring-2 focus:ring-[var(--primary)]"
             />
           </form>
 
           <Link
             href={`/${clinic}/cart`}
-            className="relative flex-shrink-0 rounded-full p-2 transition hover:bg-gray-100"
+            className="relative flex-shrink-0 rounded-full p-2 transition hover:bg-[var(--bg-subtle)]"
           >
-            <ShoppingBag className="h-6 w-6 text-gray-700" />
+            <ShoppingBag className="h-6 w-6 text-[var(--text-secondary)]" />
             {cartItemCount > 0 && (
               <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-[var(--primary)] text-xs font-bold text-white">
                 {cartItemCount}

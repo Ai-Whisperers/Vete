@@ -14,15 +14,11 @@ import {
   Crown,
   Check,
   Info,
-  ShieldCheck,
   Megaphone,
 } from 'lucide-react'
 import {
-  pricingTiers,
   discounts,
   trialConfig,
-  roiGuarantee,
-  calculateRoiThreshold,
   type TierId,
 } from '@/lib/pricing/tiers'
 import { brandConfig } from '@/lib/branding/config'
@@ -42,6 +38,8 @@ interface PlanConfig {
   showAds: boolean
 }
 
+// NOTE: Growth percentages set to 0 to match detailed calculator's conservative approach
+// We don't promise growth - only show what we can actually deliver
 const plans: PlanConfig[] = [
   {
     id: 'gratis',
@@ -49,7 +47,7 @@ const plans: PlanConfig[] = [
     icon: <Gift className="h-5 w-5" />,
     color: '#94A3B8',
     monthlyCost: 0,
-    expectedGrowthPercent: 0.08,
+    expectedGrowthPercent: 0, // Conservative - no promises
     targetPatientsMin: 0,
     targetPatientsMax: 30,
     includedUsers: Infinity,
@@ -63,7 +61,7 @@ const plans: PlanConfig[] = [
     icon: <Zap className="h-5 w-5" />,
     color: '#60A5FA',
     monthlyCost: 100000,
-    expectedGrowthPercent: 0.10,
+    expectedGrowthPercent: 0, // Conservative - no promises
     targetPatientsMin: 30,
     targetPatientsMax: 80,
     includedUsers: 3,
@@ -77,12 +75,12 @@ const plans: PlanConfig[] = [
     icon: <ShoppingBag className="h-5 w-5" />,
     color: '#2DCEA3',
     monthlyCost: 200000,
-    expectedGrowthPercent: 0.15,
+    expectedGrowthPercent: 0, // Conservative - no promises
     targetPatientsMin: 80,
     targetPatientsMax: 200,
     includedUsers: 5,
     hasEcommerce: true,
-    hasBulkOrdering: true,
+    hasBulkOrdering: false, // Not launched yet
     showAds: false,
   },
   {
@@ -91,12 +89,12 @@ const plans: PlanConfig[] = [
     icon: <Stethoscope className="h-5 w-5" />,
     color: '#5C6BFF',
     monthlyCost: 400000,
-    expectedGrowthPercent: 0.18,
+    expectedGrowthPercent: 0, // Conservative - no promises
     targetPatientsMin: 200,
     targetPatientsMax: 500,
     includedUsers: 10,
     hasEcommerce: true,
-    hasBulkOrdering: true,
+    hasBulkOrdering: false, // Not launched yet
     showAds: false,
   },
   {
@@ -104,13 +102,13 @@ const plans: PlanConfig[] = [
     name: 'Empresarial',
     icon: <Crown className="h-5 w-5" />,
     color: '#F59E0B',
-    monthlyCost: 800000, // Example enterprise pricing
-    expectedGrowthPercent: 0.20,
+    monthlyCost: 0, // Custom pricing - negotiated per client
+    expectedGrowthPercent: 0, // Conservative - no promises
     targetPatientsMin: 500,
     targetPatientsMax: 2000,
     includedUsers: 20,
     hasEcommerce: true,
-    hasBulkOrdering: true,
+    hasBulkOrdering: false, // Not launched yet
     showAds: false,
   },
 ]
@@ -165,15 +163,12 @@ export function ROICalculator() {
 
     // First year calculations (no setup costs in new model)
     const yearlyAdditionalRevenue = additionalRevenuePerMonth * 12
-    const yearlyVetepyCost = monthlyCost * 12
-    const yearlyNetProfit = yearlyAdditionalRevenue - yearlyVetepyCost
-    const yearlyROI = yearlyVetepyCost > 0 ? (yearlyNetProfit / yearlyVetepyCost) * 100 : Infinity
+    const yearlyVeticCost = monthlyCost * 12
+    const yearlyNetProfit = yearlyAdditionalRevenue - yearlyVeticCost
+    const yearlyROI = yearlyVeticCost > 0 ? (yearlyNetProfit / yearlyVeticCost) * 100 : Infinity
 
     // Break-even clients needed per month
     const breakEvenClients = monthlyCost > 0 ? Math.ceil(monthlyCost / avgConsultationPrice) : 0
-
-    // ROI Guarantee threshold (monthly fee / Gs 50,000)
-    const guaranteeThreshold = calculateRoiThreshold(monthlyCost)
 
     // Months to recover (no setup cost, just see when monthly benefit > cost)
     const monthsToRecover = netMonthlyBenefit > 0 ? 1 : 999
@@ -190,15 +185,11 @@ export function ROICalculator() {
       yearlyROI: yearlyROI === Infinity ? 999 : Math.round(yearlyROI),
       breakEvenClients,
       yearlyNetProfit,
-      yearlyVetepyCost,
-      guaranteeThreshold,
+      yearlyVeticCost,
       annualPrice,
       annualSavings,
     }
   }, [monthlyConsultations, avgConsultationPrice, currentPlan])
-
-  // Check if ROI guarantee applies (paid plans only, not enterprise)
-  const hasRoiGuarantee = currentPlan.monthlyCost > 0 && currentPlan.id !== 'empresarial'
 
   return (
     <section
@@ -311,11 +302,13 @@ export function ROICalculator() {
                         <div className="flex items-center gap-2">
                           <span className="text-sm font-medium text-white">{plan.name}</span>
                           {plan.showAds && (
-                            <Megaphone className="h-3 w-3 text-amber-400" title="Muestra anuncios" />
+                            <span title="Muestra anuncios">
+                              <Megaphone className="h-3 w-3 text-amber-400" />
+                            </span>
                           )}
                         </div>
                         <div className="text-xs text-white/40">
-                          {plan.monthlyCost === 0 ? 'Gratis' : `${formatCurrencyShort(plan.monthlyCost)}/mes`}
+                          {plan.id === 'empresarial' ? 'Personalizado' : plan.monthlyCost === 0 ? 'Gratis' : `${formatCurrencyShort(plan.monthlyCost)}/mes`}
                         </div>
                       </div>
                       {currentPlan.id === plan.id &&
@@ -363,29 +356,8 @@ export function ROICalculator() {
                 </div>
               )}
 
-              {/* ROI Guarantee Banner - Only for paid plans */}
-              {hasRoiGuarantee && (
-                <div className="mb-6 rounded-xl border border-[#2DCEA3]/30 bg-[#2DCEA3]/10 p-4">
-                  <div className="flex items-start gap-3">
-                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-[#2DCEA3]/20">
-                      <ShieldCheck className="h-5 w-5 text-[#2DCEA3]" />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-white">Garantia de ROI</h4>
-                      <p className="text-sm text-white/60">
-                        Si no conseguis al menos{' '}
-                        <span className="font-bold text-[#2DCEA3]">
-                          {calculations.guaranteeThreshold} clientes nuevos
-                        </span>{' '}
-                        en {roiGuarantee.evaluationMonths} meses, los proximos{' '}
-                        <span className="font-bold text-[#2DCEA3]">
-                          {roiGuarantee.freeMonthsIfFailed} meses son GRATIS
-                        </span>.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
+              {/* ROI Guarantee Banner - DEPRECATED: Discontinued as of January 2026 */}
+              {/* Keeping code for reference but not rendering */}
 
               {/* Key Metrics Grid */}
               <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
@@ -432,7 +404,7 @@ export function ROICalculator() {
                   <div className="mb-2 flex items-center justify-between">
                     <span className="text-white/70">Costo anual</span>
                     <span className="font-bold text-white">
-                      {currentPlan.monthlyCost === 0 ? 'Gratis' : formatCurrency(calculations.yearlyVetepyCost)}
+                      {currentPlan.monthlyCost === 0 ? 'Gratis' : formatCurrency(calculations.yearlyVeticCost)}
                     </span>
                   </div>
                   {currentPlan.monthlyCost > 0 && (
@@ -499,7 +471,7 @@ export function ROICalculator() {
                 </div>
               </div>
 
-              {/* Summary */}
+              {/* Summary - Conservative messaging aligned with detailed calculator */}
               <div className="mt-6 rounded-xl border border-white/10 bg-white/5 p-4">
                 <div className="flex items-start gap-3">
                   <Sparkles
@@ -510,31 +482,26 @@ export function ROICalculator() {
                     <p className="mb-1 text-white">
                       Con {monthlyConsultations} pacientes/mes y el Plan {currentPlan.name}:
                     </p>
-                    {currentPlan.monthlyCost === 0 ? (
+                    {currentPlan.id === 'gratis' ? (
                       <p className="text-white/60">
-                        Empezas <strong className="text-[#2DCEA3]">gratis</strong> y
-                        podes atraer hasta{' '}
-                        <strong style={{ color: currentPlan.color }}>
-                          +{calculations.newClientsPerMonth} clientes nuevos
-                        </strong>{' '}
-                        al mes con tu presencia digital. Cuando estes listo, podes subir a un plan pago.
+                        Empezas <strong className="text-[#2DCEA3]">gratis</strong> con todas las herramientas esenciales:
+                        sitio web, agenda online, historiales digitales y portal para duenos.
+                        El plan muestra anuncios. Cuando estes listo, podes subir a un plan pago.
+                      </p>
+                    ) : currentPlan.id === 'empresarial' ? (
+                      <p className="text-white/60">
+                        Plan personalizado para clinicas con multiples sucursales. Incluye todas las funciones, comision reducida,
+                        acceso API y soporte dedicado. <strong className="text-[#F59E0B]">Contactanos para una cotizacion.</strong>
                       </p>
                     ) : (
                       <p className="text-white/60">
-                        {brandConfig.name} se paga solo con{' '}
+                        {brandConfig.name} te da presencia digital profesional por solo{' '}
                         <strong style={{ color: currentPlan.color }}>
-                          {calculations.breakEvenClients} clientes nuevos
-                        </strong>{' '}
-                        al mes. Con el crecimiento estimado de{' '}
-                        {Math.round(currentPlan.expectedGrowthPercent * 100)}%, vas a ganar{' '}
-                        <strong className="text-white">
-                          +{formatCurrency(calculations.netMonthlyBenefit)}/mes
-                        </strong>{' '}
-                        extra.
-                        {hasRoiGuarantee && (
-                          <span className="text-[#2DCEA3]">
-                            {' '}Y si no llegas a {calculations.guaranteeThreshold} clientes, te damos 6 meses gratis.
-                          </span>
+                          {formatCurrency(currentPlan.monthlyCost)}/mes
+                        </strong>.
+                        Con {calculations.breakEvenClients} cliente{calculations.breakEvenClients === 1 ? '' : 's'} nuevo{calculations.breakEvenClients === 1 ? '' : 's'} al mes, se paga solo.
+                        {currentPlan.hasEcommerce && (
+                          <span> Incluye tienda online (comision 3-5% sobre ventas).</span>
                         )}
                       </p>
                     )}
@@ -542,12 +509,12 @@ export function ROICalculator() {
                 </div>
               </div>
 
-              {/* Trial notice for paid plans */}
+              {/* 2026 Promotion notice for paid plans */}
               {currentPlan.monthlyCost > 0 && currentPlan.id !== 'empresarial' && (
                 <div className="mt-4 flex items-center justify-center gap-2 rounded-lg bg-white/5 p-3">
                   <Gift className="h-4 w-4 text-[#2DCEA3]" />
                   <span className="text-sm text-white/70">
-                    Prueba gratis por {trialConfig.standardDays} dias - sin compromiso
+                    {trialConfig.freeMonths} meses GRATIS - {trialConfig.promotionDescription}
                   </span>
                 </div>
               )}
@@ -580,7 +547,7 @@ export function ROICalculator() {
             </a>
             {currentPlan.monthlyCost > 0 && (
               <p className="mt-3 text-sm text-white/40">
-                {trialConfig.standardDays} dias de prueba gratis • Sin tarjeta de credito
+                {trialConfig.freeMonths} meses gratis • Sin tarjeta de credito
               </p>
             )}
           </div>

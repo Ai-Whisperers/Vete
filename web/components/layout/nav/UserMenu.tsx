@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { LogOut } from 'lucide-react'
+import { LogOut, Loader2 } from 'lucide-react'
 import type { User as SupabaseUser } from '@supabase/supabase-js'
 import type { ClinicConfig } from '@/lib/clinics'
 
@@ -9,6 +9,7 @@ interface UserMenuProps {
   clinic: string
   config: ClinicConfig
   user: SupabaseUser | null
+  isLoading: boolean
   isActive: (href: string, exact?: boolean) => boolean
   isLoggingOut: boolean
   logoutError: string | null
@@ -19,11 +20,21 @@ export function UserMenu({
   clinic,
   config,
   user,
+  isLoading,
   isActive,
   isLoggingOut,
   logoutError,
   handleLogout,
 }: Readonly<UserMenuProps>) {
+  // Show loading skeleton while checking auth to prevent flash of wrong state
+  if (isLoading) {
+    return (
+      <div className="flex items-center gap-2">
+        <div className="h-5 w-20 animate-pulse rounded bg-gray-200" />
+      </div>
+    )
+  }
+
   return (
     <>
       <Link

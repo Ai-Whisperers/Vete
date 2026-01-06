@@ -6,7 +6,7 @@ import { ServiceDetailClient } from '@/components/services/service-detail-client
 import { ServiceSchema, BreadcrumbSchema } from '@/components/seo/structured-data'
 import type { Service } from '@/lib/types/services'
 
-const BASE_URL = 'https://vetepy.vercel.app'
+const BASE_URL = 'https://Vetic.vercel.app'
 
 // Helper to find service by slug/id
 async function getService(

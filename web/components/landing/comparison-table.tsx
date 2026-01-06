@@ -4,7 +4,7 @@ import { Check, X, Minus, ArrowRight, Zap, Trophy } from 'lucide-react'
 
 interface ComparisonRow {
   feature: string
-  vetepy: string | boolean
+  Vetic: string | boolean
   traditional: string | boolean
   diy: string | boolean
 }
@@ -12,84 +12,84 @@ interface ComparisonRow {
 const comparisonData: ComparisonRow[] = [
   {
     feature: 'Costo inicial',
-    vetepy: 'desde ₲0*',
+    Vetic: 'desde ₲0*',
     traditional: '₲5-10M',
     diy: '₲500K-2M',
   },
   {
     feature: 'Costo mensual',
-    vetepy: 'desde ₲150K',
+    Vetic: 'desde ₲150K',
     traditional: '₲300-500K',
     diy: '₲100-200K',
   },
   {
     feature: 'Tiempo hasta estar online',
-    vetepy: '3-7 dias',
+    Vetic: '3-7 dias',
     traditional: '2-4 meses',
     diy: '1-3 meses',
   },
   {
     feature: 'Diseño profesional',
-    vetepy: true,
+    Vetic: true,
     traditional: true,
     diy: false,
   },
   {
     feature: 'Sistema de citas online',
-    vetepy: true,
+    Vetic: true,
     traditional: 'Extra',
     diy: false,
   },
   {
     feature: 'Historial medico digital',
-    vetepy: true,
+    Vetic: true,
     traditional: 'Extra',
     diy: false,
   },
   {
     feature: 'Portal para dueños',
-    vetepy: true,
+    Vetic: true,
     traditional: 'Extra',
     diy: false,
   },
   {
     feature: 'Actualizaciones incluidas',
-    vetepy: true,
+    Vetic: true,
     traditional: false,
     diy: false,
   },
   {
     feature: 'Soporte tecnico',
-    vetepy: true,
+    Vetic: true,
     traditional: 'Extra',
     diy: false,
   },
   {
     feature: 'Optimizado para moviles',
-    vetepy: true,
+    Vetic: true,
     traditional: 'Depende',
     diy: 'Depende',
   },
   {
     feature: 'SEO optimizado',
-    vetepy: true,
+    Vetic: true,
     traditional: 'Depende',
     diy: false,
   },
   {
     feature: 'Seguridad y backups',
-    vetepy: true,
+    Vetic: true,
     traditional: 'Extra',
     diy: 'Tu problema',
   },
 ]
 
-function CellValue({ value, isVetepy = false }: { value: string | boolean; isVetepy?: boolean }) {
+function CellValue({ value, isVetic = false }: { value: string | boolean; isVetic?: boolean }) {
   if (value === true) {
     return (
       <div className="flex justify-center">
         <div
-          className={`flex h-6 w-6 items-center justify-center rounded-full ${isVetepy ? 'bg-[var(--primary)]/30' : 'bg-[var(--primary)]/20'}`}
+          className={`flex h-6 w-6 items-center justify-center rounded-full ${isVetic ? 'bg-[var(--primary)]/30' : 'bg-[var(--primary)]/20'}`}
         >
           <Check className="h-4 w-4 text-[var(--primary)]" />
         </div>
@@ -124,7 +124,7 @@ function CellValue({ value, isVetepy = false }: { value: string | boolean; isVet
   }
   return (
     <span
-      className={`text-xs font-medium md:text-sm ${isVetepy ? 'text-[var(--primary)]' : 'text-white'}`}
+      className={`text-xs font-medium md:text-sm ${isVetic ? 'text-[var(--primary)]' : 'text-white'}`}
     >
       {value}
     </span>
@@ -147,7 +147,7 @@ export function ComparisonTable() {
             <span className="text-sm font-bold text-[var(--primary)]">Comparacion</span>
           </div>
           <h2 className="mb-4 text-2xl font-black text-white sm:text-3xl md:mb-6 md:text-4xl lg:text-5xl">
-            VetePy vs las alternativas
+            Vetic vs las alternativas
           </h2>
           <p className="mx-auto max-w-xl text-sm text-white/60 md:text-base lg:text-lg">
             Compara y descubri por que somos la mejor relacion costo-beneficio.
@@ -156,12 +156,12 @@ export function ComparisonTable() {
 
         {/* Mobile View - Cards */}
         <div className="mx-auto max-w-sm space-y-4 md:hidden">
-          {/* VetePy Card */}
+          {/* Vetic Card */}
           <div className="from-[var(--primary)]/10 to-[var(--secondary)]/10 border-[var(--primary)]/30 rounded-2xl border bg-gradient-to-br p-5">
             <div className="mb-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Zap className="h-5 w-5 text-[var(--primary)]" />
-                <span className="font-bold text-white">VetePy</span>
+                <span className="font-bold text-white">Vetic</span>
               </div>
               <span className="rounded-full bg-[var(--primary)] px-2 py-1 text-[10px] font-bold text-[var(--bg-dark)]">
                 RECOMENDADO
@@ -263,7 +263,7 @@ export function ComparisonTable() {
                 <th className="px-4 py-4 text-center">
                   <div className="inline-flex flex-col items-center gap-1">
                     <div className="rounded-full bg-gradient-to-r from-[var(--primary)] to-[var(--accent)] px-3 py-1">
-                      <span className="text-sm font-bold text-[var(--bg-dark)]">VetePy</span>
+                      <span className="text-sm font-bold text-[var(--bg-dark)]">Vetic</span>
                     </div>
                     <span className="text-xs text-[var(--primary)]">Recomendado</span>
                   </div>
@@ -290,7 +290,7 @@ export function ComparisonTable() {
                 >
                   <td className="px-4 py-3 text-sm text-white/70">{row.feature}</td>
                   <td className="bg-[var(--primary)]/5 px-4 py-3 text-center">
-                    <CellValue value={row.vetepy} isVetepy />
+                    <CellValue value={row.Vetic} isVetic />
                   </td>
                   <td className="px-4 py-3 text-center">
                     <CellValue value={row.traditional} />
@@ -310,11 +310,11 @@ export function ComparisonTable() {
 
         {/* Bottom Summary - Desktop only */}
         <div className="mx-auto mt-10 hidden max-w-4xl gap-6 md:grid md:grid-cols-3">
-          {/* VetePy Summary */}
+          {/* Vetic Summary */}
           <div className="from-[var(--primary)]/10 to-[var(--secondary)]/10 border-[var(--primary)]/30 rounded-2xl border bg-gradient-to-br p-5">
             <div className="mb-3 flex items-center gap-2">
               <Zap className="h-5 w-5 text-[var(--primary)]" />
-              <h3 className="font-bold text-white">VetePy</h3>
+              <h3 className="font-bold text-white">Vetic</h3>
             </div>
             <p className="mb-4 text-sm text-white/60">
               Resultados rapidos sin complicaciones tecnicas.
@@ -384,7 +384,7 @@ export function ComparisonTable() {
             href="#precios"
             className="hover:shadow-[var(--primary)]/20 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[var(--primary)] to-[var(--accent)] px-6 py-3 text-sm font-bold text-[var(--bg-dark)] transition-all hover:shadow-lg md:text-base"
           >
-            Ver Precios de VetePy
+            Ver Precios de Vetic
             <ArrowRight className="h-4 w-4 md:h-5 md:w-5" />
           </a>
         </div>

@@ -1,4 +1,4 @@
-import { withApiAuthParams } from '@/lib/auth'
+import { withApiAuthParams, type ApiHandlerContextWithParams } from '@/lib/auth'
 import { apiSuccess, handleApiError } from '@/lib/errors'
 import { getDomainFactory } from '@/lib/domain'
 
@@ -8,27 +8,26 @@ import { getDomainFactory } from '@/lib/domain'
  * Staff only - requires vet/admin role
  */
 export const POST = withApiAuthParams(
-  async (context, params) => {
+  async ({ params, profile, supabase, user }: ApiHandlerContextWithParams<{ id: string }>) => {
     try {
       const { id } = params
-      const { profile } = context
 
       // Get domain service
-      const domainFactory = getDomainFactory(context.supabase)
+      const domainFactory = getDomainFactory(supabase)
       const appointmentService = domainFactory.createAppointmentService()
 
       // Check in appointment using domain service
       const appointment = await appointmentService.checkInAppointment(
         id,
-        context.user.id,
+        user.id,
         profile.tenant_id
       )
 
       return apiSuccess({ appointment }, 'Llegada registrada correctamente')
     } catch (error) {
       return handleApiError(error, {
-        userId: context.user.id,
-        tenantId: context.profile.tenant_id,
+        userId: user.id,
+        tenantId: profile.tenant_id,
         operation: 'check_in_appointment',
       })
     }

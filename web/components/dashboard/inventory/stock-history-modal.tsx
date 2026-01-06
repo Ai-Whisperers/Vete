@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import {
   X,
   History,
@@ -118,12 +118,50 @@ export function StockHistoryModal({
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [typeFilter, setTypeFilter] = useState<string>('')
+  const modalRef = useRef<HTMLDivElement>(null)
+  const closeButtonRef = useRef<HTMLButtonElement>(null)
 
+  // Fetch history when modal opens
   useEffect(() => {
     if (isOpen && productId) {
       fetchHistory()
     }
   }, [isOpen, productId, typeFilter])
+
+  // Accessibility: Keyboard handling and focus trap
+  useEffect(() => {
+    if (!isOpen) return
+
+    // Focus close button when modal opens
+    closeButtonRef.current?.focus()
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose()
+        return
+      }
+
+      // Focus trap
+      if (e.key === 'Tab' && modalRef.current) {
+        const focusableElements = modalRef.current.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        )
+        const firstEl = focusableElements[0]
+        const lastEl = focusableElements[focusableElements.length - 1]
+
+        if (e.shiftKey && document.activeElement === firstEl) {
+          e.preventDefault()
+          lastEl?.focus()
+        } else if (!e.shiftKey && document.activeElement === lastEl) {
+          e.preventDefault()
+          firstEl?.focus()
+        }
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [isOpen, onClose])
 
   const fetchHistory = async () => {
     setLoading(true)
@@ -170,30 +208,38 @@ export function StockHistoryModal({
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center" role="presentation">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} aria-hidden="true" />
 
       {/* Modal */}
-      <div className="relative z-10 w-full max-w-3xl max-h-[90vh] bg-white rounded-lg shadow-xl overflow-hidden">
+      <div
+        ref={modalRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="stock-history-modal-title"
+        className="relative z-10 w-full max-w-3xl max-h-[90vh] bg-[var(--bg-default)] rounded-lg shadow-xl overflow-hidden"
+      >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b bg-[var(--bg-default)]">
+        <div className="flex items-center justify-between p-4 border-b border-[var(--border)] bg-[var(--bg-default)]">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-[var(--primary)]/10">
-              <History className="w-5 h-5 text-[var(--primary)]" />
+              <History className="w-5 h-5 text-[var(--primary)]" aria-hidden="true" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-[var(--text-primary)]">
+              <h2 id="stock-history-modal-title" className="text-lg font-semibold text-[var(--text-primary)]">
                 Historial de Movimientos
               </h2>
               <p className="text-sm text-[var(--text-secondary)]">{productName}</p>
             </div>
           </div>
           <button
+            ref={closeButtonRef}
             onClick={onClose}
-            className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            aria-label="Cerrar"
+            className="p-2 rounded-lg hover:bg-[var(--bg-subtle)] transition-colors text-[var(--text-muted)]"
           >
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5" aria-hidden="true" />
           </button>
         </div>
 

@@ -3,7 +3,7 @@
  * JSON-LD schemas for improved search engine visibility
  */
 
-const BASE_URL = 'https://vetepy.vercel.app'
+const BASE_URL = 'https://Vetic.vercel.app'
 
 // Service Schema for veterinary services
 export interface ServiceSchemaProps {

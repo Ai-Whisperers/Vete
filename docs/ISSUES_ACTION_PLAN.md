@@ -1,4 +1,4 @@
-# VetePy Issues - Detailed Action Plan
+# Vetic Issues - Detailed Action Plan
 
 > **Created**: January 2026
 > **Total Issues**: 53
@@ -27,6 +27,7 @@
 **Current State**: Contains `<<<<<<< HEAD`, `=======`, `>>>>>>>` markers
 
 **Steps**:
+
 1. Open file and identify both versions:
    - HEAD version: Full auth logic with role checks
    - Other version: Minimal without auth
@@ -41,6 +42,7 @@
 5. Test auth flow manually
 
 **Verification**:
+
 ```bash
 # Check no conflict markers remain
 grep -r "<<<<<<" web/middleware.ts
@@ -60,12 +62,14 @@ npm run dev
 **File**: `web/lib/api/with-auth.ts`
 
 **Steps**:
+
 1. Open file and find lines 121-177, 231-239
 2. Identify the correct implementation (keep the one with proper error handling)
 3. Remove conflict markers
 4. Ensure `withAuth` wrapper exports correctly
 
 **Verification**:
+
 ```bash
 grep -r "<<<<<<" web/lib/api/with-auth.ts
 
@@ -80,12 +84,14 @@ npm run test:unit -- --grep "withAuth"
 **File**: `web/app/actions/assign-tag.ts`
 
 **Steps**:
+
 1. Review entire file for conflict markers
 2. Keep the version with proper validation and auth checks
 3. Ensure `withActionAuth` wrapper is used
 4. Test QR tag assignment flow
 
 **Verification**:
+
 ```bash
 grep -r "<<<<<<" web/app/actions/assign-tag.ts
 npm run test:unit -- --grep "assignTag"
@@ -98,12 +104,14 @@ npm run test:unit -- --grep "assignTag"
 ### Issue 1.4: Settings Routes Path Traversal
 
 **Files**:
+
 - `web/app/api/settings/branding/route.ts`
 - `web/app/api/settings/services/route.ts`
 - `web/app/api/settings/modules/route.ts`
 - `web/app/api/settings/general/route.ts`
 
 **Current Vulnerable Code**:
+
 ```typescript
 const clinic = searchParams.get("clinic");
 const configPath = path.join(CONTENT_DATA_PATH, clinic, "config.json");
@@ -112,23 +120,24 @@ const configPath = path.join(CONTENT_DATA_PATH, clinic, "config.json");
 **Fix - Add Validation Function**:
 
 Create `web/lib/validation/clinic-slug.ts`:
+
 ```typescript
 export function validateClinicSlug(slug: string | null): string {
   if (!slug) {
-    throw new Error('Clinic parameter required');
+    throw new Error("Clinic parameter required");
   }
 
   // Only allow alphanumeric, hyphens, underscores
-  const sanitized = slug.replace(/[^a-zA-Z0-9_-]/g, '');
+  const sanitized = slug.replace(/[^a-zA-Z0-9_-]/g, "");
 
   // Must match original (no traversal characters removed)
   if (sanitized !== slug) {
-    throw new Error('Invalid clinic slug');
+    throw new Error("Invalid clinic slug");
   }
 
   // Max length
   if (slug.length > 50) {
-    throw new Error('Clinic slug too long');
+    throw new Error("Clinic slug too long");
   }
 
   return slug;
@@ -136,14 +145,16 @@ export function validateClinicSlug(slug: string | null): string {
 ```
 
 **Update Each Settings Route**:
+
 ```typescript
-import { validateClinicSlug } from '@/lib/validation/clinic-slug';
+import { validateClinicSlug } from "@/lib/validation/clinic-slug";
 
 // In handler:
 const clinic = validateClinicSlug(searchParams.get("clinic"));
 ```
 
 **Verification**:
+
 ```bash
 # Test with path traversal attempt
 curl "http://localhost:3000/api/settings/branding?clinic=../../../etc/passwd"
@@ -159,24 +170,30 @@ curl "http://localhost:3000/api/settings/branding?clinic=../../../etc/passwd"
 **File**: `web/app/api/debug-network/route.ts`
 
 **Options**:
+
 1. **Delete** (recommended for production)
 2. Add admin-only auth
 3. Add environment check
 
 **Fix (Option 2 - Add Auth)**:
-```typescript
-import { withAuth } from '@/lib/api/with-auth';
 
-export const GET = withAuth(async ({ profile }) => {
-  // Existing logic
-}, { roles: ['admin'] });
+```typescript
+import { withAuth } from "@/lib/api/with-auth";
+
+export const GET = withAuth(
+  async ({ profile }) => {
+    // Existing logic
+  },
+  { roles: ["admin"] }
+);
 ```
 
 **Or (Option 3 - Dev Only)**:
+
 ```typescript
 export async function GET() {
-  if (process.env.NODE_ENV === 'production') {
-    return NextResponse.json({ error: 'Not available' }, { status: 404 });
+  if (process.env.NODE_ENV === "production") {
+    return NextResponse.json({ error: "Not available" }, { status: 404 });
   }
   // ... rest
 }
@@ -189,34 +206,38 @@ export async function GET() {
 **File**: `web/app/api/growth_charts/route.ts`
 
 **Steps**:
+
 1. Import `withAuth` wrapper
 2. Wrap all methods (GET, POST, PUT, DELETE)
 3. Add tenant_id filter to queries
 4. Add Zod validation for POST/PUT body
 
 ```typescript
-import { withAuth } from '@/lib/api/with-auth';
-import { z } from 'zod';
+import { withAuth } from "@/lib/api/with-auth";
+import { z } from "zod";
 
 const chartSchema = z.object({
   pet_id: z.string().uuid(),
   weight: z.number().positive(),
-  date: z.string().datetime()
+  date: z.string().datetime(),
 });
 
 export const GET = withAuth(async ({ profile, supabase }) => {
   const { data } = await supabase
-    .from('growth_charts')
-    .select('*')
-    .eq('tenant_id', profile.tenant_id);  // ADD THIS
+    .from("growth_charts")
+    .select("*")
+    .eq("tenant_id", profile.tenant_id); // ADD THIS
   return NextResponse.json(data);
 });
 
-export const POST = withAuth(async ({ profile, supabase, request }) => {
-  const body = await request.json();
-  const validated = chartSchema.parse(body);
-  // ... insert with tenant_id
-}, { roles: ['vet', 'admin'] });
+export const POST = withAuth(
+  async ({ profile, supabase, request }) => {
+    const body = await request.json();
+    const validated = chartSchema.parse(body);
+    // ... insert with tenant_id
+  },
+  { roles: ["vet", "admin"] }
+);
 ```
 
 ---
@@ -226,6 +247,7 @@ export const POST = withAuth(async ({ profile, supabase, request }) => {
 **File**: `web/app/api/lost-pets/route.ts`
 
 **Steps**:
+
 1. Add auth wrapper
 2. Add tenant_id filter
 3. Validate PATCH status values
@@ -233,26 +255,29 @@ export const POST = withAuth(async ({ profile, supabase, request }) => {
 ```typescript
 export const GET = withAuth(async ({ profile, supabase }) => {
   const { data } = await supabase
-    .from('lost_pets')
-    .select('*, pets(*)')
-    .eq('tenant_id', profile.tenant_id);  // ADD
+    .from("lost_pets")
+    .select("*, pets(*)")
+    .eq("tenant_id", profile.tenant_id); // ADD
   return NextResponse.json(data);
 });
 
-export const PATCH = withAuth(async ({ profile, supabase, request }) => {
-  const { id, status } = await request.json();
+export const PATCH = withAuth(
+  async ({ profile, supabase, request }) => {
+    const { id, status } = await request.json();
 
-  // Validate status
-  if (!['lost', 'found', 'reunited'].includes(status)) {
-    return NextResponse.json({ error: 'Estado inválido' }, { status: 400 });
-  }
+    // Validate status
+    if (!["lost", "found", "reunited"].includes(status)) {
+      return NextResponse.json({ error: "Estado inválido" }, { status: 400 });
+    }
 
-  const { error } = await supabase
-    .from('lost_pets')
-    .update({ status })
-    .eq('id', id)
-    .eq('tenant_id', profile.tenant_id);  // ADD
-}, { roles: ['vet', 'admin'] });
+    const { error } = await supabase
+      .from("lost_pets")
+      .update({ status })
+      .eq("id", id)
+      .eq("tenant_id", profile.tenant_id); // ADD
+  },
+  { roles: ["vet", "admin"] }
+);
 ```
 
 ---
@@ -262,10 +287,12 @@ export const PATCH = withAuth(async ({ profile, supabase, request }) => {
 **File**: `web/app/api/availability/route.ts`
 
 **Decision**: This returns mock data. Either:
+
 1. Delete if unused
 2. Implement properly with auth
 
 **Check if used**:
+
 ```bash
 grep -r "availability" web/app --include="*.tsx" --include="*.ts" | grep -v route.ts
 ```
@@ -279,14 +306,15 @@ grep -r "availability" web/app --include="*.tsx" --include="*.ts" | grep -v rout
 **Current Issue**: Accepts userId param without verifying it matches authenticated user
 
 **Fix**:
+
 ```typescript
 export const GET = withAuth(async ({ user, profile, supabase }) => {
   // Don't accept userId from params - use authenticated user
   const { data } = await supabase
-    .from('pets')
-    .select('*')
-    .eq('owner_id', user.id)
-    .eq('tenant_id', profile.tenant_id);
+    .from("pets")
+    .select("*")
+    .eq("owner_id", user.id)
+    .eq("tenant_id", profile.tenant_id);
   return NextResponse.json(data);
 });
 ```
@@ -300,21 +328,23 @@ export const GET = withAuth(async ({ user, profile, supabase }) => {
 **File**: `web/app/api/cron/reminders/route.ts`
 
 **Steps**:
+
 1. Uncomment auth header check
 2. Ensure CRON_SECRET is in environment
 
 ```typescript
 export async function GET(request: NextRequest) {
   // 1. Security Check (Vercel Cron)
-  const authHeader = request.headers.get('authorization');
+  const authHeader = request.headers.get("authorization");
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    return new NextResponse('Unauthorized', { status: 401 });
+    return new NextResponse("Unauthorized", { status: 401 });
   }
   // ... rest
 }
 ```
 
 **Add to .env.local**:
+
 ```env
 CRON_SECRET=your-secure-random-string-here
 ```
@@ -328,13 +358,16 @@ CRON_SECRET=your-secure-random-string-here
 **Fix**: Make tenant filter required, not optional
 
 ```typescript
-export const GET = withAuth(async ({ profile, supabase }) => {
-  const { data } = await supabase
-    .from('disease_reports')
-    .select('*')
-    .eq('tenant_id', profile.tenant_id);  // Required, not optional
-  return NextResponse.json(data);
-}, { roles: ['vet', 'admin'] });
+export const GET = withAuth(
+  async ({ profile, supabase }) => {
+    const { data } = await supabase
+      .from("disease_reports")
+      .select("*")
+      .eq("tenant_id", profile.tenant_id); // Required, not optional
+    return NextResponse.json(data);
+  },
+  { roles: ["vet", "admin"] }
+);
 ```
 
 ---
@@ -342,6 +375,7 @@ export const GET = withAuth(async ({ profile, supabase }) => {
 ## Day 5: Week 1 Verification
 
 **Run full test suite**:
+
 ```bash
 npm run test:unit
 npm run test:integration
@@ -349,6 +383,7 @@ npm run build
 ```
 
 **Manual security tests**:
+
 ```bash
 # Test path traversal blocked
 curl "http://localhost:3000/api/settings/branding?clinic=../etc"
@@ -376,6 +411,7 @@ Create tracking file `web/docs/AUTH_MIGRATION_TRACKER.md`:
 ## To Migrate (60+ files)
 
 ### Batch 1 - Clinical (Day 1)
+
 - [ ] diagnosis_codes/route.ts
 - [ ] drug_dosages/route.ts
 - [ ] euthanasia_assessments/route.ts
@@ -386,6 +422,7 @@ Create tracking file `web/docs/AUTH_MIGRATION_TRACKER.md`:
 - [ ] vaccine_reactions/check/route.ts
 
 ### Batch 2 - Dashboard (Day 1)
+
 - [ ] dashboard/appointments/route.ts
 - [ ] dashboard/inventory-alerts/route.ts
 - [ ] dashboard/revenue/route.ts
@@ -395,6 +432,7 @@ Create tracking file `web/docs/AUTH_MIGRATION_TRACKER.md`:
 - [ ] dashboard/time-off/[id]/route.ts
 
 ### Batch 3 - Finance & Store (Day 2)
+
 - [ ] finance/expenses/route.ts
 - [ ] finance/pl/route.ts
 - [ ] store/categories/route.ts
@@ -409,6 +447,7 @@ Create tracking file `web/docs/AUTH_MIGRATION_TRACKER.md`:
 - [ ] store/coupons/validate/route.ts
 
 ### Batch 4 - Hospital & Lab (Day 2)
+
 - [ ] hospitalizations/[id]/route.ts
 - [ ] hospitalizations/[id]/discharge/route.ts
 - [ ] hospitalizations/[id]/feedings/route.ts
@@ -422,6 +461,7 @@ Create tracking file `web/docs/AUTH_MIGRATION_TRACKER.md`:
 - [ ] lab-orders/[id]/results/route.ts
 
 ### Batch 5 - Communications (Day 3)
+
 - [ ] conversations/route.ts
 - [ ] conversations/[id]/route.ts
 - [ ] conversations/[id]/messages/route.ts
@@ -439,6 +479,7 @@ Create tracking file `web/docs/AUTH_MIGRATION_TRACKER.md`:
 - [ ] whatsapp/templates/[id]/route.ts
 
 ### Batch 6 - Misc (Day 3)
+
 - [ ] appointments/slots/route.ts
 - [ ] appointments/[id]/complete/route.ts
 - [ ] consents/blanket/route.ts
@@ -475,23 +516,27 @@ Create tracking file `web/docs/AUTH_MIGRATION_TRACKER.md`:
 ### Migration Pattern
 
 **Before**:
+
 ```typescript
 export async function GET(request: NextRequest) {
   const supabase = await createClient();
 
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 
   const { data: profile } = await supabase
-    .from('profiles')
-    .select('role, tenant_id')
-    .eq('id', user.id)
+    .from("profiles")
+    .select("role, tenant_id")
+    .eq("id", user.id)
     .single();
 
-  if (!profile || !['vet', 'admin'].includes(profile.role)) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
+  if (!profile || !["vet", "admin"].includes(profile.role)) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 403 });
   }
 
   // ... logic
@@ -499,12 +544,16 @@ export async function GET(request: NextRequest) {
 ```
 
 **After**:
-```typescript
-import { withAuth } from '@/lib/auth/api-wrapper';
 
-export const GET = withAuth(async ({ user, profile, supabase, request }) => {
-  // ... logic directly, auth is handled
-}, { roles: ['vet', 'admin'] });
+```typescript
+import { withAuth } from "@/lib/auth/api-wrapper";
+
+export const GET = withAuth(
+  async ({ user, profile, supabase, request }) => {
+    // ... logic directly, auth is handled
+  },
+  { roles: ["vet", "admin"] }
+);
 ```
 
 ---
@@ -516,27 +565,31 @@ export const GET = withAuth(async ({ user, profile, supabase, request }) => {
 **File**: `web/components/store/product-detail/product-tabs.tsx`
 
 **Line 92 - Current**:
+
 ```typescript
 dangerouslySetInnerHTML={{ __html: product.description }}
 ```
 
 **Fix**:
+
 ```typescript
-import DOMPurify from 'dompurify';
+import DOMPurify from "dompurify";
 
 // In component:
-const sanitizedDescription = typeof window !== 'undefined'
-  ? DOMPurify.sanitize(product.description || '')
-  : product.description || '';
+const sanitizedDescription =
+  typeof window !== "undefined"
+    ? DOMPurify.sanitize(product.description || "")
+    : product.description || "";
 
 // In JSX:
 <div
   className="prose prose-sm max-w-none text-[var(--text-primary)]"
   dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
-/>
+/>;
 ```
 
 **Check for other instances**:
+
 ```bash
 grep -r "dangerouslySetInnerHTML" web/components --include="*.tsx" | grep -v "DOMPurify"
 ```
@@ -550,11 +603,12 @@ grep -r "dangerouslySetInnerHTML" web/components --include="*.tsx" | grep -v "DO
 **File**: `web/app/api/sms/webhook/route.ts`
 
 **Add Twilio Signature Validation**:
+
 ```typescript
-import twilio from 'twilio';
+import twilio from "twilio";
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
-  const twilioSignature = request.headers.get('X-Twilio-Signature');
+  const twilioSignature = request.headers.get("X-Twilio-Signature");
   const url = request.url;
 
   // Get form data
@@ -567,14 +621,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   // Validate signature
   const isValid = twilio.validateRequest(
     process.env.TWILIO_AUTH_TOKEN!,
-    twilioSignature || '',
+    twilioSignature || "",
     url,
     params
   );
 
   if (!isValid) {
-    console.error('[SMS Webhook] Invalid Twilio signature');
-    return NextResponse.json({ error: 'Invalid signature' }, { status: 403 });
+    console.error("[SMS Webhook] Invalid Twilio signature");
+    return NextResponse.json({ error: "Invalid signature" }, { status: 403 });
   }
 
   // ... rest of handler
@@ -588,6 +642,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 ### Issue 2.4: Replace Hardcoded Colors with CSS Variables
 
 **Color Mapping**:
+
 ```
 bg-gray-50     → bg-[var(--bg-subtle)]
 bg-gray-100    → bg-[var(--bg-muted)]
@@ -615,6 +670,7 @@ bg-purple-500  → bg-[var(--accent)]
 ```
 
 **Files to Update** (prioritized):
+
 1. `components/auth/signup-form.tsx`
 2. `components/auth/login-form.tsx`
 3. `components/commerce/loyalty-redemption.tsx`
@@ -629,6 +685,7 @@ bg-purple-500  → bg-[var(--accent)]
 12. `components/cart/pet-service-group.tsx`
 
 **Search Command**:
+
 ```bash
 grep -rn "bg-gray-\|bg-red-\|bg-green-\|bg-blue-\|bg-yellow-\|bg-purple-\|text-gray-\|text-red-\|text-green-\|border-gray-" web/components --include="*.tsx"
 ```
@@ -640,25 +697,29 @@ grep -rn "bg-gray-\|bg-red-\|bg-green-\|bg-blue-\|bg-yellow-\|bg-purple-\|text-g
 ### Issue 2.5: Fix Import Inconsistencies
 
 **Step 1**: Decide canonical locations
+
 - `withActionAuth` → `@/lib/auth/action-wrapper`
 - `actionSuccess`, `actionError` → `@/lib/actions/result`
 
 **Step 2**: Update barrel exports
 
 `web/lib/auth/index.ts`:
+
 ```typescript
-export { withActionAuth } from './action-wrapper';
-export { withAuth } from './api-wrapper';
-export * from './core';
+export { withActionAuth } from "./action-wrapper";
+export { withAuth } from "./api-wrapper";
+export * from "./core";
 ```
 
 `web/lib/actions/index.ts`:
+
 ```typescript
-export { actionSuccess, actionError } from './result';
-export type { ActionResult } from './result';
+export { actionSuccess, actionError } from "./result";
+export type { ActionResult } from "./result";
 ```
 
 **Step 3**: Find and replace imports
+
 ```bash
 # Find all files importing from wrong location
 grep -rn "from '@/lib/errors'" web/app/actions --include="*.ts"
@@ -678,7 +739,7 @@ grep -rn "from '@/lib/actions/with-action-auth'" web/app/actions --include="*.ts
 **File**: `web/lib/api/responses.ts`
 
 ```typescript
-import { NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
 
 // Standard success response
 export function apiSuccess<T>(data: T, status = 200) {
@@ -692,10 +753,13 @@ export function apiError(
   status: number,
   details?: Record<string, unknown>
 ) {
-  return NextResponse.json({
-    error: { message, code, status, details },
-    success: false
-  }, { status });
+  return NextResponse.json(
+    {
+      error: { message, code, status, details },
+      success: false,
+    },
+    { status }
+  );
 }
 
 // Standard paginated response
@@ -713,9 +777,9 @@ export function apiPaginated<T>(
       limit,
       totalPages: Math.ceil(total / limit),
       hasNext: page * limit < total,
-      hasPrev: page > 1
+      hasPrev: page > 1,
     },
-    success: true
+    success: true,
   });
 }
 
@@ -743,38 +807,39 @@ export function apiCreated<T>(data: T) {
 ```typescript
 export const ERROR_MESSAGES = {
   // Auth
-  UNAUTHORIZED: 'No autorizado',
-  FORBIDDEN: 'Acceso denegado',
-  SESSION_EXPIRED: 'Sesión expirada',
+  UNAUTHORIZED: "No autorizado",
+  FORBIDDEN: "Acceso denegado",
+  SESSION_EXPIRED: "Sesión expirada",
 
   // Validation
-  REQUIRED_FIELD: 'Campo requerido',
-  INVALID_FORMAT: 'Formato inválido',
-  INVALID_EMAIL: 'Email inválido',
+  REQUIRED_FIELD: "Campo requerido",
+  INVALID_FORMAT: "Formato inválido",
+  INVALID_EMAIL: "Email inválido",
 
   // Resources
-  NOT_FOUND: 'Recurso no encontrado',
-  PET_NOT_FOUND: 'Mascota no encontrada',
-  APPOINTMENT_NOT_FOUND: 'Cita no encontrada',
-  INVOICE_NOT_FOUND: 'Factura no encontrada',
+  NOT_FOUND: "Recurso no encontrado",
+  PET_NOT_FOUND: "Mascota no encontrada",
+  APPOINTMENT_NOT_FOUND: "Cita no encontrada",
+  INVOICE_NOT_FOUND: "Factura no encontrada",
 
   // Operations
-  SAVE_ERROR: 'Error al guardar',
-  DELETE_ERROR: 'Error al eliminar',
-  UPDATE_ERROR: 'Error al actualizar',
-  FETCH_ERROR: 'Error al obtener datos',
+  SAVE_ERROR: "Error al guardar",
+  DELETE_ERROR: "Error al eliminar",
+  UPDATE_ERROR: "Error al actualizar",
+  FETCH_ERROR: "Error al obtener datos",
 
   // Business
-  SLOT_UNAVAILABLE: 'Horario no disponible',
-  INSUFFICIENT_STOCK: 'Stock insuficiente',
-  INVALID_STATUS: 'Estado inválido',
+  SLOT_UNAVAILABLE: "Horario no disponible",
+  INSUFFICIENT_STOCK: "Stock insuficiente",
+  INVALID_STATUS: "Estado inválido",
 
   // Rate limiting
-  RATE_LIMITED: 'Demasiadas solicitudes. Intenta de nuevo más tarde.',
+  RATE_LIMITED: "Demasiadas solicitudes. Intenta de nuevo más tarde.",
 } as const;
 ```
 
 **Search and replace English messages**:
+
 ```bash
 grep -rn "'Failed to\|'Error:\|'Invalid\|'Missing\|'User not\|'Unauthorized'" web/app/api --include="*.ts"
 ```
@@ -786,6 +851,7 @@ grep -rn "'Failed to\|'Error:\|'Invalid\|'Missing\|'User not\|'Unauthorized'" we
 ### Issue 3.3: Use Consistent Pagination
 
 **Standard format**:
+
 ```typescript
 {
   data: [...],
@@ -801,12 +867,14 @@ grep -rn "'Failed to\|'Error:\|'Invalid\|'Missing\|'User not\|'Unauthorized'" we
 ```
 
 **Files to update**:
+
 - `conversations/route.ts` - uses `{ data, total, page, limit }`
 - `whatsapp/route.ts` - uses `{ data, pagination: {...} }` but different shape
 - `notifications/route.ts` - uses different format
 - `consents/templates/[id]/versions/route.ts`
 
 **Add pagination to routes that need it**:
+
 - `growth_charts` - returns all without pagination
 - `kennels` - returns all
 - `prescriptions` - returns all
@@ -819,6 +887,7 @@ grep -rn "'Failed to\|'Error:\|'Invalid\|'Missing\|'User not\|'Unauthorized'" we
 ### Issue 3.4: Add Rate Limiting to Sensitive Endpoints
 
 **Priority endpoints**:
+
 1. Email sending: `/invoices/[id]/send`, `/consents/[id]/email`
 2. Payment: `/invoices/[id]/payments`
 3. WhatsApp: `/whatsapp/send`
@@ -826,8 +895,9 @@ grep -rn "'Failed to\|'Error:\|'Invalid\|'Missing\|'User not\|'Unauthorized'" we
 5. Settings: `/settings/*`
 
 **Implementation Pattern**:
+
 ```typescript
-import { rateLimit } from '@/lib/rate-limit';
+import { rateLimit } from "@/lib/rate-limit";
 
 const limiter = rateLimit({
   interval: 60 * 1000, // 1 minute
@@ -838,7 +908,7 @@ export const POST = withAuth(async ({ user, ...ctx }) => {
   try {
     await limiter.check(10, user.id); // 10 requests per minute
   } catch {
-    return apiError('Demasiadas solicitudes', 'RATE_LIMITED', 429);
+    return apiError("Demasiadas solicitudes", "RATE_LIMITED", 429);
   }
 
   // ... rest of handler
@@ -868,6 +938,7 @@ mv web/components/calendar/CalendarStyles.tsx web/components/calendar/calendar-s
 ```
 
 **After renaming, update imports**:
+
 ```bash
 grep -rn "from.*Toast" web --include="*.tsx" --include="*.ts"
 # Update each import
@@ -903,6 +974,7 @@ cp -r web/app/api/drug_dosages web/app/api/drug-dosages
 ```
 
 **Script to find violations**:
+
 ```bash
 grep -rn "^'use client'" web/components --include="*.tsx"
 grep -rn "^\"use client\"$" web/components --include="*.tsx"  # missing semicolon
@@ -934,10 +1006,11 @@ grep -rn "console.log" web/app/api --include="*.ts" | grep -v node_modules
 ```
 
 **Remove or convert to proper logging**:
+
 ```typescript
 // Replace console.log with:
-if (process.env.NODE_ENV === 'development') {
-  console.log('[DEBUG]', data);
+if (process.env.NODE_ENV === "development") {
+  console.log("[DEBUG]", data);
 }
 ```
 
@@ -948,6 +1021,7 @@ if (process.env.NODE_ENV === 'development') {
 ### Issue 4.6: Use Correct Status Codes
 
 **Pattern updates**:
+
 ```typescript
 // DELETE should return 204
 return new NextResponse(null, { status: 204 });
@@ -967,6 +1041,7 @@ return NextResponse.json(created, { status: 201 });
 ### Issue 4.7: Remove Duplicate Table Definitions
 
 **Check which file is authoritative**:
+
 - `profiles` - keep in `10_core/01_tenants.sql` or `10_core/11_profiles.sql`
 - `qr_tags` - keep in `85_system/02_audit.sql`
 - `lost_pets` - keep in `20_pets/01_pets.sql`
@@ -986,6 +1061,7 @@ Remove duplicate `batch_id` column from `qr_tags` table definition.
 ## After Each Week
 
 ### Week 1 Verification
+
 - [ ] No git conflict markers in codebase: `grep -r "<<<<<<" web/`
 - [ ] All critical endpoints require auth
 - [ ] Path traversal test fails gracefully
@@ -994,6 +1070,7 @@ Remove duplicate `batch_id` column from `qr_tags` table definition.
 - [ ] Tests pass: `npm run test`
 
 ### Week 2 Verification
+
 - [ ] No manual auth patterns in migrated routes
 - [ ] No XSS vulnerabilities: `grep -r "dangerouslySetInnerHTML" web/ | grep -v DOMPurify`
 - [ ] No hardcoded colors: `grep -r "bg-gray-\|bg-red-" web/components`
@@ -1001,12 +1078,14 @@ Remove duplicate `batch_id` column from `qr_tags` table definition.
 - [ ] Twilio webhook validates signatures
 
 ### Week 3 Verification
+
 - [ ] All API responses use standard format
 - [ ] All error messages in Spanish
 - [ ] Pagination consistent across endpoints
 - [ ] Rate limiting on sensitive endpoints
 
 ### Week 4 Verification
+
 - [ ] All files follow naming conventions
 - [ ] No dead code or console.log
 - [ ] HTTP status codes correct
@@ -1035,16 +1114,16 @@ npx tsc --noEmit
 
 ## Estimated Timeline
 
-| Week | Focus | Hours | Risk |
-|------|-------|-------|------|
-| 1 | Critical Security | 20-25h | High - Security vulnerabilities |
-| 2 | High Priority | 25-30h | Medium - Breaking changes possible |
-| 3 | Medium Priority | 15-20h | Low - Consistency improvements |
-| 4 | Low Priority | 10-15h | Low - Cleanup |
+| Week | Focus             | Hours  | Risk                               |
+| ---- | ----------------- | ------ | ---------------------------------- |
+| 1    | Critical Security | 20-25h | High - Security vulnerabilities    |
+| 2    | High Priority     | 25-30h | Medium - Breaking changes possible |
+| 3    | Medium Priority   | 15-20h | Low - Consistency improvements     |
+| 4    | Low Priority      | 10-15h | Low - Cleanup                      |
 
 **Total Estimated Effort**: 70-90 hours
 
 ---
 
-*Plan created: January 2026*
-*Review weekly and adjust priorities as needed*
+_Plan created: January 2026_
+_Review weekly and adjust priorities as needed_

@@ -2,14 +2,22 @@
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useState } from 'react'
+import { FeatureFlagsProvider, type TenantFeatureAccess } from '@/lib/features'
+
+interface DashboardProvidersProps {
+  children: React.ReactNode
+  tenantId: string
+  initialFeatures?: TenantFeatureAccess
+}
 
 /**
  * Dashboard Providers
  *
- * Provides React Query context for the dashboard.
- * This enables dynamic data fetching in dashboard components.
+ * Provides:
+ * - React Query context for data fetching
+ * - Feature flags context for tier-based feature gating
  */
-export function DashboardProviders({ children }: { children: React.ReactNode }) {
+export function DashboardProviders({ children, tenantId, initialFeatures }: DashboardProvidersProps) {
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -23,5 +31,11 @@ export function DashboardProviders({ children }: { children: React.ReactNode }) 
       })
   )
 
-  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+  return (
+    <QueryClientProvider client={queryClient}>
+      <FeatureFlagsProvider tenantId={tenantId} initialFeatures={initialFeatures}>
+        {children}
+      </FeatureFlagsProvider>
+    </QueryClientProvider>
+  )
 }

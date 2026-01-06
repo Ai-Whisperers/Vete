@@ -66,3 +66,15 @@ export {
   type UseImportWizardOptions,
   type UseImportWizardReturn,
 } from './use-import-wizard'
+
+// Tenant features (tier-based feature gating)
+export {
+  useTenantFeatures,
+  TenantFeaturesProvider,
+  FeatureGate,
+  RequireFeatures,
+  UpgradePrompt,
+  TrialBanner,
+  type ResolvedTenantFeatures,
+  type FeatureGateResult,
+} from './use-tenant-features'

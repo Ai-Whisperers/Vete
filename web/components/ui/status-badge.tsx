@@ -50,9 +50,9 @@ const statusBadgeVariants = cva(
         processing: 'bg-[var(--status-info-bg)] text-[var(--status-info-text)] border border-[var(--status-info-border)]',
 
         // Purple states (special/in consultation)
-        purple: 'bg-purple-100 text-purple-700 border border-purple-200',
-        'in-consultation': 'bg-purple-100 text-purple-700 border border-purple-200',
-        hospitalized: 'bg-purple-100 text-purple-700 border border-purple-200',
+        purple: 'bg-[var(--status-special-bg)] text-[var(--status-special-text)] border border-[var(--status-special-border)]',
+        'in-consultation': 'bg-[var(--status-special-bg)] text-[var(--status-special-text)] border border-[var(--status-special-border)]',
+        hospitalized: 'bg-[var(--status-special-bg)] text-[var(--status-special-text)] border border-[var(--status-special-border)]',
 
         // Orange states
         orange: 'bg-[var(--status-warning-bg)] text-[var(--status-warning-text)] border border-[var(--status-warning-border)]',
@@ -60,10 +60,10 @@ const statusBadgeVariants = cva(
         urgent: 'bg-[var(--status-warning-bg)] text-[var(--status-warning-text)] border border-[var(--status-warning-border)]',
 
         // Neutral states
-        neutral: 'bg-gray-100 text-gray-600 border border-gray-200',
-        draft: 'bg-gray-100 text-gray-600 border border-gray-200',
-        inactive: 'bg-gray-100 text-gray-600 border border-gray-200',
-        unknown: 'bg-gray-100 text-gray-600 border border-gray-200',
+        neutral: 'bg-[var(--status-neutral-bg)] text-[var(--status-neutral-text)] border border-[var(--status-neutral-border)]',
+        draft: 'bg-[var(--status-neutral-bg)] text-[var(--status-neutral-text)] border border-[var(--status-neutral-border)]',
+        inactive: 'bg-[var(--status-neutral-bg)] text-[var(--status-neutral-text)] border border-[var(--status-neutral-border)]',
+        unknown: 'bg-[var(--status-neutral-bg)] text-[var(--status-neutral-text)] border border-[var(--status-neutral-border)]',
       },
       size: {
         sm: 'px-2 py-0.5 text-[10px]',

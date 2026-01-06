@@ -28,11 +28,6 @@ const client = postgres(connectionString, {
   // For traditional servers: increase based on expected concurrency
   max: parseInt(process.env.DB_POOL_MAX || '10', 10),
 
-  // Minimum connections to keep open
-  // 0 for serverless (close idle connections quickly)
-  // 2-5 for traditional servers (reduce connection overhead)
-  min: parseInt(process.env.DB_POOL_MIN || '0', 10),
-
   // Close idle connections after this many seconds
   // Lower for serverless to free resources faster
   idle_timeout: parseInt(process.env.DB_IDLE_TIMEOUT || '20', 10),

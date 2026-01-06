@@ -49,12 +49,14 @@ export const POST = withApiAuthParams(
       }
 
       // Queue notification
-      const owner = invoice.owner as {
+      type OwnerType = {
         id: string
         email: string | null
         full_name: string
         phone: string | null
-      } | null
+      }
+      const ownerData = invoice.owner as OwnerType | OwnerType[] | null
+      const owner = Array.isArray(ownerData) ? ownerData[0] : ownerData
 
       if (owner?.email) {
         await supabase.from('notification_queue').insert({

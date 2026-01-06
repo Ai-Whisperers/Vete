@@ -14,38 +14,40 @@
    * 1. PRIMARY & SECONDARY COLORS
    * (Overridden by clinic themes)
    * ---------------------------------------- */
-  --primary: #2f5233;
-  --primary-light: #4e7c54;
-  --primary-dark: #1a331d;
+  /* Primary: Teal #2DCEA3 */
+  --primary: #2dcea3;
+  --primary-light: #5debc5;
+  --primary-dark: #0f766e;
   --primary-contrast: #ffffff;
-  --primary-50: #f0f7f1;
-  --primary-100: #dcece0;
-  --primary-200: #b9d9c1;
-  --primary-300: #8fc09b;
-  --primary-400: #5ea170;
-  --primary-500: #2f5233;
-  --primary-600: #2a4a2e;
-  --primary-700: #1f3822;
-  --primary-800: #152617;
-  --primary-900: #0a130b;
+  --primary-50: #f0fdf9;
+  --primary-100: #ccfbf1;
+  --primary-200: #99f6e4;
+  --primary-300: #5eead4;
+  --primary-400: #2dcea3;
+  --primary-500: #14b8a6;
+  --primary-600: #0d9488;
+  --primary-700: #0f766e;
+  --primary-800: #115e59;
+  --primary-900: #134e4a;
   /* RGB for opacity manipulation */
-  --primary-rgb: 47, 82, 51;
+  --primary-rgb: 45, 206, 163;
 
-  --secondary: #f0c808;
-  --secondary-light: #f5d74d;
-  --secondary-dark: #b39506;
-  --secondary-contrast: #1a331d;
-  --secondary-50: #fffbeb;
-  --secondary-100: #fef3c7;
-  --secondary-200: #fde68a;
-  --secondary-300: #fcd34d;
-  --secondary-400: #fbbf24;
-  --secondary-500: #f0c808;
-  --secondary-600: #d97706;
-  --secondary-700: #b45309;
-  --secondary-800: #92400e;
-  --secondary-900: #78350f;
-  --secondary-rgb: 240, 200, 8;
+  /* Secondary: Navy Blue #0F172A */
+  --secondary: #0f172a;
+  --secondary-light: #334155;
+  --secondary-dark: #020617;
+  --secondary-contrast: #ffffff;
+  --secondary-50: #f8fafc;
+  --secondary-100: #f1f5f9;
+  --secondary-200: #e2e8f0;
+  --secondary-300: #cbd5e1;
+  --secondary-400: #94a3b8;
+  --secondary-500: #64748b;
+  --secondary-600: #475569;
+  --secondary-700: #334155;
+  --secondary-800: #1e293b;
+  --secondary-900: #0f172a;
+  --secondary-rgb: 15, 23, 42;
 
   /* ----------------------------------------
    * 2. NEUTRAL/GRAY PALETTE
@@ -87,6 +89,9 @@
   --bg-inverse: #1f2937;
   --bg-dark: #111827;
   --bg-darker: #030712;
+
+  /* Shadow color (for colored shadows) */
+  --shadow-color: #d1d5db;
 
   /* Elevated surfaces (cards, modals) */
   --surface-0: #ffffff; /* Base level */
@@ -177,6 +182,22 @@
   --status-info-text: #1e40af;
   --info: #3b82f6;
   --info-rgb: 59, 130, 246;
+
+  /* Special (Purple - in consultation, hospitalized) */
+  --status-special: #8b5cf6;
+  --status-special-light: #c4b5fd;
+  --status-special-dark: #7c3aed;
+  --status-special-bg: #f3e8ff;
+  --status-special-border: #e9d5ff;
+  --status-special-text: #6b21a8;
+
+  /* Neutral (Gray - draft, inactive, unknown) */
+  --status-neutral: #6b7280;
+  --status-neutral-light: #9ca3af;
+  --status-neutral-dark: #4b5563;
+  --status-neutral-bg: #f3f4f6;
+  --status-neutral-border: #e5e7eb;
+  --status-neutral-text: #374151;
 
   /* ----------------------------------------
    * 7. INTERACTIVE STATE COLORS
@@ -529,15 +550,33 @@
    * These are isolated from clinic theming
    * ---------------------------------------- */
   --landing-dark: #0f172a; /* Dark background - same as slate-900 */
-  --landing-primary: #2dcea3; /* Teal/mint green - CTAs, highlights */
+  --landing-primary: #0d9488; /* Teal-600 - main brand color */
+  --landing-primary-hover: #0f766e; /* Teal-700 */
+  --landing-primary-light: #ccfbf1; /* Teal-100 */
+  --landing-primary-lighter: #f0fdfa; /* Teal-50 */
   --landing-accent: #00c9ff; /* Cyan - gradients, accents */
   --landing-purple: #5c6bff; /* Purple - secondary accents */
   --landing-whatsapp: #25d366; /* WhatsApp brand green */
+  --landing-whatsapp-hover: #20bd5a; /* WhatsApp hover */
+
+  /* Landing text colors */
+  --landing-text-primary: #0f172a; /* slate-900 */
+  --landing-text-secondary: #475569; /* slate-600 */
+  --landing-text-muted: #64748b; /* slate-500 */
+  --landing-text-light: #94a3b8; /* slate-400 */
+
+  /* Landing backgrounds */
+  --landing-bg: #f8fafc; /* slate-50 */
+  --landing-bg-white: #ffffff;
+  --landing-bg-muted: #f1f5f9; /* slate-100 */
+  --landing-border: #e2e8f0; /* slate-200 */
+  --landing-border-light: #f1f5f9; /* slate-100 */
 
   /* Landing gradients */
-  --landing-gradient-primary: linear-gradient(135deg, #2dcea3 0%, #00c9ff 100%);
+  --landing-gradient-primary: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
   --landing-gradient-hero: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-  --landing-gradient-cta: linear-gradient(135deg, #2dcea3 0%, #5c6bff 100%);
+  --landing-gradient-cta: linear-gradient(135deg, #0d9488 0%, #5c6bff 100%);
+  --landing-gradient-header: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%);
 }
 
 @layer base {
@@ -1260,4 +1299,43 @@
     margin: 0;
     padding: 0;
   }
+}
+
+/* ========================================
+ * LEAFLET MAP CUSTOMIZATIONS
+ * ======================================== */
+
+/* Custom marker styling */
+.custom-marker {
+  background: transparent !important;
+  border: none !important;
+}
+
+/* Leaflet popup styling */
+.leaflet-popup-content-wrapper {
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+}
+
+.leaflet-popup-content {
+  margin: 12px 14px;
+}
+
+.leaflet-popup-tip {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Attribution styling */
+.leaflet-control-attribution {
+  font-size: 10px;
+  background: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* Zoom controls */
+.leaflet-control-zoom a {
+  color: #0d9488 !important;
+}
+
+.leaflet-control-zoom a:hover {
+  color: #0f766e !important;
 }

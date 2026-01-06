@@ -10,6 +10,8 @@ import {
   DollarSign,
   ArrowLeft,
   Bell,
+  Gift,
+  Receipt,
 } from 'lucide-react'
 
 interface SettingsLayoutProps {
@@ -47,6 +49,18 @@ const settingsNav = [
     label: 'Alertas de Inventario',
     icon: Bell,
     description: 'Notificaciones de stock',
+  },
+  {
+    href: 'referrals',
+    label: 'Programa de Referidos',
+    icon: Gift,
+    description: 'Comparte y gana descuentos',
+  },
+  {
+    href: 'billing',
+    label: 'Facturación',
+    icon: Receipt,
+    description: 'Comisiones y pagos',
   },
 ]
 

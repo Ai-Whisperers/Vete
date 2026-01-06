@@ -17,6 +17,7 @@ export interface UserProfile {
   phone?: string | null
   avatar_url?: string | null
   is_active: boolean
+  is_platform_admin: boolean
   created_at: string
   updated_at: string
 }

@@ -688,7 +688,11 @@ class StorageServiceMock {
     if (!file) {
       return Promise.reject(new Error('File not found'))
     }
-    return Promise.resolve(file.content instanceof Blob ? file.content : new Blob([file.content]))
+    if (file.content instanceof Blob) {
+      return Promise.resolve(file.content)
+    }
+    // Convert Buffer to Uint8Array for Blob constructor compatibility
+    return Promise.resolve(new Blob([new Uint8Array(file.content)]))
   }
 
   exists(bucket: string, path: string): boolean {

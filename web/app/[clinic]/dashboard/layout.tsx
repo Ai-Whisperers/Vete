@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { requireStaff } from '@/lib/auth'
 import { DashboardShell } from '@/components/dashboard/dashboard-shell'
 import { DashboardProviders } from './providers'
+import { getTenantFeatures } from '@/lib/features'
 
 interface DashboardLayoutProps {
   children: React.ReactNode
@@ -16,13 +17,14 @@ interface DashboardLayoutProps {
  * 1. Requires staff authentication (vet/admin only)
  * 2. Provides the sidebar navigation
  * 3. Provides keyboard shortcuts and command palette
- * 4. Removes the public website header/footer (handled by parent layout)
+ * 4. Provides feature flags for tier-based feature gating
+ * 5. Removes the public website header/footer (handled by parent layout)
  */
 export default async function DashboardLayout({ children, params }: DashboardLayoutProps) {
   const { clinic } = await params
 
   // Require staff authentication
-  const { isAdmin } = await requireStaff(clinic)
+  const { isAdmin, profile } = await requireStaff(clinic)
 
   // Get clinic data for the shell
   const clinicData = await getClinicData(clinic)
@@ -30,8 +32,14 @@ export default async function DashboardLayout({ children, params }: DashboardLay
     notFound()
   }
 
+  // Get tenant features for feature gating (server-side for instant hydration)
+  const tenantFeatures = await getTenantFeatures(profile.tenant_id)
+
   return (
-    <DashboardProviders>
+    <DashboardProviders
+      tenantId={profile.tenant_id}
+      initialFeatures={tenantFeatures ?? undefined}
+    >
       <DashboardShell clinic={clinic} clinicName={clinicData.config.name} isAdmin={isAdmin}>
         {children}
       </DashboardShell>

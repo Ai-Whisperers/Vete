@@ -8,12 +8,46 @@ Automated full-page screenshot capture for all pages in the Vete platform, organ
 # Install dependencies (if not already)
 npm install
 
-# Capture all screenshots (recommended method)
+# ===== LANDING PAGES (Marketing Site) =====
+# Capture all landing pages (/, /precios, /funcionalidades, etc.)
+npx tsx scripts/screenshots/capture-landing.ts
+
+# Capture specific viewport only
+npx tsx scripts/screenshots/capture-landing.ts --viewport desktop
+
+# Capture specific page only
+npx tsx scripts/screenshots/capture-landing.ts --page precios
+
+# ===== CLINIC TENANT PAGES =====
+# Capture all clinic pages (recommended method)
 npx playwright test e2e/screenshots.spec.ts
 
 # Or use the standalone script
 npx tsx scripts/screenshots/run-all.ts
 ```
+
+## Landing Page Screenshots
+
+The `capture-landing.ts` script captures all public marketing pages:
+
+| Page | Path | Description |
+|------|------|-------------|
+| Homepage | `/` | Hero, TrustBadges, PricingTeaser, CTA |
+| Funcionalidades | `/funcionalidades` | Feature showcase with category tabs |
+| Precios | `/precios` | Pricing plans, ROI calculator, payment methods |
+| Demo | `/demo` | Demo video, booking section |
+| FAQ | `/faq` | Categorized FAQs |
+| Nosotros | `/nosotros` | About us, mission, values, stats |
+| Red | `/red` | Clinic network |
+
+Each page is captured in 3 viewports:
+- **Desktop**: 1920x1080
+- **Tablet**: 768x1024
+- **Mobile**: 375x812
+
+Plus scroll position shots (top, middle, bottom) for long pages.
+
+Output: `./screenshots/landing/<date>/`
 
 ## Methods
 

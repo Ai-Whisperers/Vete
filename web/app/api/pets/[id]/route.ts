@@ -1,14 +1,13 @@
 import { NextResponse } from 'next/server'
-import { withApiAuthParams, type ApiHandlerContext } from '@/lib/auth'
+import { withApiAuthParams, type ApiHandlerContextWithParams } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 
 type Params = { id: string }
 
 // GET a single pet by ID
 export const GET = withApiAuthParams<Params>(
-  async (ctx: ApiHandlerContext, params: Params) => {
+  async ({ params, user, profile, supabase }: ApiHandlerContextWithParams<Params>) => {
     const { id } = params
-    const { user, profile, supabase } = ctx
 
     const { data: pet, error } = await supabase
       .from('pets')
@@ -36,8 +35,7 @@ export const GET = withApiAuthParams<Params>(
 
 // PATCH update a pet
 export const PATCH = withApiAuthParams<Params>(
-  async (ctx: ApiHandlerContext, params: Params) => {
-    const { request, user, profile, supabase } = ctx
+  async ({ params, request, user, profile, supabase }: ApiHandlerContextWithParams<Params>) => {
     const { id } = params
 
     // Fetch pet to verify ownership
@@ -133,8 +131,7 @@ export const PATCH = withApiAuthParams<Params>(
 
 // DELETE soft-delete a pet
 export const DELETE = withApiAuthParams<Params>(
-  async (ctx: ApiHandlerContext, params: Params) => {
-    const { user, supabase } = ctx
+  async ({ params, user, supabase }: ApiHandlerContextWithParams<Params>) => {
     const { id } = params
 
     // Fetch pet to verify ownership

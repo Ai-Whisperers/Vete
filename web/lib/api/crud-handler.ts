@@ -35,7 +35,7 @@
 
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
-import { withApiAuth, withApiAuthParams, type ApiHandlerContext } from '@/lib/auth/api-wrapper'
+import { withApiAuth, withApiAuthParams, type ApiHandlerContext, type ApiHandlerContextWithParams } from '@/lib/auth/api-wrapper'
 import { apiError, apiSuccess, HTTP_STATUS } from '@/lib/api/errors'
 import type { UserRole } from '@/lib/auth/types'
 import type { RateLimitType } from '@/lib/rate-limit'
@@ -259,7 +259,8 @@ export function createCrudHandler<
 
       // Apply custom query modifier
       if (queryModifier) {
-        query = queryModifier(query as ReturnType<typeof supabase.from>, ctx) as typeof query
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        query = queryModifier(query as any, ctx) as any
       }
 
       // Apply ordering
@@ -309,7 +310,9 @@ export function createCrudHandler<
         const validation = schemas.create.safeParse(body)
         if (!validation.success) {
           return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
-            field_errors: validation.error.flatten().fieldErrors,
+            field_errors: Object.fromEntries(
+              Object.entries(validation.error.flatten().fieldErrors).filter(([, v]) => v !== undefined)
+            ) as Record<string, string[]>,
           })
         }
         data = validation.data as Record<string, unknown>
@@ -344,7 +347,7 @@ export function createCrudHandler<
       }
 
       // Apply after create hook
-      let result = created as Record<string, unknown>
+      let result = created as unknown as Record<string, unknown>
       if (hooks?.afterCreate) {
         result = await hooks.afterCreate(result, ctx)
       }
@@ -387,7 +390,9 @@ export function createCrudHandler<
         const validation = schemas.update.safeParse(body)
         if (!validation.success) {
           return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
-            field_errors: validation.error.flatten().fieldErrors,
+            field_errors: Object.fromEntries(
+              Object.entries(validation.error.flatten().fieldErrors).filter(([, v]) => v !== undefined)
+            ) as Record<string, string[]>,
           })
         }
         data = validation.data as Record<string, unknown>
@@ -421,7 +426,7 @@ export function createCrudHandler<
       }
 
       // Apply after update hook
-      let result = updated as Record<string, unknown>
+      let result = updated as unknown as Record<string, unknown>
       if (hooks?.afterUpdate) {
         result = await hooks.afterUpdate(result, ctx)
       }
@@ -539,9 +544,9 @@ export function createCrudHandlerWithParams<
 
   // GET Handler for nested resource
   const GET = withApiAuthParams<P>(
-    async (ctx, params) => {
+    async ({ params, ...ctx }: ApiHandlerContextWithParams<P>) => {
       const { supabase, profile, request } = ctx
-      const parentId = params[parentIdParam]
+      const parentId = params[parentIdParam as keyof P]
       const searchParams = new URL(request.url).searchParams
       const { page, limit, offset } = getPagination(searchParams, maxLimit)
 
@@ -576,9 +581,9 @@ export function createCrudHandlerWithParams<
 
   // POST Handler for nested resource
   const POST = withApiAuthParams<P>(
-    async (ctx, params) => {
+    async ({ params, ...ctx }: ApiHandlerContextWithParams<P>) => {
       const { supabase, profile, user, request } = ctx
-      const parentId = params[parentIdParam]
+      const parentId = params[parentIdParam as keyof P]
 
       let body: unknown
       try {
@@ -592,7 +597,9 @@ export function createCrudHandlerWithParams<
         const validation = schemas.create.safeParse(body)
         if (!validation.success) {
           return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
-            field_errors: validation.error.flatten().fieldErrors,
+            field_errors: Object.fromEntries(
+              Object.entries(validation.error.flatten().fieldErrors).filter(([, v]) => v !== undefined)
+            ) as Record<string, string[]>,
           })
         }
         data = validation.data as Record<string, unknown>
@@ -630,8 +637,4 @@ export function createCrudHandlerWithParams<
   return { GET, POST }
 }
 
-// =============================================================================
-// EXPORTS
-// =============================================================================
-
-export type { CrudHandlerOptions }
+// Note: CrudHandlerOptions is exported at declaration

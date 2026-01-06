@@ -144,7 +144,7 @@ const featureFlagsSchema = z.object({
 // Main configuration schema
 const configSchema = z.object({
   env: envSchema,
-  name: z.string().default('VetePy'),
+  name: z.string().default('Vetic'),
   version: z.string().default('1.0.0'),
   port: z.coerce.number().min(1).max(65535).default(3000),
   host: z.string().default('localhost'),

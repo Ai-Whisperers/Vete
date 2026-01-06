@@ -1,5 +1,4 @@
-import { NextResponse } from 'next/server'
-import { withApiAuthParams, type ApiHandlerContext } from '@/lib/auth'
+import { withApiAuthParams, type ApiHandlerContextWithParams } from '@/lib/auth'
 import { apiError, apiSuccess, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
 
@@ -11,7 +10,8 @@ type Params = { id: string }
  * Staff only - requires vet/admin role
  */
 export const POST = withApiAuthParams<Params>(
-  async ({ request, user, profile, supabase }: ApiHandlerContext, { id }: Params) => {
+  async ({ request, params, user, profile, supabase }: ApiHandlerContextWithParams<Params>) => {
+    const { id } = params
     // 1. Parse optional body for notes
     let notes: string | undefined
     try {

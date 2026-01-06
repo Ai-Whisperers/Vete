@@ -13,6 +13,7 @@ import {
   useKeyboardShortcuts as useShortcutsModal,
 } from './keyboard-shortcuts-modal'
 import { DashboardLabelsProvider } from '@/lib/hooks/use-dashboard-labels'
+import { TrialBanner } from './trial-banner'
 
 // Pages that need full-bleed layout (no container padding)
 const FULL_BLEED_PAGES = ['/calendar', '/hospital', '/lab']
@@ -69,9 +70,17 @@ export function DashboardShell({
           {/* Main Content - Full bleed pages get no padding */}
           <main className="flex-1 overflow-auto pb-20 lg:pb-0">
             {isFullBleed ? (
-              children
+              <>
+                <div className="px-4 pt-4 md:px-6 md:pt-6">
+                  <TrialBanner clinic={clinic} />
+                </div>
+                {children}
+              </>
             ) : (
-              <div className="page-container-xl py-4 md:py-6">{children}</div>
+              <div className="page-container-xl py-4 md:py-6">
+                <TrialBanner clinic={clinic} />
+                {children}
+              </div>
             )}
           </main>
         </div>

@@ -1,6 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { HospitalDashboard } from '@/components/hospital/hospital-dashboard'
+import { requireFeature } from '@/lib/features'
+import { UpgradePromptServer } from '@/components/dashboard/upgrade-prompt-server'
 
 interface Props {
   params: Promise<{ clinic: string }>
@@ -53,6 +55,19 @@ export default async function HospitalPage({ params }: Props) {
 
   if (!profile || !['vet', 'admin'].includes(profile.role) || profile.tenant_id !== clinic) {
     redirect(`/${clinic}/portal/dashboard`)
+  }
+
+  // Feature gate: Hospitalization requires 'hospitalization' feature
+  const featureError = await requireFeature(profile.tenant_id, 'hospitalization')
+  if (featureError) {
+    return (
+      <UpgradePromptServer
+        feature="hospitalization"
+        title="Módulo de Hospitalización"
+        description="Gestiona pacientes hospitalizados, monitorea signos vitales y lleva registro de tratamientos."
+        clinic={clinic}
+      />
+    )
   }
 
   // Fetch initial data server-side

@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
 import { BreadcrumbSchema } from '@/components/seo/structured-data'
 
-const BASE_URL = 'https://vetepy.vercel.app'
+const BASE_URL = 'https://Vetic.vercel.app'
 
 interface Props {
   params: Promise<{ clinic: string }>

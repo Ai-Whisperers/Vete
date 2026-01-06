@@ -108,7 +108,7 @@ export default function SetupPage() {
       <div className="mx-auto max-w-4xl space-y-6">
         <div className="text-center">
           <h1 className="mb-2 text-3xl font-bold text-gray-900">Database Setup</h1>
-          <p className="text-gray-600">Configure your VetePy database and seed initial data</p>
+          <p className="text-gray-600">Configure your Vetic database and seed initial data</p>
         </div>
 
         {/* Status Overview */}

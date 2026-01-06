@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import Link from 'next/link'
@@ -134,6 +134,43 @@ export function EventDetailModal({
   const [isChangingStatus, setIsChangingStatus] = useState(false)
   const [isCheckingIn, setIsCheckingIn] = useState(false)
   const [isSendingReminder, setIsSendingReminder] = useState(false)
+  const modalRef = useRef<HTMLDivElement>(null)
+  const closeButtonRef = useRef<HTMLButtonElement>(null)
+
+  // Accessibility: Keyboard handling and focus trap
+  useEffect(() => {
+    if (!isOpen) return
+
+    // Focus the close button when modal opens
+    closeButtonRef.current?.focus()
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose()
+        return
+      }
+
+      // Focus trap - keep focus within modal
+      if (e.key === 'Tab' && modalRef.current) {
+        const focusableElements = modalRef.current.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        )
+        const firstEl = focusableElements[0]
+        const lastEl = focusableElements[focusableElements.length - 1]
+
+        if (e.shiftKey && document.activeElement === firstEl) {
+          e.preventDefault()
+          lastEl?.focus()
+        } else if (!e.shiftKey && document.activeElement === lastEl) {
+          e.preventDefault()
+          firstEl?.focus()
+        }
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [isOpen, onClose])
 
   if (!isOpen || !event) return null
 
@@ -259,15 +296,21 @@ export function EventDetailModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
+    <div className="fixed inset-0 z-50 overflow-y-auto" role="presentation">
       {/* Backdrop */}
-      <div className="fixed inset-0 bg-black/50 transition-opacity" onClick={onClose} />
+      <div className="fixed inset-0 bg-black/50 transition-opacity" onClick={onClose} aria-hidden="true" />
 
       {/* Modal */}
       <div className="flex min-h-full items-center justify-center p-4">
-        <div className="relative w-full max-w-md transform overflow-hidden rounded-lg bg-white shadow-xl transition-all">
+        <div
+          ref={modalRef}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="event-modal-title"
+          className="relative w-full max-w-md transform overflow-hidden rounded-lg bg-[var(--bg-default)] shadow-xl transition-all"
+        >
           {/* Header */}
-          <div className="border-b border-gray-200 px-6 py-4">
+          <div className="border-b border-[var(--border)] px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div
@@ -277,15 +320,17 @@ export function EventDetailModal({
                   {renderTypeIcon()}
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">{getTypeLabel()}</p>
-                  <h3 className="text-lg font-semibold text-gray-900">{event.title}</h3>
+                  <p className="text-sm text-[var(--text-muted)]">{getTypeLabel()}</p>
+                  <h3 id="event-modal-title" className="text-lg font-semibold text-[var(--text-primary)]">{event.title}</h3>
                 </div>
               </div>
               <button
+                ref={closeButtonRef}
                 onClick={onClose}
-                className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500"
+                aria-label="Cerrar"
+                className="rounded-lg p-2 text-[var(--text-muted)] hover:bg-[var(--bg-subtle)] hover:text-[var(--text-secondary)]"
               >
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"

@@ -7,11 +7,13 @@
 ## Sobre Esta Sección
 
 Esta información es opcional y se usa para:
+
 1. Crear un caso de estudio de su clínica en nuestro portafolio
 2. Mostrar métricas de éxito a potenciales clientes
 3. Marketing conjunto (con su permiso)
 
 **Beneficios de participar:**
+
 - Mayor visibilidad para su clínica
 - Posible descuento en suscripción
 - Acceso anticipado a nuevas funciones
@@ -21,11 +23,13 @@ Esta información es opcional y se usa para:
 ## 10.1 Participación en Showcase
 
 ### ¿Desea que su clínica aparezca en nuestro portafolio de clientes?
+
 [ ] Sí, me interesa
 [ ] No por ahora
 [ ] Necesito más información
 
 ### Si eligió Sí, ¿qué información podemos mostrar?
+
 [ ] Nombre de la clínica
 [ ] Logo
 [ ] Testimonio/Quote
@@ -35,22 +39,19 @@ Esta información es opcional y se usa para:
 
 ---
 
-## 10.2 Testimonio para VetePy
+## 10.2 Testimonio para Vetic
 
-### ¿Podría compartir una frase sobre su experiencia con VetePy?
+### ¿Podría compartir una frase sobre su experiencia con Vetic?
+
 > Esta cita podría aparecer en nuestra página de clientes.
 
 **[RESPUESTA]:**
 
-
-
-
 ### Versión Corta (para tarjetas)
+
 > Máximo 2 oraciones.
 
 **[RESPUESTA]:**
-
-
 
 ---
 
@@ -58,12 +59,13 @@ Esta información es opcional y se usa para:
 
 ### ¿Quién sería el contacto para referencias o entrevistas?
 
-- **Nombre:** _________________________________
-- **Cargo:** _________________________________
-- **Email:** _________________________________
-- **Teléfono:** _________________________________
+- **Nombre:** ****************\_****************
+- **Cargo:** ****************\_****************
+- **Email:** ****************\_****************
+- **Teléfono:** ****************\_****************
 
 ### ¿Está dispuesto/a a...?
+
 [ ] Dar una entrevista breve (15-20 min)
 [ ] Escribir un testimonio más detallado
 [ ] Participar en un video testimonial
@@ -72,19 +74,20 @@ Esta información es opcional y se usa para:
 
 ---
 
-## 10.4 Métricas de Negocio (Antes de VetePy)
+## 10.4 Métricas de Negocio (Antes de Vetic)
 
 > Esta información nos ayuda a medir el impacto de nuestra plataforma.
 
 ### Situación Actual
 
-- **¿Cuántas citas reciben por semana aproximadamente?** ___
-- **¿Cuántos clientes activos tienen?** ___
-- **¿Cuántas mascotas tienen registradas?** ___
-- **¿Qué porcentaje de citas se agenda online actualmente?** ___%
+- **¿Cuántas citas reciben por semana aproximadamente?** \_\_\_
+- **¿Cuántos clientes activos tienen?** \_\_\_
+- **¿Cuántas mascotas tienen registradas?** \_\_\_
+- **¿Qué porcentaje de citas se agenda online actualmente?** \_\_\_%
 
 ### Desafíos Actuales
-> ¿Cuáles son los principales problemas que espera resolver con VetePy?
+
+> ¿Cuáles son los principales problemas que espera resolver con Vetic?
 
 [ ] Pérdida de citas por olvido
 [ ] Mucho tiempo en tareas administrativas
@@ -92,25 +95,25 @@ Esta información es opcional y se usa para:
 [ ] Dificultad para fidelizar clientes
 [ ] Gestión de inventario
 [ ] Comunicación con clientes
-[ ] Otro: _______________
+[ ] Otro: ******\_\_\_******
 
 ### Expectativas
-> ¿Qué resultados espera lograr con VetePy?
+
+> ¿Qué resultados espera lograr con Vetic?
 
 **[RESPUESTA]:**
-
-
-
 
 ---
 
 ## 10.5 Métricas para el Futuro
 
 ### ¿Nos permite hacer seguimiento de estas métricas?
+
 [ ] Sí
 [ ] No
 
 ### Métricas que nos gustaría medir:
+
 - Crecimiento en citas agendadas online
 - Reducción en citas perdidas/olvidadas
 - Nuevos clientes captados via web
@@ -126,29 +129,17 @@ Esta información es opcional y se usa para:
 
 **[RESPUESTA]:**
 
-
-
-
-### ¿Qué opciones consideró antes de VetePy?
+### ¿Qué opciones consideró antes de Vetic?
 
 **[RESPUESTA]:**
 
-
-
-
-### ¿Qué le hizo elegir VetePy?
+### ¿Qué le hizo elegir Vetic?
 
 **[RESPUESTA]:**
-
-
-
 
 ### ¿Cómo fue el proceso de implementación?
 
 **[RESPUESTA]:**
-
-
-
 
 ---
 
@@ -158,45 +149,48 @@ Esta información es opcional y se usa para:
 
 ### Métricas de Crecimiento
 
-| Métrica | Antes | Después | Cambio |
-|---------|-------|---------|--------|
-| Citas por semana | ___ | ___ | +___% |
-| Citas online | ___% | ___% | +___% |
-| Clientes nuevos/mes | ___ | ___ | +___% |
-| Tiempo admin/día | ___h | ___h | -___h |
+| Métrica             | Antes   | Después | Cambio   |
+| ------------------- | ------- | ------- | -------- |
+| Citas por semana    | \_\_\_  | \_\_\_  | +\_\_\_% |
+| Citas online        | \_\_\_% | \_\_\_% | +\_\_\_% |
+| Clientes nuevos/mes | \_\_\_  | \_\_\_  | +\_\_\_% |
+| Tiempo admin/día    | \_\_\_h | \_\_\_h | -\_\_\_h |
 
 ### Satisfacción General
+
 [ ] Muy satisfecho
 [ ] Satisfecho
 [ ] Neutral
 [ ] Insatisfecho
 
-### ¿Recomendaría VetePy?
+### ¿Recomendaría Vetic?
+
 [ ] Definitivamente sí
 [ ] Probablemente sí
 [ ] No estoy seguro
 [ ] No
 
 ### Net Promoter Score (NPS)
-> Del 0 al 10, ¿qué tan probable es que recomiende VetePy a un colega?
 
-**[RESPUESTA]:** ___/10
+> Del 0 al 10, ¿qué tan probable es que recomiende Vetic a un colega?
+
+**[RESPUESTA]:** \_\_\_/10
 
 ---
 
 ## 10.8 Puntos Destacados
 
-### ¿Cuáles son las 3 cosas que más le gustan de VetePy?
+### ¿Cuáles son las 3 cosas que más le gustan de Vetic?
 
-1. _________________________________
-2. _________________________________
-3. _________________________________
+1. ***
+2. ***
+3. ***
 
 ### ¿Qué le gustaría que mejoremos?
 
-1. _________________________________
-2. _________________________________
-3. _________________________________
+1. ***
+2. ***
+3. ***
 
 ---
 
@@ -205,7 +199,7 @@ Esta información es opcional y se usa para:
 ### ¿Puede proporcionarnos?
 
 [ ] Screenshot del dashboard con sus datos (anonimizado)
-[ ] Foto de su equipo usando VetePy
+[ ] Foto de su equipo usando Vetic
 [ ] Video corto de testimonio (30-60 segundos)
 [ ] Capturas de antes/después de su proceso
 
@@ -215,14 +209,14 @@ Esta información es opcional y se usa para:
 
 ### Autorización para Uso de Información
 
-[ ] Autorizo a VetePy a usar mi nombre y el nombre de mi clínica en materiales de marketing.
+[ ] Autorizo a Vetic a usar mi nombre y el nombre de mi clínica en materiales de marketing.
 
-[ ] Autorizo a VetePy a contactarme para solicitar actualizaciones del caso de estudio.
+[ ] Autorizo a Vetic a contactarme para solicitar actualizaciones del caso de estudio.
 
-[ ] Autorizo a VetePy a compartir mis métricas de forma anónima en presentaciones.
+[ ] Autorizo a Vetic a compartir mis métricas de forma anónima en presentaciones.
 
-**Firma:** _________________________________
-**Fecha:** ___/___/_____
+**Firma:** ****************\_****************
+**Fecha:** **_/_**/**\_**
 
 ---
 
@@ -235,8 +229,8 @@ Esta información es opcional y se usa para:
 Si tiene alguna pregunta durante el proceso, no dude en contactarnos:
 
 - **WhatsApp:** +595 981 XXX XXX
-- **Email:** soporte@vetepy.com
+- **Email:** soporte@Vetic.com
 
 Esperamos trabajar con usted pronto.
 
-**— Equipo VetePy**
+**— Equipo Vetic**

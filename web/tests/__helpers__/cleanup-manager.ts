@@ -126,7 +126,8 @@ export const COMPLETE_TABLE_DEPENDENCY_ORDER = [
   // TIER 3: Module-level entities
   // ==========================================================================
 
-  // Store module
+  // Store module - reservations must come before carts (FK dependency)
+  'store_inventory_reservations',
   'store_carts',
   'store_wishlists',
   'store_stock_alerts',

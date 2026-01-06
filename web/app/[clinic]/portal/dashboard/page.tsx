@@ -212,15 +212,15 @@ export default async function OwnerDashboardPage({
 
             {/* Empty State */}
             {(!pets || pets.length === 0) && !query && (
-              <div className="rounded-3xl border border-dashed border-gray-300 bg-white py-16 text-center">
-                <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-gray-50 text-gray-400">
+              <div className="rounded-3xl border border-dashed border-[var(--border)] bg-[var(--bg-default)] py-16 text-center">
+                <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-[var(--bg-subtle)] text-[var(--text-muted)]">
                   <Dog className="h-10 w-10" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-600">
+                <h3 className="text-xl font-bold text-[var(--text-secondary)]">
                   {data.config.ui_labels?.portal?.empty_states?.no_pets ||
                     'No tienes mascotas registradas'}
                 </h3>
-                <p className="mb-6 text-gray-500">
+                <p className="mb-6 text-[var(--text-muted)]">
                   {data.config.ui_labels?.portal?.empty_states?.no_pets_desc ||
                     'Registra tu primera mascota para comenzar'}
                 </p>
@@ -239,7 +239,7 @@ export default async function OwnerDashboardPage({
                 {pets.map((pet) => (
                   <div
                     key={pet.id}
-                    className="group overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-md transition-all hover:-translate-y-1 hover:shadow-lg"
+                    className="group overflow-hidden rounded-2xl border border-[var(--border-light)] bg-[var(--bg-default)] shadow-md transition-all hover:-translate-y-1 hover:shadow-lg"
                   >
                     {/* Pet Header */}
                     <div className="flex items-center gap-4 bg-[var(--bg-subtle)] p-4">
@@ -256,7 +256,7 @@ export default async function OwnerDashboardPage({
                             className="h-16 w-16 rounded-full border-2 border-white object-cover shadow-sm"
                           />
                         ) : (
-                          <div className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-white bg-white text-gray-300 shadow-sm">
+                          <div className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-[var(--bg-default)] bg-[var(--bg-default)] text-[var(--text-muted)] shadow-sm">
                             <PawPrint className="h-8 w-8" />
                           </div>
                         )}
@@ -279,7 +279,7 @@ export default async function OwnerDashboardPage({
                     </div>
 
                     {/* Stats Row */}
-                    <div className="grid grid-cols-2 divide-x divide-gray-100 border-b border-gray-100 text-center text-sm">
+                    <div className="grid grid-cols-2 divide-x divide-[var(--border-light)] border-b border-[var(--border-light)] text-center text-sm">
                       <div className="p-3">
                         <span className="block text-xs font-medium text-[var(--text-muted)]">Peso</span>
                         <span className="font-semibold text-[var(--text-primary)]">
@@ -313,7 +313,7 @@ export default async function OwnerDashboardPage({
                             {pendingVaccines.slice(0, 2).map((v: Vaccine) => (
                               <div
                                 key={v.id}
-                                className="flex items-center justify-between rounded-lg bg-gray-50 p-2.5 text-sm"
+                                className="flex items-center justify-between rounded-lg bg-[var(--bg-subtle)] p-2.5 text-sm"
                               >
                                 <div className="flex items-center gap-2">
                                   <Syringe className="h-4 w-4 text-[var(--text-muted)]" />

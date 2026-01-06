@@ -63,7 +63,7 @@ interface RecommendedPlan {
   reasons: string[]
   ctaMessage: string
   showAds?: boolean
-  trialDays?: number
+  freeMonths?: number
 }
 
 const questions: QuizQuestion[] = [
@@ -277,7 +277,7 @@ const plans: Record<TierId, RecommendedPlan> = {
     priceDisplay: 'Gratis',
     tagline: 'Empieza sin pagar nada',
     showAds: true,
-    trialDays: 0,
+    freeMonths: 0,
     reasons: [
       'Sitio web profesional para tu clinica',
       'Portal de mascotas para tus clientes',
@@ -295,7 +295,7 @@ const plans: Record<TierId, RecommendedPlan> = {
     monthlyPrice: 100000,
     priceDisplay: 'Gs 100.000',
     tagline: 'Sin anuncios, experiencia profesional',
-    trialDays: trialConfig.standardDays,
+    freeMonths: trialConfig.freeMonths,
     reasons: [
       'Sin anuncios - imagen profesional',
       'Incluye 3 usuarios (Gs 30.000/extra)',
@@ -313,7 +313,7 @@ const plans: Record<TierId, RecommendedPlan> = {
     monthlyPrice: 200000,
     priceDisplay: 'Gs 200.000',
     tagline: 'El favorito - vende y crece',
-    trialDays: trialConfig.standardDays,
+    freeMonths: trialConfig.freeMonths,
     reasons: [
       'Tienda online integrada (3% comision)',
       'Acceso a compras grupales con descuentos',
@@ -331,7 +331,7 @@ const plans: Record<TierId, RecommendedPlan> = {
     monthlyPrice: 400000,
     priceDisplay: 'Gs 400.000',
     tagline: 'Para clinicas completas',
-    trialDays: trialConfig.standardDays,
+    freeMonths: trialConfig.freeMonths,
     reasons: [
       'Modulo de hospitalizacion e internacion',
       'Laboratorio con resultados y paneles',
@@ -349,7 +349,7 @@ const plans: Record<TierId, RecommendedPlan> = {
     monthlyPrice: 0,
     priceDisplay: 'Personalizado',
     tagline: 'Solucion a medida para cadenas',
-    trialDays: 0,
+    freeMonths: 0,
     reasons: [
       'Multiples sucursales en una cuenta',
       'API para integraciones personalizadas',
@@ -505,12 +505,12 @@ export function PricingQuiz() {
                   </div>
                 )}
 
-                {/* Trial info */}
-                {recommendedPlan.trialDays && recommendedPlan.trialDays > 0 && (
+                {/* 2026 Promotion info */}
+                {recommendedPlan.freeMonths && recommendedPlan.freeMonths > 0 && (
                   <div className="mt-4 flex items-center justify-center gap-2 rounded-lg bg-white/5 p-3">
                     <Gift className="h-4 w-4 text-[#2DCEA3]" />
                     <span className="text-sm text-white/70">
-                      Prueba gratis por {recommendedPlan.trialDays} dias
+                      {recommendedPlan.freeMonths} meses GRATIS - Se cobra a partir del {trialConfig.chargesStartMonth}er mes
                     </span>
                   </div>
                 )}

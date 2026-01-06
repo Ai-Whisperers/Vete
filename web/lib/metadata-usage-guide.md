@@ -291,7 +291,7 @@ export default async function ServicePage({ params }: Props) {
 Make sure these are set in `.env.local`:
 
 ```bash
-NEXT_PUBLIC_BASE_URL=https://vetepy.vercel.app
+NEXT_PUBLIC_BASE_URL=https://Vetic.vercel.app
 ```
 
 ## Testing Your Metadata

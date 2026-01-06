@@ -11,24 +11,10 @@ import {
   Calendar,
   Filter,
 } from 'lucide-react'
-import { SubscriptionCard } from './subscription-card'
+import { SubscriptionCard, type Subscription } from './subscription-card'
 import { useToast } from '@/components/ui/Toast'
 
-type SubscriptionStatus = 'active' | 'paused' | 'cancelled' | 'expired'
-
-interface Subscription {
-  id: string
-  product_id: string
-  product_name: string
-  product_image_url: string | null
-  quantity: number
-  frequency_days: number
-  next_order_date: string
-  status: SubscriptionStatus
-  discount_percent: number
-  created_at: string
-  updated_at: string
-}
+type SubscriptionStatus = Subscription['status']
 
 interface SubscriptionManagerProps {
   initialSubscriptions?: Subscription[]
@@ -317,11 +303,8 @@ export function SubscriptionManager({
             <SubscriptionCard
               key={subscription.id}
               subscription={subscription}
-              onSkip={() => handleSkip(subscription.id)}
-              onPause={() => handlePause(subscription.id)}
-              onResume={() => handleResume(subscription.id)}
-              onEdit={(updates) => handleEdit(subscription.id, updates)}
-              onCancel={() => handleCancel(subscription.id)}
+              clinic={clinic}
+              onUpdate={fetchSubscriptions}
             />
           ))}
         </div>

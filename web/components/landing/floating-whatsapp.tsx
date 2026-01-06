@@ -6,23 +6,23 @@ import { MessageCircle, X, Send, ArrowRight } from 'lucide-react'
 const quickMessages = [
   {
     label: 'Soy veterinario',
-    message: 'Hola! Soy veterinario y me interesa VetePy para mi clinica',
+    message: 'Hola! Soy veterinario y me interesa Vetic para mi clinica',
   },
   {
     label: 'Soy dueno de mascota',
-    message: 'Hola! Soy dueno de mascota y quiero saber mas sobre VetePy',
+    message: 'Hola! Soy dueno de mascota y quiero saber mas sobre Vetic',
   },
   {
     label: 'Quiero una demo',
-    message: 'Hola! Me gustaria ver una demo de VetePy',
+    message: 'Hola! Me gustaria ver una demo de Vetic',
   },
   {
     label: 'Tengo una pregunta',
-    message: 'Hola! Tengo una pregunta sobre VetePy',
+    message: 'Hola! Tengo una pregunta sobre Vetic',
   },
 ]
 
-export function FloatingWhatsApp() {
+export function FloatingWhatsApp(): React.ReactElement | null {
   const [isOpen, setIsOpen] = useState(false)
   const [isVisible, setIsVisible] = useState(false)
   const [hasInteracted, setHasInteracted] = useState(false)
@@ -51,14 +51,14 @@ export function FloatingWhatsApp() {
     }
   }, [hasInteracted, isVisible])
 
-  const handleQuickMessage = (message: string) => {
+  const handleQuickMessage = (message: string): void => {
     const whatsappUrl = `https://wa.me/595981324569?text=${encodeURIComponent(message)}`
     window.open(whatsappUrl, '_blank')
     setIsOpen(false)
     setHasInteracted(true)
   }
 
-  const handleOpenChat = () => {
+  const handleOpenChat = (): void => {
     setIsOpen(!isOpen)
     setHasInteracted(true)
   }
@@ -83,16 +83,16 @@ export function FloatingWhatsApp() {
             : 'pointer-events-none translate-y-4 opacity-0'
         }`}
       >
-        <div className="w-[320px] overflow-hidden rounded-2xl border border-white/10 bg-[#0F172A] shadow-2xl">
+        <div className="w-[320px] overflow-hidden rounded-2xl border border-white/10 bg-[var(--landing-dark)] shadow-2xl">
           {/* Header */}
-          <div className="bg-[#25D366] p-4">
+          <div className="bg-[var(--landing-whatsapp)] p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20">
                   <MessageCircle className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <p className="font-bold text-white">VetePy</p>
+                  <p className="font-bold text-white">Vetic</p>
                   <p className="text-xs text-white/80">Normalmente responde en minutos</p>
                 </div>
               </div>
@@ -124,7 +124,7 @@ export function FloatingWhatsApp() {
                   className="group flex w-full items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-left transition-all hover:bg-white/10"
                 >
                   <span className="text-sm text-white">{item.label}</span>
-                  <ArrowRight className="h-4 w-4 text-white/40 transition-all group-hover:translate-x-1 group-hover:text-[#25D366]" />
+                  <ArrowRight className="h-4 w-4 text-white/40 transition-all group-hover:translate-x-1 group-hover:text-[var(--landing-whatsapp)]" />
                 </button>
               ))}
             </div>
@@ -135,7 +135,7 @@ export function FloatingWhatsApp() {
                 href="https://wa.me/595981324569"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#25D366] py-3 font-bold text-white transition-all hover:bg-[#20BD5A]"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--landing-whatsapp)] py-3 font-bold text-white transition-all hover:bg-[var(--landing-whatsapp-hover)]"
               >
                 <Send className="h-4 w-4" />
                 Escribir mensaje personalizado
@@ -156,7 +156,7 @@ export function FloatingWhatsApp() {
           className={`relative flex h-14 w-14 items-center justify-center rounded-full shadow-lg transition-all ${
             isOpen
               ? 'border border-white/20 bg-white/10'
-              : 'bg-[#25D366] hover:scale-110 hover:bg-[#20BD5A]'
+              : 'bg-[var(--landing-whatsapp)] hover:scale-110 hover:bg-[var(--landing-whatsapp-hover)]'
           }`}
         >
           {isOpen ? (
@@ -165,7 +165,7 @@ export function FloatingWhatsApp() {
             <>
               <MessageCircle className="h-6 w-6 text-white" />
               {/* Pulse animation */}
-              <span className="absolute inset-0 animate-ping rounded-full bg-[#25D366] opacity-20" />
+              <span className="absolute inset-0 animate-ping rounded-full bg-[var(--landing-whatsapp)] opacity-20" />
             </>
           )}
         </div>
@@ -173,7 +173,7 @@ export function FloatingWhatsApp() {
         {/* Tooltip */}
         {!isOpen && !hasInteracted && (
           <div className="absolute bottom-full right-0 mb-2 animate-bounce whitespace-nowrap rounded-lg bg-white px-3 py-2 shadow-lg">
-            <p className="text-sm font-medium text-[#0F172A]">¿Necesitas ayuda?</p>
+            <p className="text-sm font-medium text-[var(--landing-dark)]">¿Necesitas ayuda?</p>
             <div className="absolute bottom-0 right-4 h-3 w-3 translate-y-1.5 rotate-45 transform bg-white" />
           </div>
         )}
@@ -182,7 +182,7 @@ export function FloatingWhatsApp() {
       {/* Mobile-only: Label next to button */}
       {!isOpen && (
         <div className="pointer-events-none fixed bottom-6 right-20 z-50 md:hidden">
-          <span className="rounded-full border border-white/10 bg-[#0F172A]/90 px-3 py-1.5 text-xs font-medium text-white">
+          <span className="rounded-full border border-white/10 bg-[var(--landing-dark)]/90 px-3 py-1.5 text-xs font-medium text-white">
             WhatsApp
           </span>
         </div>

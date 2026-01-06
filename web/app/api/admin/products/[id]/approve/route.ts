@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { withApiAuthParams, type ApiHandlerContext } from '@/lib/auth'
+import { withApiAuthParams, type ApiHandlerContextWithParams } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
 
@@ -8,7 +8,7 @@ import { logger } from '@/lib/logger'
  * Approve or reject a product for the global catalog
  */
 export const POST = withApiAuthParams(
-  async ({ request, user, profile, supabase }: ApiHandlerContext, params: { id: string }) => {
+  async ({ request, params, user, profile, supabase }: ApiHandlerContextWithParams<{ id: string }>) => {
     const { id } = params
 
     try {

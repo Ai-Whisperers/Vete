@@ -118,7 +118,7 @@ export function BenefitsSection() {
             <span className="text-sm font-bold text-[var(--primary)]">Beneficios</span>
           </div>
           <h2 className="mb-4 text-2xl font-black text-white sm:text-3xl md:mb-6 md:text-4xl lg:text-5xl">
-            Todos ganan con VetePy
+            Todos ganan con Vetic
           </h2>
           <p className="mx-auto max-w-xl text-sm text-white/60 md:text-base lg:text-lg">
             No es solo un sitio web. Es una herramienta que genera resultados medibles.

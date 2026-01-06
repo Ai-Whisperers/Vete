@@ -302,7 +302,8 @@ export default async function ClinicLayout({
                       alt={`${config.name} Logo`}
                       width={config.branding.logo_width || 150}
                       height={config.branding.logo_height || 56}
-                      className="max-h-14 w-auto object-contain"
+                      className="max-h-14 object-contain"
+                      style={{ width: 'auto', height: 'auto' }}
                       priority
                     />
                   ) : (

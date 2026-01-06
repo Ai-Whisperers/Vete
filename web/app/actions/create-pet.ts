@@ -136,6 +136,12 @@ export async function createPet(
     }
   }
 
+  // Debug log user info
+  logger.info('Create pet started', {
+    userId: user.id,
+    userEmail: user.email,
+  })
+
   // Get clinic from form
   const clinic = formData.get('clinic') as string
 
@@ -283,10 +289,17 @@ export async function createPet(
 
   logger.info('Creating pet payload', { payload: petPayload })
 
-  // Insert pet into database - Chain .select() to ensure return value and avoid PGRST204
-  const { error: insertError } = await supabase.from('pets').insert(petPayload).select()
+  // Insert pet into database
+  const { error: insertError } = await supabase.from('pets').insert(petPayload)
 
-  if (insertError) {
+  // PGRST204 means "No Content" - this can happen even on successful INSERT
+  // We need to verify if the pet was actually created
+  if (insertError?.code === 'PGRST204') {
+    logger.info('Got PGRST204 on INSERT - will verify if pet was created', { userId: user.id })
+  }
+
+  if (insertError && insertError.code !== 'PGRST204') {
+    // Log actual errors (not PGRST204)
     logger.error('Failed to create pet', {
       error: insertError,
       userId: user.id,
@@ -296,14 +309,6 @@ export async function createPet(
 
     // Map database errors to user-friendly messages
     let userMessage = 'No se pudo guardar la mascota. '
-
-    // Handle PGRST204 (No Content) as success
-    // This happens when the insert succeeds but RLS policies prevent returning the inserted row
-    if (insertError.code === 'PGRST204') {
-      logger.info('Pet created successfully (PGRST204 ignored)', { userId: user.id })
-      revalidatePath(`/${clinic}/portal/dashboard`)
-      redirect(`/${clinic}/portal/dashboard`)
-    }
 
     if (insertError.code === '23505') {
       // Unique constraint violation
@@ -332,6 +337,42 @@ export async function createPet(
 
     return { success: false, error: userMessage }
   }
+
+  // Verify the pet was created by fetching it
+  const { data: createdPet, error: verifyError } = await supabase
+    .from('pets')
+    .select('id, name, owner_id')
+    .eq('owner_id', user.id)
+    .eq('tenant_id', clinic)
+    .eq('name', validData.name)
+    .is('deleted_at', null)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .single()
+
+  if (verifyError || !createdPet) {
+    logger.error('Pet creation verification failed - pet may not have been saved', {
+      userId: user.id,
+      tenant: clinic,
+      petName: validData.name,
+      verifyError: verifyError?.message,
+      verifyErrorCode: verifyError?.code,
+    })
+
+    // Return error to user since we couldn't verify the pet was created
+    return {
+      success: false,
+      error: 'Hubo un problema al guardar la mascota. Por favor, intenta de nuevo.',
+    }
+  }
+
+  logger.info('Pet created and verified successfully', {
+    petId: createdPet.id,
+    petName: createdPet.name,
+    ownerId: createdPet.owner_id,
+    userId: user.id,
+    ownerIdMatchesUserId: createdPet.owner_id === user.id,
+  })
 
   revalidatePath(`/${clinic}/portal/dashboard`)
   redirect(`/${clinic}/portal/dashboard`)

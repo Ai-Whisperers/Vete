@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { logger } from '@/lib/logger'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
+import { requireFeature } from '@/lib/features/server'
 
 // TICKET-BIZ-003: Checkout API that validates stock and decrements inventory
 // TICKET-BIZ-004: Server-side stock validation
@@ -67,6 +68,10 @@ export const POST = withApiAuth(
         details: { message: 'Clínica no válida' },
       })
     }
+
+    // Check if tenant has ecommerce feature enabled
+    const featureCheck = await requireFeature(profile.tenant_id, 'ecommerce')
+    if (featureCheck) return featureCheck
 
     // Separate products and services for logging/metrics
     const productItems = items.filter((item) => item.type === 'product')

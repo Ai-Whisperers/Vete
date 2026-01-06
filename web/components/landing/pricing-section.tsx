@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import { Check, MessageCircle, Sparkles, Building2, Gift } from 'lucide-react'
 import { pricingTiers, discounts, trialConfig, type PricingTier } from '@/lib/pricing/tiers'
+import { tierFeatureDescriptions, tierCtaMessages } from '@/lib/pricing/tier-ui'
+import { getWhatsAppUrl, pricingMessages } from '@/lib/whatsapp'
 
 type BillingPeriod = 'monthly' | 'yearly'
 
@@ -35,80 +37,8 @@ function getYearlySavings(tier: PricingTier): number {
   return getMonthlySavings(tier) * 12
 }
 
-/**
- * Feature display configuration for each tier
- * Maps tier IDs to human-readable feature lists
- */
-const tierFeatureDescriptions: Record<string, string[]> = {
-  gratis: [
-    'Sitio web profesional',
-    'Agenda online 24/7',
-    'Historial clínico digital',
-    'Portal para dueños',
-    'Control de vacunas',
-    'Herramientas clínicas',
-    'Muestra anuncios',
-  ],
-  basico: [
-    'Todo de Gratis',
-    'Sin anuncios',
-    'Soporte por email',
-    '3 usuarios incluidos',
-  ],
-  crecimiento: [
-    'Todo de Básico',
-    'Tienda online (3% comisión)',
-    'Placas QR de identificación',
-    'Pedidos mayoristas',
-    'Reportes de ventas',
-    '5 usuarios incluidos',
-  ],
-  profesional: [
-    'Todo de Crecimiento',
-    'WhatsApp Business API',
-    'Módulo de hospitalización',
-    'Laboratorio clínico',
-    'Reportes avanzados',
-    'Soporte WhatsApp 24/7',
-    '10 usuarios incluidos',
-  ],
-  empresarial: [
-    'Todo de Profesional',
-    'Múltiples sucursales',
-    'Acceso API',
-    'Análisis con IA',
-    'Garantía SLA 99.9%',
-    'Soporte dedicado',
-    'Comisión reducida (2%)',
-    '20+ usuarios',
-  ],
-}
-
-/**
- * CTA messages for WhatsApp contact
- */
-const tierCtaMessages: Record<string, { cta: string; message: string }> = {
-  gratis: {
-    cta: 'Empezar Gratis',
-    message: 'Hola! Quiero crear mi cuenta gratuita en Vetic',
-  },
-  basico: {
-    cta: 'Elegir Básico',
-    message: 'Hola! Me interesa el plan Básico de Vetic',
-  },
-  crecimiento: {
-    cta: 'Elegir Crecimiento',
-    message: 'Hola! Me interesa el plan Crecimiento de Vetic',
-  },
-  profesional: {
-    cta: 'Elegir Profesional',
-    message: 'Hola! Me interesa el plan Profesional de Vetic',
-  },
-  empresarial: {
-    cta: 'Contactar Ventas',
-    message: 'Hola! Tengo una clínica con múltiples sucursales y me interesa el plan Empresarial de Vetic',
-  },
-}
+// Feature descriptions and CTA messages imported from lib/pricing/tier-ui.tsx
+// Single source of truth for all tier UI elements
 
 interface PricingCardProps {
   tier: PricingTier
@@ -230,7 +160,7 @@ function PricingCard({ tier, features, cta, billingPeriod }: PricingCardProps): 
 
       {/* CTA */}
       <a
-        href={`https://wa.me/595981324569?text=${encodeURIComponent(cta.message)}`}
+        href={getWhatsAppUrl(cta.message)}
         target="_blank"
         rel="noopener noreferrer"
         className={`flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-all ${
@@ -366,7 +296,7 @@ export function PricingSection(): React.ReactElement {
           <p className="text-sm text-[var(--landing-text-muted)]">
             ¿Necesitas algo especial?{' '}
             <a
-              href="https://wa.me/595981324569?text=Hola!%20Tengo%20una%20consulta%20sobre%20los%20planes%20de%20Vetic"
+              href={getWhatsAppUrl(pricingMessages.generalInquiry())}
               target="_blank"
               rel="noopener noreferrer"
               className="font-bold text-[var(--landing-primary)] hover:underline"

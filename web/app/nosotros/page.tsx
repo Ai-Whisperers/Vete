@@ -14,6 +14,7 @@ import {
   FloatingWhatsApp,
   PageHeader,
 } from '@/components/landing'
+import { getWhatsAppUrl, landingMessages } from '@/lib/whatsapp'
 
 // Values
 const values = [
@@ -251,7 +252,7 @@ export default function NosotrosPage() {
                 <ArrowRight className="h-5 w-5" />
               </Link>
               <a
-                href="https://wa.me/595981324569?text=Hola!%20Quiero%20saber%20m%C3%A1s%20sobre%20Vetic"
+                href={getWhatsAppUrl(landingMessages.learnMore())}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-slate-200 bg-white px-8 py-4 text-base font-bold text-slate-700 transition-all hover:-translate-y-1 hover:border-slate-300 hover:shadow-md"

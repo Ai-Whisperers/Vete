@@ -2,8 +2,35 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { logger } from '@/lib/logger'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
+import { checkFeatureAccess } from '@/lib/features/server'
 
 export const dynamic = 'force-dynamic'
+
+/**
+ * Helper to check ecommerce feature for a tenant
+ * Returns error response if feature is not available, null if allowed
+ */
+async function checkEcommerceAccess(
+  tenantId: string
+): Promise<NextResponse | null> {
+  const result = await checkFeatureAccess(tenantId, 'ecommerce')
+
+  if (!result.allowed) {
+    return NextResponse.json(
+      {
+        error: 'Tienda online no disponible en tu plan actual',
+        code: 'FEATURE_RESTRICTED',
+        feature: 'ecommerce',
+        currentTier: result.currentTier,
+        requiredTier: result.requiredTier,
+        upgradeMessage: 'Actualiza a Crecimiento o superior para acceder a la tienda online',
+      },
+      { status: 403 }
+    )
+  }
+
+  return null
+}
 
 /**
  * GET /api/store/cart
@@ -31,6 +58,10 @@ export async function GET() {
   if (!profile) {
     return NextResponse.json({ items: [], updated_at: null, authenticated: true, no_profile: true })
   }
+
+  // Check if tenant has ecommerce feature enabled
+  const featureCheck = await checkEcommerceAccess(profile.tenant_id)
+  if (featureCheck) return featureCheck
 
   // Get cart
   const { data: cart, error } = await supabase
@@ -105,6 +136,10 @@ export async function PUT(request: Request) {
     tenantId = profile.tenant_id
   }
 
+  // Check if tenant has ecommerce feature enabled
+  const featureCheck = await checkEcommerceAccess(tenantId)
+  if (featureCheck) return featureCheck
+
   // Upsert cart
   const { error } = await supabase.from('store_carts').upsert(
     {
@@ -162,6 +197,10 @@ export async function DELETE() {
   if (!profile) {
     return NextResponse.json({ success: true, local_only: true, no_profile: true })
   }
+
+  // Check if tenant has ecommerce feature enabled
+  const featureCheck = await checkEcommerceAccess(profile.tenant_id)
+  if (featureCheck) return featureCheck
 
   const { error } = await supabase
     .from('store_carts')
@@ -230,6 +269,10 @@ export async function POST(request: Request) {
     }
     tenantId = profile.tenant_id
   }
+
+  // Check if tenant has ecommerce feature enabled
+  const featureCheck = await checkEcommerceAccess(tenantId)
+  if (featureCheck) return featureCheck
 
   // Get existing cart
   const { data: existingCart } = await supabase

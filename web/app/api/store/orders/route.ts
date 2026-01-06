@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { logger } from '@/lib/logger'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
+import { requireFeature } from '@/lib/features/server'
 
 // Order statuses
 const ORDER_STATUSES = [
@@ -72,6 +73,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       details: { message: 'Falta parámetro clinic' },
     })
   }
+
+  // Check if tenant has ecommerce feature enabled
+  const featureCheck = await requireFeature(clinic, 'ecommerce')
+  if (featureCheck) return featureCheck
 
   try {
     let query = supabase

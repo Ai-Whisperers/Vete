@@ -15,6 +15,7 @@ import {
   PricingSection,
 } from '@/components/landing'
 import { discounts } from '@/lib/pricing/tiers'
+import { getWhatsAppUrl, pricingMessages } from '@/lib/whatsapp'
 
 export default function PreciosPage(): React.ReactElement {
   return (
@@ -93,7 +94,7 @@ export default function PreciosPage(): React.ReactElement {
             Hablemos por WhatsApp y te ayudamos a elegir el plan perfecto para tu clínica.
           </p>
           <a
-            href="https://wa.me/595981324569?text=Hola!%20Tengo%20dudas%20sobre%20los%20planes%20de%20Vetic"
+            href={getWhatsAppUrl(pricingMessages.doubts())}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center justify-center gap-2 rounded-full bg-[var(--landing-bg-white)] px-8 py-4 text-base font-bold text-[var(--landing-primary)] shadow-lg transition-all hover:-translate-y-1 hover:shadow-xl"

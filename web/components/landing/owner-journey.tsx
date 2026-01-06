@@ -17,6 +17,7 @@ import {
   CheckCircle2,
   Sparkles,
 } from 'lucide-react'
+import { getWhatsAppUrl, landingMessages } from '@/lib/whatsapp'
 
 const steps = [
   {
@@ -312,7 +313,7 @@ export function OwnerJourney() {
               Buscar Clinica Cercana
             </a>
             <a
-              href="https://wa.me/595981324569?text=Hola!%20Soy%20dueno%20de%20mascota%20y%20quiero%20saber%20mas%20sobre%20Vetic"
+              href={getWhatsAppUrl(landingMessages.quickPetOwner())}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center gap-2 rounded-full border border-white/20 bg-white/5 px-6 py-3 font-medium text-white transition-all hover:bg-white/10"

@@ -15,6 +15,7 @@ import {
   ChevronRight,
   Stethoscope,
 } from 'lucide-react'
+import { getWhatsAppUrl, landingMessages } from '@/lib/whatsapp'
 
 interface ClinicShowcase {
   id: string
@@ -290,7 +291,7 @@ export function ClientShowcase() {
         <div className="text-center">
           <p className="mb-4 text-slate-500">¿Queres que tu clínica aparezca aqui?</p>
           <a
-            href="https://wa.me/595981324569?text=Hola!%20Quiero%20unir%20mi%20clinica%20a%20Vetic"
+            href={getWhatsAppUrl(landingMessages.joinNetwork())}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-6 py-3 font-bold text-white transition-all hover:bg-slate-800 hover:shadow-lg"

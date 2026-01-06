@@ -11,6 +11,7 @@ import {
   Loader2,
   ArrowRight,
 } from 'lucide-react'
+import { getWhatsAppUrl, supportMessages } from '@/lib/whatsapp'
 
 interface FormData {
   clinicName: string
@@ -66,8 +67,7 @@ export function ContactForm() {
     await new Promise((resolve) => setTimeout(resolve, 800))
 
     // Open WhatsApp with pre-filled message
-    const whatsappUrl = `https://wa.me/595981324569?text=${encodeURIComponent(message)}`
-    window.open(whatsappUrl, '_blank')
+    window.open(getWhatsAppUrl(message), '_blank')
 
     setIsSubmitting(false)
     setIsSubmitted(true)
@@ -107,7 +107,7 @@ export function ContactForm() {
             </p>
             <div className="flex flex-col justify-center gap-3 sm:flex-row">
               <a
-                href={`https://wa.me/595981324569?text=${encodeURIComponent(`Hola! Soy ${formData.contactName} de ${formData.clinicName}. Me gustaría recibir más información sobre Vetic.`)}`}
+                href={getWhatsAppUrl(`Hola! Soy ${formData.contactName} de ${formData.clinicName}. Me gustaría recibir más información sobre Vetic.`)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-2 rounded-full bg-[#25D366] px-6 py-3 font-bold text-white transition-all hover:bg-[#20BD5A] hover:shadow-lg hover:shadow-green-500/20"

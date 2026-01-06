@@ -1,39 +1,38 @@
 import Link from 'next/link'
 import { ArrowRight, Check, Star } from 'lucide-react'
+import {
+  pricingTiers,
+  formatTierPrice,
+  getTierById,
+  trialConfig,
+  type TierId,
+} from '@/lib/pricing/tiers'
+import { tierHighlights, tierTeaserFeatures } from '@/lib/pricing/tier-ui'
 
 /**
  * Lightweight pricing teaser for the homepage
  * Shows 3 key plans with basic info, redirects to /precios for full details
  */
 
-// Simplified plan data - just enough for the teaser
-const teaserPlans = [
-  {
-    id: 'gratis',
-    name: 'Gratis',
-    price: '0',
-    description: 'Para empezar',
-    highlight: 'Sin costo',
-    features: ['Sitio web propio', 'Agenda de citas', 'Historial clínico'],
-  },
-  {
-    id: 'crecimiento',
-    name: 'Crecimiento',
-    price: '200.000',
-    description: 'Más popular',
-    highlight: 'Tienda online',
-    popular: true,
-    features: ['Todo de Gratis +', 'E-commerce', 'Tags QR para mascotas'],
-  },
-  {
-    id: 'profesional',
-    name: 'Profesional',
-    price: '400.000',
-    description: 'Completo',
-    highlight: 'Hospital + Lab',
-    features: ['Todo de Crecimiento +', 'Hospitalización', 'WhatsApp API'],
-  },
-]
+// Which tiers to show in the teaser (subset of all tiers)
+const TEASER_TIER_IDS: TierId[] = ['gratis', 'crecimiento', 'profesional']
+
+/**
+ * Derive teaser plans from central pricing config
+ * All base data comes from lib/pricing/tiers.ts - single source of truth
+ */
+const teaserPlans = TEASER_TIER_IDS.map((tierId) => {
+  const tier = getTierById(tierId)!
+  return {
+    id: tier.id,
+    name: tier.name,
+    price: tier.monthlyPrice === 0 ? '0' : new Intl.NumberFormat('es-PY').format(tier.monthlyPrice),
+    description: tier.description.split(' ').slice(0, 2).join(' '), // Short description
+    highlight: tierHighlights[tier.id],
+    popular: tier.popular,
+    features: tierTeaserFeatures[tier.id],
+  }
+})
 
 export function PricingTeaser(): React.ReactElement {
   return (
@@ -115,7 +114,7 @@ export function PricingTeaser(): React.ReactElement {
             <ArrowRight className="h-5 w-5" />
           </Link>
           <p className="mt-4 text-sm text-[var(--landing-text-muted)]">
-            Prueba gratis por 3 meses con todas las funciones
+            Prueba gratis por {trialConfig.freeMonths} meses con todas las funciones
           </p>
         </div>
       </div>

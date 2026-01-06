@@ -1,6 +1,7 @@
 'use client'
 
 import { MessageCircle, Settings, Rocket, ArrowRight, Clock, Check } from 'lucide-react'
+import { getWhatsAppUrl, landingMessages } from '@/lib/whatsapp'
 
 const steps = [
   {
@@ -153,7 +154,7 @@ export function HowItWorks() {
         {/* Bottom CTA */}
         <div className="mt-10 text-center md:mt-14">
           <a
-            href="https://wa.me/595981324569?text=Hola!%20Quiero%20saber%20mas%20sobre%20Vetic"
+            href={getWhatsAppUrl(landingMessages.learnMore())}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 rounded-full bg-teal-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-teal-500/20 transition-all hover:-translate-y-0.5 hover:shadow-xl md:px-8 md:py-4 md:text-base"

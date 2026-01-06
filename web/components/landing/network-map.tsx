@@ -18,6 +18,7 @@ import {
   Syringe,
   TestTube,
 } from 'lucide-react'
+import { getWhatsAppUrl, landingMessages } from '@/lib/whatsapp'
 
 interface ClinicLocation {
   id: string
@@ -563,7 +564,7 @@ export function NetworkMap() {
         <div className="mt-12 text-center">
           <p className="mb-4 text-white/50">¿Tu veterinaria favorita no esta en la red?</p>
           <a
-            href="https://wa.me/595981324569?text=Hola!%20Me%20gustaria%20que%20mi%20veterinaria%20use%20Vetic"
+            href={getWhatsAppUrl('Hola! Me gustaria que mi veterinaria use Vetic')}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-5 py-2.5 font-medium text-white transition-all hover:bg-white/10"

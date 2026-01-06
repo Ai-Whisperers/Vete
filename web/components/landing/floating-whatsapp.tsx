@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { MessageCircle, X, Send, ArrowRight } from 'lucide-react'
+import { getWhatsAppUrl } from '@/lib/whatsapp'
 
 const quickMessages = [
   {
@@ -52,8 +53,7 @@ export function FloatingWhatsApp(): React.ReactElement | null {
   }, [hasInteracted, isVisible])
 
   const handleQuickMessage = (message: string): void => {
-    const whatsappUrl = `https://wa.me/595981324569?text=${encodeURIComponent(message)}`
-    window.open(whatsappUrl, '_blank')
+    window.open(getWhatsAppUrl(message), '_blank')
     setIsOpen(false)
     setHasInteracted(true)
   }
@@ -132,7 +132,7 @@ export function FloatingWhatsApp(): React.ReactElement | null {
             {/* Custom message link */}
             <div className="mt-4 border-t border-white/10 pt-4">
               <a
-                href="https://wa.me/595981324569"
+                href={getWhatsAppUrl()}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--landing-whatsapp)] py-3 font-bold text-white transition-all hover:bg-[var(--landing-whatsapp-hover)]"

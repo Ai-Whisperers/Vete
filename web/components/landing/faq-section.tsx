@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { ChevronDown, HelpCircle, MessageCircle } from 'lucide-react'
+import { getWhatsAppUrl } from '@/lib/whatsapp'
 
 const faqs = [
   {
@@ -84,7 +85,7 @@ export function FAQSection() {
             <HelpCircle className="h-5 w-5" />
             <span>¿Tenés otra pregunta?</span>
             <a
-              href="https://wa.me/595981324569"
+              href={getWhatsAppUrl()}
               className="font-bold text-teal-600 hover:underline inline-flex items-center gap-1"
             >
               Escribinos al WhatsApp

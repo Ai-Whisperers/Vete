@@ -2,6 +2,7 @@
 
 import { ArrowRight, MessageCircle, Play, Shield, Zap, CheckCircle2 } from 'lucide-react'
 import Link from 'next/link'
+import { getWhatsAppUrl, landingMessages } from '@/lib/whatsapp'
 
 export function CTASection() {
   return (
@@ -34,7 +35,7 @@ export function CTASection() {
 
           <div className="mb-12 flex flex-col justify-center gap-4 sm:flex-row">
             <a
-              href="https://wa.me/595981324569?text=Hola!%20Quiero%20empezar%20con%20Vetic"
+              href={getWhatsAppUrl(landingMessages.ctaStart())}
               target="_blank"
               rel="noopener noreferrer"
               className="group inline-flex items-center justify-center gap-2 rounded-full bg-white px-8 py-4 text-base font-bold text-teal-700 shadow-xl shadow-teal-900/10 transition-all hover:-translate-y-1 hover:shadow-2xl"

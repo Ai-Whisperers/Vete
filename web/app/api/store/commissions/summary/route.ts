@@ -17,6 +17,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
+import { getTierById, type TierId } from '@/lib/pricing/tiers'
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   const supabase = await createClient()
@@ -68,31 +69,22 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     // Get tenant info for rate calculation
     const { data: tenant } = await supabase
       .from('tenants')
-      .select('ecommerce_start_date, commission_tier')
+      .select('ecommerce_start_date, subscription_tier')
       .eq('id', tenantId)
       .single()
 
-    // Calculate current rate
-    const { data: currentRate } = await supabase.rpc('get_commission_rate', {
-      p_tenant_id: tenantId,
-    })
+    // Get tier info - commission rates are now flat per tier (no time-based escalation)
+    const tierId = (tenant?.subscription_tier as TierId) || 'gratis'
+    const tier = getTierById(tierId)
+    const currentRate = tier?.ecommerceCommission ?? 0
 
-    // Calculate months active
+    // Calculate months active (informational only - rates don't change)
     let monthsActive = 0
-    let rateChangeDate: string | null = null
-
     if (tenant?.ecommerce_start_date) {
       const startDate = new Date(tenant.ecommerce_start_date)
       const now = new Date()
       monthsActive =
         (now.getFullYear() - startDate.getFullYear()) * 12 + (now.getMonth() - startDate.getMonth())
-
-      // If still on initial rate, calculate when it increases
-      if (monthsActive < 6 && tenant.commission_tier !== 'enterprise') {
-        const changeDate = new Date(startDate)
-        changeDate.setMonth(changeDate.getMonth() + 6)
-        rateChangeDate = changeDate.toISOString()
-      }
     }
 
     // Get current month date range
@@ -160,12 +152,14 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       current_month: currentMonth,
       pending_payment: pendingPayment,
       rate_info: {
-        current_rate: currentRate || 0.03,
-        rate_type: tenant?.commission_tier || (monthsActive < 6 ? 'initial' : 'standard'),
+        current_rate: currentRate,
+        tier_id: tierId,
+        tier_name: tier?.name || 'Gratis',
         months_active: monthsActive,
         ecommerce_start_date: tenant?.ecommerce_start_date || null,
-        rate_increases_at: rateChangeDate,
-        next_rate: rateChangeDate ? 0.05 : null,
+        // Rates are now flat per tier - they don't change over time
+        rate_increases_at: null,
+        next_rate: null,
       },
       totals,
       latest_invoice: latestInvoice || null,

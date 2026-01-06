@@ -7,6 +7,7 @@ import {
 } from '@/components/landing'
 import type { ClinicLocation } from '@/components/landing/clinic-map'
 import { RedClient } from './client'
+import { getWhatsAppUrl, landingMessages } from '@/lib/whatsapp'
 
 interface ClinicFromDB {
   id: string
@@ -105,7 +106,7 @@ export default async function RedPage() {
             Unite a la red de veterinarias que eligen Vetic para crecer.
           </p>
           <a
-            href="https://wa.me/595981324569?text=Hola!%20Quiero%20unirme%20a%20la%20red%20Vetic"
+            href={getWhatsAppUrl(landingMessages.joinNetwork())}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-8 py-4 text-base font-bold text-teal-600 shadow-lg transition-all hover:-translate-y-1 hover:shadow-xl"

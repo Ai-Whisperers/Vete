@@ -6,30 +6,34 @@ import {
   Users,
   PawPrint,
   Building2,
-  Laptop,
   ArrowRight,
   ArrowLeft,
   Check,
   Sparkles,
   MessageCircle,
-  Gift,
-  Zap,
-  ShoppingBag,
-  Stethoscope,
-  Crown,
   RotateCcw,
   Megaphone,
+  Gift,
+  ShoppingBag,
+  Stethoscope,
 } from 'lucide-react'
 import {
   pricingTiers,
   discounts,
   trialConfig,
   roiGuarantee,
-  getTierById,
   formatTierPrice,
   type TierId,
+  type PricingTier,
 } from '@/lib/pricing/tiers'
+import {
+  tierIconsLarge,
+  tierQuizReasons,
+  tierQuizCtaMessages,
+  tierTaglines,
+} from '@/lib/pricing/tier-ui'
 import { brandConfig } from '@/lib/branding/config'
+import { getWhatsAppUrl, pricingMessages } from '@/lib/whatsapp'
 
 interface TierPoints {
   gratis: number
@@ -267,99 +271,28 @@ const questions: QuizQuestion[] = [
   },
 ]
 
-const plans: Record<TierId, RecommendedPlan> = {
-  gratis: {
-    id: 'gratis',
-    name: 'Plan Gratis',
-    icon: <Gift className="h-8 w-8" />,
-    color: '#94A3B8',
-    monthlyPrice: 0,
-    priceDisplay: 'Gratis',
-    tagline: 'Empieza sin pagar nada',
-    showAds: true,
-    freeMonths: 0,
-    reasons: [
-      'Sitio web profesional para tu clinica',
-      'Portal de mascotas para tus clientes',
-      'Citas, fichas medicas y vacunas incluidas',
-      'Muestra anuncios - asi se financia',
-      'Podes subir a un plan pago cuando quieras',
-    ],
-    ctaMessage: `Hola! Hice el quiz de ${brandConfig.name} y quiero empezar con el Plan Gratis. Me pueden ayudar?`,
-  },
-  basico: {
-    id: 'basico',
-    name: 'Plan Basico',
-    icon: <Zap className="h-8 w-8" />,
-    color: '#60A5FA',
-    monthlyPrice: 100000,
-    priceDisplay: 'Gs 100.000',
-    tagline: 'Sin anuncios, experiencia profesional',
-    freeMonths: trialConfig.freeMonths,
-    reasons: [
-      'Sin anuncios - imagen profesional',
-      'Incluye 3 usuarios (Gs 30.000/extra)',
-      'Soporte por email (48 horas)',
-      'Todas las funciones clinicas basicas',
-      'Ideal para clinicas pequenas',
-    ],
-    ctaMessage: `Hola! Hice el quiz de ${brandConfig.name} y me recomendaron el Plan Basico. Me gustaria saber mas!`,
-  },
-  crecimiento: {
-    id: 'crecimiento',
-    name: 'Plan Crecimiento',
-    icon: <ShoppingBag className="h-8 w-8" />,
-    color: '#2DCEA3',
-    monthlyPrice: 200000,
-    priceDisplay: 'Gs 200.000',
-    tagline: 'El favorito - vende y crece',
-    freeMonths: trialConfig.freeMonths,
-    reasons: [
-      'Tienda online integrada (3% comision)',
-      'Acceso a compras grupales con descuentos',
-      'Incluye 5 usuarios (Gs 40.000/extra)',
-      'Analiticas basicas de tu negocio',
-      'Soporte por email (24 horas)',
-    ],
-    ctaMessage: `Hola! Hice el quiz de ${brandConfig.name} y me recomendaron el Plan Crecimiento. Me gustaria saber mas!`,
-  },
-  profesional: {
-    id: 'profesional',
-    name: 'Plan Profesional',
-    icon: <Stethoscope className="h-8 w-8" />,
-    color: '#5C6BFF',
-    monthlyPrice: 400000,
-    priceDisplay: 'Gs 400.000',
-    tagline: 'Para clinicas completas',
-    freeMonths: trialConfig.freeMonths,
-    reasons: [
-      'Modulo de hospitalizacion e internacion',
-      'Laboratorio con resultados y paneles',
-      'WhatsApp Business API integrado',
-      'Incluye 10 usuarios (Gs 50.000/extra)',
-      'Soporte prioritario por WhatsApp (12 hrs)',
-    ],
-    ctaMessage: `Hola! Hice el quiz de ${brandConfig.name} y me recomendaron el Plan Profesional. Me gustaria saber mas!`,
-  },
-  empresarial: {
-    id: 'empresarial',
-    name: 'Plan Empresarial',
-    icon: <Crown className="h-8 w-8" />,
-    color: '#F59E0B',
-    monthlyPrice: 0,
-    priceDisplay: 'Personalizado',
-    tagline: 'Solucion a medida para cadenas',
-    freeMonths: 0,
-    reasons: [
-      'Multiples sucursales en una cuenta',
-      'API para integraciones personalizadas',
-      'Analiticas avanzadas con IA',
-      'SLA garantizado con soporte 24/7',
-      'Account manager dedicado',
-    ],
-    ctaMessage: `Hola! Hice el quiz de ${brandConfig.name} y me recomendaron el Plan Empresarial. Tengo una cadena de clinicas y me gustaria una reunion.`,
-  },
-}
+/**
+ * Derive quiz plan data from central pricing config
+ * All base data comes from lib/pricing/tiers.ts - single source of truth
+ */
+const plans: Record<TierId, RecommendedPlan> = Object.fromEntries(
+  pricingTiers.map((tier: PricingTier) => [
+    tier.id,
+    {
+      id: tier.id,
+      name: `Plan ${tier.name}`,
+      icon: tierIconsLarge[tier.id],
+      color: tier.color,
+      monthlyPrice: tier.monthlyPrice,
+      priceDisplay: formatTierPrice(tier),
+      tagline: tierTaglines[tier.id],
+      showAds: !tier.features.adFree,
+      freeMonths: tier.enterprise || tier.monthlyPrice === 0 ? 0 : trialConfig.freeMonths,
+      reasons: tierQuizReasons[tier.id],
+      ctaMessage: tierQuizCtaMessages[tier.id],
+    },
+  ])
+) as Record<TierId, RecommendedPlan>
 
 function formatPrice(price: number): string {
   return new Intl.NumberFormat('es-PY').format(price)
@@ -566,7 +499,7 @@ export function PricingQuiz() {
               {/* CTAs */}
               <div className="flex flex-col gap-3">
                 <a
-                  href={`https://wa.me/595981324569?text=${encodeURIComponent(recommendedPlan.ctaMessage)}`}
+                  href={getWhatsAppUrl(recommendedPlan.ctaMessage)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-4 font-bold text-[#0F172A] transition-all hover:-translate-y-0.5"

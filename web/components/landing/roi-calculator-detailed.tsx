@@ -4,15 +4,8 @@ import { useState, useMemo, useEffect } from 'react'
 import {
   Calculator,
   ArrowRight,
-  Sparkles,
-  Gift,
-  Zap,
-  ShoppingBag,
-  Stethoscope,
-  Crown,
   Check,
   Info,
-  ShieldCheck,
   Megaphone,
   Clock,
   Package,
@@ -29,16 +22,20 @@ import {
   BarChart3,
 } from 'lucide-react'
 import {
+  pricingTiers,
   discounts,
   trialConfig,
   commissionConfig,
   bulkOrderingConfig,
   type TierId,
+  type PricingTier,
 } from '@/lib/pricing/tiers'
+import { tierIcons, tierDetailedFeatures } from '@/lib/pricing/tier-ui'
 import { brandConfig } from '@/lib/branding/config'
+import { getWhatsAppUrl, pricingMessages } from '@/lib/whatsapp'
 
 // ============ Types ============
-interface PlanConfig {
+interface DerivedPlanConfig {
   id: TierId
   name: string
   icon: React.ReactNode
@@ -85,179 +82,52 @@ interface CostBreakdown {
 }
 
 // ============ Plan Feature Lists ============
-const planFeatures: Record<TierId, { included: string[]; notIncluded: string[] }> = {
-  gratis: {
-    included: [
-      'Sitio web profesional',
-      'Agenda online 24/7',
-      'Historial clinico digital',
-      'Portal para duenos',
-      'Control de vacunas',
-      'Herramientas clinicas',
-      'Usuarios ilimitados',
-    ],
-    notIncluded: [
-      'Muestra anuncios',
-      'Sin soporte prioritario',
-      'Sin tienda online',
-      'Sin WhatsApp automatico',
-    ],
-  },
-  basico: {
-    included: [
-      'Todo de Gratis',
-      'Sin anuncios',
-      'Soporte por email (48h)',
-      '3 usuarios incluidos',
-    ],
-    notIncluded: [
-      'Sin tienda online',
-      'Sin WhatsApp automatico',
-      'Sin hospitalizacion',
-    ],
-  },
-  crecimiento: {
-    included: [
-      'Todo de Basico',
-      'Tienda online',
-      'Placas QR de identificacion',
-      'Pedidos mayoristas (pronto)',
-      'Reportes de ventas',
-      '5 usuarios incluidos',
-    ],
-    notIncluded: [
-      'Sin WhatsApp automatico',
-      'Sin hospitalizacion',
-      'Sin laboratorio',
-    ],
-  },
-  profesional: {
-    included: [
-      'Todo de Crecimiento',
-      'WhatsApp Business API',
-      'Recordatorios automaticos',
-      'Modulo de hospitalizacion',
-      'Laboratorio clinico',
-      'Reportes avanzados',
-      'Soporte WhatsApp 24/7',
-      '10 usuarios incluidos',
-    ],
-    notIncluded: [
-      'Sin multiples sucursales',
-      'Sin acceso API',
-    ],
-  },
-  empresarial: {
-    included: [
-      'Todo de Profesional',
-      'Multiples sucursales',
-      'Acceso API completo',
-      'Analisis con IA',
-      'Garantia SLA 99.9%',
-      'Soporte dedicado',
-      'Comision reducida (2%)',
-      '20+ usuarios',
-    ],
-    notIncluded: [],
-  },
-}
+// Using centralized tier features from tier-ui.tsx
+const planFeatures = tierDetailedFeatures
 
 // ============ Plan Configurations ============
+// Derived from central pricing config with calculator-specific properties
 // NOTE: All percentages are USER-ADJUSTABLE ESTIMATES, not guarantees.
-// We show conservative defaults and let the clinic adjust based on their reality.
-const plans: PlanConfig[] = [
-  {
-    id: 'gratis',
-    name: 'Gratis',
-    icon: <Gift className="h-5 w-5" />,
-    color: '#94A3B8',
-    monthlyCost: 0,
-    expectedGrowthPercent: 0, // No promises on free tier
-    expectedNoShowReduction: 0, // No reminders on free tier
-    timeSavingsPercent: 0.15, // Basic digital records only
-    targetPatientsMin: 0,
-    targetPatientsMax: 30,
-    includedUsers: Infinity,
-    hasEcommerce: false,
-    hasBulkOrdering: false,
-    hasWhatsappReminders: false,
-    showAds: true,
-    ecommerceCommission: 0,
-  },
-  {
-    id: 'basico',
-    name: 'Basico',
-    icon: <Zap className="h-5 w-5" />,
-    color: '#60A5FA',
-    monthlyCost: 100000,
-    expectedGrowthPercent: 0, // We don't promise growth
-    expectedNoShowReduction: 0, // No WhatsApp reminders in Basico
-    timeSavingsPercent: 0.20, // Better UI, no ads
-    targetPatientsMin: 30,
-    targetPatientsMax: 80,
-    includedUsers: 3,
-    hasEcommerce: false,
-    hasBulkOrdering: false,
-    hasWhatsappReminders: false,
-    showAds: false,
-    ecommerceCommission: 0,
-  },
-  {
-    id: 'crecimiento',
-    name: 'Crecimiento',
-    icon: <ShoppingBag className="h-5 w-5" />,
-    color: '#2DCEA3',
-    monthlyCost: 200000,
-    expectedGrowthPercent: 0, // We don't promise growth
-    expectedNoShowReduction: 0, // No WhatsApp reminders
-    timeSavingsPercent: 0.25,
-    targetPatientsMin: 80,
-    targetPatientsMax: 200,
-    includedUsers: 5,
-    hasEcommerce: true,
-    hasBulkOrdering: false, // Not launched yet
-    hasWhatsappReminders: false,
-    showAds: false,
-    ecommerceCommission: 0.03,
-  },
-  {
-    id: 'profesional',
-    name: 'Profesional',
-    icon: <Stethoscope className="h-5 w-5" />,
-    color: '#5C6BFF',
-    monthlyCost: 400000,
-    expectedGrowthPercent: 0, // We don't promise growth
-    expectedNoShowReduction: 0.20, // WhatsApp reminders - conservative estimate
-    timeSavingsPercent: 0.30,
-    targetPatientsMin: 200,
-    targetPatientsMax: 500,
-    includedUsers: 10,
-    hasEcommerce: true,
-    hasBulkOrdering: false, // Not launched yet
-    hasWhatsappReminders: true,
-    showAds: false,
-    ecommerceCommission: 0.03,
-  },
-  {
-    id: 'empresarial',
-    name: 'Empresarial',
-    icon: <Crown className="h-5 w-5" />,
-    color: '#F59E0B',
-    monthlyCost: 0, // Custom pricing - negotiated per client
-    isCustomPricing: true,
-    expectedGrowthPercent: 0, // We don't promise growth
-    expectedNoShowReduction: 0.25, // WhatsApp reminders - conservative
-    timeSavingsPercent: 0.35,
-    targetPatientsMin: 500,
-    targetPatientsMax: 2000,
-    includedUsers: 20,
-    hasEcommerce: true,
-    hasBulkOrdering: false, // Not launched yet
-    hasWhatsappReminders: true,
-    showAds: false,
-    ecommerceCommission: 0.02,
-  },
-]
+
+/**
+ * Calculator-specific properties per tier
+ * These are component-specific and not part of the central config
+ */
+const tierCalculatorProps: Record<TierId, {
+  expectedGrowthPercent: number
+  expectedNoShowReduction: number
+  timeSavingsPercent: number
+}> = {
+  gratis: { expectedGrowthPercent: 0, expectedNoShowReduction: 0, timeSavingsPercent: 0.15 },
+  basico: { expectedGrowthPercent: 0, expectedNoShowReduction: 0, timeSavingsPercent: 0.20 },
+  crecimiento: { expectedGrowthPercent: 0, expectedNoShowReduction: 0, timeSavingsPercent: 0.25 },
+  profesional: { expectedGrowthPercent: 0, expectedNoShowReduction: 0.20, timeSavingsPercent: 0.30 },
+  empresarial: { expectedGrowthPercent: 0, expectedNoShowReduction: 0.25, timeSavingsPercent: 0.35 },
+}
+
+/**
+ * Derive plan configs from central pricing tiers
+ * All base data comes from lib/pricing/tiers.ts - single source of truth
+ */
+const plans: DerivedPlanConfig[] = pricingTiers.map((tier: PricingTier) => ({
+  id: tier.id,
+  name: tier.name,
+  icon: tierIcons[tier.id],
+  color: tier.color,
+  monthlyCost: tier.monthlyPrice,
+  isCustomPricing: tier.enterprise,
+  expectedGrowthPercent: tierCalculatorProps[tier.id].expectedGrowthPercent,
+  expectedNoShowReduction: tierCalculatorProps[tier.id].expectedNoShowReduction,
+  timeSavingsPercent: tierCalculatorProps[tier.id].timeSavingsPercent,
+  targetPatientsMin: tier.targetPatientsMin,
+  targetPatientsMax: tier.targetPatientsMax,
+  includedUsers: tier.includedUsers,
+  hasEcommerce: tier.features.ecommerce,
+  hasBulkOrdering: tier.features.bulkOrdering,
+  hasWhatsappReminders: tier.features.whatsappApi,
+  showAds: !tier.features.adFree,
+  ecommerceCommission: tier.ecommerceCommission,
+}))
 
 // ============ Formatting Helpers ============
 function formatCurrency(value: number): string {
@@ -748,28 +618,6 @@ export function ROICalculatorDetailed() {
                   Resultados con Plan {currentPlan.name}
                 </h3>
 
-                {/* 2026 Promotion Banner */}
-                {currentPlan.monthlyCost > 0 && currentPlan.id !== 'empresarial' && (
-                  <div className="mb-6 rounded-xl border border-[var(--landing-primary)]/30 bg-gradient-to-r from-[var(--landing-primary)]/10 to-[var(--landing-primary-hover)]/10 p-4">
-                    <div className="flex items-start gap-3">
-                      <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-[var(--landing-primary)]/20">
-                        <Gift className="h-5 w-5 text-[var(--landing-primary)]" />
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-[var(--landing-text-primary)]">
-                          Promocion {trialConfig.promotionYear}
-                        </h4>
-                        <p className="text-sm text-[var(--landing-text-secondary)]">
-                          <span className="font-bold text-[var(--landing-primary)]">
-                            {trialConfig.freeMonths} meses GRATIS
-                          </span>{' '}
-                          en Plan Profesional. {trialConfig.promotionDescription}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
                 {/* Summary Metrics Row - Focus on COSTS (what we CAN guarantee) */}
                 <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-3">
                   <div className="rounded-xl bg-[var(--landing-bg-white)] border border-[var(--landing-border)] p-4">
@@ -1131,20 +979,6 @@ export function ROICalculatorDetailed() {
                   </div>
                 )}
 
-                {/* Annual Savings Note - only show if on monthly billing */}
-                {currentPlan.monthlyCost > 0 && billingPeriod === 'monthly' && !currentPlan.isCustomPricing && (
-                  <div className="mt-4 flex items-center justify-center gap-2 rounded-lg bg-[var(--landing-bg-muted)] p-3">
-                    <Sparkles className="h-4 w-4 text-[#2DCEA3]" />
-                    <span className="text-sm text-[var(--landing-text-secondary)]">
-                      Paga anual y{' '}
-                      <span className="font-bold text-[#2DCEA3]">
-                        ahorra {formatCurrency(calculations.annualSavings)}
-                      </span>{' '}
-                      ({Math.round(discounts.annual * 100)}% off)
-                    </span>
-                  </div>
-                )}
-
                 {/* Upgrade Comparison - Show what next tier offers */}
                 {currentPlan.id !== 'empresarial' && currentPlan.id !== 'profesional' && (
                   <div className="mt-4 rounded-xl border border-blue-200 bg-blue-50 p-4">
@@ -1212,42 +1046,6 @@ export function ROICalculatorDetailed() {
                   </div>
                 )}
 
-                {/* 2026 Promotion Banner - Prominent */}
-                {currentPlan.monthlyCost > 0 && currentPlan.id !== 'empresarial' && (
-                  <div className="mt-6 rounded-2xl border-2 border-[var(--landing-primary)] bg-gradient-to-r from-[var(--landing-primary)]/5 via-[var(--landing-primary)]/10 to-[var(--landing-primary-hover)]/5 p-5">
-                    <div className="flex flex-col sm:flex-row items-center gap-4">
-                      {/* Icon */}
-                      <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full bg-[var(--landing-primary)] text-white shadow-lg">
-                        <Gift className="h-7 w-7" />
-                      </div>
-
-                      {/* Content */}
-                      <div className="flex-1 text-center sm:text-left">
-                        <h4 className="text-lg font-black text-[var(--landing-text-primary)]">
-                          🎉 PROMOCION {trialConfig.promotionYear}: {trialConfig.freeMonths} MESES GRATIS
-                        </h4>
-                        <p className="mt-1 text-sm text-[var(--landing-text-secondary)]">
-                          Empeza con Plan Profesional completo. Se cobra a partir del mes {trialConfig.chargesStartMonth}.
-                        </p>
-                        <div className="mt-3 flex flex-wrap justify-center sm:justify-start gap-3">
-                          <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-xs font-medium text-[var(--landing-text-secondary)] shadow-sm">
-                            <ShieldCheck className="h-3.5 w-3.5 text-green-500" />
-                            Sin tarjeta de credito
-                          </span>
-                          <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-xs font-medium text-[var(--landing-text-secondary)] shadow-sm">
-                            <Check className="h-3.5 w-3.5 text-green-500" />
-                            Cancela cuando quieras
-                          </span>
-                          <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-xs font-medium text-[var(--landing-text-secondary)] shadow-sm">
-                            <Sparkles className="h-3.5 w-3.5 text-[var(--landing-primary)]" />
-                            Todas las funciones
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
                 {/* Disclaimer */}
                 <div className="mt-4 flex items-start gap-2 text-xs text-[var(--landing-text-light)]">
                   <Info className="mt-0.5 h-4 w-4 flex-shrink-0" />
@@ -1258,92 +1056,14 @@ export function ROICalculatorDetailed() {
                   </p>
                 </div>
 
-                {/* Competitor Comparison */}
-                <div className="mt-6 rounded-xl border border-[var(--landing-border)] bg-[var(--landing-bg-white)] p-4">
-                  <h4 className="mb-4 text-sm font-bold text-[var(--landing-text-primary)]">
-                    ¿Por que elegir {brandConfig.name}?
-                  </h4>
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
-                      <thead>
-                        <tr className="border-b border-[var(--landing-border)]">
-                          <th className="pb-2 text-left text-[var(--landing-text-muted)] font-medium">Característica</th>
-                          <th className="pb-2 text-center text-[var(--landing-primary)] font-bold">{brandConfig.name}</th>
-                          <th className="pb-2 text-center text-[var(--landing-text-muted)] font-medium">Otros</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-[var(--landing-border-light)]">
-                        <tr>
-                          <td className="py-2 text-[var(--landing-text-secondary)]">Plan gratuito completo</td>
-                          <td className="py-2 text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></td>
-                          <td className="py-2 text-center text-[var(--landing-text-light)]">Trial limitado</td>
-                        </tr>
-                        <tr>
-                          <td className="py-2 text-[var(--landing-text-secondary)]">E-commerce integrado</td>
-                          <td className="py-2 text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></td>
-                          <td className="py-2 text-center text-[var(--landing-text-light)]">Extra o no</td>
-                        </tr>
-                        <tr>
-                          <td className="py-2 text-[var(--landing-text-secondary)]">WhatsApp automatico</td>
-                          <td className="py-2 text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></td>
-                          <td className="py-2 text-center text-[var(--landing-text-light)]">$$ extra</td>
-                        </tr>
-                        <tr>
-                          <td className="py-2 text-[var(--landing-text-secondary)]">Sin contrato</td>
-                          <td className="py-2 text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></td>
-                          <td className="py-2 text-center text-[var(--landing-text-light)]">6-12 meses</td>
-                        </tr>
-                        <tr>
-                          <td className="py-2 text-[var(--landing-text-secondary)]">Soporte local (Paraguay)</td>
-                          <td className="py-2 text-center"><Check className="h-4 w-4 text-green-500 mx-auto" /></td>
-                          <td className="py-2 text-center text-[var(--landing-text-light)]">Extranjero</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-
-                {/* Success Stories */}
-                <div className="mt-4 grid gap-3 md:grid-cols-2">
-                  <div className="rounded-lg bg-[var(--landing-bg-muted)] p-4">
-                    <div className="flex items-start gap-3">
-                      <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[var(--landing-primary-light)] text-lg">
-                        🏥
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-[var(--landing-text-primary)]">
-                          &quot;Reducimos citas perdidas un 30%&quot;
-                        </p>
-                        <p className="text-xs text-[var(--landing-text-muted)]">
-                          — Clinica Veterinaria, Asuncion
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="rounded-lg bg-[var(--landing-bg-muted)] p-4">
-                    <div className="flex items-start gap-3">
-                      <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[var(--landing-primary-light)] text-lg">
-                        📈
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-[var(--landing-text-primary)]">
-                          &quot;Nuestras ventas online crecieron 40%&quot;
-                        </p>
-                        <p className="text-xs text-[var(--landing-text-muted)]">
-                          — Pet Center, Luque
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
               </div>
 
               {/* CTA Button */}
               <div className="mt-8 text-center">
                 <a
-                  href={`https://wa.me/595981324569?text=${encodeURIComponent(
+                  href={getWhatsAppUrl(
                     `Hola! Vi los precios de ${brandConfig.name}.\n\nMi clinica tiene aproximadamente ${inputs.monthlyConsultations} consultas/mes.\n\nMe interesa el Plan ${currentPlan.name}.\n\nQuiero saber mas!`
-                  )}`}
+                  )}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 rounded-full px-8 py-4 font-bold text-white transition-all hover:-translate-y-0.5"

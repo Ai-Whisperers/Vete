@@ -4,6 +4,7 @@ import { ArrowRight, Play, MapPin } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
+import { getWhatsAppUrl, landingMessages } from '@/lib/whatsapp'
 
 export function Hero() {
   const [isVisible, setIsVisible] = useState(false)
@@ -64,7 +65,7 @@ export function Hero() {
               }`}
             >
               <a
-                href="https://wa.me/595981324569?text=Hola!%20Quiero%20empezar%20con%20Vetic%20gratis"
+                href={getWhatsAppUrl(landingMessages.startFree())}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group inline-flex items-center justify-center gap-2 rounded-full bg-teal-600 px-8 py-4 text-base font-bold text-white shadow-lg shadow-teal-600/25 transition-all hover:-translate-y-1 hover:bg-teal-700 hover:shadow-teal-600/40"

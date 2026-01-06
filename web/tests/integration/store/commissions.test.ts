@@ -31,6 +31,7 @@ import {
 } from '@/tests/__helpers__/integration-setup'
 import { cleanupManager } from '@/tests/__helpers__/cleanup-manager'
 import { idGenerator } from '@/lib/test-utils/factories/core/id-generator'
+import { commissionConfig } from '@/lib/pricing/tiers'
 
 // =============================================================================
 // Test Setup
@@ -213,8 +214,8 @@ async function createTestCommission(orderId: string): Promise<{ id: string }> {
       shipping_amount: 10000,
       tax_amount: 10000,
       commissionable_amount: 100000,
-      commission_rate: 0.03,
-      commission_amount: 3000,
+      commission_rate: commissionConfig.initialRate,
+      commission_amount: 100000 * commissionConfig.initialRate, // Calculate based on config
       rate_type: 'initial',
       months_active: 0,
       status: 'calculated',

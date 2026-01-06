@@ -5,6 +5,7 @@ import { formatParaguayPhone } from '@/lib/types/whatsapp'
 import { rateLimit } from '@/lib/rate-limit'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
+import { requireFeature } from '@/lib/features/server'
 import { z } from 'zod'
 
 const sendMessageSchema = z.object({
@@ -28,6 +29,10 @@ export const POST = withApiAuth(
     if (!rateLimitResult.success) {
       return rateLimitResult.response
     }
+
+    // Check if tenant has WhatsApp API feature enabled
+    const featureCheck = await requireFeature(profile.tenant_id, 'whatsappApi')
+    if (featureCheck) return featureCheck
 
     try {
       // Parse and validate body

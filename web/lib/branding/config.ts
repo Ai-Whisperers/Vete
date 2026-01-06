@@ -44,6 +44,12 @@ export interface BrandConfig {
     whatsapp?: string
   }
 
+  // WhatsApp Business configuration
+  whatsapp: {
+    number: string
+    displayNumber: string
+  }
+
   // Feature flags
   features: {
     showPoweredBy: boolean
@@ -90,7 +96,12 @@ export const brandConfig: BrandConfig = {
   social: {
     instagram: 'https://instagram.com/Vetic',
     facebook: 'https://facebook.com/Vetic',
-    whatsapp: 'https://wa.me/595XXXXXXXXX',
+    whatsapp: 'https://wa.me/595981324569',
+  },
+
+  whatsapp: {
+    number: '595981324569',
+    displayNumber: '+595 981 324 569',
   },
 
   features: {
@@ -199,5 +210,8 @@ export function usdToLocal(usdAmount: number, country: SupportedCountry = 'py'):
   const config = getCurrencyConfig(country)
   return Math.round(usdAmount * config.exchangeRateToUSD)
 }
+
+// Note: WhatsApp utility functions have been moved to @/lib/whatsapp
+// Use: import { getWhatsAppUrl, getWhatsAppDisplayNumber } from '@/lib/whatsapp'
 
 export default brandConfig

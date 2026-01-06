@@ -4,6 +4,7 @@ import { useParams } from 'next/navigation'
 import { Receipt, CreditCard, FileText, ExternalLink } from 'lucide-react'
 import { CommissionDashboard } from '@/components/dashboard/commission-dashboard'
 import { brandConfig } from '@/lib/branding/config'
+import { getWhatsAppUrl, dashboardMessages } from '@/lib/whatsapp'
 
 export default function BillingSettingsPage(): React.ReactElement {
   const params = useParams()
@@ -39,7 +40,7 @@ export default function BillingSettingsPage(): React.ReactElement {
             </p>
           </div>
           <a
-            href={`https://wa.me/595981324569?text=${encodeURIComponent(`Hola! Soy de ${clinic} y quiero consultar sobre mi plan de ${brandConfig.name}`)}`}
+            href={getWhatsAppUrl(dashboardMessages.planInquiry({ clinicName: clinic }))}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
@@ -98,7 +99,7 @@ export default function BillingSettingsPage(): React.ReactElement {
           o métodos de pago.
         </p>
         <a
-          href={`https://wa.me/595981324569?text=${encodeURIComponent(`Hola! Tengo una consulta sobre facturación de ${brandConfig.name} para la clínica ${clinic}`)}`}
+          href={getWhatsAppUrl(dashboardMessages.billingSupport({ clinicName: clinic }))}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"

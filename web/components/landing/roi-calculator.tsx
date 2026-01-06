@@ -7,23 +7,27 @@ import {
   DollarSign,
   ArrowRight,
   Sparkles,
-  Gift,
-  Zap,
-  ShoppingBag,
-  Stethoscope,
-  Crown,
   Check,
   Info,
   Megaphone,
+  Gift,
 } from 'lucide-react'
 import {
+  pricingTiers,
   discounts,
   trialConfig,
   type TierId,
+  type PricingTier,
 } from '@/lib/pricing/tiers'
+import { tierIcons } from '@/lib/pricing/tier-ui'
 import { brandConfig } from '@/lib/branding/config'
+import { getWhatsAppUrl, pricingMessages } from '@/lib/whatsapp'
 
-interface PlanConfig {
+/**
+ * Plan configuration derived from central pricing config
+ * NOTE: Growth percentages set to 0 - we don't promise growth, only show what we deliver
+ */
+interface DerivedPlanConfig {
   id: TierId
   name: string
   icon: React.ReactNode
@@ -38,80 +42,24 @@ interface PlanConfig {
   showAds: boolean
 }
 
-// NOTE: Growth percentages set to 0 to match detailed calculator's conservative approach
-// We don't promise growth - only show what we can actually deliver
-const plans: PlanConfig[] = [
-  {
-    id: 'gratis',
-    name: 'Gratis',
-    icon: <Gift className="h-5 w-5" />,
-    color: '#94A3B8',
-    monthlyCost: 0,
-    expectedGrowthPercent: 0, // Conservative - no promises
-    targetPatientsMin: 0,
-    targetPatientsMax: 30,
-    includedUsers: Infinity,
-    hasEcommerce: false,
-    hasBulkOrdering: false,
-    showAds: true,
-  },
-  {
-    id: 'basico',
-    name: 'Basico',
-    icon: <Zap className="h-5 w-5" />,
-    color: '#60A5FA',
-    monthlyCost: 100000,
-    expectedGrowthPercent: 0, // Conservative - no promises
-    targetPatientsMin: 30,
-    targetPatientsMax: 80,
-    includedUsers: 3,
-    hasEcommerce: false,
-    hasBulkOrdering: false,
-    showAds: false,
-  },
-  {
-    id: 'crecimiento',
-    name: 'Crecimiento',
-    icon: <ShoppingBag className="h-5 w-5" />,
-    color: '#2DCEA3',
-    monthlyCost: 200000,
-    expectedGrowthPercent: 0, // Conservative - no promises
-    targetPatientsMin: 80,
-    targetPatientsMax: 200,
-    includedUsers: 5,
-    hasEcommerce: true,
-    hasBulkOrdering: false, // Not launched yet
-    showAds: false,
-  },
-  {
-    id: 'profesional',
-    name: 'Profesional',
-    icon: <Stethoscope className="h-5 w-5" />,
-    color: '#5C6BFF',
-    monthlyCost: 400000,
-    expectedGrowthPercent: 0, // Conservative - no promises
-    targetPatientsMin: 200,
-    targetPatientsMax: 500,
-    includedUsers: 10,
-    hasEcommerce: true,
-    hasBulkOrdering: false, // Not launched yet
-    showAds: false,
-  },
-  {
-    id: 'empresarial',
-    name: 'Empresarial',
-    icon: <Crown className="h-5 w-5" />,
-    color: '#F59E0B',
-    monthlyCost: 0, // Custom pricing - negotiated per client
-    expectedGrowthPercent: 0, // Conservative - no promises
-    targetPatientsMin: 500,
-    targetPatientsMax: 2000,
-    includedUsers: 20,
-    hasEcommerce: true,
-    hasBulkOrdering: false, // Not launched yet
-    showAds: false,
-  },
-]
+/**
+ * Derive plan configs from central pricing tiers
+ * All data comes from lib/pricing/tiers.ts - single source of truth
+ */
+const plans: DerivedPlanConfig[] = pricingTiers.map((tier: PricingTier) => ({
+  id: tier.id,
+  name: tier.name,
+  icon: tierIcons[tier.id],
+  color: tier.color,
+  monthlyCost: tier.monthlyPrice,
+  expectedGrowthPercent: 0, // Conservative - no growth promises
+  targetPatientsMin: tier.targetPatientsMin,
+  targetPatientsMax: tier.targetPatientsMax,
+  includedUsers: tier.includedUsers,
+  hasEcommerce: tier.features.ecommerce,
+  hasBulkOrdering: tier.features.bulkOrdering,
+  showAds: !tier.features.adFree,
+}))
 
 function formatCurrency(value: number): string {
   if (value >= 1000000) {
@@ -533,7 +481,7 @@ export function ROICalculator() {
           {/* CTA */}
           <div className="mt-10 text-center">
             <a
-              href={`https://wa.me/595981324569?text=${encodeURIComponent(`Hola! Use la calculadora de ROI de ${brandConfig.name}. Tengo ${monthlyConsultations} pacientes/mes y me interesa el Plan ${currentPlan.name}`)}`}
+              href={getWhatsAppUrl(pricingMessages.roiCalculator({ planName: currentPlan.name, monthlyConsultations }))}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 rounded-full px-8 py-4 font-bold text-[var(--bg-dark)] transition-all hover:-translate-y-0.5"

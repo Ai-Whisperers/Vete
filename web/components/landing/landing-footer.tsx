@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import { Phone, MapPin, MessageCircle } from 'lucide-react'
 import { VeticLogo } from './vetic-logo'
+import { brandConfig } from '@/lib/branding/config'
+import { getWhatsAppUrl, getWhatsAppDisplayNumber } from '@/lib/whatsapp'
 
 export function LandingFooter(): React.ReactElement {
   const currentYear = new Date().getFullYear()
@@ -20,7 +22,7 @@ export function LandingFooter(): React.ReactElement {
           {/* Contact Info */}
           <div className="flex flex-wrap justify-center gap-6 text-sm text-[var(--landing-text-muted)]">
             <a
-              href="https://wa.me/595981324569"
+              href={getWhatsAppUrl()}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 transition-colors hover:text-[var(--landing-primary)]"
@@ -29,11 +31,11 @@ export function LandingFooter(): React.ReactElement {
               WhatsApp
             </a>
             <a
-              href="tel:+595981324569"
+              href={`tel:+${brandConfig.whatsapp.number}`}
               className="flex items-center gap-2 transition-colors hover:text-[var(--landing-primary)]"
             >
               <Phone className="h-4 w-4" />
-              +595 981 324 569
+              {getWhatsAppDisplayNumber()}
             </a>
             <span className="flex items-center gap-2">
               <MapPin className="h-4 w-4" />

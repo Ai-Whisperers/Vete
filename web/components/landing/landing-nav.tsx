@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { Menu, X } from 'lucide-react'
 import { VeticLogo } from './vetic-logo'
+import { getWhatsAppUrl, landingMessages } from '@/lib/whatsapp'
 
 const navLinks = [
   { href: '/funcionalidades', label: 'Funcionalidades' },
@@ -44,7 +45,7 @@ export function LandingNav(): React.ReactElement {
 
           {/* Desktop CTA Button */}
           <a
-            href="https://wa.me/595981324569?text=Hola!%20Me%20interesa%20Vetic%20para%20mi%20cl%C3%ADnica"
+            href={getWhatsAppUrl(landingMessages.contact())}
             target="_blank"
             rel="noopener noreferrer"
             className="hidden items-center gap-2 rounded-full bg-[var(--landing-primary)] px-6 py-2.5 font-bold text-white shadow-lg transition-all hover:-translate-y-0.5 hover:bg-[var(--landing-primary-hover)] md:inline-flex"
@@ -78,7 +79,7 @@ export function LandingNav(): React.ReactElement {
                 </Link>
               ))}
               <a
-                href="https://wa.me/595981324569?text=Hola!%20Me%20interesa%20Vetic%20para%20mi%20cl%C3%ADnica"
+                href={getWhatsAppUrl(landingMessages.contact())}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-2 inline-flex items-center justify-center gap-2 rounded-full bg-[var(--landing-primary)] px-6 py-3 font-bold text-white shadow-lg transition-all hover:bg-[var(--landing-primary-hover)]"

@@ -16,6 +16,7 @@ import {
   FloatingWhatsApp,
   PageHeader,
 } from '@/components/landing'
+import { getWhatsAppUrl, landingMessages } from '@/lib/whatsapp'
 
 // What to expect items
 const expectations = [
@@ -160,7 +161,7 @@ export default function DemoPage() {
 
                 {/* WhatsApp CTA */}
                 <a
-                  href="https://wa.me/595981324569?text=Hola!%20Quiero%20agendar%20una%20demo%20de%20Vetic"
+                  href={getWhatsAppUrl(landingMessages.scheduleDemo())}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex w-full items-center justify-center gap-2 rounded-xl bg-teal-600 py-4 font-bold text-white transition-all hover:bg-teal-700"
@@ -202,7 +203,7 @@ export default function DemoPage() {
             30 minutos que pueden cambiar la forma en que gestionás tu clínica.
           </p>
           <a
-            href="https://wa.me/595981324569?text=Hola!%20Quiero%20agendar%20una%20demo%20de%20Vetic"
+            href={getWhatsAppUrl(landingMessages.scheduleDemo())}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-8 py-4 text-base font-bold text-teal-600 shadow-lg transition-all hover:-translate-y-1 hover:shadow-xl"

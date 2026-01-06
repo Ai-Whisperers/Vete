@@ -3,9 +3,16 @@
 /**
  * Client-side Feature Flags
  *
- * React hooks and components for checking feature access in client components.
+ * @deprecated This module is deprecated. Use `lib/hooks/use-tenant-features.tsx` instead.
  *
- * Usage:
+ * Migration Guide:
+ * - Replace `useFeatureFlags()` with `useTenantFeatures()`
+ * - Replace `FeatureFlagsProvider` with `TenantFeaturesProvider`
+ * - Replace `FeatureGate` with `FeatureGate` from use-tenant-features.tsx
+ *
+ * This file is kept for backwards compatibility and will be removed in a future version.
+ *
+ * Old Usage:
  *
  * // In a component
  * const { hasFeature, tier, isLoading } = useFeatureFlags()
@@ -15,6 +22,12 @@
  * <FeatureGate feature="hospitalization" fallback={<UpgradePrompt />}>
  *   <HospitalizationModule />
  * </FeatureGate>
+ *
+ * New Usage (lib/hooks/use-tenant-features.tsx):
+ *
+ * // In a component
+ * const { hasFeature, tierId, isLoading } = useTenantFeatures()
+ * if (hasFeature('ecommerce')) { ... }
  */
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react'
@@ -150,6 +163,7 @@ export function FeatureFlagsProvider({
 
 /**
  * Hook to access feature flags in client components
+ * @deprecated Use `useTenantFeatures()` from `lib/hooks/use-tenant-features.tsx` instead
  */
 export function useFeatureFlags(): FeatureFlagsContextValue {
   return useContext(FeatureFlagsContext)

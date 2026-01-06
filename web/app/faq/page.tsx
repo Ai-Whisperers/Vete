@@ -9,6 +9,7 @@ import {
   FloatingWhatsApp,
   PageHeader,
 } from '@/components/landing'
+import { getWhatsAppUrl, supportMessages } from '@/lib/whatsapp'
 
 // FAQ categories with their questions
 const faqCategories = [
@@ -197,7 +198,7 @@ export default function FAQPage(): React.ReactElement {
             </p>
             <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
               <a
-                href="https://wa.me/595981324569?text=Hola!%20Tengo%20una%20pregunta%20sobre%20Vetic"
+                href={getWhatsAppUrl(supportMessages.question())}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-2 rounded-full bg-[var(--landing-primary)] px-8 py-4 font-bold text-white transition-all hover:-translate-y-0.5 hover:bg-[var(--landing-primary-hover)]"

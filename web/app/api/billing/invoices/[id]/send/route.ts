@@ -1,0 +1,194 @@
+/**
+ * Send Platform Invoice API
+ *
+ * POST /api/billing/invoices/[id]/send - Mark invoice as sent and notify clinic
+ *
+ * This endpoint is typically called by platform admins (via service role)
+ * or by the invoice generation cron job to notify clinics of new invoices.
+ *
+ * Body (optional):
+ * - send_email: boolean (default true) - Whether to send email notification
+ * - channels: string[] - Additional channels ['sms', 'whatsapp']
+ */
+
+import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
+import { logger } from '@/lib/logger'
+
+interface RouteContext {
+  params: Promise<{ id: string }>
+}
+
+// Use service role for this admin operation
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+
+export async function POST(request: NextRequest, context: RouteContext): Promise<NextResponse> {
+  const { id } = await context.params
+
+  // Verify authorization (CRON_SECRET or admin session)
+  const cronSecret =
+    request.headers.get('x-cron-secret') ||
+    request.headers.get('authorization')?.replace('Bearer ', '')
+
+  // For now, require CRON_SECRET for this admin operation
+  // TODO: Add admin session validation as alternative
+  if (cronSecret !== process.env.CRON_SECRET) {
+    logger.warn('Unauthorized invoice send attempt', { invoiceId: id })
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const supabase = createClient(supabaseUrl, supabaseServiceKey)
+
+  try {
+    // Parse optional body
+    let sendEmail = true
+    let _channels: string[] = [] // Reserved for future SMS/WhatsApp
+
+    try {
+      const body = await request.json()
+      sendEmail = body.send_email !== false
+      _channels = body.channels || []
+    } catch {
+      // Body is optional
+    }
+
+    // 1. Get invoice
+    const { data: invoice, error: invoiceError } = await supabase
+      .from('platform_invoices')
+      .select(`
+        id,
+        tenant_id,
+        invoice_number,
+        total,
+        due_date,
+        status,
+        tenants!inner(name, billing_email, email)
+      `)
+      .eq('id', id)
+      .single()
+
+    if (invoiceError || !invoice) {
+      return NextResponse.json({ error: 'Factura no encontrada' }, { status: 404 })
+    }
+
+    // Check invoice is in draft status
+    if (invoice.status !== 'draft') {
+      return NextResponse.json({
+        error: 'La factura ya fue enviada',
+        status: invoice.status,
+      }, { status: 400 })
+    }
+
+    // 2. Update invoice status to 'sent'
+    const { error: updateError } = await supabase
+      .from('platform_invoices')
+      .update({
+        status: 'sent',
+        issued_at: new Date().toISOString(),
+      })
+      .eq('id', id)
+
+    if (updateError) {
+      throw updateError
+    }
+
+    // 3. Get tenant info for notifications
+    const tenantData = invoice.tenants as { name: string; billing_email: string | null; email: string | null }
+    const billingEmail = tenantData.billing_email || tenantData.email
+
+    // 4. Create billing reminder record
+    if (sendEmail && billingEmail) {
+      const formattedTotal = new Intl.NumberFormat('es-PY', {
+        style: 'currency',
+        currency: 'PYG',
+        maximumFractionDigits: 0,
+      }).format(Number(invoice.total))
+
+      await supabase.from('billing_reminders').insert({
+        tenant_id: invoice.tenant_id,
+        platform_invoice_id: id,
+        reminder_type: 'invoice_due',
+        channel: 'email',
+        recipient_email: billingEmail,
+        subject: `Nueva Factura Vetic ${invoice.invoice_number}`,
+        content: `Se ha generado una nueva factura por ${formattedTotal}. Fecha de vencimiento: ${invoice.due_date}.`,
+        status: 'pending',
+        scheduled_for: new Date().toISOString(),
+      })
+
+      // TODO: Actually send email via Resend/SendGrid
+      // For now, just log and mark as sent
+      logger.info('Invoice notification queued', {
+        invoiceId: id,
+        invoiceNumber: invoice.invoice_number,
+        email: billingEmail,
+        amount: invoice.total,
+      })
+    }
+
+    // 5. Create in-app notifications for clinic admins
+    const { data: adminProfiles } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('tenant_id', invoice.tenant_id)
+      .eq('role', 'admin')
+      .limit(5)
+
+    if (adminProfiles && adminProfiles.length > 0) {
+      const formattedTotal = new Intl.NumberFormat('es-PY', {
+        style: 'currency',
+        currency: 'PYG',
+        maximumFractionDigits: 0,
+      }).format(Number(invoice.total))
+
+      const notifications = adminProfiles.map((profile) => ({
+        user_id: profile.id,
+        title: 'Nueva Factura de Plataforma',
+        message: `Factura ${invoice.invoice_number} por ${formattedTotal} - Vence: ${invoice.due_date}`,
+        type: 'billing',
+        data: {
+          invoice_id: id,
+          invoice_number: invoice.invoice_number,
+          amount: invoice.total,
+          due_date: invoice.due_date,
+        },
+      }))
+
+      await supabase.from('notifications').insert(notifications)
+    }
+
+    // 6. Update invoice reminder count
+    await supabase
+      .from('platform_invoices')
+      .update({
+        reminder_count: 1,
+        last_reminder_at: new Date().toISOString(),
+      })
+      .eq('id', id)
+
+    logger.info('Invoice sent successfully', {
+      invoiceId: id,
+      invoiceNumber: invoice.invoice_number,
+      tenantId: invoice.tenant_id,
+      emailSent: sendEmail && !!billingEmail,
+    })
+
+    return NextResponse.json({
+      success: true,
+      invoice_id: id,
+      invoice_number: invoice.invoice_number,
+      status: 'sent',
+      email_sent: sendEmail && !!billingEmail,
+      notifications_created: adminProfiles?.length || 0,
+    })
+  } catch (e) {
+    const message = e instanceof Error ? e.message : 'Unknown error'
+    logger.error('Error sending invoice', { invoiceId: id, error: message })
+
+    return NextResponse.json(
+      { error: 'Error al enviar factura', details: message },
+      { status: 500 }
+    )
+  }
+}

@@ -4,6 +4,7 @@ import { rateLimit } from '@/lib/rate-limit'
 import { parsePagination, paginatedResponse } from '@/lib/api/pagination'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
+import { requireFeature } from '@/lib/features/server'
 
 /**
  * GET /api/procurement/orders
@@ -15,6 +16,10 @@ import { logger } from '@/lib/logger'
  */
 export const GET = withApiAuth(
   async ({ request, profile, supabase }: ApiHandlerContext) => {
+    // Check if tenant has bulk ordering feature enabled
+    const featureCheck = await requireFeature(profile.tenant_id, 'bulkOrdering')
+    if (featureCheck) return featureCheck
+
     const { searchParams } = new URL(request.url)
     const status = searchParams.get('status')
     const supplierId = searchParams.get('supplier_id')

@@ -61,7 +61,13 @@ export interface PricingTier {
   support: TierSupport
   popular?: boolean // highlight this tier
   enterprise?: boolean // custom pricing
-  ecommerceCommission: number // percentage (0.03 = 3%)
+  ecommerceCommission: number // percentage (0.03 = 3%) on store orders
+  serviceCommission: number // percentage (0.03 = 3%) on paid appointment invoices
+
+  // UI Metadata
+  color: string // Brand color for charts/UI elements (hex)
+  targetPatientsMin: number // Min monthly patients for auto-suggest
+  targetPatientsMax: number // Max monthly patients for auto-suggest
 }
 
 /**
@@ -77,7 +83,11 @@ export const pricingTiers: PricingTier[] = [
     includedUsers: Infinity,
     extraUserPrice: 0,
     commitmentMonths: 0,
-    ecommerceCommission: 0,
+    ecommerceCommission: 0, // No e-commerce access
+    serviceCommission: 0, // No service commissions - free tier
+    color: '#94A3B8', // Slate gray
+    targetPatientsMin: 0,
+    targetPatientsMax: 30,
     features: {
       website: true,
       petPortal: true,
@@ -118,7 +128,11 @@ export const pricingTiers: PricingTier[] = [
     includedUsers: 3,
     extraUserPrice: 30000,
     commitmentMonths: 0,
-    ecommerceCommission: 0,
+    ecommerceCommission: 0, // No e-commerce access in this tier
+    serviceCommission: 0.05, // 5% flat rate on service invoices
+    color: '#60A5FA', // Blue
+    targetPatientsMin: 30,
+    targetPatientsMax: 80,
     features: {
       website: true,
       petPortal: true,
@@ -159,8 +173,12 @@ export const pricingTiers: PricingTier[] = [
     includedUsers: 5,
     extraUserPrice: 40000,
     commitmentMonths: 0,
-    ecommerceCommission: 0.03, // 3%, increases to 5% after 6 months
+    ecommerceCommission: 0.04, // 4% flat rate on store orders
+    serviceCommission: 0.04, // 4% flat rate on service invoices
     popular: true,
+    color: '#2DCEA3', // Teal/Green
+    targetPatientsMin: 80,
+    targetPatientsMax: 200,
     features: {
       website: true,
       petPortal: true,
@@ -201,7 +219,11 @@ export const pricingTiers: PricingTier[] = [
     includedUsers: 10,
     extraUserPrice: 50000,
     commitmentMonths: 0,
-    ecommerceCommission: 0.03,
+    ecommerceCommission: 0.03, // 3% flat rate - lower for higher tier
+    serviceCommission: 0.03, // 3% flat rate on service invoices
+    color: '#5C6BFF', // Indigo/Purple
+    targetPatientsMin: 200,
+    targetPatientsMax: 500,
     features: {
       website: true,
       petPortal: true,
@@ -242,8 +264,12 @@ export const pricingTiers: PricingTier[] = [
     includedUsers: 20,
     extraUserPrice: 60000,
     commitmentMonths: 12,
-    ecommerceCommission: 0.02, // Negotiated, lower for enterprise
+    ecommerceCommission: 0.02, // 2% negotiated enterprise rate
+    serviceCommission: 0.02, // 2% negotiated enterprise rate
     enterprise: true,
+    color: '#F59E0B', // Amber/Gold
+    targetPatientsMin: 500,
+    targetPatientsMax: 2000,
     features: {
       website: true,
       petPortal: true,
@@ -315,13 +341,51 @@ export const roiGuarantee = {
 }
 
 /**
- * E-commerce commission configuration
+ * Commission rates are now defined per-tier directly in the pricingTiers array.
+ * Flat rates by tier (no time-based escalation):
+ * - Gratis: 0%
+ * - Básico: 5% (service only, no e-commerce)
+ * - Crecimiento: 4%
+ * - Profesional: 3%
+ * - Empresarial: 2% (negotiated)
+ *
+ * @deprecated Use tier.ecommerceCommission and tier.serviceCommission directly
  */
 export const commissionConfig = {
-  initialRate: 0.03, // 3% for first 6 months
-  standardRate: 0.05, // 5% after 6 months
-  enterpriseRate: 0.02, // 2% for enterprise (negotiated)
-  monthsUntilIncrease: 6, // When to increase from initial to standard
+  /** @deprecated Use getTierById(tierId).ecommerceCommission instead */
+  get initialRate() {
+    return 0.04 // Crecimiento tier rate as default
+  },
+  /** @deprecated Commission rates no longer escalate */
+  get standardRate() {
+    return 0.04 // Same as initial - no escalation
+  },
+  /** @deprecated Use getTierById('empresarial').ecommerceCommission instead */
+  get enterpriseRate() {
+    return 0.02
+  },
+  /** @deprecated Commission rates are now flat per tier */
+  monthsUntilIncrease: Infinity, // Never increases
+}
+
+/**
+ * @deprecated Use tier.serviceCommission directly
+ */
+export const serviceCommissionConfig = {
+  /** @deprecated Use getTierById(tierId).serviceCommission instead */
+  get initialRate() {
+    return 0.04
+  },
+  /** @deprecated Commission rates no longer escalate */
+  get standardRate() {
+    return 0.04
+  },
+  /** @deprecated Use getTierById('empresarial').serviceCommission instead */
+  get enterpriseRate() {
+    return 0.02
+  },
+  /** @deprecated Commission rates are now flat per tier */
+  monthsUntilIncrease: Infinity,
 }
 
 /**
@@ -382,6 +446,93 @@ export function calculateDiscountedPrice(
   return Math.round(monthlyPrice * (1 - discount))
 }
 
+export type BillingPeriod = 'monthly' | 'semiAnnual' | 'annual'
+
+export interface StackedDiscountResult {
+  /** Monthly equivalent price after all discounts */
+  monthlyEquivalent: number
+  /** Total price for the billing period */
+  total: number
+  /** Total savings compared to full price */
+  savings: number
+  /** Breakdown of discounts applied */
+  breakdown: {
+    originalMonthly: number
+    referralDiscount: number
+    afterReferral: number
+    periodDiscount: number
+    periodMonths: number
+  }
+}
+
+/**
+ * Calculate price with stacked discounts
+ *
+ * For annual/semi-annual billing, discounts are stacked correctly:
+ * 1. Apply referral discounts FIRST (30% per referral, max 100%)
+ * 2. Then apply billing period discount (20% annual, 10% semi-annual)
+ *
+ * Example: ₲200,000/month + 2 referrals (60% off) + annual (20% off)
+ * - Step 1: ₲200,000 × 0.4 = ₲80,000/month after referrals
+ * - Step 2: ₲80,000 × 12 × 0.8 = ₲768,000/year
+ * - Effective monthly: ₲64,000 (68% total savings!)
+ *
+ * @param monthlyPrice - Base monthly price before any discounts
+ * @param billingPeriod - 'monthly', 'semiAnnual', or 'annual'
+ * @param referralCount - Number of referrals (each gives 30% off)
+ * @returns Object with monthly equivalent, total, and savings
+ */
+export function calculateStackedDiscount(
+  monthlyPrice: number,
+  billingPeriod: BillingPeriod,
+  referralCount: number = 0
+): StackedDiscountResult {
+  // Step 1: Apply referral discount (capped at 100%)
+  const referralDiscountPercent = Math.min(
+    discounts.referral * referralCount,
+    discounts.maxReferralDiscount
+  )
+  const afterReferral = monthlyPrice * (1 - referralDiscountPercent)
+
+  // Step 2: Determine billing period multiplier and discount
+  let periodMonths = 1
+  let periodDiscountPercent = 0
+
+  switch (billingPeriod) {
+    case 'annual':
+      periodMonths = 12
+      periodDiscountPercent = discounts.annual
+      break
+    case 'semiAnnual':
+      periodMonths = 6
+      periodDiscountPercent = discounts.semiAnnual
+      break
+    default:
+      periodMonths = 1
+      periodDiscountPercent = 0
+  }
+
+  // Step 3: Calculate final totals
+  const subtotal = afterReferral * periodMonths
+  const total = Math.round(subtotal * (1 - periodDiscountPercent))
+  const monthlyEquivalent = Math.round(total / periodMonths)
+  const fullPrice = monthlyPrice * periodMonths
+  const savings = fullPrice - total
+
+  return {
+    monthlyEquivalent,
+    total,
+    savings,
+    breakdown: {
+      originalMonthly: monthlyPrice,
+      referralDiscount: referralDiscountPercent,
+      afterReferral: Math.round(afterReferral),
+      periodDiscount: periodDiscountPercent,
+      periodMonths,
+    },
+  }
+}
+
 /**
  * Calculate ROI guarantee threshold
  * Returns the minimum number of new clients needed
@@ -437,21 +588,51 @@ export function formatTierPrice(tier: PricingTier): string {
 }
 
 /**
- * Get commission rate based on tenure
+ * Get store commission rate for a tier
+ * Commission rates are now flat per tier (no time-based escalation)
+ *
+ * @param tierId - The tier ID to get commission rate for
+ * @param _monthsActive - DEPRECATED: No longer used, rates are flat
+ * @returns Commission rate as decimal (e.g., 0.04 = 4%)
  */
-export function getCommissionRate(monthsActive: number, tierId: TierId): number {
+export function getCommissionRate(tierId: TierId, _monthsActive?: number): number {
   const tier = getTierById(tierId)
-  if (!tier) return commissionConfig.standardRate
+  return tier?.ecommerceCommission ?? 0.04 // Default to Crecimiento rate
+}
 
-  if (tier.enterprise) {
-    return commissionConfig.enterpriseRate
+/**
+ * Get service commission rate for a tier
+ * Commission rates are now flat per tier (no time-based escalation)
+ *
+ * @param tierId - The tier ID to get commission rate for
+ * @param _monthsActive - DEPRECATED: No longer used, rates are flat
+ * @returns Commission rate as decimal (e.g., 0.04 = 4%)
+ */
+export function getServiceCommissionRate(tierId: TierId, _monthsActive?: number): number {
+  const tier = getTierById(tierId)
+  return tier?.serviceCommission ?? 0.04 // Default to Crecimiento rate
+}
+
+/**
+ * Suggest a tier based on monthly patient count
+ * Returns the most appropriate tier for the clinic's size
+ */
+export function suggestTierByPatients(monthlyPatients: number): PricingTier {
+  // Find the tier where patients fall within range
+  for (const tier of pricingTiers) {
+    if (monthlyPatients >= tier.targetPatientsMin && monthlyPatients < tier.targetPatientsMax) {
+      return tier
+    }
   }
+  // Default to empresarial for very large clinics
+  return pricingTiers[pricingTiers.length - 1]
+}
 
-  if (monthsActive < commissionConfig.monthsUntilIncrease) {
-    return commissionConfig.initialRate
-  }
-
-  return commissionConfig.standardRate
+/**
+ * Get all tier colors for charts/UI
+ */
+export function getTierColors(): Record<TierId, string> {
+  return Object.fromEntries(pricingTiers.map((t) => [t.id, t.color])) as Record<TierId, string>
 }
 
 export default pricingTiers

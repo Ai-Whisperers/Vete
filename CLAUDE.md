@@ -20,11 +20,17 @@ When starting a new session, understand these key points:
 | Language | TypeScript | 5.x | Strict mode enabled |
 | Styling | Tailwind CSS | **3.4.19** | **DO NOT upgrade to v4** |
 | Database | Supabase (PostgreSQL) | 2.88.0 | RLS for multi-tenancy |
+| ORM | Drizzle ORM | 0.45.1 | Type-safe queries |
+| State | Zustand | 5.0.9 | Client state management |
+| Data Fetching | TanStack React Query | 5.90.12 | Server state caching |
+| Background Jobs | Inngest | 3.48.1 | Async job processing |
+| Rate Limiting | Upstash | 2.0.7 | Redis-based limiting |
+| i18n | next-intl | 4.7.0 | Internationalization |
 | Auth | Supabase Auth | - | Email/Password |
 | Storage | Supabase Storage | - | Pet photos, vaccines, docs |
 | PDF | @react-pdf/renderer | 4.3.1 | Prescription PDFs |
 | Charts | recharts | 3.6.0 | Growth charts, analytics |
-| Testing | Vitest + Playwright | Latest | Unit + E2E |
+| Testing | Vitest + Playwright | 4.0.16 / 1.57.0 | Unit + E2E |
 
 ## Project Structure
 
@@ -53,12 +59,21 @@ Vete/
 │   ├── lib/
 │   │   ├── clinics.ts            # Content loading (JSON-CMS)
 │   │   ├── supabase/             # DB client (server/client)
-│   │   └── hooks/                # Custom React hooks library
+│   │   ├── constants/            # Centralized constants (messages, pagination, time)
+│   │   ├── types/                # TypeScript definitions
+│   │   │   └── entities/         # Entity type definitions
+│   │   ├── test-utils/           # Testing infrastructure
+│   │   └── hooks/                # Custom React hooks library (8 hooks)
 │   │       ├── index.ts          # Exports all hooks and types
 │   │       ├── use-async-data.ts # Data fetching with loading/error states
 │   │       ├── use-form-state.ts # Form management with Zod validation
 │   │       ├── use-modal.ts      # Modal/dialog state management
-│   │       └── use-synced-state.ts # localStorage + API synchronization
+│   │       ├── use-synced-state.ts # localStorage + API synchronization
+│   │       ├── use-barcode-scanner.ts # Barcode/QR scanning
+│   │       ├── use-import-wizard.ts # CSV/Excel import wizard
+│   │       └── use-tenant-features.tsx # Tier-based feature gating
+│   ├── i18n/                     # Internationalization config
+│   ├── messages/                 # Translation files (es.json, en.json)
 │   ├── db/                       # SQL migrations (numbered)
 │   ├── .content_data/            # JSON content per clinic
 │   │   ├── _TEMPLATE/            # Copy for new clinics
@@ -217,9 +232,29 @@ staff_time_off_types (id, tenant_id, name, paid, max_days)
 
 -- Safety & Audit
 lost_pets (id, pet_id, status, last_seen_location, reported_by)
+lost_pet_sightings (id, lost_pet_id, location, reported_by, created_at)
 disease_reports (id, tenant_id, diagnosis_code_id, species, location_zone)
 audit_logs (id, tenant_id, user_id, action, resource, details JSONB)
 notifications (id, user_id, title, message, read_at, created_at)
+
+-- Adoptions (NEW)
+adoptions (id, tenant_id, pet_id, status, description, is_featured)
+adoption_applications (id, adoption_id, applicant_id, status, notes)
+
+-- Procurement (NEW)
+suppliers (id, tenant_id, name, contact_info, is_verified)
+supplier_products (id, supplier_id, product_name, unit_cost, lead_time)
+procurement_orders (id, tenant_id, supplier_id, status, total, ordered_at)
+procurement_order_items (id, order_id, product_id, quantity, unit_cost)
+procurement_leads (id, tenant_id, product_name, suppliers JSONB)
+
+-- Referrals (NEW)
+referral_codes (id, tenant_id, code, owner_id, commission_rate, status)
+referral_transactions (id, referral_code_id, referred_user_id, status, commission_amount)
+
+-- Platform Administration (NEW)
+platform_announcements (id, title, content, is_active, created_at)
+platform_commission_invoices (id, tenant_id, amount, status, period_start, period_end)
 ```
 
 See `documentation/database/schema-reference.md` for complete column definitions.
@@ -245,12 +280,17 @@ http://localhost:3000/petlife
 
 ## Environment Variables
 
-Required in `web/.env.local`:
+See `web/.env.example` for complete reference (82 variables documented).
+
+**Required** in `web/.env.local`:
 ```env
 NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=xxx
+SUPABASE_SERVICE_ROLE_KEY=xxx
 DATABASE_URL=postgresql://...
 ```
+
+**Optional** (78 additional variables for features like email, WhatsApp, Stripe, etc.)
 
 ---
 
@@ -468,11 +508,19 @@ export default async function NewPage({ params }: Props) {
 
 ## Documentation Reference
 
-For deeper understanding, see `documentation/`:
+**In-project documentation** (see `web/docs/`):
 
 | Topic | File |
 |-------|------|
-| Architecture | `documentation/architecture/overview.md` |
+| Architecture | `web/docs/ARCHITECTURE.md` |
+| NPM Scripts | `web/docs/SCRIPTS.md` |
+| Environment Variables | `web/.env.example` |
+
+**Extended documentation** (see `documentation/`):
+
+| Topic | File |
+|-------|------|
+| System Design | `documentation/architecture/overview.md` |
 | Multi-tenancy | `documentation/architecture/multi-tenancy.md` |
 | Database schema | `documentation/database/schema-reference.md` |
 | RLS policies | `documentation/database/rls-policies.md` |
@@ -566,20 +614,32 @@ The `.claude/SUPABASE_AUDIT.md` contains a comprehensive security audit with all
 - Prevents overselling during checkout
 
 ### Background Jobs (Cron) ✅
+14 cron endpoints for background processing:
 - `/api/cron/release-reservations` - Release expired cart stock reservations
 - `/api/cron/process-subscriptions` - Process recurring subscription renewals
 - `/api/cron/expiry-alerts` - Send product expiry notifications
 - `/api/cron/stock-alerts` - Send low stock email alerts
+- `/api/cron/stock-alerts/staff` - Staff stock notifications
 - `/api/cron/reminders` - Process scheduled appointment/vaccine reminders
+- `/api/cron/reminders/generate` - Generate reminder queue
+- `/api/cron/billing/auto-charge` - Auto-charge subscriptions
+- `/api/cron/billing/evaluate-grace` - Evaluate grace periods
+- `/api/cron/billing/generate-platform-invoices` - Monthly platform invoices
+- `/api/cron/billing/send-reminders` - Send billing reminders
+- `/api/cron/generate-commission-invoices` - Generate commission invoices
+- `/api/cron/generate-recurring` - Generate recurring appointments
 
 ### Custom React Hooks Library ✅
-Located in `lib/hooks/`:
+Located in `lib/hooks/` (8 hook files):
 - `useAsyncData` / `useSimpleAsyncData` - Data fetching with loading/error/success states
 - `useFormState` - Form management with Zod schema validation
 - `useModal` / `useModalWithData` - Modal state management
 - `useConfirmation` - Promise-based confirmation dialogs
 - `useSyncedState` / `useLocalStorage` - localStorage + API synchronization
 - `useDashboardLabels` - Dashboard label provider
+- `useBarcodeScanner` - Barcode/QR code scanning
+- `useImportWizard` - CSV/Excel data import wizard
+- `useTenantFeatures` - Tier-based feature gating with `FeatureGate` component
 
 ### Communications ✅
 - Internal messaging (clinic ↔ owner)
@@ -613,11 +673,48 @@ Located in `lib/hooks/`:
 - Pet age calculator
 - QR tag scanning and assignment
 
+### Adoptions System ✅ (NEW)
+- Pet adoption listings with photos and descriptions
+- Featured adoptions display
+- Adoption applications workflow
+- Application status tracking (pending, approved, rejected)
+- Adopter management
+
+### Lost & Found Module ✅ (NEW)
+- Lost pet reporting with photos and last seen location
+- Sighting reports from community
+- Lost/found pet matching
+- Status tracking (lost, found, reunited)
+- Public lost pet listings
+
+### Procurement System ✅ (NEW)
+- Supplier management with contact info and verification
+- Supplier product catalogs with pricing
+- Purchase order creation and tracking
+- Price comparison across suppliers
+- Procurement leads and suggestions
+- Order history and analytics
+
+### Referral Program ✅ (NEW)
+- Referral code generation
+- Referral tracking with status (pending, trial_started, converted, expired)
+- Commission calculation on successful referrals
+- Referral statistics dashboard
+- Automated referral processing
+
+### Platform Administration ✅ (NEW)
+- Multi-tenant management dashboard
+- Platform-wide announcements
+- Commission invoice generation
+- Platform billing management
+- Tenant feature tier management
+- Bank transfer verification
+
 ### API Coverage
-- **167 REST API endpoints** across all modules
-- **22 Server Actions** for form mutations
-- **5 Cron job endpoints** for background tasks
-- Rate limiting on sensitive endpoints
+- **420+ HTTP methods** across **256 API route files**
+- **42 Server Actions** for form mutations
+- **14 Cron job endpoints** for background tasks
+- Rate limiting on sensitive endpoints (Upstash Redis)
 - Full Zod validation on inputs
 
 ### Planned / Future

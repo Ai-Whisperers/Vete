@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { logger } from '@/lib/logger'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { requireFeature } from '@/lib/features/server'
+import { clampLimit, parsePage } from '@/lib/api/pagination'
 
 // Order statuses
 const ORDER_STATUSES = [
@@ -64,8 +65,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const { searchParams } = new URL(request.url)
   const clinic = searchParams.get('clinic')
   const status = searchParams.get('status') as OrderStatus | null
-  const page = parseInt(searchParams.get('page') || '1')
-  const limit = parseInt(searchParams.get('limit') || '10')
+  const page = parsePage(searchParams.get('page'))
+  const limit = clampLimit(searchParams.get('limit'), 10)
   const offset = (page - 1) * limit
 
   if (!clinic) {
@@ -295,64 +296,66 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // Generate order number
     const orderNumber = `ORD-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`
 
-    // Create order - flag for prescription review if needed
+    // Create order atomically with stock decrement
+    // This uses a database function that locks stock, validates availability,
+    // decrements stock, and creates order+items all in one transaction
     const orderStatus = requiresPrescriptionReview ? 'pending_prescription' : 'pending'
-    const { data: order, error: orderError } = await supabase
-      .from('store_orders')
-      .insert({
-        tenant_id: clinic,
-        user_id: user.id,
-        order_number: orderNumber,
-        status: orderStatus,
-        subtotal,
-        discount_amount: couponDiscount,
-        coupon_id: couponId,
-        coupon_code: coupon_code?.toUpperCase() || null,
-        shipping_cost: shippingCost,
-        tax_rate: taxRate,
-        tax_amount: taxAmount,
-        total,
-        shipping_address,
-        billing_address,
-        shipping_method: shipping_method || 'standard',
-        payment_method: payment_method || 'cash_on_delivery',
-        notes,
-        requires_prescription_review: requiresPrescriptionReview,
+
+    const { data: atomicResult, error: atomicError } = await supabase.rpc('create_order_atomic', {
+      p_tenant_id: clinic,
+      p_user_id: user.id,
+      p_order_number: orderNumber,
+      p_status: orderStatus,
+      p_subtotal: subtotal,
+      p_discount_amount: couponDiscount,
+      p_coupon_id: couponId,
+      p_coupon_code: coupon_code?.toUpperCase() || null,
+      p_shipping_cost: shippingCost,
+      p_tax_rate: taxRate,
+      p_tax_amount: taxAmount,
+      p_total: total,
+      p_shipping_address: shipping_address || null,
+      p_billing_address: billing_address || null,
+      p_shipping_method: shipping_method || 'standard',
+      p_payment_method: payment_method || 'cash_on_delivery',
+      p_notes: notes || null,
+      p_requires_prescription_review: requiresPrescriptionReview,
+      p_items: orderItems,
+    })
+
+    if (atomicError) {
+      logger.error('Atomic order creation failed', {
+        tenantId: clinic,
+        userId: user.id,
+        error: atomicError.message,
       })
-      .select()
+      throw atomicError
+    }
+
+    // Check if the atomic operation succeeded
+    if (!atomicResult?.success) {
+      if (atomicResult?.error === 'INSUFFICIENT_STOCK') {
+        return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+          details: {
+            message: 'Stock insuficiente para uno o más productos',
+            products: atomicResult.details,
+          },
+        })
+      }
+      throw new Error(atomicResult?.message || 'Error al crear pedido')
+    }
+
+    const orderId = atomicResult.order_id
+
+    // Fetch the created order for response
+    const { data: order, error: fetchError } = await supabase
+      .from('store_orders')
+      .select('id, order_number, status, total, requires_prescription_review')
+      .eq('id', orderId)
       .single()
 
-    if (orderError) throw orderError
-
-    // Create order items
-    const orderItemsWithOrderId = orderItems.map((item) => ({
-      ...item,
-      order_id: order.id,
-      tenant_id: clinic,
-    }))
-
-    const { error: itemsError } = await supabase
-      .from('store_order_items')
-      .insert(orderItemsWithOrderId)
-
-    if (itemsError) throw itemsError
-
-    // Update inventory (reserve stock)
-    for (const item of items) {
-      const { error: inventoryError } = await supabase.rpc('decrement_stock', {
-        p_product_id: item.product_id,
-        p_quantity: item.quantity,
-      })
-
-      if (inventoryError) {
-        logger.error('Stock update error', {
-          tenantId: clinic,
-          productId: item.product_id,
-          quantity: item.quantity,
-          error: inventoryError instanceof Error ? inventoryError.message : String(inventoryError),
-        })
-        // Don't fail the order, but log for manual review
-      }
+    if (fetchError || !order) {
+      throw new Error('Pedido creado pero no se pudo recuperar')
     }
 
     // Record coupon usage if applied

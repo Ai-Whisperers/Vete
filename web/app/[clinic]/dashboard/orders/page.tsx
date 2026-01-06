@@ -1,7 +1,7 @@
 import { requireStaff } from '@/lib/auth'
 import { notFound } from 'next/navigation'
 import { getClinicData } from '@/lib/clinics'
-import { requireFeature } from '@/lib/features'
+import { requireFeature } from '@/lib/features/server'
 import { UpgradePromptServer } from '@/components/dashboard/upgrade-prompt-server'
 import OrdersClient from './client'
 

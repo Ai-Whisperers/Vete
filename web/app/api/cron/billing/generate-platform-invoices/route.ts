@@ -47,11 +47,18 @@ interface InvoiceResult {
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
-  // Verify cron secret
+  // Verify cron secret - CRITICAL: fail closed if not configured
+  const envCronSecret = process.env.CRON_SECRET
+
+  if (!envCronSecret) {
+    logger.error('CRON_SECRET not configured for generate-platform-invoices - blocking request')
+    return NextResponse.json({ error: 'Server configuration error' }, { status: 500 })
+  }
+
   const cronSecret =
     request.headers.get('x-cron-secret') || request.headers.get('authorization')?.replace('Bearer ', '')
 
-  if (cronSecret !== process.env.CRON_SECRET) {
+  if (cronSecret !== envCronSecret) {
     logger.warn('Unauthorized platform invoice cron attempt')
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }

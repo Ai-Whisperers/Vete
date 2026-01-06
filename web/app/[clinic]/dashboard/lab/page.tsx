@@ -4,7 +4,7 @@ import { logger } from '@/lib/logger'
 import Link from 'next/link'
 import * as Icons from 'lucide-react'
 import { LabOrdersList } from '@/components/lab/lab-orders-list'
-import { requireFeature } from '@/lib/features'
+import { requireFeature } from '@/lib/features/server'
 import { UpgradePromptServer } from '@/components/dashboard/upgrade-prompt-server'
 
 interface Props {

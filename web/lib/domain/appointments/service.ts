@@ -67,6 +67,7 @@ export class AppointmentService {
 
   /**
    * Update appointment
+   * Uses atomic reschedule function for time changes to prevent race conditions
    */
   async updateAppointment(
     id: string,
@@ -84,9 +85,45 @@ export class AppointmentService {
       this.validateStatusTransition(appointment.status, data.status, isStaff)
     }
 
-    // Business rules for updates
+    // Use atomic reschedule for time changes to prevent race conditions
     if (data.start_time || data.end_time) {
-      await this.validateAppointmentUpdate(appointment, data)
+      const newStartTime = data.start_time || appointment.start_time
+      const newEndTime = data.end_time || appointment.end_time
+
+      // Call atomic reschedule function
+      const { data: result, error: rpcError } = await this.repository
+        .getClient()
+        .rpc('reschedule_appointment_atomic', {
+          p_appointment_id: id,
+          p_new_start_time: newStartTime.toISOString(),
+          p_new_end_time: newEndTime.toISOString(),
+          p_performed_by: userId,
+        })
+
+      if (rpcError) {
+        throw new Error(`Error al reprogramar: ${rpcError.message}`)
+      }
+
+      if (!result?.success) {
+        if (result?.error_code === 'slot_taken') {
+          throw conflict(result?.error || 'El horario no está disponible')
+        }
+        throw businessRuleViolation(result?.error || 'No se pudo reprogramar la cita')
+      }
+
+      // If there are other fields to update (notes, etc.), update them separately
+      const otherFields = { ...data }
+      delete otherFields.start_time
+      delete otherFields.end_time
+
+      if (Object.keys(otherFields).length > 0) {
+        return this.repository.update(id, otherFields, userId)
+      }
+
+      // Refetch the updated appointment
+      const updated = await this.repository.findById(id)
+      if (!updated) throw new Error('Error al obtener cita actualizada')
+      return updated
     }
 
     return this.repository.update(id, data, userId)

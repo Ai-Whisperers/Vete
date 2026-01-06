@@ -62,9 +62,10 @@ export const GET = withApiAuth(async ({ request, profile, supabase }: ApiHandler
 /**
  * PATCH /api/lost-pets
  * Update lost pet report status
+ * Requires staff role AND report must belong to staff's tenant
  */
 export const PATCH = withApiAuth(
-  async ({ request, profile, supabase }: ApiHandlerContext) => {
+  async ({ request, profile, supabase, user }: ApiHandlerContext) => {
     const { id, status } = await request.json()
 
     if (!id || !status) {
@@ -73,11 +74,34 @@ export const PATCH = withApiAuth(
       })
     }
 
+    // Verify report exists and belongs to staff's tenant
+    const { data: existing, error: fetchError } = await supabase
+      .from('lost_pet_reports')
+      .select('id, tenant_id')
+      .eq('id', id)
+      .single()
+
+    if (fetchError || !existing) {
+      return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND)
+    }
+
+    // Ownership check: report must be in staff's tenant
+    if (existing.tenant_id !== profile.tenant_id) {
+      logger.warn('Cross-tenant lost pet update attempt', {
+        userId: user.id,
+        userTenantId: profile.tenant_id,
+        reportTenantId: existing.tenant_id,
+        reportId: id,
+      })
+      return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN)
+    }
+
     const { error } = await supabase
       .from('lost_pet_reports')
       .update({
         status,
         resolved_at: status === 'reunited' ? new Date().toISOString() : null,
+        resolved_by: status === 'reunited' ? user.id : null,
       })
       .eq('id', id)
 

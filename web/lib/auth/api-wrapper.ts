@@ -79,6 +79,13 @@ export function withApiAuth(
         }
       }
 
+      // Set tenant context for optimized RLS performance
+      // This enables is_staff_of_fast() to use session variables instead of subqueries
+      await authResult.context.supabase.rpc('set_tenant_context', {
+        p_tenant_id: authResult.context.profile.tenant_id,
+        p_user_role: authResult.context.profile.role,
+      })
+
       // Execute handler with scoped queries for tenant isolation
       const context: ApiHandlerContext = {
         ...authResult.context,
@@ -140,6 +147,13 @@ export function withApiAuthParams<P extends Record<string, string>>(
           return rateLimitResult.response
         }
       }
+
+      // Set tenant context for optimized RLS performance
+      // This enables is_staff_of_fast() to use session variables instead of subqueries
+      await authResult.context.supabase.rpc('set_tenant_context', {
+        p_tenant_id: authResult.context.profile.tenant_id,
+        p_user_role: authResult.context.profile.role,
+      })
 
       // Execute handler with scoped queries for tenant isolation
       const handlerContext: ApiHandlerContextWithParams<P> = {

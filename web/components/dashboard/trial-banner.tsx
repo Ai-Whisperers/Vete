@@ -9,7 +9,7 @@ interface TrialBannerProps {
 }
 
 export function TrialBanner({ clinic }: TrialBannerProps): React.ReactElement | null {
-  const { isOnTrial, trialEndsAt, currentTier } = useTenantTier()
+  const { isOnTrial, trialEndsAt, tierName } = useTenantTier()
 
   // Don't show if not on trial
   if (!isOnTrial || !trialEndsAt) {
@@ -82,7 +82,7 @@ export function TrialBanner({ clinic }: TrialBannerProps): React.ReactElement | 
                 ? 'Actualiza ahora para no perder acceso a las funciones premium'
                 : isUrgent
                   ? `Tu prueba gratuita termina el ${formatDate(endDate)}`
-                  : `Disfruta todas las funciones de ${currentTier?.name || 'Profesional'} hasta el ${formatDate(endDate)}`}
+                  : `Disfruta todas las funciones de ${tierName || 'Profesional'} hasta el ${formatDate(endDate)}`}
             </p>
           </div>
         </div>

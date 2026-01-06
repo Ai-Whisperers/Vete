@@ -2,6 +2,13 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import * as XLSX from 'xlsx'
 
+// Force dynamic to prevent caching
+export const dynamic = 'force-dynamic'
+
+// Set max duration to 60 seconds to prevent server hangs on large imports
+// This protects against DoS via large files that take too long to process
+export const maxDuration = 60
+
 export async function POST(req: NextRequest) {
   const supabase = await createClient()
 

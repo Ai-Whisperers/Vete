@@ -4,6 +4,7 @@
  * Use these functions in API routes and server components to check feature access.
  */
 
+import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { getTierById, pricingTiers, type TierId, type TierFeatures } from '@/lib/pricing/tiers'
 import type { TenantFeatureAccess, FeatureName, FeatureCheckResult } from './types'

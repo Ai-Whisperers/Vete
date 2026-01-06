@@ -49,6 +49,22 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 // TYPES
 // =============================================================================
 
+/**
+ * Context passed to raw cron handler functions
+ * Currently empty, reserved for future extension (e.g., tenant context)
+ */
+export interface CronContext {
+  // Reserved for future use
+}
+
+/**
+ * Raw handler function signature for custom cron jobs
+ */
+export type CronRawHandler = (
+  request: NextRequest,
+  context: CronContext
+) => Promise<NextResponse>
+
 export interface CronJobResult {
   success: boolean
   message: string
@@ -105,7 +121,40 @@ export interface CronHandlerOptions<T = unknown> {
 // CRON HANDLER FACTORY
 // =============================================================================
 
-export function createCronHandler<T = unknown>(options: CronHandlerOptions<T>) {
+/**
+ * Create a cron handler from options or a raw handler function
+ *
+ * @overload Raw handler: Pass a function (request, context) => Promise<NextResponse>
+ * @overload Options-based: Pass CronHandlerOptions with query + process
+ */
+export function createCronHandler<T = unknown>(
+  optionsOrHandler: CronHandlerOptions<T> | CronRawHandler
+) {
+  // If a raw handler function is passed, wrap it with auth check
+  if (typeof optionsOrHandler === 'function') {
+    const rawHandler = optionsOrHandler
+    return async (request: NextRequest): Promise<NextResponse> => {
+      // Authorization check
+      const authHeader = request.headers.get('authorization')
+      const cronSecret = process.env.CRON_SECRET
+
+      if (!cronSecret) {
+        logger.error('[cron] CRON_SECRET not configured - blocking request')
+        return NextResponse.json({ error: 'Server configuration error' }, { status: 500 })
+      }
+
+      if (authHeader !== `Bearer ${cronSecret}`) {
+        logger.warn('[cron] Unauthorized cron attempt')
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      }
+
+      // Execute the raw handler with empty context
+      return rawHandler(request, {})
+    }
+  }
+
+  // Options-based handler
+  const options = optionsOrHandler
   const {
     name,
     query,
@@ -130,7 +179,13 @@ export function createCronHandler<T = unknown>(options: CronHandlerOptions<T>) {
       const authHeader = request.headers.get('authorization')
       const cronSecret = process.env.CRON_SECRET
 
-      if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+      // CRITICAL: CRON_SECRET must be configured - fail closed if missing
+      if (!cronSecret) {
+        logger.error(`[${name}] CRON_SECRET not configured - blocking request`)
+        return NextResponse.json({ error: 'Server configuration error' }, { status: 500 })
+      }
+
+      if (authHeader !== `Bearer ${cronSecret}`) {
         logger.warn(`Unauthorized cron attempt for ${name}`)
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
       }
@@ -316,7 +371,13 @@ export function createSimpleCronHandler(options: {
       const authHeader = request.headers.get('authorization')
       const cronSecret = process.env.CRON_SECRET
 
-      if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+      // CRITICAL: CRON_SECRET must be configured - fail closed if missing
+      if (!cronSecret) {
+        logger.error(`[${name}] CRON_SECRET not configured - blocking request`)
+        return NextResponse.json({ error: 'Server configuration error' }, { status: 500 })
+      }
+
+      if (authHeader !== `Bearer ${cronSecret}`) {
         logger.warn(`Unauthorized cron attempt for ${name}`)
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
       }

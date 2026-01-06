@@ -148,7 +148,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       .single()
 
     if (existingTransfer) {
-      return apiError('DUPLICATE_ERROR', HTTP_STATUS.CONFLICT, {
+      return apiError('ALREADY_EXISTS', HTTP_STATUS.CONFLICT, {
         details: { message: 'Ya existe una transferencia pendiente de verificacion para esta factura' },
       })
     }

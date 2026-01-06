@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { HospitalDashboard } from '@/components/hospital/hospital-dashboard'
-import { requireFeature } from '@/lib/features'
+import { requireFeature } from '@/lib/features/server'
 import { UpgradePromptServer } from '@/components/dashboard/upgrade-prompt-server'
 
 interface Props {

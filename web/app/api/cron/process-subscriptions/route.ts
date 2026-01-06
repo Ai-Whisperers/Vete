@@ -14,9 +14,17 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
  * Protected by CRON_SECRET header
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
-  // Verify cron secret
+  // Verify cron secret - CRITICAL: fail closed if not configured
+  const envCronSecret = process.env.CRON_SECRET
+
+  if (!envCronSecret) {
+    logger.error('CRON_SECRET not configured for process-subscriptions - blocking request')
+    return NextResponse.json({ error: 'Server configuration error' }, { status: 500 })
+  }
+
   const cronSecret = request.headers.get('x-cron-secret')
-  if (cronSecret !== process.env.CRON_SECRET) {
+  if (cronSecret !== envCronSecret) {
+    logger.warn('Unauthorized cron attempt for process-subscriptions')
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 

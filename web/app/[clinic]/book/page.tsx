@@ -76,12 +76,28 @@ export default async function BookingPage({
         <div className="max-w-md rounded-3xl bg-white p-8 text-center shadow-xl">
           <h2 className="mb-4 text-2xl font-black text-gray-900">Autenticación Requerida</h2>
           <p className="mb-6 text-gray-600">Por favor inicia sesión para reservar una cita.</p>
-          <a
-            href={`/${clinic}/portal/login?redirect=/${clinic}/book`}
-            className="inline-block rounded-2xl bg-[var(--primary)] px-8 py-4 font-bold text-white shadow-xl transition-all hover:-translate-y-1 hover:shadow-2xl"
-          >
-            Iniciar Sesión
-          </a>
+          <div className="flex flex-col gap-4">
+            <a
+              href={`/${clinic}/portal/login?redirect=/${clinic}/book`}
+              className="inline-block rounded-2xl bg-[var(--primary)] px-8 py-4 font-bold text-white shadow-xl transition-all hover:-translate-y-1 hover:shadow-2xl"
+            >
+              Iniciar Sesión
+            </a>
+            <div className="flex items-center gap-3 text-gray-400">
+              <div className="h-px flex-1 bg-gray-200" />
+              <span className="text-sm">o</span>
+              <div className="h-px flex-1 bg-gray-200" />
+            </div>
+            <a
+              href={`/${clinic}/auth/signup?redirect=/${clinic}/book`}
+              className="inline-block rounded-2xl border-2 border-[var(--primary)] bg-white px-8 py-4 font-bold text-[var(--primary)] transition-all hover:-translate-y-1 hover:bg-[var(--primary)] hover:text-white"
+            >
+              Crear Cuenta
+            </a>
+            <p className="mt-2 text-sm text-gray-500">
+              Es gratis y solo toma un minuto
+            </p>
+          </div>
         </div>
       </div>
     )

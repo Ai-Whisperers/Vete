@@ -363,7 +363,7 @@ async function handleSetupIntentSucceeded(
   setupIntent: Stripe.SetupIntent
 ): Promise<void> {
   const metadata = setupIntent.metadata
-  const tenantId = metadata.tenant_id
+  const tenantId = metadata?.tenant_id
   const paymentMethodId = setupIntent.payment_method as string
 
   logger.info('Setup intent succeeded', {

@@ -77,7 +77,12 @@ async function handler(_request: NextRequest, _context: CronContext): Promise<Ne
 
     // Process each invoice
     for (const invoice of invoices) {
-      const reminderResults = await processInvoiceReminders(supabase, invoice, now)
+      // Transform tenants array to single object (Supabase returns array for joins)
+      const transformedInvoice = {
+        ...invoice,
+        tenants: Array.isArray(invoice.tenants) ? invoice.tenants[0] || null : invoice.tenants,
+      }
+      const reminderResults = await processInvoiceReminders(supabase, transformedInvoice as Parameters<typeof processInvoiceReminders>[1], now)
       results.push(...reminderResults)
     }
 

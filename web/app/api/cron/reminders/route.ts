@@ -15,11 +15,16 @@ import type { Reminder, ClientInfo, PetInfo, MessageTemplate } from '@/lib/remin
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
-  // Verify cron secret if configured
+  // Verify cron secret - CRITICAL: fail closed if not configured
   const authHeader = request.headers.get('authorization')
   const cronSecret = process.env.CRON_SECRET
 
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+  if (!cronSecret) {
+    logger.error('CRON_SECRET not configured for reminders - blocking request')
+    return NextResponse.json({ error: 'Server configuration error' }, { status: 500 })
+  }
+
+  if (authHeader !== `Bearer ${cronSecret}`) {
     logger.warn('Unauthorized cron attempt for reminders')
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }

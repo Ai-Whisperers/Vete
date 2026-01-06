@@ -5,12 +5,16 @@
  * Works with the pricing tiers defined in @/lib/pricing/tiers.
  *
  * Usage:
- * - Server: Use `getTenantFeatures` in API routes and server components
- * - Client: Use `useFeatureFlags` hook in client components
- * - API: Use `checkFeatureAccess` middleware in API routes
+ * - Server: Import from '@/lib/features/server' in API routes and server components
+ * - Client: Import from '@/lib/features' (this barrel) or '@/lib/features/client'
+ * - Types: Available from this barrel
+ *
+ * NOTE: Server functions are NOT exported from this barrel to prevent
+ * accidental imports in client components. Import them explicitly:
+ *   import { getTenantFeatures, requireFeature } from '@/lib/features/server'
  */
 
-export { getTenantFeatures, checkFeatureAccess, getAllFeatures, requireFeature, clearFeatureCache } from './server'
+// Client-safe exports only
 export {
   useFeatureFlags,
   useTenantTier,
@@ -20,4 +24,6 @@ export {
   FeatureFlagsProvider,
   type FeatureFlagsContextValue,
 } from './client'
+
+// Types are safe to export
 export type { TenantFeatureAccess, FeatureName, FeatureCheckResult } from './types'

@@ -87,9 +87,40 @@ export const GET = withApiAuth(async ({ user, profile, supabase, request }) => {
 
 // POST /api/invoices - Create new invoice (staff only)
 // Rate limited: 10 requests per minute (financial operations)
+// Supports idempotency via Idempotency-Key header to prevent duplicates on retry
 export const POST = withApiAuth(
   async ({ user, profile, supabase, request }: ApiHandlerContext) => {
     try {
+      // Check for idempotency key (prevents duplicate invoices on retry)
+      const idempotencyKey = request.headers.get('Idempotency-Key')
+
+      if (idempotencyKey) {
+        // Check if invoice with this key already exists
+        const { data: existingInvoice } = await supabase
+          .from('invoices')
+          .select(
+            `
+            *,
+            invoice_items(
+              id, service_id, product_id, description, quantity, unit_price, discount_percent, line_total
+            )
+          `
+          )
+          .eq('tenant_id', profile.tenant_id)
+          .eq('idempotency_key', idempotencyKey)
+          .single()
+
+        if (existingInvoice) {
+          // Return existing invoice (idempotent response)
+          logger.info('Idempotent invoice request - returning existing', {
+            invoiceId: existingInvoice.id,
+            idempotencyKey,
+            tenantId: profile.tenant_id,
+          })
+          return apiSuccess(existingInvoice, 'Factura ya existente', HTTP_STATUS.OK)
+        }
+      }
+
       const body = await request.json()
       const { pet_id, items, notes, due_date } = body
 
@@ -136,7 +167,7 @@ export const POST = withApiAuth(
       const taxAmount = roundCurrency(subtotal * (taxRate / 100))
       const total = roundCurrency(subtotal + taxAmount)
 
-      // Create invoice
+      // Create invoice (with idempotency key if provided)
       const { data: invoice, error: invoiceError } = await supabase
         .from('invoices')
         .insert({
@@ -154,6 +185,7 @@ export const POST = withApiAuth(
           notes,
           due_date: due_date || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
           created_by: user.id,
+          idempotency_key: idempotencyKey || null,
         })
         .select()
         .single()

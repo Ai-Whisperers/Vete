@@ -98,11 +98,16 @@ interface PetRecord {
  * - Follow-ups after visits
  */
 export async function GET(request: NextRequest) {
-  // Verify cron secret if configured
+  // Verify cron secret - CRITICAL: fail closed if not configured
   const authHeader = request.headers.get('authorization')
   const cronSecret = process.env.CRON_SECRET
 
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+  if (!cronSecret) {
+    logger.error('CRON_SECRET not configured for reminders/generate - blocking request')
+    return NextResponse.json({ error: 'Server configuration error' }, { status: 500 })
+  }
+
+  if (authHeader !== `Bearer ${cronSecret}`) {
     logger.warn('Unauthorized cron attempt for reminders/generate')
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }

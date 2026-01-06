@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 import { requireStaff } from '@/lib/auth'
 import { DashboardShell } from '@/components/dashboard/dashboard-shell'
 import { DashboardProviders } from './providers'
-import { getTenantFeatures } from '@/lib/features'
+import { getTenantFeatures } from '@/lib/features/server'
 
 interface DashboardLayoutProps {
   children: React.ReactNode

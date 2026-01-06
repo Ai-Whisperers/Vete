@@ -53,11 +53,16 @@ interface StaffPreference {
  * - Expiring products
  */
 export async function GET(request: NextRequest): Promise<NextResponse> {
-  // Verify cron secret if configured
+  // Verify cron secret - CRITICAL: fail closed if not configured
   const authHeader = request.headers.get('authorization')
   const cronSecret = process.env.CRON_SECRET
 
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+  if (!cronSecret) {
+    logger.error('CRON_SECRET not configured for stock-alerts/staff - blocking request')
+    return NextResponse.json({ error: 'Server configuration error' }, { status: 500 })
+  }
+
+  if (authHeader !== `Bearer ${cronSecret}`) {
     logger.warn('Unauthorized cron attempt for stock-alerts/staff')
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }

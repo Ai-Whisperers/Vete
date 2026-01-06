@@ -94,7 +94,7 @@ export async function POST(request: NextRequest, context: RouteContext): Promise
     }
 
     // 3. Get tenant info for notifications
-    const tenantData = invoice.tenants as { name: string; billing_email: string | null; email: string | null }
+    const tenantData = (Array.isArray(invoice.tenants) ? invoice.tenants[0] : invoice.tenants) as { name: string; billing_email: string | null; email: string | null }
     const billingEmail = tenantData.billing_email || tenantData.email
 
     // 4. Create billing reminder record

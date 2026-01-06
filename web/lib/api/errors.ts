@@ -98,6 +98,16 @@ export const API_ERRORS = {
     error: 'Error de servicio externo',
     code: 'EXTERNAL_SERVICE_ERROR',
   },
+
+  // Payment errors
+  PAYMENT_ERROR: {
+    error: 'Error de pago',
+    code: 'PAYMENT_ERROR',
+  },
+  DUPLICATE_ERROR: {
+    error: 'Registro duplicado',
+    code: 'DUPLICATE_ERROR',
+  },
 } as const
 
 export type ApiErrorType = keyof typeof API_ERRORS

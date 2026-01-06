@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
-import { apiError, HTTP_STATUS } from '@/lib/api/errors'
+import { apiError, HTTP_STATUS, type ApiErrorType } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
 
 // Generate a unique redemption code
@@ -15,9 +15,9 @@ function generateRedemptionCode(): string {
 
 /**
  * POST /api/loyalty/redeem
- * Redeem a reward
+ * Redeem a reward - uses atomic database function to prevent race conditions
  */
-export const POST = withApiAuth(async ({ request, user, supabase }: ApiHandlerContext) => {
+export const POST = withApiAuth(async ({ request, user, profile, supabase }: ApiHandlerContext) => {
   try {
     const body = await request.json()
     const { reward_id, pet_id } = body
@@ -28,90 +28,7 @@ export const POST = withApiAuth(async ({ request, user, supabase }: ApiHandlerCo
       })
     }
 
-    // Get reward details
-    const { data: reward, error: rewardError } = await supabase
-      .from('loyalty_rewards')
-      .select('*')
-      .eq('id', reward_id)
-      .eq('is_active', true)
-      .single()
-
-    if (rewardError || !reward) {
-      return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND)
-    }
-
-    // Check validity dates
-    const now = new Date()
-    if (reward.valid_from && new Date(reward.valid_from) > now) {
-      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
-        details: { reason: 'Esta recompensa aún no está disponible' },
-      })
-    }
-    if (reward.valid_to && new Date(reward.valid_to) < now) {
-      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
-        details: { reason: 'Esta recompensa ha expirado' },
-      })
-    }
-
-    // Check stock
-    if (reward.stock !== null && reward.stock <= 0) {
-      return apiError('CONFLICT', HTTP_STATUS.BAD_REQUEST, {
-        details: { reason: 'Esta recompensa está agotada' },
-      })
-    }
-
-    // Check max per user
-    if (reward.max_per_user !== null) {
-      const { count } = await supabase
-        .from('loyalty_redemptions')
-        .select('id', { count: 'exact', head: true })
-        .eq('user_id', user.id)
-        .eq('reward_id', reward_id)
-        .in('status', ['pending', 'approved', 'used'])
-
-      if (count && count >= reward.max_per_user) {
-        return apiError('QUOTA_EXCEEDED', HTTP_STATUS.BAD_REQUEST, {
-          details: {
-            reason: `Ya has canjeado esta recompensa el máximo de ${reward.max_per_user} veces`,
-          },
-        })
-      }
-    }
-
-    // Get user's points balance
-    const { data: transactions } = await supabase
-      .from('loyalty_transactions')
-      .select('points')
-      .eq('pet_id', pet_id || null)
-
-    // If no pet_id, sum all user's pets' points
-    let pointsBalance = 0
-    if (pet_id) {
-      pointsBalance = transactions?.reduce((sum, t) => sum + t.points, 0) || 0
-    } else {
-      // Get all user's pets
-      const { data: pets } = await supabase.from('pets').select('id').eq('owner_id', user.id)
-
-      if (pets && pets.length > 0) {
-        const petIds = pets.map((p) => p.id)
-        const { data: allTxns } = await supabase
-          .from('loyalty_transactions')
-          .select('points')
-          .in('pet_id', petIds)
-
-        pointsBalance = allTxns?.reduce((sum, t) => sum + t.points, 0) || 0
-      }
-    }
-
-    if (pointsBalance < reward.points_cost) {
-      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
-        details: {
-          reason: `Puntos insuficientes. Tienes ${pointsBalance} puntos, necesitas ${reward.points_cost}`,
-        },
-      })
-    }
-
-    // Generate unique code
+    // Generate unique redemption code
     let redemptionCode = generateRedemptionCode()
     let attempts = 0
     while (attempts < 5) {
@@ -126,84 +43,78 @@ export const POST = withApiAuth(async ({ request, user, supabase }: ApiHandlerCo
       attempts++
     }
 
-    // Calculate expiry (30 days from now)
-    const expiresAt = new Date()
-    expiresAt.setDate(expiresAt.getDate() + 30)
-
-    // Create redemption
-    const { data: redemption, error: redemptionError } = await supabase
-      .from('loyalty_redemptions')
-      .insert({
-        tenant_id: reward.tenant_id,
-        reward_id,
-        user_id: user.id,
-        pet_id: pet_id || null,
-        points_spent: reward.points_cost,
-        status: 'approved',
-        redemption_code: redemptionCode,
-        expires_at: expiresAt.toISOString(),
-      })
-      .select()
-      .single()
-
-    if (redemptionError) throw redemptionError
-
-    // Deduct points from first pet or specified pet
-    const targetPetId =
-      pet_id ||
-      (await supabase.from('pets').select('id').eq('owner_id', user.id).limit(1).single()).data?.id
-
-    if (targetPetId) {
-      const { error: txnError } = await supabase.from('loyalty_transactions').insert({
-        clinic_id: reward.tenant_id,
-        pet_id: targetPetId,
-        points: -reward.points_cost,
-        description: `Canje: ${reward.name}`,
-        created_by: user.id,
-      })
-
-      if (txnError) {
-        logger.error('Error creating loyalty transaction during redemption', {
-          userId: user.id,
-          rewardId: reward_id,
-          error: txnError.message,
-        })
-        // Rollback redemption
-        await supabase.from('loyalty_redemptions').delete().eq('id', redemption.id)
-        throw txnError
-      }
-    }
-
-    // Decrement stock if applicable
-    if (reward.stock !== null) {
-      await supabase
-        .from('loyalty_rewards')
-        .update({ stock: reward.stock - 1 })
-        .eq('id', reward_id)
-    }
-
-    // Create notification for user
-    await supabase.from('notifications').insert({
-      user_id: user.id,
-      title: '🎁 ¡Recompensa canjeada!',
-      message: `Has canjeado "${reward.name}". Tu código es: ${redemptionCode}`,
-      type: 'loyalty',
-      data: {
-        redemption_id: redemption.id,
-        reward_name: reward.name,
-        code: redemptionCode,
-      },
+    // Call atomic redemption function
+    // This prevents race conditions by:
+    // 1. Locking reward row (stock check)
+    // 2. Locking user's redemptions (max per user check)
+    // 3. Locking user's loyalty transactions (points check)
+    // 4. Creating redemption + deducting points + decrementing stock atomically
+    const { data: result, error: rpcError } = await supabase.rpc('redeem_loyalty_reward', {
+      p_tenant_id: profile.tenant_id,
+      p_user_id: user.id,
+      p_reward_id: reward_id,
+      p_pet_id: pet_id || null,
+      p_redemption_code: redemptionCode,
     })
+
+    if (rpcError) {
+      logger.error('Atomic redemption RPC error', {
+        userId: user.id,
+        rewardId: reward_id,
+        error: rpcError.message,
+      })
+      throw rpcError
+    }
+
+    // Handle atomic function result
+    if (!result?.success) {
+      const errorMap: Record<string, { code: string; status: number }> = {
+        REWARD_NOT_FOUND: { code: 'NOT_FOUND', status: HTTP_STATUS.NOT_FOUND },
+        NOT_YET_VALID: { code: 'VALIDATION_ERROR', status: HTTP_STATUS.BAD_REQUEST },
+        EXPIRED: { code: 'VALIDATION_ERROR', status: HTTP_STATUS.BAD_REQUEST },
+        OUT_OF_STOCK: { code: 'CONFLICT', status: HTTP_STATUS.BAD_REQUEST },
+        MAX_REDEMPTIONS_REACHED: { code: 'QUOTA_EXCEEDED', status: HTTP_STATUS.BAD_REQUEST },
+        NO_PET_FOUND: { code: 'VALIDATION_ERROR', status: HTTP_STATUS.BAD_REQUEST },
+        INSUFFICIENT_POINTS: { code: 'VALIDATION_ERROR', status: HTTP_STATUS.BAD_REQUEST },
+      }
+
+      const errorInfo = errorMap[result?.error] || { code: 'SERVER_ERROR' as const, status: HTTP_STATUS.INTERNAL_SERVER_ERROR }
+      return apiError(errorInfo.code as ApiErrorType, errorInfo.status, {
+        details: { reason: result?.message || 'Error al canjear recompensa' },
+      })
+    }
+
+    // Create notification for user (non-critical, don't fail if this errors)
+    try {
+      await supabase.from('notifications').insert({
+        user_id: user.id,
+        title: '🎁 ¡Recompensa canjeada!',
+        message: `Has canjeado "${result.reward_name}". Tu código es: ${result.redemption_code}`,
+        type: 'loyalty',
+        data: {
+          redemption_id: result.redemption_id,
+          reward_name: result.reward_name,
+          code: result.redemption_code,
+        },
+      })
+    } catch (notifError) {
+      logger.warn('Failed to create redemption notification', {
+        userId: user.id,
+        redemptionId: result.redemption_id,
+        error: notifError instanceof Error ? notifError.message : 'Unknown',
+      })
+    }
 
     return NextResponse.json(
       {
         success: true,
         redemption: {
-          id: redemption.id,
-          code: redemptionCode,
-          reward_name: reward.name,
-          points_spent: reward.points_cost,
-          expires_at: expiresAt.toISOString(),
+          id: result.redemption_id,
+          code: result.redemption_code,
+          reward_name: result.reward_name,
+          points_spent: result.points_spent,
+          expires_at: result.expires_at,
+          new_balance: result.new_balance,
         },
       },
       { status: 201 }

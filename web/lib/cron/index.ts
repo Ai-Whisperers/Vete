@@ -10,4 +10,6 @@ export {
   createTenantCronHandler,
   type CronHandlerOptions,
   type CronJobResult,
+  type CronContext,
+  type CronRawHandler,
 } from './handler'

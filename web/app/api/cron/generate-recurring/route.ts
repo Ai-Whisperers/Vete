@@ -17,11 +17,16 @@ export const dynamic = 'force-dynamic'
  * - Updates the occurrences_generated counter
  */
 export async function GET(request: NextRequest): Promise<NextResponse> {
-  // Verify cron secret
+  // Verify cron secret - CRITICAL: fail closed if not configured
   const authHeader = request.headers.get('authorization')
   const cronSecret = process.env.CRON_SECRET
 
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+  if (!cronSecret) {
+    logger.error('CRON_SECRET not configured for generate-recurring - blocking request')
+    return NextResponse.json({ error: 'Server configuration error' }, { status: 500 })
+  }
+
+  if (authHeader !== `Bearer ${cronSecret}`) {
     logger.warn('Unauthorized cron attempt for generate-recurring')
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }

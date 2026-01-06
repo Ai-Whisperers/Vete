@@ -161,17 +161,21 @@ export function ContactForm() {
 
             {/* Right Column: Form */}
             <div className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200/50 ring-1 ring-slate-100 md:p-8">
-              <form onSubmit={handleSubmit} className="space-y-5">
+              <form onSubmit={handleSubmit} className="space-y-5" aria-label="Formulario de contacto">
                 {/* Contact Name */}
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-slate-700">Tu Nombre</label>
+                  <label htmlFor="contactName" className="mb-1.5 block text-sm font-medium text-slate-700">Tu Nombre</label>
                   <div className="relative">
-                    <User className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
+                    <User className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" aria-hidden="true" />
                     <input
+                      id="contactName"
+                      name="contactName"
                       type="text"
                       value={formData.contactName}
                       onChange={(e) => handleChange('contactName', e.target.value)}
                       placeholder="Ej: Dr. Juan Pérez"
+                      aria-invalid={errors.contactName ? 'true' : 'false'}
+                      aria-describedby={errors.contactName ? 'contactName-error' : undefined}
                       className={`w-full rounded-xl border bg-slate-50 py-3 pl-11 pr-4 text-slate-900 placeholder-slate-400 transition-all focus:bg-white focus:outline-none focus:ring-2 ${
                         errors.contactName
                           ? 'border-red-300 focus:ring-red-200'
@@ -180,20 +184,24 @@ export function ContactForm() {
                     />
                   </div>
                   {errors.contactName && (
-                    <p className="mt-1 text-xs text-red-500 font-medium">{errors.contactName}</p>
+                    <p id="contactName-error" className="mt-1 text-xs text-red-500 font-medium" role="alert">{errors.contactName}</p>
                   )}
                 </div>
 
                 {/* Clinic Name */}
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-slate-700">Nombre de la Clínica</label>
+                  <label htmlFor="clinicName" className="mb-1.5 block text-sm font-medium text-slate-700">Nombre de la Clínica</label>
                   <div className="relative">
-                    <Building2 className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
+                    <Building2 className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" aria-hidden="true" />
                     <input
+                      id="clinicName"
+                      name="clinicName"
                       type="text"
                       value={formData.clinicName}
                       onChange={(e) => handleChange('clinicName', e.target.value)}
                       placeholder="Ej: Veterinaria San Roque"
+                      aria-invalid={errors.clinicName ? 'true' : 'false'}
+                      aria-describedby={errors.clinicName ? 'clinicName-error' : undefined}
                       className={`w-full rounded-xl border bg-slate-50 py-3 pl-11 pr-4 text-slate-900 placeholder-slate-400 transition-all focus:bg-white focus:outline-none focus:ring-2 ${
                         errors.clinicName
                           ? 'border-red-300 focus:ring-red-200'
@@ -202,20 +210,24 @@ export function ContactForm() {
                     />
                   </div>
                   {errors.clinicName && (
-                    <p className="mt-1 text-xs text-red-500 font-medium">{errors.clinicName}</p>
+                    <p id="clinicName-error" className="mt-1 text-xs text-red-500 font-medium" role="alert">{errors.clinicName}</p>
                   )}
                 </div>
 
                 {/* WhatsApp */}
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-slate-700">Celular / WhatsApp</label>
+                  <label htmlFor="phone" className="mb-1.5 block text-sm font-medium text-slate-700">Celular / WhatsApp</label>
                   <div className="relative">
-                    <Phone className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
+                    <Phone className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" aria-hidden="true" />
                     <input
+                      id="phone"
+                      name="phone"
                       type="tel"
                       value={formData.phone}
                       onChange={(e) => handleChange('phone', e.target.value)}
                       placeholder="0981 123 456"
+                      aria-invalid={errors.phone ? 'true' : 'false'}
+                      aria-describedby={errors.phone ? 'phone-error' : undefined}
                       className={`w-full rounded-xl border bg-slate-50 py-3 pl-11 pr-4 text-slate-900 placeholder-slate-400 transition-all focus:bg-white focus:outline-none focus:ring-2 ${
                         errors.phone
                           ? 'border-red-300 focus:ring-red-200'
@@ -223,7 +235,7 @@ export function ContactForm() {
                       }`}
                     />
                   </div>
-                  {errors.phone && <p className="mt-1 text-xs text-red-500 font-medium">{errors.phone}</p>}
+                  {errors.phone && <p id="phone-error" className="mt-1 text-xs text-red-500 font-medium" role="alert">{errors.phone}</p>}
                 </div>
 
                 {/* Submit */}

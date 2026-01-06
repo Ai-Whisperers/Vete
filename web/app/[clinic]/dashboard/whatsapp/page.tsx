@@ -4,7 +4,7 @@ import Link from 'next/link'
 import * as Icons from 'lucide-react'
 import { Inbox } from '@/components/whatsapp/inbox'
 import { getConversations, getWhatsAppStats } from '@/app/actions/whatsapp'
-import { requireFeature } from '@/lib/features'
+import { requireFeature } from '@/lib/features/server'
 import { UpgradePromptServer } from '@/components/dashboard/upgrade-prompt-server'
 
 interface Props {

@@ -44,11 +44,16 @@ interface StaffPreference {
  * Uses multi-day warning thresholds: 7, 14, 30, 60, 90 days.
  */
 export async function GET(request: NextRequest): Promise<NextResponse> {
-  // Verify cron secret if configured
+  // Verify cron secret - CRITICAL: fail closed if not configured
   const authHeader = request.headers.get('authorization')
   const cronSecret = process.env.CRON_SECRET
 
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+  if (!cronSecret) {
+    logger.error('CRON_SECRET not configured for expiry-alerts - blocking request')
+    return NextResponse.json({ error: 'Server configuration error' }, { status: 500 })
+  }
+
+  if (authHeader !== `Bearer ${cronSecret}`) {
     logger.warn('Unauthorized cron attempt for expiry-alerts')
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }

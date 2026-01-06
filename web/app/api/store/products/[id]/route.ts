@@ -181,13 +181,14 @@ export async function GET(request: NextRequest, { params }: Props): Promise<Next
     }
 
     // Build response matching what the client expects
+    // Note: This is a PUBLIC endpoint - sensitive fields (cost_price, purchase_unit, internal inventory) are excluded
     const productWithDetails = {
       id: product.id,
       tenant_id: clinic,
       category_id: product.category_id,
       brand_id: product.brand_id,
       sku: product.sku,
-      barcode: product.barcode,
+      // barcode excluded - internal use only
       name: product.name,
       short_description: product.short_description,
       description: product.description,
@@ -195,10 +196,10 @@ export async function GET(request: NextRequest, { params }: Props): Promise<Next
       images: product.images || [],
       base_price: product.base_price,
       sale_price: product.sale_price,
-      cost_price: product.cost_price,
-      purchase_unit: product.purchase_unit,
+      // cost_price EXCLUDED - internal pricing, not for public
+      // purchase_unit EXCLUDED - internal use only
       sale_unit: product.sale_unit,
-      conversion_factor: product.conversion_factor,
+      // conversion_factor EXCLUDED - internal use only
       weight_grams: product.weight_grams,
       dimensions: product.dimensions,
       attributes: product.attributes || {},
@@ -221,14 +222,15 @@ export async function GET(request: NextRequest, { params }: Props): Promise<Next
       category: product.store_categories || null,
       subcategory: null, // Schema doesn't have subcategories
       brand: product.store_brands || null,
+      // Public inventory - only show stock quantity for availability, not internal min_stock or batch
       inventory: product.store_inventory
         ? {
             stock_quantity: product.store_inventory.stock_quantity || 0,
-            min_stock_level: product.store_inventory.min_stock_level,
-            expiry_date: product.store_inventory.expiry_date,
-            batch_number: product.store_inventory.batch_number,
+            // min_stock_level EXCLUDED - internal threshold
+            // expiry_date EXCLUDED - internal tracking
+            // batch_number EXCLUDED - internal tracking
           }
-        : { stock_quantity: 0, min_stock_level: null },
+        : { stock_quantity: 0 },
       current_price: currentPrice,
       original_price: originalPrice,
       has_discount: hasDiscount,

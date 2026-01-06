@@ -1,14 +1,65 @@
 /**
  * Standardized API pagination utilities
  * API-003: Create Standardized Pagination
+ *
+ * IMPORTANT: All API routes should use these utilities to enforce
+ * pagination limits and prevent DoS attacks via large limit values.
  */
 
 import { z } from 'zod'
 
+/** Maximum allowed items per page to prevent DoS */
+export const MAX_PAGE_SIZE = 100
+
+/** Default page size when not specified */
+export const DEFAULT_PAGE_SIZE = 20
+
 export const paginationSchema = z.object({
   page: z.coerce.number().int().positive().default(1),
-  limit: z.coerce.number().int().min(1).max(100).default(20),
+  limit: z.coerce.number().int().min(1).max(MAX_PAGE_SIZE).default(DEFAULT_PAGE_SIZE),
 })
+
+/**
+ * Clamp a limit value to the maximum allowed page size.
+ * Use this in routes that don't use the full parsePagination utility.
+ *
+ * @param limit - The requested limit
+ * @param defaultLimit - Default if not provided (default: 20)
+ * @returns Clamped limit between 1 and MAX_PAGE_SIZE
+ *
+ * @example
+ * ```typescript
+ * const limit = clampLimit(parseInt(searchParams.get('limit') || '10'))
+ * ```
+ */
+export function clampLimit(limit: number | string | null | undefined, defaultLimit = DEFAULT_PAGE_SIZE): number {
+  if (limit === null || limit === undefined) {
+    return Math.min(defaultLimit, MAX_PAGE_SIZE)
+  }
+  const parsed = typeof limit === 'string' ? parseInt(limit, 10) : limit
+  if (isNaN(parsed) || parsed < 1) {
+    return Math.min(defaultLimit, MAX_PAGE_SIZE)
+  }
+  return Math.min(parsed, MAX_PAGE_SIZE)
+}
+
+/**
+ * Parse page number from request, with bounds checking.
+ *
+ * @param page - The requested page
+ * @param defaultPage - Default if not provided (default: 1)
+ * @returns Valid page number (minimum 1)
+ */
+export function parsePage(page: number | string | null | undefined, defaultPage = 1): number {
+  if (page === null || page === undefined) {
+    return Math.max(defaultPage, 1)
+  }
+  const parsed = typeof page === 'string' ? parseInt(page, 10) : page
+  if (isNaN(parsed) || parsed < 1) {
+    return Math.max(defaultPage, 1)
+  }
+  return parsed
+}
 
 export interface PaginationParams {
   page: number

@@ -114,3 +114,119 @@ export function enumSchema<T extends string>(values: readonly T[], fieldName: st
     message: `${fieldName} inválido`,
   })
 }
+
+// =============================================================================
+// PASSWORD VALIDATION
+// =============================================================================
+
+/**
+ * Strong password validation rules
+ * - Minimum 8 characters
+ * - At least one uppercase
+ * - At least one lowercase
+ * - At least one number
+ */
+export const strongPasswordSchema = z
+  .string()
+  .min(8, 'La contraseña debe tener al menos 8 caracteres')
+  .regex(/[A-Z]/, 'La contraseña debe tener al menos una mayúscula')
+  .regex(/[a-z]/, 'La contraseña debe tener al menos una minúscula')
+  .regex(/[0-9]/, 'La contraseña debe tener al menos un número')
+
+/**
+ * Password confirmation refinement
+ * Use with .refine() on password + confirm_password objects
+ */
+export const passwordsMatchRefinement = {
+  check: (data: { password: string; confirm_password: string }) =>
+    data.password === data.confirm_password,
+  message: 'Las contraseñas no coinciden',
+  path: ['confirm_password'] as const,
+}
+
+// =============================================================================
+// PHONE VALIDATION (Paraguay)
+// =============================================================================
+
+/**
+ * Phone number validation - Paraguay mobile format
+ * Accepts: +595981234567, 0981234567, 981234567
+ */
+export const phoneSchemaOptional = z
+  .string()
+  .regex(/^(\+595|0)?[9][0-9]{8}$/, 'Número de teléfono inválido')
+  .optional()
+  .nullable()
+
+// =============================================================================
+// TIME VALIDATION
+// =============================================================================
+
+/**
+ * Time slot validation (HH:MM format)
+ */
+export const timeSlotSchema = z
+  .string()
+  .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Formato de hora inválido (HH:MM)')
+
+// =============================================================================
+// URL VALIDATION
+// =============================================================================
+
+/**
+ * Optional URL validation
+ */
+export const optionalUrlSchema = z
+  .string()
+  .url('URL inválida')
+  .optional()
+  .nullable()
+
+// =============================================================================
+// ID SCHEMA HELPERS
+// =============================================================================
+
+/**
+ * Required UUID with custom field name for errors
+ */
+export function requiredUuid(fieldName: string = 'ID') {
+  return z.string().uuid(`${fieldName} inválido`)
+}
+
+/**
+ * Optional UUID
+ */
+export const optionalUuidSchema = z.string().uuid('ID inválido').optional()
+
+// =============================================================================
+// WEIGHT VALIDATION (for pets)
+// =============================================================================
+
+/**
+ * Pet weight validation (0-500 kg)
+ */
+export const petWeightSchema = z.coerce
+  .number()
+  .min(0, 'El peso debe ser positivo')
+  .max(500, 'Peso inválido')
+  .optional()
+  .nullable()
+
+// =============================================================================
+// NOTES/DESCRIPTION VALIDATION
+// =============================================================================
+
+/**
+ * Notes field (up to 1000 characters)
+ */
+export const notesSchema = optionalString(1000)
+
+/**
+ * Short notes (up to 500 characters)
+ */
+export const shortNotesSchema = optionalString(500)
+
+/**
+ * Long description (up to 5000 characters)
+ */
+export const longDescriptionSchema = optionalString(5000)

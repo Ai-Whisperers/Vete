@@ -388,3 +388,55 @@ export function getEnumLabel<T extends string>(
 ): string {
   return labels[value] || fallback
 }
+
+// =============================================================================
+// RE-EXPORTS FROM SPECIALIZED MODULES
+// =============================================================================
+
+// Error messages (Spanish)
+export {
+  AUTH_MESSAGES,
+  AUTHZ_MESSAGES,
+  VALIDATION_MESSAGES,
+  RESOURCE_MESSAGES,
+  PET_MESSAGES,
+  APPOINTMENT_MESSAGES,
+  INVOICE_MESSAGES,
+  STORE_MESSAGES,
+  FILE_MESSAGES,
+  NETWORK_MESSAGES,
+  SUCCESS_MESSAGES,
+  ERROR_MESSAGES,
+  zodMsg,
+  type ErrorMessageKey,
+} from './messages'
+
+// Time constants (TTL, rate limits, durations)
+export {
+  MS,
+  SECONDS,
+  CACHE_TTL,
+  RATE_LIMITS,
+  SESSION,
+  DATABASE,
+  INTERVALS,
+  DURATIONS,
+  CRON_SCHEDULES,
+  TIMEOUTS,
+} from './time'
+
+// Pagination utilities
+export {
+  PAGINATION,
+  PAGINATION_CONTEXTS,
+  clampPageSize,
+  parsePage,
+  calculateOffset,
+  calculateRange,
+  parsePagination,
+  buildPaginationMeta,
+  type PaginatedResponse,
+  type CursorPaginatedResponse,
+  type PageSizeOption,
+  type PaginationContext,
+} from './pagination'

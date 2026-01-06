@@ -50,6 +50,7 @@ export const GET = withApiAuth(
           .from('appointments')
           .select('id, status, start_time, reason')
           .eq('tenant_id', profile.tenant_id)
+          .is('deleted_at', null)
           .gte('start_time', startDate.toISOString())
           .order('start_time', { ascending: true })
 

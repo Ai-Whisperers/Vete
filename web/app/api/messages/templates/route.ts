@@ -32,6 +32,7 @@ export async function GET(request: Request) {
       .select('*')
       .eq('tenant_id', profile.tenant_id)
       .eq('is_active', true)
+      .is('deleted_at', null)
       .order('category')
       .order('name')
 

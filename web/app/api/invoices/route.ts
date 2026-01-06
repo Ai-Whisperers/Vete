@@ -48,6 +48,7 @@ export const GET = withApiAuth(async ({ user, profile, supabase, request }) => {
         { count: 'exact' }
       )
       .eq('tenant_id', clinic)
+      .is('deleted_at', null)
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1)
 

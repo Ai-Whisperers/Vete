@@ -51,6 +51,7 @@ export async function GET(request: Request) {
         'id, tenant_id, name, description, category, base_price, duration_minutes, is_active, created_at, updated_at'
       )
       .eq('tenant_id', clinic)
+      .is('deleted_at', null)
       .order('category')
       .order('name')
 

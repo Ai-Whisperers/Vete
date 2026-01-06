@@ -23,6 +23,7 @@ export const GET = withApiAuth(
     `
       )
       .eq('pet.tenant_id', profile.tenant_id)
+      .is('deleted_at', null)
       .order('admission_date', { ascending: false })
 
     // Apply filters

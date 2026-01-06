@@ -18,6 +18,7 @@ export const GET = withApiAuth(async ({ request, user, profile, supabase }: ApiH
       vet:profiles!vet_id(id, full_name)
     `
     )
+    .is('deleted_at', null)
     .order('created_at', { ascending: false })
 
   if (['vet', 'admin'].includes(profile.role)) {

@@ -23,6 +23,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       .select('id, name, slug, description, display_order')
       .eq('tenant_id', clinic)
       .eq('is_active', true)
+      .is('deleted_at', null)
       .order('display_order', { ascending: true })
 
     if (error) throw error

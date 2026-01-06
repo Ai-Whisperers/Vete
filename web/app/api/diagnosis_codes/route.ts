@@ -24,6 +24,7 @@ export const GET = withApiAuth(
       .from('diagnosis_codes')
       .select('id, code, term, category, species, description, created_at')
       .ilike('term', `%${query}%`)
+      .is('deleted_at', null)
       .limit(10)
 
     if (error) {

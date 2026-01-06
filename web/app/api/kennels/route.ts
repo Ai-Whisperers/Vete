@@ -28,6 +28,7 @@ export const GET = withApiAuth(
       `
       )
       .eq('tenant_id', profile.tenant_id)
+      .is('deleted_at', null)
       .order('location')
       .order('kennel_number')
 

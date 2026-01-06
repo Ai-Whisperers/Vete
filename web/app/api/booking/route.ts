@@ -53,6 +53,7 @@ export const GET = withApiAuth(async (ctx: ApiHandlerContext) => {
     `,
     { count: 'exact' }
   )
+  .is('deleted_at', null)
 
   if (['vet', 'admin'].includes(profile.role)) {
     // Staff sees all clinic appointments

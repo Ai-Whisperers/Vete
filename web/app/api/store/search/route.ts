@@ -93,6 +93,7 @@ export async function GET(request: NextRequest) {
       .select('id, name, slug')
       .eq('tenant_id', clinic)
       .eq('is_active', true)
+      .is('deleted_at', null)
       .ilike('name', searchPattern)
       .limit(3)
 
@@ -113,6 +114,7 @@ export async function GET(request: NextRequest) {
       .select('id, name, slug, logo_url')
       .eq('tenant_id', clinic)
       .eq('is_active', true)
+      .is('deleted_at', null)
       .ilike('name', searchPattern)
       .limit(3)
 
@@ -147,6 +149,7 @@ export async function GET(request: NextRequest) {
       )
       .eq('tenant_id', clinic)
       .eq('is_active', true)
+      .is('deleted_at', null)
       .lte('start_date', new Date().toISOString())
       .gte('end_date', new Date().toISOString())
 

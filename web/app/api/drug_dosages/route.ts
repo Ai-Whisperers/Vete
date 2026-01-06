@@ -25,6 +25,7 @@ export const GET = withApiAuth(
         'id, name, species, dose_mg_per_kg, route, frequency, contraindications, notes, created_at, updated_at',
         { count: 'exact' }
       )
+      .is('deleted_at', null)
       .order('name')
 
     if (species) {

@@ -23,6 +23,7 @@ export const GET = withApiAuth(
         { count: 'exact' }
       )
       .eq('tenant_id', profile.tenant_id)
+      .is('deleted_at', null)
       .order('ordered_at', { ascending: false })
       .range(offset, offset + limit - 1)
 

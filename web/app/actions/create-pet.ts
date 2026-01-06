@@ -304,22 +304,18 @@ export async function createPet(
     }
   }
 
-  // Try INSERT with service_role (bypasses RLS)
-  const { data: insertedPet, error: serviceInsertError } = await serviceSupabase
+  // Insert pet
+  const { error: insertError } = await serviceSupabase
     .from('pets')
     .insert(petPayload)
-    .select('id, name, owner_id')
-    .single()
 
-  if (serviceInsertError) {
-    logger.error('Service role INSERT failed', {
-      errorMessage: serviceInsertError.message,
-      errorCode: serviceInsertError.code,
-      errorDetails: serviceInsertError.details,
+  if (insertError) {
+    logger.error('Failed to create pet', {
+      error: insertError.message,
+      code: insertError.code,
     })
 
-    // Map specific errors
-    if (serviceInsertError.code === '23505') {
+    if (insertError.code === '23505') {
       return {
         success: false,
         error: 'Ya existe una mascota con este microchip registrado.',
@@ -331,139 +327,6 @@ export async function createPet(
       error: 'No se pudo guardar la mascota. Por favor, intenta de nuevo.',
     }
   }
-
-  logger.info('Pet created successfully via service_role', {
-    petId: insertedPet.id,
-    petName: insertedPet.name,
-    ownerId: insertedPet.owner_id,
-  })
-
-  revalidatePath(`/${clinic}/portal/dashboard`)
-  redirect(`/${clinic}/portal/dashboard`)
-
-  /* ORIGINAL CODE - Commented out for debugging
-  // Insert pet into database
-  const { error: insertError } = await supabase.from('pets').insert(petPayload)
-
-  // PGRST204 means "No Content" - this can happen even on successful INSERT
-  // We need to verify if the pet was actually created
-  if (insertError?.code === 'PGRST204') {
-    logger.info('Got PGRST204 on INSERT - will verify if pet was created', { userId: user.id })
-  }
-  */
-
-  // This code won't run due to redirect above - keeping for reference
-  const insertError = null // Placeholder
-  if (insertError && (insertError as any).code !== 'PGRST204') {
-    // Log actual errors (not PGRST204)
-    logger.error('Failed to create pet', {
-      error: insertError,
-      userId: user.id,
-      tenant: clinic,
-      errorCode: insertError.code,
-    })
-
-    // Map database errors to user-friendly messages
-    let userMessage = 'No se pudo guardar la mascota. '
-
-    if (insertError.code === '23505') {
-      // Unique constraint violation
-      if (insertError.message.includes('microchip')) {
-        return {
-          success: false,
-          error: 'Este número de microchip ya está registrado.',
-          fieldErrors: {
-            microchip_id:
-              'Este microchip ya está registrado en el sistema. Verifica el número o contacta a la clínica si crees que es un error.',
-          },
-        }
-      }
-      userMessage += 'Ya existe un registro con estos datos.'
-    } else if (insertError.code === '23503') {
-      // Foreign key violation
-      userMessage += 'Hubo un problema con tu cuenta. Por favor, cierra sesión y vuelve a iniciar.'
-    } else if (insertError.code === '42501') {
-      // RLS policy violation
-      userMessage +=
-        'No tienes permiso para registrar mascotas en esta clínica. Contacta a la clínica para más información.'
-    } else {
-      userMessage +=
-        'Por favor, intenta de nuevo en unos minutos. Si el problema persiste, contacta a soporte.'
-    }
-
-    return { success: false, error: userMessage }
-  }
-
-  // Verify the pet was created by fetching it
-  const { data: createdPet, error: verifyError } = await supabase
-    .from('pets')
-    .select('id, name, owner_id')
-    .eq('owner_id', user.id)
-    .eq('tenant_id', clinic)
-    .eq('name', validData.name)
-    .is('deleted_at', null)
-    .order('created_at', { ascending: false })
-    .limit(1)
-    .maybeSingle() // Use maybeSingle to avoid error on 0 rows
-
-  if (verifyError) {
-    logger.error('Pet verification query error', {
-      userId: user.id,
-      tenant: clinic,
-      petName: validData.name,
-      verifyError: verifyError?.message,
-      verifyErrorCode: verifyError?.code,
-    })
-  }
-
-  if (!createdPet) {
-    // Try with service role to bypass RLS and check if pet exists in DB at all
-    const serviceSupabase = await createClient('service_role')
-    const { data: petInDb, error: serviceError } = await serviceSupabase
-      .from('pets')
-      .select('id, name, owner_id, tenant_id')
-      .eq('name', validData.name)
-      .eq('tenant_id', clinic)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .maybeSingle()
-
-    if (petInDb) {
-      // Pet EXISTS in DB but RLS blocks user from seeing it
-      logger.error('RLS POLICY ISSUE: Pet exists in DB but user cannot see it', {
-        userId: user.id,
-        petInDb,
-        ownerIdInDb: petInDb.owner_id,
-        ownerIdMatches: petInDb.owner_id === user.id,
-      })
-
-      // If owner_id matches, there's an RLS policy issue
-      if (petInDb.owner_id === user.id) {
-        logger.error('CRITICAL: owner_id matches but RLS still blocks - check RLS policies in Supabase')
-      }
-    } else {
-      // Pet does NOT exist - INSERT actually failed
-      logger.error('Pet was NOT inserted into database', {
-        userId: user.id,
-        tenant: clinic,
-        petName: validData.name,
-        serviceError: serviceError?.message,
-      })
-    }
-
-    return {
-      success: false,
-      error: 'Hubo un problema al guardar la mascota. Por favor, intenta de nuevo.',
-    }
-  }
-
-  logger.info('Pet created and verified successfully', {
-    petId: createdPet.id,
-    petName: createdPet.name,
-    ownerId: createdPet.owner_id,
-    userId: user.id,
-    ownerIdMatchesUserId: createdPet.owner_id === user.id,
-  })
 
   revalidatePath(`/${clinic}/portal/dashboard`)
   redirect(`/${clinic}/portal/dashboard`)

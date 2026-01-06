@@ -95,21 +95,11 @@ export default async function OwnerDashboardPage({
   }
 
   // Get Profile Role with full_name
-  const { data: profile, error: profileError } = await supabase
+  const { data: profile } = await supabase
     .from('profiles')
     .select('role, full_name, tenant_id')
     .eq('id', user.id)
     .single()
-
-  // Debug logging
-  console.log('[Dashboard] User/Profile info:', {
-    userId: user.id,
-    userEmail: user.email,
-    profileExists: !!profile,
-    profileRole: profile?.role,
-    profileTenantId: profile?.tenant_id,
-    profileError: profileError?.message,
-  })
 
   const role = profile?.role || 'owner'
   const isStaff = role === 'vet' || role === 'admin'
@@ -147,14 +137,6 @@ export default async function OwnerDashboardPage({
 
   const { data: petsData, error: petsError } = await petQuery
   const pets = petsData as Pet[] | null
-
-  // Debug logging for pets query
-  console.log('[Dashboard] Pets query result:', {
-    userId: user.id,
-    petsCount: petsData?.length ?? 0,
-    error: petsError?.message,
-    errorCode: petsError?.code,
-  })
 
   // UX-003: Show error state when data fetching fails
   const hasDataError = appointmentsError || petsError

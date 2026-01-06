@@ -10,6 +10,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { NextRequest } from 'next/server'
 import { GET, PATCH } from '@/app/api/lost-pets/route'
 import {
   mockState,
@@ -90,7 +91,7 @@ vi.mock('@/lib/logger', () => ({
 }))
 
 // Helper to create GET request
-function createGetRequest(status?: string): Request {
+function createGetRequest(status?: string): NextRequest {
   const params = new URLSearchParams()
   if (status) params.set('status', status)
 
@@ -98,12 +99,12 @@ function createGetRequest(status?: string): Request {
     ? `http://localhost:3000/api/lost-pets?${params.toString()}`
     : 'http://localhost:3000/api/lost-pets'
 
-  return new Request(url, { method: 'GET' })
+  return new NextRequest(url, { method: 'GET' })
 }
 
 // Helper to create PATCH request
-function createPatchRequest(body: { id?: string; status?: string }): Request {
-  return new Request('http://localhost:3000/api/lost-pets', {
+function createPatchRequest(body: { id?: string; status?: string }): NextRequest {
+  return new NextRequest('http://localhost:3000/api/lost-pets', {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),

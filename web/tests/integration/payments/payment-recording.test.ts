@@ -124,7 +124,7 @@ describe('Payment Recording API', () => {
       })) as MockResponse
 
       expect(response.status).toBe(201)
-      const json = await response.json()
+      const json = await response.json() as any
       expect(json).toMatchObject({
         payment: { id: 'payment-456' },
         invoice: {
@@ -159,7 +159,7 @@ describe('Payment Recording API', () => {
       })) as MockResponse
 
       expect(response.status).toBe(201)
-      const json = await response.json()
+      const json = await response.json() as any
       expect(json.invoice.status).toBe('partial')
       expect(json.invoice.amount_due).toBe(25000)
     })
@@ -174,7 +174,7 @@ describe('Payment Recording API', () => {
       })) as MockResponse
 
       expect(response.status).toBe(400)
-      const json = await response.json()
+      const json = await response.json() as any
       expect(json.code).toBe('VALIDATION_ERROR')
     })
 
@@ -225,7 +225,7 @@ describe('Payment Recording API', () => {
       })) as MockResponse
 
       expect(response.status).toBe(400)
-      const json = await response.json()
+      const json = await response.json() as any
       expect(json.details?.reason).toContain('positivo')
     })
 
@@ -248,7 +248,7 @@ describe('Payment Recording API', () => {
       })) as MockResponse
 
       expect(response.status).toBe(400)
-      const json = await response.json()
+      const json = await response.json() as any
       expect(json.details?.reason).toContain('Monto excede')
     })
 
@@ -268,7 +268,7 @@ describe('Payment Recording API', () => {
       })) as MockResponse
 
       expect(response.status).toBe(500)
-      const json = await response.json()
+      const json = await response.json() as any
       expect(json.code).toBe('DATABASE_ERROR')
     })
 
@@ -358,7 +358,7 @@ describe('Payment Recording API', () => {
       })) as MockResponse
 
       expect(response.status).toBe(200)
-      const json = await response.json()
+      const json = await response.json() as any
       expect(Array.isArray(json)).toBe(true)
     })
 

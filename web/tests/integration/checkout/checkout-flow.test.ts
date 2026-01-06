@@ -112,7 +112,7 @@ describe('Checkout API', () => {
         const response = (await POST(request)) as MockResponse
 
         expect(response.status).toBe(400)
-        const json = await response.json()
+        const json = await response.json() as any
         expect(json.code).toBe('VALIDATION_ERROR')
         expect(json.details?.message).toContain('vacío')
       })
@@ -136,7 +136,7 @@ describe('Checkout API', () => {
         const response = (await POST(request)) as MockResponse
 
         expect(response.status).toBe(400)
-        const json = await response.json()
+        const json = await response.json() as any
         expect(json.code).toBe('INVALID_FORMAT')
       })
 
@@ -149,7 +149,7 @@ describe('Checkout API', () => {
         const response = (await POST(request)) as MockResponse
 
         expect(response.status).toBe(403)
-        const json = await response.json()
+        const json = await response.json() as any
         expect(json.code).toBe('FORBIDDEN')
       })
     })
@@ -180,7 +180,7 @@ describe('Checkout API', () => {
         const response = (await POST(request)) as MockResponse
 
         expect(response.status).toBe(201)
-        const json = await response.json()
+        const json = await response.json() as any
         expect(json.success).toBe(true)
         expect(json.invoice).toBeDefined()
         expect(json.invoice.id).toBe('inv-456')
@@ -259,7 +259,7 @@ describe('Checkout API', () => {
         const response = (await POST(request)) as MockResponse
 
         expect(response.status).toBe(400)
-        const json = await response.json()
+        const json = await response.json() as any
         expect(json.code).toBe('VALIDATION_ERROR')
         expect(json.details?.stockErrors).toBeDefined()
         expect(json.details?.stockErrors[0].available).toBe(3)
@@ -289,7 +289,7 @@ describe('Checkout API', () => {
         const response = (await POST(request)) as MockResponse
 
         expect(response.status).toBe(400)
-        const json = await response.json()
+        const json = await response.json() as any
         expect(json.details?.stockErrors).toHaveLength(2)
       })
     })
@@ -329,7 +329,7 @@ describe('Checkout API', () => {
         const response = (await POST(request)) as MockResponse
 
         expect(response.status).toBe(400)
-        const json = await response.json()
+        const json = await response.json() as any
         expect(json.code).toBe('VALIDATION_ERROR')
         expect(json.details?.prescriptionErrors).toBeDefined()
       })
@@ -384,7 +384,7 @@ describe('Checkout API', () => {
         const response = (await POST(request)) as MockResponse
 
         expect(response.status).toBe(500)
-        const json = await response.json()
+        const json = await response.json() as any
         expect(json.code).toBe('DATABASE_ERROR')
       })
 
@@ -399,7 +399,7 @@ describe('Checkout API', () => {
         const response = (await POST(request)) as MockResponse
 
         expect(response.status).toBe(500)
-        const json = await response.json()
+        const json = await response.json() as any
         expect(json.code).toBe('SERVER_ERROR')
       })
 
@@ -420,7 +420,7 @@ describe('Checkout API', () => {
         const response = (await POST(request)) as MockResponse
 
         expect(response.status).toBe(500)
-        const json = await response.json()
+        const json = await response.json() as any
         expect(json.code).toBe('SERVER_ERROR')
       })
     })

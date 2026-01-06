@@ -14,6 +14,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { NextRequest } from 'next/server'
 import { GET } from '@/app/api/analytics/route'
 import {
   mockState,
@@ -88,7 +89,7 @@ vi.mock('@/lib/logger', () => ({
 }))
 
 // Helper to create request with period param
-function createRequest(period?: 'week' | 'month' | 'quarter'): Request {
+function createRequest(period?: 'week' | 'month' | 'quarter'): NextRequest {
   const params = new URLSearchParams()
   if (period) params.set('period', period)
 
@@ -96,7 +97,7 @@ function createRequest(period?: 'week' | 'month' | 'quarter'): Request {
     ? `http://localhost:3000/api/analytics?${params.toString()}`
     : 'http://localhost:3000/api/analytics'
 
-  return new Request(url, { method: 'GET' })
+  return new NextRequest(url, { method: 'GET' })
 }
 
 // Sample invoice data

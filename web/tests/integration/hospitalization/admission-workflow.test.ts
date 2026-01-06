@@ -176,7 +176,7 @@ describe('Hospitalization Admission API', () => {
         const response = (await POST(request)) as MockResponse
 
         expect(response.status).toBe(403)
-        const json = await response.json()
+        const json = await response.json() as any
         expect(json.code).toBe('FORBIDDEN')
       })
     })
@@ -192,7 +192,7 @@ describe('Hospitalization Admission API', () => {
         const response = (await POST(request)) as MockResponse
 
         expect(response.status).toBe(400)
-        const json = await response.json()
+        const json = await response.json() as any
         expect(json.code).toBe('MISSING_FIELDS')
       })
 
@@ -206,7 +206,7 @@ describe('Hospitalization Admission API', () => {
         const response = (await POST(request)) as MockResponse
 
         expect(response.status).toBe(400)
-        const json = await response.json()
+        const json = await response.json() as any
         expect(json.code).toBe('MISSING_FIELDS')
       })
 
@@ -243,7 +243,7 @@ describe('Hospitalization Admission API', () => {
         const response = (await POST(request)) as MockResponse
 
         expect(response.status).toBe(400)
-        const json = await response.json()
+        const json = await response.json() as any
         expect(json.code).toBe('INVALID_FORMAT')
       })
     })
@@ -304,7 +304,7 @@ describe('Hospitalization Admission API', () => {
         const response = (await POST(request)) as MockResponse
 
         expect(response.status).toBe(409) // Conflict
-        const json = await response.json()
+        const json = await response.json() as any
         expect(json.details?.reason).toBe('kennel_not_available')
       })
 
@@ -342,7 +342,7 @@ describe('Hospitalization Admission API', () => {
         const response = (await POST(request)) as MockResponse
 
         expect(response.status).toBe(404)
-        const json = await response.json()
+        const json = await response.json() as any
         expect(json.details?.resource).toBe('pet')
       })
 
@@ -361,7 +361,7 @@ describe('Hospitalization Admission API', () => {
         const response = (await POST(request)) as MockResponse
 
         expect(response.status).toBe(404)
-        const json = await response.json()
+        const json = await response.json() as any
         expect(json.details?.resource).toBe('kennel')
       })
     })
@@ -567,7 +567,7 @@ describe('Hospitalization Admission API', () => {
       const response = (await PATCH(request)) as MockResponse
 
       expect(response.status).toBe(400)
-      const json = await response.json()
+      const json = await response.json() as any
       expect(json.code).toBe('MISSING_FIELDS')
     })
 

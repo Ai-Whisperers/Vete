@@ -9,6 +9,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { NextRequest } from 'next/server'
 import { POST } from '@/app/api/inventory/adjust/route'
 import {
   mockState,
@@ -34,8 +35,8 @@ vi.mock('@/lib/logger', () => ({
 }))
 
 // Helper to create POST request
-function createRequest(body?: Record<string, unknown>): Request {
-  return new Request('http://localhost:3000/api/inventory/adjust', {
+function createRequest(body?: Record<string, unknown>): NextRequest {
+  return new NextRequest('http://localhost:3000/api/inventory/adjust', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: body ? JSON.stringify(body) : undefined,
@@ -136,7 +137,7 @@ describe('POST /api/inventory/adjust', () => {
 
     it('should return 400 for invalid JSON', async () => {
       const response = await POST(
-        new Request('http://localhost:3000/api/inventory/adjust', {
+        new NextRequest('http://localhost:3000/api/inventory/adjust', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: 'invalid json',

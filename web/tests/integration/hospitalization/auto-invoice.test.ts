@@ -10,6 +10,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { NextRequest } from 'next/server'
 import { POST } from '@/app/api/hospitalizations/[id]/invoice/route'
 import {
   mockState,
@@ -38,8 +39,8 @@ vi.mock('@/lib/billing/hospitalization', () => ({
 }))
 
 // Helper to create POST request
-function createRequest(): Request {
-  return new Request('http://localhost:3000/api/hospitalizations/hosp-active/invoice', {
+function createRequest(): NextRequest {
+  return new NextRequest('http://localhost:3000/api/hospitalizations/hosp-active/invoice', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
   })

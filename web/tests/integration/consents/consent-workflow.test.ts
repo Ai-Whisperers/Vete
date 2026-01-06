@@ -11,6 +11,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { NextRequest } from 'next/server'
 import { GET, POST } from '@/app/api/consents/route'
 import {
   mockState,
@@ -91,7 +92,7 @@ function createGetRequest(params?: {
   owner_id?: string
   category?: string
   status?: string
-}): Request {
+}): NextRequest {
   const searchParams = new URLSearchParams()
   if (params?.pet_id) searchParams.set('pet_id', params.pet_id)
   if (params?.owner_id) searchParams.set('owner_id', params.owner_id)
@@ -102,12 +103,12 @@ function createGetRequest(params?: {
     ? `http://localhost:3000/api/consents?${searchParams.toString()}`
     : 'http://localhost:3000/api/consents'
 
-  return new Request(url, { method: 'GET' })
+  return new NextRequest(url, { method: 'GET' })
 }
 
 // Helper to create POST request
-function createPostRequest(body: Record<string, unknown>): Request {
-  return new Request('http://localhost:3000/api/consents', {
+function createPostRequest(body: Record<string, unknown>): NextRequest {
+  return new NextRequest('http://localhost:3000/api/consents', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
@@ -441,7 +442,7 @@ describe('POST /api/consents', () => {
     })
 
     it('should return 400 for invalid JSON body', async () => {
-      const response = await POST(new Request('http://localhost:3000/api/consents', {
+      const response = await POST(new NextRequest('http://localhost:3000/api/consents', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: 'invalid json',

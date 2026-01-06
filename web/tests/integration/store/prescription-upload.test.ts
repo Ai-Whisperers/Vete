@@ -9,6 +9,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { NextRequest } from 'next/server'
 import { POST } from '@/app/api/store/prescriptions/upload/route'
 import {
   mockState,
@@ -50,8 +51,8 @@ function createFormData(file?: File | null, additionalFields?: Record<string, st
 }
 
 // Helper to create POST request with FormData
-function createRequest(formData: FormData): Request {
-  return new Request('http://localhost:3000/api/store/prescriptions/upload', {
+function createRequest(formData: FormData): NextRequest {
+  return new NextRequest('http://localhost:3000/api/store/prescriptions/upload', {
     method: 'POST',
     body: formData,
   })
@@ -373,7 +374,7 @@ describe('POST /api/store/prescriptions/upload', () => {
     })
 
     it('should return 500 when storage upload fails', async () => {
-      mockState.setStorageError(new Error('Storage upload failed'))
+      mockState.setStorageError('prescriptions', new Error('Storage upload failed'))
       const file = createMockFile('prescription.pdf', 'application/pdf', 1000)
       const formData = createFormData(file)
 

@@ -10,6 +10,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { NextRequest } from 'next/server'
 import { GET, POST } from '@/app/api/lab-orders/route'
 import {
   mockState,
@@ -109,18 +110,18 @@ vi.mock('@/lib/logger', () => ({
 }))
 
 // Helper to create GET request with query params
-function createGetRequest(params?: Record<string, string>): Request {
+function createGetRequest(params?: Record<string, string>): NextRequest {
   const searchParams = new URLSearchParams(params)
   const url = params
     ? `http://localhost:3000/api/lab-orders?${searchParams.toString()}`
     : 'http://localhost:3000/api/lab-orders'
 
-  return new Request(url, { method: 'GET' })
+  return new NextRequest(url, { method: 'GET' })
 }
 
 // Helper to create POST request
-function createPostRequest(body: Record<string, unknown>): Request {
-  return new Request('http://localhost:3000/api/lab-orders', {
+function createPostRequest(body: Record<string, unknown>): NextRequest {
+  return new NextRequest('http://localhost:3000/api/lab-orders', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
@@ -344,7 +345,7 @@ describe('POST /api/lab-orders', () => {
 
     it('should return 400 for invalid JSON', async () => {
       const response = await POST(
-        new Request('http://localhost:3000/api/lab-orders', {
+        new NextRequest('http://localhost:3000/api/lab-orders', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: 'invalid json',

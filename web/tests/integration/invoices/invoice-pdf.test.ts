@@ -8,6 +8,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { NextRequest } from 'next/server'
 import { GET } from '@/app/api/invoices/[id]/pdf/route'
 import {
   mockState,
@@ -35,8 +36,8 @@ vi.mock('@/components/invoices/invoice-pdf', () => ({
 }))
 
 // Helper to create GET request
-function createRequest(invoiceId: string = INVOICES.DRAFT.id): Request {
-  return new Request(`http://localhost:3000/api/invoices/${invoiceId}/pdf`, {
+function createRequest(invoiceId: string = INVOICES.DRAFT.id): NextRequest {
+  return new NextRequest(`http://localhost:3000/api/invoices/${invoiceId}/pdf`, {
     method: 'GET',
   })
 }

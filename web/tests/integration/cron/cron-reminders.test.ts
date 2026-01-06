@@ -9,6 +9,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
+import { NextRequest } from 'next/server'
 import { GET } from '@/app/api/cron/reminders/route'
 import {
   mockState,
@@ -47,17 +48,25 @@ vi.mock('@/lib/reminders', () => ({
   ]),
 }))
 
+// Import mocked reminders functions (after mock declaration)
+// Using type assertion since vi.mock replaces the module
+import * as remindersModule from '@/lib/reminders'
+const reminders = remindersModule as unknown as {
+  sendReminderToChannels: ReturnType<typeof vi.fn>
+  buildReminderContent: ReturnType<typeof vi.fn>
+}
+
 // Store original env
 const originalEnv = process.env
 
 // Helper to create request with optional auth
-function createRequest(authHeader?: string): Request {
+function createRequest(authHeader?: string): NextRequest {
   const headers: HeadersInit = {}
   if (authHeader) {
     headers['authorization'] = authHeader
   }
 
-  return new Request('http://localhost:3000/api/cron/reminders', {
+  return new NextRequest('http://localhost:3000/api/cron/reminders', {
     method: 'GET',
     headers,
   })
@@ -258,8 +267,8 @@ describe('GET /api/cron/reminders', () => {
     })
 
     it('should send via email channel', async () => {
-      const { sendReminderToChannels } = await import('@/lib/reminders')
-      vi.mocked(sendReminderToChannels).mockResolvedValueOnce([
+      
+      vi.mocked(reminders.sendReminderToChannels).mockResolvedValueOnce([
         { channel: 'email', success: true },
       ])
 
@@ -277,8 +286,8 @@ describe('GET /api/cron/reminders', () => {
     })
 
     it('should send via WhatsApp channel', async () => {
-      const { sendReminderToChannels } = await import('@/lib/reminders')
-      vi.mocked(sendReminderToChannels).mockResolvedValueOnce([
+      
+      vi.mocked(reminders.sendReminderToChannels).mockResolvedValueOnce([
         { channel: 'whatsapp', success: true },
       ])
 
@@ -294,8 +303,8 @@ describe('GET /api/cron/reminders', () => {
     })
 
     it('should send via multiple channels', async () => {
-      const { sendReminderToChannels } = await import('@/lib/reminders')
-      vi.mocked(sendReminderToChannels).mockResolvedValueOnce([
+      
+      vi.mocked(reminders.sendReminderToChannels).mockResolvedValueOnce([
         { channel: 'email', success: true },
         { channel: 'whatsapp', success: true },
       ])
@@ -314,8 +323,8 @@ describe('GET /api/cron/reminders', () => {
     })
 
     it('should count as sent if at least one channel succeeds', async () => {
-      const { sendReminderToChannels } = await import('@/lib/reminders')
-      vi.mocked(sendReminderToChannels).mockResolvedValueOnce([
+      
+      vi.mocked(reminders.sendReminderToChannels).mockResolvedValueOnce([
         { channel: 'email', success: true },
         { channel: 'sms', success: false, error: 'SMS provider error' },
       ])
@@ -355,8 +364,8 @@ describe('GET /api/cron/reminders', () => {
     })
 
     it('should handle channel send failure', async () => {
-      const { sendReminderToChannels } = await import('@/lib/reminders')
-      vi.mocked(sendReminderToChannels).mockResolvedValueOnce([
+      
+      vi.mocked(reminders.sendReminderToChannels).mockResolvedValueOnce([
         { channel: 'email', success: false, error: 'SMTP error' },
       ])
 
@@ -373,8 +382,8 @@ describe('GET /api/cron/reminders', () => {
     })
 
     it('should track errors in response', async () => {
-      const { sendReminderToChannels } = await import('@/lib/reminders')
-      vi.mocked(sendReminderToChannels).mockResolvedValueOnce([
+      
+      vi.mocked(reminders.sendReminderToChannels).mockResolvedValueOnce([
         { channel: 'email', success: false, error: 'Invalid email address' },
       ])
 
@@ -417,8 +426,8 @@ describe('GET /api/cron/reminders', () => {
     })
 
     it('should increment attempts on failure', async () => {
-      const { sendReminderToChannels } = await import('@/lib/reminders')
-      vi.mocked(sendReminderToChannels).mockResolvedValueOnce([
+      
+      vi.mocked(reminders.sendReminderToChannels).mockResolvedValueOnce([
         { channel: 'email', success: false, error: 'Temporary failure' },
       ])
 
@@ -432,8 +441,8 @@ describe('GET /api/cron/reminders', () => {
     })
 
     it('should mark as failed after max attempts', async () => {
-      const { sendReminderToChannels } = await import('@/lib/reminders')
-      vi.mocked(sendReminderToChannels).mockResolvedValueOnce([
+      
+      vi.mocked(reminders.sendReminderToChannels).mockResolvedValueOnce([
         { channel: 'email', success: false, error: 'Permanent failure' },
       ])
 
@@ -472,7 +481,7 @@ describe('GET /api/cron/reminders', () => {
     })
 
     it('should load message templates', async () => {
-      const { buildReminderContent } = await import('@/lib/reminders')
+      
 
       mockState.setTableResult('reminders', [SAMPLE_REMINDER])
       mockState.setTableResult('message_templates', [
@@ -490,7 +499,7 @@ describe('GET /api/cron/reminders', () => {
 
       await GET(createRequest(`Bearer ${CRON_SECRETS.VALID}`))
 
-      expect(buildReminderContent).toHaveBeenCalled()
+      expect(reminders.buildReminderContent).toHaveBeenCalled()
     })
 
     it('should handle custom subject and body', async () => {
@@ -661,8 +670,8 @@ describe('GET /api/cron/reminders', () => {
     })
 
     it('should handle mixed success and failure in batch', async () => {
-      const { sendReminderToChannels } = await import('@/lib/reminders')
-      vi.mocked(sendReminderToChannels)
+      
+      vi.mocked(reminders.sendReminderToChannels)
         .mockResolvedValueOnce([{ channel: 'email', success: true }])
         .mockResolvedValueOnce([{ channel: 'email', success: false, error: 'Invalid email' }])
 

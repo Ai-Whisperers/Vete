@@ -10,6 +10,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { NextRequest } from 'next/server'
 import { GET, POST } from '@/app/api/insurance/claims/route'
 import {
   mockState,
@@ -108,7 +109,7 @@ function createGetRequest(params?: {
   search?: string
   page?: number
   limit?: number
-}): Request {
+}): NextRequest {
   const searchParams = new URLSearchParams()
   if (params?.status) searchParams.set('status', params.status)
   if (params?.pet_id) searchParams.set('pet_id', params.pet_id)
@@ -121,12 +122,12 @@ function createGetRequest(params?: {
     ? `http://localhost:3000/api/insurance/claims?${searchParams.toString()}`
     : 'http://localhost:3000/api/insurance/claims'
 
-  return new Request(url, { method: 'GET' })
+  return new NextRequest(url, { method: 'GET' })
 }
 
 // Helper to create POST request
-function createPostRequest(body: Record<string, unknown>): Request {
-  return new Request('http://localhost:3000/api/insurance/claims', {
+function createPostRequest(body: Record<string, unknown>): NextRequest {
+  return new NextRequest('http://localhost:3000/api/insurance/claims', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
@@ -630,7 +631,7 @@ describe('POST /api/insurance/claims', () => {
       const { rateLimit } = await import('@/lib/rate-limit')
       vi.mocked(rateLimit).mockResolvedValueOnce({
         success: false,
-        response: new Response(JSON.stringify({ error: 'RATE_LIMITED' }), { status: 429 }),
+        response: NextResponse.json({ error: 'RATE_LIMITED' }, { status: 429 }),
       })
 
       const response = await POST(createPostRequest({

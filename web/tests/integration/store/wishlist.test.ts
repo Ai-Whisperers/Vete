@@ -12,6 +12,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { NextRequest } from 'next/server'
 import { GET, POST, DELETE } from '@/app/api/store/wishlist/route'
 import {
   mockState,
@@ -56,15 +57,15 @@ vi.mock('@/lib/logger', () => ({
 }))
 
 // Helper to create GET request
-function createGetRequest(): Request {
-  return new Request('http://localhost:3000/api/store/wishlist', {
+function createGetRequest(): NextRequest {
+  return new NextRequest('http://localhost:3000/api/store/wishlist', {
     method: 'GET',
   })
 }
 
 // Helper to create POST request
-function createPostRequest(body: { productId?: string }): Request {
-  return new Request('http://localhost:3000/api/store/wishlist', {
+function createPostRequest(body: { productId?: string }): NextRequest {
+  return new NextRequest('http://localhost:3000/api/store/wishlist', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
@@ -72,11 +73,11 @@ function createPostRequest(body: { productId?: string }): Request {
 }
 
 // Helper to create DELETE request
-function createDeleteRequest(productId?: string): Request {
+function createDeleteRequest(productId?: string): NextRequest {
   const params = new URLSearchParams()
   if (productId) params.set('productId', productId)
 
-  return new Request(`http://localhost:3000/api/store/wishlist?${params.toString()}`, {
+  return new NextRequest(`http://localhost:3000/api/store/wishlist?${params.toString()}`, {
     method: 'DELETE',
   })
 }
@@ -154,7 +155,7 @@ describe('GET /api/store/wishlist', () => {
     it('should return empty wishlist when user has no profile', async () => {
       mockState.setAuthScenario('OWNER')
       // Override profile to null
-      mockState.profile = null
+      mockState.setProfile(null)
 
       const response = await GET()
 
@@ -279,7 +280,7 @@ describe('POST /api/store/wishlist', () => {
   describe('Profile Handling', () => {
     it('should return 404 when user has no profile', async () => {
       mockState.setAuthScenario('OWNER')
-      mockState.profile = null
+      mockState.setProfile(null)
 
       const response = await POST(createPostRequest({ productId: PRODUCTS.DOG_FOOD.id }))
 

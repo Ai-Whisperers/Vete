@@ -9,6 +9,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { NextRequest } from 'next/server'
 import { GET } from '@/app/api/inventory/barcode-lookup/route'
 import {
   mockState,
@@ -85,12 +86,12 @@ vi.mock('@/lib/logger', () => ({
 }))
 
 // Helper to create request with query params
-function createRequest(barcode?: string, clinic?: string): Request {
+function createRequest(barcode?: string, clinic?: string): NextRequest {
   const params = new URLSearchParams()
   if (barcode) params.set('barcode', barcode)
   if (clinic) params.set('clinic', clinic)
 
-  return new Request(`http://localhost:3000/api/inventory/barcode-lookup?${params.toString()}`, {
+  return new NextRequest(`http://localhost:3000/api/inventory/barcode-lookup?${params.toString()}`, {
     method: 'GET',
   })
 }

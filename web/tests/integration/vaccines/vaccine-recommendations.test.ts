@@ -12,6 +12,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { NextRequest } from 'next/server'
 import { GET } from '@/app/api/vaccines/recommendations/route'
 import {
   mockState,
@@ -75,9 +76,9 @@ vi.mock('@/lib/logger', () => ({
 }))
 
 // Helper to create GET request
-function createRequest(params: Record<string, string> = {}): Request {
+function createRequest(params: Record<string, string> = {}): NextRequest {
   const searchParams = new URLSearchParams(params)
-  return new Request(`http://localhost:3000/api/vaccines/recommendations?${searchParams}`, {
+  return new NextRequest(`http://localhost:3000/api/vaccines/recommendations?${searchParams}`, {
     method: 'GET',
   })
 }

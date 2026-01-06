@@ -25,6 +25,7 @@
 
 // IMPORTANT: Unmock @supabase/supabase-js to use real client for integration tests
 import { vi, describe, it, expect, beforeAll, beforeEach, afterAll, afterEach } from 'vitest'
+import { NextRequest } from 'next/server'
 vi.unmock('@supabase/supabase-js')
 
 import { SupabaseClient } from '@supabase/supabase-js'
@@ -143,16 +144,16 @@ function createContext(id: string) {
   return { params: Promise.resolve({ id }) }
 }
 
-function createGetRequest(id: string): [Request, { params: Promise<{ id: string }> }] {
-  return [new Request(`http://localhost:3000/api/lab-orders/${id}`), createContext(id)]
+function createGetRequest(id: string): [NextRequest, { params: Promise<{ id: string }> }] {
+  return [new NextRequest(`http://localhost:3000/api/lab-orders/${id}`), createContext(id)]
 }
 
 function createPatchRequest(
   id: string,
   body: Record<string, unknown>
-): [Request, { params: Promise<{ id: string }> }] {
+): [NextRequest, { params: Promise<{ id: string }> }] {
   return [
-    new Request(`http://localhost:3000/api/lab-orders/${id}`, {
+    new NextRequest(`http://localhost:3000/api/lab-orders/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
@@ -161,9 +162,9 @@ function createPatchRequest(
   ]
 }
 
-function createDeleteRequest(id: string): [Request, { params: Promise<{ id: string }> }] {
+function createDeleteRequest(id: string): [NextRequest, { params: Promise<{ id: string }> }] {
   return [
-    new Request(`http://localhost:3000/api/lab-orders/${id}`, { method: 'DELETE' }),
+    new NextRequest(`http://localhost:3000/api/lab-orders/${id}`, { method: 'DELETE' }),
     createContext(id),
   ]
 }
@@ -171,9 +172,9 @@ function createDeleteRequest(id: string): [Request, { params: Promise<{ id: stri
 function createResultsRequest(
   id: string,
   body: Record<string, unknown>
-): [Request, { params: Promise<{ id: string }> }] {
+): [NextRequest, { params: Promise<{ id: string }> }] {
   return [
-    new Request(`http://localhost:3000/api/lab-orders/${id}/results`, {
+    new NextRequest(`http://localhost:3000/api/lab-orders/${id}/results`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
@@ -555,7 +556,7 @@ describe('PATCH /api/lab-orders/[id]', () => {
 
       const labOrder = await createTestLabOrder(adminClient, testPet.id, vetProfile.id)
 
-      const request = new Request(`http://localhost:3000/api/lab-orders/${labOrder.id}`, {
+      const request = new NextRequest(`http://localhost:3000/api/lab-orders/${labOrder.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: 'invalid json',
@@ -776,7 +777,7 @@ describe('POST /api/lab-orders/[id]/results', () => {
 
       const labOrder = await createTestLabOrder(adminClient, testPet.id, vetProfile.id)
 
-      const request = new Request(`http://localhost:3000/api/lab-orders/${labOrder.id}/results`, {
+      const request = new NextRequest(`http://localhost:3000/api/lab-orders/${labOrder.id}/results`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: 'invalid json',

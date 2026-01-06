@@ -10,6 +10,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { NextRequest } from 'next/server'
 import { POST as CheckInPOST } from '@/app/api/appointments/[id]/check-in/route'
 import { POST as CompletePOST } from '@/app/api/appointments/[id]/complete/route'
 import {
@@ -107,8 +108,8 @@ vi.mock('@/lib/logger', () => ({
 }))
 
 // Helper to create POST request
-function createRequest(body?: Record<string, unknown>): Request {
-  return new Request('http://localhost:3000/api/appointments/appointment-id/complete', {
+function createRequest(body?: Record<string, unknown>): NextRequest {
+  return new NextRequest('http://localhost:3000/api/appointments/appointment-id/complete', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: body ? JSON.stringify(body) : undefined,
@@ -364,7 +365,7 @@ describe('POST /api/appointments/[id]/complete', () => {
       })
 
       const response = await CompletePOST(
-        new Request('http://localhost:3000/api/appointments/id/complete', {
+        new NextRequest('http://localhost:3000/api/appointments/id/complete', {
           method: 'POST',
         }),
         createParams(APPOINTMENTS.CHECKED_IN.id)

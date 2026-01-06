@@ -14,6 +14,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { NextRequest } from 'next/server'
 import { POST } from '@/app/api/store/checkout/route'
 import {
   mockState,
@@ -90,8 +91,8 @@ vi.mock('@/lib/audit', () => ({
 }))
 
 // Helper to create POST request
-function createRequest(body: Record<string, unknown>): Request {
-  return new Request('http://localhost:3000/api/store/checkout', {
+function createRequest(body: Record<string, unknown>): NextRequest {
+  return new NextRequest('http://localhost:3000/api/store/checkout', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
@@ -209,7 +210,7 @@ describe('POST /api/store/checkout', () => {
 
     it('should return 400 for invalid JSON', async () => {
       const response = await POST(
-        new Request('http://localhost:3000/api/store/checkout', {
+        new NextRequest('http://localhost:3000/api/store/checkout', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: 'invalid json',

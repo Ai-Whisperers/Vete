@@ -11,6 +11,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { NextRequest } from 'next/server'
 import { GET, POST } from '@/app/api/conversations/route'
 import {
   mockState,
@@ -96,7 +97,7 @@ function createGetRequest(params?: {
   status?: string
   page?: number
   limit?: number
-}): Request {
+}): NextRequest {
   const searchParams = new URLSearchParams()
   if (params?.status) searchParams.set('status', params.status)
   if (params?.page) searchParams.set('page', String(params.page))
@@ -106,12 +107,12 @@ function createGetRequest(params?: {
     ? `http://localhost:3000/api/conversations?${searchParams.toString()}`
     : 'http://localhost:3000/api/conversations'
 
-  return new Request(url, { method: 'GET' })
+  return new NextRequest(url, { method: 'GET' })
 }
 
 // Helper to create POST request
-function createPostRequest(body: Record<string, unknown>): Request {
-  return new Request('http://localhost:3000/api/conversations', {
+function createPostRequest(body: Record<string, unknown>): NextRequest {
+  return new NextRequest('http://localhost:3000/api/conversations', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),

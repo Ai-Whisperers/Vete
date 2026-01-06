@@ -8,6 +8,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { NextRequest } from 'next/server'
 import { POST } from '@/app/api/invoices/[id]/send/route'
 import {
   mockState,
@@ -29,8 +30,8 @@ vi.mock('@/lib/audit', () => ({
 }))
 
 // Helper to create request
-function createRequest(): Request {
-  return new Request('http://localhost:3000/api/invoices/invoice-draft/send', {
+function createRequest(): NextRequest {
+  return new NextRequest('http://localhost:3000/api/invoices/invoice-draft/send', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

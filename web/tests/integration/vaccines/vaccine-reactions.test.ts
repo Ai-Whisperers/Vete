@@ -13,6 +13,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { NextRequest } from 'next/server'
 import { GET, POST, PUT, DELETE } from '@/app/api/vaccine_reactions/route'
 import {
   mockState,
@@ -21,6 +22,9 @@ import {
   PETS,
   resetAllMocks,
   createStatefulSupabaseMock,
+  getAuthMock,
+  createNextRequest,
+  createJsonRequest,
 } from '@/lib/test-utils'
 
 // Mock Supabase client
@@ -28,37 +32,8 @@ vi.mock('@/lib/supabase/server', () => ({
   createClient: vi.fn(() => Promise.resolve(createStatefulSupabaseMock())),
 }))
 
-// Mock auth wrapper
-vi.mock('@/lib/auth', () => ({
-  withApiAuth: (handler: any, options?: { roles?: string[] }) => {
-    return async (request: Request) => {
-      const { mockState, createStatefulSupabaseMock } = await import('@/lib/test-utils')
-
-      if (!mockState.user) {
-        const { apiError, HTTP_STATUS } = await import('@/lib/api/errors')
-        return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED)
-      }
-
-      if (!mockState.profile) {
-        const { apiError, HTTP_STATUS } = await import('@/lib/api/errors')
-        return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN)
-      }
-
-      if (options?.roles && !options.roles.includes(mockState.profile.role)) {
-        const { apiError, HTTP_STATUS } = await import('@/lib/api/errors')
-        return apiError('INSUFFICIENT_ROLE', HTTP_STATUS.FORBIDDEN)
-      }
-
-      const supabase = createStatefulSupabaseMock()
-      return handler({
-        request,
-        user: mockState.user,
-        profile: mockState.profile,
-        supabase,
-      })
-    }
-  },
-}))
+// Mock auth wrapper using centralized mock
+vi.mock('@/lib/auth', () => getAuthMock())
 
 // Mock API error helpers
 vi.mock('@/lib/api/errors', () => ({
@@ -88,42 +63,28 @@ vi.mock('@/lib/logger', () => ({
 }))
 
 // Helper to create GET request
-function createGetRequest(petId?: string): Request {
-  const params = new URLSearchParams()
-  if (petId) params.set('pet_id', petId)
-
-  const url = params.toString()
-    ? `http://localhost:3000/api/vaccine_reactions?${params.toString()}`
-    : 'http://localhost:3000/api/vaccine_reactions'
-
-  return new Request(url, { method: 'GET' })
+function createGetReq(petId?: string): NextRequest {
+  const params: Record<string, string> = {}
+  if (petId) params.pet_id = petId
+  return createNextRequest('/api/vaccine_reactions', {
+    method: 'GET',
+    searchParams: params,
+  })
 }
 
 // Helper to create POST request
-function createPostRequest(body: Record<string, unknown>): Request {
-  return new Request('http://localhost:3000/api/vaccine_reactions', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  })
+function createPostReq(body: Record<string, unknown>): NextRequest {
+  return createJsonRequest('/api/vaccine_reactions', body, { method: 'POST' })
 }
 
 // Helper to create PUT request
-function createPutRequest(body: Record<string, unknown>): Request {
-  return new Request('http://localhost:3000/api/vaccine_reactions', {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  })
+function createPutReq(body: Record<string, unknown>): NextRequest {
+  return createJsonRequest('/api/vaccine_reactions', body, { method: 'PUT' })
 }
 
 // Helper to create DELETE request
-function createDeleteRequest(body: { id?: string }): Request {
-  return new Request('http://localhost:3000/api/vaccine_reactions', {
-    method: 'DELETE',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  })
+function createDeleteReq(body: { id?: string }): NextRequest {
+  return createJsonRequest('/api/vaccine_reactions', body, { method: 'DELETE' })
 }
 
 // Sample vaccine reaction
@@ -178,7 +139,7 @@ describe('GET /api/vaccine_reactions', () => {
     it('should return 401 when unauthenticated', async () => {
       mockState.setAuthScenario('UNAUTHENTICATED')
 
-      const response = await GET(createGetRequest())
+      const response = await GET(createGetReq())
 
       expect(response.status).toBe(401)
     })
@@ -187,7 +148,7 @@ describe('GET /api/vaccine_reactions', () => {
       mockState.setAuthScenario('OWNER')
       mockState.setTableResult('vaccine_reactions', [], 'select')
 
-      const response = await GET(createGetRequest())
+      const response = await GET(createGetReq())
 
       expect(response.status).toBe(200)
     })
@@ -196,7 +157,7 @@ describe('GET /api/vaccine_reactions', () => {
       mockState.setAuthScenario('VET')
       mockState.setTableResult('vaccine_reactions', [], 'select')
 
-      const response = await GET(createGetRequest())
+      const response = await GET(createGetReq())
 
       expect(response.status).toBe(200)
     })
@@ -205,7 +166,7 @@ describe('GET /api/vaccine_reactions', () => {
       mockState.setAuthScenario('ADMIN')
       mockState.setTableResult('vaccine_reactions', [], 'select')
 
-      const response = await GET(createGetRequest())
+      const response = await GET(createGetReq())
 
       expect(response.status).toBe(200)
     })
@@ -216,7 +177,7 @@ describe('GET /api/vaccine_reactions', () => {
       mockState.setAuthScenario('OWNER')
       mockState.setTableResult('vaccine_reactions', [SAMPLE_REACTION], 'select')
 
-      const response = await GET(createGetRequest())
+      const response = await GET(createGetReq())
 
       expect(response.status).toBe(200)
       const body = await response.json()
@@ -227,7 +188,7 @@ describe('GET /api/vaccine_reactions', () => {
       mockState.setAuthScenario('VET')
       mockState.setTableResult('vaccine_reactions', [SAMPLE_REACTION], 'select')
 
-      const response = await GET(createGetRequest())
+      const response = await GET(createGetReq())
 
       expect(response.status).toBe(200)
     })
@@ -241,7 +202,7 @@ describe('GET /api/vaccine_reactions', () => {
     it('should filter by pet_id', async () => {
       mockState.setTableResult('vaccine_reactions', [SAMPLE_REACTION], 'select')
 
-      const response = await GET(createGetRequest(PETS.MAX.id))
+      const response = await GET(createGetReq(PETS.MAX.id))
 
       expect(response.status).toBe(200)
     })
@@ -252,7 +213,7 @@ describe('GET /api/vaccine_reactions', () => {
         SAMPLE_SEVERE_REACTION,
       ], 'select')
 
-      const response = await GET(createGetRequest())
+      const response = await GET(createGetReq())
 
       expect(response.status).toBe(200)
       const body = await response.json()
@@ -268,7 +229,7 @@ describe('GET /api/vaccine_reactions', () => {
     it('should return array of reactions', async () => {
       mockState.setTableResult('vaccine_reactions', [SAMPLE_REACTION], 'select')
 
-      const response = await GET(createGetRequest())
+      const response = await GET(createGetReq())
 
       expect(response.status).toBe(200)
       const body = await response.json()
@@ -278,7 +239,7 @@ describe('GET /api/vaccine_reactions', () => {
     it('should include pet details', async () => {
       mockState.setTableResult('vaccine_reactions', [SAMPLE_REACTION], 'select')
 
-      const response = await GET(createGetRequest())
+      const response = await GET(createGetReq())
 
       expect(response.status).toBe(200)
       const body = await response.json()
@@ -289,7 +250,7 @@ describe('GET /api/vaccine_reactions', () => {
     it('should include vaccine details', async () => {
       mockState.setTableResult('vaccine_reactions', [SAMPLE_REACTION], 'select')
 
-      const response = await GET(createGetRequest())
+      const response = await GET(createGetReq())
 
       expect(response.status).toBe(200)
       const body = await response.json()
@@ -299,7 +260,7 @@ describe('GET /api/vaccine_reactions', () => {
     it('should return empty array when no reactions', async () => {
       mockState.setTableResult('vaccine_reactions', [], 'select')
 
-      const response = await GET(createGetRequest())
+      const response = await GET(createGetReq())
 
       expect(response.status).toBe(200)
       const body = await response.json()
@@ -315,7 +276,7 @@ describe('GET /api/vaccine_reactions', () => {
     it('should return 500 on database error', async () => {
       mockState.setTableError('vaccine_reactions', new Error('Database error'))
 
-      const response = await GET(createGetRequest())
+      const response = await GET(createGetReq())
 
       expect(response.status).toBe(500)
       const body = await response.json()
@@ -338,7 +299,7 @@ describe('POST /api/vaccine_reactions', () => {
     it('should return 401 when unauthenticated', async () => {
       mockState.setAuthScenario('UNAUTHENTICATED')
 
-      const response = await POST(createPostRequest({
+      const response = await POST(createPostReq({
         pet_id: PETS.MAX.id,
         reaction_type: 'swelling',
       }))
@@ -351,7 +312,7 @@ describe('POST /api/vaccine_reactions', () => {
       mockState.setTableResult('pets', SAMPLE_PET, 'select')
       mockState.setTableResult('vaccine_reactions', { id: 'reaction-new' }, 'insert')
 
-      const response = await POST(createPostRequest({
+      const response = await POST(createPostReq({
         pet_id: PETS.MAX.id,
         reaction_type: 'swelling',
       }))
@@ -364,7 +325,7 @@ describe('POST /api/vaccine_reactions', () => {
       mockState.setTableResult('pets', SAMPLE_PET, 'select')
       mockState.setTableResult('vaccine_reactions', { id: 'reaction-new' }, 'insert')
 
-      const response = await POST(createPostRequest({
+      const response = await POST(createPostReq({
         pet_id: PETS.MAX.id,
         reaction_type: 'swelling',
       }))
@@ -379,7 +340,7 @@ describe('POST /api/vaccine_reactions', () => {
     })
 
     it('should return 400 when pet_id is missing', async () => {
-      const response = await POST(createPostRequest({
+      const response = await POST(createPostReq({
         reaction_type: 'swelling',
       }))
 
@@ -389,7 +350,7 @@ describe('POST /api/vaccine_reactions', () => {
     })
 
     it('should return 400 when reaction_type is missing', async () => {
-      const response = await POST(createPostRequest({
+      const response = await POST(createPostReq({
         pet_id: PETS.MAX.id,
       }))
 
@@ -399,7 +360,7 @@ describe('POST /api/vaccine_reactions', () => {
     })
 
     it('should return 400 for invalid JSON body', async () => {
-      const response = await POST(new Request('http://localhost:3000/api/vaccine_reactions', {
+      const response = await POST(new NextRequest('http://localhost:3000/api/vaccine_reactions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: 'invalid json',
@@ -417,7 +378,7 @@ describe('POST /api/vaccine_reactions', () => {
     it('should return 404 when pet not found', async () => {
       mockState.setTableResult('pets', null, 'select')
 
-      const response = await POST(createPostRequest({
+      const response = await POST(createPostReq({
         pet_id: 'non-existent-pet',
         reaction_type: 'swelling',
       }))
@@ -433,7 +394,7 @@ describe('POST /api/vaccine_reactions', () => {
         owner_id: 'different-owner-id',
       }, 'select')
 
-      const response = await POST(createPostRequest({
+      const response = await POST(createPostReq({
         pet_id: PETS.MAX.id,
         reaction_type: 'swelling',
       }))
@@ -448,7 +409,7 @@ describe('POST /api/vaccine_reactions', () => {
         tenant_id: TENANTS.PETLIFE.id,
       }, 'select')
 
-      const response = await POST(createPostRequest({
+      const response = await POST(createPostReq({
         pet_id: PETS.MAX.id,
         reaction_type: 'swelling',
       }))
@@ -466,7 +427,7 @@ describe('POST /api/vaccine_reactions', () => {
     it('should create reaction with required fields', async () => {
       mockState.setTableResult('vaccine_reactions', { id: 'reaction-new' }, 'insert')
 
-      const response = await POST(createPostRequest({
+      const response = await POST(createPostReq({
         pet_id: PETS.MAX.id,
         reaction_type: 'swelling',
       }))
@@ -477,7 +438,7 @@ describe('POST /api/vaccine_reactions', () => {
     it('should create reaction with all fields', async () => {
       mockState.setTableResult('vaccine_reactions', SAMPLE_REACTION, 'insert')
 
-      const response = await POST(createPostRequest({
+      const response = await POST(createPostReq({
         pet_id: PETS.MAX.id,
         vaccine_id: 'vaccine-001',
         reaction_type: 'swelling',
@@ -495,7 +456,7 @@ describe('POST /api/vaccine_reactions', () => {
         severity: 'mild',
       }, 'insert')
 
-      const response = await POST(createPostRequest({
+      const response = await POST(createPostReq({
         pet_id: PETS.MAX.id,
         reaction_type: 'swelling',
       }))
@@ -513,7 +474,7 @@ describe('POST /api/vaccine_reactions', () => {
     it('should return 500 on database error', async () => {
       mockState.setTableError('vaccine_reactions', new Error('Database error'))
 
-      const response = await POST(createPostRequest({
+      const response = await POST(createPostReq({
         pet_id: PETS.MAX.id,
         reaction_type: 'swelling',
       }))
@@ -539,7 +500,7 @@ describe('PUT /api/vaccine_reactions', () => {
     it('should return 401 when unauthenticated', async () => {
       mockState.setAuthScenario('UNAUTHENTICATED')
 
-      const response = await PUT(createPutRequest({
+      const response = await PUT(createPutReq({
         id: 'reaction-001',
         severity: 'moderate',
       }))
@@ -554,7 +515,7 @@ describe('PUT /api/vaccine_reactions', () => {
     })
 
     it('should return 400 when id is missing', async () => {
-      const response = await PUT(createPutRequest({
+      const response = await PUT(createPutReq({
         severity: 'moderate',
       }))
 
@@ -564,7 +525,7 @@ describe('PUT /api/vaccine_reactions', () => {
     })
 
     it('should return 400 for invalid JSON body', async () => {
-      const response = await PUT(new Request('http://localhost:3000/api/vaccine_reactions', {
+      const response = await PUT(new NextRequest('http://localhost:3000/api/vaccine_reactions', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: 'invalid json',
@@ -582,7 +543,7 @@ describe('PUT /api/vaccine_reactions', () => {
     it('should return 404 when reaction not found', async () => {
       mockState.setTableResult('vaccine_reactions', null, 'select')
 
-      const response = await PUT(createPutRequest({
+      const response = await PUT(createPutReq({
         id: 'non-existent-reaction',
         severity: 'moderate',
       }))
@@ -598,7 +559,7 @@ describe('PUT /api/vaccine_reactions', () => {
         pet: { owner_id: 'different-owner-id', tenant_id: TENANTS.ADRIS.id },
       }, 'select')
 
-      const response = await PUT(createPutRequest({
+      const response = await PUT(createPutReq({
         id: 'reaction-001',
         severity: 'moderate',
       }))
@@ -622,7 +583,7 @@ describe('PUT /api/vaccine_reactions', () => {
         severity: 'moderate',
       }, 'update')
 
-      const response = await PUT(createPutRequest({
+      const response = await PUT(createPutReq({
         id: 'reaction-001',
         severity: 'moderate',
         description: 'Actualización',
@@ -639,7 +600,7 @@ describe('PUT /api/vaccine_reactions', () => {
       }, 'select')
       mockState.setTableResult('vaccine_reactions', SAMPLE_REACTION, 'update')
 
-      const response = await PUT(createPutRequest({
+      const response = await PUT(createPutReq({
         id: 'reaction-001',
         severity: 'severe',
       }))
@@ -660,7 +621,7 @@ describe('PUT /api/vaccine_reactions', () => {
       }, 'select')
       mockState.setTableError('vaccine_reactions', new Error('Database error'))
 
-      const response = await PUT(createPutRequest({
+      const response = await PUT(createPutReq({
         id: 'reaction-001',
         severity: 'moderate',
       }))
@@ -686,7 +647,7 @@ describe('DELETE /api/vaccine_reactions', () => {
     it('should return 401 when unauthenticated', async () => {
       mockState.setAuthScenario('UNAUTHENTICATED')
 
-      const response = await DELETE(createDeleteRequest({ id: 'reaction-001' }))
+      const response = await DELETE(createDeleteReq({ id: 'reaction-001' }))
 
       expect(response.status).toBe(401)
     })
@@ -694,7 +655,7 @@ describe('DELETE /api/vaccine_reactions', () => {
     it('should return 403 when owner tries to delete', async () => {
       mockState.setAuthScenario('OWNER')
 
-      const response = await DELETE(createDeleteRequest({ id: 'reaction-001' }))
+      const response = await DELETE(createDeleteReq({ id: 'reaction-001' }))
 
       expect(response.status).toBe(403)
     })
@@ -707,7 +668,7 @@ describe('DELETE /api/vaccine_reactions', () => {
       }, 'select')
       mockState.setTableResult('vaccine_reactions', { count: 1 }, 'delete')
 
-      const response = await DELETE(createDeleteRequest({ id: 'reaction-001' }))
+      const response = await DELETE(createDeleteReq({ id: 'reaction-001' }))
 
       expect(response.status).toBe(204)
     })
@@ -720,7 +681,7 @@ describe('DELETE /api/vaccine_reactions', () => {
       }, 'select')
       mockState.setTableResult('vaccine_reactions', { count: 1 }, 'delete')
 
-      const response = await DELETE(createDeleteRequest({ id: 'reaction-001' }))
+      const response = await DELETE(createDeleteReq({ id: 'reaction-001' }))
 
       expect(response.status).toBe(204)
     })
@@ -732,7 +693,7 @@ describe('DELETE /api/vaccine_reactions', () => {
     })
 
     it('should return 400 when id is missing', async () => {
-      const response = await DELETE(createDeleteRequest({}))
+      const response = await DELETE(createDeleteReq({}))
 
       expect(response.status).toBe(400)
       const body = await response.json()
@@ -740,7 +701,7 @@ describe('DELETE /api/vaccine_reactions', () => {
     })
 
     it('should return 400 for invalid JSON body', async () => {
-      const response = await DELETE(new Request('http://localhost:3000/api/vaccine_reactions', {
+      const response = await DELETE(new NextRequest('http://localhost:3000/api/vaccine_reactions', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: 'invalid json',
@@ -758,7 +719,7 @@ describe('DELETE /api/vaccine_reactions', () => {
     it('should return 404 when reaction not found', async () => {
       mockState.setTableResult('vaccine_reactions', null, 'select')
 
-      const response = await DELETE(createDeleteRequest({ id: 'non-existent' }))
+      const response = await DELETE(createDeleteReq({ id: 'non-existent' }))
 
       expect(response.status).toBe(404)
       const body = await response.json()
@@ -771,7 +732,7 @@ describe('DELETE /api/vaccine_reactions', () => {
         pet: { tenant_id: TENANTS.PETLIFE.id },
       }, 'select')
 
-      const response = await DELETE(createDeleteRequest({ id: 'reaction-001' }))
+      const response = await DELETE(createDeleteReq({ id: 'reaction-001' }))
 
       expect(response.status).toBe(403)
     })
@@ -789,7 +750,7 @@ describe('DELETE /api/vaccine_reactions', () => {
       }, 'select')
       mockState.setTableResult('vaccine_reactions', { count: 1 }, 'delete')
 
-      const response = await DELETE(createDeleteRequest({ id: 'reaction-001' }))
+      const response = await DELETE(createDeleteReq({ id: 'reaction-001' }))
 
       expect(response.status).toBe(204)
     })
@@ -807,7 +768,7 @@ describe('DELETE /api/vaccine_reactions', () => {
       }, 'select')
       mockState.setTableError('vaccine_reactions', new Error('Database error'))
 
-      const response = await DELETE(createDeleteRequest({ id: 'reaction-001' }))
+      const response = await DELETE(createDeleteReq({ id: 'reaction-001' }))
 
       expect(response.status).toBe(500)
       const body = await response.json()
@@ -832,7 +793,7 @@ describe('Vaccine Reactions Integration', () => {
     mockState.setTableResult('pets', SAMPLE_PET, 'select')
     mockState.setTableResult('vaccine_reactions', { id: 'reaction-new' }, 'insert')
 
-    const createResponse = await POST(createPostRequest({
+    const createResponse = await POST(createPostReq({
       pet_id: PETS.MAX.id,
       vaccine_id: 'vaccine-001',
       reaction_type: 'swelling',
@@ -842,7 +803,7 @@ describe('Vaccine Reactions Integration', () => {
 
     // Owner views reactions
     mockState.setTableResult('vaccine_reactions', [SAMPLE_REACTION], 'select')
-    const listResponse = await GET(createGetRequest(PETS.MAX.id))
+    const listResponse = await GET(createGetReq(PETS.MAX.id))
     expect(listResponse.status).toBe(200)
 
     // Vet updates severity after examination
@@ -856,7 +817,7 @@ describe('Vaccine Reactions Integration', () => {
       severity: 'moderate',
     }, 'update')
 
-    const updateResponse = await PUT(createPutRequest({
+    const updateResponse = await PUT(createPutReq({
       id: 'reaction-001',
       severity: 'moderate',
       description: 'Actualizado tras examen',
@@ -869,7 +830,7 @@ describe('Vaccine Reactions Integration', () => {
     mockState.setTableResult('pets', SAMPLE_PET, 'select')
     mockState.setTableResult('vaccine_reactions', SAMPLE_SEVERE_REACTION, 'insert')
 
-    const response = await POST(createPostRequest({
+    const response = await POST(createPostReq({
       pet_id: PETS.MAX.id,
       vaccine_id: 'vaccine-001',
       reaction_type: 'anaphylaxis',
@@ -887,7 +848,7 @@ describe('Vaccine Reactions Integration', () => {
     // List reactions to check contraindications
     mockState.setTableResult('vaccine_reactions', [SAMPLE_SEVERE_REACTION], 'select')
 
-    const response = await GET(createGetRequest(PETS.MAX.id))
+    const response = await GET(createGetReq(PETS.MAX.id))
 
     expect(response.status).toBe(200)
     const reactions = await response.json()

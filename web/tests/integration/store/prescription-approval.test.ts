@@ -149,7 +149,7 @@ function createRequest(
   body?: Record<string, unknown>
 ): NextRequest {
   const url = `http://localhost:3000/api/store/orders/${TEST_ORDER_ID}/prescription`
-  const init: RequestInit = {
+  const init: { method: string; headers: Record<string, string>; body?: string } = {
     method,
     headers: { 'Content-Type': 'application/json' },
   }

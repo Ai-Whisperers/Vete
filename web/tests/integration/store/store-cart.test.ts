@@ -12,6 +12,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { NextRequest } from 'next/server'
 import { GET, PUT, DELETE, POST } from '@/app/api/store/cart/route'
 import {
   mockState,
@@ -52,28 +53,28 @@ vi.mock('@/lib/api/errors', () => ({
 }))
 
 // Helper to create requests
-function createGetRequest(): Request {
-  return new Request('http://localhost:3000/api/store/cart', {
+function createGetRequest(): NextRequest {
+  return new NextRequest('http://localhost:3000/api/store/cart', {
     method: 'GET',
   })
 }
 
-function createPutRequest(body: Record<string, unknown>): Request {
-  return new Request('http://localhost:3000/api/store/cart', {
+function createPutRequest(body: Record<string, unknown>): NextRequest {
+  return new NextRequest('http://localhost:3000/api/store/cart', {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   })
 }
 
-function createDeleteRequest(): Request {
-  return new Request('http://localhost:3000/api/store/cart', {
+function createDeleteRequest(): NextRequest {
+  return new NextRequest('http://localhost:3000/api/store/cart', {
     method: 'DELETE',
   })
 }
 
-function createPostRequest(body: Record<string, unknown>): Request {
-  return new Request('http://localhost:3000/api/store/cart', {
+function createPostRequest(body: Record<string, unknown>): NextRequest {
+  return new NextRequest('http://localhost:3000/api/store/cart', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),

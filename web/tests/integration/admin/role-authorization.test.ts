@@ -110,7 +110,7 @@ const createMockSupabase = () => ({
 
 // Mock the Supabase server module
 vi.mock('@/lib/supabase/server', () => ({
-  createClient: vi.fn().mockImplementation(() => Promise.resolve(createMockSupabase())),
+  createClient: vi.fn().mockImplementation(() => Promise.resolve(createMockSupabase() as any)),
 }))
 
 describe('Admin Role Authorization', () => {
@@ -199,7 +199,7 @@ describe('Admin Role Authorization', () => {
         })
 
         vi.mocked(await import('@/lib/supabase/server')).createClient.mockResolvedValue(
-          mockSupabase as unknown as ReturnType<typeof createMockSupabase>
+          mockSupabase as any
         )
 
         const request = createGetRequest()
@@ -230,7 +230,7 @@ describe('Admin Role Authorization', () => {
         // Mock product fetch
         const mockSupabase = createMockSupabase()
         vi.mocked(await import('@/lib/supabase/server')).createClient.mockResolvedValue(
-          mockSupabase as unknown as ReturnType<typeof createMockSupabase>
+          mockSupabase as any
         )
 
         mockSupabase.from = vi.fn().mockImplementation((table: string) => {
@@ -278,7 +278,7 @@ describe('Admin Role Authorization', () => {
 
         const mockSupabase = createMockSupabase()
         vi.mocked(await import('@/lib/supabase/server')).createClient.mockResolvedValue(
-          mockSupabase as unknown as ReturnType<typeof createMockSupabase>
+          mockSupabase as any
         )
 
         mockSupabase.from = vi.fn().mockImplementation((table: string) => {
@@ -363,7 +363,7 @@ describe('Admin Role Authorization', () => {
         })
 
         vi.mocked(await import('@/lib/supabase/server')).createClient.mockResolvedValue(
-          mockSupabase as unknown as ReturnType<typeof createMockSupabase>
+          mockSupabase as any
         )
 
         const request = createPostRequest({ action: 'verify' })
@@ -384,7 +384,7 @@ describe('Admin Role Authorization', () => {
 
         const mockSupabase = createMockSupabase()
         vi.mocked(await import('@/lib/supabase/server')).createClient.mockResolvedValue(
-          mockSupabase as unknown as ReturnType<typeof createMockSupabase>
+          mockSupabase as any
         )
 
         const request = createPostRequest({ action: 'invalid_action' })
@@ -403,7 +403,7 @@ describe('Admin Role Authorization', () => {
 
         const mockSupabase = createMockSupabase()
         vi.mocked(await import('@/lib/supabase/server')).createClient.mockResolvedValue(
-          mockSupabase as unknown as ReturnType<typeof createMockSupabase>
+          mockSupabase as any
         )
 
         const request = createPostRequest({})
@@ -464,7 +464,7 @@ describe('Admin Authorization Edge Cases', () => {
       })
 
       vi.mocked(await import('@/lib/supabase/server')).createClient.mockResolvedValue(
-        mockSupabase as unknown as ReturnType<typeof createMockSupabase>
+        mockSupabase as any
       )
 
       const request = new NextRequest('http://localhost/api/admin/products/pending', {
@@ -494,7 +494,7 @@ describe('Admin Authorization Edge Cases', () => {
       })
 
       vi.mocked(await import('@/lib/supabase/server')).createClient.mockResolvedValue(
-        mockSupabase as unknown as ReturnType<typeof createMockSupabase>
+        mockSupabase as any
       )
 
       const request = new NextRequest('http://localhost/api/admin/products/pending', {
@@ -515,7 +515,7 @@ describe('Admin Authorization Edge Cases', () => {
       })
 
       vi.mocked(await import('@/lib/supabase/server')).createClient.mockResolvedValue(
-        mockSupabase as unknown as ReturnType<typeof createMockSupabase>
+        mockSupabase as any
       )
 
       const request = new NextRequest('http://localhost/api/admin/products/pending', {
@@ -534,7 +534,7 @@ describe('Admin Authorization Edge Cases', () => {
       })
 
       vi.mocked(await import('@/lib/supabase/server')).createClient.mockResolvedValue(
-        mockSupabase as unknown as ReturnType<typeof createMockSupabase>
+        mockSupabase as any
       )
 
       const request = new NextRequest('http://localhost/api/admin/products/pending', {

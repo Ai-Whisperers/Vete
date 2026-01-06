@@ -189,7 +189,7 @@ describe('Payment Duplicate Prevention', () => {
       })) as MockResponse
 
       expect(response.status).toBe(400)
-      const json = await response.json()
+      const json = await response.json() as any
       expect(json.details?.reason).toContain('excede')
     })
 
@@ -209,7 +209,7 @@ describe('Payment Duplicate Prevention', () => {
       })) as MockResponse
 
       expect(response.status).toBe(201)
-      const json = await response.json()
+      const json = await response.json() as any
       expect(json.invoice?.status).toBe('paid')
       expect(json.invoice?.amount_due).toBe(0)
     })
@@ -230,7 +230,7 @@ describe('Payment Duplicate Prevention', () => {
       })) as MockResponse
 
       expect(response.status).toBe(400)
-      const json = await response.json()
+      const json = await response.json() as any
       expect(json.details?.reason).toContain('pagada')
     })
   })
@@ -253,7 +253,7 @@ describe('Payment Duplicate Prevention', () => {
       })) as MockResponse
 
       expect(response.status).toBe(201)
-      const json = await response.json()
+      const json = await response.json() as any
       expect(json.payment?.id).toBeDefined()
     })
 
@@ -394,7 +394,7 @@ describe('Payment Duplicate Prevention', () => {
       })) as MockResponse
 
       expect(response.status).toBe(201)
-      const json = await response.json()
+      const json = await response.json() as any
       expect(json.invoice?.status).toBe('partial')
       expect(json.invoice?.amount_paid).toBe(50000)
       expect(json.invoice?.amount_due).toBe(50000)
@@ -416,7 +416,7 @@ describe('Payment Duplicate Prevention', () => {
       })) as MockResponse
 
       expect(response.status).toBe(201)
-      const json = await response.json()
+      const json = await response.json() as any
       expect(json.invoice?.status).toBe('paid')
       expect(json.invoice?.amount_paid).toBe(100000)
       expect(json.invoice?.amount_due).toBe(0)

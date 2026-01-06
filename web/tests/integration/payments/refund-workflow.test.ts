@@ -137,7 +137,7 @@ describe('Refund Workflow API', () => {
         })) as MockResponse
 
         expect(response.status).toBe(403)
-        const json = await response.json()
+        const json = await response.json() as any
         expect(json.code).toBe('FORBIDDEN')
       })
     })
@@ -154,7 +154,7 @@ describe('Refund Workflow API', () => {
         })) as MockResponse
 
         expect(response.status).toBe(400)
-        const json = await response.json()
+        const json = await response.json() as any
         expect(json.code).toBe('MISSING_FIELDS')
       })
 
@@ -181,7 +181,7 @@ describe('Refund Workflow API', () => {
         })) as MockResponse
 
         expect(response.status).toBe(400)
-        const json = await response.json()
+        const json = await response.json() as any
         expect(json.code).toBe('VALIDATION_ERROR')
       })
 
@@ -232,7 +232,7 @@ describe('Refund Workflow API', () => {
         })) as MockResponse
 
         expect(response.status).toBe(400)
-        const json = await response.json()
+        const json = await response.json() as any
         expect(json.details?.reason).toContain('positivo')
       })
     })
@@ -260,7 +260,7 @@ describe('Refund Workflow API', () => {
         })) as MockResponse
 
         expect(response.status).toBe(201)
-        const json = await response.json()
+        const json = await response.json() as any
         expect(json).toMatchObject({
           refund: { id: 'refund-789' },
           invoice: {
@@ -294,7 +294,7 @@ describe('Refund Workflow API', () => {
         })) as MockResponse
 
         expect(response.status).toBe(201)
-        const json = await response.json()
+        const json = await response.json() as any
         expect(json.invoice.status).toBe('partial')
       })
 
@@ -317,7 +317,7 @@ describe('Refund Workflow API', () => {
         })) as MockResponse
 
         expect(response.status).toBe(400)
-        const json = await response.json()
+        const json = await response.json() as any
         expect(json.details?.reason).toContain('excede')
       })
     })
@@ -339,7 +339,7 @@ describe('Refund Workflow API', () => {
         })) as MockResponse
 
         expect(response.status).toBe(500)
-        const json = await response.json()
+        const json = await response.json() as any
         expect(json.code).toBe('DATABASE_ERROR')
       })
     })

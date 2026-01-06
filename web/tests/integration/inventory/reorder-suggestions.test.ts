@@ -9,6 +9,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { NextRequest } from 'next/server'
 import { GET } from '@/app/api/inventory/reorder-suggestions/route'
 import {
   mockState,
@@ -52,7 +53,7 @@ vi.mock('@/lib/logger', () => ({
 }))
 
 // Helper to create request with query params
-function createRequest(groupBySupplier?: boolean): Request {
+function createRequest(groupBySupplier?: boolean): NextRequest {
   const params = new URLSearchParams()
   if (groupBySupplier !== undefined) {
     params.set('groupBySupplier', String(groupBySupplier))
@@ -62,7 +63,7 @@ function createRequest(groupBySupplier?: boolean): Request {
     ? `http://localhost:3000/api/inventory/reorder-suggestions?${params.toString()}`
     : 'http://localhost:3000/api/inventory/reorder-suggestions'
 
-  return new Request(url, { method: 'GET' })
+  return new NextRequest(url, { method: 'GET' })
 }
 
 // Sample inventory data with nested relations

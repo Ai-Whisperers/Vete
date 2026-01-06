@@ -97,7 +97,7 @@ export default function NewPetPage() {
       )}
 
       <div className="rounded-3xl border border-gray-100 bg-white p-8 shadow-xl">
-        <form action={formAction} className="space-y-6">
+        <form action={formAction} className="space-y-6" autoComplete="off" data-lpignore="true">
           <input type="hidden" name="clinic" value={clinic} />
 
           {/* Required fields notice */}
@@ -208,6 +208,9 @@ export default function NewPetPage() {
                   max={new Date().toISOString().split('T')[0]}
                   className={inputClass(!!fieldErrors.date_of_birth)}
                   aria-invalid={!!fieldErrors.date_of_birth}
+                  autoComplete="off"
+                  data-lpignore="true"
+                  data-form-type="other"
                 />
                 <FieldError error={fieldErrors.date_of_birth} />
                 <FieldHint>Aproximada si no la conoces exactamente</FieldHint>
@@ -408,6 +411,9 @@ export default function NewPetPage() {
                 placeholder="Ej: 985112012345678"
                 className={inputClass(!!fieldErrors.microchip_id)}
                 aria-invalid={!!fieldErrors.microchip_id}
+                autoComplete="off"
+                data-lpignore="true"
+                data-form-type="other"
               />
               <FieldError error={fieldErrors.microchip_id} />
               <FieldHint>

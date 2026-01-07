@@ -2,7 +2,7 @@
 
 ## Priority: P1 (High)
 ## Category: Security / Race Condition
-## Status: Not Started
+## Status: COMPLETED
 
 ## Description
 The lab order number generation in the POST endpoint has a race condition where two concurrent requests can generate the same order number.
@@ -84,5 +84,24 @@ const { data: lastOrder } = await supabase.rpc('get_next_lab_order_number', {
 - **Total: 3 hours**
 
 ---
-*Ticket created: January 2026*
-*Based on security/performance audit*
+## Implementation Summary (Completed)
+
+**Files Created:**
+- `db/migrations/046_atomic_order_number_sequences.sql`
+
+**Changes Made:**
+1. Created `lab_order_sequences` table for daily sequences per tenant (PRIMARY KEY: tenant_id, date)
+2. Created atomic `generate_lab_order_number(p_tenant_id)` function using INSERT ON CONFLICT for guaranteed unique numbers
+3. Added unique constraint on `lab_orders.order_number`
+4. Added RLS policy for sequence table
+5. Included data initialization from existing orders
+6. Updated `app/api/lab-orders/route.ts` to use atomic RPC call
+
+**Technical Details:**
+- Function uses INSERT ON CONFLICT DO UPDATE for atomic counter increment
+- Returns format: `LAB-YYYYMMDD-XXXX` (4-digit padded sequence)
+- Sequences reset daily per tenant
+- Old select-increment-insert pattern replaced
+
+---
+*Completed: January 2026*

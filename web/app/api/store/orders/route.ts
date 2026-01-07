@@ -372,11 +372,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       await supabase.rpc('increment_coupon_usage', { p_coupon_id: couponId })
     }
 
-    // Update product sales_count
-    for (const item of items) {
-      await supabase.rpc('increment_product_sales', {
-        p_product_id: item.product_id,
-        p_quantity: item.quantity,
+    // PERF-003: Update product sales_count in single batch operation
+    if (items.length > 0) {
+      await supabase.rpc('increment_product_sales_batch', {
+        p_items: items.map((item) => ({
+          product_id: item.product_id,
+          quantity: item.quantity,
+        })),
       })
     }
 

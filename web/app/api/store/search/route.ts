@@ -4,6 +4,7 @@ import { rateLimit } from '@/lib/rate-limit'
 import type { SearchSuggestion } from '@/lib/types/store'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
+import { createSearchPattern, MIN_SEARCH_LENGTH } from '@/lib/utils/search'
 
 // GET - Search products with autocomplete suggestions
 export async function GET(request: NextRequest) {
@@ -20,7 +21,7 @@ export async function GET(request: NextRequest) {
     })
   }
 
-  if (!query || query.length < 2) {
+  if (!query || query.length < MIN_SEARCH_LENGTH) {
     return NextResponse.json({
       suggestions: [],
       products: [],
@@ -40,7 +41,8 @@ export async function GET(request: NextRequest) {
 
   try {
     const suggestions: SearchSuggestion[] = []
-    const searchPattern = `%${query}%`
+    // SEC-009: Escape LIKE special characters to prevent pattern injection
+    const searchPattern = createSearchPattern(query)
 
     // Search products
     const { data: products, error: productsError } = await supabase

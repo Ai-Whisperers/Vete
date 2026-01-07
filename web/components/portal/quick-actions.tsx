@@ -42,7 +42,7 @@ export function PortalQuickActions({ clinic }: PortalQuickActionsProps): React.R
       <QuickAction
         icon={<CalendarPlus className="h-4 w-4" />}
         label="Agendar Cita"
-        href={`/${clinic}/book`}
+        href={`/${clinic}/services`}
         primary
       />
       <QuickAction

@@ -304,10 +304,12 @@ export async function createPet(
     }
   }
 
-  // Insert pet
-  const { error: insertError } = await serviceSupabase
+  // Insert pet and get the ID back
+  const { data: newPet, error: insertError } = await serviceSupabase
     .from('pets')
     .insert(petPayload)
+    .select('id')
+    .single()
 
   if (insertError) {
     logger.error('Failed to create pet', {
@@ -325,6 +327,27 @@ export async function createPet(
     return {
       success: false,
       error: 'No se pudo guardar la mascota. Por favor, intenta de nuevo.',
+    }
+  }
+
+  // If weight was provided, create initial weight history record for growth chart
+  if (validData.weight && newPet?.id) {
+    const { error: weightError } = await serviceSupabase
+      .from('pet_weight_history')
+      .insert({
+        pet_id: newPet.id,
+        tenant_id: clinic,
+        weight_kg: validData.weight,
+        recorded_by: user.id,
+        notes: 'Peso inicial al registrar mascota',
+      })
+
+    if (weightError) {
+      // Log but don't fail - the pet was created successfully
+      logger.warn('Failed to create initial weight history', {
+        petId: newPet.id,
+        error: weightError.message,
+      })
     }
   }
 

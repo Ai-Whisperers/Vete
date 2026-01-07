@@ -118,8 +118,19 @@ export default async function PetProfilePage({
     ),
   ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
 
-  // Extract weight history from medical records
-  const weightHistory: WeightRecord[] = records
+  // Create supabase client for additional queries
+  const supabase = await createClient()
+
+  // Fetch weight history from dedicated table
+  const { data: weightHistoryData } = await supabase
+    .from('pet_weight_history')
+    .select('id, weight_kg, recorded_at, notes, recorded_by')
+    .eq('pet_id', id)
+    .is('deleted_at', null)
+    .order('recorded_at', { ascending: true })
+
+  // Extract weight from medical records (legacy source)
+  const weightFromRecords: WeightRecord[] = records
     .filter(
       (r): r is MedicalRecord & { vital_signs: { weight: number } } =>
         r.vital_signs !== null && typeof r.vital_signs === 'object' && 'weight' in r.vital_signs
@@ -140,8 +151,37 @@ export default async function PetProfilePage({
       }
     })
 
+  // Convert dedicated weight history to same format
+  const birthDate = pet.birth_date ? new Date(pet.birth_date) : null
+  const weightFromHistory: WeightRecord[] = (weightHistoryData || []).map((w) => {
+    const recordDate = new Date(w.recorded_at)
+    let age_weeks = undefined
+    if (birthDate) {
+      age_weeks = Math.floor(
+        (recordDate.getTime() - birthDate.getTime()) / (1000 * 60 * 60 * 24 * 7)
+      )
+    }
+    return {
+      date: w.recorded_at,
+      weight_kg: Number(w.weight_kg),
+      age_weeks,
+    }
+  })
+
+  // Merge and deduplicate (prefer dedicated history over medical records)
+  const allWeights = [...weightFromHistory, ...weightFromRecords]
+  const seenDates = new Set<string>()
+  const weightHistory: WeightRecord[] = allWeights
+    .filter((w) => {
+      // Deduplicate by date (same day = same record)
+      const dateKey = w.date.substring(0, 10) // YYYY-MM-DD
+      if (seenDates.has(dateKey)) return false
+      seenDates.add(dateKey)
+      return true
+    })
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+
   // Fetch appointments for this pet
-  const supabase = await createClient()
   const { data: appointments } = await supabase
     .from('appointments')
     .select(

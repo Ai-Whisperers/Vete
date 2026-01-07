@@ -297,15 +297,16 @@ export default async function ClinicLayout({
                   className="font-heading flex items-center gap-3 text-2xl font-black uppercase tracking-widest text-[var(--primary)] transition-opacity hover:opacity-80"
                 >
                   {config.branding?.logo_url ? (
-                    <Image
-                      src={config.branding.logo_url}
-                      alt={`${config.name} Logo`}
-                      width={config.branding.logo_width || 150}
-                      height={config.branding.logo_height || 56}
-                      className="max-h-14 object-contain"
-                      style={{ width: 'auto', height: 'auto' }}
-                      priority
-                    />
+                    <div className="relative h-14 w-40">
+                      <Image
+                        src={config.branding.logo_url}
+                        alt={`${config.name} Logo`}
+                        fill
+                        className="object-contain object-left"
+                        sizes="160px"
+                        priority
+                      />
+                    </div>
                   ) : (
                     <span>{config.name}</span>
                   )}

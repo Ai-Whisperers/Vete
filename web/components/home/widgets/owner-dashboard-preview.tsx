@@ -135,7 +135,11 @@ function SkeletonLoader(): React.ReactElement {
 
 export function OwnerDashboardPreview({ clinic }: OwnerDashboardPreviewProps): React.ReactElement | null {
   const { data, isLoading, error } = useAsyncData<OwnerPreviewData>(
-    () => fetch(`/api/homepage/owner-preview?clinic=${clinic}`).then((r) => r.json()),
+    async () => {
+      const r = await fetch(`/api/homepage/owner-preview?clinic=${clinic}`)
+      if (!r.ok) throw new Error(`HTTP ${r.status}`)
+      return r.json()
+    },
     [clinic],
     { refetchInterval: 60000, keepPreviousData: true }
   )

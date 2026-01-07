@@ -95,7 +95,7 @@ export const POST = withApiAuth(
         return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
       }
 
-      const code = codes[0]
+      const code = codes[0] as { id: string; code: string; tenant_id: string; is_active: boolean }
       const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://Vetic.com'
       const shareUrl = `${baseUrl}/signup?ref=${code.code}`
 

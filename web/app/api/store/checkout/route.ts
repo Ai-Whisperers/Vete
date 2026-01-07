@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server'
-import { logger } from '@/lib/logger'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { requireFeature } from '@/lib/features/server'
@@ -43,7 +42,7 @@ interface PrescriptionError {
 // POST /api/store/checkout - Process checkout (atomic)
 // Rate limited: 5 requests per minute (checkout operations - strict for fraud prevention)
 export const POST = withApiAuth(
-  async ({ user, profile, supabase, request }: ApiHandlerContext) => {
+  async ({ user, profile, supabase, request, log }: ApiHandlerContext) => {
     // Parse request body
     let body: CheckoutRequest
     try {
@@ -77,6 +76,13 @@ export const POST = withApiAuth(
     const productItems = items.filter((item) => item.type === 'product')
     const serviceItems = items.filter((item) => item.type === 'service')
 
+    log.info('Processing checkout', {
+      action: 'checkout.start',
+      itemCount: items.length,
+      productCount: productItems.length,
+      serviceCount: serviceItems.length,
+    })
+
     // Attempt atomic checkout using database function
     // This ensures all operations (validation, invoice creation, stock decrement) happen atomically
     try {
@@ -101,11 +107,10 @@ export const POST = withApiAuth(
       )
 
       if (checkoutError) {
-        logger.error('Atomic checkout failed', {
-          userId: user.id,
-          tenantId: clinic,
+        log.error('Atomic checkout failed', {
+          action: 'checkout.error',
           itemCount: items.length,
-          error: checkoutError instanceof Error ? checkoutError.message : String(checkoutError),
+          error: checkoutError instanceof Error ? checkoutError : new Error(String(checkoutError)),
         })
         return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
           details: { message: checkoutError.message },
@@ -163,6 +168,14 @@ export const POST = withApiAuth(
         service_count: serviceItems.length,
       })
 
+      log.info('Checkout completed successfully', {
+        action: 'checkout.success',
+        resourceType: 'invoice',
+        resourceId: result.invoice?.id,
+        total: result.invoice?.total,
+        itemCount: items.length,
+      })
+
       return NextResponse.json(
         {
           success: true,
@@ -171,11 +184,10 @@ export const POST = withApiAuth(
         { status: 201 }
       )
     } catch (e) {
-      logger.error('Checkout error', {
-        userId: user.id,
-        tenantId: profile.tenant_id,
+      log.error('Checkout error', {
+        action: 'checkout.error',
         itemCount: items.length,
-        error: e instanceof Error ? e.message : String(e),
+        error: e instanceof Error ? e : new Error(String(e)),
       })
       return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
         details: { message: e instanceof Error ? e.message : 'Error al procesar el pedido' },

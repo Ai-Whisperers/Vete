@@ -12,6 +12,7 @@ import { RESERVED_SLUGS, TRIAL_CONFIG } from '@/lib/signup/types'
 import type { SignupResponse, SignupErrorResponse, SignupErrorCode } from '@/lib/signup/types'
 import { generateAllContent, deleteClinicContent } from '@/lib/signup/content-generator'
 import { addDays, format } from 'date-fns'
+import { createRequestLogger, auditLogger } from '@/lib/logger'
 
 export const dynamic = 'force-dynamic'
 
@@ -63,9 +64,16 @@ function errorResponse(
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse<SignupResponse | SignupErrorResponse>> {
-  // Rate limiting
+  // Create request-scoped logger
   const clientIp = getClientIp(request)
+  const log = createRequestLogger(request, { ip: clientIp })
+
+  // Rate limiting
   if (!checkRateLimit(clientIp)) {
+    log.warn('Signup rate limit exceeded', {
+      action: 'signup.rate_limited',
+      ip: clientIp,
+    })
     return errorResponse('RATE_LIMITED', 'Demasiados intentos. Por favor espera antes de intentar nuevamente.', undefined, 429)
   }
 
@@ -175,7 +183,11 @@ export async function POST(request: NextRequest): Promise<NextResponse<SignupRes
       .insert(tenantData)
 
     if (tenantError) {
-      console.error('Error creating tenant:', tenantError)
+      log.error('Error creating tenant', {
+        action: 'signup.tenant_create_failed',
+        slug: data.slug,
+        error: tenantError,
+      })
       return errorResponse('DB_ERROR', 'Error al crear la clinica. Por favor intenta nuevamente.', undefined, 500)
     }
 
@@ -196,7 +208,12 @@ export async function POST(request: NextRequest): Promise<NextResponse<SignupRes
       })
 
     if (inviteError) {
-      console.error('Error creating invite:', inviteError)
+      log.warn('Error creating invite', {
+        action: 'signup.invite_create_failed',
+        slug: data.slug,
+        email: data.adminEmail,
+        error: inviteError,
+      })
       // Continue anyway - profile will be created with default role
     }
 
@@ -214,7 +231,12 @@ export async function POST(request: NextRequest): Promise<NextResponse<SignupRes
     })
 
     if (authError || !newUser.user) {
-      console.error('Error creating auth user:', authError)
+      log.error('Error creating auth user', {
+        action: 'signup.auth_create_failed',
+        slug: data.slug,
+        email: data.adminEmail,
+        error: authError,
+      })
 
       // Cleanup tenant
       await supabaseService.from('tenants').delete().eq('id', data.slug)
@@ -247,7 +269,12 @@ export async function POST(request: NextRequest): Promise<NextResponse<SignupRes
       })
 
     if (profileError) {
-      console.error('Error upserting profile:', profileError)
+      log.warn('Error upserting profile', {
+        action: 'signup.profile_upsert_failed',
+        slug: data.slug,
+        userId: newUser.user.id,
+        error: profileError,
+      })
       // Non-fatal - profile should exist from trigger
     }
 
@@ -269,14 +296,31 @@ export async function POST(request: NextRequest): Promise<NextResponse<SignupRes
         secondaryColor: data.secondaryColor,
       })
     } catch (contentError) {
-      console.error('Error generating content:', contentError)
+      log.warn('Error generating content files', {
+        action: 'signup.content_generation_failed',
+        slug: data.slug,
+        error: contentError instanceof Error ? contentError : new Error(String(contentError)),
+      })
       // Non-fatal - clinic can still operate, content can be regenerated
-      // Log for manual fix
     }
 
     // =========================================================================
     // SUCCESS
     // =========================================================================
+
+    // Log successful signup with audit logger
+    auditLogger.auth('signup', {
+      email: data.adminEmail,
+      tenant: data.slug,
+      ip: clientIp,
+      success: true,
+    })
+
+    log.info('Clinic signup completed successfully', {
+      action: 'signup.success',
+      tenant: data.slug,
+      userId: newUser.user.id,
+    })
 
     return NextResponse.json({
       success: true,
@@ -285,7 +329,10 @@ export async function POST(request: NextRequest): Promise<NextResponse<SignupRes
       message: `¡Bienvenido a Vetic! Tu clinica "${data.clinicName}" ha sido creada.`,
     })
   } catch (error) {
-    console.error('Unexpected signup error:', error)
+    log.error('Unexpected signup error', {
+      action: 'signup.unexpected_error',
+      error: error instanceof Error ? error : new Error(String(error)),
+    })
 
     // Cleanup on unexpected error
     if (createdTenantId || createdUserId) {
@@ -301,7 +348,10 @@ export async function POST(request: NextRequest): Promise<NextResponse<SignupRes
           await deleteClinicContent(createdTenantId)
         }
       } catch (cleanupError) {
-        console.error('Cleanup error:', cleanupError)
+        log.error('Cleanup error during rollback', {
+          action: 'signup.cleanup_failed',
+          error: cleanupError instanceof Error ? cleanupError : new Error(String(cleanupError)),
+        })
       }
     }
 

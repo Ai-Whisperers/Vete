@@ -1,12 +1,10 @@
 import { getClinicData } from '@/lib/clinics'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
 import * as Icons from 'lucide-react'
 import { AppointmentForm } from '@/components/forms/appointment-form'
 import { createClient } from '@/lib/supabase/server'
-import { PersonalizedHero } from '@/components/home/personalized-hero'
-import { OwnerDashboardPreview } from '@/components/home/widgets/owner-dashboard-preview'
-import { StaffDashboardPreview } from '@/components/home/widgets/staff-dashboard-preview'
+import { PublicHero } from '@/components/home/public-hero'
 import { ClinicLocationMap } from '@/components/home/clinic-location-map'
 
 // Dynamic Icon Component - safely handles icon name lookup
@@ -25,45 +23,6 @@ const DynamicIcon = ({ name, className }: { name: string; className?: string }) 
   return <Icon className={className} />
 }
 
-// Helper function to get staff quick stats for the hero
-async function getStaffQuickStats(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  clinic: string
-): Promise<{ appointmentsToday: number; pendingCheckIn: number; completedToday: number }> {
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  const tomorrow = new Date(today)
-  tomorrow.setDate(tomorrow.getDate() + 1)
-
-  const [todayResult, checkedInResult, completedResult] = await Promise.all([
-    supabase
-      .from('appointments')
-      .select('id', { count: 'exact', head: true })
-      .eq('tenant_id', clinic)
-      .gte('start_time', today.toISOString())
-      .lt('start_time', tomorrow.toISOString())
-      .neq('status', 'cancelled'),
-    supabase
-      .from('appointments')
-      .select('id', { count: 'exact', head: true })
-      .eq('tenant_id', clinic)
-      .eq('status', 'checked_in'),
-    supabase
-      .from('appointments')
-      .select('id', { count: 'exact', head: true })
-      .eq('tenant_id', clinic)
-      .gte('start_time', today.toISOString())
-      .lt('start_time', tomorrow.toISOString())
-      .eq('status', 'completed'),
-  ])
-
-  return {
-    appointmentsToday: todayResult.count || 0,
-    pendingCheckIn: checkedInResult.count || 0,
-    completedToday: completedResult.count || 0,
-  }
-}
-
 export default async function ClinicHomePage({ params }: { params: Promise<{ clinic: string }> }) {
   const { clinic } = await params
   const data = await getClinicData(clinic)
@@ -72,65 +31,31 @@ export default async function ClinicHomePage({ params }: { params: Promise<{ cli
 
   const { home, config } = data
 
-  // Check authentication
+  // Check if user is authenticated - redirect to portal
   const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Fetch profile and stats if authenticated
-  let profile: {
-    id: string
-    tenant_id: string
-    role: 'owner' | 'vet' | 'admin'
-    full_name: string | null
-  } | null = null
-  let staffStats: { appointmentsToday: number; pendingCheckIn: number; completedToday: number } | null =
-    null
-
   if (user) {
-    const { data: profileData } = await supabase
+    // Check if user belongs to this clinic
+    const { data: profile } = await supabase
       .from('profiles')
-      .select('id, tenant_id, role, full_name')
+      .select('tenant_id')
       .eq('id', user.id)
       .single()
 
-    // Only use profile if it matches this clinic
-    if (profileData?.tenant_id === clinic) {
-      profile = {
-        id: profileData.id,
-        tenant_id: profileData.tenant_id,
-        role: profileData.role as 'owner' | 'vet' | 'admin',
-        full_name: profileData.full_name,
-      }
-
-      // Fetch staff stats for staff users
-      if (profile.role === 'vet' || profile.role === 'admin') {
-        staffStats = await getStaffQuickStats(supabase, clinic)
-      }
+    // Redirect authenticated users to their portal
+    if (profile?.tenant_id === clinic) {
+      redirect(`/${clinic}/portal`)
     }
   }
 
+  // Public landing page for visitors
   return (
     <div className="flex min-h-screen flex-col">
-      {/* PERSONALIZED HERO SECTION */}
-      <PersonalizedHero
-        clinic={clinic}
-        home={home}
-        config={config}
-        profile={profile}
-        staffStats={staffStats}
-      />
-
-      {/* DASHBOARD PREVIEW WIDGETS (only for logged-in users) */}
-      {profile && (
-        <>
-          {profile.role === 'owner' && <OwnerDashboardPreview clinic={clinic} />}
-          {(profile.role === 'vet' || profile.role === 'admin') && (
-            <StaffDashboardPreview clinic={clinic} />
-          )}
-        </>
-      )}
+      {/* PUBLIC HERO SECTION */}
+      <PublicHero clinic={clinic} home={home} config={config} />
 
       {/* PROMO BANNER - Improved as floating card */}
       {home.promo_banner?.enabled && (

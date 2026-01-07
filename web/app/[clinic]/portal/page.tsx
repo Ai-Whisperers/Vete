@@ -44,10 +44,10 @@ export default async function PortalIndexPage({ params }: Props) {
 
   // Redirect based on role
   if (profile.role === 'vet' || profile.role === 'admin') {
-    // Staff users go to dashboard
-    redirect(`/${clinic}/portal/dashboard`)
+    // Staff users go to clinical dashboard
+    redirect(`/${clinic}/dashboard`)
   } else {
-    // Pet owners go to their pets list
-    redirect(`/${clinic}/portal/pets`)
+    // Pet owners go to their portal dashboard (main page)
+    redirect(`/${clinic}/portal/dashboard`)
   }
 }

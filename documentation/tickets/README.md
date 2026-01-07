@@ -62,6 +62,7 @@ This folder contains organized development tickets for improvements, features, b
 | [RACE-002](./race-conditions/RACE-002-kennel-status-atomicity.md) | Kennel Status Update Not Atomic | Race Condition | 5h |
 | [PERF-002](./performance/PERF-002-subscription-n-plus-1.md) | N+1 Query in Subscription Processing | Performance | 4h |
 | [FEAT-009](./features/FEAT-009-client-segmentation-bulk-actions.md) | Client Segmentation Bulk Actions | Feature | 18h |
+| [NOTIF-003](./notifications/NOTIF-003-sms-channel-implementation.md) | SMS Channel Implementation (MVP) | Notifications | 7h |
 
 ### P2 - Medium Priority (Next Sprint)
 
@@ -69,13 +70,11 @@ This folder contains organized development tickets for improvements, features, b
 |----|-------|----------|--------|
 | [WIP-002](./wip/WIP-002-pet-weight-history.md) | Pet Weight History Tracking | WIP | 4-6h |
 | [WIP-003](./wip/WIP-003-e2e-test-suite-expansion.md) | E2E Test Suite Expansion | WIP | 8-10h |
-| [NOTIF-003](./notifications/NOTIF-003-sms-channel-implementation.md) | SMS Channel Implementation | Notifications | 7h |
 | [TEST-002](./testing/TEST-002-component-test-coverage.md) | Component Test Coverage | Testing | 20h |
 | [FEAT-006](./features/FEAT-006-procurement-completion.md) | Procurement Module Completion | Feature | 14h |
 | [REF-003](./refactoring/REF-003-api-error-handling.md) | Standardize API Error Handling | Refactoring | 13-16h |
 | [SEC-002](./security/SEC-002-api-rate-limiting.md) | Expand API Rate Limiting | Security | 6-7h |
 | [BUG-002](./bugs/BUG-002-redirect-param-inconsistency.md) | Redirect Parameter Inconsistency | Bug | 3h |
-| [PERF-001](./performance/PERF-001-static-generation.md) | Re-enable Static Generation | Performance | 8-10h |
 | [TECH-001](./technical-debt/TECH-001-component-organization.md) | Improve Component Organization | Tech Debt | 16-18h |
 | [FEAT-001](./features/FEAT-001-multi-language.md) | Multi-Language Support (i18n) | Feature | 40h |
 | [FEAT-004](./features/FEAT-004-analytics-dashboard.md) | Advanced Analytics Dashboard | Feature | 48h |
@@ -101,6 +100,7 @@ This folder contains organized development tickets for improvements, features, b
 
 | ID | Title | Category | Effort |
 |----|-------|----------|--------|
+| [PERF-001](./performance/PERF-001-static-generation.md) | Re-enable Static Generation (Deprioritized) | Performance | 8-10h |
 | [FEAT-007](./features/FEAT-007-external-logging.md) | External Logging Service | Feature | 6h |
 | [FEAT-008](./features/FEAT-008-granular-permissions.md) | Granular Permission System | Feature | 16h |
 | [REF-004](./refactoring/REF-004-component-barrel-exports.md) | Add Barrel Exports | Refactoring | 2.5-6.5h |
@@ -165,11 +165,11 @@ Critical data integrity and security issues:
 | Priority | Tickets | Hours |
 |----------|---------|-------|
 | P0 | 2 | ~19h |
-| P1 | 17 | ~180h |
-| P2 | 28 | ~280h |
-| P3 | 12 | ~50h + 13 weeks |
+| P1 | 18 | ~187h |
+| P2 | 26 | ~265h |
+| P3 | 13 | ~58h + 13 weeks |
 
-**Total P0-P2: ~479 hours (~12 weeks full-time)**
+**Total P0-P2: ~471 hours (~12 weeks full-time)**
 
 ---
 
@@ -205,10 +205,11 @@ Focus: Complete uncommitted work
 - SEC-001: Tenant validation
 - PERF-002: N+1 query fix
 
-### Sprint 3: Notifications & Email
-Focus: Complete notification infrastructure
+### Sprint 3: Notifications (All Channels - MVP)
+Focus: Complete notification infrastructure (email, SMS, in-app, push)
 - NOTIF-001: Notification system
 - NOTIF-002: Email sending
+- NOTIF-003: SMS channel (Twilio)
 - BUG-004: Waitlist notifications
 - API-003: Rate limiting
 

@@ -3,6 +3,7 @@
 ## Priority: P1 - High
 ## Category: Security
 ## Affected Areas: Portal layout, Dashboard layout
+## Status: COMPLETED
 
 ## Description
 
@@ -108,3 +109,25 @@ export default async function PortalLayout({ children, params }) {
 
 **Before**: Medium risk - URL manipulation could show wrong clinic's UI
 **After**: No risk - Proper tenant isolation at layout level
+
+---
+## Implementation Summary (Completed)
+
+**Files Modified:**
+- `web/app/[clinic]/portal/layout.tsx` - Converted to server component with tenant validation
+- `web/app/[clinic]/portal/providers.tsx` - Added CommandPaletteProvider
+- `web/lib/auth/require-owner.ts` - Added security audit logging
+- `web/lib/auth/require-staff.ts` - Added security audit logging
+- `web/lib/auth/index.ts` - Exported `requireOwner`
+
+**Changes Made:**
+1. Portal layout now calls `requireOwner(clinic)` to validate tenant matches URL
+2. Dashboard layout already called `requireStaff(clinic)` - verified working
+3. Both `requireOwner` and `requireStaff` now log `tenant_mismatch` security events
+4. Users are automatically redirected to their correct tenant if mismatch detected
+
+**Security Audit Events:**
+- `auditLogger.security('tenant_mismatch', { severity: 'medium', ... })` logged for all mismatch attempts
+
+---
+*Completed: January 2026*

@@ -1,6 +1,6 @@
 # NOTIF-003: SMS Channel Implementation (Twilio)
 
-## Priority: P2 (Medium)
+## Priority: P1 (High) - MVP Required
 ## Category: Notifications
 ## Status: Not Started
 

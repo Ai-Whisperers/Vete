@@ -45,3 +45,37 @@ You are a Senior Full-Stack Engineer at Google. You value clean, modular code ov
 - **Infrastructure:** `src/infrastructure` (Database, Network, Cache)
 - **API:** `src/api` (FastAPI routes)
 - **CLI:** `src/cli` (Command line interface)
+
+## Vete Project Context
+
+### Technology Stack
+
+- **Framework**: Next.js 15 (App Router)
+- **Language**: TypeScript 5.x
+- **Styling**: Tailwind CSS 3.4.19 (DO NOT UPGRADE TO v4)
+- **Database**: Supabase (PostgreSQL) with RLS
+- **ORM**: Drizzle ORM
+- **State**: Zustand + TanStack Query
+
+### Coding Standards
+
+- **Strict Mode**: TypeScript strict mode enabled.
+- **Server Components**: Default for Next.js. Use "use client" only when necessary.
+- **Styling**: Tailwind utility classes only. Use CSS variables `var(--primary)`, `var(--text-primary)`.
+- **Database**:
+  - ALWAYS enable RLS on new tables.
+  - ALWAYS filter by `tenant_id` in queries.
+- **API**:
+  - All routes must authentication `supabase.auth.getUser()`.
+  - All queries must filter by `tenant_id`.
+
+### User-Facing Text
+
+- All text must be in **Spanish** (Paraguay market).
+
+## AI Ecosystem
+
+- **Source of Truth**: `CLAUDE.md` contains the master context.
+- **Collaborators**:
+  - **Claude**: See `.claude/`
+  - **Cursor**: See `.cursor/rules/`

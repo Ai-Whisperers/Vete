@@ -1,8 +1,10 @@
 # PERF-001: Re-enable Static Generation for Public Pages
 
-## Priority: P2 - Medium
+## Priority: P3 - Deprioritized (Keep Dynamic)
 ## Category: Performance
 ## Affected Areas: Public pages, build process
+
+**Decision**: Keep pages dynamic for now. The complexity of restructuring providers outweighs the benefits at current scale.
 
 ## Description
 

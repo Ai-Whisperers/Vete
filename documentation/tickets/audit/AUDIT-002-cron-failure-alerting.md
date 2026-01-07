@@ -39,6 +39,8 @@ return NextResponse.json(results)
 
 ## Proposed Solution
 
+**Decision: Email Only** - Alerts will be sent via email to admin addresses (no Slack integration for now).
+
 ### 1. Alerting Service
 ```typescript
 // lib/monitoring/alerts.ts
@@ -51,47 +53,34 @@ interface AlertPayload {
 }
 
 export async function sendAlert(payload: AlertPayload) {
-  const alerts: Promise<void>[] = []
-
-  // Slack webhook (if configured)
-  if (process.env.SLACK_WEBHOOK_URL) {
-    alerts.push(sendSlackAlert(payload))
-  }
-
-  // Email (if configured)
+  // Email alerts to admin addresses
   if (process.env.ALERT_EMAIL) {
-    alerts.push(sendEmailAlert(payload))
+    await sendEmailAlert(payload)
   }
 
   // Log for Vercel monitoring
   console.error(`[ALERT:${payload.severity}] ${payload.job}: ${payload.message}`, payload.details)
-
-  await Promise.allSettled(alerts)
 }
 
-async function sendSlackAlert(payload: AlertPayload) {
-  const color = {
+async function sendEmailAlert(payload: AlertPayload) {
+  const severityColors = {
     warning: '#FFA500',
     error: '#FF0000',
     critical: '#8B0000',
-  }[payload.severity]
+  }
 
-  await fetch(process.env.SLACK_WEBHOOK_URL!, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      attachments: [{
-        color,
-        title: `🚨 ${payload.type.toUpperCase()}: ${payload.job}`,
-        text: payload.message,
-        fields: Object.entries(payload.details || {}).map(([k, v]) => ({
-          title: k,
-          value: String(v),
-          short: true,
-        })),
-        footer: `Vete Platform | ${new Date().toISOString()}`,
-      }],
-    }),
+  await sendEmail({
+    to: process.env.ALERT_EMAIL!.split(','),
+    subject: `[${payload.severity.toUpperCase()}] ${payload.job}: ${payload.type}`,
+    template: 'cron-alert',
+    data: {
+      job: payload.job,
+      type: payload.type,
+      message: payload.message,
+      severity: payload.severity,
+      details: payload.details,
+      timestamp: new Date().toISOString(),
+    },
   })
 }
 ```
@@ -220,16 +209,16 @@ export async function GET() {
 ```
 
 ## Implementation Steps
-1. Create alerting service with Slack/email
-2. Create cron monitoring wrapper
-3. Update all cron jobs to use wrapper
-4. Return 500 on failures (for Vercel monitoring)
-5. Create cron health check endpoint
-6. Set up Slack webhook
+1. Create alerting service with email support
+2. Create email template for cron alerts
+3. Create cron monitoring wrapper
+4. Update all cron jobs to use wrapper
+5. Return 500 on failures (for Vercel monitoring)
+6. Create cron health check endpoint
 7. Add cron_job_runs table for history
 
 ## Acceptance Criteria
-- [ ] Slack alert on cron failures
+- [ ] Email alert sent to ALERT_EMAIL on cron failures
 - [ ] Alert on high error rates (>10%)
 - [ ] Alert on slow jobs (>2 min)
 - [ ] 500 status returned on failure
@@ -243,7 +232,8 @@ export async function GET() {
 - `web/app/api/health/cron/route.ts` (new)
 
 ## Estimated Effort
-- Alerting service: 2 hours
+- Alerting service: 1.5 hours
+- Email template: 0.5 hours
 - Monitoring wrapper: 2 hours
 - Update cron jobs: 2 hours
 - Health check: 1 hour

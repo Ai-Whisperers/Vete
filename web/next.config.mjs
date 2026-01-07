@@ -87,16 +87,22 @@ const nextConfig = {
 
   // Webpack optimizations for better performance
   webpack: (config, { dev, isServer }) => {
-    // Suppress known next-intl dynamic import parsing warnings
-    // These warnings are harmless - the package uses dynamic imports that webpack can't statically analyze
+    // Suppress known harmless warnings from dependencies
     config.ignoreWarnings = [
       ...(config.ignoreWarnings || []),
+      // next-intl dynamic import parsing warnings (harmless)
       {
         module: /next-intl/,
         message: /Parsing of .* for build dependencies failed/,
       },
+      // Webpack serialization warnings (harmless)
       {
         message: /Serializing big strings/,
+      },
+      // OpenTelemetry dynamic require warnings from Sentry instrumentation (harmless)
+      {
+        module: /@opentelemetry\/instrumentation/,
+        message: /Critical dependency/,
       },
     ];
 

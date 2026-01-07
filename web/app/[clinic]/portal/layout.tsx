@@ -1,12 +1,25 @@
-'use client'
+import { requireOwner } from '@/lib/auth'
+import { PortalProviders } from './providers'
 
-import { CommandPaletteProvider } from '@/components/search/command-palette-provider'
+interface PortalLayoutProps {
+  children: React.ReactNode
+  params: Promise<{ clinic: string }>
+}
 
 /**
- * Portal Layout - Adds command palette for logged-in users
- * This keeps the Cmd+K functionality scoped to portal pages only,
- * avoiding unnecessary keyboard listeners on public pages.
+ * Portal Layout - Server component with tenant validation
+ *
+ * SEC-001: This layout validates that the authenticated user belongs to the
+ * clinic specified in the URL. If not, they are redirected to their correct clinic.
+ *
+ * Also provides command palette functionality via PortalProviders.
  */
-export default function PortalLayout({ children }: { children: React.ReactNode }) {
-  return <CommandPaletteProvider>{children}</CommandPaletteProvider>
+export default async function PortalLayout({ children, params }: PortalLayoutProps) {
+  const { clinic } = await params
+
+  // SEC-001: Require authenticated user AND validate tenant matches URL
+  // This prevents users from clinic A accessing clinic B's portal via URL manipulation
+  await requireOwner(clinic)
+
+  return <PortalProviders>{children}</PortalProviders>
 }

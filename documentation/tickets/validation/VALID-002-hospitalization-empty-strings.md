@@ -2,7 +2,7 @@
 
 ## Priority: P2 (Medium)
 ## Category: Validation
-## Status: Not Started
+## Status: COMPLETED
 
 ## Description
 Hospitalization creation validation uses JavaScript falsy checks, which allow empty strings to pass validation.
@@ -150,5 +150,30 @@ export async function POST(request: NextRequest) {
 - **Total: 3 hours**
 
 ---
-*Ticket created: January 2026*
-*Based on security/performance audit*
+## Implementation Summary (Completed)
+
+**Files Modified:**
+- `lib/schemas/common.ts` - Updated `requiredString` and `optionalString` to trim whitespace
+- `app/api/hospitalizations/route.ts` - Added Zod validation schemas for POST and PATCH
+
+**Changes Made:**
+1. **common.ts updates:**
+   - `requiredString`: Now uses `.transform(s => s.trim())` then validates min length
+   - `optionalString`: Now trims and converts empty/whitespace to undefined
+   - All schemas using these helpers now automatically reject whitespace-only strings
+
+2. **Hospitalizations API updates:**
+   - Added `createHospitalizationSchema` with Zod validation
+   - Added `updateHospitalizationSchema` with Zod validation
+   - POST handler now validates with `safeParse()` before processing
+   - PATCH handler now validates with `safeParse()` before processing
+   - Field-level Spanish error messages returned
+
+**Validation behavior:**
+- `""` (empty string) -> rejected with "es requerido"
+- `"   "` (whitespace only) -> rejected (trimmed to empty)
+- `"valid text"` -> accepted and stored trimmed
+- `"  text  "` -> accepted as "text" (trimmed)
+
+---
+*Completed: January 2026*

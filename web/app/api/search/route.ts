@@ -3,6 +3,7 @@ import { withApiAuth } from '@/lib/auth'
 import { apiError } from '@/lib/api/errors'
 import { rateLimit } from '@/lib/rate-limit'
 import { logger } from '@/lib/logger'
+import { createSearchPattern, MIN_SEARCH_LENGTH } from '@/lib/utils/search'
 
 interface SearchResult {
   id: string
@@ -19,7 +20,7 @@ export const GET = withApiAuth(async ({ request, user, profile, supabase }) => {
   const query = searchParams.get('q')?.trim()
   const clinic = searchParams.get('clinic')
 
-  if (!query || query.length < 2) {
+  if (!query || query.length < MIN_SEARCH_LENGTH) {
     return NextResponse.json({ results: [] })
   }
 
@@ -41,7 +42,8 @@ export const GET = withApiAuth(async ({ request, user, profile, supabase }) => {
   }
 
   const results: SearchResult[] = []
-  const searchPattern = `%${query}%`
+  // SEC-009: Escape LIKE special characters to prevent pattern injection
+  const searchPattern = createSearchPattern(query)
 
   try {
     // Search pets

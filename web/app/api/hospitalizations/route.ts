@@ -2,6 +2,31 @@ import { NextResponse } from 'next/server'
 import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
+import { z } from 'zod'
+
+// VALID-002: Zod schemas with trimming to reject whitespace-only strings
+const createHospitalizationSchema = z.object({
+  pet_id: z.string().uuid('ID de mascota inválido'),
+  kennel_id: z.string().uuid('ID de canil inválido'),
+  hospitalization_type: z.string().min(1, 'Tipo de hospitalización requerido').transform(s => s.trim()),
+  admission_diagnosis: z.string().min(3, 'El diagnóstico debe tener al menos 3 caracteres').max(1000).transform(s => s.trim()),
+  treatment_plan: z.string().max(2000).transform(s => s.trim() || null).nullable().optional(),
+  diet_instructions: z.string().max(1000).transform(s => s.trim() || null).nullable().optional(),
+  acuity_level: z.enum(['routine', 'low', 'medium', 'high', 'critical']).default('routine'),
+  estimated_discharge_date: z.string().datetime().nullable().optional(),
+  emergency_contact_name: z.string().max(200).transform(s => s.trim() || null).nullable().optional(),
+  emergency_contact_phone: z.string().max(50).transform(s => s.trim() || null).nullable().optional(),
+})
+
+const updateHospitalizationSchema = z.object({
+  id: z.string().uuid('ID de hospitalización inválido'),
+  status: z.enum(['active', 'discharged', 'transferred', 'deceased']).optional(),
+  treatment_plan: z.string().max(2000).transform(s => s.trim() || null).nullable().optional(),
+  diet_instructions: z.string().max(1000).transform(s => s.trim() || null).nullable().optional(),
+  discharge_notes: z.string().max(2000).transform(s => s.trim() || null).nullable().optional(),
+  discharge_instructions: z.string().max(2000).transform(s => s.trim() || null).nullable().optional(),
+  acuity_level: z.enum(['routine', 'low', 'medium', 'high', 'critical']).optional(),
+})
 
 export const GET = withApiAuth(
   async ({ request, profile, supabase }: ApiHandlerContext) => {
@@ -54,12 +79,24 @@ export const GET = withApiAuth(
 
 export const POST = withApiAuth(
   async ({ request, user, profile, supabase }: ApiHandlerContext) => {
-    // Parse body
+    // Parse and validate body with Zod (VALID-002)
     let body
     try {
       body = await request.json()
     } catch {
       return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST)
+    }
+
+    const result = createHospitalizationSchema.safeParse(body)
+    if (!result.success) {
+      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+        details: {
+          errors: result.error.issues.map(i => ({
+            field: i.path.join('.'),
+            message: i.message,
+          })),
+        },
+      })
     }
 
     const {
@@ -73,16 +110,7 @@ export const POST = withApiAuth(
       estimated_discharge_date,
       emergency_contact_name,
       emergency_contact_phone,
-    } = body
-
-    // Validate required fields
-    if (!pet_id || !kennel_id || !hospitalization_type || !admission_diagnosis) {
-      return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
-        details: {
-          required: ['pet_id', 'kennel_id', 'hospitalization_type', 'admission_diagnosis'],
-        },
-      })
-    }
+    } = result.data
 
     // Verify pet belongs to staff's clinic
     const { data: pet } = await supabase
@@ -120,24 +148,22 @@ export const POST = withApiAuth(
       })
     }
 
-    // Generate hospitalization number
-    const { data: lastHospitalization } = await supabase
-      .from('hospitalizations')
-      .select('hospitalization_number')
-      .like('hospitalization_number', `H-${new Date().getFullYear()}-%`)
-      .order('hospitalization_number', { ascending: false })
-      .limit(1)
-      .single()
+    // SEC-004: Generate hospitalization number atomically using database sequence
+    // This prevents race conditions where concurrent requests get duplicate numbers
+    const { data: hospNumberData, error: seqError } = await supabase.rpc(
+      'generate_hospitalization_number',
+      { p_tenant_id: profile.tenant_id }
+    )
 
-    let nextNumber = 1
-    if (lastHospitalization?.hospitalization_number) {
-      const match = lastHospitalization.hospitalization_number.match(/H-\d{4}-(\d+)/)
-      if (match) {
-        nextNumber = parseInt(match[1], 10) + 1
-      }
+    if (seqError || !hospNumberData) {
+      logger.error('Error generating hospitalization number', {
+        tenantId: profile.tenant_id,
+        error: seqError?.message,
+      })
+      return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
     }
 
-    const hospitalizationNumber = `H-${new Date().getFullYear()}-${String(nextNumber).padStart(4, '0')}`
+    const hospitalizationNumber = hospNumberData as string
 
     // Insert hospitalization
     const { data: hospitalization, error: hospError } = await supabase
@@ -168,6 +194,19 @@ export const POST = withApiAuth(
       .single()
 
     if (hospError) {
+      // RACE-002: Handle kennel conflict errors gracefully
+      // Unique index violation (23505) or trigger exception (P0001)
+      if (hospError.code === '23505' || hospError.code === 'P0001') {
+        logger.warn('Kennel booking conflict', {
+          tenantId: profile.tenant_id,
+          kennelId: kennel_id,
+          error: hospError.message,
+        })
+        return apiError('CONFLICT', HTTP_STATUS.CONFLICT, {
+          details: { message: 'El canil no está disponible o ya está ocupado' },
+        })
+      }
+
       logger.error('Error creating hospitalization', {
         tenantId: profile.tenant_id,
         userId: user.id,
@@ -177,8 +216,8 @@ export const POST = withApiAuth(
       return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
     }
 
-    // Update kennel status to occupied
-    await supabase.from('kennels').update({ kennel_status: 'occupied' }).eq('id', kennel_id)
+    // RACE-002: Kennel status is now updated automatically by database trigger
+    // No manual update needed - trigger ensures atomicity
 
     return NextResponse.json(hospitalization, { status: 201 })
   },
@@ -187,12 +226,24 @@ export const POST = withApiAuth(
 
 export const PATCH = withApiAuth(
   async ({ request, user, profile, supabase }: ApiHandlerContext) => {
-    // Parse body
+    // Parse and validate body with Zod (VALID-002)
     let body
     try {
       body = await request.json()
     } catch {
       return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST)
+    }
+
+    const result = updateHospitalizationSchema.safeParse(body)
+    if (!result.success) {
+      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+        details: {
+          errors: result.error.issues.map(i => ({
+            field: i.path.join('.'),
+            message: i.message,
+          })),
+        },
+      })
     }
 
     const {
@@ -203,11 +254,7 @@ export const PATCH = withApiAuth(
       discharge_notes,
       discharge_instructions,
       acuity_level,
-    } = body
-
-    if (!id) {
-      return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, { details: { required: ['id'] } })
-    }
+    } = result.data
 
     // Verify hospitalization belongs to staff's clinic
     const { data: existing } = await supabase
@@ -247,14 +294,8 @@ export const PATCH = withApiAuth(
         updates.discharged_by = user.id
         if (discharge_notes) updates.discharge_notes = discharge_notes
         if (discharge_instructions) updates.discharge_instructions = discharge_instructions
-
-        // Free up the kennel
-        if (existing.kennel_id) {
-          await supabase
-            .from('kennels')
-            .update({ kennel_status: 'available' })
-            .eq('id', existing.kennel_id)
-        }
+        // RACE-002: Kennel status is now updated automatically by database trigger
+        // Trigger sets kennel to 'cleaning' status on discharge
       }
     }
 

@@ -14,7 +14,7 @@
 // ENUMS & CONSTANTS
 // =============================================================================
 
-export type SubscriptionTier = 'gratis' | 'basico' | 'crecimiento' | 'profesional' | 'empresarial'
+export type SubscriptionTier = 'gratis' | 'profesional'
 
 export type CommissionRateType = 'initial' | 'standard' | 'enterprise'
 

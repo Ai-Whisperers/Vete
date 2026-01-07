@@ -99,10 +99,7 @@ const tierCalculatorProps: Record<TierId, {
   timeSavingsPercent: number
 }> = {
   gratis: { expectedGrowthPercent: 0, expectedNoShowReduction: 0, timeSavingsPercent: 0.15 },
-  basico: { expectedGrowthPercent: 0, expectedNoShowReduction: 0, timeSavingsPercent: 0.20 },
-  crecimiento: { expectedGrowthPercent: 0, expectedNoShowReduction: 0, timeSavingsPercent: 0.25 },
   profesional: { expectedGrowthPercent: 0, expectedNoShowReduction: 0.20, timeSavingsPercent: 0.30 },
-  empresarial: { expectedGrowthPercent: 0, expectedNoShowReduction: 0.25, timeSavingsPercent: 0.35 },
 }
 
 /**
@@ -184,7 +181,7 @@ export function ROICalculatorDetailed() {
   // Get current commission rate based on months on platform
   const currentCommissionRate = useMemo(() => {
     if (!currentPlan.hasEcommerce) return 0
-    if (currentPlan.id === 'empresarial') return commissionConfig.enterpriseRate
+    // Use initialRate for first 6 months, then standardRate
     return inputs.monthsOnPlatform < commissionConfig.monthsUntilIncrease
       ? commissionConfig.initialRate
       : commissionConfig.standardRate
@@ -770,7 +767,7 @@ export function ROICalculatorDetailed() {
                         ))}
 
                         {/* Commission Timeline */}
-                        {currentPlan.hasEcommerce && currentPlan.id !== 'empresarial' && (
+                        {currentPlan.hasEcommerce && (
                           <div className="rounded-lg bg-amber-50 border border-amber-200 p-4">
                             <div className="flex items-center gap-2 mb-3">
                               <AlertCircle className="h-4 w-4 text-amber-600" />
@@ -831,15 +828,6 @@ export function ROICalculatorDetailed() {
                           </div>
                         )}
 
-                        {/* Enterprise commission note */}
-                        {currentPlan.hasEcommerce && currentPlan.id === 'empresarial' && (
-                          <div className="flex items-start gap-2 rounded-lg bg-blue-50 border border-blue-200 p-3 text-xs text-blue-700">
-                            <Info className="mt-0.5 h-4 w-4 flex-shrink-0" />
-                            <span>
-                              Plan Empresarial tiene comision fija del {Math.round(commissionConfig.enterpriseRate * 100)}% (negociada). No sube con el tiempo.
-                            </span>
-                          </div>
-                        )}
 
                         {/* Total Costs */}
                         <div className="mt-2 flex items-center justify-between border-t border-red-200 pt-3">
@@ -966,12 +954,10 @@ export function ROICalculatorDetailed() {
                           )}
                         </div>
 
-                        {/* User limit info */}
-                        {currentPlan.includedUsers !== Infinity && (
+                        {/* User limit info - Profesional has unlimited users */}
+                        {currentPlan.id === 'gratis' && (
                           <div className="mt-3 pt-3 border-t border-[var(--landing-border-light)] text-xs text-[var(--landing-text-muted)]">
-                            {currentPlan.includedUsers} usuarios incluidos
-                            <span className="mx-1">•</span>
-                            +{formatCurrency(currentPlan.id === 'empresarial' ? 60000 : currentPlan.id === 'profesional' ? 50000 : currentPlan.id === 'crecimiento' ? 40000 : 30000)}/usuario extra
+                            1 usuario incluido • Actualiza a Profesional para usuarios ilimitados
                           </div>
                         )}
                       </div>
@@ -979,69 +965,39 @@ export function ROICalculatorDetailed() {
                   </div>
                 )}
 
-                {/* Upgrade Comparison - Show what next tier offers */}
-                {currentPlan.id !== 'empresarial' && currentPlan.id !== 'profesional' && (
+                {/* Upgrade Comparison - Show what Profesional offers */}
+                {currentPlan.id === 'gratis' && (
                   <div className="mt-4 rounded-xl border border-blue-200 bg-blue-50 p-4">
                     <h4 className="mb-3 flex items-center gap-2 text-sm font-bold text-blue-800">
                       <ArrowRight className="h-4 w-4" />
-                      {currentPlan.id === 'gratis' && 'Con Plan Basico obtienes:'}
-                      {currentPlan.id === 'basico' && 'Con Plan Crecimiento obtienes:'}
-                      {currentPlan.id === 'crecimiento' && 'Con Plan Profesional obtienes:'}
+                      Con Plan Profesional obtienes:
                     </h4>
                     <div className="grid gap-2 text-sm text-blue-700">
-                      {currentPlan.id === 'gratis' && (
-                        <>
-                          <div className="flex items-center gap-2">
-                            <Check className="h-4 w-4 text-blue-500" />
-                            <span>Sin anuncios en tu sitio</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Check className="h-4 w-4 text-blue-500" />
-                            <span>Soporte por email (48h respuesta)</span>
-                          </div>
-                        </>
-                      )}
-                      {currentPlan.id === 'basico' && (
-                        <>
-                          <div className="flex items-center gap-2">
-                            <Check className="h-4 w-4 text-blue-500" />
-                            <span>Tienda online para vender productos</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Check className="h-4 w-4 text-blue-500" />
-                            <span>Placas QR de identificacion</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Check className="h-4 w-4 text-blue-500" />
-                            <span>Reportes de ventas</span>
-                          </div>
-                        </>
-                      )}
-                      {currentPlan.id === 'crecimiento' && (
-                        <>
-                          <div className="flex items-center gap-2">
-                            <Check className="h-4 w-4 text-blue-500" />
-                            <span>WhatsApp automatico - recupera citas perdidas</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Check className="h-4 w-4 text-blue-500" />
-                            <span>Modulo de hospitalizacion</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Check className="h-4 w-4 text-blue-500" />
-                            <span>Laboratorio clinico integrado</span>
-                          </div>
-                        </>
-                      )}
+                      <div className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-blue-500" />
+                        <span>Sin anuncios en tu sitio</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-blue-500" />
+                        <span>Tienda online para vender productos (3% comision)</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-blue-500" />
+                        <span>WhatsApp automatico - recupera citas perdidas</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-blue-500" />
+                        <span>Modulo de hospitalizacion y laboratorio</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-blue-500" />
+                        <span>Usuarios ilimitados</span>
+                      </div>
                     </div>
                     <p className="mt-3 text-xs text-blue-600">
                       Por solo{' '}
-                      <span className="font-bold">
-                        {currentPlan.id === 'gratis' && formatCurrency(100000)}
-                        {currentPlan.id === 'basico' && formatCurrency(100000)}
-                        {currentPlan.id === 'crecimiento' && formatCurrency(200000)}
-                      </span>{' '}
-                      mas por mes
+                      <span className="font-bold">{formatCurrency(250000)}</span>{' '}
+                      por mes
                     </p>
                   </div>
                 )}
@@ -1052,7 +1008,7 @@ export function ROICalculatorDetailed() {
                   <p>
                     Los beneficios mostrados son estimados y no estan garantizados. Los resultados
                     reales dependen de cada clinica. La comision de tienda aplica sobre todas las
-                    ventas. El plan Gratis muestra anuncios.
+                    ventas.
                   </p>
                 </div>
 

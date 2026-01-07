@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { SignupForm } from '@/components/auth/signup-form'
+import { getReturnUrl } from '@/lib/auth'
 
 export default async function SignupPage({
   params,
@@ -11,8 +12,8 @@ export default async function SignupPage({
 }) {
   const { clinic } = await params
   const sp = await searchParams
-  const redirectTo =
-    (sp.redirect as string) ?? (sp.returnTo as string) ?? `/${clinic}/portal/dashboard`
+  // BUG-002: Use centralized redirect URL handling
+  const redirectTo = getReturnUrl(sp, `/${clinic}/portal/dashboard`)
 
   const supabase = await createClient()
   const {

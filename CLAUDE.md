@@ -14,23 +14,23 @@ When starting a new session, understand these key points:
 
 ## Technology Stack
 
-| Component | Technology | Version | Notes |
-|-----------|------------|---------|-------|
-| Framework | Next.js (App Router) | 15.5.9 | Server Components by default |
-| Language | TypeScript | 5.x | Strict mode enabled |
-| Styling | Tailwind CSS | **3.4.19** | **DO NOT upgrade to v4** |
-| Database | Supabase (PostgreSQL) | 2.88.0 | RLS for multi-tenancy |
-| ORM | Drizzle ORM | 0.45.1 | Type-safe queries |
-| State | Zustand | 5.0.9 | Client state management |
-| Data Fetching | TanStack React Query | 5.90.12 | Server state caching |
-| Background Jobs | Inngest | 3.48.1 | Async job processing |
-| Rate Limiting | Upstash | 2.0.7 | Redis-based limiting |
-| i18n | next-intl | 4.7.0 | Internationalization |
-| Auth | Supabase Auth | - | Email/Password |
-| Storage | Supabase Storage | - | Pet photos, vaccines, docs |
-| PDF | @react-pdf/renderer | 4.3.1 | Prescription PDFs |
-| Charts | recharts | 3.6.0 | Growth charts, analytics |
-| Testing | Vitest + Playwright | 4.0.16 / 1.57.0 | Unit + E2E |
+| Component       | Technology            | Version         | Notes                        |
+| --------------- | --------------------- | --------------- | ---------------------------- |
+| Framework       | Next.js (App Router)  | 15.5.9          | Server Components by default |
+| Language        | TypeScript            | 5.x             | Strict mode enabled          |
+| Styling         | Tailwind CSS          | **3.4.19**      | **DO NOT upgrade to v4**     |
+| Database        | Supabase (PostgreSQL) | 2.88.0          | RLS for multi-tenancy        |
+| ORM             | Drizzle ORM           | 0.45.1          | Type-safe queries            |
+| State           | Zustand               | 5.0.9           | Client state management      |
+| Data Fetching   | TanStack React Query  | 5.90.12         | Server state caching         |
+| Background Jobs | Inngest               | 3.48.1          | Async job processing         |
+| Rate Limiting   | Upstash               | 2.0.7           | Redis-based limiting         |
+| i18n            | next-intl             | 4.7.0           | Internationalization         |
+| Auth            | Supabase Auth         | -               | Email/Password               |
+| Storage         | Supabase Storage      | -               | Pet photos, vaccines, docs   |
+| PDF             | @react-pdf/renderer   | 4.3.1           | Prescription PDFs            |
+| Charts          | recharts              | 3.6.0           | Growth charts, analytics     |
+| Testing         | Vitest + Playwright   | 4.0.16 / 1.57.0 | Unit + E2E                   |
 
 ## Project Structure
 
@@ -85,9 +85,14 @@ Vete/
 │   ├── database/                 # Schema, RLS, migrations
 │   ├── features/                 # Feature documentation
 │   └── api/                      # API reference
-└── .claude/                      # Claude Code configuration
-    ├── commands/                 # Slash commands
-    └── exemplars/                # Code pattern examples
+├── .claude/                      # Claude Code configuration
+│   ├── commands/                 # Slash commands
+│   └── exemplars/                # Code pattern examples
+├── .antigravity/                 # Antigravity Agent configuration
+│   └── rules.md                  # Agent rules and context
+└── .cursor/                      # Cursor AI configuration
+    └── rules/                    # Cursor rules (.mdc)
+
 ```
 
 ## Architecture Overview
@@ -123,11 +128,11 @@ Vete/
 
 ## User Roles & Permissions
 
-| Role | Description | Access |
-|------|-------------|--------|
-| `owner` | Pet owners | Own pets, book appointments, view records |
-| `vet` | Veterinarians | All patients, create prescriptions, clinical tools |
-| `admin` | Clinic admins | Everything + settings, team, finances |
+| Role    | Description   | Access                                             |
+| ------- | ------------- | -------------------------------------------------- |
+| `owner` | Pet owners    | Own pets, book appointments, view records          |
+| `vet`   | Veterinarians | All patients, create prescriptions, clinical tools |
+| `admin` | Clinic admins | Everything + settings, team, finances              |
 
 **Security function**: `is_staff_of(tenant_id)` checks if user is vet/admin in that tenant.
 
@@ -283,6 +288,7 @@ http://localhost:3000/petlife
 See `web/.env.example` for complete reference (82 variables documented).
 
 **Required** in `web/.env.local`:
+
 ```env
 NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=xxx
@@ -297,18 +303,21 @@ DATABASE_URL=postgresql://...
 ## Coding Standards
 
 ### TypeScript
+
 - Strict mode enabled
 - Explicit return types on all functions
 - Use `interface` for object shapes, `type` for unions
 - Zod for runtime validation at API boundaries
 
 ### React/Next.js
+
 - **Server Components** by default (no `"use client"` unless needed)
 - Server Actions for mutations (not API routes for forms)
 - Small, focused components
 - Props interface defined above component
 
 ### Styling (Critical)
+
 - **ONLY Tailwind utility classes**
 - **Theme colors via CSS variables**: `bg-[var(--primary)]`, `text-[var(--text-primary)]`
 - **NEVER hardcode colors** like `bg-blue-500` or `#333`
@@ -316,42 +325,48 @@ DATABASE_URL=postgresql://...
 - No inline styles
 
 ### Database
+
 - **ALWAYS enable RLS** on new tables
 - **ALWAYS filter by tenant_id** in queries
 - Parameterized queries only (no string interpolation)
 - Migrations in `web/db/XX_name.sql` format
 
 ### API Routes
+
 ```typescript
 // Required pattern for all API routes
 export async function GET(request: NextRequest) {
-  const supabase = await createClient()
+  const supabase = await createClient();
 
   // 1. Auth check
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 
   // 2. Get tenant context
   const { data: profile } = await supabase
-    .from('profiles')
-    .select('tenant_id')
-    .eq('id', user.id)
-    .single()
+    .from("profiles")
+    .select("tenant_id")
+    .eq("id", user.id)
+    .single();
 
   // 3. Query with tenant filter
   const { data, error } = await supabase
-    .from('table')
-    .select('*')
-    .eq('tenant_id', profile.tenant_id)
+    .from("table")
+    .select("*")
+    .eq("tenant_id", profile.tenant_id);
 
   // 4. Return response
-  return NextResponse.json(data)
+  return NextResponse.json(data);
 }
 ```
 
 ### User-Facing Text
+
 - **All text in Spanish** (Paraguay market)
 - Error messages: `"No autorizado"`, `"Error al guardar"`, etc.
 - Button labels: `"Guardar"`, `"Cancelar"`, `"Enviar"`, etc.
@@ -360,29 +375,31 @@ export async function GET(request: NextRequest) {
 
 ## Slash Commands (Use with `/command`)
 
-| Command | Purpose |
-|---------|---------|
-| `/add-feature` | Add new feature with proper patterns |
-| `/add-clinic` | Onboard a new clinic tenant |
-| `/add-api` | Create Supabase-connected API route |
-| `/add-migration` | Create SQL migration with RLS |
-| `/add-component` | Create themed React component |
-| `/run-tests` | Execute test suite |
-| `/review-code` | Project-specific code review |
-| `/debug` | Structured debugging approach |
+| Command          | Purpose                              |
+| ---------------- | ------------------------------------ |
+| `/add-feature`   | Add new feature with proper patterns |
+| `/add-clinic`    | Onboard a new clinic tenant          |
+| `/add-api`       | Create Supabase-connected API route  |
+| `/add-migration` | Create SQL migration with RLS        |
+| `/add-component` | Create themed React component        |
+| `/run-tests`     | Execute test suite                   |
+| `/review-code`   | Project-specific code review         |
+| `/debug`         | Structured debugging approach        |
+| `/git-workflow`  | Git branching and PR guidelines      |
 
 ## Exemplars (Pattern Reference)
 
 Located in `.claude/exemplars/`:
 
-| File | Shows |
-|------|-------|
-| `nextjs-page-exemplar.md` | Server Components, SSG, multi-tenant pages |
-| `supabase-api-exemplar.md` | Auth, RLS, tenant isolation patterns |
-| `react-component-exemplar.md` | Theme variables, TypeScript, accessibility |
-| `database-migration-exemplar.md` | RLS policies, indexes, triggers |
-| `vitest-testing-exemplar.md` | Unit tests, mocking, parameterized tests |
-| `server-action-exemplar.md` | Form handling, validation, mutations |
+| File                             | Shows                                      |
+| -------------------------------- | ------------------------------------------ |
+| `nextjs-page-exemplar.md`        | Server Components, SSG, multi-tenant pages |
+| `supabase-api-exemplar.md`       | Auth, RLS, tenant isolation patterns       |
+| `react-component-exemplar.md`    | Theme variables, TypeScript, accessibility |
+| `database-migration-exemplar.md` | RLS policies, indexes, triggers            |
+| `vitest-testing-exemplar.md`     | Unit tests, mocking, parameterized tests   |
+| `server-action-exemplar.md`      | Form handling, validation, mutations       |
+| `rate-limiting-exemplar.md`      | Upstash Redis rate limiting patterns       |
 
 ---
 
@@ -437,48 +454,48 @@ Create `web/app/api/[resource]/route.ts` using the pattern in Coding Standards a
 Import from `@/lib/hooks`:
 
 ```typescript
-import { useAsyncData, useFormState, useModal } from '@/lib/hooks'
+import { useAsyncData, useFormState, useModal } from "@/lib/hooks";
 
 // Data fetching with loading states
 const { data, isLoading, error, refetch } = useAsyncData(
-  () => fetch('/api/pets').then(r => r.json()),
+  () => fetch("/api/pets").then((r) => r.json()),
   [tenantId],
   { refetchInterval: 30000, enabled: !!tenantId }
-)
+);
 
 // Form with Zod validation
 const form = useFormState({
-  initialValues: { name: '', species: 'dog' },
+  initialValues: { name: "", species: "dog" },
   schema: petSchema,
   onSubmit: async (values) => await createPet(values),
-})
+});
 
 // Modal state management
-const editModal = useModalWithData<Pet>()
-editModal.open(selectedPet)
+const editModal = useModalWithData<Pet>();
+editModal.open(selectedPet);
 ```
 
 ### Adding a New Page
 
 ```typescript
 // web/app/[clinic]/new-page/page.tsx
-import { getClinicData } from '@/lib/clinics'
-import { notFound } from 'next/navigation'
+import { getClinicData } from "@/lib/clinics";
+import { notFound } from "next/navigation";
 
 interface Props {
-  params: Promise<{ clinic: string }>
+  params: Promise<{ clinic: string }>;
 }
 
 export async function generateStaticParams() {
-  return [{ clinic: 'adris' }, { clinic: 'petlife' }]
+  return [{ clinic: "adris" }, { clinic: "petlife" }];
 }
 
 export default async function NewPage({ params }: Props) {
-  const { clinic } = await params
-  const clinicData = await getClinicData(clinic)
+  const { clinic } = await params;
+  const clinicData = await getClinicData(clinic);
 
   if (!clinicData) {
-    notFound()
+    notFound();
   }
 
   return (
@@ -487,7 +504,7 @@ export default async function NewPage({ params }: Props) {
         {clinicData.config.name}
       </h1>
     </div>
-  )
+  );
 }
 ```
 
@@ -510,22 +527,24 @@ export default async function NewPage({ params }: Props) {
 
 **In-project documentation** (see `web/docs/`):
 
-| Topic | File |
-|-------|------|
-| Architecture | `web/docs/ARCHITECTURE.md` |
-| NPM Scripts | `web/docs/SCRIPTS.md` |
-| Environment Variables | `web/.env.example` |
+| Topic                 | File                       |
+| --------------------- | -------------------------- |
+| Architecture          | `web/docs/ARCHITECTURE.md` |
+| NPM Scripts           | `web/docs/SCRIPTS.md`      |
+| Environment Variables | `web/.env.example`         |
 
 **Extended documentation** (see `documentation/`):
 
-| Topic | File |
-|-------|------|
-| System Design | `documentation/architecture/overview.md` |
-| Multi-tenancy | `documentation/architecture/multi-tenancy.md` |
-| Database schema | `documentation/database/schema-reference.md` |
-| RLS policies | `documentation/database/rls-policies.md` |
-| All features | `documentation/features/overview.md` |
-| API reference | `documentation/api/overview.md` |
+| Topic           | File                                          |
+| --------------- | --------------------------------------------- |
+| System Design   | `documentation/architecture/overview.md`      |
+| Multi-tenancy   | `documentation/architecture/multi-tenancy.md` |
+| Database schema | `documentation/database/schema-reference.md`  |
+| RLS policies    | `documentation/database/rls-policies.md`      |
+| All features    | `documentation/features/overview.md`          |
+| All features    | `documentation/features/overview.md`          |
+| API reference   | `documentation/api/overview.md`               |
+| Git Workflow    | `documentation/GIT_WORKFLOW.md`               |
 
 ## Security Audit
 
@@ -542,6 +561,7 @@ The `.claude/SUPABASE_AUDIT.md` contains a comprehensive security audit with all
 ## Feature Status
 
 ### Core Platform ✅
+
 - Multi-tenant public websites with dynamic theming
 - Authentication (Supabase Auth with invite system)
 - Pet profiles with photos, QR codes, and microchip tracking
@@ -550,6 +570,7 @@ The `.claude/SUPABASE_AUDIT.md` contains a comprehensive security audit with all
 - Growth charts with breed-specific standards
 
 ### Appointments & Scheduling ✅
+
 - Multi-step appointment booking wizard
 - Real-time slot availability with overlap detection
 - Calendar view for staff (day/week/month)
@@ -558,6 +579,7 @@ The `.claude/SUPABASE_AUDIT.md` contains a comprehensive security audit with all
 - Staff schedule management with time-off requests
 
 ### Clinical Tools ✅
+
 - Drug dosage calculator (species/weight-based)
 - Diagnosis code search (VeNom/SNOMED)
 - Quality of life assessments (HHHHHMM scale)
@@ -566,6 +588,7 @@ The `.claude/SUPABASE_AUDIT.md` contains a comprehensive security audit with all
 - Prescription generation with PDF export
 
 ### Hospitalization Module ✅
+
 - Patient admission with kennel assignment
 - Vital signs monitoring (temp, HR, RR, pain scale)
 - Treatment sheets and medication logs
@@ -573,12 +596,14 @@ The `.claude/SUPABASE_AUDIT.md` contains a comprehensive security audit with all
 - Discharge workflows
 
 ### Laboratory Module ✅
+
 - Lab test ordering from catalog
 - Result entry with reference ranges
 - Lab order comments and notes
 - Result attachments and reports
 
 ### Invoicing & Payments ✅
+
 - Full invoice lifecycle (draft → sent → paid)
 - Line items (services, products, custom)
 - Payment recording with multiple methods
@@ -586,6 +611,7 @@ The `.claude/SUPABASE_AUDIT.md` contains a comprehensive security audit with all
 - Invoice PDF generation and email sending
 
 ### E-Commerce / Store ✅
+
 - Product catalog with categories and brands
 - Shopping cart with database persistence (logged-in users)
 - Stock validation before cart add
@@ -598,6 +624,7 @@ The `.claude/SUPABASE_AUDIT.md` contains a comprehensive security audit with all
 - Stock alerts for low inventory
 
 ### Inventory Management (Enhanced) ✅
+
 - Unified inventory view combining own products + catalog product assignments
 - Stock adjustment with reason codes (damage, theft, expired, correction, etc.)
 - Stock receiving with WAC (Weighted Average Cost) recalculation
@@ -608,13 +635,16 @@ The `.claude/SUPABASE_AUDIT.md` contains a comprehensive security audit with all
 - Barcode scanning for quick lookups
 
 ### Stock Reservation System ✅
+
 - Cart items with automatic stock reservation
 - Reserved quantity tracking per cart
 - Automatic release of expired reservations via cron job
 - Prevents overselling during checkout
 
 ### Background Jobs (Cron) ✅
+
 14 cron endpoints for background processing:
+
 - `/api/cron/release-reservations` - Release expired cart stock reservations
 - `/api/cron/process-subscriptions` - Process recurring subscription renewals
 - `/api/cron/expiry-alerts` - Send product expiry notifications
@@ -630,7 +660,9 @@ The `.claude/SUPABASE_AUDIT.md` contains a comprehensive security audit with all
 - `/api/cron/generate-recurring` - Generate recurring appointments
 
 ### Custom React Hooks Library ✅
+
 Located in `lib/hooks/` (8 hook files):
+
 - `useAsyncData` / `useSimpleAsyncData` - Data fetching with loading/error/success states
 - `useFormState` - Form management with Zod schema validation
 - `useModal` / `useModalWithData` - Modal state management
@@ -642,6 +674,7 @@ Located in `lib/hooks/` (8 hook files):
 - `useTenantFeatures` - Tier-based feature gating with `FeatureGate` component
 
 ### Communications ✅
+
 - Internal messaging (clinic ↔ owner)
 - WhatsApp integration (bidirectional)
 - Message templates library
@@ -649,18 +682,21 @@ Located in `lib/hooks/` (8 hook files):
 - Notification system
 
 ### Insurance Module ✅
+
 - Policy management
 - Claims submission and tracking
 - Pre-authorization requests
 - Insurance provider directory
 
 ### Consent Management ✅
+
 - Consent templates
 - Blanket consent handling
 - Digital signatures
 - Audit trail for consents
 
 ### Administration ✅
+
 - Staff/team management with invites
 - Client management dashboard
 - Expense tracking
@@ -669,11 +705,13 @@ Located in `lib/hooks/` (8 hook files):
 - Epidemiology heatmaps
 
 ### Interactive Tools ✅
+
 - Toxic food checker
 - Pet age calculator
 - QR tag scanning and assignment
 
 ### Adoptions System ✅ (NEW)
+
 - Pet adoption listings with photos and descriptions
 - Featured adoptions display
 - Adoption applications workflow
@@ -681,6 +719,7 @@ Located in `lib/hooks/` (8 hook files):
 - Adopter management
 
 ### Lost & Found Module ✅ (NEW)
+
 - Lost pet reporting with photos and last seen location
 - Sighting reports from community
 - Lost/found pet matching
@@ -688,6 +727,7 @@ Located in `lib/hooks/` (8 hook files):
 - Public lost pet listings
 
 ### Procurement System ✅ (NEW)
+
 - Supplier management with contact info and verification
 - Supplier product catalogs with pricing
 - Purchase order creation and tracking
@@ -696,6 +736,7 @@ Located in `lib/hooks/` (8 hook files):
 - Order history and analytics
 
 ### Referral Program ✅ (NEW)
+
 - Referral code generation
 - Referral tracking with status (pending, trial_started, converted, expired)
 - Commission calculation on successful referrals
@@ -703,6 +744,7 @@ Located in `lib/hooks/` (8 hook files):
 - Automated referral processing
 
 ### Platform Administration ✅ (NEW)
+
 - Multi-tenant management dashboard
 - Platform-wide announcements
 - Commission invoice generation
@@ -711,6 +753,7 @@ Located in `lib/hooks/` (8 hook files):
 - Bank transfer verification
 
 ### API Coverage
+
 - **420+ HTTP methods** across **256 API route files**
 - **42 Server Actions** for form mutations
 - **14 Cron job endpoints** for background tasks
@@ -718,6 +761,7 @@ Located in `lib/hooks/` (8 hook files):
 - Full Zod validation on inputs
 
 ### Planned / Future
+
 - Multi-language support (English)
 - Mobile app (React Native)
 - Telemedicine integration
@@ -726,4 +770,4 @@ Located in `lib/hooks/` (8 hook files):
 
 ---
 
-*Last updated: January 2026*
+_Last updated: January 2026_

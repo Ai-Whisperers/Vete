@@ -2,7 +2,7 @@
 
 ## Priority: P0 (Critical)
 ## Category: Race Condition
-## Status: Not Started
+## Status: COMPLETED
 
 ## Description
 The subscription processing cron job checks stock availability and decrements in separate operations, allowing concurrent runs to cause overselling.
@@ -40,7 +40,9 @@ await supabase.rpc('decrement_stock', {
 
 ## Proposed Solution
 
-### Option 1: Atomic RPC with Stock Check (Recommended)
+**Decision: Block Entirely** - If stock check fails, the order should be blocked completely (not queued or soft-blocked).
+
+### Atomic RPC with Stock Check (Approved Approach)
 ```sql
 CREATE OR REPLACE FUNCTION decrement_stock_if_available(
   p_product_id UUID,
@@ -141,5 +143,24 @@ CHECK (stock_quantity >= 0);
 - **Total: 5 hours**
 
 ---
+## Implementation Summary (Completed)
+
+**Files Modified:**
+- `web/db/migrations/045_atomic_stock_decrement_subscription.sql` - New migration
+- `web/app/api/cron/process-subscriptions/route.ts` - Updated cron job
+
+**Changes Made:**
+1. Created `decrement_stock_if_available` RPC function with `FOR UPDATE` row-level locking
+2. Created `increment_stock` RPC function for rollback scenarios
+3. Added `CHECK (stock_quantity >= 0)` constraint on `store_inventory` table
+4. Updated cron job to:
+   - Decrement stock FIRST (before creating order) using atomic RPC
+   - Roll back stock if order creation fails
+   - Roll back stock if order items creation fails
+   - Roll back stock on any exception after decrement
+5. User decision: **Block Entirely** - orders blocked completely if insufficient stock
+
+---
 *Ticket created: January 2026*
 *Based on security/performance audit*
+*Completed: January 2026*

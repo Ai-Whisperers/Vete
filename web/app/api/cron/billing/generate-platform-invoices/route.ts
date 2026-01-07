@@ -12,7 +12,7 @@
  * Should be triggered on the 1st of each month to invoice the previous month.
  *
  * Process:
- * 1. Get all non-free tenants (basico, crecimiento, profesional, empresarial)
+ * 1. Get all paid tenants (profesional)
  * 2. For each tenant, call generate_platform_invoice SQL function
  * 3. Create notification for clinic admin
  * 4. Update tenant's next_invoice_date

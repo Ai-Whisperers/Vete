@@ -16,6 +16,7 @@ dist/
 
 # IDE/Editor
 .cursor/
+!.cursor/rules/
 .vscode/
 *.swp
 *.swo

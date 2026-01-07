@@ -97,7 +97,7 @@ export default async function BookingPage({
               <div className="h-px flex-1 bg-gray-200" />
             </div>
             <a
-              href={`/${clinic}/auth/signup?redirect=/${clinic}/book`}
+              href={`/${clinic}/portal/signup?redirect=/${clinic}/book`}
               className="inline-block rounded-2xl border-2 border-[var(--primary)] bg-white px-8 py-4 font-bold text-[var(--primary)] transition-all hover:-translate-y-1 hover:bg-[var(--primary)] hover:text-white"
             >
               Crear Cuenta

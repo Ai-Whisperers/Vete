@@ -29,10 +29,7 @@ import {
 // Map tier IDs to display names
 const TIER_DISPLAY_NAMES: Record<TierId, string> = {
   gratis: 'Gratis',
-  basico: 'Básico',
-  crecimiento: 'Crecimiento',
   profesional: 'Profesional',
-  empresarial: 'Empresarial',
 }
 
 // Get subscription amount for a tier (in PYG)

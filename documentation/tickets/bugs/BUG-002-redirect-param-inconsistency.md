@@ -3,6 +3,7 @@
 ## Priority: P2 - Medium
 ## Category: Bug
 ## Affected Areas: Authentication flow, Login pages
+## Status: COMPLETED
 
 ## Description
 
@@ -104,3 +105,35 @@ Search and replace across codebase:
 - Implementation: 2 hours
 - Testing: 1 hour
 - **Total: 3 hours**
+
+---
+## Implementation Summary (Completed)
+
+**Files Created:**
+- `lib/auth/redirect.ts` - Centralized redirect URL utilities
+
+**Files Modified:**
+- `lib/auth/index.ts` - Export redirect utilities
+- `app/[clinic]/portal/login/page.tsx` - Use `getReturnUrl`
+- `app/[clinic]/portal/signup/page.tsx` - Use `getReturnUrl`
+
+**Changes Made:**
+1. **New redirect utilities:**
+   - `REDIRECT_PARAM = 'redirect'` - Standard parameter name
+   - `createLoginUrl(clinic, returnPath)` - Generate login URLs
+   - `createSignupUrl(clinic, returnPath)` - Generate signup URLs
+   - `getReturnUrl(searchParams, fallback)` - Get redirect URL supporting all param names
+   - `isValidRedirectUrl(url)` - Validate against open redirect attacks
+   - `sanitizeRedirectUrl(url, fallback)` - Safe redirect URL getter
+
+2. **Updated pages:**
+   - Login and signup pages now use `getReturnUrl` for consistent handling
+   - Supports `redirect`, `returnTo`, and `next` parameters (backwards compatible)
+
+**Backwards compatibility:**
+- All three parameter names (`redirect`, `returnTo`, `next`) are supported
+- Existing links continue to work
+- New code should use `redirect` parameter via `createLoginUrl`/`createSignupUrl`
+
+---
+*Completed: January 2026*

@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: 'Precios | Vetic - Planes para tu Veterinaria',
   description:
-    'Planes transparentes desde Gs 0. Semilla, Crecimiento y Establecida. Sin costos ocultos, sin contratos. Calculadora de ROI incluida.',
+    'Solo 2 planes: Gratis y Profesional. Sin costos ocultos, sin contratos. Empezá gratis y pasá a Profesional cuando lo necesites.',
   keywords: [
     'precios veterinaria',
     'software veterinario precio',
@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Precios | Vetic - Planes para tu Veterinaria',
     description:
-      'Planes desde Gs 0. Empezá gratis y subí de plan cuando lo necesites. Calculá tu ROI antes de decidir.',
+      'Solo 2 planes: Gratis y Profesional (Gs 250.000/mes). Empezá gratis y subí cuando lo necesites.',
     type: 'website',
     locale: 'es_PY',
   },

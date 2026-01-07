@@ -2,7 +2,7 @@
 
 ## Priority: P1 (High)
 ## Category: Race Condition
-## Status: Not Started
+## Status: COMPLETED
 
 ## Description
 Hospitalization creation and kennel status update are separate operations, allowing double-booking of kennels.
@@ -146,5 +146,49 @@ try {
 - **Total: 5 hours**
 
 ---
+## Implementation Summary (Completed)
+
+**Files Created:**
+- `db/migrations/049_kennel_atomicity.sql`
+
+**Files Modified:**
+- `app/api/hospitalizations/route.ts`
+
+**Changes Made:**
+
+1. **Unique partial index:**
+   ```sql
+   CREATE UNIQUE INDEX idx_hospitalizations_one_active_per_kennel
+   ON hospitalizations (kennel_id)
+   WHERE status NOT IN ('discharged', 'cancelled', 'transferred');
+   ```
+   - Prevents database-level double-booking
+   - Concurrent inserts fail with unique constraint violation
+
+2. **Database trigger (`sync_kennel_status_on_hospitalization`):**
+   - INSERT: Marks kennel as 'occupied', validates availability
+   - UPDATE (discharge): Marks kennel as 'cleaning'
+   - UPDATE (transfer): Updates both old and new kennels
+   - DELETE: Marks kennel as 'available'
+
+3. **Helper function:**
+   - `mark_kennel_cleaned(UUID)` - Staff marks kennel ready after cleaning
+
+4. **API error handling:**
+   - Catches error code `23505` (unique violation) and `P0001` (trigger exception)
+   - Returns 409 Conflict with clear Spanish message
+
+5. **Removed manual updates:**
+   - Removed manual kennel status update on admission
+   - Removed manual kennel status update on discharge
+   - Trigger handles all status transitions atomically
+
+**Behavior:**
+- Double-booking now impossible at database level
+- Clear error: "El canil no está disponible o ya está ocupado"
+- Discharge sets kennel to 'cleaning' (requires staff to mark clean)
+
+---
 *Ticket created: January 2026*
+*Completed: January 2026*
 *Based on security/performance audit*

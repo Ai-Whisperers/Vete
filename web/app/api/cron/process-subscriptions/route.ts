@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { logger } from '@/lib/logger'
+import { checkCronAuth } from '@/lib/api/cron-auth'
+
+// SEC-010: Subscription frequency bounds for defensive validation
+const SUBSCRIPTION_FREQUENCY = {
+  MIN_DAYS: 7,
+  MAX_DAYS: 180,
+  DEFAULT_DAYS: 30,
+} as const
 
 // Use service role key for cron jobs to bypass RLS
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
@@ -14,18 +22,10 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
  * Protected by CRON_SECRET header
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
-  // Verify cron secret - CRITICAL: fail closed if not configured
-  const envCronSecret = process.env.CRON_SECRET
-
-  if (!envCronSecret) {
-    logger.error('CRON_SECRET not configured for process-subscriptions - blocking request')
-    return NextResponse.json({ error: 'Server configuration error' }, { status: 500 })
-  }
-
-  const cronSecret = request.headers.get('x-cron-secret')
-  if (cronSecret !== envCronSecret) {
-    logger.warn('Unauthorized cron attempt for process-subscriptions')
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  // SEC-006: Use timing-safe cron authentication
+  const { authorized, errorResponse } = checkCronAuth(request)
+  if (!authorized) {
+    return errorResponse!
   }
 
   const supabase = createClient(supabaseUrl, supabaseServiceKey)
@@ -71,26 +71,44 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     logger.info(`Processing ${dueSubscriptions.length} due subscriptions`)
 
+    // PERF-002: Batch fetch all products in ONE query to avoid N+1
+    const productIds = [...new Set(dueSubscriptions.map((s) => s.product_id))]
+
+    const { data: products, error: productsError } = await supabase
+      .from('store_products')
+      .select(
+        `
+        id,
+        tenant_id,
+        name,
+        base_price,
+        is_active,
+        store_inventory(stock_quantity)
+      `
+      )
+      .in('id', productIds)
+
+    if (productsError) {
+      logger.error('Failed to batch fetch products', { error: productsError.message })
+      throw productsError
+    }
+
+    // Create lookup map for O(1) access: key = "product_id:tenant_id"
+    const productMap = new Map(products?.map((p) => [`${p.id}:${p.tenant_id}`, p]) ?? [])
+
+    logger.info(`Fetched ${products?.length ?? 0} products for ${productIds.length} unique product IDs`)
+
     // Process each subscription
     for (const subscription of dueSubscriptions) {
-      try {
-        // Check product availability and stock
-        const { data: product, error: productError } = await supabase
-          .from('store_products')
-          .select(
-            `
-            id,
-            name,
-            base_price,
-            is_active,
-            store_inventory(stock_quantity)
-          `
-          )
-          .eq('id', subscription.product_id)
-          .eq('tenant_id', subscription.tenant_id)
-          .single()
+      // Track stock state for rollback in catch block
+      let stockResult: { success: boolean; reason?: string; available?: number } | null = null
+      let stockRolledBack = false
 
-        if (productError || !product) {
+      try {
+        // PERF-002: Use pre-fetched product from batch query
+        const product = productMap.get(`${subscription.product_id}:${subscription.tenant_id}`)
+
+        if (!product) {
           results.failed++
           results.errors.push(`Subscription ${subscription.id}: Product not found`)
 
@@ -116,28 +134,61 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           continue
         }
 
-        // Check stock
-        const inventory = Array.isArray(product.store_inventory)
-          ? product.store_inventory[0]
-          : product.store_inventory
-        const stock = (inventory as { stock_quantity?: number } | null)?.stock_quantity ?? 0
+        // ATOMIC: Decrement stock FIRST with row-level locking
+        // This prevents race conditions where two concurrent processes both see
+        // sufficient stock and both decrement, causing overselling
+        const { data: stockResultData, error: stockError } = await supabase.rpc(
+          'decrement_stock_if_available',
+          {
+            p_product_id: subscription.product_id,
+            p_quantity: subscription.quantity,
+          }
+        )
 
-        if (stock < subscription.quantity) {
+        // Assign to outer variable for catch block access
+        stockResult = stockResultData
+
+        if (stockError) {
+          results.failed++
+          results.errors.push(`Subscription ${subscription.id}: Stock decrement failed - ${stockError.message}`)
+
+          await supabase.from('store_subscription_history').insert({
+            subscription_id: subscription.id,
+            event_type: 'order_failed',
+            event_data: { reason: 'Stock decrement error', error: stockError.message },
+          })
+
+          continue
+        }
+
+        // Check if stock decrement succeeded
+        if (!stockResult?.success) {
           results.skipped++
+
+          const reason = stockResult?.reason || 'unknown'
+          const available = stockResult?.available ?? 0
 
           await supabase.from('store_subscription_history').insert({
             subscription_id: subscription.id,
             event_type: 'order_failed',
             event_data: {
-              reason: 'Insufficient stock',
+              reason: reason === 'insufficient_stock' ? 'Insufficient stock' : reason,
               required: subscription.quantity,
-              available: stock,
+              available,
             },
           })
 
           // TODO: Send notification to customer about stock issue
+          logger.warn(`Subscription ${subscription.id} skipped: ${reason}`, {
+            available,
+            requested: subscription.quantity,
+          })
+
           continue
         }
+
+        // Stock successfully reserved - now create the order
+        // If order creation fails, we MUST roll back the stock (stockRolledBack is declared above)
 
         // Get current price (might have changed since subscription)
         const currentPrice = product.base_price
@@ -175,10 +226,17 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           results.failed++
           results.errors.push(`Subscription ${subscription.id}: Failed to create order`)
 
+          // ROLLBACK: Restore the stock we already decremented
+          await supabase.rpc('increment_stock', {
+            p_product_id: subscription.product_id,
+            p_quantity: subscription.quantity,
+          })
+          stockRolledBack = true
+
           await supabase.from('store_subscription_history').insert({
             subscription_id: subscription.id,
             event_type: 'order_failed',
-            event_data: { reason: 'Order creation failed', error: orderError?.message },
+            event_data: { reason: 'Order creation failed', error: orderError?.message, stock_rolled_back: true },
           })
 
           continue
@@ -199,18 +257,37 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         if (itemError) {
           results.failed++
           results.errors.push(`Subscription ${subscription.id}: Failed to create order items`)
+
+          // ROLLBACK: Restore the stock we already decremented
+          await supabase.rpc('increment_stock', {
+            p_product_id: subscription.product_id,
+            p_quantity: subscription.quantity,
+          })
+          stockRolledBack = true
+
+          // Also try to delete the orphan order
+          await supabase.from('store_orders').delete().eq('id', order.id)
+
           continue
         }
 
-        // Decrement stock
-        await supabase.rpc('decrement_stock', {
-          p_product_id: subscription.product_id,
-          p_quantity: subscription.quantity,
-        })
+        // Stock was already decremented atomically above - no need to decrement again
 
-        // Calculate next order date
+        // SEC-010: Calculate next order date with bounds validation
+        // Clamp frequency_days to valid range to handle legacy/invalid data
+        const rawFrequency = subscription.frequency_days ?? SUBSCRIPTION_FREQUENCY.DEFAULT_DAYS
+        const frequencyDays = Math.min(
+          Math.max(rawFrequency, SUBSCRIPTION_FREQUENCY.MIN_DAYS),
+          SUBSCRIPTION_FREQUENCY.MAX_DAYS
+        )
+
+        // Log warning if frequency was corrected
+        if (frequencyDays !== rawFrequency) {
+          logger.warn(`Subscription ${subscription.id}: frequency_days corrected from ${rawFrequency} to ${frequencyDays}`)
+        }
+
         const nextOrderDate = new Date()
-        nextOrderDate.setDate(nextOrderDate.getDate() + subscription.frequency_days)
+        nextOrderDate.setDate(nextOrderDate.getDate() + frequencyDays)
 
         // Update subscription
         const updateData: Record<string, unknown> = {
@@ -251,6 +328,22 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         results.failed++
         const message = e instanceof Error ? e.message : 'Unknown error'
         results.errors.push(`Subscription ${subscription.id}: ${message}`)
+
+        // If stock was decremented but not rolled back, roll it back now
+        // This handles exceptions thrown after stock decrement but before completion
+        if (stockResult?.success && !stockRolledBack) {
+          try {
+            await supabase.rpc('increment_stock', {
+              p_product_id: subscription.product_id,
+              p_quantity: subscription.quantity,
+            })
+            logger.warn(`Rolled back stock for subscription ${subscription.id} after error`)
+          } catch (rollbackError) {
+            logger.error(`Failed to roll back stock for subscription ${subscription.id}`, {
+              error: rollbackError instanceof Error ? rollbackError.message : 'Unknown',
+            })
+          }
+        }
 
         logger.error(`Error processing subscription ${subscription.id}`, {
           error: message,

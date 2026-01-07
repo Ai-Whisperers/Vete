@@ -3,23 +3,112 @@ import type { NextRequest } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { env } from '@/lib/env'
 
-export async function middleware(request: NextRequest) {
+// ============================================================================
+// MIDDLEWARE LOGGING
+// Lightweight logger for Edge runtime (can't use full logger module)
+// ============================================================================
+
+type LogLevel = 'info' | 'warn' | 'error'
+
+interface MiddlewareLogContext {
+  requestId: string
+  path: string
+  method: string
+  userId?: string
+  role?: string
+  ip?: string
+  duration?: number
+  from?: string
+  to?: string
+  reason?: string
+  [key: string]: unknown
+}
+
+/**
+ * Lightweight logger for middleware (Edge runtime compatible)
+ * Outputs JSON in production, pretty format in development
+ */
+function middlewareLog(
+  level: LogLevel,
+  message: string,
+  context: MiddlewareLogContext
+): void {
+  const entry = {
+    timestamp: new Date().toISOString(),
+    level,
+    message,
+    source: 'middleware',
+    ...context,
+  }
+
+  if (process.env.NODE_ENV === 'production') {
+    // JSON output for log aggregation
+    console[level](JSON.stringify(entry))
+  } else {
+    // Pretty output for development
+    const levelColors: Record<LogLevel, string> = {
+      info: '\x1b[32m',
+      warn: '\x1b[33m',
+      error: '\x1b[31m',
+    }
+    const reset = '\x1b[0m'
+    const dim = '\x1b[2m'
+    const color = levelColors[level]
+
+    const parts = [
+      `req=${context.requestId.slice(0, 8)}`,
+      context.userId ? `user=${context.userId.slice(0, 8)}` : null,
+      context.role ? `role=${context.role}` : null,
+      context.duration !== undefined ? `${context.duration}ms` : null,
+    ].filter(Boolean)
+
+    console[level](
+      `${dim}${new Date().toLocaleTimeString()}${reset} ${color}[MW]${reset} ${message} ${dim}[${context.method} ${context.path}]${reset}`,
+      parts.length > 0 ? `${dim}(${parts.join(' | ')})${reset}` : ''
+    )
+  }
+}
+
+// ============================================================================
+// MIDDLEWARE
+// ============================================================================
+
+export async function middleware(request: NextRequest): Promise<NextResponse> {
+  const startTime = performance.now()
   const path = request.nextUrl.pathname
+  const requestId = crypto.randomUUID()
+
+  // Extract client info for logging
+  const ip =
+    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    request.headers.get('x-real-ip') ||
+    'unknown'
+
+  const baseLogContext: MiddlewareLogContext = {
+    requestId,
+    path,
+    method: request.method,
+    ip,
+  }
 
   // Skip root path
   if (path === '/') {
     return NextResponse.next()
   }
 
-  // Create response with pathname header for layout
+  // Create response with pathname and request ID headers
+  const requestHeaders = new Headers(request.headers)
+  requestHeaders.set('x-request-id', requestId)
+
   let response = NextResponse.next({
     request: {
-      headers: new Headers(request.headers),
+      headers: requestHeaders,
     },
   })
 
-  // Add pathname to headers for layout to access
+  // Add headers to response for downstream code and correlation
   response.headers.set('x-pathname', path)
+  response.headers.set('x-request-id', requestId)
 
   // OPTIMIZATION: Skip auth for public routes to reduce latency
   // Public routes don't need session refresh (saves ~50-100ms per request)
@@ -27,6 +116,12 @@ export async function middleware(request: NextRequest) {
     !path.includes('/portal') && !path.includes('/dashboard') && !path.includes('/cart/checkout')
 
   if (isPublicRoute) {
+    const duration = Math.round(performance.now() - startTime)
+    middlewareLog('info', 'Public route accessed', {
+      ...baseLogContext,
+      duration,
+      routeType: 'public',
+    })
     return response
   }
 
@@ -49,6 +144,7 @@ export async function middleware(request: NextRequest) {
           },
         })
         response.headers.set('x-pathname', path)
+        response.headers.set('x-request-id', requestId)
         // Set cookies in the response for the browser
         cookiesToSet.forEach(({ name, value, options }) => {
           response.cookies.set(name, value, options)
@@ -67,8 +163,21 @@ export async function middleware(request: NextRequest) {
 
   // Redirect authenticated users away from login page
   if (user && path.endsWith('/portal/login')) {
-    url.pathname = `/${path.split('/')[1]}/portal/dashboard`
-    return NextResponse.redirect(url)
+    const clinicSlug = path.split('/')[1]
+    url.pathname = `/${clinicSlug}/portal/dashboard`
+
+    const duration = Math.round(performance.now() - startTime)
+    middlewareLog('info', 'Authenticated user redirected from login', {
+      ...baseLogContext,
+      userId: user.id,
+      duration,
+      from: path,
+      to: url.pathname,
+    })
+
+    const redirectResponse = NextResponse.redirect(url)
+    redirectResponse.headers.set('x-request-id', requestId)
+    return redirectResponse
   }
 
   // 1. Protected Routes Pattern Matching
@@ -86,7 +195,19 @@ export async function middleware(request: NextRequest) {
     // Redirect to the actual login page, not the home page
     url.pathname = `/${clinicSlug}/portal/login`
     url.searchParams.set('returnTo', path)
-    return NextResponse.redirect(url)
+
+    const duration = Math.round(performance.now() - startTime)
+    middlewareLog('warn', 'Unauthenticated access attempt - redirecting to login', {
+      ...baseLogContext,
+      duration,
+      routeType: isDashboard ? 'dashboard' : 'portal',
+      from: path,
+      to: url.pathname,
+    })
+
+    const redirectResponse = NextResponse.redirect(url)
+    redirectResponse.headers.set('x-request-id', requestId)
+    return redirectResponse
   }
 
   // 3. Role Check (Authorization)
@@ -110,8 +231,41 @@ export async function middleware(request: NextRequest) {
       const parts = path.split('/').filter(Boolean)
       const clinicSlug = parts[0]
       url.pathname = `/${clinicSlug}/portal` // Send them to the owner portal
-      return NextResponse.redirect(url)
+
+      const duration = Math.round(performance.now() - startTime)
+      middlewareLog('warn', 'Insufficient role for dashboard access', {
+        ...baseLogContext,
+        userId: user.id,
+        role: role || 'unknown',
+        duration,
+        from: path,
+        to: url.pathname,
+        reason: 'role_insufficient',
+      })
+
+      const redirectResponse = NextResponse.redirect(url)
+      redirectResponse.headers.set('x-request-id', requestId)
+      return redirectResponse
     }
+
+    // Dashboard access granted
+    const duration = Math.round(performance.now() - startTime)
+    middlewareLog('info', 'Dashboard access granted', {
+      ...baseLogContext,
+      userId: user.id,
+      role,
+      duration,
+      routeType: 'dashboard',
+    })
+  } else if (user && isPortal) {
+    // Portal access (any authenticated user)
+    const duration = Math.round(performance.now() - startTime)
+    middlewareLog('info', 'Portal access granted', {
+      ...baseLogContext,
+      userId: user.id,
+      duration,
+      routeType: 'portal',
+    })
   }
 
   return response

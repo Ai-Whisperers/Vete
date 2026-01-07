@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react'
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react'
+import * as Sentry from '@sentry/nextjs'
 
 interface Props {
   error: Error & { digest?: string }
@@ -15,12 +16,22 @@ interface Props {
  */
 export default function GlobalError({ error, reset }: Props) {
   useEffect(() => {
-    // Log to console in production (logger may not be available if layout errored)
-    console.error('Global app error:', {
-      message: error.message,
-      digest: error.digest,
-      stack: error.stack,
+    // Capture error in Sentry with context
+    Sentry.withScope((scope) => {
+      scope.setTag('errorBoundary', 'global')
+      scope.setTag('errorDigest', error.digest || 'unknown')
+      scope.setLevel('fatal')
+      Sentry.captureException(error)
     })
+
+    // Also log to console in development
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Global app error:', {
+        message: error.message,
+        digest: error.digest,
+        stack: error.stack,
+      })
+    }
   }, [error])
 
   return (

@@ -1,4 +1,5 @@
 /** @type {import('next').NextConfig} */
+import { withSentryConfig } from '@sentry/nextjs';
 import createNextIntlPlugin from 'next-intl/plugin';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -22,7 +23,7 @@ const ContentSecurityPolicy = isDev
     style-src 'self' 'unsafe-inline' https://unpkg.com;
     img-src 'self' blob: data: https://*.supabase.co https://*.tile.openstreetmap.org https://unpkg.com https://assets.ruralmakro.org https://www.4pets.com.py https://www.ruralcenter.com.py https://www.bayer.com https://*.cloudinary.com https://images.unsplash.com https://assets.petco.com https://www.royalcanin.com https://www.bd.com https://http2.mlstatic.com https://m.media-amazon.com https://cdn.shopify.com https://d36tnp772eyphs.cloudfront.net https://www.nexgard.com.ar https://s.turbifycdn.com https://cdn.awsli.com.br https://s7d9.scene7.com https://www.idexx.com https://www.bbraunusa.com https://www.purina.com.py https://purina.com.py;
     font-src 'self';
-    connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.tile.openstreetmap.org https://va.vercel-scripts.com;
+    connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.tile.openstreetmap.org https://va.vercel-scripts.com https://*.sentry.io https://*.ingest.sentry.io;
     frame-ancestors 'self';
   `
   : `
@@ -31,7 +32,7 @@ const ContentSecurityPolicy = isDev
     style-src 'self' 'unsafe-inline' https://unpkg.com;
     img-src 'self' blob: data: https://*.supabase.co https://*.tile.openstreetmap.org https://unpkg.com https://assets.ruralmakro.org https://www.4pets.com.py https://www.ruralcenter.com.py https://www.bayer.com https://*.cloudinary.com https://images.unsplash.com https://assets.petco.com https://www.royalcanin.com https://www.bd.com https://http2.mlstatic.com https://m.media-amazon.com https://cdn.shopify.com https://d36tnp772eyphs.cloudfront.net https://www.nexgard.com.ar https://s.turbifycdn.com https://cdn.awsli.com.br https://s7d9.scene7.com https://www.idexx.com https://www.bbraunusa.com https://www.purina.com.py https://purina.com.py;
     font-src 'self';
-    connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.tile.openstreetmap.org https://va.vercel-scripts.com;
+    connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.tile.openstreetmap.org https://va.vercel-scripts.com https://*.sentry.io https://*.ingest.sentry.io;
     frame-ancestors 'self';
   `;
 
@@ -75,6 +76,7 @@ const nextConfig = {
   // This tells Next.js that the web directory is the root for output file tracing
   outputFileTracingRoot: __dirname,
 
+
   // TypeScript and ESLint settings
   typescript: {
     ignoreBuildErrors: false,
@@ -98,12 +100,11 @@ const nextConfig = {
       },
     ];
 
-    // Optimize webpack cache to reduce serialization warnings
-    // Use Buffer for large strings to improve cache performance
-    if (config.cache) {
-      config.cache = {
-        ...config.cache,
-        compression: 'gzip',
+    // Fix for Windows: use polling for file watching to avoid race conditions
+    if (dev) {
+      config.watchOptions = {
+        poll: 1000,
+        aggregateTimeout: 300,
       };
     }
 
@@ -282,4 +283,31 @@ const nextConfig = {
   },
 };
 
-export default withNextIntl(nextConfig);
+// Wrap with Sentry for error tracking and source maps
+const sentryWebpackPluginOptions = {
+  // Sentry organization and project settings
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+
+  // Suppress source map upload logs in CI
+  silent: !process.env.CI,
+
+  // Upload source maps for better error tracking
+  widenClientFileUpload: true,
+
+  // Hide source maps from production bundle
+  hideSourceMaps: true,
+
+  // Automatically tree-shake Sentry logger statements
+  disableLogger: true,
+
+  // Enable automatic Vercel monitors if deployed on Vercel
+  automaticVercelMonitors: true,
+};
+
+// Only wrap with Sentry if DSN is configured
+const finalConfig = process.env.SENTRY_DSN
+  ? withSentryConfig(withNextIntl(nextConfig), sentryWebpackPluginOptions)
+  : withNextIntl(nextConfig);
+
+export default finalConfig;

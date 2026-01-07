@@ -3,6 +3,7 @@ import { AlertTriangle, RefreshCw, Home } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { logger } from '@/lib/logger'
+import * as Sentry from '@sentry/nextjs'
 
 interface Props {
   children: ReactNode
@@ -30,6 +31,14 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    // Capture in Sentry with context
+    Sentry.withScope((scope) => {
+      scope.setTag('errorBoundary', 'component')
+      scope.setTag('context', this.props.context || 'unknown')
+      scope.setExtra('componentStack', errorInfo.componentStack)
+      Sentry.captureException(error)
+    })
+
     // Log with structured logger
     logger.error('Component error caught by ErrorBoundary', {
       error: error.message,

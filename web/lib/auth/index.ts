@@ -36,6 +36,8 @@ export {
   type ApiHandlerContext,
   type ApiHandlerContextWithParams,
   type ApiRouteOptions,
+  type RequestLogger,
+  type PerformanceTracker,
 } from './api-wrapper'
 
 // Server action wrappers

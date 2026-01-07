@@ -4,12 +4,15 @@
  * Features:
  * - Structured JSON logging in production
  * - Pretty console output in development
- * - Request context (request ID, tenant, user)
+ * - Request context (request ID, tenant, user, role)
+ * - Sentry integration for error tracking
+ * - Audit logging for security compliance
+ * - Performance tracking with checkpoints
  * - Debug mode via LOG_LEVEL env var
  * - Automatic error serialization
  *
  * Usage:
- *   import { logger, createRequestLogger } from '@/lib/logger'
+ *   import { logger, createRequestLogger, auditLogger } from '@/lib/logger'
  *
  *   // Simple logging
  *   logger.info('Server started', { port: 3000 })
@@ -20,20 +23,56 @@
  *   log.info('Processing request')
  *   log.debug('Query params', { params })
  *
+ *   // Audit logging for security
+ *   auditLogger.auth('login', { userId, tenant, success: true })
+ *   auditLogger.access('pet', petId, 'write', { userId, tenant })
+ *
  * Environment:
  *   LOG_LEVEL=debug|info|warn|error (default: info in prod, debug in dev)
  *   LOG_FORMAT=json|pretty (default: json in prod, pretty in dev)
+ *   SLOW_REQUEST_THRESHOLD_MS=1000 (default: 1000ms)
  */
 
-type LogLevel = 'debug' | 'info' | 'warn' | 'error'
+// Import Sentry conditionally to avoid errors if not configured
+let Sentry: typeof import('@sentry/nextjs') | null = null
+try {
+  // Dynamic import at module level - will be available after first await
+  import('@sentry/nextjs').then((m) => {
+    Sentry = m
+  }).catch(() => {
+    // Sentry not configured - that's ok
+  })
+} catch {
+  // Sentry not available
+}
 
-interface LogContext {
+export type LogLevel = 'debug' | 'info' | 'warn' | 'error'
+
+export type UserRole = 'owner' | 'vet' | 'admin'
+
+export interface LogContext {
+  // Request tracking
   requestId?: string
-  tenant?: string
-  userId?: string
   method?: string
   path?: string
   duration?: number
+  statusCode?: number
+
+  // Multi-tenant context
+  tenant?: string
+  userId?: string
+  userRole?: UserRole
+
+  // Resource tracking
+  action?: string // e.g., 'pet.create', 'appointment.book'
+  resourceType?: string // e.g., 'pet', 'appointment', 'invoice'
+  resourceId?: string // ID of the affected resource
+
+  // Security context
+  ip?: string
+  userAgent?: string
+
+  // Extensible
   [key: string]: unknown
 }
 
@@ -108,14 +147,18 @@ function formatPretty(entry: LogEntry): string {
 
   // Add context inline if present
   if (context) {
-    const { requestId, tenant, userId, method, path, duration, ...rest } = context
+    const { requestId, tenant, userId, userRole, method, path, duration, action, statusCode, ...rest } =
+      context
     const parts: string[] = []
 
     if (requestId) parts.push(`req=${requestId.slice(0, 8)}`)
     if (tenant) parts.push(`tenant=${tenant}`)
     if (userId) parts.push(`user=${userId.slice(0, 8)}`)
+    if (userRole) parts.push(`role=${userRole}`)
     if (method && path) parts.push(`${method} ${path}`)
+    if (statusCode) parts.push(`status=${statusCode}`)
     if (duration !== undefined) parts.push(`${duration}ms`)
+    if (action) parts.push(`action=${action}`)
 
     if (parts.length > 0) {
       output += ` ${DIM}[${parts.join(' | ')}]${RESET}`
@@ -145,6 +188,54 @@ function formatJson(entry: LogEntry): string {
 
 function shouldLog(level: LogLevel): boolean {
   return LOG_LEVELS[level] >= LOG_LEVELS[getLogLevel()]
+}
+
+/**
+ * Send error to Sentry with context
+ */
+function sendToSentry(
+  message: string,
+  context?: LogContext,
+  error?: LogEntry['error']
+): void {
+  if (!Sentry || process.env.NODE_ENV === 'development') return
+
+  try {
+    Sentry.withScope((scope) => {
+      // Set tags for filtering in Sentry
+      if (context?.tenant) scope.setTag('tenant', context.tenant)
+      if (context?.path) scope.setTag('path', context.path)
+      if (context?.action) scope.setTag('action', context.action)
+      if (context?.statusCode) scope.setTag('statusCode', String(context.statusCode))
+
+      // Set user context
+      if (context?.userId) {
+        scope.setUser({
+          id: context.userId,
+        })
+        if (context.userRole) {
+          scope.setTag('userRole', context.userRole)
+        }
+      }
+
+      // Set extra data
+      if (context) {
+        scope.setExtras(context as Record<string, unknown>)
+      }
+
+      // Capture the error or message
+      if (error?.message) {
+        const err = new Error(error.message)
+        err.name = error.name
+        if (error.stack) err.stack = error.stack
+        Sentry?.captureException(err)
+      } else {
+        Sentry?.captureMessage(message, 'error')
+      }
+    })
+  } catch {
+    // Sentry send failed - don't let it break the app
+  }
 }
 
 function log(
@@ -178,6 +269,8 @@ function log(
   switch (level) {
     case 'error':
       console.error(output)
+      // Send errors to Sentry
+      sendToSentry(message, context, error)
       break
     case 'warn':
       console.warn(output)
@@ -204,18 +297,27 @@ export const logger = {
 export function createRequestLogger(
   request: Request,
   additionalContext?: Partial<LogContext>
-): typeof logger {
+): typeof logger & { requestId: string } {
   const url = new URL(request.url)
   const requestId = crypto.randomUUID()
+
+  // Extract client info
+  const ip =
+    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    request.headers.get('x-real-ip') ||
+    undefined
+  const userAgent = request.headers.get('user-agent')?.slice(0, 200) || undefined
 
   const baseContext: LogContext = {
     requestId,
     method: request.method,
     path: url.pathname,
+    ip,
+    userAgent,
     ...additionalContext,
   }
 
-  return {
+  const scopedLogger = {
     debug: (message: string, context?: LogContext) =>
       log('debug', message, { ...baseContext, ...context }),
     info: (message: string, context?: LogContext) =>
@@ -229,6 +331,161 @@ export function createRequestLogger(
         log('error', message, { ...baseContext, ...contextOrError })
       }
     },
+    requestId,
+  }
+
+  return scopedLogger
+}
+
+// ============================================================================
+// AUDIT LOGGING
+// For security compliance and sensitive operation tracking
+// ============================================================================
+
+export type AuthEvent =
+  | 'login'
+  | 'logout'
+  | 'signup'
+  | 'password_change'
+  | 'password_reset'
+  | 'role_change'
+  | 'session_refresh'
+  | 'mfa_enabled'
+  | 'mfa_disabled'
+
+export type AccessAction = 'read' | 'write' | 'delete' | 'export'
+
+export type SecuritySeverity = 'low' | 'medium' | 'high' | 'critical'
+
+/**
+ * Audit logger for security-sensitive operations
+ *
+ * Use for:
+ * - Authentication events (login, logout, password changes)
+ * - Data access tracking (HIPAA/GDPR compliance)
+ * - Security events (failed auth, role violations)
+ */
+export const auditLogger = {
+  /**
+   * Log authentication events
+   */
+  auth(
+    event: AuthEvent,
+    context: {
+      userId?: string
+      email?: string
+      tenant?: string
+      ip?: string
+      userAgent?: string
+      success: boolean
+      reason?: string
+    }
+  ): void {
+    const level = context.success ? 'info' : 'warn'
+    log(level, `AUTH: ${event}`, {
+      action: `auth.${event}`,
+      ...context,
+    })
+  },
+
+  /**
+   * Log data access for compliance
+   */
+  access(
+    resourceType: string,
+    resourceId: string,
+    action: AccessAction,
+    context: LogContext
+  ): void {
+    log('info', `ACCESS: ${action} ${resourceType}`, {
+      action: `${resourceType}.${action}`,
+      resourceType,
+      resourceId,
+      ...context,
+    })
+  },
+
+  /**
+   * Log security events
+   */
+  security(
+    event: string,
+    context: LogContext & { severity: SecuritySeverity; details?: string }
+  ): void {
+    const level: LogLevel =
+      context.severity === 'critical' || context.severity === 'high' ? 'error' : 'warn'
+    log(level, `SECURITY: ${event}`, {
+      action: `security.${event}`,
+      ...context,
+    })
+
+    // Critical security events always go to Sentry
+    if (context.severity === 'critical' && Sentry) {
+      Sentry.captureMessage(`SECURITY: ${event}`, 'error')
+    }
+  },
+}
+
+// ============================================================================
+// PERFORMANCE TRACKING
+// For request timing and slow operation detection
+// ============================================================================
+
+export interface PerformanceCheckpoint {
+  name: string
+  time: number
+}
+
+/**
+ * Create a performance tracker for request timing
+ *
+ * Usage:
+ *   const perf = createPerformanceTracker(requestId)
+ *   perf.checkpoint('auth_complete')
+ *   perf.checkpoint('db_query_complete')
+ *   const duration = perf.finish({ path: '/api/pets' })
+ */
+export function createPerformanceTracker(requestId: string): {
+  checkpoint: (name: string) => void
+  finish: (context?: LogContext) => number
+  checkpoints: PerformanceCheckpoint[]
+} {
+  const startTime = performance.now()
+  const checkpoints: PerformanceCheckpoint[] = []
+  const slowThreshold = parseInt(process.env.SLOW_REQUEST_THRESHOLD_MS || '1000', 10)
+
+  return {
+    checkpoint(name: string): void {
+      checkpoints.push({
+        name,
+        time: Math.round(performance.now() - startTime),
+      })
+    },
+
+    finish(context: LogContext = {}): number {
+      const totalDuration = Math.round(performance.now() - startTime)
+
+      const logContext: LogContext = {
+        requestId,
+        duration: totalDuration,
+        ...context,
+      }
+
+      // Include checkpoints if there were multiple
+      if (checkpoints.length > 1) {
+        logContext.checkpoints = checkpoints
+      }
+
+      if (totalDuration > slowThreshold) {
+        logger.warn('Slow request detected', logContext)
+      } else {
+        logger.debug('Request completed', logContext)
+      }
+
+      return totalDuration
+    },
+
+    checkpoints,
   }
 }
 
@@ -263,5 +520,3 @@ export function logQuery(
     slow: duration > 1000,
   })
 }
-
-export type { LogLevel, LogContext }

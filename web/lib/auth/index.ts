@@ -52,3 +52,13 @@ export {
 // Role-based authorization
 export { requireStaff, requireAdmin } from './require-staff'
 export { requireOwner } from './require-owner'
+
+// Redirect utilities (BUG-002)
+export {
+  REDIRECT_PARAM,
+  createLoginUrl,
+  createSignupUrl,
+  getReturnUrl,
+  isValidRedirectUrl,
+  sanitizeRedirectUrl,
+} from './redirect'

@@ -22,6 +22,7 @@ import type {
   Pet,
   ClinicConfig,
 } from '@/components/booking/booking-wizard/types'
+import { MAX_SERVICES_PER_BOOKING } from '@/components/booking/booking-wizard/types'
 
 // Icon mapping from string names to Lucide components
 const ICON_MAP: Record<string, LucideIcon> = {
@@ -106,13 +107,27 @@ interface BookingState {
   // Actions
   setStep: (step: Step) => void
   updateSelection: (updates: Partial<BookingSelection>) => void
-  initialize: (clinic: ClinicConfig, userPets: Pet[], initialService?: string, initialPetId?: string) => void
-  submitBooking: (currentServiceName?: string) => Promise<boolean>
+  toggleService: (serviceId: string) => void
+  clearServices: () => void
+  initialize: (
+    clinic: ClinicConfig,
+    userPets: Pet[],
+    initialServiceIds?: string[],
+    initialPetId?: string
+  ) => void
+  submitBooking: () => Promise<boolean>
   reset: () => void
+
+  // Computed selectors
+  getSelectedServices: () => BookableService[]
+  getTotalDuration: () => number
+  getTotalPrice: () => number
+  getEndTime: () => string
 }
 
 const initialSelection: BookingSelection = {
   serviceId: null,
+  serviceIds: [],
   petId: null,
   date: '',
   time_slot: '',
@@ -135,23 +150,67 @@ export const useBookingStore = create<BookingState>((set, get) => ({
       selection: { ...state.selection, ...updates },
     })),
 
-  initialize: (clinic, userPets, initialService, initialPetId) => {
+  toggleService: (serviceId: string) => {
+    const { selection } = get()
+    const current = selection.serviceIds
+
+    let updated: string[]
+    if (current.includes(serviceId)) {
+      // Remove service
+      updated = current.filter((id) => id !== serviceId)
+    } else {
+      // Add service (check limit)
+      if (current.length >= MAX_SERVICES_PER_BOOKING) {
+        // Don't add, limit reached
+        return
+      }
+      updated = [...current, serviceId]
+    }
+
+    set({
+      selection: {
+        ...selection,
+        serviceIds: updated,
+        // Keep serviceId in sync for backwards compat (first selected)
+        serviceId: updated.length > 0 ? updated[0] : null,
+      },
+    })
+  },
+
+  clearServices: () => {
+    const { selection } = get()
+    set({
+      selection: {
+        ...selection,
+        serviceIds: [],
+        serviceId: null,
+      },
+    })
+  },
+
+  initialize: (clinic, userPets, initialServiceIds = [], initialPetId) => {
     const servicesList = extractServices(clinic.services as ServicesData)
     const transformed = transformServices(servicesList)
 
+    // Filter valid service IDs (must exist in available services)
+    const validServiceIds = initialServiceIds.filter((id) =>
+      transformed.some((s) => s.id === id)
+    )
+
     // Determine initial pet: explicit param > single pet auto-select > null
-    const resolvedPetId = initialPetId && userPets.some((p) => p.id === initialPetId)
-      ? initialPetId
-      : userPets.length === 1
-        ? userPets[0].id
-        : null
+    const resolvedPetId =
+      initialPetId && userPets.some((p) => p.id === initialPetId)
+        ? initialPetId
+        : userPets.length === 1
+          ? userPets[0].id
+          : null
 
     // Determine initial step based on what's pre-selected
     let initialStep: Step = 'service'
-    if (initialService && resolvedPetId) {
-      initialStep = 'datetime' // Both service and pet selected, go to date
-    } else if (initialService) {
-      initialStep = 'pet' // Service selected, need pet
+    if (validServiceIds.length > 0 && resolvedPetId) {
+      initialStep = 'datetime' // Both service(s) and pet selected, go to date
+    } else if (validServiceIds.length > 0) {
+      initialStep = 'pet' // Service(s) selected, need pet
     }
 
     set({
@@ -161,19 +220,28 @@ export const useBookingStore = create<BookingState>((set, get) => ({
       step: initialStep,
       selection: {
         ...initialSelection,
-        serviceId: initialService || null,
+        serviceIds: validServiceIds,
+        serviceId: validServiceIds.length > 0 ? validServiceIds[0] : null,
         petId: resolvedPetId,
       },
     })
   },
 
-  submitBooking: async (currentServiceName) => {
-    const { isSubmitting, selection, clinicId } = get()
+  submitBooking: async () => {
+    const { isSubmitting, selection, clinicId, services } = get()
     if (isSubmitting) return false
 
     // Validate required fields
+    if (selection.serviceIds.length === 0) {
+      set({ submitError: 'Por favor selecciona al menos un servicio' })
+      return false
+    }
     if (!selection.petId) {
       set({ submitError: 'Por favor selecciona una mascota' })
+      return false
+    }
+    if (!selection.date || !selection.time_slot) {
+      set({ submitError: 'Por favor selecciona fecha y hora' })
       return false
     }
 
@@ -181,23 +249,50 @@ export const useBookingStore = create<BookingState>((set, get) => ({
 
     try {
       const startDateTime = new Date(`${selection.date}T${selection.time_slot}`)
-      const input = {
-        clinic: clinicId,
-        pet_id: selection.petId,
-        start_time: startDateTime.toISOString(),
-        reason: currentServiceName || 'Consulta General',
-        notes: selection.notes || null,
-      }
 
-      const { createAppointmentJson } = await import('@/app/actions/create-appointment')
-      const result = await createAppointmentJson(input)
+      if (selection.serviceIds.length === 1) {
+        // Single service: use existing flow
+        const service = services.find((s) => s.id === selection.serviceIds[0])
+        const input = {
+          clinic: clinicId,
+          pet_id: selection.petId,
+          start_time: startDateTime.toISOString(),
+          reason: service?.name || 'Consulta General',
+          notes: selection.notes || null,
+        }
 
-      if (result.success) {
-        set({ step: 'success' })
-        return true
+        const { createAppointmentJson } = await import('@/app/actions/create-appointment')
+        const result = await createAppointmentJson(input)
+
+        if (result.success) {
+          set({ step: 'success' })
+          return true
+        } else {
+          set({ submitError: result.error || 'No se pudo procesar la reserva' })
+          return false
+        }
       } else {
-        set({ submitError: result.error || 'No se pudo procesar la reserva' })
-        return false
+        // Multi-service: use new flow
+        const input = {
+          clinic: clinicId,
+          pet_id: selection.petId,
+          start_time: startDateTime.toISOString(),
+          service_ids: selection.serviceIds,
+          notes: selection.notes || null,
+        }
+
+        const { createMultiServiceAppointmentJson } = await import(
+          '@/app/actions/create-appointment'
+        )
+        const result = await createMultiServiceAppointmentJson(input)
+
+        if (result.success) {
+          set({ step: 'success' })
+          return true
+        } else {
+          set({ submitError: result.error || 'No se pudo procesar la reserva' })
+          return false
+        }
       }
     } catch (e) {
       console.error(e)
@@ -218,6 +313,38 @@ export const useBookingStore = create<BookingState>((set, get) => ({
       submitError: null,
       services: [],
     }),
+
+  // Computed selectors
+  getSelectedServices: () => {
+    const { services, selection } = get()
+    return services.filter((s) => selection.serviceIds.includes(s.id))
+  },
+
+  getTotalDuration: () => {
+    const selectedServices = get().getSelectedServices()
+    return selectedServices.reduce((sum, s) => sum + s.duration, 0)
+  },
+
+  getTotalPrice: () => {
+    const selectedServices = get().getSelectedServices()
+    return selectedServices.reduce((sum, s) => sum + s.price, 0)
+  },
+
+  getEndTime: () => {
+    const { selection } = get()
+    const totalDuration = get().getTotalDuration()
+
+    if (!selection.time_slot || totalDuration === 0) return ''
+
+    const [hours, minutes] = selection.time_slot.split(':').map(Number)
+    const startMinutes = hours * 60 + minutes
+    const endMinutes = startMinutes + totalDuration
+
+    const endHours = Math.floor(endMinutes / 60)
+    const endMins = endMinutes % 60
+
+    return `${String(endHours).padStart(2, '0')}:${String(endMins).padStart(2, '0')}`
+  },
 }))
 
 /**

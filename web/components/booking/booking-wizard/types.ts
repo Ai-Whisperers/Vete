@@ -114,12 +114,29 @@ export type Step = 'service' | 'pet' | 'datetime' | 'confirm' | 'success'
  * Booking selection state
  */
 export interface BookingSelection {
-  serviceId: string | null
+  serviceId: string | null // Legacy: kept for backwards compatibility
+  serviceIds: string[] // Multi-service selection
   petId: string | null
   date: string
   time_slot: string
   notes: string
 }
+
+/**
+ * Multi-service booking summary
+ */
+export interface MultiServiceSummary {
+  services: BookableService[]
+  totalDuration: number
+  totalPrice: number
+  startTime: string
+  endTime: string
+}
+
+/**
+ * Maximum services allowed per booking
+ */
+export const MAX_SERVICES_PER_BOOKING = 5
 
 /**
  * Progress percentage by step
@@ -131,21 +148,3 @@ export const PROGRESS: Record<Step, number> = {
   confirm: 90,
   success: 100,
 }
-
-/**
- * Available time slots
- */
-export const TIME_SLOTS = [
-  '09:00',
-  '09:30',
-  '10:00',
-  '10:30',
-  '11:00',
-  '11:30',
-  '14:00',
-  '14:30',
-  '15:00',
-  '15:30',
-  '16:00',
-  '16:30',
-] as const

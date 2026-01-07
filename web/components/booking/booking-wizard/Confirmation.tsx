@@ -5,25 +5,27 @@ import { ArrowLeft, ArrowRight, Calendar, Clock, AlertCircle, Loader2 } from 'lu
 import { useBookingStore, formatPrice } from '@/lib/store/booking-store'
 
 /**
- * Step 4: Confirmation component
+ * Step 4: Confirmation component - supports multiple services
  */
 export function Confirmation() {
   const {
     selection,
-    services,
     pets,
     isSubmitting,
     submitError,
     updateSelection,
     setStep,
     submitBooking,
-    clinicId,
+    getSelectedServices,
+    getTotalDuration,
+    getTotalPrice,
+    getEndTime,
   } = useBookingStore()
 
-  const currentService = useMemo(
-    () => services.find((s) => s.id === selection.serviceId),
-    [services, selection.serviceId]
-  )
+  const selectedServices = getSelectedServices()
+  const totalDuration = getTotalDuration()
+  const totalPrice = getTotalPrice()
+  const endTime = getEndTime()
 
   const currentPet = useMemo(
     () => pets.find((p) => p.id === selection.petId),
@@ -31,7 +33,7 @@ export function Confirmation() {
   )
 
   const handleSubmit = async () => {
-    await submitBooking(currentService?.name)
+    await submitBooking()
   }
 
   return (
@@ -49,17 +51,44 @@ export function Confirmation() {
       {/* Summary Card */}
       <div className="mb-8 rounded-[3rem] border border-gray-100 bg-gray-50/50 p-10 backdrop-blur-sm">
         <div className="grid gap-10 md:grid-cols-2">
-          {/* Left Column */}
+          {/* Left Column - Services */}
           <div className="space-y-6">
             <div>
-              <p className="mb-1 text-[10px] font-black uppercase tracking-widest text-gray-400">
-                Servicio
+              <p className="mb-3 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                {selectedServices.length > 1 ? 'Servicios' : 'Servicio'}
               </p>
-              <p className="text-xl font-black text-gray-900">{currentService?.name}</p>
-              <p className="text-sm font-bold italic text-[var(--primary)]">
-                ₲{formatPrice(currentService?.price || 0)}
-              </p>
+              <div className="space-y-3">
+                {selectedServices.map((service, index) => (
+                  <div key={service.id} className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--primary)]/10 text-xs font-bold text-[var(--primary)]">
+                        {index + 1}
+                      </span>
+                      <p className="font-bold text-gray-900">{service.name}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm text-gray-500">{service.duration} min</p>
+                      <p className="text-sm font-bold text-[var(--primary)]">
+                        ₲{formatPrice(service.price)}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {selectedServices.length > 1 && (
+                <div className="mt-4 border-t border-gray-200 pt-3">
+                  <div className="flex items-center justify-between font-bold">
+                    <span className="text-gray-700">Total</span>
+                    <div className="text-right">
+                      <p className="text-sm text-gray-500">{totalDuration} min</p>
+                      <p className="text-lg text-[var(--primary)]">₲{formatPrice(totalPrice)}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
+
+            {/* Patient */}
             <div>
               <p className="mb-1 text-[10px] font-black uppercase tracking-widest text-gray-400">
                 Paciente
@@ -73,7 +102,7 @@ export function Confirmation() {
             </div>
           </div>
 
-          {/* Right Column */}
+          {/* Right Column - Date/Time */}
           <div className="space-y-6">
             <div>
               <p className="mb-1 text-[10px] font-black uppercase tracking-widest text-gray-400">
@@ -86,7 +115,9 @@ export function Confirmation() {
               <div className="mt-1 flex items-center gap-2 text-xl font-black text-gray-900">
                 <Clock className="h-5 w-5 text-[var(--primary)]" />
                 {selection.time_slot}
+                {endTime && <span className="text-gray-400">- {endTime}</span>}
               </div>
+              <p className="mt-2 text-sm text-gray-500">Duración total: {totalDuration} minutos</p>
             </div>
           </div>
         </div>
@@ -130,7 +161,8 @@ export function Confirmation() {
             <Loader2 className="h-6 w-6 animate-spin" />
           ) : (
             <>
-              Confirmar Cita <ArrowRight className="h-6 w-6" />
+              Confirmar {selectedServices.length > 1 ? 'Citas' : 'Cita'}{' '}
+              <ArrowRight className="h-6 w-6" />
             </>
           )}
         </button>

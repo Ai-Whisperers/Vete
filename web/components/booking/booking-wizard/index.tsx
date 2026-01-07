@@ -19,19 +19,19 @@ interface BookingWizardProps {
   clinic: ClinicConfig | any // Allow ClinicData from getClinicData
   user: User | any // Allow Supabase User
   userPets: Pet[]
-  initialService?: string
+  initialServiceIds?: string[] // Support multiple services
   initialPetId?: string
 }
 
 /**
  * Main booking wizard orchestrator component
- * Manages the multi-step booking flow
+ * Manages the multi-step booking flow with multi-service support
  */
 export default function BookingWizard({
   clinic,
   user,
   userPets,
-  initialService,
+  initialServiceIds = [],
   initialPetId,
 }: BookingWizardProps) {
   const [queryClient] = useState(() => new QueryClient())
@@ -46,18 +46,16 @@ export default function BookingWizard({
     submitError,
     submitBooking,
     initialize,
+    getSelectedServices,
   } = useBookingStore()
 
   // Initialize store with props on mount
   useEffect(() => {
-    initialize(clinic, userPets, initialService, initialPetId)
-  }, [clinic, userPets, initialService, initialPetId, initialize])
+    initialize(clinic, userPets, initialServiceIds, initialPetId)
+  }, [clinic, userPets, initialServiceIds, initialPetId, initialize])
 
   // Derived values from store
-  const currentService = useMemo(
-    () => services.find((s) => s.id === selection.serviceId),
-    [services, selection.serviceId]
-  )
+  const selectedServices = useMemo(() => getSelectedServices(), [getSelectedServices, selection.serviceIds])
 
   const currentPet = useMemo(
     () => userPets.find((p) => p.id === selection.petId),
@@ -110,14 +108,7 @@ export default function BookingWizard({
 
   // Show success screen after booking
   if (step === 'success') {
-    return (
-      <SuccessScreen
-        selection={selection}
-        currentService={currentService}
-        currentPet={currentPet}
-        clinicId={clinic.config.id}
-      />
-    )
+    return <SuccessScreen clinicId={clinic.config.id} clinicName={clinic.config.name} />
   }
 
   // A11Y-001: Get current step info for screen reader announcement

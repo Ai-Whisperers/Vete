@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { ArrowLeft, Info, AlertCircle, Loader2 } from 'lucide-react'
+import { ArrowLeft, Info, AlertCircle, Clock } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { checkAvailableSlots } from '@/app/actions/appointments'
 import { useBookingStore, getLocalDateString } from '@/lib/store/booking-store'
@@ -12,23 +12,29 @@ interface DateTimeSelectionProps {
 
 /**
  * Step 3: Date and time selection component
+ * Now considers total duration of all selected services
  */
 export function DateTimeSelection({ clinicName }: DateTimeSelectionProps) {
-  const { selection, clinicId, updateSelection, setStep } = useBookingStore()
+  const { selection, clinicId, updateSelection, setStep, getTotalDuration, getEndTime } =
+    useBookingStore()
+  const totalDuration = getTotalDuration()
+  const endTime = getEndTime()
   const isFormValid = selection.date && selection.time_slot
 
   // Fetch available slots when date is selected
+  // Pass total duration to get slots that fit the entire block
   const {
     data: slots = [],
     isLoading,
     error,
   } = useQuery({
-    queryKey: ['slots', clinicId, selection.date],
+    queryKey: ['slots', clinicId, selection.date, totalDuration],
     queryFn: async () => {
       if (!selection.date) return []
       const result = await checkAvailableSlots({
         clinicSlug: clinicId,
         date: selection.date,
+        slotDurationMinutes: totalDuration || 30,
       })
 
       if (result.error) {
@@ -67,11 +73,20 @@ export function DateTimeSelection({ clinicName }: DateTimeSelectionProps) {
               updateSelection({ date: e.target.value, time_slot: '' }) // Reset time when date changes
             }}
           />
-          <div className="bg-[var(--primary)]/5 border-[var(--primary)]/10 mt-6 rounded-3xl border p-6">
+          <div className="bg-[var(--primary)]/5 border-[var(--primary)]/10 mt-6 space-y-3 rounded-3xl border p-6">
             <p className="flex items-center gap-2 text-sm font-bold text-[var(--primary)]">
               <Info className="h-4 w-4" />
               Reservando en {clinicName}
             </p>
+            <p className="flex items-center gap-2 text-sm text-gray-600">
+              <Clock className="h-4 w-4" />
+              Duración total: {totalDuration} minutos
+            </p>
+            {selection.time_slot && endTime && (
+              <p className="text-sm font-medium text-gray-700">
+                Horario: {selection.time_slot} - {endTime}
+              </p>
+            )}
           </div>
         </div>
 

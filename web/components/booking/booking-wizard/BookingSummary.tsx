@@ -1,37 +1,42 @@
 'use client'
 
 import React, { useMemo } from 'react'
-import { ShoppingBag, Zap } from 'lucide-react'
+import { ShoppingBag, Zap, Clock } from 'lucide-react'
 import { useBookingStore, formatPrice } from '@/lib/store/booking-store'
 
 interface BookingSummaryProps {
   labels?: {
     summary?: string
     service?: string
+    services?: string
     patient?: string
     schedule?: string
     notSelected?: string
     toDefine?: string
     estimatedTotal?: string
+    duration?: string
   }
 }
 
 /**
  * Sidebar summary component showing current booking selections
- * Displays selected service, pet, date/time, and total price
+ * Displays selected services, pet, date/time, and total price
  */
 export function BookingSummary({ labels = {} }: BookingSummaryProps) {
-  const { selection, services, pets } = useBookingStore()
+  const { selection, pets, getSelectedServices, getTotalDuration, getTotalPrice, getEndTime } =
+    useBookingStore()
 
-  const currentService = useMemo(
-    () => services.find((s) => s.id === selection.serviceId),
-    [services, selection.serviceId]
-  )
+  const selectedServices = getSelectedServices()
+  const totalDuration = getTotalDuration()
+  const totalPrice = getTotalPrice()
+  const endTime = getEndTime()
 
   const currentPet = useMemo(
     () => pets.find((p) => p.id === selection.petId),
     [pets, selection.petId]
   )
+
+  const hasServices = selectedServices.length > 0
 
   return (
     <aside className="animate-in slide-in-from-bottom-8 space-y-6 duration-700 lg:sticky lg:top-12">
@@ -41,23 +46,38 @@ export function BookingSummary({ labels = {} }: BookingSummaryProps) {
         </h4>
 
         <div className="space-y-6">
-          {/* Service Summary */}
+          {/* Services Summary */}
           <div
             className={`rounded-2xl border p-4 transition-all ${
-              selection.serviceId
+              hasServices
                 ? 'bg-[var(--primary)]/5 border-[var(--primary)]/20'
                 : 'border-gray-100 bg-gray-50'
             }`}
           >
             <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-gray-400">
-              {labels.service || 'Servicio'}
+              {selectedServices.length > 1
+                ? labels.services || 'Servicios'
+                : labels.service || 'Servicio'}
             </p>
-            {selection.serviceId ? (
-              <div className="flex items-center gap-3">
-                <div className="rounded-lg bg-white p-2">
-                  <Zap className="h-4 w-4 text-[var(--primary)]" />
-                </div>
-                <span className="font-bold text-gray-700">{currentService?.name}</span>
+            {hasServices ? (
+              <div className="space-y-2">
+                {selectedServices.map((service) => (
+                  <div key={service.id} className="flex items-center gap-3">
+                    <div className="rounded-lg bg-white p-2">
+                      <Zap className="h-4 w-4 text-[var(--primary)]" />
+                    </div>
+                    <div className="flex-1">
+                      <span className="font-bold text-gray-700">{service.name}</span>
+                      <span className="ml-2 text-xs text-gray-500">({service.duration} min)</span>
+                    </div>
+                  </div>
+                ))}
+                {selectedServices.length > 1 && (
+                  <div className="mt-2 flex items-center gap-2 border-t border-gray-200 pt-2 text-sm text-gray-600">
+                    <Clock className="h-4 w-4" />
+                    <span>Total: {totalDuration} min</span>
+                  </div>
+                )}
               </div>
             ) : (
               <span className="text-sm font-bold italic text-gray-400">
@@ -107,7 +127,11 @@ export function BookingSummary({ labels = {} }: BookingSummaryProps) {
             {selection.date && selection.time_slot ? (
               <div className="flex flex-col font-bold text-green-700">
                 <span>{selection.date}</span>
-                <span className="text-xs underline opacity-70">{selection.time_slot}</span>
+                <span className="text-xs opacity-70">
+                  {selection.time_slot}
+                  {endTime && ` - ${endTime}`}
+                  {totalDuration > 0 && ` (${totalDuration} min)`}
+                </span>
               </div>
             ) : (
               <span className="text-sm font-bold italic text-gray-400">
@@ -123,9 +147,7 @@ export function BookingSummary({ labels = {} }: BookingSummaryProps) {
             <span className="text-xs font-black uppercase tracking-widest text-gray-400">
               {labels.estimatedTotal || 'Total Estimado'}
             </span>
-            <span className="text-2xl font-black text-gray-900">
-              ₲{formatPrice(currentService?.price || 0)}
-            </span>
+            <span className="text-2xl font-black text-gray-900">₲{formatPrice(totalPrice)}</span>
           </div>
         </div>
       </div>

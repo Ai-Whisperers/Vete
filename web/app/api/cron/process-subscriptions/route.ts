@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { logger } from '@/lib/logger'
+import { checkCronAuth } from '@/lib/api/cron-auth'
 
 // SEC-010: Subscription frequency bounds for defensive validation
 const SUBSCRIPTION_FREQUENCY = {
@@ -21,18 +22,10 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
  * Protected by CRON_SECRET header
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
-  // Verify cron secret - CRITICAL: fail closed if not configured
-  const envCronSecret = process.env.CRON_SECRET
-
-  if (!envCronSecret) {
-    logger.error('CRON_SECRET not configured for process-subscriptions - blocking request')
-    return NextResponse.json({ error: 'Server configuration error' }, { status: 500 })
-  }
-
-  const cronSecret = request.headers.get('x-cron-secret')
-  if (cronSecret !== envCronSecret) {
-    logger.warn('Unauthorized cron attempt for process-subscriptions')
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  // SEC-006: Use timing-safe cron authentication
+  const { authorized, errorResponse } = checkCronAuth(request)
+  if (!authorized) {
+    return errorResponse!
   }
 
   const supabase = createClient(supabaseUrl, supabaseServiceKey)

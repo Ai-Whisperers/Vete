@@ -52,3 +52,9 @@ tsconfig.tsbuildinfo
 # Test artifacts
 test_pet_id.txt
 *.tmp
+
+# E2E Screenshots
+web/screenshots/
+
+# Supabase temp files
+supabase/supabase/

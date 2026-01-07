@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { auditLogger } from '@/lib/logger'
 
 interface StaffUser {
   user: {
@@ -55,6 +56,14 @@ export async function requireStaff(tenantId?: string): Promise<StaffUser> {
 
   // Verify tenant access if specified
   if (tenantId && profile.tenant_id !== tenantId) {
+    // SEC-001: Log tenant mismatch attempt for security audit
+    auditLogger.security('tenant_mismatch', {
+      severity: 'medium',
+      userId: user.id,
+      tenant: profile.tenant_id,
+      userRole: profile.role as 'owner' | 'vet' | 'admin',
+      details: `Staff from tenant '${profile.tenant_id}' attempted to access tenant '${tenantId}' dashboard`,
+    })
     redirect(`/${profile.tenant_id}/dashboard`)
   }
 

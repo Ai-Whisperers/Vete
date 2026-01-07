@@ -51,3 +51,4 @@ export {
 
 // Role-based authorization
 export { requireStaff, requireAdmin } from './require-staff'
+export { requireOwner } from './require-owner'

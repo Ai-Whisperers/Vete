@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { auditLogger } from '@/lib/logger'
 
 interface OwnerUser {
   user: {
@@ -48,6 +49,13 @@ export async function requireOwner(tenantId?: string): Promise<OwnerUser> {
 
   // Verify tenant access if specified
   if (tenantId && profile.tenant_id !== tenantId) {
+    // SEC-001: Log tenant mismatch attempt for security audit
+    auditLogger.security('tenant_mismatch', {
+      severity: 'medium',
+      userId: user.id,
+      tenant: profile.tenant_id,
+      details: `User from tenant '${profile.tenant_id}' attempted to access tenant '${tenantId}' portal`,
+    })
     redirect(`/${profile.tenant_id}`)
   }
 

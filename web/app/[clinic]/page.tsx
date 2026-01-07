@@ -23,31 +23,43 @@ const DynamicIcon = ({ name, className }: { name: string; className?: string }) 
   return <Icon className={className} />
 }
 
-export default async function ClinicHomePage({ params }: { params: Promise<{ clinic: string }> }) {
+export default async function ClinicHomePage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ clinic: string }>
+  searchParams: Promise<{ public?: string }>
+}) {
   const { clinic } = await params
+  const { public: showPublic } = await searchParams
   const data = await getClinicData(clinic)
 
   if (!data) notFound()
 
   const { home, config } = data
 
-  // Check if user is authenticated - redirect to portal
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  // Allow viewing public page with ?public=true query param
+  const forcePublic = showPublic === 'true'
 
-  if (user) {
-    // Check if user belongs to this clinic
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('tenant_id')
-      .eq('id', user.id)
-      .single()
+  // Check if user is authenticated - redirect to portal (unless forcing public view)
+  if (!forcePublic) {
+    const supabase = await createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
 
-    // Redirect authenticated users to their portal
-    if (profile?.tenant_id === clinic) {
-      redirect(`/${clinic}/portal`)
+    if (user) {
+      // Check if user belongs to this clinic
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('tenant_id')
+        .eq('id', user.id)
+        .single()
+
+      // Redirect authenticated users to their portal
+      if (profile?.tenant_id === clinic) {
+        redirect(`/${clinic}/portal`)
+      }
     }
   }
 

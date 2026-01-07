@@ -6,6 +6,7 @@ import {
   FileText,
   MessageSquare,
   Plus,
+  Home,
 } from 'lucide-react'
 
 interface PortalQuickActionsProps {
@@ -63,6 +64,11 @@ export function PortalQuickActions({ clinic }: PortalQuickActionsProps): React.R
         icon={<MessageSquare className="h-4 w-4" />}
         label="Mensajes"
         href={`/${clinic}/portal/messages`}
+      />
+      <QuickAction
+        icon={<Home className="h-4 w-4" />}
+        label="Ver Página"
+        href={`/${clinic}?public=true`}
       />
     </div>
   )

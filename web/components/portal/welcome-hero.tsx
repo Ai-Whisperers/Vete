@@ -3,7 +3,7 @@
 import { PawPrint, Calendar, Syringe } from 'lucide-react'
 
 interface PortalWelcomeHeroProps {
-  userName: string
+  userName?: string // Deprecated - no longer displayed
   petCount: number
   upcomingAppointments: number
   pendingVaccines: number
@@ -35,7 +35,6 @@ function StatBox({ icon, value, label, variant = 'default' }: StatBoxProps): Rea
 }
 
 export function PortalWelcomeHero({
-  userName,
   petCount,
   upcomingAppointments,
   pendingVaccines,
@@ -44,7 +43,6 @@ export function PortalWelcomeHero({
   // Time-based greeting
   const hour = new Date().getHours()
   const greeting = hour < 12 ? 'Buenos días' : hour < 18 ? 'Buenas tardes' : 'Buenas noches'
-  const firstName = userName.split(' ')[0] || userName.split('@')[0] || 'Amigo'
 
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-[var(--primary)] to-[var(--primary-dark)] py-8 text-white md:py-10">
@@ -64,10 +62,11 @@ export function PortalWelcomeHero({
       <div className="container relative z-10 mx-auto px-4 md:px-6">
         {/* Greeting */}
         <div className="mb-6">
-          <h1 className="text-2xl font-bold md:text-3xl">
-            {greeting}, <span className="text-white">{firstName}</span>
-          </h1>
-          <p className="mt-1 text-white/80">Bienvenido a tu portal de {clinicName}</p>
+          <h1 className="text-2xl font-bold md:text-3xl">{greeting}</h1>
+          <p className="mt-1 text-white/80">
+            Bienvenido a tu portal de{' '}
+            <span className="font-semibold text-white">{clinicName}</span>
+          </p>
         </div>
 
         {/* Stats Row */}

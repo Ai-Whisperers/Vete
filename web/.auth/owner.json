@@ -1,0 +1,35 @@
+{
+  "cookies": [
+    {
+      "name": "sb-okddppczckbjdotrxiev-auth-token-code-verifier",
+      "value": "base64-ImM1ZmNiOTgzMjExMTdlOWM5MWJhZjUyODE3ZWEyYzFlNDE3NGNiNWEwYTAzMDFlY2I0YTRjY2ZhNWVmNmM2NmE1OTE1OWMxNGRmOWI0NTkwZDViYzliZjQ1ZWFiMjRlZTUzMGZiZGExY2M2YWE5YTci",
+      "domain": "127.0.0.1",
+      "path": "/",
+      "expires": 1802308671.731062,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "__Host-GAPS",
+      "value": "1:OiPlBzk2DJWZN21xTpuTO2n94UaTuA:mTBmcQe1mV_3jn6A",
+      "domain": "accounts.google.com",
+      "path": "/",
+      "expires": 1802308672.589547,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "Lax"
+    }
+  ],
+  "origins": [
+    {
+      "origin": "http://127.0.0.1:3000",
+      "localStorage": [
+        {
+          "name": "vete_cart",
+          "value": "[]"
+        }
+      ]
+    }
+  ]
+}

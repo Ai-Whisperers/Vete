@@ -1,0 +1,62 @@
+{
+  "ownerId": "c4161302-a2eb-4606-b2ce-783f8bfe8807",
+  "ownerProfileId": "c4161302-a2eb-4606-b2ce-783f8bfe8807",
+  "pets": [
+    {
+      "id": "f479404a-048d-4058-bf59-8c40ea2c164c",
+      "name": "Max E2E",
+      "species": "dog"
+    },
+    {
+      "id": "95203f42-e906-4099-a40f-3e9fc9a435ad",
+      "name": "Luna E2E",
+      "species": "cat"
+    },
+    {
+      "id": "b210d8f6-e379-4594-a226-566dfd6352d8",
+      "name": "Rocky E2E",
+      "species": "dog"
+    }
+  ],
+  "vaccines": [],
+  "products": [
+    {
+      "id": "e3ba9588-1121-431e-b689-885de89a9687",
+      "name": "E2E Alimento Premium Perro",
+      "sku": "E2E-FOOD-DOG"
+    },
+    {
+      "id": "6fbb3205-24a1-41f7-9188-0409a148d2f1",
+      "name": "E2E Antiparasitario",
+      "sku": "E2E-ANTI-001"
+    },
+    {
+      "id": "f3e3e91d-a9ea-4589-90d8-dc2169db5398",
+      "name": "E2E Shampoo Medicado",
+      "sku": "E2E-SHAMPOO"
+    },
+    {
+      "id": "2d956b64-a8d9-47bd-84cb-ea9b4cfe0d19",
+      "name": "E2E Collar Antipulgas",
+      "sku": "E2E-COLLAR"
+    }
+  ],
+  "services": [
+    {
+      "id": "22145c1e-6cf8-4052-a970-4937beb33c7b",
+      "name": "E2E Consulta General"
+    },
+    {
+      "id": "d378e96a-c66c-439a-9b60-edcb8d011bba",
+      "name": "E2E Vacunación"
+    },
+    {
+      "id": "22105d40-7539-4621-9d2c-da79fd48dcb9",
+      "name": "E2E Baño y Peluquería"
+    }
+  ],
+  "loyaltyPoints": 0,
+  "appointments": [],
+  "invoices": [],
+  "conversations": []
+}

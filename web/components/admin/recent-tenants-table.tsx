@@ -24,18 +24,12 @@ interface RecentTenantsTableProps {
 
 const tierLabels: Record<string, string> = {
   gratis: 'Gratis',
-  basico: 'Básico',
-  crecimiento: 'Crecimiento',
   profesional: 'Profesional',
-  empresarial: 'Empresarial',
 }
 
 const tierColors: Record<string, string> = {
   gratis: 'bg-gray-100 text-gray-700',
-  basico: 'bg-blue-100 text-blue-700',
-  crecimiento: 'bg-green-100 text-green-700',
   profesional: 'bg-purple-100 text-purple-700',
-  empresarial: 'bg-yellow-100 text-yellow-800',
 }
 
 export function RecentTenantsTable({ tenants }: RecentTenantsTableProps) {

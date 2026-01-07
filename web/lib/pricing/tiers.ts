@@ -4,12 +4,12 @@
  * Centralized pricing configuration for all subscription tiers.
  * All prices in Paraguayan Guaraníes (PYG).
  *
- * Strategy: Freemium with full features, monetize through ads, commissions, and premium support
+ * Strategy: Simple 2-tier model - Free (minimal) and Professional (everything)
  *
  * Last updated: January 2026
  */
 
-export type TierId = 'gratis' | 'basico' | 'crecimiento' | 'profesional' | 'empresarial'
+export type TierId = 'gratis' | 'profesional'
 
 export interface TierFeatures {
   // Core features (all tiers)
@@ -72,30 +72,34 @@ export interface PricingTier {
 
 /**
  * All pricing tiers
+ *
+ * Simple 2-tier model:
+ * - Gratis: Website + WhatsApp booking only (minimal features, ads disabled for now)
+ * - Profesional: Everything included, 250,000 Gs/month, 3% commission
  */
 export const pricingTiers: PricingTier[] = [
   {
     id: 'gratis',
     name: 'Gratis',
-    description: 'Para clínicas que quieren presencia digital básica',
+    description: 'Sitio web básico con reservas por WhatsApp',
     monthlyPrice: 0,
     setupFee: 0,
     includedUsers: Infinity,
     extraUserPrice: 0,
     commitmentMonths: 0,
-    ecommerceCommission: 0, // No e-commerce access
-    serviceCommission: 0, // No service commissions - free tier
+    ecommerceCommission: 0,
+    serviceCommission: 0,
     color: '#94A3B8', // Slate gray
     targetPatientsMin: 0,
-    targetPatientsMax: 30,
+    targetPatientsMax: 50,
     features: {
       website: true,
-      petPortal: true,
-      appointments: true,
-      medicalRecords: true,
-      vaccineTracking: true,
-      clinicalTools: true,
-      adFree: false, // Shows ads
+      petPortal: false,
+      appointments: true, // WhatsApp booking link only
+      medicalRecords: false,
+      vaccineTracking: false,
+      clinicalTools: false,
+      adFree: true, // Ads disabled for now
       ecommerce: false,
       qrTags: false,
       bulkOrdering: false,
@@ -120,156 +124,20 @@ export const pricingTiers: PricingTier[] = [
     },
   },
   {
-    id: 'basico',
-    name: 'Básico',
-    description: 'Para clínicas pequeñas que quieren una experiencia sin anuncios',
-    monthlyPrice: 100000,
-    setupFee: 0,
-    includedUsers: 3,
-    extraUserPrice: 30000,
-    commitmentMonths: 0,
-    ecommerceCommission: 0, // No e-commerce access in this tier
-    serviceCommission: 0.05, // 5% flat rate on service invoices
-    color: '#60A5FA', // Blue
-    targetPatientsMin: 30,
-    targetPatientsMax: 80,
-    features: {
-      website: true,
-      petPortal: true,
-      appointments: true,
-      medicalRecords: true,
-      vaccineTracking: true,
-      clinicalTools: true,
-      adFree: true,
-      ecommerce: false,
-      qrTags: false,
-      bulkOrdering: false,
-      analyticsBasic: false,
-      analyticsAdvanced: false,
-      analyticsAI: false,
-      whatsappApi: false,
-      hospitalization: false,
-      laboratory: false,
-      multiLocation: false,
-      apiAccess: false,
-      slaGuarantee: false,
-      dedicatedSupport: false,
-    },
-    support: {
-      communityForum: true,
-      emailSupport: true,
-      whatsappSupport: false,
-      phoneSupport: false,
-      prioritySupport: false,
-      responseTimeHours: 48,
-    },
-  },
-  {
-    id: 'crecimiento',
-    name: 'Crecimiento',
-    description: 'Para clínicas en crecimiento que quieren vender productos',
-    monthlyPrice: 200000,
-    setupFee: 0,
-    includedUsers: 5,
-    extraUserPrice: 40000,
-    commitmentMonths: 0,
-    ecommerceCommission: 0.04, // 4% flat rate on store orders
-    serviceCommission: 0.04, // 4% flat rate on service invoices
-    popular: true,
-    color: '#2DCEA3', // Teal/Green
-    targetPatientsMin: 80,
-    targetPatientsMax: 200,
-    features: {
-      website: true,
-      petPortal: true,
-      appointments: true,
-      medicalRecords: true,
-      vaccineTracking: true,
-      clinicalTools: true,
-      adFree: true,
-      ecommerce: true,
-      qrTags: true,
-      bulkOrdering: true,
-      analyticsBasic: true,
-      analyticsAdvanced: false,
-      analyticsAI: false,
-      whatsappApi: false,
-      hospitalization: false,
-      laboratory: false,
-      multiLocation: false,
-      apiAccess: false,
-      slaGuarantee: false,
-      dedicatedSupport: false,
-    },
-    support: {
-      communityForum: true,
-      emailSupport: true,
-      whatsappSupport: false,
-      phoneSupport: false,
-      prioritySupport: false,
-      responseTimeHours: 24,
-    },
-  },
-  {
     id: 'profesional',
     name: 'Profesional',
-    description: 'Para clínicas establecidas con hospitalización y laboratorio',
-    monthlyPrice: 400000,
+    description: 'Todo incluido para clínicas profesionales',
+    monthlyPrice: 250000,
     setupFee: 0,
-    includedUsers: 10,
-    extraUserPrice: 50000,
+    includedUsers: Infinity,
+    extraUserPrice: 0,
     commitmentMonths: 0,
-    ecommerceCommission: 0.03, // 3% flat rate - lower for higher tier
+    ecommerceCommission: 0.03, // 3% flat rate on store orders
     serviceCommission: 0.03, // 3% flat rate on service invoices
-    color: '#5C6BFF', // Indigo/Purple
-    targetPatientsMin: 200,
-    targetPatientsMax: 500,
-    features: {
-      website: true,
-      petPortal: true,
-      appointments: true,
-      medicalRecords: true,
-      vaccineTracking: true,
-      clinicalTools: true,
-      adFree: true,
-      ecommerce: true,
-      qrTags: true,
-      bulkOrdering: true,
-      analyticsBasic: true,
-      analyticsAdvanced: true,
-      analyticsAI: false,
-      whatsappApi: true,
-      hospitalization: true,
-      laboratory: true,
-      multiLocation: false,
-      apiAccess: false,
-      slaGuarantee: false,
-      dedicatedSupport: false,
-    },
-    support: {
-      communityForum: true,
-      emailSupport: true,
-      whatsappSupport: true,
-      phoneSupport: false,
-      prioritySupport: false,
-      responseTimeHours: 12,
-    },
-  },
-  {
-    id: 'empresarial',
-    name: 'Empresarial',
-    description: 'Para cadenas y clínicas con múltiples sucursales',
-    monthlyPrice: 0, // Custom pricing
-    setupFee: 0,
-    includedUsers: 20,
-    extraUserPrice: 60000,
-    commitmentMonths: 12,
-    ecommerceCommission: 0.02, // 2% negotiated enterprise rate
-    serviceCommission: 0.02, // 2% negotiated enterprise rate
-    enterprise: true,
-    color: '#F59E0B', // Amber/Gold
-    targetPatientsMin: 500,
-    targetPatientsMax: 2000,
+    popular: true,
+    color: '#2DCEA3', // Teal/Green (primary brand color)
+    targetPatientsMin: 50,
+    targetPatientsMax: 10000,
     features: {
       website: true,
       petPortal: true,
@@ -344,25 +212,22 @@ export const roiGuarantee = {
  * Commission rates are now defined per-tier directly in the pricingTiers array.
  * Flat rates by tier (no time-based escalation):
  * - Gratis: 0%
- * - Básico: 5% (service only, no e-commerce)
- * - Crecimiento: 4%
  * - Profesional: 3%
- * - Empresarial: 2% (negotiated)
  *
  * @deprecated Use tier.ecommerceCommission and tier.serviceCommission directly
  */
 export const commissionConfig = {
   /** @deprecated Use getTierById(tierId).ecommerceCommission instead */
   get initialRate() {
-    return 0.04 // Crecimiento tier rate as default
+    return 0.03 // Profesional tier rate as default
   },
   /** @deprecated Commission rates no longer escalate */
   get standardRate() {
-    return 0.04 // Same as initial - no escalation
+    return 0.03 // Same as initial - no escalation
   },
-  /** @deprecated Use getTierById('empresarial').ecommerceCommission instead */
+  /** @deprecated No longer applicable - only 2 tiers */
   get enterpriseRate() {
-    return 0.02
+    return 0.03
   },
   /** @deprecated Commission rates are now flat per tier */
   monthsUntilIncrease: Infinity, // Never increases
@@ -374,15 +239,15 @@ export const commissionConfig = {
 export const serviceCommissionConfig = {
   /** @deprecated Use getTierById(tierId).serviceCommission instead */
   get initialRate() {
-    return 0.04
+    return 0.03
   },
   /** @deprecated Commission rates no longer escalate */
   get standardRate() {
-    return 0.04
+    return 0.03
   },
-  /** @deprecated Use getTierById('empresarial').serviceCommission instead */
+  /** @deprecated No longer applicable - only 2 tiers */
   get enterpriseRate() {
-    return 0.02
+    return 0.03
   },
   /** @deprecated Commission rates are now flat per tier */
   monthsUntilIncrease: Infinity,
@@ -392,7 +257,7 @@ export const serviceCommissionConfig = {
  * Bulk ordering configuration
  */
 export const bulkOrderingConfig = {
-  minimumTier: 'crecimiento' as TierId,
+  minimumTier: 'profesional' as TierId,
   minimumOrderValue: 0, // No minimum - aggregate all orders
   deliveryMarkup: 0.10, // 10% markup on delivery costs
   targetMargin: 0.20, // 20% target margin on products
@@ -593,11 +458,11 @@ export function formatTierPrice(tier: PricingTier): string {
  *
  * @param tierId - The tier ID to get commission rate for
  * @param _monthsActive - DEPRECATED: No longer used, rates are flat
- * @returns Commission rate as decimal (e.g., 0.04 = 4%)
+ * @returns Commission rate as decimal (e.g., 0.03 = 3%)
  */
 export function getCommissionRate(tierId: TierId, _monthsActive?: number): number {
   const tier = getTierById(tierId)
-  return tier?.ecommerceCommission ?? 0.04 // Default to Crecimiento rate
+  return tier?.ecommerceCommission ?? 0.03 // Default to Profesional rate
 }
 
 /**
@@ -606,26 +471,27 @@ export function getCommissionRate(tierId: TierId, _monthsActive?: number): numbe
  *
  * @param tierId - The tier ID to get commission rate for
  * @param _monthsActive - DEPRECATED: No longer used, rates are flat
- * @returns Commission rate as decimal (e.g., 0.04 = 4%)
+ * @returns Commission rate as decimal (e.g., 0.03 = 3%)
  */
 export function getServiceCommissionRate(tierId: TierId, _monthsActive?: number): number {
   const tier = getTierById(tierId)
-  return tier?.serviceCommission ?? 0.04 // Default to Crecimiento rate
+  return tier?.serviceCommission ?? 0.03 // Default to Profesional rate
 }
 
 /**
  * Suggest a tier based on monthly patient count
  * Returns the most appropriate tier for the clinic's size
+ *
+ * With 2 tiers:
+ * - < 50 patients: Free tier is sufficient
+ * - >= 50 patients: Recommend Professional
  */
 export function suggestTierByPatients(monthlyPatients: number): PricingTier {
-  // Find the tier where patients fall within range
-  for (const tier of pricingTiers) {
-    if (monthlyPatients >= tier.targetPatientsMin && monthlyPatients < tier.targetPatientsMax) {
-      return tier
-    }
+  // Simple 2-tier logic
+  if (monthlyPatients < 50) {
+    return pricingTiers[0] // Gratis
   }
-  // Default to empresarial for very large clinics
-  return pricingTiers[pricingTiers.length - 1]
+  return pricingTiers[1] // Profesional
 }
 
 /**

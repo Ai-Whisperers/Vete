@@ -24,13 +24,14 @@ function formatCurrency(amount: number): string {
 
 /**
  * Get commission rate based on tier
+ * Profesional tier has 3% commission on both store and services
  */
 function getCommissionRate(tier: string): { store: string; service: string } {
   switch (tier) {
-    case 'empresarial':
-      return { store: '2%', service: '2%' }
+    case 'profesional':
+      return { store: '3%', service: '3%' }
     default:
-      return { store: '5%', service: '5%' }
+      return { store: '0%', service: '0%' }
   }
 }
 

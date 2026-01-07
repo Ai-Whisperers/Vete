@@ -77,10 +77,7 @@ export function TenantProviders({
 function getTierName(tier: TierId): string {
   const names: Record<TierId, string> = {
     gratis: 'Gratis',
-    basico: 'Básico',
-    crecimiento: 'Crecimiento',
     profesional: 'Profesional',
-    empresarial: 'Empresarial',
   }
   return names[tier] || tier
 }

@@ -182,7 +182,7 @@ export function useTenantTier() {
     trialEndsAt,
     isLoading,
     isPaid: tierId !== 'gratis',
-    isEnterprise: tierId === 'empresarial',
+    isProfessional: tierId === 'profesional',
   }
 }
 

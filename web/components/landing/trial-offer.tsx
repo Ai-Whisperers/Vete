@@ -3,21 +3,18 @@
 import { useState } from 'react'
 import {
   Gift,
-  Calendar,
   Check,
-  ArrowRight,
-  Clock,
   Shield,
   CreditCard,
   MessageCircle,
   Sparkles,
   ChevronDown,
-  X,
-  DollarSign,
   FileCheck,
   Rocket,
+  Stethoscope,
 } from 'lucide-react'
 import { getWhatsAppUrl } from '@/lib/whatsapp'
+import { trialConfig } from '@/lib/pricing/tiers'
 
 interface TimelineStep {
   month: string
@@ -30,7 +27,7 @@ interface TimelineStep {
 
 const timelineSteps: TimelineStep[] = [
   {
-    month: 'Mes 1-3',
+    month: `Mes 1-${trialConfig.freeMonths}`,
     title: 'Periodo de Prueba',
     description: 'Tu sitio funcionando al 100%. Sin costos. Evalualo tranquilo.',
     icon: <Gift className="h-5 w-5" />,
@@ -38,25 +35,18 @@ const timelineSteps: TimelineStep[] = [
     payment: 'Gs 0',
   },
   {
-    month: 'Mes 4',
+    month: `Mes ${trialConfig.freeMonths + 1}`,
     title: 'Decides',
     description: 'Si te gusta, continuas. Si no, te vas sin pagar nada.',
     icon: <FileCheck className="h-5 w-5" />,
     payment: 'Decision',
   },
   {
-    month: 'Mes 4-15',
-    title: 'Recuperacion del Setup',
-    description: 'La configuracion inicial se divide en 12 cuotas sumadas a la mensualidad.',
-    icon: <CreditCard className="h-5 w-5" />,
-    payment: 'Mensual + Cuota Setup',
-  },
-  {
-    month: 'Mes 16+',
+    month: `Mes ${trialConfig.freeMonths + 1}+`,
     title: 'Solo Mensualidad',
-    description: 'Una vez pagado el setup, solo pagas la mensualidad del plan.',
+    description: 'Pagas la mensualidad del Plan Profesional. Sin sorpresas.',
     icon: <Rocket className="h-5 w-5" />,
-    payment: 'Solo Mensual',
+    payment: 'Gs 250.000/mes',
   },
 ]
 
@@ -69,17 +59,17 @@ const guarantees = [
   {
     icon: <Sparkles className="h-6 w-6" />,
     title: 'Acceso completo',
-    description: 'Todas las funcionalidades del plan, sin limitaciones',
+    description: 'Todas las funcionalidades, sin limitaciones',
   },
   {
     icon: <Gift className="h-6 w-6" />,
     title: 'Setup incluido',
-    description: 'Construimos tu sitio web completo durante la prueba',
+    description: 'Configuramos todo durante la prueba gratuita',
   },
   {
     icon: <CreditCard className="h-6 w-6" />,
-    title: 'Pago flexible',
-    description: 'El setup se divide en 12 cuotas si decides continuar',
+    title: 'Precio fijo',
+    description: 'Gs 250.000/mes despues de la prueba. Sin cargos ocultos.',
   },
 ]
 
@@ -90,19 +80,19 @@ interface FAQItem {
 
 const trialFAQs: FAQItem[] = [
   {
-    question: '¿Realmente no pago nada durante los 3 meses?',
+    question: `¿Realmente no pago nada durante los ${trialConfig.freeMonths} meses?`,
     answer:
-      'Correcto. Durante los 3 meses de prueba no pagas nada. Nosotros invertimos en construir tu sitio y vos lo probas. Si decides no continuar, te vas sin pagar. Es nuestro riesgo, no el tuyo.',
+      `Correcto. Durante los ${trialConfig.freeMonths} meses de prueba no pagas nada. Nosotros invertimos en construir tu sitio y vos lo probas. Si decides no continuar, te vas sin pagar. Es nuestro riesgo, no el tuyo.`,
   },
   {
-    question: '¿Que pasa con el setup si decido continuar?',
+    question: '¿Que pasa despues de la prueba?',
     answer:
-      'El costo de configuracion (que varia segun el plan) se divide en 12 cuotas mensuales que se suman a tu mensualidad. Por ejemplo, con Plan Crecimiento: Gs 200.000 + Gs 41.667 (setup) = Gs 241.667 por mes durante 12 meses. Despues, solo Gs 200.000.',
+      'Si decides continuar, empezas a pagar Gs 250.000 por mes por el Plan Profesional. Sin cargos adicionales de setup. Si usas la tienda online, se cobra una comision del 3% sobre las ventas.',
   },
   {
-    question: '¿Y si cancelo despues del mes 4?',
+    question: '¿Puedo cancelar cuando quiera?',
     answer:
-      'Pagas hasta el mes que usaste. No hay penalidad. Solo respetamos el minimo del plan elegido (12 meses para Semilla, 6 para Crecimiento, ninguno para Establecida). Si cancelas antes del minimo, se aplica una pequeña compensacion por el setup invertido.',
+      'Si. No hay contratos de permanencia. Podes cancelar en cualquier momento. Tu informacion te pertenece y podes exportarla.',
   },
   {
     question: '¿Que funcionalidades tengo durante la prueba?',
@@ -110,9 +100,9 @@ const trialFAQs: FAQItem[] = [
       'Todas. No hay versiones limitadas. Tu sitio funciona exactamente igual durante la prueba que despues. Es la unica forma de que puedas evaluarlo de verdad.',
   },
   {
-    question: '¿Puedo cambiar de plan durante o despues de la prueba?',
+    question: '¿Que incluye el Plan Profesional?',
     answer:
-      'Si! Podes empezar con Semilla y subir a Crecimiento cuando crezcas. O empezar con Crecimiento y ver si necesitas Establecida. El upgrade es inmediato, solo ajustamos la mensualidad.',
+      'Sitio web profesional, sistema de citas, portal para duenos, historiales medicos, recordatorios WhatsApp, tienda online, hospitalizacion, laboratorio, usuarios ilimitados, y soporte prioritario.',
   },
 ]
 
@@ -122,19 +112,8 @@ function formatPrice(price: number): string {
 
 export function TrialOffer() {
   const [expandedFAQ, setExpandedFAQ] = useState<number | null>(0)
-  const [selectedPlan, setSelectedPlan] = useState<'semilla' | 'crecimiento' | 'establecida'>(
-    'crecimiento'
-  )
 
-  const planPricing = {
-    semilla: { setup: 700000, monthly: 150000 },
-    crecimiento: { setup: 500000, monthly: 200000 },
-    establecida: { setup: 700000, monthly: 300000 },
-  }
-
-  const current = planPricing[selectedPlan]
-  const monthlySetupInstallment = Math.ceil(current.setup / 12)
-  const totalDuringRecovery = current.monthly + monthlySetupInstallment
+  const monthlyPrice = 250000
 
   return (
     <section
@@ -153,12 +132,11 @@ export function TrialOffer() {
             <span className="font-bold text-[#2DCEA3]">Prueba Sin Riesgo</span>
           </div>
           <h2 className="mb-6 text-3xl font-black text-white md:text-4xl lg:text-5xl">
-            3 meses gratis para que lo pruebes
+            {trialConfig.freeMonths} meses gratis para que lo pruebes
           </h2>
           <p className="mx-auto max-w-3xl text-lg text-white/60">
-            Nosotros construimos tu sitio, vos lo probas. Si no te convence, te vas sin pagar. Si
-            decides quedarte, el setup se paga en{' '}
-            <span className="text-[#2DCEA3]">12 cuotas sin interes</span>.
+            Nosotros construimos tu sitio, vos lo probas. Si no te convence, te vas sin pagar.
+            Despues, solo <span className="text-[#2DCEA3]">Gs {formatPrice(monthlyPrice)}/mes</span>.
           </p>
         </div>
 
@@ -167,7 +145,7 @@ export function TrialOffer() {
           {/* Timeline */}
           <div className="mb-16">
             <h3 className="mb-8 text-center text-xl font-bold text-white">Como funciona</h3>
-            <div className="grid gap-4 md:grid-cols-4">
+            <div className="grid gap-4 md:grid-cols-3">
               {timelineSteps.map((step, idx) => (
                 <div
                   key={idx}
@@ -202,88 +180,75 @@ export function TrialOffer() {
             </div>
           </div>
 
-          {/* Calculator Section */}
+          {/* Plan Info + Guarantees */}
           <div className="mb-16 grid gap-8 lg:grid-cols-2">
-            {/* Plan Selector */}
-            <div className="rounded-3xl border border-white/10 bg-white/5 p-8">
-              <h3 className="mb-6 flex items-center gap-2 text-xl font-bold text-white">
-                <DollarSign className="h-5 w-5 text-[#2DCEA3]" />
-                Calcula tu inversion
-              </h3>
+            {/* Plan Profesional Card */}
+            <div className="rounded-3xl border border-[#2DCEA3]/30 bg-gradient-to-br from-[#2DCEA3]/10 to-transparent p-8">
+              <div className="mb-6 flex items-center gap-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#2DCEA3]/20 text-[#2DCEA3]">
+                  <Stethoscope className="h-6 w-6" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-white">Plan Profesional</h3>
+                  <p className="text-sm text-white/60">Todo incluido para tu clinica</p>
+                </div>
+              </div>
 
-              {/* Plan Tabs */}
-              <div className="mb-6 flex gap-2">
-                {(['semilla', 'crecimiento', 'establecida'] as const).map((plan) => (
-                  <button
-                    key={plan}
-                    onClick={() => setSelectedPlan(plan)}
-                    className={`flex-1 rounded-xl px-4 py-3 font-medium capitalize transition-all ${
-                      selectedPlan === plan
-                        ? 'bg-[#2DCEA3] text-[#0F172A]'
-                        : 'bg-white/5 text-white/70 hover:bg-white/10'
-                    }`}
-                  >
-                    {plan}
-                  </button>
+              {/* Pricing */}
+              <div className="mb-6 rounded-xl bg-white/5 p-4">
+                <div className="mb-4 flex items-end gap-2">
+                  <span className="text-4xl font-black text-[#2DCEA3]">Gs {formatPrice(monthlyPrice)}</span>
+                  <span className="mb-1 text-white/60">/mes</span>
+                </div>
+                <div className="flex items-center gap-2 rounded-lg bg-green-500/20 px-3 py-2">
+                  <Gift className="h-4 w-4 text-green-400" />
+                  <span className="text-sm font-bold text-green-400">
+                    {trialConfig.freeMonths} meses GRATIS para empezar
+                  </span>
+                </div>
+              </div>
+
+              {/* Features */}
+              <div className="mb-6 space-y-3">
+                {[
+                  'Sitio web profesional',
+                  'Sistema de citas con agenda',
+                  'Portal para duenos de mascotas',
+                  'Historiales medicos digitales',
+                  'Recordatorios WhatsApp automaticos',
+                  'Tienda online (3% comision)',
+                  'Modulo de hospitalizacion',
+                  'Laboratorio integrado',
+                  'Usuarios ilimitados',
+                  'Soporte prioritario 24/7',
+                ].map((feature, idx) => (
+                  <div key={idx} className="flex items-center gap-2 text-sm text-white/80">
+                    <Check className="h-4 w-4 flex-shrink-0 text-[#2DCEA3]" />
+                    <span>{feature}</span>
+                  </div>
                 ))}
               </div>
 
-              {/* Breakdown */}
-              <div className="space-y-4">
-                <div className="rounded-xl bg-white/5 p-4">
-                  <div className="mb-2 flex justify-between">
-                    <span className="text-white/70">Meses 1-3 (Prueba)</span>
-                    <span className="font-bold text-[#2DCEA3]">Gs 0</span>
-                  </div>
-                  <p className="text-xs text-white/40">Gratis mientras evaluas</p>
-                </div>
-
-                <div className="rounded-xl bg-white/5 p-4">
-                  <div className="mb-2 flex justify-between">
-                    <span className="text-white/70">Meses 4-15 (Recovery)</span>
-                    <span className="font-bold text-white">
-                      Gs {formatPrice(totalDuringRecovery)}/mes
-                    </span>
-                  </div>
-                  <div className="space-y-1 text-xs text-white/40">
-                    <p>Mensualidad: Gs {formatPrice(current.monthly)}</p>
-                    <p>+ Cuota setup: Gs {formatPrice(monthlySetupInstallment)} (1/12)</p>
-                  </div>
-                </div>
-
-                <div className="rounded-xl border border-[#2DCEA3]/20 bg-[#2DCEA3]/10 p-4">
-                  <div className="mb-2 flex justify-between">
-                    <span className="text-white">Mes 16+ (Normal)</span>
-                    <span className="text-xl font-bold text-[#2DCEA3]">
-                      Gs {formatPrice(current.monthly)}/mes
-                    </span>
-                  </div>
-                  <p className="text-xs text-white/40">Solo la mensualidad, setup ya pagado</p>
-                </div>
-              </div>
-
-              {/* Total first year */}
-              <div className="mt-6 rounded-xl border border-white/10 bg-white/5 p-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-white/70">Inversion primer año</span>
-                  <div className="text-right">
-                    <div className="text-2xl font-black text-white">
-                      Gs {formatPrice(totalDuringRecovery * 9)}
-                    </div>
-                    <p className="text-xs text-white/40">3 meses gratis + 9 meses de pago</p>
-                  </div>
-                </div>
-              </div>
+              {/* CTA */}
+              <a
+                href={getWhatsAppUrl(`Hola! Me interesa la prueba de ${trialConfig.freeMonths} meses gratis del Plan Profesional de Vetic para mi clinica`)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#2DCEA3] px-6 py-4 font-bold text-[#0F172A] transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#2DCEA3]/20"
+              >
+                <MessageCircle className="h-5 w-5" />
+                Empezar prueba gratis
+              </a>
             </div>
 
             {/* Guarantees */}
-            <div className="rounded-3xl border border-[#2DCEA3]/20 bg-gradient-to-br from-[#2DCEA3]/10 to-[#5C6BFF]/10 p-8">
+            <div className="rounded-3xl border border-white/10 bg-white/5 p-8">
               <h3 className="mb-6 flex items-center gap-2 text-xl font-bold text-white">
                 <Shield className="h-5 w-5 text-[#2DCEA3]" />
                 Nuestras garantias
               </h3>
 
-              <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 {guarantees.map((guarantee, idx) => (
                   <div key={idx} className="rounded-xl bg-white/5 p-4">
                     <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-[#2DCEA3]/10 text-[#2DCEA3]">
@@ -295,18 +260,7 @@ export function TrialOffer() {
                 ))}
               </div>
 
-              {/* CTA */}
-              <a
-                href={getWhatsAppUrl('Hola! Me interesa la prueba de 3 meses gratis de Vetic para mi clinica')}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#2DCEA3] to-[#00C9FF] px-6 py-4 font-bold text-[#0F172A] shadow-lg shadow-[#2DCEA3]/20 transition-all hover:-translate-y-0.5 hover:shadow-xl"
-              >
-                <MessageCircle className="h-5 w-5" />
-                Quiero empezar mi prueba gratis
-              </a>
-
-              <p className="mt-4 text-center text-xs text-white/40">
+              <p className="mt-6 text-center text-xs text-white/40">
                 Sin tarjeta de credito • Sin compromiso • Cancela cuando quieras
               </p>
             </div>

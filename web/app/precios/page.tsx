@@ -11,7 +11,6 @@ import {
   LandingFooter,
   FloatingWhatsApp,
   PageHeader,
-  ROICalculatorDetailed,
   PricingSection,
 } from '@/components/landing'
 import { discounts } from '@/lib/pricing/tiers'
@@ -23,17 +22,14 @@ export default function PreciosPage(): React.ReactElement {
       <LandingNav />
 
       <PageHeader
-        badge="Precios Transparentes"
-        title="Planes que crecen"
-        highlight="con tu clínica."
-        description="Sin costos ocultos, sin contratos de permanencia. Empezá gratis y subí de plan cuando lo necesites."
+        badge="Precios Simples"
+        title="Solo 2 planes."
+        highlight="Sin complicaciones."
+        description="Gratis para empezar, Profesional para crecer. Sin costos ocultos, sin contratos."
       />
 
       {/* Pricing Cards - Uses shared component with centralized pricing config */}
       <PricingSection />
-
-      {/* ROI Calculator - Detailed Version */}
-      <ROICalculatorDetailed />
 
       {/* Payment Methods */}
       <section className="py-16 md:py-24">

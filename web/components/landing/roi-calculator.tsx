@@ -256,7 +256,7 @@ export function ROICalculator() {
                           )}
                         </div>
                         <div className="text-xs text-white/40">
-                          {plan.id === 'empresarial' ? 'Personalizado' : plan.monthlyCost === 0 ? 'Gratis' : `${formatCurrencyShort(plan.monthlyCost)}/mes`}
+                          {plan.monthlyCost === 0 ? 'Gratis' : `${formatCurrencyShort(plan.monthlyCost)}/mes`}
                         </div>
                       </div>
                       {currentPlan.id === plan.id &&
@@ -432,14 +432,8 @@ export function ROICalculator() {
                     </p>
                     {currentPlan.id === 'gratis' ? (
                       <p className="text-white/60">
-                        Empezas <strong className="text-[#2DCEA3]">gratis</strong> con todas las herramientas esenciales:
-                        sitio web, agenda online, historiales digitales y portal para duenos.
-                        El plan muestra anuncios. Cuando estes listo, podes subir a un plan pago.
-                      </p>
-                    ) : currentPlan.id === 'empresarial' ? (
-                      <p className="text-white/60">
-                        Plan personalizado para clinicas con multiples sucursales. Incluye todas las funciones, comision reducida,
-                        acceso API y soporte dedicado. <strong className="text-[#F59E0B]">Contactanos para una cotizacion.</strong>
+                        Empezas <strong className="text-[#2DCEA3]">gratis</strong> con sitio web y reservas por WhatsApp.
+                        El plan muestra anuncios. Cuando estes listo, podes subir a Profesional.
                       </p>
                     ) : (
                       <p className="text-white/60">
@@ -449,7 +443,7 @@ export function ROICalculator() {
                         </strong>.
                         Con {calculations.breakEvenClients} cliente{calculations.breakEvenClients === 1 ? '' : 's'} nuevo{calculations.breakEvenClients === 1 ? '' : 's'} al mes, se paga solo.
                         {currentPlan.hasEcommerce && (
-                          <span> Incluye tienda online (comision 3-5% sobre ventas).</span>
+                          <span> Incluye tienda online (comision 3% sobre ventas).</span>
                         )}
                       </p>
                     )}
@@ -458,7 +452,7 @@ export function ROICalculator() {
               </div>
 
               {/* 2026 Promotion notice for paid plans */}
-              {currentPlan.monthlyCost > 0 && currentPlan.id !== 'empresarial' && (
+              {currentPlan.monthlyCost > 0 && (
                 <div className="mt-4 flex items-center justify-center gap-2 rounded-lg bg-white/5 p-3">
                   <Gift className="h-4 w-4 text-[#2DCEA3]" />
                   <span className="text-sm text-white/70">

@@ -5,9 +5,13 @@
  * These are separated from the main config because they contain JSX (not serializable).
  *
  * Single source of truth for all tier-related UI elements across landing pages.
+ *
+ * Simple 2-tier model:
+ * - Gratis: Website + WhatsApp booking only
+ * - Profesional: Everything included
  */
 
-import { Gift, Zap, ShoppingBag, Stethoscope, Crown } from 'lucide-react'
+import { Gift, Stethoscope } from 'lucide-react'
 import type { TierId } from './tiers'
 import { brandConfig } from '@/lib/branding/config'
 
@@ -20,10 +24,7 @@ import { brandConfig } from '@/lib/branding/config'
  */
 export const tierIcons: Record<TierId, React.ReactNode> = {
   gratis: <Gift className="h-5 w-5" />,
-  basico: <Zap className="h-5 w-5" />,
-  crecimiento: <ShoppingBag className="h-5 w-5" />,
   profesional: <Stethoscope className="h-5 w-5" />,
-  empresarial: <Crown className="h-5 w-5" />,
 }
 
 /**
@@ -31,10 +32,7 @@ export const tierIcons: Record<TierId, React.ReactNode> = {
  */
 export const tierIconsLarge: Record<TierId, React.ReactNode> = {
   gratis: <Gift className="h-8 w-8" />,
-  basico: <Zap className="h-8 w-8" />,
-  crecimiento: <ShoppingBag className="h-8 w-8" />,
   profesional: <Stethoscope className="h-8 w-8" />,
-  empresarial: <Crown className="h-8 w-8" />,
 }
 
 /**
@@ -55,45 +53,20 @@ export function getTierIcon(tierId: TierId, size: 'sm' | 'lg' = 'sm'): React.Rea
 export const tierFeatureDescriptions: Record<TierId, string[]> = {
   gratis: [
     'Sitio web profesional',
+    'Reservas por WhatsApp',
+    'Muestra anuncios',
+  ],
+  profesional: [
+    'Todo incluido',
     'Agenda online 24/7',
     'Historial clínico digital',
     'Portal para dueños',
     'Control de vacunas',
-    'Herramientas clínicas',
-    'Muestra anuncios',
-  ],
-  basico: [
-    'Todo de Gratis',
-    'Sin anuncios',
-    'Soporte por email',
-    '3 usuarios incluidos',
-  ],
-  crecimiento: [
-    'Todo de Básico',
     'Tienda online (3% comisión)',
-    'Placas QR de identificación',
-    'Pedidos mayoristas',
-    'Reportes de ventas',
-    '5 usuarios incluidos',
-  ],
-  profesional: [
-    'Todo de Crecimiento',
     'WhatsApp Business API',
-    'Módulo de hospitalización',
-    'Laboratorio clínico',
-    'Reportes avanzados',
-    'Soporte WhatsApp 24/7',
-    '10 usuarios incluidos',
-  ],
-  empresarial: [
-    'Todo de Profesional',
-    'Múltiples sucursales',
-    'Acceso API',
-    'Análisis con IA',
-    'Garantía SLA 99.9%',
-    'Soporte dedicado',
-    'Comisión reducida (2%)',
-    '20+ usuarios',
+    'Hospitalización y laboratorio',
+    'Usuarios ilimitados',
+    'Soporte prioritario 24/7',
   ],
 }
 
@@ -105,74 +78,39 @@ export const tierDetailedFeatures: Record<TierId, { included: string[]; notInclu
   gratis: {
     included: [
       'Sitio web profesional',
+      'Reservas por WhatsApp',
+    ],
+    notIncluded: [
+      'Muestra anuncios',
+      'Sin portal de mascotas',
+      'Sin historial clinico',
+      'Sin tienda online',
+      'Sin soporte prioritario',
+    ],
+  },
+  profesional: {
+    included: [
+      'Sitio web profesional',
       'Agenda online 24/7',
       'Historial clinico digital',
       'Portal para duenos',
       'Control de vacunas',
       'Herramientas clinicas',
-      'Usuarios ilimitados',
-    ],
-    notIncluded: [
-      'Muestra anuncios',
-      'Sin soporte prioritario',
-      'Sin tienda online',
-      'Sin WhatsApp automatico',
-    ],
-  },
-  basico: {
-    included: [
-      'Todo de Gratis',
       'Sin anuncios',
-      'Soporte por email (48h)',
-      '3 usuarios incluidos',
-    ],
-    notIncluded: [
-      'Sin tienda online',
-      'Sin WhatsApp automatico',
-      'Sin hospitalizacion',
-    ],
-  },
-  crecimiento: {
-    included: [
-      'Todo de Basico',
-      'Tienda online',
+      'Tienda online (3% comision)',
       'Placas QR de identificacion',
-      'Pedidos mayoristas (pronto)',
-      'Reportes de ventas',
-      '5 usuarios incluidos',
-    ],
-    notIncluded: [
-      'Sin WhatsApp automatico',
-      'Sin hospitalizacion',
-      'Sin laboratorio',
-    ],
-  },
-  profesional: {
-    included: [
-      'Todo de Crecimiento',
+      'Pedidos mayoristas',
       'WhatsApp Business API',
       'Recordatorios automaticos',
       'Modulo de hospitalizacion',
       'Laboratorio clinico',
       'Reportes avanzados',
-      'Soporte WhatsApp 24/7',
-      '10 usuarios incluidos',
-    ],
-    notIncluded: [
-      'Sin multiples sucursales',
-      'Sin acceso API',
-    ],
-  },
-  empresarial: {
-    included: [
-      'Todo de Profesional',
       'Multiples sucursales',
       'Acceso API completo',
       'Analisis con IA',
       'Garantia SLA 99.9%',
-      'Soporte dedicado',
-      'Comision reducida (2%)',
-      '20+ usuarios',
+      'Soporte prioritario 24/7',
+      'Usuarios ilimitados',
     ],
     notIncluded: [],
   },
@@ -188,38 +126,18 @@ export const tierDetailedFeatures: Record<TierId, { included: string[]; notInclu
 export const tierQuizReasons: Record<TierId, string[]> = {
   gratis: [
     'Sitio web profesional para tu clinica',
-    'Portal de mascotas para tus clientes',
-    'Citas, fichas medicas y vacunas incluidas',
+    'Reservas por WhatsApp integradas',
     'Muestra anuncios - asi se financia',
-    'Podes subir a un plan pago cuando quieras',
-  ],
-  basico: [
-    'Sin anuncios - imagen profesional',
-    'Incluye 3 usuarios (Gs 30.000/extra)',
-    'Soporte por email (48 horas)',
-    'Todas las funciones clinicas basicas',
-    'Ideal para clinicas pequenas',
-  ],
-  crecimiento: [
-    'Tienda online integrada (3% comision)',
-    'Acceso a compras grupales con descuentos',
-    'Incluye 5 usuarios (Gs 40.000/extra)',
-    'Analiticas basicas de tu negocio',
-    'Soporte por email (24 horas)',
+    'Podes subir a Profesional cuando quieras',
   ],
   profesional: [
-    'Modulo de hospitalizacion e internacion',
-    'Laboratorio con resultados y paneles',
+    'Todas las funciones incluidas',
+    'Portal de mascotas para tus clientes',
+    'Tienda online (3% comision)',
     'WhatsApp Business API integrado',
-    'Incluye 10 usuarios (Gs 50.000/extra)',
-    'Soporte prioritario por WhatsApp (12 hrs)',
-  ],
-  empresarial: [
-    'Multiples sucursales en una cuenta',
-    'API para integraciones personalizadas',
-    'Analiticas avanzadas con IA',
-    'SLA garantizado con soporte 24/7',
-    'Account manager dedicado',
+    'Hospitalizacion y laboratorio',
+    'Usuarios ilimitados',
+    'Soporte prioritario 24/7',
   ],
 }
 
@@ -235,21 +153,9 @@ export const tierCtaMessages: Record<TierId, { cta: string; message: string }> =
     cta: 'Empezar Gratis',
     message: `Hola! Quiero crear mi cuenta gratuita en ${brandConfig.name}`,
   },
-  basico: {
-    cta: 'Elegir Básico',
-    message: `Hola! Me interesa el plan Básico de ${brandConfig.name}`,
-  },
-  crecimiento: {
-    cta: 'Elegir Crecimiento',
-    message: `Hola! Me interesa el plan Crecimiento de ${brandConfig.name}`,
-  },
   profesional: {
     cta: 'Elegir Profesional',
     message: `Hola! Me interesa el plan Profesional de ${brandConfig.name}`,
-  },
-  empresarial: {
-    cta: 'Contactar Ventas',
-    message: `Hola! Tengo una clínica con múltiples sucursales y me interesa el plan Empresarial de ${brandConfig.name}`,
   },
 }
 
@@ -258,10 +164,7 @@ export const tierCtaMessages: Record<TierId, { cta: string; message: string }> =
  */
 export const tierQuizCtaMessages: Record<TierId, string> = {
   gratis: `Hola! Hice el quiz de ${brandConfig.name} y quiero empezar con el Plan Gratis. Me pueden ayudar?`,
-  basico: `Hola! Hice el quiz de ${brandConfig.name} y me recomendaron el Plan Basico. Me gustaria saber mas!`,
-  crecimiento: `Hola! Hice el quiz de ${brandConfig.name} y me recomendaron el Plan Crecimiento. Me gustaria saber mas!`,
   profesional: `Hola! Hice el quiz de ${brandConfig.name} y me recomendaron el Plan Profesional. Me gustaria saber mas!`,
-  empresarial: `Hola! Hice el quiz de ${brandConfig.name} y me recomendaron el Plan Empresarial. Tengo una cadena de clinicas y me gustaria una reunion.`,
 }
 
 // ============================================================================
@@ -273,10 +176,7 @@ export const tierQuizCtaMessages: Record<TierId, string> = {
  */
 export const tierTaglines: Record<TierId, string> = {
   gratis: 'Empieza sin pagar nada',
-  basico: 'Sin anuncios, experiencia profesional',
-  crecimiento: 'El favorito - vende y crece',
-  profesional: 'Para clinicas completas',
-  empresarial: 'Solucion a medida para cadenas',
+  profesional: 'Todo incluido para clinicas profesionales',
 }
 
 // ============================================================================
@@ -288,21 +188,15 @@ export const tierTaglines: Record<TierId, string> = {
  */
 export const tierHighlights: Record<TierId, string> = {
   gratis: 'Sin costo',
-  basico: 'Sin anuncios',
-  crecimiento: 'Tienda online',
-  profesional: 'Hospital + Lab',
-  empresarial: 'Multi-sucursal',
+  profesional: 'Todo incluido',
 }
 
 /**
  * Short feature lists for teaser cards (3 items max)
  */
 export const tierTeaserFeatures: Record<TierId, string[]> = {
-  gratis: ['Sitio web propio', 'Agenda de citas', 'Historial clínico'],
-  basico: ['Todo de Gratis +', 'Sin anuncios', 'Soporte email'],
-  crecimiento: ['Todo de Básico +', 'E-commerce', 'Tags QR para mascotas'],
-  profesional: ['Todo de Crecimiento +', 'Hospitalización', 'WhatsApp API'],
-  empresarial: ['Todo de Profesional +', 'Multi-sucursal', 'API + IA'],
+  gratis: ['Sitio web propio', 'Reservas WhatsApp', 'Con anuncios'],
+  profesional: ['Todo incluido', 'Sin anuncios', 'Usuarios ilimitados'],
 }
 
 // ============================================================================
@@ -311,27 +205,17 @@ export const tierTeaserFeatures: Record<TierId, string[]> = {
 
 /**
  * What the next tier offers (for upgrade prompts)
+ * With only 2 tiers, only gratis can upgrade to profesional
  */
-export const tierUpgradePrompts: Record<Exclude<TierId, 'empresarial'>, string[]> = {
+export const tierUpgradePrompts: Record<'gratis', string[]> = {
   gratis: [
     'Sin anuncios en tu sitio',
-    'Soporte por email (48h respuesta)',
-  ],
-  basico: [
-    'Tienda online para vender productos',
-    'Placas QR de identificacion',
-    'Reportes de ventas',
-  ],
-  crecimiento: [
-    'WhatsApp automatico - recupera citas perdidas',
-    'Modulo de hospitalizacion',
-    'Laboratorio clinico integrado',
-  ],
-  profesional: [
-    'Multiples sucursales',
-    'Acceso API completo',
-    'Analiticas con IA',
-    'SLA garantizado',
+    'Portal completo para duenos',
+    'Historial clinico digital',
+    'Tienda online (3% comision)',
+    'WhatsApp Business API',
+    'Hospitalizacion y laboratorio',
+    'Soporte prioritario 24/7',
   ],
 }
 
@@ -341,14 +225,13 @@ export const tierUpgradePrompts: Record<Exclude<TierId, 'empresarial'>, string[]
 
 /**
  * Get the next tier for upgrade prompts
+ * With only 2 tiers: gratis → profesional, profesional → null
  */
 export function getNextTierId(currentTierId: TierId): TierId | null {
-  const tierOrder: TierId[] = ['gratis', 'basico', 'crecimiento', 'profesional', 'empresarial']
-  const currentIndex = tierOrder.indexOf(currentTierId)
-  if (currentIndex === -1 || currentIndex >= tierOrder.length - 1) {
-    return null
+  if (currentTierId === 'gratis') {
+    return 'profesional'
   }
-  return tierOrder[currentIndex + 1]
+  return null // profesional is the highest tier
 }
 
 /**
@@ -359,6 +242,6 @@ export function getUpgradeCostDifference(
   currentPrice: number,
   nextPrice: number
 ): number {
-  if (currentTierId === 'empresarial') return 0
+  if (currentTierId === 'profesional') return 0
   return nextPrice - currentPrice
 }

@@ -139,7 +139,7 @@ export async function requireFeature(
   const result = await checkFeatureAccess(tenantId, feature)
 
   if (!result.allowed) {
-    const tier = getTierById(result.requiredTier || 'basico')
+    const tier = getTierById(result.requiredTier || 'profesional')
 
     return NextResponse.json(
       {

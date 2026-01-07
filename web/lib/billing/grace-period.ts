@@ -38,7 +38,7 @@ export interface GraceMetrics {
   economicIndex: number // Paraguay economic indicator (0.5-1.5)
 
   // Subscription tier (affects weighting)
-  tier: 'gratis' | 'basico' | 'crecimiento' | 'profesional' | 'empresarial'
+  tier: 'gratis' | 'profesional'
 }
 
 /**
@@ -76,10 +76,7 @@ const WEIGHTS = {
  */
 const TIER_MULTIPLIERS: Record<string, number> = {
   gratis: 1.0,
-  basico: 1.05,
-  crecimiento: 1.10,
   profesional: 1.15,
-  empresarial: 1.20,
 }
 
 /**
@@ -447,6 +444,6 @@ export async function collectTenantMetrics(
     outstandingBalance,
     seasonalityFactor: getCurrentSeasonality(),
     economicIndex: 1.0, // Default; could integrate external API
-    tier: (tenant?.subscription_tier as GraceMetrics['tier']) || 'basico',
+    tier: (tenant?.subscription_tier as GraceMetrics['tier']) || 'gratis',
   }
 }

@@ -10,23 +10,16 @@ import { createClient } from '@/lib/supabase/server'
 import { logger } from '@/lib/logger'
 import { buildReminderContent } from '@/lib/reminders/content-builder'
 import { sendReminderToChannels } from '@/lib/reminders/channel-sender'
+import { checkCronAuth } from '@/lib/api/cron-auth'
 import type { Reminder, ClientInfo, PetInfo, MessageTemplate } from '@/lib/reminders/types'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
-  // Verify cron secret - CRITICAL: fail closed if not configured
-  const authHeader = request.headers.get('authorization')
-  const cronSecret = process.env.CRON_SECRET
-
-  if (!cronSecret) {
-    logger.error('CRON_SECRET not configured for reminders - blocking request')
-    return NextResponse.json({ error: 'Server configuration error' }, { status: 500 })
-  }
-
-  if (authHeader !== `Bearer ${cronSecret}`) {
-    logger.warn('Unauthorized cron attempt for reminders')
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  // SEC-006: Use timing-safe cron authentication
+  const { authorized, errorResponse } = checkCronAuth(request)
+  if (!authorized) {
+    return errorResponse!
   }
 
   const supabase = await createClient()

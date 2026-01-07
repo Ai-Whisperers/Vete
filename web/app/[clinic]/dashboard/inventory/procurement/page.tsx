@@ -39,14 +39,12 @@ export default function ProcurementPage(): React.ReactElement {
     setRefreshKey(k => k + 1)
   }
 
-  const handleViewOrder = (order: unknown) => {
+  const handleViewOrder = (_order: unknown) => {
     // TODO: Implement order detail modal
-    console.log('View order:', order)
   }
 
-  const handleEditOrder = (order: unknown) => {
+  const handleEditOrder = (_order: unknown) => {
     // TODO: Implement order edit
-    console.log('Edit order:', order)
   }
 
   return (
@@ -119,8 +117,7 @@ export default function ProcurementPage(): React.ReactElement {
 
           <PriceComparison
             productIds={selectedProducts}
-            onSelectSupplier={(supplierId, productId, unitCost) => {
-              console.log('Selected:', { supplierId, productId, unitCost })
+            onSelectSupplier={(_supplierId, _productId, _unitCost) => {
               // TODO: Add to purchase order
             }}
           />

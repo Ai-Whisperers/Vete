@@ -164,7 +164,8 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
   // Redirect authenticated users away from login page
   if (user && path.endsWith('/portal/login')) {
     const clinicSlug = path.split('/')[1]
-    url.pathname = `/${clinicSlug}/portal/dashboard`
+    // Redirect to /portal which handles role-based routing
+    url.pathname = `/${clinicSlug}/portal`
 
     const duration = Math.round(performance.now() - startTime)
     middlewareLog('info', 'Authenticated user redirected from login', {
@@ -181,9 +182,10 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
   }
 
   // 1. Protected Routes Pattern Matching
-  const isDashboard = path.includes('/dashboard')
+  // Staff dashboard: /[clinic]/dashboard/* (NOT /portal/dashboard which is owner's home)
+  const isStaffDashboard = /^\/[^/]+\/dashboard(\/|$)/.test(path)
   const isPortal = path.includes('/portal')
-  const isProtected = isDashboard || isPortal
+  const isProtected = isStaffDashboard || isPortal
 
   // 2. Auth Check - redirect unauthenticated users to login page
   // EXCEPT if they're already trying to access the login or signup pages
@@ -200,7 +202,7 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
     middlewareLog('warn', 'Unauthenticated access attempt - redirecting to login', {
       ...baseLogContext,
       duration,
-      routeType: isDashboard ? 'dashboard' : 'portal',
+      routeType: isStaffDashboard ? 'dashboard' : 'portal',
       from: path,
       to: url.pathname,
     })
@@ -211,8 +213,8 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
   }
 
   // 3. Role Check (Authorization)
-  if (user && isDashboard) {
-    // Dashboards are for Staff (vet/admin) only
+  if (user && isStaffDashboard) {
+    // Staff dashboards are for Staff (vet/admin) only
     // We need to fetch the profile role.
     // Optimization: Check metadata first if available, otherwise DB
     let role = user.user_metadata?.role

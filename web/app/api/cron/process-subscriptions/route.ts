@@ -73,6 +73,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     // Process each subscription
     for (const subscription of dueSubscriptions) {
+      // Track stock state for rollback in catch block
+      let stockResult: { success: boolean; reason?: string; available?: number } | null = null
+      let stockRolledBack = false
+
       try {
         // Check product availability and stock
         const { data: product, error: productError } = await supabase
@@ -116,28 +120,61 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           continue
         }
 
-        // Check stock
-        const inventory = Array.isArray(product.store_inventory)
-          ? product.store_inventory[0]
-          : product.store_inventory
-        const stock = (inventory as { stock_quantity?: number } | null)?.stock_quantity ?? 0
+        // ATOMIC: Decrement stock FIRST with row-level locking
+        // This prevents race conditions where two concurrent processes both see
+        // sufficient stock and both decrement, causing overselling
+        const { data: stockResultData, error: stockError } = await supabase.rpc(
+          'decrement_stock_if_available',
+          {
+            p_product_id: subscription.product_id,
+            p_quantity: subscription.quantity,
+          }
+        )
 
-        if (stock < subscription.quantity) {
+        // Assign to outer variable for catch block access
+        stockResult = stockResultData
+
+        if (stockError) {
+          results.failed++
+          results.errors.push(`Subscription ${subscription.id}: Stock decrement failed - ${stockError.message}`)
+
+          await supabase.from('store_subscription_history').insert({
+            subscription_id: subscription.id,
+            event_type: 'order_failed',
+            event_data: { reason: 'Stock decrement error', error: stockError.message },
+          })
+
+          continue
+        }
+
+        // Check if stock decrement succeeded
+        if (!stockResult?.success) {
           results.skipped++
+
+          const reason = stockResult?.reason || 'unknown'
+          const available = stockResult?.available ?? 0
 
           await supabase.from('store_subscription_history').insert({
             subscription_id: subscription.id,
             event_type: 'order_failed',
             event_data: {
-              reason: 'Insufficient stock',
+              reason: reason === 'insufficient_stock' ? 'Insufficient stock' : reason,
               required: subscription.quantity,
-              available: stock,
+              available,
             },
           })
 
           // TODO: Send notification to customer about stock issue
+          logger.warn(`Subscription ${subscription.id} skipped: ${reason}`, {
+            available,
+            requested: subscription.quantity,
+          })
+
           continue
         }
+
+        // Stock successfully reserved - now create the order
+        // If order creation fails, we MUST roll back the stock (stockRolledBack is declared above)
 
         // Get current price (might have changed since subscription)
         const currentPrice = product.base_price
@@ -175,10 +212,17 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           results.failed++
           results.errors.push(`Subscription ${subscription.id}: Failed to create order`)
 
+          // ROLLBACK: Restore the stock we already decremented
+          await supabase.rpc('increment_stock', {
+            p_product_id: subscription.product_id,
+            p_quantity: subscription.quantity,
+          })
+          stockRolledBack = true
+
           await supabase.from('store_subscription_history').insert({
             subscription_id: subscription.id,
             event_type: 'order_failed',
-            event_data: { reason: 'Order creation failed', error: orderError?.message },
+            event_data: { reason: 'Order creation failed', error: orderError?.message, stock_rolled_back: true },
           })
 
           continue
@@ -199,14 +243,21 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         if (itemError) {
           results.failed++
           results.errors.push(`Subscription ${subscription.id}: Failed to create order items`)
+
+          // ROLLBACK: Restore the stock we already decremented
+          await supabase.rpc('increment_stock', {
+            p_product_id: subscription.product_id,
+            p_quantity: subscription.quantity,
+          })
+          stockRolledBack = true
+
+          // Also try to delete the orphan order
+          await supabase.from('store_orders').delete().eq('id', order.id)
+
           continue
         }
 
-        // Decrement stock
-        await supabase.rpc('decrement_stock', {
-          p_product_id: subscription.product_id,
-          p_quantity: subscription.quantity,
-        })
+        // Stock was already decremented atomically above - no need to decrement again
 
         // Calculate next order date
         const nextOrderDate = new Date()
@@ -251,6 +302,22 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         results.failed++
         const message = e instanceof Error ? e.message : 'Unknown error'
         results.errors.push(`Subscription ${subscription.id}: ${message}`)
+
+        // If stock was decremented but not rolled back, roll it back now
+        // This handles exceptions thrown after stock decrement but before completion
+        if (stockResult?.success && !stockRolledBack) {
+          try {
+            await supabase.rpc('increment_stock', {
+              p_product_id: subscription.product_id,
+              p_quantity: subscription.quantity,
+            })
+            logger.warn(`Rolled back stock for subscription ${subscription.id} after error`)
+          } catch (rollbackError) {
+            logger.error(`Failed to roll back stock for subscription ${subscription.id}`, {
+              error: rollbackError instanceof Error ? rollbackError.message : 'Unknown',
+            })
+          }
+        }
 
         logger.error(`Error processing subscription ${subscription.id}`, {
           error: message,

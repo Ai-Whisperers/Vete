@@ -14,8 +14,8 @@ import { tierHighlights, tierTeaserFeatures } from '@/lib/pricing/tier-ui'
  * Shows 3 key plans with basic info, redirects to /precios for full details
  */
 
-// Which tiers to show in the teaser (subset of all tiers)
-const TEASER_TIER_IDS: TierId[] = ['gratis', 'crecimiento', 'profesional']
+// Which tiers to show in the teaser (all tiers - simplified 2-tier model)
+const TEASER_TIER_IDS: TierId[] = ['gratis', 'profesional']
 
 /**
  * Derive teaser plans from central pricing config
@@ -52,7 +52,7 @@ export function PricingTeaser(): React.ReactElement {
         </div>
 
         {/* Plan Cards */}
-        <div className="mx-auto grid max-w-4xl gap-6 md:grid-cols-3">
+        <div className="mx-auto grid max-w-3xl gap-6 md:grid-cols-2">
           {teaserPlans.map((plan) => (
             <div
               key={plan.id}

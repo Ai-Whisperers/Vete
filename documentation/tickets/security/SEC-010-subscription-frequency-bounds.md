@@ -2,7 +2,7 @@
 
 ## Priority: P3 (Low)
 ## Category: Security / Validation
-## Status: Not Started
+## Status: COMPLETED
 
 ## Description
 The subscription processing cron job uses `frequency_days` from the database without bounds checking, which could cause issues with extreme values.
@@ -96,5 +96,24 @@ export const createSubscriptionSchema = z.object({
 - **Total: 2 hours**
 
 ---
-*Ticket created: January 2026*
-*Based on security/performance audit*
+## Implementation Summary (Completed)
+
+**Files Created:**
+- `db/migrations/047_subscription_frequency_constraint.sql`
+
+**Files Modified:**
+- `app/api/cron/process-subscriptions/route.ts`
+
+**Changes Made:**
+1. **Database constraint**: Added CHECK constraint enforcing `frequency_days >= 7 AND frequency_days <= 180`
+2. **Data migration**: Auto-corrects any invalid existing values to 30 days
+3. **Defensive validation in cron**: Added `SUBSCRIPTION_FREQUENCY` constants (MIN: 7, MAX: 180, DEFAULT: 30)
+4. **Bounds clamping**: Uses Math.min/max to clamp frequency to valid range
+5. **Warning logging**: Logs when a value is corrected for audit trail
+
+**Existing API validation confirmed:**
+- `store/subscriptions/route.ts` already validates 7-180 days via Zod schema
+- Database constraint provides defense in depth
+
+---
+*Completed: January 2026*

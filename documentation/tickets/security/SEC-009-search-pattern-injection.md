@@ -2,7 +2,7 @@
 
 ## Priority: P3 (Low)
 ## Category: Security
-## Status: Not Started
+## Status: COMPLETED
 
 ## Description
 Search endpoints construct LIKE patterns directly from user input, which could lead to unexpected behavior if Supabase parameterization changes.
@@ -112,5 +112,32 @@ export async function GET(request: NextRequest) {
 - **Total: 3 hours**
 
 ---
-*Ticket created: January 2026*
-*Based on security/performance audit*
+## Implementation Summary (Completed)
+
+**Files Created:**
+- `lib/utils/search.ts` - Search utilities with LIKE pattern escaping
+
+**Files Modified:**
+- `app/api/store/search/route.ts` - Updated to use `createSearchPattern`
+- `app/api/search/route.ts` - Updated to use `createSearchPattern`
+
+**Changes Made:**
+1. **New search utility functions:**
+   - `escapeLikePattern(input)` - Escapes `%`, `_`, and `\` characters
+   - `createSearchPattern(query)` - Trims, escapes, and wraps with `%`
+   - `validateSearchQuery(query)` - Validates length bounds
+   - `MIN_SEARCH_LENGTH = 2` constant
+
+2. **Search endpoint updates:**
+   - Both main search routes now use `createSearchPattern`
+   - Constants imported for consistent minimum length
+
+**Behavior after fix:**
+- Search for "100%" now returns literal "100%" products, not "1000", "100x", etc.
+- Search for "_a_" returns literal "_a_", not "aaa", "bab", etc.
+- Backslashes in search terms handled correctly
+
+**Note:** Internal staff-only search endpoints (20+) not updated as they are lower risk and protected by authentication.
+
+---
+*Completed: January 2026*

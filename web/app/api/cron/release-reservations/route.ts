@@ -1,6 +1,7 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { logger } from '@/lib/logger'
+import { checkCronAuth } from '@/lib/api/cron-auth'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60
@@ -12,19 +13,11 @@ export const maxDuration = 60
  * Should be called every 5-10 minutes.
  * Configure in vercel.json crons with schedule: "0/5 * * * *"
  */
-export async function GET(request: Request) {
-  // Verify cron secret - CRITICAL: fail closed if not configured
-  const authHeader = request.headers.get('authorization')
-  const cronSecret = process.env.CRON_SECRET
-
-  if (!cronSecret) {
-    logger.error('CRON_SECRET not configured for release-reservations - blocking request')
-    return NextResponse.json({ error: 'Server configuration error' }, { status: 500 })
-  }
-
-  if (authHeader !== `Bearer ${cronSecret}`) {
-    logger.warn('Unauthorized cron attempt for release-reservations')
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+export async function GET(request: NextRequest) {
+  // SEC-006: Use timing-safe cron authentication
+  const { authorized, errorResponse } = checkCronAuth(request)
+  if (!authorized) {
+    return errorResponse!
   }
 
   const supabase = await createClient()

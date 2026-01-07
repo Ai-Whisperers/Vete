@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { logger } from '@/lib/logger'
+import { checkCronAuth } from '@/lib/api/cron-auth'
+
+// SEC-010: Subscription frequency bounds for defensive validation
+const SUBSCRIPTION_FREQUENCY = {
+  MIN_DAYS: 7,
+  MAX_DAYS: 180,
+  DEFAULT_DAYS: 30,
+} as const
 
 // Use service role key for cron jobs to bypass RLS
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
@@ -14,18 +22,10 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
  * Protected by CRON_SECRET header
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
-  // Verify cron secret - CRITICAL: fail closed if not configured
-  const envCronSecret = process.env.CRON_SECRET
-
-  if (!envCronSecret) {
-    logger.error('CRON_SECRET not configured for process-subscriptions - blocking request')
-    return NextResponse.json({ error: 'Server configuration error' }, { status: 500 })
-  }
-
-  const cronSecret = request.headers.get('x-cron-secret')
-  if (cronSecret !== envCronSecret) {
-    logger.warn('Unauthorized cron attempt for process-subscriptions')
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  // SEC-006: Use timing-safe cron authentication
+  const { authorized, errorResponse } = checkCronAuth(request)
+  if (!authorized) {
+    return errorResponse!
   }
 
   const supabase = createClient(supabaseUrl, supabaseServiceKey)
@@ -71,6 +71,33 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     logger.info(`Processing ${dueSubscriptions.length} due subscriptions`)
 
+    // PERF-002: Batch fetch all products in ONE query to avoid N+1
+    const productIds = [...new Set(dueSubscriptions.map((s) => s.product_id))]
+
+    const { data: products, error: productsError } = await supabase
+      .from('store_products')
+      .select(
+        `
+        id,
+        tenant_id,
+        name,
+        base_price,
+        is_active,
+        store_inventory(stock_quantity)
+      `
+      )
+      .in('id', productIds)
+
+    if (productsError) {
+      logger.error('Failed to batch fetch products', { error: productsError.message })
+      throw productsError
+    }
+
+    // Create lookup map for O(1) access: key = "product_id:tenant_id"
+    const productMap = new Map(products?.map((p) => [`${p.id}:${p.tenant_id}`, p]) ?? [])
+
+    logger.info(`Fetched ${products?.length ?? 0} products for ${productIds.length} unique product IDs`)
+
     // Process each subscription
     for (const subscription of dueSubscriptions) {
       // Track stock state for rollback in catch block
@@ -78,23 +105,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       let stockRolledBack = false
 
       try {
-        // Check product availability and stock
-        const { data: product, error: productError } = await supabase
-          .from('store_products')
-          .select(
-            `
-            id,
-            name,
-            base_price,
-            is_active,
-            store_inventory(stock_quantity)
-          `
-          )
-          .eq('id', subscription.product_id)
-          .eq('tenant_id', subscription.tenant_id)
-          .single()
+        // PERF-002: Use pre-fetched product from batch query
+        const product = productMap.get(`${subscription.product_id}:${subscription.tenant_id}`)
 
-        if (productError || !product) {
+        if (!product) {
           results.failed++
           results.errors.push(`Subscription ${subscription.id}: Product not found`)
 
@@ -259,9 +273,21 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
         // Stock was already decremented atomically above - no need to decrement again
 
-        // Calculate next order date
+        // SEC-010: Calculate next order date with bounds validation
+        // Clamp frequency_days to valid range to handle legacy/invalid data
+        const rawFrequency = subscription.frequency_days ?? SUBSCRIPTION_FREQUENCY.DEFAULT_DAYS
+        const frequencyDays = Math.min(
+          Math.max(rawFrequency, SUBSCRIPTION_FREQUENCY.MIN_DAYS),
+          SUBSCRIPTION_FREQUENCY.MAX_DAYS
+        )
+
+        // Log warning if frequency was corrected
+        if (frequencyDays !== rawFrequency) {
+          logger.warn(`Subscription ${subscription.id}: frequency_days corrected from ${rawFrequency} to ${frequencyDays}`)
+        }
+
         const nextOrderDate = new Date()
-        nextOrderDate.setDate(nextOrderDate.getDate() + subscription.frequency_days)
+        nextOrderDate.setDate(nextOrderDate.getDate() + frequencyDays)
 
         // Update subscription
         const updateData: Record<string, unknown> = {

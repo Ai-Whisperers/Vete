@@ -44,10 +44,10 @@
     }
   ],
   "promo_banner": {
-    "enabled": true,
-    "text": "¡NUEVO! 10% de descuento en tu primer baño + corte. Usa el código PRIMERAVEZ al agendar.",
-    "link": "/adris/services",
-    "expires": "2025-02-28"
+    "enabled": false,
+    "text": "",
+    "link": "",
+    "expires": ""
   },
   "stats_section": {
     "enabled": true,

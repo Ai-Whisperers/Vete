@@ -2,7 +2,7 @@
 
 ## Priority: P2 (Medium)
 ## Category: Validation
-## Status: Not Started
+## Status: COMPLETED
 
 ## Description
 Lab order creation accepts test_ids array without validating that the values are valid UUIDs or that the tests exist for the tenant.
@@ -153,5 +153,37 @@ REFERENCES lab_test_catalog(id);
 - **Total: 3.5 hours**
 
 ---
-*Ticket created: January 2026*
-*Based on security/performance audit*
+## Implementation Summary (Completed)
+
+**Files Modified:**
+- `app/api/lab-orders/route.ts`
+
+**Changes Made:**
+1. **Zod schema validation:**
+   - `pet_id`: UUID validation
+   - `test_ids`: Array of UUIDs, min 1, max 20
+   - `panel_ids`: Array of UUIDs, max 5 (optional)
+   - `priority`: Enum validation (routine, urgent, stat)
+   - `lab_type`: Enum validation (in_house, external, reference)
+   - `fasting_status`: Enum validation
+   - `clinical_notes`: Max 2000 chars, trimmed
+
+2. **Test existence verification:**
+   - Query `lab_test_catalog` for all test_ids
+   - Verify tenant_id matches
+   - Return specific error for each invalid test ID
+
+3. **Panel existence verification:**
+   - Query `lab_panels` for all panel_ids
+   - Verify tenant_id matches
+   - Return specific error for each invalid panel ID
+
+**Validation behavior:**
+- Invalid UUIDs rejected with Zod error
+- Non-existent tests rejected with "Prueba xxx... no encontrada"
+- Tests from other tenants rejected (same error, doesn't leak tenant info)
+- Max 20 tests per order enforced
+- Max 5 panels per order enforced
+
+---
+*Completed: January 2026*

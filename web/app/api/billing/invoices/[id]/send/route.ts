@@ -12,33 +12,64 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { createClient as createServiceClient } from '@supabase/supabase-js'
+import { createClient } from '@/lib/supabase/server'
 import { logger } from '@/lib/logger'
 
 interface RouteContext {
   params: Promise<{ id: string }>
 }
 
-// Use service role for this admin operation
+// Use service role for database operations
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
 
 export async function POST(request: NextRequest, context: RouteContext): Promise<NextResponse> {
   const { id } = await context.params
 
-  // Verify authorization (CRON_SECRET or admin session)
+  // SEC-008: Dual authentication - support both cron and admin session
   const cronSecret =
     request.headers.get('x-cron-secret') ||
     request.headers.get('authorization')?.replace('Bearer ', '')
 
-  // For now, require CRON_SECRET for this admin operation
-  // TODO: Add admin session validation as alternative
-  if (cronSecret !== process.env.CRON_SECRET) {
-    logger.warn('Unauthorized invoice send attempt', { invoiceId: id })
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  let triggeredBy: 'cron' | string = 'cron'
+  let tenantIdForAudit: string | null = null
+
+  // Option 1: CRON_SECRET authentication
+  if (cronSecret === process.env.CRON_SECRET) {
+    triggeredBy = 'cron'
+  } else {
+    // Option 2: Admin session authentication
+    const userSupabase = await createClient()
+    const { data: { user } } = await userSupabase.auth.getUser()
+
+    if (!user) {
+      logger.warn('Unauthorized invoice send attempt - no session', { invoiceId: id })
+      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+    }
+
+    // Get user profile to verify role
+    const { data: profile } = await userSupabase
+      .from('profiles')
+      .select('role, tenant_id')
+      .eq('id', user.id)
+      .single()
+
+    // Only platform admins and clinic admins can send invoices
+    if (!profile || !['admin', 'platform_admin'].includes(profile.role)) {
+      logger.warn('Unauthorized invoice send attempt - not admin', {
+        invoiceId: id,
+        userId: user.id,
+        role: profile?.role,
+      })
+      return NextResponse.json({ error: 'Solo administradores pueden enviar facturas' }, { status: 403 })
+    }
+
+    triggeredBy = user.id
+    tenantIdForAudit = profile.tenant_id
   }
 
-  const supabase = createClient(supabaseUrl, supabaseServiceKey)
+  const supabase = createServiceClient(supabaseUrl, supabaseServiceKey)
 
   try {
     // Parse optional body
@@ -171,6 +202,8 @@ export async function POST(request: NextRequest, context: RouteContext): Promise
       invoiceId: id,
       invoiceNumber: invoice.invoice_number,
       tenantId: invoice.tenant_id,
+      triggeredBy,
+      tenantIdForAudit,
       emailSent: sendEmail && !!billingEmail,
     })
 
@@ -179,6 +212,7 @@ export async function POST(request: NextRequest, context: RouteContext): Promise
       invoice_id: id,
       invoice_number: invoice.invoice_number,
       status: 'sent',
+      triggered_by: triggeredBy === 'cron' ? 'cron' : 'admin',
       email_sent: sendEmail && !!billingEmail,
       notifications_created: adminProfiles?.length || 0,
     })

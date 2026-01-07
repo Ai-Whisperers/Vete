@@ -87,23 +87,34 @@ export const percentageSchema = z
 
 /**
  * Non-empty string with max length
+ * VALID-002: Trims whitespace and rejects whitespace-only strings
  */
 export function requiredString(fieldName: string, maxLength: number = 255) {
   return z
     .string()
-    .min(1, `${fieldName} es requerido`)
-    .max(maxLength, `${fieldName} muy largo (máx ${maxLength} caracteres)`)
+    .transform((s) => s.trim()) // Trim whitespace first
+    .pipe(
+      z
+        .string()
+        .min(1, `${fieldName} es requerido`)
+        .max(maxLength, `${fieldName} muy largo (máx ${maxLength} caracteres)`)
+    )
 }
 
 /**
  * Optional string with max length
+ * VALID-002: Trims whitespace and converts empty/whitespace to undefined
  */
 export function optionalString(maxLength: number = 255) {
   return z
     .string()
-    .max(maxLength, `Texto muy largo (máx ${maxLength} caracteres)`)
-    .optional()
-    .transform((val) => val || undefined)
+    .transform((s) => s.trim() || undefined) // Trim and convert empty to undefined
+    .pipe(
+      z
+        .string()
+        .max(maxLength, `Texto muy largo (máx ${maxLength} caracteres)`)
+        .optional()
+    )
 }
 
 /**

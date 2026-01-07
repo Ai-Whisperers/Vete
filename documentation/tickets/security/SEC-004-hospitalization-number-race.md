@@ -2,7 +2,7 @@
 
 ## Priority: P1 (High)
 ## Category: Security / Race Condition
-## Status: Not Started
+## Status: COMPLETED
 
 ## Description
 The hospitalization number generation uses a non-atomic pattern that can produce duplicate numbers under concurrent load.
@@ -92,5 +92,24 @@ const hospitalizationNumber = numberData
 - **Total: 3 hours**
 
 ---
-*Ticket created: January 2026*
-*Based on security/performance audit*
+## Implementation Summary (Completed)
+
+**Files Created:**
+- `db/migrations/046_atomic_order_number_sequences.sql` (shared with SEC-003)
+
+**Changes Made:**
+1. Created `hospitalization_sequences` table for yearly sequences per tenant (PRIMARY KEY: tenant_id, year)
+2. Created atomic `generate_hospitalization_number(p_tenant_id)` function using INSERT ON CONFLICT
+3. Added unique constraint on `hospitalizations.hospitalization_number`
+4. Added RLS policy for sequence table
+5. Included data initialization from existing hospitalizations
+6. Updated `app/api/hospitalizations/route.ts` to use atomic RPC call
+
+**Technical Details:**
+- Function uses INSERT ON CONFLICT DO UPDATE for atomic counter increment
+- Returns format: `H-YYYY-XXXX` (4-digit padded sequence)
+- Sequences reset yearly per tenant
+- Old regex-based select-parse-increment pattern replaced
+
+---
+*Completed: January 2026*

@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { LoginForm } from '@/components/auth/login-form'
+import { getReturnUrl } from '@/lib/auth'
 
 export default async function LoginPage({
   params,
@@ -11,8 +12,8 @@ export default async function LoginPage({
 }) {
   const { clinic } = await params
   const sp = await searchParams
-  // Default redirect to /portal which routes based on user role
-  const redirectTo = (sp.redirect as string) ?? (sp.returnTo as string) ?? `/${clinic}/portal`
+  // BUG-002: Use centralized redirect URL handling (supports redirect, returnTo, next)
+  const redirectTo = getReturnUrl(sp, `/${clinic}/portal`)
 
   const supabase = await createClient()
   const {

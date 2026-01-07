@@ -64,7 +64,7 @@ export function StaffHero({ clinic, profile, config, todayStats }: StaffHeroProp
           {/* Greeting */}
           <div>
             <h1 className="text-2xl font-bold md:text-3xl lg:text-4xl">
-              {greeting}, {titlePrefix}{firstName}
+              {greeting}
             </h1>
             <p className="mt-2 flex items-center gap-2 text-white/80">
               <CalendarClock className="h-4 w-4" />

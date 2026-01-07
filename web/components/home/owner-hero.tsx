@@ -67,10 +67,10 @@ export function OwnerHero({ clinic, profile, config }: OwnerHeroProps): React.Re
         {/* Greeting */}
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-[var(--text-primary)] md:text-3xl lg:text-4xl">
-            {greeting}, <span className="text-[var(--primary)]">{firstName}</span>
+            {greeting}
           </h1>
           <p className="mt-2 text-[var(--text-secondary)]">
-            Bienvenido de vuelta a {config.name}
+            Bienvenido a <span className="font-semibold text-[var(--primary)]">{config.name}</span>
           </p>
         </div>
 

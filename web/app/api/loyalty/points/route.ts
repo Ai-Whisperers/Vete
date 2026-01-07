@@ -22,7 +22,7 @@ export async function GET(request: Request) {
 
   if (!profile) {
     // User has no profile yet - return 0 points
-    return NextResponse.json({ points: 0, tier: null }, { status: 200 })
+    return NextResponse.json({ balance: 0, tier: null, lifetime_earned: 0 }, { status: 200 })
   }
 
   // Query loyalty_points with correct column names: balance (not points), client_id (not profile_id)
@@ -44,7 +44,7 @@ export async function GET(request: Request) {
 
   return NextResponse.json(
     {
-      points: data?.balance || 0,
+      balance: data?.balance || 0,
       tier: data?.tier || null,
       lifetime_earned: data?.lifetime_earned || 0,
       lifetime_redeemed: data?.lifetime_redeemed || 0,

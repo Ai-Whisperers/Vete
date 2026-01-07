@@ -202,11 +202,30 @@ export function PetDetailContent({
 
   // Track documents locally for optimistic updates
   const [localDocuments, setLocalDocuments] = useState(documents)
+  const [localWeightHistory, setLocalWeightHistory] = useState(weightHistory)
 
   // Update local documents when props change
   useEffect(() => {
     setLocalDocuments(documents)
   }, [documents])
+
+  // Update local weight history when props change
+  useEffect(() => {
+    setLocalWeightHistory(weightHistory)
+  }, [weightHistory])
+
+  // Refresh weight history from API
+  const refreshWeightHistory = useCallback(async () => {
+    try {
+      const response = await fetch(`/api/pets/${pet.id}/weight`)
+      if (response.ok) {
+        const data = await response.json()
+        setLocalWeightHistory(data)
+      }
+    } catch (error) {
+      console.error('Error refreshing weight history:', error)
+    }
+  }, [pet.id])
 
   // Handle document upload via server action
   const handleDocumentUpload = useCallback(
@@ -255,9 +274,10 @@ export function PetDetailContent({
         {activeTab === 'summary' && (
           <PetSummaryTab
             pet={pet}
-            weightHistory={weightHistory}
+            weightHistory={localWeightHistory}
             clinic={clinic}
             clinicName={clinicName}
+            onWeightUpdated={refreshWeightHistory}
           />
         )}
 

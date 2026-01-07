@@ -14,9 +14,11 @@ import {
   Heart,
   Phone,
   User,
+  Plus,
 } from 'lucide-react'
 import { GrowthChart } from '@/components/clinical/growth-chart'
 import { LoyaltyCard } from '@/components/loyalty/loyalty-card'
+import { WeightRecordingModal } from '@/components/pets/weight-recording-modal'
 
 interface Vaccine {
   id: string
@@ -55,6 +57,7 @@ interface PetSummaryTabProps {
   weightHistory: WeightRecord[]
   clinic: string
   clinicName?: string
+  onWeightUpdated?: () => void
 }
 
 interface MissingVaccine {
@@ -63,13 +66,21 @@ interface MissingVaccine {
   status: 'missing' | 'due' | 'overdue'
 }
 
-export function PetSummaryTab({ pet, weightHistory, clinic, clinicName }: PetSummaryTabProps) {
+export function PetSummaryTab({ pet, weightHistory, clinic, clinicName, onWeightUpdated }: PetSummaryTabProps) {
   const [missingMandatoryVaccines, setMissingMandatoryVaccines] = useState<MissingVaccine[]>([])
+  const [isLoadingVaccines, setIsLoadingVaccines] = useState(true)
+  const [isWeightModalOpen, setIsWeightModalOpen] = useState(false)
+  const [displayedWeight, setDisplayedWeight] = useState<number | null>(pet.weight_kg ?? null)
 
   // Fetch missing mandatory vaccines
   useEffect(() => {
     async function fetchMissingVaccines(): Promise<void> {
-      if (pet.species !== 'dog' && pet.species !== 'cat') return
+      setIsLoadingVaccines(true)
+
+      if (pet.species !== 'dog' && pet.species !== 'cat') {
+        setIsLoadingVaccines(false)
+        return
+      }
 
       // Calculate age in weeks
       let ageWeeks: number | null = null
@@ -91,16 +102,21 @@ export function PetSummaryTab({ pet, weightHistory, clinic, clinicName }: PetSum
 
       try {
         const response = await fetch(`/api/vaccines/recommendations?${params}`)
-        if (!response.ok) return
+        if (!response.ok) {
+          setIsLoadingVaccines(false)
+          return
+        }
 
         const data = await response.json()
-        // Filter core vaccines that are overdue or due (actionable)
-        const actionableCoreVaccines = (data.core_vaccines || []).filter(
-          (v: MissingVaccine) => v.status === 'overdue' || v.status === 'due'
+        // Get ALL core vaccines that are missing (overdue, due, or just missing)
+        const allMissingCoreVaccines = (data.core_vaccines || []).filter(
+          (v: MissingVaccine) => v.status === 'overdue' || v.status === 'due' || v.status === 'missing'
         )
-        setMissingMandatoryVaccines(actionableCoreVaccines)
+        setMissingMandatoryVaccines(allMissingCoreVaccines)
       } catch (error) {
         console.error('Error fetching missing vaccines:', error)
+      } finally {
+        setIsLoadingVaccines(false)
       }
     }
 
@@ -193,15 +209,22 @@ export function PetSummaryTab({ pet, weightHistory, clinic, clinicName }: PetSum
             </div>
             <p className="font-bold text-[var(--text-primary)]">{calculateAge()}</p>
           </div>
-          <div className="rounded-xl border border-gray-100 bg-white p-4">
-            <div className="mb-1 flex items-center gap-2 text-gray-500">
-              <Weight className="h-4 w-4" />
-              <span className="text-xs font-medium">Peso</span>
+          <button
+            type="button"
+            onClick={() => setIsWeightModalOpen(true)}
+            className="group rounded-xl border border-gray-100 bg-white p-4 text-left transition-all hover:border-[var(--primary)] hover:shadow-md"
+          >
+            <div className="mb-1 flex items-center justify-between text-gray-500">
+              <div className="flex items-center gap-2">
+                <Weight className="h-4 w-4" />
+                <span className="text-xs font-medium">Peso</span>
+              </div>
+              <Plus className="h-4 w-4 opacity-0 transition-opacity group-hover:opacity-100" />
             </div>
             <p className="font-bold text-[var(--text-primary)]">
-              {pet.weight_kg ? `${pet.weight_kg} kg` : 'Sin registrar'}
+              {displayedWeight ? `${displayedWeight} kg` : 'Sin registrar'}
             </p>
-          </div>
+          </button>
           <div className="rounded-xl border border-gray-100 bg-white p-4">
             <div className="mb-1 flex items-center gap-2 text-gray-500">
               <Heart className="h-4 w-4" />
@@ -219,13 +242,19 @@ export function PetSummaryTab({ pet, weightHistory, clinic, clinicName }: PetSum
               <span className="text-xs font-medium">Vacunas</span>
             </div>
             {(() => {
+              if (isLoadingVaccines) {
+                return <p className="font-bold text-gray-400">Verificando...</p>
+              }
+
               // Count overdue from existing vaccines + missing mandatory vaccines
               const overdueCount = overdueVaccines.length
               const missingOverdueCount = missingMandatoryVaccines.filter((v) => v.status === 'overdue').length
               const missingDueCount = missingMandatoryVaccines.filter((v) => v.status === 'due').length
+              const missingCount = missingMandatoryVaccines.filter((v) => v.status === 'missing').length
               const totalOverdue = overdueCount + missingOverdueCount
               const totalMissing = missingMandatoryVaccines.length
 
+              // Show overdue count (most urgent)
               if (totalOverdue > 0) {
                 return (
                   <p className="font-bold text-[var(--status-error)]">
@@ -233,6 +262,7 @@ export function PetSummaryTab({ pet, weightHistory, clinic, clinicName }: PetSum
                   </p>
                 )
               }
+              // Show pending/due count
               if (missingDueCount > 0) {
                 return (
                   <p className="font-bold text-[var(--status-warning)]">
@@ -240,10 +270,20 @@ export function PetSummaryTab({ pet, weightHistory, clinic, clinicName }: PetSum
                   </p>
                 )
               }
-              if (totalMissing > 0) {
+              // Show total missing count (not yet due based on age)
+              if (missingCount > 0) {
                 return (
-                  <p className="font-bold text-[var(--status-warning)]">
-                    {totalMissing} faltante{totalMissing > 1 ? 's' : ''}
+                  <p className="font-bold text-[var(--status-info)]">
+                    {missingCount} por aplicar
+                  </p>
+                )
+              }
+              // All good - show applied count if any
+              const appliedCount = pet.vaccines?.filter((v) => v.status === 'verified').length || 0
+              if (appliedCount > 0) {
+                return (
+                  <p className="font-bold text-[var(--status-success)]">
+                    {appliedCount} aplicada{appliedCount > 1 ? 's' : ''}
                   </p>
                 )
               }
@@ -327,7 +367,44 @@ export function PetSummaryTab({ pet, weightHistory, clinic, clinicName }: PetSum
               Ver todas
             </Link>
           </div>
-          {upcomingVaccines.length > 0 ? (
+
+          {/* Missing Mandatory Vaccines (overdue first, then due) */}
+          {missingMandatoryVaccines.length > 0 && (
+            <div className="mb-3 space-y-2">
+              {missingMandatoryVaccines
+                .sort((a, b) => {
+                  // Overdue first, then due
+                  if (a.status === 'overdue' && b.status !== 'overdue') return -1
+                  if (a.status !== 'overdue' && b.status === 'overdue') return 1
+                  return 0
+                })
+                .slice(0, 5)
+                .map((vaccine) => (
+                  <div
+                    key={vaccine.vaccine_code}
+                    className={`flex items-center justify-between rounded-lg p-2 ${
+                      vaccine.status === 'overdue'
+                        ? 'bg-[var(--status-error-bg)]'
+                        : 'bg-[var(--status-warning-bg)]'
+                    }`}
+                  >
+                    <span className="text-sm font-medium">{vaccine.vaccine_name}</span>
+                    <span
+                      className={`text-xs font-medium ${
+                        vaccine.status === 'overdue'
+                          ? 'text-[var(--status-error)]'
+                          : 'text-[var(--status-warning)]'
+                      }`}
+                    >
+                      {vaccine.status === 'overdue' ? 'Vencida' : 'Pendiente'}
+                    </span>
+                  </div>
+                ))}
+            </div>
+          )}
+
+          {/* Scheduled Vaccines (already recorded with next_due_date) */}
+          {upcomingVaccines.length > 0 && (
             <div className="space-y-2">
               {upcomingVaccines.map((vaccine) => (
                 <div
@@ -345,8 +422,22 @@ export function PetSummaryTab({ pet, weightHistory, clinic, clinicName }: PetSum
                 </div>
               ))}
             </div>
-          ) : (
+          )}
+
+          {/* Empty state only if no missing vaccines AND no upcoming vaccines */}
+          {missingMandatoryVaccines.length === 0 && upcomingVaccines.length === 0 && (
             <p className="text-sm text-gray-400">No hay vacunas programadas</p>
+          )}
+
+          {/* Add vaccine CTA */}
+          {missingMandatoryVaccines.length > 0 && (
+            <Link
+              href={`/${clinic}/portal/pets/${pet.id}/vaccines/new`}
+              className="mt-3 flex items-center justify-center gap-2 rounded-lg bg-[var(--primary)] py-2 text-sm font-semibold text-white transition-colors hover:bg-[var(--primary-dark)]"
+            >
+              <Syringe className="h-4 w-4" />
+              Registrar Vacuna
+            </Link>
           )}
         </div>
 
@@ -404,6 +495,19 @@ export function PetSummaryTab({ pet, weightHistory, clinic, clinicName }: PetSum
           />
         )}
       </div>
+
+      {/* Weight Recording Modal */}
+      <WeightRecordingModal
+        petId={pet.id}
+        petName={pet.name}
+        currentWeight={displayedWeight}
+        isOpen={isWeightModalOpen}
+        onClose={() => setIsWeightModalOpen(false)}
+        onSuccess={(newWeight) => {
+          setDisplayedWeight(newWeight)
+          onWeightUpdated?.()
+        }}
+      />
     </div>
   )
 }

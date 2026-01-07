@@ -147,6 +147,12 @@ export function GrowthChart({ breed, gender, patientRecords }: GrowthChartProps)
   const [usingFallback, setUsingFallback] = useState(false)
   const [actualBreedUsed, setActualBreedUsed] = useState<string>('')
   const [error, setError] = useState<string | null>(null)
+  const [mounted, setMounted] = useState(false)
+
+  // Wait for client-side mount to avoid ResponsiveContainer SSR issues
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
     const fetchStandard = async () => {
@@ -175,29 +181,79 @@ export function GrowthChart({ breed, gender, patientRecords }: GrowthChartProps)
     fetchStandard()
   }, [breed, gender])
 
-  // Merge Data for Recharts
-  // We need a common X-axis (Age in Weeks)
-  // 1. Map patient records to approximate age in weeks.
-  // For MVP, assuming patientRecords has dates and we know birthdate, but passing 'age_weeks' directly in props is simpler for now.
-  // Let's assume patientRecords has { age_weeks, weight_kg }
+  // Determine max age from patient records or default to 52 weeks
+  const patientMaxAge = Math.max(
+    52,
+    ...patientRecords.filter((p) => p.age_weeks != null).map((p) => p.age_weeks as number)
+  )
+  // Round up to nearest 4 weeks for nice axis
+  const maxWeeks = Math.ceil(patientMaxAge / 4) * 4
 
-  // Combining data: Create an array of all weeks from 0 to 52
-  const chartData = []
-  for (let i = 0; i <= 52; i += 4) {
-    const std = standardData.find((d) => d.age_weeks >= i && d.age_weeks < i + 4) // approximate
+  // Check if we have any patient data with age_weeks
+  const hasAgeData = patientRecords.some((p) => p.age_weeks != null)
 
-    // Find patient record near this week
-    const patient = patientRecords.find((p) => p.age_weeks && Math.abs(p.age_weeks - i) < 2)
+  // Build chart data
+  const chartData: Array<{
+    name: string
+    age: number
+    Standard: number | null
+    Patient: number | null
+  }> = []
 
-    chartData.push({
-      name: `${i} sem`,
-      age: i,
-      Standard: std ? std.weight_kg : null,
-      Patient: patient ? patient.weight_kg : null,
+  if (hasAgeData) {
+    // Age-based chart (growth chart mode)
+    const step = maxWeeks > 104 ? 8 : 4 // Use larger steps for older pets
+    for (let i = 0; i <= maxWeeks; i += step) {
+      const std = standardData.find((d) => d.age_weeks >= i && d.age_weeks < i + step)
+
+      // Find patient record near this week (within half the step size)
+      const patient = patientRecords.find(
+        (p) => p.age_weeks != null && Math.abs(p.age_weeks - i) < step / 2 + 1
+      )
+
+      chartData.push({
+        name: maxWeeks > 52 ? `${Math.round(i / 4.33)} m` : `${i} sem`,
+        age: i,
+        Standard: std ? std.weight_kg : null,
+        Patient: patient ? patient.weight_kg : null,
+      })
+    }
+
+    // Also add any patient records that weren't matched to ensure all data points show
+    patientRecords.forEach((p) => {
+      if (p.age_weeks == null) return
+      const existingPoint = chartData.find(
+        (d) => Math.abs(d.age - p.age_weeks!) < (maxWeeks > 104 ? 4 : 2)
+      )
+      if (!existingPoint) {
+        const std = standardData.find(
+          (d) => d.age_weeks >= p.age_weeks! && d.age_weeks < p.age_weeks! + 4
+        )
+        chartData.push({
+          name: maxWeeks > 52 ? `${Math.round(p.age_weeks / 4.33)} m` : `${p.age_weeks} sem`,
+          age: p.age_weeks,
+          Standard: std ? std.weight_kg : null,
+          Patient: p.weight_kg,
+        })
+      }
+    })
+
+    // Sort by age
+    chartData.sort((a, b) => a.age - b.age)
+  } else {
+    // Date-based chart (weight tracking mode - no birth date)
+    patientRecords.forEach((p, idx) => {
+      const date = new Date(p.date)
+      chartData.push({
+        name: date.toLocaleDateString('es-PY', { day: 'numeric', month: 'short' }),
+        age: idx,
+        Standard: null,
+        Patient: p.weight_kg,
+      })
     })
   }
 
-  if (loading) {
+  if (loading || !mounted) {
     return (
       <div className="flex h-64 items-center justify-center rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
         <div className="text-center">
@@ -246,8 +302,20 @@ export function GrowthChart({ breed, gender, patientRecords }: GrowthChartProps)
         </div>
       )}
 
-      <div className="h-[300px] w-full">
-        <ResponsiveContainer width="100%" height="100%">
+      {/* Info if no patient weight records */}
+      {patientRecords.length === 0 && (
+        <div className="mb-4 rounded-lg border border-blue-200 bg-blue-50 p-3">
+          <div className="flex gap-2 text-sm">
+            <Info className="mt-0.5 h-4 w-4 flex-shrink-0 text-blue-500" />
+            <p className="text-blue-700">
+              No hay registros de peso. Haz clic en el botón "Peso" para agregar el primer registro.
+            </p>
+          </div>
+        </div>
+      )}
+
+      <div className="h-[300px] w-full min-h-[300px]" style={{ minWidth: 300 }}>
+        <ResponsiveContainer width="100%" height={300} minWidth={300}>
           <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
             <XAxis dataKey="name" stroke="#9CA3AF" tick={{ fontSize: 12 }} />

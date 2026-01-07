@@ -294,14 +294,8 @@ export const PATCH = withApiAuth(
         updates.discharged_by = user.id
         if (discharge_notes) updates.discharge_notes = discharge_notes
         if (discharge_instructions) updates.discharge_instructions = discharge_instructions
-
-        // Free up the kennel
-        if (existing.kennel_id) {
-          await supabase
-            .from('kennels')
-            .update({ kennel_status: 'available' })
-            .eq('id', existing.kennel_id)
-        }
+        // RACE-002: Kennel status is now updated automatically by database trigger
+        // Trigger sets kennel to 'cleaning' status on discharge
       }
     }
 

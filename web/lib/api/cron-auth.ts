@@ -74,7 +74,7 @@ function logUnauthorizedAttempt(request: NextRequest, reason: string): void {
     ip,
     endpoint: request.nextUrl.pathname,
     reason,
-    userAgent: request.headers.get('user-agent'),
+    userAgent: request.headers.get('user-agent') ?? undefined,
     timestamp: new Date().toISOString(),
   })
 }

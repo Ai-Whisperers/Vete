@@ -8,10 +8,10 @@ We follow a strategy that separates **development** from **production** stabilit
 
 ### Primary Branches
 
-| Branch    | Environment    | Purpose                                                          | CI/CD Behavior             |
-| --------- | -------------- | ---------------------------------------------------------------- | -------------------------- |
-| `main`    | **Production** | The source of truth for the live application. Restricted branch. | Deploys to Production URL. |
-| `develop` | **Staging**    | Integration branch for testing features before release.          | Deploys to Staging URL.    |
+| Branch    | Environment    | Purpose                                                          | CI/CD Behavior                            |
+| --------- | -------------- | ---------------------------------------------------------------- | ----------------------------------------- |
+| `main`    | **Production** | The source of truth for the live application. Restricted branch. | Deploys to Production URL. **Protected**. |
+| `develop` | **Staging**    | Integration branch for testing features before release.          | Deploys to Staging URL. **Protected**.    |
 
 ### Supporting Branches
 
@@ -75,3 +75,25 @@ We follow a strategy that separates **development** from **production** stabilit
     - Title: `chore(release): version x.x.x`
     - Upon merge, Production deployment triggers automatically.
     - A release tag is created automatically by the CI pipeline.
+
+---
+
+## Branch Protection Configuration
+
+To ensure the integrity of `main` and `develop`, the following Branch Protection Rules must be enabled in GitHub Settings:
+
+### 1. Require a pull request before merging
+
+- **Require approvals**: 1
+- **Dismiss stale pull request approvals when new commits are pushed**: Enabled
+- **Require review from Code Owners**: Enabled (using `.github/CODEOWNERS`)
+
+### 2. Require status checks to pass before merging
+
+- **Require branches to be up to date before merging**: Enabled
+- **Status checks that are required**:
+  - `CI Success` (This aggregate job ensures Lint, Type Check, Build, and Unit Tests pass)
+
+### 3. Include administrators
+
+- **Enforce all configured restrictions for administrators**: Enabled

@@ -18,6 +18,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { logger } from '@/lib/logger'
+import { checkCronAuth } from '@/lib/api/cron-auth'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 120 // 2 minutes for processing all tenants
@@ -38,20 +39,10 @@ interface InvoiceResult {
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
-  // Verify cron secret - CRITICAL: fail closed if not configured
-  const envCronSecret = process.env.CRON_SECRET
-
-  if (!envCronSecret) {
-    logger.error('CRON_SECRET not configured for generate-commission-invoices - blocking request')
-    return NextResponse.json({ error: 'Server configuration error' }, { status: 500 })
-  }
-
-  const cronSecret =
-    request.headers.get('x-cron-secret') || request.headers.get('authorization')?.replace('Bearer ', '')
-
-  if (cronSecret !== envCronSecret) {
-    logger.warn('Unauthorized commission invoice cron attempt')
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  // SEC-006: Use timing-safe cron authentication
+  const { authorized, errorResponse } = checkCronAuth(request)
+  if (!authorized) {
+    return errorResponse!
   }
 
   const supabase = createClient(supabaseUrl, supabaseServiceKey)

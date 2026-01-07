@@ -120,24 +120,22 @@ export const POST = withApiAuth(
       })
     }
 
-    // Generate hospitalization number
-    const { data: lastHospitalization } = await supabase
-      .from('hospitalizations')
-      .select('hospitalization_number')
-      .like('hospitalization_number', `H-${new Date().getFullYear()}-%`)
-      .order('hospitalization_number', { ascending: false })
-      .limit(1)
-      .single()
+    // SEC-004: Generate hospitalization number atomically using database sequence
+    // This prevents race conditions where concurrent requests get duplicate numbers
+    const { data: hospNumberData, error: seqError } = await supabase.rpc(
+      'generate_hospitalization_number',
+      { p_tenant_id: profile.tenant_id }
+    )
 
-    let nextNumber = 1
-    if (lastHospitalization?.hospitalization_number) {
-      const match = lastHospitalization.hospitalization_number.match(/H-\d{4}-(\d+)/)
-      if (match) {
-        nextNumber = parseInt(match[1], 10) + 1
-      }
+    if (seqError || !hospNumberData) {
+      logger.error('Error generating hospitalization number', {
+        tenantId: profile.tenant_id,
+        error: seqError?.message,
+      })
+      return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
     }
 
-    const hospitalizationNumber = `H-${new Date().getFullYear()}-${String(nextNumber).padStart(4, '0')}`
+    const hospitalizationNumber = hospNumberData as string
 
     // Insert hospitalization
     const { data: hospitalization, error: hospError } = await supabase

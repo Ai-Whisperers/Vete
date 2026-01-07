@@ -231,9 +231,9 @@ export function PricingQuiz(): React.ReactElement {
                   <Check className="h-4 w-4 text-[#2DCEA3]" />
                   Reservas por WhatsApp
                 </li>
-                <li className="flex items-center gap-2 text-sm text-amber-400/70">
-                  <span className="h-4 w-4 text-center">!</span>
-                  Muestra anuncios
+                <li className="flex items-center gap-2 text-sm text-white/70">
+                  <Check className="h-4 w-4 text-[#2DCEA3]" />
+                  Sin costo mensual
                 </li>
               </ul>
 

@@ -290,14 +290,14 @@ export function ROICalculator() {
 
               {/* Free tier notice */}
               {currentPlan.id === 'gratis' && (
-                <div className="mb-6 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4">
+                <div className="mb-6 rounded-xl border border-[#2DCEA3]/30 bg-[#2DCEA3]/10 p-4">
                   <div className="flex items-start gap-3">
-                    <Megaphone className="h-5 w-5 flex-shrink-0 text-amber-400" />
+                    <Gift className="h-5 w-5 flex-shrink-0 text-[#2DCEA3]" />
                     <div className="text-sm">
-                      <p className="font-bold text-white">Plan Gratis con anuncios</p>
+                      <p className="font-bold text-white">Plan Gratis</p>
                       <p className="text-white/60">
-                        El plan gratuito muestra anuncios en tu sitio web. Es una excelente forma de empezar
-                        sin costo y subir a un plan pago cuando estes listo.
+                        Empeza gratis con sitio web y reservas por WhatsApp.
+                        Cuando estes listo, podes subir al Plan Profesional.
                       </p>
                     </div>
                   </div>
@@ -433,7 +433,7 @@ export function ROICalculator() {
                     {currentPlan.id === 'gratis' ? (
                       <p className="text-white/60">
                         Empezas <strong className="text-[#2DCEA3]">gratis</strong> con sitio web y reservas por WhatsApp.
-                        El plan muestra anuncios. Cuando estes listo, podes subir a Profesional.
+                        Cuando estes listo, podes subir a Profesional.
                       </p>
                     ) : (
                       <p className="text-white/60">
@@ -466,7 +466,7 @@ export function ROICalculator() {
                 <Info className="mt-0.5 h-4 w-4 flex-shrink-0" />
                 <p>
                   Crecimiento estimado basado en clinicas con presencia digital. Resultados pueden
-                  variar segun ubicacion, marketing y servicios. El plan Gratis muestra anuncios.
+                  variar segun ubicacion, marketing y servicios.
                 </p>
               </div>
             </div>

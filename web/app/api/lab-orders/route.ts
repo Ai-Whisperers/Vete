@@ -93,14 +93,22 @@ export const POST = withApiAuth(
       return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN)
     }
 
-    // Generate order number (format: LAB-YYYYMMDD-XXXX)
-    const today = new Date().toISOString().split('T')[0].replace(/-/g, '')
-    const { count } = await supabase
-      .from('lab_orders')
-      .select('id', { count: 'exact', head: true })
-      .like('order_number', `LAB-${today}-%`)
+    // SEC-003: Generate order number atomically using database sequence
+    // This prevents race conditions where concurrent requests get duplicate numbers
+    const { data: orderNumberData, error: seqError } = await supabase.rpc(
+      'generate_lab_order_number',
+      { p_tenant_id: profile.tenant_id }
+    )
 
-    const orderNumber = `LAB-${today}-${String((count || 0) + 1).padStart(4, '0')}`
+    if (seqError || !orderNumberData) {
+      logger.error('Error generating lab order number', {
+        tenantId: profile.tenant_id,
+        error: seqError?.message,
+      })
+      return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
+    }
+
+    const orderNumber = orderNumberData as string
 
     // Insert lab order
     const { data: order, error: orderError } = await supabase

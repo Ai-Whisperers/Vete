@@ -1008,7 +1008,7 @@ export function ROICalculatorDetailed() {
                   <p>
                     Los beneficios mostrados son estimados y no estan garantizados. Los resultados
                     reales dependen de cada clinica. La comision de tienda aplica sobre todas las
-                    ventas. El plan Gratis muestra anuncios.
+                    ventas.
                   </p>
                 </div>
 

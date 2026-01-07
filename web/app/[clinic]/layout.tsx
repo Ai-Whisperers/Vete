@@ -235,8 +235,8 @@ export default async function ClinicLayout({
   const isOnTrial = tenantData?.is_trial || false
   const trialEndsAt = tenantData?.trial_end_date || null
 
-  // Show ads only on public pages for free tier
-  const showAds = tier === 'gratis' && !isDashboardRoute && !isPortalRoute
+  // Show ads only on public pages for non-adFree tiers
+  const showAds = !tierFeatures.adFree && !isDashboardRoute && !isPortalRoute
 
   // Generate structured data for SEO
   const structuredData = generateStructuredData(clinic, config)

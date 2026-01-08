@@ -91,6 +91,7 @@ function validateFileCount(count: number): { valid: boolean; error?: string } {
  */
 function sanitizeFilename(filename: string): string {
   // Remove path traversal attempts
+  // eslint-disable-next-line no-control-regex
   return filename.replace(/[./\\]/g, '_').replace(/[\x00-\x1f]/g, '')
 }
 
@@ -332,6 +333,7 @@ describe('File Upload Security - Path Traversal Prevention', () => {
 
     it('should remove control characters', () => {
       const sanitized = sanitizeFilename('file\x0A\x0D.txt')
+      // eslint-disable-next-line no-control-regex
       expect(sanitized).not.toMatch(/[\x00-\x1f]/)
     })
   })

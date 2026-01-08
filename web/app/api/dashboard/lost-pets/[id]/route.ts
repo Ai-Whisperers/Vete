@@ -214,19 +214,22 @@ export async function PUT(
           .eq('id', existingReport.pet_id)
           .single()
 
-        if (pet?.owner) {
+        // Handle owner which may be returned as array from Supabase join
+        const ownerData = pet?.owner as unknown
+        const owner = Array.isArray(ownerData) ? ownerData[0] : ownerData
+        if (owner && typeof owner === 'object' && 'id' in owner) {
           // Create notification
           await supabase.from('notifications').insert({
-            user_id: pet.owner.id,
+            user_id: (owner as { id: string }).id,
             title: '¡Mascota reunida!',
-            message: `${pet.name} ha sido marcado como reunido con su dueño.`,
+            message: `${pet?.name} ha sido marcado como reunido con su dueño.`,
             type: 'pet_reunited',
             data: { report_id: id, pet_id: existingReport.pet_id },
           })
 
           logger.info('Pet reunited notification sent', {
             pet_id: existingReport.pet_id,
-            owner_id: pet.owner.id,
+            owner_id: (owner as { id: string }).id,
           })
         }
       }

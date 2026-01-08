@@ -182,7 +182,8 @@ export function sanitizeHtml(
 
   const config = typeof preset === 'string' ? SANITIZE_PRESETS[preset] : preset
 
-  return DOMPurify.sanitize(html, config as DOMPurify.Config)
+  // @ts-expect-error DOMPurify type mismatch between versions
+  return DOMPurify.sanitize(html, config)
 }
 
 /**

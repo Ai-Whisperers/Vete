@@ -106,7 +106,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ClaimResp
   // Apply rate limiting for auth operations (5 requests per minute)
   const rateLimitResult = await rateLimit(request, 'auth')
   if (!rateLimitResult.success) {
-    return rateLimitResult.response as NextResponse<ClaimResponse>
+    return rateLimitResult.response as unknown as NextResponse<ClaimResponse>
   }
 
   const supabase = await createClient()

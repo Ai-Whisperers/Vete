@@ -100,7 +100,7 @@ All tickets are organized under strategic epics for better planning and tracking
 | ~~[FEAT-020](./features/FEAT-020-hospitalization-billing.md)~~ | ~~Hospitalization Billing Integration~~ | ~~Feature~~ | ~~13h~~ ✓ |
 | ~~[BUG-005](./bugs/BUG-005-duplicate-checkout-path.md)~~ | ~~Duplicate Checkout Path Without Stock Validation~~ | ~~Bug~~ | ~~2-3h~~ ✓ |
 | ~~[NOTIF-003](./notifications/NOTIF-003-sms-channel-implementation.md)~~ | ~~SMS Channel~~ (DESCOPED - use WhatsApp) | ~~Notifications~~ | - |
-| [AUDIT-101](./technical-debt/AUDIT-101-god-component-inventory.md) | God Component - Inventory Client | Tech Debt | 16-20h |
+| ~~[AUDIT-101](./technical-debt/AUDIT-101-god-component-inventory.md)~~ | ~~God Component - Inventory Client~~ | ~~Tech Debt~~ | ~~16-20h~~ ✓ |
 
 ### P2 - Medium Priority (Next Sprint)
 
@@ -109,7 +109,7 @@ All tickets are organized under strategic epics for better planning and tracking
 | ~~[WIP-002](./wip/WIP-002-pet-weight-history.md)~~ | ~~Pet Weight History Tracking~~ | ~~WIP~~ | ~~4-6h~~ ✓ |
 | ~~[WIP-003](./wip/WIP-003-e2e-test-suite-expansion.md)~~ | ~~E2E Test Suite Expansion~~ | ~~WIP~~ | ~~8-10h~~ ✓ |
 | ~~[TEST-002](./testing/TEST-002-component-test-coverage.md)~~ | ~~Component Test Coverage~~ | ~~Testing~~ | ~~20h~~ ✓ |
-| [FEAT-006](./features/FEAT-006-procurement-completion.md) | Procurement Module Completion | Feature | 14h |
+| ~~[FEAT-006](./features/FEAT-006-procurement-completion.md)~~ | ~~Procurement Module Completion~~ | ~~Feature~~ | ~~14h~~ ✓ |
 | ~~[REF-003](./refactoring/REF-003-api-error-handling.md)~~ | ~~Standardize API Error Handling~~ | ~~Refactoring~~ | ~~13-16h~~ ✓ |
 | ~~[SEC-002](./security/SEC-002-api-rate-limiting.md)~~ | ~~Expand API Rate Limiting~~ | ~~Security~~ | ~~6-7h~~ ✓ |
 | ~~[BUG-002](./bugs/BUG-002-redirect-param-inconsistency.md)~~ | ~~Redirect Parameter Inconsistency~~ | ~~Bug~~ | ~~3h~~ ✓ |
@@ -194,7 +194,7 @@ All tickets are organized under strategic epics for better planning and tracking
 | ~~[AUDIT-101a](./technical-debt/AUDIT-101a-inventory-filters-extraction.md)~~ | ~~Extract InventoryFilters Component~~ | ~~AUDIT-101~~ | ~~3h~~ ✓ |
 | ~~[AUDIT-101b](./technical-debt/AUDIT-101b-inventory-table-extraction.md)~~ | ~~Extract InventoryTable Component~~ | ~~AUDIT-101~~ | ~~4-5h~~ ✓ |
 | ~~[AUDIT-101c](./technical-debt/AUDIT-101c-inventory-import-wizard-extraction.md)~~ | ~~Extract ImportWizard Component~~ | ~~AUDIT-101~~ | ~~Pre-existing~~ ✓ |
-| [AUDIT-101d](./technical-debt/AUDIT-101d-stock-adjustment-modal-extraction.md) | Extract StockAdjustmentModal | AUDIT-101 | 3-4h |
+| ~~[AUDIT-101d](./technical-debt/AUDIT-101d-stock-adjustment-modal-extraction.md)~~ | ~~Extract Modal Components~~ | ~~AUDIT-101~~ | ~~3-4h~~ ✓ |
 | [AUDIT-103a](./technical-debt/AUDIT-103a-console-cleanup-api.md) | Console Cleanup - API Routes | AUDIT-103 | 1.5-2h |
 | [AUDIT-103b](./technical-debt/AUDIT-103b-console-cleanup-pages.md) | Console Cleanup - Pages | AUDIT-103 | 2.5-3h |
 | [AUDIT-103c](./technical-debt/AUDIT-103c-console-cleanup-core.md) | Console Cleanup - Core Files | AUDIT-103 | 1-1.5h |

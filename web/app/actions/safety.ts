@@ -192,7 +192,8 @@ export const markPetAsReunited = withActionAuth(
       }
 
       // Send notification to owner
-      const pet = report.pet as {
+      const petData = report.pet as unknown
+      const pet = (Array.isArray(petData) ? petData[0] : petData) as {
         id: string
         name: string
         owner_id: string
@@ -281,7 +282,8 @@ export const notifyOwnerPetFound = withActionAuth(
         return actionError('Mascota no encontrada')
       }
 
-      const owner = pet.owner as {
+      const ownerData = pet.owner as unknown
+      const owner = (Array.isArray(ownerData) ? ownerData[0] : ownerData) as {
         id: string
         full_name: string
         email: string
@@ -384,7 +386,8 @@ export async function reportPetSighting(
     }
 
     // Notify owner about the sighting
-    const pet = report.pet as { name: string; owner_id: string } | null
+    const petData = report.pet as unknown
+      const pet = (Array.isArray(petData) ? petData[0] : petData) as { name: string; owner_id: string } | null
     if (pet?.owner_id) {
       await supabase.from('notifications').insert({
         user_id: pet.owner_id,

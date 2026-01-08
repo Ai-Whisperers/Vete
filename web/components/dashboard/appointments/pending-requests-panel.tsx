@@ -53,7 +53,7 @@ export function PendingRequestsPanel({ clinic }: PendingRequestsPanelProps) {
     if (result.success && result.data) {
       setRequests(result.data.requests)
     } else {
-      setError(result.error || 'Error al cargar solicitudes')
+      setError(!result.success && 'error' in result ? result.error : 'Error al cargar solicitudes')
     }
 
     setIsLoading(false)

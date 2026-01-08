@@ -115,6 +115,7 @@ export const POST = withApiAuthParams(
       let pdfBuffer: Buffer | null = null
       try {
         pdfBuffer = await renderToBuffer(
+          // @ts-expect-error react-pdf typing issue with functional components
           React.createElement(ConsentPDF, {
             clinicName: clinic?.name || 'Clínica Veterinaria',
             templateName: consent.template?.name || 'Consentimiento',

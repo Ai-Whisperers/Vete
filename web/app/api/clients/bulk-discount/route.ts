@@ -8,7 +8,7 @@ import { z } from 'zod'
 const bulkDiscountSchema = z.object({
   client_ids: z.array(z.string().uuid()).min(1, 'Se requiere al menos un cliente'),
   discount_type: z.enum(['percentage', 'fixed_amount'], {
-    errorMap: () => ({ message: 'Tipo de descuento inválido' }),
+    message: 'Tipo de descuento inválido',
   }),
   discount_value: z.number().positive('El valor debe ser positivo'),
   valid_days: z.number().int().min(1).max(365).default(30),

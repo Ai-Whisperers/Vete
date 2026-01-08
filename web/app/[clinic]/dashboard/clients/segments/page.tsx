@@ -138,7 +138,7 @@ export default function ClientSegmentsPage(): React.ReactElement {
   }
 
   const handleBulkActionSuccess = () => {
-    showToast('Acción completada exitosamente', 'success')
+    showToast({ title: 'Acción completada exitosamente', variant: 'success' })
     fetchData() // Refresh data
   }
 

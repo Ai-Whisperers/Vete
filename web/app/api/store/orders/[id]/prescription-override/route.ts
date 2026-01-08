@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
-import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
+import { withApiAuthParams, type ApiHandlerContextWithParams } from '@/lib/auth'
 import { z } from 'zod'
 
 /**
@@ -18,8 +18,8 @@ const overrideSchema = z.object({
 })
 
 // POST /api/store/orders/[id]/prescription-override
-export const POST = withApiAuth(
-  async ({ user, profile, supabase, request, log, params }: ApiHandlerContext) => {
+export const POST = withApiAuthParams<{ id: string }>(
+  async ({ user, profile, supabase, request, log, params }: ApiHandlerContextWithParams<{ id: string }>) => {
     const { id } = (await params) as { id: string }
 
     // Validate id is UUID
@@ -126,8 +126,8 @@ export const POST = withApiAuth(
 
 // GET /api/store/orders/[id]/prescription-override
 // Get prescription override status for an order
-export const GET = withApiAuth(
-  async ({ profile, supabase, params }: ApiHandlerContext) => {
+export const GET = withApiAuthParams<{ id: string }>(
+  async ({ profile, supabase, params }: ApiHandlerContextWithParams<{ id: string }>) => {
     const { id } = (await params) as { id: string }
 
     // Validate id

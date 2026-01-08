@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { Package, Globe, Store, History, Edit2, Trash2 } from 'lucide-react'
+import { Package, Globe, Store, History, Edit2, Trash2, ShoppingCart } from 'lucide-react'
 import type { InventoryProduct } from './types'
 
 interface InventoryTableRowProps {
@@ -11,6 +11,7 @@ interface InventoryTableRowProps {
   onEdit: () => void
   onDelete: () => void
   onViewHistory: () => void
+  onAddToPO?: () => void
   showSourceBadge: boolean
 }
 
@@ -29,6 +30,7 @@ export function InventoryTableRow({
   onEdit,
   onDelete,
   onViewHistory,
+  onAddToPO,
   showSourceBadge,
 }: InventoryTableRowProps) {
   const stock = product.inventory?.stock_quantity ?? 0
@@ -122,6 +124,15 @@ export function InventoryTableRow({
       </td>
       <td className="px-4 py-3 text-right">
         <div className="flex items-center justify-end gap-1">
+          {onAddToPO && (
+            <button
+              onClick={onAddToPO}
+              className="rounded-lg p-2 text-[var(--text-muted)] transition hover:bg-[var(--status-info-bg)] hover:text-[var(--status-info)]"
+              title="Agregar a Orden de Compra"
+            >
+              <ShoppingCart className="h-4 w-4" />
+            </button>
+          )}
           <button
             onClick={onViewHistory}
             className="hover:bg-[var(--status-special-bg)] rounded-lg p-2 text-[var(--text-muted)] transition hover:text-[var(--status-special)]"

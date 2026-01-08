@@ -11,3 +11,9 @@ export type { InventoryTableProps } from './inventory-table'
 export { InventoryTableRow } from './inventory-table-row'
 export { InventoryMobileCard } from './inventory-mobile-card'
 export type { InventoryProduct, SortField, SortDirection, PaginationInfo } from './types'
+
+// Modal components
+export { ProductEditModal } from './product-edit-modal'
+export { AddProductModal } from './add-product-modal'
+export type { NewProductForm } from './add-product-modal'
+export { DeleteConfirmModal } from './delete-confirm-modal'

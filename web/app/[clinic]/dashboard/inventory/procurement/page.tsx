@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, ShoppingCart, FileText, TrendingDown } from 'lucide-react'
-import { PurchaseOrderList, PurchaseOrderForm, PriceComparison } from '@/components/dashboard/procurement'
+import { PurchaseOrderList, PurchaseOrderForm, PriceComparison, OrderDetailModal, OrderEditForm } from '@/components/dashboard/procurement'
 
 type TabId = 'orders' | 'compare'
 
@@ -26,6 +26,8 @@ export default function ProcurementPage(): React.ReactElement {
   const [activeTab, setActiveTab] = useState<TabId>('orders')
   const [showOrderForm, setShowOrderForm] = useState(false)
   const [refreshKey, setRefreshKey] = useState(0)
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null)
+  const [editingOrderId, setEditingOrderId] = useState<string | null>(null)
 
   // For price comparison - in a real app, these would come from user selection
   const [selectedProducts] = useState<string[]>([])
@@ -39,12 +41,16 @@ export default function ProcurementPage(): React.ReactElement {
     setRefreshKey(k => k + 1)
   }
 
-  const handleViewOrder = (_order: unknown) => {
-    // TODO: Implement order detail modal
+  const handleViewOrder = (order: { id: string }) => {
+    setSelectedOrderId(order.id)
   }
 
-  const handleEditOrder = (_order: unknown) => {
-    // TODO: Implement order edit
+  const handleEditOrder = (order: { id: string }) => {
+    setEditingOrderId(order.id)
+  }
+
+  const handleOrderUpdated = () => {
+    setRefreshKey(k => k + 1)
   }
 
   return (
@@ -129,6 +135,26 @@ export default function ProcurementPage(): React.ReactElement {
         <PurchaseOrderForm
           onClose={() => setShowOrderForm(false)}
           onSuccess={handleOrderSuccess}
+        />
+      )}
+
+      {/* Order Detail Modal */}
+      {selectedOrderId && (
+        <OrderDetailModal
+          orderId={selectedOrderId}
+          isOpen={!!selectedOrderId}
+          onClose={() => setSelectedOrderId(null)}
+          onOrderUpdated={handleOrderUpdated}
+        />
+      )}
+
+      {/* Edit Order Modal */}
+      {editingOrderId && (
+        <OrderEditForm
+          orderId={editingOrderId}
+          isOpen={!!editingOrderId}
+          onClose={() => setEditingOrderId(null)}
+          onSuccess={handleOrderUpdated}
         />
       )}
     </div>

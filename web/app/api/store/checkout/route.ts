@@ -165,7 +165,7 @@ export const POST = withApiAuth(
               quantity: item.quantity,
               type: item.type,
               requires_prescription: item.requires_prescription,
-              prescription_file: item.prescription_file,
+              prescription_file_url: item.prescription_file_url,
             }))
           ),
           p_notes: notes || 'Pedido desde tienda online',

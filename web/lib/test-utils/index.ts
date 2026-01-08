@@ -29,11 +29,11 @@
 // Legacy Factories (backward compatible)
 // =============================================================================
 
-export * from './factories'
+// Legacy factories moved to factories/ directory
+// export * from './factories'
 export * from './supabase-mock'
 
 // Explicit exports from factories.ts that might be shadowed
-export { createMockAppointment, resetIdCounter } from './factories'
 
 // =============================================================================
 // New Builder-Pattern Factories (includes core infrastructure)

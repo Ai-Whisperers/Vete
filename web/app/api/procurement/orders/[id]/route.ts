@@ -157,6 +157,27 @@ export const PATCH = withApiAuthParams(
           continue
         }
 
+        // Get the item details first (need unit_cost and catalog_product_id)
+        const { data: orderItem } = await supabase
+          .from('purchase_order_items')
+          .select('catalog_product_id, unit_cost, received_quantity')
+          .eq('id', item.item_id)
+          .eq('purchase_order_id', id)
+          .single()
+
+        if (!orderItem) {
+          logger.error('Order item not found', {
+            tenantId: profile.tenant_id,
+            orderId: id,
+            itemId: item.item_id,
+          })
+          continue
+        }
+
+        // Calculate the newly received quantity (difference from previous)
+        const previouslyReceived = orderItem.received_quantity || 0
+        const newlyReceived = item.received_quantity - previouslyReceived
+
         const { error: itemError } = await supabase
           .from('purchase_order_items')
           .update({
@@ -175,8 +196,88 @@ export const PATCH = withApiAuthParams(
           })
         }
 
-        // TODO: If status is 'received', also update inventory
-        // This would involve incrementing stock quantities
+        // If status is 'received' and there's newly received quantity, update inventory
+        if (status === 'received' && newlyReceived > 0) {
+          const productId = orderItem.catalog_product_id
+          const unitCost = orderItem.unit_cost
+
+          // Get current inventory for WAC calculation
+          const { data: currentInventory } = await supabase
+            .from('store_inventory')
+            .select('stock_quantity, weighted_average_cost')
+            .eq('product_id', productId)
+            .eq('tenant_id', profile.tenant_id)
+            .single()
+
+          const currentStock = currentInventory?.stock_quantity || 0
+          const currentWac = currentInventory?.weighted_average_cost || 0
+
+          // Calculate new WAC (Weighted Average Cost)
+          // WAC = (Old Stock × Old WAC + New Qty × New Cost) / (Old Stock + New Qty)
+          const totalCurrentValue = currentStock * currentWac
+          const newValue = newlyReceived * unitCost
+          const newTotalStock = currentStock + newlyReceived
+          const newWac = newTotalStock > 0 ? (totalCurrentValue + newValue) / newTotalStock : unitCost
+
+          // Upsert inventory record
+          const { error: inventoryError } = await supabase
+            .from('store_inventory')
+            .upsert(
+              {
+                product_id: productId,
+                tenant_id: profile.tenant_id,
+                stock_quantity: newTotalStock,
+                weighted_average_cost: Math.round(newWac * 100) / 100, // Round to 2 decimal places
+              },
+              {
+                onConflict: 'product_id,tenant_id',
+              }
+            )
+
+          if (inventoryError) {
+            logger.error('Error updating inventory on receive', {
+              tenantId: profile.tenant_id,
+              orderId: id,
+              productId,
+              error: inventoryError.message,
+            })
+          } else {
+            // Create inventory transaction record
+            const { error: transactionError } = await supabase
+              .from('store_inventory_transactions')
+              .insert({
+                tenant_id: profile.tenant_id,
+                product_id: productId,
+                type: 'purchase',
+                quantity: newlyReceived,
+                unit_cost: unitCost,
+                notes: `Recepción de orden de compra ${existing.id}`,
+                reference_type: 'purchase_order',
+                reference_id: id,
+                performed_by: user.id,
+              })
+
+            if (transactionError) {
+              logger.error('Error creating inventory transaction', {
+                tenantId: profile.tenant_id,
+                orderId: id,
+                productId,
+                error: transactionError.message,
+              })
+            }
+
+            logger.info('Inventory updated from purchase order', {
+              tenantId: profile.tenant_id,
+              orderId: id,
+              productId,
+              previousStock: currentStock,
+              newStock: newTotalStock,
+              previousWac: currentWac,
+              newWac,
+              quantityReceived: newlyReceived,
+            })
+          }
+        }
       }
     }
 

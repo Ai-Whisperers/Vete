@@ -172,7 +172,7 @@ export function createMockServerAction<TInput = unknown, TOutput = unknown>(
   shouldFail: boolean = false,
   errorMessage: string = 'Error'
 ) {
-  return vi.fn<[TInput], Promise<TOutput | { error: string }>>(async () => {
+  return vi.fn(async () => {
     if (shouldFail) {
       return { error: errorMessage }
     }

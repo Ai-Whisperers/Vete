@@ -14,6 +14,7 @@ export interface InventoryTableProps {
   onEdit: (product: InventoryProduct) => void
   onDelete: (productId: string) => void
   onViewHistory: (product: { id: string; name: string }) => void
+  onAddToPO?: (product: InventoryProduct) => void
   selectedProducts: Set<string>
   onSelectionChange: (productId: string) => void
   onSelectAll: (selected: boolean) => void
@@ -66,6 +67,7 @@ export function InventoryTable({
   onEdit,
   onDelete,
   onViewHistory,
+  onAddToPO,
   selectedProducts,
   onSelectionChange,
   onSelectAll,
@@ -172,6 +174,7 @@ export function InventoryTable({
                 onEdit={() => onEdit(product)}
                 onDelete={() => onDelete(product.id)}
                 onViewHistory={() => onViewHistory({ id: product.id, name: product.name })}
+                onAddToPO={onAddToPO ? () => onAddToPO(product) : undefined}
                 showSourceBadge={sourceFilter === 'all'}
               />
             ))}

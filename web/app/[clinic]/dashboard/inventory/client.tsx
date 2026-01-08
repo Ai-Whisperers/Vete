@@ -14,7 +14,6 @@ import {
   ExternalLink,
   FileDown,
   Plus,
-  Trash2,
   X,
   Clock,
   Store,
@@ -31,9 +30,13 @@ import {
   MultiModeScanner,
   InventoryFilters,
   InventoryTable,
+  ProductEditModal,
+  AddProductModal,
+  DeleteConfirmModal,
   type InventoryProduct,
   type SortField,
   type SortDirection,
+  type NewProductForm,
 } from '@/components/dashboard/inventory'
 import { StockHistoryModal } from '@/components/dashboard/inventory/stock-history-modal'
 
@@ -88,18 +91,6 @@ interface Product {
   }
 }
 
-interface NewProductForm {
-  name: string
-  sku: string
-  barcode: string
-  category: string
-  description: string
-  base_price: number
-  stock: number
-  cost: number
-  min_stock: number
-}
-
 const ITEMS_PER_PAGE_OPTIONS = [10, 25, 50, 100]
 
 const sourceTabOptions: {
@@ -127,18 +118,6 @@ const sourceTabOptions: {
     description: 'Productos del catálogo global',
   },
 ]
-
-const initialNewProduct: NewProductForm = {
-  name: '',
-  sku: '',
-  barcode: '',
-  category: '',
-  description: '',
-  base_price: 0,
-  stock: 0,
-  cost: 0,
-  min_stock: 5,
-}
 
 export default function InventoryClient({ googleSheetUrl }: InventoryClientProps) {
   const { clinic } = useParams() as { clinic: string }
@@ -211,15 +190,12 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
 
   // Modal State
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
-  const [editValues, setEditValues] = useState({ price: 0, stock: 0 })
   const [isSaving, setIsSaving] = useState(false)
   const [showAddModal, setShowAddModal] = useState(false)
-  const [newProduct, setNewProduct] = useState<NewProductForm>(initialNewProduct)
   const [isCreating, setIsCreating] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
   const [historyProduct, setHistoryProduct] = useState<{ id: string; name: string } | null>(null)
-  const [showProductDetail, setShowProductDetail] = useState<Product | null>(null)
 
   // Import Wizard State
   const [showImportWizard, setShowImportWizard] = useState(false)
@@ -453,10 +429,6 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
 
   const openEdit = (p: Product) => {
     setEditingProduct(p)
-    setEditValues({
-      price: p.base_price || 0,
-      stock: p.inventory?.stock_quantity || 0,
-    })
   }
 
   // Bulk Selection Handlers
@@ -501,7 +473,7 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
     URL.revokeObjectURL(url)
   }
 
-  const handleQuickEditSave = async () => {
+  const handleQuickEditSave = async (values: { price: number; stock: number }) => {
     if (!editingProduct) return
     setIsSaving(true)
     try {
@@ -513,8 +485,8 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
             {
               operation: 'adjustment',
               sku: editingProduct.sku || editingProduct.id,
-              price: editValues.price,
-              quantity: editValues.stock - (editingProduct.inventory?.stock_quantity || 0),
+              price: values.price,
+              quantity: values.stock - (editingProduct.inventory?.stock_quantity || 0),
             },
           ],
         }),
@@ -539,8 +511,8 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
     }
   }
 
-  const handleCreateProduct = async () => {
-    if (!newProduct.name || !newProduct.base_price) {
+  const handleCreateProduct = async (product: NewProductForm) => {
+    if (!product.name || !product.base_price) {
       setError('Nombre y Precio son obligatorios')
       return
     }
@@ -553,15 +525,15 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
           rows: [
             {
               operation: 'new product',
-              sku: newProduct.sku || undefined,
-              barcode: newProduct.barcode || undefined,
-              name: newProduct.name,
-              category: newProduct.category || undefined,
-              description: newProduct.description || undefined,
-              price: newProduct.base_price,
-              quantity: newProduct.stock,
-              unit_cost: newProduct.cost || undefined,
-              min_stock: newProduct.min_stock,
+              sku: product.sku || undefined,
+              barcode: product.barcode || undefined,
+              name: product.name,
+              category: product.category || undefined,
+              description: product.description || undefined,
+              price: product.base_price,
+              quantity: product.stock,
+              unit_cost: product.cost || undefined,
+              min_stock: product.min_stock,
             },
           ],
         }),
@@ -569,7 +541,6 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
 
       if (res.ok) {
         setShowAddModal(false)
-        setNewProduct(initialNewProduct)
         fetchProducts(searchQuery, pagination.page, pagination.limit)
         fetchStats()
         setResult({ success: 1, errors: [], message: 'Producto creado exitosamente' })
@@ -1188,280 +1159,29 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
       </div>
 
       {/* Quick Edit Modal */}
-      {editingProduct && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-md overflow-hidden rounded-2xl bg-[var(--bg-default)] shadow-2xl">
-            <div className="flex items-center justify-between border-b border-[var(--border)] p-6">
-              <div>
-                <h3 className="text-lg font-bold text-[var(--text-primary)]">Edición Rápida</h3>
-                <p className="max-w-[280px] truncate text-sm text-[var(--text-muted)]">
-                  {editingProduct.name}
-                </p>
-              </div>
-              <button
-                onClick={() => setEditingProduct(null)}
-                className="rounded-lg p-2 hover:bg-[var(--bg-muted)]"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-            <div className="space-y-4 p-6">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="mb-2 block text-xs font-bold uppercase text-[var(--text-muted)]">
-                    Precio de Venta
-                  </label>
-                  <input
-                    type="number"
-                    value={editValues.price}
-                    onChange={(e) =>
-                      setEditValues({ ...editValues, price: Number(e.target.value) })
-                    }
-                    className="focus:ring-[var(--primary)]/20 w-full rounded-xl border border-[var(--border)] bg-[var(--bg-subtle)] px-4 py-3 text-lg font-bold outline-none focus:ring-2"
-                  />
-                </div>
-                <div>
-                  <label className="mb-2 block text-xs font-bold uppercase text-[var(--text-muted)]">
-                    Stock Actual
-                  </label>
-                  <input
-                    type="number"
-                    value={editValues.stock}
-                    onChange={(e) =>
-                      setEditValues({ ...editValues, stock: Number(e.target.value) })
-                    }
-                    className="focus:ring-[var(--primary)]/20 w-full rounded-xl border border-[var(--border)] bg-[var(--bg-subtle)] px-4 py-3 text-lg font-bold outline-none focus:ring-2"
-                  />
-                </div>
-              </div>
-              <div className="flex gap-2 rounded-xl bg-[var(--status-info-bg)] p-3">
-                <Info className="mt-0.5 h-4 w-4 shrink-0 text-[var(--status-info)]" />
-                <p className="text-xs text-[var(--status-info)]">
-                  Los cambios de stock generan un ajuste automático. Para compras, usa la
-                  importación Excel.
-                </p>
-              </div>
-            </div>
-            <div className="flex gap-3 bg-[var(--bg-subtle)] p-6">
-              <button
-                onClick={() => setEditingProduct(null)}
-                className="flex-1 py-3 font-bold text-[var(--text-muted)] transition hover:text-[var(--text-secondary)]"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleQuickEditSave}
-                disabled={isSaving}
-                className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[var(--bg-dark)] py-3 font-bold text-white transition hover:bg-[var(--bg-inverse)] disabled:opacity-50"
-              >
-                {isSaving ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Guardar'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ProductEditModal
+        product={editingProduct}
+        onClose={() => setEditingProduct(null)}
+        onSave={handleQuickEditSave}
+        isSaving={isSaving}
+      />
 
       {/* Add Product Modal */}
-      {showAddModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-          <div className="max-h-[90vh] w-full max-w-lg overflow-hidden overflow-y-auto rounded-2xl bg-[var(--bg-default)] shadow-2xl">
-            <div className="sticky top-0 flex items-center justify-between border-b border-[var(--border)] bg-[var(--bg-default)] p-6">
-              <div>
-                <h3 className="text-lg font-bold text-[var(--text-primary)]">Nuevo Producto</h3>
-                <p className="text-sm text-[var(--text-muted)]">Agregar producto al inventario</p>
-              </div>
-              <button
-                onClick={() => setShowAddModal(false)}
-                className="rounded-lg p-2 hover:bg-[var(--bg-muted)]"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-            <div className="space-y-4 p-6">
-              <div>
-                <label className="mb-2 block text-xs font-bold uppercase text-[var(--text-muted)]">
-                  Nombre del Producto <span className="text-[var(--status-error)]">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={newProduct.name}
-                  onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
-                  placeholder="Ej: Royal Canin Adult 15kg"
-                  className="focus:ring-[var(--primary)]/20 w-full rounded-xl border border-[var(--border)] bg-[var(--bg-subtle)] px-4 py-3 outline-none focus:ring-2"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="mb-2 block text-xs font-bold uppercase text-[var(--text-muted)]">
-                    SKU (opcional)
-                  </label>
-                  <input
-                    type="text"
-                    value={newProduct.sku}
-                    onChange={(e) => setNewProduct({ ...newProduct, sku: e.target.value })}
-                    placeholder="Auto-generado"
-                    className="focus:ring-[var(--primary)]/20 w-full rounded-xl border border-[var(--border)] bg-[var(--bg-subtle)] px-4 py-3 outline-none focus:ring-2"
-                  />
-                </div>
-                <div>
-                  <label className="mb-2 block text-xs font-bold uppercase text-[var(--text-muted)]">
-                    Código de Barras
-                  </label>
-                  <input
-                    type="text"
-                    value={newProduct.barcode}
-                    onChange={(e) => setNewProduct({ ...newProduct, barcode: e.target.value })}
-                    placeholder="7891234567890"
-                    className="focus:ring-[var(--primary)]/20 w-full rounded-xl border border-[var(--border)] bg-[var(--bg-subtle)] px-4 py-3 outline-none focus:ring-2"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="mb-2 block text-xs font-bold uppercase text-[var(--text-muted)]">
-                  Categoría
-                </label>
-                <select
-                  value={newProduct.category}
-                  onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
-                  className="focus:ring-[var(--primary)]/20 w-full rounded-xl border border-[var(--border)] bg-[var(--bg-subtle)] px-4 py-3 outline-none focus:ring-2"
-                >
-                  <option value="">Seleccionar categoría</option>
-                  {categories.map((cat) => (
-                    <option key={cat.id} value={cat.name}>
-                      {cat.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="mb-2 block text-xs font-bold uppercase text-[var(--text-muted)]">
-                  Descripción
-                </label>
-                <textarea
-                  value={newProduct.description}
-                  onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
-                  placeholder="Descripción del producto..."
-                  rows={2}
-                  className="focus:ring-[var(--primary)]/20 w-full resize-none rounded-xl border border-[var(--border)] bg-[var(--bg-subtle)] px-4 py-3 outline-none focus:ring-2"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="mb-2 block text-xs font-bold uppercase text-[var(--text-muted)]">
-                    Precio de Venta <span className="text-[var(--status-error)]">*</span>
-                  </label>
-                  <input
-                    type="number"
-                    value={newProduct.base_price || ''}
-                    onChange={(e) =>
-                      setNewProduct({ ...newProduct, base_price: Number(e.target.value) })
-                    }
-                    placeholder="0"
-                    className="focus:ring-[var(--primary)]/20 w-full rounded-xl border border-[var(--border)] bg-[var(--bg-subtle)] px-4 py-3 font-bold outline-none focus:ring-2"
-                  />
-                </div>
-                <div>
-                  <label className="mb-2 block text-xs font-bold uppercase text-[var(--text-muted)]">
-                    Costo Unitario
-                  </label>
-                  <input
-                    type="number"
-                    value={newProduct.cost || ''}
-                    onChange={(e) => setNewProduct({ ...newProduct, cost: Number(e.target.value) })}
-                    placeholder="0"
-                    className="focus:ring-[var(--primary)]/20 w-full rounded-xl border border-[var(--border)] bg-[var(--bg-subtle)] px-4 py-3 outline-none focus:ring-2"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="mb-2 block text-xs font-bold uppercase text-[var(--text-muted)]">
-                    Stock Inicial
-                  </label>
-                  <input
-                    type="number"
-                    value={newProduct.stock || ''}
-                    onChange={(e) =>
-                      setNewProduct({ ...newProduct, stock: Number(e.target.value) })
-                    }
-                    placeholder="0"
-                    className="focus:ring-[var(--primary)]/20 w-full rounded-xl border border-[var(--border)] bg-[var(--bg-subtle)] px-4 py-3 outline-none focus:ring-2"
-                  />
-                </div>
-                <div>
-                  <label className="mb-2 block text-xs font-bold uppercase text-[var(--text-muted)]">
-                    Stock Mínimo
-                  </label>
-                  <input
-                    type="number"
-                    value={newProduct.min_stock || ''}
-                    onChange={(e) =>
-                      setNewProduct({ ...newProduct, min_stock: Number(e.target.value) })
-                    }
-                    placeholder="5"
-                    className="focus:ring-[var(--primary)]/20 w-full rounded-xl border border-[var(--border)] bg-[var(--bg-subtle)] px-4 py-3 outline-none focus:ring-2"
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="sticky bottom-0 flex gap-3 bg-[var(--bg-subtle)] p-6">
-              <button
-                onClick={() => {
-                  setShowAddModal(false)
-                  setNewProduct(initialNewProduct)
-                }}
-                className="flex-1 py-3 font-bold text-[var(--text-muted)] transition hover:text-[var(--text-secondary)]"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleCreateProduct}
-                disabled={isCreating || !newProduct.name || !newProduct.base_price}
-                className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[var(--primary)] py-3 font-bold text-white transition hover:opacity-90 disabled:opacity-50"
-              >
-                {isCreating ? (
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                ) : (
-                  <Plus className="h-5 w-5" />
-                )}
-                Crear Producto
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <AddProductModal
+        isOpen={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        onSubmit={handleCreateProduct}
+        categories={categories}
+        isCreating={isCreating}
+      />
 
       {/* Delete Confirmation Modal */}
-      {deleteConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-sm overflow-hidden rounded-2xl bg-[var(--bg-default)] shadow-2xl">
-            <div className="p-6 text-center">
-              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--status-error-bg)]">
-                <Trash2 className="h-8 w-8 text-[var(--status-error)]" />
-              </div>
-              <h3 className="mb-2 text-lg font-bold text-[var(--text-primary)]">Eliminar Producto</h3>
-              <p className="text-sm text-[var(--text-muted)]">
-                ¿Estás seguro de eliminar este producto? Esta acción no se puede deshacer.
-              </p>
-            </div>
-            <div className="flex gap-3 bg-[var(--bg-subtle)] p-6">
-              <button
-                onClick={() => setDeleteConfirm(null)}
-                className="flex-1 py-3 font-bold text-[var(--text-muted)] transition hover:text-[var(--text-secondary)]"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={() => handleDeleteProduct(deleteConfirm)}
-                disabled={isDeleting}
-                className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[var(--status-error)] py-3 font-bold text-white transition hover:bg-[var(--status-error-dark)] disabled:opacity-50"
-              >
-                {isDeleting ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Eliminar'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <DeleteConfirmModal
+        isOpen={!!deleteConfirm}
+        onClose={() => setDeleteConfirm(null)}
+        onConfirm={() => deleteConfirm && handleDeleteProduct(deleteConfirm)}
+        isDeleting={isDeleting}
+      />
 
       {/* Import Wizard */}
       <ImportWizard

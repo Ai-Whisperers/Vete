@@ -2,7 +2,7 @@
 
 ## Priority: P2 (Medium)
 ## Category: Feature
-## Status: Partial Implementation
+## Status: ✅ Complete
 ## Epic: [EPIC-08: Feature Completion](../epics/EPIC-08-feature-completion.md)
 
 ## Description
@@ -103,3 +103,77 @@ The procurement module has database schema and basic API routes but the dashboar
 ---
 *Ticket created: January 2026*
 *Based on TODO analysis and API audit*
+
+---
+
+## Resolution Summary
+
+**Completed**: January 2026
+
+### Components Created
+
+1. **OrderDetailModal** (`order-detail-modal.tsx`, ~400 lines)
+   - Full order details display with status timeline
+   - Supplier contact info display
+   - Order items table with received quantities
+   - Status progression actions (submit, confirm, ship, receive, cancel)
+   - Receiving mode with quantity inputs
+   - WAC preview during receiving
+
+2. **OrderEditForm** (`order-edit-form.tsx`, ~450 lines)
+   - Edit draft orders (items, quantities, costs)
+   - Add/remove products from order
+   - Change supplier, delivery date, notes
+   - Delete/restore items tracking
+   - Form validation
+
+3. **AddToPOModal** (`add-to-po-modal.tsx`, ~300 lines)
+   - Quick add products to purchase orders from inventory
+   - Select existing draft order or create new
+   - Specify quantity and unit cost
+   - Subtotal preview
+
+### API Enhancements
+
+1. **`PATCH /api/procurement/orders/[id]`** - Inventory Update on Receive
+   - When status changes to 'received':
+     - Updates `store_inventory.stock_quantity`
+     - Recalculates WAC (Weighted Average Cost)
+     - Creates `store_inventory_transactions` record
+   - Tracks newly received quantities vs previously received
+   - Logs all inventory updates
+
+2. **`GET /api/suppliers/[id]/orders`** (NEW)
+   - Supplier order history with pagination
+   - Summary statistics (total orders, total spent, pending/received counts)
+   - Filter by status
+
+### UI Updates
+
+1. **InventoryTableRow** - Added "Add to PO" action button
+2. **InventoryTable** - Added `onAddToPO` prop support
+3. **Procurement Page** - Integrated all new modals
+
+### Files Created
+- `web/components/dashboard/procurement/order-detail-modal.tsx`
+- `web/components/dashboard/procurement/order-edit-form.tsx`
+- `web/components/dashboard/procurement/add-to-po-modal.tsx`
+- `web/app/api/suppliers/[id]/orders/route.ts`
+
+### Files Modified
+- `web/components/dashboard/procurement/index.ts` - Added exports
+- `web/components/dashboard/inventory/inventory-table.tsx` - Added onAddToPO
+- `web/components/dashboard/inventory/inventory-table-row.tsx` - Added PO button
+- `web/app/[clinic]/dashboard/inventory/procurement/page.tsx` - Integrated modals
+- `web/app/api/procurement/orders/[id]/route.ts` - Inventory update on receive
+
+### Acceptance Criteria Met
+
+- [x] Order detail modal shows complete order info
+- [x] Orders can be edited before sending
+- [x] Products can be added to PO from inventory
+- [x] Receiving order updates inventory quantities
+- [x] WAC (weighted average cost) recalculated on receive
+- [x] Inventory transactions logged
+- [x] Supplier history viewable (API endpoint created)
+- [x] Price comparison works (pre-existing PriceComparison component)

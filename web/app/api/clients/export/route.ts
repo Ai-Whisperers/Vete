@@ -303,7 +303,7 @@ export const POST = withApiAuth(
         const csv = generateCSV(exportData, fields)
         const timestamp = now.toISOString().replace(/[:.]/g, '-').slice(0, 19)
 
-        return new Response(csv, {
+        return new NextResponse(csv, {
           headers: {
             'Content-Type': 'text/csv; charset=utf-8',
             'Content-Disposition': `attachment; filename=clientes-${timestamp}.csv`,

@@ -47,6 +47,13 @@ Vete/
 │   │   │   ├── portal/           # Pet owner portal (auth required)
 │   │   │   ├── dashboard/        # Staff dashboard (vet/admin only)
 │   │   │   └── tools/            # Interactive tools
+│   │   ├── ambassador/           # Ambassador portal (NEW)
+│   │   │   ├── page.tsx          # Dashboard
+│   │   │   ├── login/            # Login page
+│   │   │   ├── register/         # Registration
+│   │   │   ├── payouts/          # Payout management
+│   │   │   └── referrals/        # Referral tracking
+│   │   ├── reclamar/             # Claim pre-generated site (NEW)
 │   │   ├── api/                  # REST API routes
 │   │   ├── actions/              # Server Actions
 │   │   └── auth/                 # Auth routes
@@ -84,7 +91,12 @@ Vete/
 │   ├── architecture/             # System design
 │   ├── database/                 # Schema, RLS, migrations
 │   ├── features/                 # Feature documentation
-│   └── api/                      # API reference
+│   ├── api/                      # API reference
+│   └── growth-strategy/          # Growth & monetization docs
+│       ├── 01-pricing-strategy.md
+│       ├── 02-pre-generation-system.md
+│       ├── 03-ambassador-program.md
+│       └── ... (10 files total)
 ├── .claude/                      # Claude Code configuration
 │   ├── commands/                 # Slash commands
 │   └── exemplars/                # Code pattern examples
@@ -260,7 +272,22 @@ referral_transactions (id, referral_code_id, referred_user_id, status, commissio
 -- Platform Administration (NEW)
 platform_announcements (id, title, content, is_active, created_at)
 platform_commission_invoices (id, tenant_id, amount, status, period_start, period_end)
+
+-- Ambassador Program (NEW)
+ambassadors (id, email, full_name, phone, user_id, type, university, institution, status, tier, referral_code, total_referrals, total_conversions, total_earnings, total_paid, created_at)
+ambassador_referrals (id, ambassador_id, clinic_name, clinic_email, status, converted_at, commission_amount, commission_paid, trial_started_at, utm_source, created_at)
+ambassador_payouts (id, ambassador_id, amount, status, bank_name, account_number, account_holder, notes, processed_at, processed_by, created_at)
 ```
+
+### Recent Migrations (057-061)
+
+| Migration | Purpose |
+|-----------|---------|
+| 057 | Atomic lab order creation (prevents orphaned items) |
+| 058 | Waitlist notification system (auto-cascade on cancellation) |
+| 059 | Atomic appointment status (TOCTOU protection) |
+| 060 | Pre-generation fields (tenant status, scraped data) |
+| 061 | Ambassador program (3 tables, tier functions) |
 
 See `documentation/database/schema-reference.md` for complete column definitions.
 
@@ -521,6 +548,24 @@ export default async function NewPage({ params }: Props) {
 7. **Auth on APIs** - Every API route must check authentication first.
 8. **Tenant isolation** - Every query must filter by `tenant_id`.
 
+### Atomic Database Operations
+
+Three critical operations use PostgreSQL functions to ensure atomicity:
+
+1. **Lab Order Creation** (`create_lab_order_atomic`)
+   - Creates order + items + panels in single transaction
+   - Prevents orphaned records on partial failure
+
+2. **Appointment Status Updates** (`update_appointment_status_atomic`)
+   - Row-level locking prevents race conditions
+   - Validates state transitions before update
+   - Tracks cancellation/completion metadata
+
+3. **Waitlist Processing** (`process_waitlist_on_cancellation`)
+   - Auto-notifies next person when slot opens
+   - Cascades to subsequent waitlist entries on expiration
+   - 4-hour offer windows with automatic cleanup
+
 ---
 
 ## Documentation Reference
@@ -752,13 +797,46 @@ Located in `lib/hooks/` (8 hook files):
 - Tenant feature tier management
 - Bank transfer verification
 
+### Ambassador Program ✅ (NEW)
+
+- Individual ambassador registration (students, teachers, vet assistants)
+- Three-tier commission system:
+  - Embajador (1+ conversions): 30% commission
+  - Promotor (5+ conversions): 40% commission
+  - Super (10+ conversions): 50% commission
+- Automatic tier upgrades on conversion thresholds
+- Referral code generation and tracking
+- Bank transfer payout management
+- Statistics dashboard with tier progression
+- Lifetime Professional plan for ambassadors
+
+### Pre-Generation System ✅ (NEW)
+
+- Pre-generated clinic websites from scraped data
+- Claim flow at `/reclamar` for clinic owners
+- Status tracking: pregenerated → claimed → active → suspended
+- Auto-creates user account and profile on claim
+- Immediate free trial activation
+- ROI guarantee messaging
+- Supports clinic types: general, emergency, specialist, grooming, rural
+
+### Cron Monitoring ✅ (NEW)
+
+- Health check endpoint at `/api/health/cron`
+- Automatic failure alerting on job errors
+- High error rate detection (>10% threshold)
+- Slow job detection (>2 minute threshold)
+- Expected interval + grace period tracking
+- Critical vs non-critical job classification
+
 ### API Coverage
 
-- **420+ HTTP methods** across **256 API route files**
+- **450+ HTTP methods** across **269 API route files**
 - **42 Server Actions** for form mutations
-- **14 Cron job endpoints** for background tasks
+- **14 Cron job endpoints** for background tasks (100% test coverage)
 - Rate limiting on sensitive endpoints (Upstash Redis)
 - Full Zod validation on inputs
+- Atomic database operations for critical paths
 
 ### Planned / Future
 

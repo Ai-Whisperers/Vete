@@ -277,34 +277,57 @@ export const PUT = withApiAuth(async (ctx: ApiHandlerContext) => {
     )
   }
 
-  // Validate status transitions
+  // RACE-003: Use atomic function for status transitions to prevent TOCTOU race conditions
   if (status && existing.status !== status) {
-    const VALID_TRANSITIONS: Record<string, string[]> = {
-      scheduled: ['confirmed', 'cancelled'],
-      pending: ['confirmed', 'cancelled'],
-      confirmed: ['checked_in', 'cancelled', 'no_show'],
-      checked_in: ['in_progress', 'no_show'],
-      in_progress: ['completed', 'no_show'],
-      completed: [],
-      cancelled: [],
-      no_show: [],
+    const { data: statusResult, error: statusError } = await supabase.rpc(
+      'update_appointment_status_atomic',
+      {
+        p_appointment_id: id,
+        p_new_status: status,
+        p_user_id: user.id,
+        p_is_staff: isStaff,
+        p_notes: notes || null,
+      }
+    )
+
+    if (statusError) {
+      return apiError('DATABASE_ERROR', 500)
     }
 
-    const allowed = VALID_TRANSITIONS[existing.status] || []
-    if (!allowed.includes(status)) {
-      return NextResponse.json(
-        {
-          error: `No se puede cambiar de "${existing.status}" a "${status}"`,
-          code: 'INVALID_TRANSITION',
-        },
-        { status: 400 }
-      )
+    if (!statusResult?.success) {
+      const errorCode = statusResult?.error || 'UNKNOWN'
+      if (errorCode === 'INVALID_TRANSITION') {
+        return NextResponse.json(
+          {
+            error: statusResult?.message || `No se puede cambiar a "${status}"`,
+            code: 'INVALID_TRANSITION',
+          },
+          { status: 400 }
+        )
+      }
+      if (errorCode === 'OWNER_CANCEL_ONLY') {
+        return NextResponse.json(
+          { error: 'Solo puedes cancelar tu cita', code: 'OWNER_CANCEL_ONLY' },
+          { status: 403 }
+        )
+      }
+      return apiError('DATABASE_ERROR', 500)
+    }
+
+    // If only status was being updated, return early
+    if (!appointment_date && !time_slot && vet_id === undefined && notes === undefined) {
+      const { data: updated } = await supabase
+        .from('appointments')
+        .select('*')
+        .eq('id', id)
+        .single()
+      return apiSuccess(updated, 'Cita actualizada')
     }
   }
 
-  // Build update object
+  // Build update object for non-status fields
+  // Status is handled atomically above if it changed
   const updates: Record<string, unknown> = { updated_at: new Date().toISOString() }
-  if (status) updates.status = status
   if (appointment_date) updates.appointment_date = appointment_date
   if (vet_id !== undefined) updates.vet_id = vet_id
 

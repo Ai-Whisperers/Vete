@@ -37,6 +37,7 @@ export interface AdminAccountData {
   adminEmail: string
   adminPassword: string
   adminFullName: string
+  referralCode: string | null
 }
 
 /**

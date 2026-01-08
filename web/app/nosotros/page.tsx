@@ -47,9 +47,9 @@ const values = [
 // Stats
 const stats = [
   { value: '2024', label: 'Año de fundación' },
-  { value: '100+', label: 'Veterinarios usuarios' },
-  { value: '10,000+', label: 'Mascotas registradas' },
-  { value: '99.9%', label: 'Uptime garantizado' },
+  { value: '90', label: 'Días de prueba gratis' },
+  { value: '6+6', label: 'Garantía ROI (6 clientes o 6 meses gratis)' },
+  { value: '100%', label: 'Hecho en Paraguay' },
 ]
 
 export default function NosotrosPage() {

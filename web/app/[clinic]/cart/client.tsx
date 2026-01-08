@@ -11,14 +11,11 @@ import {
   ShieldCheck,
   Plus,
   Minus,
-  Tag,
   AlertCircle,
-  Calendar,
   Package,
   PawPrint,
 } from 'lucide-react'
 import { DynamicIcon } from '@/lib/icons'
-import LoyaltyRedemption from '@/components/commerce/loyalty-redemption'
 import { createClient } from '@/lib/supabase/client'
 import { useEffect, useState, useMemo, useCallback } from 'react'
 import { ClinicConfig } from '@/lib/clinics'
@@ -37,7 +34,7 @@ const MAX_QUANTITY_PER_ITEM = 99
 export default function CartPageClient({ config }: CartPageClientProps) {
   const { clinic } = useParams() as { clinic: string }
   const { items, clearCart, total, removeItem, updateQuantity, discount } = useCart()
-  const [user, setUser] = useState<SupabaseUser | null>(null)
+  const [_user, setUser] = useState<SupabaseUser | null>(null)
   const [loading, setLoading] = useState(true)
   const [quantityWarning, setQuantityWarning] = useState<string | null>(null)
 
@@ -166,7 +163,7 @@ export default function CartPageClient({ config }: CartPageClientProps) {
         redirect={`/${clinic}/cart`}
         whatsappNumber={whatsappNumber}
         title="Inicia sesión para tu carrito"
-        description="Necesitas una cuenta para completar tu compra y acumular puntos de fidelidad."
+        description="Necesitas una cuenta para completar tu compra."
         icon="cart"
         preview={cartPreview}
       >
@@ -345,21 +342,6 @@ export default function CartPageClient({ config }: CartPageClientProps) {
                         }).format(total)}
                       </span>
                     </div>
-                    {discount > 0 && (
-                      <div className="flex items-center justify-between font-bold text-green-600">
-                        <div className="flex items-center gap-2">
-                          <Tag className="h-4 w-4" />
-                          <span>Descuento Puntos</span>
-                        </div>
-                        <span>
-                          -
-                          {new Intl.NumberFormat('es-PY', {
-                            style: 'currency',
-                            currency: currency,
-                          }).format(discount)}
-                        </span>
-                      </div>
-                    )}
                     <div className="flex justify-between text-sm text-gray-400">
                       <span>Envío/Gestión</span>
                       <span className="text-xs font-bold uppercase tracking-tighter text-[var(--primary)]">
@@ -381,8 +363,6 @@ export default function CartPageClient({ config }: CartPageClientProps) {
                       </div>
                     </div>
                   </div>
-
-                  {user && <LoyaltyRedemption userId={user.id} />}
 
                   <Link
                     href={`/${clinic}/cart/checkout`}

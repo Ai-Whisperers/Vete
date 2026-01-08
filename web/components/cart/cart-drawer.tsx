@@ -12,17 +12,14 @@ import {
   Package,
   PawPrint,
   User,
-  Star,
   Trash2,
 } from 'lucide-react'
 import { useCart } from '@/context/cart-context'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
-import { useToast } from '@/components/ui/Toast'
 import { CartItem } from './cart-item'
 import { ServiceGroup } from './service-group'
 import { formatPriceGs } from '@/lib/utils/pet-size'
 import { organizeCart } from '@/lib/utils/cart-utils'
-import { createClient } from '@/lib/supabase/client'
 
 interface CartDrawerProps {
   /** Controlled open state */
@@ -39,10 +36,7 @@ interface CartDrawerProps {
 export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
   const { clinic } = useParams<{ clinic: string }>()
   const { items, itemCount: totalItems, total: subtotal, clearCart } = useCart()
-  const { showToast } = useToast()
   const [mounted, setMounted] = useState(false)
-  const [userId, setUserId] = useState<string | null>(null)
-  const [loyaltyPoints, setLoyaltyPoints] = useState<number | null>(null)
   const drawerRef = useRef<HTMLDivElement>(null)
   const previousActiveElement = useRef<HTMLElement | null>(null)
 
@@ -50,38 +44,6 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
   useEffect(() => {
     setMounted(true)
   }, [])
-
-  // Fetch user and loyalty points
-  useEffect(() => {
-    const fetchUserAndPoints = async () => {
-      const supabase = createClient()
-      const {
-        data: { session },
-      } = await supabase.auth.getSession()
-
-      if (session?.user) {
-        setUserId(session.user.id)
-        // Fetch loyalty points
-        try {
-          const res = await fetch(`/api/loyalty/points?userId=${session.user.id}`)
-          if (res.ok) {
-            const data = await res.json()
-            setLoyaltyPoints(data.points || 0)
-          }
-        } catch {
-          // UX-011: Show toast on network error
-          showToast('Error al cargar puntos de lealtad')
-        }
-      } else {
-        setUserId(null)
-        setLoyaltyPoints(null)
-      }
-    }
-
-    if (isOpen) {
-      fetchUserAndPoints()
-    }
-  }, [isOpen, showToast])
 
   // Focus trap and keyboard handling
   const handleKeyDown = useCallback(
@@ -360,25 +322,6 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
         {/* Footer */}
         {items.length > 0 && (
           <div className="bg-[var(--bg-subtle)]/30 border-t border-gray-100 px-6 py-4">
-            {/* Loyalty Points Display */}
-            {userId && loyaltyPoints !== null && loyaltyPoints > 0 && (
-              <Link
-                href={`/${clinic}/portal/loyalty`}
-                onClick={onClose}
-                className="group mb-4 flex items-center justify-between rounded-xl bg-purple-50 px-3 py-2.5 transition hover:bg-purple-100"
-              >
-                <div className="flex items-center gap-2">
-                  <Star className="h-4 w-4 text-purple-600" />
-                  <span className="text-sm font-bold text-purple-900">
-                    {loyaltyPoints.toLocaleString()} puntos
-                  </span>
-                </div>
-                <span className="text-xs font-medium text-purple-600 group-hover:underline">
-                  Usar puntos →
-                </span>
-              </Link>
-            )}
-
             {/* Subtotal */}
             <div className="mb-4 flex items-center justify-between">
               <span className="font-medium text-[var(--text-secondary)]">Subtotal</span>

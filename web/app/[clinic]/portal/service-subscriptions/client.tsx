@@ -359,6 +359,13 @@ export function ServiceSubscriptionsClient({ clinic, clinicName }: ServiceSubscr
               <p className="text-[var(--text-muted)]">Servicios recurrentes con recogida a domicilio</p>
             </div>
           </div>
+          <Link
+            href={`/${clinic}/portal/subscriptions`}
+            className="inline-flex items-center gap-2 rounded-xl border border-[var(--primary)] px-4 py-2 font-medium text-[var(--primary)] transition hover:bg-[var(--primary)]/10"
+          >
+            <RefreshCw className="h-4 w-4" />
+            Ver Suscripciones a Productos
+          </Link>
         </div>
       </div>
 

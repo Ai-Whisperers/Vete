@@ -46,7 +46,6 @@ export function OwnerHero({ clinic, profile, config }: OwnerHeroProps): React.Re
   // Time-based greeting
   const hour = new Date().getHours()
   const greeting = hour < 12 ? 'Buenos días' : hour < 18 ? 'Buenas tardes' : 'Buenas noches'
-  const firstName = profile.full_name?.split(' ')[0] || 'Amigo'
 
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-[var(--bg-subtle)] to-white py-10 md:py-14">

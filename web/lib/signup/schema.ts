@@ -148,6 +148,12 @@ export const adminAccountSchema = z.object({
     .min(2, 'El nombre debe tener al menos 2 caracteres')
     .max(100, 'El nombre es muy largo')
     .transform((val) => val.trim()),
+  referralCode: z
+    .string()
+    .max(20, 'Codigo muy largo')
+    .nullable()
+    .optional()
+    .transform((val) => val?.trim() || null),
 })
 
 /**
@@ -190,6 +196,12 @@ export const signupRequestSchema = z.object({
     .string()
     .min(2, 'El nombre debe tener al menos 2 caracteres')
     .transform((val) => val.trim()),
+  referralCode: z
+    .string()
+    .max(20, 'Codigo muy largo')
+    .nullable()
+    .optional()
+    .transform((val) => val?.trim() || null),
 
   // Step 4: Branding
   logoUrl: z.string().url().nullable().optional().default(null),

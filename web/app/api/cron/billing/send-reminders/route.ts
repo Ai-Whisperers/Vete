@@ -22,6 +22,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createCronHandler, CronContext } from '@/lib/cron/handler'
 import { logger } from '@/lib/logger'
+import { sendEmail } from '@/lib/email/client'
 
 interface ReminderResult {
   tenant_id: string
@@ -253,7 +254,68 @@ async function processInvoiceReminders(
 }
 
 /**
- * Send a reminder (save to database and notify)
+ * Generate HTML email for billing reminder
+ */
+function generateReminderEmail(
+  clinicName: string,
+  subject: string,
+  content: string,
+  invoiceNumber: string
+): string {
+  return `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${subject}</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f5f5f5;">
+  <table role="presentation" style="width: 100%; border-collapse: collapse;">
+    <tr>
+      <td style="padding: 40px 20px;">
+        <table role="presentation" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+          <!-- Header -->
+          <tr>
+            <td style="padding: 30px 40px 20px; text-align: center; background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); border-radius: 8px 8px 0 0;">
+              <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 700;">Vetic</h1>
+            </td>
+          </tr>
+          <!-- Content -->
+          <tr>
+            <td style="padding: 30px 40px;">
+              <h2 style="margin: 0 0 15px; color: #333333; font-size: 18px; font-weight: 600;">
+                Hola ${clinicName},
+              </h2>
+              <p style="margin: 0 0 20px; color: #555555; font-size: 16px; line-height: 1.6;">
+                ${content}
+              </p>
+              <div style="background-color: #f8fafc; border-radius: 6px; padding: 15px; margin-top: 20px;">
+                <p style="margin: 0; color: #64748b; font-size: 14px;">
+                  <strong>Factura:</strong> ${invoiceNumber}
+                </p>
+              </div>
+            </td>
+          </tr>
+          <!-- Footer -->
+          <tr>
+            <td style="padding: 20px 40px 30px; border-top: 1px solid #e2e8f0;">
+              <p style="margin: 0; color: #94a3b8; font-size: 12px; text-align: center;">
+                Si tienes alguna pregunta, responde a este correo o contáctanos en soporte@vetic.app
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+`.trim()
+}
+
+/**
+ * Send a reminder (save to database, send email, and notify)
  */
 async function sendReminder(
   supabase: Awaited<ReturnType<typeof createClient>>,
@@ -266,17 +328,55 @@ async function sendReminder(
   reminder: { type: string; subject: string; content: string }
 ): Promise<void> {
   const now = new Date().toISOString()
+  const recipientEmail = invoice.tenants?.billing_email || invoice.tenants?.email
+  const clinicName = invoice.tenants?.name || 'Estimado cliente'
 
-  // Save reminder record
-  await supabase.from('billing_reminders').insert({
+  // Save reminder record as pending
+  const { data: reminderRecord } = await supabase.from('billing_reminders').insert({
     tenant_id: invoice.tenant_id,
     platform_invoice_id: invoice.id,
     reminder_type: reminder.type,
     channel: 'email',
-    sent_at: now,
+    recipient_email: recipientEmail,
     subject: reminder.subject,
     content: reminder.content,
-  })
+    status: 'pending',
+    scheduled_for: now,
+  }).select('id').single()
+
+  // Send email if we have a recipient
+  let emailSuccess = false
+  let emailError: string | undefined
+
+  if (recipientEmail) {
+    const emailHtml = generateReminderEmail(
+      clinicName,
+      reminder.subject,
+      reminder.content,
+      invoice.invoice_number
+    )
+
+    const result = await sendEmail({
+      to: recipientEmail,
+      subject: reminder.subject,
+      html: emailHtml,
+      text: `${clinicName},\n\n${reminder.content}\n\nFactura: ${invoice.invoice_number}\n\nSi tienes preguntas, contáctanos en soporte@vetic.app`,
+      from: process.env.EMAIL_FROM_BILLING || 'facturacion@vetic.app',
+      replyTo: 'soporte@vetic.app',
+    })
+
+    emailSuccess = result.success
+    emailError = result.error
+  }
+
+  // Update reminder record with send status
+  if (reminderRecord?.id) {
+    await supabase.from('billing_reminders').update({
+      status: emailSuccess ? 'sent' : (recipientEmail ? 'failed' : 'skipped'),
+      sent_at: emailSuccess ? now : null,
+      error_message: emailError || (recipientEmail ? null : 'No email address'),
+    }).eq('id', reminderRecord.id)
+  }
 
   // Create notification for clinic admin
   const { data: adminProfile } = await supabase
@@ -295,14 +395,14 @@ async function sendReminder(
     })
   }
 
-  // In production, this would integrate with an email service
-  // e.g., Resend, SendGrid, AWS SES
-  logger.info('Reminder sent', {
+  logger.info('Reminder processed', {
     invoiceId: invoice.id,
     invoiceNumber: invoice.invoice_number,
     tenantId: invoice.tenant_id,
     reminderType: reminder.type,
-    email: invoice.tenants?.billing_email || invoice.tenants?.email,
+    email: recipientEmail,
+    emailSent: emailSuccess,
+    error: emailError,
   })
 }
 

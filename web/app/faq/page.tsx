@@ -61,12 +61,105 @@ const faqCategories = [
       {
         question: '¿Qué métodos de pago aceptan?',
         answer:
-          'Aceptamos Bancard (débito y crédito), Zimple, transferencia bancaria y depósito. Para planes anuales ofrecemos descuento del 15%.',
+          'Aceptamos Bancard (débito y crédito), Zimple, transferencia bancaria y depósito. Para planes anuales ofrecemos descuento del 15% y para planes de 2 años descuento del 33%.',
       },
       {
         question: '¿Puedo cancelar cuando quiera?',
         answer:
           'Sí, no hay contratos de permanencia. Puedes cancelar en cualquier momento y seguirás teniendo acceso hasta el final del período pagado.',
+      },
+      {
+        question: '¿Qué opciones de facturación tienen?',
+        answer:
+          'Ofrecemos 3 opciones: mensual, anual (15% descuento) y bienal de 2 años (33% descuento). Los planes anuales y de 2 años incluyen más llamadas de onboarding personalizado.',
+      },
+    ],
+  },
+  {
+    id: 'garantia',
+    title: 'Garantía ROI',
+    faqs: [
+      {
+        question: '¿En qué consiste la Garantía ROI?',
+        answer:
+          'Si no conseguís al menos 6 clientes nuevos verificables a través de tu sitio Vetic en los primeros 6 meses, te damos los siguientes 6 meses GRATIS. Es nuestra forma de compartir el riesgo contigo.',
+      },
+      {
+        question: '¿Cómo se verifican los clientes nuevos?',
+        answer:
+          'Los clientes nuevos se rastrean automáticamente a través de reservas online, formularios de contacto y mensajes de WhatsApp que llegan desde tu sitio Vetic. Todo queda registrado en tu dashboard.',
+      },
+      {
+        question: '¿Aplica para todos los planes?',
+        answer:
+          'La Garantía ROI aplica para los planes Profesional y Clínica. El plan gratuito no incluye esta garantía.',
+      },
+      {
+        question: '¿Cómo reclamo la garantía?',
+        answer:
+          'Simplemente contactanos por WhatsApp después del sexto mes y verificamos tus métricas. Si no llegaste a 6 clientes nuevos, activamos los 6 meses gratis automáticamente.',
+      },
+    ],
+  },
+  {
+    id: 'embajadores',
+    title: 'Embajadores',
+    faqs: [
+      {
+        question: '¿Qué es el programa de embajadores?',
+        answer:
+          'Es un programa donde estudiantes de veterinaria, asistentes y profesionales pueden ganar comisiones por referir nuevas clínicas a Vetic. Ganas hasta 40% de comisión en efectivo por cada clínica que se registre con tu código.',
+      },
+      {
+        question: '¿Cómo me convierto en embajador?',
+        answer:
+          'Visitá la página /ambassador y completá el formulario. Recibiras tu código único en menos de 24 horas. No hay costos ni requisitos previos.',
+      },
+      {
+        question: '¿Cuánto puedo ganar como embajador?',
+        answer:
+          'Ganas hasta Gs 100.000 por cada clínica referida que se active en un plan pago. Si referís 10 clínicas al mes, podés ganar Gs 1.000.000. No hay límite de referidos.',
+      },
+      {
+        question: '¿Cómo recibo mis comisiones?',
+        answer:
+          'Las comisiones se pagan mensualmente via transferencia bancaria o depósito. Podés ver tus referidos y comisiones en tiempo real desde tu dashboard de embajador.',
+      },
+      {
+        question: '¿Puedo ser embajador si ya soy cliente?',
+        answer:
+          'Sí, los clientes existentes también pueden ser embajadores. De hecho, son los mejores embajadores porque conocen el producto de primera mano.',
+      },
+    ],
+  },
+  {
+    id: 'reclamo',
+    title: 'Reclamar Sitio',
+    faqs: [
+      {
+        question: '¿Qué significa "reclamar un sitio"?',
+        answer:
+          'En algunos casos, generamos sitios web de muestra para clínicas usando información pública. Si ves un sitio con el nombre de tu clínica en vetic.com, podés reclamarlo para obtener acceso completo y personalizarlo.',
+      },
+      {
+        question: '¿Cómo sé si hay un sitio pre-generado para mi clínica?',
+        answer:
+          'Visitá vetic.com/reclamar e ingresá el slug o nombre de tu clínica. Si existe un sitio disponible, podrás reclamarlo inmediatamente.',
+      },
+      {
+        question: '¿Tiene algún costo reclamar un sitio?',
+        answer:
+          'No, reclamar tu sitio es 100% gratuito. Además, recibís 3 meses del plan Profesional sin costo para que pruebes todas las funcionalidades.',
+      },
+      {
+        question: '¿Qué pasa si no quiero el sitio pre-generado?',
+        answer:
+          'Si no te interesa, simplemente no lo reclames. Los sitios no reclamados se eliminan automáticamente después de 30 días. No aparecerán en buscadores.',
+      },
+      {
+        question: '¿Puedo editar toda la información del sitio?',
+        answer:
+          'Sí, una vez que reclames el sitio tenés control total. Podés cambiar colores, logo, servicios, precios, y toda la información de tu clínica.',
       },
     ],
   },
@@ -93,6 +186,11 @@ const faqCategories = [
         question: '¿La demo es por videollamada?',
         answer:
           'Sí, usamos Google Meet o WhatsApp videollamada, lo que te sea más cómodo. Te enviamos el link después de agendar.',
+      },
+      {
+        question: '¿Cuánto dura el periodo de prueba gratis?',
+        answer:
+          'Ofrecemos 90 días de prueba gratuita con acceso completo al plan Profesional. Sin tarjeta de crédito requerida.',
       },
     ],
   },

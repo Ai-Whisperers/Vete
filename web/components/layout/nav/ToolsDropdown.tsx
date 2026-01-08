@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronDown, Wrench, Calculator, Apple, HelpCircle, Gift } from 'lucide-react'
+import { ChevronDown, Wrench, Calculator, Apple, HelpCircle } from 'lucide-react'
 import type { ClinicConfig } from '@/lib/clinics'
 
 interface ToolsDropdownProps {
@@ -44,11 +44,6 @@ export function ToolsDropdown({
       href: `/${clinic}/faq`,
       icon: HelpCircle,
     },
-    {
-      label: config.ui_labels?.nav?.loyalty_program || 'Programa de Lealtad',
-      href: `/${clinic}/loyalty_points`,
-      icon: Gift,
-    },
   ]
 
   useEffect(() => {
@@ -69,8 +64,7 @@ export function ToolsDropdown({
   const isToolsActive =
     isToolsOpen ||
     pathname.includes('/tools') ||
-    pathname.includes('/faq') ||
-    pathname.includes('/loyalty')
+    pathname.includes('/faq')
 
   return (
     <div ref={toolsMenuRef} className="relative">

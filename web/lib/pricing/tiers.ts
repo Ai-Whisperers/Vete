@@ -196,16 +196,158 @@ export const trialConfig = {
 }
 
 /**
+ * Annual Plans Configuration
+ *
+ * Strategy: Annual plans increase LTV 3x by:
+ * 1. 12x upfront cash flow
+ * 2. Higher commitment = lower churn
+ * 3. Justifies personalized onboarding
+ * 4. Discount perception (save 2 months)
+ */
+export type AnnualPlanId = 'annual' | 'biennial'
+
+export interface AnnualPlan {
+  id: AnnualPlanId
+  name: string
+  description: string
+  months: number
+  totalPrice: number // Total price in PYG
+  monthlyEquivalent: number // Effective monthly price
+  savingsPercent: number // Discount vs monthly
+  onboardingCalls: number // Number of included onboarding calls
+  prioritySupport: boolean
+}
+
+export const annualPlans: AnnualPlan[] = [
+  {
+    id: 'annual',
+    name: 'Profesional Anual',
+    description: 'Todo incluido + 3 llamadas de onboarding',
+    months: 12,
+    totalPrice: 2400000, // Gs 2.4M/year (~Gs 200K/month)
+    monthlyEquivalent: 200000,
+    savingsPercent: 0.20, // 20% off vs monthly
+    onboardingCalls: 3,
+    prioritySupport: true,
+  },
+  {
+    id: 'biennial',
+    name: 'Profesional 2 Años',
+    description: 'Todo incluido + 6 llamadas de onboarding + soporte prioritario',
+    months: 24,
+    totalPrice: 4080000, // Gs 4.08M/2 years (Gs 170K/month)
+    monthlyEquivalent: 170000,
+    savingsPercent: 0.32, // 32% off vs monthly
+    onboardingCalls: 6,
+    prioritySupport: true,
+  },
+]
+
+/**
+ * Onboarding Configuration
+ *
+ * High-touch onboarding increases retention and LTV significantly.
+ * Structure:
+ * - Initial Setup (60 min): Configure website, train core features
+ * - Weekly Check-ins (30 min x 4): Fix issues, train advanced, collect testimonial
+ * - Monthly Ongoing (15 min): New features, upsells
+ */
+export const onboardingConfig = {
+  /** Initial setup call duration in minutes */
+  initialSetupMinutes: 60,
+  /** Weekly check-in call duration in minutes */
+  weeklyCheckInMinutes: 30,
+  /** Number of weekly check-ins included */
+  weeklyCheckInCount: 4,
+  /** Monthly ongoing call duration in minutes */
+  monthlyOngoingMinutes: 15,
+
+  /** Onboarding call structure */
+  callStructure: [
+    {
+      week: 0,
+      type: 'setup',
+      duration: 60,
+      topics: [
+        'Configurar página web',
+        'Agregar servicios y precios',
+        'Conectar WhatsApp',
+        'Crear primer carnet digital',
+        'Responder preguntas',
+      ],
+    },
+    {
+      week: 1,
+      type: 'checkin',
+      duration: 30,
+      topics: ['Revisar primeras citas', 'Resolver problemas'],
+    },
+    {
+      week: 2,
+      type: 'checkin',
+      duration: 30,
+      topics: ['Entrenar funciones avanzadas', 'Recordatorios y reportes'],
+    },
+    {
+      week: 3,
+      type: 'checkin',
+      duration: 30,
+      topics: ['Optimizar flujo de trabajo', 'Recoger feedback'],
+    },
+    {
+      week: 4,
+      type: 'checkin',
+      duration: 30,
+      topics: ['Recoger testimonio', 'Discutir referidos'],
+    },
+  ],
+}
+
+/**
+ * Get annual plan by ID
+ */
+export function getAnnualPlanById(id: AnnualPlanId): AnnualPlan | undefined {
+  return annualPlans.find((plan) => plan.id === id)
+}
+
+/**
+ * Calculate ROI guarantee minimum clients for a price
+ */
+export function getRoiGuaranteeMinClients(monthlyPrice: number): number {
+  return Math.ceil(monthlyPrice / roiGuarantee.averageClientValue)
+}
+
+/**
+ * Get ROI guarantee message for a specific price
+ */
+export function getRoiGuaranteeMessage(monthlyPrice: number): string {
+  const minClients = getRoiGuaranteeMinClients(monthlyPrice)
+  return roiGuarantee.message.replace('{min}', minClients.toString())
+}
+
+/**
  * ROI Guarantee configuration
- * @deprecated ROI Guarantee discontinued as of January 2026
- * Keeping for backwards compatibility but not used in UI
+ *
+ * "Si no consigues X clientes nuevos en 6 meses, los próximos 6 meses son GRATIS"
+ *
+ * This is a key differentiator for Vetic - removes risk for clinic owners.
+ * Minimum new clients = monthly fee / average client value
+ *
+ * Example: Gs 200,000/month / Gs 50,000 per client = 4 new clients minimum
  */
 export const roiGuarantee = {
+  /** Evaluation period in months */
   evaluationMonths: 6,
+  /** Free months granted if guarantee not met */
   freeMonthsIfFailed: 6,
+  /** Average revenue per new client in PYG */
   averageClientValue: 50000,
+  /** Minimum total spend to qualify for guarantee */
   minClientSpend: 100000,
-  discontinued: true, // Flag to indicate this is no longer offered
+  /** Whether ROI guarantee is active */
+  enabled: true,
+  /** Marketing message for the guarantee */
+  message: 'Si no consigues {min} clientes nuevos en 6 meses, los próximos 6 meses son GRATIS',
 }
 
 /**

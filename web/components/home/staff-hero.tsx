@@ -40,8 +40,6 @@ export function StaffHero({ clinic, profile, config, todayStats }: StaffHeroProp
   // Time-based greeting
   const hour = new Date().getHours()
   const greeting = hour < 12 ? 'Buenos días' : hour < 18 ? 'Buenas tardes' : 'Buenas noches'
-  const firstName = profile.full_name?.split(' ')[0] || 'Doctor'
-  const titlePrefix = profile.role === 'vet' ? 'Dr. ' : ''
 
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-[var(--primary)] to-[var(--primary-dark)] py-10 text-white md:py-14">

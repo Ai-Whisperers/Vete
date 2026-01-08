@@ -52,6 +52,7 @@ const INITIAL_DATA: SignupFormData = {
   adminEmail: '',
   adminPassword: '',
   adminFullName: '',
+  referralCode: null,
   logoUrl: null,
   primaryColor: '#3B82F6',
   secondaryColor: '#10B981',
@@ -109,6 +110,7 @@ export function SignupWizard() {
             adminEmail: formData.adminEmail,
             adminPassword: formData.adminPassword,
             adminFullName: formData.adminFullName,
+            referralCode: formData.referralCode,
           }
         case 4:
           return {
@@ -324,6 +326,7 @@ export function SignupWizard() {
                   adminEmail: formData.adminEmail,
                   adminPassword: formData.adminPassword,
                   adminFullName: formData.adminFullName,
+                  referralCode: formData.referralCode,
                 }}
                 errors={errors}
                 onChange={handleFieldChange}

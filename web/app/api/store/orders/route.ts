@@ -4,51 +4,8 @@ import { logger } from '@/lib/logger'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { requireFeature } from '@/lib/features/server'
 import { clampLimit, parsePage } from '@/lib/api/pagination'
-
-// Order statuses
-const ORDER_STATUSES = [
-  'pending',
-  'pending_prescription',
-  'confirmed',
-  'processing',
-  'shipped',
-  'delivered',
-  'cancelled',
-  'refunded',
-] as const
-type OrderStatus = (typeof ORDER_STATUSES)[number]
-
-interface OrderItem {
-  product_id: string
-  variant_id?: string
-  quantity: number
-  unit_price: number
-  discount_amount?: number
-}
-
-interface CreateOrderInput {
-  clinic: string
-  items: OrderItem[]
-  coupon_code?: string
-  shipping_address?: {
-    street: string
-    city: string
-    state?: string
-    postal_code?: string
-    country?: string
-    phone?: string
-    notes?: string
-  }
-  billing_address?: {
-    full_name: string
-    ruc?: string
-    email: string
-    phone?: string
-  }
-  shipping_method?: string
-  payment_method?: string
-  notes?: string
-}
+import { createStoreOrderSchema, ORDER_STATUSES, type OrderStatus } from '@/lib/schemas/store'
+import { rateLimit } from '@/lib/rate-limit'
 
 // GET - Get user's orders
 export async function GET(request: NextRequest): Promise<NextResponse> {
@@ -146,8 +103,35 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED)
   }
 
+  // Apply rate limiting for order creation (5 per minute like checkout)
+  const rateLimitResult = await rateLimit(request, 'checkout', user.id)
+  if (!rateLimitResult.success) {
+    return rateLimitResult.response
+  }
+
   try {
-    const body: CreateOrderInput = await request.json()
+    // SEC-007: Parse and validate request body with Zod schema
+    let rawBody: unknown
+    try {
+      rawBody = await request.json()
+    } catch {
+      return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST, {
+        details: { message: 'Formato de solicitud inválido' },
+      })
+    }
+
+    const validationResult = createStoreOrderSchema.safeParse(rawBody)
+    if (!validationResult.success) {
+      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+        details: {
+          errors: validationResult.error.issues.map((issue) => ({
+            field: issue.path.join('.'),
+            message: issue.message,
+          })),
+        },
+      })
+    }
+
     const {
       clinic,
       items,
@@ -157,13 +141,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       shipping_method,
       payment_method,
       notes,
-    } = body
-
-    if (!clinic || !items || items.length === 0) {
-      return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {
-        details: { message: 'Faltan parámetros requeridos' },
-      })
-    }
+    } = validationResult.data
 
     // Validate products and get current prices
     const productIds = items.map((item) => item.product_id)

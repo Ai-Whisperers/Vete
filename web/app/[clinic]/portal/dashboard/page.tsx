@@ -17,7 +17,6 @@ import Link from 'next/link'
 import { MandatoryVaccinesAlert } from '@/components/portal/mandatory-vaccines-alert'
 import { PortalWelcomeHero } from '@/components/portal/welcome-hero'
 import { PortalQuickActions } from '@/components/portal/quick-actions'
-import { PortalLoyaltyCard } from '@/components/portal/loyalty-card'
 import { PortalActivitySummary } from '@/components/portal/activity-summary'
 import { UpcomingAppointmentsCard } from '@/components/portal/upcoming-appointments-card'
 
@@ -370,9 +369,6 @@ export default async function OwnerDashboardPage({
 
           {/* Right Sidebar */}
           <div className="space-y-6">
-            {/* Loyalty Points */}
-            <PortalLoyaltyCard userId={user.id} clinic={clinic} />
-
             {/* Upcoming Appointments */}
             <UpcomingAppointmentsCard appointments={myAppointments} clinic={clinic} />
 

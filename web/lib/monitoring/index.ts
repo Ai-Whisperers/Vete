@@ -26,3 +26,14 @@ export {
   type Gauge,
   type Histogram,
 } from './metrics'
+
+// AUDIT-002: Alerting system
+export {
+  sendAlert,
+  sendCronFailureAlert,
+  sendHighErrorRateAlert,
+  sendSlowJobAlert,
+  type AlertPayload,
+  type AlertType,
+  type AlertSeverity,
+} from './alerts'

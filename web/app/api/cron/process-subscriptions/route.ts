@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { logger } from '@/lib/logger'
 import { checkCronAuth } from '@/lib/api/cron-auth'
+import { sendNotification } from '@/lib/notifications'
 
 // SEC-010: Subscription frequency bounds for defensive validation
 const SUBSCRIPTION_FREQUENCY = {
@@ -178,7 +179,28 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             },
           })
 
-          // TODO: Send notification to customer about stock issue
+          // Send notification to customer about stock issue
+          sendNotification({
+            type: 'subscription_stock_issue',
+            recipientId: subscription.customer_id,
+            recipientType: 'owner',
+            tenantId: subscription.tenant_id,
+            title: 'Problema con tu suscripción',
+            message: `No pudimos procesar tu suscripción: ${product.name} no tiene stock suficiente.`,
+            channels: ['email', 'in_app'],
+            data: {
+              productName: product.name,
+              subscriptionId: subscription.id,
+              requested: subscription.quantity,
+              available,
+            },
+          }).catch((err) => {
+            logger.warn('Failed to send subscription stock notification', {
+              subscriptionId: subscription.id,
+              error: err instanceof Error ? err.message : 'Unknown',
+            })
+          })
+
           logger.warn(`Subscription ${subscription.id} skipped: ${reason}`, {
             available,
             requested: subscription.quantity,

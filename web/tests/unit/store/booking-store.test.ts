@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { useBookingStore } from '@/lib/store/booking-store'
+import { MAX_SERVICES_PER_BOOKING } from '@/components/booking/booking-wizard/types'
 
 // Mock the Lucide icons
 vi.mock('lucide-react', () => ({
@@ -20,6 +21,7 @@ vi.mock('lucide-react', () => ({
 // Mock the server action
 vi.mock('@/app/actions/create-appointment', () => ({
   createAppointmentJson: vi.fn(),
+  createMultiServiceAppointmentJson: vi.fn(),
 }))
 
 const mockClinic: any = {
@@ -36,7 +38,56 @@ const mockClinic: any = {
   ],
 }
 
+const mockClinicMultiService: any = {
+  config: {
+    id: 'adris',
+    name: 'Adris Vet',
+  },
+  services: [
+    {
+      id: 'service-1',
+      title: 'Consultation',
+      category: 'clinical',
+      booking: { online_enabled: true, duration_minutes: 30, price_from: '50000' },
+    },
+    {
+      id: 'service-2',
+      title: 'Vaccination',
+      category: 'preventive',
+      booking: { online_enabled: true, duration_minutes: 15, price_from: '30000' },
+    },
+    {
+      id: 'service-3',
+      title: 'Grooming',
+      category: 'grooming',
+      booking: { online_enabled: true, duration_minutes: 60, price_from: '80000' },
+    },
+    {
+      id: 'service-4',
+      title: 'Dental Cleaning',
+      category: 'specialty',
+      booking: { online_enabled: true, duration_minutes: 45, price_from: '120000' },
+    },
+    {
+      id: 'service-5',
+      title: 'X-Ray',
+      category: 'diagnostics',
+      booking: { online_enabled: true, duration_minutes: 20, price_from: '90000' },
+    },
+    {
+      id: 'service-6',
+      title: 'Surgery',
+      category: 'surgery',
+      booking: { online_enabled: true, duration_minutes: 90, price_from: '250000' },
+    },
+  ],
+}
+
 const mockPets: any[] = [{ id: 'pet-1', name: 'Rex', species: 'dog', breed: 'German Shepherd' }]
+const mockMultiplePets: any[] = [
+  { id: 'pet-1', name: 'Rex', species: 'dog', breed: 'German Shepherd' },
+  { id: 'pet-2', name: 'Luna', species: 'cat', breed: 'Siamese' },
+]
 
 describe('useBookingStore', () => {
   beforeEach(() => {
@@ -48,6 +99,7 @@ describe('useBookingStore', () => {
     const state = useBookingStore.getState()
     expect(state.step).toBe('service')
     expect(state.selection.serviceId).toBeNull()
+    expect(state.selection.serviceIds).toEqual([])
     expect(state.isSubmitting).toBe(false)
   })
 
@@ -79,5 +131,170 @@ describe('useBookingStore', () => {
     useBookingStore.getState().reset()
 
     expect(useBookingStore.getState().step).toBe('service')
+  })
+})
+
+describe('useBookingStore - Multi-Service Selection', () => {
+  beforeEach(() => {
+    useBookingStore.getState().reset()
+    useBookingStore.getState().initialize(mockClinicMultiService, mockPets)
+    vi.clearAllMocks()
+  })
+
+  it('should toggle a service on and off', () => {
+    const store = useBookingStore.getState()
+
+    // Add first service
+    store.toggleService('service-1')
+    expect(useBookingStore.getState().selection.serviceIds).toContain('service-1')
+    expect(useBookingStore.getState().selection.serviceId).toBe('service-1')
+
+    // Toggle off
+    useBookingStore.getState().toggleService('service-1')
+    expect(useBookingStore.getState().selection.serviceIds).not.toContain('service-1')
+    expect(useBookingStore.getState().selection.serviceId).toBeNull()
+  })
+
+  it('should allow selecting multiple services', () => {
+    const store = useBookingStore.getState()
+
+    store.toggleService('service-1')
+    useBookingStore.getState().toggleService('service-2')
+    useBookingStore.getState().toggleService('service-3')
+
+    const state = useBookingStore.getState()
+    expect(state.selection.serviceIds).toHaveLength(3)
+    expect(state.selection.serviceIds).toContain('service-1')
+    expect(state.selection.serviceIds).toContain('service-2')
+    expect(state.selection.serviceIds).toContain('service-3')
+  })
+
+  it('should enforce maximum service limit', () => {
+    const store = useBookingStore.getState()
+
+    // Add services up to the limit
+    for (let i = 1; i <= MAX_SERVICES_PER_BOOKING; i++) {
+      useBookingStore.getState().toggleService(`service-${i}`)
+    }
+
+    expect(useBookingStore.getState().selection.serviceIds).toHaveLength(MAX_SERVICES_PER_BOOKING)
+
+    // Try to add one more (should be ignored)
+    useBookingStore.getState().toggleService('service-6')
+    expect(useBookingStore.getState().selection.serviceIds).toHaveLength(MAX_SERVICES_PER_BOOKING)
+    expect(useBookingStore.getState().selection.serviceIds).not.toContain('service-6')
+  })
+
+  it('should clear all services', () => {
+    const store = useBookingStore.getState()
+
+    store.toggleService('service-1')
+    useBookingStore.getState().toggleService('service-2')
+
+    expect(useBookingStore.getState().selection.serviceIds).toHaveLength(2)
+
+    useBookingStore.getState().clearServices()
+
+    expect(useBookingStore.getState().selection.serviceIds).toHaveLength(0)
+    expect(useBookingStore.getState().selection.serviceId).toBeNull()
+  })
+
+  it('should calculate total duration correctly', () => {
+    const store = useBookingStore.getState()
+
+    // service-1: 30min, service-2: 15min, service-3: 60min
+    store.toggleService('service-1')
+    useBookingStore.getState().toggleService('service-2')
+    useBookingStore.getState().toggleService('service-3')
+
+    const totalDuration = useBookingStore.getState().getTotalDuration()
+    expect(totalDuration).toBe(30 + 15 + 60) // 105 minutes
+  })
+
+  it('should calculate total price correctly', () => {
+    const store = useBookingStore.getState()
+
+    // service-1: 50000, service-2: 30000, service-3: 80000
+    store.toggleService('service-1')
+    useBookingStore.getState().toggleService('service-2')
+    useBookingStore.getState().toggleService('service-3')
+
+    const totalPrice = useBookingStore.getState().getTotalPrice()
+    expect(totalPrice).toBe(50000 + 30000 + 80000) // 160000
+  })
+
+  it('should return selected services via getSelectedServices', () => {
+    const store = useBookingStore.getState()
+
+    store.toggleService('service-1')
+    useBookingStore.getState().toggleService('service-3')
+
+    const selectedServices = useBookingStore.getState().getSelectedServices()
+    expect(selectedServices).toHaveLength(2)
+    expect(selectedServices[0].name).toBe('Consultation')
+    expect(selectedServices[1].name).toBe('Grooming')
+  })
+
+  it('should calculate end time correctly', () => {
+    const store = useBookingStore.getState()
+
+    // Set time and services
+    store.toggleService('service-1') // 30 min
+    useBookingStore.getState().toggleService('service-2') // 15 min
+    useBookingStore.getState().updateSelection({ time_slot: '10:00' })
+
+    const endTime = useBookingStore.getState().getEndTime()
+    expect(endTime).toBe('10:45') // 10:00 + 45 min
+  })
+
+  it('should return empty end time when no time slot selected', () => {
+    const store = useBookingStore.getState()
+    store.toggleService('service-1')
+
+    const endTime = useBookingStore.getState().getEndTime()
+    expect(endTime).toBe('')
+  })
+
+  it('should initialize with pre-selected services', () => {
+    useBookingStore.getState().reset()
+    useBookingStore.getState().initialize(
+      mockClinicMultiService,
+      mockPets,
+      ['service-1', 'service-2'], // Pre-select these
+      'pet-1'
+    )
+
+    const state = useBookingStore.getState()
+    expect(state.selection.serviceIds).toEqual(['service-1', 'service-2'])
+    expect(state.selection.serviceId).toBe('service-1')
+    expect(state.selection.petId).toBe('pet-1')
+    expect(state.step).toBe('datetime') // Should skip to datetime since both selected
+  })
+
+  it('should skip to pet selection when services pre-selected but no pet', () => {
+    useBookingStore.getState().reset()
+    useBookingStore.getState().initialize(
+      mockClinicMultiService,
+      mockMultiplePets, // Multiple pets, won't auto-select
+      ['service-1']
+    )
+
+    const state = useBookingStore.getState()
+    expect(state.selection.serviceIds).toEqual(['service-1'])
+    expect(state.selection.petId).toBeNull()
+    expect(state.step).toBe('pet') // Should go to pet since service selected but no pet
+  })
+
+  it('should filter out invalid pre-selected service IDs', () => {
+    useBookingStore.getState().reset()
+    useBookingStore.getState().initialize(
+      mockClinicMultiService,
+      mockPets,
+      ['service-1', 'invalid-service-id', 'service-2']
+    )
+
+    const state = useBookingStore.getState()
+    expect(state.selection.serviceIds).toEqual(['service-1', 'service-2'])
+    expect(state.selection.serviceIds).not.toContain('invalid-service-id')
   })
 })

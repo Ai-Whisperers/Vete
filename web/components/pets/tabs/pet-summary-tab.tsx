@@ -17,7 +17,6 @@ import {
   Plus,
 } from 'lucide-react'
 import { GrowthChart } from '@/components/clinical/growth-chart'
-import { LoyaltyCard } from '@/components/loyalty/loyalty-card'
 import { WeightRecordingModal } from '@/components/pets/weight-recording-modal'
 
 interface Vaccine {
@@ -486,14 +485,6 @@ export function PetSummaryTab({ pet, weightHistory, clinic, clinicName, onWeight
           </div>
         )}
 
-        {/* Loyalty Card */}
-        {clinicName && (
-          <LoyaltyCard
-            petId={pet.id}
-            petName={pet.name}
-            clinicConfig={{ config: { name: clinicName } }}
-          />
-        )}
       </div>
 
       {/* Weight Recording Modal */}

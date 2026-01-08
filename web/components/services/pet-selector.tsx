@@ -43,26 +43,18 @@ export function PetSelector({ onSelect, selectedPetId, className = '' }: PetSele
 
       try {
         // Get current user
-        console.log('PetSelector: Fetching user...')
         const {
           data: { user },
           error: userError,
         } = await supabase.auth.getUser()
 
-        if (userError) {
-          console.error('PetSelector: User error:', userError)
-        }
-
-        if (!user) {
-          console.log('PetSelector: No user found')
+        if (userError || !user) {
           setError('Debes iniciar sesión para ver tus mascotas')
           setLoading(false)
           return
         }
-        console.log('PetSelector: User found:', user.id)
 
         // Fetch user's pets
-        console.log('PetSelector: Fetching pets for owner:', user.id)
         const { data, error: fetchError } = await supabase
           .from('pets')
           .select('id, name, species, breed, weight_kg, photo_url')
@@ -70,12 +62,10 @@ export function PetSelector({ onSelect, selectedPetId, className = '' }: PetSele
           .order('name', { ascending: true })
 
         if (fetchError) {
-          console.error('PetSelector: Fetch error:', fetchError)
           setError('Error al cargar mascotas')
           setLoading(false)
           return
         }
-        console.log('PetSelector: Pets fetched:', data?.length)
 
         // Map to PetForService with size classification
         const petsWithSize: PetForService[] = (data || []).map((pet) => ({

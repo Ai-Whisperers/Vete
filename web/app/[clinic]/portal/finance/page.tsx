@@ -1,19 +1,19 @@
-import { Suspense } from 'react'
-import FinanceDashboardClient from './client'
-import { Loader2 } from 'lucide-react'
+import { redirect } from 'next/navigation'
 
-export default function FinancePage() {
-  return (
-    <div className="container mx-auto px-4 py-8">
-      <Suspense
-        fallback={
-          <div className="flex min-h-[400px] items-center justify-center">
-            <Loader2 className="h-8 w-8 animate-spin text-[var(--primary)]" />
-          </div>
-        }
-      >
-        <FinanceDashboardClient />
-      </Suspense>
-    </div>
-  )
+interface Props {
+  params: Promise<{ clinic: string }>
+}
+
+/**
+ * Portal Finance Page - Redirects to Invoices
+ *
+ * Financial reports (P&L, expenses) are staff-only features available
+ * in the dashboard. Pet owners are redirected to their invoices page
+ * where they can see their own financial history.
+ */
+export default async function FinancePage({ params }: Props) {
+  const { clinic } = await params
+
+  // Redirect pet owners to their invoices page
+  redirect(`/${clinic}/portal/invoices`)
 }

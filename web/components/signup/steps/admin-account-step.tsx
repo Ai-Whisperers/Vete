@@ -3,18 +3,24 @@
 /**
  * Step 3: Admin Account
  *
- * Collects admin user credentials: email, password, full name
+ * Collects admin user credentials: email, password, full name, and optional referral code
  */
 
-import { useState } from 'react'
-import { AlertCircle, Eye, EyeOff, CheckCircle2 } from 'lucide-react'
+import { useState, useCallback } from 'react'
+import { AlertCircle, Eye, EyeOff, CheckCircle2, Gift, Loader2 } from 'lucide-react'
 import type { AdminAccountData } from '@/lib/signup/types'
 
 interface AdminAccountStepProps {
   data: AdminAccountData
   errors: Partial<Record<keyof AdminAccountData, string>>
-  onChange: (field: keyof AdminAccountData, value: string) => void
+  onChange: (field: keyof AdminAccountData, value: string | null) => void
   disabled?: boolean
+}
+
+interface ReferralValidation {
+  status: 'idle' | 'checking' | 'valid' | 'invalid'
+  message?: string
+  ambassadorName?: string
 }
 
 interface PasswordRequirement {
@@ -32,6 +38,48 @@ const PASSWORD_REQUIREMENTS: PasswordRequirement[] = [
 export function AdminAccountStep({ data, errors, onChange, disabled }: AdminAccountStepProps) {
   const [showPassword, setShowPassword] = useState(false)
   const [passwordFocused, setPasswordFocused] = useState(false)
+  const [referralValidation, setReferralValidation] = useState<ReferralValidation>({ status: 'idle' })
+
+  // Validate referral code against ambassador API
+  const validateReferralCode = useCallback(async (code: string) => {
+    if (!code.trim()) {
+      setReferralValidation({ status: 'idle' })
+      return
+    }
+
+    setReferralValidation({ status: 'checking' })
+
+    try {
+      const response = await fetch(`/api/ambassador/validate?code=${encodeURIComponent(code.trim())}`)
+      const result = await response.json()
+
+      if (result.valid) {
+        setReferralValidation({
+          status: 'valid',
+          message: 'Codigo valido',
+          ambassadorName: result.ambassadorName,
+        })
+      } else {
+        setReferralValidation({
+          status: 'invalid',
+          message: result.error || 'Codigo no valido',
+        })
+      }
+    } catch {
+      setReferralValidation({
+        status: 'invalid',
+        message: 'Error al validar el codigo',
+      })
+    }
+  }, [])
+
+  // Debounced referral code change handler
+  const handleReferralCodeChange = useCallback((value: string) => {
+    onChange('referralCode', value || null)
+    // Validate after a short delay
+    const timeoutId = setTimeout(() => validateReferralCode(value), 500)
+    return () => clearTimeout(timeoutId)
+  }, [onChange, validateReferralCode])
 
   return (
     <div className="space-y-6">
@@ -162,6 +210,68 @@ export function AdminAccountStep({ data, errors, onChange, disabled }: AdminAcco
             </ul>
           </div>
         )}
+      </div>
+
+      {/* Referral Code (Optional) */}
+      <div className="space-y-2">
+        <label htmlFor="referralCode" className="block text-sm font-medium text-gray-700">
+          <span className="flex items-center gap-2">
+            <Gift className="h-4 w-4 text-purple-600" />
+            Codigo de Referido
+            <span className="text-xs font-normal text-gray-500">(opcional)</span>
+          </span>
+        </label>
+        <div className="relative">
+          <input
+            id="referralCode"
+            type="text"
+            value={data.referralCode || ''}
+            onChange={(e) => handleReferralCodeChange(e.target.value.toUpperCase())}
+            disabled={disabled}
+            placeholder="ABC123"
+            maxLength={20}
+            className={`
+              w-full rounded-lg border px-4 py-2 pr-10 text-gray-900 placeholder:text-gray-400 uppercase
+              focus:outline-none focus:ring-2
+              ${referralValidation.status === 'invalid'
+                ? 'border-red-500 focus:ring-red-500'
+                : referralValidation.status === 'valid'
+                  ? 'border-green-500 focus:ring-green-500'
+                  : 'border-gray-300 focus:border-purple-500 focus:ring-purple-500'
+              }
+              disabled:cursor-not-allowed disabled:bg-gray-100
+            `}
+          />
+          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+            {referralValidation.status === 'checking' && (
+              <Loader2 className="h-5 w-5 animate-spin text-purple-500" />
+            )}
+            {referralValidation.status === 'valid' && (
+              <CheckCircle2 className="h-5 w-5 text-green-500" />
+            )}
+            {referralValidation.status === 'invalid' && (
+              <AlertCircle className="h-5 w-5 text-red-500" />
+            )}
+          </div>
+        </div>
+
+        {/* Validation Messages */}
+        {referralValidation.status === 'valid' && referralValidation.ambassadorName && (
+          <div className="flex items-center gap-1 text-sm text-green-600">
+            <CheckCircle2 className="h-4 w-4" />
+            Referido por: {referralValidation.ambassadorName}
+          </div>
+        )}
+        {referralValidation.status === 'invalid' && referralValidation.message && (
+          <div className="flex items-center gap-1 text-sm text-red-600">
+            <AlertCircle className="h-4 w-4" />
+            {referralValidation.message}
+          </div>
+        )}
+
+        <p className="text-xs text-gray-500">
+          Si alguien te refirio a Vetic, ingresa su codigo para obtener beneficios exclusivos
+        </p>
       </div>
 
       {/* Security Notice */}

@@ -1,12 +1,14 @@
 /**
  * Reminder Channel Sender
  *
- * Sends reminder notifications through various channels (email, WhatsApp, SMS).
+ * Sends reminder notifications through various channels (email, WhatsApp).
+ * SMS is not supported - use WhatsApp for phone-based messaging.
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { sendEmail } from '@/lib/email/client'
 import { sendWhatsAppMessage, isWhatsAppConfigured } from '@/lib/whatsapp/client'
+import { logger } from '@/lib/logger'
 import type { Reminder, ClientInfo, ChannelResult, ReminderContent } from './types'
 
 interface CommunicationPreferences {
@@ -100,16 +102,16 @@ async function sendToChannel(
     }
 
     case 'sms': {
-      // Check if SMS is allowed
-      if (prefs?.allow_sms === false) {
-        return { channel: 'sms', success: false, error: 'User opted out' }
+      // SMS not supported - recommend using WhatsApp instead
+      logger.info('SMS channel requested but not supported, use WhatsApp instead', {
+        tenantId: reminder.tenant_id,
+        reminderId: reminder.id,
+      })
+      return {
+        channel: 'sms',
+        success: false,
+        error: 'SMS no soportado. Use WhatsApp para mensajes por teléfono.',
       }
-      if (!client?.phone) {
-        return { channel: 'sms', success: false, error: 'No phone number' }
-      }
-
-      // TODO: Implement dedicated SMS sending via Twilio
-      return { channel: 'sms', success: false, error: 'SMS not yet implemented' }
     }
 
     default:

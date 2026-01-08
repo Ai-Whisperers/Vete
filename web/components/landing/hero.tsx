@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowRight, Play, MapPin } from 'lucide-react'
+import { ArrowRight, Play, MapPin, Shield } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
@@ -50,13 +50,25 @@ export function Hero() {
 
             {/* Subheadline */}
             <p
-              className={`mx-auto mb-8 max-w-xl text-lg leading-relaxed text-slate-600 transition-all delay-200 duration-700 lg:mx-0 md:text-xl ${
+              className={`mx-auto mb-6 max-w-xl text-lg leading-relaxed text-slate-600 transition-all delay-200 duration-700 lg:mx-0 md:text-xl ${
                 isVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
               }`}
             >
               Agenda, historial clínico y web propia en una sola plataforma.
               Diseñado específicamente para Paraguay.
             </p>
+
+            {/* ROI Guarantee Badge */}
+            <div
+              className={`mb-8 flex justify-center lg:justify-start transition-all delay-250 duration-700 ${
+                isVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
+              }`}
+            >
+              <div className="inline-flex items-center gap-2 rounded-full border border-green-200 bg-green-50 px-4 py-2 text-sm font-medium text-green-700">
+                <Shield className="h-4 w-4" />
+                <span>Garantía: 6 clientes nuevos en 6 meses o 6 meses GRATIS</span>
+              </div>
+            </div>
 
             {/* CTAs */}
             <div

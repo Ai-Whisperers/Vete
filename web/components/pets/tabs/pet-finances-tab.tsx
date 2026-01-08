@@ -4,16 +4,12 @@ import Link from 'next/link'
 import {
   CreditCard,
   Receipt,
-  Gift,
-  TrendingUp,
   Calendar,
   CheckCircle2,
   Clock,
   AlertCircle,
   ChevronRight,
   Download,
-  Star,
-  Coins,
   FileText,
 } from 'lucide-react'
 
@@ -39,25 +35,11 @@ interface Payment {
   invoice_id?: string
 }
 
-interface LoyaltyInfo {
-  balance: number
-  lifetime_earned: number
-  tier?: 'bronze' | 'silver' | 'gold' | 'platinum'
-  recent_transactions?: Array<{
-    id: string
-    points: number
-    description: string
-    type: 'earn' | 'redeem'
-    created_at: string
-  }>
-}
-
 interface PetFinancesTabProps {
   petId: string
   petName: string
   invoices: Invoice[]
   payments: Payment[]
-  loyalty?: LoyaltyInfo | null
   clinic: string
 }
 
@@ -66,7 +48,6 @@ export function PetFinancesTab({
   petName,
   invoices,
   payments,
-  loyalty,
   clinic,
 }: PetFinancesTabProps) {
   const formatCurrency = (amount: number): string => {
@@ -105,27 +86,10 @@ export function PetFinancesTab({
     }
   }
 
-  const getTierConfig = (tier?: string) => {
-    switch (tier) {
-      case 'platinum':
-        return { label: 'Platino', color: 'from-gray-400 to-gray-600', textColor: 'text-gray-700' }
-      case 'gold':
-        return { label: 'Oro', color: 'from-yellow-400 to-amber-500', textColor: 'text-amber-700' }
-      case 'silver':
-        return { label: 'Plata', color: 'from-gray-300 to-gray-400', textColor: 'text-gray-600' }
-      default:
-        return {
-          label: 'Bronce',
-          color: 'from-orange-300 to-orange-400',
-          textColor: 'text-orange-700',
-        }
-    }
-  }
-
   return (
     <div className="space-y-6">
       {/* Summary Cards */}
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2">
         {/* Total Paid */}
         <div className="rounded-xl border border-gray-100 bg-white p-4">
           <div className="mb-2 flex items-center gap-2 text-gray-500">
@@ -153,18 +117,6 @@ export function PetFinancesTab({
             {pendingInvoices.length} factura{pendingInvoices.length !== 1 ? 's' : ''} pendiente
             {pendingInvoices.length !== 1 ? 's' : ''}
           </p>
-        </div>
-
-        {/* Loyalty Points */}
-        <div className="rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 p-4 text-white">
-          <div className="mb-2 flex items-center gap-2 text-white/80">
-            <Star className="h-4 w-4" />
-            <span className="text-xs font-medium">Puntos de Lealtad</span>
-          </div>
-          <p className="text-2xl font-black">{loyalty?.balance?.toLocaleString() || 0}</p>
-          {loyalty?.tier && (
-            <p className="mt-1 text-xs text-white/70">Nivel {getTierConfig(loyalty.tier).label}</p>
-          )}
         </div>
       </div>
 
@@ -200,81 +152,6 @@ export function PetFinancesTab({
           >
             <CreditCard className="h-4 w-4" />
             Pagar Ahora
-            <ChevronRight className="h-4 w-4" />
-          </Link>
-        </div>
-      )}
-
-      {/* Loyalty Card */}
-      {loyalty && (
-        <div className="rounded-xl border border-gray-100 bg-white p-5">
-          <h3 className="mb-4 flex items-center gap-2 font-bold text-[var(--text-primary)]">
-            <Gift className="h-5 w-5 text-purple-500" />
-            Programa de Lealtad
-          </h3>
-
-          {/* Progress to next tier */}
-          <div className="mb-4">
-            <div className="mb-2 flex items-center justify-between text-sm">
-              <span className="text-gray-500">Progreso al siguiente nivel</span>
-              <span className="font-medium text-purple-600">
-                {loyalty.lifetime_earned?.toLocaleString() || 0} pts acumulados
-              </span>
-            </div>
-            <div className="h-2 overflow-hidden rounded-full bg-gray-100">
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-purple-500 to-indigo-600 transition-all"
-                style={{
-                  width: `${Math.min(((loyalty.lifetime_earned || 0) / 10000) * 100, 100)}%`,
-                }}
-              />
-            </div>
-          </div>
-
-          {/* Recent transactions */}
-          {loyalty.recent_transactions && loyalty.recent_transactions.length > 0 && (
-            <div>
-              <h4 className="mb-2 text-sm font-medium text-gray-500">Últimos Movimientos</h4>
-              <div className="space-y-2">
-                {loyalty.recent_transactions.slice(0, 5).map((tx) => (
-                  <div
-                    key={tx.id}
-                    className="flex items-center justify-between rounded-lg bg-gray-50 p-2"
-                  >
-                    <div className="flex items-center gap-2">
-                      <div
-                        className={`flex h-8 w-8 items-center justify-center rounded-full ${
-                          tx.type === 'earn' ? 'bg-green-100' : 'bg-purple-100'
-                        }`}
-                      >
-                        {tx.type === 'earn' ? (
-                          <TrendingUp className="h-4 w-4 text-green-600" />
-                        ) : (
-                          <Gift className="h-4 w-4 text-purple-600" />
-                        )}
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium">{tx.description}</p>
-                        <p className="text-xs text-gray-400">{formatDate(tx.created_at)}</p>
-                      </div>
-                    </div>
-                    <span
-                      className={`font-bold ${tx.type === 'earn' ? 'text-green-600' : 'text-purple-600'}`}
-                    >
-                      {tx.type === 'earn' ? '+' : '-'}
-                      {tx.points}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          <Link
-            href={`/${clinic}/portal/loyalty`}
-            className="mt-4 flex items-center justify-center gap-2 text-sm font-medium text-purple-600 hover:underline"
-          >
-            Ver todos los beneficios
             <ChevronRight className="h-4 w-4" />
           </Link>
         </div>

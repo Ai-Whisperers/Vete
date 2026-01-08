@@ -254,3 +254,70 @@ export const loyaltyPointsOperationSchema = z.object({
 })
 
 export type LoyaltyPointsOperationInput = z.infer<typeof loyaltyPointsOperationSchema>
+
+// ============================================
+// Addresses (SEC-007, VALID-001)
+// ============================================
+
+/**
+ * Schema for shipping address
+ */
+export const shippingAddressSchema = z.object({
+  street: z.string().min(5, 'Dirección muy corta').max(255, 'Dirección muy larga'),
+  city: z.string().min(2, 'Ciudad requerida').max(100),
+  state: optionalString(50),
+  postal_code: optionalString(20),
+  country: z.string().max(50).default('Paraguay'),
+  phone: optionalString(20),
+  notes: optionalString(500),
+})
+
+export type ShippingAddress = z.infer<typeof shippingAddressSchema>
+
+/**
+ * Schema for billing address
+ */
+export const billingAddressSchema = z.object({
+  name: z.string().min(2, 'Nombre requerido').max(200),
+  ruc: optionalString(20),
+  street: z.string().min(5, 'Dirección muy corta').max(255),
+  city: z.string().min(2, 'Ciudad requerida').max(100),
+  state: optionalString(50),
+  postal_code: optionalString(20),
+  country: z.string().max(50).default('Paraguay'),
+})
+
+export type BillingAddress = z.infer<typeof billingAddressSchema>
+
+// ============================================
+// Store Orders (SEC-007)
+// ============================================
+
+/**
+ * Schema for order item in create order request
+ */
+export const orderItemSchema = z.object({
+  product_id: uuidSchema,
+  variant_id: uuidSchema.optional().nullable(),
+  quantity: z.coerce.number().int().min(1, 'Cantidad mínima es 1').max(99, 'Cantidad máxima es 99'),
+  unit_price: currencySchema,
+  discount_amount: currencySchema.optional(),
+})
+
+export type OrderItem = z.infer<typeof orderItemSchema>
+
+/**
+ * Schema for creating a store order
+ */
+export const createStoreOrderSchema = z.object({
+  clinic: z.string().min(1, 'Clínica requerida'),
+  items: z.array(orderItemSchema).min(1, 'El carrito está vacío').max(50, 'Máximo 50 items'),
+  coupon_code: optionalString(50),
+  shipping_address: shippingAddressSchema.optional().nullable(),
+  billing_address: billingAddressSchema.optional().nullable(),
+  shipping_method: optionalString(50),
+  payment_method: optionalString(50),
+  notes: optionalString(1000),
+})
+
+export type CreateStoreOrderInput = z.infer<typeof createStoreOrderSchema>

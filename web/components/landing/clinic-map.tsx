@@ -102,8 +102,7 @@ export function ClinicMap({ clinics }: ClinicMapProps) {
           clinicsWithDistance.sort((a, b) => (a.distance || 0) - (b.distance || 0))
           setSortedClinics(clinicsWithDistance)
         },
-        (error) => {
-          console.log('Geolocation error:', error.message)
+        () => {
           setLocationStatus('error')
         },
         {

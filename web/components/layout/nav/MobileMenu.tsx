@@ -16,7 +16,6 @@ import {
   Calculator,
   Apple,
   HelpCircle,
-  Gift,
   Globe,
   LayoutDashboard,
   Package,
@@ -79,11 +78,6 @@ export function MobileMenu({
       label: config.ui_labels?.nav?.faq || 'Preguntas Frecuentes',
       href: `/${clinic}/faq`,
       icon: HelpCircle,
-    },
-    {
-      label: config.ui_labels?.nav?.loyalty_program || 'Programa de Lealtad',
-      href: `/${clinic}/loyalty_points`,
-      icon: Gift,
     },
   ]
 

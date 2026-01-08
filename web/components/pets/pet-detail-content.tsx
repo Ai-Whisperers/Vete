@@ -111,19 +111,6 @@ interface Payment {
   invoice_id?: string
 }
 
-interface LoyaltyInfo {
-  balance: number
-  lifetime_earned: number
-  tier?: 'bronze' | 'silver' | 'gold' | 'platinum'
-  recent_transactions?: Array<{
-    id: string
-    points: number
-    description: string
-    type: 'earn' | 'redeem'
-    created_at: string
-  }>
-}
-
 interface Pet {
   id: string
   name: string
@@ -156,7 +143,6 @@ interface PetDetailContentProps {
   documents: Document[]
   invoices: Invoice[]
   payments: Payment[]
-  loyalty?: LoyaltyInfo | null
 }
 
 export function PetDetailContent({
@@ -170,7 +156,6 @@ export function PetDetailContent({
   documents,
   invoices,
   payments,
-  loyalty,
 }: PetDetailContentProps) {
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -330,7 +315,6 @@ export function PetDetailContent({
             petName={pet.name}
             invoices={invoices}
             payments={payments}
-            loyalty={loyalty}
             clinic={clinic}
           />
         )}

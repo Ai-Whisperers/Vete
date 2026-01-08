@@ -275,34 +275,6 @@ export default async function PatientDetailPage({ params }: Props): Promise<Reac
     method: p.payment_method || 'Efectivo',
   }))
 
-  // Fetch loyalty points
-  const { data: loyaltyData } = await supabase
-    .from('loyalty_points')
-    .select('balance, lifetime_earned')
-    .eq('client_id', pet.owner_id)
-    .single()
-
-  const { data: loyaltyTransactions } = await supabase
-    .from('loyalty_transactions')
-    .select('id, points, description, type, created_at')
-    .eq('client_id', pet.owner_id)
-    .order('created_at', { ascending: false })
-    .limit(10)
-
-  const loyalty = loyaltyData
-    ? {
-        balance: loyaltyData.balance || 0,
-        lifetime_earned: loyaltyData.lifetime_earned || 0,
-        recent_transactions: (loyaltyTransactions || []).map((t) => ({
-          id: t.id,
-          points: t.points,
-          description: t.description || 'Transacción',
-          type: t.type as 'earn' | 'redeem',
-          created_at: t.created_at,
-        })),
-      }
-    : null
-
   return (
     <div className="space-y-6">
       {/* Back Navigation */}
@@ -332,7 +304,6 @@ export default async function PatientDetailPage({ params }: Props): Promise<Reac
         documents={documents}
         invoices={(invoices || []) as Parameters<typeof PetDetailContent>[0]['invoices']}
         payments={formattedPayments}
-        loyalty={loyalty}
       />
     </div>
   )

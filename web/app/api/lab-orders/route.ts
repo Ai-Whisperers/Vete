@@ -189,62 +189,70 @@ export const POST = withApiAuth(
 
     const orderNumber = orderNumberData as string
 
-    // Insert lab order
-    const { data: order, error: orderError } = await supabase
-      .from('lab_orders')
-      .insert({
-        tenant_id: profile.tenant_id,
-        pet_id,
-        order_number: orderNumber,
-        ordered_by: user.id,
-        ordered_at: new Date().toISOString(),
-        status: 'ordered',
-        priority: priority || 'routine',
-        lab_type: lab_type || 'in_house',
-        fasting_status: fasting_status || null,
-        clinical_notes: clinical_notes || null,
-        has_critical_values: false,
-      })
-      .select()
-      .single()
+    // SEC-005: Create lab order atomically using database function
+    // This ensures order, items, and panels are all created in a single transaction
+    const { data: atomicResult, error: atomicError } = await supabase.rpc(
+      'create_lab_order_atomic',
+      {
+        p_tenant_id: profile.tenant_id,
+        p_pet_id: pet_id,
+        p_order_number: orderNumber,
+        p_ordered_by: user.id,
+        p_priority: priority || 'routine',
+        p_lab_type: lab_type || 'in_house',
+        p_fasting_status: fasting_status || null,
+        p_clinical_notes: clinical_notes || null,
+        p_test_ids: test_ids,
+        p_panel_ids: panel_ids || [],
+      }
+    )
 
-    if (orderError) {
-      logger.error('Error creating lab order', {
+    if (atomicError) {
+      logger.error('Error in atomic lab order creation', {
         tenantId: profile.tenant_id,
         userId: user.id,
         petId: pet_id,
-        error: orderError.message,
+        error: atomicError.message,
       })
       return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
     }
 
-    // Insert order items for each test
-    const orderItems = test_ids.map((testId: string) => ({
-      order_id: order.id,
-      test_id: testId,
-    }))
-
-    const { error: itemsError } = await supabase.from('lab_order_items').insert(orderItems)
-
-    if (itemsError) {
-      logger.error('Error creating lab order items', {
+    // Check result from atomic function
+    if (!atomicResult?.success) {
+      const errorType = atomicResult?.error || 'UNKNOWN'
+      logger.warn('Lab order creation failed', {
         tenantId: profile.tenant_id,
-        orderId: order.id,
-        error: itemsError.message,
+        error: errorType,
+        message: atomicResult?.message,
       })
-      // Rollback order creation
-      await supabase.from('lab_orders').delete().eq('id', order.id)
+
+      if (errorType === 'DUPLICATE_ORDER') {
+        return apiError('CONFLICT', HTTP_STATUS.CONFLICT, {
+          details: { message: atomicResult?.message },
+        })
+      }
+      if (errorType === 'INVALID_REFERENCE') {
+        return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+          details: { message: atomicResult?.message },
+        })
+      }
       return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
     }
 
-    // If panel_ids provided, insert them as well
-    if (panel_ids && panel_ids.length > 0) {
-      const panelItems = panel_ids.map((panelId: string) => ({
-        order_id: order.id,
-        panel_id: panelId,
-      }))
+    // Fetch the created order for response
+    const { data: order, error: fetchError } = await supabase
+      .from('lab_orders')
+      .select('*')
+      .eq('id', atomicResult.order_id)
+      .single()
 
-      await supabase.from('lab_order_panels').insert(panelItems)
+    if (fetchError || !order) {
+      // Order was created but fetch failed - still a success
+      return NextResponse.json({
+        id: atomicResult.order_id,
+        order_number: atomicResult.order_number,
+        status: 'ordered',
+      }, { status: HTTP_STATUS.CREATED })
     }
 
     return NextResponse.json(order, { status: HTTP_STATUS.CREATED })

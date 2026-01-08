@@ -11,6 +11,7 @@ const navLinks = [
   { href: '/precios', label: 'Precios' },
   { href: '/red', label: 'Red' },
   { href: '/demo', label: 'Demo' },
+  { href: '/ambassador', label: 'Embajadores' },
   { href: '/faq', label: 'FAQ' },
   { href: '/nosotros', label: 'Nosotros' },
 ]

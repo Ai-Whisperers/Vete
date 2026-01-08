@@ -12,12 +12,9 @@ import {
   AlertCircle,
   CheckCircle,
   FileWarning,
-  Star,
-  Gift,
 } from 'lucide-react'
 import type { ClinicConfig } from '@/lib/clinics'
 import { PrescriptionUpload } from '@/components/store/prescription-upload'
-import LoyaltyRedemption from '@/components/commerce/loyalty-redemption'
 
 // TICKET-BIZ-003: Proper checkout with stock validation
 
@@ -322,9 +319,6 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
             </div>
           ))}
 
-          {/* Loyalty Points Redemption */}
-          {user && <LoyaltyRedemption userId={user.id} />}
-
           <div className="rounded-xl bg-white p-6 shadow-sm">
             <div className="mb-4 flex items-center justify-between">
               <span className="text-[var(--text-secondary)]">Subtotal</span>
@@ -334,25 +328,11 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
                 )}
               </span>
             </div>
-            {discount > 0 && (
-              <div className="mb-4 flex items-center justify-between text-green-600">
-                <span className="flex items-center gap-2">
-                  <Gift className="h-4 w-4" />
-                  Descuento Puntos
-                </span>
-                <span className="font-medium">
-                  -
-                  {new Intl.NumberFormat('es-PY', { style: 'currency', currency: currency }).format(
-                    discount
-                  )}
-                </span>
-              </div>
-            )}
             <div className="mb-4 flex items-center justify-between">
               <span className="text-[var(--text-secondary)]">IVA (10%)</span>
               <span className="font-medium">
                 {new Intl.NumberFormat('es-PY', { style: 'currency', currency: currency }).format(
-                  (total - discount) * 0.1
+                  total * 0.1
                 )}
               </span>
             </div>

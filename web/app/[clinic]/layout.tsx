@@ -505,14 +505,6 @@ export default async function ClinicLayout({
                           Agendar Cita
                         </Link>
                       </li>
-                      <li>
-                        <Link
-                          href={`/${clinic}/loyalty_points`}
-                          className="text-sm text-gray-400 transition-colors hover:text-white"
-                        >
-                          Programa de Lealtad
-                        </Link>
-                      </li>
                     </ul>
                   </nav>
 

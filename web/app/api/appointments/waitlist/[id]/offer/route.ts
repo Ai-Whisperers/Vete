@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { withApiAuthParams, type ApiHandlerContextWithParams } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
+import { sendNotification } from '@/lib/notifications'
 import { z } from 'zod'
 
 const offerSchema = z.object({
@@ -88,14 +89,41 @@ export const POST = withApiAuthParams(
         return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
       }
 
-      // Get pet owner for notification
+      // Get pet owner and pet name for notification
       const { data: pet } = await supabase
         .from('pets')
-        .select('owner_id, owner:profiles!owner_id (email, phone, full_name)')
+        .select('name, owner_id, owner:profiles!owner_id (id, email, phone, full_name)')
         .eq('id', entry.pet_id)
         .single()
 
-      // TODO: Send notification to owner about available slot
+      // Send notification to owner about available slot
+      if (pet?.owner?.id) {
+        const owner = pet.owner as { id: string; email: string; phone: string; full_name: string }
+        await sendNotification({
+          type: 'waitlist_slot_available',
+          recipientId: owner.id,
+          recipientType: 'owner',
+          tenantId: profile.tenant_id,
+          title: '¡Turno disponible!',
+          message: `Se ha liberado un turno para ${pet.name}. Tienes ${expires_in_hours} horas para confirmar.`,
+          channels: ['email', 'in_app'],
+          data: {
+            petName: pet.name,
+            appointmentDate: appointment.start_time,
+            expiresAt: expiresAt.toISOString(),
+          },
+          email: {
+            subject: `¡Turno disponible para ${pet.name}!`,
+          },
+        }).catch((err) => {
+          // Don't fail the request if notification fails
+          logger.warn('Failed to send waitlist notification', {
+            entryId,
+            ownerId: owner.id,
+            error: err instanceof Error ? err.message : 'Unknown',
+          })
+        })
+      }
 
       return NextResponse.json({
         message: 'Oferta enviada al cliente',

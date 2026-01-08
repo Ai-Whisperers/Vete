@@ -252,34 +252,6 @@ export default async function PetProfilePage({
     method: p.payment_method || 'Efectivo',
   }))
 
-  // Fetch loyalty points
-  const { data: loyaltyData } = await supabase
-    .from('loyalty_points')
-    .select('balance, lifetime_earned')
-    .eq('client_id', pet.owner_id)
-    .single()
-
-  const { data: loyaltyTransactions } = await supabase
-    .from('loyalty_transactions')
-    .select('id, points, description, type, created_at')
-    .eq('client_id', pet.owner_id)
-    .order('created_at', { ascending: false })
-    .limit(10)
-
-  const loyalty = loyaltyData
-    ? {
-        balance: loyaltyData.balance || 0,
-        lifetime_earned: loyaltyData.lifetime_earned || 0,
-        recent_transactions: (loyaltyTransactions || []).map((t) => ({
-          id: t.id,
-          points: t.points,
-          description: t.description || 'Transacción',
-          type: t.type as 'earn' | 'redeem',
-          created_at: t.created_at,
-        })),
-      }
-    : null
-
   return (
     <div className="mx-auto max-w-5xl space-y-6 px-4 pb-20">
       {/* Vaccine Reaction Alert */}
@@ -300,7 +272,6 @@ export default async function PetProfilePage({
         documents={documents}
         invoices={(invoices || []) as any}
         payments={formattedPayments}
-        loyalty={loyalty}
       />
     </div>
   )

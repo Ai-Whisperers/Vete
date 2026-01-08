@@ -145,7 +145,7 @@ export default function DemoPage() {
                 </div>
               </div>
 
-              {/* Right: Calendar Placeholder */}
+              {/* Right: WhatsApp Scheduling */}
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-8">
                 <div className="mb-6 text-center">
                   <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-teal-100">

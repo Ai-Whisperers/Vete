@@ -81,19 +81,26 @@ export default async function SubscriptionsPage({ params }: SubscriptionsPagePro
           <ArrowLeft className="h-4 w-4" />
           Volver a la tienda
         </Link>
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-purple-100">
               <RefreshCw className="h-6 w-6 text-purple-500" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-[var(--text-primary)]">Mis Suscripciones</h1>
+              <h1 className="text-2xl font-bold text-[var(--text-primary)]">Suscripciones a Productos</h1>
               <p className="text-[var(--text-muted)]">
                 {subscriptionsList.length}{' '}
                 {subscriptionsList.length === 1 ? 'suscripción activa' : 'suscripciones'}
               </p>
             </div>
           </div>
+          <Link
+            href={`/${clinic}/portal/service-subscriptions`}
+            className="inline-flex items-center gap-2 rounded-xl border border-[var(--primary)] px-4 py-2 font-medium text-[var(--primary)] transition hover:bg-[var(--primary)]/10"
+          >
+            <RefreshCw className="h-4 w-4" />
+            Ver Suscripciones a Servicios
+          </Link>
         </div>
       </div>
 

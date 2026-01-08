@@ -15,6 +15,11 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { createClient } from '@/lib/supabase/server'
 import { logger } from '@/lib/logger'
+import { sendEmail } from '@/lib/email/client'
+import {
+  generatePlatformInvoiceEmail,
+  generatePlatformInvoiceEmailText,
+} from '@/lib/email/templates/platform-invoice'
 
 interface RouteContext {
   params: Promise<{ id: string }>
@@ -84,7 +89,7 @@ export async function POST(request: NextRequest, context: RouteContext): Promise
       // Body is optional
     }
 
-    // 1. Get invoice
+    // 1. Get invoice with all fields needed for email
     const { data: invoice, error: invoiceError } = await supabase
       .from('platform_invoices')
       .select(`
@@ -94,6 +99,13 @@ export async function POST(request: NextRequest, context: RouteContext): Promise
         total,
         due_date,
         status,
+        period_start,
+        period_end,
+        subscription_amount,
+        store_commission_amount,
+        service_commission_amount,
+        issued_at,
+        created_at,
         tenants!inner(name, billing_email, email)
       `)
       .eq('id', id)
@@ -128,7 +140,8 @@ export async function POST(request: NextRequest, context: RouteContext): Promise
     const tenantData = (Array.isArray(invoice.tenants) ? invoice.tenants[0] : invoice.tenants) as { name: string; billing_email: string | null; email: string | null }
     const billingEmail = tenantData.billing_email || tenantData.email
 
-    // 4. Create billing reminder record
+    // 4. Create billing reminder record and send email
+    let emailSentSuccessfully = false
     if (sendEmail && billingEmail) {
       const formattedTotal = new Intl.NumberFormat('es-PY', {
         style: 'currency',
@@ -136,7 +149,8 @@ export async function POST(request: NextRequest, context: RouteContext): Promise
         maximumFractionDigits: 0,
       }).format(Number(invoice.total))
 
-      await supabase.from('billing_reminders').insert({
+      // Insert billing reminder record as pending
+      const { data: reminder } = await supabase.from('billing_reminders').insert({
         tenant_id: invoice.tenant_id,
         platform_invoice_id: id,
         reminder_type: 'invoice_due',
@@ -146,15 +160,63 @@ export async function POST(request: NextRequest, context: RouteContext): Promise
         content: `Se ha generado una nueva factura por ${formattedTotal}. Fecha de vencimiento: ${invoice.due_date}.`,
         status: 'pending',
         scheduled_for: new Date().toISOString(),
+      }).select('id').single()
+
+      // Generate email content using template
+      const invoiceDate = invoice.issued_at || invoice.created_at || new Date().toISOString()
+      const emailData = {
+        clinicName: tenantData.name,
+        invoiceNumber: invoice.invoice_number,
+        invoiceDate: invoiceDate.split('T')[0],
+        dueDate: invoice.due_date,
+        periodStart: invoice.period_start,
+        periodEnd: invoice.period_end,
+        subscriptionAmount: invoice.subscription_amount ? Number(invoice.subscription_amount) : undefined,
+        storeCommission: invoice.store_commission_amount ? Number(invoice.store_commission_amount) : undefined,
+        serviceCommission: invoice.service_commission_amount ? Number(invoice.service_commission_amount) : undefined,
+        total: Number(invoice.total),
+        viewUrl: `${process.env.NEXT_PUBLIC_APP_URL}/admin/billing/invoices/${id}`,
+        paymentMethods: ['Transferencia Bancaria', 'MercadoPago'],
+        bankDetails: {
+          bankName: 'Banco Itaú Paraguay',
+          accountNumber: '0123456789',
+          accountName: 'Vetic S.A.',
+          ruc: '80123456-7',
+        },
+      }
+
+      const emailHtml = generatePlatformInvoiceEmail(emailData)
+      const emailText = generatePlatformInvoiceEmailText(emailData)
+
+      // Send email via Resend
+      const emailResult = await sendEmail({
+        to: billingEmail,
+        subject: `Nueva Factura Vetic ${invoice.invoice_number} - ${formattedTotal}`,
+        html: emailHtml,
+        text: emailText,
+        from: process.env.EMAIL_FROM_BILLING || 'facturacion@vetic.app',
+        replyTo: 'soporte@vetic.app',
       })
 
-      // TODO: Actually send email via Resend/SendGrid
-      // For now, just log and mark as sent
-      logger.info('Invoice notification queued', {
+      emailSentSuccessfully = emailResult.success
+
+      // Update billing reminder status based on send result
+      if (reminder?.id) {
+        await supabase.from('billing_reminders').update({
+          status: emailResult.success ? 'sent' : 'failed',
+          sent_at: emailResult.success ? new Date().toISOString() : null,
+          error_message: emailResult.error || null,
+        }).eq('id', reminder.id)
+      }
+
+      logger.info('Invoice email sent', {
         invoiceId: id,
         invoiceNumber: invoice.invoice_number,
         email: billingEmail,
         amount: invoice.total,
+        success: emailResult.success,
+        messageId: emailResult.messageId,
+        error: emailResult.error,
       })
     }
 
@@ -204,7 +266,7 @@ export async function POST(request: NextRequest, context: RouteContext): Promise
       tenantId: invoice.tenant_id,
       triggeredBy,
       tenantIdForAudit,
-      emailSent: sendEmail && !!billingEmail,
+      emailSent: emailSentSuccessfully,
     })
 
     return NextResponse.json({
@@ -213,7 +275,7 @@ export async function POST(request: NextRequest, context: RouteContext): Promise
       invoice_number: invoice.invoice_number,
       status: 'sent',
       triggered_by: triggeredBy === 'cron' ? 'cron' : 'admin',
-      email_sent: sendEmail && !!billingEmail,
+      email_sent: emailSentSuccessfully,
       notifications_created: adminProfiles?.length || 0,
     })
   } catch (e) {

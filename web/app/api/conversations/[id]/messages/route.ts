@@ -1,10 +1,8 @@
-import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
-import { logger } from '@/lib/logger'
+import { withApiAuthParams } from '@/lib/auth/api-wrapper'
+import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 
-interface RouteParams {
-  params: Promise<{ id: string }>
-}
+type Params = { id: string }
 
 interface Attachment {
   url: string
@@ -14,26 +12,10 @@ interface Attachment {
 }
 
 // POST /api/conversations/[id]/messages - Send a message
-export async function POST(request: Request, { params }: RouteParams) {
-  const { id: conversationId } = await params
-  const supabase = await createClient()
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-  }
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('tenant_id, role')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile) {
-    return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 })
-  }
+export const POST = withApiAuthParams<Params>(async (ctx) => {
+  const { id: conversationId } = ctx.params
+  const { supabase, user, profile, log, request } = ctx
+  const isStaff = ['vet', 'admin'].includes(profile.role)
 
   try {
     // Get conversation
@@ -44,17 +26,22 @@ export async function POST(request: Request, { params }: RouteParams) {
       .single()
 
     if (!conversation) {
-      return NextResponse.json({ error: 'Conversación no encontrada' }, { status: 404 })
+      return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
+        details: { message: 'Conversación no encontrada' },
+      })
     }
 
     // Check access
-    const isStaff = ['vet', 'admin'].includes(profile.role)
     if (!isStaff && conversation.client_id !== user.id) {
-      return NextResponse.json({ error: 'No tienes acceso a esta conversación' }, { status: 403 })
+      return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN, {
+        details: { message: 'No tienes acceso a esta conversación' },
+      })
     }
 
     if (conversation.status === 'closed') {
-      return NextResponse.json({ error: 'Esta conversación está cerrada' }, { status: 400 })
+      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+        details: { message: 'Esta conversación está cerrada' },
+      })
     }
 
     const body = await request.json()
@@ -65,7 +52,9 @@ export async function POST(request: Request, { params }: RouteParams) {
     const hasAttachments = attachmentList.length > 0
 
     if (!content && !hasAttachments) {
-      return NextResponse.json({ error: 'Se requiere contenido o adjunto' }, { status: 400 })
+      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+        details: { message: 'Se requiere contenido o adjunto' },
+      })
     }
 
     // Non-staff cannot send internal messages
@@ -105,7 +94,6 @@ export async function POST(request: Request, { params }: RouteParams) {
     if (msgError) throw msgError
 
     // Update conversation
-    // TICKET-TYPE-004: Use proper interface instead of any
     const updateData: {
       last_message_at: string
       unread_count_client?: number
@@ -173,12 +161,12 @@ export async function POST(request: Request, { params }: RouteParams) {
 
     return NextResponse.json(message, { status: 201 })
   } catch (e) {
-    logger.error('Error sending message', {
-      userId: user.id,
-      tenantId: profile.tenant_id,
+    log.error('Error sending message', {
       conversationId,
       error: e instanceof Error ? e.message : String(e),
     })
-    return NextResponse.json({ error: 'Error al enviar mensaje' }, { status: 500 })
+    return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
+      details: { message: 'Error al enviar mensaje' },
+    })
   }
-}
+})

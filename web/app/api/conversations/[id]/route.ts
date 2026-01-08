@@ -1,32 +1,14 @@
-import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
-import { logger } from '@/lib/logger'
+import { withApiAuthParams, type ApiHandlerContextWithParams } from '@/lib/auth/api-wrapper'
+import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 
-interface RouteParams {
-  params: Promise<{ id: string }>
-}
+type Params = { id: string }
 
 // GET /api/conversations/[id] - Get conversation with messages
-export async function GET(request: Request, { params }: RouteParams) {
-  const { id } = await params
-  const supabase = await createClient()
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-  }
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('tenant_id, role')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile) {
-    return NextResponse.json({ error: 'Perfil no encontrado' }, { status: 404 })
-  }
+export const GET = withApiAuthParams<Params>(async (ctx) => {
+  const { id } = ctx.params
+  const { supabase, user, profile, log } = ctx
+  const isStaff = ['vet', 'admin'].includes(profile.role)
 
   try {
     // Get conversation
@@ -46,17 +28,20 @@ export async function GET(request: Request, { params }: RouteParams) {
     if (convError) throw convError
 
     if (!conversation) {
-      return NextResponse.json({ error: 'Conversación no encontrada' }, { status: 404 })
+      return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND, {
+        details: { message: 'Conversación no encontrada' },
+      })
     }
 
     // Check access
-    const isStaff = ['vet', 'admin'].includes(profile.role)
     if (!isStaff && conversation.client_id !== user.id) {
-      return NextResponse.json({ error: 'No tienes acceso a esta conversación' }, { status: 403 })
+      return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN, {
+        details: { message: 'No tienes acceso a esta conversación' },
+      })
     }
 
     // Get messages
-    const { searchParams } = new URL(request.url)
+    const { searchParams } = new URL(ctx.request.url)
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '50')
     const offset = (page - 1) * limit
@@ -99,134 +84,101 @@ export async function GET(request: Request, { params }: RouteParams) {
       limit,
     })
   } catch (e) {
-    logger.error('Error loading conversation', {
-      userId: user.id,
-      tenantId: profile.tenant_id,
+    log.error('Error loading conversation', {
       conversationId: id,
       error: e instanceof Error ? e.message : String(e),
     })
-    return NextResponse.json({ error: 'Error al cargar conversación' }, { status: 500 })
+    return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
+      details: { message: 'Error al cargar conversación' },
+    })
   }
-}
+})
 
 // PATCH /api/conversations/[id] - Update conversation
-export async function PATCH(request: Request, { params }: RouteParams) {
-  const { id } = await params
-  const supabase = await createClient()
+export const PATCH = withApiAuthParams<Params>(
+  async (ctx) => {
+    const { id } = ctx.params
+    const { supabase, profile, log, request } = ctx
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-  }
+    try {
+      const body = await request.json()
+      const updates: {
+        status?: string
+        priority?: string
+        assigned_to?: string
+        subject?: string
+        closed_at?: string
+      } = {}
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('tenant_id, role')
-    .eq('id', user.id)
-    .single()
+      // Check each allowed field individually for type safety
+      if (body.status !== undefined) updates.status = body.status
+      if (body.priority !== undefined) updates.priority = body.priority
+      if (body.assigned_to !== undefined) updates.assigned_to = body.assigned_to
+      if (body.subject !== undefined) updates.subject = body.subject
 
-  if (!profile || !['vet', 'admin'].includes(profile.role)) {
-    return NextResponse.json(
-      { error: 'Solo el personal puede actualizar conversaciones' },
-      { status: 403 }
-    )
-  }
+      if (Object.keys(updates).length === 0) {
+        return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+          details: { message: 'No hay campos para actualizar' },
+        })
+      }
 
-  try {
-    const body = await request.json()
-    // TICKET-TYPE-004: Use proper interface instead of any
-    const updates: {
-      status?: string
-      priority?: string
-      assigned_to?: string
-      subject?: string
-      closed_at?: string
-    } = {}
+      // If closing, set closed_at
+      if (updates.status === 'closed') {
+        updates.closed_at = new Date().toISOString()
+      }
 
-    // Check each allowed field individually for type safety
-    if (body.status !== undefined) updates.status = body.status
-    if (body.priority !== undefined) updates.priority = body.priority
-    if (body.assigned_to !== undefined) updates.assigned_to = body.assigned_to
-    if (body.subject !== undefined) updates.subject = body.subject
+      const { data: updated, error } = await supabase
+        .from('conversations')
+        .update(updates)
+        .eq('id', id)
+        .eq('tenant_id', profile.tenant_id)
+        .select()
+        .single()
 
-    if (Object.keys(updates).length === 0) {
-      return NextResponse.json({ error: 'No hay campos para actualizar' }, { status: 400 })
+      if (error) throw error
+
+      return NextResponse.json(updated)
+    } catch (e) {
+      log.error('Error updating conversation', {
+        conversationId: id,
+        error: e instanceof Error ? e.message : String(e),
+      })
+      return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
+        details: { message: 'Error al actualizar conversación' },
+      })
     }
-
-    // If closing, set closed_at
-    if (updates.status === 'closed') {
-      updates.closed_at = new Date().toISOString()
-    }
-
-    const { data: updated, error } = await supabase
-      .from('conversations')
-      .update(updates)
-      .eq('id', id)
-      .eq('tenant_id', profile.tenant_id)
-      .select()
-      .single()
-
-    if (error) throw error
-
-    return NextResponse.json(updated)
-  } catch (e) {
-    logger.error('Error updating conversation', {
-      userId: user.id,
-      tenantId: profile.tenant_id,
-      conversationId: id,
-      error: e instanceof Error ? e.message : String(e),
-    })
-    return NextResponse.json({ error: 'Error al actualizar conversación' }, { status: 500 })
-  }
-}
+  },
+  { roles: ['vet', 'admin'] }
+)
 
 // DELETE /api/conversations/[id] - Soft delete conversation
-export async function DELETE(request: Request, { params }: RouteParams) {
-  const { id } = await params
-  const supabase = await createClient()
+export const DELETE = withApiAuthParams<Params>(
+  async (ctx) => {
+    const { id } = ctx.params
+    const { supabase, user, profile, log } = ctx
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-  }
+    try {
+      const { error } = await supabase
+        .from('conversations')
+        .update({
+          deleted_at: new Date().toISOString(),
+          deleted_by: user.id,
+        })
+        .eq('id', id)
+        .eq('tenant_id', profile.tenant_id)
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('tenant_id, role')
-    .eq('id', user.id)
-    .single()
+      if (error) throw error
 
-  if (!profile || profile.role !== 'admin') {
-    return NextResponse.json(
-      { error: 'Solo administradores pueden eliminar conversaciones' },
-      { status: 403 }
-    )
-  }
-
-  try {
-    const { error } = await supabase
-      .from('conversations')
-      .update({
-        deleted_at: new Date().toISOString(),
-        deleted_by: user.id,
+      return NextResponse.json({ success: true })
+    } catch (e) {
+      log.error('Error deleting conversation', {
+        conversationId: id,
+        error: e instanceof Error ? e.message : String(e),
       })
-      .eq('id', id)
-      .eq('tenant_id', profile.tenant_id)
-
-    if (error) throw error
-
-    return NextResponse.json({ success: true })
-  } catch (e) {
-    logger.error('Error deleting conversation', {
-      userId: user.id,
-      tenantId: profile.tenant_id,
-      conversationId: id,
-      error: e instanceof Error ? e.message : String(e),
-    })
-    return NextResponse.json({ error: 'Error al eliminar conversación' }, { status: 500 })
-  }
-}
+      return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
+        details: { message: 'Error al eliminar conversación' },
+      })
+    }
+  },
+  { roles: ['admin'] }
+)

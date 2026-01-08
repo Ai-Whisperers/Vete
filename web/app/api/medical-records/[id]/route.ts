@@ -31,7 +31,7 @@ const RECORD_TYPES = [
 const updateMedicalRecordSchema = z.object({
   type: z
     .enum(RECORD_TYPES, {
-      errorMap: () => ({ message: 'Tipo de registro inválido' }),
+      message: 'Tipo de registro inválido',
     })
     .optional(),
   title: z.string().min(3, 'El título debe tener al menos 3 caracteres').max(200, 'El título es muy largo').optional(),

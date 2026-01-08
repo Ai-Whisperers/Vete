@@ -1,5 +1,8 @@
 /**
  * Commerce components barrel export
+ *
+ * TODO: Add LoyaltyRedemption component when implemented
  */
 
-export { default as LoyaltyRedemption } from './loyalty-redemption'
+// Placeholder - component to be implemented
+// export { default as LoyaltyRedemption } from './loyalty-redemption'

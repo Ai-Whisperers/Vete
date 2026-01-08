@@ -27,7 +27,8 @@ export { PetsByOwner } from './pets-by-owner'
 export { ClientTags, ClientTagBadges } from './client-tags'
 export { ClientNotes } from './client-notes'
 export { InlineEditField } from './inline-edit-field'
-export { LoyaltyPointsWidget } from './loyalty-points-widget'
+// TODO: Implement LoyaltyPointsWidget
+// export { LoyaltyPointsWidget } from './loyalty-points-widget'
 
 // Search & Navigation
 export { GlobalSearch } from './global-search'

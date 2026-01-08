@@ -31,7 +31,7 @@ const RECORD_TYPES = [
 const createMedicalRecordSchema = z.object({
   pet_id: z.string().uuid('ID de mascota inválido'),
   type: z.enum(RECORD_TYPES, {
-    errorMap: () => ({ message: 'Tipo de registro inválido' }),
+    message: 'Tipo de registro inválido',
   }),
   title: z.string().min(3, 'El título debe tener al menos 3 caracteres').max(200, 'El título es muy largo'),
   diagnosis: z.string().max(2000, 'El diagnóstico es muy largo').nullable().optional(),

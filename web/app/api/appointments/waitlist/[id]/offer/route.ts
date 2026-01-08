@@ -97,8 +97,10 @@ export const POST = withApiAuthParams(
         .single()
 
       // Send notification to owner about available slot
-      if (pet?.owner?.id) {
-        const owner = pet.owner as { id: string; email: string; phone: string; full_name: string }
+      // owner is an array from the join, get first element
+      const ownerData = Array.isArray(pet?.owner) ? pet.owner[0] : pet?.owner
+      if (pet && ownerData?.id) {
+        const owner = ownerData as { id: string; email: string; phone: string; full_name: string }
         await sendNotification({
           type: 'waitlist_slot_available',
           recipientId: owner.id,

@@ -78,12 +78,12 @@ export async function POST(request: NextRequest, context: RouteContext): Promise
 
   try {
     // Parse optional body
-    let sendEmail = true
+    let shouldSendEmail = true
     let _channels: string[] = [] // Reserved for future SMS/WhatsApp
 
     try {
       const body = await request.json()
-      sendEmail = body.send_email !== false
+      shouldSendEmail = body.send_email !== false
       _channels = body.channels || []
     } catch {
       // Body is optional
@@ -142,7 +142,7 @@ export async function POST(request: NextRequest, context: RouteContext): Promise
 
     // 4. Create billing reminder record and send email
     let emailSentSuccessfully = false
-    if (sendEmail && billingEmail) {
+    if (shouldSendEmail && billingEmail) {
       const formattedTotal = new Intl.NumberFormat('es-PY', {
         style: 'currency',
         currency: 'PYG',

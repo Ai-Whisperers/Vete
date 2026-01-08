@@ -256,7 +256,7 @@ export const GET = withApiAuth(
       }
 
       // Combine data
-      let enrichedClients: Client[] = clients.map((client) => ({
+      const enrichedClients: Client[] = clients.map((client) => ({
         id: client.id,
         full_name: client.full_name || '',
         email: client.email || '',

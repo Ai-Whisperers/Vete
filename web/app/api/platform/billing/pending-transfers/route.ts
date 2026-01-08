@@ -83,7 +83,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     // 5. Get transfer details from billing_reminders
     const transactionIds = transactions?.map(t => t.id) || []
-    let transferDetails: Record<string, unknown> = {}
+    const transferDetails: Record<string, unknown> = {}
 
     if (transactionIds.length > 0) {
       const { data: reminders } = await supabase

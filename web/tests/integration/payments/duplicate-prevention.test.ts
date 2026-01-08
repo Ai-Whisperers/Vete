@@ -67,7 +67,7 @@ const createMockRpc = () => {
       const invoiceId = params.p_invoice_id as string
 
       // Get current invoice state
-      let invoice = currentInvoice
+      const invoice = currentInvoice
 
       // Validation checks that would happen in the RPC
       if (amount <= 0) {

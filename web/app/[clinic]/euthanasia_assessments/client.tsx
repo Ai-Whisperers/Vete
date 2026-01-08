@@ -353,7 +353,7 @@ export default function EuthanasiaAssessmentClient({
               <button
                 onClick={handleSave}
                 disabled={isSaving || !petId}
-                className={`shadow-[var(--primary)]/30 flex w-full items-center justify-center gap-3 rounded-3xl bg-[var(--primary)] py-5 font-black text-white shadow-xl transition-all hover:-translate-y-1 hover:shadow-2xl disabled:translate-y-0 disabled:opacity-50 disabled:shadow-none`}
+                className="shadow-[var(--primary)]/30 flex w-full items-center justify-center gap-3 rounded-3xl bg-[var(--primary)] py-5 font-black text-white shadow-xl transition-all hover:-translate-y-1 hover:shadow-2xl disabled:translate-y-0 disabled:opacity-50 disabled:shadow-none"
               >
                 {isSaving ? (
                   <Loader2 className="h-6 w-6 animate-spin" />

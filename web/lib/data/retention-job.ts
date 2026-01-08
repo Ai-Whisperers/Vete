@@ -161,7 +161,7 @@ async function processRetentionPolicy(
     const cutoffCondition = `${policy.dateColumn} < NOW() - ${toPostgresInterval(policy.retentionPeriod)}`
 
     // Count records that would be affected
-    let countQuery = supabase
+    const countQuery = supabase
       .from(policy.table)
       .select('*', { count: 'exact', head: true })
 

@@ -157,7 +157,7 @@ export function DashboardSidebar({
       initialOpen[section.title] = section.defaultOpen || isCurrentSection
     })
     setOpenSections(initialOpen)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [pathname, sections])
 
   // Check if a nav item is active

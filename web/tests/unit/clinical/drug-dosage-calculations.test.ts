@@ -109,7 +109,7 @@ const createMockSupabase = (options: {
 } = {}) => {
   const { user = mockUser, profile = mockVetProfile, drugs = mockDrugDosages } = options
 
-  let queryBuilder = {
+  const queryBuilder = {
     select: vi.fn().mockReturnThis(),
     eq: vi.fn().mockReturnThis(),
     or: vi.fn().mockReturnThis(),

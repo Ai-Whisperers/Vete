@@ -72,7 +72,7 @@ export function SignupWizard() {
   const [submitError, setSubmitError] = useState<string | null>(null)
 
   // Update a field in the form data
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const handleFieldChange = useCallback(
     (field: keyof SignupFormData, value: any) => {
       setFormData((prev) => ({ ...prev, [field]: value }))

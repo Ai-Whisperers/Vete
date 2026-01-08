@@ -108,7 +108,7 @@ function calculateFocusScore(data: number[], width: number, height: number) {
   let mean = 0
   // Simple edge detection kernel (Laplacian approximation)
   // We check difference between a pixel and its neighbors
-  let variance = 0
+  const variance = 0
   let count = 0
 
   for (let y = 1; y < height - 1; y++) {

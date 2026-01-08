@@ -120,7 +120,7 @@ export async function POST(request: NextRequest) {
 
   // Update cart items
   const currentItems = (cart?.items as Array<{ id: string; quantity: number; type: string }>) || []
-  let updatedItems = [...currentItems]
+  const updatedItems = [...currentItems]
 
   const existingIndex = updatedItems.findIndex((item) => item.id === productId)
 

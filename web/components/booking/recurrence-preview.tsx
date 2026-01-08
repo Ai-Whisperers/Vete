@@ -28,7 +28,7 @@ export function RecurrencePreview({
 }: RecurrencePreviewProps): React.ReactElement {
   const nextDates = useMemo(() => {
     const dates: Date[] = []
-    let current = new Date(startDate)
+    const current = new Date(startDate)
     const endDate = pattern.end_date ? new Date(pattern.end_date) : null
     const maxOccurrences = pattern.max_occurrences || count
 

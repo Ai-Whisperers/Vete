@@ -82,7 +82,7 @@ export const POST = withApiAuth(
       const isStaff = ['vet', 'admin'].includes(profile.role)
 
       // Determine client_id
-      let finalClientId = isStaff ? client_id : user.id
+      const finalClientId = isStaff ? client_id : user.id
 
       if (!finalClientId) {
         return apiError('MISSING_FIELDS', HTTP_STATUS.BAD_REQUEST, {

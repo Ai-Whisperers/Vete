@@ -91,7 +91,7 @@ export default async function ServicesPage({ params }: { params: Promise<{ clini
           href={`https://wa.me/${config.contact.whatsapp_number}`}
           target="_blank"
           className="flex min-h-[48px] items-center gap-2 rounded-full bg-[var(--status-success)] px-5 py-3 text-sm font-bold text-white shadow-[var(--shadow-lg)] ring-4 ring-white/30 backdrop-blur-sm transition-all hover:-translate-y-1 hover:shadow-xl hover:brightness-110 sm:gap-3 sm:px-8 sm:py-4 sm:text-base"
-          style={{ backgroundColor: '#25D366' }} // WhatsApp Brand Color Override
+          style={{ backgroundColor: '#25D366' }} rel="noreferrer" // WhatsApp Brand Color Override
         >
           <MessageCircle className="h-5 w-5 sm:h-6 sm:w-6" />
           <span className="hidden sm:inline">

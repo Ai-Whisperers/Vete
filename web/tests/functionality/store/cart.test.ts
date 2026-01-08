@@ -91,7 +91,7 @@ class ShoppingCart {
 describe('Shopping Cart Operations', () => {
   const ctx = new TestContext()
   let client: ReturnType<typeof getTestClient>
-  let testProducts: Array<{
+  const testProducts: Array<{
     id: string
     name: string
     price: number

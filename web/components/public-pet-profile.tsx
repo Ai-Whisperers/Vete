@@ -93,7 +93,7 @@ export function PublicPetProfile({ data }: PublicPetProfileProps) {
           <a
             href={`https://wa.me/${owner.phone?.replace(/\+/g, '')}`}
             target="_blank"
-            className="block w-full"
+            className="block w-full" rel="noreferrer"
           >
             <div className="flex cursor-pointer items-center justify-center gap-3 rounded-2xl bg-[#25D366] p-4 text-white shadow-lg transition-all hover:opacity-90 hover:shadow-xl">
               <Icons.MessageCircle className="h-6 w-6" />

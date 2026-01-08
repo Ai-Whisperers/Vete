@@ -213,7 +213,7 @@ export const POST = withApiAuth(
 
     // Calculate next service date (next week on preferred day, or next week same day)
     const today = new Date()
-    let nextServiceDate = new Date(today)
+    const nextServiceDate = new Date(today)
     nextServiceDate.setDate(today.getDate() + 7) // Start service in 1 week
 
     if (preferred_day_of_week !== undefined) {

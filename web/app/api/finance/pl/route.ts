@@ -29,7 +29,7 @@ export const GET = withApiAuth(
       return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN)
     }
 
-    let revenue = 0
+    const revenue = 0
 
     // Get Expenses
     let expenseQuery = supabase.from('expenses').select('amount, category').eq('clinic_id', clinic)

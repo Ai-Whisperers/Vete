@@ -185,7 +185,7 @@ export const POST = withApiAuth(
       const needsLoyalty = fields.includes('loyalty_points')
 
       // Fetch order analytics if needed
-      let orderAnalytics: Map<
+      const orderAnalytics: Map<
         string,
         {
           total_orders: number
@@ -229,7 +229,7 @@ export const POST = withApiAuth(
       }
 
       // Fetch loyalty points if needed
-      let loyaltyPoints: Map<string, number> = new Map()
+      const loyaltyPoints: Map<string, number> = new Map()
       if (needsLoyalty) {
         const { data: loyalty } = await supabase
           .from('loyalty_points')

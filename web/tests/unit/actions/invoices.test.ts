@@ -157,7 +157,7 @@ describe('Invoice Server Actions', () => {
 
       mockSupabaseClient.rpc.mockResolvedValue({ data: 'INV-001' })
 
-      let callCount = 0
+      const callCount = 0
       const mockFrom = vi.fn((table: string) => {
         if (table === 'profiles') {
           return {

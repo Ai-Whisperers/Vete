@@ -108,7 +108,7 @@ All tickets are organized under strategic epics for better planning and tracking
 |----|-------|----------|--------|
 | ~~[WIP-002](./wip/WIP-002-pet-weight-history.md)~~ | ~~Pet Weight History Tracking~~ | ~~WIP~~ | ~~4-6h~~ ✓ |
 | ~~[WIP-003](./wip/WIP-003-e2e-test-suite-expansion.md)~~ | ~~E2E Test Suite Expansion~~ | ~~WIP~~ | ~~8-10h~~ ✓ |
-| [TEST-002](./testing/TEST-002-component-test-coverage.md) | Component Test Coverage | Testing | 20h |
+| ~~[TEST-002](./testing/TEST-002-component-test-coverage.md)~~ | ~~Component Test Coverage~~ | ~~Testing~~ | ~~20h~~ ✓ |
 | [FEAT-006](./features/FEAT-006-procurement-completion.md) | Procurement Module Completion | Feature | 14h |
 | ~~[REF-003](./refactoring/REF-003-api-error-handling.md)~~ | ~~Standardize API Error Handling~~ | ~~Refactoring~~ | ~~13-16h~~ ✓ |
 | ~~[SEC-002](./security/SEC-002-api-rate-limiting.md)~~ | ~~Expand API Rate Limiting~~ | ~~Security~~ | ~~6-7h~~ ✓ |
@@ -248,6 +248,7 @@ All completed tickets are archived in the [completed/](./completed/) folder, org
 
 **Testing:**
 - ✅ TEST-001 (cron job tests at 100% coverage)
+- ✅ TEST-002 (component tests - 11 test files added)
 - ✅ TEST-003 (server action tests - 156 tests added)
 
 **Validation:**
@@ -277,7 +278,7 @@ All completed tickets are archived in the [completed/](./completed/) folder, org
 | Category | Remaining | Effort |
 |----------|-----------|--------|
 | Features | 15 | ~260h |
-| Testing | 1 | 20h |
+| Testing | 0 | 0h |
 | Technical Debt | 3 | 58h |
 | Refactoring | 4 | 23h |
 | Operations | 4 | 24h |
@@ -368,9 +369,9 @@ Focus on mobile optimization, error handling, and onboarding.
 - VALID-002, VALID-003: Remaining validations
 
 ### Sprint 2: WIP & Testing
-- WIP-002: Pet weight history
-- WIP-003: E2E test expansion
-- TEST-002: Component tests
+- ~~WIP-002: Pet weight history~~ ✓
+- ~~WIP-003: E2E test expansion~~ ✓
+- ~~TEST-002: Component tests~~ ✓
 - ~~TEST-003: Server action tests~~ ✓
 
 ### Sprint 3: Operations Foundation

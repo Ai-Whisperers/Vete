@@ -1,5 +1,6 @@
 import { NextResponse, NextRequest } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/logger'
 
 /**
  * GET /api/homepage/owner-preview
@@ -55,7 +56,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       .limit(3)
 
     if (petsError) {
-      console.error('Error fetching pets:', petsError)
+      logger.warn('Error fetching pets for owner preview', {
+        userId: user.id,
+        tenantId: clinic,
+        error: petsError.message,
+      })
     }
 
     // Fetch upcoming appointments
@@ -81,7 +86,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       .limit(3)
 
     if (appointmentsError) {
-      console.error('Error fetching appointments:', appointmentsError)
+      logger.warn('Error fetching appointments for owner preview', {
+        userId: user.id,
+        tenantId: clinic,
+        error: appointmentsError.message,
+      })
     }
 
     // Count pending vaccines (due within 30 days or overdue)
@@ -98,7 +107,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       .or(`next_due_date.lte.${thirtyDaysFromNow.toISOString()},status.eq.pending`)
 
     if (vaccinesError) {
-      console.error('Error counting vaccines:', vaccinesError)
+      logger.warn('Error counting vaccines for owner preview', {
+        userId: user.id,
+        tenantId: clinic,
+        error: vaccinesError.message,
+      })
     }
 
     return NextResponse.json({
@@ -107,7 +120,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       pendingVaccines: pendingVaccines || 0,
     })
   } catch (error) {
-    console.error('Error in owner-preview:', error)
+    logger.error('Error in owner-preview endpoint', {
+      userId: user.id,
+      tenantId: clinic,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    })
     return NextResponse.json({ error: 'Error al obtener datos' }, { status: 500 })
   }
 }

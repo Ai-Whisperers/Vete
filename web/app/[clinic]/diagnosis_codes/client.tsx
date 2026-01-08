@@ -56,7 +56,10 @@ export default function DiagnosisCodesClient() {
         setCodes(data)
       }
     } catch (error) {
-      console.error('Error fetching codes:', error)
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error fetching codes:', error)
+      }
     } finally {
       setLoading(false)
     }

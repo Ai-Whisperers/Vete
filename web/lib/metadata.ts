@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { getClinicData } from '@/lib/clinics'
+import { getCanonicalUrl } from '@/lib/config'
 
 interface PageMetadata {
   title: string
@@ -21,7 +22,6 @@ export async function generateClinicMetadata(
 ): Promise<Metadata> {
   const clinicData = await getClinicData(clinic)
   const clinicName = clinicData?.config?.name || 'Veterinaria'
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://Vetic.vercel.app'
 
   return {
     title: `${page.title} | ${clinicName}`,
@@ -31,7 +31,7 @@ export async function generateClinicMetadata(
       title: `${page.title} | ${clinicName}`,
       description: page.description,
       type: 'website',
-      url: page.path ? `${baseUrl}/${clinic}${page.path}` : undefined,
+      url: page.path ? getCanonicalUrl(clinic, page.path) : undefined,
       siteName: clinicName,
       locale: 'es_PY',
       images: page.image ? [{ url: page.image, width: 1200, height: 630 }] : undefined,
@@ -43,7 +43,7 @@ export async function generateClinicMetadata(
       images: page.image ? [page.image] : undefined,
     },
     alternates: {
-      canonical: page.path ? `${baseUrl}/${clinic}${page.path}` : undefined,
+      canonical: page.path ? getCanonicalUrl(clinic, page.path) : undefined,
     },
   }
 }

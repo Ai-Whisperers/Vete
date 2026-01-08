@@ -26,6 +26,10 @@ export type NotificationType =
   | 'recurrence_limit_warning'
   | 'appointment_reminder'
   | 'low_stock_alert'
+  // Laboratory
+  | 'lab_results_ready'
+  | 'lab_critical_result'
+  | 'lab_abnormal_result'
   // General
   | 'custom'
 

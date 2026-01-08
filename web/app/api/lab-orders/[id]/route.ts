@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { withApiAuthParams, type ApiHandlerContextWithParams } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
+import { sendNotification, notifyStaff } from '@/lib/notifications/service'
 
 /**
  * GET /api/lab-orders/[id]
@@ -140,23 +141,102 @@ export const PATCH = withApiAuthParams(
       return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
     }
 
-    // Send notification when status changes to completed
+    // Send notifications when status changes to completed
     if (status === 'completed') {
       try {
         const petData = Array.isArray(data.pets) ? data.pets[0] : data.pets
 
-        // Create in-app notification for the pet owner
-        await supabase.from('notifications').insert({
-          user_id: petData.owner_id,
+        // Fetch lab results to check for critical/abnormal values
+        const { data: labResults } = await supabase
+          .from('lab_results')
+          .select('id, test_id, value, flag, is_abnormal, lab_test_catalog(name)')
+          .eq('lab_order_id', id)
+
+        // Categorize results
+        const criticalResults = labResults?.filter(
+          (r) => r.flag === 'critical_low' || r.flag === 'critical_high'
+        ) || []
+        const abnormalResults = labResults?.filter(
+          (r) => r.is_abnormal && r.flag !== 'critical_low' && r.flag !== 'critical_high'
+        ) || []
+        const hasCritical = criticalResults.length > 0
+        const hasAbnormal = abnormalResults.length > 0
+
+        // Send notification to pet owner (email + in-app)
+        await sendNotification({
+          type: 'lab_results_ready',
+          recipientId: petData.owner_id,
+          recipientType: 'owner',
+          tenantId: profile.tenant_id,
           title: 'Resultados de laboratorio listos',
           message: `Los resultados del laboratorio para ${petData.name} ya están disponibles.`,
-          type: 'lab_results',
-          link: `/portal/pets/${petData.id}/lab`,
+          channels: ['email', 'in_app'],
           data: {
             lab_order_id: id,
             pet_id: petData.id,
+            pet_name: petData.name,
+            has_abnormal: hasAbnormal || hasCritical,
+          },
+          actionUrl: `/portal/pets/${petData.id}/lab`,
+          email: {
+            subject: `Resultados de laboratorio de ${petData.name}`,
           },
         })
+
+        // If critical results, alert staff immediately (email + in-app)
+        if (hasCritical) {
+          const criticalTestNames = criticalResults
+            .map((r) => {
+              const catalog = Array.isArray(r.lab_test_catalog)
+                ? r.lab_test_catalog[0]
+                : r.lab_test_catalog
+              return catalog?.name || 'Test desconocido'
+            })
+            .join(', ')
+
+          await notifyStaff({
+            tenantId: profile.tenant_id,
+            type: 'lab_critical_result',
+            title: '⚠️ Resultado crítico de laboratorio',
+            message: `Valores críticos detectados para ${petData.name}: ${criticalTestNames}`,
+            channels: ['email', 'in_app'],
+            data: {
+              lab_order_id: id,
+              pet_id: petData.id,
+              pet_name: petData.name,
+              critical_tests: criticalTestNames,
+              critical_count: criticalResults.length,
+            },
+            roles: ['vet', 'admin'],
+          })
+        }
+        // If abnormal (but not critical), alert staff (in-app only)
+        else if (hasAbnormal) {
+          const abnormalTestNames = abnormalResults
+            .map((r) => {
+              const catalog = Array.isArray(r.lab_test_catalog)
+                ? r.lab_test_catalog[0]
+                : r.lab_test_catalog
+              return catalog?.name || 'Test desconocido'
+            })
+            .join(', ')
+
+          await notifyStaff({
+            tenantId: profile.tenant_id,
+            type: 'lab_abnormal_result',
+            title: 'Resultado anormal de laboratorio',
+            message: `Valores anormales detectados para ${petData.name}: ${abnormalTestNames}`,
+            channels: ['in_app'],
+            data: {
+              lab_order_id: id,
+              pet_id: petData.id,
+              pet_name: petData.name,
+              abnormal_tests: abnormalTestNames,
+              abnormal_count: abnormalResults.length,
+            },
+            roles: ['vet', 'admin'],
+          })
+        }
       } catch (notifyError) {
         // Log but don't fail the request if notification fails
         logger.error('Error sending lab order notification', {

@@ -104,7 +104,10 @@ export default function RemoteSigningPage(): JSX.Element {
 
       setRequest(data as any)
     } catch (err) {
-      console.error('Error validating token:', err)
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error validating token:', err)
+      }
       setError('Error al validar el enlace')
     } finally {
       setLoading(false)
@@ -139,7 +142,10 @@ export default function RemoteSigningPage(): JSX.Element {
 
       setSubmitted(true)
     } catch (err) {
-      console.error('Error submitting consent:', err)
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error submitting consent:', err)
+      }
       throw err
     }
   }

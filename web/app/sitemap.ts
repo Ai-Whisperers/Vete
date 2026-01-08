@@ -1,7 +1,6 @@
 import { MetadataRoute } from 'next'
 import { getAllClinics, getClinicData } from '@/lib/clinics'
-
-const BASE_URL = 'https://Vetic.vercel.app'
+import { getSiteUrl } from '@/lib/config'
 
 // Marketing pages at root level
 const MARKETING_PAGES = [
@@ -33,7 +32,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Root landing page
   entries.push({
-    url: BASE_URL,
+    url: getSiteUrl(),
     lastModified: new Date(),
     changeFrequency: 'weekly',
     priority: 1.0,
@@ -42,7 +41,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Marketing pages
   for (const page of MARKETING_PAGES) {
     entries.push({
-      url: `${BASE_URL}${page.path}`,
+      url: getSiteUrl(page.path),
       lastModified: new Date(),
       changeFrequency: page.changeFrequency,
       priority: page.priority,
@@ -56,7 +55,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     // Clinic homepage - highest priority
     entries.push({
-      url: `${BASE_URL}/${clinicSlug}`,
+      url: getSiteUrl(`/${clinicSlug}`),
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 0.9,
@@ -67,7 +66,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       if (page === '') continue // Already added homepage
 
       entries.push({
-        url: `${BASE_URL}/${clinicSlug}${page}`,
+        url: getSiteUrl(`/${clinicSlug}${page}`),
         lastModified: new Date(),
         changeFrequency: page === '/services' || page === '/store' ? 'daily' : 'weekly',
         priority: page === '/services' ? 0.8 : 0.7,
@@ -78,7 +77,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     if (clinicData.services?.services) {
       for (const service of clinicData.services.services) {
         entries.push({
-          url: `${BASE_URL}/${clinicSlug}/services/${service.id}`,
+          url: getSiteUrl(`/${clinicSlug}/services/${service.id}`),
           lastModified: new Date(),
           changeFrequency: 'weekly',
           priority: 0.6,

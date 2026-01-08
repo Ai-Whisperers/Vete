@@ -80,7 +80,10 @@ export default function AmbassadorPayoutsPage() {
         setBankHolderName(data.summary.saved_bank_details.bank_holder_name)
       }
     } catch (error) {
-      console.error('Error:', error)
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error:', error)
+      }
     } finally {
       setIsLoading(false)
     }

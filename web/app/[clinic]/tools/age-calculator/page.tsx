@@ -7,8 +7,7 @@ import {
   WebApplicationSchema,
   BreadcrumbSchema,
 } from '@/components/seo/structured-data'
-
-const BASE_URL = 'https://Vetic.vercel.app'
+import { getCanonicalUrl } from '@/lib/config'
 
 export async function generateMetadata({
   params,
@@ -22,7 +21,7 @@ export async function generateMetadata({
   const title = `Calculadora de Edad de Mascotas | ${data.config.name}`
   const description =
     'Convierte la edad de tu perro o gato a años humanos con nuestra calculadora científica. Basada en estudios reales, no en el mito de los 7 años.'
-  const canonicalUrl = `${BASE_URL}/${clinic}/tools/age-calculator`
+  const canonicalUrl = getCanonicalUrl(clinic, '/tools/age-calculator')
 
   return {
     title,

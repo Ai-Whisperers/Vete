@@ -165,7 +165,10 @@ export default function OrderHistoryClient({ config }: Props) {
       setOrders(data.orders || [])
       setTotalPages(data.pagination?.pages || 1)
     } catch (err) {
-      console.error('Error fetching orders:', err)
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error fetching orders:', err)
+      }
       setError('No se pudieron cargar los pedidos')
     } finally {
       setLoading(false)
@@ -250,7 +253,10 @@ export default function OrderHistoryClient({ config }: Props) {
         setReorderFeedback({ type: 'error', message: result.message || 'No se pudo agregar' })
       }
     } catch (e) {
-      console.error('Error adding to cart:', e)
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error adding to cart:', e)
+      }
       setReorderFeedback({ type: 'error', message: 'Error al agregar al carrito' })
     } finally {
       setReorderingItem(null)
@@ -325,7 +331,10 @@ export default function OrderHistoryClient({ config }: Props) {
         })
       }
     } catch (e) {
-      console.error('Error reordering:', e)
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error reordering:', e)
+      }
       setReorderFeedback({ type: 'error', message: 'Error al reordenar' })
     } finally {
       setReorderingOrder(null)

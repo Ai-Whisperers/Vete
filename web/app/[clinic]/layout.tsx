@@ -29,8 +29,7 @@ import { Copyright } from '@/components/ui/copyright'
 import { NewsletterForm } from '@/components/layout/newsletter-form'
 import { NextIntlClientProvider } from 'next-intl'
 import { getMessages, getLocale } from 'next-intl/server'
-
-const BASE_URL = 'https://Vetic.vercel.app'
+import { getCanonicalUrl, getSiteUrl } from '@/lib/config'
 
 // Generate metadata dynamically with full SEO support
 export async function generateMetadata({
@@ -47,7 +46,7 @@ export async function generateMetadata({
   const title = seo?.meta_title || config.name
   const description = seo?.meta_description || `Bienvenido a ${config.name}`
   const ogImage = config.branding?.og_image_url || '/branding/default-og.jpg'
-  const canonicalUrl = `${BASE_URL}/${clinic}`
+  const canonicalUrl = getCanonicalUrl(clinic)
 
   return {
     title,
@@ -72,7 +71,7 @@ export async function generateMetadata({
       siteName: config.name,
       images: [
         {
-          url: ogImage.startsWith('/') ? `${BASE_URL}${ogImage}` : ogImage,
+          url: ogImage.startsWith('/') ? getSiteUrl(ogImage) : ogImage,
           width: 1200,
           height: 630,
           alt: `${config.name} - ${config.tagline}`,
@@ -83,7 +82,7 @@ export async function generateMetadata({
       card: 'summary_large_image',
       title,
       description,
-      images: [ogImage.startsWith('/') ? `${BASE_URL}${ogImage}` : ogImage],
+      images: [ogImage.startsWith('/') ? getSiteUrl(ogImage) : ogImage],
     },
     robots: {
       index: true,
@@ -146,14 +145,14 @@ function generateStructuredData(
   return {
     '@context': 'https://schema.org',
     '@type': 'VeterinaryCare',
-    '@id': `${BASE_URL}/${clinic}#organization`,
+    '@id': `${getCanonicalUrl(clinic)}#organization`,
     name: config.name,
     description: config.tagline || `Clínica veterinaria ${config.name}`,
-    url: `${BASE_URL}/${clinic}`,
+    url: getCanonicalUrl(clinic),
     telephone: contact.phone_display,
     email: contact.email,
-    image: branding?.og_image_url ? `${BASE_URL}${branding.og_image_url}` : undefined,
-    logo: branding?.logo_url ? `${BASE_URL}${branding.logo_url}` : undefined,
+    image: branding?.og_image_url ? getSiteUrl(branding.og_image_url) : undefined,
+    logo: branding?.logo_url ? getSiteUrl(branding.logo_url) : undefined,
     address: {
       '@type': 'PostalAddress',
       streetAddress: contact.address,

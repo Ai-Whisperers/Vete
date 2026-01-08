@@ -10,6 +10,7 @@ import { createClient } from '@/lib/supabase/server'
 import { checkSlugSchema, slugSchema, generateSlugSuggestion } from '@/lib/signup/schema'
 import { RESERVED_SLUGS } from '@/lib/signup/types'
 import type { CheckSlugResponse } from '@/lib/signup/types'
+import { logger } from '@/lib/logger'
 
 export const dynamic = 'force-dynamic'
 
@@ -80,7 +81,9 @@ export async function GET(request: NextRequest): Promise<NextResponse<CheckSlugR
       suggestion: null,
     })
   } catch (error) {
-    console.error('Error checking slug:', error)
+    logger.error('Error checking slug availability', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    })
     return NextResponse.json(
       {
         available: false,

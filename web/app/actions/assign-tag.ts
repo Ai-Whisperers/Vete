@@ -1,30 +1,21 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { withActionAuth, actionError } from '@/lib/actions'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
 /**
  * Server Action to assign a QR tag to a pet
  * Called directly from form action
+ *
+ * REF-005: Migrated to withActionAuth
  */
-export async function assignTag(formData: FormData): Promise<void> {
+export const assignTag = withActionAuth(async ({ user, supabase }, formData: FormData) => {
   const tagCode = formData.get('tagCode') as string
   const petId = formData.get('petId') as string
 
   if (!tagCode || !petId) {
-    throw new Error('Código de etiqueta y mascota son requeridos')
-  }
-
-  const supabase = await createClient()
-
-  // Verify user is authenticated
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-  if (authError || !user) {
-    throw new Error('No autorizado')
+    return actionError('Código de etiqueta y mascota son requeridos')
   }
 
   // Verify the pet belongs to the user
@@ -35,11 +26,11 @@ export async function assignTag(formData: FormData): Promise<void> {
     .single()
 
   if (petError || !pet) {
-    throw new Error('Mascota no encontrada')
+    return actionError('Mascota no encontrada')
   }
 
   if (pet.owner_id !== user.id) {
-    throw new Error('Esta mascota no te pertenece')
+    return actionError('Esta mascota no te pertenece')
   }
 
   // Call the RPC to assign the tag
@@ -49,14 +40,14 @@ export async function assignTag(formData: FormData): Promise<void> {
   })
 
   if (error) {
-    throw new Error(error.message)
+    return actionError(error.message)
   }
 
   // The RPC returns { error: '...' } or { success: true }
   if (data && data.error) {
-    throw new Error(data.error)
+    return actionError(data.error)
   }
 
   revalidatePath(`/tag/${tagCode}`)
   redirect(`/tag/${tagCode}`)
-}
+})

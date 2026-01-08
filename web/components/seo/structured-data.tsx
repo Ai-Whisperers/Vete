@@ -3,7 +3,7 @@
  * JSON-LD schemas for improved search engine visibility
  */
 
-const BASE_URL = 'https://Vetic.vercel.app'
+import { getSiteUrl, getCanonicalUrl } from '@/lib/config'
 
 // Service Schema for veterinary services
 export interface ServiceSchemaProps {
@@ -25,12 +25,12 @@ export function ServiceSchema({ clinic, clinicName, service }: ServiceSchemaProp
   const structuredData = {
     '@context': 'https://schema.org',
     '@type': 'Service',
-    '@id': `${BASE_URL}/${clinic}/services/${service.id}#service`,
+    '@id': `${getCanonicalUrl(clinic)}/services/${service.id}#service`,
     name: service.title,
     description: service.summary || service.description,
     provider: {
       '@type': 'VeterinaryCare',
-      '@id': `${BASE_URL}/${clinic}#organization`,
+      '@id': `${getCanonicalUrl(clinic)}#organization`,
       name: clinicName,
     },
     serviceType: 'Veterinary Service',
@@ -51,9 +51,7 @@ export function ServiceSchema({ clinic, clinicName, service }: ServiceSchemaProp
       estimatedDuration: `PT${service.duration_minutes}M`,
     }),
     ...(service.image_url && {
-      image: service.image_url.startsWith('/')
-        ? `${BASE_URL}${service.image_url}`
-        : service.image_url,
+      image: service.image_url.startsWith('/') ? getSiteUrl(service.image_url) : service.image_url,
     }),
   }
 
@@ -94,26 +92,24 @@ export function ProductSchema({ clinic, clinicName, product }: ProductSchemaProp
   const structuredData = {
     '@context': 'https://schema.org',
     '@type': 'Product',
-    '@id': `${BASE_URL}/${clinic}/store/product/${product.id}#product`,
+    '@id': `${getCanonicalUrl(clinic)}/store/product/${product.id}#product`,
     name: product.name,
     description: product.description || product.short_description,
     sku: product.sku || product.id,
     ...(product.brand && { brand: { '@type': 'Brand', name: product.brand } }),
     ...(product.category && { category: product.category }),
     ...(product.image_url && {
-      image: product.image_url.startsWith('/')
-        ? `${BASE_URL}${product.image_url}`
-        : product.image_url,
+      image: product.image_url.startsWith('/') ? getSiteUrl(product.image_url) : product.image_url,
     }),
     offers: {
       '@type': 'Offer',
-      url: `${BASE_URL}/${clinic}/store/product/${product.id}`,
+      url: `${getCanonicalUrl(clinic)}/store/product/${product.id}`,
       price: product.base_price,
       priceCurrency: 'PYG',
       availability,
       seller: {
         '@type': 'VeterinaryCare',
-        '@id': `${BASE_URL}/${clinic}#organization`,
+        '@id': `${getCanonicalUrl(clinic)}#organization`,
         name: clinicName,
       },
     },
@@ -153,7 +149,7 @@ export function BreadcrumbSchema({ items }: BreadcrumbSchemaProps) {
       '@type': 'ListItem',
       position: index + 1,
       name: item.name,
-      item: item.url.startsWith('/') ? `${BASE_URL}${item.url}` : item.url,
+      item: item.url.startsWith('/') ? getSiteUrl(item.url) : item.url,
     })),
   }
 
@@ -219,7 +215,7 @@ export function OrganizationSchema({
     name,
     description,
     url,
-    ...(logo && { logo: logo.startsWith('/') ? `${BASE_URL}${logo}` : logo }),
+    ...(logo && { logo: logo.startsWith('/') ? getSiteUrl(logo) : logo }),
     ...(sameAs && sameAs.length > 0 && { sameAs }),
   }
 
@@ -251,14 +247,12 @@ export function TeamSchema({ clinic, clinicName, members }: TeamSchemaProps) {
     '@context': 'https://schema.org',
     '@graph': members.map((member, index) => ({
       '@type': 'Person',
-      '@id': `${BASE_URL}/${clinic}/about#team-${index}`,
+      '@id': `${getCanonicalUrl(clinic)}/about#team-${index}`,
       name: member.name,
       jobTitle: member.role,
       description: member.bio,
       ...(member.photo_url && {
-        image: member.photo_url.startsWith('/')
-          ? `${BASE_URL}${member.photo_url}`
-          : member.photo_url,
+        image: member.photo_url.startsWith('/') ? getSiteUrl(member.photo_url) : member.photo_url,
       }),
       ...(member.specialties &&
         member.specialties.length > 0 && {
@@ -266,7 +260,7 @@ export function TeamSchema({ clinic, clinicName, members }: TeamSchemaProps) {
         }),
       worksFor: {
         '@type': 'VeterinaryCare',
-        '@id': `${BASE_URL}/${clinic}#organization`,
+        '@id': `${getCanonicalUrl(clinic)}#organization`,
         name: clinicName,
       },
     })),
@@ -302,14 +296,14 @@ export function HowToSchema({ name, description, steps, totalTime, image }: HowT
     name,
     description,
     ...(totalTime && { totalTime }),
-    ...(image && { image: image.startsWith('/') ? `${BASE_URL}${image}` : image }),
+    ...(image && { image: image.startsWith('/') ? getSiteUrl(image) : image }),
     step: steps.map((step, index) => ({
       '@type': 'HowToStep',
       position: index + 1,
       ...(step.name && { name: step.name }),
       text: step.text,
       ...(step.image && {
-        image: step.image.startsWith('/') ? `${BASE_URL}${step.image}` : step.image,
+        image: step.image.startsWith('/') ? getSiteUrl(step.image) : step.image,
       }),
     })),
   }
@@ -343,7 +337,7 @@ export function WebApplicationSchema({
     '@type': 'WebApplication',
     name,
     description,
-    url: url.startsWith('/') ? `${BASE_URL}${url}` : url,
+    url: url.startsWith('/') ? getSiteUrl(url) : url,
     applicationCategory,
     operatingSystem,
     offers: {

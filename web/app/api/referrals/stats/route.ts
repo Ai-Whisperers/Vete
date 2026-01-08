@@ -6,6 +6,7 @@
 
 import { NextResponse } from 'next/server'
 import { withApiAuth, type ApiHandlerContext } from '@/lib/auth/api-wrapper'
+import { logger } from '@/lib/logger'
 
 export const GET = withApiAuth(
   async ({ profile, supabase }: ApiHandlerContext): Promise<NextResponse> => {
@@ -15,7 +16,10 @@ export const GET = withApiAuth(
       .single()
 
     if (statsError) {
-      console.error('Error fetching referral stats:', statsError)
+      logger.error('Failed to fetch referral stats', {
+        tenantId: profile.tenant_id,
+        error: statsError.message,
+      })
       return NextResponse.json({ error: 'Error al cargar estadísticas' }, { status: 500 })
     }
 

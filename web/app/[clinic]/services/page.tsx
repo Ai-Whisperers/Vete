@@ -3,8 +3,7 @@ import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
 import { MessageCircle } from 'lucide-react'
 import { ServicesGrid } from '@/components/services/services-grid'
-
-const BASE_URL = 'https://Vetic.vercel.app'
+import { getCanonicalUrl, getSiteUrl } from '@/lib/config'
 
 export async function generateMetadata({
   params,
@@ -18,7 +17,7 @@ export async function generateMetadata({
   const title = `${data.services.meta?.title || 'Servicios'} | ${data.config.name}`
   const description =
     data.services.meta?.subtitle || `Servicios veterinarios de ${data.config.name}`
-  const canonicalUrl = `${BASE_URL}/${clinic}/services`
+  const canonicalUrl = getCanonicalUrl(clinic, '/services')
   const ogImage = data.config.branding?.og_image_url || '/branding/default-og.jpg'
 
   return {
@@ -36,7 +35,7 @@ export async function generateMetadata({
       siteName: data.config.name,
       images: [
         {
-          url: ogImage.startsWith('/') ? `${BASE_URL}${ogImage}` : ogImage,
+          url: ogImage.startsWith('/') ? getSiteUrl(ogImage) : ogImage,
           width: 1200,
           height: 630,
           alt: `Servicios de ${data.config.name}`,

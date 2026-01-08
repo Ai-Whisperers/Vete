@@ -116,7 +116,7 @@ export function ScheduleEditorClient({
           entries,
         })
 
-        if (result.error) {
+        if (!result.success) {
           setError(result.error)
         } else {
           setSuccess('Horario actualizado correctamente')
@@ -136,7 +136,7 @@ export function ScheduleEditorClient({
           entries,
         })
 
-        if (result.error) {
+        if (!result.success) {
           setError(result.error)
         } else {
           setSuccess('Horario creado correctamente')
@@ -170,7 +170,7 @@ export function ScheduleEditorClient({
     try {
       const result = await deleteStaffSchedule(existingSchedule.id)
 
-      if (result.error) {
+      if (!result.success) {
         setError(result.error)
       } else {
         router.push(`/${clinicSlug}/dashboard/schedules`)

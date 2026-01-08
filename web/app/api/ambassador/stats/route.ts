@@ -6,6 +6,7 @@
 
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/logger'
 
 export async function GET(): Promise<NextResponse> {
   const supabase = await createClient()
@@ -36,7 +37,10 @@ export async function GET(): Promise<NextResponse> {
     .single()
 
   if (statsError || !stats) {
-    console.error('Error fetching ambassador stats:', statsError)
+    logger.error('Failed to fetch ambassador stats', {
+      ambassadorId: ambassador.id,
+      error: statsError?.message,
+    })
     return NextResponse.json({ error: 'Error al cargar estadísticas' }, { status: 500 })
   }
 

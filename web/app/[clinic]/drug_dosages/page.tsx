@@ -74,7 +74,10 @@ export default function DrugDosagesPage() {
         setDosages(data)
       }
     } catch (error) {
-      console.error('Error fetching dosages:', error)
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error fetching dosages:', error)
+      }
     } finally {
       setLoading(false)
     }

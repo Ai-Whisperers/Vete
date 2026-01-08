@@ -7,5 +7,4 @@ export { SingleClinicMap } from './single-clinic-map'
 export { StaffHero } from './staff-hero'
 
 // Widgets
-export { OwnerDashboardPreview } from './widgets/owner-dashboard-preview'
-export { StaffDashboardPreview } from './widgets/staff-dashboard-preview'
+export { OwnerDashboardPreview, StaffDashboardPreview } from './widgets'

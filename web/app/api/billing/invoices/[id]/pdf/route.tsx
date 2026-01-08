@@ -10,6 +10,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { renderToBuffer } from '@react-pdf/renderer'
 import { createClient } from '@/lib/supabase/server'
 import { PlatformInvoicePDFDocument } from '@/components/billing/platform-invoice-pdf'
+import { logger } from '@/lib/logger'
 
 interface RouteContext {
   params: Promise<{ id: string }>
@@ -98,7 +99,11 @@ export async function GET(request: NextRequest, context: RouteContext): Promise<
       },
     })
   } catch (e) {
-    console.error('Error generating PDF:', e)
+    logger.error('Failed to generate platform invoice PDF', {
+      invoiceId: id,
+      tenantId: profile.tenant_id,
+      error: e instanceof Error ? e.message : 'Unknown error',
+    })
     return NextResponse.json(
       { error: 'Error al generar PDF' },
       { status: 500 }

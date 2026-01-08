@@ -151,7 +151,10 @@ export function ServiceSubscriptionsClient({ clinic, clinicName }: ServiceSubscr
         }
       } catch (err) {
         setError('Error al cargar datos')
-        console.error(err)
+        // Client-side error logging - only in development
+        if (process.env.NODE_ENV === 'development') {
+          console.error(err)
+        }
       } finally {
         setLoading(false)
       }
@@ -230,7 +233,10 @@ export function ServiceSubscriptionsClient({ clinic, clinicName }: ServiceSubscr
         )
       }
     } catch (err) {
-      console.error(err)
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error(err)
+      }
     }
   }
 
@@ -252,7 +258,10 @@ export function ServiceSubscriptionsClient({ clinic, clinicName }: ServiceSubscr
         setSelectedSubscription(null)
       }
     } catch (err) {
-      console.error(err)
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error(err)
+      }
     }
   }
 

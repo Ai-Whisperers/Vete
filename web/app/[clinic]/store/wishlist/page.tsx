@@ -64,7 +64,10 @@ export default function WishlistPage(): React.ReactElement {
           setError('Error al cargar lista de deseos')
         }
       } catch (e) {
-        console.error('Error fetching wishlist:', e)
+        // Client-side error logging - only in development
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Error fetching wishlist:', e)
+        }
         setError('Error de conexión')
       } finally {
         setIsLoading(false)
@@ -128,8 +131,10 @@ export default function WishlistPage(): React.ReactElement {
           url: shareUrl,
         })
       } catch (e) {
-        // User cancelled or error
-        console.error('Share failed:', e)
+        // User cancelled or error - only log in development
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Share failed:', e)
+        }
       }
     } else {
       // Fallback: copy to clipboard
@@ -137,7 +142,10 @@ export default function WishlistPage(): React.ReactElement {
         await navigator.clipboard.writeText(shareUrl)
         alert('Enlace copiado al portapapeles')
       } catch (e) {
-        console.error('Failed to copy:', e)
+        // Client-side error logging - only in development
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Failed to copy:', e)
+        }
       }
     }
   }

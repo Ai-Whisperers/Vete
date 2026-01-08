@@ -69,7 +69,10 @@ export default function PrescriptionsClient() {
         setPrescriptions(data)
       }
     } catch (error) {
-      console.error('Error fetching prescriptions:', error)
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error fetching prescriptions:', error)
+      }
     } finally {
       setIsLoading(false)
     }

@@ -1,9 +1,11 @@
 /**
  * Tenant-Scoped Query Builders
  * ARCH-010: Enforce Tenant Isolation at Query Level
+ * OPS-003: Automatic slow query detection
  *
  * Provides query builders that automatically enforce tenant isolation,
  * preventing cross-tenant data access at the application level.
+ * Also tracks query execution times for slow query detection.
  *
  * Usage:
  * ```typescript
@@ -17,6 +19,7 @@
  */
 
 import { SupabaseClient } from '@supabase/supabase-js'
+import { trackQuery } from '@/lib/monitoring/slow-query'
 
 /**
  * Creates tenant-scoped query functions that automatically include tenant_id filter
@@ -41,6 +44,7 @@ export function scopedQueries(supabase: SupabaseClient, tenantId: string) {
     /**
      * Execute a SELECT query scoped to tenant
      * Automatically adds .eq('tenant_id', tenantId)
+     * OPS-003: Tracks query execution time for slow query detection
      */
     select: async <T = unknown>(
       table: string,
@@ -52,6 +56,8 @@ export function scopedQueries(supabase: SupabaseClient, tenantId: string) {
         count?: 'exact' | 'planned' | 'estimated'
       }
     ): Promise<{ data: T[] | T | null; error: Error | null; count?: number }> => {
+      const startTime = performance.now()
+
       let query = supabase.from(table).select(columns, { count: options?.count })
 
       // Always filter by tenant_id first
@@ -64,6 +70,8 @@ export function scopedQueries(supabase: SupabaseClient, tenantId: string) {
 
       if (options?.single) {
         const result = await query.single()
+        const duration = performance.now() - startTime
+        trackQuery(table, 'select', duration, result.data ? 1 : 0)
         return {
           data: result.data as T | null,
           error: result.error,
@@ -72,6 +80,9 @@ export function scopedQueries(supabase: SupabaseClient, tenantId: string) {
       }
 
       const result = await query
+      const duration = performance.now() - startTime
+      const rowCount = Array.isArray(result.data) ? result.data.length : undefined
+      trackQuery(table, 'select', duration, rowCount)
       return {
         data: result.data as T[] | null,
         error: result.error,
@@ -82,12 +93,14 @@ export function scopedQueries(supabase: SupabaseClient, tenantId: string) {
     /**
      * Execute an INSERT query with automatic tenant_id
      * Automatically adds tenant_id to all inserted records
+     * OPS-003: Tracks query execution time for slow query detection
      */
     insert: async <T = unknown>(
       table: string,
       data: Record<string, unknown> | Record<string, unknown>[],
       options?: { returning?: boolean }
     ): Promise<{ data: T[] | null; error: Error | null }> => {
+      const startTime = performance.now()
       const records = Array.isArray(data) ? data : [data]
 
       // Add tenant_id to all records
@@ -104,12 +117,15 @@ export function scopedQueries(supabase: SupabaseClient, tenantId: string) {
       }
 
       const result = await query
+      const duration = performance.now() - startTime
+      trackQuery(table, 'insert', duration, scopedRecords.length)
       return { data: result.data as T[] | null, error: result.error }
     },
 
     /**
      * Execute an UPDATE query scoped to tenant
      * Automatically adds .eq('tenant_id', tenantId) to WHERE clause
+     * OPS-003: Tracks query execution time for slow query detection
      */
     update: async <T = unknown>(
       table: string,
@@ -118,6 +134,7 @@ export function scopedQueries(supabase: SupabaseClient, tenantId: string) {
       filter: (query: any) => any,
       options?: { returning?: boolean }
     ): Promise<{ data: T[] | null; error: Error | null }> => {
+      const startTime = performance.now()
       // Remove tenant_id from update data to prevent cross-tenant moves
       const { tenant_id: _, ...safeData } = data
 
@@ -135,18 +152,23 @@ export function scopedQueries(supabase: SupabaseClient, tenantId: string) {
       }
 
       const result = await query
+      const duration = performance.now() - startTime
+      const rowCount = Array.isArray(result.data) ? result.data.length : undefined
+      trackQuery(table, 'update', duration, rowCount)
       return { data: result.data as T[] | null, error: result.error }
     },
 
     /**
      * Execute an UPSERT query with automatic tenant_id
      * Automatically adds tenant_id to all upserted records
+     * OPS-003: Tracks query execution time for slow query detection
      */
     upsert: async <T = unknown>(
       table: string,
       data: Record<string, unknown> | Record<string, unknown>[],
       options?: { onConflict?: string; returning?: boolean }
     ): Promise<{ data: T[] | null; error: Error | null }> => {
+      const startTime = performance.now()
       const records = Array.isArray(data) ? data : [data]
 
       // Add tenant_id to all records
@@ -165,18 +187,22 @@ export function scopedQueries(supabase: SupabaseClient, tenantId: string) {
       }
 
       const result = await query
+      const duration = performance.now() - startTime
+      trackQuery(table, 'upsert', duration, scopedRecords.length)
       return { data: result.data as T[] | null, error: result.error }
     },
 
     /**
      * Execute a DELETE query scoped to tenant
      * Automatically adds .eq('tenant_id', tenantId) to WHERE clause
+     * OPS-003: Tracks query execution time for slow query detection
      */
     delete: async (
       table: string,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       filter: (query: any) => any
     ): Promise<{ error: Error | null }> => {
+      const startTime = performance.now()
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let query: any = supabase.from(table).delete()
 
@@ -187,17 +213,21 @@ export function scopedQueries(supabase: SupabaseClient, tenantId: string) {
       query = filter(query)
 
       const result = await query
+      const duration = performance.now() - startTime
+      trackQuery(table, 'delete', duration)
       return { error: result.error }
     },
 
     /**
      * Execute a COUNT query scoped to tenant
+     * OPS-003: Tracks query execution time for slow query detection
      */
     count: async (
       table: string,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       filter?: (query: any) => any
     ): Promise<{ count: number; error: Error | null }> => {
+      const startTime = performance.now()
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let query: any = supabase.from(table).select('*', { count: 'exact', head: true })
 
@@ -209,6 +239,8 @@ export function scopedQueries(supabase: SupabaseClient, tenantId: string) {
       }
 
       const result = await query
+      const duration = performance.now() - startTime
+      trackQuery(table, 'count', duration, result.count || 0)
       return { count: result.count || 0, error: result.error }
     },
 

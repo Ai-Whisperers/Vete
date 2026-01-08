@@ -351,6 +351,84 @@ const templates: Record<
     })
   },
 
+  // Laboratory
+  lab_results_ready: (params) => {
+    const { data } = params
+    const petName = (data?.petName as string) || 'tu mascota'
+    const orderNumber = (data?.orderNumber as string) || ''
+    const hasAbnormal = (data?.hasAbnormal as boolean) || false
+
+    const abnormalNotice = hasAbnormal
+      ? `<p style="background-color: #fef3c7; padding: 12px; border-radius: 6px; color: #92400e;">
+          <strong>⚠️ Nota:</strong> Algunos resultados requieren atención. Te recomendamos revisarlos con el veterinario.
+        </p>`
+      : ''
+
+    return baseEmailTemplate({
+      title: 'Resultados de laboratorio listos',
+      content: `
+        <p>¡Buenas noticias! Los resultados de laboratorio de <strong>${petName}</strong> ya están disponibles.</p>
+        ${orderNumber ? `<p><strong>Orden:</strong> ${orderNumber}</p>` : ''}
+        ${abnormalNotice}
+        <p>Puedes ver los resultados completos ingresando a tu portal.</p>
+      `,
+      actionUrl: params.actionUrl,
+      actionText: 'Ver resultados',
+    })
+  },
+
+  lab_critical_result: (params) => {
+    const { data } = params
+    const petName = (data?.petName as string) || 'Paciente'
+    const criticalTests = (data?.criticalTests as string[]) || []
+    const orderNumber = (data?.orderNumber as string) || ''
+    const ownerName = (data?.ownerName as string) || ''
+
+    return baseEmailTemplate({
+      title: '🚨 ALERTA: Valor crítico de laboratorio',
+      content: `
+        <div style="background-color: #fee2e2; padding: 16px; border-radius: 8px; border-left: 4px solid #dc2626; margin-bottom: 16px;">
+          <p style="margin: 0; color: #991b1b; font-weight: bold;">RESULTADO CRÍTICO DETECTADO</p>
+        </div>
+        <p><strong>Paciente:</strong> ${petName}</p>
+        ${ownerName ? `<p><strong>Propietario:</strong> ${ownerName}</p>` : ''}
+        ${orderNumber ? `<p><strong>Orden:</strong> ${orderNumber}</p>` : ''}
+        <p><strong>Pruebas con valores críticos:</strong></p>
+        <ul style="color: #dc2626;">
+          ${criticalTests.map((test) => `<li>${test}</li>`).join('')}
+        </ul>
+        <p style="font-weight: bold;">Se requiere revisión inmediata del paciente.</p>
+      `,
+      actionUrl: params.actionUrl,
+      actionText: 'Ver resultados ahora',
+    })
+  },
+
+  lab_abnormal_result: (params) => {
+    const { data } = params
+    const petName = (data?.petName as string) || 'Paciente'
+    const abnormalTests = (data?.abnormalTests as string[]) || []
+    const orderNumber = (data?.orderNumber as string) || ''
+
+    return baseEmailTemplate({
+      title: '⚠️ Resultados con valores fuera de rango',
+      content: `
+        <div style="background-color: #fef3c7; padding: 16px; border-radius: 8px; border-left: 4px solid #f59e0b; margin-bottom: 16px;">
+          <p style="margin: 0; color: #92400e; font-weight: bold;">VALORES ANORMALES DETECTADOS</p>
+        </div>
+        <p><strong>Paciente:</strong> ${petName}</p>
+        ${orderNumber ? `<p><strong>Orden:</strong> ${orderNumber}</p>` : ''}
+        <p><strong>Pruebas con valores anormales:</strong></p>
+        <ul style="color: #92400e;">
+          ${abnormalTests.map((test) => `<li>${test}</li>`).join('')}
+        </ul>
+        <p>Se recomienda revisar los resultados y contactar al propietario si es necesario.</p>
+      `,
+      actionUrl: params.actionUrl,
+      actionText: 'Ver resultados',
+    })
+  },
+
   // General
   custom: (params) =>
     baseEmailTemplate({

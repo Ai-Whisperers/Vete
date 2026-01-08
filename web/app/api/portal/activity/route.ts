@@ -1,5 +1,6 @@
 import { NextResponse, NextRequest } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/logger'
 
 /**
  * GET /api/portal/activity
@@ -59,7 +60,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     return NextResponse.json({ activities })
   } catch (error) {
-    console.error('Error in portal activity:', error)
+    logger.error('Error in portal activity endpoint', {
+      userId,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    })
     return NextResponse.json({ error: 'Error al obtener actividad' }, { status: 500 })
   }
 }

@@ -3,12 +3,11 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Shield, Lock, Eye, Database, Bell, UserCheck, Mail } from 'lucide-react'
 import type { Metadata } from 'next'
+import { getCanonicalUrl } from '@/lib/config'
 
 interface Props {
   params: Promise<{ clinic: string }>
 }
-
-const BASE_URL = 'https://Vetic.vercel.app'
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { clinic } = await params
@@ -17,7 +16,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const title = `Política de Privacidad | ${data.config.name}`
   const description = `Lee nuestra política de privacidad y protección de datos. ${data.config.name} protege tu información personal y la de tu mascota.`
-  const canonicalUrl = `${BASE_URL}/${clinic}/privacy`
+  const canonicalUrl = getCanonicalUrl(clinic, '/privacy')
 
   return {
     title,

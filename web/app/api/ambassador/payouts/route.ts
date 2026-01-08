@@ -59,7 +59,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     .range(offset, offset + limit - 1)
 
   if (error) {
-    console.error('Error fetching payouts:', error)
+    logger.error('Failed to fetch ambassador payouts', {
+      ambassadorId: ambassador.id,
+      error: error.message,
+    })
     return NextResponse.json({ error: 'Error al cargar pagos' }, { status: 500 })
   }
 

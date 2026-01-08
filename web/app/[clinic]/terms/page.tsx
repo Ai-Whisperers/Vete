@@ -12,12 +12,11 @@ import {
   Clock,
 } from 'lucide-react'
 import type { Metadata } from 'next'
+import { getCanonicalUrl } from '@/lib/config'
 
 interface Props {
   params: Promise<{ clinic: string }>
 }
-
-const BASE_URL = 'https://Vetic.vercel.app'
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { clinic } = await params
@@ -26,7 +25,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const title = `Términos y Condiciones | ${data.config.name}`
   const description = `Lee los términos y condiciones de servicio de ${data.config.name}. Información sobre citas, pagos, emergencias y responsabilidades.`
-  const canonicalUrl = `${BASE_URL}/${clinic}/terms`
+  const canonicalUrl = getCanonicalUrl(clinic, '/terms')
 
   return {
     title,

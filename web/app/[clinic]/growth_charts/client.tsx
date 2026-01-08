@@ -60,7 +60,10 @@ export default function GrowthChartsClient() {
         setCharts(data)
       }
     } catch (error) {
-      console.error('Error fetching growth charts:', error)
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error fetching growth charts:', error)
+      }
     } finally {
       setIsLoading(false)
     }

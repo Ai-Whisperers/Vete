@@ -1,11 +1,16 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { withActionAuth, actionError } from '@/lib/actions'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
-import { ActionResult, FieldErrors } from '@/lib/types/action-result'
+import { FieldErrors } from '@/lib/types/action-result'
 import { z } from 'zod'
 import { logger } from '@/lib/logger'
+import { createClient } from '@/lib/supabase/server'
+
+/**
+ * REF-005: Migrated to withActionAuth
+ */
 
 // Validation schema with detailed Spanish error messages
 const createPetSchema = z.object({
@@ -118,33 +123,14 @@ const createPetSchema = z.object({
     ),
 })
 
-export async function createPet(
-  prevState: ActionResult | null,
-  formData: FormData
-): Promise<ActionResult> {
-  const supabase = await createClient()
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-
-  // Auth validation with detailed message
-  if (authError || !user) {
-    return {
-      success: false,
-      error:
-        'Debes iniciar sesión para registrar una mascota. Por favor, inicia sesión y vuelve a intentarlo.',
-    }
-  }
-
+export const createPet = withActionAuth(async ({ user, supabase }, formData: FormData) => {
   // Get clinic from form
   const clinic = formData.get('clinic') as string
 
   if (!clinic) {
-    return {
-      success: false,
-      error: 'No se pudo identificar la clínica. Por favor, recarga la página e intenta de nuevo.',
-    }
+    return actionError(
+      'No se pudo identificar la clínica. Por favor, recarga la página e intenta de nuevo.'
+    )
   }
 
   // Extract form data
@@ -182,7 +168,7 @@ export async function createPet(
     logger.error('Validation failed', { fieldErrors, issues: validation.error.issues })
 
     return {
-      success: false,
+      success: false as const,
       error:
         'Por favor, revisa los campos marcados en rojo y corrige los errores antes de continuar.',
       fieldErrors,
@@ -200,7 +186,7 @@ export async function createPet(
     const maxSize = 5 * 1024 * 1024
     if (photo.size > maxSize) {
       return {
-        success: false,
+        success: false as const,
         error: 'La foto es demasiado grande.',
         fieldErrors: {
           photo: `La foto debe pesar menos de 5MB. Tu archivo pesa ${(photo.size / 1024 / 1024).toFixed(1)}MB.`,
@@ -212,7 +198,7 @@ export async function createPet(
     const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
     if (!allowedTypes.includes(photo.type)) {
       return {
-        success: false,
+        success: false as const,
         error: 'Formato de imagen no soportado.',
         fieldErrors: {
           photo: 'Solo se permiten imágenes JPG, PNG, GIF o WebP. Por favor, elige otro archivo.',
@@ -243,7 +229,7 @@ export async function createPet(
       }
 
       return {
-        success: false,
+        success: false as const,
         error: photoErrorMessage,
         fieldErrors: { photo: photoErrorMessage },
       }
@@ -280,11 +266,16 @@ export async function createPet(
     // Store existing conditions as array in chronic_conditions
     chronic_conditions: validData.existing_conditions ? [validData.existing_conditions] : [],
     // Store temperament and diet info in notes field as workaround
-    notes: [
-      validData.temperament && validData.temperament !== 'unknown' ? `Temperamento: ${validData.temperament}` : null,
-      validData.diet_category ? `Dieta: ${validData.diet_category}` : null,
-      validData.diet_notes ? `Notas dieta: ${validData.diet_notes}` : null,
-    ].filter(Boolean).join('. ') || null,
+    notes:
+      [
+        validData.temperament && validData.temperament !== 'unknown'
+          ? `Temperamento: ${validData.temperament}`
+          : null,
+        validData.diet_category ? `Dieta: ${validData.diet_category}` : null,
+        validData.diet_notes ? `Notas dieta: ${validData.diet_notes}` : null,
+      ]
+        .filter(Boolean)
+        .join('. ') || null,
   }
 
   // Use service_role to bypass RLS (auth already verified above)
@@ -298,10 +289,9 @@ export async function createPet(
     .maybeSingle()
 
   if (!profileExists) {
-    return {
-      success: false,
-      error: 'Tu perfil no está configurado correctamente. Por favor, cierra sesión y vuelve a iniciar.',
-    }
+    return actionError(
+      'Tu perfil no está configurado correctamente. Por favor, cierra sesión y vuelve a iniciar.'
+    )
   }
 
   // Insert pet and get the ID back
@@ -318,29 +308,21 @@ export async function createPet(
     })
 
     if (insertError.code === '23505') {
-      return {
-        success: false,
-        error: 'Ya existe una mascota con este microchip registrado.',
-      }
+      return actionError('Ya existe una mascota con este microchip registrado.')
     }
 
-    return {
-      success: false,
-      error: 'No se pudo guardar la mascota. Por favor, intenta de nuevo.',
-    }
+    return actionError('No se pudo guardar la mascota. Por favor, intenta de nuevo.')
   }
 
   // If weight was provided, create initial weight history record for growth chart
   if (validData.weight && newPet?.id) {
-    const { error: weightError } = await serviceSupabase
-      .from('pet_weight_history')
-      .insert({
-        pet_id: newPet.id,
-        tenant_id: clinic,
-        weight_kg: validData.weight,
-        recorded_by: user.id,
-        notes: 'Peso inicial al registrar mascota',
-      })
+    const { error: weightError } = await serviceSupabase.from('pet_weight_history').insert({
+      pet_id: newPet.id,
+      tenant_id: clinic,
+      weight_kg: validData.weight,
+      recorded_by: user.id,
+      notes: 'Peso inicial al registrar mascota',
+    })
 
     if (weightError) {
       // Log but don't fail - the pet was created successfully
@@ -353,4 +335,4 @@ export async function createPet(
 
   revalidatePath(`/${clinic}/portal/dashboard`)
   redirect(`/${clinic}/portal/dashboard`)
-}
+})

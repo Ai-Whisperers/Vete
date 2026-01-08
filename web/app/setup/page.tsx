@@ -40,7 +40,10 @@ export default function SetupPage() {
       const data = await response.json()
       setStatus(data)
     } catch (error) {
-      console.error('Failed to check status:', error)
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Failed to check status:', error)
+      }
     }
   }
 

@@ -156,7 +156,10 @@ export function ServiceSubscriptionsDashboard({ clinic }: ServiceSubscriptionsDa
         }
       }
     } catch (err) {
-      console.error(err)
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error(err)
+      }
       setError('Error al cargar datos')
     } finally {
       setLoading(false)

@@ -16,6 +16,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { logger } from '@/lib/logger'
 
 // Use service role for this endpoint
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
@@ -63,7 +64,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     )
 
     if (applyError) {
-      console.error('Error applying referral:', applyError)
+      logger.error('Failed to apply referral code', {
+        tenantId: tenant_id,
+        code,
+        error: applyError.message,
+      })
 
       // Handle specific errors
       if (applyError.message.includes('Invalid or expired')) {
@@ -120,7 +125,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       },
     })
   } catch (e) {
-    console.error('Error in apply referral:', e)
+    logger.error('Error in apply referral endpoint', {
+      error: e instanceof Error ? e.message : 'Unknown error',
+    })
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }

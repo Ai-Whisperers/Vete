@@ -50,3 +50,18 @@ export {
   type ErrorRateSummary,
   type EndpointSummary,
 } from './error-rate'
+
+// OPS-003: Slow query detection
+export {
+  trackQuery,
+  getSlowQueryStats,
+  getTableQueryStats,
+  getAllTableStats,
+  resetSlowQueryTracking,
+  configureSlowQueryDetection,
+  withQueryTracking,
+  type SlowQueryConfig,
+  type TrackedQuery,
+  type SlowQueryStats,
+  type TableQueryStats,
+} from './slow-query'

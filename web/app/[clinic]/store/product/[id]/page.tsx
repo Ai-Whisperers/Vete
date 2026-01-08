@@ -4,8 +4,7 @@ import { getClinicData } from '@/lib/clinics'
 import ProductDetailClient from './client'
 import { ProductSchema, BreadcrumbSchema } from '@/components/seo/structured-data'
 import { getStoreProduct } from '@/app/actions/store'
-
-const BASE_URL = 'https://Vetic.vercel.app'
+import { getCanonicalUrl, getSiteUrl } from '@/lib/config'
 
 interface Props {
   params: Promise<{ clinic: string; id: string }>
@@ -19,7 +18,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return { title: 'Producto no encontrado' }
   }
 
-  const canonicalUrl = `${BASE_URL}/${clinic}/store/product/${id}`
+  const canonicalUrl = getCanonicalUrl(clinic, `/store/product/${id}`)
   const result = await getStoreProduct(clinic, id)
 
   if (result.success) {
@@ -45,7 +44,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         siteName: clinicData.config.name,
         images: [
           {
-            url: ogImage.startsWith('/') ? `${BASE_URL}${ogImage}` : ogImage,
+            url: ogImage.startsWith('/') ? getSiteUrl(ogImage) : ogImage,
             width: 1200,
             height: 630,
             alt: product.name,

@@ -1,5 +1,6 @@
 import { NextResponse, NextRequest } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/logger'
 
 interface AppointmentRow {
   id: string
@@ -73,7 +74,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       .order('start_time', { ascending: true })
 
     if (error) {
-      console.error('Error fetching my patients:', error)
+      logger.error('Failed to fetch vet patients', {
+        vetId,
+        tenantId: profile.tenant_id,
+        error: error.message,
+      })
       return NextResponse.json({ error: 'Error al obtener pacientes' }, { status: 500 })
     }
 
@@ -94,7 +99,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     return NextResponse.json({ patients })
   } catch (error) {
-    console.error('Error in my-patients:', error)
+    logger.error('Error in my-patients endpoint', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    })
     return NextResponse.json({ error: 'Error al obtener pacientes' }, { status: 500 })
   }
 }

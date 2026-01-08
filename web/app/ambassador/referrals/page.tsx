@@ -73,7 +73,10 @@ export default function AmbassadorReferralsPage() {
       setReferrals(data.referrals || [])
       setPagination(data.pagination)
     } catch (error) {
-      console.error('Error:', error)
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error:', error)
+      }
     } finally {
       setIsLoading(false)
     }

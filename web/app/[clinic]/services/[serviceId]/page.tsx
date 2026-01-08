@@ -5,8 +5,7 @@ import { createClient } from '@/lib/supabase/server'
 import { ServiceDetailClient } from '@/components/services/service-detail-client'
 import { ServiceSchema, BreadcrumbSchema } from '@/components/seo/structured-data'
 import type { Service } from '@/lib/types/services'
-
-const BASE_URL = 'https://Vetic.vercel.app'
+import { getCanonicalUrl, getSiteUrl } from '@/lib/config'
 
 // Helper to find service by slug/id
 async function getService(
@@ -34,7 +33,7 @@ export async function generateMetadata({
   if (!result || !result.service) return {}
 
   const { service, data } = result
-  const canonicalUrl = `${BASE_URL}/${clinic}/services/${serviceId}`
+  const canonicalUrl = getCanonicalUrl(clinic, `/services/${serviceId}`)
   const ogImage = data.config.branding?.og_image_url || '/branding/default-og.jpg'
 
   return {
@@ -52,7 +51,7 @@ export async function generateMetadata({
       siteName: data.config.name,
       images: [
         {
-          url: ogImage.startsWith('/') ? `${BASE_URL}${ogImage}` : ogImage,
+          url: ogImage.startsWith('/') ? getSiteUrl(ogImage) : ogImage,
           width: 1200,
           height: 630,
           alt: service.title,

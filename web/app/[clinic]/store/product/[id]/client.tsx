@@ -128,7 +128,10 @@ export default function ProductDetailClient({ clinic, productId, clinicConfig }:
       }
     } catch (err) {
       setError('No se pudo cargar el producto')
-      console.error(err)
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error(err)
+      }
     } finally {
       setLoading(false)
     }

@@ -4,8 +4,7 @@ import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
 import BookingWizard from '@/components/booking/booking-wizard'
 import { BreadcrumbSchema } from '@/components/seo/structured-data'
-
-const BASE_URL = 'https://Vetic.vercel.app'
+import { getCanonicalUrl, getSiteUrl } from '@/lib/config'
 
 export async function generateMetadata({
   params,
@@ -18,7 +17,7 @@ export async function generateMetadata({
 
   const title = `Reservar Cita Online | ${data.config.name}`
   const description = `Agenda tu cita veterinaria en ${data.config.name}. Reserva online 24/7, elige horario, servicio y recibe confirmación al instante. ${data.config.contact?.address || ''}`
-  const canonicalUrl = `${BASE_URL}/${clinic}/book`
+  const canonicalUrl = getCanonicalUrl(clinic, '/book')
   const ogImage = data.config.branding?.og_image_url || '/branding/default-og.jpg'
 
   return {
@@ -36,7 +35,7 @@ export async function generateMetadata({
       siteName: data.config.name,
       images: [
         {
-          url: ogImage.startsWith('/') ? `${BASE_URL}${ogImage}` : ogImage,
+          url: ogImage.startsWith('/') ? getSiteUrl(ogImage) : ogImage,
           width: 1200,
           height: 630,
           alt: `Reservar cita en ${data.config.name}`,

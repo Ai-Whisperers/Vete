@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { isRedirectError } from 'next/dist/client/components/redirect-error'
 import type { ActionResult, FieldErrors } from '@/lib/types/action-result'
 
 export interface ActionContext {
@@ -67,6 +68,10 @@ export function withActionAuth<T = void, Args extends unknown[] = []>(
     try {
       return await action({ user, profile, isStaff, isAdmin, supabase }, ...args)
     } catch (error) {
+      // Re-throw Next.js redirect errors - they're not actual errors
+      if (isRedirectError(error)) {
+        throw error
+      }
       console.error('Action error:', error)
       return { success: false, error: 'Error interno' }
     }

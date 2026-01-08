@@ -7,6 +7,7 @@ import { headers } from 'next/headers'
 import { rateLimit } from '@/lib/rate-limit'
 import { NextRequest } from 'next/server'
 import { z } from 'zod'
+import { logger } from '@/lib/logger'
 
 // TICKET-TYPE-002: Define proper state interface for server actions
 interface ActionState {
@@ -208,7 +209,9 @@ export async function loginWithGoogle(clinic: string) {
   }
 
   if (error) {
-    console.error(error)
+    logger.error('OAuth sign in error', {
+      error: error.message,
+    })
     // In a server action we can't easily alert, so we might return error state if not redirecting
     throw new Error(error.message)
   }
@@ -249,7 +252,9 @@ export async function requestPasswordReset(
 
   if (error) {
     // Log error but don't reveal if email exists (security best practice)
-    console.error('Password reset error:', error)
+    logger.error('Password reset request failed', {
+      error: error.message,
+    })
   }
 
   // Always return success to prevent email enumeration attacks
@@ -279,7 +284,9 @@ export async function updatePassword(
   const { error } = await supabase.auth.updateUser({ password: data.password })
 
   if (error) {
-    console.error('Update password error:', error)
+    logger.error('Update password failed', {
+      error: error.message,
+    })
     return { error: 'Error al actualizar la contraseña. El enlace puede haber expirado.' }
   }
 
@@ -292,7 +299,9 @@ export async function logout(clinic: string) {
   const { error } = await supabase.auth.signOut()
 
   if (error) {
-    console.error('Logout error:', error)
+    logger.error('Logout failed', {
+      error: error.message,
+    })
     throw new Error('Error al cerrar sesión')
   }
 

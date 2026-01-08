@@ -1,5 +1,6 @@
 import { NextResponse, NextRequest } from 'next/server'
 import { withApiAuth } from '@/lib/auth/api-wrapper'
+import { logger } from '@/lib/logger'
 
 /**
  * GET /api/homepage/staff-preview
@@ -77,7 +78,10 @@ export const GET = withApiAuth(
         pendingApprovals: ordersResult.count || 0,
       })
     } catch (error) {
-      console.error('Error in staff-preview:', error)
+      logger.error('Error in staff-preview endpoint', {
+        tenantId: profile.tenant_id,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      })
       return NextResponse.json({ error: 'Error al obtener datos' }, { status: 500 })
     }
   },

@@ -4,6 +4,7 @@ import { NextIntlClientProvider } from 'next-intl'
 import { getMessages, getLocale } from 'next-intl/server'
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/next'
+import { getMetadataBaseUrl } from '@/lib/config'
 import './globals.css'
 
 const geistSans = Geist({
@@ -23,7 +24,7 @@ export const metadata: Metadata = {
   },
   description:
     'Sitios web profesionales para veterinarias paraguayas. Una plataforma, múltiples clínicas.',
-  metadataBase: new URL('https://Vetic.vercel.app'),
+  metadataBase: getMetadataBaseUrl(),
 }
 
 export default async function RootLayout({

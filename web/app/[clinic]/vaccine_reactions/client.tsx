@@ -97,7 +97,10 @@ export default function VaccineReactionsClient() {
         setReactions(data)
       }
     } catch (error) {
-      console.error('Error fetching vaccine reactions:', error)
+      // Client-side error logging - only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error fetching vaccine reactions:', error)
+      }
     } finally {
       setIsLoading(false)
     }

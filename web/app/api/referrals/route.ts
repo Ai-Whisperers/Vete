@@ -11,6 +11,7 @@
 
 import { NextResponse } from 'next/server'
 import { withApiAuth, type ApiHandlerContext } from '@/lib/auth/api-wrapper'
+import { logger } from '@/lib/logger'
 
 export const GET = withApiAuth(
   async ({ profile, supabase, request }: ApiHandlerContext): Promise<NextResponse> => {
@@ -53,7 +54,10 @@ export const GET = withApiAuth(
     const { data: referrals, error, count } = await query
 
     if (error) {
-      console.error('Error fetching referrals:', error)
+      logger.error('Failed to fetch referrals', {
+        tenantId: profile.tenant_id,
+        error: error.message,
+      })
       return NextResponse.json({ error: 'Error al cargar referidos' }, { status: 500 })
     }
 

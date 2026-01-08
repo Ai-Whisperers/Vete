@@ -113,7 +113,7 @@ All tickets are organized under strategic epics for better planning and tracking
 | ~~[REF-003](./refactoring/REF-003-api-error-handling.md)~~ | ~~Standardize API Error Handling~~ | ~~Refactoring~~ | ~~13-16h~~ ✓ |
 | ~~[SEC-002](./security/SEC-002-api-rate-limiting.md)~~ | ~~Expand API Rate Limiting~~ | ~~Security~~ | ~~6-7h~~ ✓ |
 | ~~[BUG-002](./bugs/BUG-002-redirect-param-inconsistency.md)~~ | ~~Redirect Parameter Inconsistency~~ | ~~Bug~~ | ~~3h~~ ✓ |
-| [TECH-001](./technical-debt/TECH-001-component-organization.md) | Improve Component Organization | Tech Debt | 16-18h |
+| ~~[TECH-001](./technical-debt/TECH-001-component-organization.md)~~ | ~~Improve Component Organization~~ | ~~Tech Debt~~ | ~~16-18h~~ ✓ |
 | [FEAT-001](./features/FEAT-001-multi-language.md) | Multi-Language Support (i18n) | Feature | 40h |
 | [FEAT-004](./features/FEAT-004-analytics-dashboard.md) | Advanced Analytics Dashboard | Feature | 48h |
 | ~~[FEAT-005](./features/FEAT-005-automated-reminders.md)~~ | ~~Automated Reminder Campaigns~~ | ~~Feature~~ | ~~32h~~ ✓ |
@@ -142,14 +142,14 @@ All tickets are organized under strategic epics for better planning and tracking
 |----|-------|----------|--------|
 | [OPS-001](./operations/OPS-001-api-documentation.md) | OpenAPI Documentation | Operations | 8h |
 | [OPS-002](./operations/OPS-002-performance-monitoring.md) | Performance Monitoring | Operations | 6h |
-| [OPS-003](./operations/OPS-003-slow-query-detection.md) | Slow Query Detection | Operations | 5h |
+| ~~[OPS-003](./operations/OPS-003-slow-query-detection.md)~~ | ~~Slow Query Detection~~ | ~~Operations~~ | ~~5h~~ ✓ |
 | ~~[OPS-004](./completed/operations/OPS-004-error-rate-monitoring.md)~~ | ~~Error Rate Monitoring~~ | ~~Operations~~ | ~~4h~~ ✓ |
 | [OPS-005](./operations/OPS-005-uptime-sla-monitoring.md) | Uptime SLA Monitoring | Operations | 5h |
 | [DATA-001](./data-management/DATA-001-backup-strategy.md) | Backup Automation | Data Management | 8h |
-| [DATA-002](./data-management/DATA-002-data-export-tools.md) | Data Export Tools | Data Management | 6h |
+| ~~[DATA-002](./data-management/DATA-002-data-export-tools.md)~~ | ~~Data Export Tools~~ | ~~Data Management~~ | ~~6h~~ ✓ |
 | [DATA-003](./data-management/DATA-003-disaster-recovery.md) | Disaster Recovery Runbook | Data Management | 8h |
 | [DATA-004](./data-management/DATA-004-migration-tooling.md) | Migration Rollback Support | Data Management | 6h |
-| [DATA-005](./data-management/DATA-005-data-retention.md) | Data Retention Policies | Data Management | 5h |
+| ~~[DATA-005](./data-management/DATA-005-data-retention.md)~~ | ~~Data Retention Policies~~ | ~~Data Management~~ | ~~5h~~ ✓ |
 | [A11Y-001](./accessibility-compliance/A11Y-001-wcag-audit.md) | WCAG 2.1 AA Audit | Accessibility | 12h |
 | [A11Y-002](./accessibility-compliance/A11Y-002-keyboard-navigation.md) | Keyboard Navigation | Accessibility | 8h |
 | [A11Y-003](./accessibility-compliance/A11Y-003-screen-reader.md) | Screen Reader Support | Accessibility | 10h |
@@ -176,14 +176,14 @@ All tickets are organized under strategic epics for better planning and tracking
 | ~~[FEAT-012](./features/FEAT-012-consent-email-delivery.md)~~ | ~~Consent Document Email Delivery~~ | ~~Feature~~ | ~~5h~~ ✓ |
 | ~~[FEAT-013](./features/FEAT-013-store-prescription-verification.md)~~ | ~~Store Prescription Verification~~ | ~~Feature~~ | ~~9h~~ ✓ |
 | ~~[FEAT-015](./features/FEAT-015-lost-pet-management-dashboard.md)~~ | ~~Lost Pet Management Dashboard~~ | ~~Feature~~ | ~~13h~~ ✓ |
-| [FEAT-016](./features/FEAT-016-disease-outbreak-reporting.md) | Disease Outbreak Reporting | Feature | 18h |
+| ~~[FEAT-016](./features/FEAT-016-disease-outbreak-reporting.md)~~ | ~~Disease Outbreak Reporting~~ | ~~Feature~~ | ~~18h~~ ✓ |
 | ~~[FEAT-017](./features/FEAT-017-message-attachments.md)~~ | ~~Message Attachments~~ | ~~Feature~~ | ~~9h~~ ✓ |
-| [FEAT-019](./features/FEAT-019-consent-template-versioning.md) | Consent Template Versioning | Feature | 11h |
-| [FEAT-021](./features/FEAT-021-lab-results-notification.md) | Lab Results Notification | Feature | 12h |
-| [REF-005](./refactoring/REF-005-server-action-auth-migration.md) | Server Action Auth Migration | Refactoring | 10h |
+| ~~[FEAT-019](./features/FEAT-019-consent-template-versioning.md)~~ | ~~Consent Template Versioning~~ | ~~Feature~~ | ~~11h~~ ✓ |
+| ~~[FEAT-021](./features/FEAT-021-lab-results-notification.md)~~ | ~~Lab Results Notification~~ | ~~Feature~~ | ~~12h~~ ✓ |
+| ~~[REF-005](./refactoring/REF-005-server-action-auth-migration.md)~~ | ~~Server Action Auth Migration~~ | ~~Refactoring~~ | ~~10h~~ ✓ |
 | [REF-006](./refactoring/REF-006-massive-client-component-decomposition.md) | Massive Client Component Decomposition | Refactoring | 28-35h |
 | [RES-001](./technical-debt/RES-001-react-query-adoption.md) | Migrate useEffect+fetch to TanStack Query | Research/Tech Debt | 40h |
-| [AUDIT-103](./technical-debt/AUDIT-103-console-log-cleanup.md) | Console.log Cleanup | Tech Debt | 4-6h |
+| ~~[AUDIT-103](./technical-debt/AUDIT-103-console-log-cleanup.md)~~ | ~~Console.log Cleanup~~ | ~~Tech Debt~~ | ~~4-6h~~ ✓ |
 | [AUDIT-104](./technical-debt/AUDIT-104-large-component-decomposition.md) | Large Component Decomposition | Tech Debt | 24-32h |
 | [AUDIT-105](./technical-debt/AUDIT-105-todo-comment-resolution.md) | TODO Comment Resolution | Tech Debt | 18-28h |
 
@@ -195,9 +195,9 @@ All tickets are organized under strategic epics for better planning and tracking
 | ~~[AUDIT-101b](./technical-debt/AUDIT-101b-inventory-table-extraction.md)~~ | ~~Extract InventoryTable Component~~ | ~~AUDIT-101~~ | ~~4-5h~~ ✓ |
 | ~~[AUDIT-101c](./technical-debt/AUDIT-101c-inventory-import-wizard-extraction.md)~~ | ~~Extract ImportWizard Component~~ | ~~AUDIT-101~~ | ~~Pre-existing~~ ✓ |
 | ~~[AUDIT-101d](./technical-debt/AUDIT-101d-stock-adjustment-modal-extraction.md)~~ | ~~Extract Modal Components~~ | ~~AUDIT-101~~ | ~~3-4h~~ ✓ |
-| [AUDIT-103a](./technical-debt/AUDIT-103a-console-cleanup-api.md) | Console Cleanup - API Routes | AUDIT-103 | 1.5-2h |
-| [AUDIT-103b](./technical-debt/AUDIT-103b-console-cleanup-pages.md) | Console Cleanup - Pages | AUDIT-103 | 2.5-3h |
-| [AUDIT-103c](./technical-debt/AUDIT-103c-console-cleanup-core.md) | Console Cleanup - Core Files | AUDIT-103 | 1-1.5h |
+| ~~[AUDIT-103a](./technical-debt/AUDIT-103a-console-cleanup-api.md)~~ | ~~Console Cleanup - API Routes~~ | ~~AUDIT-103~~ | ~~1.5-2h~~ ✓ |
+| ~~[AUDIT-103b](./technical-debt/AUDIT-103b-console-cleanup-pages.md)~~ | ~~Console Cleanup - Pages~~ | ~~AUDIT-103~~ | ~~2.5-3h~~ ✓ |
+| ~~[AUDIT-103c](./technical-debt/AUDIT-103c-console-cleanup-core.md)~~ | ~~Console Cleanup - Core Files~~ | ~~AUDIT-103~~ | ~~1-1.5h~~ ✓ |
 | [AUDIT-104a](./technical-debt/AUDIT-104a-store-analytics-decomposition.md) | Store Analytics Decomposition | AUDIT-104 | 8-10h |
 | [AUDIT-104b](./technical-debt/AUDIT-104b-portal-inventory-decomposition.md) | Portal Inventory Decomposition | AUDIT-104 | 6-8h |
 | [AUDIT-104c](./technical-debt/AUDIT-104c-consent-templates-decomposition.md) | Consent Templates Decomposition | AUDIT-104 | 6-8h |
@@ -229,7 +229,7 @@ All tickets are organized under strategic epics for better planning and tracking
 | [SCALE-005](./scalability/SCALE-005-cdn-optimization.md) | CDN & Asset Optimization | Scalability | 8h |
 | [INT-004](./integrations/INT-004-accounting-export.md) | Accounting Software Export | Integrations | 10h |
 | [INT-005](./integrations/INT-005-lab-equipment.md) | Lab Equipment Integration | Integrations | 20h |
-| [FEAT-014](./features/FEAT-014-store-order-variant-names.md) | Store Order Variant Names | Feature | 4h |
+| ~~[FEAT-014](./features/FEAT-014-store-order-variant-names.md)~~ | ~~Store Order Variant Names~~ | ~~Feature~~ | ~~4h~~ ✓ |
 | [FEAT-018](./features/FEAT-018-time-off-types-management.md) | Time-Off Types Management | Feature | 10h |
 | [RES-002](./accessibility-compliance/RES-002-div-onclick-accessibility.md) | Replace div onClick with Semantic Buttons | A11y | 3.5h |
 | [AUDIT-102](./technical-debt/AUDIT-102-seed-route-any-types.md) | `any` Types in Seed Route | Tech Debt | 2-3h |
@@ -238,7 +238,7 @@ All tickets are organized under strategic epics for better planning and tracking
 
 ## Summary by Status
 
-### Completed (55 tickets)
+### Completed (61 tickets)
 
 All completed tickets are archived in the [completed/](./completed/) folder, organized by category.
 
@@ -274,6 +274,7 @@ All completed tickets are archived in the [completed/](./completed/) folder, org
 
 **Refactoring:**
 - ✅ REF-001, REF-002, REF-003 (auth, validation, error handling centralized)
+- ✅ REF-005 (server action auth migration)
 
 **Tech Debt:**
 - ✅ TECH-002, TECH-003, TECH-004 (unused routes, console logs, placeholders)
@@ -284,21 +285,25 @@ All completed tickets are archived in the [completed/](./completed/) folder, org
 - ✅ FEAT-010 (invoice PDF generation)
 - ✅ FEAT-011 (WhatsApp analytics dashboard)
 - ✅ FEAT-012 (consent email delivery)
+- ✅ FEAT-014 (store order variant names)
+- ✅ FEAT-016 (disease outbreak reporting)
+- ✅ FEAT-019 (consent template versioning)
 - ✅ FEAT-020 (hospitalization billing)
+- ✅ FEAT-021 (lab results notification)
 
 **WIP:**
 - ✅ WIP-001 (multi-service booking)
 - ✅ WIP-002 (pet weight history)
 - ✅ WIP-003 (E2E test suite expansion)
 
-### Remaining (56 tickets)
+### Remaining (54 tickets)
 
 | Category | Remaining | Effort |
 |----------|-----------|--------|
-| Features | 15 | ~260h |
+| Features | 14 | ~249h |
 | Testing | 0 | 0h |
 | Technical Debt | 3 | 58h |
-| Refactoring | 4 | 23h |
+| Refactoring | 3 | 13h |
 | Operations | 4 | 24h |
 | Data Management | 5 | 33h |
 | Accessibility | 7 | 55.5h |
@@ -322,7 +327,7 @@ All completed tickets are archived in the [completed/](./completed/) folder, org
 
 **Total Remaining: ~621 hours (~15 weeks full-time)**
 
-> **Note:** 55 tickets have been completed and archived in `completed/`
+> **Note:** 57 tickets have been completed and archived in `completed/`
 
 ---
 
@@ -332,17 +337,17 @@ All completed tickets are archived in the [completed/](./completed/) folder, org
 Focus on platform monitoring, API documentation, and operational excellence.
 - OPS-001: OpenAPI/Swagger documentation
 - OPS-002: Real-time performance monitoring dashboard
-- OPS-003: Slow query detection and alerting
-- OPS-004: Error rate monitoring by endpoint
+- ~~OPS-003: Slow query detection and alerting~~ ✓
+- ~~OPS-004: Error rate monitoring by endpoint~~ ✓
 - OPS-005: Uptime SLA monitoring and reporting
 
 ### Data Management & DR (EPIC-12)
 Focus on data protection, backup strategies, and disaster recovery.
 - DATA-001: Automated backup strategy
-- DATA-002: Self-service data export tools
+- ~~DATA-002: Self-service data export tools~~ ✓
 - DATA-003: Disaster recovery runbook
 - DATA-004: Migration rollback support
-- DATA-005: Data retention policy enforcement
+- ~~DATA-005: Data retention policy enforcement~~ ✓
 
 ### Accessibility & Compliance (EPIC-13)
 Focus on WCAG compliance, GDPR rights, and consent management.

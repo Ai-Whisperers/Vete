@@ -8,6 +8,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import type { UploadLogoResponse } from '@/lib/signup/types'
+import { logger } from '@/lib/logger'
 
 export const dynamic = 'force-dynamic'
 
@@ -132,7 +133,11 @@ export async function POST(request: NextRequest): Promise<NextResponse<UploadLog
     })
 
     if (uploadError) {
-      console.error('Logo upload error:', uploadError)
+      logger.error('Logo upload to storage failed', {
+        filePath,
+        fileType: file.type,
+        error: uploadError.message,
+      })
 
       // Check for specific errors
       if (uploadError.message?.includes('Bucket not found')) {
@@ -164,7 +169,9 @@ export async function POST(request: NextRequest): Promise<NextResponse<UploadLog
       url: publicUrl,
     })
   } catch (error) {
-    console.error('Unexpected error in logo upload:', error)
+    logger.error('Unexpected error in logo upload', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    })
     return NextResponse.json(
       {
         success: false,

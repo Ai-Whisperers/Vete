@@ -22,3 +22,6 @@ export { config, isFeatureEnabled, getConfig, getConfigSection } from './manager
 
 // Configuration loader (for testing or manual loading)
 export { loadConfig, validateConfig, getEnvConfig } from './loader'
+
+// Metadata configuration (URLs, site info)
+export { SITE_CONFIG, getSiteUrl, getCanonicalUrl, getMetadataBaseUrl } from './metadata'

@@ -1,11 +1,15 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { withActionAuth, actionError } from '@/lib/actions'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
-import { ActionResult, FieldErrors } from '@/lib/types/action-result'
+import { FieldErrors } from '@/lib/types/action-result'
 import { z } from 'zod'
 import { logger } from '@/lib/logger'
+
+/**
+ * REF-005: Migrated to withActionAuth
+ */
 
 // Species categories for products
 const SPECIES_CATEGORIES = ['dog', 'cat', 'exotic', 'other'] as const
@@ -52,216 +56,174 @@ const createProductSchema = z.object({
     .transform((val) => val?.trim() || null),
 })
 
-export async function createProduct(
-  prevState: ActionResult | null,
-  formData: FormData
-): Promise<ActionResult> {
-  const supabase = await createClient()
+export const createProduct = withActionAuth(
+  async ({ profile, supabase }, formData: FormData) => {
+    const clinic = formData.get('clinic') as string
 
-  // Auth Check
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-  if (authError || !user) {
-    return {
-      success: false,
-      error: 'Debes iniciar sesión para crear productos.',
+    // Extract form data
+    const rawData = {
+      name: formData.get('name') as string,
+      category: formData.get('category') as string,
+      price: formData.get('price') as string,
+      stock: formData.get('stock') as string,
+      description: formData.get('description') as string,
+      sku: formData.get('sku') as string,
     }
-  }
 
-  // Validate Staff Role
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role, tenant_id')
-    .eq('id', user.id)
-    .single()
+    // Validate
+    const validation = createProductSchema.safeParse(rawData)
 
-  if (!profile || !['vet', 'admin'].includes(profile.role)) {
-    return {
-      success: false,
-      error: 'Solo veterinarios y administradores pueden crear productos.',
-    }
-  }
-
-  if (!profile.tenant_id) {
-    return {
-      success: false,
-      error: 'No se encontró tu perfil de clínica. Contacta a soporte.',
-    }
-  }
-
-  const clinic = formData.get('clinic') as string
-
-  // Extract form data
-  const rawData = {
-    name: formData.get('name') as string,
-    category: formData.get('category') as string,
-    price: formData.get('price') as string,
-    stock: formData.get('stock') as string,
-    description: formData.get('description') as string,
-    sku: formData.get('sku') as string,
-  }
-
-  // Validate
-  const validation = createProductSchema.safeParse(rawData)
-
-  if (!validation.success) {
-    const fieldErrors: FieldErrors = {}
-    for (const issue of validation.error.issues) {
-      const fieldName = issue.path[0] as string
-      if (!fieldErrors[fieldName]) {
-        fieldErrors[fieldName] = issue.message
+    if (!validation.success) {
+      const fieldErrors: FieldErrors = {}
+      for (const issue of validation.error.issues) {
+        const fieldName = issue.path[0] as string
+        if (!fieldErrors[fieldName]) {
+          fieldErrors[fieldName] = issue.message
+        }
       }
-    }
 
-    return {
-      success: false,
-      error: 'Por favor, revisa los campos marcados en rojo.',
-      fieldErrors,
-    }
-  }
-
-  const validData = validation.data
-
-  // Check for duplicate SKU if provided
-  if (validData.sku) {
-    const { data: existingSku } = await supabase
-      .from('store_products')
-      .select('id, name')
-      .eq('sku', validData.sku)
-      .eq('tenant_id', profile.tenant_id)
-      .is('deleted_at', null)
-      .maybeSingle()
-
-    if (existingSku) {
       return {
-        success: false,
-        error: 'Este código SKU ya está en uso.',
-        fieldErrors: {
-          sku: `El código "${validData.sku}" ya está asignado al producto "${existingSku.name}".`,
-        },
-      }
-    }
-  }
-
-  // Handle Photo Upload
-  const photo = formData.get('photo') as File
-  let imageUrl = null
-
-  if (photo && photo.size > 0) {
-    // Validate file size (5MB max)
-    if (photo.size > 5 * 1024 * 1024) {
-      return {
-        success: false,
-        error: 'La imagen es demasiado grande.',
-        fieldErrors: {
-          photo: `La imagen debe pesar menos de 5MB. Tu archivo pesa ${(photo.size / 1024 / 1024).toFixed(1)}MB.`,
-        },
+        success: false as const,
+        error: 'Por favor, revisa los campos marcados en rojo.',
+        fieldErrors,
       }
     }
 
-    // Validate file type
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
-    if (!allowedTypes.includes(photo.type)) {
-      return {
-        success: false,
-        error: 'Formato de imagen no soportado.',
-        fieldErrors: {
-          photo: 'Solo se permiten imágenes JPG, PNG, GIF o WebP.',
-        },
-      }
-    }
+    const validData = validation.data
 
-    const fileExt = photo.name.split('.').pop()?.toLowerCase() || 'jpg'
-    const fileName = `products/${profile.tenant_id}/${Date.now()}.${fileExt}`
+    // Check for duplicate SKU if provided
+    if (validData.sku) {
+      const { data: existingSku } = await supabase
+        .from('store_products')
+        .select('id, name')
+        .eq('sku', validData.sku)
+        .eq('tenant_id', profile.tenant_id)
+        .is('deleted_at', null)
+        .maybeSingle()
 
-    // Try to upload to products bucket
-    const { error: uploadError } = await supabase.storage.from('products').upload(fileName, photo)
-
-    if (!uploadError) {
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from('products').getPublicUrl(fileName)
-      imageUrl = publicUrl
-    } else {
-      // Log but don't fail - products can be created without images
-      logger.warn('Product image upload failed', {
-        error: uploadError.message,
-        tenantId: profile.tenant_id,
-      })
-    }
-  }
-
-  // Map category to target_species array
-  const targetSpecies = validData.category === 'other' ? [] : [validData.category]
-
-  // Insert Product into store_products
-  const { data: newProduct, error: insertError } = await supabase
-    .from('store_products')
-    .insert({
-      tenant_id: profile.tenant_id,
-      name: validData.name,
-      description: validData.description,
-      short_description: validData.description?.substring(0, 150) || null,
-      base_price: validData.price,
-      sku: validData.sku,
-      image_url: imageUrl,
-      target_species: targetSpecies,
-      is_active: true,
-      is_featured: false,
-      requires_prescription: false,
-    })
-    .select('id')
-    .single()
-
-  if (insertError || !newProduct) {
-    logger.error('Create Product Error', {
-      error: insertError?.message,
-      tenantId: profile.tenant_id,
-      userId: user.id,
-    })
-
-    if (insertError?.code === '23505') {
-      if (insertError.message.includes('sku')) {
+      if (existingSku) {
         return {
-          success: false,
+          success: false as const,
           error: 'Este código SKU ya está en uso.',
           fieldErrors: {
-            sku: 'Elige otro código SKU para este producto.',
+            sku: `El código "${validData.sku}" ya está asignado al producto "${existingSku.name}".`,
           },
         }
       }
-      return {
-        success: false,
-        error: 'Ya existe un producto con estos datos.',
+    }
+
+    // Handle Photo Upload
+    const photo = formData.get('photo') as File
+    let imageUrl = null
+
+    if (photo && photo.size > 0) {
+      // Validate file size (5MB max)
+      if (photo.size > 5 * 1024 * 1024) {
+        return {
+          success: false as const,
+          error: 'La imagen es demasiado grande.',
+          fieldErrors: {
+            photo: `La imagen debe pesar menos de 5MB. Tu archivo pesa ${(photo.size / 1024 / 1024).toFixed(1)}MB.`,
+          },
+        }
+      }
+
+      // Validate file type
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
+      if (!allowedTypes.includes(photo.type)) {
+        return {
+          success: false as const,
+          error: 'Formato de imagen no soportado.',
+          fieldErrors: {
+            photo: 'Solo se permiten imágenes JPG, PNG, GIF o WebP.',
+          },
+        }
+      }
+
+      const fileExt = photo.name.split('.').pop()?.toLowerCase() || 'jpg'
+      const fileName = `products/${profile.tenant_id}/${Date.now()}.${fileExt}`
+
+      // Try to upload to products bucket
+      const { error: uploadError } = await supabase.storage.from('products').upload(fileName, photo)
+
+      if (!uploadError) {
+        const {
+          data: { publicUrl },
+        } = supabase.storage.from('products').getPublicUrl(fileName)
+        imageUrl = publicUrl
+      } else {
+        // Log but don't fail - products can be created without images
+        logger.warn('Product image upload failed', {
+          error: uploadError.message,
+          tenantId: profile.tenant_id,
+        })
       }
     }
 
-    return {
-      success: false,
-      error: 'No se pudo crear el producto. Por favor, intenta de nuevo.',
+    // Map category to target_species array
+    const targetSpecies = validData.category === 'other' ? [] : [validData.category]
+
+    // Insert Product into store_products
+    const { data: newProduct, error: insertError } = await supabase
+      .from('store_products')
+      .insert({
+        tenant_id: profile.tenant_id,
+        name: validData.name,
+        description: validData.description,
+        short_description: validData.description?.substring(0, 150) || null,
+        base_price: validData.price,
+        sku: validData.sku,
+        image_url: imageUrl,
+        target_species: targetSpecies,
+        is_active: true,
+        is_featured: false,
+        requires_prescription: false,
+      })
+      .select('id')
+      .single()
+
+    if (insertError || !newProduct) {
+      logger.error('Create Product Error', {
+        error: insertError?.message,
+        tenantId: profile.tenant_id,
+      })
+
+      if (insertError?.code === '23505') {
+        if (insertError.message.includes('sku')) {
+          return {
+            success: false as const,
+            error: 'Este código SKU ya está en uso.',
+            fieldErrors: {
+              sku: 'Elige otro código SKU para este producto.',
+            },
+          }
+        }
+        return actionError('Ya existe un producto con estos datos.')
+      }
+
+      return actionError('No se pudo crear el producto. Por favor, intenta de nuevo.')
     }
-  }
 
-  // Insert initial inventory record
-  const { error: inventoryError } = await supabase.from('store_inventory').insert({
-    product_id: newProduct.id,
-    tenant_id: profile.tenant_id,
-    stock_quantity: validData.stock,
-    min_stock_level: 0,
-  })
-
-  if (inventoryError) {
-    logger.warn('Failed to create initial inventory record', {
-      error: inventoryError.message,
-      productId: newProduct.id,
-      tenantId: profile.tenant_id,
+    // Insert initial inventory record
+    const { error: inventoryError } = await supabase.from('store_inventory').insert({
+      product_id: newProduct.id,
+      tenant_id: profile.tenant_id,
+      stock_quantity: validData.stock,
+      min_stock_level: 0,
     })
-    // Don't fail - product was created, inventory can be set later
-  }
 
-  revalidatePath(`/${clinic}/portal/products`)
-  revalidatePath(`/${clinic}/store`)
-  redirect(`/${clinic}/portal/products?success=product_created`)
-}
+    if (inventoryError) {
+      logger.warn('Failed to create initial inventory record', {
+        error: inventoryError.message,
+        productId: newProduct.id,
+        tenantId: profile.tenant_id,
+      })
+      // Don't fail - product was created, inventory can be set later
+    }
+
+    revalidatePath(`/${clinic}/portal/products`)
+    revalidatePath(`/${clinic}/store`)
+    redirect(`/${clinic}/portal/products?success=product_created`)
+  },
+  { requireStaff: true }
+)

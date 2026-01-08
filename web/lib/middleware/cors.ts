@@ -88,10 +88,12 @@ function setCORSHeaders(
 }
 
 // Pre-configured CORS middleware for different environments
+// Uses APP_URL from environment config for production origin
+const productionUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://vetic.app'
 export const apiCORS = withCORS({
   origin:
     process.env.NODE_ENV === 'production'
-      ? ['https://Vetic.vercel.app', 'https://www.Vetic.vercel.app']
+      ? [productionUrl, productionUrl.replace('https://', 'https://www.')]
       : '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-Request-ID'],

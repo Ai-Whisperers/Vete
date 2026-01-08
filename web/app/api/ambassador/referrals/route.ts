@@ -11,6 +11,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/logger'
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   const supabase = await createClient()
@@ -74,7 +75,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const { data: referrals, error, count } = await query
 
   if (error) {
-    console.error('Error fetching ambassador referrals:', error)
+    logger.error('Failed to fetch ambassador referrals', {
+      ambassadorId: ambassador.id,
+      status,
+      error: error.message,
+    })
     return NextResponse.json({ error: 'Error al cargar referidos' }, { status: 500 })
   }
 

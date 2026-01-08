@@ -9,8 +9,7 @@ import {
   WebApplicationSchema,
   BreadcrumbSchema,
 } from '@/components/seo/structured-data'
-
-const BASE_URL = 'https://Vetic.vercel.app'
+import { getCanonicalUrl } from '@/lib/config'
 
 interface Props {
   params: Promise<{ clinic: string }>
@@ -22,7 +21,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const title = `Verificador de Alimentos Tóxicos para Mascotas | ${clinicData?.config.name || 'Veterinaria'}`
   const description = `Verifica si un alimento es seguro para tu mascota. Base de datos con ${TOXIC_FOODS.length}+ alimentos tóxicos para perros, gatos, aves, conejos y más. Herramienta gratuita de ${clinicData?.config.name}.`
-  const canonicalUrl = `${BASE_URL}/${clinic}/tools/toxic-food`
+  const canonicalUrl = getCanonicalUrl(clinic, '/tools/toxic-food')
 
   return {
     title,

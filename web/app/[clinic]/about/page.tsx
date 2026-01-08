@@ -26,8 +26,7 @@ import { TeamMemberCard } from '@/components/about/team-member-card'
 import { FacilitiesGallery } from '@/components/about/facilities-gallery'
 import { CertificationBadge } from '@/components/about/certification-badge'
 import { TeamSchema, BreadcrumbSchema } from '@/components/seo/structured-data'
-
-const BASE_URL = 'https://Vetic.vercel.app'
+import { getCanonicalUrl, getSiteUrl } from '@/lib/config'
 
 // Generate metadata for SEO
 export async function generateMetadata({
@@ -44,7 +43,7 @@ export async function generateMetadata({
   const description =
     about?.intro?.text?.substring(0, 160) ||
     `Conoce al equipo de profesionales de ${config.name}. Años de experiencia en medicina veterinaria.`
-  const canonicalUrl = `${BASE_URL}/${clinic}/about`
+  const canonicalUrl = getCanonicalUrl(clinic, '/about')
   const ogImage = config.branding?.og_image_url || '/branding/default-og.jpg'
 
   return {
@@ -62,7 +61,7 @@ export async function generateMetadata({
       siteName: config.name,
       images: [
         {
-          url: ogImage.startsWith('/') ? `${BASE_URL}${ogImage}` : ogImage,
+          url: ogImage.startsWith('/') ? getSiteUrl(ogImage) : ogImage,
           width: 1200,
           height: 630,
           alt: `Equipo de ${config.name}`,

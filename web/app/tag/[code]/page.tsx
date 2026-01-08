@@ -108,7 +108,9 @@ export default async function TagPage({ params }: { params: Promise<{ code: stri
               </Link>
             </div>
           ) : (
-            <form action={assignTag} className="space-y-4">
+            <form
+              // @ts-expect-error Server action returns ActionResult
+              action={assignTag} className="space-y-4">
               <input type="hidden" name="tagCode" value={code} />
               <label className="block text-sm font-bold uppercase tracking-wider text-gray-400">
                 Selecciona tu Mascota

@@ -169,7 +169,7 @@ async function processRetentionPolicy(
     // For now, we'll do a simple approach with the condition in application code
 
     // Get records to process
-    const { data: records, error: fetchError, count } = await supabase
+    const { data: rawRecords, error: fetchError, count } = await supabase
       .from(policy.table)
       .select('id, ' + policy.dateColumn, { count: 'exact' })
       .limit(batchSize)
@@ -178,7 +178,8 @@ async function processRetentionPolicy(
       throw new Error(`Failed to fetch records: ${fetchError.message}`)
     }
 
-    if (!records || records.length === 0) {
+    const records = (rawRecords || []) as unknown as Array<Record<string, unknown>>
+    if (records.length === 0) {
       return {
         table: policy.table,
         action: policy.action,
@@ -191,7 +192,7 @@ async function processRetentionPolicy(
     // Filter records that exceed retention period
     const cutoffDate = calculateCutoffDate(policy.retentionPeriod)
     const expiredRecords = records.filter((r) => {
-      const recordDate = new Date(r[policy.dateColumn])
+      const recordDate = new Date(r[policy.dateColumn] as string | number | Date)
       return recordDate < cutoffDate
     })
 
@@ -205,7 +206,7 @@ async function processRetentionPolicy(
       }
     }
 
-    const expiredIds = expiredRecords.map((r) => r.id)
+    const expiredIds = expiredRecords.map((r) => r.id as string)
 
     if (dryRun) {
       logger.info(`[DRY RUN] Would ${policy.action} ${expiredIds.length} records from ${policy.table}`, {
@@ -418,7 +419,7 @@ export async function getRetentionStats(): Promise<
           retentionPeriod: policy.retentionPeriod,
           action: policy.action,
           estimatedRecords: count || 0,
-          oldestRecord: data?.[0]?.[policy.dateColumn] || null,
+          oldestRecord: ((data as unknown as Array<Record<string, unknown>> | null)?.[0]?.[policy.dateColumn] as string) || null,
         })
       }
     } catch {

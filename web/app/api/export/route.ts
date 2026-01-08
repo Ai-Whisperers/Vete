@@ -80,7 +80,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       return NextResponse.json(
         {
           error: 'Datos inválidos',
-          details: error.errors.map((e) => ({ path: e.path.join('.'), message: e.message })),
+          details: error.issues.map((e: z.ZodIssue) => ({ path: e.path.join('.'), message: e.message })),
         },
         { status: 400 }
       )

@@ -117,7 +117,7 @@ export function ScheduleEditorClient({
         })
 
         if (!result.success) {
-          setError(result.error)
+          setError(result.error || 'Error desconocido')
         } else {
           setSuccess('Horario actualizado correctamente')
           setTimeout(() => {
@@ -137,7 +137,7 @@ export function ScheduleEditorClient({
         })
 
         if (!result.success) {
-          setError(result.error)
+          setError(result.error || 'Error desconocido')
         } else {
           setSuccess('Horario creado correctamente')
           setTimeout(() => {
@@ -171,7 +171,7 @@ export function ScheduleEditorClient({
       const result = await deleteStaffSchedule(existingSchedule.id)
 
       if (!result.success) {
-        setError(result.error)
+        setError(result.error || 'Error desconocido')
       } else {
         router.push(`/${clinicSlug}/dashboard/schedules`)
       }

@@ -383,7 +383,7 @@ async function fetchTableData(
   // For simplicity, we're doing basic column selection
   // A more sophisticated implementation would do JOINs
 
-  return (data as Record<string, unknown>[]) ?? []
+  return (data as unknown as Record<string, unknown>[]) ?? []
 }
 
 // =============================================================================

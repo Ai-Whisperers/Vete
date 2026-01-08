@@ -5,6 +5,7 @@ import * as Icons from 'lucide-react'
 import { inviteStaff } from '@/app/actions/invite-staff'
 
 export function InviteStaffForm({ clinic }: { clinic: string }) {
+  // @ts-expect-error Server action signature mismatch with useActionState
   const [state, formAction, isPending] = useActionState(inviteStaff, null)
 
   return (

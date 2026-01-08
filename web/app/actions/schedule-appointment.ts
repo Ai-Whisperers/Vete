@@ -268,7 +268,7 @@ export const scheduleAppointment = withActionAuth(
     revalidatePath(`/${profile.tenant_id}/dashboard/appointments`)
     revalidatePath(`/${profile.tenant_id}/dashboard/calendar`)
 
-    return actionSuccess('Cita programada exitosamente')
+    return { success: true, message: 'Cita programada exitosamente' }
   },
   { requireStaff: true }
 )

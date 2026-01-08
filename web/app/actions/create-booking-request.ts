@@ -69,7 +69,7 @@ export type BookingRequestInput = z.infer<typeof createBookingRequestSchema>
  */
 export const createBookingRequest = withActionAuth(
   async (
-    { user, supabase },
+    { user, profile, supabase },
     input: BookingRequestInput
   ): Promise<ActionResult<{ appointment_id: string }>> => {
     // Validate
@@ -221,7 +221,7 @@ export const createBookingRequest = withActionAuth(
     // Send "Request Received" Email
     try {
       const userEmail = user.email || 'correo_desconocido@example.com'
-      const userName = user.user_metadata?.full_name || user.email
+      const userName = profile.full_name || user.email || 'Usuario'
 
       // Format preferences for email
       let preferencesText = ''

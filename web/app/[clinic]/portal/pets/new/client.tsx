@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { PhotoUpload } from '@/components/pets/photo-upload'
 
 export default function NewPetClient({ params }: { params: { clinic: string } }) {
+  // @ts-expect-error Server action signature mismatch with useActionState
   const [state, formAction, isPending] = useActionState(createPet, null)
 
   return (

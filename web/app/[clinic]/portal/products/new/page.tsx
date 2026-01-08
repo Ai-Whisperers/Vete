@@ -44,6 +44,7 @@ function inputClass(hasError: boolean) {
 
 export default function NewProductPage() {
   const { clinic } = useParams()
+  // @ts-expect-error Server action signature mismatch with useActionState
   const [state, formAction, isPending] = useActionState(createProduct, null)
   const fieldErrors = getFieldErrors(state)
 

@@ -26,6 +26,16 @@ vi.mock('@/lib/supabase/server', () => ({
 vi.mock('next/cache', () => ({
   revalidatePath: vi.fn(),
 }))
+// Mock database to prevent DATABASE_URL requirement
+vi.mock('@/db', () => ({
+  db: {},
+}))
+
+vi.mock('@/db/schema', () => ({
+  profiles: {},
+}))
+
+
 
 // Import after mocking
 import { cancelAppointment, rescheduleAppointment } from '@/app/actions/appointments'

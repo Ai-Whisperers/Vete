@@ -11,7 +11,7 @@ Choose your agent. Copy the command. Transform your workflow.
 _Turns tickets into code._
 
 ```bash
-/ralph-loop:ralph-loop "Follow instructions in .claude/prompts/RALPH_PROMPT.md to process tickets from the README" --completion-promise "ALL_TICKETS_DONE" --max-iterations 50
+/ralph-loop:ralph-loop "Follow instructions in .claude/prompts/ralph/THE_BUILDER.md to process tickets from the README" --completion-promise "ALL_TICKETS_DONE" --max-iterations 50
 ```
 
 ### The Scrum Master (Sprint Planning)
@@ -19,7 +19,7 @@ _Turns tickets into code._
 _Turns Epics into Sprint Tasks._
 
 ```bash
-/ralph-loop:ralph-loop "Follow instructions in .claude/prompts/RALPH_SPRINT_PROMPT.md" --completion-promise "SPRINT_PLANNING_COMPLETE" --max-iterations 20
+/ralph-loop:ralph-loop "Follow instructions in .claude/prompts/ralph/THE_SCRUM_MASTER.md" --completion-promise "SPRINT_PLANNING_COMPLETE" --max-iterations 20
 ```
 
 ### The Librarian (Documentation)
@@ -27,7 +27,7 @@ _Turns Epics into Sprint Tasks._
 _Synchronizes docs with reality._
 
 ```bash
-/ralph-loop:ralph-loop "Follow instructions in .claude/prompts/RALPH_DOC_UPDATE_PROMPT.md" --completion-promise "DOCS_SYNC_COMPLETE" --max-iterations 30
+/ralph-loop:ralph-loop "Follow instructions in .claude/prompts/ralph/THE_LIBRARIAN.md" --completion-promise "DOCS_SYNC_COMPLETE" --max-iterations 30
 ```
 
 ### The Detective (Gap Analysis)
@@ -35,7 +35,7 @@ _Synchronizes docs with reality._
 _Finds what you forgot to ticket._
 
 ```bash
-/ralph-loop:ralph-loop "Follow instructions in .claude/prompts/RALPH_ANALYSIS_PROMPT.md" --completion-promise "ANALYSIS_COMPLETE" --max-iterations 30
+/ralph-loop:ralph-loop "Follow instructions in .claude/prompts/ralph/THE_DETECTIVE.md" --completion-promise "ANALYSIS_COMPLETE" --max-iterations 30
 ```
 
 ### The Broadcaster (Release Manager)
@@ -43,7 +43,7 @@ _Finds what you forgot to ticket._
 _Writes release notes from git history._
 
 ```bash
-/ralph-loop:ralph-loop "Follow instructions in .claude/prompts/RALPH_RELEASE_PROMPT.md" --completion-promise "RELEASE_NOTES_READY" --max-iterations 20
+/ralph-loop:ralph-loop "Follow instructions in .claude/prompts/ralph/THE_BROADCASTER.md" --completion-promise "RELEASE_NOTES_READY" --max-iterations 20
 ```
 
 ---
@@ -55,7 +55,7 @@ _Writes release notes from git history._
 _Enforces Security (RLS) and Clean Code._
 
 ```bash
-/ralph-loop:ralph-loop "Follow instructions in .claude/prompts/RALPH_STANDARDS_PROMPT.md" --completion-promise "STANDARDS_CHECK_COMPLETE" --max-iterations 30
+/ralph-loop:ralph-loop "Follow instructions in .claude/prompts/ralph/THE_SHERIFF.md" --completion-promise "STANDARDS_CHECK_COMPLETE" --max-iterations 30
 ```
 
 ### The Exterminator (Bug Hunter)
@@ -63,7 +63,7 @@ _Enforces Security (RLS) and Clean Code._
 _Proactively finds potential bugs._
 
 ```bash
-/ralph-loop:ralph-loop "Follow instructions in .claude/prompts/RALPH_BUG_HUNT_PROMPT.md" --completion-promise "BUG_HUNT_COMPLETE" --max-iterations 20
+/ralph-loop:ralph-loop "Follow instructions in .claude/prompts/ralph/THE_EXTERMINATOR.md" --completion-promise "BUG_HUNT_COMPLETE" --max-iterations 20
 ```
 
 ### The Auditor (Codebase Health)
@@ -71,7 +71,7 @@ _Proactively finds potential bugs._
 _Grades feature maturity (Perfect vs Garbage)._
 
 ```bash
-/ralph-loop:ralph-loop "Follow instructions in .claude/prompts/RALPH_AUDIT_PROMPT.md" --completion-promise "AUDIT_COMPLETE" --max-iterations 40
+/ralph-loop:ralph-loop "Follow instructions in .claude/prompts/ralph/THE_AUDITOR.md" --completion-promise "AUDIT_COMPLETE" --max-iterations 40
 ```
 
 ### The Architect (Refactoring)
@@ -79,7 +79,7 @@ _Grades feature maturity (Perfect vs Garbage)._
 _Improves modularity and reduces debt._
 
 ```bash
-/ralph-loop:ralph-loop "Follow instructions in .claude/prompts/RALPH_REFACTOR_PROMPT.md" --completion-promise "REFACTOR_ANALYSIS_COMPLETE" --max-iterations 25
+/ralph-loop:ralph-loop "Follow instructions in .claude/prompts/ralph/THE_ARCHITECT.md" --completion-promise "REFACTOR_ANALYSIS_COMPLETE" --max-iterations 25
 ```
 
 ### The Innovator (Research)
@@ -87,7 +87,7 @@ _Improves modularity and reduces debt._
 _Modernizes stack and removes reinvented wheels._
 
 ```bash
-/ralph-loop:ralph-loop "Follow instructions in .claude/prompts/RALPH_RESEARCH_PROMPT.md" --completion-promise "RESEARCH_ANALYSIS_COMPLETE" --max-iterations 20
+/ralph-loop:ralph-loop "Follow instructions in .claude/prompts/ralph/THE_INNOVATOR.md" --completion-promise "RESEARCH_ANALYSIS_COMPLETE" --max-iterations 20
 ```
 
 ---
@@ -99,7 +99,7 @@ _Modernizes stack and removes reinvented wheels._
 _Drafts SEO-aligned blogs and social posts._
 
 ```bash
-/ralph-loop:ralph-loop "Follow instructions in .claude/prompts/RALPH_CONTENT_PROMPT.md" --completion-promise "CONTENT_DRAFTING_COMPLETE" --max-iterations 20
+/ralph-loop:ralph-loop "Follow instructions in .claude/prompts/ralph/THE_SCRIBE.md" --completion-promise "CONTENT_DRAFTING_COMPLETE" --max-iterations 20
 ```
 
 ### The Guardian (Brand Voice)
@@ -107,7 +107,7 @@ _Drafts SEO-aligned blogs and social posts._
 _Ensures consistency and kills formatting errors._
 
 ```bash
-/ralph-loop:ralph-loop "Follow instructions in .claude/prompts/RALPH_BRAND_PROMPT.md" --completion-promise "BRAND_AUDIT_COMPLETE" --max-iterations 20
+/ralph-loop:ralph-loop "Follow instructions in .claude/prompts/ralph/THE_GUARDIAN.md" --completion-promise "BRAND_AUDIT_COMPLETE" --max-iterations 20
 ```
 
 ### The Rainmaker (Sales Copy)
@@ -115,7 +115,7 @@ _Ensures consistency and kills formatting errors._
 _Optimizes scripts for higher conversion._
 
 ```bash
-/ralph-loop:ralph-loop "Follow instructions in .claude/prompts/RALPH_SALES_PROMPT.md" --completion-promise "SALES_SCRIPTS_UPDATED" --max-iterations 20
+/ralph-loop:ralph-loop "Follow instructions in .claude/prompts/ralph/THE_RAINMAKER.md" --completion-promise "SALES_SCRIPTS_UPDATED" --max-iterations 20
 ```
 
 ### The Alchemist (Growth Hacker)
@@ -123,7 +123,7 @@ _Optimizes scripts for higher conversion._
 _Finds viral loops and SEO wins._
 
 ```bash
-/ralph-loop:ralph-loop "Follow instructions in .claude/prompts/RALPH_GROWTH_PROMPT.md" --completion-promise "GROWTH_HACK_COMPLETE" --max-iterations 25
+/ralph-loop:ralph-loop "Follow instructions in .claude/prompts/ralph/THE_ALCHEMIST.md" --completion-promise "GROWTH_HACK_COMPLETE" --max-iterations 25
 ```
 
 ### The Empath (Persona Researcher)
@@ -131,7 +131,7 @@ _Finds viral loops and SEO wins._
 _Keeps customer personas alive._
 
 ```bash
-/ralph-loop:ralph-loop "Follow instructions in .claude/prompts/RALPH_PERSONA_PROMPT.md" --completion-promise "PERSONA_UPDATE_COMPLETE" --max-iterations 15
+/ralph-loop:ralph-loop "Follow instructions in .claude/prompts/ralph/THE_EMPATH.md" --completion-promise "PERSONA_UPDATE_COMPLETE" --max-iterations 15
 ```
 
 ---
@@ -143,7 +143,7 @@ _Keeps customer personas alive._
 _Removes friction for new users._
 
 ```bash
-/ralph-loop:ralph-loop "Follow instructions in .claude/prompts/RALPH_ONBOARDING_PROMPT.md" --completion-promise "ONBOARDING_DOCS_UPDATED" --max-iterations 20
+/ralph-loop:ralph-loop "Follow instructions in .claude/prompts/ralph/THE_GUIDE.md" --completion-promise "ONBOARDING_DOCS_UPDATED" --max-iterations 20
 ```
 
 ### The Strategist (Pricing)
@@ -151,7 +151,7 @@ _Removes friction for new users._
 _Adjuts tiers based on feature value._
 
 ```bash
-/ralph-loop:ralph-loop "Follow instructions in .claude/prompts/RALPH_PRICING_PROMPT.md" --completion-promise "PRICING_REVIEW_COMPLETE" --max-iterations 15
+/ralph-loop:ralph-loop "Follow instructions in .claude/prompts/ralph/THE_STRATEGIST.md" --completion-promise "PRICING_REVIEW_COMPLETE" --max-iterations 15
 ```
 
 ### The Treasurer (Finance)
@@ -159,7 +159,7 @@ _Adjuts tiers based on feature value._
 _Updates projections based on reality._
 
 ```bash
-/ralph-loop:ralph-loop "Follow instructions in .claude/prompts/RALPH_FINANCE_PROMPT.md" --completion-promise "FINANCE_UPDATE_COMPLETE" --max-iterations 10
+/ralph-loop:ralph-loop "Follow instructions in .claude/prompts/ralph/THE_TREASURER.md" --completion-promise "FINANCE_UPDATE_COMPLETE" --max-iterations 10
 ```
 
 ### The Scout (Competitor Intel)
@@ -167,5 +167,5 @@ _Updates projections based on reality._
 _Track the competition._
 
 ```bash
-/ralph-loop:ralph-loop "Follow instructions in .claude/prompts/RALPH_COMPETITOR_PROMPT.md" --completion-promise "COMPETITOR_UPDATE_COMPLETE" --max-iterations 15
+/ralph-loop:ralph-loop "Follow instructions in .claude/prompts/ralph/THE_SCOUT.md" --completion-promise "COMPETITOR_UPDATE_COMPLETE" --max-iterations 15
 ```

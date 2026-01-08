@@ -1,0 +1,9 @@
+{
+  "name": "vete-veterinary",
+  "version": "1.0.0",
+  "description": "Veterinary medicine knowledge for clinical tools - drug dosages, diagnosis codes, vaccine schedules, lab reference ranges, and species-specific guidance for the Vete platform.",
+  "author": "Vete Platform",
+  "skills": [
+    "skills/veterinary-clinical"
+  ]
+}

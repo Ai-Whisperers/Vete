@@ -2,7 +2,7 @@
 
 ## Priority: P2 - Medium
 ## Category: Feature
-## Status: Not Started
+## Status: Completed
 ## Epic: [EPIC-08: Feature Completion](../epics/EPIC-08-feature-completion.md)
 ## Affected Areas: Messaging, Portal, Storage
 
@@ -205,6 +205,45 @@ export function AttachmentPreview({ attachment }: { attachment: MessageAttachmen
 - Testing: 2 hours
 - **Total: 9 hours (1 day)**
 
+## Implementation Notes
+
+### Completed: January 2026
+
+Feature was found to be already fully implemented. Implementation includes:
+
+#### Upload API (`app/api/messages/attachments/route.ts`)
+- POST endpoint for file uploads
+- Security: Extension whitelist (SEC-004 compliance)
+- Type validation: images, PDFs, text files, Word docs
+- Size validation: 10MB limit per file
+- Max 5 files per message
+- Supabase Storage bucket: `message-attachments`
+- Path structure: `{user_id}/{conversation_id}/{timestamp}-{random}.{ext}`
+
+#### Message Creation (`app/api/conversations/[id]/messages/route.ts`)
+- Accepts `attachments` array in request body
+- Stores attachments in JSONB column
+- Auto-detects message type (image/file) from attachments
+- Supports mixed content (text + attachments)
+
+#### UI (`app/[clinic]/portal/messages/[id]/page.tsx`)
+- File input with type restrictions
+- `handleFileSelect` with validation
+- Selected files preview with remove button
+- Attachment button enabled (Paperclip icon)
+- Upload via FormData to `/api/messages/attachments`
+- Inline attachment display in messages
+- Image thumbnails with preview
+- Document links with file type icons
+
+#### Security Features
+- Auth check before upload
+- Conversation access verification
+- File extension whitelist
+- MIME type validation
+- Size limits enforced
+
 ---
 *Created: January 2026*
+*Completed: January 2026*
 *Derived from INCOMPLETE_FEATURES_ANALYSIS.md*

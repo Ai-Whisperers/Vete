@@ -17,12 +17,12 @@ All tickets are organized under strategic epics for better planning and tracking
 | [EPIC-05](./epics/EPIC-05-test-coverage.md) | Test Coverage | 4 | 50% Complete |
 | [EPIC-06](./epics/EPIC-06-performance-optimization.md) | Performance Optimization | 6 | ✅ Complete |
 | [EPIC-07](./epics/EPIC-07-wip-completion.md) | WIP Completion | 3 | 33% Complete |
-| [EPIC-08](./epics/EPIC-08-code-quality.md) | Code Quality & Refactoring | 11 | 35% Complete |
+| [EPIC-08](./epics/EPIC-08-code-quality.md) | Code Quality & Refactoring | 12 | 30% Complete |
 | [EPIC-09](./epics/EPIC-09-feature-expansion.md) | Feature Expansion | 9 | 10% Complete |
 | [EPIC-10](./epics/EPIC-10-audit-compliance.md) | Audit & Compliance | 3 | ✅ Complete |
 | [EPIC-11](./epics/EPIC-11-operations-observability.md) | Operations & Observability | 5 | Not Started |
 | [EPIC-12](./epics/EPIC-12-data-management.md) | Data Management & DR | 5 | Not Started |
-| [EPIC-13](./epics/EPIC-13-accessibility-compliance.md) | Accessibility & Compliance | 6 | Not Started |
+| [EPIC-13](./epics/EPIC-13-accessibility-compliance.md) | Accessibility & Compliance | 7 | Not Started |
 | [EPIC-14](./epics/EPIC-14-load-testing-scalability.md) | Load Testing & Scalability | 5 | Not Started |
 | [EPIC-15](./epics/EPIC-15-integration-expansion.md) | Integration Expansion | 5 | Not Started |
 | [EPIC-16](./epics/EPIC-16-user-experience.md) | User Experience | 5 | Not Started |
@@ -42,18 +42,18 @@ All tickets are organized under strategic epics for better planning and tracking
 | [Bugs](./bugs/) | Known issues and inconsistencies | 5 |
 | [Performance](./performance/) | Performance optimizations | 6 |
 | [Security](./security/) | Security improvements | 12 |
-| [Technical Debt](./technical-debt/) | Code cleanup and modernization | 5 |
+| [Technical Debt](./technical-debt/) | Code cleanup and modernization | 11 |
 | [Race Conditions](./race-conditions/) | Atomicity and concurrency issues | 4 |
 | [Validation](./validation/) | Input validation gaps | 3 |
 | [Audit](./audit/) | Logging and compliance gaps | 3 |
 | [Operations](./operations/) | Observability and monitoring | 5 |
 | [Data Management](./data-management/) | Backup, export, and DR | 5 |
-| [Accessibility & Compliance](./accessibility-compliance/) | WCAG, GDPR, consent | 6 |
+| [Accessibility & Compliance](./accessibility-compliance/) | WCAG, GDPR, consent | 7 |
 | [Scalability](./scalability/) | Load testing and scaling | 5 |
 | [Integrations](./integrations/) | External service integrations | 5 |
 | [User Experience](./user-experience/) | UX improvements | 5 |
 
-**Total Tickets: 110**
+**Total Tickets: 117**
 
 ---
 
@@ -74,6 +74,7 @@ All tickets are organized under strategic epics for better planning and tracking
 |----|-------|----------|--------|
 | ~~[TEST-001](./testing/TEST-001-cron-job-tests.md)~~ | ~~Cron Job Test Coverage~~ | ~~Testing~~ | ~~14h~~ ✓ |
 | ~~[RACE-001](./race-conditions/RACE-001-subscription-stock-overselling.md)~~ | ~~Stock Decrement Not Atomic in Subscriptions~~ | ~~Race Condition~~ | ~~5h~~ ✓ |
+| [AUDIT-100](./technical-debt/AUDIT-100-mock-availability-route.md) | Mock API Route in Production | Tech Debt | 1-2h |
 
 ### P1 - High Priority (Do Soon)
 
@@ -99,6 +100,7 @@ All tickets are organized under strategic epics for better planning and tracking
 | ~~[FEAT-020](./features/FEAT-020-hospitalization-billing.md)~~ | ~~Hospitalization Billing Integration~~ | ~~Feature~~ | ~~13h~~ ✓ |
 | ~~[BUG-005](./bugs/BUG-005-duplicate-checkout-path.md)~~ | ~~Duplicate Checkout Path Without Stock Validation~~ | ~~Bug~~ | ~~2-3h~~ ✓ |
 | ~~[NOTIF-003](./notifications/NOTIF-003-sms-channel-implementation.md)~~ | ~~SMS Channel~~ (DESCOPED - use WhatsApp) | ~~Notifications~~ | - |
+| [AUDIT-101](./technical-debt/AUDIT-101-god-component-inventory.md) | God Component - Inventory Client | Tech Debt | 16-20h |
 
 ### P2 - Medium Priority (Next Sprint)
 
@@ -173,13 +175,17 @@ All tickets are organized under strategic epics for better planning and tracking
 | ~~[FEAT-011](./completed/features/FEAT-011-whatsapp-analytics-dashboard.md)~~ | ~~WhatsApp Analytics Dashboard~~ | ~~Feature~~ | ~~8h~~ ✓ |
 | ~~[FEAT-012](./features/FEAT-012-consent-email-delivery.md)~~ | ~~Consent Document Email Delivery~~ | ~~Feature~~ | ~~5h~~ ✓ |
 | ~~[FEAT-013](./features/FEAT-013-store-prescription-verification.md)~~ | ~~Store Prescription Verification~~ | ~~Feature~~ | ~~9h~~ ✓ |
-| [FEAT-015](./features/FEAT-015-lost-pet-management-dashboard.md) | Lost Pet Management Dashboard | Feature | 13h |
+| ~~[FEAT-015](./features/FEAT-015-lost-pet-management-dashboard.md)~~ | ~~Lost Pet Management Dashboard~~ | ~~Feature~~ | ~~13h~~ ✓ |
 | [FEAT-016](./features/FEAT-016-disease-outbreak-reporting.md) | Disease Outbreak Reporting | Feature | 18h |
-| [FEAT-017](./features/FEAT-017-message-attachments.md) | Message Attachments | Feature | 9h |
+| ~~[FEAT-017](./features/FEAT-017-message-attachments.md)~~ | ~~Message Attachments~~ | ~~Feature~~ | ~~9h~~ ✓ |
 | [FEAT-019](./features/FEAT-019-consent-template-versioning.md) | Consent Template Versioning | Feature | 11h |
 | [FEAT-021](./features/FEAT-021-lab-results-notification.md) | Lab Results Notification | Feature | 12h |
 | [REF-005](./refactoring/REF-005-server-action-auth-migration.md) | Server Action Auth Migration | Refactoring | 10h |
 | [REF-006](./refactoring/REF-006-massive-client-component-decomposition.md) | Massive Client Component Decomposition | Refactoring | 28-35h |
+| [RES-001](./technical-debt/RES-001-react-query-adoption.md) | Migrate useEffect+fetch to TanStack Query | Research/Tech Debt | 40h |
+| [AUDIT-103](./technical-debt/AUDIT-103-console-log-cleanup.md) | Console.log Cleanup | Tech Debt | 4-6h |
+| [AUDIT-104](./technical-debt/AUDIT-104-large-component-decomposition.md) | Large Component Decomposition | Tech Debt | 24-32h |
+| [AUDIT-105](./technical-debt/AUDIT-105-todo-comment-resolution.md) | TODO Comment Resolution | Tech Debt | 18-28h |
 
 ### P3 - Backlog (Future)
 
@@ -207,6 +213,8 @@ All tickets are organized under strategic epics for better planning and tracking
 | [INT-005](./integrations/INT-005-lab-equipment.md) | Lab Equipment Integration | Integrations | 20h |
 | [FEAT-014](./features/FEAT-014-store-order-variant-names.md) | Store Order Variant Names | Feature | 4h |
 | [FEAT-018](./features/FEAT-018-time-off-types-management.md) | Time-Off Types Management | Feature | 10h |
+| [RES-002](./accessibility-compliance/RES-002-div-onclick-accessibility.md) | Replace div onClick with Semantic Buttons | A11y | 3.5h |
+| [AUDIT-102](./technical-debt/AUDIT-102-seed-route-any-types.md) | `any` Types in Seed Route | Tech Debt | 2-3h |
 
 ---
 
@@ -264,17 +272,17 @@ All completed tickets are archived in the [completed/](./completed/) folder, org
 - ✅ WIP-002 (pet weight history)
 - ✅ WIP-003 (E2E test suite expansion)
 
-### Remaining (54 tickets)
+### Remaining (56 tickets)
 
 | Category | Remaining | Effort |
 |----------|-----------|--------|
 | Features | 15 | ~260h |
 | Testing | 1 | 20h |
-| Technical Debt | 2 | 18h |
+| Technical Debt | 3 | 58h |
 | Refactoring | 4 | 23h |
 | Operations | 4 | 24h |
 | Data Management | 5 | 33h |
-| Accessibility | 6 | 52h |
+| Accessibility | 7 | 55.5h |
 | Scalability | 5 | 48h |
 | Integrations | 5 | 72h |
 | User Experience | 5 | 56h |
@@ -290,10 +298,10 @@ All completed tickets are archived in the [completed/](./completed/) folder, org
 |----------|---------|-------|
 | P0 | 0 | 0h (all complete) |
 | P1 | 1 | ~14h |
-| P2 | 35 | ~460h |
-| P3 | 18 | ~103h + 13 weeks |
+| P2 | 36 | ~500h |
+| P3 | 19 | ~107h + 13 weeks |
 
-**Total Remaining: ~577 hours (~14 weeks full-time)**
+**Total Remaining: ~621 hours (~15 weeks full-time)**
 
 > **Note:** 55 tickets have been completed and archived in `completed/`
 

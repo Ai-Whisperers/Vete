@@ -83,6 +83,7 @@
     "plugin-dev": true,
     "pr-review-toolkit": true,
     "ralph-loop": true,
-    "security-guidance": true
+    "security-guidance": true,
+    "vete-veterinary": true
   }
 }

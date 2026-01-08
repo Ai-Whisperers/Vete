@@ -238,3 +238,44 @@ export * from './api-client'
 
 export { render, screen, fireEvent, waitFor } from '@testing-library/react'
 export { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
+
+// =============================================================================
+// Component Test Helpers
+// =============================================================================
+
+export {
+  // Router mocks
+  createMockRouter,
+  mockNextNavigation,
+  // Context mocks
+  createMockCartContext,
+  createMockWishlistContext,
+  // Form action mocks
+  createMockActionState,
+  createMockServerAction,
+  // Icon mocks
+  mockLucideIcons,
+  // Render helpers
+  renderWithProviders,
+  AllProviders,
+  // Accessibility helpers
+  expectFormAccessibility,
+  expectErrorAccessibility,
+  // Form helpers
+  fillFormInput,
+  submitForm,
+  // Snapshot helpers
+  getStableSnapshot,
+  // Mock data factories
+  createMockProduct,
+  createMockPet,
+  createMockAppointment,
+  // Types
+  type MockRouterOptions,
+  type MockCartContextValue,
+  type MockWishlistContextValue,
+  type CartItem,
+  type MockProductListItem,
+  type MockPet,
+  type MockAppointment,
+} from './component-test-helpers'

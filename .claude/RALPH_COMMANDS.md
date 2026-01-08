@@ -49,3 +49,27 @@ Identify modernization opportunities and best practices.
 ```bash
 /ralph-loop:ralph-loop "Follow instructions in .claude/prompts/RALPH_RESEARCH_PROMPT.md" --completion-promise "RESEARCH_ANALYSIS_COMPLETE" --max-iterations 20
 ```
+
+## 7. Codebase Audit Loop
+
+Evaluate code maturity and identify dead code or "garbage" implementation.
+
+```bash
+/ralph-loop:ralph-loop "Follow instructions in .claude/prompts/RALPH_AUDIT_PROMPT.md" --completion-promise "AUDIT_COMPLETE" --max-iterations 40
+```
+
+## 8. Standards Enforcement Loop
+
+Enforce security (RLS, Tenant Isolation) and clean code standards.
+
+```bash
+/ralph-loop:ralph-loop "Follow instructions in .claude/prompts/RALPH_STANDARDS_PROMPT.md" --completion-promise "STANDARDS_CHECK_COMPLETE" --max-iterations 30
+```
+
+## 9. Agile Sprint Loop
+
+Decompose Epics into actionable tickets and plan sprints.
+
+```bash
+/ralph-loop:ralph-loop "Follow instructions in .claude/prompts/RALPH_SPRINT_PROMPT.md" --completion-promise "SPRINT_PLANNING_COMPLETE" --max-iterations 20
+```

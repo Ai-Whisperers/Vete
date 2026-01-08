@@ -2,8 +2,9 @@
 
 ## Priority: P0 - Critical
 ## Category: Technical Debt / Dead Code
-## Status: Not Started
+## Status: ✅ Complete
 ## Epic: [EPIC-08: Code Quality & Refactoring](../epics/EPIC-08-code-quality.md)
+## Completed: January 2026
 
 ## Description
 
@@ -51,18 +52,30 @@ Either:
 
 ## Implementation Steps
 
-1. [ ] Search codebase for references to `/api/availability`
-2. [ ] Determine if route is actually used anywhere
-3. [ ] If unused: Delete the file
-4. [ ] If used: Implement proper availability check with auth
-5. [ ] Add tests for the endpoint
+1. [x] Search codebase for references to `/api/availability`
+2. [x] Determine if route is actually used anywhere
+3. [x] If unused: Delete the file
+4. [x] If used: Implement proper availability check with auth
+5. [x] Add tests for the endpoint
 
 ## Acceptance Criteria
 
-- [ ] Mock data removed from codebase
-- [ ] No references to `/api/availability` with mock data
-- [ ] If route remains, it has proper auth and tenant isolation
-- [ ] No artificial delays in production code
+- [x] Mock data removed from codebase
+- [x] No references to `/api/availability` with mock data
+- [x] If route remains, it has proper auth and tenant isolation
+- [x] No artificial delays in production code
+
+## Resolution Summary
+
+**Action Taken:** Option A - Removed the route entirely
+
+**Changes Made:**
+1. Deleted `web/app/api/availability/route.ts` - mock endpoint with hardcoded 2025 dates
+2. Updated `web/db/scripts/load-test/scenarios/mixed.js` to use `/api/appointments/slots` instead
+
+**References Found:**
+- `web/db/scripts/load-test/scenarios/mixed.js` - Updated to use proper endpoint
+- `web/_archive/poc/tanstack-query-poc.tsx` - Archived POC file (no action needed)
 
 ## Related Files
 

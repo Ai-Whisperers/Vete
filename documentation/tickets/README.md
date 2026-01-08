@@ -53,7 +53,7 @@ All tickets are organized under strategic epics for better planning and tracking
 | [Integrations](./integrations/) | External service integrations | 5 |
 | [User Experience](./user-experience/) | UX improvements | 5 |
 
-**Total Tickets: 117**
+**Total Tickets: 130** (includes 13 detailed audit sub-tickets)
 
 ---
 
@@ -74,7 +74,7 @@ All tickets are organized under strategic epics for better planning and tracking
 |----|-------|----------|--------|
 | ~~[TEST-001](./testing/TEST-001-cron-job-tests.md)~~ | ~~Cron Job Test Coverage~~ | ~~Testing~~ | ~~14h~~ ✓ |
 | ~~[RACE-001](./race-conditions/RACE-001-subscription-stock-overselling.md)~~ | ~~Stock Decrement Not Atomic in Subscriptions~~ | ~~Race Condition~~ | ~~5h~~ ✓ |
-| [AUDIT-100](./technical-debt/AUDIT-100-mock-availability-route.md) | Mock API Route in Production | Tech Debt | 1-2h |
+| ~~[AUDIT-100](./technical-debt/AUDIT-100-mock-availability-route.md)~~ | ~~Mock API Route in Production~~ | ~~Tech Debt~~ | ~~1-2h~~ ✓ |
 
 ### P1 - High Priority (Do Soon)
 
@@ -186,6 +186,24 @@ All tickets are organized under strategic epics for better planning and tracking
 | [AUDIT-103](./technical-debt/AUDIT-103-console-log-cleanup.md) | Console.log Cleanup | Tech Debt | 4-6h |
 | [AUDIT-104](./technical-debt/AUDIT-104-large-component-decomposition.md) | Large Component Decomposition | Tech Debt | 24-32h |
 | [AUDIT-105](./technical-debt/AUDIT-105-todo-comment-resolution.md) | TODO Comment Resolution | Tech Debt | 18-28h |
+
+#### Detailed Audit Sub-Tickets (Decomposition)
+
+| ID | Title | Parent | Effort |
+|----|-------|--------|--------|
+| [AUDIT-101a](./technical-debt/AUDIT-101a-inventory-filters-extraction.md) | Extract InventoryFilters Component | AUDIT-101 | 3h |
+| [AUDIT-101b](./technical-debt/AUDIT-101b-inventory-table-extraction.md) | Extract InventoryTable Component | AUDIT-101 | 4-5h |
+| [AUDIT-101c](./technical-debt/AUDIT-101c-inventory-import-wizard-extraction.md) | Extract ImportWizard Component | AUDIT-101 | 5-6h |
+| [AUDIT-101d](./technical-debt/AUDIT-101d-stock-adjustment-modal-extraction.md) | Extract StockAdjustmentModal | AUDIT-101 | 3-4h |
+| [AUDIT-103a](./technical-debt/AUDIT-103a-console-cleanup-api.md) | Console Cleanup - API Routes | AUDIT-103 | 1.5-2h |
+| [AUDIT-103b](./technical-debt/AUDIT-103b-console-cleanup-pages.md) | Console Cleanup - Pages | AUDIT-103 | 2.5-3h |
+| [AUDIT-103c](./technical-debt/AUDIT-103c-console-cleanup-core.md) | Console Cleanup - Core Files | AUDIT-103 | 1-1.5h |
+| [AUDIT-104a](./technical-debt/AUDIT-104a-store-analytics-decomposition.md) | Store Analytics Decomposition | AUDIT-104 | 8-10h |
+| [AUDIT-104b](./technical-debt/AUDIT-104b-portal-inventory-decomposition.md) | Portal Inventory Decomposition | AUDIT-104 | 6-8h |
+| [AUDIT-104c](./technical-debt/AUDIT-104c-consent-templates-decomposition.md) | Consent Templates Decomposition | AUDIT-104 | 6-8h |
+| [AUDIT-105a](./technical-debt/AUDIT-105a-notification-todos.md) | Notification System TODOs | AUDIT-105 | 10-14h |
+| [AUDIT-105b](./technical-debt/AUDIT-105b-backend-todos.md) | Backend Enhancement TODOs | AUDIT-105 | 9-12h |
+| [AUDIT-105c](./technical-debt/AUDIT-105c-ui-todos.md) | UI Enhancement TODOs | AUDIT-105 | 6-10h |
 
 ### P3 - Backlog (Future)
 

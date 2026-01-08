@@ -147,9 +147,9 @@ function bookingScenario() {
   const tenant = randomTenant()
 
   group('Booking Flow', () => {
-    // Check availability
+    // Check availability using proper slots endpoint
     const date = randomDate(14)
-    const availRes = http.get(`${BASE_URL}/api/availability?tenant=${tenant}&date=${date}`)
+    const availRes = http.get(`${BASE_URL}/api/appointments/slots?tenant=${tenant}&date=${date}`)
     check(availRes, {
       'availability status 200': (r) => r.status === 200,
     })

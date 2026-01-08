@@ -37,3 +37,16 @@ export {
   type AlertType,
   type AlertSeverity,
 } from './alerts'
+
+// OPS-004: Error rate tracking
+export {
+  errorRateTracker,
+  recordApiError,
+  getErrorRateSummary,
+  isEndpointHealthy,
+  ErrorRateTracker,
+  type ErrorMetrics,
+  type ErrorRateConfig,
+  type ErrorRateSummary,
+  type EndpointSummary,
+} from './error-rate'

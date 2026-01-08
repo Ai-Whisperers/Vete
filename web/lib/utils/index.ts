@@ -2,6 +2,7 @@
 export * from './api-client'
 export * from './formatting'
 export * from './validation'
+export * from './sanitize'
 
 // Type safety utilities
 export * from './type-guards'

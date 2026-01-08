@@ -14,7 +14,7 @@ export function PetSelection() {
 
   const handlePetSelect = (petId: string) => {
     updateSelection({ petId })
-    setStep('datetime')
+    setStep('confirm') // Go directly to confirm (no datetime step - clinic will schedule)
   }
 
   return (

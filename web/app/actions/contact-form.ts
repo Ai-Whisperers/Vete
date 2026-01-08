@@ -2,6 +2,7 @@
 
 import { z } from 'zod'
 import { logger } from '@/lib/logger'
+import { checkActionRateLimit, ACTION_RATE_LIMITS } from '@/lib/auth/action-rate-limit'
 
 type FormState = { success: true; message?: string } | { success: false; error: string } | null
 
@@ -16,6 +17,12 @@ export async function submitContactForm(
   _prevState: FormState,
   formData: FormData
 ): Promise<FormState> {
+  // SEC-011: Rate limit public form submissions
+  const rateLimitResult = await checkActionRateLimit(ACTION_RATE_LIMITS.contactForm.type)
+  if (!rateLimitResult.success) {
+    return { success: false, error: rateLimitResult.message || 'Demasiados intentos. Espera un momento.' }
+  }
+
   const rawData = {
     name: formData.get('name'),
     phone: formData.get('phone'),

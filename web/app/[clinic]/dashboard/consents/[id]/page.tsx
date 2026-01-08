@@ -18,6 +18,7 @@ import {
   Clock,
   Shield,
 } from 'lucide-react'
+import { createSanitizedHtml } from '@/lib/utils'
 
 interface AuditLogEntry {
   id: string
@@ -46,6 +47,7 @@ interface ConsentDocument {
   revoked_at: string | null
   revoked_by_id: string | null
   revocation_reason: string | null
+  email_sent_at: string | null
   pet: {
     id: string
     name: string
@@ -327,7 +329,7 @@ export default function ConsentDetailPage(): JSX.Element {
       revoked: 'Revocado',
       viewed: 'Visualizado',
       downloaded: 'Descargado',
-      sent: 'Enviado',
+      sent: 'Enviado por email',
     }
     return labels[action] || action
   }
@@ -379,10 +381,19 @@ export default function ConsentDetailPage(): JSX.Element {
             </button>
             <button
               onClick={handleSendEmail}
-              className="hover:bg-[var(--primary)]/10 border-[var(--primary)]/20 inline-flex items-center gap-2 rounded-lg border bg-[var(--bg-paper)] px-4 py-2 text-[var(--text-primary)] transition-colors"
+              className={`inline-flex items-center gap-2 rounded-lg border px-4 py-2 transition-colors ${
+                consent.email_sent_at
+                  ? 'border-green-500/30 bg-green-50 text-green-700 hover:bg-green-100'
+                  : 'hover:bg-[var(--primary)]/10 border-[var(--primary)]/20 bg-[var(--bg-paper)] text-[var(--text-primary)]'
+              }`}
+              title={
+                consent.email_sent_at
+                  ? `Enviado el ${new Date(consent.email_sent_at).toLocaleString('es-PY')}`
+                  : 'Enviar consentimiento firmado por email'
+              }
             >
               <Mail className="h-4 w-4" />
-              Enviar por email
+              {consent.email_sent_at ? 'Reenviar email' : 'Enviar por email'}
             </button>
             {consent.can_be_revoked && consent.status === 'active' && (
               <button
@@ -425,7 +436,7 @@ export default function ConsentDetailPage(): JSX.Element {
             <h2 className="mb-4 text-lg font-semibold text-[var(--text-primary)]">Documento</h2>
             <div
               className="prose max-w-none text-[var(--text-primary)]"
-              dangerouslySetInnerHTML={{ __html: renderContent() }}
+              dangerouslySetInnerHTML={createSanitizedHtml(renderContent(), 'consent')}
             />
           </div>
 
@@ -582,6 +593,17 @@ export default function ConsentDetailPage(): JSX.Element {
                     <p className="text-sm text-[var(--text-secondary)]">Expira</p>
                     <p className="font-medium text-[var(--text-primary)]">
                       {new Date(consent.expires_at).toLocaleString('es-PY')}
+                    </p>
+                  </div>
+                </div>
+              )}
+              {consent.email_sent_at && (
+                <div className="flex items-start gap-2">
+                  <Mail className="mt-1 h-4 w-4 text-green-600" />
+                  <div>
+                    <p className="text-sm text-[var(--text-secondary)]">Enviado por email</p>
+                    <p className="font-medium text-green-700">
+                      {new Date(consent.email_sent_at).toLocaleString('es-PY')}
                     </p>
                   </div>
                 </div>

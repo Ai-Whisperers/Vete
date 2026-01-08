@@ -15,8 +15,11 @@ import {
 } from 'lucide-react'
 import type { ClinicConfig } from '@/lib/clinics'
 import { PrescriptionUpload } from '@/components/store/prescription-upload'
+import { PetSelector } from '@/components/store/pet-selector'
+import { PrescriptionCheckoutBanner } from '@/components/store/prescription-warning'
 
 // TICKET-BIZ-003: Proper checkout with stock validation
+// FEAT-013: Prescription verification with pet selection
 
 interface StockError {
   id: string
@@ -56,6 +59,9 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
   // Prescription tracking: map of item.id -> prescription file URL
   const [prescriptions, setPrescriptions] = useState<Record<string, string>>({})
 
+  // FEAT-013: Pet selection for prescription products
+  const [selectedPetId, setSelectedPetId] = useState<string | null>(null)
+
   // Items that require prescriptions
   const prescriptionItems = useMemo(
     () => items.filter((item) => item.type === 'product' && item.requires_prescription),
@@ -68,7 +74,12 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
     [prescriptionItems, prescriptions]
   )
 
-  const canCheckout = items.length > 0 && missingPrescriptions.length === 0
+  // FEAT-013: Check if pet is required and selected
+  const needsPetSelection = prescriptionItems.length > 0
+  const hasPetSelected = !needsPetSelection || !!selectedPetId
+  const hasAllPrescriptions = missingPrescriptions.length === 0
+
+  const canCheckout = items.length > 0 && hasAllPrescriptions && hasPetSelected
 
   const handlePrescriptionUpload = (itemId: string, fileUrl: string) => {
     setPrescriptions((prev) => ({ ...prev, [itemId]: fileUrl }))
@@ -86,6 +97,12 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
   if (!user) return null
 
   const handleCheckout = async () => {
+    // FEAT-013: Validate pet selection for prescription items
+    if (needsPetSelection && !selectedPetId) {
+      setCheckoutError('Debe seleccionar una mascota para productos con receta médica.')
+      return
+    }
+
     // Validate prescriptions before checkout
     if (missingPrescriptions.length > 0) {
       setCheckoutError('Por favor, sube las recetas médicas requeridas para continuar.')
@@ -111,6 +128,8 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
             prescription_file_url: prescriptions[item.id] || null,
           })),
           clinic,
+          // FEAT-013: Include pet_id for prescription verification
+          pet_id: needsPetSelection ? selectedPetId : null,
           requires_prescription_review: prescriptionItems.length > 0,
         }),
       })
@@ -250,18 +269,25 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
         </p>
       ) : (
         <div className="space-y-4">
-          {/* Prescription warning banner */}
+          {/* FEAT-013: Enhanced prescription section with pet selector */}
           {prescriptionItems.length > 0 && (
-            <div className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4">
-              <FileWarning className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
-              <div>
-                <p className="font-bold text-amber-800">Receta Médica Requerida</p>
-                <p className="text-sm text-amber-700">
-                  {prescriptionItems.length === 1
-                    ? 'Un producto requiere receta médica para su despacho.'
-                    : `${prescriptionItems.length} productos requieren receta médica para su despacho.`}
-                </p>
-              </div>
+            <div className="space-y-4">
+              {/* Prescription status banner */}
+              <PrescriptionCheckoutBanner
+                itemCount={prescriptionItems.length}
+                hasPetSelected={hasPetSelected}
+                hasAllPrescriptions={hasAllPrescriptions}
+              />
+
+              {/* Pet selector for prescription products */}
+              <PetSelector
+                selectedPetId={selectedPetId}
+                onSelect={setSelectedPetId}
+                clinic={clinic}
+                required={true}
+                label="Mascota para productos con receta"
+                helpText="Seleccione la mascota para la cual está comprando estos productos. La receta debe corresponder a esta mascota."
+              />
             </div>
           )}
 
@@ -355,6 +381,10 @@ export default function CheckoutClient({ config }: CheckoutClientProps) {
               {isProcessing ? (
                 <>
                   <Loader2 className="h-5 w-5 animate-spin" /> Procesando...
+                </>
+              ) : needsPetSelection && !selectedPetId ? (
+                <>
+                  <FileWarning className="h-5 w-5" /> Seleccione mascota
                 </>
               ) : missingPrescriptions.length > 0 ? (
                 <>

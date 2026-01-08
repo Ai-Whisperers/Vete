@@ -5,6 +5,12 @@ import { actionSuccess, actionError } from '@/lib/errors'
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { logger } from '@/lib/logger'
+import { checkActionRateLimit, ACTION_RATE_LIMITS } from '@/lib/auth/action-rate-limit'
+
+/**
+ * FEAT-015: Lost Pet Management Dashboard
+ * Server actions for managing lost, found, and reunited pet reports
+ */
 
 /**
  * Get lost pet reports for a clinic
@@ -90,6 +96,12 @@ export const updateLostPetStatus = withActionAuth(
  * Report a found pet (public action - no auth required for lost pet reports)
  */
 export async function reportFoundPet(petId: string, location?: string, contact?: string) {
+  // SEC-011: Rate limit public pet reports to prevent abuse
+  const rateLimitResult = await checkActionRateLimit(ACTION_RATE_LIMITS.foundPetReport.type)
+  if (!rateLimitResult.success) {
+    return actionError(rateLimitResult.message || 'Demasiados reportes. Espera un momento.')
+  }
+
   const supabase = await createClient()
 
   try {

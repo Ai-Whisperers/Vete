@@ -7,7 +7,7 @@
 export { default as BookingWizard } from './booking-wizard'
 export { ServiceSelection } from './booking-wizard/ServiceSelection'
 export { PetSelection } from './booking-wizard/PetSelection'
-export { DateTimeSelection } from './booking-wizard/DateTimeSelection'
+// DateTimeSelection removed - clinic will contact customer to schedule
 export { Confirmation } from './booking-wizard/Confirmation'
 export { SuccessScreen } from './booking-wizard/SuccessScreen'
 export { BookingSummary } from './booking-wizard/BookingSummary'

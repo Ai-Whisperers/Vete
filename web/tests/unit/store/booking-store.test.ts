@@ -18,10 +18,14 @@ vi.mock('lucide-react', () => ({
   PawPrint: () => null,
 }))
 
-// Mock the server action
+// Mock the server actions
 vi.mock('@/app/actions/create-appointment', () => ({
   createAppointmentJson: vi.fn(),
   createMultiServiceAppointmentJson: vi.fn(),
+}))
+
+vi.mock('@/app/actions/create-booking-request', () => ({
+  createBookingRequest: vi.fn(),
 }))
 
 const mockClinic: any = {
@@ -121,9 +125,10 @@ describe('useBookingStore', () => {
   })
 
   it('should update selection', () => {
-    useBookingStore.getState().updateSelection({ date: '2024-12-25' })
+    // Date/time removed - testing preference fields instead
+    useBookingStore.getState().updateSelection({ preferredDateStart: '2024-12-25' })
 
-    expect(useBookingStore.getState().selection.date).toBe('2024-12-25')
+    expect(useBookingStore.getState().selection.preferredDateStart).toBe('2024-12-25')
   })
 
   it('should reset state', () => {
@@ -235,24 +240,26 @@ describe('useBookingStore - Multi-Service Selection', () => {
     expect(selectedServices[1].name).toBe('Grooming')
   })
 
-  it('should calculate end time correctly', () => {
+  // End time tests removed - customer no longer selects time
+  // Clinic will contact customer to schedule
+
+  it('should update preferred time of day', () => {
     const store = useBookingStore.getState()
+    store.updateSelection({ preferredTimeOfDay: 'morning' })
 
-    // Set time and services
-    store.toggleService('service-1') // 30 min
-    useBookingStore.getState().toggleService('service-2') // 15 min
-    useBookingStore.getState().updateSelection({ time_slot: '10:00' })
-
-    const endTime = useBookingStore.getState().getEndTime()
-    expect(endTime).toBe('10:45') // 10:00 + 45 min
+    expect(useBookingStore.getState().selection.preferredTimeOfDay).toBe('morning')
   })
 
-  it('should return empty end time when no time slot selected', () => {
+  it('should update preferred date range', () => {
     const store = useBookingStore.getState()
-    store.toggleService('service-1')
+    store.updateSelection({
+      preferredDateStart: '2024-12-25',
+      preferredDateEnd: '2024-12-31',
+    })
 
-    const endTime = useBookingStore.getState().getEndTime()
-    expect(endTime).toBe('')
+    const selection = useBookingStore.getState().selection
+    expect(selection.preferredDateStart).toBe('2024-12-25')
+    expect(selection.preferredDateEnd).toBe('2024-12-31')
   })
 
   it('should initialize with pre-selected services', () => {
@@ -268,7 +275,7 @@ describe('useBookingStore - Multi-Service Selection', () => {
     expect(state.selection.serviceIds).toEqual(['service-1', 'service-2'])
     expect(state.selection.serviceId).toBe('service-1')
     expect(state.selection.petId).toBe('pet-1')
-    expect(state.step).toBe('datetime') // Should skip to datetime since both selected
+    expect(state.step).toBe('confirm') // Should skip to confirm since both selected (no datetime step)
   })
 
   it('should skip to pet selection when services pre-selected but no pet', () => {

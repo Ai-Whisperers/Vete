@@ -312,12 +312,41 @@ export type OrderItem = z.infer<typeof orderItemSchema>
 export const createStoreOrderSchema = z.object({
   clinic: z.string().min(1, 'Clínica requerida'),
   items: z.array(orderItemSchema).min(1, 'El carrito está vacío').max(50, 'Máximo 50 items'),
-  coupon_code: optionalString(50),
+  coupon_code: z.string().max(50).optional().nullable(),
   shipping_address: shippingAddressSchema.optional().nullable(),
   billing_address: billingAddressSchema.optional().nullable(),
-  shipping_method: optionalString(50),
-  payment_method: optionalString(50),
-  notes: optionalString(1000),
+  shipping_method: z.string().max(50).optional().nullable(),
+  payment_method: z.string().max(50).optional().nullable(),
+  notes: z.string().max(1000).optional().nullable(),
+  // Pet ID for prescription products - required when cart contains prescription items
+  pet_id: uuidSchema.optional().nullable(),
 })
 
 export type CreateStoreOrderInput = z.infer<typeof createStoreOrderSchema>
+
+/**
+ * Schema for checkout request (client-side checkout)
+ */
+export const checkoutRequestSchema = z.object({
+  items: z
+    .array(
+      z.object({
+        id: uuidSchema,
+        name: z.string().min(1),
+        price: z.coerce.number().min(0),
+        type: z.enum(['service', 'product']),
+        quantity: z.coerce.number().int().min(1).max(99),
+        requires_prescription: z.boolean().optional(),
+        prescription_file_url: z.string().url().optional().nullable(),
+      })
+    )
+    .min(1, 'El carrito está vacío'),
+  clinic: z.string().min(1, 'Clínica requerida'),
+  notes: z.string().max(1000, 'Notas muy largas').optional().nullable(),
+  // Pet ID for prescription products
+  pet_id: uuidSchema.optional().nullable(),
+  // Flag indicating prescription review needed
+  requires_prescription_review: z.boolean().optional(),
+})
+
+export type CheckoutRequestInput = z.infer<typeof checkoutRequestSchema>

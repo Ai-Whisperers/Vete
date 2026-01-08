@@ -1,11 +1,13 @@
 'use client'
 
 import React, { useMemo } from 'react'
-import { ArrowLeft, ArrowRight, Calendar, Clock, AlertCircle, Loader2 } from 'lucide-react'
-import { useBookingStore, formatPrice } from '@/lib/store/booking-store'
+import { ArrowLeft, ArrowRight, Calendar, Clock, AlertCircle, Loader2, Phone, Info } from 'lucide-react'
+import { useBookingStore, formatPrice, getLocalDateString } from '@/lib/store/booking-store'
+import type { PreferredTimeOfDay } from './types'
 
 /**
- * Step 4: Confirmation component - supports multiple services
+ * Step 3: Confirmation component - booking request flow
+ * Note: No date/time selection - clinic will contact customer to schedule
  */
 export function Confirmation() {
   const {
@@ -19,33 +21,53 @@ export function Confirmation() {
     getSelectedServices,
     getTotalDuration,
     getTotalPrice,
-    getEndTime,
   } = useBookingStore()
 
   const selectedServices = getSelectedServices()
   const totalDuration = getTotalDuration()
   const totalPrice = getTotalPrice()
-  const endTime = getEndTime()
 
   const currentPet = useMemo(
     () => pets.find((p) => p.id === selection.petId),
     [pets, selection.petId]
   )
 
+  // Calculate min date (tomorrow)
+  const minDate = useMemo(() => {
+    const tomorrow = new Date()
+    tomorrow.setDate(tomorrow.getDate() + 1)
+    return getLocalDateString(tomorrow)
+  }, [])
+
   const handleSubmit = async () => {
     await submitBooking()
+  }
+
+  const handleTimeOfDayChange = (value: PreferredTimeOfDay) => {
+    updateSelection({ preferredTimeOfDay: value })
   }
 
   return (
     <div className="animate-in slide-in-from-right-8 relative z-10 duration-500">
       <div className="mb-10 flex items-center gap-4">
         <button
-          onClick={() => setStep('datetime')}
+          onClick={() => setStep('pet')}
           className="rounded-2xl bg-gray-50 p-3 text-gray-400 transition-all hover:bg-gray-100"
         >
           <ArrowLeft className="h-5 w-5" />
         </button>
-        <h2 className="text-3xl font-black text-gray-900">Confirmación Final</h2>
+        <h2 className="text-3xl font-black text-gray-900">Confirmar Solicitud</h2>
+      </div>
+
+      {/* Info Banner */}
+      <div className="mb-8 flex items-start gap-3 rounded-2xl border border-[var(--primary)]/20 bg-[var(--primary)]/5 p-4">
+        <Phone className="h-5 w-5 flex-shrink-0 text-[var(--primary)]" />
+        <div>
+          <p className="font-bold text-[var(--primary)]">Te contactaremos para confirmar</p>
+          <p className="text-sm text-gray-600">
+            Un miembro de nuestro equipo se comunicará contigo para agendar el horario de tu cita.
+          </p>
+        </div>
       </div>
 
       {/* Summary Card */}
@@ -102,22 +124,75 @@ export function Confirmation() {
             </div>
           </div>
 
-          {/* Right Column - Date/Time */}
+          {/* Right Column - Preferences (optional) */}
           <div className="space-y-6">
             <div>
               <p className="mb-1 text-[10px] font-black uppercase tracking-widest text-gray-400">
-                Fecha y Hora
+                Preferencias (opcional)
               </p>
-              <div className="flex items-center gap-2 text-xl font-black text-gray-900">
-                <Calendar className="h-5 w-5 text-[var(--primary)]" />
-                {selection.date}
+              <p className="mb-4 text-sm text-gray-500">
+                Indica tus preferencias para ayudarnos a programar tu cita.
+              </p>
+
+              {/* Preferred Date Range */}
+              <div className="mb-4 space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Rango de fechas preferido
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="date"
+                    min={minDate}
+                    value={selection.preferredDateStart || ''}
+                    onChange={(e) => updateSelection({ preferredDateStart: e.target.value || null })}
+                    className="focus:ring-[var(--primary)]/20 flex-1 rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm outline-none transition-all focus:border-[var(--primary)] focus:ring-2"
+                    placeholder="Desde"
+                  />
+                  <span className="text-gray-400">—</span>
+                  <input
+                    type="date"
+                    min={selection.preferredDateStart || minDate}
+                    value={selection.preferredDateEnd || ''}
+                    onChange={(e) => updateSelection({ preferredDateEnd: e.target.value || null })}
+                    className="focus:ring-[var(--primary)]/20 flex-1 rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm outline-none transition-all focus:border-[var(--primary)] focus:ring-2"
+                    placeholder="Hasta"
+                  />
+                </div>
               </div>
-              <div className="mt-1 flex items-center gap-2 text-xl font-black text-gray-900">
-                <Clock className="h-5 w-5 text-[var(--primary)]" />
-                {selection.time_slot}
-                {endTime && <span className="text-gray-400">- {endTime}</span>}
+
+              {/* Preferred Time of Day */}
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Horario preferido
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    { value: 'morning' as const, label: 'Mañana', desc: '8:00 - 12:00' },
+                    { value: 'afternoon' as const, label: 'Tarde', desc: '14:00 - 18:00' },
+                    { value: 'any' as const, label: 'Cualquiera', desc: 'Sin preferencia' },
+                  ].map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => handleTimeOfDayChange(option.value)}
+                      className={`flex-1 rounded-xl border-2 px-4 py-3 text-left transition-all ${
+                        selection.preferredTimeOfDay === option.value
+                          ? 'border-[var(--primary)] bg-[var(--primary)]/5'
+                          : 'border-gray-100 bg-white hover:border-gray-200'
+                      }`}
+                    >
+                      <p className={`text-sm font-bold ${
+                        selection.preferredTimeOfDay === option.value
+                          ? 'text-[var(--primary)]'
+                          : 'text-gray-700'
+                      }`}>
+                        {option.label}
+                      </p>
+                      <p className="text-xs text-gray-400">{option.desc}</p>
+                    </button>
+                  ))}
+                </div>
               </div>
-              <p className="mt-2 text-sm text-gray-500">Duración total: {totalDuration} minutos</p>
             </div>
           </div>
         </div>
@@ -161,8 +236,7 @@ export function Confirmation() {
             <Loader2 className="h-6 w-6 animate-spin" />
           ) : (
             <>
-              Confirmar {selectedServices.length > 1 ? 'Citas' : 'Cita'}{' '}
-              <ArrowRight className="h-6 w-6" />
+              Enviar Solicitud <ArrowRight className="h-6 w-6" />
             </>
           )}
         </button>

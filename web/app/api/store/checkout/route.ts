@@ -2,29 +2,15 @@ import { NextResponse } from 'next/server'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { requireFeature } from '@/lib/features/server'
+import { checkoutRequestSchema } from '@/lib/schemas/store'
 
 // TICKET-BIZ-003: Checkout API that validates stock and decrements inventory
 // TICKET-BIZ-004: Server-side stock validation
+// FEAT-013: Prescription verification with pet-specific validation
 // Uses atomic process_checkout function for consistency
 //
 // CRITICAL: process_checkout function updated in migration 100_fix_checkout_product_lookup.sql
 // to lookup products by UUID ID (not SKU) since cart sends product.id
-
-interface CartItem {
-  id: string
-  name: string
-  price: number
-  type: 'service' | 'product'
-  quantity: number
-  requires_prescription?: boolean
-  prescription_file?: string
-}
-
-interface CheckoutRequest {
-  items: CartItem[]
-  clinic: string
-  notes?: string
-}
 
 interface StockError {
   id: string
@@ -39,27 +25,40 @@ interface PrescriptionError {
   error: string
 }
 
+interface PrescriptionValidationResult {
+  product_id: string
+  product_name: string
+  has_valid_prescription: boolean
+}
+
 // POST /api/store/checkout - Process checkout (atomic)
 // Rate limited: 5 requests per minute (checkout operations - strict for fraud prevention)
 export const POST = withApiAuth(
   async ({ user, profile, supabase, request, log }: ApiHandlerContext) => {
-    // Parse request body
-    let body: CheckoutRequest
+    // Parse and validate request body with Zod schema
+    let rawBody: unknown
     try {
-      body = await request.json()
+      rawBody = await request.json()
     } catch {
       return apiError('INVALID_FORMAT', HTTP_STATUS.BAD_REQUEST, {
         details: { message: 'JSON inválido' },
       })
     }
 
-    const { items, clinic, notes } = body
-
-    if (!items || items.length === 0) {
+    const validationResult = checkoutRequestSchema.safeParse(rawBody)
+    if (!validationResult.success) {
       return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
-        details: { message: 'El carrito está vacío' },
+        details: {
+          message: 'Datos de checkout inválidos',
+          errors: validationResult.error.issues.map((issue) => ({
+            field: issue.path.join('.'),
+            message: issue.message,
+          })),
+        },
       })
     }
+
+    const { items, clinic, notes, pet_id } = validationResult.data
 
     // Validate clinic matches user's tenant
     if (clinic !== profile.tenant_id) {
@@ -76,12 +75,79 @@ export const POST = withApiAuth(
     const productItems = items.filter((item) => item.type === 'product')
     const serviceItems = items.filter((item) => item.type === 'service')
 
+    // Check for prescription items
+    const prescriptionItems = items.filter((item) => item.requires_prescription)
+
     log.info('Processing checkout', {
       action: 'checkout.start',
       itemCount: items.length,
       productCount: productItems.length,
       serviceCount: serviceItems.length,
+      prescriptionItemCount: prescriptionItems.length,
     })
+
+    // FEAT-013: Prescription verification for products requiring prescription
+    if (prescriptionItems.length > 0) {
+      // Require pet_id for prescription items
+      if (!pet_id) {
+        return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+          details: {
+            message: 'Debe seleccionar una mascota para productos que requieren receta médica',
+            code: 'PET_REQUIRED_FOR_PRESCRIPTION',
+          },
+        })
+      }
+
+      // Verify the pet belongs to this user
+      const { data: pet, error: petError } = await supabase
+        .from('pets')
+        .select('id, name, owner_id')
+        .eq('id', pet_id)
+        .eq('owner_id', user.id)
+        .single()
+
+      if (petError || !pet) {
+        return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+          details: {
+            message: 'Mascota no encontrada o no pertenece a su cuenta',
+            code: 'INVALID_PET',
+          },
+        })
+      }
+
+      // Get prescription product IDs
+      const prescriptionProductIds = prescriptionItems.map((item) => item.id)
+
+      // Verify prescriptions using database function
+      const { data: prescriptionCheck, error: prescriptionError } = await supabase.rpc(
+        'verify_prescription_products',
+        {
+          p_pet_id: pet_id,
+          p_product_ids: prescriptionProductIds,
+          p_tenant_id: clinic,
+        }
+      )
+
+      if (prescriptionError) {
+        log.error('Prescription verification failed', {
+          action: 'checkout.prescription_error',
+          error: prescriptionError instanceof Error ? prescriptionError : new Error(String(prescriptionError)),
+        })
+        // Fall through to allow order with pending_prescription status
+      } else if (prescriptionCheck) {
+        const results = prescriptionCheck as PrescriptionValidationResult[]
+        const missingPrescriptions = results.filter((r) => !r.has_valid_prescription)
+
+        if (missingPrescriptions.length > 0) {
+          // Log which items are missing prescriptions but continue with pending_prescription status
+          log.info('Products missing valid prescription', {
+            action: 'checkout.prescription_missing',
+            products: missingPrescriptions.map((p) => p.product_name),
+            petId: pet_id,
+          })
+        }
+      }
+    }
 
     // Attempt atomic checkout using database function
     // This ensures all operations (validation, invoice creation, stock decrement) happen atomically

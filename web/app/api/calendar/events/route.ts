@@ -43,7 +43,7 @@ export const GET = withApiAuth(
 
     const { start: startDateStr, end: endDateStr } = validation.data
 
-    // Fetch appointments
+    // Fetch appointments (exclude pending_scheduling - those appear in separate panel)
     const { data: appointments, error: appointmentsError } = await supabase
       .from('appointments')
       .select(
@@ -56,6 +56,7 @@ export const GET = withApiAuth(
         reason,
         notes,
         vet_id,
+        scheduling_status,
         pets (
           id,
           name,
@@ -68,6 +69,7 @@ export const GET = withApiAuth(
       `
       )
       .eq('tenant_id', profile.tenant_id)
+      .neq('scheduling_status', 'pending_scheduling') // Only show scheduled appointments
       .gte('start_time', `${startDateStr}T00:00:00`)
       .lte('start_time', `${endDateStr}T23:59:59`)
       .order('start_time', { ascending: true })

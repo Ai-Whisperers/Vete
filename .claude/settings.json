@@ -2,7 +2,6 @@
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "name": "Vete - Veterinary Platform",
   "description": "Multi-tenant Next.js 15 veterinary clinic management SaaS",
-
   "context": {
     "alwaysInclude": [
       "CLAUDE.md"
@@ -13,7 +12,6 @@
       "documentation/database/overview.md"
     ]
   },
-
   "codeStyle": {
     "language": "typescript",
     "framework": "next.js",
@@ -21,7 +19,6 @@
     "testFramework": "vitest",
     "e2eFramework": "playwright"
   },
-
   "conventions": {
     "components": "PascalCase.tsx",
     "utilities": "kebab-case.ts",
@@ -30,7 +27,6 @@
     "tests": "*.test.ts or *.spec.ts",
     "migrations": "XX_description.sql"
   },
-
   "warnings": [
     "NEVER upgrade Tailwind to v4 - stay on 3.4.x",
     "ALWAYS use CSS variables for colors: var(--primary)",
@@ -38,7 +34,6 @@
     "ALWAYS filter queries by tenant_id",
     "ALL user-facing text must be in Spanish"
   ],
-
   "patterns": {
     "multiTenancy": {
       "routePattern": "/[clinic]/*",
@@ -57,7 +52,6 @@
       "text": "var(--text-primary)"
     }
   },
-
   "directories": {
     "web": "Next.js application root",
     "web/app": "App Router pages and API routes",
@@ -68,12 +62,27 @@
     "web/.content_data": "JSON-CMS content per clinic",
     "documentation": "Full technical documentation"
   },
-
-  "tenants": ["adris", "petlife"],
-
+  "tenants": [
+    "adris",
+    "petlife"
+  ],
   "roles": {
     "owner": "Pet owners - manage own pets, book appointments",
     "vet": "Veterinarians - all patients, prescriptions, clinical tools",
     "admin": "Administrators - everything + settings, team, finances"
+  },
+  "enabledPlugins": {
+    "agent-sdk-dev": true,
+    "code-review": true,
+    "commit-commands": true,
+    "explanatory-output-style": true,
+    "feature-dev": true,
+    "frontend-design": true,
+    "hookify": true,
+    "learning-output-style": true,
+    "plugin-dev": true,
+    "pr-review-toolkit": true,
+    "ralph-loop": true,
+    "security-guidance": true
   }
 }

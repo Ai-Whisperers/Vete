@@ -9,6 +9,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { logger } from '@/lib/logger'
 import { z } from 'zod'
+import { rateLimit } from '@/lib/rate-limit'
 
 const registerSchema = z.object({
   fullName: z.string().min(2, 'Nombre es requerido'),
@@ -60,8 +61,15 @@ export async function GET(): Promise<NextResponse> {
 /**
  * POST /api/ambassador
  * Register as a new ambassador
+ * Rate limited: 5 requests per minute (auth - strict to prevent abuse)
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
+  // Apply rate limiting for auth operations (5 requests per minute)
+  const rateLimitResult = await rateLimit(request, 'auth')
+  if (!rateLimitResult.success) {
+    return rateLimitResult.response
+  }
+
   const supabase = await createClient()
 
   try {

@@ -3,6 +3,7 @@
 ## Priority: P2 (Medium)
 ## Category: Testing
 ## Status: Not Started
+## Epic: [EPIC-07: Test Coverage](../epics/EPIC-07-test-coverage.md)
 
 ## Description
 Only 6 of 407+ React components have tests (~1.5% coverage). Critical UI components for forms, data display, and interactions lack any testing.

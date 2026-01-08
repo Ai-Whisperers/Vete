@@ -107,19 +107,28 @@ export interface User {
 
 /**
  * Booking wizard step
+ * Note: 'datetime' step removed - customers no longer select times
  */
-export type Step = 'service' | 'pet' | 'datetime' | 'confirm' | 'success'
+export type Step = 'service' | 'pet' | 'confirm' | 'success'
+
+/**
+ * Customer time preference
+ */
+export type PreferredTimeOfDay = 'morning' | 'afternoon' | 'any'
 
 /**
  * Booking selection state
+ * Note: date/time_slot removed - replaced with optional preferences
  */
 export interface BookingSelection {
   serviceId: string | null // Legacy: kept for backwards compatibility
   serviceIds: string[] // Multi-service selection
   petId: string | null
-  date: string
-  time_slot: string
   notes: string
+  // Optional customer preferences (clinic will contact to schedule)
+  preferredDateStart: string | null // YYYY-MM-DD format
+  preferredDateEnd: string | null // YYYY-MM-DD format
+  preferredTimeOfDay: PreferredTimeOfDay
 }
 
 /**
@@ -129,8 +138,6 @@ export interface MultiServiceSummary {
   services: BookableService[]
   totalDuration: number
   totalPrice: number
-  startTime: string
-  endTime: string
 }
 
 /**
@@ -139,12 +146,11 @@ export interface MultiServiceSummary {
 export const MAX_SERVICES_PER_BOOKING = 5
 
 /**
- * Progress percentage by step
+ * Progress percentage by step (3 steps instead of 4)
  */
 export const PROGRESS: Record<Step, number> = {
-  service: 25,
-  pet: 50,
-  datetime: 75,
+  service: 33,
+  pet: 66,
   confirm: 90,
   success: 100,
 }

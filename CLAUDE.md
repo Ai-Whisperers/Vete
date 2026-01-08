@@ -173,7 +173,7 @@ growth_standards (id, species, breed_category, age_weeks, p50_weight, ...)
 
 -- Appointments & Services
 services (id, tenant_id, name, category, base_price, duration_minutes)
-appointments (id, tenant_id, pet_id, vet_id, service_id, start_time, end_time, status)
+appointments (id, tenant_id, pet_id, vet_id, service_id, start_time, end_time, status, scheduling_status, preferred_date_start, preferred_date_end, preferred_time_of_day, requested_at, scheduled_by, scheduled_at)
 
 -- Invoicing & Payments
 invoices (id, tenant_id, client_id, invoice_number, subtotal, tax_amount, total, status)
@@ -279,7 +279,7 @@ ambassador_referrals (id, ambassador_id, clinic_name, clinic_email, status, conv
 ambassador_payouts (id, ambassador_id, amount, status, bank_name, account_number, account_holder, notes, processed_at, processed_by, created_at)
 ```
 
-### Recent Migrations (057-061)
+### Recent Migrations (057-062)
 
 | Migration | Purpose |
 |-----------|---------|
@@ -288,6 +288,7 @@ ambassador_payouts (id, ambassador_id, amount, status, bank_name, account_number
 | 059 | Atomic appointment status (TOCTOU protection) |
 | 060 | Pre-generation fields (tenant status, scraped data) |
 | 061 | Ambassador program (3 tables, tier functions) |
+| 062 | Booking request flow (scheduling_status, preferences, RPC functions) |
 
 See `documentation/database/schema-reference.md` for complete column definitions.
 
@@ -616,12 +617,17 @@ The `.claude/SUPABASE_AUDIT.md` contains a comprehensive security audit with all
 
 ### Appointments & Scheduling ✅
 
-- Multi-step appointment booking wizard
+- **3-step booking request flow** (Service → Pet → Confirm)
+  - Customers submit requests without selecting times
+  - Optional preferences: date range + morning/afternoon
+  - Clinic staff schedules via dashboard
+- Pending requests panel in staff dashboard
 - Real-time slot availability with overlap detection
 - Calendar view for staff (day/week/month)
 - Check-in and completion workflows
 - Appointment reschedule and cancellation
 - Staff schedule management with time-off requests
+- `scheduling_status` column: `pending_scheduling` | `scheduled` | `rescheduling`
 
 ### Clinical Tools ✅
 

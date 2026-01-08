@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useMemo } from 'react'
-import { ShoppingBag, Zap, Clock } from 'lucide-react'
+import { ShoppingBag, Zap, Clock, Phone } from 'lucide-react'
 import { useBookingStore, formatPrice } from '@/lib/store/booking-store'
 
 interface BookingSummaryProps {
@@ -20,16 +20,15 @@ interface BookingSummaryProps {
 
 /**
  * Sidebar summary component showing current booking selections
- * Displays selected services, pet, date/time, and total price
+ * Note: No date/time display - clinic will contact customer to schedule
  */
 export function BookingSummary({ labels = {} }: BookingSummaryProps) {
-  const { selection, pets, getSelectedServices, getTotalDuration, getTotalPrice, getEndTime } =
+  const { selection, pets, getSelectedServices, getTotalDuration, getTotalPrice } =
     useBookingStore()
 
   const selectedServices = getSelectedServices()
   const totalDuration = getTotalDuration()
   const totalPrice = getTotalPrice()
-  const endTime = getEndTime()
 
   const currentPet = useMemo(
     () => pets.find((p) => p.id === selection.petId),
@@ -115,29 +114,18 @@ export function BookingSummary({ labels = {} }: BookingSummaryProps) {
             )}
           </div>
 
-          {/* Date/Time Summary */}
-          <div
-            className={`rounded-2xl border p-4 transition-all ${
-              selection.date ? 'border-green-100 bg-green-50' : 'border-gray-100 bg-gray-50'
-            }`}
-          >
+          {/* Schedule Summary - Clinic will contact to schedule */}
+          <div className="rounded-2xl border border-[var(--primary)]/20 bg-[var(--primary)]/5 p-4 transition-all">
             <p className="mb-2 text-[10px] font-black uppercase tracking-widest text-gray-400">
               {labels.schedule || 'Horario'}
             </p>
-            {selection.date && selection.time_slot ? (
-              <div className="flex flex-col font-bold text-green-700">
-                <span>{selection.date}</span>
-                <span className="text-xs opacity-70">
-                  {selection.time_slot}
-                  {endTime && ` - ${endTime}`}
-                  {totalDuration > 0 && ` (${totalDuration} min)`}
-                </span>
-              </div>
-            ) : (
-              <span className="text-sm font-bold italic text-gray-400">
-                {labels.toDefine || 'Por definir'}
+            <div className="flex items-center gap-2">
+              <Phone className="h-4 w-4 text-[var(--primary)]" />
+              <span className="text-sm font-bold text-[var(--primary)]">
+                {labels.toDefine || 'Por agendar'}
               </span>
-            )}
+            </div>
+            <p className="mt-1 text-xs text-gray-500">Te contactaremos</p>
           </div>
         </div>
 

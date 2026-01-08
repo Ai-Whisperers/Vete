@@ -2,18 +2,19 @@
 
 import React, { useMemo, useState, useEffect } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { Stethoscope, PawPrint, Calendar, CheckCircle } from 'lucide-react'
+import { Stethoscope, PawPrint, CheckCircle } from 'lucide-react'
 import { useBookingStore } from '@/lib/store/booking-store'
 import { ServiceSelection } from './ServiceSelection'
 import { PetSelection } from './PetSelection'
-import { DateTimeSelection } from './DateTimeSelection'
 import { Confirmation } from './Confirmation'
 import { SuccessScreen } from './SuccessScreen'
 import { BookingSummary } from './BookingSummary'
 import { ProgressStepper, type Step } from '@/components/ui/progress-stepper'
 import type { ClinicConfig, User, Pet } from './types'
 
-const STEP_ORDER = ['service', 'pet', 'datetime', 'confirm'] as const
+// Note: 'datetime' step removed - customers no longer select times
+// Clinic will contact them to schedule
+const STEP_ORDER = ['service', 'pet', 'confirm'] as const
 
 interface BookingWizardProps {
   clinic: ClinicConfig | any // Allow ClinicData from getClinicData
@@ -63,6 +64,7 @@ export default function BookingWizard({
   )
 
   // Generate step configuration with labels from config
+  // Note: datetime step removed - 3 steps instead of 4
   const BOOKING_STEPS: Step[] = useMemo(
     () => [
       {
@@ -78,15 +80,9 @@ export default function BookingWizard({
         icon: <PawPrint className="h-4 w-4" />,
       },
       {
-        id: 'datetime',
-        label: 'Fecha',
-        description: clinic.config.ui_labels?.booking?.select_date || 'Elige horario',
-        icon: <Calendar className="h-4 w-4" />,
-      },
-      {
         id: 'confirm',
         label: clinic.config.ui_labels?.common?.actions?.confirm || 'Confirmar',
-        description: 'Revisa y confirma',
+        description: 'Revisa y envía solicitud',
         icon: <CheckCircle className="h-4 w-4" />,
       },
     ],
@@ -146,10 +142,7 @@ export default function BookingWizard({
             {/* Step 2: Pet Selection */}
             {step === 'pet' && <PetSelection />}
 
-            {/* Step 3: Date & Time Selection */}
-            {step === 'datetime' && <DateTimeSelection clinicName={clinic.config.name} />}
-
-            {/* Step 4: Confirmation */}
+            {/* Step 3: Confirmation (no datetime step - clinic will contact) */}
             {step === 'confirm' && <Confirmation />}
           </div>
 

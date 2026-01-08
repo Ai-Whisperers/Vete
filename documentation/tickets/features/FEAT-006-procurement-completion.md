@@ -3,6 +3,7 @@
 ## Priority: P2 (Medium)
 ## Category: Feature
 ## Status: Partial Implementation
+## Epic: [EPIC-08: Feature Completion](../epics/EPIC-08-feature-completion.md)
 
 ## Description
 The procurement module has database schema and basic API routes but the dashboard UI is incomplete. Several TODOs in the procurement page indicate missing functionality.

@@ -3,9 +3,10 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import * as Icons from 'lucide-react'
 import { Inbox } from '@/components/whatsapp/inbox'
-import { getConversations, getWhatsAppStats } from '@/app/actions/whatsapp'
+import { getConversations, getWhatsAppStats, getWhatsAppWeeklyTrend } from '@/app/actions/whatsapp'
 import { requireFeature } from '@/lib/features/server'
 import { UpgradePromptServer } from '@/components/dashboard/upgrade-prompt-server'
+import { WhatsAppWeeklyTrendChart } from '@/components/whatsapp/weekly-trend-chart'
 
 interface Props {
   params: Promise<{ clinic: string }>
@@ -47,21 +48,26 @@ export default async function WhatsAppPage({ params }: Props) {
     )
   }
 
-  // Fetch conversations and stats in parallel
-  const [conversationsResult, statsResult] = await Promise.all([
+  // Fetch conversations, stats, and weekly trend in parallel
+  const [conversationsResult, statsResult, weeklyTrendResult] = await Promise.all([
     getConversations(clinic),
     getWhatsAppStats(clinic),
+    getWhatsAppWeeklyTrend(clinic),
   ])
 
   const conversations =
     'data' in conversationsResult && conversationsResult.data ? conversationsResult.data : []
   const stats = 'data' in statsResult && statsResult.data ? statsResult.data : null
+  const weeklyTrend =
+    'data' in weeklyTrendResult && weeklyTrendResult.data ? weeklyTrendResult.data : []
 
   // Stats
   const totalConversations = conversations.length
   const unreadCount = conversations.reduce((sum, c) => sum + c.unread_count, 0)
   const sentToday = stats?.sentToday ?? 0
   const failedToday = stats?.failedToday ?? 0
+  const deliveryRate = stats?.deliveryRate ?? 100
+  const totalThisWeek = stats?.totalThisWeek ?? 0
 
   return (
     <div className="mx-auto max-w-7xl p-6">
@@ -84,7 +90,7 @@ export default async function WhatsAppPage({ params }: Props) {
       </div>
 
       {/* Stats */}
-      <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
+      <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
         <div className="rounded-xl border border-gray-100 bg-white p-4">
           <div className="mb-1 flex items-center gap-2 text-blue-600">
             <Icons.MessageSquare className="h-4 w-4" />
@@ -120,6 +126,31 @@ export default async function WhatsAppPage({ params }: Props) {
             {failedToday}
           </p>
         </div>
+
+        <div className="rounded-xl border border-gray-100 bg-white p-4">
+          <div className="mb-1 flex items-center gap-2 text-emerald-600">
+            <Icons.CheckCircle className="h-4 w-4" />
+            <span className="text-xs font-medium">Tasa Entrega</span>
+          </div>
+          <p
+            className={`text-2xl font-bold ${deliveryRate < 90 ? 'text-amber-600' : 'text-emerald-600'}`}
+          >
+            {deliveryRate}%
+          </p>
+        </div>
+
+        <div className="rounded-xl border border-gray-100 bg-white p-4">
+          <div className="mb-1 flex items-center gap-2 text-indigo-600">
+            <Icons.Calendar className="h-4 w-4" />
+            <span className="text-xs font-medium">Esta Semana</span>
+          </div>
+          <p className="text-2xl font-bold text-[var(--text-primary)]">{totalThisWeek}</p>
+        </div>
+      </div>
+
+      {/* Weekly Trend Chart */}
+      <div className="mb-6">
+        <WhatsAppWeeklyTrendChart data={weeklyTrend} />
       </div>
 
       {/* Inbox */}

@@ -12,6 +12,12 @@ import { logger } from '@/lib/logger'
 // Types
 // =============================================================================
 
+export interface EmailAttachment {
+  filename: string
+  content: Buffer | string
+  contentType?: string
+}
+
 export interface EmailOptions {
   to: string | string[]
   subject: string
@@ -21,6 +27,7 @@ export interface EmailOptions {
   replyTo?: string
   cc?: string | string[]
   bcc?: string | string[]
+  attachments?: EmailAttachment[]
 }
 
 export interface EmailResult {
@@ -86,7 +93,7 @@ if (RESEND_API_KEY) {
  * Send an email using Resend or fallback to logging
  */
 export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
-  const { to, subject, html, text, from = DEFAULT_FROM, replyTo, cc, bcc } = options
+  const { to, subject, html, text, from = DEFAULT_FROM, replyTo, cc, bcc, attachments } = options
 
   // Validate required fields
   if (!to || to.length === 0) {
@@ -121,6 +128,8 @@ export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
     hasCc: !!cc,
     hasBcc: !!bcc,
     hasReplyTo: !!replyTo,
+    hasAttachments: !!attachments && attachments.length > 0,
+    attachmentCount: attachments?.length ?? 0,
     contentLength: html.length,
   }
 
@@ -136,6 +145,11 @@ export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
         replyTo,
         cc,
         bcc,
+        attachments: attachments?.map((att) => ({
+          filename: att.filename,
+          content: att.content,
+          content_type: att.contentType,
+        })),
       })
 
       if (result.error) {

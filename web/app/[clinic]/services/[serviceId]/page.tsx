@@ -12,7 +12,7 @@ const BASE_URL = 'https://Vetic.vercel.app'
 async function getService(
   clinicSlug: string,
   serviceId: string
-): Promise<{ service: Service; data: ClinicData } | null> {
+): Promise<{ service: Service; allServices: Service[]; data: ClinicData } | null> {
   const data = await getClinicData(clinicSlug)
   if (!data) return null
 
@@ -20,7 +20,7 @@ async function getService(
   const service = services?.find((s) => s.id === serviceId)
   if (!service) return null
 
-  return { service, data }
+  return { service, allServices: services || [], data }
 }
 
 export async function generateMetadata({
@@ -79,7 +79,7 @@ export default async function ServiceDetailPage({
 
   if (!result || !result.service) notFound()
 
-  const { service, data } = result
+  const { service, allServices, data } = result
   const { config } = data
 
   // Check if user is logged in
@@ -117,6 +117,7 @@ export default async function ServiceDetailPage({
 
       <ServiceDetailClient
         service={service}
+        allServices={allServices}
         config={{
           name: config.name,
           contact: {

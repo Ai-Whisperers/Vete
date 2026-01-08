@@ -2,6 +2,8 @@
 
 ## Priority: P2 - Medium
 ## Category: Feature
+## Status: Not Started
+## Epic: [EPIC-09: New Capabilities](../epics/EPIC-09-new-capabilities.md)
 ## Affected Areas: All user-facing components, JSON-CMS
 
 ## Description

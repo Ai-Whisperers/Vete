@@ -31,8 +31,16 @@ interface ServiceDetailConfig {
   }
 }
 
+/** Minimal service info for navigation */
+interface ServiceNavItem {
+  id: string
+  title: string
+  icon?: string
+}
+
 interface ServiceDetailClientProps {
   service: Service
+  allServices: ServiceNavItem[]
   config: ServiceDetailConfig
   clinic: string
   isLoggedIn: boolean
@@ -40,6 +48,7 @@ interface ServiceDetailClientProps {
 
 export function ServiceDetailClient({
   service,
+  allServices,
   config,
   clinic,
   isLoggedIn,
@@ -102,7 +111,10 @@ export function ServiceDetailClient({
     )
   }, [service.variants, selectedPets])
 
-  // Handle add to cart - adds service for all selected pets
+  // State for showing "already in cart" feedback
+  const [alreadyInCartMessage, setAlreadyInCartMessage] = useState<string | null>(null)
+
+  // Handle add to cart - adds service for all selected pets (excluding those already in cart)
   const handleAddToCart = async (variant: ServiceVariant) => {
     // Require at least one pet selected
     if (selectedPets.length === 0) {
@@ -115,8 +127,28 @@ export function ServiceDetailClient({
       return
     }
 
+    // Get pets already in cart for this variant
+    const cartStatus = variantCartStatus.get(variant.name)
+    const petsAlreadyInCart = new Set(cartStatus?.petsInCart || [])
+
+    // Filter to only pets NOT already in cart
+    const petsToAdd = selectedPets.filter((pet) => !petsAlreadyInCart.has(pet.id))
+
+    // If all selected pets already have this service, show feedback
+    if (petsToAdd.length === 0) {
+      const petNames = selectedPets.map((p) => p.name).join(', ')
+      setAlreadyInCartMessage(
+        selectedPets.length === 1
+          ? `${petNames} ya tiene este servicio en el carrito`
+          : `${petNames} ya tienen este servicio en el carrito`
+      )
+      setTimeout(() => setAlreadyInCartMessage(null), 3000)
+      return
+    }
+
     setAddingVariant(variant.name)
     setShowPetPrompt(false)
+    setAlreadyInCartMessage(null)
 
     // Small delay for UX
     await new Promise((resolve) => setTimeout(resolve, 300))
@@ -124,8 +156,8 @@ export function ServiceDetailClient({
     const variantHasSizePricing = hasSizeBasedPricing(variant.size_pricing)
     const priceInfo = calculatedPrices[variant.name]
 
-    // Add cart item for each selected pet
-    for (const pet of selectedPets) {
+    // Add cart item only for pets that don't already have this service
+    for (const pet of petsToAdd) {
       // Get price for this specific pet
       const petPrice = priceInfo?.petPrices.find((p) => p.petId === pet.id)
       const calculatedPrice = petPrice?.price ?? variant.price_value
@@ -147,6 +179,14 @@ export function ServiceDetailClient({
       })
     }
 
+    // Show feedback if some pets were skipped
+    if (petsToAdd.length < selectedPets.length) {
+      const skippedPets = selectedPets.filter((p) => petsAlreadyInCart.has(p.id))
+      const skippedNames = skippedPets.map((p) => p.name).join(', ')
+      setAlreadyInCartMessage(`${skippedNames} ya tenía este servicio`)
+      setTimeout(() => setAlreadyInCartMessage(null), 3000)
+    }
+
     setAddingVariant(null)
     setJustAddedVariant(variant.name)
 
@@ -158,7 +198,7 @@ export function ServiceDetailClient({
   return (
     <div className="min-h-screen bg-[var(--bg-default)] pb-20">
       {/* HERO HEADER */}
-      <div className="relative overflow-hidden py-20 lg:py-28">
+      <div className="relative overflow-hidden pb-6 pt-20 lg:pb-8 lg:pt-28">
         {/* Background - Image or Gradient */}
         {service.image ? (
           <>
@@ -206,11 +246,33 @@ export function ServiceDetailClient({
               </p>
             </div>
           </div>
+
+          {/* SERVICE CATEGORY NAVIGATION - Inside hero */}
+          {allServices.length > 1 && (
+            <div className="mt-10">
+              <div className="flex flex-wrap gap-2">
+                {allServices.map((s) => (
+                  <Link
+                    key={s.id}
+                    href={`/${clinic}/services/${s.id}`}
+                    className={`inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-bold transition-all ${
+                      service.id === s.id
+                        ? 'bg-white text-[var(--primary)] shadow-lg'
+                        : 'bg-white/20 text-white backdrop-blur-sm hover:bg-white/30'
+                    }`}
+                  >
+                    {s.icon && <DynamicIcon name={s.icon} className="h-4 w-4 shrink-0" />}
+                    <span>{s.title}</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
       {/* CONTENT */}
-      <div className="container relative z-20 mx-auto -mt-8 grid items-start gap-8 px-4 md:px-6 lg:grid-cols-3">
+      <div className="container relative z-20 mx-auto grid items-start gap-8 px-4 py-8 md:px-6 lg:grid-cols-3">
         {/* LEFT COLUMN: Main Info */}
         <div className="space-y-8 lg:col-span-2">
           {/* Description Card */}
@@ -279,6 +341,14 @@ export function ServiceDetailClient({
                 <p className="text-sm font-medium text-amber-800">
                   Primero selecciona al menos una mascota para agregar este servicio
                 </p>
+              </div>
+            )}
+
+            {/* Already in cart feedback - shows when pets already have this service */}
+            {alreadyInCartMessage && (
+              <div className="flex items-center gap-3 border-b border-blue-100 bg-blue-50 p-4">
+                <Icons.Info className="h-5 w-5 shrink-0 text-blue-600" />
+                <p className="text-sm font-medium text-blue-800">{alreadyInCartMessage}</p>
               </div>
             )}
 
@@ -481,7 +551,7 @@ export function ServiceDetailClient({
           )}
 
           {/* Booking Card */}
-          <div className="sticky top-24 rounded-[var(--radius)] border border-gray-100 bg-white p-6 shadow-[var(--shadow-md)]">
+          <div className="sticky top-6 rounded-[var(--radius)] border border-gray-100 bg-white p-6 shadow-[var(--shadow-md)]">
             <h3 className="font-heading mb-2 text-xl font-bold text-[var(--text-primary)]">
               Agendar Cita
             </h3>

@@ -9,6 +9,7 @@ import {
   BREED_SIZE_LABELS,
   HEALTH_CONDITION_LABELS,
 } from '@/lib/types/store'
+import { createSanitizedHtml } from '@/lib/utils'
 
 interface Props {
   product: StoreProductWithDetails
@@ -101,7 +102,7 @@ export default function ProductTabs({
             {product.description && (
               <div
                 className="prose prose-sm max-w-none text-[var(--text-primary)]"
-                dangerouslySetInnerHTML={{ __html: product.description }}
+                dangerouslySetInnerHTML={createSanitizedHtml(product.description, 'richText')}
               />
             )}
 

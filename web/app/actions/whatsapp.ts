@@ -459,6 +459,14 @@ export interface WhatsAppStats {
   deliveryRate: number
 }
 
+// Daily stats for trend chart
+export interface WhatsAppDailyStats {
+  date: string
+  sent: number
+  delivered: number
+  failed: number
+}
+
 // Get WhatsApp message stats for dashboard
 export async function getWhatsAppStats(
   clinic: string
@@ -537,6 +545,81 @@ export async function getWhatsAppStats(
       error: e instanceof Error ? e.message : String(e),
     })
     return { error: 'Error al cargar estadísticas' }
+  }
+}
+
+// Get WhatsApp weekly trend data for chart
+export async function getWhatsAppWeeklyTrend(
+  clinic: string
+): Promise<{ data: WhatsAppDailyStats[] } | { error: string }> {
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) {
+    return { error: 'No autorizado' }
+  }
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('tenant_id, role')
+    .eq('id', user.id)
+    .single()
+
+  if (!profile || !['vet', 'admin'].includes(profile.role) || profile.tenant_id !== clinic) {
+    return { error: 'No autorizado' }
+  }
+
+  try {
+    const now = new Date()
+    // Get last 7 days
+    const days: WhatsAppDailyStats[] = []
+
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date(now)
+      date.setDate(date.getDate() - i)
+      date.setHours(0, 0, 0, 0)
+      const dayStart = date.toISOString()
+      const nextDay = new Date(date)
+      nextDay.setDate(nextDay.getDate() + 1)
+      const dayEnd = nextDay.toISOString()
+
+      // Get messages for this day
+      const { data: dayMessages, error: dayError } = await supabase
+        .from('whatsapp_messages')
+        .select('status')
+        .eq('tenant_id', clinic)
+        .eq('direction', 'outbound')
+        .gte('created_at', dayStart)
+        .lt('created_at', dayEnd)
+
+      if (dayError) throw dayError
+
+      const sent = dayMessages?.length || 0
+      const delivered =
+        dayMessages?.filter((m) => m.status === 'delivered' || m.status === 'read').length || 0
+      const failed = dayMessages?.filter((m) => m.status === 'failed').length || 0
+
+      // Format date as DD/MM
+      const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}`
+
+      days.push({
+        date: formattedDate,
+        sent,
+        delivered,
+        failed,
+      })
+    }
+
+    return { data: days }
+  } catch (e) {
+    logger.error('Error loading WhatsApp weekly trend', {
+      tenantId: profile.tenant_id,
+      userId: user.id,
+      error: e instanceof Error ? e.message : String(e),
+    })
+    return { error: 'Error al cargar tendencia semanal' }
   }
 }
 

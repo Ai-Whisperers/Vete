@@ -1,13 +1,5 @@
 import Link from 'next/link'
-import {
-  CalendarPlus,
-  PawPrint,
-  ShoppingBag,
-  FileText,
-  MessageSquare,
-  Plus,
-  Home,
-} from 'lucide-react'
+import { CalendarPlus, ShoppingBag, FileText, MessageSquare, Plus, Home } from 'lucide-react'
 
 interface PortalQuickActionsProps {
   clinic: string

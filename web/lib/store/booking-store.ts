@@ -21,6 +21,7 @@ import type {
   BookableService,
   Pet,
   ClinicConfig,
+  PreferredTimeOfDay,
 } from '@/components/booking/booking-wizard/types'
 import { MAX_SERVICES_PER_BOOKING } from '@/components/booking/booking-wizard/types'
 
@@ -122,16 +123,17 @@ interface BookingState {
   getSelectedServices: () => BookableService[]
   getTotalDuration: () => number
   getTotalPrice: () => number
-  getEndTime: () => string
 }
 
 const initialSelection: BookingSelection = {
   serviceId: null,
   serviceIds: [],
   petId: null,
-  date: '',
-  time_slot: '',
   notes: '',
+  // Optional preferences (customer can indicate, clinic will schedule)
+  preferredDateStart: null,
+  preferredDateEnd: null,
+  preferredTimeOfDay: 'any',
 }
 
 export const useBookingStore = create<BookingState>((set, get) => ({
@@ -206,9 +208,10 @@ export const useBookingStore = create<BookingState>((set, get) => ({
           : null
 
     // Determine initial step based on what's pre-selected
+    // Note: No datetime step anymore - goes directly to confirm after pet
     let initialStep: Step = 'service'
     if (validServiceIds.length > 0 && resolvedPetId) {
-      initialStep = 'datetime' // Both service(s) and pet selected, go to date
+      initialStep = 'confirm' // Both service(s) and pet selected, go to confirm
     } else if (validServiceIds.length > 0) {
       initialStep = 'pet' // Service(s) selected, need pet
     }
@@ -228,7 +231,7 @@ export const useBookingStore = create<BookingState>((set, get) => ({
   },
 
   submitBooking: async () => {
-    const { isSubmitting, selection, clinicId, services } = get()
+    const { isSubmitting, selection, clinicId } = get()
     if (isSubmitting) return false
 
     // Validate required fields
@@ -240,59 +243,33 @@ export const useBookingStore = create<BookingState>((set, get) => ({
       set({ submitError: 'Por favor selecciona una mascota' })
       return false
     }
-    if (!selection.date || !selection.time_slot) {
-      set({ submitError: 'Por favor selecciona fecha y hora' })
-      return false
-    }
+
+    // Note: No date/time validation - customers don't select times anymore
+    // Clinic will contact them to schedule
 
     set({ isSubmitting: true, submitError: null })
 
     try {
-      const startDateTime = new Date(`${selection.date}T${selection.time_slot}`)
+      // Create booking request (clinic will schedule later)
+      const input = {
+        clinic: clinicId,
+        pet_id: selection.petId,
+        service_ids: selection.serviceIds,
+        notes: selection.notes || null,
+        preferred_date_start: selection.preferredDateStart || null,
+        preferred_date_end: selection.preferredDateEnd || null,
+        preferred_time_of_day: selection.preferredTimeOfDay,
+      }
 
-      if (selection.serviceIds.length === 1) {
-        // Single service: use existing flow
-        const service = services.find((s) => s.id === selection.serviceIds[0])
-        const input = {
-          clinic: clinicId,
-          pet_id: selection.petId,
-          start_time: startDateTime.toISOString(),
-          reason: service?.name || 'Consulta General',
-          notes: selection.notes || null,
-        }
+      const { createBookingRequest } = await import('@/app/actions/create-booking-request')
+      const result = await createBookingRequest(input)
 
-        const { createAppointmentJson } = await import('@/app/actions/create-appointment')
-        const result = await createAppointmentJson(input)
-
-        if (result.success) {
-          set({ step: 'success' })
-          return true
-        } else {
-          set({ submitError: result.error || 'No se pudo procesar la reserva' })
-          return false
-        }
+      if (result.success) {
+        set({ step: 'success' })
+        return true
       } else {
-        // Multi-service: use new flow
-        const input = {
-          clinic: clinicId,
-          pet_id: selection.petId,
-          start_time: startDateTime.toISOString(),
-          service_ids: selection.serviceIds,
-          notes: selection.notes || null,
-        }
-
-        const { createMultiServiceAppointmentJson } = await import(
-          '@/app/actions/create-appointment'
-        )
-        const result = await createMultiServiceAppointmentJson(input)
-
-        if (result.success) {
-          set({ step: 'success' })
-          return true
-        } else {
-          set({ submitError: result.error || 'No se pudo procesar la reserva' })
-          return false
-        }
+        set({ submitError: result.error || 'No se pudo procesar la solicitud' })
+        return false
       }
     } catch (e) {
       console.error(e)
@@ -328,22 +305,6 @@ export const useBookingStore = create<BookingState>((set, get) => ({
   getTotalPrice: () => {
     const selectedServices = get().getSelectedServices()
     return selectedServices.reduce((sum, s) => sum + s.price, 0)
-  },
-
-  getEndTime: () => {
-    const { selection } = get()
-    const totalDuration = get().getTotalDuration()
-
-    if (!selection.time_slot || totalDuration === 0) return ''
-
-    const [hours, minutes] = selection.time_slot.split(':').map(Number)
-    const startMinutes = hours * 60 + minutes
-    const endMinutes = startMinutes + totalDuration
-
-    const endHours = Math.floor(endMinutes / 60)
-    const endMins = endMinutes % 60
-
-    return `${String(endHours).padStart(2, '0')}:${String(endMins).padStart(2, '0')}`
   },
 }))
 

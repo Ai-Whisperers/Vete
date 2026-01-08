@@ -2,6 +2,8 @@
 
 ## Priority: P2 - Medium
 ## Category: Technical Debt
+## Status: Not Started
+## Epic: [EPIC-06: Code Quality & Refactoring](../epics/EPIC-06-code-quality.md)
 ## Affected Areas: web/components/
 
 ## Description

@@ -17,6 +17,12 @@ import { SegmentOverview } from '@/components/dashboard/clients/segment-overview
 import { SegmentCustomerList } from '@/components/dashboard/clients/segment-customer-list'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { useToast } from '@/components/ui/Toast'
+import {
+  BulkEmailModal,
+  BulkWhatsAppModal,
+  BulkDiscountModal,
+  ExportModal,
+} from '@/components/clients/bulk-actions'
 
 interface Segment {
   segment: 'vip' | 'regular' | 'at_risk' | 'dormant' | 'new'
@@ -76,6 +82,13 @@ export default function ClientSegmentsPage(): React.ReactElement {
   const [selectedSegment, setSelectedSegment] = useState<Segment['segment'] | null>(null)
   const [period, setPeriod] = useState(90)
 
+  // Bulk action modals state
+  const [emailModalOpen, setEmailModalOpen] = useState(false)
+  const [whatsAppModalOpen, setWhatsAppModalOpen] = useState(false)
+  const [discountModalOpen, setDiscountModalOpen] = useState(false)
+  const [exportModalOpen, setExportModalOpen] = useState(false)
+  const [selectedClientIds, setSelectedClientIds] = useState<string[]>([])
+
   const fetchData = async () => {
     setLoading(true)
     setError(null)
@@ -95,28 +108,39 @@ export default function ClientSegmentsPage(): React.ReactElement {
     fetchData()
   }, [period])
 
-  const handleSendEmail = (customerIds: string[]) => {
-    showToast(`Próximamente: Enviar email a ${customerIds.length} clientes`)
-  }
-
-  const handleSendWhatsApp = (customerIds: string[]) => {
-    showToast(`Próximamente: Enviar WhatsApp a ${customerIds.length} clientes`)
-  }
-
-  const handleApplyDiscount = (customerIds: string[]) => {
-    showToast(`Próximamente: Aplicar descuento a ${customerIds.length} clientes`)
-  }
-
-  const handleExport = () => {
-    showToast('Próximamente: Exportar datos de segmentación')
-  }
-
   // Combine all customers
   const allCustomers = data ? [...data.topCustomers, ...data.atRiskCustomers] : []
   // Remove duplicates
   const uniqueCustomers = allCustomers.filter(
     (customer, index, self) => index === self.findIndex((c) => c.id === customer.id)
   )
+
+  const handleSendEmail = (customerIds: string[]) => {
+    setSelectedClientIds(customerIds)
+    setEmailModalOpen(true)
+  }
+
+  const handleSendWhatsApp = (customerIds: string[]) => {
+    setSelectedClientIds(customerIds)
+    setWhatsAppModalOpen(true)
+  }
+
+  const handleApplyDiscount = (customerIds: string[]) => {
+    setSelectedClientIds(customerIds)
+    setDiscountModalOpen(true)
+  }
+
+  const handleExport = () => {
+    // Use all visible customers for export if none selected
+    const customerIds = uniqueCustomers.map((c) => c.id)
+    setSelectedClientIds(customerIds)
+    setExportModalOpen(true)
+  }
+
+  const handleBulkActionSuccess = () => {
+    showToast('Acción completada exitosamente', 'success')
+    fetchData() // Refresh data
+  }
 
   if (loading) {
     return (
@@ -286,6 +310,35 @@ export default function ClientSegmentsPage(): React.ReactElement {
           onApplyDiscount={handleApplyDiscount}
         />
       </div>
+
+      {/* Bulk Action Modals */}
+      <BulkEmailModal
+        isOpen={emailModalOpen}
+        onClose={() => setEmailModalOpen(false)}
+        selectedCount={selectedClientIds.length}
+        selectedIds={selectedClientIds}
+        onSuccess={handleBulkActionSuccess}
+      />
+      <BulkWhatsAppModal
+        isOpen={whatsAppModalOpen}
+        onClose={() => setWhatsAppModalOpen(false)}
+        selectedCount={selectedClientIds.length}
+        selectedIds={selectedClientIds}
+        onSuccess={handleBulkActionSuccess}
+      />
+      <BulkDiscountModal
+        isOpen={discountModalOpen}
+        onClose={() => setDiscountModalOpen(false)}
+        selectedCount={selectedClientIds.length}
+        selectedIds={selectedClientIds}
+        onSuccess={handleBulkActionSuccess}
+      />
+      <ExportModal
+        isOpen={exportModalOpen}
+        onClose={() => setExportModalOpen(false)}
+        selectedCount={selectedClientIds.length}
+        selectedIds={selectedClientIds}
+      />
     </div>
   )
 }

@@ -7,6 +7,9 @@ import {
 } from '@/lib/email/templates/consent-signed'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
+import { renderToBuffer } from '@react-pdf/renderer'
+import { ConsentPDF } from '@/components/consents/consent-pdf'
+import React from 'react'
 
 /**
  * POST /api/consents/[id]/email - Send signed consent via email
@@ -77,13 +80,88 @@ export const POST = withApiAuthParams(
       const html = generateSignedConsentEmail(emailData)
       const text = generateSignedConsentEmailText(emailData)
 
-      // Send email
+      // Helper to render consent content with placeholders replaced
+      const renderConsentContent = (): string => {
+        let content = consent.custom_content || consent.template?.content || ''
+
+        // Replace pet placeholders
+        content = content.replace(/{{pet_name}}/g, consent.pet?.name || '')
+        content = content.replace(/{{pet_species}}/g, consent.pet?.species || '')
+        content = content.replace(/{{pet_breed}}/g, consent.pet?.breed || '')
+
+        // Replace owner placeholders
+        content = content.replace(/{{owner_name}}/g, consent.owner?.full_name || '')
+        content = content.replace(/{{owner_email}}/g, consent.owner?.email || '')
+        content = content.replace(/{{owner_phone}}/g, consent.owner?.phone || '')
+
+        // Replace custom field placeholders
+        if (consent.field_values) {
+          Object.keys(consent.field_values).forEach((key) => {
+            const value = consent.field_values[key]
+            content = content.replace(new RegExp(`{{${key}}}`, 'g'), value || '')
+          })
+        }
+
+        // Replace date placeholder
+        content = content.replace(
+          /{{date}}/g,
+          new Date(consent.signed_at).toLocaleDateString('es-PY')
+        )
+
+        return content
+      }
+
+      // Generate PDF for attachment
+      let pdfBuffer: Buffer | null = null
+      try {
+        pdfBuffer = await renderToBuffer(
+          React.createElement(ConsentPDF, {
+            clinicName: clinic?.name || 'Clínica Veterinaria',
+            templateName: consent.template?.name || 'Consentimiento',
+            templateCategory: consent.template?.category || 'other',
+            documentNumber: consentId.substring(0, 8).toUpperCase(),
+            petName: consent.pet?.name || '',
+            petSpecies: consent.pet?.species || '',
+            petBreed: consent.pet?.breed || '',
+            ownerName: consent.owner?.full_name || '',
+            ownerEmail: consent.owner?.email || '',
+            ownerPhone: consent.owner?.phone || '',
+            content: renderConsentContent(),
+            fieldValues: consent.field_values || {},
+            signatureData: consent.signature_data,
+            signedAt: consent.signed_at,
+            witnessName: consent.witness_name || undefined,
+            witnessSignatureData: consent.witness_signature_data || undefined,
+            idVerificationType: consent.id_verification_type || undefined,
+            idVerificationNumber: consent.id_verification_number || undefined,
+            status: consent.status || 'active',
+          })
+        )
+      } catch (pdfError) {
+        logger.warn('Failed to generate consent PDF for email attachment', {
+          tenantId: profile.tenant_id,
+          consentId,
+          error: pdfError instanceof Error ? pdfError.message : 'Unknown',
+        })
+        // Continue without PDF attachment
+      }
+
+      // Send email with optional PDF attachment
       const result = await sendEmail({
         to: ownerEmail,
         subject: `Consentimiento Firmado - ${consent.template?.name || 'Documento'} para ${consent.pet?.name}`,
         html,
         text,
         replyTo: clinic?.email,
+        attachments: pdfBuffer
+          ? [
+              {
+                filename: `consentimiento-${consent.pet?.name || 'documento'}-${new Date(consent.signed_at).toLocaleDateString('es-PY').replace(/\//g, '-')}.pdf`,
+                content: pdfBuffer,
+                contentType: 'application/pdf',
+              },
+            ]
+          : undefined,
       })
 
       if (!result.success) {

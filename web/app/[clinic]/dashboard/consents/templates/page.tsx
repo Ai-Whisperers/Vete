@@ -17,6 +17,7 @@ import {
   X,
   Trash2,
 } from 'lucide-react'
+import { createSanitizedHtml } from '@/lib/utils'
 
 interface TemplateField {
   id: string
@@ -994,7 +995,7 @@ export default function TemplatesPage(): JSX.Element {
               </h3>
               <div
                 className="prose max-w-none rounded-lg bg-[var(--bg-default)] p-4 text-[var(--text-primary)]"
-                dangerouslySetInnerHTML={{ __html: template.content }}
+                dangerouslySetInnerHTML={createSanitizedHtml(template.content, 'consent')}
               />
             </div>
           </div>

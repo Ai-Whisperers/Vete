@@ -1,23 +1,8 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { withApiAuth } from '@/lib/auth/api-wrapper'
+import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 
-export async function GET() {
-  const supabase = await createClient()
-
-  // Auth check
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) return new NextResponse('Unauthorized', { status: 401 })
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('tenant_id')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile) return new NextResponse('Forbidden', { status: 403 })
-
+export const GET = withApiAuth(async ({ supabase, profile, log }) => {
   try {
     // Get low stock products
     const { data: lowStock } = await supabase
@@ -37,7 +22,11 @@ export async function GET() {
       hasAlerts: (lowStock?.length || 0) > 0 || (expiring?.length || 0) > 0,
     })
   } catch (e) {
-    // TICKET-TYPE-004: Proper error handling without any
-    return new NextResponse(e instanceof Error ? e.message : 'Error desconocido', { status: 500 })
+    log.error('Error fetching inventory alerts', {
+      error: e instanceof Error ? e.message : 'Unknown',
+    })
+    return apiError('SERVER_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR, {
+      details: { message: 'Error al cargar alertas de inventario' },
+    })
   }
-}
+})

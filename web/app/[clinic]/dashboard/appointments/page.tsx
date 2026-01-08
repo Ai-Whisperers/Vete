@@ -3,6 +3,7 @@ import { requireStaff } from '@/lib/auth'
 import { AppointmentQueue } from '@/components/dashboard/appointments/appointment-queue'
 import { DateFilter } from '@/components/dashboard/appointments/date-filter'
 import { StatusFilter } from '@/components/dashboard/appointments/status-filter'
+import { PendingRequestsPanel } from '@/components/dashboard/appointments/pending-requests-panel'
 import { logger } from '@/lib/logger'
 import * as Icons from 'lucide-react'
 
@@ -22,7 +23,7 @@ export default async function StaffAppointmentsPage({ params, searchParams }: Pr
 
   const today = date || new Date().toISOString().split('T')[0]
 
-  // Fetch appointments for the day
+  // Fetch scheduled appointments for the day (exclude pending_scheduling)
   let query = supabase
     .from('appointments')
     .select(
@@ -34,6 +35,7 @@ export default async function StaffAppointmentsPage({ params, searchParams }: Pr
       status,
       reason,
       notes,
+      scheduling_status,
       pets (
         id,
         name,
@@ -48,6 +50,7 @@ export default async function StaffAppointmentsPage({ params, searchParams }: Pr
     `
     )
     .eq('tenant_id', clinic)
+    .neq('scheduling_status', 'pending_scheduling') // Only show scheduled appointments
     .gte('start_time', `${today}T00:00:00`)
     .lt('start_time', `${today}T23:59:59`)
     .order('start_time', { ascending: true })
@@ -193,6 +196,9 @@ export default async function StaffAppointmentsPage({ params, searchParams }: Pr
           <p className="text-2xl font-bold text-[var(--text-primary)]">{stats.noShow}</p>
         </div>
       </div>
+
+      {/* Pending Requests Panel */}
+      <PendingRequestsPanel clinic={clinic} />
 
       {/* Appointment Queue */}
       {transformedAppointments.length === 0 ? (

@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { logger } from '@/lib/logger'
 import { z } from 'zod'
 import { trialConfig } from '@/lib/pricing/tiers'
+import { rateLimit } from '@/lib/rate-limit'
 
 /**
  * Claim Website API
@@ -99,8 +100,15 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 /**
  * POST /api/claim
  * Claim a pre-generated clinic website
+ * Rate limited: 5 requests per minute (auth - strict to prevent abuse)
  */
 export async function POST(request: NextRequest): Promise<NextResponse<ClaimResponse>> {
+  // Apply rate limiting for auth operations (5 requests per minute)
+  const rateLimitResult = await rateLimit(request, 'auth')
+  if (!rateLimitResult.success) {
+    return rateLimitResult.response as NextResponse<ClaimResponse>
+  }
+
   const supabase = await createClient()
 
   try {

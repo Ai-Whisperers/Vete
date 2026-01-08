@@ -10,38 +10,32 @@ import {
   Package,
   TrendingUp,
   Info,
-  Tag,
-  Search,
-  Edit2,
   ChevronDown,
   ExternalLink,
   FileDown,
-  ChevronLeft,
-  ChevronRight,
-  Filter,
   Plus,
   Trash2,
   X,
-  ArrowUpDown,
-  ArrowUp,
-  ArrowDown,
-  MoreHorizontal,
-  Eye,
-  Copy,
   Clock,
   Store,
   Globe,
   Layers,
   Wand2,
   ScanLine,
-  History,
   ShoppingCart,
 } from 'lucide-react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
-import { ImportWizard, MultiModeScanner } from '@/components/dashboard/inventory'
+import {
+  ImportWizard,
+  MultiModeScanner,
+  InventoryFilters,
+  InventoryTable,
+  type InventoryProduct,
+  type SortField,
+  type SortDirection,
+} from '@/components/dashboard/inventory'
 import { StockHistoryModal } from '@/components/dashboard/inventory/stock-history-modal'
-import Image from 'next/image'
 
 type ProductSource = 'all' | 'own' | 'catalog'
 
@@ -106,17 +100,7 @@ interface NewProductForm {
   min_stock: number
 }
 
-type SortField = 'name' | 'sku' | 'base_price' | 'stock' | 'category'
-type SortDirection = 'asc' | 'desc'
-
 const ITEMS_PER_PAGE_OPTIONS = [10, 25, 50, 100]
-
-const stockFilterOptions = [
-  { value: 'all', label: 'Todos' },
-  { value: 'in_stock', label: 'En Stock' },
-  { value: 'low_stock', label: 'Stock Bajo' },
-  { value: 'out_of_stock', label: 'Sin Stock' },
-]
 
 const sourceTabOptions: {
   value: ProductSource
@@ -440,6 +424,24 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
     fetchProducts(searchQuery, 1, newLimit)
   }
 
+  // Clear all filters
+  const clearFilters = useCallback(() => {
+    setSearchQuery('')
+    setSelectedCategory('all')
+    setStockFilter('all')
+    setSourceFilter('all')
+  }, [])
+
+  // Calculate active filter count
+  const activeFilterCount = useMemo(() => {
+    let count = 0
+    if (searchQuery) count++
+    if (selectedCategory !== 'all') count++
+    if (stockFilter !== 'all') count++
+    if (sourceFilter !== 'all') count++
+    return count
+  }, [searchQuery, selectedCategory, stockFilter, sourceFilter])
+
   const toggleSort = (field: SortField) => {
     if (sortField === field) {
       setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'))
@@ -468,14 +470,6 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
       }
       return newSet
     })
-  }
-
-  const toggleSelectAll = () => {
-    if (selectedProducts.size === products.length) {
-      setSelectedProducts(new Set())
-    } else {
-      setSelectedProducts(new Set(products.map((p) => p.id)))
-    }
   }
 
   const clearSelection = () => {
@@ -722,24 +716,6 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
       maximumFractionDigits: 0,
     }).format(price)
   }
-
-  const SortButton = ({ field, label }: { field: SortField; label: string }) => (
-    <button
-      onClick={() => toggleSort(field)}
-      className="inline-flex items-center gap-1 transition-colors hover:text-[var(--primary)]"
-    >
-      {label}
-      {sortField === field ? (
-        sortDirection === 'asc' ? (
-          <ArrowUp className="h-3 w-3" />
-        ) : (
-          <ArrowDown className="h-3 w-3" />
-        )
-      ) : (
-        <ArrowUpDown className="h-3 w-3 opacity-40" />
-      )}
-    </button>
-  )
 
   return (
     <div className="space-y-6 pb-20">
@@ -1166,446 +1142,49 @@ export default function InventoryClient({ googleSheetUrl }: InventoryClientProps
 
       {/* Products Table */}
       <div className="overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--bg-default)]">
-        {/* Table Header */}
-        <div className="border-b border-[var(--border)] p-4">
-          <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
-            <div>
-              <h2 className="text-lg font-bold text-[var(--text-primary)]">Catálogo de Productos</h2>
-              <p className="text-sm text-[var(--text-muted)]">{pagination.total} productos en total</p>
-            </div>
-            <div className="relative w-full md:w-80">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--text-muted)]" />
-              <input
-                type="text"
-                placeholder="Buscar por nombre o SKU..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="focus:ring-[var(--primary)]/20 w-full rounded-xl border border-[var(--border)] bg-[var(--bg-subtle)] py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:ring-2"
-              />
-            </div>
-          </div>
-
-          {/* Filters */}
-          <div className="mt-4 flex flex-wrap gap-3">
-            <div className="flex items-center gap-2">
-              <Filter className="h-4 w-4 text-[var(--text-muted)]" />
-              <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="focus:ring-[var(--primary)]/20 rounded-lg border border-[var(--border)] bg-[var(--bg-subtle)] px-3 py-2 text-sm font-medium outline-none focus:ring-2"
-              >
-                <option value="all">Todas las categorías</option>
-                {categories.map((cat) => (
-                  <option key={cat.id} value={cat.slug}>
-                    {cat.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="flex items-center gap-1 rounded-lg border border-[var(--border)] bg-[var(--bg-subtle)] p-1">
-              {stockFilterOptions.map((option) => (
-                <button
-                  key={option.value}
-                  onClick={() => setStockFilter(option.value)}
-                  className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-                    stockFilter === option.value
-                      ? 'bg-[var(--primary)] text-white'
-                      : 'text-[var(--text-secondary)] hover:bg-[var(--bg-muted)]'
-                  }`}
-                >
-                  {option.label}
-                </button>
-              ))}
-            </div>
-
-            <div className="ml-auto flex items-center gap-2">
-              <span className="text-sm text-[var(--text-muted)]">Mostrar:</span>
-              <select
-                value={pagination.limit}
-                onChange={(e) => handleLimitChange(Number(e.target.value))}
-                className="focus:ring-[var(--primary)]/20 rounded-lg border border-[var(--border)] bg-[var(--bg-subtle)] px-3 py-2 text-sm font-medium outline-none focus:ring-2"
-              >
-                {ITEMS_PER_PAGE_OPTIONS.map((n) => (
-                  <option key={n} value={n}>
-                    {n}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-        </div>
+        {/* Table Header with Filters */}
+        <InventoryFilters
+          search={searchQuery}
+          onSearchChange={setSearchQuery}
+          categoryFilter={selectedCategory}
+          onCategoryChange={setSelectedCategory}
+          categories={categories}
+          stockFilter={stockFilter}
+          onStockChange={setStockFilter}
+          onClearFilters={clearFilters}
+          activeFilterCount={activeFilterCount}
+          itemsPerPage={pagination.limit}
+          onItemsPerPageChange={handleLimitChange}
+          itemsPerPageOptions={ITEMS_PER_PAGE_OPTIONS}
+          totalCount={pagination.total}
+        />
 
         {/* Table Content */}
-        {isLoadingProducts ? (
-          <div className="py-16 text-center text-[var(--text-muted)]">
-            <Loader2 className="mx-auto mb-3 h-8 w-8 animate-spin" />
-            Cargando productos...
-          </div>
-        ) : filteredAndSortedProducts.length === 0 ? (
-          <div className="py-16 text-center">
-            <Package className="mx-auto mb-3 h-12 w-12 text-[var(--text-muted)]" />
-            <p className="text-[var(--text-muted)]">No se encontraron productos</p>
-            <button
-              onClick={() => setShowAddModal(true)}
-              className="mt-4 inline-flex items-center gap-2 rounded-lg bg-[var(--primary)] px-4 py-2 font-medium text-white hover:opacity-90"
-            >
-              <Plus className="h-4 w-4" /> Agregar Producto
-            </button>
-          </div>
-        ) : (
-          <>
-            {/* Bulk Actions Toolbar */}
-            {selectedProducts.size > 0 && (
-              <div className="mb-4 flex items-center justify-between rounded-lg bg-[var(--primary)]/10 px-4 py-3">
-                <div className="flex items-center gap-3">
-                  <span className="font-medium text-[var(--primary)]">
-                    {selectedProducts.size} producto{selectedProducts.size !== 1 ? 's' : ''} seleccionado{selectedProducts.size !== 1 ? 's' : ''}
-                  </span>
-                  <button
-                    onClick={clearSelection}
-                    className="text-sm text-[var(--text-muted)] hover:text-[var(--text-secondary)] underline"
-                  >
-                    Deseleccionar
-                  </button>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={handleBulkExport}
-                    className="inline-flex items-center gap-2 rounded-lg bg-[var(--bg-default)] px-3 py-1.5 text-sm font-medium text-[var(--text-secondary)] shadow-sm hover:bg-[var(--bg-subtle)]"
-                  >
-                    <Download className="h-4 w-4" />
-                    Exportar CSV
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Desktop Table */}
-            <div className="hidden overflow-x-auto md:block">
-              <table className="w-full text-left">
-                <thead>
-                  <tr className="border-b border-[var(--border-light)] text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">
-                    <th className="w-12 px-4 py-4">
-                      <input
-                        type="checkbox"
-                        className="rounded border-[var(--border)]"
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setSelectedProducts(new Set(filteredAndSortedProducts.map((p) => p.id)))
-                          } else {
-                            setSelectedProducts(new Set())
-                          }
-                        }}
-                      />
-                    </th>
-                    <th className="px-4 py-4">
-                      <SortButton field="name" label="Producto" />
-                    </th>
-                    <th className="px-4 py-4">
-                      <SortButton field="sku" label="SKU" />
-                    </th>
-                    <th className="px-4 py-4">
-                      <SortButton field="category" label="Categoría" />
-                    </th>
-                    <th className="px-4 py-4 text-right">
-                      <SortButton field="base_price" label="Precio" />
-                    </th>
-                    <th className="px-4 py-4 text-center">
-                      <SortButton field="stock" label="Stock" />
-                    </th>
-                    <th className="px-4 py-4 text-right">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-50">
-                  {filteredAndSortedProducts.map((p) => {
-                    const stock = p.inventory?.stock_quantity ?? 0
-                    const minStock = p.inventory?.min_stock_level ?? 5
-
-                    return (
-                      <tr key={p.id} className="group transition-colors hover:bg-[var(--bg-subtle)]/50">
-                        <td className="px-4 py-3">
-                          <input
-                            type="checkbox"
-                            className="rounded border-[var(--border)]"
-                            checked={selectedProducts.has(p.id)}
-                            onChange={(e) => {
-                              const newSet = new Set(selectedProducts)
-                              if (e.target.checked) {
-                                newSet.add(p.id)
-                              } else {
-                                newSet.delete(p.id)
-                              }
-                              setSelectedProducts(newSet)
-                            }}
-                          />
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-3">
-                            <div className="relative h-10 w-10 flex-shrink-0 overflow-hidden rounded-lg bg-[var(--bg-muted)]">
-                              {p.image_url ? (
-                                <Image
-                                  src={p.image_url}
-                                  alt={p.name}
-                                  width={40}
-                                  height={40}
-                                  className="h-full w-full object-cover"
-                                />
-                              ) : (
-                                <div className="flex h-full w-full items-center justify-center">
-                                  <Package className="h-5 w-5 text-[var(--text-muted)]" />
-                                </div>
-                              )}
-                              {/* Source indicator badge */}
-                              {p.source && sourceFilter === 'all' && (
-                                <div
-                                  className={`absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full ${
-                                    p.source === 'catalog' ? 'bg-[var(--status-info-bg)]0' : 'bg-[var(--status-success-bg)]0'
-                                  }`}
-                                  title={p.source === 'catalog' ? 'Del catálogo' : 'Propio'}
-                                >
-                                  {p.source === 'catalog' ? (
-                                    <Globe className="h-2.5 w-2.5 text-white" />
-                                  ) : (
-                                    <Store className="h-2.5 w-2.5 text-white" />
-                                  )}
-                                </div>
-                              )}
-                            </div>
-                            <div className="min-w-0">
-                              <div className="flex items-center gap-2">
-                                <p className="truncate font-bold text-[var(--text-primary)]">{p.name}</p>
-                                {p.source === 'catalog' && p.assignment?.margin_percentage && (
-                                  <span className="rounded bg-[var(--status-info-bg)] px-1.5 py-0.5 text-[10px] font-bold text-[var(--status-info)]">
-                                    +{p.assignment.margin_percentage.toFixed(0)}%
-                                  </span>
-                                )}
-                              </div>
-                              {p.brand?.name && (
-                                <p className="text-xs text-[var(--text-muted)]">{p.brand.name}</p>
-                              )}
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-4 py-3">
-                          <span className="font-mono text-sm text-[var(--text-muted)]">{p.sku || '—'}</span>
-                        </td>
-                        <td className="px-4 py-3">
-                          <span className="text-sm text-[var(--text-secondary)]">{p.category?.name || '—'}</span>
-                        </td>
-                        <td className="px-4 py-3 text-right">
-                          <div>
-                            <span className="font-bold text-[var(--text-primary)]">
-                              {formatPrice(
-                                p.sale_price || p.assignment?.sale_price || p.base_price
-                              )}
-                            </span>
-                            {p.inventory?.weighted_average_cost && (
-                              <p className="text-[10px] text-[var(--text-muted)]">
-                                Costo: {formatPrice(p.inventory.weighted_average_cost)}
-                              </p>
-                            )}
-                          </div>
-                        </td>
-                        <td className="px-4 py-3 text-center">
-                          <span
-                            className={`inline-block rounded-lg px-2 py-1 text-xs font-bold ${
-                              stock === 0
-                                ? 'bg-[var(--status-error-bg)] text-[var(--status-error)]'
-                                : stock <= minStock
-                                  ? 'bg-[var(--status-warning-bg)] text-[var(--status-warning)]'
-                                  : 'bg-[var(--status-success-bg)] text-[var(--status-success)]'
-                            }`}
-                          >
-                            {stock} un.
-                          </span>
-                        </td>
-                        <td className="px-4 py-3 text-right">
-                          <div className="flex items-center justify-end gap-1">
-                            <button
-                              onClick={() => setHistoryProduct({ id: p.id, name: p.name })}
-                              className="hover:bg-[var(--status-special-bg)] rounded-lg p-2 text-[var(--text-muted)] transition hover:text-[var(--status-special)]"
-                              title="Ver Historial"
-                            >
-                              <History className="h-4 w-4" />
-                            </button>
-                            <button
-                              onClick={() => openEdit(p)}
-                              className="hover:bg-[var(--primary)]/5 rounded-lg p-2 text-[var(--text-muted)] transition hover:text-[var(--primary)]"
-                              title="Editar"
-                            >
-                              <Edit2 className="h-4 w-4" />
-                            </button>
-                            <button
-                              onClick={() => setDeleteConfirm(p.id)}
-                              className="rounded-lg p-2 text-[var(--text-muted)] transition hover:bg-[var(--status-error-bg)] hover:text-[var(--status-error)]"
-                              title="Eliminar"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Mobile Cards */}
-            <div className="divide-y divide-gray-50 md:hidden">
-              {filteredAndSortedProducts.map((p) => {
-                const stock = p.inventory?.stock_quantity ?? 0
-                const minStock = p.inventory?.min_stock_level ?? 5
-
-                return (
-                  <div key={p.id} className="p-4">
-                    <div className="flex items-start gap-3">
-                      <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-[var(--bg-muted)]">
-                        {p.image_url ? (
-                          <Image
-                            src={p.image_url}
-                            alt={p.name}
-                            width={48}
-                            height={48}
-                            className="h-full w-full object-cover"
-                          />
-                        ) : (
-                          <div className="flex h-full w-full items-center justify-center">
-                            <Package className="h-6 w-6 text-[var(--text-muted)]" />
-                          </div>
-                        )}
-                        {/* Source indicator badge */}
-                        {p.source && sourceFilter === 'all' && (
-                          <div
-                            className={`absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full ${
-                              p.source === 'catalog' ? 'bg-[var(--status-info-bg)]0' : 'bg-[var(--status-success-bg)]0'
-                            }`}
-                          >
-                            {p.source === 'catalog' ? (
-                              <Globe className="h-3 w-3 text-white" />
-                            ) : (
-                              <Store className="h-3 w-3 text-white" />
-                            )}
-                          </div>
-                        )}
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          <p className="truncate font-bold text-[var(--text-primary)]">{p.name}</p>
-                          {p.source === 'catalog' && p.assignment?.margin_percentage && (
-                            <span className="rounded bg-[var(--status-info-bg)] px-1.5 py-0.5 text-[10px] font-bold text-[var(--status-info)]">
-                              +{p.assignment.margin_percentage.toFixed(0)}%
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-xs text-[var(--text-muted)]">
-                          {p.category?.name || 'Sin categoría'}
-                        </p>
-                        <p className="mt-1 font-mono text-xs text-[var(--text-muted)]">SKU: {p.sku || '—'}</p>
-                      </div>
-                      <div className="flex gap-1">
-                        <button
-                          onClick={() => setHistoryProduct({ id: p.id, name: p.name })}
-                          className="p-2 text-[var(--text-muted)] hover:text-[var(--status-special)]"
-                          title="Historial"
-                        >
-                          <History className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => openEdit(p)}
-                          className="p-2 text-[var(--text-muted)] hover:text-[var(--primary)]"
-                        >
-                          <Edit2 className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => setDeleteConfirm(p.id)}
-                          className="p-2 text-[var(--text-muted)] hover:text-[var(--status-error)]"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </div>
-                    <div className="mt-3 flex items-center justify-between">
-                      <div>
-                        <span className="font-bold text-[var(--text-primary)]">
-                          {formatPrice(p.sale_price || p.assignment?.sale_price || p.base_price)}
-                        </span>
-                        {p.inventory?.weighted_average_cost && (
-                          <span className="ml-2 text-[10px] text-[var(--text-muted)]">
-                            Costo: {formatPrice(p.inventory.weighted_average_cost)}
-                          </span>
-                        )}
-                      </div>
-                      <span
-                        className={`rounded-lg px-2 py-1 text-xs font-bold ${
-                          stock === 0
-                            ? 'bg-[var(--status-error-bg)] text-[var(--status-error)]'
-                            : stock <= minStock
-                              ? 'bg-[var(--status-warning-bg)] text-[var(--status-warning)]'
-                              : 'bg-[var(--status-success-bg)] text-[var(--status-success)]'
-                        }`}
-                      >
-                        {stock} un.
-                      </span>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          </>
-        )}
-
-        {/* Pagination */}
-        {pagination.pages > 1 && (
-          <div className="flex items-center justify-between border-t border-[var(--border)] p-4">
-            <div className="text-sm text-[var(--text-muted)]">
-              Mostrando {(pagination.page - 1) * pagination.limit + 1} -{' '}
-              {Math.min(pagination.page * pagination.limit, pagination.total)} de {pagination.total}
-            </div>
-            <div className="flex items-center gap-1">
-              <button
-                onClick={() => handlePageChange(pagination.page - 1)}
-                disabled={!pagination.hasPrev}
-                className="rounded-lg p-2 text-[var(--text-secondary)] transition hover:bg-[var(--bg-muted)] disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                <ChevronLeft className="h-5 w-5" />
-              </button>
-              {Array.from({ length: Math.min(5, pagination.pages) }, (_, i) => {
-                let pageNum: number
-                if (pagination.pages <= 5) {
-                  pageNum = i + 1
-                } else if (pagination.page <= 3) {
-                  pageNum = i + 1
-                } else if (pagination.page >= pagination.pages - 2) {
-                  pageNum = pagination.pages - 4 + i
-                } else {
-                  pageNum = pagination.page - 2 + i
-                }
-                return (
-                  <button
-                    key={pageNum}
-                    onClick={() => handlePageChange(pageNum)}
-                    className={`h-10 w-10 rounded-lg text-sm font-bold transition ${
-                      pagination.page === pageNum
-                        ? 'bg-[var(--primary)] text-white'
-                        : 'text-[var(--text-secondary)] hover:bg-[var(--bg-muted)]'
-                    }`}
-                  >
-                    {pageNum}
-                  </button>
-                )
-              })}
-              <button
-                onClick={() => handlePageChange(pagination.page + 1)}
-                disabled={!pagination.hasNext}
-                className="rounded-lg p-2 text-[var(--text-secondary)] transition hover:bg-[var(--bg-muted)] disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                <ChevronRight className="h-5 w-5" />
-              </button>
-            </div>
-          </div>
-        )}
+        <InventoryTable
+          products={filteredAndSortedProducts as InventoryProduct[]}
+          isLoading={isLoadingProducts}
+          sortField={sortField}
+          sortDirection={sortDirection}
+          onSort={toggleSort}
+          onEdit={openEdit}
+          onDelete={(productId) => setDeleteConfirm(productId)}
+          onViewHistory={setHistoryProduct}
+          selectedProducts={selectedProducts}
+          onSelectionChange={toggleSelectProduct}
+          onSelectAll={(selected) => {
+            if (selected) {
+              setSelectedProducts(new Set(filteredAndSortedProducts.map((p) => p.id)))
+            } else {
+              setSelectedProducts(new Set())
+            }
+          }}
+          onClearSelection={clearSelection}
+          onBulkExport={handleBulkExport}
+          onAddProduct={() => setShowAddModal(true)}
+          sourceFilter={sourceFilter}
+          pagination={pagination}
+          onPageChange={handlePageChange}
+        />
       </div>
 
       {/* Quick Edit Modal */}

@@ -8,7 +8,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { logger } from '@/lib/logger'
-import { apiError, HTTP_STATUS } from '@/lib/errors'
 import { z } from 'zod'
 
 export const dynamic = 'force-dynamic'
@@ -37,7 +36,7 @@ export async function GET(
   } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED)
+    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
   }
 
   // Get profile
@@ -48,7 +47,7 @@ export async function GET(
     .single()
 
   if (!profile || !['vet', 'admin'].includes(profile.role)) {
-    return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN)
+    return NextResponse.json({ error: 'Acceso denegado' }, { status: 403 })
   }
 
   try {
@@ -91,7 +90,7 @@ export async function GET(
       .single()
 
     if (error || !report) {
-      return apiError('NOT_FOUND', HTTP_STATUS.NOT_FOUND)
+      return NextResponse.json({ error: 'No encontrado' }, { status: 404 })
     }
 
     // Get sightings for this report
@@ -130,7 +129,7 @@ export async function GET(
     })
   } catch (err) {
     logger.error('Error fetching lost pet report', { error: err instanceof Error ? err : undefined, id })
-    return apiError('INTERNAL_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
+    return NextResponse.json({ error: 'Error interno' }, { status: 500 })
   }
 }
 
@@ -152,7 +151,7 @@ export async function PUT(
   } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED)
+    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
   }
 
   // Get profile
@@ -163,7 +162,7 @@ export async function PUT(
     .single()
 
   if (!profile || !['vet', 'admin'].includes(profile.role)) {
-    return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN)
+    return NextResponse.json({ error: 'Acceso denegado' }, { status: 403 })
   }
 
   try {
@@ -171,9 +170,7 @@ export async function PUT(
     const validation = updateStatusSchema.safeParse(body)
 
     if (!validation.success) {
-      return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
-        details: validation.error.issues,
-      })
+      return NextResponse.json({ error: 'Datos inválidos', details: validation.error.issues }, { status: 400 })
     }
 
     const { status, notes, found_location } = validation.data
@@ -263,7 +260,7 @@ export async function PUT(
 
     if (error) {
       logger.error('Failed to update lost pet status', { error, id })
-      return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      return NextResponse.json({ error: 'Error de base de datos' }, { status: 500 })
     }
 
     // Log to audit
@@ -279,6 +276,6 @@ export async function PUT(
     return NextResponse.json({ report })
   } catch (err) {
     logger.error('Error updating lost pet report', { error: err instanceof Error ? err : undefined, id })
-    return apiError('INTERNAL_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
+    return NextResponse.json({ error: 'Error interno' }, { status: 500 })
   }
 }

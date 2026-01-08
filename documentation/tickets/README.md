@@ -191,9 +191,9 @@ All tickets are organized under strategic epics for better planning and tracking
 
 | ID | Title | Parent | Effort |
 |----|-------|--------|--------|
-| [AUDIT-101a](./technical-debt/AUDIT-101a-inventory-filters-extraction.md) | Extract InventoryFilters Component | AUDIT-101 | 3h |
-| [AUDIT-101b](./technical-debt/AUDIT-101b-inventory-table-extraction.md) | Extract InventoryTable Component | AUDIT-101 | 4-5h |
-| [AUDIT-101c](./technical-debt/AUDIT-101c-inventory-import-wizard-extraction.md) | Extract ImportWizard Component | AUDIT-101 | 5-6h |
+| ~~[AUDIT-101a](./technical-debt/AUDIT-101a-inventory-filters-extraction.md)~~ | ~~Extract InventoryFilters Component~~ | ~~AUDIT-101~~ | ~~3h~~ ✓ |
+| ~~[AUDIT-101b](./technical-debt/AUDIT-101b-inventory-table-extraction.md)~~ | ~~Extract InventoryTable Component~~ | ~~AUDIT-101~~ | ~~4-5h~~ ✓ |
+| ~~[AUDIT-101c](./technical-debt/AUDIT-101c-inventory-import-wizard-extraction.md)~~ | ~~Extract ImportWizard Component~~ | ~~AUDIT-101~~ | ~~Pre-existing~~ ✓ |
 | [AUDIT-101d](./technical-debt/AUDIT-101d-stock-adjustment-modal-extraction.md) | Extract StockAdjustmentModal | AUDIT-101 | 3-4h |
 | [AUDIT-103a](./technical-debt/AUDIT-103a-console-cleanup-api.md) | Console Cleanup - API Routes | AUDIT-103 | 1.5-2h |
 | [AUDIT-103b](./technical-debt/AUDIT-103b-console-cleanup-pages.md) | Console Cleanup - Pages | AUDIT-103 | 2.5-3h |

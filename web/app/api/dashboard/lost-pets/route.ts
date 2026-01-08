@@ -8,7 +8,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { logger } from '@/lib/logger'
-import { apiError, HTTP_STATUS } from '@/lib/errors'
 
 export const dynamic = 'force-dynamic'
 
@@ -26,7 +25,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   } = await supabase.auth.getUser()
 
   if (authError || !user) {
-    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED)
+    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
   }
 
   // Get profile with tenant
@@ -37,12 +36,12 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     .single()
 
   if (!profile) {
-    return apiError('UNAUTHORIZED', HTTP_STATUS.UNAUTHORIZED)
+    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
   }
 
   // Only staff can access
   if (!['vet', 'admin'].includes(profile.role)) {
-    return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN)
+    return NextResponse.json({ error: 'Acceso denegado' }, { status: 403 })
   }
 
   try {
@@ -55,7 +54,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     // Verify tenant access
     if (clinic !== profile.tenant_id) {
-      return apiError('FORBIDDEN', HTTP_STATUS.FORBIDDEN)
+      return NextResponse.json({ error: 'Acceso denegado' }, { status: 403 })
     }
 
     // Build base query
@@ -102,7 +101,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     if (error) {
       logger.error('Failed to fetch lost pets', { error, tenant: clinic })
-      return apiError('DATABASE_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      return NextResponse.json({ error: 'Error de base de datos' }, { status: 500 })
     }
 
     // Get summary counts
@@ -146,6 +145,6 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     })
   } catch (err) {
     logger.error('Error in lost pets API', { error: err instanceof Error ? err : undefined })
-    return apiError('INTERNAL_ERROR', HTTP_STATUS.INTERNAL_SERVER_ERROR)
+    return NextResponse.json({ error: 'Error interno' }, { status: 500 })
   }
 }

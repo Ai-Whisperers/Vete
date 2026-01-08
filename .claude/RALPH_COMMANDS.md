@@ -76,6 +76,36 @@ This manual provides the specific command, target role, and expected outcome for
 /ralph-loop:ralph-loop "Follow instructions in .claude/prompts/ralph/THE_BROADCASTER.md" --completion-promise "RELEASE_NOTES_READY" --max-iterations 20
 ```
 
+### 🧠 The Product Owner
+
+**Target Role:** Head of Product
+**Mission:** Turns raw ideas or feature clusters into formal Epics.
+**Expected Results:**
+
+- Creates `EPIC-[XXX].md` files in `documentation/tickets/epics/`.
+- Updates `README.md` with new planned work.
+
+```bash
+/ralph-loop:ralph-loop "Follow instructions in .claude/prompts/ralph/THE_PRODUCT_OWNER.md" --completion-promise "EPIC_CREATED" --max-iterations 20
+```
+
+---
+
+## 🔮 Innovation & Strategy
+
+### 👁️ The Visionary
+
+**Target Role:** Chief Innovation Officer
+**Mission:** Generates novel feature ideas from multiple perspectives.
+**Expected Results:**
+
+- Appends new concepts to `documentation/growth-strategy/IDEAS_BACKLOG.md`.
+- Brainstorms based on User Pain, Competitors, and Future Trends.
+
+```bash
+/ralph-loop:ralph-loop "Follow instructions in .claude/prompts/ralph/THE_VISIONARY.md" --completion-promise "IDEAS_GENERATED" --max-iterations 20
+```
+
 ---
 
 ## 🛡️ Quality & Standards

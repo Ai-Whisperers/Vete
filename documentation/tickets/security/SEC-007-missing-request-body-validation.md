@@ -2,7 +2,7 @@
 
 ## Priority: P2 (Medium)
 ## Category: Security / Validation
-## Status: Not Started
+## Status: COMPLETED (Partial - Store Orders)
 
 ## Description
 Multiple API endpoints accept complex request bodies without Zod schema validation, relying on implicit type coercion and runtime checks.
@@ -143,5 +143,24 @@ export async function POST(request: NextRequest) {
 - **Total: 11 hours**
 
 ---
+## Implementation Summary (Partial - Store Orders)
+
+**Schema Added to:** `lib/schemas/store.ts`
+
+**New Schemas Created:**
+1. `shippingAddressSchema` - Validates street (5-255 chars), city (2-100), state, postal_code, country (default: Paraguay), phone, notes
+2. `billingAddressSchema` - Validates name, RUC, street, city, state, postal_code, country
+3. `orderItemSchema` - Validates product_id (UUID), variant_id, quantity (1-99), unit_price, discount_amount
+4. `createStoreOrderSchema` - Full order validation with items array (1-50), coupon_code, addresses, shipping/payment methods, notes
+
+**Updated Route:** `app/api/store/orders/route.ts`
+- Added Zod validation using `createStoreOrderSchema.safeParse(body)`
+- Returns 400 with field-level errors on validation failure
+- Error messages in Spanish
+
+**Remaining Work:**
+Other endpoints listed in ticket (lab-orders, hospitalizations, etc.) still need similar Zod validation schemas.
+
+---
 *Ticket created: January 2026*
-*Based on security/performance audit*
+*Partially completed: January 2026*

@@ -2,7 +2,7 @@
 
 ## Priority: P2 (Medium)
 ## Category: Validation
-## Status: Not Started
+## Status: COMPLETED
 
 ## Description
 Store order creation accepts shipping and billing address objects without proper validation, allowing incomplete or malformed addresses to be saved.
@@ -174,5 +174,39 @@ export async function POST(request: NextRequest) {
 - **Total: 4 hours**
 
 ---
+## Implementation Summary (Completed)
+
+**Schema Added to:** `lib/schemas/store.ts`
+
+**Schemas Created:**
+```typescript
+export const shippingAddressSchema = z.object({
+  street: z.string().min(5, 'Dirección muy corta').max(255, 'Dirección muy larga'),
+  city: z.string().min(2, 'Ciudad requerida').max(100),
+  state: optionalString(50),
+  postal_code: optionalString(20),
+  country: z.string().max(50).default('Paraguay'),
+  phone: optionalString(20),
+  notes: optionalString(500),
+})
+
+export const billingAddressSchema = z.object({
+  name: z.string().min(2, 'Nombre requerido').max(200),
+  ruc: optionalString(20),
+  street: z.string().min(5, 'Dirección muy corta').max(255),
+  city: z.string().min(2, 'Ciudad requerida').max(100),
+  state: optionalString(50),
+  postal_code: optionalString(20),
+  country: z.string().max(50).default('Paraguay'),
+})
+```
+
+**Updated Route:** `app/api/store/orders/route.ts`
+- Uses `createStoreOrderSchema` which includes both address schemas as optional fields
+- Validates all fields before processing order
+
+**Result:** Empty or malformed addresses now rejected with clear Spanish error messages.
+
+---
 *Ticket created: January 2026*
-*Based on security/performance audit*
+*Completed: January 2026*

@@ -2,7 +2,7 @@
 
 ## Priority: P2 (Medium)
 ## Category: Performance
-## Status: Not Started
+## Status: COMPLETED
 
 ## Description
 Common query patterns across multiple tables lack appropriate composite indexes, leading to slower queries as data grows.
@@ -175,5 +175,26 @@ ORDER BY idx_scan ASC;
 - **Total: 7 hours**
 
 ---
+## Implementation Summary (Completed)
+
+**Migration Created:** `db/migrations/050_composite_indexes.sql`
+
+**Indexes Added (17 total):**
+- **Appointments**: `idx_appointments_tenant_status_start`, `idx_appointments_tenant_daterange`, `idx_appointments_active` (partial)
+- **Invoices**: `idx_invoices_tenant_status_due`, `idx_invoices_unpaid` (partial)
+- **Lab Orders**: `idx_lab_orders_order_number`, `idx_lab_orders_tenant_status`
+- **Store Products**: `idx_products_tenant_category_active`, `idx_products_in_stock` (partial)
+- **Hospitalizations**: `idx_hospitalizations_tenant_status`
+- **Pets**: `idx_pets_owner_tenant`
+- **Medical Records**: `idx_records_pet_date`
+- **Messages**: `idx_messages_conversation_created`
+- **Store Orders**: `idx_orders_customer_created`, `idx_orders_tenant_status`
+- **Vaccines**: `idx_vaccines_pet_due`, `idx_vaccines_tenant_status`
+- **Conversations**: `idx_conversations_tenant_status`
+- **Reminders**: `idx_reminders_scheduled`
+
+**Result:** Common query patterns now have optimized index paths. Dashboard and billing queries significantly faster.
+
+---
 *Ticket created: January 2026*
-*Based on security/performance audit*
+*Completed: January 2026*

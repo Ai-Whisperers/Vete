@@ -39,30 +39,30 @@ This folder contains organized development tickets for improvements, features, b
 
 | ID | Title | Category | Effort |
 |----|-------|----------|--------|
-| [TEST-001](./testing/TEST-001-cron-job-tests.md) | Cron Job Test Coverage | Testing | 14h |
-| [RACE-001](./race-conditions/RACE-001-subscription-stock-overselling.md) | Stock Decrement Not Atomic in Subscriptions | Race Condition | 5h |
+| ~~[TEST-001](./testing/TEST-001-cron-job-tests.md)~~ | ~~Cron Job Test Coverage~~ | ~~Testing~~ | ~~14h~~ ✓ |
+| ~~[RACE-001](./race-conditions/RACE-001-subscription-stock-overselling.md)~~ | ~~Stock Decrement Not Atomic in Subscriptions~~ | ~~Race Condition~~ | ~~5h~~ ✓ |
 
 ### P1 - High Priority (Do Soon)
 
 | ID | Title | Category | Effort |
 |----|-------|----------|--------|
-| [WIP-001](./wip/WIP-001-multi-service-booking.md) | Multi-Service Booking System | WIP | 6-9h |
-| [NOTIF-001](./notifications/NOTIF-001-notification-system-integration.md) | Notification System Integration | Notifications | 13h |
-| [NOTIF-002](./notifications/NOTIF-002-email-sending-integration.md) | Email Sending Integration | Notifications | 7h |
+| ~~[WIP-001](./wip/WIP-001-multi-service-booking.md)~~ | ~~Multi-Service Booking System~~ | ~~WIP~~ | ~~6-9h~~ ✓ |
+| ~~[NOTIF-001](./notifications/NOTIF-001-notification-system-integration.md)~~ | ~~Notification System Integration~~ | ~~Notifications~~ | ~~13h~~ ✓ |
+| ~~[NOTIF-002](./notifications/NOTIF-002-email-sending-integration.md)~~ | ~~Email Sending Integration~~ | ~~Notifications~~ | ~~7h~~ ✓ |
 | [TEST-003](./testing/TEST-003-server-action-tests.md) | Server Action Test Coverage | Testing | 17h |
-| [API-001](./api-gaps/API-001-medical-records-crud.md) | Medical Records API CRUD | API Gaps | 8h |
-| [API-002](./api-gaps/API-002-vaccines-crud.md) | Vaccines API CRUD Enhancement | API Gaps | 7h |
-| [API-003](./api-gaps/API-003-rate-limiting.md) | Implement API Rate Limiting | API Gaps | 10h |
+| ~~[API-001](./api-gaps/API-001-medical-records-crud.md)~~ | ~~Medical Records API CRUD~~ | ~~API Gaps~~ | ~~8h~~ ✓ |
+| ~~[API-002](./api-gaps/API-002-vaccines-crud.md)~~ | ~~Vaccines API CRUD Enhancement~~ | ~~API Gaps~~ | ~~7h~~ ✓ |
+| ~~[API-003](./api-gaps/API-003-rate-limiting.md)~~ | ~~Implement API Rate Limiting~~ | ~~API Gaps~~ | ~~10h~~ ✓ |
 | [REF-001](./refactoring/REF-001-centralize-auth-patterns.md) | Centralize Auth Patterns | Refactoring | 10-14h |
-| [SEC-001](./security/SEC-001-tenant-validation.md) | Add Tenant Validation to Portal | Security | 2-3h |
-| [BUG-001](./bugs/BUG-001-double-signup-routes.md) | Double Signup Routes | Bug | 1.5h |
+| ~~[SEC-001](./security/SEC-001-tenant-validation.md)~~ | ~~Add Tenant Validation to Portal~~ | ~~Security~~ | ~~2-3h~~ ✓ |
+| ~~[BUG-001](./bugs/BUG-001-double-signup-routes.md)~~ | ~~Double Signup Routes~~ | ~~Bug~~ | ~~1.5h~~ ✓ |
 | [REF-002](./refactoring/REF-002-form-validation-centralization.md) | Centralize Form Validation | Refactoring | 18-22h |
-| [SEC-003](./security/SEC-003-lab-order-number-race.md) | Lab Order Number Race Condition | Security | 3h |
-| [SEC-004](./security/SEC-004-hospitalization-number-race.md) | Hospitalization Number Race Condition | Security | 3h |
-| [RACE-002](./race-conditions/RACE-002-kennel-status-atomicity.md) | Kennel Status Update Not Atomic | Race Condition | 5h |
-| [PERF-002](./performance/PERF-002-subscription-n-plus-1.md) | N+1 Query in Subscription Processing | Performance | 4h |
+| ~~[SEC-003](./security/SEC-003-lab-order-number-race.md)~~ | ~~Lab Order Number Race Condition~~ | ~~Security~~ | ~~3h~~ ✓ |
+| ~~[SEC-004](./security/SEC-004-hospitalization-number-race.md)~~ | ~~Hospitalization Number Race Condition~~ | ~~Security~~ | ~~3h~~ ✓ |
+| ~~[RACE-002](./race-conditions/RACE-002-kennel-status-atomicity.md)~~ | ~~Kennel Status Update Not Atomic~~ | ~~Race Condition~~ | ~~5h~~ ✓ |
+| ~~[PERF-002](./performance/PERF-002-subscription-n-plus-1.md)~~ | ~~N+1 Query in Subscription Processing~~ | ~~Performance~~ | ~~4h~~ ✓ |
 | [FEAT-009](./features/FEAT-009-client-segmentation-bulk-actions.md) | Client Segmentation Bulk Actions | Feature | 18h |
-| [NOTIF-003](./notifications/NOTIF-003-sms-channel-implementation.md) | SMS Channel Implementation (MVP) | Notifications | 7h |
+| ~~[NOTIF-003](./notifications/NOTIF-003-sms-channel-implementation.md)~~ | ~~SMS Channel~~ (DESCOPED - use WhatsApp) | ~~Notifications~~ | - |
 
 ### P2 - Medium Priority (Next Sprint)
 
@@ -173,18 +173,45 @@ Critical data integrity and security issues:
 
 ---
 
-## Quick Wins (< 4 hours)
+## Quick Wins (< 4 hours) - ALL COMPLETED ✓
 
-1. [SEC-001](./security/SEC-001-tenant-validation.md) - Tenant Validation (2-3h)
-2. [BUG-001](./bugs/BUG-001-double-signup-routes.md) - Remove duplicate signup (1.5h)
-3. [SEC-010](./security/SEC-010-subscription-frequency-bounds.md) - Subscription bounds (2h)
-4. [TECH-003](./technical-debt/TECH-003-remove-console-logs.md) - Remove console logs (2h)
-5. [TECH-004](./technical-debt/TECH-004-demo-page-placeholders.md) - Demo placeholders (2h)
-6. [BUG-002](./bugs/BUG-002-redirect-param-inconsistency.md) - Fix redirect params (3h)
-7. [SEC-003](./security/SEC-003-lab-order-number-race.md) - Lab order race (3h)
-8. [SEC-004](./security/SEC-004-hospitalization-number-race.md) - Hospitalization race (3h)
-9. [SEC-009](./security/SEC-009-search-pattern-injection.md) - Search pattern (3h)
-10. [VALID-002](./validation/VALID-002-hospitalization-empty-strings.md) - Empty strings (3h)
+1. ~~[SEC-001](./security/SEC-001-tenant-validation.md) - Tenant Validation (2-3h)~~ ✓
+2. ~~[BUG-001](./bugs/BUG-001-double-signup-routes.md) - Remove duplicate signup (1.5h)~~ ✓
+3. ~~[SEC-010](./security/SEC-010-subscription-frequency-bounds.md) - Subscription bounds (2h)~~ ✓
+4. ~~[TECH-003](./technical-debt/TECH-003-remove-console-logs.md) - Remove console logs (2h)~~ ✓
+5. ~~[TECH-004](./technical-debt/TECH-004-demo-page-placeholders.md) - Demo placeholders (2h)~~ ✓
+6. ~~[BUG-002](./bugs/BUG-002-redirect-param-inconsistency.md) - Fix redirect params (3h)~~ ✓
+7. ~~[SEC-003](./security/SEC-003-lab-order-number-race.md) - Lab order race (3h)~~ ✓
+8. ~~[SEC-004](./security/SEC-004-hospitalization-number-race.md) - Hospitalization race (3h)~~ ✓
+9. ~~[SEC-009](./security/SEC-009-search-pattern-injection.md) - Search pattern (3h)~~ ✓
+10. ~~[VALID-002](./validation/VALID-002-hospitalization-empty-strings.md) - Empty strings (3h)~~ ✓
+
+**Additional Completed:**
+- ~~[SEC-005](./security/SEC-005-non-atomic-lab-order-creation.md) - Non-atomic lab order (4h)~~ ✓
+- ~~[SEC-006](./security/SEC-006-cron-auth-timing-attack.md) - Cron auth timing attack (7h)~~ ✓
+- ~~[SEC-007](./security/SEC-007-missing-request-body-validation.md) - Request body validation (partial)~~ ✓
+- ~~[SEC-008](./security/SEC-008-invoice-send-admin-auth.md) - Invoice send admin auth (3h)~~ ✓
+- ~~[VALID-001](./validation/VALID-001-store-orders-address.md) - Address validation (4h)~~ ✓
+- ~~[VALID-003](./validation/VALID-003-lab-order-test-ids.md) - Lab order test ID validation (3.5h)~~ ✓
+- ~~[BUG-003](./bugs/BUG-003-migration-numbering-conflict.md) - Migration conflicts (4h)~~ ✓
+- ~~[BUG-004](./bugs/BUG-004-waitlist-notification-missing.md) - Waitlist notifications (9h)~~ ✓
+- ~~[RACE-001](./race-conditions/RACE-001-subscription-stock-overselling.md) - Stock overselling atomicity (5h)~~ ✓
+- ~~[RACE-002](./race-conditions/RACE-002-kennel-status-atomicity.md) - Kennel status atomicity (5h)~~ ✓
+- ~~[RACE-003](./race-conditions/RACE-003-appointment-status-toctou.md) - Appointment status TOCTOU (5h)~~ ✓
+- ~~[RACE-004](./race-conditions/RACE-004-cart-reservation-fallback.md) - Cart reservation fallback (8h)~~ ✓
+- ~~[PERF-002](./performance/PERF-002-subscription-n-plus-1.md) - Subscription N+1 query (4h)~~ ✓
+- ~~[PERF-003](./performance/PERF-003-batch-sales-increment.md) - Batch sales increment (3h)~~ ✓
+- ~~[PERF-004](./performance/PERF-004-campaign-cache.md) - Campaign cache (5h)~~ ✓
+- ~~[PERF-005](./performance/PERF-005-missing-composite-indexes.md) - Composite database indexes (7h)~~ ✓
+- ~~[AUDIT-001](./audit/AUDIT-001-financial-audit-trail.md) - Financial audit trail (10h)~~ ✓
+- ~~[AUDIT-002](./audit/AUDIT-002-cron-failure-alerting.md) - Cron failure alerting (8h)~~ ✓
+- ~~[API-003](./api-gaps/API-003-rate-limiting.md) - API Rate Limiting (10h)~~ ✓
+- ~~[NOTIF-001](./notifications/NOTIF-001-notification-system-integration.md) - Notification System (13h)~~ ✓
+- ~~[NOTIF-002](./notifications/NOTIF-002-email-sending-integration.md) - Email Sending Integration (7h)~~ ✓
+- ~~[TEST-001](./testing/TEST-001-cron-job-tests.md) - Cron Job Test Coverage (14h)~~ ✓
+- ~~[API-001](./api-gaps/API-001-medical-records-crud.md) - Medical Records API CRUD (8h)~~ ✓
+- ~~[API-002](./api-gaps/API-002-vaccines-crud.md) - Vaccines API CRUD Enhancement (7h)~~ ✓
+- ~~[NOTIF-003](./notifications/NOTIF-003-sms-channel-implementation.md)~~ - SMS descoped (use WhatsApp instead)
 
 ---
 

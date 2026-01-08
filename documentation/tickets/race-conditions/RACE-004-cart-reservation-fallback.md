@@ -2,7 +2,7 @@
 
 ## Priority: P2 (Medium)
 ## Category: Race Condition / Availability
-## Status: Not Started
+## Status: COMPLETED
 
 ## Description
 Expired cart reservations are only released by a cron job. If the cron fails or is disabled, stock becomes permanently blocked.
@@ -163,5 +163,28 @@ export async function GET(request: NextRequest) {
 - **Total: 8 hours**
 
 ---
+## Implementation Summary (Completed)
+
+**Migration Created:** `db/migrations/052_reservation_fallback.sql`
+
+**Functions Added:**
+
+1. **`get_effective_available_stock(p_product_id UUID)`**
+   - Returns available stock treating expired reservations (>30min) as available
+   - Provides fallback if cron job fails to release reservations
+   - Uses `CROSS JOIN LATERAL jsonb_array_elements` for efficient cart item parsing
+
+2. **`release_expired_reservations(p_cutoff_time TIMESTAMPTZ)`**
+   - Can be called from cron OR as checkout fallback
+   - Uses `FOR UPDATE SKIP LOCKED` to avoid deadlocks
+   - Returns JSONB summary: `expired_carts_cleared`, `items_released`, `processed_at`
+
+3. **`count_expired_reservations()`**
+   - Returns count of carts with expired reservations
+   - Used for monitoring/alerting when backlog exceeds threshold
+
+**Result:** Stock availability no longer solely dependent on cron job. Checkout can trigger fallback release, and stock queries consider reservation age.
+
+---
 *Ticket created: January 2026*
-*Based on security/performance audit*
+*Completed: January 2026*

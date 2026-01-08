@@ -2,7 +2,7 @@
 
 ## Priority: P2 (Medium)
 ## Category: Race Condition
-## Status: Not Started
+## Status: COMPLETED
 
 ## Description
 Appointment status transitions are validated in application code, then updated in a separate operation, allowing time-of-check-time-of-use (TOCTOU) race conditions.
@@ -171,5 +171,30 @@ try {
 - **Total: 5 hours**
 
 ---
+## Implementation Summary (Completed)
+
+**Migration Created:** `db/migrations/059_atomic_appointment_status.sql`
+
+**Changes Made:**
+1. Created `update_appointment_status_atomic()` PostgreSQL function that:
+   - Uses `FOR UPDATE` row-level locking to prevent concurrent modifications
+   - Validates status transitions within the same atomic operation (no TOCTOU gap)
+   - Defines allowed transitions: scheduled→confirmed/cancelled, confirmed→checked_in/cancelled, etc.
+   - Enforces owner-only-cancel rule for non-staff users
+   - Sets cancellation/completion/check-in timestamps automatically
+
+2. Updated `app/api/booking/route.ts`:
+   - Status updates now use `supabase.rpc('update_appointment_status_atomic', {...})`
+   - Handles INVALID_TRANSITION and OWNER_CANCEL_ONLY error codes
+   - Returns appropriate 400/403 responses with Spanish error messages
+
+**Function Returns JSONB:**
+- `success`: boolean
+- `previous_status`, `status`: for audit trail
+- `error`, `message`: on failure
+
+**Result:** Concurrent status changes now handled atomically - impossible state transitions prevented at database level.
+
+---
 *Ticket created: January 2026*
-*Based on security/performance audit*
+*Completed: January 2026*

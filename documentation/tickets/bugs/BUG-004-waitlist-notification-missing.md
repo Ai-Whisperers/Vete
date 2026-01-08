@@ -2,7 +2,7 @@
 
 ## Priority: P2 (Medium)
 ## Category: Bug
-## Status: Not Started
+## Status: COMPLETED
 
 ## Description
 The waitlist trigger updates database records when slots become available, but the TODO comment indicates the notification to customers was never implemented.
@@ -248,5 +248,28 @@ export const WaitlistSlotAvailableEmail = ({
 - **Total: 9 hours**
 
 ---
+## Implementation Summary (Completed)
+
+**Migration Created:** `db/migrations/058_waitlist_notification.sql`
+
+**Changes Made:**
+1. Updated `process_waitlist_on_cancellation()` trigger function to:
+   - Insert notification record when slot is offered to waitlisted client
+   - Include service name, pet name, and expiration time in notification
+   - Use type 'waitlist_offer' with link to `/portal/appointments/waitlist`
+
+2. Updated `expire_waitlist_offers()` function to:
+   - Notify client when their offer expires (type: 'waitlist_expired')
+   - Cascade offer to next person in waitlist
+   - Send 'waitlist_offer' notification to next client
+
+**Notification Data:**
+- `title`: "¡Turno disponible!" (slot available) or "Oferta de turno expirada" (offer expired)
+- `message`: Includes service name, pet name, and 4-hour expiration window
+- `data`: Contains waitlist_id, service_id, pet_id, expires_at for frontend handling
+
+**Result:** Clients now receive in-app notifications when waitlist slots become available.
+
+---
 *Ticket created: January 2026*
-*Based on codebase analysis*
+*Completed: January 2026*

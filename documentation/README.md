@@ -13,6 +13,7 @@ Welcome to the technical documentation for **Vete**, a comprehensive multi-tenan
 | [Features](features/overview.md) | All implemented features |
 | [Backend Systems](backend/error-handling.md) | Error handling, auth, logging, validation |
 | [Development](development/setup.md) | Contributing and coding standards |
+| [Growth Strategy](growth-strategy/01-pricing-strategy.md) | Pricing, ambassador program, pre-generation |
 
 ---
 
@@ -64,12 +65,13 @@ Vete is a **SaaS veterinary management platform** that provides:
 | Metric | Count |
 |--------|-------|
 | **Database Tables** | 100+ |
-| **API Endpoints** | 167 |
-| **Server Actions** | 22 |
-| **React Components** | 316 |
-| **Pages (Routes)** | 130 |
-| **Cron Jobs** | 5 |
-| **Custom Hooks** | 8 |
+| **API Endpoints** | 269 |
+| **Server Actions** | 42 |
+| **React Components** | 474 |
+| **Pages (Routes)** | 256+ |
+| **Cron Jobs** | 14 |
+| **Custom Hooks** | 9 |
+| **Database Migrations** | 66 |
 
 See [Codebase Statistics](reference/codebase-statistics.md) for detailed breakdown.
 
@@ -128,6 +130,18 @@ documentation/
 │   ├── bugs/
 │   ├── features/
 │   └── technical-debt/
+│
+├── growth-strategy/       # Growth & monetization (NEW)
+│   ├── 01-pricing-strategy.md
+│   ├── 02-pre-generation-system.md
+│   ├── 03-ambassador-program.md
+│   ├── 04-outreach-scripts.md
+│   ├── 05-database-migrations.md
+│   ├── 06-api-reference.md
+│   ├── 07-admin-operations.md
+│   ├── 08-metrics-analytics.md
+│   ├── 09-troubleshooting.md
+│   └── 10-website-updates.md
 │
 ├── reference/             # Reference materials
 │   ├── routing-map.md

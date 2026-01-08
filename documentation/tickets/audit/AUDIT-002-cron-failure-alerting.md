@@ -2,7 +2,7 @@
 
 ## Priority: P2 (Medium)
 ## Category: Audit / Monitoring
-## Status: Not Started
+## Status: COMPLETED
 
 ## Description
 Failed cron jobs only log errors locally. There's no alerting system to notify developers when critical background jobs fail.
@@ -218,12 +218,61 @@ export async function GET() {
 7. Add cron_job_runs table for history
 
 ## Acceptance Criteria
-- [ ] Email alert sent to ALERT_EMAIL on cron failures
-- [ ] Alert on high error rates (>10%)
-- [ ] Alert on slow jobs (>2 min)
-- [ ] 500 status returned on failure
-- [ ] Health check endpoint available
-- [ ] Vercel shows failures in dashboard
+- [x] Email alert sent to ALERT_EMAIL on cron failures
+- [x] Alert on high error rates (>10%)
+- [x] Alert on slow jobs (>2 min)
+- [x] 500 status returned on failure
+- [x] Health check endpoint available
+- [x] Vercel shows failures in dashboard
+
+## Implementation Summary
+
+### Files Created
+1. **`lib/monitoring/alerts.ts`** - Alerting service with email support via Resend
+   - `sendAlert()` - Generic alert function
+   - `sendCronFailureAlert()` - Critical failure alerts
+   - `sendHighErrorRateAlert()` - Warning for >10% error rate
+   - `sendSlowJobAlert()` - Warning for jobs >2 minutes
+   - HTML email template with severity colors and details formatting
+
+2. **`lib/api/with-cron-monitoring.ts`** - Cron wrapper with full monitoring
+   - Automatic auth check via `checkCronAuth()`
+   - Duration tracking and slow job detection
+   - Error rate calculation and alerting
+   - Returns 500 on failure for Vercel dashboard visibility
+   - Structured logging with `createRequestLogger`
+
+3. **`app/api/health/route.ts`** - Basic health check endpoint
+   - Returns `{ status: 'healthy', timestamp, version }`
+
+4. **`app/api/health/cron/route.ts`** - Cron health check endpoint
+   - Defines 5 cron jobs with expected intervals and grace periods
+   - `checkJobHealth()` function for status evaluation
+   - Returns job-by-job health with summary statistics
+   - Returns 500 for unhealthy status (external monitoring)
+
+### Files Modified
+- **`lib/monitoring/index.ts`** - Added exports for alerting functions
+
+### Environment Variables Required
+- `ALERT_EMAIL` - Comma-separated list of admin email addresses
+- `RESEND_API_KEY` - Already configured for email sending
+
+### Usage Example
+```typescript
+import { withCronMonitoring, CronResult } from '@/lib/api/with-cron-monitoring'
+
+async function myJob(request: NextRequest, log: Logger): Promise<CronResult> {
+  const results = { success: true, processed: 0, errors: [] as string[] }
+  // ... processing logic
+  return results
+}
+
+export const POST = withCronMonitoring('my-job', myJob)
+```
+
+### Note
+Cron jobs can be incrementally migrated to use `withCronMonitoring`. The wrapper handles auth, logging, and alerting automatically.
 
 ## Related Files
 - `web/lib/monitoring/alerts.ts` (new)

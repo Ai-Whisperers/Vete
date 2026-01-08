@@ -1,99 +1,61 @@
-# NOTIF-003: SMS Channel Implementation (Twilio)
+# NOTIF-003: SMS Channel Implementation
 
-## Priority: P1 (High) - MVP Required
+## Priority: P1 (High)
 ## Category: Notifications
-## Status: Not Started
+## Status: DESCOPED - Using WhatsApp Instead
 
 ## Description
-SMS sending capability needs to be implemented via Twilio. Currently marked as TODO in the channel sender.
+SMS sending capability was originally planned via Twilio.
 
-## Current State
-**`lib/reminders/channel-sender.ts:111`:**
-```typescript
-// TODO: Implement dedicated SMS sending via Twilio
-```
+## Decision: Use WhatsApp Instead of SMS
 
-The existing incomplete implementation exists but doesn't integrate with Twilio.
+After analysis, we decided to **not implement SMS** and instead rely on:
 
-## Impact
-- Vaccine reminders cannot be sent via SMS
-- Appointment reminders limited to email only
-- Paraguay market expects SMS communication
+1. **WhatsApp** - Primary channel for phone-based messaging (already integrated)
+2. **Email** - Secondary channel (already integrated)
+3. **Push Notifications** - Future enhancement (FCM - free)
 
-## Proposed Solution
+### Rationale
 
-### 1. Twilio Integration
-```typescript
-// lib/sms/twilio.ts
-import twilio from 'twilio';
+| Factor | SMS (Twilio) | WhatsApp |
+|--------|--------------|----------|
+| **Cost** | ~$0.04/message | Free* |
+| **Paraguay Market** | Less common | Very popular |
+| **Rich Content** | Text only | Images, buttons, cards |
+| **Delivery** | Carrier-dependent | Internet-based |
+| **Already Integrated** | No | Yes ✓ |
 
-const client = twilio(
-  process.env.TWILIO_ACCOUNT_SID,
-  process.env.TWILIO_AUTH_TOKEN
-);
+*WhatsApp Business API has requirements but no per-message cost
 
-export async function sendSMS(to: string, body: string): Promise<string> {
-  // Validate Paraguay phone format (+595)
-  const formatted = formatParaguayPhone(to);
+### What Was Done
 
-  const message = await client.messages.create({
-    to: formatted,
-    from: process.env.TWILIO_PHONE_NUMBER,
-    body: body,
-  });
+1. SMS module was initially implemented but then removed
+2. Channel sender updated to gracefully handle SMS requests:
+   - Returns helpful error: "SMS no soportado. Use WhatsApp para mensajes por teléfono."
+   - Logs the request for monitoring
 
-  return message.sid;
-}
-```
+### Current Notification Channels
 
-### 2. Phone Number Validation
-- Paraguay format: +595 9XX XXX XXX
-- Support both landline and mobile
-- Auto-format input
-
-### 3. SMS Templates
-- Vaccine reminder: "Recordatorio: La vacuna {vaccine} de {pet} vence el {date}"
-- Appointment reminder: "Cita en {clinic} mañana a las {time} para {pet}"
-- Lost pet alert: "{pet} fue reportado visto en {location}"
-
-## Implementation Steps
-1. Set up Twilio account and get credentials
-2. Create `lib/sms/twilio.ts` integration
-3. Add phone number validation for Paraguay
-4. Create SMS templates
-5. Integrate with channel-sender.ts
-6. Add delivery status tracking
-7. Add cost tracking per tenant
-8. Write unit tests
-
-## Acceptance Criteria
-- [ ] SMS messages sent via Twilio
-- [ ] Paraguay phone numbers validated (+595 format)
-- [ ] Message delivery status tracked
-- [ ] SMS cost tracked per clinic
-- [ ] Rate limiting on SMS sends
-- [ ] Template support for common messages
-- [ ] Delivery failures logged
+| Channel | Status | Use Case |
+|---------|--------|----------|
+| **Email** | ✓ Active | Formal communications, invoices, reports |
+| **WhatsApp** | ✓ Active | Reminders, quick notifications, interactive |
+| **SMS** | ✗ Not supported | Use WhatsApp instead |
+| **Push** | 🔜 Future | App users, instant alerts |
 
 ## Related Files
-- `web/lib/sms/twilio.ts` (new)
-- `web/lib/reminders/channel-sender.ts`
-- `web/lib/validation/phone.ts` (phone validation)
+- `web/lib/reminders/channel-sender.ts` - Returns error for SMS requests
+- `web/lib/whatsapp/client.ts` - Active WhatsApp integration
+- `web/lib/email/client.ts` - Active email integration
 
-## Environment Variables Required
-```
-TWILIO_ACCOUNT_SID=ACxxxxx
-TWILIO_AUTH_TOKEN=xxxxx
-TWILIO_PHONE_NUMBER=+1xxxxxxxxxx
-```
+## Future: Push Notifications (NOTIF-004)
 
-## Estimated Effort
-- Twilio setup: 1 hour
-- Integration: 3 hours
-- Templates: 1 hour
-- Testing: 2 hours
-- **Total: 7 hours**
+If needed, push notifications via Firebase Cloud Messaging (FCM) can be added:
+- Completely free
+- Instant delivery
+- Rich notifications with actions
+- Requires app installation
 
 ---
 *Ticket created: January 2026*
-*Based on TODO comment analysis*
+*Descoped: January 2026 - WhatsApp preferred over SMS for Paraguay market*

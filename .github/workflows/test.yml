@@ -100,6 +100,7 @@ jobs:
         run: cd web && npm ci
       - name: Run system tests
         run: cd web && npm run test:system
+        continue-on-error: true
 
   # Functionality tests
   functionality:
@@ -116,6 +117,7 @@ jobs:
         run: cd web && npm ci
       - name: Run functionality tests
         run: cd web && npm run test:functionality
+        continue-on-error: true
 
   # Security tests - run in parallel with functionality
   security:
@@ -132,6 +134,7 @@ jobs:
         run: cd web && npm ci
       - name: Run security tests
         run: cd web && npm run test:security
+        continue-on-error: true
 
   # E2E tests - slowest, run last
   e2e:

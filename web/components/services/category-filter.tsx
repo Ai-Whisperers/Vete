@@ -1,6 +1,7 @@
 'use client'
 
 import { cn } from '@/lib/utils'
+import { useTranslations } from 'next-intl'
 import * as Icons from 'lucide-react'
 
 export interface ServiceCategory {
@@ -10,42 +11,30 @@ export interface ServiceCategory {
   description?: string
 }
 
-// Default categories - can be overridden by clinic config
+// Category ID to translation key mapping
+const CATEGORY_KEYS: Record<string, string> = {
+  all: 'all',
+  medical: 'medical',
+  preventative: 'prevention',
+  diagnostics: 'diagnostic',
+  surgery: 'surgery',
+  dental: 'dental',
+  grooming: 'grooming',
+  hospitalization: 'hospitalization',
+  rehabilitation: 'rehabilitation',
+}
+
+// Default categories - labels will be overridden by translations
 export const DEFAULT_CATEGORIES: ServiceCategory[] = [
-  { id: 'all', label: 'Todos', icon: 'LayoutGrid', description: 'Todos los servicios' },
-  {
-    id: 'medical',
-    label: 'Médico',
-    icon: 'Stethoscope',
-    description: 'Consultas y especialidades',
-  },
-  {
-    id: 'preventative',
-    label: 'Prevención',
-    icon: 'ShieldCheck',
-    description: 'Vacunas y control',
-  },
-  {
-    id: 'diagnostics',
-    label: 'Diagnóstico',
-    icon: 'Microscope',
-    description: 'Laboratorio e imágenes',
-  },
-  { id: 'surgery', label: 'Cirugía', icon: 'Scissors', description: 'Procedimientos quirúrgicos' },
-  { id: 'dental', label: 'Dental', icon: 'Smile', description: 'Salud bucal' },
-  { id: 'grooming', label: 'Estética', icon: 'Sparkles', description: 'Baño y peluquería' },
-  {
-    id: 'hospitalization',
-    label: 'Internación',
-    icon: 'BedDouble',
-    description: 'Cuidados intensivos',
-  },
-  {
-    id: 'rehabilitation',
-    label: 'Rehabilitación',
-    icon: 'Activity',
-    description: 'Fisioterapia y recuperación',
-  },
+  { id: 'all', label: 'All', icon: 'LayoutGrid', description: '' },
+  { id: 'medical', label: 'Medical', icon: 'Stethoscope', description: '' },
+  { id: 'preventative', label: 'Prevention', icon: 'ShieldCheck', description: '' },
+  { id: 'diagnostics', label: 'Diagnostic', icon: 'Microscope', description: '' },
+  { id: 'surgery', label: 'Surgery', icon: 'Scissors', description: '' },
+  { id: 'dental', label: 'Dental', icon: 'Smile', description: '' },
+  { id: 'grooming', label: 'Grooming', icon: 'Sparkles', description: '' },
+  { id: 'hospitalization', label: 'Hospitalization', icon: 'BedDouble', description: '' },
+  { id: 'rehabilitation', label: 'Rehabilitation', icon: 'Activity', description: '' },
 ]
 
 interface CategoryFilterProps {
@@ -65,6 +54,35 @@ export function CategoryFilter({
   variant = 'chips',
   className,
 }: CategoryFilterProps): React.ReactElement {
+  const t = useTranslations('services.categories')
+  const tDesc = useTranslations('services.categoryDescriptions')
+
+  // Helper to get translated label
+  const getLabel = (categoryId: string, fallbackLabel: string): string => {
+    const key = CATEGORY_KEYS[categoryId]
+    if (key) {
+      try {
+        return t(key)
+      } catch {
+        return fallbackLabel
+      }
+    }
+    return fallbackLabel
+  }
+
+  // Helper to get translated description
+  const getDescription = (categoryId: string): string => {
+    const key = CATEGORY_KEYS[categoryId]
+    if (key) {
+      try {
+        return tDesc(key)
+      } catch {
+        return ''
+      }
+    }
+    return ''
+  }
+
   if (variant === 'dropdown') {
     return (
       <div className={cn('relative', className)}>
@@ -75,7 +93,7 @@ export function CategoryFilter({
         >
           {categories.map((category) => (
             <option key={category.id} value={category.id}>
-              {category.label}
+              {getLabel(category.id, category.label)}
               {serviceCounts?.[category.id] !== undefined && ` (${serviceCounts[category.id]})`}
             </option>
           ))}
@@ -109,7 +127,7 @@ export function CategoryFilter({
                 )}
               >
                 {IconComponent && <IconComponent className="h-4 w-4" />}
-                <span>{category.label}</span>
+                <span>{getLabel(category.id, category.label)}</span>
                 {serviceCounts?.[category.id] !== undefined && (
                   <span
                     className={cn(
@@ -148,10 +166,10 @@ export function CategoryFilter({
                 ? 'bg-[var(--primary)] text-white shadow-lg hover:-translate-y-0.5 hover:shadow-xl'
                 : 'border border-gray-200 bg-white text-gray-600 hover:border-[var(--primary)] hover:text-[var(--primary)]'
             )}
-            title={category.description}
+            title={getDescription(category.id)}
           >
             {IconComponent && <IconComponent className="h-4 w-4" />}
-            <span>{category.label}</span>
+            <span>{getLabel(category.id, category.label)}</span>
             {count !== undefined && count > 0 && (
               <span
                 className={cn(

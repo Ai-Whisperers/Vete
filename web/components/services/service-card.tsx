@@ -3,6 +3,7 @@
 import { DynamicIcon } from '@/lib/icons'
 import Link from 'next/link'
 import { Check, ArrowRight, Calendar } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import type { Service } from '@/lib/types/services'
 import { hasSizeBasedPricing } from '@/lib/utils/pet-size'
 
@@ -26,6 +27,7 @@ interface ServiceCardProps {
 }
 
 export const ServiceCard = ({ service, config }: ServiceCardProps) => {
+  const t = useTranslations('services')
   const isBookable = service.booking?.online_enabled
 
   // Get first variant for display
@@ -88,7 +90,7 @@ export const ServiceCard = ({ service, config }: ServiceCardProps) => {
         {/* Includes List - Compact */}
         <div className="my-4">
           <span className="mb-2 block text-xs font-bold uppercase tracking-wider text-[var(--primary)]">
-            {config.ui_labels?.services?.includes_label || 'Incluye'}
+            {config.ui_labels?.services?.includes_label || t('includes')}
           </span>
           <ul className="space-y-1.5">
             {service.details?.includes?.slice(0, 3).map((item: string) => (
@@ -99,7 +101,7 @@ export const ServiceCard = ({ service, config }: ServiceCardProps) => {
             ))}
             {(service.details?.includes?.length || 0) > 3 && (
               <li className="pl-6 text-xs font-medium text-[var(--primary)]">
-                + {(service.details?.includes?.length || 0) - 3} más...
+                {t('moreItems', { count: (service.details?.includes?.length || 0) - 3 })}
               </li>
             )}
           </ul>
@@ -111,10 +113,10 @@ export const ServiceCard = ({ service, config }: ServiceCardProps) => {
         <div className="flex items-center justify-between gap-4">
           <div className="flex flex-col">
             <span className="text-xs font-medium text-[var(--text-muted)]">
-              {hasSizePricing ? 'Desde' : 'Precio'}
+              {hasSizePricing ? t('priceFrom') : t('price')}
             </span>
             <span className="text-xl font-black text-[var(--primary)]">
-              {firstVariant?.price_display || 'Consultar'}
+              {firstVariant?.price_display || t('priceOnRequest')}
             </span>
           </div>
 
@@ -123,13 +125,13 @@ export const ServiceCard = ({ service, config }: ServiceCardProps) => {
               <>
                 <Calendar className="h-4 w-4" />
                 <span className="hidden sm:inline">
-                  {config.ui_labels?.services?.book_btn || 'Ver Opciones'}
+                  {config.ui_labels?.services?.book_btn || t('viewOptions')}
                 </span>
               </>
             ) : (
               <>
                 <ArrowRight className="h-4 w-4" />
-                <span className="hidden sm:inline">Ver Detalles</span>
+                <span className="hidden sm:inline">{t('viewDetails')}</span>
               </>
             )}
             <ArrowRight className="h-4 w-4 sm:hidden" />

@@ -42,6 +42,11 @@ Add support for multiple languages (starting with English) to expand the platfor
 - ✅ Store components migrated:
   - `components/store/product-card.tsx` - wishlist, badges, stock status, add to cart, loyalty points
   - `app/[clinic]/store/client.tsx` - loading/error states, hero section, search, filters, pagination
+  - `components/store/pet-selector.tsx` - labels, loading states, error messages, empty states
+- ✅ Dashboard components migrated:
+  - `components/dashboard/appointments/pending-requests-panel.tsx` - title, loading, error, preferences
+- ✅ Pet selector (services) migrated:
+  - `components/services/pet-selector.tsx` - labels, loading, error, species names
 - ✅ Translation namespaces expanded:
   - `home` namespace (10 keys)
   - `about` namespace (23 keys)
@@ -50,6 +55,8 @@ Add support for multiple languages (starting with English) to expand the platfor
   - `services` namespace with categories (60+ keys)
   - `pets` namespace with `ageDisplay` nested keys (8 new keys)
   - `store` namespace expanded (30+ new keys)
+  - `dashboard.pendingRequests` namespace (12 keys)
+  - `petSelector` namespace (15 keys)
 
 **Remaining Work:**
 - ~150 components still use hardcoded Spanish strings
@@ -148,7 +155,9 @@ Add language variants to clinic content:
    - [x] Portal dashboard and quick-actions
    - [x] Services components (services-grid, category-filter, service-card, service-detail-client)
    - [x] Pet profile header
-   - [x] Store components (product-card, store client)
+   - [x] Store components (product-card, store client, pet-selector)
+   - [x] Dashboard pending requests panel
+   - [x] Services pet selector
 6. [x] Add language switcher component ✅ (integrated in navigation)
 7. [ ] Update JSON-CMS loader for language variants
 8. [ ] Add language preference to user profile
@@ -171,9 +180,9 @@ Add language variants to clinic content:
 - English translation: 8 hours ✅ COMPLETE
 - Testing: 8 hours
 
-**Remaining Work (~14 hours):**
-- Component migration to useTranslations: 8 hours (~150 components remaining)
+**Remaining Work (~12 hours):**
+- Component migration to useTranslations: 6 hours (~145 components remaining)
 - JSON-CMS language variants: 4 hours
 - URL routing implementation: 2 hours
 
-**Progress: 68% complete (Infrastructure + Navigation + Public pages + Booking + Portal + Services + Pet profile + Store done)**
+**Progress: 70% complete (Infrastructure + Navigation + Public pages + Booking + Portal + Services + Pet profile + Store + Dashboard + Pet selectors done)**

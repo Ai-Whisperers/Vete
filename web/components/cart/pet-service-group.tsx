@@ -1,6 +1,7 @@
 'use client'
 
 import { Dog, Cat, PawPrint, Minus, Plus, Trash2 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { useCart, type CartItem } from '@/context/cart-context'
 import {
   formatPriceGs,
@@ -46,6 +47,7 @@ export function PetServiceGroup({
   compact = false,
 }: PetServiceGroupProps) {
   const { updateQuantity, removeItem } = useCart()
+  const t = useTranslations('cart')
 
   const handleIncrement = (item: CartItem) => {
     updateQuantity(item.id, 1)
@@ -89,7 +91,7 @@ export function PetServiceGroup({
               </span>
             </div>
             <span className="text-xs text-[var(--text-muted)]">
-              {services.length} servicio{services.length !== 1 ? 's' : ''}
+              {services.length === 1 ? t('serviceSingular', { count: services.length }) : t('servicePlural', { count: services.length })}
             </span>
           </div>
           <span className="text-sm font-black text-[var(--primary)]">
@@ -165,12 +167,11 @@ export function PetServiceGroup({
             </span>
           </div>
           <p className="text-sm text-[var(--text-muted)]">
-            {SIZE_LABELS[petSize]} • {services.length} servicio
-            {services.length !== 1 ? 's' : ''}
+            {SIZE_LABELS[petSize]} • {services.length === 1 ? t('serviceSingular', { count: services.length }) : t('servicePlural', { count: services.length })}
           </p>
         </div>
         <div className="text-right">
-          <p className="mb-1 text-xs text-[var(--text-muted)]">Subtotal</p>
+          <p className="mb-1 text-xs text-[var(--text-muted)]">{t('subtotal')}</p>
           <p className="text-2xl font-black text-[var(--primary)]">{formatPriceGs(subtotal)}</p>
         </div>
       </div>
@@ -209,7 +210,7 @@ export function PetServiceGroup({
               )}
               {service.base_price && service.base_price !== service.price && (
                 <p className="mt-1 text-xs text-amber-600">
-                  Base: {formatPriceGs(service.base_price)} → Ajustado por tamaño
+                  {t('adjustedBySize', { base: formatPriceGs(service.base_price) })}
                 </p>
               )}
             </div>
@@ -237,7 +238,7 @@ export function PetServiceGroup({
             <div className="w-28 text-right">
               {service.quantity > 1 && (
                 <p className="text-xs text-[var(--text-muted)]">
-                  {formatPriceGs(service.price)} c/u
+                  {t('each', { price: formatPriceGs(service.price) })}
                 </p>
               )}
               <p className="text-lg font-black text-[var(--primary)]">
@@ -250,7 +251,7 @@ export function PetServiceGroup({
               type="button"
               onClick={() => removeItem(service.id)}
               className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
-              aria-label="Eliminar servicio"
+              aria-label={t('removeService')}
             >
               <Trash2 className="h-5 w-5" />
             </button>

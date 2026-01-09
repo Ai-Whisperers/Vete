@@ -651,7 +651,17 @@
     "outOfStock": "Out of stock",
     "stockInsufficient": "Insufficient stock. Only {count} units available.",
     "stockLimited": "Only {count} units available",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "pet": "{count, plural, one {# pet} other {# pets}}",
+    "petSingular": "{count} pet",
+    "petPlural": "{count} pets",
+    "service": "{count, plural, one {# service} other {# services}}",
+    "serviceSingular": "{count} service",
+    "servicePlural": "{count} services",
+    "removeAll": "Remove all",
+    "removeService": "Remove service",
+    "removePet": "Remove {name}",
+    "adjustedBySize": "Base: {base} → Adjusted by size"
   },
   "time": {
     "today": "Today",

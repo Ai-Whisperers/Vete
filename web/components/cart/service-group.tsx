@@ -3,6 +3,7 @@
 import { Minus, Plus, Trash2, PawPrint, Calendar } from 'lucide-react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { useCart } from '@/context/cart-context'
 import { DynamicIcon } from '@/lib/icons'
 import { useToast } from '@/components/ui/Toast'
@@ -38,11 +39,12 @@ export function ServiceGroup({
   const { updateQuantity, removeItem } = useCart()
   const { showToast } = useToast()
   const { clinic } = useParams() as { clinic: string }
+  const t = useTranslations('cart')
 
   const handleIncrement = (pet: ServiceCartPet) => {
     const result = updateQuantity(pet.cart_item_id, 1)
     if (result.limitedByStock) {
-      showToast(result.message || 'Stock limitado')
+      showToast(result.message || t('stockLimited', { count: result.availableStock ?? 0 }))
     }
   }
 
@@ -107,7 +109,7 @@ export function ServiceGroup({
                 type="button"
                 onClick={() => handleRemovePet(pet)}
                 className="p-1 text-gray-400 hover:text-red-500"
-                aria-label={`Eliminar ${pet.pet_name}`}
+                aria-label={t('removePet', { name: pet.pet_name })}
               >
                 <Trash2 className="h-3 w-3" />
               </button>
@@ -143,7 +145,7 @@ export function ServiceGroup({
         <div className="text-right">
           <p className="text-xl font-black text-[var(--primary)]">{formatPriceGs(subtotal)}</p>
           <p className="text-xs text-[var(--text-muted)]">
-            {pets.length} {pets.length === 1 ? 'mascota' : 'mascotas'}
+            {pets.length === 1 ? t('petSingular', { count: pets.length }) : t('petPlural', { count: pets.length })}
           </p>
         </div>
       </div>
@@ -179,7 +181,7 @@ export function ServiceGroup({
                 type="button"
                 onClick={() => handleDecrement(pet)}
                 className="hover:bg-[var(--primary)]/5 flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 transition-colors hover:border-[var(--primary)]"
-                aria-label="Disminuir"
+                aria-label={t('decreaseQuantity')}
               >
                 <Minus className="h-3 w-3" />
               </button>
@@ -188,7 +190,7 @@ export function ServiceGroup({
                 type="button"
                 onClick={() => handleIncrement(pet)}
                 className="hover:bg-[var(--primary)]/5 flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 transition-colors hover:border-[var(--primary)]"
-                aria-label="Aumentar"
+                aria-label={t('increaseQuantity')}
               >
                 <Plus className="h-3 w-3" />
               </button>
@@ -199,7 +201,7 @@ export function ServiceGroup({
               type="button"
               onClick={() => handleRemovePet(pet)}
               className="shrink-0 rounded-lg p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
-              aria-label={`Eliminar ${pet.pet_name}`}
+              aria-label={t('removePet', { name: pet.pet_name })}
             >
               <Trash2 className="h-4 w-4" />
             </button>
@@ -214,7 +216,7 @@ export function ServiceGroup({
           className="bg-[var(--primary)]/10 hover:bg-[var(--primary)]/20 flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-bold text-[var(--primary)] transition-colors"
         >
           <Calendar className="h-4 w-4" />
-          Agendar Cita
+          {t('scheduleAppointment')}
         </Link>
 
         {pets.length > 1 && (
@@ -224,7 +226,7 @@ export function ServiceGroup({
             className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-gray-500 transition-colors hover:bg-red-50 hover:text-red-500"
           >
             <Trash2 className="h-4 w-4" />
-            Eliminar todos
+            {t('removeAll')}
           </button>
         )}
       </div>

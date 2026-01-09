@@ -651,7 +651,17 @@
     "outOfStock": "Stock agotado",
     "stockInsufficient": "Stock insuficiente. Solo hay {count} unidades disponibles.",
     "stockLimited": "Solo hay {count} unidades disponibles",
-    "cancel": "Cancelar"
+    "cancel": "Cancelar",
+    "pet": "{count, plural, one {# mascota} other {# mascotas}}",
+    "petSingular": "{count} mascota",
+    "petPlural": "{count} mascotas",
+    "service": "{count, plural, one {# servicio} other {# servicios}}",
+    "serviceSingular": "{count} servicio",
+    "servicePlural": "{count} servicios",
+    "removeAll": "Eliminar todos",
+    "removeService": "Eliminar servicio",
+    "removePet": "Eliminar {name}",
+    "adjustedBySize": "Base: {base} → Ajustado por tamaño"
   },
   "time": {
     "today": "Hoy",

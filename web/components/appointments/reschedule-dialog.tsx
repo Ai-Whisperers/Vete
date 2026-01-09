@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import * as Icons from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { rescheduleAppointment, checkAvailableSlots } from '@/app/actions/appointments'
 import { useFormSubmit } from '@/hooks'
 import { useQuery } from '@tanstack/react-query'
@@ -29,6 +30,7 @@ export function RescheduleDialog({
   const [showDialog, setShowDialog] = useState(false)
   const [newDate, setNewDate] = useState(currentDate)
   const [newTime, setNewTime] = useState('')
+  const t = useTranslations('appointments')
 
   // Use the new useFormSubmit hook for submission handling
   const {
@@ -97,7 +99,7 @@ export function RescheduleDialog({
       <button
         onClick={() => setShowDialog(true)}
         className="hover:bg-[var(--primary)]/10 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl p-2 text-[var(--primary)] transition-all"
-        title="Reprogramar cita"
+        title={t('reschedule.buttonTitle')}
       >
         <Icons.CalendarClock className="h-5 w-5" />
       </button>
@@ -119,10 +121,10 @@ export function RescheduleDialog({
                 </div>
                 <div>
                   <h3 className="text-base font-bold text-[var(--text-primary)] sm:text-lg">
-                    Reprogramar Cita
+                    {t('reschedule.dialogTitle')}
                   </h3>
                   <p className="text-xs text-[var(--text-secondary)] sm:text-sm">
-                    Selecciona una nueva fecha y hora
+                    {t('reschedule.dialogSubtitle')}
                   </p>
                 </div>
               </div>
@@ -133,7 +135,7 @@ export function RescheduleDialog({
               {/* Current appointment info */}
               <div className="rounded-xl bg-gray-50 p-3 sm:p-4">
                 <p className="mb-2 text-xs font-bold uppercase tracking-wider text-gray-400">
-                  Cita actual
+                  {t('reschedule.currentAppointment')}
                 </p>
                 <div className="flex flex-wrap items-center gap-3 text-sm sm:gap-4">
                   <div className="flex items-center gap-2">
@@ -150,7 +152,7 @@ export function RescheduleDialog({
               {/* New Date */}
               <div>
                 <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-gray-400">
-                  Nueva fecha
+                  {t('reschedule.newDate')}
                 </label>
                 <input
                   type="date"
@@ -165,7 +167,7 @@ export function RescheduleDialog({
               {/* New Time */}
               <div>
                 <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-gray-400">
-                  Nueva hora
+                  {t('reschedule.newTime')}
                 </label>
 
                 {isLoadingSlots ? (
@@ -173,9 +175,9 @@ export function RescheduleDialog({
                     <Icons.Loader2 className="h-6 w-6 animate-spin text-[var(--primary)]" />
                   </div>
                 ) : slotsError ? (
-                  <p className="text-sm text-red-500">Error cargando horarios.</p>
+                  <p className="text-sm text-red-500">{t('reschedule.errorLoadingSlots')}</p>
                 ) : slots.length === 0 ? (
-                  <p className="text-sm italic text-gray-500">No hay horarios disponibles.</p>
+                  <p className="text-sm italic text-gray-500">{t('reschedule.noSlotsAvailable')}</p>
                 ) : (
                   <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
                     {slots.map((slot) => (
@@ -213,7 +215,7 @@ export function RescheduleDialog({
               <div className="flex items-start gap-3 rounded-xl border border-yellow-100 bg-yellow-50 p-3 sm:p-4">
                 <Icons.Info className="mt-0.5 h-5 w-5 shrink-0 text-yellow-600" />
                 <p className="text-sm text-yellow-700">
-                  La cita reprogramada quedará pendiente de confirmación por la clínica.
+                  {t('reschedule.pendingConfirmation')}
                 </p>
               </div>
             </div>
@@ -225,7 +227,7 @@ export function RescheduleDialog({
                 className="min-h-[48px] rounded-xl px-6 py-3 font-bold text-[var(--text-secondary)] transition-all hover:bg-gray-50"
                 disabled={isSubmitting}
               >
-                Cancelar
+                {t('reschedule.cancelButton')}
               </button>
               <button
                 onClick={handleReschedule}
@@ -235,12 +237,12 @@ export function RescheduleDialog({
                 {isSubmitting ? (
                   <>
                     <Icons.Loader2 className="h-4 w-4 animate-spin" />
-                    Reprogramando...
+                    {t('reschedule.rescheduling')}
                   </>
                 ) : (
                   <>
                     <Icons.Check className="h-4 w-4" />
-                    Confirmar
+                    {t('reschedule.confirmButton')}
                   </>
                 )}
               </button>

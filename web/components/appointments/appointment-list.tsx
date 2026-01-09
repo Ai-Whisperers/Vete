@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import * as Icons from 'lucide-react'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { AppointmentCard } from './appointment-card'
 
 type TabType = 'upcoming' | 'past'
@@ -43,6 +44,7 @@ interface AppointmentListProps {
 
 export function AppointmentList({ upcoming, past, clinic }: AppointmentListProps) {
   const [activeTab, setActiveTab] = useState<TabType>('upcoming')
+  const t = useTranslations('appointments')
 
   const tabs: {
     id: TabType
@@ -50,8 +52,8 @@ export function AppointmentList({ upcoming, past, clinic }: AppointmentListProps
     count: number
     icon: React.ComponentType<{ className?: string }>
   }[] = [
-    { id: 'upcoming', label: 'Próximas', count: upcoming.length, icon: Icons.CalendarCheck },
-    { id: 'past', label: 'Anteriores', count: past.length, icon: Icons.History },
+    { id: 'upcoming', label: t('tabs.upcoming'), count: upcoming.length, icon: Icons.CalendarCheck },
+    { id: 'past', label: t('tabs.past'), count: past.length, icon: Icons.History },
   ]
 
   const appointments = activeTab === 'upcoming' ? upcoming : past
@@ -62,7 +64,7 @@ export function AppointmentList({ upcoming, past, clinic }: AppointmentListProps
       <div
         className="mb-6 flex gap-2 rounded-xl bg-gray-100 p-1"
         role="tablist"
-        aria-label="Filtros de citas"
+        aria-label={t('tabs.ariaLabel')}
       >
         {tabs.map((tab) => {
           const Icon = tab.icon
@@ -89,7 +91,7 @@ export function AppointmentList({ upcoming, past, clinic }: AppointmentListProps
                     ? 'bg-[var(--primary)]/10 text-[var(--primary)]'
                     : 'bg-gray-200 text-gray-500'
                 }`}
-                aria-label={`${tab.count} citas`}
+                aria-label={t('tabs.countLabel', { count: tab.count })}
               >
                 {tab.count}
               </span>
@@ -120,6 +122,8 @@ export function AppointmentList({ upcoming, past, clinic }: AppointmentListProps
 }
 
 function EmptyState({ tab, clinic }: { tab: TabType; clinic: string }) {
+  const t = useTranslations('appointments')
+
   if (tab === 'upcoming') {
     return (
       <div className="rounded-2xl bg-gray-50 py-16 text-center">
@@ -127,17 +131,17 @@ function EmptyState({ tab, clinic }: { tab: TabType; clinic: string }) {
           <Icons.CalendarPlus className="h-10 w-10 text-[var(--primary)]" />
         </div>
         <h3 className="mb-2 text-xl font-bold text-[var(--text-primary)]">
-          No tienes citas programadas
+          {t('emptyState.upcomingTitle')}
         </h3>
         <p className="mx-auto mb-6 max-w-sm text-[var(--text-secondary)]">
-          Agenda una cita para tu mascota y la verás aquí.
+          {t('emptyState.upcomingDescription')}
         </p>
         <Link
           href={`/${clinic}/book`}
           className="inline-flex items-center gap-2 rounded-xl bg-[var(--primary)] px-6 py-3 font-bold text-white shadow-lg transition-all hover:-translate-y-0.5 hover:shadow-xl"
         >
           <Icons.Plus className="h-5 w-5" />
-          Agendar Cita
+          {t('emptyState.upcomingAction')}
         </Link>
       </div>
     )
@@ -148,9 +152,9 @@ function EmptyState({ tab, clinic }: { tab: TabType; clinic: string }) {
       <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-gray-100">
         <Icons.History className="h-10 w-10 text-gray-400" />
       </div>
-      <h3 className="mb-2 text-xl font-bold text-[var(--text-primary)]">Sin historial de citas</h3>
+      <h3 className="mb-2 text-xl font-bold text-[var(--text-primary)]">{t('emptyState.pastTitle')}</h3>
       <p className="mx-auto max-w-sm text-[var(--text-secondary)]">
-        Aquí aparecerán tus citas pasadas y canceladas.
+        {t('emptyState.pastDescription')}
       </p>
     </div>
   )

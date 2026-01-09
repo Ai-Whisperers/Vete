@@ -264,6 +264,49 @@
       "completed": "Completada",
       "cancelled": "Cancelada",
       "noShow": "No asistió"
+    },
+    "tabs": {
+      "upcoming": "Próximas",
+      "past": "Anteriores",
+      "ariaLabel": "Filtros de citas",
+      "countLabel": "{count} citas"
+    },
+    "emptyState": {
+      "upcomingTitle": "No tienes citas programadas",
+      "upcomingDescription": "Agenda una cita para tu mascota y la verás aquí.",
+      "upcomingAction": "Agendar Cita",
+      "pastTitle": "Sin historial de citas",
+      "pastDescription": "Aquí aparecerán tus citas pasadas y canceladas."
+    },
+    "cancel": {
+      "buttonLabel": "Cancelar Cita",
+      "buttonTitle": "Cancelar cita",
+      "buttonText": "Cancelar",
+      "dialogTitle": "Cancelar Cita",
+      "dialogSubtitle": "Esta acción no se puede deshacer",
+      "reasonLabel": "Motivo de cancelación (opcional)",
+      "reasonPlaceholder": "Ej: Cambio de planes, emergencia, etc.",
+      "backButton": "Volver",
+      "confirmButton": "Confirmar Cancelación",
+      "cancelling": "Cancelando..."
+    },
+    "reschedule": {
+      "buttonTitle": "Reprogramar cita",
+      "dialogTitle": "Reprogramar Cita",
+      "dialogSubtitle": "Selecciona una nueva fecha y hora",
+      "currentAppointment": "Cita actual",
+      "newDate": "Nueva fecha",
+      "newTime": "Nueva hora",
+      "loadingSlots": "Cargando horarios...",
+      "errorLoadingSlots": "Error cargando horarios.",
+      "noSlotsAvailable": "No hay horarios disponibles.",
+      "pendingConfirmation": "La cita reprogramada quedará pendiente de confirmación por la clínica.",
+      "cancelButton": "Cancelar",
+      "confirmButton": "Confirmar",
+      "rescheduling": "Reprogramando..."
+    },
+    "card": {
+      "viewDetails": "Ver detalles"
     }
   },
   "booking": {

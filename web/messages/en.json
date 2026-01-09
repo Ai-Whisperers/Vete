@@ -264,6 +264,49 @@
       "completed": "Completed",
       "cancelled": "Cancelled",
       "noShow": "No show"
+    },
+    "tabs": {
+      "upcoming": "Upcoming",
+      "past": "Past",
+      "ariaLabel": "Appointment filters",
+      "countLabel": "{count} appointments"
+    },
+    "emptyState": {
+      "upcomingTitle": "No scheduled appointments",
+      "upcomingDescription": "Book an appointment for your pet and it will appear here.",
+      "upcomingAction": "Book Appointment",
+      "pastTitle": "No appointment history",
+      "pastDescription": "Your past and cancelled appointments will appear here."
+    },
+    "cancel": {
+      "buttonLabel": "Cancel Appointment",
+      "buttonTitle": "Cancel appointment",
+      "buttonText": "Cancel",
+      "dialogTitle": "Cancel Appointment",
+      "dialogSubtitle": "This action cannot be undone",
+      "reasonLabel": "Cancellation reason (optional)",
+      "reasonPlaceholder": "e.g., Change of plans, emergency, etc.",
+      "backButton": "Back",
+      "confirmButton": "Confirm Cancellation",
+      "cancelling": "Cancelling..."
+    },
+    "reschedule": {
+      "buttonTitle": "Reschedule appointment",
+      "dialogTitle": "Reschedule Appointment",
+      "dialogSubtitle": "Select a new date and time",
+      "currentAppointment": "Current appointment",
+      "newDate": "New date",
+      "newTime": "New time",
+      "loadingSlots": "Loading time slots...",
+      "errorLoadingSlots": "Error loading time slots.",
+      "noSlotsAvailable": "No time slots available.",
+      "pendingConfirmation": "The rescheduled appointment will be pending clinic confirmation.",
+      "cancelButton": "Cancel",
+      "confirmButton": "Confirm",
+      "rescheduling": "Rescheduling..."
+    },
+    "card": {
+      "viewDetails": "View details"
     }
   },
   "booking": {

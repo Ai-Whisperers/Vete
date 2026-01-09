@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import * as Icons from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { DynamicIcon } from '@/lib/icons'
 import { MultiPetSelector } from './multi-pet-selector'
 import { useCart } from '@/context/cart-context'
@@ -53,6 +54,7 @@ export function ServiceDetailClient({
   clinic,
   isLoggedIn,
 }: ServiceDetailClientProps) {
+  const t = useTranslations('services')
   const { addItem } = useCart()
   const [selectedPets, setSelectedPets] = useState<PetForService[]>([])
   const [addingVariant, setAddingVariant] = useState<string | null>(null)
@@ -139,8 +141,8 @@ export function ServiceDetailClient({
       const petNames = selectedPets.map((p) => p.name).join(', ')
       setAlreadyInCartMessage(
         selectedPets.length === 1
-          ? `${petNames} ya tiene este servicio en el carrito`
-          : `${petNames} ya tienen este servicio en el carrito`
+          ? t('petAlreadyInCartSingular', { name: petNames })
+          : t('petAlreadyInCartPlural', { names: petNames })
       )
       setTimeout(() => setAlreadyInCartMessage(null), 3000)
       return
@@ -183,7 +185,7 @@ export function ServiceDetailClient({
     if (petsToAdd.length < selectedPets.length) {
       const skippedPets = selectedPets.filter((p) => petsAlreadyInCart.has(p.id))
       const skippedNames = skippedPets.map((p) => p.name).join(', ')
-      setAlreadyInCartMessage(`${skippedNames} ya tenía este servicio`)
+      setAlreadyInCartMessage(t('petSkippedAlready', { names: skippedNames }))
       setTimeout(() => setAlreadyInCartMessage(null), 3000)
     }
 
@@ -230,7 +232,7 @@ export function ServiceDetailClient({
             className="mb-8 inline-flex items-center text-sm font-bold uppercase tracking-wider text-white/80 transition-colors hover:text-white"
           >
             <Icons.ArrowLeft className="mr-2 h-4 w-4" />
-            Volver a Servicios
+            {t('backToServices')}
           </Link>
 
           <div className="flex flex-col items-start gap-8 md:flex-row md:items-center">
@@ -278,7 +280,7 @@ export function ServiceDetailClient({
           {/* Description Card */}
           <div className="rounded-[var(--radius)] border border-gray-100 bg-white p-8 shadow-[var(--shadow-sm)]">
             <h2 className="font-heading mb-4 text-2xl font-bold text-[var(--text-primary)]">
-              {config.ui_labels?.services?.description_label || 'Descripción del Servicio'}
+              {config.ui_labels?.services?.description_label || t('serviceDescription')}
             </h2>
             <p className="text-lg leading-relaxed text-[var(--text-secondary)]">
               {service.details?.description}
@@ -287,7 +289,7 @@ export function ServiceDetailClient({
             {service.details?.includes && service.details.includes.length > 0 && (
               <div className="mt-8 border-t border-gray-100 pt-8">
                 <h3 className="mb-4 text-lg font-bold text-[var(--text-primary)]">
-                  {config.ui_labels?.services?.includes_label || '¿Qué incluye?'}
+                  {config.ui_labels?.services?.includes_label || t('whatsIncluded')}
                 </h3>
                 <div className="grid gap-4 sm:grid-cols-2">
                   {service.details.includes.map((item, idx) => (
@@ -308,7 +310,7 @@ export function ServiceDetailClient({
           <div className="overflow-hidden rounded-[var(--radius)] border border-gray-100 bg-white shadow-[var(--shadow-sm)]">
             <div className="flex flex-wrap items-center justify-between gap-4 border-b border-gray-100 bg-gray-50 p-6">
               <h2 className="font-heading text-xl font-bold text-[var(--text-primary)]">
-                Precios y Variantes
+                {t('pricingAndVariants')}
               </h2>
               {selectedPets.length > 0 && (
                 <div className="flex flex-wrap items-center gap-2">
@@ -339,7 +341,7 @@ export function ServiceDetailClient({
               <div className="flex items-center gap-3 border-b border-amber-100 bg-amber-50 p-4">
                 <Icons.AlertCircle className="h-5 w-5 shrink-0 text-amber-600" />
                 <p className="text-sm font-medium text-amber-800">
-                  Primero selecciona al menos una mascota para agregar este servicio
+                  {t('selectPetFirst')}
                 </p>
               </div>
             )}
@@ -357,12 +359,12 @@ export function ServiceDetailClient({
                 <thead className="bg-[var(--bg-subtle)] text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">
                   <tr>
                     <th className="px-6 py-4">
-                      {config.ui_labels?.services?.table_variant || 'Variante'}
+                      {config.ui_labels?.services?.table_variant || t('variant')}
                     </th>
                     <th className="px-6 py-4 text-right">
-                      {config.ui_labels?.services?.table_price || 'Precio'}
+                      {config.ui_labels?.services?.table_price || t('price')}
                     </th>
-                    {isLoggedIn && <th className="w-32 px-6 py-4 text-center">Acción</th>}
+                    {isLoggedIn && <th className="w-32 px-6 py-4 text-center">{t('action')}</th>}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
@@ -403,14 +405,14 @@ export function ServiceDetailClient({
                           {variantHasSizePricing && (
                             <div className="mt-2 flex items-center gap-1 text-xs text-amber-600">
                               <Icons.Calculator className="h-3.5 w-3.5" />
-                              <span>Precio según tamaño de mascota</span>
+                              <span>{t('priceByPetSize')}</span>
                             </div>
                           )}
                           {/* Show pets already in cart for this variant */}
                           {petsAlreadyInCart.length > 0 && (
                             <div className="mt-2 flex items-center gap-1.5 text-xs text-green-600">
                               <Icons.CheckCircle2 className="h-3.5 w-3.5" />
-                              <span>Ya en carrito: {petsAlreadyInCart.join(', ')}</span>
+                              <span>{t('alreadyInCart', { names: petsAlreadyInCart.join(', ') })}</span>
                             </div>
                           )}
                         </td>
@@ -437,7 +439,7 @@ export function ServiceDetailClient({
                                     ))}
                                     <div className="mt-1 border-t border-gray-200 pt-1">
                                       <span className="inline-block rounded-full bg-[var(--primary)] px-3 py-1 text-sm font-black text-white">
-                                        Total: {formatPriceGs(priceInfo.totalPrice)}
+                                        {t('total')}: {formatPriceGs(priceInfo.totalPrice)}
                                       </span>
                                     </div>
                                   </div>
@@ -477,33 +479,33 @@ export function ServiceDetailClient({
                                   } disabled:opacity-70`}
                                   title={
                                     selectedPets.length === 0
-                                      ? 'Selecciona una mascota primero'
-                                      : 'Agregar al carrito'
+                                      ? t('selectPetToAdd')
+                                      : t('addToCart')
                                   }
                                 >
                                   {isAdding ? (
                                     <>
                                       <Icons.Loader2 className="h-4 w-4 animate-spin" />
-                                      <span className="hidden sm:inline">Agregando...</span>
+                                      <span className="hidden sm:inline">{t('adding')}</span>
                                     </>
                                   ) : justAdded ? (
                                     <>
                                       <Icons.Check className="h-4 w-4" />
-                                      <span className="hidden sm:inline">Agregado</span>
+                                      <span className="hidden sm:inline">{t('added')}</span>
                                     </>
                                   ) : (
                                     <>
                                       <Icons.ShoppingBag className="h-4 w-4" />
                                       <span className="hidden sm:inline">
                                         {selectedPets.length > 1
-                                          ? `Agregar (${selectedPets.length})`
-                                          : 'Agregar'}
+                                          ? t('addForCount', { count: selectedPets.length })
+                                          : t('add')}
                                       </span>
                                     </>
                                   )}
                                 </button>
                               ) : (
-                                <span className="text-sm text-[var(--text-muted)]">Consultar</span>
+                                <span className="text-sm text-[var(--text-muted)]">{t('priceOnRequest')}</span>
                               )}
                             </div>
                           </td>
@@ -532,13 +534,13 @@ export function ServiceDetailClient({
               <div className="mb-4 flex items-center gap-2">
                 <Icons.PawPrint className="h-5 w-5 text-[var(--primary)]" />
                 <h3 className="font-heading text-lg font-bold text-[var(--text-primary)]">
-                  Selecciona tus Mascotas
+                  {t('selectYourPets')}
                 </h3>
               </div>
               <p className="mb-4 text-sm text-[var(--text-muted)]">
                 {hasSizeDependentVariants
-                  ? 'Selecciona tus mascotas para ver precios personalizados y agregar servicios para todas a la vez.'
-                  : 'Selecciona las mascotas para las cuales deseas este servicio.'}
+                  ? t('selectPetsHelperSizeDependent')
+                  : t('selectPetsHelper')}
               </p>
               <MultiPetSelector
                 onSelectionChange={(pets) => {
@@ -553,10 +555,10 @@ export function ServiceDetailClient({
           {/* Booking Card */}
           <div className="sticky top-6 rounded-[var(--radius)] border border-gray-100 bg-white p-6 shadow-[var(--shadow-md)]">
             <h3 className="font-heading mb-2 text-xl font-bold text-[var(--text-primary)]">
-              Agendar Cita
+              {t('bookYourAppointment')}
             </h3>
             <p className="mb-6 text-sm text-[var(--text-secondary)]">
-              Reserva tu turno para <span className="font-bold">{service.title}</span>.
+              {t('bookOnlineDescription', { service: service.title })}
             </p>
 
             {service.booking?.online_enabled && (
@@ -565,14 +567,14 @@ export function ServiceDetailClient({
                 className="mb-4 flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-6 py-4 font-bold text-white shadow-lg transition-transform hover:-translate-y-1 hover:brightness-110"
               >
                 <Icons.Calendar className="h-5 w-5" />
-                Reservar Online
+                {t('bookOnline')}
               </Link>
             )}
 
             {config.contact.whatsapp_number && (
               <a
                 href={`https://wa.me/${config.contact.whatsapp_number}?text=${encodeURIComponent(
-                  `Hola, quisiera agendar un turno para: ${service.title}`
+                  t('whatsappTemplate', { service: service.title })
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -583,7 +585,7 @@ export function ServiceDetailClient({
                 }`}
               >
                 <Icons.MessageCircle className="h-5 w-5" />
-                Consultar por WhatsApp
+                {t('contactWhatsApp')}
               </a>
             )}
 
@@ -594,7 +596,7 @@ export function ServiceDetailClient({
                 className="flex w-full items-center justify-center gap-2 rounded-xl border border-gray-200 bg-[var(--bg-subtle)] px-6 py-3 font-bold text-[var(--text-primary)] transition-colors hover:bg-[var(--bg-default)]"
               >
                 <Icons.ShoppingCart className="h-5 w-5" />
-                Ver Carrito
+                {t('viewCart')}
               </Link>
             )}
           </div>

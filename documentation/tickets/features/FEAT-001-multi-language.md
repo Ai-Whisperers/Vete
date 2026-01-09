@@ -108,6 +108,14 @@ Add support for multiple languages (starting with English) to expand the platfor
   - `uploads.prescription` namespace (20 keys)
   - `pets.delete` namespace (6 keys)
   - `vaccines.missing` namespace (16 keys)
+  - `pets.detailTabs` namespace (6 keys)
+  - `pets.detailContent` namespace (2 keys)
+  - `pets.tabs.summary` namespace (30+ keys)
+  - `pets.tabs.appointments` namespace (32 keys)
+  - `pets.tabs.documents` namespace (28 keys)
+  - `pets.tabs.vaccines` namespace (22 keys)
+  - `pets.tabs.history` namespace (28 keys)
+  - `pets.tabs.finances` namespace (19 keys)
 - ✅ Upload components migrated:
   - `components/pets/photo-upload.tsx` - all labels, drag/drop states, validation errors, formats hint
   - `components/store/prescription-upload.tsx` - all labels, drag/drop states, upload progress, validation errors, success states
@@ -122,11 +130,19 @@ Add support for multiple languages (starting with English) to expand the platfor
   - `components/pets/pet-sidebar-info.tsx` - bio/health, vaccines, diet sections
   - `components/pets/pet-card-enhanced.tsx` - age calculation, vaccine status, health alerts
   - `components/pets/medical-timeline.tsx` - history title, vitals, actions, attachments
+  - `components/pets/pet-detail-tabs.tsx` - tab navigation labels
+  - `components/pets/pet-detail-content.tsx` - error fallback messages
+  - `components/pets/tabs/pet-summary-tab.tsx` - sidebar (vaccines, diet, contacts), age formatting
+  - `components/pets/tabs/pet-history-tab.tsx` - timeline, vitals, medications, filters, empty states
+  - `components/pets/tabs/pet-vaccines-tab.tsx` - status summary, vaccine cards, alerts, reactions
+  - `components/pets/tabs/pet-appointments-tab.tsx` - status badges, relative dates, card content
+  - `components/pets/tabs/pet-documents-tab.tsx` - categories, drag/drop, upload modal, grid view
+  - `components/pets/tabs/pet-finances-tab.tsx` - invoice/payment status, summaries, history
 - ✅ UI components migrated:
   - `components/ui/confirm-dialog.tsx` - default confirm/cancel labels via common namespace
 
 **Remaining Work:**
-- ~70 components still use hardcoded Spanish strings
+- ~60 components still use hardcoded Spanish strings
 - JSON-CMS content in Spanish only
 - No URL-based routing (`/es/adris`, `/en/adris`)
 
@@ -249,9 +265,9 @@ Add language variants to clinic content:
 - English translation: 8 hours ✅ COMPLETE
 - Testing: 8 hours
 
-**Remaining Work (~10 hours):**
-- Component migration to useTranslations: 4 hours (~120 components remaining)
+**Remaining Work (~8 hours):**
+- Component migration to useTranslations: 3 hours (~60 components remaining)
 - JSON-CMS language variants: 4 hours
 - URL routing implementation: 2 hours
 
-**Progress: 90% complete (Infrastructure + Navigation + Public pages + Booking + Portal (full) + Services + Pet profile + Store + Dashboard (including analytics, bulk-messaging, global-search, keyboard-shortcuts, patient-quick-actions, appointments-chart, status-buttons) + Pet selectors + Layout + Cart (all) + Invoices (line-item) + Billing (add-card) + Uploads (photo, prescription) + Auth (logout) + Pets (delete, missing-vaccines, vaccine-reaction, weight-recording, edit-form, sidebar-info, card-enhanced, medical-timeline) + UI (confirm-dialog) done)**
+**Progress: 93% complete (Infrastructure + Navigation + Public pages + Booking + Portal (full) + Services + Pet profile + Store + Dashboard (including analytics, bulk-messaging, global-search, keyboard-shortcuts, patient-quick-actions, appointments-chart, status-buttons) + Pet selectors + Layout + Cart (all) + Invoices (line-item) + Billing (add-card) + Uploads (photo, prescription) + Auth (logout) + Pets (delete, missing-vaccines, vaccine-reaction, weight-recording, edit-form, sidebar-info, card-enhanced, medical-timeline, detail-tabs, detail-content, all 6 tab components) + UI (confirm-dialog) done)**

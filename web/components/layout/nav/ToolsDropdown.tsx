@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronDown, Wrench, Calculator, Apple, HelpCircle } from 'lucide-react'
 import type { ClinicConfig } from '@/lib/clinics'
@@ -27,20 +28,21 @@ export function ToolsDropdown({
 }: Readonly<ToolsDropdownProps>) {
   const [isToolsOpen, setIsToolsOpen] = useState(false)
   const toolsMenuRef = useRef<HTMLDivElement>(null)
+  const t = useTranslations('nav')
 
   const toolsItems: ToolItem[] = [
     {
-      label: config.ui_labels?.tools?.age_calculator?.title || 'Calculadora de Edad',
+      label: config.ui_labels?.tools?.age_calculator?.title || t('ageCalculator'),
       href: `/${clinic}/tools/age-calculator`,
       icon: Calculator,
     },
     {
-      label: config.ui_labels?.tools?.toxic_food?.title || 'Alimentos Tóxicos',
+      label: config.ui_labels?.tools?.toxic_food?.title || t('toxicFood'),
       href: `/${clinic}/tools/toxic-food`,
       icon: Apple,
     },
     {
-      label: config.ui_labels?.nav?.faq || 'Preguntas Frecuentes',
+      label: config.ui_labels?.nav?.faq || t('faq'),
       href: `/${clinic}/faq`,
       icon: HelpCircle,
     },
@@ -72,7 +74,7 @@ export function ToolsDropdown({
         onClick={() => setIsToolsOpen(!isToolsOpen)}
         aria-expanded={isToolsOpen}
         aria-haspopup="true"
-        aria-label="Menú de herramientas"
+        aria-label={t('toolsMenu')}
         className={`group relative flex items-center gap-1 text-base font-bold uppercase tracking-wide transition-colors ${
           isToolsActive
             ? 'text-[var(--primary)]'
@@ -80,7 +82,7 @@ export function ToolsDropdown({
         }`}
       >
         <Wrench className="h-4 w-4" aria-hidden="true" />
-        {config.ui_labels?.nav?.tools || 'Herramientas'}
+        {config.ui_labels?.nav?.tools || t('tools')}
         <ChevronDown
           className={`h-4 w-4 transition-transform ${isToolsOpen ? 'rotate-180' : ''}`}
           aria-hidden="true"
@@ -95,7 +97,7 @@ export function ToolsDropdown({
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.15 }}
             role="menu"
-            aria-label="Opciones de herramientas"
+            aria-label={t('toolsOptions')}
             className="absolute left-0 top-full z-50 mt-2 w-56 rounded-xl border border-gray-100 bg-white py-2 shadow-xl"
           >
             {toolsItems.map((tool) => {

@@ -14,14 +14,20 @@ Add support for multiple languages (starting with English) to expand the platfor
 
 **Infrastructure Complete (January 2026):**
 - ✅ `next-intl` v4.7.0 installed and configured
-- ✅ Translation files: `messages/es.json` (241 lines), `messages/en.json` (241 lines)
+- ✅ Translation files: `messages/es.json` (264 lines), `messages/en.json` (264 lines)
 - ✅ i18n config: `i18n/config.ts`, `i18n/request.ts`, `i18n/hooks.ts`
 - ✅ Language switcher: `components/ui/language-selector.tsx` (integrated in main nav)
 - ✅ Locale API: `/api/locale` (GET/POST for cookie management)
 - ✅ Cookie-based locale detection with Accept-Language fallback
 
+**Component Migration Started (January 2026):**
+- ✅ Navigation components migrated:
+  - `main-nav.tsx` - nav items, cart aria-labels with pluralization
+  - `UserMenu.tsx` - login/logout labels
+  - `MobileMenu.tsx` - all sections (Navigation, Tools, My Account, Staff, Language)
+
 **Remaining Work:**
-- Components still use hardcoded Spanish strings (not using `useTranslations`)
+- ~197 components still use hardcoded Spanish strings
 - JSON-CMS content in Spanish only
 - No URL-based routing (`/es/adris`, `/en/adris`)
 
@@ -110,7 +116,8 @@ Add language variants to clinic content:
 2. [x] Create translation file structure ✅
 3. [x] Extract Spanish strings to `es.json` ✅ (241 lines across 12 namespaces)
 4. [x] Create English translations ✅ (complete parity with es.json)
-5. [ ] Update components to use `useTranslations` (~200+ components, 16h estimated)
+5. [~] Update components to use `useTranslations` (~197 remaining, 15h estimated)
+   - [x] Navigation components (main-nav, UserMenu, MobileMenu)
 6. [x] Add language switcher component ✅ (integrated in navigation)
 7. [ ] Update JSON-CMS loader for language variants
 8. [ ] Add language preference to user profile
@@ -133,10 +140,10 @@ Add language variants to clinic content:
 - English translation: 8 hours ✅ COMPLETE
 - Testing: 8 hours
 
-**Remaining Work (~24 hours):**
-- Component migration to useTranslations: 16 hours
+**Remaining Work (~23 hours):**
+- Component migration to useTranslations: 15 hours (navigation done)
 - JSON-CMS language variants: 4 hours
 - URL routing implementation: 2 hours
 - Testing & QA: 2 hours
 
-**Progress: 40% complete (Infrastructure phase done)**
+**Progress: 45% complete (Infrastructure + Navigation components done)**

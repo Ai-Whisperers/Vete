@@ -28,7 +28,11 @@
     "download": "Descargar",
     "upload": "Subir",
     "noResults": "No se encontraron resultados",
-    "tryAgain": "Intentar de nuevo"
+    "tryAgain": "Intentar de nuevo",
+    "copy": "Copiar",
+    "copied": "¡Copiado!",
+    "notRegistered": "No registrado",
+    "emailRequired": "Email requerido"
   },
   "auth": {
     "login": "Iniciar sesión",

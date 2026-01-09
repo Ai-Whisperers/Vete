@@ -28,7 +28,11 @@
     "download": "Download",
     "upload": "Upload",
     "noResults": "No results found",
-    "tryAgain": "Try again"
+    "tryAgain": "Try again",
+    "copy": "Copy",
+    "copied": "Copied!",
+    "notRegistered": "Not registered",
+    "emailRequired": "Email required"
   },
   "auth": {
     "login": "Log in",

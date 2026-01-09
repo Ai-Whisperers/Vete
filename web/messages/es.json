@@ -1012,6 +1012,38 @@
         "hoursAgo": "hace {hours} h",
         "yesterday": "ayer"
       }
+    },
+    "clientTags": {
+      "add": "Agregar",
+      "selectTag": "Seleccionar etiqueta",
+      "allAssigned": "Todas las etiquetas ya están asignadas",
+      "tags": {
+        "vip": "VIP",
+        "criadero": "Criadero",
+        "rescate": "Rescate",
+        "nuevo": "Nuevo",
+        "frecuente": "Frecuente",
+        "moroso": "Moroso",
+        "empleado": "Empleado",
+        "referido": "Referido"
+      }
+    },
+    "barcodeScanner": {
+      "title": "Escanear Código",
+      "searching": "Buscando producto...",
+      "notFound": "Producto no encontrado",
+      "useCode": "Usar Código",
+      "scanAnother": "Escanear Otro",
+      "manualEntry": "Ingresar código manualmente",
+      "stockAvailable": "Stock disponible",
+      "price": "Precio",
+      "cameraError": "No se pudo acceder a la cámara. Verifica los permisos.",
+      "retry": "Reintentar",
+      "flashlight": "Linterna",
+      "switchCamera": "Cambiar cámara",
+      "code": "Código",
+      "units": "unidades",
+      "enterManually": "Ingrese el código de barras manualmente:"
     }
   },
   "petSelector": {

@@ -1012,6 +1012,38 @@
         "hoursAgo": "{hours} h ago",
         "yesterday": "yesterday"
       }
+    },
+    "clientTags": {
+      "add": "Add",
+      "selectTag": "Select tag",
+      "allAssigned": "All tags already assigned",
+      "tags": {
+        "vip": "VIP",
+        "criadero": "Breeder",
+        "rescate": "Rescue",
+        "nuevo": "New",
+        "frecuente": "Frequent",
+        "moroso": "Delinquent",
+        "empleado": "Employee",
+        "referido": "Referral"
+      }
+    },
+    "barcodeScanner": {
+      "title": "Scan Code",
+      "searching": "Searching product...",
+      "notFound": "Product not found",
+      "useCode": "Use Code",
+      "scanAnother": "Scan Another",
+      "manualEntry": "Enter code manually",
+      "stockAvailable": "Stock available",
+      "price": "Price",
+      "cameraError": "Could not access camera. Check permissions.",
+      "retry": "Retry",
+      "flashlight": "Flashlight",
+      "switchCamera": "Switch camera",
+      "code": "Code",
+      "units": "units",
+      "enterManually": "Enter the barcode manually:"
     }
   },
   "petSelector": {

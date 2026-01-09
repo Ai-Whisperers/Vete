@@ -58,6 +58,10 @@ Add support for multiple languages (starting with English) to expand the platfor
   - `components/portal/upcoming-appointments-card.tsx` - title, status labels, actions
   - `components/portal/invoice-actions.tsx` - button labels, PDF labels with locale support
   - `components/portal/portal-mobile-nav.tsx` - section titles, aria labels, menu actions
+- ✅ Cart components migrated:
+  - `components/cart/cart-drawer.tsx` - title, aria labels, empty state, services/products sections, footer, confirmation dialog
+  - `components/cart/cart-item.tsx` - schedule buttons, stock warnings, quantity controls, pet info, variant display
+  - `components/cart/add-to-cart-button.tsx` - default labels via translations, stock warning messages
 - ✅ Translation namespaces expanded:
   - `home` namespace (10 keys)
   - `about` namespace (23 keys)
@@ -77,9 +81,10 @@ Add support for multiple languages (starting with English) to expand the platfor
   - `portal.upcomingAppointments` namespace (8 keys)
   - `portal.invoiceActions` namespace (18 keys)
   - `portal.mobileNav` namespace (9 keys)
+  - `cart` namespace (44 keys)
 
 **Remaining Work:**
-- ~150 components still use hardcoded Spanish strings
+- ~125 components still use hardcoded Spanish strings
 - JSON-CMS content in Spanish only
 - No URL-based routing (`/es/adris`, `/en/adris`)
 
@@ -179,6 +184,7 @@ Add language variants to clinic content:
    - [x] Dashboard pending requests panel
    - [x] Services pet selector
    - [x] Layout components (notification-bell, newsletter-form)
+   - [x] Cart components (cart-drawer, cart-item, add-to-cart-button)
 6. [x] Add language switcher component ✅ (integrated in navigation)
 7. [ ] Update JSON-CMS loader for language variants
 8. [ ] Add language preference to user profile
@@ -201,9 +207,9 @@ Add language variants to clinic content:
 - English translation: 8 hours ✅ COMPLETE
 - Testing: 8 hours
 
-**Remaining Work (~11 hours):**
-- Component migration to useTranslations: 5 hours (~140 components remaining)
+**Remaining Work (~10 hours):**
+- Component migration to useTranslations: 4 hours (~125 components remaining)
 - JSON-CMS language variants: 4 hours
 - URL routing implementation: 2 hours
 
-**Progress: 77% complete (Infrastructure + Navigation + Public pages + Booking + Portal (full) + Services + Pet profile + Store + Dashboard + Pet selectors + Layout done)**
+**Progress: 79% complete (Infrastructure + Navigation + Public pages + Booking + Portal (full) + Services + Pet profile + Store + Dashboard + Pet selectors + Layout + Cart done)**

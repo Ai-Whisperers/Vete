@@ -950,6 +950,43 @@
       "dateRange": "{start} - {end}",
       "morning": "Morning",
       "afternoon": "Afternoon"
+    },
+    "waitingRoom": {
+      "title": "Waiting Room",
+      "activePatients": "{count, plural, one {# active patient} other {# active patients}}",
+      "inWaitingRoom": "In Waiting Room",
+      "inConsultation": "In Consultation",
+      "upcomingAppointments": "Upcoming Appointments",
+      "completedToday": "Completed today",
+      "viewMore": "View {count} more",
+      "noAppointments": "No appointments today",
+      "noAppointmentsDesc": "The waiting room is empty. Good time to organize!",
+      "scheduleAppointment": "Schedule Appointment",
+      "noPatient": "No patient",
+      "viewProfile": "View profile",
+      "status": {
+        "pending": "Pending",
+        "confirmed": "Confirmed",
+        "checkedIn": "Waiting",
+        "inProgress": "In Consultation",
+        "completed": "Completed",
+        "cancelled": "Cancelled",
+        "noShow": "No Show"
+      },
+      "actions": {
+        "confirm": "Confirm",
+        "cancel": "Cancel",
+        "checkIn": "Check-in",
+        "noShow": "No Show",
+        "startConsultation": "Start Consultation",
+        "complete": "Complete"
+      },
+      "waitTime": {
+        "inMinutes": "In {minutes} min",
+        "inHoursMinutes": "In {hours}h {minutes}m",
+        "waitingMinutes": "{minutes} min waiting",
+        "waitingHoursMinutes": "{hours}h {minutes}m waiting"
+      }
     }
   },
   "petSelector": {

@@ -9,6 +9,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
+import { useTranslations, useLocale } from 'next-intl'
 import {
   Clock,
   CheckCircle,
@@ -70,48 +71,49 @@ interface WaitingRoomProps {
   initialAppointments?: WaitingPatient[]
 }
 
-const statusConfig: Record<
+// Status styling config (labels added via translations in component)
+const statusStyles: Record<
   string,
-  { label: string; color: string; bgColor: string; icon: React.ReactNode }
+  { translationKey: string; color: string; bgColor: string; icon: React.ReactNode }
 > = {
   pending: {
-    label: 'Pendiente',
+    translationKey: 'pending',
     color: 'text-[var(--status-warning-text)]',
     bgColor: 'bg-[var(--status-warning-bg)] border-[var(--status-warning-border)]',
     icon: <Clock className="h-4 w-4" />,
   },
   confirmed: {
-    label: 'Confirmado',
+    translationKey: 'confirmed',
     color: 'text-[var(--status-info-text)]',
     bgColor: 'bg-[var(--status-info-bg)] border-[var(--status-info-border)]',
     icon: <CheckCircle className="h-4 w-4" />,
   },
   checked_in: {
-    label: 'En Espera',
+    translationKey: 'checkedIn',
     color: 'text-[var(--primary)]',
     bgColor: 'bg-[var(--primary)]/10 border-[var(--primary)]/20',
     icon: <LogIn className="h-4 w-4" />,
   },
   in_progress: {
-    label: 'En Consulta',
+    translationKey: 'inProgress',
     color: 'text-[var(--status-success-text)]',
     bgColor: 'bg-[var(--status-success-bg)] border-[var(--status-success-border)]',
     icon: <Stethoscope className="h-4 w-4" />,
   },
   completed: {
-    label: 'Completado',
+    translationKey: 'completed',
     color: 'text-gray-700',
     bgColor: 'bg-gray-50 border-gray-200',
     icon: <CheckCircle className="h-4 w-4" />,
   },
   cancelled: {
-    label: 'Cancelado',
+    translationKey: 'cancelled',
     color: 'text-[var(--status-error-text)]',
     bgColor: 'bg-[var(--status-error-bg)] border-[var(--status-error-border)]',
     icon: <XCircle className="h-4 w-4" />,
   },
   no_show: {
-    label: 'No Asistió',
+    translationKey: 'noShow',
     color: 'text-[var(--status-warning-text)]',
     bgColor: 'bg-[var(--status-warning-bg)] border-[var(--status-warning-border)]',
     icon: <AlertCircle className="h-4 w-4" />,
@@ -119,6 +121,8 @@ const statusConfig: Record<
 }
 
 export function WaitingRoom({ clinic }: { clinic: string }): React.ReactElement {
+  const t = useTranslations('dashboard.waitingRoom')
+  const locale = useLocale()
   const router = useRouter()
   const queryClient = useQueryClient()
 
@@ -155,7 +159,7 @@ export function WaitingRoom({ clinic }: { clinic: string }): React.ReactElement 
   })
 
   const formatTime = (timeString: string): string => {
-    return new Date(timeString).toLocaleTimeString('es-PY', {
+    return new Date(timeString).toLocaleTimeString(locale === 'es' ? 'es-PY' : 'en-US', {
       hour: '2-digit',
       minute: '2-digit',
     })
@@ -168,13 +172,13 @@ export function WaitingRoom({ clinic }: { clinic: string }): React.ReactElement 
 
     if (diffMs < 0) {
       const minsUntil = Math.abs(Math.floor(diffMs / 60000))
-      if (minsUntil < 60) return `En ${minsUntil} min`
-      return `En ${Math.floor(minsUntil / 60)}h ${minsUntil % 60}m`
+      if (minsUntil < 60) return t('waitTime.inMinutes', { minutes: minsUntil })
+      return t('waitTime.inHoursMinutes', { hours: Math.floor(minsUntil / 60), minutes: minsUntil % 60 })
     }
 
     const mins = Math.floor(diffMs / 60000)
-    if (mins < 60) return `${mins} min esperando`
-    return `${Math.floor(mins / 60)}h ${mins % 60}m esperando`
+    if (mins < 60) return t('waitTime.waitingMinutes', { minutes: mins })
+    return t('waitTime.waitingHoursMinutes', { hours: Math.floor(mins / 60), minutes: mins % 60 })
   }
 
   // Group appointments by status
@@ -191,18 +195,18 @@ export function WaitingRoom({ clinic }: { clinic: string }): React.ReactElement 
     switch (currentStatus) {
       case 'pending':
         return [
-          { label: 'Confirmar', status: 'confirmed', color: 'bg-[var(--status-info)]' },
-          { label: 'Cancelar', status: 'cancelled', color: 'bg-[var(--status-error)]' },
+          { label: t('actions.confirm'), status: 'confirmed', color: 'bg-[var(--status-info)]' },
+          { label: t('actions.cancel'), status: 'cancelled', color: 'bg-[var(--status-error)]' },
         ]
       case 'confirmed':
         return [
-          { label: 'Check-in', status: 'checked_in', color: 'bg-[var(--primary)]' },
-          { label: 'No Asistió', status: 'no_show', color: 'bg-[var(--status-warning)]' },
+          { label: t('actions.checkIn'), status: 'checked_in', color: 'bg-[var(--primary)]' },
+          { label: t('actions.noShow'), status: 'no_show', color: 'bg-[var(--status-warning)]' },
         ]
       case 'checked_in':
-        return [{ label: 'Iniciar Consulta', status: 'in_progress', color: 'bg-[var(--status-success)]' }]
+        return [{ label: t('actions.startConsultation'), status: 'in_progress', color: 'bg-[var(--status-success)]' }]
       case 'in_progress':
-        return [{ label: 'Completar', status: 'completed', color: 'bg-gray-700' }]
+        return [{ label: t('actions.complete'), status: 'completed', color: 'bg-gray-700' }]
       default:
         return []
     }
@@ -216,14 +220,13 @@ export function WaitingRoom({ clinic }: { clinic: string }): React.ReactElement 
             <Timer className="h-5 w-5 text-[var(--primary)]" />
           </div>
           <div>
-            <h2 className="font-semibold text-gray-900">Sala de Espera</h2>
+            <h2 className="font-semibold text-gray-900">{t('title')}</h2>
             <p className="text-xs text-gray-500">
-              {
-                appointments.filter(
+              {t('activePatients', {
+                count: appointments.filter(
                   (a) => !['completed', 'cancelled', 'no_show'].includes(a.status)
-                ).length
-              }{' '}
-              pacientes activos
+                ).length,
+              })}
             </p>
           </div>
         </div>
@@ -241,7 +244,7 @@ export function WaitingRoom({ clinic }: { clinic: string }): React.ReactElement 
         <div className="border-b border-gray-100">
           <div className="bg-[var(--primary)]/10 px-6 py-2">
             <span className="text-xs font-bold uppercase tracking-wider text-[var(--primary)]">
-              En Sala de Espera ({grouped.waiting.length})
+              {t('inWaitingRoom')} ({grouped.waiting.length})
             </span>
           </div>
           {grouped.waiting.map((apt) => (
@@ -266,7 +269,7 @@ export function WaitingRoom({ clinic }: { clinic: string }): React.ReactElement 
         <div className="border-b border-gray-100">
           <div className="bg-[var(--status-success-bg)] px-6 py-2">
             <span className="text-xs font-bold uppercase tracking-wider text-[var(--status-success-text)]">
-              En Consulta ({grouped.inProgress.length})
+              {t('inConsultation')} ({grouped.inProgress.length})
             </span>
           </div>
           {grouped.inProgress.map((apt) => (
@@ -291,7 +294,7 @@ export function WaitingRoom({ clinic }: { clinic: string }): React.ReactElement 
         <div className="border-b border-gray-100">
           <div className="bg-gray-50 px-6 py-2">
             <span className="text-xs font-bold uppercase tracking-wider text-gray-600">
-              Próximas Citas ({grouped.upcoming.length})
+              {t('upcomingAppointments')} ({grouped.upcoming.length})
             </span>
           </div>
           {grouped.upcoming.slice(0, 5).map((apt) => (
@@ -314,7 +317,7 @@ export function WaitingRoom({ clinic }: { clinic: string }): React.ReactElement 
                 onClick={() => router.push(`/${clinic}/dashboard/appointments`)}
                 className="text-sm text-[var(--primary)] hover:underline"
               >
-                Ver {grouped.upcoming.length - 5} más
+                {t('viewMore', { count: grouped.upcoming.length - 5 })}
               </button>
             </div>
           )}
@@ -328,17 +331,17 @@ export function WaitingRoom({ clinic }: { clinic: string }): React.ReactElement 
             <Clock className="h-8 w-8 text-[var(--primary)]" />
           </div>
           <h4 className="mb-2 text-base font-bold text-[var(--text-primary)]">
-            Sin citas para hoy
+            {t('noAppointments')}
           </h4>
           <p className="mx-auto mb-4 max-w-xs text-sm text-[var(--text-secondary)]">
-            La sala de espera está vacía. ¡Buen momento para organizar!
+            {t('noAppointmentsDesc')}
           </p>
           <button
             onClick={() => router.push(`/${clinic}/dashboard/appointments?action=new`)}
             className="inline-flex items-center gap-2 rounded-xl bg-[var(--primary)] px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90"
           >
             <PawPrint className="h-4 w-4" />
-            Agendar Cita
+            {t('scheduleAppointment')}
           </button>
         </div>
       )}
@@ -347,7 +350,7 @@ export function WaitingRoom({ clinic }: { clinic: string }): React.ReactElement 
       {grouped.completed.length > 0 && (
         <details className="border-t border-gray-100">
           <summary className="cursor-pointer bg-gray-50 px-6 py-3 text-sm text-gray-500 hover:bg-gray-100">
-            Finalizadas hoy ({grouped.completed.length})
+            {t('completedToday')} ({grouped.completed.length})
           </summary>
           {grouped.completed.map((apt) => (
             <AppointmentRow
@@ -380,6 +383,7 @@ interface AppointmentRowProps {
   formatTime: (time: string) => string
   getWaitTime: (time: string) => string
   compact?: boolean
+  translations?: ReturnType<typeof useTranslations<'dashboard.waitingRoom'>>
 }
 
 function AppointmentRow({
@@ -392,8 +396,10 @@ function AppointmentRow({
   getWaitTime,
   compact = false,
 }: AppointmentRowProps): React.ReactElement {
+  const t = useTranslations('dashboard.waitingRoom')
   const router = useRouter()
-  const status = statusConfig[appointment.status]
+  const statusStyle = statusStyles[appointment.status]
+  const statusLabel = t(`status.${statusStyle.translationKey}`)
   const nextStatuses = getNextStatuses(appointment.status)
 
   return (
@@ -421,13 +427,13 @@ function AppointmentRow({
       <div className="min-w-0 flex-1">
         <div className="mb-1 flex items-center gap-2">
           <span className="font-semibold text-gray-900">
-            {appointment.pet?.name || 'Sin paciente'}
+            {appointment.pet?.name || t('noPatient')}
           </span>
           <span
-            className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${status.bgColor} ${status.color} border`}
+            className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${statusStyle.bgColor} ${statusStyle.color} border`}
           >
-            {status.icon}
-            {status.label}
+            {statusStyle.icon}
+            {statusLabel}
           </span>
         </div>
         <div className="flex items-center gap-3 text-sm text-gray-500">
@@ -478,7 +484,7 @@ function AppointmentRow({
         <button
           onClick={() => router.push(`/${clinic}/portal/pets/${appointment.pet?.id}`)}
           className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-[var(--primary)] hover:bg-opacity-10 hover:text-[var(--primary)]"
-          title="Ver ficha"
+          title={t('viewProfile')}
         >
           <ChevronRight className="h-4 w-4" />
         </button>

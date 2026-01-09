@@ -950,6 +950,43 @@
       "dateRange": "{start} - {end}",
       "morning": "Mañana",
       "afternoon": "Tarde"
+    },
+    "waitingRoom": {
+      "title": "Sala de Espera",
+      "activePatients": "{count, plural, one {# paciente activo} other {# pacientes activos}}",
+      "inWaitingRoom": "En Sala de Espera",
+      "inConsultation": "En Consulta",
+      "upcomingAppointments": "Próximas Citas",
+      "completedToday": "Finalizadas hoy",
+      "viewMore": "Ver {count} más",
+      "noAppointments": "Sin citas para hoy",
+      "noAppointmentsDesc": "La sala de espera está vacía. ¡Buen momento para organizar!",
+      "scheduleAppointment": "Agendar Cita",
+      "noPatient": "Sin paciente",
+      "viewProfile": "Ver ficha",
+      "status": {
+        "pending": "Pendiente",
+        "confirmed": "Confirmado",
+        "checkedIn": "En Espera",
+        "inProgress": "En Consulta",
+        "completed": "Completado",
+        "cancelled": "Cancelado",
+        "noShow": "No Asistió"
+      },
+      "actions": {
+        "confirm": "Confirmar",
+        "cancel": "Cancelar",
+        "checkIn": "Check-in",
+        "noShow": "No Asistió",
+        "startConsultation": "Iniciar Consulta",
+        "complete": "Completar"
+      },
+      "waitTime": {
+        "inMinutes": "En {minutes} min",
+        "inHoursMinutes": "En {hours}h {minutes}m",
+        "waitingMinutes": "{minutes} min esperando",
+        "waitingHoursMinutes": "{hours}h {minutes}m esperando"
+      }
     }
   },
   "petSelector": {

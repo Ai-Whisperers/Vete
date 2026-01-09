@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { logger } from '@/lib/logger'
+import { checkCronAuth } from '@/lib/api/cron-auth'
 
 export const dynamic = 'force-dynamic'
 
@@ -98,18 +99,10 @@ interface PetRecord {
  * - Follow-ups after visits
  */
 export async function GET(request: NextRequest) {
-  // Verify cron secret - CRITICAL: fail closed if not configured
-  const authHeader = request.headers.get('authorization')
-  const cronSecret = process.env.CRON_SECRET
-
-  if (!cronSecret) {
-    logger.error('CRON_SECRET not configured for reminders/generate - blocking request')
-    return NextResponse.json({ error: 'Server configuration error' }, { status: 500 })
-  }
-
-  if (authHeader !== `Bearer ${cronSecret}`) {
-    logger.warn('Unauthorized cron attempt for reminders/generate')
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  // SEC-006: Use timing-safe cron authentication
+  const cronAuth = checkCronAuth(request)
+  if (!cronAuth.authorized) {
+    return cronAuth.errorResponse ?? NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const supabase = await createClient()

@@ -41,7 +41,7 @@ All tickets are organized under strategic epics for better planning and tracking
 | [Refactoring](./refactoring/) | Code improvements, modularization | 8 |
 | [Bugs](./bugs/) | Known issues and inconsistencies | 9 |
 | [Performance](./performance/) | Performance optimizations | 6 |
-| [Security](./security/) | Security improvements | 15 |
+| [Security](./security/) | Security improvements | 23 |
 | [Technical Debt](./technical-debt/) | Code cleanup and modernization | 11 |
 | [Race Conditions](./race-conditions/) | Atomicity and concurrency issues | 4 |
 | [Validation](./validation/) | Input validation gaps | 3 |
@@ -53,7 +53,7 @@ All tickets are organized under strategic epics for better planning and tracking
 | [Integrations](./integrations/) | External service integrations | 5 |
 | [User Experience](./user-experience/) | UX improvements | 5 |
 
-**Total Tickets: 139** (includes 13 detailed audit sub-tickets)
+**Total Tickets: 147** (includes 13 detailed audit sub-tickets)
 
 ---
 
@@ -76,6 +76,9 @@ All tickets are organized under strategic epics for better planning and tracking
 | ~~[RACE-001](./race-conditions/RACE-001-subscription-stock-overselling.md)~~ | ~~Stock Decrement Not Atomic in Subscriptions~~ | ~~Race Condition~~ | ~~5h~~ ✓ |
 | ~~[AUDIT-100](./technical-debt/AUDIT-100-mock-availability-route.md)~~ | ~~Mock API Route in Production~~ | ~~Tech Debt~~ | ~~1-2h~~ ✓ |
 | ~~[SEC-014](./security/SEC-014-referrals-apply-missing-auth.md)~~ | ~~Referrals Apply Endpoint Missing Authentication~~ | ~~Security~~ | ~~2-3h~~ ✓ |
+| [SEC-017](./security/SEC-017-open-redirect-oauth-callback.md) | Open Redirect Vulnerability in OAuth Callback | Security | 0.25h |
+| [SEC-018](./security/SEC-018-unvalidated-redirect-login-action.md) | Unvalidated Redirect in Login Server Action | Security | 0.33h |
+| [SEC-019](./security/SEC-019-negative-amount-payment-validation.md) | Missing Negative Amount Validation in Financial Endpoints | Security | 1-2h |
 
 ### P1 - High Priority (Do Soon)
 
@@ -103,7 +106,10 @@ All tickets are organized under strategic epics for better planning and tracking
 | ~~[NOTIF-003](./notifications/NOTIF-003-sms-channel-implementation.md)~~ | ~~SMS Channel~~ (DESCOPED - use WhatsApp) | ~~Notifications~~ | - |
 | ~~[AUDIT-101](./technical-debt/AUDIT-101-god-component-inventory.md)~~ | ~~God Component - Inventory Client~~ | ~~Tech Debt~~ | ~~16-20h~~ ✓ |
 | [SEC-013](./security/SEC-013-prescription-upload-missing-extension-validation.md) | Prescription Upload Missing Extension Validation | Security | 1-2h |
-| [SEC-016](./security/SEC-016-incomplete-timing-safe-cron-migration.md) | Incomplete Timing-Safe Cron Auth Migration | Security | 0.5h |
+| ~~[SEC-016](./security/SEC-016-incomplete-timing-safe-cron-migration.md)~~ | ~~Incomplete Timing-Safe Cron Auth Migration~~ | ~~Security~~ | ~~0.5h~~ ✓ |
+| [SEC-020](./security/SEC-020-clinic-claim-ownership-verification.md) | Missing Clinic Ownership Verification in Claim Flow | Security | 4-6h |
+| [SEC-022](./security/SEC-022-invoice-discount-bounds-validation.md) | Missing Discount Percentage Bounds Validation | Security | 0.5h |
+| [SEC-023](./security/SEC-023-payment-method-tenant-verification.md) | Payment Method Missing Tenant Verification in Auto-charge | Security | 0.75h |
 
 ### P2 - Medium Priority (Next Sprint)
 
@@ -127,6 +133,7 @@ All tickets are organized under strategic epics for better planning and tracking
 | ~~[SEC-011](./completed/security/SEC-011-server-action-rate-limiting.md)~~ | ~~Server Action Rate Limiting~~ | ~~Security~~ | ~~3-4h~~ ✓ |
 | ~~[SEC-012](./completed/security/SEC-012-missing-html-sanitization.md)~~ | ~~Missing HTML Sanitization~~ | ~~Security~~ | ~~2-3h~~ ✓ |
 | [SEC-015](./security/SEC-015-message-attachments-tenant-isolation-gap.md) | Message Attachments Missing Tenant Isolation for Staff | Security | 1h |
+| [SEC-021](./security/SEC-021-weak-password-inconsistency.md) | Inconsistent Password Requirements Across Auth Flows | Security | 1h |
 | ~~[RACE-003](./race-conditions/RACE-003-appointment-status-toctou.md)~~ | ~~Appointment Status TOCTOU~~ | ~~Race Condition~~ | ~~5h~~ ✓ |
 | ~~[RACE-004](./race-conditions/RACE-004-cart-reservation-fallback.md)~~ | ~~Cart Reservation Fallback~~ | ~~Race Condition~~ | ~~8h~~ ✓ |
 | ~~[PERF-003](./performance/PERF-003-batch-sales-increment.md)~~ | ~~Batch Sales Increment~~ | ~~Performance~~ | ~~3h~~ ✓ |
@@ -321,7 +328,7 @@ All completed tickets are archived in the [completed/](./completed/) folder, org
 | Integrations | 5 | 72h |
 | User Experience | 5 | 56h |
 | Performance | 2 | 14h |
-| Security | 3 | ~5h |
+| Security | 11 | ~14h |
 | Bugs | 2 | ~1.5h |
 | WIP | 0 | 0h |
 
@@ -331,8 +338,8 @@ All completed tickets are archived in the [completed/](./completed/) folder, org
 
 | Priority | Tickets | Hours |
 |----------|---------|-------|
-| P0 | 1 | ~2-3h |
-| P1 | 2 | ~16h |
+| P0 | 4 | ~4h |
+| P1 | 6 | ~22h |
 | P2 | 40 | ~534h |
 | P3 | 19 | ~107h + 13 weeks |
 

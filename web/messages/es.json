@@ -1114,6 +1114,27 @@
         "undo": "Deshacer",
         "redo": "Rehacer"
       }
+    },
+    "globalSearch": {
+      "searchPlaceholder": "Buscar...",
+      "searchPrompt": "Buscar clientes, mascotas, citas...",
+      "clearSearch": "Limpiar búsqueda",
+      "recent": "Búsquedas Recientes",
+      "noResults": "No se encontraron resultados",
+      "tryOther": "Intenta con otros términos de búsqueda",
+      "startSearch": "Escribe para buscar",
+      "types": {
+        "client": "Cliente",
+        "pet": "Mascota",
+        "appointment": "Cita",
+        "invoice": "Factura",
+        "product": "Producto"
+      },
+      "footer": {
+        "navigate": "navegar",
+        "select": "seleccionar",
+        "close": "cerrar"
+      }
     }
   },
   "petSelector": {

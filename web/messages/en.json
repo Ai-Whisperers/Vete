@@ -1114,6 +1114,27 @@
         "undo": "Undo",
         "redo": "Redo"
       }
+    },
+    "globalSearch": {
+      "searchPlaceholder": "Search...",
+      "searchPrompt": "Search clients, pets, appointments...",
+      "clearSearch": "Clear search",
+      "recent": "Recent Searches",
+      "noResults": "No results found",
+      "tryOther": "Try other search terms",
+      "startSearch": "Type to search",
+      "types": {
+        "client": "Client",
+        "pet": "Pet",
+        "appointment": "Appointment",
+        "invoice": "Invoice",
+        "product": "Product"
+      },
+      "footer": {
+        "navigate": "navigate",
+        "select": "select",
+        "close": "close"
+      }
     }
   },
   "petSelector": {

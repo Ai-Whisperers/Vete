@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { LogOut, Loader2 } from 'lucide-react'
 import type { User as SupabaseUser } from '@supabase/supabase-js'
 import type { ClinicConfig } from '@/lib/clinics'
@@ -26,6 +27,9 @@ export function UserMenu({
   logoutError,
   handleLogout,
 }: Readonly<UserMenuProps>) {
+  const tNav = useTranslations('nav')
+  const tAuth = useTranslations('auth')
+
   // Show loading skeleton while checking auth to prevent flash of wrong state
   if (isLoading) {
     return (
@@ -46,8 +50,8 @@ export function UserMenu({
         }`}
       >
         {user
-          ? config.ui_labels?.nav.my_account || 'Mi Portal'
-          : config.ui_labels?.nav.login || 'Iniciar Sesión'}
+          ? config.ui_labels?.nav.my_account || tNav('portal')
+          : config.ui_labels?.nav.login || tAuth('login')}
         <span
           className={`absolute -bottom-1 left-0 h-0.5 bg-[var(--primary)] transition-all duration-300 ${
             isActive(`/${clinic}/portal`) ? 'w-full' : 'w-0 group-hover:w-full'
@@ -61,8 +65,8 @@ export function UserMenu({
             onClick={handleLogout}
             disabled={isLoggingOut}
             className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg p-2 text-[var(--text-secondary)] transition-colors hover:bg-[var(--status-error-bg,#fef2f2)] hover:text-[var(--status-error,#dc2626)] disabled:opacity-50"
-            title="Cerrar sesión"
-            aria-label="Cerrar sesión"
+            title={tAuth('logout')}
+            aria-label={tAuth('logout')}
           >
             <LogOut className="h-5 w-5" aria-hidden="true" />
           </button>

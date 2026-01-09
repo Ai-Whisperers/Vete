@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { ClinicConfig } from '@/lib/clinics'
 import { ShoppingCart, Home, Briefcase, Users, Store } from 'lucide-react'
 import { NotificationBell } from './notification-bell'
@@ -23,33 +24,35 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
   const { itemCount } = useCart()
   const { user, profile, isLoading, isLoggingOut, logoutError, handleLogout } = useNavAuth(clinic)
   const currentLocale = useLocale()
+  const tNav = useTranslations('nav')
+  const tStore = useTranslations('store')
 
   const navItems: NavItem[] = [
     {
-      label: config.ui_labels?.nav.home || 'Inicio',
+      label: config.ui_labels?.nav.home || tNav('home'),
       href: `/${clinic}`,
       exact: true,
       icon: Home,
     },
     {
-      label: config.ui_labels?.nav.services || 'Servicios',
+      label: config.ui_labels?.nav.services || tNav('services'),
       href: `/${clinic}/services`,
       icon: Briefcase,
     },
     {
-      label: config.ui_labels?.nav.about || 'Nosotros',
+      label: config.ui_labels?.nav.about || tNav('about'),
       href: `/${clinic}/about`,
       icon: Users,
     },
     {
-      label: config.ui_labels?.nav.store || 'Tienda',
+      label: config.ui_labels?.nav.store || tNav('store'),
       href: `/${clinic}/store`,
       icon: Store,
     },
     ...(profile?.role === 'admin' || profile?.role === 'vet'
       ? [
           {
-            label: 'Inventario',
+            label: tNav('inventory'),
             href: `/${clinic}/portal/inventory`,
             icon: Briefcase,
           },
@@ -64,7 +67,7 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
 
   return (
     <>
-      <nav className="hidden items-center gap-8 md:flex" aria-label="Navegación principal">
+      <nav className="hidden items-center gap-8 md:flex" aria-label={tNav('mainNavigation')}>
         {navItems.map((item) => (
           <Link
             key={item.href}
@@ -106,15 +109,15 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
             className="relative flex min-h-[44px] min-w-[44px] items-center justify-center p-2 text-[var(--text-secondary)] transition-colors hover:text-[var(--primary)]"
             aria-label={
               itemCount > 0
-                ? `Carrito de compras (${itemCount} ${itemCount === 1 ? 'artículo' : 'artículos'})`
-                : 'Carrito de compras'
+                ? tStore('cartWithItems', { count: itemCount })
+                : tStore('cartLabel')
             }
           >
             <ShoppingCart className="h-6 w-6" aria-hidden="true" />
             {itemCount > 0 && (
               <span
                 className="absolute right-0 top-0 flex h-5 w-5 items-center justify-center rounded-full bg-[var(--status-error,#dc2626)] text-xs font-bold text-white"
-                aria-label={`${itemCount} ${itemCount === 1 ? 'artículo' : 'artículos'} en el carrito`}
+                aria-hidden="true"
               >
                 {itemCount}
               </span>
@@ -135,15 +138,15 @@ export function MainNav({ clinic, config }: Readonly<MainNavProps>) {
             className="relative flex min-h-[44px] min-w-[44px] items-center justify-center p-2 text-[var(--primary)]"
             aria-label={
               itemCount > 0
-                ? `Carrito de compras (${itemCount} ${itemCount === 1 ? 'artículo' : 'artículos'})`
-                : 'Carrito de compras'
+                ? tStore('cartWithItems', { count: itemCount })
+                : tStore('cartLabel')
             }
           >
             <ShoppingCart className="h-6 w-6" aria-hidden="true" />
             {itemCount > 0 && (
               <span
                 className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-[var(--status-error,#dc2626)] text-xs font-bold text-white"
-                aria-label={`${itemCount} ${itemCount === 1 ? 'artículo' : 'artículos'} en el carrito`}
+                aria-hidden="true"
               >
                 {itemCount}
               </span>

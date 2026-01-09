@@ -37,6 +37,7 @@
   "auth": {
     "login": "Log in",
     "logout": "Log out",
+    "myAccount": "My Account",
     "register": "Sign up",
     "email": "Email",
     "password": "Password",
@@ -60,7 +61,25 @@
     "appointments": "Appointments",
     "pets": "Pets",
     "profile": "Profile",
-    "settings": "Settings"
+    "settings": "Settings",
+    "inventory": "Inventory",
+    "mainNavigation": "Main navigation",
+    "menu": "Menu",
+    "navigation": "Navigation",
+    "tools": "Tools",
+    "language": "Language",
+    "staff": "Staff",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "navigationMenu": "Navigation menu",
+    "bookAppointment": "Book Appointment",
+    "myPets": "My Pets",
+    "myProfile": "My Profile",
+    "emergency": "24h Emergency",
+    "ageCalculator": "Age Calculator",
+    "toxicFood": "Toxic Food",
+    "faq": "FAQ",
+    "user": "User"
   },
   "pets": {
     "title": "Pets",
@@ -155,6 +174,8 @@
       "approved": "Prescription approved",
       "rejected": "Prescription rejected"
     },
+    "cartLabel": "Shopping cart",
+    "cartWithItems": "Shopping cart ({count, plural, one {# item} other {# items}})",
     "wishlist": "Wishlist",
     "addToWishlist": "Add to wishlist",
     "removeFromWishlist": "Remove from wishlist",

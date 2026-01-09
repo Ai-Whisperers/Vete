@@ -1,3 +1,6 @@
+'use client'
+
+import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { Calendar, Clock, CalendarPlus, ArrowRight } from 'lucide-react'
 
@@ -14,7 +17,7 @@ interface UpcomingAppointmentsCardProps {
   clinic: string
 }
 
-function AppointmentRow({ appointment }: { appointment: Appointment }): React.ReactElement {
+function AppointmentRow({ appointment, t }: { appointment: Appointment; t: (key: string) => string }): React.ReactElement {
   const date = new Date(appointment.start_time)
   const formattedDate = date.toLocaleDateString('es-PY', {
     weekday: 'short',
@@ -33,9 +36,9 @@ function AppointmentRow({ appointment }: { appointment: Appointment }): React.Re
   }
 
   const statusLabels: Record<string, string> = {
-    scheduled: 'Programada',
-    confirmed: 'Confirmada',
-    checked_in: 'En espera',
+    scheduled: t('statusScheduled'),
+    confirmed: t('statusConfirmed'),
+    checked_in: t('statusCheckedIn'),
   }
 
   return (
@@ -43,7 +46,7 @@ function AppointmentRow({ appointment }: { appointment: Appointment }): React.Re
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
           <p className="truncate font-medium text-[var(--text-primary)]">
-            {appointment.pets?.name || 'Cita'}
+            {appointment.pets?.name || t('appointment')}
           </p>
           <p className="text-sm text-[var(--text-secondary)]">{appointment.reason}</p>
         </div>
@@ -71,6 +74,7 @@ export function UpcomingAppointmentsCard({
   appointments,
   clinic,
 }: UpcomingAppointmentsCardProps): React.ReactElement {
+  const t = useTranslations('portal.upcomingAppointments')
   const upcomingAppointments = appointments.slice(0, 3)
 
   return (
@@ -78,14 +82,14 @@ export function UpcomingAppointmentsCard({
       <div className="mb-4 flex items-center justify-between">
         <h3 className="flex items-center gap-2 font-bold text-[var(--text-primary)]">
           <Calendar className="h-5 w-5 text-[var(--primary)]" />
-          Próximas Citas
+          {t('title')}
         </h3>
         {appointments.length > 3 && (
           <Link
             href={`/${clinic}/portal/appointments`}
             className="text-xs font-medium text-[var(--primary)] hover:underline"
           >
-            Ver todas
+            {t('viewAll')}
           </Link>
         )}
       </div>
@@ -93,12 +97,12 @@ export function UpcomingAppointmentsCard({
       {upcomingAppointments.length === 0 ? (
         <div className="py-4 text-center">
           <Calendar className="mx-auto mb-2 h-8 w-8 text-[var(--text-muted)]" />
-          <p className="text-sm text-[var(--text-secondary)]">No tienes citas programadas</p>
+          <p className="text-sm text-[var(--text-secondary)]">{t('noAppointments')}</p>
         </div>
       ) : (
         <div className="space-y-2">
           {upcomingAppointments.map((apt) => (
-            <AppointmentRow key={apt.id} appointment={apt} />
+            <AppointmentRow key={apt.id} appointment={apt} t={t} />
           ))}
         </div>
       )}
@@ -108,7 +112,7 @@ export function UpcomingAppointmentsCard({
         className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[var(--primary-dark)]"
       >
         <CalendarPlus className="h-4 w-4" />
-        Agendar Nueva Cita
+        {t('bookNew')}
       </Link>
     </div>
   )

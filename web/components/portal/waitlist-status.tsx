@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import {
   Clock,
   Calendar,
@@ -36,6 +37,7 @@ export function WaitlistStatus(): React.ReactElement {
   const params = useParams()
   const clinic = params?.clinic as string
   const { toast } = useToast()
+  const t = useTranslations('portal.waitlist')
 
   const [entries, setEntries] = useState<WaitlistEntry[]>([])
   const [loading, setLoading] = useState(true)
@@ -44,7 +46,7 @@ export function WaitlistStatus(): React.ReactElement {
   const fetchEntries = async () => {
     try {
       const res = await fetch('/api/appointments/waitlist?status=waiting,offered')
-      if (!res.ok) throw new Error('Error al cargar')
+      if (!res.ok) throw new Error(t('errorLoading'))
       const data = await res.json()
       setEntries(data.waitlist || [])
     } catch (error) {
@@ -70,18 +72,18 @@ export function WaitlistStatus(): React.ReactElement {
 
       if (!res.ok) {
         const data = await res.json()
-        throw new Error(data.error || 'Error al aceptar')
+        throw new Error(data.error || t('errorAccept'))
       }
 
       toast({
-        title: '¡Cita confirmada!',
-        description: 'Tu cita ha sido reservada exitosamente.',
+        title: t('appointmentConfirmed'),
+        description: t('appointmentConfirmedDesc'),
       })
       fetchEntries()
     } catch (error) {
       toast({
         title: 'Error',
-        description: error instanceof Error ? error.message : 'No se pudo aceptar',
+        description: error instanceof Error ? error.message : t('errorAccept'),
         variant: 'destructive',
       })
     } finally {
@@ -98,18 +100,18 @@ export function WaitlistStatus(): React.ReactElement {
 
       if (!res.ok) {
         const data = await res.json()
-        throw new Error(data.error || 'Error al rechazar')
+        throw new Error(data.error || t('errorDecline'))
       }
 
       toast({
-        title: 'Oferta rechazada',
-        description: 'Se notificará a la siguiente persona.',
+        title: t('offerDeclined'),
+        description: t('offerDeclinedDesc'),
       })
       fetchEntries()
     } catch (error) {
       toast({
         title: 'Error',
-        description: error instanceof Error ? error.message : 'No se pudo rechazar',
+        description: error instanceof Error ? error.message : t('errorDecline'),
         variant: 'destructive',
       })
     } finally {
@@ -118,7 +120,7 @@ export function WaitlistStatus(): React.ReactElement {
   }
 
   const handleCancel = async (entryId: string) => {
-    if (!confirm('¿Seguro que quieres salir de la lista de espera?')) return
+    if (!confirm(t('confirmLeave'))) return
 
     setActionLoading(entryId)
     try {
@@ -128,18 +130,18 @@ export function WaitlistStatus(): React.ReactElement {
 
       if (!res.ok) {
         const data = await res.json()
-        throw new Error(data.error || 'Error al cancelar')
+        throw new Error(data.error || t('errorCancel'))
       }
 
       toast({
-        title: 'Eliminado de la lista',
-        description: 'Has salido de la lista de espera.',
+        title: t('removedFromList'),
+        description: t('removedFromListDesc'),
       })
       fetchEntries()
     } catch (error) {
       toast({
         title: 'Error',
-        description: error instanceof Error ? error.message : 'No se pudo cancelar',
+        description: error instanceof Error ? error.message : t('errorCancel'),
         variant: 'destructive',
       })
     } finally {
@@ -164,13 +166,13 @@ export function WaitlistStatus(): React.ReactElement {
 
   const getTimeRemaining = (expiresAt: string): string => {
     const diff = new Date(expiresAt).getTime() - Date.now()
-    if (diff <= 0) return 'Expirado'
+    if (diff <= 0) return t('expired')
 
     const hours = Math.floor(diff / (1000 * 60 * 60))
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
 
-    if (hours > 0) return `${hours}h ${minutes}m restantes`
-    return `${minutes} minutos restantes`
+    if (hours > 0) return t('timeRemaining', { hours, minutes })
+    return t('minutesRemaining', { minutes })
   }
 
   if (loading) {
@@ -186,10 +188,10 @@ export function WaitlistStatus(): React.ReactElement {
       <div className="rounded-xl border border-gray-200 bg-gray-50 p-6 text-center">
         <Clock className="mx-auto h-10 w-10 text-gray-400" />
         <p className="mt-3 font-medium text-gray-600">
-          No estás en ninguna lista de espera
+          {t('notInWaitlist')}
         </p>
         <p className="mt-1 text-sm text-gray-500">
-          Si no hay citas disponibles, puedes unirte a la lista de espera
+          {t('notInWaitlistDesc')}
         </p>
       </div>
     )
@@ -198,7 +200,7 @@ export function WaitlistStatus(): React.ReactElement {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="font-bold text-[var(--text-primary)]">Lista de Espera</h3>
+        <h3 className="font-bold text-[var(--text-primary)]">{t('title')}</h3>
         <button
           onClick={fetchEntries}
           className="rounded-lg p-2 text-gray-500 hover:bg-gray-100"
@@ -224,7 +226,7 @@ export function WaitlistStatus(): React.ReactElement {
             {isOffer && (
               <div className="mb-3 flex items-center gap-2 rounded-lg bg-[var(--status-success-bg)] px-3 py-2 text-sm font-medium text-[var(--status-success-text)]">
                 <CheckCircle className="h-4 w-4" />
-                ¡Hay una cita disponible para ti!
+                {t('appointmentAvailable')}
                 {entry.offer_expires_at && (
                   <span className="ml-auto flex items-center gap-1 text-xs">
                     <Timer className="h-3 w-3" />
@@ -267,7 +269,7 @@ export function WaitlistStatus(): React.ReactElement {
                   )}
                   {!isOffer && (
                     <span className="rounded bg-[var(--status-warning-bg)] px-2 py-0.5 text-xs font-medium text-[var(--status-warning-text)]">
-                      Posición #{entry.position}
+                      {t('position', { position: entry.position })}
                     </span>
                   )}
                 </div>
@@ -288,7 +290,7 @@ export function WaitlistStatus(): React.ReactElement {
                     ) : (
                       <CheckCircle className="h-4 w-4" />
                     )}
-                    Aceptar
+                    {t('accept')}
                   </button>
                   <button
                     onClick={() => handleDecline(entry.id)}
@@ -300,7 +302,7 @@ export function WaitlistStatus(): React.ReactElement {
                     ) : (
                       <XCircle className="h-4 w-4" />
                     )}
-                    Rechazar
+                    {t('decline')}
                   </button>
                 </>
               ) : (
@@ -314,7 +316,7 @@ export function WaitlistStatus(): React.ReactElement {
                   ) : (
                     <XCircle className="h-4 w-4" />
                   )}
-                  Salir de la lista
+                  {t('leaveList')}
                 </button>
               )}
             </div>

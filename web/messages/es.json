@@ -1156,6 +1156,57 @@
         "photoDoc": "Foto/Documento",
         "messageOwner": "Mensaje a Dueño"
       }
+    },
+    "bulkMessaging": {
+      "title": "Mensajes Masivos",
+      "steps": {
+        "select": "Selecciona los destinatarios",
+        "compose": "Redacta tu mensaje",
+        "review": "Revisa y envía",
+        "sending": "Enviando..."
+      },
+      "filters": {
+        "all": "Todos los clientes",
+        "vip": "Clientes VIP",
+        "recent": "Visita reciente (30 días)",
+        "inactive": "Sin visita (90+ días)",
+        "criadero": "Criaderos",
+        "rescate": "Rescates"
+      },
+      "channel": "Canal de envío",
+      "channels": {
+        "whatsapp": "WhatsApp",
+        "email": "Email",
+        "sms": "SMS"
+      },
+      "template": "Plantilla",
+      "templates": {
+        "reminder": "Recordatorio de Vacuna",
+        "promo": "Promoción Especial",
+        "checkup": "Chequeo Anual",
+        "custom": "Mensaje Personalizado"
+      },
+      "templateMessages": {
+        "reminder": "Hola {nombre}, te recordamos que {mascota} tiene una vacuna pendiente. ¡Agenda tu cita!",
+        "promo": "Hola {nombre}, este mes tenemos 20% de descuento en baños y cortes. ¡Te esperamos!",
+        "checkup": "Hola {nombre}, ha pasado un año desde el último chequeo de {mascota}. Es hora de una revisión."
+      },
+      "message": "Mensaje",
+      "variablesHint": "Variables disponibles: {nombre}, {mascota}, {fecha}",
+      "searchPlaceholder": "Buscar por nombre, email o teléfono...",
+      "selectedCount": "{count} seleccionados de {total}",
+      "selectAll": "Seleccionar todos",
+      "clear": "Limpiar",
+      "continueWith": "Continuar con {count} destinatarios",
+      "confirmSend": "Confirma antes de enviar",
+      "sendWarning": "Este mensaje se enviará a {count} clientes. Esta acción no se puede deshacer.",
+      "send": "Enviar Mensajes",
+      "completed": "¡Envío completado!",
+      "sentCount": "{success} enviados correctamente",
+      "failedCount": "{failed} fallidos",
+      "clientLabel": "Cliente",
+      "channelLabel": "Canal",
+      "messageLabel": "Mensaje"
     }
   },
   "petSelector": {

@@ -1156,6 +1156,57 @@
         "photoDoc": "Photo/Document",
         "messageOwner": "Message Owner"
       }
+    },
+    "bulkMessaging": {
+      "title": "Bulk Messaging",
+      "steps": {
+        "select": "Select recipients",
+        "compose": "Compose your message",
+        "review": "Review and send",
+        "sending": "Sending..."
+      },
+      "filters": {
+        "all": "All clients",
+        "vip": "VIP Clients",
+        "recent": "Recent visit (30 days)",
+        "inactive": "No visit (90+ days)",
+        "criadero": "Breeders",
+        "rescate": "Rescues"
+      },
+      "channel": "Channel",
+      "channels": {
+        "whatsapp": "WhatsApp",
+        "email": "Email",
+        "sms": "SMS"
+      },
+      "template": "Template",
+      "templates": {
+        "reminder": "Vaccine Reminder",
+        "promo": "Special Promotion",
+        "checkup": "Annual Checkup",
+        "custom": "Custom Message"
+      },
+      "templateMessages": {
+        "reminder": "Hi {nombre}, we remind you that {mascota} has a pending vaccine. Schedule your appointment!",
+        "promo": "Hi {nombre}, this month we have 20% off on baths and haircuts. We're waiting for you!",
+        "checkup": "Hi {nombre}, it's been a year since {mascota}'s last checkup. Time for a review."
+      },
+      "message": "Message",
+      "variablesHint": "Available variables: {nombre}, {mascota}, {fecha}",
+      "searchPlaceholder": "Search by name, email or phone...",
+      "selectedCount": "{count} selected of {total}",
+      "selectAll": "Select all",
+      "clear": "Clear",
+      "continueWith": "Continue with {count} recipients",
+      "confirmSend": "Confirm before sending",
+      "sendWarning": "This message will be sent to {count} clients. This action cannot be undone.",
+      "send": "Send Messages",
+      "completed": "Sending completed!",
+      "sentCount": "{success} sent successfully",
+      "failedCount": "{failed} failed",
+      "clientLabel": "Client",
+      "channelLabel": "Channel",
+      "messageLabel": "Message"
     }
   },
   "petSelector": {

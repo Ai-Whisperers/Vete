@@ -62,6 +62,8 @@ Add support for multiple languages (starting with English) to expand the platfor
   - `components/cart/cart-drawer.tsx` - title, aria labels, empty state, services/products sections, footer, confirmation dialog
   - `components/cart/cart-item.tsx` - schedule buttons, stock warnings, quantity controls, pet info, variant display
   - `components/cart/add-to-cart-button.tsx` - default labels via translations, stock warning messages
+  - `components/cart/service-group.tsx` - pet count, quantity controls, remove buttons, schedule, remove all
+  - `components/cart/pet-service-group.tsx` - service count, subtotal, adjusted by size, price each, remove labels
 - ✅ Translation namespaces expanded:
   - `home` namespace (10 keys)
   - `about` namespace (23 keys)
@@ -81,10 +83,10 @@ Add support for multiple languages (starting with English) to expand the platfor
   - `portal.upcomingAppointments` namespace (8 keys)
   - `portal.invoiceActions` namespace (18 keys)
   - `portal.mobileNav` namespace (9 keys)
-  - `cart` namespace (44 keys)
+  - `cart` namespace (56 keys)
 
 **Remaining Work:**
-- ~125 components still use hardcoded Spanish strings
+- ~120 components still use hardcoded Spanish strings
 - JSON-CMS content in Spanish only
 - No URL-based routing (`/es/adris`, `/en/adris`)
 
@@ -208,8 +210,8 @@ Add language variants to clinic content:
 - Testing: 8 hours
 
 **Remaining Work (~10 hours):**
-- Component migration to useTranslations: 4 hours (~125 components remaining)
+- Component migration to useTranslations: 4 hours (~120 components remaining)
 - JSON-CMS language variants: 4 hours
 - URL routing implementation: 2 hours
 
-**Progress: 79% complete (Infrastructure + Navigation + Public pages + Booking + Portal (full) + Services + Pet profile + Store + Dashboard + Pet selectors + Layout + Cart done)**
+**Progress: 80% complete (Infrastructure + Navigation + Public pages + Booking + Portal (full) + Services + Pet profile + Store + Dashboard + Pet selectors + Layout + Cart (all) done)**

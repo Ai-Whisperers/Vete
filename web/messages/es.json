@@ -219,6 +219,20 @@
       "confirmMessage": "Esta acción no se puede deshacer. Se eliminarán todos los registros asociados.",
       "cancel": "Cancelar",
       "confirm": "Sí, Eliminar"
+    },
+    "weightRecording": {
+      "title": "Registrar Peso",
+      "currentWeight": "Peso actual:",
+      "newWeight": "Nuevo Peso (kg)",
+      "notes": "Notas (opcional)",
+      "weightPlaceholder": "Ej: 5.5",
+      "notesPlaceholder": "Ej: Pesado después del baño",
+      "cancel": "Cancelar",
+      "save": "Guardar",
+      "saving": "Guardando...",
+      "invalidWeight": "Ingresa un peso válido",
+      "maxWeightError": "El peso máximo permitido es 500 kg",
+      "saveError": "Error al guardar el peso"
     }
   },
   "portal": {
@@ -625,6 +639,11 @@
       "protocolCore": "Obligatoria",
       "protocolRecommended": "Recomendada",
       "prevents": "Previene:"
+    },
+    "reactionAlert": {
+      "title": "¡Alerta de Reacción Alérgica!",
+      "description": "Este paciente ha presentado reacciones adversas en aplicaciones previas:",
+      "warning": "Extremar precauciones antes de cualquier nueva aplicación."
     }
   },
   "store": {

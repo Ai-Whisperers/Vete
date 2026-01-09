@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { X, Weight, Loader2 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 
 interface WeightRecordingModalProps {
   petId: string
@@ -20,6 +21,7 @@ export function WeightRecordingModal({
   onClose,
   onSuccess,
 }: WeightRecordingModalProps) {
+  const t = useTranslations('pets.weightRecording')
   const [weight, setWeight] = useState<string>(currentWeight?.toString() || '')
   const [notes, setNotes] = useState<string>('')
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -33,12 +35,12 @@ export function WeightRecordingModal({
 
     const weightValue = parseFloat(weight)
     if (isNaN(weightValue) || weightValue <= 0) {
-      setError('Ingresa un peso válido')
+      setError(t('invalidWeight'))
       return
     }
 
     if (weightValue > 500) {
-      setError('El peso máximo permitido es 500 kg')
+      setError(t('maxWeightError'))
       return
     }
 
@@ -56,7 +58,7 @@ export function WeightRecordingModal({
 
       if (!response.ok) {
         const data = await response.json()
-        throw new Error(data.error || 'Error al guardar el peso')
+        throw new Error(data.error || t('saveError'))
       }
 
       onSuccess(weightValue)
@@ -67,7 +69,7 @@ export function WeightRecordingModal({
       // Force page refresh to update server data
       window.location.reload()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al guardar el peso')
+      setError(err instanceof Error ? err.message : t('saveError'))
     } finally {
       setIsSubmitting(false)
     }
@@ -83,7 +85,7 @@ export function WeightRecordingModal({
               <Weight className="h-5 w-5 text-[var(--primary)]" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-[var(--text-primary)]">Registrar Peso</h2>
+              <h2 className="text-lg font-bold text-[var(--text-primary)]">{t('title')}</h2>
               <p className="text-sm text-gray-500">{petName}</p>
             </div>
           </div>
@@ -101,7 +103,7 @@ export function WeightRecordingModal({
           {currentWeight && (
             <div className="rounded-lg bg-gray-50 p-3">
               <p className="text-sm text-gray-500">
-                Peso actual: <span className="font-semibold text-gray-700">{currentWeight} kg</span>
+                {t('currentWeight')} <span className="font-semibold text-gray-700">{currentWeight} kg</span>
               </p>
             </div>
           )}
@@ -112,7 +114,7 @@ export function WeightRecordingModal({
               htmlFor="weight"
               className="mb-1.5 block text-sm font-medium text-[var(--text-primary)]"
             >
-              Nuevo Peso (kg)
+              {t('newWeight')}
             </label>
             <div className="relative">
               <input
@@ -123,7 +125,7 @@ export function WeightRecordingModal({
                 step="0.01"
                 min="0.01"
                 max="500"
-                placeholder="Ej: 5.5"
+                placeholder={t('weightPlaceholder')}
                 className="w-full rounded-lg border border-gray-200 px-4 py-3 pr-12 text-lg font-semibold transition-colors focus:border-[var(--primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/20"
                 autoFocus
                 required
@@ -138,13 +140,13 @@ export function WeightRecordingModal({
               htmlFor="notes"
               className="mb-1.5 block text-sm font-medium text-[var(--text-primary)]"
             >
-              Notas (opcional)
+              {t('notes')}
             </label>
             <textarea
               id="notes"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="Ej: Pesado después del baño"
+              placeholder={t('notesPlaceholder')}
               rows={2}
               maxLength={500}
               className="w-full resize-none rounded-lg border border-gray-200 px-4 py-3 text-sm transition-colors focus:border-[var(--primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/20"
@@ -166,7 +168,7 @@ export function WeightRecordingModal({
               disabled={isSubmitting}
               className="flex-1 rounded-lg border border-gray-200 py-3 font-medium text-gray-600 transition-colors hover:bg-gray-50 disabled:opacity-50"
             >
-              Cancelar
+              {t('cancel')}
             </button>
             <button
               type="submit"
@@ -176,10 +178,10 @@ export function WeightRecordingModal({
               {isSubmitting ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Guardando...
+                  {t('saving')}
                 </>
               ) : (
-                'Guardar'
+                t('save')
               )}
             </button>
           </div>

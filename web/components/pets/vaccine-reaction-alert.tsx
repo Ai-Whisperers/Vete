@@ -1,6 +1,7 @@
 'use client'
 
 import * as Icons from 'lucide-react'
+import { useTranslations, useLocale } from 'next-intl'
 
 interface VaccineReaction {
   id: string
@@ -13,6 +14,10 @@ interface VaccineReactionAlertProps {
 }
 
 export function VaccineReactionAlert({ reactions }: VaccineReactionAlertProps) {
+  const t = useTranslations('vaccines.reactionAlert')
+  const locale = useLocale()
+  const localeStr = locale === 'es' ? 'es-PY' : 'en-US'
+
   if (!reactions || reactions.length === 0) return null
 
   return (
@@ -21,22 +26,22 @@ export function VaccineReactionAlert({ reactions }: VaccineReactionAlertProps) {
         <Icons.AlertTriangle className="h-8 w-8" />
       </div>
       <div className="flex-1">
-        <h3 className="text-xl font-black text-[var(--status-error-text)]">¡Alerta de Reacción Alérgica!</h3>
+        <h3 className="text-xl font-black text-[var(--status-error-text)]">{t('title')}</h3>
         <p className="font-medium leading-relaxed text-[var(--status-error-text)]">
-          Este paciente ha presentado reacciones adversas en aplicaciones previas:
+          {t('description')}
         </p>
         <ul className="mt-2 space-y-1">
           {reactions.map((r) => (
             <li key={r.id} className="flex items-center gap-2 font-black text-[var(--status-error-text)]">
               • {r.reaction_detail}{' '}
               <span className="text-xs font-medium opacity-50">
-                ({new Date(r.occurred_at).toLocaleDateString()})
+                ({new Date(r.occurred_at).toLocaleDateString(localeStr)})
               </span>
             </li>
           ))}
         </ul>
         <p className="mt-3 text-xs font-black uppercase tracking-widest text-[var(--status-error-text)]">
-          Extremar precauciones antes de cualquier nueva aplicación.
+          {t('warning')}
         </p>
       </div>
     </div>

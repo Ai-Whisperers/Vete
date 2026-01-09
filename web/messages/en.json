@@ -219,6 +219,20 @@
       "confirmMessage": "This action cannot be undone. All associated records will be deleted.",
       "cancel": "Cancel",
       "confirm": "Yes, Delete"
+    },
+    "weightRecording": {
+      "title": "Record Weight",
+      "currentWeight": "Current weight:",
+      "newWeight": "New Weight (kg)",
+      "notes": "Notes (optional)",
+      "weightPlaceholder": "e.g., 5.5",
+      "notesPlaceholder": "e.g., Weighed after bath",
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving...",
+      "invalidWeight": "Enter a valid weight",
+      "maxWeightError": "Maximum allowed weight is 500 kg",
+      "saveError": "Error saving weight"
     }
   },
   "portal": {
@@ -625,6 +639,11 @@
       "protocolCore": "Required",
       "protocolRecommended": "Recommended",
       "prevents": "Prevents:"
+    },
+    "reactionAlert": {
+      "title": "Allergic Reaction Alert!",
+      "description": "This patient has had adverse reactions to previous applications:",
+      "warning": "Use extreme caution before any new application."
     }
   },
   "store": {

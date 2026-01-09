@@ -6,6 +6,21 @@ import { LIMITS, formatFileSize } from '@/lib/constants'
 
 const ALLOWED_TYPES = ['application/pdf', 'image/jpeg', 'image/png']
 
+// SEC-013: Whitelist of allowed file extensions (prevents path traversal and dangerous extensions)
+const ALLOWED_EXTENSIONS = ['pdf', 'jpg', 'jpeg', 'png']
+
+/**
+ * Validates file extension against whitelist
+ * Returns normalized lowercase extension or null if invalid
+ */
+function validateExtension(filename: string): string | null {
+  const extension = filename.split('.').pop()?.toLowerCase()
+  if (!extension || !ALLOWED_EXTENSIONS.includes(extension)) {
+    return null
+  }
+  return extension
+}
+
 /**
  * POST /api/store/prescriptions/upload
  * Upload a prescription file to Supabase Storage
@@ -36,16 +51,23 @@ export const POST = withApiAuth(async ({ request, user, profile, supabase }: Api
       })
     }
 
+    // SEC-013: Validate file extension against whitelist
+    const validExtension = validateExtension(file.name)
+    if (!validExtension) {
+      return apiError('INVALID_FILE_TYPE', HTTP_STATUS.BAD_REQUEST, {
+        details: { message: 'Extensión de archivo no permitida. Use PDF, JPG o PNG' },
+      })
+    }
+
     // Generate unique filename
     const timestamp = Date.now()
-    const extension = file.name.split('.').pop() || 'pdf'
     const safeName = file.name
       .replace(/\.[^/.]+$/, '') // Remove extension
       .replace(/[^a-zA-Z0-9]/g, '_') // Replace special chars
       .substring(0, 50) // Limit length
 
     // Build path: prescriptions/{tenant_id}/{user_id}/{timestamp}_{filename}.{ext}
-    const filePath = `prescriptions/${profile.tenant_id}/${user.id}/${timestamp}_${safeName}.${extension}`
+    const filePath = `prescriptions/${profile.tenant_id}/${user.id}/${timestamp}_${safeName}.${validExtension}`
 
     // Convert File to ArrayBuffer
     const arrayBuffer = await file.arrayBuffer()

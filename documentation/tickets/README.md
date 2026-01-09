@@ -105,7 +105,7 @@ All tickets are organized under strategic epics for better planning and tracking
 | ~~[BUG-005](./bugs/BUG-005-duplicate-checkout-path.md)~~ | ~~Duplicate Checkout Path Without Stock Validation~~ | ~~Bug~~ | ~~2-3h~~ ✓ |
 | ~~[NOTIF-003](./notifications/NOTIF-003-sms-channel-implementation.md)~~ | ~~SMS Channel~~ (DESCOPED - use WhatsApp) | ~~Notifications~~ | - |
 | ~~[AUDIT-101](./technical-debt/AUDIT-101-god-component-inventory.md)~~ | ~~God Component - Inventory Client~~ | ~~Tech Debt~~ | ~~16-20h~~ ✓ |
-| [SEC-013](./security/SEC-013-prescription-upload-missing-extension-validation.md) | Prescription Upload Missing Extension Validation | Security | 1-2h |
+| ~~[SEC-013](./security/SEC-013-prescription-upload-missing-extension-validation.md)~~ | ~~Prescription Upload Missing Extension Validation~~ | ~~Security~~ | ~~1-2h~~ ✓ |
 | ~~[SEC-016](./security/SEC-016-incomplete-timing-safe-cron-migration.md)~~ | ~~Incomplete Timing-Safe Cron Auth Migration~~ | ~~Security~~ | ~~0.5h~~ ✓ |
 | [SEC-020](./security/SEC-020-clinic-claim-ownership-verification.md) | Missing Clinic Ownership Verification in Claim Flow | Security | 4-6h |
 | [SEC-022](./security/SEC-022-invoice-discount-bounds-validation.md) | Missing Discount Percentage Bounds Validation | Security | 0.5h |

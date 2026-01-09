@@ -456,6 +456,38 @@
       "rehabilitation": "Physical therapy and recovery"
     }
   },
+  "dashboard": {
+    "pendingRequests": {
+      "title": "Pending Requests",
+      "loadingRequests": "Loading requests...",
+      "errorLoading": "Error loading requests",
+      "retry": "Retry",
+      "refresh": "Refresh",
+      "schedule": "Schedule",
+      "noPreference": "No preference",
+      "from": "From {date}",
+      "dateRange": "{start} - {end}",
+      "morning": "Morning",
+      "afternoon": "Afternoon"
+    }
+  },
+  "petSelector": {
+    "label": "Select Pet",
+    "loadingPets": "Loading pets...",
+    "errorLoadingPets": "Error loading pets",
+    "loginRequired": "You must be logged in to see your pets",
+    "noPetsRegistered": "No pets registered",
+    "noPetsRegisteredAlt": "You have no registered pets",
+    "prescriptionRequired": "To purchase products requiring a prescription, you must register a pet first.",
+    "addPet": "Add pet",
+    "addNewPet": "Add new pet",
+    "registerPet": "Register Pet",
+    "registerAnotherPet": "Register another pet",
+    "selectPet": "Select a pet...",
+    "noSelection": "No pet selected",
+    "prescriptionWarning": "You must select a pet for prescription products",
+    "selectForService": "Select the pet for this service:"
+  },
   "time": {
     "today": "Today",
     "yesterday": "Yesterday",

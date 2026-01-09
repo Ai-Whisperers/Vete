@@ -456,6 +456,38 @@
       "rehabilitation": "Fisioterapia y recuperación"
     }
   },
+  "dashboard": {
+    "pendingRequests": {
+      "title": "Solicitudes Pendientes",
+      "loadingRequests": "Cargando solicitudes...",
+      "errorLoading": "Error al cargar solicitudes",
+      "retry": "Reintentar",
+      "refresh": "Actualizar",
+      "schedule": "Programar",
+      "noPreference": "Sin preferencia",
+      "from": "Desde {date}",
+      "dateRange": "{start} - {end}",
+      "morning": "Mañana",
+      "afternoon": "Tarde"
+    }
+  },
+  "petSelector": {
+    "label": "Seleccionar Mascota",
+    "loadingPets": "Cargando mascotas...",
+    "errorLoadingPets": "Error al cargar mascotas",
+    "loginRequired": "Debes iniciar sesión para ver tus mascotas",
+    "noPetsRegistered": "No tiene mascotas registradas",
+    "noPetsRegisteredAlt": "No tienes mascotas registradas",
+    "prescriptionRequired": "Para comprar productos que requieren receta, debe registrar una mascota primero.",
+    "addPet": "Agregar mascota",
+    "addNewPet": "Agregar nueva mascota",
+    "registerPet": "Registrar Mascota",
+    "registerAnotherPet": "Registrar otra mascota",
+    "selectPet": "Seleccione una mascota...",
+    "noSelection": "Ninguna mascota seleccionada",
+    "prescriptionWarning": "Debe seleccionar una mascota para productos con receta médica",
+    "selectForService": "Selecciona la mascota para este servicio:"
+  },
   "time": {
     "today": "Hoy",
     "yesterday": "Ayer",

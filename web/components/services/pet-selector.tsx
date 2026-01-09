@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
@@ -29,6 +30,8 @@ interface PetSelectorProps {
  * Shows pet photo, name, weight, and auto-classified size category.
  */
 export function PetSelector({ onSelect, selectedPetId, className = '' }: PetSelectorProps) {
+  const t = useTranslations('petSelector')
+  const tPets = useTranslations('pets')
   const { clinic } = useParams<{ clinic: string }>()
   const supabase = createClient()
 
@@ -49,7 +52,7 @@ export function PetSelector({ onSelect, selectedPetId, className = '' }: PetSele
         } = await supabase.auth.getUser()
 
         if (userError || !user) {
-          setError('Debes iniciar sesión para ver tus mascotas')
+          setError(t('loginRequired'))
           setLoading(false)
           return
         }
@@ -62,7 +65,7 @@ export function PetSelector({ onSelect, selectedPetId, className = '' }: PetSele
           .order('name', { ascending: true })
 
         if (fetchError) {
-          setError('Error al cargar mascotas')
+          setError(t('errorLoadingPets'))
           setLoading(false)
           return
         }
@@ -80,7 +83,7 @@ export function PetSelector({ onSelect, selectedPetId, className = '' }: PetSele
 
         setPets(petsWithSize)
       } catch (err) {
-        setError('Error inesperado al cargar mascotas')
+        setError(t('errorLoadingPets'))
         console.error('Unexpected error:', err)
       } finally {
         setLoading(false)
@@ -94,7 +97,7 @@ export function PetSelector({ onSelect, selectedPetId, className = '' }: PetSele
     return (
       <div className={`flex items-center justify-center py-8 ${className}`}>
         <Loader2 className="h-6 w-6 animate-spin text-[var(--primary)]" />
-        <span className="ml-2 text-[var(--text-secondary)]">Cargando mascotas...</span>
+        <span className="ml-2 text-[var(--text-secondary)]">{t('loadingPets')}</span>
       </div>
     )
   }
@@ -114,13 +117,13 @@ export function PetSelector({ onSelect, selectedPetId, className = '' }: PetSele
         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-sm">
           <PawPrint className="h-8 w-8 text-gray-400" />
         </div>
-        <p className="mb-4 text-[var(--text-secondary)]">No tienes mascotas registradas</p>
+        <p className="mb-4 text-[var(--text-secondary)]">{t('noPetsRegisteredAlt')}</p>
         <Link
           href={`/${clinic}/portal/pets/new`}
           className="inline-flex items-center gap-2 rounded-xl bg-[var(--primary)] px-4 py-2 font-bold text-white transition hover:brightness-110"
         >
           <Plus className="h-4 w-4" />
-          Registrar Mascota
+          {t('registerPet')}
         </Link>
       </div>
     )
@@ -129,7 +132,7 @@ export function PetSelector({ onSelect, selectedPetId, className = '' }: PetSele
   return (
     <div className={`space-y-3 ${className}`}>
       <p className="mb-2 text-sm font-medium text-[var(--text-secondary)]">
-        Selecciona la mascota para este servicio:
+        {t('selectForService')}
       </p>
 
       <div className="grid gap-3">
@@ -180,7 +183,7 @@ export function PetSelector({ onSelect, selectedPetId, className = '' }: PetSele
                 </div>
                 <div className="flex items-center gap-2 text-sm text-[var(--text-muted)]">
                   <span className="capitalize">
-                    {pet.species === 'dog' ? 'Perro' : pet.species === 'cat' ? 'Gato' : pet.species}
+                    {pet.species === 'dog' ? tPets('dog') : pet.species === 'cat' ? tPets('cat') : pet.species}
                   </span>
                   {pet.breed && (
                     <>
@@ -232,7 +235,7 @@ export function PetSelector({ onSelect, selectedPetId, className = '' }: PetSele
         className="mt-4 flex items-center gap-2 text-sm font-medium text-[var(--primary)] hover:underline"
       >
         <Plus className="h-4 w-4" />
-        Registrar otra mascota
+        {t('registerAnotherPet')}
       </Link>
     </div>
   )

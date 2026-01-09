@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import { PawPrint, ChevronDown, Loader2, AlertCircle, Plus } from 'lucide-react'
 import Link from 'next/link'
 
@@ -42,15 +43,18 @@ export function PetSelector({
   onSelect,
   clinic,
   required = false,
-  label = 'Seleccionar Mascota',
+  label,
   helpText,
   className = '',
   disabled = false,
 }: PetSelectorProps) {
+  const t = useTranslations('petSelector')
   const [pets, setPets] = useState<Pet[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isOpen, setIsOpen] = useState(false)
+
+  const displayLabel = label ?? t('label')
 
   const selectedPet = pets.find((p) => p.id === selectedPetId)
 
@@ -63,13 +67,13 @@ export function PetSelector({
 
         const response = await fetch(`/api/pets?clinic=${clinic}`)
         if (!response.ok) {
-          throw new Error('Error al cargar mascotas')
+          throw new Error(t('errorLoadingPets'))
         }
 
         const data = await response.json()
         setPets(data.pets || data || [])
       } catch (e) {
-        setError(e instanceof Error ? e.message : 'Error al cargar mascotas')
+        setError(e instanceof Error ? e.message : t('errorLoadingPets'))
       } finally {
         setIsLoading(false)
       }
@@ -93,7 +97,7 @@ export function PetSelector({
       <div className={`rounded-xl border border-gray-200 bg-gray-50 p-4 ${className}`}>
         <div className="flex items-center gap-2 text-[var(--text-secondary)]">
           <Loader2 className="h-4 w-4 animate-spin" />
-          <span className="text-sm">Cargando mascotas...</span>
+          <span className="text-sm">{t('loadingPets')}</span>
         </div>
       </div>
     )
@@ -116,16 +120,16 @@ export function PetSelector({
         <div className="flex items-start gap-3">
           <PawPrint className="mt-0.5 h-5 w-5 text-amber-600" />
           <div>
-            <p className="font-medium text-amber-800">No tiene mascotas registradas</p>
+            <p className="font-medium text-amber-800">{t('noPetsRegistered')}</p>
             <p className="mt-1 text-sm text-amber-700">
-              Para comprar productos que requieren receta, debe registrar una mascota primero.
+              {t('prescriptionRequired')}
             </p>
             <Link
               href={`/${clinic}/portal/pets/new`}
               className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-amber-700 hover:text-amber-900"
             >
               <Plus className="h-4 w-4" />
-              Agregar mascota
+              {t('addPet')}
             </Link>
           </div>
         </div>
@@ -137,7 +141,7 @@ export function PetSelector({
     <div className={className}>
       {/* Label */}
       <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">
-        {label}
+        {displayLabel}
         {required && <span className="ml-1 text-red-500">*</span>}
       </label>
 
@@ -178,7 +182,7 @@ export function PetSelector({
               </div>
             </div>
           ) : (
-            <span className="text-[var(--text-secondary)]">Seleccione una mascota...</span>
+            <span className="text-[var(--text-secondary)]">{t('selectPet')}</span>
           )}
           <ChevronDown
             className={`h-5 w-5 text-[var(--text-secondary)] transition ${isOpen ? 'rotate-180' : ''}`}
@@ -195,7 +199,7 @@ export function PetSelector({
                 onClick={() => handleSelect(null)}
                 className="flex w-full items-center gap-3 px-4 py-2 text-left text-sm text-[var(--text-secondary)] hover:bg-gray-50"
               >
-                Ninguna mascota seleccionada
+                {t('noSelection')}
               </button>
             )}
 
@@ -240,7 +244,7 @@ export function PetSelector({
                 className="flex items-center gap-2 text-sm text-[var(--primary)] hover:underline"
               >
                 <Plus className="h-4 w-4" />
-                Agregar nueva mascota
+                {t('addNewPet')}
               </Link>
             </div>
           </div>
@@ -253,7 +257,7 @@ export function PetSelector({
       {/* Required warning */}
       {required && !selectedPetId && (
         <p className="mt-1.5 text-xs text-amber-600">
-          Debe seleccionar una mascota para productos con receta médica
+          {t('prescriptionWarning')}
         </p>
       )}
     </div>

@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import {
   Clock,
   Calendar,
@@ -38,6 +39,7 @@ interface PendingRequestsPanelProps {
  * Panel showing pending booking requests that need to be scheduled
  */
 export function PendingRequestsPanel({ clinic }: PendingRequestsPanelProps) {
+  const t = useTranslations('dashboard.pendingRequests')
   const [requests, setRequests] = useState<PendingRequest[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -53,7 +55,7 @@ export function PendingRequestsPanel({ clinic }: PendingRequestsPanelProps) {
     if (result.success && result.data) {
       setRequests(result.data.requests)
     } else {
-      setError(!result.success && 'error' in result ? result.error : 'Error al cargar solicitudes')
+      setError(!result.success && 'error' in result ? result.error : t('errorLoading'))
     }
 
     setIsLoading(false)
@@ -83,17 +85,17 @@ export function PendingRequestsPanel({ clinic }: PendingRequestsPanelProps) {
 
     if (request.preferred_date_start) {
       if (request.preferred_date_end) {
-        parts.push(`${request.preferred_date_start} - ${request.preferred_date_end}`)
+        parts.push(t('dateRange', { start: request.preferred_date_start, end: request.preferred_date_end }))
       } else {
-        parts.push(`Desde ${request.preferred_date_start}`)
+        parts.push(t('from', { date: request.preferred_date_start }))
       }
     }
 
     if (request.preferred_time_of_day && request.preferred_time_of_day !== 'any') {
-      parts.push(request.preferred_time_of_day === 'morning' ? 'Mañana' : 'Tarde')
+      parts.push(request.preferred_time_of_day === 'morning' ? t('morning') : t('afternoon'))
     }
 
-    return parts.length > 0 ? parts.join(' • ') : 'Sin preferencia'
+    return parts.length > 0 ? parts.join(' • ') : t('noPreference')
   }
 
   const getTimeIcon = (timeOfDay: string | null) => {
@@ -107,7 +109,7 @@ export function PendingRequestsPanel({ clinic }: PendingRequestsPanelProps) {
       <div className="rounded-xl border border-[var(--border-light)] bg-[var(--bg-default)] p-6">
         <div className="flex items-center gap-3">
           <RefreshCw className="h-5 w-5 animate-spin text-[var(--primary)]" />
-          <span className="text-[var(--text-secondary)]">Cargando solicitudes...</span>
+          <span className="text-[var(--text-secondary)]">{t('loadingRequests')}</span>
         </div>
       </div>
     )
@@ -123,7 +125,7 @@ export function PendingRequestsPanel({ clinic }: PendingRequestsPanelProps) {
             onClick={fetchRequests}
             className="ml-auto rounded-lg bg-[var(--status-error)] px-3 py-1 text-sm text-white hover:opacity-90"
           >
-            Reintentar
+            {t('retry')}
           </button>
         </div>
       </div>
@@ -141,13 +143,13 @@ export function PendingRequestsPanel({ clinic }: PendingRequestsPanelProps) {
           <div className="flex items-center gap-2">
             <Clock className="h-5 w-5 text-[var(--status-warning-dark)]" />
             <h2 className="font-bold text-[var(--status-warning-dark)]">
-              Solicitudes Pendientes ({requests.length})
+              {t('title')} ({requests.length})
             </h2>
           </div>
           <button
             onClick={fetchRequests}
             className="rounded-lg p-2 text-[var(--status-warning-dark)] hover:bg-[var(--status-warning-light)]"
-            title="Actualizar"
+            title={t('refresh')}
           >
             <RefreshCw className="h-4 w-4" />
           </button>
@@ -204,7 +206,7 @@ export function PendingRequestsPanel({ clinic }: PendingRequestsPanelProps) {
                 className="flex items-center gap-2 rounded-xl bg-[var(--primary)] px-4 py-2 font-medium text-white transition-all hover:opacity-90"
               >
                 <Calendar className="h-4 w-4" />
-                Programar
+                {t('schedule')}
                 <ChevronRight className="h-4 w-4" />
               </button>
             </div>

@@ -3,6 +3,7 @@
 import React from 'react'
 import { ArrowLeft, ChevronRight, Dog } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { useBookingStore } from '@/lib/store/booking-store'
 
 /**
@@ -11,6 +12,7 @@ import { useBookingStore } from '@/lib/store/booking-store'
 export function PetSelection() {
   const router = useRouter()
   const { pets, clinicId, updateSelection, setStep } = useBookingStore()
+  const t = useTranslations('booking.wizard.petSelection')
 
   const handlePetSelect = (petId: string) => {
     updateSelection({ petId })
@@ -22,12 +24,12 @@ export function PetSelection() {
       <div className="mb-10 flex items-center gap-4">
         <button
           onClick={() => setStep('service')}
-          aria-label="Volver a selección de servicio"
+          aria-label={t('backLabel')}
           className="rounded-2xl bg-gray-50 p-3 text-gray-400 transition-all hover:bg-gray-100"
         >
           <ArrowLeft className="h-5 w-5" aria-hidden="true" />
         </button>
-        <h2 className="text-3xl font-black text-gray-900">¿Para quién es la cita?</h2>
+        <h2 className="text-3xl font-black text-gray-900">{t('title')}</h2>
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -53,12 +55,12 @@ export function PetSelection() {
         ) : (
           <div className="col-span-2 rounded-[2.5rem] border-2 border-dashed border-gray-200 bg-gray-50 py-20 text-center">
             <Dog className="mx-auto mb-6 h-16 w-16 text-gray-200" />
-            <p className="mb-8 text-lg font-bold text-gray-500">No tienes mascotas registradas.</p>
+            <p className="mb-8 text-lg font-bold text-gray-500">{t('emptyTitle')}</p>
             <button
               onClick={() => router.push(`/${clinicId}/portal/pets/new`)}
               className="rounded-2xl bg-[var(--primary)] px-8 py-4 font-black text-white shadow-xl transition-all hover:-translate-y-1 hover:shadow-2xl"
             >
-              + Registrar Mascota
+              {t('registerPet')}
             </button>
           </div>
         )}

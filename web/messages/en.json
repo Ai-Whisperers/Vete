@@ -379,7 +379,99 @@
     "pleaseLogin": "Please sign in",
     "loginButton": "Sign In",
     "createAccount": "Create Account",
-    "freeSignup": "It's free and only takes a minute"
+    "freeSignup": "It's free and only takes a minute",
+    "wizard": {
+      "regionLabel": "Book appointment",
+      "stepAnnouncement": "Step {current} of {total}: {label}. {description}",
+      "steps": {
+        "service": {
+          "label": "Service",
+          "description": "Choose the service"
+        },
+        "pet": {
+          "label": "Patient",
+          "description": "Select your pet"
+        },
+        "confirm": {
+          "label": "Confirm",
+          "description": "Review and submit request"
+        }
+      },
+      "serviceSelection": {
+        "title": "What services do you need?",
+        "subtitle": "Select one or more services (max. {max})",
+        "clear": "Clear",
+        "selectedCount": "{count, plural, one {# service selected} other {# services selected}}",
+        "limitReached": "Maximum limit reached",
+        "duration": "Duration: {minutes} min",
+        "priceFrom": "From ₲{price}",
+        "serviceAriaLabel": "{name}, {duration} minutes, from {price} guaranies{selected}{disabled}",
+        "selectedSuffix": ", selected",
+        "disabledSuffix": ", limit reached",
+        "emptyTitle": "No services available for online booking.",
+        "emptyDescription": "Contact the clinic directly to schedule your appointment.",
+        "continue": "Continue"
+      },
+      "petSelection": {
+        "title": "Who is the appointment for?",
+        "backLabel": "Back to service selection",
+        "emptyTitle": "You don't have any registered pets.",
+        "registerPet": "+ Register Pet"
+      },
+      "confirmation": {
+        "title": "Confirm Request",
+        "contactBannerTitle": "We'll contact you to confirm",
+        "contactBannerDescription": "A member of our team will reach out to schedule your appointment time.",
+        "servicesLabel": "{count, plural, one {Service} other {Services}}",
+        "patient": "Patient",
+        "total": "Total",
+        "preferencesTitle": "Preferences (optional)",
+        "preferencesDescription": "Share your preferences to help us schedule your appointment.",
+        "dateRangeLabel": "Preferred date range",
+        "timeLabel": "Preferred time",
+        "timeOptions": {
+          "morning": {
+            "label": "Morning",
+            "desc": "8:00 AM - 12:00 PM"
+          },
+          "afternoon": {
+            "label": "Afternoon",
+            "desc": "2:00 PM - 6:00 PM"
+          },
+          "any": {
+            "label": "Any",
+            "desc": "No preference"
+          }
+        },
+        "notesLabel": "Any additional comments?",
+        "notesPlaceholder": "e.g., My pet is a bit nervous...",
+        "submit": "Submit Request"
+      },
+      "success": {
+        "title": "Request Received!",
+        "message": "We have received your appointment request for {petName}.",
+        "contactTitle": "We'll contact you soon",
+        "contactDescription": "A member of our team will reach out to confirm your appointment time.",
+        "preferencesLabel": "Your preferences",
+        "servicesLabel": "{count, plural, one {Requested service} other {Requested services}} ({duration} min)",
+        "fromDate": "From {date}",
+        "morning": "In the morning",
+        "afternoon": "In the afternoon",
+        "backHome": "Back to Home"
+      },
+      "summary": {
+        "title": "Summary",
+        "service": "Service",
+        "services": "Services",
+        "patient": "Patient",
+        "schedule": "Schedule",
+        "notSelected": "Not selected",
+        "toSchedule": "To be scheduled",
+        "willContact": "We'll contact you",
+        "totalDuration": "Total: {minutes} min",
+        "estimatedTotal": "Estimated Total"
+      }
+    }
   },
   "vaccines": {
     "title": "Vaccines",

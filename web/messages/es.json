@@ -379,7 +379,99 @@
     "pleaseLogin": "Por favor inicia sesión",
     "loginButton": "Iniciar Sesión",
     "createAccount": "Crear Cuenta",
-    "freeSignup": "Es gratis y solo toma un minuto"
+    "freeSignup": "Es gratis y solo toma un minuto",
+    "wizard": {
+      "regionLabel": "Reservar cita",
+      "stepAnnouncement": "Paso {current} de {total}: {label}. {description}",
+      "steps": {
+        "service": {
+          "label": "Servicio",
+          "description": "Elige el servicio"
+        },
+        "pet": {
+          "label": "Paciente",
+          "description": "Selecciona tu mascota"
+        },
+        "confirm": {
+          "label": "Confirmar",
+          "description": "Revisa y envía solicitud"
+        }
+      },
+      "serviceSelection": {
+        "title": "¿Qué servicios necesitas?",
+        "subtitle": "Selecciona uno o más servicios (máx. {max})",
+        "clear": "Limpiar",
+        "selectedCount": "{count, plural, one {# servicio seleccionado} other {# servicios seleccionados}}",
+        "limitReached": "Límite máximo alcanzado",
+        "duration": "Duración: {minutes} min",
+        "priceFrom": "Desde ₲{price}",
+        "serviceAriaLabel": "{name}, {duration} minutos, desde {price} guaraníes{selected}{disabled}",
+        "selectedSuffix": ", seleccionado",
+        "disabledSuffix": ", límite alcanzado",
+        "emptyTitle": "No hay servicios disponibles para reservar online.",
+        "emptyDescription": "Comunícate directamente con la clínica para agendar tu cita.",
+        "continue": "Continuar"
+      },
+      "petSelection": {
+        "title": "¿Para quién es la cita?",
+        "backLabel": "Volver a selección de servicio",
+        "emptyTitle": "No tienes mascotas registradas.",
+        "registerPet": "+ Registrar Mascota"
+      },
+      "confirmation": {
+        "title": "Confirmar Solicitud",
+        "contactBannerTitle": "Te contactaremos para confirmar",
+        "contactBannerDescription": "Un miembro de nuestro equipo se comunicará contigo para agendar el horario de tu cita.",
+        "servicesLabel": "{count, plural, one {Servicio} other {Servicios}}",
+        "patient": "Paciente",
+        "total": "Total",
+        "preferencesTitle": "Preferencias (opcional)",
+        "preferencesDescription": "Indica tus preferencias para ayudarnos a programar tu cita.",
+        "dateRangeLabel": "Rango de fechas preferido",
+        "timeLabel": "Horario preferido",
+        "timeOptions": {
+          "morning": {
+            "label": "Mañana",
+            "desc": "8:00 - 12:00"
+          },
+          "afternoon": {
+            "label": "Tarde",
+            "desc": "14:00 - 18:00"
+          },
+          "any": {
+            "label": "Cualquiera",
+            "desc": "Sin preferencia"
+          }
+        },
+        "notesLabel": "¿Algún comentario adicional?",
+        "notesPlaceholder": "Ej: Mi mascota está un poco nerviosa...",
+        "submit": "Enviar Solicitud"
+      },
+      "success": {
+        "title": "¡Solicitud Recibida!",
+        "message": "Hemos recibido tu solicitud de cita para {petName}.",
+        "contactTitle": "Te contactaremos pronto",
+        "contactDescription": "Un miembro de nuestro equipo se comunicará contigo para confirmar el horario de tu cita.",
+        "preferencesLabel": "Tus preferencias",
+        "servicesLabel": "{count, plural, one {Servicio solicitado} other {Servicios solicitados}} ({duration} min)",
+        "fromDate": "Desde {date}",
+        "morning": "Por la mañana",
+        "afternoon": "Por la tarde",
+        "backHome": "Volver al Inicio"
+      },
+      "summary": {
+        "title": "Resumen",
+        "service": "Servicio",
+        "services": "Servicios",
+        "patient": "Paciente",
+        "schedule": "Horario",
+        "notSelected": "Sin seleccionar",
+        "toSchedule": "Por agendar",
+        "willContact": "Te contactaremos",
+        "totalDuration": "Total: {minutes} min",
+        "estimatedTotal": "Total Estimado"
+      }
+    }
   },
   "vaccines": {
     "title": "Vacunas",

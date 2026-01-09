@@ -2,6 +2,7 @@
 
 import React from 'react'
 import { Layers, Check, ArrowRight } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { useBookingStore, formatPrice } from '@/lib/store/booking-store'
 import { MAX_SERVICES_PER_BOOKING } from './types'
 
@@ -12,6 +13,7 @@ import { MAX_SERVICES_PER_BOOKING } from './types'
 export function ServiceSelection() {
   const { services, selection, toggleService, clearServices, setStep, getTotalDuration, getTotalPrice } =
     useBookingStore()
+  const t = useTranslations('booking.wizard.serviceSelection')
 
   const selectedCount = selection.serviceIds.length
   const isAtLimit = selectedCount >= MAX_SERVICES_PER_BOOKING
@@ -33,10 +35,10 @@ export function ServiceSelection() {
           </div>
           <div>
             <h2 className="text-2xl font-black text-gray-900 sm:text-3xl">
-              ¿Qué servicios necesitas?
+              {t('title')}
             </h2>
             <p className="text-sm text-gray-500">
-              Selecciona uno o más servicios (máx. {MAX_SERVICES_PER_BOOKING})
+              {t('subtitle', { max: MAX_SERVICES_PER_BOOKING })}
             </p>
           </div>
         </div>
@@ -46,7 +48,7 @@ export function ServiceSelection() {
             onClick={clearServices}
             className="text-sm font-medium text-gray-500 hover:text-gray-700"
           >
-            Limpiar
+            {t('clear')}
           </button>
         )}
       </div>
@@ -58,11 +60,11 @@ export function ServiceSelection() {
         }`}>
           <div className="flex flex-col">
             <span className={`font-medium ${isAtLimit ? 'text-amber-700' : 'text-[var(--primary)]'}`}>
-              {selectedCount} {selectedCount === 1 ? 'servicio seleccionado' : 'servicios seleccionados'}
+              {t('selectedCount', { count: selectedCount })}
             </span>
             {isAtLimit && (
               <span className="text-xs text-amber-600">
-                Límite máximo alcanzado
+                {t('limitReached')}
               </span>
             )}
           </div>
@@ -83,7 +85,13 @@ export function ServiceSelection() {
                 key={s.id}
                 onClick={() => !isDisabled && toggleService(s.id)}
                 disabled={isDisabled}
-                aria-label={`${s.name}, ${s.duration} minutos, desde ${formatPrice(s.price)} guaraníes${isSelected ? ', seleccionado' : ''}${isDisabled ? ', límite alcanzado' : ''}`}
+                aria-label={t('serviceAriaLabel', {
+                  name: s.name,
+                  duration: s.duration,
+                  price: formatPrice(s.price),
+                  selected: isSelected ? t('selectedSuffix') : '',
+                  disabled: isDisabled ? t('disabledSuffix') : ''
+                })}
                 aria-pressed={isSelected}
                 className={`group relative flex items-start gap-4 rounded-[2rem] border-2 p-6 text-left transition-all ${
                   isSelected
@@ -114,10 +122,10 @@ export function ServiceSelection() {
                 <div className="flex-1 pr-8">
                   <h3 className="mb-1 text-lg font-black text-gray-900">{s.name}</h3>
                   <p className="mb-2 text-sm font-medium text-gray-500 opacity-60">
-                    Duración: {s.duration} min
+                    {t('duration', { minutes: s.duration })}
                   </p>
                   <span className="font-black text-[var(--primary)]">
-                    Desde ₲{formatPrice(s.price)}
+                    {t('priceFrom', { price: formatPrice(s.price) })}
                   </span>
                 </div>
               </button>
@@ -127,10 +135,10 @@ export function ServiceSelection() {
           <div className="col-span-2 rounded-[2.5rem] border-2 border-dashed border-gray-200 bg-gray-50 py-20 text-center">
             <Layers className="mx-auto mb-6 h-16 w-16 text-gray-200" />
             <p className="mb-4 text-lg font-bold text-gray-500">
-              No hay servicios disponibles para reservar online.
+              {t('emptyTitle')}
             </p>
             <p className="text-sm text-gray-400">
-              Comunícate directamente con la clínica para agendar tu cita.
+              {t('emptyDescription')}
             </p>
           </div>
         )}
@@ -148,7 +156,7 @@ export function ServiceSelection() {
                 : 'cursor-not-allowed bg-gray-200 text-gray-400'
             }`}
           >
-            Continuar
+            {t('continue')}
             <ArrowRight className="h-5 w-5" />
           </button>
         </div>

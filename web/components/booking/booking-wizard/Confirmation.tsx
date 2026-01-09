@@ -2,6 +2,7 @@
 
 import React, { useMemo } from 'react'
 import { ArrowLeft, ArrowRight, Calendar, Clock, AlertCircle, Loader2, Phone, Info } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { useBookingStore, formatPrice, getLocalDateString } from '@/lib/store/booking-store'
 import type { PreferredTimeOfDay } from './types'
 
@@ -22,6 +23,7 @@ export function Confirmation() {
     getTotalDuration,
     getTotalPrice,
   } = useBookingStore()
+  const t = useTranslations('booking.wizard.confirmation')
 
   const selectedServices = getSelectedServices()
   const totalDuration = getTotalDuration()
@@ -56,16 +58,16 @@ export function Confirmation() {
         >
           <ArrowLeft className="h-5 w-5" />
         </button>
-        <h2 className="text-3xl font-black text-gray-900">Confirmar Solicitud</h2>
+        <h2 className="text-3xl font-black text-gray-900">{t('title')}</h2>
       </div>
 
       {/* Info Banner */}
       <div className="mb-8 flex items-start gap-3 rounded-2xl border border-[var(--primary)]/20 bg-[var(--primary)]/5 p-4">
         <Phone className="h-5 w-5 flex-shrink-0 text-[var(--primary)]" />
         <div>
-          <p className="font-bold text-[var(--primary)]">Te contactaremos para confirmar</p>
+          <p className="font-bold text-[var(--primary)]">{t('contactBannerTitle')}</p>
           <p className="text-sm text-gray-600">
-            Un miembro de nuestro equipo se comunicará contigo para agendar el horario de tu cita.
+            {t('contactBannerDescription')}
           </p>
         </div>
       </div>
@@ -77,7 +79,7 @@ export function Confirmation() {
           <div className="space-y-6">
             <div>
               <p className="mb-3 text-[10px] font-black uppercase tracking-widest text-gray-400">
-                {selectedServices.length > 1 ? 'Servicios' : 'Servicio'}
+                {t('servicesLabel', { count: selectedServices.length })}
               </p>
               <div className="space-y-3">
                 {selectedServices.map((service, index) => (
@@ -100,7 +102,7 @@ export function Confirmation() {
               {selectedServices.length > 1 && (
                 <div className="mt-4 border-t border-gray-200 pt-3">
                   <div className="flex items-center justify-between font-bold">
-                    <span className="text-gray-700">Total</span>
+                    <span className="text-gray-700">{t('total')}</span>
                     <div className="text-right">
                       <p className="text-sm text-gray-500">{totalDuration} min</p>
                       <p className="text-lg text-[var(--primary)]">₲{formatPrice(totalPrice)}</p>
@@ -113,7 +115,7 @@ export function Confirmation() {
             {/* Patient */}
             <div>
               <p className="mb-1 text-[10px] font-black uppercase tracking-widest text-gray-400">
-                Paciente
+                {t('patient')}
               </p>
               <div className="flex items-center gap-3">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-900 text-xs font-bold text-white">
@@ -128,16 +130,16 @@ export function Confirmation() {
           <div className="space-y-6">
             <div>
               <p className="mb-1 text-[10px] font-black uppercase tracking-widest text-gray-400">
-                Preferencias (opcional)
+                {t('preferencesTitle')}
               </p>
               <p className="mb-4 text-sm text-gray-500">
-                Indica tus preferencias para ayudarnos a programar tu cita.
+                {t('preferencesDescription')}
               </p>
 
               {/* Preferred Date Range */}
               <div className="mb-4 space-y-2">
                 <label className="block text-sm font-medium text-gray-700">
-                  Rango de fechas preferido
+                  {t('dateRangeLabel')}
                 </label>
                 <div className="flex items-center gap-2">
                   <input
@@ -163,13 +165,13 @@ export function Confirmation() {
               {/* Preferred Time of Day */}
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-gray-700">
-                  Horario preferido
+                  {t('timeLabel')}
                 </label>
                 <div className="flex flex-wrap gap-2">
                   {[
-                    { value: 'morning' as const, label: 'Mañana', desc: '8:00 - 12:00' },
-                    { value: 'afternoon' as const, label: 'Tarde', desc: '14:00 - 18:00' },
-                    { value: 'any' as const, label: 'Cualquiera', desc: 'Sin preferencia' },
+                    { value: 'morning' as const, label: t('timeOptions.morning.label'), desc: t('timeOptions.morning.desc') },
+                    { value: 'afternoon' as const, label: t('timeOptions.afternoon.label'), desc: t('timeOptions.afternoon.desc') },
+                    { value: 'any' as const, label: t('timeOptions.any.label'), desc: t('timeOptions.any.desc') },
                   ].map((option) => (
                     <button
                       key={option.value}
@@ -201,11 +203,11 @@ export function Confirmation() {
       {/* Notes Section */}
       <div className="mb-10">
         <label className="mb-3 block text-xs font-black uppercase tracking-widest text-gray-400">
-          ¿Algún comentario adicional?
+          {t('notesLabel')}
         </label>
         <textarea
           className="focus:ring-[var(--primary)]/10 h-32 w-full rounded-[2rem] border border-gray-100 bg-white p-6 font-medium text-gray-700 outline-none transition-all focus:ring-4"
-          placeholder="Ej: Mi mascota está un poco nerviosa..."
+          placeholder={t('notesPlaceholder')}
           value={selection.notes}
           onChange={(e) => updateSelection({ notes: e.target.value })}
         ></textarea>
@@ -236,7 +238,7 @@ export function Confirmation() {
             <Loader2 className="h-6 w-6 animate-spin" />
           ) : (
             <>
-              Enviar Solicitud <ArrowRight className="h-6 w-6" />
+              {t('submit')} <ArrowRight className="h-6 w-6" />
             </>
           )}
         </button>

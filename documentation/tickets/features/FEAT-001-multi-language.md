@@ -47,6 +47,9 @@ Add support for multiple languages (starting with English) to expand the platfor
   - `components/dashboard/appointments/pending-requests-panel.tsx` - title, loading, error, preferences
 - ✅ Pet selector (services) migrated:
   - `components/services/pet-selector.tsx` - labels, loading, error, species names
+- ✅ Layout components migrated:
+  - `components/layout/notification-bell.tsx` - time ago formatting, UI labels
+  - `components/layout/newsletter-form.tsx` - title, subtitle, email labels
 - ✅ Translation namespaces expanded:
   - `home` namespace (10 keys)
   - `about` namespace (23 keys)
@@ -57,6 +60,8 @@ Add support for multiple languages (starting with English) to expand the platfor
   - `store` namespace expanded (30+ new keys)
   - `dashboard.pendingRequests` namespace (12 keys)
   - `petSelector` namespace (15 keys)
+  - `notifications` namespace (17 keys)
+  - `newsletter` namespace (5 keys)
 
 **Remaining Work:**
 - ~150 components still use hardcoded Spanish strings
@@ -158,6 +163,7 @@ Add language variants to clinic content:
    - [x] Store components (product-card, store client, pet-selector)
    - [x] Dashboard pending requests panel
    - [x] Services pet selector
+   - [x] Layout components (notification-bell, newsletter-form)
 6. [x] Add language switcher component ✅ (integrated in navigation)
 7. [ ] Update JSON-CMS loader for language variants
 8. [ ] Add language preference to user profile
@@ -180,9 +186,9 @@ Add language variants to clinic content:
 - English translation: 8 hours ✅ COMPLETE
 - Testing: 8 hours
 
-**Remaining Work (~12 hours):**
-- Component migration to useTranslations: 6 hours (~145 components remaining)
+**Remaining Work (~11 hours):**
+- Component migration to useTranslations: 5 hours (~140 components remaining)
 - JSON-CMS language variants: 4 hours
 - URL routing implementation: 2 hours
 
-**Progress: 70% complete (Infrastructure + Navigation + Public pages + Booking + Portal + Services + Pet profile + Store + Dashboard + Pet selectors done)**
+**Progress: 72% complete (Infrastructure + Navigation + Public pages + Booking + Portal + Services + Pet profile + Store + Dashboard + Pet selectors + Layout components done)**

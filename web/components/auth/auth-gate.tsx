@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { ShoppingCart, User, Lock, MessageCircle, Loader2 } from 'lucide-react'
 import type { User as SupabaseUser } from '@supabase/supabase-js'
@@ -35,14 +36,19 @@ export function AuthGate({
   clinic,
   redirect: redirectTo,
   whatsappNumber,
-  title = 'Inicia sesión para continuar',
-  description = 'Necesitas una cuenta para acceder a esta función.',
+  title,
+  description,
   icon = 'lock',
   children,
   preview,
 }: AuthGateProps) {
   const [user, setUser] = useState<SupabaseUser | null>(null)
   const [loading, setLoading] = useState(true)
+  const t = useTranslations('auth')
+
+  // Use translations for default values
+  const displayTitle = title ?? t('gate.defaultTitle')
+  const displayDescription = description ?? t('gate.defaultDescription')
 
   useEffect(() => {
     const supabase = createClient()
@@ -109,8 +115,8 @@ export function AuthGate({
           <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-white/20">
             <Icon className="h-10 w-10 text-white" />
           </div>
-          <h2 className="mb-2 text-2xl font-black text-white">{title}</h2>
-          <p className="text-white/80">{description}</p>
+          <h2 className="mb-2 text-2xl font-black text-white">{displayTitle}</h2>
+          <p className="text-white/80">{displayDescription}</p>
         </div>
 
         {/* Actions */}
@@ -119,14 +125,14 @@ export function AuthGate({
             href={`/${clinic}/portal/signup?redirect=${encodedRedirect}`}
             className="block w-full rounded-xl bg-[var(--primary)] px-6 py-4 text-center font-bold text-white shadow-lg transition-all hover:-translate-y-0.5 hover:opacity-90 hover:shadow-xl"
           >
-            Crear Cuenta Gratis
+            {t('gate.createAccount')}
           </Link>
 
           <Link
             href={`/${clinic}/portal/login?redirect=${encodedRedirect}`}
             className="block w-full rounded-xl bg-gray-100 px-6 py-4 text-center font-bold text-gray-700 transition-all hover:bg-gray-200"
           >
-            Ya tengo cuenta
+            {t('gate.haveAccount')}
           </Link>
 
           {/* WhatsApp Option */}
@@ -135,22 +141,22 @@ export function AuthGate({
               <div className="relative flex items-center py-3">
                 <div className="flex-grow border-t border-gray-200"></div>
                 <span className="mx-4 flex-shrink-0 text-xs font-bold uppercase text-gray-400">
-                  O sin cuenta
+                  {t('gate.orWithoutAccount')}
                 </span>
                 <div className="flex-grow border-t border-gray-200"></div>
               </div>
 
               <a
-                href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent('Hola, quiero hacer una consulta sobre productos/servicios')}`}
+                href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(t('gate.whatsappMessage'))}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex w-full items-center justify-center gap-3 rounded-xl bg-green-500 px-6 py-4 font-bold text-white transition-all hover:bg-green-600"
               >
                 <MessageCircle className="h-5 w-5" />
-                Contactar por WhatsApp
+                {t('gate.whatsappContact')}
               </a>
               <p className="text-center text-xs text-gray-400">
-                La clínica puede crear tu cuenta y registrar tus mascotas por ti
+                {t('gate.clinicCanHelp')}
               </p>
             </>
           )}
@@ -161,7 +167,7 @@ export function AuthGate({
       {preview && (
         <div className="pointer-events-none mt-8 w-full max-w-2xl opacity-60">
           <p className="mb-4 text-center text-sm font-medium text-gray-500">
-            Vista previa de tu carrito:
+            {t('gate.cartPreview')}
           </p>
           {preview}
         </div>

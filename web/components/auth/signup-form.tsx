@@ -3,6 +3,7 @@
 import { useActionState } from 'react'
 import Link from 'next/link'
 import * as Icons from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { signup } from '@/app/auth/actions'
 import { PasswordInput } from '@/components/ui/password-input'
 
@@ -13,6 +14,7 @@ interface SignupFormProps {
 
 export function SignupForm({ clinic, redirectTo }: SignupFormProps) {
   const [state, formAction, isPending] = useActionState(signup, null)
+  const t = useTranslations('auth')
 
   if (state?.success) {
     return (
@@ -21,17 +23,17 @@ export function SignupForm({ clinic, redirectTo }: SignupFormProps) {
           <Icons.MailCheck className="h-10 w-10" />
         </div>
         <h2 className="font-heading text-xl font-black text-[var(--text-primary)] sm:text-2xl">
-          ¡Cuenta Creada!
+          {t('signupForm.success.title')}
         </h2>
         <p className="mb-2 mt-4 text-[var(--text-secondary)]">
-          Hemos enviado un correo de confirmación.
+          {t('signupForm.success.emailSent')}
         </p>
-        <p className="text-sm text-gray-500">Revisa tu bandeja de entrada y spam.</p>
+        <p className="text-sm text-gray-500">{t('signupForm.success.checkInbox')}</p>
         <Link
           href={`/${clinic}/portal/login${redirectTo !== `/${clinic}/portal/dashboard` ? `?redirect=${encodeURIComponent(redirectTo)}` : ''}`}
           className="mt-8 block font-bold text-[var(--primary)] hover:underline"
         >
-          Volver al Login
+          {t('signupForm.success.backToLogin')}
         </Link>
       </div>
     )
@@ -44,10 +46,10 @@ export function SignupForm({ clinic, redirectTo }: SignupFormProps) {
           <Icons.UserPlus className="h-7 w-7 sm:h-8 sm:w-8" />
         </div>
         <h1 className="font-heading text-xl font-black text-[var(--text-primary)] sm:text-2xl">
-          Crear Cuenta
+          {t('signupForm.title')}
         </h1>
         <p className="mt-2 text-[var(--text-secondary)]">
-          Únete para gestionar la salud de tus mascotas.
+          {t('signupForm.subtitle')}
         </p>
       </div>
 
@@ -60,7 +62,7 @@ export function SignupForm({ clinic, redirectTo }: SignupFormProps) {
             htmlFor="fullName"
             className="mb-1 block text-sm font-bold text-[var(--text-secondary)]"
           >
-            Nombre Completo
+            {t('signupForm.fullNameLabel')}
           </label>
           <div className="relative">
             <Icons.User className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
@@ -69,7 +71,7 @@ export function SignupForm({ clinic, redirectTo }: SignupFormProps) {
               name="fullName"
               required
               type="text"
-              placeholder="Juan Pérez"
+              placeholder={t('signupForm.fullNamePlaceholder')}
               className="min-h-[48px] w-full rounded-xl border border-gray-200 py-3 pl-12 pr-4 outline-none transition-all focus:border-2 focus:border-[var(--primary)]"
             />
           </div>
@@ -80,7 +82,7 @@ export function SignupForm({ clinic, redirectTo }: SignupFormProps) {
             htmlFor="signup-email"
             className="mb-1 block text-sm font-bold text-[var(--text-secondary)]"
           >
-            Email
+            {t('signupForm.emailLabel')}
           </label>
           <div className="relative">
             <Icons.Mail className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
@@ -89,7 +91,7 @@ export function SignupForm({ clinic, redirectTo }: SignupFormProps) {
               name="email"
               required
               type="email"
-              placeholder="tu@email.com"
+              placeholder={t('signupForm.emailPlaceholder')}
               className="min-h-[48px] w-full rounded-xl border border-gray-200 py-3 pl-12 pr-4 outline-none transition-all focus:border-2 focus:border-[var(--primary)]"
             />
           </div>
@@ -100,7 +102,7 @@ export function SignupForm({ clinic, redirectTo }: SignupFormProps) {
             htmlFor="signup-password"
             className="mb-1 block text-sm font-bold text-[var(--text-secondary)]"
           >
-            Contraseña
+            {t('signupForm.passwordLabel')}
           </label>
           <div className="relative">
             <Icons.Lock className="absolute left-4 top-1/2 z-10 h-5 w-5 -translate-y-1/2 text-gray-400" />
@@ -130,18 +132,18 @@ export function SignupForm({ clinic, redirectTo }: SignupFormProps) {
           disabled={isPending}
           className="flex min-h-[52px] w-full items-center justify-center gap-2 rounded-xl bg-[var(--primary)] py-4 font-bold text-white shadow-lg transition-all hover:-translate-y-1 hover:shadow-xl active:scale-95 disabled:pointer-events-none disabled:opacity-70"
         >
-          {isPending ? <Icons.Loader2 className="h-5 w-5 animate-spin" /> : 'Registrarme'}
+          {isPending ? <Icons.Loader2 className="h-5 w-5 animate-spin" /> : t('signupForm.signupButton')}
         </button>
       </form>
 
       <div className="mt-6 text-center">
         <p className="text-sm text-gray-500">
-          ¿Ya tienes cuenta?{' '}
+          {t('hasAccount')}{' '}
           <Link
             href={`/${clinic}/portal/login${redirectTo !== `/${clinic}/portal/dashboard` ? `?redirect=${encodeURIComponent(redirectTo)}` : ''}`}
             className="font-bold text-[var(--primary)] hover:underline"
           >
-            Inicia Sesión
+            {t('signupForm.loginLink')}
           </Link>
         </p>
       </div>

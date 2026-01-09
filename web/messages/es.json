@@ -47,7 +47,53 @@
     "noAccount": "¿No tienes cuenta?",
     "hasAccount": "¿Ya tienes cuenta?",
     "unauthorized": "No autorizado",
-    "sessionExpired": "Tu sesión ha expirado"
+    "sessionExpired": "Tu sesión ha expirado",
+    "loginForm": {
+      "title": "Portal de Dueños",
+      "subtitle": "Ingresa para ver la libreta de tus mascotas.",
+      "continueWithGoogle": "Continuar con Google",
+      "orWithEmail": "O con email",
+      "emailLabel": "Email",
+      "emailPlaceholder": "tu@email.com",
+      "passwordLabel": "Contraseña",
+      "loginButton": "Iniciar Sesión",
+      "signUp": "Regístrate",
+      "errors": {
+        "noProfile": "Tu cuenta necesita ser configurada. Por favor, inicia sesión nuevamente.",
+        "profileCreationFailed": "Error al crear tu perfil. Intenta de nuevo o contacta soporte.",
+        "tenantAssignmentFailed": "Error al asignar tu clínica. Intenta de nuevo.",
+        "tenantMismatch": "Tu cuenta pertenece a otra clínica.",
+        "sessionExpired": "Tu sesión ha expirado. Por favor, inicia sesión nuevamente."
+      }
+    },
+    "signupForm": {
+      "title": "Crear Cuenta",
+      "subtitle": "Únete para gestionar la salud de tus mascotas.",
+      "fullNameLabel": "Nombre Completo",
+      "fullNamePlaceholder": "Juan Pérez",
+      "emailLabel": "Email",
+      "emailPlaceholder": "tu@email.com",
+      "passwordLabel": "Contraseña",
+      "signupButton": "Registrarme",
+      "loginLink": "Inicia Sesión",
+      "success": {
+        "title": "¡Cuenta Creada!",
+        "emailSent": "Hemos enviado un correo de confirmación.",
+        "checkInbox": "Revisa tu bandeja de entrada y spam.",
+        "backToLogin": "Volver al Login"
+      }
+    },
+    "gate": {
+      "defaultTitle": "Inicia sesión para continuar",
+      "defaultDescription": "Necesitas una cuenta para acceder a esta función.",
+      "createAccount": "Crear Cuenta Gratis",
+      "haveAccount": "Ya tengo cuenta",
+      "orWithoutAccount": "O sin cuenta",
+      "whatsappContact": "Contactar por WhatsApp",
+      "whatsappMessage": "Hola, quiero hacer una consulta sobre productos/servicios",
+      "clinicCanHelp": "La clínica puede crear tu cuenta y registrar tus mascotas por ti",
+      "cartPreview": "Vista previa de tu carrito:"
+    }
   },
   "nav": {
     "home": "Inicio",

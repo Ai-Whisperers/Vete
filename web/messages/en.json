@@ -47,7 +47,53 @@
     "noAccount": "Don't have an account?",
     "hasAccount": "Already have an account?",
     "unauthorized": "Unauthorized",
-    "sessionExpired": "Your session has expired"
+    "sessionExpired": "Your session has expired",
+    "loginForm": {
+      "title": "Pet Owner Portal",
+      "subtitle": "Sign in to view your pet's records.",
+      "continueWithGoogle": "Continue with Google",
+      "orWithEmail": "Or with email",
+      "emailLabel": "Email",
+      "emailPlaceholder": "your@email.com",
+      "passwordLabel": "Password",
+      "loginButton": "Sign In",
+      "signUp": "Sign Up",
+      "errors": {
+        "noProfile": "Your account needs to be set up. Please sign in again.",
+        "profileCreationFailed": "Failed to create your profile. Try again or contact support.",
+        "tenantAssignmentFailed": "Failed to assign your clinic. Try again.",
+        "tenantMismatch": "Your account belongs to another clinic.",
+        "sessionExpired": "Your session has expired. Please sign in again."
+      }
+    },
+    "signupForm": {
+      "title": "Create Account",
+      "subtitle": "Join to manage your pets' health.",
+      "fullNameLabel": "Full Name",
+      "fullNamePlaceholder": "John Smith",
+      "emailLabel": "Email",
+      "emailPlaceholder": "your@email.com",
+      "passwordLabel": "Password",
+      "signupButton": "Sign Up",
+      "loginLink": "Sign In",
+      "success": {
+        "title": "Account Created!",
+        "emailSent": "We've sent a confirmation email.",
+        "checkInbox": "Check your inbox and spam folder.",
+        "backToLogin": "Back to Login"
+      }
+    },
+    "gate": {
+      "defaultTitle": "Sign in to continue",
+      "defaultDescription": "You need an account to access this feature.",
+      "createAccount": "Create Free Account",
+      "haveAccount": "I have an account",
+      "orWithoutAccount": "Or without account",
+      "whatsappContact": "Contact via WhatsApp",
+      "whatsappMessage": "Hello, I'd like to inquire about products/services",
+      "clinicCanHelp": "The clinic can create your account and register your pets for you",
+      "cartPreview": "Your cart preview:"
+    }
   },
   "nav": {
     "home": "Home",

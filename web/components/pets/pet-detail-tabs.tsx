@@ -2,22 +2,22 @@
 
 import { useState } from 'react'
 import { LayoutDashboard, FileText, Syringe, FolderOpen, Calendar, CreditCard } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 
 export type TabId = 'summary' | 'history' | 'vaccines' | 'documents' | 'appointments' | 'finances'
 
 interface Tab {
   id: TabId
-  label: string
   icon: React.ReactNode
 }
 
-const tabs: Tab[] = [
-  { id: 'summary', label: 'Resumen', icon: <LayoutDashboard className="h-4 w-4" /> },
-  { id: 'history', label: 'Historial', icon: <FileText className="h-4 w-4" /> },
-  { id: 'vaccines', label: 'Vacunas', icon: <Syringe className="h-4 w-4" /> },
-  { id: 'documents', label: 'Documentos', icon: <FolderOpen className="h-4 w-4" /> },
-  { id: 'appointments', label: 'Citas', icon: <Calendar className="h-4 w-4" /> },
-  { id: 'finances', label: 'Finanzas', icon: <CreditCard className="h-4 w-4" /> },
+const tabConfig: Tab[] = [
+  { id: 'summary', icon: <LayoutDashboard className="h-4 w-4" /> },
+  { id: 'history', icon: <FileText className="h-4 w-4" /> },
+  { id: 'vaccines', icon: <Syringe className="h-4 w-4" /> },
+  { id: 'documents', icon: <FolderOpen className="h-4 w-4" /> },
+  { id: 'appointments', icon: <Calendar className="h-4 w-4" /> },
+  { id: 'finances', icon: <CreditCard className="h-4 w-4" /> },
 ]
 
 interface PetDetailTabsProps {
@@ -26,11 +26,13 @@ interface PetDetailTabsProps {
 }
 
 export function PetDetailTabs({ activeTab, onTabChange }: PetDetailTabsProps) {
+  const t = useTranslations('pets.detailTabs')
+
   return (
     <div className="rounded-2xl border border-gray-100 bg-white p-1.5 shadow-sm">
       {/* Desktop tabs */}
       <div className="hidden gap-1 md:flex">
-        {tabs.map((tab) => (
+        {tabConfig.map((tab) => (
           <button
             key={tab.id}
             onClick={() => onTabChange(tab.id)}
@@ -41,14 +43,14 @@ export function PetDetailTabs({ activeTab, onTabChange }: PetDetailTabsProps) {
             }`}
           >
             {tab.icon}
-            {tab.label}
+            {t(tab.id)}
           </button>
         ))}
       </div>
 
       {/* Mobile tabs - scrollable */}
       <div className="scrollbar-hide flex gap-1 overflow-x-auto pb-1 md:hidden">
-        {tabs.map((tab) => (
+        {tabConfig.map((tab) => (
           <button
             key={tab.id}
             onClick={() => onTabChange(tab.id)}
@@ -59,7 +61,7 @@ export function PetDetailTabs({ activeTab, onTabChange }: PetDetailTabsProps) {
             }`}
           >
             {tab.icon}
-            {tab.label}
+            {t(tab.id)}
           </button>
         ))}
       </div>

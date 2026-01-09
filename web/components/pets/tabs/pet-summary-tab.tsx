@@ -16,6 +16,7 @@ import {
   User,
   Plus,
 } from 'lucide-react'
+import { useTranslations, useLocale } from 'next-intl'
 import { GrowthChart } from '@/components/clinical/growth-chart'
 import { WeightRecordingModal } from '@/components/pets/weight-recording-modal'
 
@@ -66,6 +67,10 @@ interface MissingVaccine {
 }
 
 export function PetSummaryTab({ pet, weightHistory, clinic, clinicName, onWeightUpdated }: PetSummaryTabProps) {
+  const t = useTranslations('pets.tabs.summary')
+  const locale = useLocale()
+  const localeStr = locale === 'es' ? 'es-PY' : 'en-US'
+
   const [missingMandatoryVaccines, setMissingMandatoryVaccines] = useState<MissingVaccine[]>([])
   const [isLoadingVaccines, setIsLoadingVaccines] = useState(true)
   const [isWeightModalOpen, setIsWeightModalOpen] = useState(false)
@@ -122,9 +127,10 @@ export function PetSummaryTab({ pet, weightHistory, clinic, clinicName, onWeight
     fetchMissingVaccines()
   }, [pet.species, pet.birth_date, pet.vaccines])
 
-  // Calculate age
+  // Calculate age - reuse pets.card translations for age display
+  const tCard = useTranslations('pets.card')
   const calculateAge = (): string => {
-    if (!pet.birth_date) return 'Edad desconocida'
+    if (!pet.birth_date) return t('unknownAge')
     const birth = new Date(pet.birth_date)
     const today = new Date()
     let years = today.getFullYear() - birth.getFullYear()
@@ -134,9 +140,12 @@ export function PetSummaryTab({ pet, weightHistory, clinic, clinicName, onWeight
       months += 12
     }
     if (years > 0) {
-      return months > 0 ? `${years} años, ${months} meses` : `${years} años`
+      if (months > 0) {
+        return `${years} ${years === 1 ? tCard('year') : tCard('years')}, ${months} ${months === 1 ? tCard('month') : tCard('months')}`
+      }
+      return `${years} ${years === 1 ? tCard('year') : tCard('years')}`
     }
-    return months > 0 ? `${months} meses` : 'Menos de 1 mes'
+    return months > 0 ? `${months} ${months === 1 ? tCard('month') : tCard('months')}` : tCard('baby')
   }
 
   // Get allergies as array
@@ -180,19 +189,19 @@ export function PetSummaryTab({ pet, weightHistory, clinic, clinicName, onWeight
   const overdueVaccines = getOverdueVaccines()
 
   const temperamentLabels: Record<string, string> = {
-    friendly: 'Amigable',
-    shy: 'Tímido',
-    aggressive: 'Agresivo',
-    calm: 'Tranquilo',
-    unknown: 'Desconocido',
+    friendly: t('temperamentFriendly'),
+    shy: t('temperamentShy'),
+    aggressive: t('temperamentAggressive'),
+    calm: t('temperamentCalm'),
+    unknown: t('temperamentUnknown'),
   }
 
   const dietLabels: Record<string, string> = {
-    balanced: 'Balanceado Seco',
-    wet: 'Alimento Húmedo',
-    raw: 'Dieta BARF/Natural',
-    mixed: 'Mixta',
-    prescription: 'Prescripción Médica',
+    balanced: t('dietBalanced'),
+    wet: t('dietWet'),
+    raw: t('dietRaw'),
+    mixed: t('dietMixed'),
+    prescription: t('dietPrescription'),
   }
 
   return (
@@ -204,7 +213,7 @@ export function PetSummaryTab({ pet, weightHistory, clinic, clinicName, onWeight
           <div className="rounded-xl border border-gray-100 bg-white p-4">
             <div className="mb-1 flex items-center gap-2 text-gray-500">
               <Calendar className="h-4 w-4" />
-              <span className="text-xs font-medium">Edad</span>
+              <span className="text-xs font-medium">{t('age')}</span>
             </div>
             <p className="font-bold text-[var(--text-primary)]">{calculateAge()}</p>
           </div>
@@ -216,33 +225,33 @@ export function PetSummaryTab({ pet, weightHistory, clinic, clinicName, onWeight
             <div className="mb-1 flex items-center justify-between text-gray-500">
               <div className="flex items-center gap-2">
                 <Weight className="h-4 w-4" />
-                <span className="text-xs font-medium">Peso</span>
+                <span className="text-xs font-medium">{t('weight')}</span>
               </div>
               <Plus className="h-4 w-4 opacity-0 transition-opacity group-hover:opacity-100" />
             </div>
             <p className="font-bold text-[var(--text-primary)]">
-              {displayedWeight ? `${displayedWeight} kg` : 'Sin registrar'}
+              {displayedWeight ? `${displayedWeight} kg` : t('notRecorded')}
             </p>
           </button>
           <div className="rounded-xl border border-gray-100 bg-white p-4">
             <div className="mb-1 flex items-center gap-2 text-gray-500">
               <Heart className="h-4 w-4" />
-              <span className="text-xs font-medium">Temperamento</span>
+              <span className="text-xs font-medium">{t('temperament')}</span>
             </div>
             <p className="font-bold text-[var(--text-primary)]">
               {pet.temperament
                 ? temperamentLabels[pet.temperament] || pet.temperament
-                : 'Sin definir'}
+                : t('notDefined')}
             </p>
           </div>
           <div className="rounded-xl border border-gray-100 bg-white p-4">
             <div className="mb-1 flex items-center gap-2 text-gray-500">
               <Syringe className="h-4 w-4" />
-              <span className="text-xs font-medium">Vacunas</span>
+              <span className="text-xs font-medium">{t('vaccines')}</span>
             </div>
             {(() => {
               if (isLoadingVaccines) {
-                return <p className="font-bold text-gray-400">Verificando...</p>
+                return <p className="font-bold text-gray-400">{t('checking')}</p>
               }
 
               // Count overdue from existing vaccines + missing mandatory vaccines
@@ -257,7 +266,7 @@ export function PetSummaryTab({ pet, weightHistory, clinic, clinicName, onWeight
               if (totalOverdue > 0) {
                 return (
                   <p className="font-bold text-[var(--status-error)]">
-                    {totalOverdue} vencida{totalOverdue > 1 ? 's' : ''}
+                    {totalOverdue > 1 ? t('overdueCountPlural', { count: totalOverdue }) : t('overdueCount', { count: totalOverdue })}
                   </p>
                 )
               }
@@ -265,7 +274,7 @@ export function PetSummaryTab({ pet, weightHistory, clinic, clinicName, onWeight
               if (missingDueCount > 0) {
                 return (
                   <p className="font-bold text-[var(--status-warning)]">
-                    {missingDueCount} pendiente{missingDueCount > 1 ? 's' : ''}
+                    {missingDueCount > 1 ? t('pendingCountPlural', { count: missingDueCount }) : t('pendingCount', { count: missingDueCount })}
                   </p>
                 )
               }
@@ -273,7 +282,7 @@ export function PetSummaryTab({ pet, weightHistory, clinic, clinicName, onWeight
               if (missingCount > 0) {
                 return (
                   <p className="font-bold text-[var(--status-info)]">
-                    {missingCount} por aplicar
+                    {t('toApply', { count: missingCount })}
                   </p>
                 )
               }
@@ -282,11 +291,11 @@ export function PetSummaryTab({ pet, weightHistory, clinic, clinicName, onWeight
               if (appliedCount > 0) {
                 return (
                   <p className="font-bold text-[var(--status-success)]">
-                    {appliedCount} aplicada{appliedCount > 1 ? 's' : ''}
+                    {appliedCount > 1 ? t('appliedCountPlural', { count: appliedCount }) : t('appliedCount', { count: appliedCount })}
                   </p>
                 )
               }
-              return <p className="font-bold text-[var(--status-success)]">Al día</p>
+              return <p className="font-bold text-[var(--status-success)]">{t('upToDate')}</p>
             })()}
           </div>
         </div>
@@ -296,13 +305,13 @@ export function PetSummaryTab({ pet, weightHistory, clinic, clinicName, onWeight
           <div className="rounded-xl border border-[var(--status-warning-border)] bg-[var(--status-warning-bg)] p-4">
             <div className="mb-3 flex items-center gap-2 font-bold text-[var(--status-warning-text)]">
               <AlertTriangle className="h-5 w-5" />
-              Alertas de Salud
+              {t('healthAlerts')}
             </div>
             <div className="space-y-2">
               {allergies.length > 0 && (
                 <div className="flex items-start gap-2">
                   <span className="rounded bg-[var(--status-error-bg)] px-2 py-0.5 text-xs font-medium text-[var(--status-error-text)]">
-                    Alergias
+                    {t('allergiesLabel')}
                   </span>
                   <span className="text-sm text-[var(--status-warning-text)]">{allergies.join(', ')}</span>
                 </div>
@@ -310,7 +319,7 @@ export function PetSummaryTab({ pet, weightHistory, clinic, clinicName, onWeight
               {conditions.length > 0 && (
                 <div className="flex items-start gap-2">
                   <span className="rounded bg-[var(--status-warning-bg)] px-2 py-0.5 text-xs font-medium text-[var(--status-warning-text)]">
-                    Condiciones
+                    {t('conditionsLabel')}
                   </span>
                   <span className="text-sm text-[var(--status-warning-text)]">{conditions.join(', ')}</span>
                 </div>
@@ -318,7 +327,7 @@ export function PetSummaryTab({ pet, weightHistory, clinic, clinicName, onWeight
               {overdueVaccines.length > 0 && (
                 <div className="flex items-start gap-2">
                   <span className="rounded bg-[var(--status-error-bg)] px-2 py-0.5 text-xs font-medium text-[var(--status-error-text)]">
-                    Vacunas Vencidas
+                    {t('overdueVaccines')}
                   </span>
                   <span className="text-sm text-[var(--status-warning-text)]">
                     {overdueVaccines.map((v) => v.name).join(', ')}
@@ -328,7 +337,7 @@ export function PetSummaryTab({ pet, weightHistory, clinic, clinicName, onWeight
               {missingMandatoryVaccines.length > 0 && (
                 <div className="flex items-start gap-2">
                   <span className="rounded bg-[var(--status-error-bg)] px-2 py-0.5 text-xs font-medium text-[var(--status-error-text)]">
-                    Vacunas Obligatorias Faltantes
+                    {t('missingMandatory')}
                   </span>
                   <span className="text-sm text-[var(--status-warning-text)]">
                     {missingMandatoryVaccines.map((v) => v.vaccine_name).join(', ')}
@@ -341,9 +350,9 @@ export function PetSummaryTab({ pet, weightHistory, clinic, clinicName, onWeight
 
         {/* Growth Chart */}
         <div className="rounded-xl border border-gray-100 bg-white p-5">
-          <h3 className="mb-4 font-bold text-[var(--text-primary)]">Curva de Crecimiento</h3>
+          <h3 className="mb-4 font-bold text-[var(--text-primary)]">{t('growthChart')}</h3>
           <GrowthChart
-            breed={pet.breed || 'Mestizo'}
+            breed={pet.breed || t('mixedBreed')}
             gender={pet.sex as any}
             patientRecords={weightHistory}
           />
@@ -357,13 +366,13 @@ export function PetSummaryTab({ pet, weightHistory, clinic, clinicName, onWeight
           <div className="mb-4 flex items-center justify-between">
             <h3 className="flex items-center gap-2 font-bold text-[var(--text-primary)]">
               <Syringe className="h-4 w-4 text-purple-500" />
-              Próximas Vacunas
+              {t('upcomingVaccines')}
             </h3>
             <Link
               href={`/${clinic}/portal/pets/${pet.id}?tab=vaccines`}
               className="text-xs font-medium text-[var(--primary)] hover:underline"
             >
-              Ver todas
+              {t('viewAll')}
             </Link>
           </div>
 
@@ -395,7 +404,7 @@ export function PetSummaryTab({ pet, weightHistory, clinic, clinicName, onWeight
                           : 'text-[var(--status-warning)]'
                       }`}
                     >
-                      {vaccine.status === 'overdue' ? 'Vencida' : 'Pendiente'}
+                      {vaccine.status === 'overdue' ? t('overdue') : t('pending')}
                     </span>
                   </div>
                 ))}
@@ -413,7 +422,7 @@ export function PetSummaryTab({ pet, weightHistory, clinic, clinicName, onWeight
                   <span className="text-sm font-medium">{vaccine.name}</span>
                   <span className="text-xs text-gray-500">
                     {vaccine.next_due_date &&
-                      new Date(vaccine.next_due_date).toLocaleDateString('es-PY', {
+                      new Date(vaccine.next_due_date).toLocaleDateString(localeStr, {
                         day: 'numeric',
                         month: 'short',
                       })}
@@ -425,7 +434,7 @@ export function PetSummaryTab({ pet, weightHistory, clinic, clinicName, onWeight
 
           {/* Empty state only if no missing vaccines AND no upcoming vaccines */}
           {missingMandatoryVaccines.length === 0 && upcomingVaccines.length === 0 && (
-            <p className="text-sm text-gray-400">No hay vacunas programadas</p>
+            <p className="text-sm text-gray-400">{t('noScheduledVaccines')}</p>
           )}
 
           {/* Add vaccine CTA */}
@@ -435,7 +444,7 @@ export function PetSummaryTab({ pet, weightHistory, clinic, clinicName, onWeight
               className="mt-3 flex items-center justify-center gap-2 rounded-lg bg-[var(--primary)] py-2 text-sm font-semibold text-white transition-colors hover:bg-[var(--primary-dark)]"
             >
               <Syringe className="h-4 w-4" />
-              Registrar Vacuna
+              {t('registerVaccine')}
             </Link>
           )}
         </div>
@@ -444,7 +453,7 @@ export function PetSummaryTab({ pet, weightHistory, clinic, clinicName, onWeight
         <div className="rounded-xl border border-gray-100 bg-white p-5">
           <h3 className="mb-4 flex items-center gap-2 font-bold text-[var(--text-primary)]">
             <Bone className="h-4 w-4 text-orange-500" />
-            Alimentación
+            {t('diet')}
           </h3>
           {pet.diet_category ? (
             <div>
@@ -454,7 +463,7 @@ export function PetSummaryTab({ pet, weightHistory, clinic, clinicName, onWeight
               {pet.diet_notes && <p className="text-sm text-gray-600">{pet.diet_notes}</p>}
             </div>
           ) : (
-            <p className="text-sm text-gray-400">No especificada</p>
+            <p className="text-sm text-gray-400">{t('notSpecified')}</p>
           )}
         </div>
 
@@ -463,18 +472,18 @@ export function PetSummaryTab({ pet, weightHistory, clinic, clinicName, onWeight
           <div className="rounded-xl border border-gray-100 bg-white p-5">
             <h3 className="mb-4 flex items-center gap-2 font-bold text-[var(--text-primary)]">
               <Phone className="h-4 w-4 text-blue-500" />
-              Contactos
+              {t('contacts')}
             </h3>
             <div className="space-y-3">
               {pet.primary_vet_name && (
                 <div>
-                  <span className="text-xs text-gray-500">Veterinario de cabecera</span>
+                  <span className="text-xs text-gray-500">{t('primaryVet')}</span>
                   <p className="text-sm font-medium">{pet.primary_vet_name}</p>
                 </div>
               )}
               {pet.emergency_contact_name && (
                 <div>
-                  <span className="text-xs text-gray-500">Contacto de emergencia</span>
+                  <span className="text-xs text-gray-500">{t('emergencyContact')}</span>
                   <p className="text-sm font-medium">{pet.emergency_contact_name}</p>
                   {pet.emergency_contact_phone && (
                     <p className="text-sm text-gray-600">{pet.emergency_contact_phone}</p>

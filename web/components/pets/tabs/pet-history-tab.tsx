@@ -18,6 +18,7 @@ import {
   Thermometer,
 } from 'lucide-react'
 import { useState } from 'react'
+import { useTranslations, useLocale } from 'next-intl'
 
 interface TimelineItem {
   id: string
@@ -60,6 +61,10 @@ export function PetHistoryTab({
   clinic,
   isStaff = false,
 }: PetHistoryTabProps) {
+  const t = useTranslations('pets.tabs.history')
+  const locale = useLocale()
+  const localeStr = locale === 'es' ? 'es-PY' : 'en-US'
+
   const [filter, setFilter] = useState<FilterType>('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set())
@@ -97,7 +102,7 @@ export function PetHistoryTab({
   })
 
   const formatDate = (dateStr: string): string => {
-    return new Date(dateStr).toLocaleDateString('es-PY', {
+    return new Date(dateStr).toLocaleDateString(localeStr, {
       day: 'numeric',
       month: 'long',
       year: 'numeric',
@@ -134,17 +139,17 @@ export function PetHistoryTab({
 
   const getTypeBadge = (item: TimelineItem): { label: string; color: string } => {
     if (item.type === 'prescription') {
-      return { label: 'Receta', color: 'bg-[var(--primary)]/10 text-[var(--primary)]' }
+      return { label: t('typePrescription'), color: 'bg-[var(--primary)]/10 text-[var(--primary)]' }
     }
     switch (item.record_type) {
       case 'surgery':
-        return { label: 'Cirugía', color: 'bg-[var(--status-error-bg)] text-[var(--status-error-text)]' }
+        return { label: t('typeSurgery'), color: 'bg-[var(--status-error-bg)] text-[var(--status-error-text)]' }
       case 'emergency':
-        return { label: 'Emergencia', color: 'bg-[var(--status-warning-bg)] text-[var(--status-warning-text)]' }
+        return { label: t('typeEmergency'), color: 'bg-[var(--status-warning-bg)] text-[var(--status-warning-text)]' }
       case 'vaccination':
-        return { label: 'Vacunación', color: 'bg-[var(--status-success-bg)] text-[var(--status-success-text)]' }
+        return { label: t('typeVaccination'), color: 'bg-[var(--status-success-bg)] text-[var(--status-success-text)]' }
       default:
-        return { label: 'Consulta', color: 'bg-[var(--status-info-bg)] text-[var(--status-info-text)]' }
+        return { label: t('typeConsultation'), color: 'bg-[var(--status-info-bg)] text-[var(--status-info-text)]' }
     }
   }
 
@@ -153,10 +158,9 @@ export function PetHistoryTab({
       {/* Header */}
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h2 className="text-xl font-bold text-[var(--text-primary)]">Historial Médico</h2>
+          <h2 className="text-xl font-bold text-[var(--text-primary)]">{t('title')}</h2>
           <p className="text-sm text-gray-500">
-            {timelineItems.length} registro{timelineItems.length !== 1 ? 's' : ''} médico
-            {timelineItems.length !== 1 ? 's' : ''}
+            {timelineItems.length !== 1 ? t('recordCountPlural', { count: timelineItems.length }) : t('recordCount', { count: timelineItems.length })}
           </p>
         </div>
         {isStaff && (
@@ -166,14 +170,14 @@ export function PetHistoryTab({
               className="flex items-center gap-2 rounded-xl bg-purple-100 px-4 py-2 text-sm font-medium text-purple-700 transition-colors hover:bg-purple-200"
             >
               <Pill className="h-4 w-4" />
-              Nueva Receta
+              {t('newPrescription')}
             </Link>
             <Link
               href={`/${clinic}/portal/pets/${petId}/records/new`}
               className="flex items-center gap-2 rounded-xl bg-[var(--primary)] px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
             >
               <Plus className="h-4 w-4" />
-              Nueva Consulta
+              {t('newConsultation')}
             </Link>
           </div>
         )}
@@ -186,7 +190,7 @@ export function PetHistoryTab({
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
           <input
             type="text"
-            placeholder="Buscar en historial..."
+            placeholder={t('searchPlaceholder')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="focus:ring-[var(--primary)]/10 w-full rounded-xl border border-gray-200 py-2.5 pl-10 pr-4 text-sm outline-none focus:border-[var(--primary)] focus:ring-2"
@@ -200,12 +204,12 @@ export function PetHistoryTab({
             onChange={(e) => setFilter(e.target.value as FilterType)}
             className="focus:ring-[var(--primary)]/10 cursor-pointer appearance-none rounded-xl border border-gray-200 bg-white py-2.5 pl-10 pr-8 text-sm outline-none focus:border-[var(--primary)] focus:ring-2"
           >
-            <option value="all">Todos los registros</option>
-            <option value="consultation">Consultas</option>
-            <option value="surgery">Cirugías</option>
-            <option value="prescription">Recetas</option>
-            <option value="vaccination">Vacunaciones</option>
-            <option value="emergency">Emergencias</option>
+            <option value="all">{t('filterAll')}</option>
+            <option value="consultation">{t('filterConsultation')}</option>
+            <option value="surgery">{t('filterSurgery')}</option>
+            <option value="prescription">{t('filterPrescription')}</option>
+            <option value="vaccination">{t('filterVaccination')}</option>
+            <option value="emergency">{t('filterEmergency')}</option>
           </select>
           <Filter className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
           <ChevronDown className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
@@ -269,30 +273,30 @@ export function PetHistoryTab({
                           item.vitals.rr) && (
                           <div className="rounded-xl border border-[var(--status-info-border)]/50 bg-[var(--status-info-bg)]/50 p-3">
                             <span className="mb-2 block text-xs font-bold uppercase text-[var(--status-info)]">
-                              Signos Vitales
+                              {t('vitalSigns')}
                             </span>
                             <div className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
                               {item.vitals.weight && (
                                 <div>
-                                  <span className="text-xs text-gray-400">Peso</span>
+                                  <span className="text-xs text-gray-400">{t('weight')}</span>
                                   <p className="font-bold text-gray-700">{item.vitals.weight} kg</p>
                                 </div>
                               )}
                               {item.vitals.temp && (
                                 <div>
-                                  <span className="text-xs text-gray-400">Temp</span>
+                                  <span className="text-xs text-gray-400">{t('temp')}</span>
                                   <p className="font-bold text-gray-700">{item.vitals.temp}°C</p>
                                 </div>
                               )}
                               {item.vitals.hr && (
                                 <div>
-                                  <span className="text-xs text-gray-400">FC</span>
+                                  <span className="text-xs text-gray-400">{t('heartRate')}</span>
                                   <p className="font-bold text-gray-700">{item.vitals.hr} lpm</p>
                                 </div>
                               )}
                               {item.vitals.rr && (
                                 <div>
-                                  <span className="text-xs text-gray-400">FR</span>
+                                  <span className="text-xs text-gray-400">{t('respRate')}</span>
                                   <p className="font-bold text-gray-700">{item.vitals.rr} rpm</p>
                                 </div>
                               )}
@@ -304,7 +308,7 @@ export function PetHistoryTab({
                       {item.medications && item.medications.length > 0 && (
                         <div>
                           <span className="mb-2 block text-xs font-bold uppercase text-purple-600">
-                            Medicamentos
+                            {t('medications')}
                           </span>
                           <div className="space-y-2">
                             {item.medications.map((med, idx) => (
@@ -334,7 +338,7 @@ export function PetHistoryTab({
                         {item.type === 'prescription' && (
                           <button className="flex items-center gap-2 rounded-lg bg-purple-600 px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-purple-700">
                             <Download className="h-3 w-3" />
-                            Descargar PDF
+                            {t('downloadPdf')}
                           </button>
                         )}
                         {item.attachments?.map((url, idx) => (
@@ -346,7 +350,7 @@ export function PetHistoryTab({
                             className="flex items-center gap-2 rounded-lg bg-gray-100 px-3 py-2 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-200"
                           >
                             <Paperclip className="h-3 w-3" />
-                            Adjunto {idx + 1}
+                            {t('attachment')} {idx + 1}
                           </a>
                         ))}
                       </div>
@@ -363,12 +367,12 @@ export function PetHistoryTab({
             <Activity className="h-8 w-8 text-gray-400" />
           </div>
           <h3 className="mb-2 font-bold text-gray-900">
-            {searchQuery || filter !== 'all' ? 'Sin resultados' : 'Sin historial médico'}
+            {searchQuery || filter !== 'all' ? t('noResults') : t('noHistory')}
           </h3>
           <p className="mx-auto mb-4 max-w-xs text-sm text-gray-500">
             {searchQuery || filter !== 'all'
-              ? 'No se encontraron registros con estos filtros'
-              : `No hay registros médicos para ${petName}`}
+              ? t('noResultsDesc')
+              : t('noHistoryDesc', { petName })}
           </p>
           {filter !== 'all' && (
             <button
@@ -378,7 +382,7 @@ export function PetHistoryTab({
               }}
               className="text-sm font-medium text-[var(--primary)] hover:underline"
             >
-              Limpiar filtros
+              {t('clearFilters')}
             </button>
           )}
         </div>

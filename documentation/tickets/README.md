@@ -76,9 +76,9 @@ All tickets are organized under strategic epics for better planning and tracking
 | ~~[RACE-001](./race-conditions/RACE-001-subscription-stock-overselling.md)~~ | ~~Stock Decrement Not Atomic in Subscriptions~~ | ~~Race Condition~~ | ~~5h~~ ✓ |
 | ~~[AUDIT-100](./technical-debt/AUDIT-100-mock-availability-route.md)~~ | ~~Mock API Route in Production~~ | ~~Tech Debt~~ | ~~1-2h~~ ✓ |
 | ~~[SEC-014](./security/SEC-014-referrals-apply-missing-auth.md)~~ | ~~Referrals Apply Endpoint Missing Authentication~~ | ~~Security~~ | ~~2-3h~~ ✓ |
-| [SEC-017](./security/SEC-017-open-redirect-oauth-callback.md) | Open Redirect Vulnerability in OAuth Callback | Security | 0.25h |
-| [SEC-018](./security/SEC-018-unvalidated-redirect-login-action.md) | Unvalidated Redirect in Login Server Action | Security | 0.33h |
-| [SEC-019](./security/SEC-019-negative-amount-payment-validation.md) | Missing Negative Amount Validation in Financial Endpoints | Security | 1-2h |
+| ~~[SEC-017](./security/SEC-017-open-redirect-oauth-callback.md)~~ | ~~Open Redirect Vulnerability in OAuth Callback~~ | ~~Security~~ | ~~0.25h~~ ✓ |
+| ~~[SEC-018](./security/SEC-018-unvalidated-redirect-login-action.md)~~ | ~~Unvalidated Redirect in Login Server Action~~ | ~~Security~~ | ~~0.33h~~ ✓ |
+| ~~[SEC-019](./security/SEC-019-negative-amount-payment-validation.md)~~ | ~~Missing Negative Amount Validation in Financial Endpoints~~ | ~~Security~~ | ~~1-2h~~ ✓ |
 
 ### P1 - High Priority (Do Soon)
 

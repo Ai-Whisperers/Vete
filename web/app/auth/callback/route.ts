@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { sanitizeRedirectUrl } from '@/lib/auth/redirect'
 
 /**
  * OAuth callback handler
@@ -13,7 +14,9 @@ export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
   // Support both 'redirect' (standardized) and 'next' (legacy) parameters
-  const redirectTo = searchParams.get('redirect') ?? searchParams.get('next') ?? '/'
+  const rawRedirect = searchParams.get('redirect') ?? searchParams.get('next') ?? '/'
+  // SEC-017: Sanitize redirect to prevent open redirect attacks
+  const redirectTo = sanitizeRedirectUrl(rawRedirect, '/', origin)
 
   if (code) {
     const supabase = await createClient()

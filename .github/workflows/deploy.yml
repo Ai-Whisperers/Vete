@@ -140,7 +140,7 @@ jobs:
     if: needs.setup.outputs.environment == 'production'
     environment:
       name: production
-      url: https://vete.vercel.app  # Update with actual production URL
+      url: https://vetepy.vercel.app
     steps:
       - uses: actions/checkout@v4
       
@@ -199,14 +199,14 @@ jobs:
       - name: Run smoke tests
         run: cd web && npm run test:smoke
         env:
-          BASE_URL: ${{ needs.deploy-staging.outputs.url || 'https://vete.vercel.app' }}
+          BASE_URL: ${{ needs.deploy-staging.outputs.url || 'https://vetepy.vercel.app' }}
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
         continue-on-error: true
       
       - name: Health check
         run: |
-          url="${{ needs.deploy-staging.outputs.url || 'https://vete.vercel.app' }}"
+          url="${{ needs.deploy-staging.outputs.url || 'https://vetepy.vercel.app' }}"
           for i in {1..5}; do
             if curl -s -o /dev/null -w "%{http_code}" "$url" | grep -q "200"; then
               echo "Health check passed!"

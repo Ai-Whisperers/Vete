@@ -704,7 +704,43 @@
       "cancelled": "Cancelled"
     },
     "payNow": "Pay now",
-    "downloadPdf": "Download PDF"
+    "downloadPdf": "Download PDF",
+    "lineItem": {
+      "serviceDescription": "Service/Description",
+      "custom": "Custom",
+      "descriptionPlaceholder": "Item description",
+      "quantity": "Quantity",
+      "unitPrice": "Unit Price",
+      "discount": "Disc. %",
+      "subtotal": "Subtotal",
+      "remove": "Remove"
+    }
+  },
+  "billing": {
+    "addCard": {
+      "title": "Add Card",
+      "subscriptionSummary": "Your Subscription Summary",
+      "plan": "Plan",
+      "monthlyAmount": "Monthly amount",
+      "plusCommissions": "+ commissions",
+      "trialRemaining": "Free trial remaining",
+      "trialDays": "{days} days",
+      "firstInvoiceDate": "First invoice date",
+      "noChargeToday": "No charge today",
+      "cancelAnytime": "Cancel anytime",
+      "cardData": "Card Details",
+      "securityNote": "Your payment information is protected with SSL encryption. We never store your complete card details.",
+      "saveCard": "Save Card",
+      "saving": "Saving...",
+      "errors": {
+        "initForm": "Error initializing form",
+        "unknownError": "Unknown error",
+        "cardFormNotFound": "Error: Card form not found",
+        "processCard": "Error processing card",
+        "saveCard": "Could not save card",
+        "confirmSave": "Error saving card"
+      }
+    }
   },
   "clinical": {
     "diagnosis": "Diagnosis",
@@ -1238,6 +1274,32 @@
         "title": "Store Analytics",
         "subtitle": "Sales, best sellers, coupons and more"
       }
+    },
+    "appointmentsChart": {
+      "title": "Appointments",
+      "loadingData": "Loading data...",
+      "errorLoading": "Error loading appointment data",
+      "retry": "Try again",
+      "noData": "No appointment data to display",
+      "period": {
+        "day": "Day",
+        "week": "Week",
+        "month": "Month"
+      },
+      "legend": {
+        "completed": "Completed",
+        "cancelled": "Cancelled",
+        "noShows": "No-shows"
+      }
+    },
+    "statusButtons": {
+      "checkIn": "Check in",
+      "noShow": "Mark as no-show",
+      "cancel": "Cancel appointment",
+      "start": "Start consultation",
+      "complete": "Complete",
+      "completeConsultation": "Complete consultation",
+      "errorProcessing": "Error processing action"
     }
   },
   "petSelector": {

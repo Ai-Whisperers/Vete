@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import * as Icons from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import {
   checkInAppointment,
   startAppointment,
@@ -18,6 +19,7 @@ interface StatusButtonsProps {
 }
 
 export function StatusButtons({ appointmentId, currentStatus, clinic }: StatusButtonsProps) {
+  const t = useTranslations('dashboard.statusButtons')
   const [loading, setLoading] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
@@ -37,7 +39,7 @@ export function StatusButtons({ appointmentId, currentStatus, clinic }: StatusBu
         router.refresh()
       }
     } catch (e) {
-      setError('Error al procesar la acción')
+      setError(t('errorProcessing'))
     } finally {
       setLoading(null)
     }
@@ -57,7 +59,7 @@ export function StatusButtons({ appointmentId, currentStatus, clinic }: StatusBu
             onClick={() => handleAction(() => checkInAppointment(appointmentId), 'checkin')}
             disabled={loading !== null}
             className={`${buttonBaseClass} bg-[var(--status-warning-bg)] text-[var(--status-warning)] hover:opacity-80`}
-            title="Registrar llegada"
+            title={t('checkIn')}
           >
             {loading === 'checkin' ? (
               <Icons.Loader2 className="h-4 w-4 animate-spin" />
@@ -71,7 +73,7 @@ export function StatusButtons({ appointmentId, currentStatus, clinic }: StatusBu
             onClick={() => handleAction(() => markNoShow(appointmentId), 'noshow')}
             disabled={loading !== null}
             className={`${buttonBaseClass} bg-[var(--status-warning-bg)] text-[var(--status-warning-text)] hover:opacity-80`}
-            title="Marcar como no presentado"
+            title={t('noShow')}
           >
             {loading === 'noshow' ? (
               <Icons.Loader2 className="h-4 w-4 animate-spin" />
@@ -85,7 +87,7 @@ export function StatusButtons({ appointmentId, currentStatus, clinic }: StatusBu
             onClick={() => handleAction(() => cancelAppointment(appointmentId), 'cancel')}
             disabled={loading !== null}
             className={`${buttonBaseClass} bg-[var(--status-error-bg)] text-[var(--status-error)] hover:opacity-80`}
-            title="Cancelar cita"
+            title={t('cancel')}
           >
             {loading === 'cancel' ? (
               <Icons.Loader2 className="h-4 w-4 animate-spin" />
@@ -106,7 +108,7 @@ export function StatusButtons({ appointmentId, currentStatus, clinic }: StatusBu
             onClick={() => handleAction(() => startAppointment(appointmentId), 'start')}
             disabled={loading !== null}
             className={`${buttonBaseClass} bg-purple-100 text-purple-700 hover:bg-purple-200`}
-            title="Iniciar consulta"
+            title={t('start')}
           >
             {loading === 'start' ? (
               <Icons.Loader2 className="h-4 w-4 animate-spin" />
@@ -120,7 +122,7 @@ export function StatusButtons({ appointmentId, currentStatus, clinic }: StatusBu
             onClick={() => handleAction(() => completeAppointment(appointmentId), 'complete')}
             disabled={loading !== null}
             className={`${buttonBaseClass} bg-[var(--status-success-bg)] text-[var(--status-success)] hover:opacity-80`}
-            title="Completar"
+            title={t('complete')}
           >
             {loading === 'complete' ? (
               <Icons.Loader2 className="h-4 w-4 animate-spin" />
@@ -141,7 +143,7 @@ export function StatusButtons({ appointmentId, currentStatus, clinic }: StatusBu
             onClick={() => handleAction(() => completeAppointment(appointmentId), 'complete')}
             disabled={loading !== null}
             className={`${buttonBaseClass} bg-[var(--status-success-bg)] text-[var(--status-success)] hover:opacity-80`}
-            title="Completar consulta"
+            title={t('completeConsultation')}
           >
             {loading === 'complete' ? (
               <Icons.Loader2 className="h-4 w-4 animate-spin" />

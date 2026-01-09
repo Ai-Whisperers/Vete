@@ -704,7 +704,43 @@
       "cancelled": "Cancelada"
     },
     "payNow": "Pagar ahora",
-    "downloadPdf": "Descargar PDF"
+    "downloadPdf": "Descargar PDF",
+    "lineItem": {
+      "serviceDescription": "Servicio/Descripción",
+      "custom": "Personalizado",
+      "descriptionPlaceholder": "Descripción del artículo",
+      "quantity": "Cantidad",
+      "unitPrice": "Precio Unit.",
+      "discount": "Desc. %",
+      "subtotal": "Subtotal",
+      "remove": "Eliminar"
+    }
+  },
+  "billing": {
+    "addCard": {
+      "title": "Agregar Tarjeta",
+      "subscriptionSummary": "Resumen de tu Suscripcion",
+      "plan": "Plan",
+      "monthlyAmount": "Monto mensual",
+      "plusCommissions": "+ comisiones",
+      "trialRemaining": "Prueba gratuita restante",
+      "trialDays": "{days} dias",
+      "firstInvoiceDate": "Fecha primera factura",
+      "noChargeToday": "No se cobrara nada hoy",
+      "cancelAnytime": "Puedes cancelar en cualquier momento",
+      "cardData": "Datos de la Tarjeta",
+      "securityNote": "Tu informacion de pago esta protegida con encriptacion SSL. Nunca almacenamos los datos completos de tu tarjeta.",
+      "saveCard": "Guardar Tarjeta",
+      "saving": "Guardando...",
+      "errors": {
+        "initForm": "Error al inicializar formulario",
+        "unknownError": "Error desconocido",
+        "cardFormNotFound": "Error: No se encontro el formulario de tarjeta",
+        "processCard": "Error al procesar la tarjeta",
+        "saveCard": "No se pudo guardar la tarjeta",
+        "confirmSave": "Error al guardar tarjeta"
+      }
+    }
   },
   "clinical": {
     "diagnosis": "Diagnóstico",
@@ -1238,6 +1274,32 @@
         "title": "Analíticas de Tienda",
         "subtitle": "Ventas, productos más vendidos, cupones y más"
       }
+    },
+    "appointmentsChart": {
+      "title": "Citas",
+      "loadingData": "Cargando datos...",
+      "errorLoading": "Error al cargar datos de citas",
+      "retry": "Intentar de nuevo",
+      "noData": "No hay datos de citas para mostrar",
+      "period": {
+        "day": "Día",
+        "week": "Semana",
+        "month": "Mes"
+      },
+      "legend": {
+        "completed": "Completadas",
+        "cancelled": "Canceladas",
+        "noShows": "No asistieron"
+      }
+    },
+    "statusButtons": {
+      "checkIn": "Registrar llegada",
+      "noShow": "Marcar como no presentado",
+      "cancel": "Cancelar cita",
+      "start": "Iniciar consulta",
+      "complete": "Completar",
+      "completeConsultation": "Completar consulta",
+      "errorProcessing": "Error al procesar la acción"
     }
   },
   "petSelector": {

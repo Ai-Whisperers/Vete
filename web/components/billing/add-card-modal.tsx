@@ -9,6 +9,7 @@
 
 import { useState, useEffect } from 'react'
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js'
+import { useTranslations, useLocale } from 'next-intl'
 import { Modal, ModalFooter } from '@/components/ui/modal'
 import { getStripe, cardElementOptions } from '@/lib/billing/stripe-client'
 import { CreditCard, CheckCircle, AlertCircle, Loader2, Info } from 'lucide-react'
@@ -25,13 +26,14 @@ interface AddCardModalProps {
 }
 
 export function AddCardModal(props: AddCardModalProps): React.ReactElement {
+  const t = useTranslations('billing.addCard')
   const stripePromise = getStripe()
 
   return (
     <Modal
       isOpen={props.isOpen}
       onClose={props.onClose}
-      title="Agregar Tarjeta"
+      title={t('title')}
       size="lg"
     >
       <Elements stripe={stripePromise}>
@@ -53,6 +55,9 @@ function AddCardForm({
   firstInvoiceDate,
   onSuccess,
 }: Omit<AddCardModalProps, 'isOpen'>): React.ReactElement {
+  const t = useTranslations('billing.addCard')
+  const tCommon = useTranslations('common')
+  const locale = useLocale()
   const stripe = useStripe()
   const elements = useElements()
 
@@ -61,6 +66,8 @@ function AddCardForm({
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [cardComplete, setCardComplete] = useState(false)
+
+  const localeStr = locale === 'es' ? 'es-PY' : 'en-US'
 
   // Get SetupIntent client secret
   useEffect(() => {
@@ -74,20 +81,20 @@ function AddCardForm({
 
         if (!response.ok) {
           const data = await response.json()
-          throw new Error(data.error?.message || 'Error al inicializar formulario')
+          throw new Error(data.error?.message || t('errors.initForm'))
         }
 
         const data = await response.json()
         setClientSecret(data.client_secret)
       } catch (e) {
-        setError(e instanceof Error ? e.message : 'Error desconocido')
+        setError(e instanceof Error ? e.message : t('errors.unknownError'))
       } finally {
         setIsLoading(false)
       }
     }
 
     createSetupIntent()
-  }, [clinic])
+  }, [clinic, t])
 
   async function handleSubmit(e: React.FormEvent): Promise<void> {
     e.preventDefault()
@@ -98,7 +105,7 @@ function AddCardForm({
 
     const cardElement = elements.getElement(CardElement)
     if (!cardElement) {
-      setError('Error: No se encontro el formulario de tarjeta')
+      setError(t('errors.cardFormNotFound'))
       return
     }
 
@@ -114,11 +121,11 @@ function AddCardForm({
       })
 
       if (stripeError) {
-        throw new Error(stripeError.message || 'Error al procesar la tarjeta')
+        throw new Error(stripeError.message || t('errors.processCard'))
       }
 
       if (!setupIntent?.payment_method) {
-        throw new Error('No se pudo guardar la tarjeta')
+        throw new Error(t('errors.saveCard'))
       }
 
       // Notify backend
@@ -135,12 +142,12 @@ function AddCardForm({
 
       if (!response.ok) {
         const data = await response.json()
-        throw new Error(data.error?.message || 'Error al guardar tarjeta')
+        throw new Error(data.error?.message || t('errors.confirmSave'))
       }
 
       onSuccess()
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Error desconocido')
+      setError(e instanceof Error ? e.message : t('errors.unknownError'))
     } finally {
       setIsSubmitting(false)
     }
@@ -150,7 +157,7 @@ function AddCardForm({
    * Format currency
    */
   function formatCurrency(amount: number): string {
-    return `₲${amount.toLocaleString('es-PY')}`
+    return `₲${amount.toLocaleString(localeStr)}`
   }
 
   /**
@@ -158,7 +165,7 @@ function AddCardForm({
    */
   function formatDate(dateStr: string | null): string {
     if (!dateStr) return '-'
-    return new Date(dateStr).toLocaleDateString('es-PY', {
+    return new Date(dateStr).toLocaleDateString(localeStr, {
       day: 'numeric',
       month: 'long',
       year: 'numeric',
@@ -181,27 +188,27 @@ function AddCardForm({
           <Info className="mt-0.5 h-5 w-5 flex-shrink-0 text-[var(--primary)]" />
           <div className="text-sm">
             <p className="font-medium text-[var(--text-primary)]">
-              Resumen de tu Suscripcion
+              {t('subscriptionSummary')}
             </p>
             <ul className="mt-2 space-y-1 text-[var(--text-secondary)]">
-              <li>Plan: <span className="font-medium">{tierName}</span></li>
-              <li>Monto mensual: <span className="font-medium">{formatCurrency(monthlyAmount)}</span> + comisiones</li>
+              <li>{t('plan')}: <span className="font-medium">{tierName}</span></li>
+              <li>{t('monthlyAmount')}: <span className="font-medium">{formatCurrency(monthlyAmount)}</span> {t('plusCommissions')}</li>
               {trialDaysRemaining !== null && trialDaysRemaining > 0 && (
-                <li>Prueba gratuita restante: <span className="font-medium">{trialDaysRemaining} dias</span></li>
+                <li>{t('trialRemaining')}: <span className="font-medium">{t('trialDays', { days: trialDaysRemaining })}</span></li>
               )}
               {firstInvoiceDate && (
-                <li>Fecha primera factura: <span className="font-medium">{formatDate(firstInvoiceDate)}</span></li>
+                <li>{t('firstInvoiceDate')}: <span className="font-medium">{formatDate(firstInvoiceDate)}</span></li>
               )}
             </ul>
 
             <div className="mt-3 space-y-1 text-xs text-[var(--text-muted)]">
               <p className="flex items-center gap-1">
                 <CheckCircle className="h-3 w-3 text-green-500" />
-                No se cobrara nada hoy
+                {t('noChargeToday')}
               </p>
               <p className="flex items-center gap-1">
                 <CheckCircle className="h-3 w-3 text-green-500" />
-                Puedes cancelar en cualquier momento
+                {t('cancelAnytime')}
               </p>
             </div>
           </div>
@@ -212,7 +219,7 @@ function AddCardForm({
       <div className="space-y-4">
         <label className="block">
           <span className="mb-2 block text-sm font-medium text-[var(--text-primary)]">
-            Datos de la Tarjeta
+            {t('cardData')}
           </span>
           <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-paper)] p-4 transition-shadow focus-within:border-[var(--primary)] focus-within:ring-1 focus-within:ring-[var(--primary)]">
             <CardElement
@@ -235,10 +242,7 @@ function AddCardForm({
         {/* Security Note */}
         <div className="flex items-start gap-2 rounded-lg bg-gray-50 p-3 text-xs text-gray-600">
           <CreditCard className="mt-0.5 h-4 w-4 flex-shrink-0" />
-          <p>
-            Tu informacion de pago esta protegida con encriptacion SSL.
-            Nunca almacenamos los datos completos de tu tarjeta.
-          </p>
+          <p>{t('securityNote')}</p>
         </div>
       </div>
 
@@ -258,7 +262,7 @@ function AddCardForm({
           disabled={isSubmitting}
           className="rounded-xl px-4 py-2 font-medium text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-subtle)]"
         >
-          Cancelar
+          {tCommon('cancel')}
         </button>
         <button
           type="submit"
@@ -268,12 +272,12 @@ function AddCardForm({
           {isSubmitting ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin" />
-              Guardando...
+              {t('saving')}
             </>
           ) : (
             <>
               <CreditCard className="h-4 w-4" />
-              Guardar Tarjeta
+              {t('saveCard')}
             </>
           )}
         </button>

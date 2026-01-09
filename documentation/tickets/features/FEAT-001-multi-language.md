@@ -45,6 +45,17 @@ Add support for multiple languages (starting with English) to expand the platfor
   - `components/store/pet-selector.tsx` - labels, loading states, error messages, empty states
 - ✅ Dashboard components migrated:
   - `components/dashboard/appointments/pending-requests-panel.tsx` - title, loading, error, preferences
+  - `components/dashboard/keyboard-shortcuts-modal.tsx` - all shortcut categories and descriptions
+  - `components/dashboard/global-search.tsx` - search UI, types, footer hints, empty states
+  - `components/dashboard/patient-quick-actions.tsx` - all action labels and hrefs
+  - `components/dashboard/bulk-messaging/index.tsx` - filters, templates, channels, steps
+  - `app/[clinic]/dashboard/analytics/page.tsx` - stats, charts, currency formatting
+  - `components/dashboard/appointments-chart.tsx` - chart labels, period tabs, legend
+  - `components/dashboard/appointments/status-buttons.tsx` - action button titles
+- ✅ Invoice components migrated:
+  - `components/invoices/line-item-row.tsx` - all form labels and placeholders
+- ✅ Billing components migrated:
+  - `components/billing/add-card-modal.tsx` - subscription summary, card form, error messages
 - ✅ Pet selector (services) migrated:
   - `components/services/pet-selector.tsx` - labels, loading, error, species names
 - ✅ Layout components migrated:
@@ -84,9 +95,18 @@ Add support for multiple languages (starting with English) to expand the platfor
   - `portal.invoiceActions` namespace (18 keys)
   - `portal.mobileNav` namespace (9 keys)
   - `cart` namespace (56 keys)
+  - `dashboard.keyboardShortcuts` namespace (40 keys)
+  - `dashboard.globalSearch` namespace (15 keys)
+  - `dashboard.patientQuickActions` namespace (15 keys)
+  - `dashboard.bulkMessaging` namespace (50 keys)
+  - `dashboard.analytics` namespace (25 keys)
+  - `dashboard.appointmentsChart` namespace (15 keys)
+  - `dashboard.statusButtons` namespace (7 keys)
+  - `invoices.lineItem` namespace (8 keys)
+  - `billing.addCard` namespace (20 keys)
 
 **Remaining Work:**
-- ~120 components still use hardcoded Spanish strings
+- ~90 components still use hardcoded Spanish strings
 - JSON-CMS content in Spanish only
 - No URL-based routing (`/es/adris`, `/en/adris`)
 
@@ -214,4 +234,4 @@ Add language variants to clinic content:
 - JSON-CMS language variants: 4 hours
 - URL routing implementation: 2 hours
 
-**Progress: 80% complete (Infrastructure + Navigation + Public pages + Booking + Portal (full) + Services + Pet profile + Store + Dashboard + Pet selectors + Layout + Cart (all) done)**
+**Progress: 85% complete (Infrastructure + Navigation + Public pages + Booking + Portal (full) + Services + Pet profile + Store + Dashboard (including analytics, bulk-messaging, global-search, keyboard-shortcuts, patient-quick-actions) + Pet selectors + Layout + Cart (all) done)**

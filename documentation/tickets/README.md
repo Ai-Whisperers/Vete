@@ -75,7 +75,7 @@ All tickets are organized under strategic epics for better planning and tracking
 | ~~[TEST-001](./testing/TEST-001-cron-job-tests.md)~~ | ~~Cron Job Test Coverage~~ | ~~Testing~~ | ~~14h~~ ✓ |
 | ~~[RACE-001](./race-conditions/RACE-001-subscription-stock-overselling.md)~~ | ~~Stock Decrement Not Atomic in Subscriptions~~ | ~~Race Condition~~ | ~~5h~~ ✓ |
 | ~~[AUDIT-100](./technical-debt/AUDIT-100-mock-availability-route.md)~~ | ~~Mock API Route in Production~~ | ~~Tech Debt~~ | ~~1-2h~~ ✓ |
-| [SEC-014](./security/SEC-014-referrals-apply-missing-auth.md) | Referrals Apply Endpoint Missing Authentication | Security | 2-3h |
+| ~~[SEC-014](./security/SEC-014-referrals-apply-missing-auth.md)~~ | ~~Referrals Apply Endpoint Missing Authentication~~ | ~~Security~~ | ~~2-3h~~ ✓ |
 
 ### P1 - High Priority (Do Soon)
 

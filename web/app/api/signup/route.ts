@@ -305,6 +305,71 @@ export async function POST(request: NextRequest): Promise<NextResponse<SignupRes
     }
 
     // =========================================================================
+    // STEP 8: Apply referral code if provided (SEC-014)
+    // =========================================================================
+
+    let referralBonus: { trial_bonus_days: number; referrer_name?: string } | null = null
+
+    if (data.referralCode) {
+      try {
+        const { data: referralId, error: referralError } = await supabaseService.rpc(
+          'process_referral_signup',
+          {
+            p_referral_code: data.referralCode.toUpperCase(),
+            p_new_tenant_id: data.slug,
+            p_utm_source: null,
+            p_utm_medium: null,
+            p_utm_campaign: null,
+          }
+        )
+
+        if (referralError) {
+          log.warn('Failed to apply referral code', {
+            action: 'signup.referral_failed',
+            slug: data.slug,
+            code: data.referralCode,
+            error: referralError.message,
+          })
+          // Non-fatal - signup still succeeds without referral
+        } else if (referralId) {
+          // Get referral details for display
+          const { data: referral } = await supabaseService
+            .from('referrals')
+            .select(`
+              referred_trial_bonus_days,
+              referrer_tenant:referrer_tenant_id (name)
+            `)
+            .eq('id', referralId)
+            .single()
+
+          if (referral) {
+            const rawReferrerTenant = referral.referrer_tenant
+            const referrerData = (Array.isArray(rawReferrerTenant) ? rawReferrerTenant[0] : rawReferrerTenant) as { name: string } | null
+
+            referralBonus = {
+              trial_bonus_days: referral.referred_trial_bonus_days || 60,
+              referrer_name: referrerData?.name,
+            }
+
+            log.info('Referral code applied successfully', {
+              action: 'signup.referral_applied',
+              slug: data.slug,
+              referralId,
+              bonusDays: referralBonus.trial_bonus_days,
+            })
+          }
+        }
+      } catch (referralCatchError) {
+        log.warn('Unexpected error applying referral code', {
+          action: 'signup.referral_error',
+          slug: data.slug,
+          error: referralCatchError instanceof Error ? referralCatchError.message : 'Unknown error',
+        })
+        // Non-fatal - signup still succeeds
+      }
+    }
+
+    // =========================================================================
     // SUCCESS
     // =========================================================================
 
@@ -322,11 +387,18 @@ export async function POST(request: NextRequest): Promise<NextResponse<SignupRes
       userId: newUser.user.id,
     })
 
+    // Build success message including referral bonus if applicable
+    let successMessage = `¡Bienvenido a Vetic! Tu clinica "${data.clinicName}" ha sido creada.`
+    if (referralBonus) {
+      successMessage += ` Referido por ${referralBonus.referrer_name || 'un amigo'}, recibes ${referralBonus.trial_bonus_days} días de prueba gratis.`
+    }
+
     return NextResponse.json({
       success: true,
       tenantId: data.slug,
       redirectUrl: `/${data.slug}/dashboard`,
-      message: `¡Bienvenido a Vetic! Tu clinica "${data.clinicName}" ha sido creada.`,
+      message: successMessage,
+      referralBonus: referralBonus || undefined,
     })
   } catch (error) {
     log.error('Unexpected signup error', {

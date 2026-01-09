@@ -987,6 +987,31 @@
         "waitingMinutes": "{minutes} min waiting",
         "waitingHoursMinutes": "{hours}h {minutes}m waiting"
       }
+    },
+    "clientNotes": {
+      "title": "Internal Notes",
+      "add": "Add",
+      "placeholder": "Write a note about this client...",
+      "private": "Only visible to you",
+      "public": "Visible to the entire team",
+      "privateLabel": "Private",
+      "noNotes": "No notes recorded",
+      "addFirst": "Add the first note",
+      "deleteConfirmTitle": "Delete note?",
+      "deleteConfirmMessage": "This action cannot be undone.",
+      "deleteConfirmLabel": "Delete",
+      "defaultUser": "User",
+      "errors": {
+        "loadNotes": "Error loading notes",
+        "saveNote": "Error saving note",
+        "editNote": "Error editing note",
+        "deleteNote": "Error deleting note"
+      },
+      "time": {
+        "minutesAgo": "{minutes} min ago",
+        "hoursAgo": "{hours} h ago",
+        "yesterday": "yesterday"
+      }
     }
   },
   "petSelector": {

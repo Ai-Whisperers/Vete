@@ -14,7 +14,7 @@ import {
   Lock,
   Unlock,
 } from 'lucide-react'
-import { useDashboardLabels } from '@/lib/hooks/use-dashboard-labels'
+import { useTranslations, useLocale } from 'next-intl'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { useToast } from '@/components/ui/Toast'
 
@@ -50,7 +50,9 @@ export function ClientNotes({
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editContent, setEditContent] = useState('')
   const [deletingId, setDeletingId] = useState<string | null>(null)
-  const labels = useDashboardLabels()
+  const t = useTranslations('dashboard.clientNotes')
+  const tCommon = useTranslations('common')
+  const locale = useLocale()
   const { showToast } = useToast()
 
   useEffect(() => {
@@ -68,7 +70,7 @@ export function ClientNotes({
         }
       } catch (error) {
         // UX-011: Show toast on network error
-        showToast('Error al cargar notas')
+        showToast(t('errors.loadNotes'))
         if (process.env.NODE_ENV === 'development') {
           console.error('Error fetching notes:', error)
         }
@@ -78,7 +80,7 @@ export function ClientNotes({
     }
 
     fetchNotes()
-  }, [clientId, clinic, initialNotes.length])
+  }, [clientId, clinic, initialNotes.length, t])
 
   const handleAddNote = async (): Promise<void> => {
     if (!newNote.trim()) return
@@ -104,7 +106,7 @@ export function ClientNotes({
       }
     } catch (error) {
       // UX-011: Show toast on network error
-      showToast('Error al guardar nota')
+      showToast(t('errors.saveNote'))
       if (process.env.NODE_ENV === 'development') {
         console.error('Error adding note:', error)
       }
@@ -140,7 +142,7 @@ export function ClientNotes({
       }
     } catch (error) {
       // UX-011: Show toast on network error
-      showToast('Error al editar nota')
+      showToast(t('errors.editNote'))
       if (process.env.NODE_ENV === 'development') {
         console.error('Error editing note:', error)
       }
@@ -163,7 +165,7 @@ export function ClientNotes({
       }
     } catch (error) {
       // UX-011: Show toast on network error
-      showToast('Error al eliminar nota')
+      showToast(t('errors.deleteNote'))
       if (process.env.NODE_ENV === 'development') {
         console.error('Error deleting note:', error)
       }
@@ -179,15 +181,15 @@ export function ClientNotes({
 
     if (diffHours < 1) {
       const minutes = Math.floor(diffHours * 60)
-      return `hace ${minutes} min`
+      return t('time.minutesAgo', { minutes })
     }
     if (diffHours < 24) {
-      return `hace ${Math.floor(diffHours)} h`
+      return t('time.hoursAgo', { hours: Math.floor(diffHours) })
     }
     if (diffHours < 48) {
-      return 'ayer'
+      return t('time.yesterday')
     }
-    return d.toLocaleDateString('es-PY', {
+    return d.toLocaleDateString(locale === 'es' ? 'es-PY' : 'en-US', {
       day: 'numeric',
       month: 'short',
     })
@@ -199,7 +201,7 @@ export function ClientNotes({
       <div className="flex items-center justify-between border-b border-[var(--border-color)] px-4 py-3">
         <div className="flex items-center gap-2">
           <StickyNote className="h-5 w-5 text-[var(--primary)]" />
-          <h3 className="font-semibold text-[var(--text-primary)]">{labels.notes.title}</h3>
+          <h3 className="font-semibold text-[var(--text-primary)]">{t('title')}</h3>
           <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-500">
             {notes.length}
           </span>
@@ -210,7 +212,7 @@ export function ClientNotes({
             className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm font-medium text-[var(--primary)] transition-colors hover:bg-[var(--primary)] hover:bg-opacity-10"
           >
             <Plus className="h-4 w-4" />
-            {labels.notes.add}
+            {t('add')}
           </button>
         )}
       </div>
@@ -228,7 +230,7 @@ export function ClientNotes({
               <textarea
                 value={newNote}
                 onChange={(e) => setNewNote(e.target.value)}
-                placeholder={labels.notes.placeholder}
+                placeholder={t('placeholder')}
                 rows={3}
                 className="w-full resize-none rounded-lg border border-[var(--border-color)] px-3 py-2 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
                 autoFocus
@@ -245,12 +247,12 @@ export function ClientNotes({
                   {isPrivate ? (
                     <>
                       <Lock className="h-4 w-4" />
-                      {labels.notes.private}
+                      {t('private')}
                     </>
                   ) : (
                     <>
                       <Unlock className="h-4 w-4" />
-                      {labels.notes.public}
+                      {t('public')}
                     </>
                   )}
                 </button>
@@ -264,7 +266,7 @@ export function ClientNotes({
                     className="rounded-lg px-4 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100"
                     disabled={isSaving}
                   >
-                    {labels.common.cancel}
+                    {tCommon('cancel')}
                   </button>
                   <button
                     onClick={handleAddNote}
@@ -276,7 +278,7 @@ export function ClientNotes({
                     ) : (
                       <Check className="h-4 w-4" />
                     )}
-                    {labels.common.save}
+                    {tCommon('save')}
                   </button>
                 </div>
               </div>
@@ -311,7 +313,7 @@ export function ClientNotes({
                       }}
                       className="rounded-lg px-3 py-1.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100"
                     >
-                      {labels.common.cancel}
+                      {tCommon('cancel')}
                     </button>
                     <button
                       onClick={() => handleEditNote(note.id)}
@@ -323,7 +325,7 @@ export function ClientNotes({
                       ) : (
                         <Check className="h-4 w-4" />
                       )}
-                      {labels.common.save}
+                      {tCommon('save')}
                     </button>
                   </div>
                 </div>
@@ -335,7 +337,7 @@ export function ClientNotes({
                         {note.content}
                       </p>
                       <div className="mt-2 flex items-center gap-3 text-xs text-[var(--text-secondary)]">
-                        <span>{note.created_by_name || 'Usuario'}</span>
+                        <span>{note.created_by_name || t('defaultUser')}</span>
                         <span>•</span>
                         <span>{formatDate(note.created_at)}</span>
                         {note.is_private && (
@@ -343,7 +345,7 @@ export function ClientNotes({
                             <span>•</span>
                             <span className="flex items-center gap-1 text-[var(--status-warning)]">
                               <Lock className="h-3 w-3" />
-                              Privada
+                              {t('privateLabel')}
                             </span>
                           </>
                         )}
@@ -357,7 +359,7 @@ export function ClientNotes({
                             setEditContent(note.content)
                           }}
                           className="rounded p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-[var(--primary)]"
-                          title={labels.common.edit}
+                          title={tCommon('edit')}
                         >
                           <Edit2 className="h-4 w-4" />
                         </button>
@@ -366,15 +368,15 @@ export function ClientNotes({
                           trigger={
                             <button
                               className="rounded p-1.5 text-gray-400 transition-colors hover:bg-[var(--status-error-bg)] hover:text-[var(--status-error)]"
-                              title={labels.common.delete}
+                              title={tCommon('delete')}
                             >
                               <Trash2 className="h-4 w-4" />
                             </button>
                           }
-                          title="¿Eliminar nota?"
-                          description="Esta acción no se puede deshacer."
-                          confirmLabel="Eliminar"
-                          cancelLabel="Cancelar"
+                          title={t('deleteConfirmTitle')}
+                          description={t('deleteConfirmMessage')}
+                          confirmLabel={t('deleteConfirmLabel')}
+                          cancelLabel={tCommon('cancel')}
                           variant="danger"
                           onConfirm={() => handleDeleteNote(note.id)}
                         />
@@ -388,12 +390,12 @@ export function ClientNotes({
         ) : (
           <div className="py-8 text-center">
             <StickyNote className="mx-auto mb-3 h-12 w-12 text-gray-300" />
-            <p className="text-sm text-[var(--text-secondary)]">{labels.notes.no_notes}</p>
+            <p className="text-sm text-[var(--text-secondary)]">{t('noNotes')}</p>
             <button
               onClick={() => setIsAdding(true)}
               className="mt-2 text-sm text-[var(--primary)] hover:underline"
             >
-              {labels.notes.add_first}
+              {t('addFirst')}
             </button>
           </div>
         )}

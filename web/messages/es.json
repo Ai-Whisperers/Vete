@@ -987,6 +987,31 @@
         "waitingMinutes": "{minutes} min esperando",
         "waitingHoursMinutes": "{hours}h {minutes}m esperando"
       }
+    },
+    "clientNotes": {
+      "title": "Notas Internas",
+      "add": "Agregar",
+      "placeholder": "Escribe una nota sobre este cliente...",
+      "private": "Solo visible para ti",
+      "public": "Visible para todo el equipo",
+      "privateLabel": "Privada",
+      "noNotes": "No hay notas registradas",
+      "addFirst": "Agregar la primera nota",
+      "deleteConfirmTitle": "¿Eliminar nota?",
+      "deleteConfirmMessage": "Esta acción no se puede deshacer.",
+      "deleteConfirmLabel": "Eliminar",
+      "defaultUser": "Usuario",
+      "errors": {
+        "loadNotes": "Error al cargar notas",
+        "saveNote": "Error al guardar nota",
+        "editNote": "Error al editar nota",
+        "deleteNote": "Error al eliminar nota"
+      },
+      "time": {
+        "minutesAgo": "hace {minutes} min",
+        "hoursAgo": "hace {hours} h",
+        "yesterday": "ayer"
+      }
     }
   },
   "petSelector": {

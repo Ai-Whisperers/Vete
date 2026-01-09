@@ -1,12 +1,15 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
+
 interface PortalWelcomeHeroProps {
   clinicName: string
 }
 
 export function PortalWelcomeHero({ clinicName }: PortalWelcomeHeroProps): React.ReactElement {
+  const t = useTranslations('portal.welcome')
   const hour = new Date().getHours()
-  const greeting = hour < 12 ? 'Buenos días' : hour < 18 ? 'Buenas tardes' : 'Buenas noches'
+  const greeting = hour < 12 ? t('goodMorning') : hour < 18 ? t('goodAfternoon') : t('goodEvening')
 
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-[var(--primary)] to-[var(--primary-dark)] py-6 text-white md:py-8">
@@ -26,7 +29,7 @@ export function PortalWelcomeHero({ clinicName }: PortalWelcomeHeroProps): React
       <div className="container relative z-10 mx-auto px-4 md:px-6">
         <h1 className="text-2xl font-bold md:text-3xl">{greeting}</h1>
         <p className="mt-1 text-white/80">
-          Bienvenido a tu portal de <span className="font-semibold text-white">{clinicName}</span>
+          {t('welcomePrefix')} <span className="font-semibold text-white">{clinicName}</span>
         </p>
       </div>
     </section>

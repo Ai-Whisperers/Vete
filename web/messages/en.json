@@ -145,6 +145,27 @@
       "invoices": "Invoices",
       "messages": "Messages",
       "viewPage": "View Page"
+    },
+    "welcome": {
+      "goodMorning": "Good morning",
+      "goodAfternoon": "Good afternoon",
+      "goodEvening": "Good evening",
+      "welcomePrefix": "Welcome to your"
+    },
+    "vaccines": {
+      "overdueTitle": "Overdue Mandatory Vaccines!",
+      "dueSoonTitle": "Mandatory Vaccines Due Soon",
+      "overdueCount": "{count} overdue",
+      "overdueCountPlural": "{count} overdue",
+      "dueCount": "{count} upcoming",
+      "dueCountPlural": "{count} upcoming",
+      "petHasVaccines": "{names} has {vaccines} mandatory vaccine.",
+      "petsHaveVaccines": "{names} have {vaccines} mandatory vaccines.",
+      "scheduleVaccination": "Schedule Vaccination",
+      "schedule": "Schedule",
+      "showDetails": "Show details",
+      "hideDetails": "Hide details",
+      "andMore": "and more"
     }
   },
   "appointments": {

@@ -145,6 +145,27 @@
       "invoices": "Facturas",
       "messages": "Mensajes",
       "viewPage": "Ver Página"
+    },
+    "welcome": {
+      "goodMorning": "Buenos días",
+      "goodAfternoon": "Buenas tardes",
+      "goodEvening": "Buenas noches",
+      "welcomePrefix": "Bienvenido a tu portal de"
+    },
+    "vaccines": {
+      "overdueTitle": "¡Vacunas Obligatorias Vencidas!",
+      "dueSoonTitle": "Vacunas Obligatorias Próximas a Vencer",
+      "overdueCount": "{count} vencida",
+      "overdueCountPlural": "{count} vencidas",
+      "dueCount": "{count} próxima",
+      "dueCountPlural": "{count} próximas",
+      "petHasVaccines": "{names} tiene {vaccines} vacuna obligatoria.",
+      "petsHaveVaccines": "{names} tienen {vaccines} vacunas obligatorias.",
+      "scheduleVaccination": "Agendar Vacunación",
+      "schedule": "Agendar",
+      "showDetails": "Ver detalles",
+      "hideDetails": "Ocultar detalles",
+      "andMore": "y más"
     }
   },
   "appointments": {

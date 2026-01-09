@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { ConfirmModal } from './modal'
 
 interface ConfirmDialogProps {
@@ -32,13 +33,17 @@ export function ConfirmDialog({
   trigger,
   title,
   description,
-  confirmLabel = 'Confirmar',
-  cancelLabel = 'Cancelar',
+  confirmLabel,
+  cancelLabel,
   variant = 'danger',
   onConfirm,
 }: ConfirmDialogProps): React.ReactElement {
+  const t = useTranslations('common')
   const [isOpen, setIsOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+
+  const effectiveConfirmLabel = confirmLabel ?? t('confirm')
+  const effectiveCancelLabel = cancelLabel ?? t('cancel')
 
   async function handleConfirm() {
     setIsLoading(true)
@@ -61,8 +66,8 @@ export function ConfirmDialog({
         onConfirm={handleConfirm}
         title={title}
         message={description}
-        confirmLabel={confirmLabel}
-        cancelLabel={cancelLabel}
+        confirmLabel={effectiveConfirmLabel}
+        cancelLabel={effectiveCancelLabel}
         variant={variant}
         isLoading={isLoading}
       />

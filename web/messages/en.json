@@ -212,6 +212,13 @@
       "yearsOnly": "{years} years",
       "monthsOnly": "{months} months",
       "lessThanMonth": "Less than 1 month"
+    },
+    "delete": {
+      "button": "Delete Pet",
+      "confirmTitle": "Delete {name}?",
+      "confirmMessage": "This action cannot be undone. All associated records will be deleted.",
+      "cancel": "Cancel",
+      "confirm": "Yes, Delete"
     }
   },
   "portal": {

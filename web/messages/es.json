@@ -212,6 +212,13 @@
       "yearsOnly": "{years} años",
       "monthsOnly": "{months} meses",
       "lessThanMonth": "Menos de 1 mes"
+    },
+    "delete": {
+      "button": "Eliminar Mascota",
+      "confirmTitle": "¿Eliminar a {name}?",
+      "confirmMessage": "Esta acción no se puede deshacer. Se eliminarán todos los registros asociados.",
+      "cancel": "Cancelar",
+      "confirm": "Sí, Eliminar"
     }
   },
   "portal": {

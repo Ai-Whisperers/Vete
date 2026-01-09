@@ -50,6 +50,9 @@ Add support for multiple languages (starting with English) to expand the platfor
 - ✅ Layout components migrated:
   - `components/layout/notification-bell.tsx` - time ago formatting, UI labels
   - `components/layout/newsletter-form.tsx` - title, subtitle, email labels
+- ✅ Additional portal components migrated:
+  - `components/portal/welcome-hero.tsx` - greetings (morning/afternoon/evening)
+  - `components/portal/mandatory-vaccines-alert.tsx` - alert titles, vaccine counts, actions
 - ✅ Translation namespaces expanded:
   - `home` namespace (10 keys)
   - `about` namespace (23 keys)
@@ -62,6 +65,8 @@ Add support for multiple languages (starting with English) to expand the platfor
   - `petSelector` namespace (15 keys)
   - `notifications` namespace (17 keys)
   - `newsletter` namespace (5 keys)
+  - `portal.welcome` namespace (4 keys)
+  - `portal.vaccines` namespace (13 keys)
 
 **Remaining Work:**
 - ~150 components still use hardcoded Spanish strings
@@ -191,4 +196,4 @@ Add language variants to clinic content:
 - JSON-CMS language variants: 4 hours
 - URL routing implementation: 2 hours
 
-**Progress: 72% complete (Infrastructure + Navigation + Public pages + Booking + Portal + Services + Pet profile + Store + Dashboard + Pet selectors + Layout components done)**
+**Progress: 74% complete (Infrastructure + Navigation + Public pages + Booking + Portal + Services + Pet profile + Store + Dashboard + Pet selectors + Layout + Portal welcome/vaccines done)**

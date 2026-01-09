@@ -1387,5 +1387,43 @@
     "weeks": "{count, plural, one {# week} other {# weeks}}",
     "months": "{count, plural, one {# month} other {# months}}",
     "years": "{count, plural, one {# year} other {# years}}"
+  },
+  "uploads": {
+    "photo": {
+      "uploadPhoto": "Upload photo",
+      "changePhoto": "Change photo",
+      "change": "Change",
+      "removePhoto": "Remove photo",
+      "dropHere": "Drop here",
+      "dropImage": "Drop the image",
+      "orDrag": "or drag",
+      "invalidFile": "Invalid file",
+      "errorProcessing": "Error processing image",
+      "imageOnly": "Only image files are allowed (JPG, PNG, GIF, WebP)",
+      "fileTooLarge": "File is too large. Maximum {maxSize}MB",
+      "formatsHint": "JPG, PNG, GIF, WebP • Max {maxSize}MB"
+    },
+    "prescription": {
+      "label": "Medical prescription",
+      "required": "required",
+      "dropFile": "Drop the file here",
+      "dragHere": "Drag your prescription here",
+      "orClickToSelect": "or click to select",
+      "formatsHint": "Formats: PDF, JPG, PNG (max. {maxSize}MB)",
+      "fileTypeNotAllowed": "File type not allowed. Use: {formats}",
+      "fileTooLarge": "File is too large. Maximum {maxSize}MB",
+      "uploadError": "Error uploading file",
+      "unexpectedError": "Unexpected error. Please try again.",
+      "prescriptionUploaded": "Prescription uploaded",
+      "uploadSuccess": "File uploaded successfully",
+      "uploading": "Uploading... {progress}%",
+      "uploadingLabel": "Uploading file: {progress}% complete",
+      "view": "View",
+      "viewFile": "View uploaded file (opens in new tab)",
+      "removeFile": "Remove uploaded file",
+      "previewAlt": "Prescription preview",
+      "previewLoading": "Preview",
+      "helpText": "The prescription will be reviewed by a veterinarian before processing the order"
+    }
   }
 }

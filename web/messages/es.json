@@ -1387,5 +1387,43 @@
     "weeks": "{count, plural, one {# semana} other {# semanas}}",
     "months": "{count, plural, one {# mes} other {# meses}}",
     "years": "{count, plural, one {# año} other {# años}}"
+  },
+  "uploads": {
+    "photo": {
+      "uploadPhoto": "Subir foto",
+      "changePhoto": "Cambiar foto",
+      "change": "Cambiar",
+      "removePhoto": "Eliminar foto",
+      "dropHere": "Soltar aquí",
+      "dropImage": "Suelta la imagen",
+      "orDrag": "o arrastra",
+      "invalidFile": "Archivo inválido",
+      "errorProcessing": "Error al procesar la imagen",
+      "imageOnly": "Solo se permiten archivos de imagen (JPG, PNG, GIF, WebP)",
+      "fileTooLarge": "El archivo es muy grande. Máximo {maxSize}MB",
+      "formatsHint": "JPG, PNG, GIF, WebP • Max {maxSize}MB"
+    },
+    "prescription": {
+      "label": "Receta médica",
+      "required": "requerido",
+      "dropFile": "Suelta el archivo aquí",
+      "dragHere": "Arrastra tu receta aquí",
+      "orClickToSelect": "o haz clic para seleccionar",
+      "formatsHint": "Formatos: PDF, JPG, PNG (max. {maxSize}MB)",
+      "fileTypeNotAllowed": "Tipo de archivo no permitido. Use: {formats}",
+      "fileTooLarge": "El archivo es muy grande. Máximo {maxSize}MB",
+      "uploadError": "Error al subir archivo",
+      "unexpectedError": "Error inesperado. Intente de nuevo.",
+      "prescriptionUploaded": "Receta subida",
+      "uploadSuccess": "Archivo subido correctamente",
+      "uploading": "Subiendo... {progress}%",
+      "uploadingLabel": "Subiendo archivo: {progress}% completado",
+      "view": "Ver",
+      "viewFile": "Ver archivo subido (abre en nueva pestaña)",
+      "removeFile": "Eliminar archivo subido",
+      "previewAlt": "Vista previa de receta",
+      "previewLoading": "Vista previa",
+      "helpText": "La receta sera revisada por un veterinario antes de procesar el pedido"
+    }
   }
 }

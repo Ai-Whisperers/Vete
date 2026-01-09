@@ -25,9 +25,17 @@ Add support for multiple languages (starting with English) to expand the platfor
   - `main-nav.tsx` - nav items, cart aria-labels with pluralization
   - `UserMenu.tsx` - login/logout labels
   - `MobileMenu.tsx` - all sections (Navigation, Tools, My Account, Staff, Language)
+- ✅ Public pages migrated:
+  - `app/[clinic]/page.tsx` - homepage with contact section
+  - `app/[clinic]/about/page.tsx` - team, values, facilities, CTA
+  - `components/forms/appointment-form.tsx` - booking form
+- ✅ Translation namespaces expanded:
+  - `home` namespace (10 keys)
+  - `about` namespace (23 keys)
+  - `booking` namespace (23 keys)
 
 **Remaining Work:**
-- ~197 components still use hardcoded Spanish strings
+- ~180 components still use hardcoded Spanish strings
 - JSON-CMS content in Spanish only
 - No URL-based routing (`/es/adris`, `/en/adris`)
 
@@ -114,10 +122,12 @@ Add language variants to clinic content:
 
 1. [x] Install and configure `next-intl` ✅
 2. [x] Create translation file structure ✅
-3. [x] Extract Spanish strings to `es.json` ✅ (241 lines across 12 namespaces)
+3. [x] Extract Spanish strings to `es.json` ✅ (~320 lines across 14 namespaces)
 4. [x] Create English translations ✅ (complete parity with es.json)
-5. [~] Update components to use `useTranslations` (~197 remaining, 15h estimated)
+5. [~] Update components to use `useTranslations` (~180 remaining, 12h estimated)
    - [x] Navigation components (main-nav, UserMenu, MobileMenu)
+   - [x] Public pages (home, about)
+   - [x] Booking form (appointment-form)
 6. [x] Add language switcher component ✅ (integrated in navigation)
 7. [ ] Update JSON-CMS loader for language variants
 8. [ ] Add language preference to user profile
@@ -140,10 +150,9 @@ Add language variants to clinic content:
 - English translation: 8 hours ✅ COMPLETE
 - Testing: 8 hours
 
-**Remaining Work (~23 hours):**
-- Component migration to useTranslations: 15 hours (navigation done)
+**Remaining Work (~18 hours):**
+- Component migration to useTranslations: 12 hours (~180 components remaining)
 - JSON-CMS language variants: 4 hours
 - URL routing implementation: 2 hours
-- Testing & QA: 2 hours
 
-**Progress: 45% complete (Infrastructure + Navigation components done)**
+**Progress: 55% complete (Infrastructure + Navigation + Public pages + Booking form done)**

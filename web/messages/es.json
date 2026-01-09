@@ -110,7 +110,20 @@
     "other": "Otro",
     "noPets": "No tienes mascotas registradas",
     "vaccineCard": "Carnet de vacunas",
-    "medicalHistory": "Historial médico"
+    "medicalHistory": "Historial médico",
+    "myPets": "Mis Mascotas",
+    "mixed": "Mestizo",
+    "vaccines": "Vacunas",
+    "activeVaccines": "{count} activas",
+    "vaccine": "Vacuna",
+    "viewProfile": "Ver perfil"
+  },
+  "portal": {
+    "errorLoading": "Error al cargar datos",
+    "errorMessage": "Hubo un problema al cargar tu información. Por favor, intenta recargar la página.",
+    "reloadPage": "Recargar página",
+    "noPets": "No tienes mascotas registradas",
+    "noPetsDesc": "Registra tu primera mascota para comenzar"
   },
   "appointments": {
     "title": "Citas",
@@ -135,6 +148,32 @@
       "cancelled": "Cancelada",
       "noShow": "No asistió"
     }
+  },
+  "booking": {
+    "title": "Agendar Cita",
+    "subtitle": "Déjanos tus datos y te confirmaremos el horario por WhatsApp.",
+    "yourName": "Tu Nombre",
+    "phone": "Teléfono",
+    "pet": "Mascota",
+    "consultReason": "Motivo de la Consulta",
+    "submitting": "Enviando...",
+    "confirmRequest": "Confirmar Solicitud",
+    "requestSent": "¡Solicitud Enviada!",
+    "willContactYou": "Te contactaremos pronto",
+    "sendAnother": "Enviar otra solicitud",
+    "termsNotice": "Al enviar, aceptas ser contactado por la clínica.",
+    "namePlaceholder": "Ej: Juan Pérez",
+    "phonePlaceholder": "0981...",
+    "petPlaceholder": "Ej: Firulais",
+    "reasonPlaceholder": "Ej: Vacunación anual y corte de uñas...",
+    "phoneHelp": "Ingrese su número de teléfono para contacto",
+    "petHelp": "Nombre de la mascota",
+    "reasonHelp": "Describa el motivo de la consulta veterinaria",
+    "authRequired": "Autenticación Requerida",
+    "pleaseLogin": "Por favor inicia sesión",
+    "loginButton": "Iniciar Sesión",
+    "createAccount": "Crear Cuenta",
+    "freeSignup": "Es gratis y solo toma un minuto"
   },
   "vaccines": {
     "title": "Vacunas",
@@ -249,6 +288,48 @@
       "save": "Error al guardar",
       "delete": "Error al eliminar"
     }
+  },
+  "home": {
+    "ourServices": "Nuestros Servicios",
+    "testimonials": "Testimonios",
+    "visitUs": "Visítanos",
+    "address": "Dirección",
+    "phone": "Teléfono",
+    "schedule": "Horarios",
+    "emergency": "Urgencias",
+    "emergencyHours": "24 horas, 365 días",
+    "weekdaysSchedule": "Lun-Vie: {hours}"
+  },
+  "about": {
+    "pageNotFound": "Página no encontrada",
+    "ourHistory": "Nuestra Historia",
+    "petsServed": "Mascotas Atendidas",
+    "yearsExperience": "Años de Experiencia",
+    "emergencyAttention": "Atención Urgencias",
+    "googleRating": "Calificación Google",
+    "history": "Historia",
+    "ourJourney": "Nuestra Trayectoria",
+    "team": "Equipo",
+    "ourTeam": "Nuestro Equipo",
+    "teamDescription": "Profesionales apasionados dedicados al bienestar de tu mascota",
+    "values": "Valores",
+    "ourValues": "Nuestros Valores",
+    "animalLove": "Amor por los Animales",
+    "animalLoveText": "Tratamos a cada paciente como si fuera nuestro propio compañero.",
+    "professionalExcellence": "Excelencia Profesional",
+    "professionalExcellenceText": "Formación continua y tecnología de punta para el mejor diagnóstico.",
+    "familyCommitment": "Compromiso Familiar",
+    "familyCommitmentText": "Acompañamos a las familias en cada etapa de la vida de sus mascotas.",
+    "facilities": "Instalaciones",
+    "ourFacilities": "Nuestras Instalaciones",
+    "certifications": "Certificaciones",
+    "certificationsTitle": "Avales y Certificaciones",
+    "certificationsText": "Cumplimos con los más altos estándares de calidad y regulaciones sanitarias",
+    "readyToMeetUs": "¿Listo para Conocernos?",
+    "ctaDescription": "Agenda tu primera consulta y descubre por qué miles de familias confían en nosotros para el cuidado de sus mascotas.",
+    "bookAppointment": "Agendar Cita",
+    "callNow": "Llamar Ahora",
+    "emergency247": "Urgencias 24/7"
   },
   "time": {
     "today": "Hoy",

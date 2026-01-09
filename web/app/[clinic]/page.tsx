@@ -6,6 +6,7 @@ import { AppointmentForm } from '@/components/forms/appointment-form'
 import { createClient } from '@/lib/supabase/server'
 import { PublicHero } from '@/components/home/public-hero'
 import { ClinicLocationMap } from '@/components/home/clinic-location-map'
+import { getTranslations } from 'next-intl/server'
 
 // Dynamic Icon Component - safely handles icon name lookup
 const DynamicIcon = ({ name, className }: { name: string; className?: string }) => {
@@ -37,6 +38,7 @@ export default async function ClinicHomePage({
   if (!data) notFound()
 
   const { home, config } = data
+  const tHome = await getTranslations('home')
 
   // Allow viewing public page with ?public=true query param
   const forcePublic = showPublic === 'true'
@@ -84,7 +86,7 @@ export default async function ClinicHomePage({
         <div className="container mx-auto px-4 md:px-6">
           <div className="mb-12 text-center md:mb-16">
             <span className="mb-3 inline-block text-sm font-bold uppercase tracking-widest text-[var(--primary)]">
-              Nuestros Servicios
+              {tHome('ourServices')}
             </span>
             <h2 className="font-heading mb-4 text-3xl font-black text-[var(--text-primary)] md:text-4xl">
               {config.ui_labels?.home?.features_title}
@@ -159,7 +161,7 @@ export default async function ClinicHomePage({
           <div className="container mx-auto px-4 md:px-6">
             <div className="mb-12 text-center md:mb-16">
               <span className="mb-3 inline-block text-sm font-bold uppercase tracking-widest text-[var(--primary)]">
-                Testimonios
+                {tHome('testimonials')}
               </span>
               <h2 className="font-heading mb-4 text-3xl font-black text-[var(--text-primary)] md:text-4xl">
                 {home.testimonials_section.title}
@@ -225,7 +227,7 @@ export default async function ClinicHomePage({
                 {config.ui_labels?.home?.contact_badge}
               </span>
               <h2 className="font-heading mb-8 text-3xl font-black text-[var(--text-primary)] md:text-4xl">
-                {config.ui_labels?.home?.visit_us || 'Visítanos'}
+                {config.ui_labels?.home?.visit_us || tHome('visitUs')}
               </h2>
 
               {/* Contact Info Cards */}
@@ -235,7 +237,7 @@ export default async function ClinicHomePage({
                     <Icons.MapPin className="h-6 w-6 text-[var(--primary)]" />
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-[var(--text-primary)]">Dirección</p>
+                    <p className="text-sm font-bold text-[var(--text-primary)]">{tHome('address')}</p>
                     <p className="text-sm text-[var(--text-secondary)]">{config.contact.address}</p>
                   </div>
                 </div>
@@ -244,7 +246,7 @@ export default async function ClinicHomePage({
                     <Icons.Phone className="h-6 w-6 text-[var(--primary)]" />
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-[var(--text-primary)]">Teléfono</p>
+                    <p className="text-sm font-bold text-[var(--text-primary)]">{tHome('phone')}</p>
                     <p className="text-sm text-[var(--text-secondary)]">
                       {config.contact.phone_display}
                     </p>
@@ -255,9 +257,9 @@ export default async function ClinicHomePage({
                     <Icons.Clock className="h-6 w-6 text-[var(--primary)]" />
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-[var(--text-primary)]">Horarios</p>
+                    <p className="text-sm font-bold text-[var(--text-primary)]">{tHome('schedule')}</p>
                     <p className="text-sm text-[var(--text-secondary)]">
-                      Lun-Vie: {config.hours?.weekdays || 'Consultar'}
+                      {tHome('weekdaysSchedule', { hours: config.hours?.weekdays || '---' })}
                     </p>
                   </div>
                 </div>
@@ -266,9 +268,9 @@ export default async function ClinicHomePage({
                     <Icons.Zap className="h-6 w-6 text-[var(--secondary-dark)]" />
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-[var(--text-primary)]">Urgencias</p>
+                    <p className="text-sm font-bold text-[var(--text-primary)]">{tHome('emergency')}</p>
                     <p className="text-sm font-medium text-[var(--secondary-dark)]">
-                      24 horas, 365 días
+                      {tHome('emergencyHours')}
                     </p>
                   </div>
                 </div>

@@ -3,13 +3,14 @@
 import { useActionState } from 'react'
 import { useFormStatus } from 'react-dom'
 import { useState, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import { submitContactForm } from '@/app/actions/contact-form'
 import { Check, Loader2, Send, User, Phone, Dog, MessageSquare } from 'lucide-react'
 
 type FormState = { success: true; message?: string } | { success: false; error: string } | null
 
 // Submit Button with loading state
-function SubmitButton() {
+function SubmitButton({ submittingText, confirmText }: { submittingText: string; confirmText: string }) {
   const { pending } = useFormStatus()
 
   return (
@@ -21,11 +22,11 @@ function SubmitButton() {
       {pending ? (
         <>
           <Loader2 className="h-5 w-5 animate-spin" />
-          Enviando...
+          {submittingText}
         </>
       ) : (
         <>
-          Confirmar Solicitud
+          {confirmText}
           <Send className="h-5 w-5" />
         </>
       )}
@@ -69,6 +70,7 @@ function FormSkeleton() {
 // The actual form component
 function AppointmentFormContent() {
   const [state, formAction] = useActionState<FormState, FormData>(submitContactForm, null)
+  const t = useTranslations('booking')
 
   if (state?.success) {
     return (
@@ -76,13 +78,13 @@ function AppointmentFormContent() {
         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-lg">
           <Check className="h-8 w-8" />
         </div>
-        <h3 className="mb-2 text-xl font-bold text-green-800">¡Solicitud Enviada!</h3>
-        <p className="text-green-700">{state.message || 'Te contactaremos pronto'}</p>
+        <h3 className="mb-2 text-xl font-bold text-green-800">{t('requestSent')}</h3>
+        <p className="text-green-700">{state.message || t('willContactYou')}</p>
         <button
           onClick={() => window.location.reload()}
           className="mt-6 text-sm font-bold text-green-800 transition-colors hover:text-green-900 hover:underline"
         >
-          Enviar otra solicitud
+          {t('sendAnother')}
         </button>
       </div>
     )
@@ -92,10 +94,10 @@ function AppointmentFormContent() {
     <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-[var(--shadow-card)] md:p-8">
       <div className="mb-6">
         <h3 className="font-heading mb-2 text-xl font-black text-[var(--text-primary)] md:text-2xl">
-          Agendar Cita
+          {t('title')}
         </h3>
         <p className="text-sm text-[var(--text-secondary)]">
-          Déjanos tus datos y te confirmaremos el horario por WhatsApp.
+          {t('subtitle')}
         </p>
       </div>
 
@@ -106,7 +108,7 @@ function AppointmentFormContent() {
             htmlFor="name-field"
             className="mb-2 block text-sm font-bold text-[var(--text-primary)]"
           >
-            Tu Nombre{' '}
+            {t('yourName')}{' '}
             <span className="text-red-600" aria-label="requerido">
               *
             </span>
@@ -120,7 +122,7 @@ function AppointmentFormContent() {
               name="name"
               type="text"
               required
-              placeholder="Ej: Juan Pérez"
+              placeholder={t('namePlaceholder')}
               autoComplete="off"
               data-lpignore="true"
               data-form-type="other"
@@ -143,7 +145,7 @@ function AppointmentFormContent() {
               htmlFor="phone-field"
               className="mb-2 block text-sm font-bold text-[var(--text-primary)]"
             >
-              Teléfono{' '}
+              {t('phone')}{' '}
               <span className="text-red-600" aria-label="requerido">
                 *
               </span>
@@ -157,7 +159,7 @@ function AppointmentFormContent() {
                 name="phone"
                 type="tel"
                 required
-                placeholder="0981..."
+                placeholder={t('phonePlaceholder')}
                 autoComplete="off"
                 data-lpignore="true"
                 data-form-type="other"
@@ -167,7 +169,7 @@ function AppointmentFormContent() {
               />
             </div>
             <p id="phone-help" className="sr-only">
-              Ingrese su número de teléfono para contacto
+              {t('phoneHelp')}
             </p>
           </div>
           <div>
@@ -175,7 +177,7 @@ function AppointmentFormContent() {
               htmlFor="pet-field"
               className="mb-2 block text-sm font-bold text-[var(--text-primary)]"
             >
-              Mascota{' '}
+              {t('pet')}{' '}
               <span className="text-red-600" aria-label="requerido">
                 *
               </span>
@@ -189,7 +191,7 @@ function AppointmentFormContent() {
                 name="petName"
                 type="text"
                 required
-                placeholder="Ej: Firulais"
+                placeholder={t('petPlaceholder')}
                 autoComplete="off"
                 data-lpignore="true"
                 data-form-type="other"
@@ -199,7 +201,7 @@ function AppointmentFormContent() {
               />
             </div>
             <p id="pet-help" className="sr-only">
-              Nombre de la mascota
+              {t('petHelp')}
             </p>
           </div>
         </div>
@@ -210,7 +212,7 @@ function AppointmentFormContent() {
             htmlFor="reason-field"
             className="mb-2 block text-sm font-bold text-[var(--text-primary)]"
           >
-            Motivo de la Consulta{' '}
+            {t('consultReason')}{' '}
             <span className="text-red-600" aria-label="requerido">
               *
             </span>
@@ -223,7 +225,7 @@ function AppointmentFormContent() {
               id="reason-field"
               name="reason"
               required
-              placeholder="Ej: Vacunación anual y corte de uñas..."
+              placeholder={t('reasonPlaceholder')}
               rows={3}
               autoComplete="off"
               data-lpignore="true"
@@ -234,14 +236,14 @@ function AppointmentFormContent() {
             />
           </div>
           <p id="reason-help" className="sr-only">
-            Describa el motivo de la consulta veterinaria
+            {t('reasonHelp')}
           </p>
         </div>
 
-        <SubmitButton />
+        <SubmitButton submittingText={t('submitting')} confirmText={t('confirmRequest')} />
 
         <p className="pt-2 text-center text-xs text-[var(--text-muted)]">
-          Al enviar, aceptas ser contactado por la clínica.
+          {t('termsNotice')}
         </p>
       </form>
     </div>

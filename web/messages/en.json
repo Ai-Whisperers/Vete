@@ -110,7 +110,20 @@
     "other": "Other",
     "noPets": "You have no registered pets",
     "vaccineCard": "Vaccine card",
-    "medicalHistory": "Medical history"
+    "medicalHistory": "Medical history",
+    "myPets": "My Pets",
+    "mixed": "Mixed breed",
+    "vaccines": "Vaccines",
+    "activeVaccines": "{count} active",
+    "vaccine": "Vaccine",
+    "viewProfile": "View profile"
+  },
+  "portal": {
+    "errorLoading": "Error loading data",
+    "errorMessage": "There was a problem loading your information. Please try reloading the page.",
+    "reloadPage": "Reload page",
+    "noPets": "You have no registered pets",
+    "noPetsDesc": "Register your first pet to get started"
   },
   "appointments": {
     "title": "Appointments",
@@ -135,6 +148,32 @@
       "cancelled": "Cancelled",
       "noShow": "No show"
     }
+  },
+  "booking": {
+    "title": "Book Appointment",
+    "subtitle": "Leave us your details and we'll confirm the time via WhatsApp.",
+    "yourName": "Your Name",
+    "phone": "Phone",
+    "pet": "Pet",
+    "consultReason": "Reason for Consultation",
+    "submitting": "Submitting...",
+    "confirmRequest": "Confirm Request",
+    "requestSent": "Request Sent!",
+    "willContactYou": "We'll contact you soon",
+    "sendAnother": "Send another request",
+    "termsNotice": "By submitting, you agree to be contacted by the clinic.",
+    "namePlaceholder": "e.g., John Smith",
+    "phonePlaceholder": "555-1234...",
+    "petPlaceholder": "e.g., Max",
+    "reasonPlaceholder": "e.g., Annual vaccination and nail trimming...",
+    "phoneHelp": "Enter your phone number for contact",
+    "petHelp": "Pet's name",
+    "reasonHelp": "Describe the reason for the veterinary consultation",
+    "authRequired": "Authentication Required",
+    "pleaseLogin": "Please sign in",
+    "loginButton": "Sign In",
+    "createAccount": "Create Account",
+    "freeSignup": "It's free and only takes a minute"
   },
   "vaccines": {
     "title": "Vaccines",
@@ -249,6 +288,48 @@
       "save": "Error saving",
       "delete": "Error deleting"
     }
+  },
+  "home": {
+    "ourServices": "Our Services",
+    "testimonials": "Testimonials",
+    "visitUs": "Visit Us",
+    "address": "Address",
+    "phone": "Phone",
+    "schedule": "Hours",
+    "emergency": "Emergency",
+    "emergencyHours": "24 hours, 365 days",
+    "weekdaysSchedule": "Mon-Fri: {hours}"
+  },
+  "about": {
+    "pageNotFound": "Page not found",
+    "ourHistory": "Our History",
+    "petsServed": "Pets Served",
+    "yearsExperience": "Years of Experience",
+    "emergencyAttention": "Emergency Care",
+    "googleRating": "Google Rating",
+    "history": "History",
+    "ourJourney": "Our Journey",
+    "team": "Team",
+    "ourTeam": "Our Team",
+    "teamDescription": "Passionate professionals dedicated to your pet's wellbeing",
+    "values": "Values",
+    "ourValues": "Our Values",
+    "animalLove": "Love for Animals",
+    "animalLoveText": "We treat every patient as if they were our own companion.",
+    "professionalExcellence": "Professional Excellence",
+    "professionalExcellenceText": "Continuous training and cutting-edge technology for the best diagnosis.",
+    "familyCommitment": "Family Commitment",
+    "familyCommitmentText": "We accompany families at every stage of their pets' lives.",
+    "facilities": "Facilities",
+    "ourFacilities": "Our Facilities",
+    "certifications": "Certifications",
+    "certificationsTitle": "Accreditations & Certifications",
+    "certificationsText": "We meet the highest quality standards and sanitary regulations",
+    "readyToMeetUs": "Ready to Meet Us?",
+    "ctaDescription": "Schedule your first consultation and discover why thousands of families trust us with their pets' care.",
+    "bookAppointment": "Book Appointment",
+    "callNow": "Call Now",
+    "emergency247": "24/7 Emergency"
   },
   "time": {
     "today": "Today",

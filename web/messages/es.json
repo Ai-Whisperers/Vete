@@ -1066,6 +1066,54 @@
         "totalSpent": "Total Gastado",
         "loyaltyPoints": "Puntos de Lealtad"
       }
+    },
+    "keyboardShortcuts": {
+      "title": "Atajos de Teclado",
+      "subtitle": "Navega más rápido con el teclado",
+      "pressToShow": "Presiona ? en cualquier momento para ver esta guía",
+      "openShortcuts": "Abrir atajos de teclado",
+      "close": "Cerrar",
+      "categories": {
+        "generalNav": "Navegación General",
+        "searchFilters": "Búsqueda y Filtros",
+        "appointmentsCalendar": "Citas y Calendario",
+        "clientsPatients": "Clientes y Pacientes",
+        "quickActions": "Acciones Rápidas",
+        "other": "Otros"
+      },
+      "shortcuts": {
+        "openGlobalSearch": "Abrir búsqueda global",
+        "toggleSidebar": "Colapsar/expandir sidebar",
+        "showShortcuts": "Mostrar atajos de teclado",
+        "closeDialogs": "Cerrar diálogos/paneles",
+        "goToDashboard": "Ir al Dashboard",
+        "goToCalendar": "Ir a Calendario",
+        "goToPatients": "Ir a Pacientes",
+        "goToInventory": "Ir a Inventario",
+        "goToSettings": "Ir a Configuración",
+        "focusSearch": "Enfocar en búsqueda",
+        "searchInPage": "Buscar en página actual",
+        "quickFilter": "Aplicar filtro rápido",
+        "newAppointment": "Nueva cita (en calendario)",
+        "goToToday": "Ir a hoy",
+        "previousPeriod": "Período anterior",
+        "nextPeriod": "Período siguiente",
+        "dayView": "Vista día",
+        "weekView": "Vista semana",
+        "monthView": "Vista mes",
+        "newClient": "Nuevo cliente",
+        "editSelected": "Editar seleccionado",
+        "viewDetail": "Ver detalle",
+        "navigateList": "Navegar en lista",
+        "quickNewAppointment": "Nueva cita rápida",
+        "newPrescription": "Nueva receta",
+        "registerVaccine": "Registrar vacuna",
+        "newInvoice": "Nueva factura",
+        "saveChanges": "Guardar cambios",
+        "printExport": "Imprimir / Exportar PDF",
+        "undo": "Deshacer",
+        "redo": "Rehacer"
+      }
     }
   },
   "petSelector": {

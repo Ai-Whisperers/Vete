@@ -1066,6 +1066,54 @@
         "totalSpent": "Total Spent",
         "loyaltyPoints": "Loyalty Points"
       }
+    },
+    "keyboardShortcuts": {
+      "title": "Keyboard Shortcuts",
+      "subtitle": "Navigate faster with keyboard",
+      "pressToShow": "Press ? at any time to show this guide",
+      "openShortcuts": "Open keyboard shortcuts",
+      "close": "Close",
+      "categories": {
+        "generalNav": "General Navigation",
+        "searchFilters": "Search and Filters",
+        "appointmentsCalendar": "Appointments and Calendar",
+        "clientsPatients": "Clients and Patients",
+        "quickActions": "Quick Actions",
+        "other": "Other"
+      },
+      "shortcuts": {
+        "openGlobalSearch": "Open global search",
+        "toggleSidebar": "Toggle sidebar",
+        "showShortcuts": "Show keyboard shortcuts",
+        "closeDialogs": "Close dialogs/panels",
+        "goToDashboard": "Go to Dashboard",
+        "goToCalendar": "Go to Calendar",
+        "goToPatients": "Go to Patients",
+        "goToInventory": "Go to Inventory",
+        "goToSettings": "Go to Settings",
+        "focusSearch": "Focus on search",
+        "searchInPage": "Search in current page",
+        "quickFilter": "Apply quick filter",
+        "newAppointment": "New appointment (in calendar)",
+        "goToToday": "Go to today",
+        "previousPeriod": "Previous period",
+        "nextPeriod": "Next period",
+        "dayView": "Day view",
+        "weekView": "Week view",
+        "monthView": "Month view",
+        "newClient": "New client",
+        "editSelected": "Edit selected",
+        "viewDetail": "View detail",
+        "navigateList": "Navigate in list",
+        "quickNewAppointment": "Quick new appointment",
+        "newPrescription": "New prescription",
+        "registerVaccine": "Register vaccine",
+        "newInvoice": "New invoice",
+        "saveChanges": "Save changes",
+        "printExport": "Print / Export PDF",
+        "undo": "Undo",
+        "redo": "Redo"
+      }
     }
   },
   "petSelector": {

@@ -29,13 +29,25 @@ Add support for multiple languages (starting with English) to expand the platfor
   - `app/[clinic]/page.tsx` - homepage with contact section
   - `app/[clinic]/about/page.tsx` - team, values, facilities, CTA
   - `components/forms/appointment-form.tsx` - booking form
+- ✅ Portal components migrated:
+  - `app/[clinic]/portal/dashboard/page.tsx` - error states, empty states, pet cards
+  - `components/portal/quick-actions.tsx` - all quick action button labels
+- ✅ Services components migrated:
+  - `components/services/services-grid.tsx` - search, filters, results summary
+  - `components/services/category-filter.tsx` - all 9 category labels and descriptions
+  - `components/services/service-card.tsx` - includes, pricing, action buttons
+- ✅ Pet profile components migrated:
+  - `components/pets/pet-profile-header.tsx` - age display, sex labels, actions
 - ✅ Translation namespaces expanded:
   - `home` namespace (10 keys)
   - `about` namespace (23 keys)
   - `booking` namespace (23 keys)
+  - `portal` namespace with nested `quickActions` (6 keys)
+  - `services` namespace with categories (45+ keys)
+  - `pets` namespace with `ageDisplay` nested keys (8 new keys)
 
 **Remaining Work:**
-- ~180 components still use hardcoded Spanish strings
+- ~160 components still use hardcoded Spanish strings
 - JSON-CMS content in Spanish only
 - No URL-based routing (`/es/adris`, `/en/adris`)
 
@@ -124,10 +136,13 @@ Add language variants to clinic content:
 2. [x] Create translation file structure ✅
 3. [x] Extract Spanish strings to `es.json` ✅ (~320 lines across 14 namespaces)
 4. [x] Create English translations ✅ (complete parity with es.json)
-5. [~] Update components to use `useTranslations` (~180 remaining, 12h estimated)
+5. [~] Update components to use `useTranslations` (~160 remaining, 10h estimated)
    - [x] Navigation components (main-nav, UserMenu, MobileMenu)
    - [x] Public pages (home, about)
    - [x] Booking form (appointment-form)
+   - [x] Portal dashboard and quick-actions
+   - [x] Services components (services-grid, category-filter, service-card)
+   - [x] Pet profile header
 6. [x] Add language switcher component ✅ (integrated in navigation)
 7. [ ] Update JSON-CMS loader for language variants
 8. [ ] Add language preference to user profile
@@ -150,9 +165,9 @@ Add language variants to clinic content:
 - English translation: 8 hours ✅ COMPLETE
 - Testing: 8 hours
 
-**Remaining Work (~18 hours):**
-- Component migration to useTranslations: 12 hours (~180 components remaining)
+**Remaining Work (~16 hours):**
+- Component migration to useTranslations: 10 hours (~160 components remaining)
 - JSON-CMS language variants: 4 hours
 - URL routing implementation: 2 hours
 
-**Progress: 55% complete (Infrastructure + Navigation + Public pages + Booking form done)**
+**Progress: 62% complete (Infrastructure + Navigation + Public pages + Booking + Portal + Services + Pet profile done)**

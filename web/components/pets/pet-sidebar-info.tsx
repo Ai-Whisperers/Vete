@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import * as Icons from 'lucide-react'
+import { useTranslations, useLocale } from 'next-intl'
 import type { Vaccine } from '@/lib/types/database'
 
 interface PetSidebarInfoProps {
@@ -18,24 +19,28 @@ interface PetSidebarInfoProps {
 }
 
 export function PetSidebarInfo({ pet, vaccines, clinic }: PetSidebarInfoProps) {
+  const t = useTranslations('pets.sidebar')
+  const locale = useLocale()
+  const localeStr = locale === 'es' ? 'es-PY' : 'en-US'
+
   return (
     <div className="space-y-6">
       {/* Bio & Health Card */}
       <div className="rounded-3xl border border-gray-100 bg-white p-6 shadow-sm">
         <h3 className="mb-4 flex items-center gap-2 text-lg font-bold text-[var(--text-primary)]">
-          <Icons.Info className="h-5 w-5 text-[var(--status-info)]" /> Bio & Salud
+          <Icons.Info className="h-5 w-5 text-[var(--status-info)]" /> {t('bioHealthTitle')}
         </h3>
         <div className="space-y-4">
           {pet.temperament && (
             <div>
-              <span className="text-xs font-bold uppercase text-gray-400">Temperamento</span>
+              <span className="text-xs font-bold uppercase text-gray-400">{t('temperament')}</span>
               <p className="font-medium capitalize text-gray-700">{pet.temperament}</p>
             </div>
           )}
 
           {pet.allergies && (
             <div>
-              <span className="text-xs font-bold uppercase text-[var(--status-error)]">Alergias</span>
+              <span className="text-xs font-bold uppercase text-[var(--status-error)]">{t('allergies')}</span>
               <p className="inline-block rounded-lg bg-[var(--status-error-bg)] px-2 py-1 font-medium text-[var(--status-error-text)]">
                 {pet.allergies}
               </p>
@@ -44,13 +49,13 @@ export function PetSidebarInfo({ pet, vaccines, clinic }: PetSidebarInfoProps) {
 
           {pet.existing_conditions && (
             <div>
-              <span className="text-xs font-bold uppercase text-gray-400">Condiciones</span>
+              <span className="text-xs font-bold uppercase text-gray-400">{t('conditions')}</span>
               <p className="text-sm italic text-gray-600">{pet.existing_conditions}</p>
             </div>
           )}
 
           {!pet.temperament && !pet.allergies && !pet.existing_conditions && (
-            <p className="text-sm text-gray-400">Sin datos adicionales.</p>
+            <p className="text-sm text-gray-400">{t('noAdditionalData')}</p>
           )}
         </div>
       </div>
@@ -59,13 +64,13 @@ export function PetSidebarInfo({ pet, vaccines, clinic }: PetSidebarInfoProps) {
       <div className="rounded-3xl border border-gray-100 bg-white p-6 shadow-sm">
         <div className="mb-4 flex items-center justify-between">
           <h3 className="flex items-center gap-2 text-lg font-bold text-[var(--text-primary)]">
-            <Icons.Syringe className="h-5 w-5 text-purple-500" /> Vacunas
+            <Icons.Syringe className="h-5 w-5 text-purple-500" /> {t('vaccinesTitle')}
           </h3>
           <Link
             href={`/${clinic}/portal/pets/${pet.id}/vaccines/new`}
             className="text-sm font-bold text-[var(--primary)] hover:underline"
           >
-            + Agregar
+            {t('addVaccine')}
           </Link>
         </div>
 
@@ -79,8 +84,8 @@ export function PetSidebarInfo({ pet, vaccines, clinic }: PetSidebarInfoProps) {
                 <p className="text-sm font-bold text-[var(--text-primary)]">{v.name}</p>
                 <p className="text-xs text-gray-500">
                   {v.administered_date
-                    ? new Date(v.administered_date).toLocaleDateString()
-                    : 'Sin fecha'}
+                    ? new Date(v.administered_date).toLocaleDateString(localeStr)
+                    : t('noDate')}
                 </p>
               </div>
               {v.status === 'verified' ? (
@@ -90,24 +95,24 @@ export function PetSidebarInfo({ pet, vaccines, clinic }: PetSidebarInfoProps) {
               )}
             </div>
           ))}
-          {vaccines.length === 0 && <p className="text-sm text-gray-400">Sin vacunas.</p>}
+          {vaccines.length === 0 && <p className="text-sm text-gray-400">{t('noVaccines')}</p>}
         </div>
       </div>
 
       {/* Diet Card */}
       <div className="rounded-3xl border border-gray-100 bg-white p-6 shadow-sm">
         <h3 className="mb-4 flex items-center gap-2 text-lg font-bold text-[var(--text-primary)]">
-          <Icons.Bone className="h-5 w-5 text-orange-500" /> Alimentación
+          <Icons.Bone className="h-5 w-5 text-orange-500" /> {t('dietTitle')}
         </h3>
         {pet.diet_category ? (
           <div>
             <span className="mb-2 inline-block rounded-full bg-orange-100 px-3 py-1 text-xs font-bold uppercase text-orange-700">
               {pet.diet_category}
             </span>
-            <p className="text-sm text-gray-600">{pet.diet_notes || 'Sin detalles'}</p>
+            <p className="text-sm text-gray-600">{pet.diet_notes || t('noDetails')}</p>
           </div>
         ) : (
-          <p className="text-sm text-gray-400">No especificada.</p>
+          <p className="text-sm text-gray-400">{t('notSpecified')}</p>
         )}
       </div>
     </div>

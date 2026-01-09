@@ -3,6 +3,7 @@
 import React, { useState, useTransition, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { Loader2, AlertCircle } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { updatePet } from '@/app/actions/pets'
 import { DeletePetButton } from './delete-pet-button'
 import { PhotoUpload } from './photo-upload'
@@ -32,6 +33,7 @@ interface Props {
 }
 
 export function EditPetForm({ pet, clinic }: Props): React.ReactElement {
+  const t = useTranslations('pets.editForm')
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
@@ -73,7 +75,7 @@ export function EditPetForm({ pet, clinic }: Props): React.ReactElement {
           setPhotoError(result.error)
           // Don't proceed with navigation if photo upload failed
         } else {
-          setError(result.error || 'Error al guardar los cambios')
+          setError(result.error || t('saveError'))
         }
       } else {
         router.push(`/${clinic}/portal/pets/${pet.id}`)
@@ -92,7 +94,7 @@ export function EditPetForm({ pet, clinic }: Props): React.ReactElement {
             currentPhotoUrl={pet.photo_url || undefined}
             onFileSelect={handleFileSelect}
             onFileRemove={handleFileRemove}
-            placeholder="Subir foto"
+            placeholder={t('uploadPhoto')}
             shape="circle"
             size={128}
             maxSizeMB={5}
@@ -115,7 +117,7 @@ export function EditPetForm({ pet, clinic }: Props): React.ReactElement {
               htmlFor="pet-name"
               className="mb-1 block text-sm font-bold text-[var(--text-secondary)]"
             >
-              Nombre
+              {t('name')}
             </label>
             <input
               id="pet-name"
@@ -123,7 +125,7 @@ export function EditPetForm({ pet, clinic }: Props): React.ReactElement {
               required
               type="text"
               defaultValue={pet.name}
-              placeholder="Ej: Firulais"
+              placeholder={t('namePlaceholder')}
               aria-invalid={error ? 'true' : 'false'}
               aria-describedby={error ? 'pet-error' : undefined}
               className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-[var(--primary)]"
@@ -134,7 +136,7 @@ export function EditPetForm({ pet, clinic }: Props): React.ReactElement {
               htmlFor="pet-species"
               className="mb-1 block text-sm font-bold text-[var(--text-secondary)]"
             >
-              Especie
+              {t('species')}
             </label>
             <select
               id="pet-species"
@@ -143,8 +145,8 @@ export function EditPetForm({ pet, clinic }: Props): React.ReactElement {
               aria-invalid="false"
               className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 outline-none focus:border-[var(--primary)]"
             >
-              <option value="dog">Perro</option>
-              <option value="cat">Gato</option>
+              <option value="dog">{t('speciesDog')}</option>
+              <option value="cat">{t('speciesCat')}</option>
             </select>
           </div>
         </div>
@@ -155,14 +157,14 @@ export function EditPetForm({ pet, clinic }: Props): React.ReactElement {
               htmlFor="pet-breed"
               className="mb-1 block text-sm font-bold text-[var(--text-secondary)]"
             >
-              Raza
+              {t('breed')}
             </label>
             <input
               id="pet-breed"
               name="breed"
               type="text"
               defaultValue={pet.breed || ''}
-              placeholder="Ej: Caniche"
+              placeholder={t('breedPlaceholder')}
               aria-invalid="false"
               className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-[var(--primary)]"
             />
@@ -172,7 +174,7 @@ export function EditPetForm({ pet, clinic }: Props): React.ReactElement {
               htmlFor="pet-weight"
               className="mb-1 block text-sm font-bold text-[var(--text-secondary)]"
             >
-              Peso (kg)
+              {t('weight')}
             </label>
             <input
               id="pet-weight"
@@ -180,7 +182,7 @@ export function EditPetForm({ pet, clinic }: Props): React.ReactElement {
               type="number"
               step="0.1"
               defaultValue={pet.weight_kg || ''}
-              placeholder="0.0"
+              placeholder={t('weightPlaceholder')}
               aria-invalid="false"
               className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-[var(--primary)]"
             />
@@ -191,13 +193,13 @@ export function EditPetForm({ pet, clinic }: Props): React.ReactElement {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
             <label className="mb-1 block text-sm font-bold text-[var(--text-secondary)]">
-              Color/Señas
+              {t('colorMarkings')}
             </label>
             <input
               name="color"
               type="text"
               defaultValue={pet.color || ''}
-              placeholder="Ej: Mancha blanca en pecho"
+              placeholder={t('colorPlaceholder')}
               className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-[var(--primary)]"
             />
           </div>
@@ -212,7 +214,7 @@ export function EditPetForm({ pet, clinic }: Props): React.ReactElement {
                 className="h-4 w-4 text-[var(--primary)]"
               />
               <label htmlFor="male" className="font-bold text-gray-600">
-                Macho
+                {t('male')}
               </label>
             </div>
             <div className="flex items-center gap-2">
@@ -225,7 +227,7 @@ export function EditPetForm({ pet, clinic }: Props): React.ReactElement {
                 className="h-4 w-4 text-[var(--primary)]"
               />
               <label htmlFor="female" className="font-bold text-gray-600">
-                Hembra
+                {t('female')}
               </label>
             </div>
             <div className="ml-4 flex items-center gap-2">
@@ -237,7 +239,7 @@ export function EditPetForm({ pet, clinic }: Props): React.ReactElement {
                 className="h-5 w-5 rounded text-[var(--primary)]"
               />
               <label htmlFor="neutered" className="text-sm font-bold text-gray-500">
-                Castrado
+                {t('neutered')}
               </label>
             </div>
           </div>
@@ -245,34 +247,34 @@ export function EditPetForm({ pet, clinic }: Props): React.ReactElement {
 
         {/* Health & Behavior */}
         <div className="space-y-4 border-t border-gray-100 pt-4">
-          <h3 className="font-bold text-[var(--text-primary)]">Salud y Comportamiento</h3>
+          <h3 className="font-bold text-[var(--text-primary)]">{t('healthBehaviorTitle')}</h3>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label className="mb-1 block text-sm font-bold text-[var(--text-secondary)]">
-                Temperamento
+                {t('temperament')}
               </label>
               <select
                 name="temperament"
                 defaultValue={pet.temperament || 'unknown'}
                 className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 outline-none focus:border-[var(--primary)]"
               >
-                <option value="unknown">Desconocido</option>
-                <option value="friendly">Amigable</option>
-                <option value="shy">Tímido/Miedoso</option>
-                <option value="aggressive">Agresivo</option>
-                <option value="calm">Tranquilo</option>
+                <option value="unknown">{t('temperamentUnknown')}</option>
+                <option value="friendly">{t('temperamentFriendly')}</option>
+                <option value="shy">{t('temperamentShy')}</option>
+                <option value="aggressive">{t('temperamentAggressive')}</option>
+                <option value="calm">{t('temperamentCalm')}</option>
               </select>
             </div>
             <div>
               <label className="mb-1 block text-sm font-bold text-[var(--text-secondary)]">
-                Alergias
+                {t('allergies')}
               </label>
               <input
                 name="allergies"
                 type="text"
                 defaultValue={pet.allergies || ''}
-                placeholder="Ej: Pollo, Penicilina"
+                placeholder={t('allergiesPlaceholder')}
                 className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-[var(--primary)]"
               />
             </div>
@@ -280,31 +282,31 @@ export function EditPetForm({ pet, clinic }: Props): React.ReactElement {
 
           <div>
             <label className="mb-1 block text-sm font-bold text-[var(--text-secondary)]">
-              Condiciones Preexistentes
+              {t('existingConditions')}
             </label>
             <textarea
               name="existing_conditions"
               defaultValue={pet.existing_conditions || ''}
               className="w-full resize-none rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-[var(--primary)]"
               rows={2}
-              placeholder="Ej: Hipotiroidismo, Displasia..."
+              placeholder={t('existingConditionsPlaceholder')}
             />
           </div>
         </div>
 
         {/* Additional Info: Microchip & Diet */}
         <div className="space-y-4 border-t border-gray-100 pt-4">
-          <h3 className="font-bold text-[var(--text-primary)]">Detalles Adicionales</h3>
+          <h3 className="font-bold text-[var(--text-primary)]">{t('additionalDetailsTitle')}</h3>
 
           <div>
             <label className="mb-1 block text-sm font-bold text-[var(--text-secondary)]">
-              Microchip / ID
+              {t('microchip')}
             </label>
             <input
               name="microchip_id"
               type="text"
               defaultValue={pet.microchip_id || ''}
-              placeholder="Ej: 9810981098"
+              placeholder={t('microchipPlaceholder')}
               className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-[var(--primary)]"
             />
           </div>
@@ -312,30 +314,30 @@ export function EditPetForm({ pet, clinic }: Props): React.ReactElement {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label className="mb-1 block text-sm font-bold text-[var(--text-secondary)]">
-                Tipo de Dieta
+                {t('dietType')}
               </label>
               <select
                 name="diet_category"
                 defaultValue={pet.diet_category || ''}
                 className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 outline-none focus:border-[var(--primary)]"
               >
-                <option value="">Seleccionar...</option>
-                <option value="balanced">Balanceado Seco</option>
-                <option value="wet">Alimento Húmedo</option>
-                <option value="raw">Dieta BARF / Natural</option>
-                <option value="mixed">Mixta</option>
-                <option value="prescription">Prescripción Médica</option>
+                <option value="">{t('dietSelect')}</option>
+                <option value="balanced">{t('dietBalanced')}</option>
+                <option value="wet">{t('dietWet')}</option>
+                <option value="raw">{t('dietRaw')}</option>
+                <option value="mixed">{t('dietMixed')}</option>
+                <option value="prescription">{t('dietPrescription')}</option>
               </select>
             </div>
             <div>
               <label className="mb-1 block text-sm font-bold text-[var(--text-secondary)]">
-                Notas de Dieta
+                {t('dietNotes')}
               </label>
               <input
                 name="diet_notes"
                 type="text"
                 defaultValue={pet.diet_notes || ''}
-                placeholder="Ej: Marca Royal Canin, alergia al pollo"
+                placeholder={t('dietNotesPlaceholder')}
                 className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-[var(--primary)]"
               />
             </div>
@@ -361,7 +363,7 @@ export function EditPetForm({ pet, clinic }: Props): React.ReactElement {
             disabled={isPending}
             className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[var(--primary)] py-4 font-bold text-white shadow-lg transition-all hover:-translate-y-1 hover:shadow-xl active:scale-95"
           >
-            {isPending ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Guardar Cambios'}
+            {isPending ? <Loader2 className="h-5 w-5 animate-spin" /> : t('saveChanges')}
           </button>
         </div>
 

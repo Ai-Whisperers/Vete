@@ -1135,6 +1135,27 @@
         "select": "seleccionar",
         "close": "cerrar"
       }
+    },
+    "patientQuickActions": {
+      "title": "Acciones rápidas",
+      "frequent": "Acciones Frecuentes",
+      "more": "Más Opciones",
+      "closeActions": "Cerrar acciones rápidas",
+      "openActions": "Abrir acciones rápidas para {petName}",
+      "closeMenu": "Cerrar menú de acciones",
+      "actions": {
+        "newAppointment": "Nueva Cita",
+        "medicalHistory": "Historia Clínica",
+        "vaccine": "Vacuna",
+        "prescription": "Receta",
+        "lab": "Laboratorio",
+        "hospitalize": "Hospitalizar",
+        "qualityOfLife": "Calidad de Vida",
+        "quickConsult": "Consulta Rápida",
+        "consent": "Consentimiento",
+        "photoDoc": "Foto/Documento",
+        "messageOwner": "Mensaje a Dueño"
+      }
     }
   },
   "petSelector": {

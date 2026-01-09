@@ -1135,6 +1135,27 @@
         "select": "select",
         "close": "close"
       }
+    },
+    "patientQuickActions": {
+      "title": "Quick Actions",
+      "frequent": "Frequent Actions",
+      "more": "More Options",
+      "closeActions": "Close quick actions",
+      "openActions": "Open quick actions for {petName}",
+      "closeMenu": "Close actions menu",
+      "actions": {
+        "newAppointment": "New Appointment",
+        "medicalHistory": "Medical History",
+        "vaccine": "Vaccine",
+        "prescription": "Prescription",
+        "lab": "Laboratory",
+        "hospitalize": "Hospitalize",
+        "qualityOfLife": "Quality of Life",
+        "quickConsult": "Quick Consult",
+        "consent": "Consent",
+        "photoDoc": "Photo/Document",
+        "messageOwner": "Message Owner"
+      }
     }
   },
   "petSelector": {

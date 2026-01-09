@@ -3,7 +3,8 @@
 import { useState } from 'react'
 import { Download, Loader2, Check, FileSpreadsheet, ChevronDown } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useDashboardLabels } from '@/lib/hooks/use-dashboard-labels'
+import { useTranslations } from 'next-intl'
+import { useToast } from '@/components/ui/Toast'
 
 interface ExportField {
   key: string
@@ -28,22 +29,23 @@ export function ExportCSVButton({
   buttonText,
   compact = false,
 }: ExportCSVButtonProps): React.ReactElement {
-  const labels = useDashboardLabels()
-  const displayButtonText = buttonText ?? labels.export.title
+  const t = useTranslations('dashboard.exportCsv')
+  const displayButtonText = buttonText ?? t('title')
   const [isExporting, setIsExporting] = useState(false)
   const [showOptions, setShowOptions] = useState(false)
   const [exported, setExported] = useState(false)
+  const { showToast } = useToast()
   const [fields, setFields] = useState<ExportField[]>(
     defaultFields || [
-      { key: 'full_name', label: 'Nombre Completo', selected: true },
-      { key: 'email', label: 'Email', selected: true },
-      { key: 'phone', label: 'Teléfono', selected: true },
-      { key: 'address', label: 'Dirección', selected: true },
-      { key: 'created_at', label: 'Fecha de Registro', selected: true },
-      { key: 'pets_count', label: 'Cantidad de Mascotas', selected: true },
-      { key: 'last_visit', label: 'Última Visita', selected: false },
-      { key: 'total_spent', label: 'Total Gastado', selected: false },
-      { key: 'loyalty_points', label: 'Puntos de Lealtad', selected: false },
+      { key: 'full_name', label: t('fields.fullName'), selected: true },
+      { key: 'email', label: t('fields.email'), selected: true },
+      { key: 'phone', label: t('fields.phone'), selected: true },
+      { key: 'address', label: t('fields.address'), selected: true },
+      { key: 'created_at', label: t('fields.createdAt'), selected: true },
+      { key: 'pets_count', label: t('fields.petsCount'), selected: true },
+      { key: 'last_visit', label: t('fields.lastVisit'), selected: false },
+      { key: 'total_spent', label: t('fields.totalSpent'), selected: false },
+      { key: 'loyalty_points', label: t('fields.loyaltyPoints'), selected: false },
     ]
   )
 
@@ -60,7 +62,7 @@ export function ExportCSVButton({
       const response = await fetch(`${endpoint}?${params}`)
 
       if (!response.ok) {
-        throw new Error('Error al exportar')
+        throw new Error('Export error')
       }
 
       const blob = await response.blob()
@@ -81,7 +83,7 @@ export function ExportCSVButton({
       if (process.env.NODE_ENV === 'development') {
         console.error('Export error:', error)
       }
-      alert('Error al exportar. Por favor, intente nuevamente.')
+      showToast(t('exportError'))
     } finally {
       setIsExporting(false)
     }
@@ -105,7 +107,7 @@ export function ExportCSVButton({
         onClick={handleExport}
         disabled={isExporting}
         className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-50"
-        title={labels.export.title}
+        title={t('title')}
       >
         {isExporting ? (
           <Loader2 className="h-4 w-4 animate-spin" />
@@ -142,18 +144,18 @@ export function ExportCSVButton({
           >
             <div className="border-b border-gray-100 p-3">
               <p className="mb-2 text-sm font-semibold text-gray-700">
-                {labels.export.fields_to_export}
+                {t('fieldsToExport')}
               </p>
               <div className="flex gap-2">
                 <button
                   onClick={selectAll}
                   className="text-xs text-[var(--primary)] hover:underline"
                 >
-                  {labels.export.select_all}
+                  {t('selectAll')}
                 </button>
                 <span className="text-gray-300">|</span>
                 <button onClick={selectNone} className="text-xs text-gray-500 hover:underline">
-                  {labels.export.none}
+                  {t('none')}
                 </button>
               </div>
             </div>
@@ -184,25 +186,22 @@ export function ExportCSVButton({
                 {isExporting ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    {labels.export.exporting}
+                    {t('exporting')}
                   </>
                 ) : exported ? (
                   <>
                     <Check className="h-4 w-4" />
-                    {labels.export.exported}
+                    {t('exported')}
                   </>
                 ) : (
                   <>
                     <Download className="h-4 w-4" />
-                    {labels.export.download}
+                    {t('download')}
                   </>
                 )}
               </button>
               <p className="mt-2 text-center text-xs text-gray-500">
-                {labels.export.fields_selected.replace(
-                  '{count}',
-                  String(fields.filter((f) => f.selected).length)
-                )}
+                {t('fieldsSelected', { count: fields.filter((f) => f.selected).length })}
               </p>
             </div>
           </motion.div>

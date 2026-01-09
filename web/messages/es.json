@@ -1044,6 +1044,28 @@
       "code": "Código",
       "units": "unidades",
       "enterManually": "Ingrese el código de barras manualmente:"
+    },
+    "exportCsv": {
+      "title": "Exportar CSV",
+      "fieldsToExport": "Campos a exportar",
+      "selectAll": "Seleccionar todos",
+      "none": "Ninguno",
+      "download": "Descargar CSV",
+      "exporting": "Exportando...",
+      "exported": "¡Exportado!",
+      "fieldsSelected": "{count} campos seleccionados",
+      "exportError": "Error al exportar. Por favor, intente nuevamente.",
+      "fields": {
+        "fullName": "Nombre Completo",
+        "email": "Email",
+        "phone": "Teléfono",
+        "address": "Dirección",
+        "createdAt": "Fecha de Registro",
+        "petsCount": "Cantidad de Mascotas",
+        "lastVisit": "Última Visita",
+        "totalSpent": "Total Gastado",
+        "loyaltyPoints": "Puntos de Lealtad"
+      }
     }
   },
   "petSelector": {

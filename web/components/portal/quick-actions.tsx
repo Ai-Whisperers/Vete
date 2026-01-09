@@ -1,5 +1,8 @@
+'use client'
+
 import Link from 'next/link'
 import { CalendarPlus, ShoppingBag, FileText, MessageSquare, Plus, Home } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 
 interface PortalQuickActionsProps {
   clinic: string
@@ -29,37 +32,39 @@ function QuickAction({ icon, label, href, primary }: QuickActionProps): React.Re
 }
 
 export function PortalQuickActions({ clinic }: PortalQuickActionsProps): React.ReactElement {
+  const t = useTranslations('portal.quickActions')
+
   return (
     <div className="flex flex-wrap gap-2">
       <QuickAction
         icon={<CalendarPlus className="h-4 w-4" />}
-        label="Agendar Cita"
+        label={t('bookAppointment')}
         href={`/${clinic}/services`}
         primary
       />
       <QuickAction
         icon={<Plus className="h-4 w-4" />}
-        label="Agregar Mascota"
+        label={t('addPet')}
         href={`/${clinic}/portal/pets/new`}
       />
       <QuickAction
         icon={<ShoppingBag className="h-4 w-4" />}
-        label="Tienda"
+        label={t('store')}
         href={`/${clinic}/store`}
       />
       <QuickAction
         icon={<FileText className="h-4 w-4" />}
-        label="Facturas"
+        label={t('invoices')}
         href={`/${clinic}/portal/invoices`}
       />
       <QuickAction
         icon={<MessageSquare className="h-4 w-4" />}
-        label="Mensajes"
+        label={t('messages')}
         href={`/${clinic}/portal/messages`}
       />
       <QuickAction
         icon={<Home className="h-4 w-4" />}
-        label="Ver Página"
+        label={t('viewPage')}
         href={`/${clinic}?public=true`}
       />
     </div>

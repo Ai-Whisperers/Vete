@@ -123,7 +123,15 @@
     "errorMessage": "Hubo un problema al cargar tu información. Por favor, intenta recargar la página.",
     "reloadPage": "Recargar página",
     "noPets": "No tienes mascotas registradas",
-    "noPetsDesc": "Registra tu primera mascota para comenzar"
+    "noPetsDesc": "Registra tu primera mascota para comenzar",
+    "quickActions": {
+      "bookAppointment": "Agendar Cita",
+      "addPet": "Agregar Mascota",
+      "store": "Tienda",
+      "invoices": "Facturas",
+      "messages": "Mensajes",
+      "viewPage": "Ver Página"
+    }
   },
   "appointments": {
     "title": "Citas",

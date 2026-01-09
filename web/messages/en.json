@@ -123,7 +123,15 @@
     "errorMessage": "There was a problem loading your information. Please try reloading the page.",
     "reloadPage": "Reload page",
     "noPets": "You have no registered pets",
-    "noPetsDesc": "Register your first pet to get started"
+    "noPetsDesc": "Register your first pet to get started",
+    "quickActions": {
+      "bookAppointment": "Book Appointment",
+      "addPet": "Add Pet",
+      "store": "Store",
+      "invoices": "Invoices",
+      "messages": "Messages",
+      "viewPage": "View Page"
+    }
   },
   "appointments": {
     "title": "Appointments",

@@ -106,12 +106,21 @@ Add support for multiple languages (starting with English) to expand the platfor
   - `billing.addCard` namespace (20 keys)
   - `uploads.photo` namespace (14 keys)
   - `uploads.prescription` namespace (20 keys)
+  - `pets.delete` namespace (6 keys)
+  - `vaccines.missing` namespace (16 keys)
 - ✅ Upload components migrated:
   - `components/pets/photo-upload.tsx` - all labels, drag/drop states, validation errors, formats hint
   - `components/store/prescription-upload.tsx` - all labels, drag/drop states, upload progress, validation errors, success states
+- ✅ Auth components migrated:
+  - `components/auth/logout-button.tsx` - all logout labels via auth.logout
+- ✅ Pet components migrated:
+  - `components/pets/delete-pet-button.tsx` - delete confirmation, cancel/confirm buttons
+  - `components/pets/missing-vaccines-card.tsx` - all vaccine recommendation text, loading, error states
+- ✅ UI components migrated:
+  - `components/ui/confirm-dialog.tsx` - default confirm/cancel labels via common namespace
 
 **Remaining Work:**
-- ~88 components still use hardcoded Spanish strings
+- ~85 components still use hardcoded Spanish strings
 - JSON-CMS content in Spanish only
 - No URL-based routing (`/es/adris`, `/en/adris`)
 
@@ -239,4 +248,4 @@ Add language variants to clinic content:
 - JSON-CMS language variants: 4 hours
 - URL routing implementation: 2 hours
 
-**Progress: 87% complete (Infrastructure + Navigation + Public pages + Booking + Portal (full) + Services + Pet profile + Store + Dashboard (including analytics, bulk-messaging, global-search, keyboard-shortcuts, patient-quick-actions, appointments-chart, status-buttons) + Pet selectors + Layout + Cart (all) + Invoices (line-item) + Billing (add-card) + Uploads (photo, prescription) done)**
+**Progress: 88% complete (Infrastructure + Navigation + Public pages + Booking + Portal (full) + Services + Pet profile + Store + Dashboard (including analytics, bulk-messaging, global-search, keyboard-shortcuts, patient-quick-actions, appointments-chart, status-buttons) + Pet selectors + Layout + Cart (all) + Invoices (line-item) + Billing (add-card) + Uploads (photo, prescription) + Auth (logout) + Pets (delete, missing-vaccines) + UI (confirm-dialog) done)**

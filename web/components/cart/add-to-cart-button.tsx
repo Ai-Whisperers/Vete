@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, useParams, usePathname } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { useCart, CartItem } from '@/context/cart-context'
 import { useToast } from '@/components/ui/Toast'
 import { createClient } from '@/lib/supabase/client'
@@ -23,10 +24,14 @@ export function AddToCartButton({
   quantity = 1,
   className,
   iconOnly = false,
-  label = 'Agregar',
-  addedLabel = 'Agregado',
-  stockLimitLabel = 'Stock agotado',
+  label,
+  addedLabel,
+  stockLimitLabel,
 }: AddToCartButtonProps) {
+  const t = useTranslations('cart')
+  const resolvedLabel = label ?? t('add')
+  const resolvedAddedLabel = addedLabel ?? t('added')
+  const resolvedStockLimitLabel = stockLimitLabel ?? t('outOfStock')
   const { addItem } = useCart()
   const { showToast } = useToast()
   const router = useRouter()
@@ -70,13 +75,13 @@ export function AddToCartButton({
         setStockWarning(true)
         showToast(
           result.message ||
-            `Stock insuficiente. Solo hay ${result.availableStock} unidades disponibles.`
+            t('stockInsufficient', { count: result.availableStock ?? 0 })
         )
         setTimeout(() => setStockWarning(false), 2000)
       } else {
         // Added partial quantity - show warning but also success
         setSuccess(true)
-        showToast(result.message || `Solo hay ${result.availableStock} unidades disponibles`)
+        showToast(result.message || t('stockLimited', { count: result.availableStock ?? 0 }))
         setTimeout(() => setSuccess(false), 2000)
       }
     } else {
@@ -101,7 +106,7 @@ export function AddToCartButton({
           <AlertTriangle className="h-5 w-5" />
         ) : (
           <>
-            <AlertTriangle className="h-4 w-4" /> <span>{stockLimitLabel}</span>
+            <AlertTriangle className="h-4 w-4" /> <span>{resolvedStockLimitLabel}</span>
           </>
         )
       ) : success ? (
@@ -109,14 +114,14 @@ export function AddToCartButton({
           <Check className="h-5 w-5" />
         ) : (
           <>
-            <Check className="h-4 w-4" /> <span>{addedLabel}</span>
+            <Check className="h-4 w-4" /> <span>{resolvedAddedLabel}</span>
           </>
         )
       ) : iconOnly ? (
         <ShoppingBag className="h-5 w-5" />
       ) : (
         <>
-          <ShoppingBag className="h-4 w-4" /> <span>{label}</span>
+          <ShoppingBag className="h-4 w-4" /> <span>{resolvedLabel}</span>
         </>
       )}
     </button>

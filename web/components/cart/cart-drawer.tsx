@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
+import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import {
@@ -36,6 +37,7 @@ interface CartDrawerProps {
 export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
   const { clinic } = useParams<{ clinic: string }>()
   const { items, itemCount: totalItems, total: subtotal, clearCart } = useCart()
+  const t = useTranslations('cart')
   const [mounted, setMounted] = useState(false)
   const drawerRef = useRef<HTMLDivElement>(null)
   const previousActiveElement = useRef<HTMLElement | null>(null)
@@ -87,7 +89,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
       previousActiveElement.current = document.activeElement as HTMLElement
       // Focus the close button after a short delay for animation
       setTimeout(() => {
-        const closeButton = drawerRef.current?.querySelector<HTMLElement>('button[aria-label="Cerrar carrito"]')
+        const closeButton = drawerRef.current?.querySelector<HTMLElement>('button[data-close-button="true"]')
         closeButton?.focus()
       }, 100)
     } else if (previousActiveElement.current) {
@@ -132,13 +134,13 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
         }`}
         role="dialog"
         aria-modal="true"
-        aria-label="Carrito de compras"
+        aria-label={t('ariaLabel')}
       >
         {/* Header */}
         <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
           <div className="flex items-center gap-3">
             <ShoppingCart className="h-6 w-6 text-[var(--primary)]" />
-            <h2 className="text-xl font-bold text-[var(--text-primary)]">Tu Carrito</h2>
+            <h2 className="text-xl font-bold text-[var(--text-primary)]">{t('title')}</h2>
             {totalItems > 0 && (
               <span className="rounded-full bg-[var(--primary)] px-2 py-0.5 text-xs font-bold text-white">
                 {totalItems}
@@ -149,7 +151,8 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
             type="button"
             onClick={onClose}
             className="rounded-lg p-2 transition-colors hover:bg-gray-100"
-            aria-label="Cerrar carrito"
+            aria-label={t('closeCart')}
+            data-close-button="true"
           >
             <X className="h-5 w-5" />
           </button>
@@ -164,10 +167,10 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                 <ShoppingBag className="h-10 w-10 text-gray-400" />
               </div>
               <h3 className="mb-2 text-lg font-bold text-[var(--text-primary)]">
-                Tu carrito está vacío
+                {t('emptyTitle')}
               </h3>
               <p className="mb-6 text-center text-[var(--text-muted)]">
-                Agrega productos o servicios para comenzar
+                {t('emptyMessage')}
               </p>
               <div className="flex w-full max-w-xs flex-col gap-3">
                 <Link
@@ -176,7 +179,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                   className="flex items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-4 py-3 font-bold text-white transition hover:brightness-110"
                 >
                   <Stethoscope className="h-5 w-5" />
-                  Ver Servicios
+                  {t('viewServices')}
                 </Link>
                 <Link
                   href={`/${clinic}/store`}
@@ -184,7 +187,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                   className="flex items-center justify-center gap-2 rounded-xl bg-[var(--bg-subtle)] px-4 py-3 font-bold text-[var(--text-primary)] transition hover:bg-gray-200"
                 >
                   <Package className="h-5 w-5" />
-                  Ver Tienda
+                  {t('viewStore')}
                 </Link>
               </div>
             </div>
@@ -199,10 +202,11 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                       <Stethoscope className="h-4 w-4 text-[var(--primary)]" />
                     </div>
                     <div>
-                      <h3 className="text-sm font-bold text-[var(--text-primary)]">Servicios</h3>
+                      <h3 className="text-sm font-bold text-[var(--text-primary)]">{t('services')}</h3>
                       <p className="text-xs text-[var(--text-muted)]">
-                        {organizedCart.serviceGroups.length} servicio
-                        {organizedCart.serviceGroups.length !== 1 ? 's' : ''}
+                        {organizedCart.serviceGroups.length === 1
+                          ? t('serviceCount', { count: organizedCart.serviceGroups.length })
+                          : t('serviceCountPlural', { count: organizedCart.serviceGroups.length })}
                       </p>
                     </div>
                     <span className="ml-auto text-sm font-bold text-[var(--primary)]">
@@ -227,7 +231,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                   <div className="mb-3 flex items-center gap-2 px-1">
                     <Stethoscope className="h-4 w-4 text-[var(--text-secondary)]" />
                     <h3 className="text-sm font-bold text-[var(--text-secondary)]">
-                      Otros Servicios
+                      {t('otherServices')}
                     </h3>
                   </div>
                   <div className="bg-[var(--bg-subtle)]/50 space-y-1 rounded-xl p-3">
@@ -247,7 +251,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                     </div>
                     <div>
                       <h3 className="text-sm font-bold text-[var(--text-primary)]">
-                        Productos por Mascota
+                        {t('productsByPet')}
                       </h3>
                     </div>
                   </div>
@@ -282,8 +286,8 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                       <User className="h-4 w-4 text-[var(--text-secondary)]" />
                     </div>
                     <div>
-                      <h3 className="text-sm font-bold text-[var(--text-primary)]">Productos</h3>
-                      <p className="text-xs text-[var(--text-muted)]">Para ti</p>
+                      <h3 className="text-sm font-bold text-[var(--text-primary)]">{t('products')}</h3>
+                      <p className="text-xs text-[var(--text-muted)]">{t('forYou')}</p>
                     </div>
                     <span className="ml-auto text-sm font-bold text-[var(--primary)]">
                       {formatPriceGs(organizedCart.productsSubtotal)}
@@ -305,13 +309,13 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                     className="flex w-full items-center justify-center gap-2 rounded-lg py-2 text-sm font-medium text-[var(--status-error)] transition-colors hover:bg-[var(--status-error-bg)] hover:text-[var(--status-error-text)]"
                   >
                     <Trash2 className="h-4 w-4" />
-                    Vaciar carrito
+                    {t('emptyCart')}
                   </button>
                 }
-                title="¿Vaciar carrito?"
-                description={`Se eliminarán ${totalItems} artículo${totalItems !== 1 ? 's' : ''} de tu carrito. Esta acción no se puede deshacer.`}
-                confirmLabel="Vaciar"
-                cancelLabel="Cancelar"
+                title={t('emptyCartConfirmTitle')}
+                description={t('emptyCartConfirmMessage', { count: totalItems })}
+                confirmLabel={t('emptyCartConfirm')}
+                cancelLabel={t('cancel')}
                 variant="danger"
                 onConfirm={clearCart}
               />
@@ -324,7 +328,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
           <div className="bg-[var(--bg-subtle)]/30 border-t border-gray-100 px-6 py-4">
             {/* Subtotal */}
             <div className="mb-4 flex items-center justify-between">
-              <span className="font-medium text-[var(--text-secondary)]">Subtotal</span>
+              <span className="font-medium text-[var(--text-secondary)]">{t('subtotal')}</span>
               <span className="text-2xl font-black text-[var(--primary)]">
                 {formatPriceGs(subtotal)}
               </span>
@@ -337,7 +341,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                 onClick={onClose}
                 className="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--primary)] py-3.5 font-bold text-white shadow-lg transition hover:brightness-110"
               >
-                Ir a Pagar
+                {t('goToPay')}
                 <ArrowRight className="h-5 w-5" />
               </Link>
               <Link
@@ -345,7 +349,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                 onClick={onClose}
                 className="flex w-full items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white py-3 font-bold text-[var(--text-primary)] transition hover:bg-gray-50"
               >
-                Ver Carrito Completo
+                {t('viewFullCart')}
               </Link>
             </div>
           </div>
@@ -366,6 +370,7 @@ interface FloatingCartButtonProps {
 
 export function FloatingCartButton({ onClick }: FloatingCartButtonProps) {
   const { itemCount: totalItems } = useCart()
+  const t = useTranslations('cart')
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
@@ -379,7 +384,7 @@ export function FloatingCartButton({ onClick }: FloatingCartButtonProps) {
       type="button"
       onClick={onClick}
       className="fixed bottom-24 right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--primary)] text-white shadow-lg transition-all hover:scale-105 hover:brightness-110"
-      aria-label={`Abrir carrito (${totalItems} items)`}
+      aria-label={t('openCartWithItems', { count: totalItems })}
     >
       <ShoppingCart className="h-6 w-6" />
       {totalItems > 0 && (

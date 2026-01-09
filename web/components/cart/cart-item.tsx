@@ -3,6 +3,7 @@
 import { Minus, Plus, Trash2, PawPrint, Package, AlertTriangle, Calendar } from 'lucide-react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { useCart, type CartItem as CartItemType } from '@/context/cart-context'
 import { DynamicIcon } from '@/lib/icons'
 import { useToast } from '@/components/ui/Toast'
@@ -29,6 +30,7 @@ export function CartItem({ item, compact = false }: CartItemProps) {
   const { updateQuantity, removeItem, getStockStatus } = useCart()
   const { showToast } = useToast()
   const { clinic } = useParams() as { clinic: string }
+  const t = useTranslations('cart')
 
   const isService = item.type === 'service'
   const hasPetInfo = isService && item.pet_id && item.pet_name && item.pet_size
@@ -37,7 +39,7 @@ export function CartItem({ item, compact = false }: CartItemProps) {
   const handleIncrement = () => {
     const result = updateQuantity(item.id, 1)
     if (result.limitedByStock) {
-      showToast(result.message || `Solo hay ${result.availableStock} unidades disponibles`)
+      showToast(result.message || t('stockLimited', { count: result.availableStock ?? 0 }))
     }
   }
 
@@ -101,7 +103,7 @@ export function CartItem({ item, compact = false }: CartItemProps) {
               className="bg-[var(--primary)]/10 hover:bg-[var(--primary)]/20 mt-1.5 flex w-fit items-center gap-1 rounded-md px-2 py-1 text-[10px] font-bold text-[var(--primary)] transition-colors"
             >
               <Calendar className="h-3 w-3" />
-              Agendar
+              {t('schedule')}
             </Link>
           )}
 
@@ -109,12 +111,12 @@ export function CartItem({ item, compact = false }: CartItemProps) {
           {stockStatus?.atLimit && (
             <div className="mt-1 flex items-center gap-1 text-amber-600">
               <AlertTriangle className="h-3 w-3" />
-              <span className="text-[10px] font-medium">Limite de stock</span>
+              <span className="text-[10px] font-medium">{t('stockLimit')}</span>
             </div>
           )}
           {stockStatus?.nearLimit && !stockStatus.atLimit && (
             <div className="mt-1 flex items-center gap-1 text-amber-500">
-              <span className="text-[10px]">Quedan {stockStatus.available}</span>
+              <span className="text-[10px]">{t('stockRemaining', { count: stockStatus.available })}</span>
             </div>
           )}
 
@@ -128,7 +130,7 @@ export function CartItem({ item, compact = false }: CartItemProps) {
                 type="button"
                 onClick={handleDecrement}
                 className="flex h-6 w-6 items-center justify-center rounded bg-gray-100 transition-colors hover:bg-gray-200"
-                aria-label="Disminuir cantidad"
+                aria-label={t('decreaseQuantity')}
               >
                 <Minus className="h-3 w-3" />
               </button>
@@ -142,7 +144,7 @@ export function CartItem({ item, compact = false }: CartItemProps) {
                 onClick={handleIncrement}
                 disabled={stockStatus?.atLimit}
                 className="flex h-6 w-6 items-center justify-center rounded bg-gray-100 transition-colors hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-50"
-                aria-label="Aumentar cantidad"
+                aria-label={t('increaseQuantity')}
               >
                 <Plus className="h-3 w-3" />
               </button>
@@ -155,7 +157,7 @@ export function CartItem({ item, compact = false }: CartItemProps) {
           type="button"
           onClick={handleRemove}
           className="shrink-0 self-start p-1.5 text-gray-400 transition-colors hover:text-red-500"
-          aria-label="Eliminar"
+          aria-label={t('remove')}
         >
           <Trash2 className="h-4 w-4" />
         </button>
@@ -196,7 +198,7 @@ export function CartItem({ item, compact = false }: CartItemProps) {
             type="button"
             onClick={handleRemove}
             className="shrink-0 rounded-lg p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
-            aria-label="Eliminar"
+            aria-label={t('remove')}
           >
             <Trash2 className="h-5 w-5" />
           </button>
@@ -207,7 +209,7 @@ export function CartItem({ item, compact = false }: CartItemProps) {
           <div className="bg-[var(--primary)]/5 mt-3 flex items-center gap-2 rounded-lg p-2">
             <PawPrint className="h-4 w-4 text-[var(--primary)]" />
             <span className="text-sm font-medium text-[var(--text-secondary)]">
-              Para: <span className="font-bold">{item.pet_name}</span>
+              {t('forPet', { name: item.pet_name ?? '' })}
             </span>
             <span
               className={`rounded-full px-2 py-0.5 text-xs font-bold ${getSizeBadgeColor(
@@ -226,7 +228,7 @@ export function CartItem({ item, compact = false }: CartItemProps) {
 
         {/* Service variant name */}
         {isService && item.variant_name && !hasPetInfo && (
-          <p className="mt-1 text-sm text-[var(--text-muted)]">Variante: {item.variant_name}</p>
+          <p className="mt-1 text-sm text-[var(--text-muted)]">{t('variant', { name: item.variant_name })}</p>
         )}
 
         {/* Schedule Button for Services */}
@@ -236,7 +238,7 @@ export function CartItem({ item, compact = false }: CartItemProps) {
             className="bg-[var(--primary)]/10 hover:bg-[var(--primary)]/20 border-[var(--primary)]/20 mt-3 flex items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-bold text-[var(--primary)] transition-colors"
           >
             <Calendar className="h-4 w-4" />
-            Agendar Cita
+            {t('scheduleAppointment')}
           </Link>
         )}
 
@@ -245,7 +247,7 @@ export function CartItem({ item, compact = false }: CartItemProps) {
           <div className="mt-3 flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 p-2">
             <AlertTriangle className="h-4 w-4 text-amber-600" />
             <span className="text-sm font-medium text-amber-700">
-              Has alcanzado el limite de stock disponible
+              {t('stockReached')}
             </span>
           </div>
         )}
@@ -253,7 +255,7 @@ export function CartItem({ item, compact = false }: CartItemProps) {
           <div className="mt-3 flex items-center gap-2 rounded-lg border border-amber-100 bg-amber-50/50 p-2">
             <AlertTriangle className="h-4 w-4 text-amber-500" />
             <span className="text-sm text-amber-600">
-              Quedan solo {stockStatus.available} unidades disponibles
+              {t('stockRemainingLong', { count: stockStatus.available })}
             </span>
           </div>
         )}
@@ -265,7 +267,7 @@ export function CartItem({ item, compact = false }: CartItemProps) {
               type="button"
               onClick={handleDecrement}
               className="hover:bg-[var(--primary)]/5 flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 transition-colors hover:border-[var(--primary)]"
-              aria-label="Disminuir cantidad"
+              aria-label={t('decreaseQuantity')}
             >
               <Minus className="h-4 w-4" />
             </button>
@@ -279,7 +281,7 @@ export function CartItem({ item, compact = false }: CartItemProps) {
               onClick={handleIncrement}
               disabled={stockStatus?.atLimit}
               className="hover:bg-[var(--primary)]/5 flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 transition-colors hover:border-[var(--primary)] disabled:cursor-not-allowed disabled:opacity-50"
-              aria-label="Aumentar cantidad"
+              aria-label={t('increaseQuantity')}
             >
               <Plus className="h-4 w-4" />
             </button>
@@ -287,14 +289,14 @@ export function CartItem({ item, compact = false }: CartItemProps) {
               <span
                 className={`ml-2 text-xs ${stockStatus?.atLimit ? 'font-medium text-amber-600' : 'text-[var(--text-muted)]'}`}
               >
-                ({item.stock} disponibles)
+                ({t('available', { count: item.stock })})
               </span>
             )}
           </div>
 
           <div className="text-right">
             {item.quantity > 1 && (
-              <p className="text-xs text-[var(--text-muted)]">{formatPriceGs(item.price)} c/u</p>
+              <p className="text-xs text-[var(--text-muted)]">{t('each', { price: formatPriceGs(item.price) })}</p>
             )}
             <p className="text-xl font-black text-[var(--primary)]">
               {formatPriceGs(item.price * item.quantity)}

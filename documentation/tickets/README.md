@@ -108,8 +108,8 @@ All tickets are organized under strategic epics for better planning and tracking
 | ~~[SEC-013](./security/SEC-013-prescription-upload-missing-extension-validation.md)~~ | ~~Prescription Upload Missing Extension Validation~~ | ~~Security~~ | ~~1-2h~~ ✓ |
 | ~~[SEC-016](./security/SEC-016-incomplete-timing-safe-cron-migration.md)~~ | ~~Incomplete Timing-Safe Cron Auth Migration~~ | ~~Security~~ | ~~0.5h~~ ✓ |
 | [SEC-020](./security/SEC-020-clinic-claim-ownership-verification.md) | Missing Clinic Ownership Verification in Claim Flow | Security | 4-6h |
-| [SEC-022](./security/SEC-022-invoice-discount-bounds-validation.md) | Missing Discount Percentage Bounds Validation | Security | 0.5h |
-| [SEC-023](./security/SEC-023-payment-method-tenant-verification.md) | Payment Method Missing Tenant Verification in Auto-charge | Security | 0.75h |
+| ~~[SEC-022](./security/SEC-022-invoice-discount-bounds-validation.md)~~ | ~~Missing Discount Percentage Bounds Validation~~ | ~~Security~~ | ~~0.5h~~ ✓ |
+| ~~[SEC-023](./security/SEC-023-payment-method-tenant-verification.md)~~ | ~~Payment Method Missing Tenant Verification in Auto-charge~~ | ~~Security~~ | ~~0.75h~~ ✓ |
 
 ### P2 - Medium Priority (Next Sprint)
 

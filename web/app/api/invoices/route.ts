@@ -148,6 +148,16 @@ export const POST = withApiAuth(
         p_tenant_id: profile.tenant_id,
       })
 
+      // SEC-022: Validate discount percentage bounds for all items
+      for (const item of items) {
+        const discount = item.discount_percent || 0
+        if (discount < 0 || discount > 100) {
+          return apiError('VALIDATION_ERROR', HTTP_STATUS.BAD_REQUEST, {
+            details: { field: 'discount_percent', message: 'El descuento debe estar entre 0 y 100%' },
+          })
+        }
+      }
+
       // Calculate totals with proper rounding
       const { roundCurrency } = await import('@/lib/types/invoicing')
 

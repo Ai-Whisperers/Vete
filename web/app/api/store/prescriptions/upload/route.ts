@@ -2,8 +2,8 @@ import { NextResponse } from 'next/server'
 import { withApiAuth, type ApiHandlerContext } from '@/lib/auth'
 import { apiError, HTTP_STATUS } from '@/lib/api/errors'
 import { logger } from '@/lib/logger'
+import { LIMITS, formatFileSize } from '@/lib/constants'
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
 const ALLOWED_TYPES = ['application/pdf', 'image/jpeg', 'image/png']
 
 /**
@@ -23,9 +23,9 @@ export const POST = withApiAuth(async ({ request, user, profile, supabase }: Api
     }
 
     // Validate file size
-    if (file.size > MAX_FILE_SIZE) {
+    if (file.size > LIMITS.MAX_PRESCRIPTION_SIZE) {
       return apiError('FILE_TOO_LARGE', HTTP_STATUS.BAD_REQUEST, {
-        details: { message: `Archivo muy grande. Máximo ${MAX_FILE_SIZE / (1024 * 1024)}MB` },
+        details: { message: `Archivo muy grande. Máximo ${formatFileSize(LIMITS.MAX_PRESCRIPTION_SIZE)}` },
       })
     }
 

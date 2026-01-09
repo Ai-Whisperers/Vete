@@ -9,10 +9,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import type { UploadLogoResponse } from '@/lib/signup/types'
 import { logger } from '@/lib/logger'
+import { LIMITS, formatFileSize } from '@/lib/constants'
 
 export const dynamic = 'force-dynamic'
-
-const MAX_FILE_SIZE = 2 * 1024 * 1024 // 2MB
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/svg+xml', 'image/webp']
 const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'svg', 'webp']
 
@@ -75,11 +74,11 @@ export async function POST(request: NextRequest): Promise<NextResponse<UploadLog
     }
 
     // Validate file size
-    if (file.size > MAX_FILE_SIZE) {
+    if (file.size > LIMITS.MAX_LOGO_SIZE) {
       return NextResponse.json(
         {
           success: false,
-          error: `Archivo muy grande. Maximo ${MAX_FILE_SIZE / (1024 * 1024)}MB`,
+          error: `Archivo muy grande. Máximo ${formatFileSize(LIMITS.MAX_LOGO_SIZE)}`,
         },
         { status: 400 }
       )

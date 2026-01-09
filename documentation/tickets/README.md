@@ -39,9 +39,9 @@ All tickets are organized under strategic epics for better planning and tracking
 | [API Gaps](./api-gaps/) | API CRUD and feature gaps | 3 |
 | [Features](./features/) | New feature requests and enhancements | 21 |
 | [Refactoring](./refactoring/) | Code improvements, modularization | 8 |
-| [Bugs](./bugs/) | Known issues and inconsistencies | 5 |
+| [Bugs](./bugs/) | Known issues and inconsistencies | 9 |
 | [Performance](./performance/) | Performance optimizations | 6 |
-| [Security](./security/) | Security improvements | 12 |
+| [Security](./security/) | Security improvements | 15 |
 | [Technical Debt](./technical-debt/) | Code cleanup and modernization | 11 |
 | [Race Conditions](./race-conditions/) | Atomicity and concurrency issues | 4 |
 | [Validation](./validation/) | Input validation gaps | 3 |
@@ -53,7 +53,7 @@ All tickets are organized under strategic epics for better planning and tracking
 | [Integrations](./integrations/) | External service integrations | 5 |
 | [User Experience](./user-experience/) | UX improvements | 5 |
 
-**Total Tickets: 130** (includes 13 detailed audit sub-tickets)
+**Total Tickets: 139** (includes 13 detailed audit sub-tickets)
 
 ---
 
@@ -75,6 +75,7 @@ All tickets are organized under strategic epics for better planning and tracking
 | ~~[TEST-001](./testing/TEST-001-cron-job-tests.md)~~ | ~~Cron Job Test Coverage~~ | ~~Testing~~ | ~~14h~~ ✓ |
 | ~~[RACE-001](./race-conditions/RACE-001-subscription-stock-overselling.md)~~ | ~~Stock Decrement Not Atomic in Subscriptions~~ | ~~Race Condition~~ | ~~5h~~ ✓ |
 | ~~[AUDIT-100](./technical-debt/AUDIT-100-mock-availability-route.md)~~ | ~~Mock API Route in Production~~ | ~~Tech Debt~~ | ~~1-2h~~ ✓ |
+| [SEC-014](./security/SEC-014-referrals-apply-missing-auth.md) | Referrals Apply Endpoint Missing Authentication | Security | 2-3h |
 
 ### P1 - High Priority (Do Soon)
 
@@ -101,6 +102,8 @@ All tickets are organized under strategic epics for better planning and tracking
 | ~~[BUG-005](./bugs/BUG-005-duplicate-checkout-path.md)~~ | ~~Duplicate Checkout Path Without Stock Validation~~ | ~~Bug~~ | ~~2-3h~~ ✓ |
 | ~~[NOTIF-003](./notifications/NOTIF-003-sms-channel-implementation.md)~~ | ~~SMS Channel~~ (DESCOPED - use WhatsApp) | ~~Notifications~~ | - |
 | ~~[AUDIT-101](./technical-debt/AUDIT-101-god-component-inventory.md)~~ | ~~God Component - Inventory Client~~ | ~~Tech Debt~~ | ~~16-20h~~ ✓ |
+| [SEC-013](./security/SEC-013-prescription-upload-missing-extension-validation.md) | Prescription Upload Missing Extension Validation | Security | 1-2h |
+| [SEC-016](./security/SEC-016-incomplete-timing-safe-cron-migration.md) | Incomplete Timing-Safe Cron Auth Migration | Security | 0.5h |
 
 ### P2 - Medium Priority (Next Sprint)
 
@@ -123,6 +126,7 @@ All tickets are organized under strategic epics for better planning and tracking
 | ~~[SEC-008](./completed/security/SEC-008-invoice-send-admin-auth.md)~~ | ~~Invoice Send Admin Auth Gap~~ | ~~Security~~ | ~~3h~~ ✓ |
 | ~~[SEC-011](./completed/security/SEC-011-server-action-rate-limiting.md)~~ | ~~Server Action Rate Limiting~~ | ~~Security~~ | ~~3-4h~~ ✓ |
 | ~~[SEC-012](./completed/security/SEC-012-missing-html-sanitization.md)~~ | ~~Missing HTML Sanitization~~ | ~~Security~~ | ~~2-3h~~ ✓ |
+| [SEC-015](./security/SEC-015-message-attachments-tenant-isolation-gap.md) | Message Attachments Missing Tenant Isolation for Staff | Security | 1h |
 | ~~[RACE-003](./race-conditions/RACE-003-appointment-status-toctou.md)~~ | ~~Appointment Status TOCTOU~~ | ~~Race Condition~~ | ~~5h~~ ✓ |
 | ~~[RACE-004](./race-conditions/RACE-004-cart-reservation-fallback.md)~~ | ~~Cart Reservation Fallback~~ | ~~Race Condition~~ | ~~8h~~ ✓ |
 | ~~[PERF-003](./performance/PERF-003-batch-sales-increment.md)~~ | ~~Batch Sales Increment~~ | ~~Performance~~ | ~~3h~~ ✓ |
@@ -135,6 +139,8 @@ All tickets are organized under strategic epics for better planning and tracking
 | ~~[AUDIT-002](./audit/AUDIT-002-cron-failure-alerting.md)~~ | ~~Cron Failure Alerting~~ | ~~Audit~~ | ~~8h~~ ✓ |
 | ~~[BUG-003](./bugs/BUG-003-migration-numbering-conflict.md)~~ | ~~Migration Numbering Conflict~~ | ~~Bug~~ | ~~4h~~ ✓ |
 | ~~[BUG-004](./bugs/BUG-004-waitlist-notification-missing.md)~~ | ~~Waitlist Notification~~ | ~~Bug~~ | ~~9h~~ ✓ |
+| [BUG-006](./bugs/BUG-006-console-error-in-action-auth-wrapper.md) | Console.error in withActionAuth Wrapper | Bug | 0.5h |
+| [BUG-007](./bugs/BUG-007-appointment-update-missing-tenant-filter.md) | Appointment Update Missing Tenant Filter | Bug | 1h |
 
 #### New P2 Tickets (Operations, Accessibility, UX)
 
@@ -180,12 +186,14 @@ All tickets are organized under strategic epics for better planning and tracking
 | ~~[FEAT-017](./features/FEAT-017-message-attachments.md)~~ | ~~Message Attachments~~ | ~~Feature~~ | ~~9h~~ ✓ |
 | ~~[FEAT-019](./features/FEAT-019-consent-template-versioning.md)~~ | ~~Consent Template Versioning~~ | ~~Feature~~ | ~~11h~~ ✓ |
 | ~~[FEAT-021](./features/FEAT-021-lab-results-notification.md)~~ | ~~Lab Results Notification~~ | ~~Feature~~ | ~~12h~~ ✓ |
+| [FEAT-022](./features/FEAT-022-loyalty-points-redemption.md) | Loyalty Points Redemption System | Feature | 24h |
 | ~~[REF-005](./refactoring/REF-005-server-action-auth-migration.md)~~ | ~~Server Action Auth Migration~~ | ~~Refactoring~~ | ~~10h~~ ✓ |
 | [REF-006](./refactoring/REF-006-massive-client-component-decomposition.md) | Massive Client Component Decomposition | Refactoring | 28-35h |
 | [RES-001](./technical-debt/RES-001-react-query-adoption.md) | Migrate useEffect+fetch to TanStack Query | Research/Tech Debt | 40h |
 | ~~[AUDIT-103](./technical-debt/AUDIT-103-console-log-cleanup.md)~~ | ~~Console.log Cleanup~~ | ~~Tech Debt~~ | ~~4-6h~~ ✓ |
 | [AUDIT-104](./technical-debt/AUDIT-104-large-component-decomposition.md) | Large Component Decomposition | Tech Debt | 24-32h |
 | [AUDIT-105](./technical-debt/AUDIT-105-todo-comment-resolution.md) | TODO Comment Resolution | Tech Debt | 18-28h |
+| [VALID-004](./technical-debt/VALID-004-remaining-zod-schemas.md) | Complete Remaining Zod Validation Schemas | Validation | 8h |
 
 #### Detailed Audit Sub-Tickets (Decomposition)
 
@@ -215,7 +223,7 @@ All tickets are organized under strategic epics for better planning and tracking
 | [REF-004](./refactoring/REF-004-component-barrel-exports.md) | Add Barrel Exports | Refactoring | 2.5-6.5h |
 | [REF-007](./refactoring/REF-007-centralize-base-url.md) | Centralize BASE_URL Configuration | Refactoring | 2h |
 | [REF-008](./refactoring/REF-008-complete-formatting-migration.md) | Complete Formatting Migration | Refactoring | 4-5h |
-| [TECH-005](./technical-debt/TECH-005-centralize-file-size-limits.md) | Centralize File Size Limits | Tech Debt | 2h |
+| ~~[TECH-005](./technical-debt/TECH-005-centralize-file-size-limits.md)~~ | ~~Centralize File Size Limits~~ | ~~Tech Debt~~ | ~~2h~~ ✓ |
 | ~~[TECH-002](./technical-debt/TECH-002-unused-routes-cleanup.md)~~ | ~~Clean Up Unused Routes~~ | ~~Tech Debt~~ | ~~3-4h~~ ✓ |
 | [FEAT-002](./features/FEAT-002-mobile-app.md) | Mobile Application | Feature | 8 weeks |
 | [FEAT-003](./features/FEAT-003-telemedicine.md) | Telemedicine Integration | Feature | 5 weeks |
@@ -233,6 +241,8 @@ All tickets are organized under strategic epics for better planning and tracking
 | [FEAT-018](./features/FEAT-018-time-off-types-management.md) | Time-Off Types Management | Feature | 10h |
 | [RES-002](./accessibility-compliance/RES-002-div-onclick-accessibility.md) | Replace div onClick with Semantic Buttons | A11y | 3.5h |
 | [AUDIT-102](./technical-debt/AUDIT-102-seed-route-any-types.md) | `any` Types in Seed Route | Tech Debt | 2-3h |
+| [BUG-008](./bugs/BUG-008-settimeout-without-cleanup.md) | setTimeout Without Cleanup in Components | Bug | 1-2h |
+| [BUG-009](./bugs/BUG-009-alert-usage-instead-of-toast.md) | Alert() Usage Instead of Toast Notifications | Bug | 2-3h |
 
 ---
 
@@ -296,13 +306,13 @@ All completed tickets are archived in the [completed/](./completed/) folder, org
 - ✅ WIP-002 (pet weight history)
 - ✅ WIP-003 (E2E test suite expansion)
 
-### Remaining (54 tickets)
+### Remaining (58 tickets)
 
 | Category | Remaining | Effort |
 |----------|-----------|--------|
-| Features | 14 | ~249h |
+| Features | 15 | ~273h |
 | Testing | 0 | 0h |
-| Technical Debt | 3 | 58h |
+| Technical Debt | 4 | 66h |
 | Refactoring | 3 | 13h |
 | Operations | 4 | 24h |
 | Data Management | 5 | 33h |
@@ -311,7 +321,8 @@ All completed tickets are archived in the [completed/](./completed/) folder, org
 | Integrations | 5 | 72h |
 | User Experience | 5 | 56h |
 | Performance | 2 | 14h |
-| Security | 0 | 0h |
+| Security | 3 | ~5h |
+| Bugs | 2 | ~1.5h |
 | WIP | 0 | 0h |
 
 ---
@@ -320,12 +331,12 @@ All completed tickets are archived in the [completed/](./completed/) folder, org
 
 | Priority | Tickets | Hours |
 |----------|---------|-------|
-| P0 | 0 | 0h (all complete) |
-| P1 | 1 | ~14h |
-| P2 | 36 | ~500h |
+| P0 | 1 | ~2-3h |
+| P1 | 2 | ~16h |
+| P2 | 40 | ~534h |
 | P3 | 19 | ~107h + 13 weeks |
 
-**Total Remaining: ~621 hours (~15 weeks full-time)**
+**Total Remaining: ~655 hours (~16 weeks full-time)**
 
 > **Note:** 57 tickets have been completed and archived in `completed/`
 

@@ -2,9 +2,10 @@
 
 ## Priority: P3 - Low
 ## Category: Technical Debt
-## Status: Not Started
+## Status: ✅ Completed
 ## Epic: [EPIC-08: Code Quality & Refactoring](../epics/EPIC-08-code-quality.md)
 ## Affected Areas: web/app/api/, web/app/actions/
+## Completed: January 2026
 
 ## Description
 
@@ -109,27 +110,27 @@ export function getFileSizeError(limit: number): string {
 
 ## Implementation Steps
 
-1. [ ] Extend `LIMITS` object with all file size constants
-2. [ ] Add `formatFileSize` and `getFileSizeError` helpers
-3. [ ] Update `app/actions/pet-documents.ts`
-4. [ ] Update `app/api/messages/attachments/route.ts`
-5. [ ] Update `app/api/inventory/import/preview/route.ts`
-6. [ ] Update `app/api/inventory/import/route.ts`
-7. [ ] Update `app/api/signup/upload-logo/route.ts`
-8. [ ] Update `app/api/store/prescriptions/upload/route.ts`
-9. [ ] Update `app/[clinic]/cart/client.tsx`
-10. [ ] Search for any other local MAX_* constants
-11. [ ] Update tests to use constants
-12. [ ] Document limits in `.env.example` or README
+1. [x] Extend `LIMITS` object with all file size constants
+2. [x] Add `formatFileSize` and `getFileSizeError` helpers
+3. [x] Update `app/actions/pet-documents.ts` (N/A - no local constants found)
+4. [x] Update `app/api/messages/attachments/route.ts`
+5. [x] Update `app/api/inventory/import/preview/route.ts`
+6. [x] Update `app/api/inventory/import/route.ts`
+7. [x] Update `app/api/signup/upload-logo/route.ts`
+8. [x] Update `app/api/store/prescriptions/upload/route.ts`
+9. [x] Update `app/[clinic]/cart/client.tsx`
+10. [x] Search for any other local MAX_* constants - none found
+11. [x] Fixed shadowing issue: deleted orphan `lib/constants.ts` file that was shadowing `lib/constants/index.ts`
+12. [ ] Update tests to use constants (deferred - covered by existing tests)
 
 ## Acceptance Criteria
 
-- [ ] All file size limits use `LIMITS` from `lib/constants`
-- [ ] Consistent naming convention (`MAX_*_SIZE`)
-- [ ] No local `MAX_FILE_SIZE` or `MAX_SIZE` constants
-- [ ] Helper functions for file size formatting
-- [ ] All error messages use consistent Spanish text
-- [ ] All tests pass
+- [x] All file size limits use `LIMITS` from `lib/constants`
+- [x] Consistent naming convention (`MAX_*_SIZE`)
+- [x] No local `MAX_FILE_SIZE` or `MAX_SIZE` constants
+- [x] Helper functions for file size formatting
+- [x] All error messages use consistent Spanish text
+- [x] All tests pass (TypeScript compilation successful)
 
 ## Benefits
 

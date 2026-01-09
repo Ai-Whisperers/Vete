@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { isRedirectError } from 'next/dist/client/components/redirect-error'
 import type { ActionResult, FieldErrors } from '@/lib/types/action-result'
+import { logger } from '@/lib/logger'
 
 export interface ActionContext {
   user: { id: string; email?: string }
@@ -72,7 +73,12 @@ export function withActionAuth<T = void, Args extends unknown[] = []>(
       if (isRedirectError(error)) {
         throw error
       }
-      console.error('Action error:', error)
+      // BUG-006: Use structured logger instead of console.error
+      logger.error('Server action failed', {
+        tenantId: profile.tenant_id,
+        userId: user.id,
+        error: error instanceof Error ? error.message : String(error),
+      })
       return { success: false, error: 'Error interno' }
     }
   }

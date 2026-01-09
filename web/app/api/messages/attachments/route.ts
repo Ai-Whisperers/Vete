@@ -92,8 +92,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: 'Conversación no encontrada' }, { status: 404 })
     }
 
+    // SEC-015: Verify tenant isolation for both staff and clients
     const isStaff = ['vet', 'admin'].includes(profile.role)
-    if (!isStaff && conversation.client_id !== user.id) {
+    const hasAccess = isStaff
+      ? conversation.tenant_id === profile.tenant_id  // Staff: must be from same tenant
+      : conversation.client_id === user.id            // Clients: must own the conversation
+
+    if (!hasAccess) {
       return NextResponse.json({ error: 'No tienes acceso a esta conversación' }, { status: 403 })
     }
 

@@ -132,7 +132,7 @@ All tickets are organized under strategic epics for better planning and tracking
 | ~~[SEC-008](./completed/security/SEC-008-invoice-send-admin-auth.md)~~ | ~~Invoice Send Admin Auth Gap~~ | ~~Security~~ | ~~3h~~ ✓ |
 | ~~[SEC-011](./completed/security/SEC-011-server-action-rate-limiting.md)~~ | ~~Server Action Rate Limiting~~ | ~~Security~~ | ~~3-4h~~ ✓ |
 | ~~[SEC-012](./completed/security/SEC-012-missing-html-sanitization.md)~~ | ~~Missing HTML Sanitization~~ | ~~Security~~ | ~~2-3h~~ ✓ |
-| [SEC-015](./security/SEC-015-message-attachments-tenant-isolation-gap.md) | Message Attachments Missing Tenant Isolation for Staff | Security | 1h |
+| ~~[SEC-015](./security/SEC-015-message-attachments-tenant-isolation-gap.md)~~ | ~~Message Attachments Missing Tenant Isolation for Staff~~ | ~~Security~~ | ~~1h~~ ✓ |
 | [SEC-021](./security/SEC-021-weak-password-inconsistency.md) | Inconsistent Password Requirements Across Auth Flows | Security | 1h |
 | ~~[RACE-003](./race-conditions/RACE-003-appointment-status-toctou.md)~~ | ~~Appointment Status TOCTOU~~ | ~~Race Condition~~ | ~~5h~~ ✓ |
 | ~~[RACE-004](./race-conditions/RACE-004-cart-reservation-fallback.md)~~ | ~~Cart Reservation Fallback~~ | ~~Race Condition~~ | ~~8h~~ ✓ |
@@ -146,8 +146,8 @@ All tickets are organized under strategic epics for better planning and tracking
 | ~~[AUDIT-002](./audit/AUDIT-002-cron-failure-alerting.md)~~ | ~~Cron Failure Alerting~~ | ~~Audit~~ | ~~8h~~ ✓ |
 | ~~[BUG-003](./bugs/BUG-003-migration-numbering-conflict.md)~~ | ~~Migration Numbering Conflict~~ | ~~Bug~~ | ~~4h~~ ✓ |
 | ~~[BUG-004](./bugs/BUG-004-waitlist-notification-missing.md)~~ | ~~Waitlist Notification~~ | ~~Bug~~ | ~~9h~~ ✓ |
-| [BUG-006](./bugs/BUG-006-console-error-in-action-auth-wrapper.md) | Console.error in withActionAuth Wrapper | Bug | 0.5h |
-| [BUG-007](./bugs/BUG-007-appointment-update-missing-tenant-filter.md) | Appointment Update Missing Tenant Filter | Bug | 1h |
+| ~~[BUG-006](./bugs/BUG-006-console-error-in-action-auth-wrapper.md)~~ | ~~Console.error in withActionAuth Wrapper~~ | ~~Bug~~ | ~~0.5h~~ ✓ |
+| ~~[BUG-007](./bugs/BUG-007-appointment-update-missing-tenant-filter.md)~~ | ~~Appointment Update Missing Tenant Filter~~ | ~~Bug~~ | ~~1h~~ ✓ |
 
 #### New P2 Tickets (Operations, Accessibility, UX)
 

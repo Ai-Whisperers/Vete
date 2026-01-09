@@ -609,7 +609,23 @@
       "overdue": "Overdue"
     },
     "upcomingVaccines": "Upcoming vaccines",
-    "overdueVaccines": "Overdue vaccines"
+    "overdueVaccines": "Overdue vaccines",
+    "missing": {
+      "title": "Missing Vaccines",
+      "loading": "Loading vaccine recommendations...",
+      "errorFetching": "Error fetching recommendations",
+      "unknownError": "Unknown error",
+      "petNeeds": "{name} needs {count} vaccine",
+      "petNeedsPlural": "{name} needs {count} vaccines",
+      "coreVaccines": "Required Vaccines",
+      "recommendedVaccines": "Recommended Vaccines",
+      "optionalVaccines": "{count} optional vaccine",
+      "optionalVaccinesPlural": "{count} optional vaccines",
+      "scheduleVaccination": "Schedule Vaccination",
+      "protocolCore": "Required",
+      "protocolRecommended": "Recommended",
+      "prevents": "Prevents:"
+    }
   },
   "store": {
     "title": "Store",

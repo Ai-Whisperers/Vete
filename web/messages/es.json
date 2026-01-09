@@ -609,7 +609,23 @@
       "overdue": "Vencida"
     },
     "upcomingVaccines": "Vacunas próximas",
-    "overdueVaccines": "Vacunas vencidas"
+    "overdueVaccines": "Vacunas vencidas",
+    "missing": {
+      "title": "Vacunas Faltantes",
+      "loading": "Cargando recomendaciones de vacunas...",
+      "errorFetching": "Error al obtener recomendaciones",
+      "unknownError": "Error desconocido",
+      "petNeeds": "{name} necesita {count} vacuna",
+      "petNeedsPlural": "{name} necesita {count} vacunas",
+      "coreVaccines": "Vacunas Obligatorias",
+      "recommendedVaccines": "Vacunas Recomendadas",
+      "optionalVaccines": "{count} vacuna opcional",
+      "optionalVaccinesPlural": "{count} vacunas opcionales",
+      "scheduleVaccination": "Agendar Vacunación",
+      "protocolCore": "Obligatoria",
+      "protocolRecommended": "Recomendada",
+      "prevents": "Previene:"
+    }
   },
   "store": {
     "title": "Tienda",

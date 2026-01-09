@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import * as Icons from 'lucide-react'
+import { useTranslations, useLocale } from 'next-intl'
 
 interface TimelineItem {
   id: string
@@ -33,12 +34,16 @@ interface MedicalTimelineProps {
 }
 
 export function MedicalTimeline({ timelineItems, clinic, petId, isStaff }: MedicalTimelineProps) {
+  const t = useTranslations('pets.timeline')
+  const locale = useLocale()
+  const localeStr = locale === 'es' ? 'es-ES' : 'en-US'
+
   return (
     <div className="space-y-6 md:col-span-2">
       <div className="flex items-center justify-between">
         <h2 className="flex items-center gap-2 text-2xl font-black text-[var(--text-primary)]">
           <Icons.Activity className="h-6 w-6 text-[var(--primary)]" />
-          Historial Médico
+          {t('title')}
         </h2>
         {isStaff && (
           <div className="flex gap-2">
@@ -46,13 +51,13 @@ export function MedicalTimeline({ timelineItems, clinic, petId, isStaff }: Medic
               href={`/${clinic}/portal/prescriptions/new?pet_id=${petId}`}
               className="flex items-center gap-2 rounded-xl bg-purple-100 px-4 py-2 text-sm font-bold text-purple-700 transition-colors hover:bg-purple-200"
             >
-              <Icons.Pill className="h-4 w-4" /> Nueva Receta
+              <Icons.Pill className="h-4 w-4" /> {t('newPrescription')}
             </Link>
             <Link
               href={`/${clinic}/portal/pets/${petId}/records/new`}
               className="flex items-center gap-2 rounded-xl bg-[var(--primary)] px-4 py-2 text-sm font-bold text-white shadow-md hover:shadow-lg"
             >
-              <Icons.Plus className="h-4 w-4" /> Nueva Consulta
+              <Icons.Plus className="h-4 w-4" /> {t('newConsultation')}
             </Link>
           </div>
         )}
@@ -61,7 +66,7 @@ export function MedicalTimeline({ timelineItems, clinic, petId, isStaff }: Medic
       <div className="relative ml-4 space-y-8 border-l-2 border-dashed border-gray-200 pb-8">
         {timelineItems.length === 0 ? (
           <div className="ml-8 rounded-2xl border border-gray-100 bg-gray-50 p-6 text-center">
-            <p className="italic text-gray-500">No hay registros médicos aún.</p>
+            <p className="italic text-gray-500">{t('noRecords')}</p>
           </div>
         ) : (
           timelineItems.map((item: TimelineItem) => (
@@ -94,13 +99,13 @@ export function MedicalTimeline({ timelineItems, clinic, petId, isStaff }: Medic
                         : 'bg-gray-100 text-gray-400'
                     }`}
                   >
-                    {item.timelineType === 'prescription' ? 'Receta' : item.type}
+                    {item.timelineType === 'prescription' ? t('prescription') : item.type}
                   </span>
                 </div>
 
                 <p className="mb-4 flex items-center gap-2 text-sm text-gray-500">
                   <Icons.Calendar className="h-4 w-4" />
-                  {new Date(item.created_at).toLocaleDateString('es-ES', {
+                  {new Date(item.created_at).toLocaleDateString(localeStr, {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric',
@@ -109,7 +114,7 @@ export function MedicalTimeline({ timelineItems, clinic, petId, isStaff }: Medic
 
                 {item.diagnosis && (
                   <div className="mb-3">
-                    <span className="text-xs font-bold uppercase text-gray-400">Diagnóstico</span>
+                    <span className="text-xs font-bold uppercase text-gray-400">{t('diagnosis')}</span>
                     <p className="font-medium text-gray-800">{item.diagnosis}</p>
                   </div>
                 )}
@@ -120,30 +125,30 @@ export function MedicalTimeline({ timelineItems, clinic, petId, isStaff }: Medic
                   (item.vitals.weight || item.vitals.temp || item.vitals.hr || item.vitals.rr) && (
                     <div className="mb-4 rounded-xl border border-blue-100/50 bg-blue-50/50 p-3">
                       <span className="mb-2 block text-xs font-bold uppercase text-blue-400">
-                        Signos Vitales
+                        {t('vitals')}
                       </span>
                       <div className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-4">
                         {item.vitals.weight && (
                           <div>
-                            <span className="text-xs text-gray-400">Peso</span>{' '}
+                            <span className="text-xs text-gray-400">{t('weight')}</span>{' '}
                             <p className="font-bold text-gray-700">{item.vitals.weight} kg</p>
                           </div>
                         )}
                         {item.vitals.temp && (
                           <div>
-                            <span className="text-xs text-gray-400">Temp</span>{' '}
+                            <span className="text-xs text-gray-400">{t('temp')}</span>{' '}
                             <p className="font-bold text-gray-700">{item.vitals.temp}°C</p>
                           </div>
                         )}
                         {item.vitals.hr && (
                           <div>
-                            <span className="text-xs text-gray-400">FC</span>{' '}
+                            <span className="text-xs text-gray-400">{t('heartRate')}</span>{' '}
                             <p className="font-bold text-gray-700">{item.vitals.hr} lpm</p>
                           </div>
                         )}
                         {item.vitals.rr && (
                           <div>
-                            <span className="text-xs text-gray-400">FR</span>{' '}
+                            <span className="text-xs text-gray-400">{t('respRate')}</span>{' '}
                             <p className="font-bold text-gray-700">{item.vitals.rr} rpm</p>
                           </div>
                         )}
@@ -180,7 +185,7 @@ export function MedicalTimeline({ timelineItems, clinic, petId, isStaff }: Medic
                 <div className="flex gap-2">
                   {item.timelineType === 'prescription' && (
                     <button className="flex items-center gap-2 rounded-lg bg-purple-600 px-3 py-2 text-xs font-bold text-white transition-colors hover:bg-purple-700">
-                      <Icons.Download className="h-3 w-3" /> Ver PDF
+                      <Icons.Download className="h-3 w-3" /> {t('viewPdf')}
                     </button>
                   )}
                   {item.attachments &&
@@ -193,7 +198,7 @@ export function MedicalTimeline({ timelineItems, clinic, petId, isStaff }: Medic
                         className="flex items-center gap-2 rounded-lg bg-gray-100 px-3 py-2 text-xs font-bold text-gray-600 transition-colors hover:bg-gray-200"
                       >
                         <Icons.Paperclip className="h-3 w-3" />
-                        Adjunto {idx + 1}
+                        {t('attachment')} {idx + 1}
                       </a>
                     ))}
                 </div>

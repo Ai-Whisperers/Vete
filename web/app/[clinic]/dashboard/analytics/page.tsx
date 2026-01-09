@@ -34,7 +34,7 @@ import {
   Cell,
   Legend,
 } from 'recharts'
-import { useDashboardLabels } from '@/lib/hooks/use-dashboard-labels'
+import { useTranslations, useLocale } from 'next-intl'
 import { useFeatureFlags, FeatureGate, UpgradePrompt } from '@/lib/features'
 
 interface Stats {
@@ -75,7 +75,8 @@ export default function AnalyticsPage(): React.ReactElement {
   const [isLoading, setIsLoading] = useState(true)
   const [stats, setStats] = useState<Stats | null>(null)
   const [chartData, setChartData] = useState<ChartData | null>(null)
-  const labels = useDashboardLabels()
+  const t = useTranslations('dashboard.analytics')
+  const locale = useLocale()
   const { hasFeature, isLoading: featuresLoading, tierId } = useFeatureFlags()
 
   useEffect(() => {
@@ -136,10 +137,11 @@ export default function AnalyticsPage(): React.ReactElement {
   }, [clinic, period])
 
   const formatCurrency = (value: number): string => {
+    const localeStr = locale === 'es' ? 'es-PY' : 'en-US'
     if (value >= 1000000) {
       return `${(value / 1000000).toFixed(1)}M Gs.`
     }
-    return `${value.toLocaleString('es-PY')} Gs.`
+    return `${value.toLocaleString(localeStr)} Gs.`
   }
 
   const StatCard = ({
@@ -156,8 +158,9 @@ export default function AnalyticsPage(): React.ReactElement {
     format?: 'number' | 'currency'
   }): React.ReactElement => {
     const isPositive = change >= 0
+    const localeStr = locale === 'es' ? 'es-PY' : 'en-US'
     const displayValue =
-      format === 'currency' ? formatCurrency(value) : value.toLocaleString('es-PY')
+      format === 'currency' ? formatCurrency(value) : value.toLocaleString(localeStr)
 
     return (
       <div className="rounded-xl border border-[var(--border-color)] bg-white p-6 shadow-sm">
@@ -184,7 +187,7 @@ export default function AnalyticsPage(): React.ReactElement {
             {change.toFixed(1)}%
           </span>
           <span className="text-sm text-[var(--text-secondary)]">
-            {labels.analytics.stats.vs_previous}
+            {t('stats.vsPrevious')}
           </span>
         </div>
       </div>
@@ -218,9 +221,9 @@ export default function AnalyticsPage(): React.ReactElement {
           </div>
           <div>
             <h1 className="text-2xl font-bold text-[var(--text-primary)]">
-              {labels.analytics.title}
+              {t('title')}
             </h1>
-            <p className="text-sm text-[var(--text-secondary)]">{labels.analytics.subtitle}</p>
+            <p className="text-sm text-[var(--text-secondary)]">{t('subtitle')}</p>
           </div>
         </div>
 
@@ -239,7 +242,7 @@ export default function AnalyticsPage(): React.ReactElement {
                   : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`}
             >
-              {labels.analytics.period[p]}
+              {t(`period.${p}`)}
             </button>
           ))}
         </div>
@@ -249,26 +252,26 @@ export default function AnalyticsPage(): React.ReactElement {
       {stats && (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
           <StatCard
-            title={labels.analytics.stats.revenue}
+            title={t('stats.revenue')}
             value={stats.revenue.current}
             change={stats.revenue.change}
             icon={DollarSign}
             format="currency"
           />
           <StatCard
-            title={labels.analytics.stats.appointments}
+            title={t('stats.appointments')}
             value={stats.appointments.current}
             change={stats.appointments.change}
             icon={Calendar}
           />
           <StatCard
-            title={labels.analytics.stats.new_clients}
+            title={t('stats.newClients')}
             value={stats.newClients.current}
             change={stats.newClients.change}
             icon={Users}
           />
           <StatCard
-            title={labels.analytics.stats.new_pets}
+            title={t('stats.newPets')}
             value={stats.newPets.current}
             change={stats.newPets.change}
             icon={PawPrint}
@@ -282,7 +285,7 @@ export default function AnalyticsPage(): React.ReactElement {
           {/* Revenue Chart */}
           <div className="rounded-xl border border-[var(--border-color)] bg-white p-6 shadow-sm">
             <h3 className="mb-4 text-lg font-semibold text-[var(--text-primary)]">
-              {labels.analytics.charts.revenue_by_day}
+              {t('charts.revenueByDay')}
             </h3>
             <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
@@ -302,7 +305,7 @@ export default function AnalyticsPage(): React.ReactElement {
                   <Tooltip
                     formatter={(value) => [
                       formatCurrency(value as number),
-                      labels.analytics.stats.revenue,
+                      t('stats.revenue'),
                     ]}
                     contentStyle={{
                       borderRadius: '8px',
@@ -325,7 +328,7 @@ export default function AnalyticsPage(): React.ReactElement {
           {/* Appointments by Type */}
           <div className="rounded-xl border border-[var(--border-color)] bg-white p-6 shadow-sm">
             <h3 className="mb-4 text-lg font-semibold text-[var(--text-primary)]">
-              {labels.analytics.charts.appointments_by_type}
+              {t('charts.appointmentsByType')}
             </h3>
             <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
@@ -350,7 +353,7 @@ export default function AnalyticsPage(): React.ReactElement {
                     ))}
                   </Pie>
                   <Tooltip
-                    formatter={(value) => [value as number, labels.analytics.stats.appointments]}
+                    formatter={(value) => [value as number, t('stats.appointments')]}
                     contentStyle={{
                       borderRadius: '8px',
                       border: '1px solid #e5e7eb',
@@ -367,7 +370,7 @@ export default function AnalyticsPage(): React.ReactElement {
       {chartData && (
         <div className="rounded-xl border border-[var(--border-color)] bg-white p-6 shadow-sm">
           <h3 className="mb-4 text-lg font-semibold text-[var(--text-primary)]">
-            {labels.analytics.charts.top_services}
+            {t('charts.topServices')}
           </h3>
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
@@ -382,7 +385,7 @@ export default function AnalyticsPage(): React.ReactElement {
                 <Tooltip
                   formatter={(value) => [
                     formatCurrency(value as number),
-                    labels.analytics.stats.revenue,
+                    t('stats.revenue'),
                   ]}
                   contentStyle={{
                     borderRadius: '8px',
@@ -401,22 +404,22 @@ export default function AnalyticsPage(): React.ReactElement {
         <div className="rounded-xl p-4 text-white" style={{ background: 'var(--gradient-blue)' }}>
           <Activity className="mb-2 h-8 w-8 opacity-80" />
           <p className="text-2xl font-bold">98%</p>
-          <p className="text-sm opacity-80">{labels.analytics.quick_stats.satisfaction}</p>
+          <p className="text-sm opacity-80">{t('quickStats.satisfaction')}</p>
         </div>
         <div className="rounded-xl p-4 text-white" style={{ background: 'var(--gradient-green)' }}>
           <Calendar className="mb-2 h-8 w-8 opacity-80" />
           <p className="text-2xl font-bold">15 min</p>
-          <p className="text-sm opacity-80">{labels.analytics.quick_stats.wait_time}</p>
+          <p className="text-sm opacity-80">{t('quickStats.waitTime')}</p>
         </div>
         <div className="rounded-xl p-4 text-white" style={{ background: 'var(--gradient-purple)' }}>
           <Users className="mb-2 h-8 w-8 opacity-80" />
           <p className="text-2xl font-bold">89%</p>
-          <p className="text-sm opacity-80">{labels.analytics.quick_stats.retention}</p>
+          <p className="text-sm opacity-80">{t('quickStats.retention')}</p>
         </div>
         <div className="rounded-xl p-4 text-white" style={{ background: 'var(--gradient-orange)' }}>
           <Package className="mb-2 h-8 w-8 opacity-80" />
           <p className="text-2xl font-bold">12</p>
-          <p className="text-sm opacity-80">{labels.analytics.quick_stats.low_stock}</p>
+          <p className="text-sm opacity-80">{t('quickStats.lowStock')}</p>
         </div>
       </div>
 
@@ -432,10 +435,10 @@ export default function AnalyticsPage(): React.ReactElement {
             </div>
             <div>
               <h3 className="text-lg font-semibold text-[var(--text-primary)]">
-                Analíticas de Tienda
+                {t('storeAnalytics.title')}
               </h3>
               <p className="text-sm text-[var(--text-secondary)]">
-                Ventas, productos más vendidos, cupones y más
+                {t('storeAnalytics.subtitle')}
               </p>
             </div>
           </div>

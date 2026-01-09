@@ -1207,6 +1207,37 @@
       "clientLabel": "Client",
       "channelLabel": "Channel",
       "messageLabel": "Message"
+    },
+    "analytics": {
+      "title": "Analytics",
+      "subtitle": "Metrics and statistics for your clinic",
+      "period": {
+        "week": "Week",
+        "month": "Month",
+        "quarter": "Quarter"
+      },
+      "stats": {
+        "revenue": "Revenue",
+        "appointments": "Appointments",
+        "newClients": "New Clients",
+        "newPets": "New Pets",
+        "vsPrevious": "vs previous period"
+      },
+      "charts": {
+        "revenueByDay": "Revenue by Day",
+        "appointmentsByType": "Appointments by Type",
+        "topServices": "Top Services"
+      },
+      "quickStats": {
+        "satisfaction": "Satisfaction Rate",
+        "waitTime": "Average Wait Time",
+        "retention": "Client Retention",
+        "lowStock": "Low Stock Products"
+      },
+      "storeAnalytics": {
+        "title": "Store Analytics",
+        "subtitle": "Sales, best sellers, coupons and more"
+      }
     }
   },
   "petSelector": {

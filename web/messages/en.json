@@ -116,7 +116,21 @@
     "vaccines": "Vaccines",
     "activeVaccines": "{count} active",
     "vaccine": "Vaccine",
-    "viewProfile": "View profile"
+    "viewProfile": "View profile",
+    "photoOf": "Photo of {name}",
+    "sexUnknown": "Sex unknown",
+    "neutered": "Neutered/Spayed",
+    "neuteredLabel": "(Neutered)",
+    "noPhone": "No phone",
+    "bookAppointment": "Book Appointment",
+    "book": "Book",
+    "edit": "Edit",
+    "ageDisplay": {
+      "yearsMonths": "{years} years, {months} months",
+      "yearsOnly": "{years} years",
+      "monthsOnly": "{months} months",
+      "lessThanMonth": "Less than 1 month"
+    }
   },
   "portal": {
     "errorLoading": "Error loading data",

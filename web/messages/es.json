@@ -116,7 +116,21 @@
     "vaccines": "Vacunas",
     "activeVaccines": "{count} activas",
     "vaccine": "Vacuna",
-    "viewProfile": "Ver perfil"
+    "viewProfile": "Ver perfil",
+    "photoOf": "Foto de {name}",
+    "sexUnknown": "Sexo desc.",
+    "neutered": "Castrado/a",
+    "neuteredLabel": "(Castrado)",
+    "noPhone": "Sin teléfono",
+    "bookAppointment": "Agendar Cita",
+    "book": "Agendar",
+    "edit": "Editar",
+    "ageDisplay": {
+      "yearsMonths": "{years} años, {months} meses",
+      "yearsOnly": "{years} años",
+      "monthsOnly": "{months} meses",
+      "lessThanMonth": "Menos de 1 mes"
+    }
   },
   "portal": {
     "errorLoading": "Error al cargar datos",

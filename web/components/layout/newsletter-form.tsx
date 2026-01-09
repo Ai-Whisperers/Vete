@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 
 interface NewsletterFormProps {
   clinic: string
@@ -27,11 +28,16 @@ function NewsletterSkeleton() {
 
 export function NewsletterForm({
   clinic,
-  title = 'Suscríbete a nuestro boletín',
-  placeholder = 'Tu email',
-  buttonText = 'Enviar',
+  title,
+  placeholder,
+  buttonText,
 }: NewsletterFormProps) {
+  const t = useTranslations('newsletter')
   const [isMounted, setIsMounted] = useState(false)
+
+  const displayTitle = title ?? t('title')
+  const displayPlaceholder = placeholder ?? t('emailPlaceholder')
+  const displayButtonText = buttonText ?? t('submit')
 
   useEffect(() => {
     setIsMounted(true)
@@ -47,22 +53,22 @@ export function NewsletterForm({
     <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
       <div className="text-center md:text-left">
         <h4 id="newsletter-heading" className="mb-1 text-lg font-bold text-white">
-          {title}
+          {displayTitle}
         </h4>
         <p className="text-sm text-gray-400">
-          Recibe tips de cuidado, ofertas exclusivas y novedades.
+          {t('subtitle')}
         </p>
       </div>
       <form className="flex w-full gap-2 md:w-auto" action="/api/newsletter" method="POST">
         <input type="hidden" name="clinic" value={clinic} />
         <label htmlFor="newsletter-email" className="sr-only">
-          Correo electrónico para suscripción
+          {t('emailLabel')}
         </label>
         <input
           id="newsletter-email"
           type="email"
           name="email"
-          placeholder={placeholder}
+          placeholder={displayPlaceholder}
           required
           aria-required="true"
           autoComplete="off"
@@ -74,7 +80,7 @@ export function NewsletterForm({
           type="submit"
           className="whitespace-nowrap rounded-xl bg-[var(--primary)] px-6 py-3 font-bold text-white transition-opacity hover:opacity-90"
         >
-          {buttonText}
+          {displayButtonText}
         </button>
       </form>
     </div>

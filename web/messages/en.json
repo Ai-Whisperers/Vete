@@ -456,6 +456,32 @@
       "rehabilitation": "Physical therapy and recovery"
     }
   },
+  "notifications": {
+    "title": "Notifications",
+    "markAllRead": "Mark all as read",
+    "loading": "Loading...",
+    "empty": "You have no notifications",
+    "viewAll": "View all",
+    "ariaLabel": "Notifications",
+    "justNow": "Just now",
+    "minuteAgo": "1 minute ago",
+    "minutesAgo": "{count} minutes ago",
+    "hourAgo": "1 hour ago",
+    "hoursAgo": "{count} hours ago",
+    "dayAgo": "1 day ago",
+    "daysAgo": "{count} days ago",
+    "weekAgo": "1 week ago",
+    "weeksAgo": "{count} weeks ago",
+    "monthAgo": "1 month ago",
+    "monthsAgo": "{count} months ago"
+  },
+  "newsletter": {
+    "title": "Subscribe to our newsletter",
+    "subtitle": "Get care tips, exclusive offers and news.",
+    "emailPlaceholder": "Your email",
+    "emailLabel": "Email for subscription",
+    "submit": "Subscribe"
+  },
   "dashboard": {
     "pendingRequests": {
       "title": "Pending Requests",

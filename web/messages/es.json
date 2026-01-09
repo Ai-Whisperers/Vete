@@ -456,6 +456,32 @@
       "rehabilitation": "Fisioterapia y recuperación"
     }
   },
+  "notifications": {
+    "title": "Notificaciones",
+    "markAllRead": "Marcar todas como leídas",
+    "loading": "Cargando...",
+    "empty": "No tienes notificaciones",
+    "viewAll": "Ver todas",
+    "ariaLabel": "Notificaciones",
+    "justNow": "Hace unos segundos",
+    "minuteAgo": "Hace 1 minuto",
+    "minutesAgo": "Hace {count} minutos",
+    "hourAgo": "Hace 1 hora",
+    "hoursAgo": "Hace {count} horas",
+    "dayAgo": "Hace 1 día",
+    "daysAgo": "Hace {count} días",
+    "weekAgo": "Hace 1 semana",
+    "weeksAgo": "Hace {count} semanas",
+    "monthAgo": "Hace 1 mes",
+    "monthsAgo": "Hace {count} meses"
+  },
+  "newsletter": {
+    "title": "Suscríbete a nuestro boletín",
+    "subtitle": "Recibe tips de cuidado, ofertas exclusivas y novedades.",
+    "emailPlaceholder": "Tu email",
+    "emailLabel": "Correo electrónico para suscripción",
+    "submit": "Enviar"
+  },
   "dashboard": {
     "pendingRequests": {
       "title": "Solicitudes Pendientes",

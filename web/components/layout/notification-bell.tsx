@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { Bell } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -20,6 +21,7 @@ interface NotificationBellProps {
 }
 
 export function NotificationBell({ clinic }: Readonly<NotificationBellProps>) {
+  const t = useTranslations('notifications')
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [unreadCount, setUnreadCount] = useState<number>(0)
   const [isOpen, setIsOpen] = useState(false)
@@ -140,24 +142,24 @@ export function NotificationBell({ clinic }: Readonly<NotificationBellProps>) {
     const now = new Date()
     const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000)
 
-    if (diffInSeconds < 60) return 'Hace unos segundos'
+    if (diffInSeconds < 60) return t('justNow')
     if (diffInSeconds < 3600) {
       const minutes = Math.floor(diffInSeconds / 60)
-      return `Hace ${minutes} ${minutes === 1 ? 'minuto' : 'minutos'}`
+      return minutes === 1 ? t('minuteAgo') : t('minutesAgo', { count: minutes })
     }
     if (diffInSeconds < 86400) {
       const hours = Math.floor(diffInSeconds / 3600)
-      return `Hace ${hours} ${hours === 1 ? 'hora' : 'horas'}`
+      return hours === 1 ? t('hourAgo') : t('hoursAgo', { count: hours })
     }
     const days = Math.floor(diffInSeconds / 86400)
-    if (days === 1) return 'Hace 1 día'
-    if (days < 7) return `Hace ${days} días`
+    if (days === 1) return t('dayAgo')
+    if (days < 7) return t('daysAgo', { count: days })
     if (days < 30) {
       const weeks = Math.floor(days / 7)
-      return `Hace ${weeks} ${weeks === 1 ? 'semana' : 'semanas'}`
+      return weeks === 1 ? t('weekAgo') : t('weeksAgo', { count: weeks })
     }
     const months = Math.floor(days / 30)
-    return `Hace ${months} ${months === 1 ? 'mes' : 'meses'}`
+    return months === 1 ? t('monthAgo') : t('monthsAgo', { count: months })
   }
 
   // Get recent 5 notifications for dropdown
@@ -169,7 +171,7 @@ export function NotificationBell({ clinic }: Readonly<NotificationBellProps>) {
       <button
         onClick={handleDropdownToggle}
         className="relative p-2 text-[var(--text-secondary)] transition-colors hover:text-[var(--primary)]"
-        aria-label="Notificaciones"
+        aria-label={t('ariaLabel')}
       >
         <Bell className="h-6 w-6" />
         {unreadCount > 0 && (
@@ -192,13 +194,13 @@ export function NotificationBell({ clinic }: Readonly<NotificationBellProps>) {
             {/* Header */}
             <div className="bg-[var(--primary)] px-6 py-4 text-white">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-bold">Notificaciones</h3>
+                <h3 className="text-lg font-bold">{t('title')}</h3>
                 {unreadCount > 0 && (
                   <button
                     onClick={markAllAsRead}
                     className="rounded-lg bg-white/20 px-3 py-1.5 text-xs font-semibold transition-colors hover:bg-white/30"
                   >
-                    Marcar todas como leídas
+                    {t('markAllRead')}
                   </button>
                 )}
               </div>
@@ -208,11 +210,11 @@ export function NotificationBell({ clinic }: Readonly<NotificationBellProps>) {
             <div className="max-h-96 overflow-y-auto">
               {isLoading ? (
                 <div className="px-6 py-8 text-center text-[var(--text-secondary)]">
-                  Cargando...
+                  {t('loading')}
                 </div>
               ) : recentNotifications.length === 0 ? (
                 <div className="px-6 py-8 text-center text-[var(--text-secondary)]">
-                  No tienes notificaciones
+                  {t('empty')}
                 </div>
               ) : (
                 <ul className="divide-y divide-[var(--border-light,#f3f4f6)]">
@@ -272,7 +274,7 @@ export function NotificationBell({ clinic }: Readonly<NotificationBellProps>) {
                   onClick={() => setIsOpen(false)}
                   className="block px-6 py-3 text-center text-sm font-semibold text-[var(--primary)] transition-colors hover:bg-[var(--bg-subtle)]"
                 >
-                  Ver todas
+                  {t('viewAll')}
                 </Link>
               </div>
             )}

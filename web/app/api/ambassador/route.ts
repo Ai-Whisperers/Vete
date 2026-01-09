@@ -15,7 +15,8 @@ const registerSchema = z.object({
   fullName: z.string().min(2, 'Nombre es requerido'),
   email: z.string().email('Email inválido'),
   phone: z.string().min(8, 'Teléfono es requerido'),
-  password: z.string().min(6, 'Contraseña debe tener al menos 6 caracteres'),
+  // SEC-021: Standardize password requirements to 8 chars (matches signup)
+  password: z.string().min(8, 'Contraseña debe tener al menos 8 caracteres'),
   type: z.enum(['student', 'assistant', 'teacher', 'other']),
   university: z.string().optional(),
   institution: z.string().optional(),

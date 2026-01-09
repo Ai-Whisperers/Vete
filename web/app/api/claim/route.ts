@@ -24,7 +24,7 @@ const claimSchema = z.object({
   ownerName: z.string().min(2, 'Nombre es requerido'),
   ownerEmail: z.string().email('Email inválido'),
   ownerPhone: z.string().min(8, 'Teléfono es requerido'),
-  password: z.string().min(6, 'Contraseña debe tener al menos 6 caracteres'),
+  password: z.string().min(8, 'Contraseña debe tener al menos 8 caracteres'),
 })
 
 // SEC-020: Maximum failed claim attempts before lockout

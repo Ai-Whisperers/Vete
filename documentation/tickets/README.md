@@ -133,7 +133,7 @@ All tickets are organized under strategic epics for better planning and tracking
 | ~~[SEC-011](./completed/security/SEC-011-server-action-rate-limiting.md)~~ | ~~Server Action Rate Limiting~~ | ~~Security~~ | ~~3-4h~~ ✓ |
 | ~~[SEC-012](./completed/security/SEC-012-missing-html-sanitization.md)~~ | ~~Missing HTML Sanitization~~ | ~~Security~~ | ~~2-3h~~ ✓ |
 | ~~[SEC-015](./security/SEC-015-message-attachments-tenant-isolation-gap.md)~~ | ~~Message Attachments Missing Tenant Isolation for Staff~~ | ~~Security~~ | ~~1h~~ ✓ |
-| [SEC-021](./security/SEC-021-weak-password-inconsistency.md) | Inconsistent Password Requirements Across Auth Flows | Security | 1h |
+| ~~[SEC-021](./security/SEC-021-weak-password-inconsistency.md)~~ | ~~Inconsistent Password Requirements Across Auth Flows~~ | ~~Security~~ | ~~1h~~ ✓ |
 | ~~[RACE-003](./race-conditions/RACE-003-appointment-status-toctou.md)~~ | ~~Appointment Status TOCTOU~~ | ~~Race Condition~~ | ~~5h~~ ✓ |
 | ~~[RACE-004](./race-conditions/RACE-004-cart-reservation-fallback.md)~~ | ~~Cart Reservation Fallback~~ | ~~Race Condition~~ | ~~8h~~ ✓ |
 | ~~[PERF-003](./performance/PERF-003-batch-sales-increment.md)~~ | ~~Batch Sales Increment~~ | ~~Performance~~ | ~~3h~~ ✓ |

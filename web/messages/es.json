@@ -679,7 +679,71 @@
     "temperature": "Temperatura",
     "heartRate": "Frecuencia cardíaca",
     "respiratoryRate": "Frecuencia respiratoria",
-    "notes": "Notas clínicas"
+    "notes": "Notas clínicas",
+    "growthChart": {
+      "title": "Curva de Crecimiento",
+      "subtitle": "Comparativa vs Estándar ({breed})",
+      "loading": "Cargando gráfico...",
+      "errorLoading": "No se pudieron cargar los datos de crecimiento estándar.",
+      "fallbackWarning": "No hay datos específicos para \"{breed}\". Usando datos de referencia para {fallbackBreed}. Los valores pueden no ser exactos para esta raza.",
+      "noRecordsInfo": "No hay registros de peso. Haz clic en el botón \"Peso\" para agregar el primer registro.",
+      "legendStandard": "Promedio Raza",
+      "legendPatient": "Paciente",
+      "defaultBreed": "Perro Mediano",
+      "weekLabel": "{weeks} sem",
+      "monthLabel": "{months} m"
+    },
+    "qolAssessment": {
+      "title": "Escala HHHHHMM",
+      "subtitle": "Escala de Calidad de Vida (Dr. Alice Villalobos). Score > 35 sugiere calidad de vida aceptable.",
+      "disclaimerTitle": "Esta herramienta es solo una guía",
+      "disclaimerText": "Las decisiones sobre el final de la vida deben tomarse junto con un veterinario, considerando el contexto completo del paciente. Esta escala NO sustituye el juicio profesional.",
+      "totalScore": "Puntaje Total",
+      "acceptableQuality": "Calidad Aceptable",
+      "compromisedQuality": "Calidad Comprometida",
+      "criticalWarningsTitle": "Valores críticos detectados:",
+      "criticalWarningScore": "{category}: Puntuación crítica ({score}/10)",
+      "criticalWarningNote": "Puntuaciones críticas en categorías esenciales requieren atención veterinaria inmediata.",
+      "interpretationGuide": {
+        "acceptable": "> 35: Calidad de vida aceptable",
+        "compromised": "25-35: Calidad comprometida, evaluar opciones",
+        "poor": "< 25: Calidad pobre, considerar cuidados paliativos"
+      },
+      "submitButton": "Confirmar y Agregar a Notas",
+      "resultNote": "Evaluación HHHHHMM: Total {total}/70.{criticalNote} {quality}",
+      "acceptableNote": "Calidad aceptable.",
+      "compromisedNote": "Calidad comprometida - evaluar opciones con el veterinario.",
+      "categories": {
+        "hurt": {
+          "label": "Dolor (Hurt)",
+          "desc": "0 = Dolor severo sin control. 10 = Sin dolor o bien controlado."
+        },
+        "hunger": {
+          "label": "Hambre (Hunger)",
+          "desc": "0 = No come nada. 10 = Come con normalidad."
+        },
+        "hydration": {
+          "label": "Hidratación (Hydration)",
+          "desc": "0 = Deshidratación severa. 10 = Bien hidratado."
+        },
+        "hygiene": {
+          "label": "Higiene (Hygiene)",
+          "desc": "0 = Llagas/incontinencia sin tratamiento. 10 = Se mantiene limpio."
+        },
+        "happiness": {
+          "label": "Felicidad (Happiness)",
+          "desc": "0 = Deprimido/sin respuesta. 10 = Alegre e interactivo."
+        },
+        "mobility": {
+          "label": "Movilidad (Mobility)",
+          "desc": "0 = No puede moverse. 10 = Se mueve libremente."
+        },
+        "goodDays": {
+          "label": "Días Buenos (More Good Days)",
+          "desc": "0 = Solo días malos. 10 = Mayoría días buenos."
+        }
+      }
+    }
   },
   "messages": {
     "success": {

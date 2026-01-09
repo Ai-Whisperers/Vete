@@ -679,7 +679,71 @@
     "temperature": "Temperature",
     "heartRate": "Heart rate",
     "respiratoryRate": "Respiratory rate",
-    "notes": "Clinical notes"
+    "notes": "Clinical notes",
+    "growthChart": {
+      "title": "Growth Chart",
+      "subtitle": "Comparison vs Standard ({breed})",
+      "loading": "Loading chart...",
+      "errorLoading": "Could not load growth standard data.",
+      "fallbackWarning": "No specific data for \"{breed}\". Using reference data for {fallbackBreed}. Values may not be accurate for this breed.",
+      "noRecordsInfo": "No weight records. Click the \"Weight\" button to add the first record.",
+      "legendStandard": "Breed Average",
+      "legendPatient": "Patient",
+      "defaultBreed": "Medium Dog",
+      "weekLabel": "{weeks} wk",
+      "monthLabel": "{months} mo"
+    },
+    "qolAssessment": {
+      "title": "HHHHHMM Scale",
+      "subtitle": "Quality of Life Scale (Dr. Alice Villalobos). Score > 35 suggests acceptable quality of life.",
+      "disclaimerTitle": "This tool is only a guide",
+      "disclaimerText": "End of life decisions should be made together with a veterinarian, considering the complete patient context. This scale does NOT replace professional judgment.",
+      "totalScore": "Total Score",
+      "acceptableQuality": "Acceptable Quality",
+      "compromisedQuality": "Compromised Quality",
+      "criticalWarningsTitle": "Critical values detected:",
+      "criticalWarningScore": "{category}: Critical score ({score}/10)",
+      "criticalWarningNote": "Critical scores in essential categories require immediate veterinary attention.",
+      "interpretationGuide": {
+        "acceptable": "> 35: Acceptable quality of life",
+        "compromised": "25-35: Compromised quality, evaluate options",
+        "poor": "< 25: Poor quality, consider palliative care"
+      },
+      "submitButton": "Confirm and Add to Notes",
+      "resultNote": "HHHHHMM Assessment: Total {total}/70.{criticalNote} {quality}",
+      "acceptableNote": "Acceptable quality.",
+      "compromisedNote": "Compromised quality - evaluate options with veterinarian.",
+      "categories": {
+        "hurt": {
+          "label": "Hurt",
+          "desc": "0 = Severe uncontrolled pain. 10 = No pain or well controlled."
+        },
+        "hunger": {
+          "label": "Hunger",
+          "desc": "0 = Not eating at all. 10 = Eating normally."
+        },
+        "hydration": {
+          "label": "Hydration",
+          "desc": "0 = Severe dehydration. 10 = Well hydrated."
+        },
+        "hygiene": {
+          "label": "Hygiene",
+          "desc": "0 = Sores/incontinence without treatment. 10 = Stays clean."
+        },
+        "happiness": {
+          "label": "Happiness",
+          "desc": "0 = Depressed/unresponsive. 10 = Happy and interactive."
+        },
+        "mobility": {
+          "label": "Mobility",
+          "desc": "0 = Cannot move. 10 = Moves freely."
+        },
+        "goodDays": {
+          "label": "More Good Days",
+          "desc": "0 = Only bad days. 10 = Mostly good days."
+        }
+      }
+    }
   },
   "messages": {
     "success": {

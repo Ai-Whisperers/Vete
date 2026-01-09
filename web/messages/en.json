@@ -471,6 +471,85 @@
         "totalDuration": "Total: {minutes} min",
         "estimatedTotal": "Estimated Total"
       }
+    },
+    "waitlist": {
+      "joinButton": "No appointments available - Join waitlist",
+      "joined": "On waitlist",
+      "modal": {
+        "title": "Waitlist",
+        "subtitle": "We'll notify you when there's availability",
+        "flexibleDates": "Flexible dates",
+        "flexibleDatesDescription": "I accept appointments a day before or after",
+        "notifyBy": "Notify me via:",
+        "notifyEmail": "Email",
+        "notifyWhatsApp": "WhatsApp",
+        "notifySMS": "SMS",
+        "notes": "Notes (optional)",
+        "notesPlaceholder": "e.g., Morning time preference",
+        "cancel": "Cancel",
+        "join": "Join Waitlist"
+      },
+      "toast": {
+        "successTitle": "You've joined the waitlist",
+        "successDescription": "We'll notify you when there's availability.",
+        "errorTitle": "Error",
+        "errorDefault": "Could not join the waitlist",
+        "errorApi": "Error joining the waitlist"
+      }
+    },
+    "recurrence": {
+      "title": "Recurring Appointment",
+      "enabled": "Schedule automatic appointments",
+      "disabled": "Just this time",
+      "frequency": "Frequency",
+      "frequencies": {
+        "weekly": "Weekly",
+        "weeklyDesc": "Every week",
+        "biweekly": "Biweekly",
+        "biweeklyDesc": "Every 2 weeks",
+        "monthly": "Monthly",
+        "monthlyDesc": "Every month",
+        "custom": "Custom",
+        "customDesc": "Custom frequency"
+      },
+      "daysOfWeek": "Days of the week",
+      "days": {
+        "sun": "Sun",
+        "mon": "Mon",
+        "tue": "Tue",
+        "wed": "Wed",
+        "thu": "Thu",
+        "fri": "Fri",
+        "sat": "Sat"
+      },
+      "dayOfMonth": "Day of month",
+      "repeatEvery": "Repeat every",
+      "daysUnit": "days",
+      "preferredTime": "Preferred time",
+      "advancedOptions": "Advanced options",
+      "endDate": "End date (optional)",
+      "maxOccurrences": "Maximum number of appointments (optional)",
+      "noLimit": "No limit"
+    },
+    "recurrencePreview": {
+      "nextAppointments": "Next {count} appointments:",
+      "endsOn": "Ends on {date}",
+      "maxAppointments": "Maximum {count} appointments",
+      "frequencyLabels": {
+        "daily": "Daily",
+        "everyXDays": "Every {count} days",
+        "weekly": "Weekly",
+        "biweekly": "Every 2 weeks",
+        "monthly": "Monthly",
+        "everyXMonths": "Every {count} months",
+        "custom": "Custom"
+      }
+    },
+    "petServiceSelector": {
+      "pet": "Pet",
+      "selectPet": "Select pet",
+      "service": "Service",
+      "selectService": "Select service"
     }
   },
   "vaccines": {

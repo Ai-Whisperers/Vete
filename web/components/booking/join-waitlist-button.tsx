@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Clock, Bell, Loader2, CheckCircle, X } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { useToast } from '@/components/ui/Toast'
 
 interface JoinWaitlistButtonProps {
@@ -28,6 +29,7 @@ export function JoinWaitlistButton({
   className = '',
 }: JoinWaitlistButtonProps): React.ReactElement {
   const { toast } = useToast()
+  const t = useTranslations('booking.waitlist')
   const [loading, setLoading] = useState(false)
   const [showModal, setShowModal] = useState(false)
   const [joined, setJoined] = useState(false)
@@ -56,20 +58,20 @@ export function JoinWaitlistButton({
 
       if (!res.ok) {
         const data = await res.json()
-        throw new Error(data.error || 'Error al unirse a la lista')
+        throw new Error(data.error || t('toast.errorApi'))
       }
 
       setJoined(true)
       setShowModal(false)
       toast({
-        title: 'Te has unido a la lista de espera',
-        description: 'Te notificaremos cuando haya disponibilidad.',
+        title: t('toast.successTitle'),
+        description: t('toast.successDescription'),
       })
       onSuccess?.()
     } catch (error) {
       toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'No se pudo unir a la lista',
+        title: t('toast.errorTitle'),
+        description: error instanceof Error ? error.message : t('toast.errorDefault'),
         variant: 'destructive',
       })
     } finally {
@@ -81,7 +83,7 @@ export function JoinWaitlistButton({
     return (
       <div className={`flex items-center gap-2 rounded-lg bg-green-50 px-4 py-3 text-green-700 ${className}`}>
         <CheckCircle className="h-5 w-5" />
-        <span className="font-medium">En lista de espera</span>
+        <span className="font-medium">{t('joined')}</span>
       </div>
     )
   }
@@ -93,7 +95,7 @@ export function JoinWaitlistButton({
         className={`flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-amber-300 bg-amber-50 px-4 py-3 font-medium text-amber-700 transition hover:bg-amber-100 ${className}`}
       >
         <Clock className="h-5 w-5" />
-        No hay citas disponibles - Unirse a lista de espera
+        {t('joinButton')}
       </button>
 
       {/* Modal */}
@@ -108,10 +110,10 @@ export function JoinWaitlistButton({
                 </div>
                 <div>
                   <h3 className="text-lg font-bold text-[var(--text-primary)]">
-                    Lista de Espera
+                    {t('modal.title')}
                   </h3>
                   <p className="text-sm text-gray-500">
-                    Te avisaremos cuando haya disponibilidad
+                    {t('modal.subtitle')}
                   </p>
                 </div>
               </div>
@@ -135,10 +137,10 @@ export function JoinWaitlistButton({
                 />
                 <div>
                   <p className="font-medium text-[var(--text-primary)]">
-                    Fechas flexibles
+                    {t('modal.flexibleDates')}
                   </p>
                   <p className="text-sm text-gray-500">
-                    Acepto citas un día antes o después
+                    {t('modal.flexibleDatesDescription')}
                   </p>
                 </div>
               </label>
@@ -146,7 +148,7 @@ export function JoinWaitlistButton({
               {/* Notification Preferences */}
               <div>
                 <p className="mb-2 text-sm font-medium text-[var(--text-primary)]">
-                  Notificarme por:
+                  {t('modal.notifyBy')}
                 </p>
                 <div className="flex gap-3">
                   <label className="flex items-center gap-2">
@@ -162,7 +164,7 @@ export function JoinWaitlistButton({
                       }}
                       className="rounded border-gray-300 text-[var(--primary)] focus:ring-[var(--primary)]"
                     />
-                    <span className="text-sm">Email</span>
+                    <span className="text-sm">{t('modal.notifyEmail')}</span>
                   </label>
                   <label className="flex items-center gap-2">
                     <input
@@ -177,7 +179,7 @@ export function JoinWaitlistButton({
                       }}
                       className="rounded border-gray-300 text-[var(--primary)] focus:ring-[var(--primary)]"
                     />
-                    <span className="text-sm">WhatsApp</span>
+                    <span className="text-sm">{t('modal.notifyWhatsApp')}</span>
                   </label>
                   <label className="flex items-center gap-2">
                     <input
@@ -192,7 +194,7 @@ export function JoinWaitlistButton({
                       }}
                       className="rounded border-gray-300 text-[var(--primary)] focus:ring-[var(--primary)]"
                     />
-                    <span className="text-sm">SMS</span>
+                    <span className="text-sm">{t('modal.notifySMS')}</span>
                   </label>
                 </div>
               </div>
@@ -200,12 +202,12 @@ export function JoinWaitlistButton({
               {/* Notes */}
               <div>
                 <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">
-                  Notas (opcional)
+                  {t('modal.notes')}
                 </label>
                 <textarea
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Ej: Preferencia de horario matutino"
+                  placeholder={t('modal.notesPlaceholder')}
                   rows={2}
                   maxLength={500}
                   className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[var(--primary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]"
@@ -219,7 +221,7 @@ export function JoinWaitlistButton({
                 onClick={() => setShowModal(false)}
                 className="flex-1 rounded-lg border border-gray-200 px-4 py-2.5 font-medium text-gray-700 hover:bg-gray-50"
               >
-                Cancelar
+                {t('modal.cancel')}
               </button>
               <button
                 onClick={handleJoin}
@@ -231,7 +233,7 @@ export function JoinWaitlistButton({
                 ) : (
                   <Bell className="h-4 w-4" />
                 )}
-                Unirme a la Lista
+                {t('modal.join')}
               </button>
             </div>
           </div>

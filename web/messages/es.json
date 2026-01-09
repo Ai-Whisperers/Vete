@@ -471,6 +471,85 @@
         "totalDuration": "Total: {minutes} min",
         "estimatedTotal": "Total Estimado"
       }
+    },
+    "waitlist": {
+      "joinButton": "No hay citas disponibles - Unirse a lista de espera",
+      "joined": "En lista de espera",
+      "modal": {
+        "title": "Lista de Espera",
+        "subtitle": "Te avisaremos cuando haya disponibilidad",
+        "flexibleDates": "Fechas flexibles",
+        "flexibleDatesDescription": "Acepto citas un día antes o después",
+        "notifyBy": "Notificarme por:",
+        "notifyEmail": "Email",
+        "notifyWhatsApp": "WhatsApp",
+        "notifySMS": "SMS",
+        "notes": "Notas (opcional)",
+        "notesPlaceholder": "Ej: Preferencia de horario matutino",
+        "cancel": "Cancelar",
+        "join": "Unirme a la Lista"
+      },
+      "toast": {
+        "successTitle": "Te has unido a la lista de espera",
+        "successDescription": "Te notificaremos cuando haya disponibilidad.",
+        "errorTitle": "Error",
+        "errorDefault": "No se pudo unir a la lista",
+        "errorApi": "Error al unirse a la lista"
+      }
+    },
+    "recurrence": {
+      "title": "Cita Recurrente",
+      "enabled": "Programar citas automáticas",
+      "disabled": "Solo esta vez",
+      "frequency": "Frecuencia",
+      "frequencies": {
+        "weekly": "Semanal",
+        "weeklyDesc": "Cada semana",
+        "biweekly": "Quincenal",
+        "biweeklyDesc": "Cada 2 semanas",
+        "monthly": "Mensual",
+        "monthlyDesc": "Cada mes",
+        "custom": "Personalizado",
+        "customDesc": "Frecuencia personalizada"
+      },
+      "daysOfWeek": "Días de la semana",
+      "days": {
+        "sun": "Dom",
+        "mon": "Lun",
+        "tue": "Mar",
+        "wed": "Mié",
+        "thu": "Jue",
+        "fri": "Vie",
+        "sat": "Sáb"
+      },
+      "dayOfMonth": "Día del mes",
+      "repeatEvery": "Repetir cada",
+      "daysUnit": "días",
+      "preferredTime": "Hora preferida",
+      "advancedOptions": "Opciones avanzadas",
+      "endDate": "Fecha de finalización (opcional)",
+      "maxOccurrences": "Número máximo de citas (opcional)",
+      "noLimit": "Sin límite"
+    },
+    "recurrencePreview": {
+      "nextAppointments": "Próximas {count} citas:",
+      "endsOn": "Finaliza el {date}",
+      "maxAppointments": "Máximo {count} citas",
+      "frequencyLabels": {
+        "daily": "Diariamente",
+        "everyXDays": "Cada {count} días",
+        "weekly": "Semanalmente",
+        "biweekly": "Cada 2 semanas",
+        "monthly": "Mensualmente",
+        "everyXMonths": "Cada {count} meses",
+        "custom": "Personalizado"
+      }
+    },
+    "petServiceSelector": {
+      "pet": "Mascota",
+      "selectPet": "Seleccionar mascota",
+      "service": "Servicio",
+      "selectService": "Seleccionar servicio"
     }
   },
   "vaccines": {

@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { RefreshCw, Calendar, ChevronDown } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 
 interface RecurrencePattern {
   frequency: 'daily' | 'weekly' | 'biweekly' | 'monthly' | 'custom'
@@ -20,31 +21,32 @@ interface RecurrenceSelectorProps {
   className?: string
 }
 
-const FREQUENCY_OPTIONS = [
-  { value: 'weekly', label: 'Semanal', description: 'Cada semana' },
-  { value: 'biweekly', label: 'Quincenal', description: 'Cada 2 semanas' },
-  { value: 'monthly', label: 'Mensual', description: 'Cada mes' },
-  { value: 'custom', label: 'Personalizado', description: 'Frecuencia personalizada' },
-]
-
-const DAYS_OF_WEEK = [
-  { value: 0, label: 'Dom' },
-  { value: 1, label: 'Lun' },
-  { value: 2, label: 'Mar' },
-  { value: 3, label: 'Mié' },
-  { value: 4, label: 'Jue' },
-  { value: 5, label: 'Vie' },
-  { value: 6, label: 'Sáb' },
-]
-
 export function RecurrenceSelector({
   value,
   onChange,
   serviceDuration,
   className = '',
 }: RecurrenceSelectorProps): React.ReactElement {
+  const t = useTranslations('booking.recurrence')
   const [isEnabled, setIsEnabled] = useState(value !== null)
   const [showAdvanced, setShowAdvanced] = useState(false)
+
+  const FREQUENCY_OPTIONS = [
+    { value: 'weekly', label: t('frequencies.weekly'), description: t('frequencies.weeklyDesc') },
+    { value: 'biweekly', label: t('frequencies.biweekly'), description: t('frequencies.biweeklyDesc') },
+    { value: 'monthly', label: t('frequencies.monthly'), description: t('frequencies.monthlyDesc') },
+    { value: 'custom', label: t('frequencies.custom'), description: t('frequencies.customDesc') },
+  ]
+
+  const DAYS_OF_WEEK = [
+    { value: 0, label: t('days.sun') },
+    { value: 1, label: t('days.mon') },
+    { value: 2, label: t('days.tue') },
+    { value: 3, label: t('days.wed') },
+    { value: 4, label: t('days.thu') },
+    { value: 5, label: t('days.fri') },
+    { value: 6, label: t('days.sat') },
+  ]
 
   const defaultPattern: RecurrencePattern = {
     frequency: 'weekly',
@@ -96,10 +98,10 @@ export function RecurrenceSelector({
         </div>
         <div className="flex-1 text-left">
           <p className="font-medium text-[var(--text-primary)]">
-            Cita Recurrente
+            {t('title')}
           </p>
           <p className="text-sm text-gray-500">
-            {isEnabled ? 'Programar citas automáticas' : 'Solo esta vez'}
+            {isEnabled ? t('enabled') : t('disabled')}
           </p>
         </div>
         <div
@@ -121,7 +123,7 @@ export function RecurrenceSelector({
           {/* Frequency Selection */}
           <div className="mb-4">
             <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">
-              Frecuencia
+              {t('frequency')}
             </label>
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
               {FREQUENCY_OPTIONS.map((option) => (
@@ -150,7 +152,7 @@ export function RecurrenceSelector({
           {['weekly', 'biweekly'].includes(value.frequency) && (
             <div className="mb-4">
               <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">
-                Días de la semana
+                {t('daysOfWeek')}
               </label>
               <div className="flex flex-wrap gap-2">
                 {DAYS_OF_WEEK.map((day) => (
@@ -175,7 +177,7 @@ export function RecurrenceSelector({
           {value.frequency === 'monthly' && (
             <div className="mb-4">
               <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">
-                Día del mes
+                {t('dayOfMonth')}
               </label>
               <select
                 value={value.day_of_month || 1}
@@ -195,7 +197,7 @@ export function RecurrenceSelector({
           {value.frequency === 'custom' && (
             <div className="mb-4">
               <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">
-                Repetir cada
+                {t('repeatEvery')}
               </label>
               <div className="flex items-center gap-2">
                 <input
@@ -206,7 +208,7 @@ export function RecurrenceSelector({
                   onChange={(e) => handleChange({ interval_value: parseInt(e.target.value) || 1 })}
                   className="w-20 rounded-lg border border-gray-200 px-3 py-2 text-center focus:border-purple-500 focus:outline-none"
                 />
-                <span className="text-gray-600">días</span>
+                <span className="text-gray-600">{t('daysUnit')}</span>
               </div>
             </div>
           )}
@@ -214,7 +216,7 @@ export function RecurrenceSelector({
           {/* Preferred Time */}
           <div className="mb-4">
             <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">
-              Hora preferida
+              {t('preferredTime')}
             </label>
             <input
               type="time"
@@ -233,7 +235,7 @@ export function RecurrenceSelector({
             <ChevronDown
               className={`h-4 w-4 transition-transform ${showAdvanced ? 'rotate-180' : ''}`}
             />
-            Opciones avanzadas
+            {t('advancedOptions')}
           </button>
 
           {showAdvanced && (
@@ -241,7 +243,7 @@ export function RecurrenceSelector({
               {/* End Date */}
               <div>
                 <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">
-                  Fecha de finalización (opcional)
+                  {t('endDate')}
                 </label>
                 <input
                   type="date"
@@ -255,7 +257,7 @@ export function RecurrenceSelector({
               {/* Max Occurrences */}
               <div>
                 <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">
-                  Número máximo de citas (opcional)
+                  {t('maxOccurrences')}
                 </label>
                 <input
                   type="number"
@@ -265,7 +267,7 @@ export function RecurrenceSelector({
                   onChange={(e) =>
                     handleChange({ max_occurrences: parseInt(e.target.value) || undefined })
                   }
-                  placeholder="Sin límite"
+                  placeholder={t('noLimit')}
                   className="w-32 rounded-lg border border-gray-200 px-3 py-2 focus:border-purple-500 focus:outline-none"
                 />
               </div>

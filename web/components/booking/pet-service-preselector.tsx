@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import { Label } from '@/components/ui/label'
 import {
   Select,
@@ -41,6 +42,7 @@ export function PetServicePreselector({
   onPetChange,
   onServiceChange,
 }: PetServicePreselectorProps) {
+  const t = useTranslations('booking.petServiceSelector')
   const [selectedPet, setSelectedPet] = useState<string>(initialPetId || '')
   const [selectedService, setSelectedService] = useState<string>(initialServiceId || '')
 
@@ -90,10 +92,10 @@ export function PetServicePreselector({
   return (
     <div className="space-y-4">
       <div>
-        <Label htmlFor="pet-select">Mascota</Label>
+        <Label htmlFor="pet-select">{t('petLabel')}</Label>
         <Select value={selectedPet} onValueChange={handlePetChange}>
           <SelectTrigger id="pet-select">
-            <SelectValue placeholder="Seleccionar mascota" />
+            <SelectValue placeholder={t('selectPet')} />
           </SelectTrigger>
           <SelectContent>
             {pets.map((pet) => (
@@ -106,10 +108,10 @@ export function PetServicePreselector({
       </div>
 
       <div>
-        <Label htmlFor="service-select">Servicio</Label>
+        <Label htmlFor="service-select">{t('serviceLabel')}</Label>
         <Select value={selectedService} onValueChange={handleServiceChange}>
           <SelectTrigger id="service-select">
-            <SelectValue placeholder="Seleccionar servicio" />
+            <SelectValue placeholder={t('selectService')} />
           </SelectTrigger>
           <SelectContent>
             {services.map((service) => (

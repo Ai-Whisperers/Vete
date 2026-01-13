@@ -8,9 +8,9 @@
 - [x] No tengo, pero quiero crear
 - [ ] No me interesa
 
-**URL de Facebook:** https://facebook.com/CavilPet
+**URL de Facebook:** https://facebook.com/cavillpet
 
-**Nombre de la página:** CavilPet
+**Nombre de la página:** cavillpet
 
 **Seguidores aproximados:** 0
 
@@ -37,9 +37,9 @@
 - [ ] No tengo, pero quiero crear
 - [ ] No me interesa
 
-**Usuario de Instagram:** @CavilPet
+**Usuario de Instagram:** @cavillpet
 
-**Seguidores aproximados:** ******\_******
+**Seguidores aproximados:** **\*\***\_**\*\***
 
 **¿Quién maneja la cuenta?**
 
@@ -65,7 +65,7 @@
 - [x] Fotos del equipo
 - [ ] Stories
 - [ ] Reels/videos cortos
-- [ ] Otro: **********************\_**********************
+- [ ] Otro: **********\*\***********\_**********\*\***********
 
 ---
 
@@ -75,9 +75,9 @@
 - [x] No tengo, pero quiero crear
 - [ ] No me interesa
 
-**Usuario de TikTok:** @**********************\_**********************
+**Usuario de TikTok:** @**********\*\***********\_**********\*\***********
 
-**Seguidores aproximados:** ******\_******
+**Seguidores aproximados:** **\*\***\_**\*\***
 
 ---
 
@@ -87,9 +87,9 @@
 - [ ] No tengo, pero quiero crear
 - [x] No me interesa
 
-**URL del canal:** **********************\_**********************
+**URL del canal:** **********\*\***********\_**********\*\***********
 
-**Suscriptores aproximados:** ******\_******
+**Suscriptores aproximados:** **\*\***\_**\*\***
 
 **Tipo de contenido:**
 
@@ -97,7 +97,7 @@
 - [ ] Procedimientos (con permiso)
 - [ ] Entrevistas
 - [ ] Tours de la clínica
-- [ ] Otro: **********************\_**********************
+- [ ] Otro: **********\*\***********\_**********\*\***********
 
 ---
 
@@ -107,7 +107,7 @@
 - [ ] Uso WhatsApp personal para el negocio
 - [ ] No uso WhatsApp para el negocio
 
-**Número de WhatsApp Business:** **********************\_**********************
+**Número de WhatsApp Business:** **********\*\***********\_**********\*\***********
 
 **¿Tiene catálogo de productos/servicios en WhatsApp?**
 
@@ -129,11 +129,11 @@
 - [ ] No tengo perfil
 - [ ] No sé qué es
 
-**Nombre en Google:** **********************\_**********************
+**Nombre en Google:** **********\*\***********\_**********\*\***********
 
 **Calificación actual:** **\_** estrellas
 
-**Número de reseñas:** ******\_******
+**Número de reseñas:** **\*\***\_**\*\***
 
 **¿Responde a las reseñas?**
 
@@ -149,19 +149,19 @@
 **Twitter/X:**
 
 - [ ] Tengo cuenta
-- URL: **********************\_**********************
+- URL: **********\*\***********\_**********\*\***********
 
 **LinkedIn (página de empresa):**
 
 - [ ] Tengo página
-- URL: **********************\_**********************
+- URL: **********\*\***********\_**********\*\***********
 
 **Pinterest:**
 
 - [ ] Tengo cuenta
-- URL: **********************\_**********************
+- URL: **********\*\***********\_**********\*\***********
 
-**Otras:** **********************\_**********************
+**Otras:** **********\*\***********\_**********\*\***********
 
 ---
 
@@ -175,7 +175,7 @@
 - [x] No, nunca tuve
 - [ ] Tuve pero ya no está activa
 
-**URL actual (si tiene):** **********************\_**********************
+**URL actual (si tiene):** **********\*\***********\_**********\*\***********
 
 **¿Qué le gusta de su página actual?**
 No aplica
@@ -194,9 +194,9 @@ No aplica
 ### Dominio
 
 - [ ] Tengo dominio propio (ej: miclínica.com)
-  - Dominio: **********************\_**********************
-  - ¿Dónde está registrado?: **********************\_**********************
-  - ¿Cuándo vence?: **********************\_**********************
+  - Dominio: **********\*\***********\_**********\*\***********
+  - ¿Dónde está registrado?: **********\*\***********\_**********\*\***********
+  - ¿Cuándo vence?: **********\*\***********\_**********\*\***********
 - [x] No tengo dominio
 - [ ] Quiero usar un subdominio de Vete
 
@@ -229,7 +229,7 @@ No aplica
 - [ ] Días especiales (día del perro, gato, etc.)
 - [ ] Contenido educativo en video
 - [ ] Memes y contenido divertido
-- [ ] Otro: **********************\_**********************
+- [ ] Otro: **********\*\***********\_**********\*\***********
 
 ### ¿Tiene banco de fotos/contenido?
 
@@ -276,7 +276,7 @@ No aplica
 - [ ] No tengo lista
 - [ ] Tengo algunos emails sueltos
 
-**Cantidad aproximada de emails:** ******\_******
+**Cantidad aproximada de emails:** **\*\***\_**\*\***
 
 ### ¿Envía newsletters o emails promocionales?
 
@@ -290,7 +290,7 @@ No aplica
 - [ ] Mailchimp
 - [ ] Sendinblue
 - [ ] Mailerlite
-- [ ] Otro: **********************\_**********************
+- [ ] Otro: **********\*\***********\_**********\*\***********
 - [ ] Ninguna
 
 ---
